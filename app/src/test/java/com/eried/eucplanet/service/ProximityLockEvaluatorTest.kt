@@ -140,10 +140,33 @@ class ProximityLockEvaluatorTest {
     }
 
     @Test
+    fun `walking out of range and back still unlocks`() {
+        // The feature's whole point, and the case a naive "clear everything on
+        // disconnect" breaks: walking away far enough drops the link a few
+        // steps after the auto-lock, so the arming has to outlive it.
+        val e = ProximityLockEvaluator()
+        assertEquals(Action.LOCK, e.feed(-75, locked = false).last())
+        e.onLinkLost()                                               // walked out of range
+        val back = e.feed(-55, locked = true, startMs = hold * 4)     // returned, reconnected
+        assertEquals(Action.UNLOCK, back.last())
+    }
+
+    @Test
+    fun `a link drop does not leave a half-finished hold running`() {
+        val e = ProximityLockEvaluator()
+        e.evaluate(0, -75, false, both)                              // lock hold starts
+        e.onLinkLost()
+        // The hold restarts from the reconnect, so a stale timestamp cannot
+        // make the very first reading after reconnecting act immediately.
+        assertEquals(Action.NONE, e.evaluate(hold, -75, false, both))
+        assertEquals(Action.LOCK, e.evaluate(hold * 2, -75, false, both))
+    }
+
+    @Test
     fun `reset disarms so a reconnect cannot unlock a wheel left locked`() {
         val e = ProximityLockEvaluator()
         e.feed(-75, locked = false)                                  // auto-lock, arms
-        e.reset()                                                    // disconnect / Stop All
+        e.reset()                                                    // Stop All / switched off
         val after = e.feed(-55, locked = true, startMs = hold * 2, forMs = hold * 4)
         assertEquals(emptyList<Action>(), after.filter { it != Action.NONE })
     }

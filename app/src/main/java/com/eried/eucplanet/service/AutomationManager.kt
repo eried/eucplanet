@@ -358,8 +358,15 @@ class AutomationManager @Inject constructor(
         }
     }
 
-    /** Clear proximity-lock hold state on disconnect / Stop All / disable. */
+    /** Clear proximity-lock state entirely, for Stop All and for disable. */
     fun resetProximityLock() = proximityLock.reset()
+
+    /**
+     * The wheel disconnected. Keeps the arming so a rider who walked out of
+     * range and came back still gets the auto-unlock; see
+     * [ProximityLockEvaluator.onLinkLost].
+     */
+    fun onProximityLinkLost() = proximityLock.onLinkLost()
 }
 
 /**

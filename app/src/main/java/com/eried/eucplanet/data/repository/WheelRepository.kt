@@ -273,6 +273,29 @@ class WheelRepository @Inject constructor(
     private val _locked = MutableStateFlow(false)
     val locked: StateFlow<Boolean> = _locked.asStateFlow()
 
+    /**
+     * The last lock state spoken aloud, so the same one is never announced
+     * twice. Null while nothing has been said for this connection.
+     *
+     * Two paths can announce: [toggleLock] after its cooldown, once the state
+     * has settled, and the telemetry handler when the wheel reports a state we
+     * did not ask for. Both are needed - the first is the only one on families
+     * that report no lock state, the second is the only one when the wheel is
+     * locked from its own button - and for one tap both used to fire, saying it
+     * twice. Worse, when a tap's command never reached the wheel, the rider
+     * heard "wheel locked" twice for a lock that had not changed.
+     */
+    private var lastAnnouncedLocked: Boolean? = null
+
+    /** Speak a lock state, unless that is what we last said. */
+    private fun announceLockState(locked: Boolean) {
+        if (lastAnnouncedLocked == locked) return
+        lastAnnouncedLocked = locked
+        voiceService.announceEvent(context.getString(
+            if (locked) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked
+        ))
+    }
+
     /** Whether the currently connected wheel's adapter implements a lock
      *  command. Drives the dashboard so the lock button can fall back to a
      *  "not supported on this wheel" snackbar instead of optimistically
@@ -771,6 +794,11 @@ class WheelRepository @Inject constructor(
                         _safetySpeedActive.value = false
                         lastAnnouncedSafety = false
                         _locked.value = false
+                        // Not a state the rider is told about: the wheel did
+                        // not unlock, we just stopped being able to see it.
+                        // Cleared so whatever the wheel reports on reconnect is
+                        // announced even if it matches what we last said.
+                        lastAnnouncedLocked = null
                         _wheelHasLock.value = false
                         _chargeStatus.value = ChargeStatus.Disconnected
                         chargeInferred = false
@@ -1378,18 +1406,10 @@ class WheelRepository @Inject constructor(
                 // reflects the settled state, not the optimistic flip.
                 delay(LOCK_COOLDOWN_MS)
                 val s = settingsRepository.get()
-                // Families that report their lock back announce from the
-                // telemetry handler, which speaks the wheel's real state.
-                // Announcing here as well said it twice for one tap, and a tap
-                // whose write never left the phone got a "locked" from there
-                // and a second "locked" from here - four in a row if the rider
-                // tapped twice more, which is exactly what a tester heard.
-                if (s.announceWheelLock && _wheelData.value.lockedReported == null) {
-                    val finalLocked = _locked.value
-                    voiceService.announceEvent(context.getString(
-                        if (finalLocked) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked
-                    ))
-                }
+                // Deliberately the settled state, not the requested one: if the
+                // command never reached the wheel, the telemetry has already
+                // put this back and there is nothing new to say.
+                if (s.announceWheelLock) announceLockState(_locked.value)
             } else {
                 Log.e(TAG, "Lock command failed: auth unsuccessful, awaiting wheel telemetry resync")
             }
@@ -1819,12 +1839,7 @@ class WheelRepository @Inject constructor(
                     ) {
                         _locked.value = reported
                         if (settingsRepository.get().announceWheelLock) {
-                            voiceService.announceEvent(
-                                context.getString(
-                                    if (reported) R.string.voice_wheel_locked
-                                    else R.string.voice_wheel_unlocked
-                                )
-                            )
+                            announceLockState(reported)
                         }
                     }
                 }
@@ -1933,12 +1948,7 @@ class WheelRepository @Inject constructor(
                 if (!cooldownActive && !telemetryOwnsLock) {
                     _locked.value = isLocked
                     if (isLocked != wasLocked && appSettings.announceWheelLock) {
-                        voiceService.announceEvent(
-                            context.getString(
-                                if (isLocked) R.string.voice_wheel_locked
-                                else R.string.voice_wheel_unlocked
-                            )
-                        )
+                        announceLockState(isLocked)
                     }
                 }
 

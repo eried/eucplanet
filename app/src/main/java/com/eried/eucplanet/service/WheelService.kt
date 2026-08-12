@@ -403,7 +403,7 @@ class WheelService : LifecycleService() {
                             // disconnect so it isn't left turned down.
                             automationManager.restoreBaselineVolume()
                             automationManager.resetMediaControl()
-                            automationManager.resetProximityLock()
+                            automationManager.onProximityLinkLost()
                             // Drop any in-flight run + session history so a fresh
                             // ride starts clean and a stale timestamp gap can't
                             // fabricate a summary on reconnect.

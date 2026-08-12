@@ -579,7 +579,15 @@ class BleConnectionManager @Inject constructor(
         if (data.isEmpty()) return
         Log.d(TAG, "Queuing write: ${data.joinToString(" ") { "%02x".format(it) }}")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.tx(data)
-        writeChannel.trySend(data)
+        // A full queue means the link has been stuck long enough to back up
+        // hundreds of milliseconds of polling. Say so: the log already showed
+        // the bytes as sent, and a command that never went anywhere must not
+        // read as one the wheel ignored.
+        if (writeChannel.trySend(data).isFailure) {
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Write DROPPED (${data.size}B) - the write queue is full"
+            )
+        }
     }
 
     @SuppressLint("MissingPermission")

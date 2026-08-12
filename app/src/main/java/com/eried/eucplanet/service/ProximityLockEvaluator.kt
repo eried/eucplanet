@@ -107,11 +107,34 @@ class ProximityLockEvaluator {
         return action
     }
 
-    /** Clear all hold and arming state, on disconnect / Stop All / disable. */
-    fun reset() {
-        unlockArmed = false
+    /**
+     * The link dropped. Clears the holds, which mean nothing without a live
+     * signal, but deliberately KEEPS [unlockArmed].
+     *
+     * Walking far enough away drops the connection, and that is the feature's
+     * whole point: park, walk off, the wheel locks, the link dies a few steps
+     * later, and the rider comes back to a wheel that should unlock itself.
+     * Clearing the arming here would leave that wheel locked forever, breaking
+     * the case the feature exists for while looking like a safe thing to do.
+     * The arming survives because it records something the link cannot undo -
+     * that the rider genuinely walked away from a locked wheel.
+     */
+    fun onLinkLost() {
         lockCandidateSinceMs = null
         unlockCandidateSinceMs = null
+    }
+
+    /**
+     * Clear everything, for Stop All and for the feature being switched off.
+     *
+     * Arming lives in memory only, so it is also lost if the app is killed
+     * between the walk away and the return. That fails closed - the wheel
+     * stays locked and the rider unlocks it by hand - which is the right
+     * direction for a theft deterrent to fail in.
+     */
+    fun reset() {
+        unlockArmed = false
+        onLinkLost()
     }
 
     companion object {
