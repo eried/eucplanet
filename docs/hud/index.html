@@ -134,21 +134,21 @@
     <li>On the phone, open <em>Settings → Integrations → Motoeye HUD</em> and turn on <em>Enable data link</em>.</li>
   </ol>
   <p>That is the whole setup. The phone finds the HUD by itself and telemetry starts within a second or two. There is no IP to type.</p>
-</section>
 
-<details>
-  <summary>If it does not find the HUD</summary>
-  <div class="details-body">
-    <p>The phone tries four channels in order, and the settings screen names the one that worked:</p>
-    <ol>
-      <li><strong>UDP beacon</strong> from the HUD. The most reliable, and the only one that survives a hotspot that blocks multicast.</li>
-      <li><strong>mDNS</strong>, browsing for <code>_eucplanet._tcp.local.</code></li>
-      <li><strong>Last known address</strong>, kept as a hint from the previous session rather than as the only truth.</li>
-      <li><strong>Subnet scan</strong> of the phone's own network, which takes a few seconds and only runs once the first three come up empty.</li>
-    </ol>
-    <p>If all four fail, turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.</p>
-  </div>
-</details>
+  <details>
+    <summary>If it does not find the HUD</summary>
+    <div class="details-body">
+      <p>The phone tries four channels in order, and the settings screen names the one that worked:</p>
+      <ol>
+        <li><strong>UDP beacon</strong> from the HUD. The most reliable, and the only one that survives a hotspot that blocks multicast.</li>
+        <li><strong>mDNS</strong>, browsing for <code>_eucplanet._tcp.local.</code></li>
+        <li><strong>Last known address</strong>, kept as a hint from the previous session rather than as the only truth.</li>
+        <li><strong>Subnet scan</strong> of the phone's own network, which takes a few seconds and only runs once the first three come up empty.</li>
+      </ol>
+      <p>If all four fail, turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.</p>
+    </div>
+  </details>
+</section>
 
 <footer>
   <a href="https://github.com/eried/eucplanet">GitHub</a> <!-- TODO re-enable once hud-protocol/ lands on main: · <a href="https://github.com/eried/eucplanet/tree/main/hud-protocol">Protocol</a> --> · <a href="../">eucplanet.ried.no</a>
