@@ -308,10 +308,10 @@ class WheelService : LifecycleService() {
                     hudWasOn = effective
                 }
                 // ENGO glasses HUD: independent BLE output, started on its own toggle.
-                if (s.engoHudEnabled != engoWasOn) {
-                    if (s.engoHudEnabled) engoHudRenderer.start(s.engoHudAutoConnect)
+                if (s.engoHud.enabled != engoWasOn) {
+                    if (s.engoHud.enabled) engoHudRenderer.start(s.engoHud.autoConnect)
                     else engoHudRenderer.stop()
-                    engoWasOn = s.engoHudEnabled
+                    engoWasOn = s.engoHud.enabled
                 }
             }
         }

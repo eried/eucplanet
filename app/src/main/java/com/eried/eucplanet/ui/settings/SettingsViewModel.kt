@@ -719,7 +719,7 @@ class SettingsViewModel @Inject constructor(
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
-    fun updateEngoHudEnabled(v: Boolean) = update { copy(engoHudEnabled = v) }
+    fun updateEngoHudEnabled(v: Boolean) = update { copy(engoHud = engoHud.copy(enabled = v)) }
 
     fun updateNotificationActionsEnabled(v: Boolean) =
         update { copy(notificationActionsEnabled = v) }

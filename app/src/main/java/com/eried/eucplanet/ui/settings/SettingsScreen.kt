@@ -10776,7 +10776,7 @@ private fun HudIntegrationSection(
         // MotoEye network link above. Auto-connects to the glasses when on.
         SwitchSetting(
             label = stringResource(R.string.engo_hud_enabled),
-            checked = settings.engoHudEnabled,
+            checked = settings.engoHud.enabled,
             onCheckedChange = { viewModel.updateEngoHudEnabled(it) }
         )
 

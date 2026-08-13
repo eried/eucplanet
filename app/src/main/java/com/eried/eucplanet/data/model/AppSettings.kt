@@ -574,10 +574,10 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
-    // ENGO 2 / 3 ActiveLook glasses HUD (BLE). Opt-in and independent of the
-    // MotoEye network HUD above; auto-connect scans for the glasses on enable.
-    val engoHudEnabled: Boolean = false,
-    val engoHudAutoConnect: Boolean = true,
+    // ENGO 2 / 3 ActiveLook glasses HUD (BLE). Opt-in, independent of the MotoEye
+    // network HUD above. Nested (rule 8: keep AppSettings under the 255-arg dex
+    // limit) so future Engo options don't each spend a top-level slot.
+    val engoHud: EngoHudSettings = EngoHudSettings(),
     /** Keep the foreground service (ongoing notification) alive even with no wheel
      *  connected, so background trip sync and voice keep running. Default on. */
     val keepAppAlive: Boolean = true,
@@ -1068,6 +1068,16 @@ data class ProximityLockSettings(
     // Unlock when the signal is at or above this (dBm) - the rider is back close.
     // -62 unlocks within ~2-3 steps; must stay reachable (near maxes out ~-59).
     val unlockAboveDbm: Int = -62,
+)
+
+/**
+ * ENGO 2 / 3 ActiveLook glasses HUD settings. Nested so the flags (and future
+ * ones like metric picks) cost one top-level [AppSettings] slot, not N - see the
+ * 255-arg dex limit guard in AppSettingsArgLimitTest.
+ */
+data class EngoHudSettings(
+    val enabled: Boolean = false,
+    val autoConnect: Boolean = true,
 )
 
 /**

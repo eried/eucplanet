@@ -284,8 +284,10 @@ object SettingsJson {
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
-        put("engoHudEnabled", s.engoHudEnabled)
-        put("engoHudAutoConnect", s.engoHudAutoConnect)
+        put("engoHud", JSONObject().apply {
+            put("enabled", s.engoHud.enabled)
+            put("autoConnect", s.engoHud.autoConnect)
+        })
         put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
         put("notificationActions", s.notificationActions)
@@ -603,8 +605,12 @@ object SettingsJson {
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
-        engoHudEnabled = j.optBoolean("engoHudEnabled", base.engoHudEnabled),
-        engoHudAutoConnect = j.optBoolean("engoHudAutoConnect", base.engoHudAutoConnect),
+        engoHud = j.optJSONObject("engoHud")?.let { e ->
+            base.engoHud.copy(
+                enabled = e.optBoolean("enabled", base.engoHud.enabled),
+                autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
+            )
+        } ?: base.engoHud,
         keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
         notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
         notificationActions = j.optString("notificationActions", base.notificationActions),
