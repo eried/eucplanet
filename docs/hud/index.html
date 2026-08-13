@@ -48,6 +48,31 @@
     font-family: "SFMono-Regular", Consolas, Menlo, monospace;
     font-size: 13px;
   }
+  /* Troubleshooting is folded away so the page reads as three steps. */
+  details {
+    margin-top: 22px;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    background: #10151c;
+  }
+  summary {
+    cursor: pointer;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #c9d1d9;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: #6e7681; font-weight: 400; font-size: 18px; }
+  details[open] summary::after { content: "\2212"; }
+  details[open] summary { border-bottom: 1px solid #21262d; }
+  .details-body { padding: 14px; }
+  .details-body p:first-child { margin-top: 0; }
+  .details-body p:last-child { margin-bottom: 0; }
   footer {
     text-align: center;
     color: #6e7681;
@@ -111,17 +136,19 @@
   <p>That is the whole setup. The phone finds the HUD by itself and telemetry starts within a second or two. There is no IP to type.</p>
 </section>
 
-<section>
-  <h2>If it does not find the HUD</h2>
-  <p>The phone tries four channels in order, and the settings screen names the one that worked:</p>
-  <ol>
-    <li><strong>UDP beacon</strong> from the HUD. The most reliable, and the only one that survives a hotspot that blocks multicast.</li>
-    <li><strong>mDNS</strong>, browsing for <code>_eucplanet._tcp.local.</code></li>
-    <li><strong>Last known address</strong>, kept as a hint from the previous session rather than as the only truth.</li>
-    <li><strong>Subnet scan</strong> of the phone's own network, which takes a few seconds and only runs once the first three come up empty.</li>
-  </ol>
-  <p>If all four fail, turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.</p>
-</section>
+<details>
+  <summary>If it does not find the HUD</summary>
+  <div class="details-body">
+    <p>The phone tries four channels in order, and the settings screen names the one that worked:</p>
+    <ol>
+      <li><strong>UDP beacon</strong> from the HUD. The most reliable, and the only one that survives a hotspot that blocks multicast.</li>
+      <li><strong>mDNS</strong>, browsing for <code>_eucplanet._tcp.local.</code></li>
+      <li><strong>Last known address</strong>, kept as a hint from the previous session rather than as the only truth.</li>
+      <li><strong>Subnet scan</strong> of the phone's own network, which takes a few seconds and only runs once the first three come up empty.</li>
+    </ol>
+    <p>If all four fail, turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.</p>
+  </div>
+</details>
 
 <footer>
   <a href="https://github.com/eried/eucplanet">GitHub</a> <!-- TODO re-enable once hud-protocol/ lands on main: · <a href="https://github.com/eried/eucplanet/tree/main/hud-protocol">Protocol</a> --> · <a href="../">eucplanet.ried.no</a>
