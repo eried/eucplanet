@@ -1013,7 +1013,9 @@ class WheelService : LifecycleService() {
                 else rawData.longitude,
             gpsSpeedKmh = if (rawData.gpsSpeedKmh < 0f && loc.hasSpeed()) loc.speed * 3.6f
                 else rawData.gpsSpeedKmh,
-            gpsAltitudeM = if (loc.hasAltitude()) loc.altitude.toFloat() else rawData.gpsAltitudeM,
+            gpsAltitudeM = if (rawData.gpsAltitudeM.isNaN() && loc.hasAltitude()) {
+                loc.altitude.toFloat()
+            } else rawData.gpsAltitudeM,
         )
         // Graph elements plot StudioElementData.history, so passing an empty
         // list drew their frame and axes with nothing inside. A sample is only
