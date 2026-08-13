@@ -30,6 +30,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -102,6 +104,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.util.TripCsv
 import com.eried.eucplanet.util.GraphScale
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -555,6 +558,27 @@ fun TripDetailScreen(
             val scrubPoint = scrubIndex?.let { i ->
                 dataPoints.getOrNull(i)?.takeIf { it.latitude != 0.0 && it.longitude != 0.0 }
             }
+            // Tooltip for that dot: the wall-clock time of the sample and how far
+            // into the ride it is. The dot alone says where, not when, which is
+            // the question being asked when a rider drags a chart cursor and
+            // watches the map. Elapsed is computed from the two timestamps rather
+            // than from elapsedMs, which only exists while the trim UI is open,
+            // and the parser is resolved once per section instead of per drag.
+            val scrubParse = remember(dataPoints) {
+                dataPoints.firstNotNullOfOrNull { TripCsv.parserFor(it.date) }
+            }
+            val scrubStartMs = remember(dataPoints, scrubParse) {
+                scrubParse?.let { p -> dataPoints.firstNotNullOfOrNull { p(it.date) } }
+            }
+            val scrubLabel = scrubPoint?.let { p ->
+                val clock = timePartOf(p.date)
+                val at = scrubParse?.invoke(p.date)
+                if (at != null && scrubStartMs != null) {
+                    val elapsed = com.eried.eucplanet.util.Units
+                        .humanDuration(((at - scrubStartMs) / 1000).coerceAtLeast(0))
+                    "$clock · $elapsed"
+                } else clock
+            }
 
             // Speed chart overlays: wheel speed (main line) vs GPS / RaceBox speed,
             // NaN where a series has no reading so the line breaks instead of zeroing.
@@ -595,6 +619,7 @@ fun TripDetailScreen(
                     liveLon = liveLocation?.longitude,
                     scrubLat = scrubPoint?.latitude,
                     scrubLon = scrubPoint?.longitude,
+                    scrubLabel = scrubLabel.orEmpty(),
                     wheelSwitches = wheelSwitches,
                     startLabel = startMarkerLabel,
                     endLabel = endMarkerLabel,
@@ -685,8 +710,19 @@ fun TripDetailScreen(
             val trimBar: @Composable ColumnScope.() -> Unit = {
                 if (showTrimBar && elapsedMs.isNotEmpty()) {
                     val full = elapsedMs.last()
+                    // The strip appears above wherever the rider has scrolled to,
+                    // so everything below it shifts down and the control they just
+                    // asked for is off-screen. Scroll it into view instead of
+                    // leaving them to find it. The delay lets the strip lay out
+                    // first, otherwise there are no bounds to bring into view.
+                    val trimRequester = remember { BringIntoViewRequester() }
+                    LaunchedEffect(Unit) {
+                        delay(120)
+                        runCatching { trimRequester.bringIntoView() }
+                    }
                     Spacer(Modifier.height(4.dp))
                     TripTrimBar(
+                        modifier = Modifier.bringIntoViewRequester(trimRequester),
                         durationMs = full,
                         startMs = trimRange?.first ?: 0L,
                         endMs = trimRange?.last ?: full,
@@ -1483,6 +1519,9 @@ private fun RouteMapView(
     // hide the marker). Drives a dot on the map synced with the chart cursor.
     scrubLat: Double? = null,
     scrubLon: Double? = null,
+    // Clock time and elapsed for the scrubbed sample, shown as a tooltip on the
+    // dot. Empty = no tooltip.
+    scrubLabel: String = "",
     // Mid-ride wheel changes (yellow circle + yellow trace onward) and the
     // start marker's popup text (the recording's first wheel identity,
     // empty = no popup).
@@ -1522,7 +1561,7 @@ private fun RouteMapView(
         points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
         startIncluded = startIncluded, endIncluded = endIncluded,
         isLive = isLive, liveLat = liveLat, liveLon = liveLon,
-        scrubLat = scrubLat, scrubLon = scrubLon,
+        scrubLat = scrubLat, scrubLon = scrubLon, scrubLabel = scrubLabel,
         wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
         fullscreen = false, onToggleFullscreen = { fullscreen = true },
         mapType = mapType, onMapTypeChange = onPick,
@@ -1570,7 +1609,7 @@ private fun RouteMapView(
                 points = points, fadedPoints = fadedPoints, fadedSwitches = fadedSwitches,
         startIncluded = startIncluded, endIncluded = endIncluded,
         isLive = isLive, liveLat = liveLat, liveLon = liveLon,
-                scrubLat = scrubLat, scrubLon = scrubLon,
+                scrubLat = scrubLat, scrubLon = scrubLon, scrubLabel = scrubLabel,
                 wheelSwitches = wheelSwitches, startLabel = startLabel, endLabel = endLabel,
                 fullscreen = true, onToggleFullscreen = { fullscreen = false },
                 mapType = mapType, onMapTypeChange = onPick,
@@ -1593,6 +1632,7 @@ private fun MapSurface(
     liveLon: Double?,
     scrubLat: Double?,
     scrubLon: Double?,
+    scrubLabel: String,
     wheelSwitches: List<WheelSwitchMarker>,
     startLabel: String,
     endLabel: String,
@@ -1740,10 +1780,14 @@ private fun MapSurface(
 
     // Chart-scrub marker: move a dot to the scrubbed sample's GPS position, or
     // hide it when scrubbing stops (or the sample had no fix).
-    LaunchedEffect(scrubLat, scrubLon, webView) {
+    LaunchedEffect(scrubLat, scrubLon, scrubLabel, webView) {
         val wv = webView ?: return@LaunchedEffect
         if (scrubLat != null && scrubLon != null) {
-            wv.evaluateJavascript("if(window.updateScrubPoint)updateScrubPoint($scrubLat,$scrubLon);", null)
+            // Quoted: the label is built from file-supplied timestamps, so it is
+            // never dropped into the call unescaped.
+            val tip = org.json.JSONObject.quote(scrubLabel)
+            wv.evaluateJavascript(
+                "if(window.updateScrubPoint)updateScrubPoint($scrubLat,$scrubLon,$tip);", null)
         } else {
             wv.evaluateJavascript("if(window.clearScrubPoint)clearScrubPoint();", null)
         }
@@ -1790,6 +1834,14 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   .wheel-reconnect{ width:10px;height:10px;background:#9E9E9E; }
   /* Identity badges outside a trimmed section: same shape, ghosted. */
   .faded-badge{ opacity:0.45; }
+  /* Scrub tooltip: dark and compact so it labels the dot without covering the
+     trace it is sitting on. Leaflet's default is a white box with an arrow. */
+  .scrub-tip{
+    background:rgba(20,22,26,0.92); color:#fff; border:none; border-radius:4px;
+    padding:2px 7px; font-size:11px; font-weight:600; white-space:nowrap;
+    box-shadow:0 1px 4px rgba(0,0,0,0.5);
+  }
+  .scrub-tip:before{ border-top-color:rgba(20,22,26,0.92); }
 </style>
 </head><body>
 <div id="map"></div>
@@ -1931,12 +1983,19 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   // Scrub marker API: a dot synced with the chart cursor. Pans into view only
   // if the point is off-screen, so scrubbing doesn't jerk the map around.
   var scrub=null;
-  window.updateScrubPoint = function(lat, lon){
+  window.updateScrubPoint = function(lat, lon, label){
     var p = [lat, lon];
     if (!scrub){
       scrub = L.circleMarker(p,{radius:7,color:'#fff',weight:2,fillColor:'#FFC107',fillOpacity:1}).addTo(map);
+      // Permanent: a finger is already busy dragging the chart, so there is no
+      // second one free to hover or tap the dot for it.
+      if (label) scrub.bindTooltip(label,{permanent:true,direction:'top',offset:[0,-6],className:'scrub-tip'});
     } else {
       scrub.setLatLng(p);
+      if (label){
+        if (scrub.getTooltip()) scrub.setTooltipContent(label);
+        else scrub.bindTooltip(label,{permanent:true,direction:'top',offset:[0,-6],className:'scrub-tip'});
+      } else if (scrub.getTooltip()) scrub.unbindTooltip();
     }
     if (!map.getBounds().contains(p)) map.panTo(p,{animate:true,duration:0.25});
   };
