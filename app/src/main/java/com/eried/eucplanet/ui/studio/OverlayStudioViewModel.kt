@@ -167,7 +167,8 @@ class OverlayStudioViewModel @Inject constructor(
         val extSpeed = if (extFresh) ext!!.speedKmh else -1f
         val withGps = if (loc != null) data.copy(
             latitude = loc.latitude, longitude = loc.longitude,
-            gpsSpeedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else -1f
+            gpsSpeedKmh = if (loc.hasSpeed()) loc.speed * 3.6f else -1f,
+            gpsAltitudeM = if (loc.hasAltitude()) loc.altitude.toFloat() else Float.NaN
         ) else data
         withGps.copy(
             externalGpsBatteryPercent = extBattery,

@@ -1088,6 +1088,7 @@
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
     <string name="alarm_metric_gps_speed">GPS speed</string>
+    <string name="alarm_metric_gps_altitude">Altitude</string>
     <!-- Full names: used for the spoken voice message ({metric}). The short
          *_short variants below are the dropdown/list labels so they fit the
          narrow selected-metric box on one line. -->
@@ -1869,6 +1870,7 @@
     <string name="studio_metric_external_gps_battery">Ext GPS battery</string>
     <string name="studio_metric_external_gps_speed">Ext GPS speed</string>
     <string name="studio_metric_gps_speed">GPS speed</string>
+    <string name="studio_metric_gps_altitude">Altitude</string>
     <string name="studio_metric_tire_pressure">Tire pressure</string>
     <string name="studio_metric_gps">GPS coordinates</string>
 

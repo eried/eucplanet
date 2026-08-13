@@ -988,6 +988,7 @@
     <string name="alarm_metric_voltage">Jännite</string>
     <string name="alarm_metric_current">Virta</string>
     <string name="alarm_metric_gps_speed">GPS-nopeus</string>
+    <string name="alarm_metric_gps_altitude">Korkeus</string>
     <string name="alarm_metric_external_gps_speed">Ulkoisen GPS:n nopeus</string>
     <string name="alarm_metric_external_gps_battery">Ulkoisen GPS:n akku</string>
     <string name="alarm_metric_external_gps_speed_short">Ulk GPS nop</string>
@@ -1670,6 +1671,7 @@
     <string name="studio_metric_external_gps_battery">Ulk GPS akku</string>
     <string name="studio_metric_external_gps_speed">Ulk GPS nopeus</string>
     <string name="studio_metric_gps_speed">GPS-nopeus</string>
+    <string name="studio_metric_gps_altitude">Korkeus</string>
     <string name="studio_metric_tire_pressure">Rengaspaine</string>
     <string name="studio_metric_gps">GPS-koordinaatit</string>
     <string name="nav_open">Avaa navigointi</string>

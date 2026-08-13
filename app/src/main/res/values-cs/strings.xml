@@ -988,6 +988,7 @@
     <string name="alarm_metric_voltage">Napětí</string>
     <string name="alarm_metric_current">Proud</string>
     <string name="alarm_metric_gps_speed">Rychlost GPS</string>
+    <string name="alarm_metric_gps_altitude">Nadmořská výška</string>
     <string name="alarm_metric_external_gps_speed">Rychlost externí GPS</string>
     <string name="alarm_metric_external_gps_battery">Baterie externí GPS</string>
     <string name="alarm_metric_external_gps_speed_short">Rych ext GPS</string>
@@ -1670,6 +1671,7 @@
     <string name="studio_metric_external_gps_battery">Baterie ext GPS</string>
     <string name="studio_metric_external_gps_speed">Rychlost ext GPS</string>
     <string name="studio_metric_gps_speed">Rychlost GPS</string>
+    <string name="studio_metric_gps_altitude">Nadmořská výška</string>
     <string name="studio_metric_tire_pressure">Tlak v pneumatice</string>
     <string name="studio_metric_gps">Souřadnice GPS</string>
     <string name="nav_open">Otevřít navigaci</string>

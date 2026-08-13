@@ -825,6 +825,7 @@
     <string name="alarm_metric_voltage">Voltaje</string>
     <string name="alarm_metric_current">Corriente</string>
     <string name="alarm_metric_gps_speed">Velocidad GPS</string>
+    <string name="alarm_metric_gps_altitude">Altitud</string>
     <string name="alarm_metric_external_gps_speed">Velocidad del GPS externo</string>
     <string name="alarm_metric_external_gps_battery">Batería del GPS externo</string>
     <string name="alarm_metric_external_gps_speed_short">Vel. GPS ext.</string>
@@ -1418,6 +1419,7 @@
     <string name="studio_metric_external_gps_battery">Batería GPS ext.</string>
     <string name="studio_metric_external_gps_speed">Vel. GPS ext.</string>
     <string name="studio_metric_gps_speed">Velocidad GPS</string>
+    <string name="studio_metric_gps_altitude">Altitud</string>
     <string name="metric_chip_trip_meter">Odómetro parcial</string>
     <string name="trip_meter_detail_title">Odómetro parcial</string>
     <string name="trip_meter_tab_speed">Velocidad</string>

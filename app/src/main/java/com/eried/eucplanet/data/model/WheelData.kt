@@ -37,6 +37,11 @@ data class WheelData(
      *  Distinct from externalGpsSpeedKmh (a paired box); merged in like lat/long
      *  so an overlay / HUD element can show the phone GPS speed. */
     val gpsSpeedKmh: Float = -1f,
+    /** Altitude in metres above sea level from the PHONE's fused GPS, or NaN
+     *  when there is no fix or the fix carries no altitude. Merged in beside
+     *  lat/long and gpsSpeedKmh, and NaN rather than -1 because a rider below
+     *  sea level is a real reading, not a missing one. */
+    val gpsAltitudeM: Float = Float.NaN,
     /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
      *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
      *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay

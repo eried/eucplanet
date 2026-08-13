@@ -9,7 +9,7 @@ import com.eried.eucplanet.util.Units
 import kotlin.math.absoluteValue
 
 /** Whether a metric needs unit conversion, and against which unit setting. */
-enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PRESSURE, PLAIN }
+enum class StudioMetricKind { SPEED, DISTANCE, ALTITUDE, TEMPERATURE, PRESSURE, PLAIN }
 
 /** Tire-pressure display unit follows the distance unit (mi -> psi, else bar),
  *  matching Units.effectivePressureUnit; no dedicated pressure-unit setting yet. */
@@ -51,6 +51,11 @@ enum class StudioMetric(
     EXTERNAL_GPS_SPEED("EXT_GPS_SPEED", "Ext GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedKmh.coerceAtLeast(0f) }),
     TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
     GPS_SPEED("GPS_SPEED", "GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.gpsSpeedKmh.coerceAtLeast(0f) }),
+    // Altitude is a DISTANCE so it follows the rider's distance unit the way
+    // the dashboard tile does (metres, or feet on miles). NaN means no fix
+    // yet; 0 would draw a rider at sea level who is not.
+    GPS_ALTITUDE("GPS_ALTITUDE", "Altitude", StudioMetricKind.ALTITUDE, "", 0, 1000f,
+        { if (it.gpsAltitudeM.isNaN()) 0f else it.gpsAltitudeM }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
     // text value element. extract is a placeholder; formatted() renders the pair.
     GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
@@ -65,6 +70,8 @@ enum class StudioMetric(
         return when (kind) {
             StudioMetricKind.SPEED -> Units.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distance(raw, distUnit)
+            // Held in metres; feet for riders on miles, matching the dashboard tile.
+            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") raw * 3.28084f else raw
             StudioMetricKind.TEMPERATURE -> Units.temperature(raw, tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit))
             StudioMetricKind.PLAIN -> raw
@@ -76,6 +83,7 @@ enum class StudioMetric(
         when (kind) {
             StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
+            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") "ft" else "m"
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit))
             StudioMetricKind.PLAIN -> plainUnit
@@ -119,5 +127,6 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.EXTERNAL_GPS_SPEED -> stringResource(R.string.studio_metric_external_gps_speed)
     StudioMetric.TIRE_PRESSURE -> stringResource(R.string.studio_metric_tire_pressure)
     StudioMetric.GPS_SPEED -> stringResource(R.string.studio_metric_gps_speed)
+    StudioMetric.GPS_ALTITUDE -> stringResource(R.string.studio_metric_gps_altitude)
     StudioMetric.GPS -> stringResource(R.string.studio_metric_gps)
 }

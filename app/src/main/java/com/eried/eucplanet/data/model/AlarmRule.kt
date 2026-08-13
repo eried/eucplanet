@@ -138,6 +138,14 @@ enum class AlarmMetric(
     GPS_SPEED(R.string.alarm_metric_gps_speed, "km/h"),
 
     /**
+     * Altitude above sea level in metres, off the same phone fix as
+     * [GPS_SPEED]. Watched upwards by default: the rider climbing past a
+     * height is the alarm worth having, and a low-altitude one is rarely
+     * meaningful when sea level is the floor.
+     */
+    GPS_ALTITUDE(R.string.alarm_metric_gps_altitude, "m"),
+
+    /**
      * Speed from the paired external GPS box (RaceBox / Dragy) in km/h.
      * Evaluated off [com.eried.eucplanet.data.repository.ExternalGpsRepository]
      * via [com.eried.eucplanet.service.AlarmEngine.evaluateExternalGps]. Short

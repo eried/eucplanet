@@ -822,6 +822,7 @@
     <string name="alarm_metric_voltage">Gerilim</string>
     <string name="alarm_metric_current">Akım</string>
     <string name="alarm_metric_gps_speed">GPS hızı</string>
+    <string name="alarm_metric_gps_altitude">Yükseklik</string>
     <string name="alarm_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="alarm_metric_external_gps_battery">Harici GPS aküsü</string>
     <string name="alarm_metric_external_gps_speed_short">Harici GPS hız</string>
@@ -1415,6 +1416,7 @@
     <string name="studio_metric_external_gps_battery">Harici GPS aküsü</string>
     <string name="studio_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="studio_metric_gps_speed">GPS hızı</string>
+    <string name="studio_metric_gps_altitude">Yükseklik</string>
     <string name="metric_chip_trip_meter">Sefer sayacı</string>
     <string name="trip_meter_detail_title">Sefer sayacı</string>
     <string name="trip_meter_tab_speed">Hız</string>

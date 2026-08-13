@@ -825,6 +825,7 @@
     <string name="alarm_metric_voltage">Spanning</string>
     <string name="alarm_metric_current">Stroom</string>
     <string name="alarm_metric_gps_speed">GPS-snelheid</string>
+    <string name="alarm_metric_gps_altitude">Hoogte</string>
     <string name="alarm_metric_external_gps_speed">Externe GPS-snelheid</string>
     <string name="alarm_metric_external_gps_battery">Externe GPS-accu</string>
     <string name="alarm_metric_external_gps_speed_short">Ext GPS-snelh.</string>
@@ -1463,6 +1464,7 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-accu</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-snelheid</string>
     <string name="studio_metric_gps_speed">GPS-snelheid</string>
+    <string name="studio_metric_gps_altitude">Hoogte</string>
     <string name="metric_chip_trip_meter">Tripteller</string>
     <string name="trip_meter_detail_title">Tripteller</string>
     <string name="trip_meter_tab_speed">Snelheid</string>

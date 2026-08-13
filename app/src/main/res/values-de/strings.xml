@@ -821,6 +821,7 @@
     <string name="alarm_metric_voltage">Spannung</string>
     <string name="alarm_metric_current">Strom</string>
     <string name="alarm_metric_gps_speed">GPS-Geschwindigkeit</string>
+    <string name="alarm_metric_gps_altitude">Höhe</string>
     <string name="alarm_metric_external_gps_speed">Externe GPS-Geschwindigkeit</string>
     <string name="alarm_metric_external_gps_battery">Externer GPS-Akku</string>
     <string name="alarm_metric_external_gps_speed_short">Ext GPS-Geschw.</string>
@@ -1438,6 +1439,7 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-Akku</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-Tempo</string>
     <string name="studio_metric_gps_speed">GPS-Tempo</string>
+    <string name="studio_metric_gps_altitude">Höhe</string>
     <string name="metric_chip_trip_meter">Tripzähler</string>
     <string name="trip_meter_detail_title">Tripzähler</string>
     <string name="trip_meter_tab_speed">Tempo</string>

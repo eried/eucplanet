@@ -822,6 +822,7 @@
     <string name="alarm_metric_voltage">電壓</string>
     <string name="alarm_metric_current">電流</string>
     <string name="alarm_metric_gps_speed">GPS 速度</string>
+    <string name="alarm_metric_gps_altitude">海拔</string>
     <string name="alarm_metric_external_gps_speed">外部 GPS 速度</string>
     <string name="alarm_metric_external_gps_battery">外部 GPS 電池</string>
     <string name="alarm_metric_external_gps_speed_short">外部GPS速度</string>
@@ -1415,6 +1416,7 @@
     <string name="studio_metric_external_gps_battery">外接 GPS 電池</string>
     <string name="studio_metric_external_gps_speed">外部GPS速度</string>
     <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="studio_metric_gps_altitude">海拔</string>
     <string name="metric_chip_trip_meter">行程里程錶</string>
     <string name="trip_meter_detail_title">行程里程錶</string>
     <string name="trip_meter_tab_speed">速度</string>

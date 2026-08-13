@@ -825,6 +825,7 @@
     <string name="alarm_metric_voltage">Напруга</string>
     <string name="alarm_metric_current">Струм</string>
     <string name="alarm_metric_gps_speed">Швидкість GPS</string>
+    <string name="alarm_metric_gps_altitude">Висота</string>
     <string name="alarm_metric_external_gps_speed">Швидкість зовнішнього GPS</string>
     <string name="alarm_metric_external_gps_battery">Батарея зовнішнього GPS</string>
     <string name="alarm_metric_external_gps_speed_short">Швидк. зовн. GPS</string>
@@ -1450,6 +1451,7 @@
     <string name="studio_metric_external_gps_battery">Заряд зовн. GPS</string>
     <string name="studio_metric_external_gps_speed">Швидкість зовн. GPS</string>
     <string name="studio_metric_gps_speed">Швидкість GPS</string>
+    <string name="studio_metric_gps_altitude">Висота</string>
     <string name="metric_chip_trip_meter">Лічильник поїздки</string>
     <string name="trip_meter_detail_title">Лічильник поїздки</string>
     <string name="trip_meter_tab_speed">Швидкість</string>
