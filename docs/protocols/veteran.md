@@ -326,6 +326,43 @@ Other per-model behavior:
 - Veteran does not expose ride-mode (rookie / intermediate / strict) over BLE; only
   pedals stiffness (h / m / s).
 
+## 7.1 NOSFET rebrands (Aero / Apex / Aeon)
+
+NOSFET licenses this firmware family rather than being LeaperKim, and the two do
+not agree on every opcode. From an Aeon owner's captures for issue #12
+(firmware 503.0.2, mVer 44, 36S pack):
+
+**The official NOSFET app never sends a `LkAp` or `LdAp` frame.** A 156-second
+btsnoop of that app connected to an Aeon contains six ATT writes in total: four
+CCCD subscriptions, and two single bytes to the write characteristic.
+
+```
+0.52s  h=0x0021  01 00      CCCD
+0.58s  h=0x0025  01 00      CCCD
+0.69s  h=0x0030  fc         command, purpose unknown
+0.75s  h=0x0029  01 00      CCCD
+0.82s  h=0x0030  11         command, purpose unknown
+156.7s h=0x0026  01 00      CCCD
+```
+
+Writes went to handle `0x30` while notifications arrived on `0x25`, so on this
+wheel the write and notify characteristics look separate rather than both being
+`FFE1`.
+
+The notify stream is what section 4 describes: `dc 5a 5c` telemetry (477 frames
+in that window) alongside `fc 0f fc` and `fa 0f fa` smart-BMS pages (~107).
+
+**Light: the high-beam pair beeps.** The `LkAp` + `LdAp` high-beam command in
+section 6.2 was decoded from a LeaperKim Lynx S. On an Aeon it does toggle the
+light, but the wheel also beeps at full volume and ignores the rider's
+control-panel beep setting. Changing the light from the wheel's own panel is
+silent, so the beep belongs to this opcode rather than to light changes as such.
+The app sends the ASCII low beam of section 6.1 to NOSFET wheels for that
+reason. Unconfirmed on Aero and Apex, which share the brand but not the report.
+
+The official app exposes neither light control nor the beep-volume setting, so
+there is still no reference capture for what a NOSFET light command should be.
+
 ## 8. Capability summary
 
 For our `WheelCapabilities` record:
@@ -366,6 +403,12 @@ Additional booleans worth tracking:
   voltage / speed / distance / current / temp only and treat `model = 0`.
 - Negative-current convention: some firmwares emit unsigned current and use a
   separate flag elsewhere; others emit i16 directly. Field-test required.
+- NOSFET single-byte commands `0xfc` and `0x11`, sent once each at connect by
+  the official app (section 7.1). Handshake, data-rate request, or something
+  else: unknown. Nothing in the capture obviously answers them.
+- Whether NOSFET wheels take a light command at all beyond the ASCII low beam,
+  and whether the LeaperKim high-beam frames mean something else entirely there.
+  Needs a capture from an app that exposes the light on that hardware.
 - "Mode" and "light state" are not in the readback frame; verify on real hardware
   whether any byte we currently treat as zero (e.g. offsets 36..37 in a 38-byte
   payload, or a reserved BMS slot) carries it on newer firmware.
