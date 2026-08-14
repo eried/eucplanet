@@ -27,6 +27,7 @@ import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.MapTraceMode
 import com.eried.eucplanet.hud.protocol.ViewportLayout
 import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportSourceType
@@ -330,7 +331,16 @@ private fun parseElement(o: JSONObject): OverlayElement? {
         mapStyle = o.optString("mapStyle", d.mapStyle),
         mapZoom = o.optInt("mapZoom", d.mapZoom),
         mapRotateWithHeading = o.optBoolean("mapRotateWithHeading", d.mapRotateWithHeading),
-        mapTrace = o.optBoolean("mapTrace", d.mapTrace),
+        // Prefer the mode; fall back to the legacy boolean (true = PROGRESS,
+        // false = NONE) for presets sent by an older phone build. The HUD
+        // draws no trace itself, but keeps the field so a round-trip is exact.
+        mapTraceMode = when (o.optString("mapTraceMode", "").uppercase()) {
+            "NONE" -> MapTraceMode.NONE
+            "PROGRESS" -> MapTraceMode.PROGRESS
+            "FULL" -> MapTraceMode.FULL
+            else -> if (o.optBoolean("mapTrace", true)) MapTraceMode.PROGRESS
+                    else MapTraceMode.NONE
+        },
         mapBorderWidth = o.optDouble("mapBorderWidth", d.mapBorderWidth.toDouble()).toFloat(),
         gForceScale = o.optDouble("gForceScale", d.gForceScale.toDouble()).toFloat(),
         gForceSmoothing = o.optDouble("gForceSmoothing", d.gForceSmoothing.toDouble()).toFloat(),
