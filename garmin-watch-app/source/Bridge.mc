@@ -25,6 +25,10 @@ class PhoneBridge {
     //! the inbound telemetry channel (the frozen-at-0 dial on real devices).
     //! Cleared from the shared TransmitListener when each transmit finishes.
     private var _txBusy as Lang.Boolean = false;
+    //! When the current transmit started (System.getTimer ms). If its listener
+    //! callback is lost, transmitControl abandons the busy flag after ~4 s so a
+    //! stuck flag can't silence the watch->phone link forever.
+    private var _txBusySinceMs as Lang.Number = 0;
     private var _txListener as TransmitListener?;
 
     function initialize() {
@@ -53,9 +57,9 @@ class PhoneBridge {
     }
 
     function onAliveTick() as Void {
-        // Skip the heartbeat while a prior transmit is still outstanding.
-        // Piling unacked ALIVE frames into the queue is what overflows it.
-        if (_txBusy) { return; }
+        // transmitControl itself skips while a prior transmit is outstanding
+        // (with a timeout), so the heartbeat can't pile unacked frames into the
+        // queue - that overflow is what crashed the dial (issue #13).
         transmitControl(Control.ALIVE);
     }
 
@@ -103,8 +107,16 @@ class PhoneBridge {
     //! uncaught System Error that takes down the dial. Catch and drop so a
     //! stuck phone link doesn't kill the watch app.
     function transmitControl(intent as Lang.String) as Void {
+        // Backpressure: never stack a second transmit on an outstanding one. A
+        // full CIQ outbound queue throws "Communications transmit queue full" as
+        // an uncaught System Error that crashes the dial while the delegate keeps
+        // running - exactly issue #13. Drop the frame if one is in flight
+        // (best-effort, like the Wear bridge), but abandon a genuinely stuck
+        // transmit after ~4 s so a lost callback can't silence the link forever.
+        if (_txBusy && (System.getTimer() - _txBusySinceMs) < 4000) { return; }
         var payload = { Control.PAYLOAD_KEY => intent };
         _txBusy = true;
+        _txBusySinceMs = System.getTimer();
         try {
             Communications.transmit(payload, null, _txListener);
         } catch (e) {

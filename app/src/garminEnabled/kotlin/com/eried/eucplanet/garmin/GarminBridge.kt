@@ -61,10 +61,14 @@ class GarminBridge @Inject constructor(
         private const val TAG = "GarminBridge"
         // The CIQ phone->watch channel is rate-capped near 1 Hz. Publishing at
         // 5 Hz (200 ms) just floods the SDK's outbound queue with frames it
-        // can't drain, which backs up delivery and contributes to the watch's
-        // frozen/stale dial. Publish at ~1 Hz to match what actually gets
-        // through. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
+        // can't drain, which backs up delivery into ever-growing latency
+        // (issue #14) and can crash the dial. We floor the publish interval here
+        // AND apply per-device backpressure in sendToAll, so we never outrun the
+        // channel. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
         private const val PUBLISH_INTERVAL_MS = 1000L
+        // A device is "busy" from a sendMessage until its callback lands; if that
+        // callback is lost we free it after this timeout so a device never stalls.
+        private const val SEND_TIMEOUT_MS = 4000L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -111,6 +115,12 @@ class GarminBridge @Inject constructor(
      *  registration when a status callback re-fires for a device we already
      *  saw. Cleared when [stop] is called. */
     private val registeredDevices = ConcurrentHashMap<Long, IQDevice>()
+
+    /** Per-device send backpressure: a device stays "busy until" this ms
+     *  timestamp while a sendMessage is in flight. While busy we SKIP it and let
+     *  the next publish tick deliver a fresher frame, so the CIQ outbound queue
+     *  never backs up into unbounded latency (issue #14). */
+    private val sendBusyUntilMs = ConcurrentHashMap<Long, Long>()
 
     @Volatile private var sdkReady = false
     @Volatile private var started = false
@@ -224,9 +234,14 @@ class GarminBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                // Rider-configured Garmin report interval; sanitized() guarantees
-                // a safe floor so this delay can never spin at 0.
-                delay(settingsRepository.get().garminReportIntervalMs.toLong())
+                // Rider-configured Garmin report interval, floored at the CIQ
+                // channel's ~1 Hz ceiling (PUBLISH_INTERVAL_MS): faster only
+                // floods the outbound queue (issue #14). The rider can still
+                // publish slower to save battery.
+                delay(
+                    settingsRepository.get().garminReportIntervalMs.toLong()
+                        .coerceAtLeast(PUBLISH_INTERVAL_MS)
+                )
             }
         }
 
@@ -269,6 +284,7 @@ class GarminBridge @Inject constructor(
                 runCatching { connectIQ.unregisterForApplicationEvents(device, app) }
             }
             registeredDevices.clear()
+            sendBusyUntilMs.clear()
             _pairedDevices.value = emptyList()
             runCatching { connectIQ.shutdown(context) }
         } catch (e: Exception) {
@@ -305,6 +321,7 @@ class GarminBridge @Inject constructor(
                 runCatching { connectIQ.unregisterForApplicationEvents(device, app) }
             }
             registeredDevices.clear()
+            sendBusyUntilMs.clear()
             connectIQ.shutdown(context)
         } catch (_: Exception) { /* best effort */ }
     }
@@ -535,25 +552,35 @@ class GarminBridge @Inject constructor(
     }
 
     private fun sendToAll(payload: Map<String, Any>) {
+        val now = System.currentTimeMillis()
         for (device in registeredDevices.values) {
+            val id = device.deviceIdentifier
+            // Backpressure: skip a device whose previous frame hasn't been
+            // acknowledged yet. The next tick delivers a fresher frame, so we
+            // coalesce to the latest state instead of queueing every tick (#14).
+            if (now < (sendBusyUntilMs[id] ?: 0L)) continue
+            sendBusyUntilMs[id] = now + SEND_TIMEOUT_MS
             try {
                 connectIQ.sendMessage(device, app, payload) { _, _, status ->
+                    sendBusyUntilMs[id] = 0L // free for the next (freshest) frame
                     if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                         // Counts send-side attempts only; the Hz badge uses this
-                        // to show "what we're pushing". End-to-end delivery
-                        // is reflected by [_lastSuccessAtMs], which is updated
-                        // only when an ALIVE heartbeat lands.
+                        // to show "what we're pushing". End-to-end delivery is
+                        // reflected by [_lastSuccessAtMs], updated only on ALIVE.
                         deliveredCount.incrementAndGet()
                     } else {
                         Log.d(TAG, "send to ${device.friendlyName}: $status")
                     }
                 }
             } catch (e: InvalidStateException) {
+                sendBusyUntilMs[id] = 0L
                 sdkReady = false
                 return
             } catch (e: ServiceUnavailableException) {
+                sendBusyUntilMs[id] = 0L
                 Log.d(TAG, "send to ${device.friendlyName}: Connect Mobile gone")
             } catch (e: Exception) {
+                sendBusyUntilMs[id] = 0L
                 Log.w(TAG, "send to ${device.friendlyName} failed", e)
             }
         }
