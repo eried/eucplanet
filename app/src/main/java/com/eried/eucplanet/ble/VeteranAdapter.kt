@@ -96,24 +96,37 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // mVer (offset 28) and fall back to the name-derived model.
     @Volatile private var emittedModel: Boolean = false
 
+    /**
+     * NOSFET rebrands (Aero / Apex / Aeon) share the wire protocol but not the
+     * firmware's opinion of every opcode; see [setLight].
+     */
+    private val isNosfet: Boolean
+        get() = detectedModel?.brandOverride == "NOSFET"
+
     override fun setLight(on: Boolean): ByteArray {
         lastLightOn = on
-        // HIGH beam by default (LkAp frame; LdAp companion via [setLightFollowup]).
-        return VeteranCommands.setHighBeam(on)
-        // LOW beam (legacy ASCII, single frame). To switch the in-app light
-        // toggle back to the low beam: comment the high-beam return above,
-        // uncomment the line below, and make [setLightFollowup] return null.
-        // return VeteranCommands.setLight(on)
+        // The high-beam pair was decoded from a LeaperKim Lynx S. On a NOSFET
+        // Aeon it toggles the light AND beeps at full volume, ignoring the
+        // rider's control-panel beep setting, while changing the light from the
+        // wheel's own panel is silent (issue #12). So the beep is this opcode's
+        // doing, not the wheel's view of light changes, and NOSFET takes the
+        // older ASCII low beam instead: one frame, no companion, no beep.
+        //
+        // Unconfirmed on Aero and Apex, which share the brand but not the
+        // report. If their light stops responding, they need splitting out from
+        // the Aeon rather than reverting this.
+        return if (isNosfet) VeteranCommands.setLight(on)
+        else VeteranCommands.setHighBeam(on)
     }
 
     /**
      * Second frame of the high-beam command (`LdAp`); the wheel ignores the
      * `LkAp` half from [setLight] on its own. Decoded from the same Lynx S
-     * btsnoop as the horn. If you switch [setLight] back to the low beam,
-     * change this to `null` (low beam is a single ASCII frame).
+     * btsnoop as the horn. Null on NOSFET, whose low beam is a single ASCII
+     * frame with no companion.
      */
-    override fun setLightFollowup(on: Boolean): ByteArray =
-        VeteranCommands.setHighBeamCompanion(on)
+    override fun setLightFollowup(on: Boolean): ByteArray? =
+        if (isNosfet) null else VeteranCommands.setHighBeamCompanion(on)
 
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
