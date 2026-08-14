@@ -1356,7 +1356,10 @@
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
-    <string name="studio_cfg_map_trace">Vis spor</string>
+    <string name="studio_cfg_map_trace">Spor</string>
+    <string name="studio_cfg_map_trace_none">Ingen</string>
+    <string name="studio_cfg_map_trace_progress">Så langt</string>
+    <string name="studio_cfg_map_trace_full">Hele turen</string>
     <string name="studio_cfg_map_use_custom_marker">Foretræk tilpasset markør</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Indstil dit foto under Navigator → Tilpas min markør</string>
     <string name="studio_cfg_camera_label">Kamera</string>

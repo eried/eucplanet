@@ -1344,7 +1344,10 @@
     <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">縮放</string>
     <string name="studio_cfg_map_rotate">隨移動旋轉</string>
-    <string name="studio_cfg_map_trace">顯示軌跡</string>
+    <string name="studio_cfg_map_trace">軌跡</string>
+    <string name="studio_cfg_map_trace_none">無</string>
+    <string name="studio_cfg_map_trace_progress">已行進</string>
+    <string name="studio_cfg_map_trace_full">完整行程</string>
     <string name="studio_cfg_map_use_custom_marker">優先使用自訂標記</string>
     <string name="studio_cfg_map_use_custom_marker_hint">在導航 → 自訂我的標記中設定您的照片</string>
     <string name="studio_cfg_camera_label">鏡頭</string>

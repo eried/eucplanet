@@ -1343,7 +1343,10 @@
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Rotera med rörelsen</string>
-    <string name="studio_cfg_map_trace">Visa spår</string>
+    <string name="studio_cfg_map_trace">Spår</string>
+    <string name="studio_cfg_map_trace_none">Ingen</string>
+    <string name="studio_cfg_map_trace_progress">Hittills</string>
+    <string name="studio_cfg_map_trace_full">Hela resan</string>
     <string name="studio_cfg_map_use_custom_marker">Föredra anpassad markör</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Ange ditt foto under Navigator → Anpassa min markör</string>
     <string name="studio_cfg_camera_label">Kamera</string>

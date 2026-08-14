@@ -1344,7 +1344,10 @@
     <string name="studio_cfg_map_satellite">위성</string>
     <string name="studio_cfg_map_zoom">줌</string>
     <string name="studio_cfg_map_rotate">이동 방향으로 회전</string>
-    <string name="studio_cfg_map_trace">궤적 표시</string>
+    <string name="studio_cfg_map_trace">경로</string>
+    <string name="studio_cfg_map_trace_none">없음</string>
+    <string name="studio_cfg_map_trace_progress">진행</string>
+    <string name="studio_cfg_map_trace_full">전체 경로</string>
     <string name="studio_cfg_map_use_custom_marker">커스텀 마커 우선 사용</string>
     <string name="studio_cfg_map_use_custom_marker_hint">내비게이터 → 내 마커 커스텀에서 사진을 설정하세요</string>
     <string name="studio_cfg_camera_label">카메라</string>

@@ -1379,7 +1379,10 @@
     <string name="studio_cfg_map_satellite">Супутник</string>
     <string name="studio_cfg_map_zoom">Масштаб</string>
     <string name="studio_cfg_map_rotate">Обертати за рухом</string>
-    <string name="studio_cfg_map_trace">Показувати слід</string>
+    <string name="studio_cfg_map_trace">Трек</string>
+    <string name="studio_cfg_map_trace_none">Немає</string>
+    <string name="studio_cfg_map_trace_progress">Пройдено</string>
+    <string name="studio_cfg_map_trace_full">Весь маршрут</string>
     <string name="studio_cfg_map_use_custom_marker">Надавати перевагу власному маркеру</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Встанови фото в Навігатор → Налаштувати мій маркер</string>
     <string name="studio_cfg_camera_label">Камера</string>

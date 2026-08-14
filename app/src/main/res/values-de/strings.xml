@@ -1357,7 +1357,10 @@
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Mit Bewegung drehen</string>
-    <string name="studio_cfg_map_trace">Strecke anzeigen</string>
+    <string name="studio_cfg_map_trace">Spur</string>
+    <string name="studio_cfg_map_trace_none">Keine</string>
+    <string name="studio_cfg_map_trace_progress">Verlauf</string>
+    <string name="studio_cfg_map_trace_full">Ganze Fahrt</string>
     <string name="studio_cfg_map_use_custom_marker">Eigenen Marker bevorzugen</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Foto unter Navigator → Marker anpassen festlegen</string>
     <string name="studio_cfg_camera_label">Kamera</string>

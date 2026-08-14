@@ -277,6 +277,13 @@ fun OverlayStudioScreen(
         history
     }
 
+    // Whole-trip trace for a MAP element in FULL mode. Only replay knows the
+    // entire route; live leaves this empty and FULL falls back to the history
+    // window (the ride so far).
+    val elementFullTrace: List<com.eried.eucplanet.data.model.WheelData> =
+        if (replayMode) replayTrip?.samples?.map { it.data } ?: emptyList()
+        else emptyList()
+
     // CLOCK elements: a 2 Hz tick drives the live time; in replay the time is
     // the trip's start epoch plus the scrub position.
     var clockTick by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -789,6 +796,7 @@ fun OverlayStudioScreen(
                                 history = trip.samples
                                     .filter { it.offsetMs <= pos }
                                     .map { StudioSample(it.offsetMs, it.data) },
+                                fullTrace = trip.samples.map { it.data },
                                 cameraHub = hub,
                                 speedUnit = viewModel.speedUnit,
                                 distanceUnit = viewModel.distanceUnit,
@@ -1150,6 +1158,7 @@ fun OverlayStudioScreen(
                         wheelName = displayWheelName,
                         connected = connected,
                         history = elementHistory,
+                        fullTrace = elementFullTrace,
                         cameraHub = hub,
                         speedUnit = viewModel.speedUnit,
                         distanceUnit = viewModel.distanceUnit,

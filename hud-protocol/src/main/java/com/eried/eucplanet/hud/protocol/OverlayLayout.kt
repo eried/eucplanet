@@ -152,6 +152,23 @@ enum class OverlayElementType {
 }
 
 /**
+ * How the MAP element draws its GPS trace polyline.
+ *
+ * NONE draws no trace. PROGRESS draws the path travelled up to the current
+ * point: a trailing breadcrumb live, or start-to-cursor in Overlay Studio
+ * replay. FULL draws the whole trip start-to-end. Only replay has the entire
+ * trip in hand, so the live HUDs (phone overlay + network HUD) treat FULL the
+ * same as PROGRESS - the ride so far.
+ */
+enum class MapTraceMode { NONE, PROGRESS, FULL }
+
+/** True when the map draws any trace at all (PROGRESS or FULL). Kept for the
+ *  legacy on/off `mapTrace` JSON key and older network HUDs that only read a
+ *  boolean; NONE is the only mode that turns the trace off. */
+val OverlayElement.mapTraceEnabled: Boolean
+    get() = mapTraceMode != MapTraceMode.NONE
+
+/**
  * One floating overlay element. Unused fields for a given [type] keep their
  * defaults and are simply ignored by that element's renderer.
  */
@@ -239,8 +256,11 @@ data class OverlayElement(
     val mapZoom: Int = 16,
     /** True rotates the map so the direction of travel points up; false = north up. */
     val mapRotateWithHeading: Boolean = false,
-    /** Draw the GPS trace polyline over the map. */
-    val mapTrace: Boolean = true,
+    /** How the GPS trace polyline is drawn over the map, see [MapTraceMode].
+     *  Defaults to PROGRESS: the old field was a plain on/off boolean, and
+     *  "on" mapped to exactly this trailing-path behaviour, so presets that
+     *  predate the mode decode identically. */
+    val mapTraceMode: MapTraceMode = MapTraceMode.PROGRESS,
     /** Map border thickness in dp (0 = no border). Border colour is [foreground]. */
     val mapBorderWidth: Float = 2f,
     /**

@@ -1381,7 +1381,10 @@
     <string name="studio_cfg_map_satellite">Satelliet</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Meedraaien met beweging</string>
-    <string name="studio_cfg_map_trace">Route tonen</string>
+    <string name="studio_cfg_map_trace">Spoor</string>
+    <string name="studio_cfg_map_trace_none">Geen</string>
+    <string name="studio_cfg_map_trace_progress">Voortgang</string>
+    <string name="studio_cfg_map_trace_full">Hele rit</string>
     <string name="studio_cfg_map_use_custom_marker">Voorkeur voor eigen marker</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Stel je foto in via Navigator → Mijn marker aanpassen</string>
     <string name="studio_cfg_camera_label">Camera</string>

@@ -1780,7 +1780,10 @@
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Rotate with movement</string>
-    <string name="studio_cfg_map_trace">Show trace</string>
+    <string name="studio_cfg_map_trace">Trace</string>
+    <string name="studio_cfg_map_trace_none">None</string>
+    <string name="studio_cfg_map_trace_progress">Progress</string>
+    <string name="studio_cfg_map_trace_full">Full trip</string>
     <string name="studio_cfg_map_use_custom_marker">Prefer customized marker</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Set your photo in Navigator → Customize my marker</string>
     <string name="studio_cfg_radar_mode">Radar view</string>

@@ -1593,7 +1593,10 @@
     <string name="studio_cfg_map_satellite">Satelitní</string>
     <string name="studio_cfg_map_zoom">Přiblížení</string>
     <string name="studio_cfg_map_rotate">Otáčet podle pohybu</string>
-    <string name="studio_cfg_map_trace">Zobrazit stopu</string>
+    <string name="studio_cfg_map_trace">Stopa</string>
+    <string name="studio_cfg_map_trace_none">Žádná</string>
+    <string name="studio_cfg_map_trace_progress">Průběh</string>
+    <string name="studio_cfg_map_trace_full">Celá trasa</string>
     <string name="studio_cfg_map_use_custom_marker">Upřednostnit vlastní značku</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Fotografii nastavíte v Navigaci → Přizpůsobit moji značku</string>
     <string name="studio_cfg_radar_mode">Zobrazení radaru</string>

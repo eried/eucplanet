@@ -1023,7 +1023,10 @@
     <string name="studio_cfg_map_satellite">卫星</string>
     <string name="studio_cfg_map_zoom">缩放</string>
     <string name="studio_cfg_map_rotate">随移动旋转</string>
-    <string name="studio_cfg_map_trace">显示轨迹</string>
+    <string name="studio_cfg_map_trace">轨迹</string>
+    <string name="studio_cfg_map_trace_none">无</string>
+    <string name="studio_cfg_map_trace_progress">已行进</string>
+    <string name="studio_cfg_map_trace_full">完整行程</string>
     <string name="studio_group_data">数据</string>
     <string name="studio_group_text">文字与信息</string>
     <string name="studio_group_media">相机与图片</string>

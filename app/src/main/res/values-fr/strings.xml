@@ -1383,7 +1383,10 @@
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Pivoter avec le mouvement</string>
-    <string name="studio_cfg_map_trace">Afficher le tracé</string>
+    <string name="studio_cfg_map_trace">Tracé</string>
+    <string name="studio_cfg_map_trace_none">Aucune</string>
+    <string name="studio_cfg_map_trace_progress">Progression</string>
+    <string name="studio_cfg_map_trace_full">Trajet complet</string>
     <string name="studio_cfg_map_use_custom_marker">Préférer le marqueur personnalisé</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Définis ta photo dans Navigateur → Personnaliser mon marqueur</string>
     <string name="studio_cfg_camera_label">Caméra</string>

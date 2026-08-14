@@ -1059,7 +1059,10 @@
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Ruota con il movimento</string>
-    <string name="studio_cfg_map_trace">Mostra percorso</string>
+    <string name="studio_cfg_map_trace">Traccia</string>
+    <string name="studio_cfg_map_trace_none">Nessuna</string>
+    <string name="studio_cfg_map_trace_progress">Progresso</string>
+    <string name="studio_cfg_map_trace_full">Intero tragitto</string>
     <string name="studio_group_data">Dati</string>
     <string name="studio_group_text">Testo e info</string>
     <string name="studio_group_media">Fotocamera e immagini</string>

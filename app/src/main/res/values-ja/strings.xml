@@ -1344,7 +1344,10 @@
     <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">ズーム</string>
     <string name="studio_cfg_map_rotate">動きに合わせて回転</string>
-    <string name="studio_cfg_map_trace">トレースを表示</string>
+    <string name="studio_cfg_map_trace">軌跡</string>
+    <string name="studio_cfg_map_trace_none">なし</string>
+    <string name="studio_cfg_map_trace_progress">現在まで</string>
+    <string name="studio_cfg_map_trace_full">全行程</string>
     <string name="studio_cfg_map_use_custom_marker">カスタマイズされたマーカーを優先</string>
     <string name="studio_cfg_map_use_custom_marker_hint">ナビゲーター → マーカーをカスタマイズで写真を設定してください</string>
     <string name="studio_cfg_camera_label">カメラ</string>
