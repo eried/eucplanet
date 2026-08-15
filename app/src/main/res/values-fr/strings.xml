@@ -557,6 +557,14 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limites de vitesse</string>
     <string name="section_speed_calibration">Calibration de vitesse</string>
+    <string name="section_battery_percent">Pourcentage de batterie</string>
+    <string name="battery_percent_caption">Calculer le pourcentage à partir de la tension du pack quand le chiffre de la roue ne correspond pas à son écran. Dans l\'app seulement, jamais envoyé à la roue.</string>
+    <string name="battery_percent_enhanced">Courbe WheelLog</string>
+    <string name="battery_percent_custom_min">Tension minimale choisie</string>
+    <string name="battery_percent_min_cell">Vide à</string>
+    <string name="battery_percent_series_cells">Cellules en série</string>
+    <string name="battery_percent_cells_from_wheel">Repris de la roue : %1$d en série.</string>
+    <string name="battery_percent_cells_manual">Indique le nombre de cellules de ta roue, sinon le pourcentage sera faux.</string>
     <string name="speed_calibration_label">Décalage de vitesse</string>
     <string name="speed_calibration_caption">Ajuste la vitesse rapportée par la roue ; affecte alarmes, voix et journal de trajet</string>
     <string name="section_legal_mode_speed">Vitesse en mode légal</string>

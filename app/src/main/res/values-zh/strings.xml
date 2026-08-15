@@ -687,6 +687,14 @@
     <string name="tpms_scan">扫描传感器</string>
     <string name="external_gps_device_title">外置 GPS</string>
     <string name="section_speed_calibration">速度校准</string>
+    <string name="section_battery_percent">电量百分比</string>
+    <string name="battery_percent_caption">当轮子上报的数值与它自己的显示不一致时，用电池组电压计算百分比。仅在应用内显示，绝不发送给轮子。</string>
+    <string name="battery_percent_enhanced">WheelLog 曲线</string>
+    <string name="battery_percent_custom_min">自定义最低电压</string>
+    <string name="battery_percent_min_cell">视为没电的电压</string>
+    <string name="battery_percent_series_cells">串联电芯数</string>
+    <string name="battery_percent_cells_from_wheel">来自轮子：%1$d 串。</string>
+    <string name="battery_percent_cells_manual">设置你轮子的串联数，否则百分比会不准。</string>
     <string name="speed_calibration_caption">调整独轮车上报的速度；影响警报、语音和行程日志</string>
     <string name="speed_calibration_label">速度偏移</string>
     <string name="sources_other_metrics">其他指标</string>

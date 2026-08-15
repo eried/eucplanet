@@ -557,6 +557,14 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Обмеження швидкості</string>
     <string name="section_speed_calibration">Калібрування швидкості</string>
+    <string name="section_battery_percent">Відсоток заряду</string>
+    <string name="battery_percent_caption">Рахувати відсоток за напругою батареї, коли число від колеса не збігається з його екраном. Лише в застосунку, на колесо нічого не надсилається.</string>
+    <string name="battery_percent_enhanced">Крива WheelLog</string>
+    <string name="battery_percent_custom_min">Власна мінімальна напруга</string>
+    <string name="battery_percent_min_cell">Порожньо при</string>
+    <string name="battery_percent_series_cells">Комірок послідовно</string>
+    <string name="battery_percent_cells_from_wheel">Взято з колеса: %1$d послідовно.</string>
+    <string name="battery_percent_cells_manual">Вкажіть кількість комірок вашого колеса, інакше відсоток буде хибним.</string>
     <string name="speed_calibration_label">Поправка швидкості</string>
     <string name="speed_calibration_caption">Коригує швидкість від колеса; впливає на тривоги, голос і журнал поїздки</string>
     <string name="section_legal_mode_speed">Швидкість у легальному режимі</string>

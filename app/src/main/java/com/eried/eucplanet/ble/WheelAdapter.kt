@@ -298,6 +298,16 @@ interface WheelAdapter {
      * Derived from [familyId] so every family resolves the same way, with no
      * model detection. The dashboard can show it as the wheel name directly.
      */
+    /**
+     * Cells in series for the connected wheel, when the family can tell.
+     *
+     * Only used to turn pack voltage into a per-cell voltage for the
+     * display-only battery estimate; null means the rider's own setting is
+     * used instead, because pack voltage alone cannot separate a 20S from a
+     * 30S. Never sent to the wheel.
+     */
+    val seriesCells: Int? get() = null
+
     val brand: String get() = when (familyId) {
         "begode" -> "Begode"
         "kingsong" -> "KingSong"

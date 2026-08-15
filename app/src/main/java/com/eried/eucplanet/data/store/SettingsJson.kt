@@ -129,6 +129,12 @@ object SettingsJson {
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
         })
+        put("batteryPercent", JSONObject().apply {
+            put("useWheelLogEnhanced", s.batteryPercent.useWheelLogEnhanced)
+            put("useCustomMinimumVoltage", s.batteryPercent.useCustomMinimumVoltage)
+            put("minimumCellVoltageMv", s.batteryPercent.minimumCellVoltageMv)
+            put("seriesCells", s.batteryPercent.seriesCells)
+        })
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
             put("lockBelowDbm", s.proximityLock.lockBelowDbm)
@@ -437,6 +443,17 @@ object SettingsJson {
                 ),
             )
         } ?: base.mediaControl,
+        batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
+            base.batteryPercent.copy(
+                useWheelLogEnhanced =
+                    b.optBoolean("useWheelLogEnhanced", base.batteryPercent.useWheelLogEnhanced),
+                useCustomMinimumVoltage =
+                    b.optBoolean("useCustomMinimumVoltage", base.batteryPercent.useCustomMinimumVoltage),
+                minimumCellVoltageMv =
+                    b.optInt("minimumCellVoltageMv", base.batteryPercent.minimumCellVoltageMv),
+                seriesCells = b.optInt("seriesCells", base.batteryPercent.seriesCells),
+            )
+        } ?: base.batteryPercent,
         proximityLock = j.optJSONObject("proximityLock")?.let { p ->
             base.proximityLock.copy(
                 lockEnabled = p.optBoolean("lockEnabled", base.proximityLock.lockEnabled),

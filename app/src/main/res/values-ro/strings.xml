@@ -702,6 +702,14 @@
     <string name="tts_switch_no">Păstrează actuala</string>
     <string name="section_speed_limits">Limite de viteză</string>
     <string name="section_speed_calibration">Calibrarea vitezei</string>
+    <string name="section_battery_percent">Procent baterie</string>
+    <string name="battery_percent_caption">Calculează procentul din tensiunea pachetului când numărul roții nu se potrivește cu afișajul ei. Doar în aplicație, nu se trimite niciodată la roată.</string>
+    <string name="battery_percent_enhanced">Curba WheelLog</string>
+    <string name="battery_percent_custom_min">Tensiune minimă proprie</string>
+    <string name="battery_percent_min_cell">Goală la</string>
+    <string name="battery_percent_series_cells">Celule în serie</string>
+    <string name="battery_percent_cells_from_wheel">Preluat de la roată: %1$d în serie.</string>
+    <string name="battery_percent_cells_manual">Setează numărul de celule al roții tale, altfel procentul va fi greșit.</string>
     <string name="speed_calibration_label">Abaterea vitezei</string>
     <string name="speed_calibration_caption">Ajustează viteza raportată de monociclu; afectează alarmele, vocea și jurnalul cursei</string>
     <string name="section_legal_mode_speed">Viteza modului legal</string>

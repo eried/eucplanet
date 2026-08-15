@@ -107,6 +107,7 @@ data class AppSettings(
     val mediaControl: MediaControlSettings = MediaControlSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
+    val batteryPercent: BatteryPercentSettings = BatteryPercentSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
@@ -1054,6 +1055,48 @@ data class MediaControlSettings(
  * condition a few seconds before acting. Locking needs a live BLE link, so it
  * fires while the signal is fading, not after a full disconnect.
  */
+/**
+ * How the battery percentage on screen is worked out.
+ *
+ * Some wheels report a percentage that disagrees with their own display, so
+ * this estimates it from pack voltage instead. Display only: nothing here is
+ * ever sent to the wheel, and no firmware limit is touched. The wheel's own
+ * protection is unaffected either way, and so is the reading the wheel makes
+ * its own decisions on.
+ *
+ * The curve is battery chemistry, not a brand, so it works on any wheel. A
+ * recognised KingSong model knows its own cell count; everything else asks
+ * the rider for [seriesCells], since pack voltage alone cannot distinguish a
+ * 20S from a 30S.
+ */
+data class BatteryPercentSettings(
+    /**
+     * WheelLog's two-segment curve: flat below 3.20 V per cell, steep from
+     * 3.20 to 3.40 V, then shallow to 4.175 V. Matches what riders coming
+     * from WheelLog expect to see.
+     */
+    val useWheelLogEnhanced: Boolean = false,
+    /**
+     * A straight line from [minimumCellVoltageMv] to 4.20 V per cell instead.
+     * Takes precedence over the curve when both are on, because a rider who
+     * has set a specific floor has been more specific than a preset.
+     */
+    val useCustomMinimumVoltage: Boolean = false,
+    /** Lower endpoint of the custom scale, in millivolts per cell. */
+    val minimumCellVoltageMv: Int = 3300,
+    /**
+     * Cells in series, for wheels whose model does not state it. Ignored when
+     * the connected wheel's model knows its own.
+     */
+    val seriesCells: Int = 20,
+) {
+    companion object {
+        const val MIN_CELL_MV = 2500
+        const val MAX_CELL_MV = 4000
+        val SERIES_RANGE = 1..60
+    }
+}
+
 data class ProximityLockSettings(
     val lockEnabled: Boolean = false,
     // Lock when the signal is at or below this (dBm) - the rider is walking away.

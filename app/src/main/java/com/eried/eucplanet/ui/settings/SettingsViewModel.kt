@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import android.content.Context
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
@@ -568,6 +569,26 @@ class SettingsViewModel @Inject constructor(
     fun updateBlockUpsideDown(v: Boolean) = update { copy(blockUpsideDown = v) }
     fun updateIgnoreSystemRotateLock(v: Boolean) = update { copy(ignoreSystemRotateLock = v) }
     fun updateNavStopsSide(v: String) = update { copy(navStopsSide = v) }
+    /** Null when the connected wheel's family cannot state its pack layout, in
+     *  which case the rider supplies the count. */
+    val detectedSeriesCells: StateFlow<Int?> = wheelRepository.wheelSeriesCells
+
+    fun updateBatteryPercentEnhanced(v: Boolean) =
+        update { copy(batteryPercent = batteryPercent.copy(useWheelLogEnhanced = v)) }
+    fun updateBatteryPercentCustomMin(v: Boolean) =
+        update { copy(batteryPercent = batteryPercent.copy(useCustomMinimumVoltage = v)) }
+    fun updateBatteryPercentMinimumMv(v: Int) = update {
+        copy(batteryPercent = batteryPercent.copy(
+            minimumCellVoltageMv = v.coerceIn(
+                BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV)))
+    }
+    fun updateBatteryPercentSeriesCells(v: Int) = update {
+        copy(batteryPercent = batteryPercent.copy(
+            seriesCells = v.coerceIn(
+                BatteryPercentSettings.SERIES_RANGE.first,
+                BatteryPercentSettings.SERIES_RANGE.last)))
+    }
+
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,
         // backup JSON, and per-wheel profile storage.

@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data.repository
 
 import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.store.SettingsStore
@@ -56,6 +57,16 @@ class SettingsRepository @Inject constructor(
         // BLE/IO loops. Every settings read — get() and the settings Flow —
         // passes through here, so consumers never see an unsafe value.
         advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
+        // A hand-edited or synced file could carry a floor above full charge, or
+        // a cell count that makes every pack read 100%. Clamped here so the
+        // estimate never sees a value the UI would not let a rider pick.
+        batteryPercent = batteryPercent.copy(
+            minimumCellVoltageMv = batteryPercent.minimumCellVoltageMv.coerceIn(
+                BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV),
+            seriesCells = batteryPercent.seriesCells.coerceIn(
+                BatteryPercentSettings.SERIES_RANGE.first,
+                BatteryPercentSettings.SERIES_RANGE.last),
+        ),
         // An imported or Dropbox-synced file can carry an unlockWhen this build
         // does not know. Fall back to never rather than letting an unrecognised
         // value decide when a wheel unlocks itself.

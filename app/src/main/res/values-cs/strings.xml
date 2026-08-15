@@ -702,6 +702,14 @@
     <string name="tts_switch_no">Ponechat současný</string>
     <string name="section_speed_limits">Rychlostní limity</string>
     <string name="section_speed_calibration">Kalibrace rychlosti</string>
+    <string name="section_battery_percent">Procenta baterie</string>
+    <string name="battery_percent_caption">Spočítat procenta z napětí baterie, když se číslo z kola liší od jeho displeje. Jen v aplikaci, do kola se nic neposílá.</string>
+    <string name="battery_percent_enhanced">Křivka WheelLog</string>
+    <string name="battery_percent_custom_min">Vlastní minimální napětí</string>
+    <string name="battery_percent_min_cell">Prázdná při</string>
+    <string name="battery_percent_series_cells">Články v sérii</string>
+    <string name="battery_percent_cells_from_wheel">Převzato z kola: %1$d v sérii.</string>
+    <string name="battery_percent_cells_manual">Nastavte počet, který má vaše kolo, jinak budou procenta špatně.</string>
     <string name="speed_calibration_label">Odchylka rychlosti</string>
     <string name="speed_calibration_caption">Upravuje rychlost hlášenou monokolem; ovlivňuje alarmy, hlas a záznam jízdy</string>
     <string name="section_legal_mode_speed">Rychlost legálního režimu</string>

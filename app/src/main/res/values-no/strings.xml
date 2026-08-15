@@ -704,6 +704,14 @@
     <string name="tpms_scan">Søk etter sensorer</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
+    <string name="section_battery_percent">Batteriprosent</string>
+    <string name="battery_percent_caption">Regn ut prosenten fra pakkespenningen når hjulets eget tall ikke stemmer med displayet. Bare i appen, sendes aldri til hjulet.</string>
+    <string name="battery_percent_enhanced">WheelLog-kurve</string>
+    <string name="battery_percent_custom_min">Egen minimumsspenning</string>
+    <string name="battery_percent_min_cell">Tom ved</string>
+    <string name="battery_percent_series_cells">Celler i serie</string>
+    <string name="battery_percent_cells_from_wheel">Hentet fra hjulet: %1$d i serie.</string>
+    <string name="battery_percent_cells_manual">Sett antallet celler hjulet ditt har, ellers blir prosenten feil.</string>
     <string name="speed_calibration_caption">Justerer hjulets rapporterte fart; påvirker alarmer, tale og loggen</string>
     <string name="speed_calibration_label">Fartsjustering</string>
     <string name="sources_other_metrics">Andre målinger</string>

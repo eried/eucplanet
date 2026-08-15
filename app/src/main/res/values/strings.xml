@@ -779,6 +779,14 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Speed limits</string>
     <string name="section_speed_calibration">Speed calibration</string>
+    <string name="section_battery_percent">Battery percentage</string>
+    <string name="battery_percent_caption">Work the percentage out from pack voltage when the wheel\'s own number disagrees with its display. Shown in the app only, never sent to the wheel.</string>
+    <string name="battery_percent_enhanced">WheelLog curve</string>
+    <string name="battery_percent_custom_min">Custom minimum voltage</string>
+    <string name="battery_percent_min_cell">Empty at</string>
+    <string name="battery_percent_series_cells">Cells in series</string>
+    <string name="battery_percent_cells_from_wheel">Taken from the wheel: %1$d in series.</string>
+    <string name="battery_percent_cells_manual">Set the count your wheel uses, or the percentage will be wrong.</string>
     <string name="speed_calibration_label">Speed offset</string>
     <string name="speed_calibration_caption">Adjusts wheel-reported speed; affects alarms, voice and the trip log</string>
     <string name="section_legal_mode_speed">Legal mode speed</string>

@@ -23,6 +23,10 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
 
     @Volatile private var detectedModel: KingsongModel? = null
 
+    /** A recognised KingSong states its own pack layout, so the rider does not
+     *  have to count cells for the battery estimate. */
+    override val seriesCells: Int? get() = detectedModel?.cellsSeries
+
     /**
      * Merged telemetry snapshot built up across the four-frame KingSong cycle
      * (0xA9 realtime + 0xB9 trip + 0xF5 PWM + 0xF6 speed limit). Each frame
