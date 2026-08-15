@@ -704,8 +704,10 @@
     <string name="section_speed_calibration">Kalibrace rychlosti</string>
     <string name="section_battery_percent">Procenta baterie</string>
     <string name="battery_percent_caption">Spočítat procenta z napětí baterie, když se číslo z kola liší od jeho displeje. Jen v aplikaci, do kola se nic neposílá.</string>
-    <string name="battery_percent_enhanced">Křivka WheelLog</string>
-    <string name="battery_percent_custom_min">Vlastní minimální napětí</string>
+    <string name="battery_percent_source">Procenta podle</string>
+    <string name="battery_percent_mode_wheel">Kolo</string>
+    <string name="battery_percent_mode_curve">Lithiová křivka</string>
+    <string name="battery_percent_mode_custom">Vlastní</string>
     <string name="battery_percent_min_cell">Prázdná při</string>
     <string name="battery_percent_series_cells">Články v sérii</string>
     <string name="battery_percent_cells_from_wheel">Převzato z kola: %1$d v sérii.</string>

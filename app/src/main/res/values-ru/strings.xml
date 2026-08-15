@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">Калибровка скорости</string>
     <string name="section_battery_percent">Процент заряда</string>
     <string name="battery_percent_caption">Считать процент по напряжению батареи, когда число от колеса расходится с его экраном. Только в приложении, на колесо ничего не отправляется.</string>
-    <string name="battery_percent_enhanced">Кривая WheelLog</string>
-    <string name="battery_percent_custom_min">Своё минимальное напряжение</string>
+    <string name="battery_percent_source">Процент по</string>
+    <string name="battery_percent_mode_wheel">Колесо</string>
+    <string name="battery_percent_mode_curve">Кривая лития</string>
+    <string name="battery_percent_mode_custom">Своя</string>
     <string name="battery_percent_min_cell">Пусто при</string>
     <string name="battery_percent_series_cells">Ячеек последовательно</string>
     <string name="battery_percent_cells_from_wheel">Взято у колеса: %1$d последовательно.</string>

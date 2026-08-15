@@ -573,10 +573,8 @@ class SettingsViewModel @Inject constructor(
      *  which case the rider supplies the count. */
     val detectedSeriesCells: StateFlow<Int?> = wheelRepository.wheelSeriesCells
 
-    fun updateBatteryPercentEnhanced(v: Boolean) =
-        update { copy(batteryPercent = batteryPercent.copy(useWheelLogEnhanced = v)) }
-    fun updateBatteryPercentCustomMin(v: Boolean) =
-        update { copy(batteryPercent = batteryPercent.copy(useCustomMinimumVoltage = v)) }
+    fun updateBatteryPercentMode(v: String) =
+        update { copy(batteryPercent = batteryPercent.copy(mode = v)) }
     fun updateBatteryPercentMinimumMv(v: Int) = update {
         copy(batteryPercent = batteryPercent.copy(
             minimumCellVoltageMv = v.coerceIn(

@@ -1176,7 +1176,12 @@ class WheelRepository @Inject constructor(
                     alarmSpeedKmh = existing.alarmSpeedKmh,
                     safetyTiltbackKmh = existing.safetyTiltbackKmh,
                     safetyAlarmKmh = existing.safetyAlarmKmh,
-                    speedCalibrationOffsetPct = existing.speedCalibrationOffsetPct
+                    speedCalibrationOffsetPct = existing.speedCalibrationOffsetPct,
+                    // The pack belongs to the wheel, so the count follows the
+                    // wheel rather than staying whatever the last one needed.
+                    batteryPercent = s.batteryPercent.copy(
+                        seriesCells = existing.seriesCells
+                    ),
                 )
             )
         } else {
@@ -1197,6 +1202,7 @@ class WheelRepository @Inject constructor(
                     safetyTiltbackKmh = s.safetyTiltbackKmh,
                     safetyAlarmKmh = s.safetyAlarmKmh,
                     speedCalibrationOffsetPct = s.speedCalibrationOffsetPct,
+                    seriesCells = s.batteryPercent.seriesCells,
                     lastConnectedAt = System.currentTimeMillis()
                 )
             )

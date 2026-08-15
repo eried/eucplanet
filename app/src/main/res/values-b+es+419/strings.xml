@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">Calibración de velocidad</string>
     <string name="section_battery_percent">Porcentaje de batería</string>
     <string name="battery_percent_caption">Calcular el porcentaje desde el voltaje del pack cuando el número de la rueda no coincide con su pantalla. Solo en la app, nunca se envía a la rueda.</string>
-    <string name="battery_percent_enhanced">Curva de WheelLog</string>
-    <string name="battery_percent_custom_min">Voltaje mínimo propio</string>
+    <string name="battery_percent_source">Porcentaje según</string>
+    <string name="battery_percent_mode_wheel">Rueda</string>
+    <string name="battery_percent_mode_curve">Curva de litio</string>
+    <string name="battery_percent_mode_custom">Propia</string>
     <string name="battery_percent_min_cell">Vacía a</string>
     <string name="battery_percent_series_cells">Celdas en serie</string>
     <string name="battery_percent_cells_from_wheel">Tomado de la rueda: %1$d en serie.</string>

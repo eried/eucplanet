@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
     <string name="section_battery_percent">Batterieprozent</string>
     <string name="battery_percent_caption">Den Prozentwert aus der Akkuspannung berechnen, wenn die Zahl des Rads von seiner Anzeige abweicht. Nur in der App, wird nie ans Rad gesendet.</string>
-    <string name="battery_percent_enhanced">WheelLog-Kurve</string>
-    <string name="battery_percent_custom_min">Eigene Mindestspannung</string>
+    <string name="battery_percent_source">Prozent von</string>
+    <string name="battery_percent_mode_wheel">Rad</string>
+    <string name="battery_percent_mode_curve">Lithiumkurve</string>
+    <string name="battery_percent_mode_custom">Eigene</string>
     <string name="battery_percent_min_cell">Leer bei</string>
     <string name="battery_percent_series_cells">Zellen in Reihe</string>
     <string name="battery_percent_cells_from_wheel">Vom Rad übernommen: %1$d in Reihe.</string>

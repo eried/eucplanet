@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">Hız kalibrasyonu</string>
     <string name="section_battery_percent">Batarya yüzdesi</string>
     <string name="battery_percent_caption">Tekerleğin kendi sayısı ekranıyla uyuşmadığında yüzdeyi paket voltajından hesapla. Yalnızca uygulamada, tekerleğe hiçbir zaman gönderilmez.</string>
-    <string name="battery_percent_enhanced">WheelLog eğrisi</string>
-    <string name="battery_percent_custom_min">Kendi minimum voltajın</string>
+    <string name="battery_percent_source">Yüzde kaynağı</string>
+    <string name="battery_percent_mode_wheel">Teker</string>
+    <string name="battery_percent_mode_curve">Lityum eğrisi</string>
+    <string name="battery_percent_mode_custom">Kendi</string>
     <string name="battery_percent_min_cell">Boş kabul edilen</string>
     <string name="battery_percent_series_cells">Seri hücre</string>
     <string name="battery_percent_cells_from_wheel">Tekerlekten alındı: %1$d seri.</string>

@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">속도 보정</string>
     <string name="section_battery_percent">배터리 잔량</string>
     <string name="battery_percent_caption">휠이 보고한 값이 휠 화면과 다를 때 팩 전압으로 잔량을 계산합니다. 앱에만 표시되며 휠로 전송되지 않습니다.</string>
-    <string name="battery_percent_enhanced">WheelLog 곡선</string>
-    <string name="battery_percent_custom_min">최소 전압 직접 설정</string>
+    <string name="battery_percent_source">잔량 기준</string>
+    <string name="battery_percent_mode_wheel">휠</string>
+    <string name="battery_percent_mode_curve">리튬 곡선</string>
+    <string name="battery_percent_mode_custom">사용자</string>
     <string name="battery_percent_min_cell">이 전압에서 0%</string>
     <string name="battery_percent_series_cells">직렬 셀 수</string>
     <string name="battery_percent_cells_from_wheel">휠에서 가져옴: 직렬 %1$d.</string>

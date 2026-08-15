@@ -538,8 +538,9 @@ fun SettingsScreen(
         stringResource(R.string.speed_legal_alarm),
         stringResource(R.string.section_speed_calibration),
         stringResource(R.string.section_battery_percent),
-        stringResource(R.string.battery_percent_enhanced),
-        stringResource(R.string.battery_percent_custom_min),
+        stringResource(R.string.battery_percent_source),
+        stringResource(R.string.battery_percent_mode_curve),
+        stringResource(R.string.battery_percent_mode_custom),
         stringResource(R.string.battery_percent_series_cells)
     ).joinToString(" ")
 
@@ -6467,38 +6468,44 @@ private fun SpeedTab(
         HintText(stringResource(R.string.battery_percent_caption), small = true)
         val bp = settings.batteryPercent
         val detectedSeriesCells by viewModel.detectedSeriesCells.collectAsState()
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.battery_percent_enhanced),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = bp.useWheelLogEnhanced,
-                onCheckedChange = { viewModel.updateBatteryPercentEnhanced(it) },
-                colors = themedSwitchColors())
+        // Three answers to one question, in one control: the wheel's own
+        // number, a lithium discharge curve, or a floor the rider names. Two
+        // switches read as independent settings when they never were.
+        val batteryModeEntries = listOf(
+            BatteryPercentSettings.MODE_WHEEL to
+                stringResource(R.string.battery_percent_mode_wheel),
+            BatteryPercentSettings.MODE_CURVE to
+                stringResource(R.string.battery_percent_mode_curve),
+            BatteryPercentSettings.MODE_CUSTOM to
+                stringResource(R.string.battery_percent_mode_custom),
+        )
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                batteryModeEntries.forEachIndexed { index, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == bp.mode,
+                        onClick = { viewModel.updateBatteryPercentMode(key) },
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index, batteryModeEntries.size,
+                            baseShape = RoundedCornerShape(12.dp)
+                        ),
+                        colors = themedSegmentedColors(),
+                    ) { Text(label) }
+                }
+            }
+            FieldNotchLabel(stringResource(R.string.battery_percent_source))
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.battery_percent_custom_min),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = bp.useCustomMinimumVoltage,
-                onCheckedChange = { viewModel.updateBatteryPercentCustomMin(it) },
-                colors = themedSwitchColors())
-        }
-        if (bp.useWheelLogEnhanced || bp.useCustomMinimumVoltage) {
+        if (bp.mode != BatteryPercentSettings.MODE_WHEEL) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Only meaningful for the custom scale; the curve has its own
                 // fixed endpoints.
-                if (bp.useCustomMinimumVoltage) {
+                if (bp.mode == BatteryPercentSettings.MODE_CUSTOM) {
                     NumberUpDown(
                         value = bp.minimumCellVoltageMv,
                         onValueChange = { viewModel.updateBatteryPercentMinimumMv(it) },

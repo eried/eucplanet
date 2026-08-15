@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">Calibration de vitesse</string>
     <string name="section_battery_percent">Pourcentage de batterie</string>
     <string name="battery_percent_caption">Calculer le pourcentage à partir de la tension du pack quand le chiffre de la roue ne correspond pas à son écran. Dans l\'app seulement, jamais envoyé à la roue.</string>
-    <string name="battery_percent_enhanced">Courbe WheelLog</string>
-    <string name="battery_percent_custom_min">Tension minimale choisie</string>
+    <string name="battery_percent_source">Pourcentage par</string>
+    <string name="battery_percent_mode_wheel">Roue</string>
+    <string name="battery_percent_mode_curve">Courbe lithium</string>
+    <string name="battery_percent_mode_custom">Perso</string>
     <string name="battery_percent_min_cell">Vide à</string>
     <string name="battery_percent_series_cells">Cellules en série</string>
     <string name="battery_percent_cells_from_wheel">Repris de la roue : %1$d en série.</string>

@@ -704,8 +704,10 @@
     <string name="section_speed_calibration">Sebesség kalibrálása</string>
     <string name="section_battery_percent">Akkumulátor százalék</string>
     <string name="battery_percent_caption">A százalék kiszámítása a csomag feszültségéből, ha a kerék saját száma eltér a kijelzőjétől. Csak az appban, a kerékre soha nem megy át.</string>
-    <string name="battery_percent_enhanced">WheelLog görbe</string>
-    <string name="battery_percent_custom_min">Saját minimum feszültség</string>
+    <string name="battery_percent_source">Százalék innen</string>
+    <string name="battery_percent_mode_wheel">Kerék</string>
+    <string name="battery_percent_mode_curve">Lítium görbe</string>
+    <string name="battery_percent_mode_custom">Egyéni</string>
     <string name="battery_percent_min_cell">Üres ennél</string>
     <string name="battery_percent_series_cells">Sorba kötött cellák</string>
     <string name="battery_percent_cells_from_wheel">A keréktől: %1$d sorban.</string>

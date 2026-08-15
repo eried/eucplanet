@@ -12,29 +12,29 @@ import org.junit.Test
 class BatteryPercentEstimatorTest {
 
     private val off = BatteryPercentSettings()
-    private val enhanced = BatteryPercentSettings(useWheelLogEnhanced = true)
+    private val curve = BatteryPercentSettings(mode = BatteryPercentSettings.MODE_CURVE)
     private fun customMin(mv: Int) = BatteryPercentSettings(
-        useCustomMinimumVoltage = true, minimumCellVoltageMv = mv,
+        mode = BatteryPercentSettings.MODE_CUSTOM, minimumCellVoltageMv = mv,
     )
 
     private fun est(v: Float, cells: Int, s: BatteryPercentSettings, reported: Int = 77) =
         BatteryPercentEstimator.estimate(v, cells, s, reported)
 
     @Test
-    fun `both options off keeps the wheel's own number`() {
+    fun `the wheel's own number is the default`() {
         assertEquals(77, est(102.0f, 30, off))
     }
 
     @Test
-    fun `enhanced curve on a 30S S22`() {
-        assertEquals(0, est(96.0f, 30, enhanced))
-        assertEquals(9, est(102.0f, 30, enhanced))
-        assertEquals(100, est(125.25f, 30, enhanced))
+    fun `the lithium curve on a 30S S22`() {
+        assertEquals(0, est(96.0f, 30, curve))
+        assertEquals(9, est(102.0f, 30, curve))
+        assertEquals(100, est(125.25f, 30, curve))
     }
 
     @Test
-    fun `enhanced curve on a 20S wheel`() {
-        assertEquals(9, est(68.0f, 20, enhanced))
+    fun `the lithium curve on a 20S wheel`() {
+        assertEquals(9, est(68.0f, 20, curve))
     }
 
     @Test
@@ -46,28 +46,25 @@ class BatteryPercentEstimatorTest {
     }
 
     @Test
-    fun `custom minimum wins when both are on`() {
-        // The rider naming a floor is more specific than picking a preset.
-        val both = BatteryPercentSettings(
-            useWheelLogEnhanced = true,
-            useCustomMinimumVoltage = true,
-            minimumCellVoltageMv = 3300,
-        )
-        assertEquals(50, est(112.5f, 30, both))
+    fun `a mode this build does not know keeps the wheel's own number`() {
+        // sanitized() maps an unknown mode back to WHEEL, but a value reaching
+        // the curve directly must not be answered with a guess either.
+        val unknown = BatteryPercentSettings(mode = "SOMETHING_LATER")
+        assertEquals(77, est(112.5f, 30, unknown))
     }
 
     @Test
     fun `no voltage yet keeps the wheel's own number`() {
         // A wheel that has not reported voltage reads 0, which the curve would
         // otherwise turn into a confident 0%.
-        assertEquals(77, est(0f, 30, enhanced))
-        assertEquals(77, est(-1f, 30, enhanced))
+        assertEquals(77, est(0f, 30, curve))
+        assertEquals(77, est(-1f, 30, curve))
     }
 
     @Test
     fun `an impossible cell count keeps the wheel's own number`() {
-        assertEquals(77, est(102.0f, 0, enhanced))
-        assertEquals(77, est(102.0f, 61, enhanced))
+        assertEquals(77, est(102.0f, 0, curve))
+        assertEquals(77, est(102.0f, 61, curve))
     }
 
     @Test
@@ -75,9 +72,9 @@ class BatteryPercentEstimatorTest {
         for (cells in intArrayOf(16, 20, 24, 30)) {
             for (mv in 2000..4400 step 25) {
                 val v = cells * mv / 1000f
-                val e = est(v, cells, enhanced, reported = 50)
+                val e = est(v, cells, curve, reported = 50)
                 val c = est(v, cells, customMin(3300), reported = 50)
-                assert(e in 0..100) { "enhanced $v V / ${cells}S gave $e" }
+                assert(e in 0..100) { "curve $v V / ${cells}S gave $e" }
                 assert(c in 0..100) { "custom $v V / ${cells}S gave $c" }
             }
         }

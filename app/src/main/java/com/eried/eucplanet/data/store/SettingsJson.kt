@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.store
 
+import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AppSettings
 import org.json.JSONObject
@@ -130,8 +131,7 @@ object SettingsJson {
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
         })
         put("batteryPercent", JSONObject().apply {
-            put("useWheelLogEnhanced", s.batteryPercent.useWheelLogEnhanced)
-            put("useCustomMinimumVoltage", s.batteryPercent.useCustomMinimumVoltage)
+            put("mode", s.batteryPercent.mode)
             put("minimumCellVoltageMv", s.batteryPercent.minimumCellVoltageMv)
             put("seriesCells", s.batteryPercent.seriesCells)
         })
@@ -445,10 +445,16 @@ object SettingsJson {
         } ?: base.mediaControl,
         batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
             base.batteryPercent.copy(
-                useWheelLogEnhanced =
-                    b.optBoolean("useWheelLogEnhanced", base.batteryPercent.useWheelLogEnhanced),
-                useCustomMinimumVoltage =
-                    b.optBoolean("useCustomMinimumVoltage", base.batteryPercent.useCustomMinimumVoltage),
+                // A file written before the two switches became one choice
+                // still restores: the custom floor was the one that won when
+                // both were set.
+                mode = b.optString("mode", null) ?: when {
+                    b.optBoolean("useCustomMinimumVoltage", false) ->
+                        BatteryPercentSettings.MODE_CUSTOM
+                    b.optBoolean("useWheelLogEnhanced", false) ->
+                        BatteryPercentSettings.MODE_CURVE
+                    else -> base.batteryPercent.mode
+                },
                 minimumCellVoltageMv =
                     b.optInt("minimumCellVoltageMv", base.batteryPercent.minimumCellVoltageMv),
                 seriesCells = b.optInt("seriesCells", base.batteryPercent.seriesCells),

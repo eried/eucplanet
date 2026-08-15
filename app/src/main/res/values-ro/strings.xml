@@ -704,8 +704,10 @@
     <string name="section_speed_calibration">Calibrarea vitezei</string>
     <string name="section_battery_percent">Procent baterie</string>
     <string name="battery_percent_caption">Calculează procentul din tensiunea pachetului când numărul roții nu se potrivește cu afișajul ei. Doar în aplicație, nu se trimite niciodată la roată.</string>
-    <string name="battery_percent_enhanced">Curba WheelLog</string>
-    <string name="battery_percent_custom_min">Tensiune minimă proprie</string>
+    <string name="battery_percent_source">Procent de la</string>
+    <string name="battery_percent_mode_wheel">Roată</string>
+    <string name="battery_percent_mode_curve">Curbă litiu</string>
+    <string name="battery_percent_mode_custom">Proprie</string>
     <string name="battery_percent_min_cell">Goală la</string>
     <string name="battery_percent_series_cells">Celule în serie</string>
     <string name="battery_percent_cells_from_wheel">Preluat de la roată: %1$d în serie.</string>

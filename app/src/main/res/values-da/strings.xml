@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">Hastighedskalibrering</string>
     <string name="section_battery_percent">Batteriprocent</string>
     <string name="battery_percent_caption">Beregn procenten ud fra pakkespændingen, når hjulets eget tal ikke passer med dets display. Kun i appen, sendes aldrig til hjulet.</string>
-    <string name="battery_percent_enhanced">WheelLog-kurve</string>
-    <string name="battery_percent_custom_min">Egen minimumsspænding</string>
+    <string name="battery_percent_source">Procent fra</string>
+    <string name="battery_percent_mode_wheel">Hjul</string>
+    <string name="battery_percent_mode_curve">Litiumkurve</string>
+    <string name="battery_percent_mode_custom">Egen</string>
     <string name="battery_percent_min_cell">Tom ved</string>
     <string name="battery_percent_series_cells">Celler i serie</string>
     <string name="battery_percent_cells_from_wheel">Hentet fra hjulet: %1$d i serie.</string>

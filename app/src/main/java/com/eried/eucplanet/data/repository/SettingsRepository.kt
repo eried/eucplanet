@@ -61,6 +61,10 @@ class SettingsRepository @Inject constructor(
         // a cell count that makes every pack read 100%. Clamped here so the
         // estimate never sees a value the UI would not let a rider pick.
         batteryPercent = batteryPercent.copy(
+            // Same rule as unlockWhen below: a mode this build does not know
+            // falls back to the wheel's own number rather than to a guess.
+            mode = batteryPercent.mode.takeIf { it in BatteryPercentSettings.MODE_VALUES }
+                ?: BatteryPercentSettings.MODE_WHEEL,
             minimumCellVoltageMv = batteryPercent.minimumCellVoltageMv.coerceIn(
                 BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV),
             seriesCells = batteryPercent.seriesCells.coerceIn(

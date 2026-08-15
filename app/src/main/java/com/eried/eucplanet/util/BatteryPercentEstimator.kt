@@ -48,17 +48,19 @@ object BatteryPercentEstimator {
         settings: BatteryPercentSettings,
         reportedPercent: Int,
     ): Int {
-        if (!settings.useWheelLogEnhanced && !settings.useCustomMinimumVoltage) return reportedPercent
+        if (settings.mode == BatteryPercentSettings.MODE_WHEEL) return reportedPercent
         // A wheel that has not reported voltage yet reads 0, which would
         // otherwise come out as a confident 0%.
         if (voltage <= 0f) return reportedPercent
         if (seriesCells !in BatteryPercentSettings.SERIES_RANGE) return reportedPercent
 
         val cellVoltage = voltage / seriesCells
-        return if (settings.useCustomMinimumVoltage) {
-            customMinimum(cellVoltage, settings.minimumCellVoltageMv)
-        } else {
-            wheelLogEnhanced(cellVoltage)
+        return when (settings.mode) {
+            BatteryPercentSettings.MODE_CUSTOM ->
+                customMinimum(cellVoltage, settings.minimumCellVoltageMv)
+            BatteryPercentSettings.MODE_CURVE -> lithiumCurve(cellVoltage)
+            // A mode we do not recognise is not a licence to invent a number.
+            else -> reportedPercent
         }
     }
 
@@ -78,11 +80,13 @@ object BatteryPercentEstimator {
     }
 
     /**
-     * WheelLog's two-segment curve. The steep segment between 3.20 and 3.40 V
-     * covers the knee where a pack empties quickly, so the number falls at a
-     * rate that matches what the rider feels.
+     * A lithium cell's discharge shape as two straight segments. The steep one
+     * between 3.20 and 3.40 V covers the knee where a pack empties quickly, so
+     * the number falls at a rate that matches what the rider feels. Same
+     * endpoints WheelLog uses for its "enhanced" reading, so riders coming
+     * from it see the number they are used to.
      */
-    private fun wheelLogEnhanced(cellVoltage: Float): Int = when {
+    private fun lithiumCurve(cellVoltage: Float): Int = when {
         cellVoltage > 4.175f -> 100
         cellVoltage > 3.40f -> ((cellVoltage - 3.325f) / 0.0085f).roundToInt().coerceIn(0, 100)
         cellVoltage > 3.20f -> ((cellVoltage - 3.20f) / 0.0225f).roundToInt().coerceIn(0, 100)

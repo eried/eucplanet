@@ -725,8 +725,10 @@
     <string name="section_speed_calibration">Calibrazione velocità</string>
     <string name="section_battery_percent">Percentuale batteria</string>
     <string name="battery_percent_caption">Calcola la percentuale dalla tensione del pacco quando il numero della ruota non coincide con il suo display. Solo nell\'app, mai inviato alla ruota.</string>
-    <string name="battery_percent_enhanced">Curva WheelLog</string>
-    <string name="battery_percent_custom_min">Tensione minima personale</string>
+    <string name="battery_percent_source">Percentuale da</string>
+    <string name="battery_percent_mode_wheel">Ruota</string>
+    <string name="battery_percent_mode_curve">Curva al litio</string>
+    <string name="battery_percent_mode_custom">Propria</string>
     <string name="battery_percent_min_cell">Scarica a</string>
     <string name="battery_percent_series_cells">Celle in serie</string>
     <string name="battery_percent_cells_from_wheel">Presa dalla ruota: %1$d in serie.</string>

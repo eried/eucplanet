@@ -559,8 +559,10 @@
     <string name="section_speed_calibration">Snelheidskalibratie</string>
     <string name="section_battery_percent">Batterijpercentage</string>
     <string name="battery_percent_caption">Bereken het percentage uit de pakspanning als het getal van het wiel niet klopt met zijn display. Alleen in de app, gaat nooit naar het wiel.</string>
-    <string name="battery_percent_enhanced">WheelLog-curve</string>
-    <string name="battery_percent_custom_min">Eigen minimumspanning</string>
+    <string name="battery_percent_source">Percentage van</string>
+    <string name="battery_percent_mode_wheel">Wiel</string>
+    <string name="battery_percent_mode_curve">Lithiumcurve</string>
+    <string name="battery_percent_mode_custom">Eigen</string>
     <string name="battery_percent_min_cell">Leeg bij</string>
     <string name="battery_percent_series_cells">Cellen in serie</string>
     <string name="battery_percent_cells_from_wheel">Van het wiel: %1$d in serie.</string>
