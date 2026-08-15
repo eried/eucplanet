@@ -25,6 +25,19 @@ object BatteryPercentEstimator {
     private const val FULL_V_PER_CELL = 4.20f
 
     /**
+     * Cells in series for a pack that is [nominalVoltage] when fully charged.
+     *
+     * Every EUC pack is a whole number of lithium cells at 4.2 V, so the
+     * charged voltage each family already records for its models gives the
+     * count with no per-brand table: 67 V is 16S, 84 V is 20S, 100 V is 24S,
+     * 126 V is 30S, 151 V is 36S, 176 V is 42S. VeteranModel has resolved its
+     * BMS cell count this way from the start; this is the same arithmetic in
+     * one place so every family gets it.
+     */
+    fun seriesCellsFor(nominalVoltage: Int): Int =
+        (nominalVoltage / FULL_V_PER_CELL).roundToInt()
+
+    /**
      * [reportedPercent] is returned unchanged whenever an estimate would be
      * guesswork. [seriesCells] is the connected wheel's own count when its
      * model states one, otherwise the rider's setting.

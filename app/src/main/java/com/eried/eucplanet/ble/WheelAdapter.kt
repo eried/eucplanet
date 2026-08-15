@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble
 import android.bluetooth.BluetoothGattCharacteristic
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
+import com.eried.eucplanet.util.BatteryPercentEstimator
 import java.util.UUID
 
 /**
@@ -294,20 +295,35 @@ interface WheelAdapter {
     val familyDisplayName: String get() = familyId
 
     /**
+     * Pack voltage at full charge for the connected wheel, in volts, once the
+     * family has identified a model. Null until then, and for families whose
+     * model table does not record it.
+     *
+     * Every family already keeps this number for its own models, so each
+     * adapter just points at the one it detected rather than answering a
+     * battery-specific question of its own.
+     */
+    val nominalPackVoltage: Int? get() = null
+
+    /**
+     * Cells in series for the connected wheel, derived from
+     * [nominalPackVoltage] at 4.2 V per cell.
+     *
+     * Used to turn pack voltage into a per-cell voltage for the display-only
+     * battery estimate; null means the rider's own setting is used instead,
+     * because a live pack voltage alone cannot separate a 20S from a 30S.
+     * Never sent to the wheel.
+     */
+    val seriesCells: Int?
+        get() = nominalPackVoltage
+            ?.takeIf { it > 0 }
+            ?.let { BatteryPercentEstimator.seriesCellsFor(it) }
+
+    /**
      * Brand the connected wheel belongs to, e.g. "InMotion" / "Begode".
      * Derived from [familyId] so every family resolves the same way, with no
      * model detection. The dashboard can show it as the wheel name directly.
      */
-    /**
-     * Cells in series for the connected wheel, when the family can tell.
-     *
-     * Only used to turn pack voltage into a per-cell voltage for the
-     * display-only battery estimate; null means the rider's own setting is
-     * used instead, because pack voltage alone cannot separate a 20S from a
-     * 30S. Never sent to the wheel.
-     */
-    val seriesCells: Int? get() = null
-
     val brand: String get() = when (familyId) {
         "begode" -> "Begode"
         "kingsong" -> "KingSong"

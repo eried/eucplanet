@@ -1064,9 +1064,10 @@ data class MediaControlSettings(
  * protection is unaffected either way, and so is the reading the wheel makes
  * its own decisions on.
  *
- * The curve is battery chemistry, not a brand, so it works on any wheel. A
- * recognised KingSong model knows its own cell count; everything else asks
- * the rider for [seriesCells], since pack voltage alone cannot distinguish a
+ * The curve is battery chemistry, not a brand, so it works on any wheel. Cells
+ * in series come from the charged pack voltage the wheel's own model states,
+ * which every family records; [seriesCells] is asked of the rider only when the
+ * model is unrecognised, since a live pack voltage alone cannot distinguish a
  * 20S from a 30S.
  */
 data class BatteryPercentSettings(

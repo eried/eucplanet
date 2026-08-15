@@ -41,6 +41,8 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     @Volatile private var detectedModel: VeteranModel? = null
 
+    override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
+
     private val parser = VeteranParser()
 
     override fun bleProfile(): BleProfile = BleProfile.HM10
