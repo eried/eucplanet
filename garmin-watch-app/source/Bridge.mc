@@ -31,6 +31,12 @@ class PhoneBridge {
     private var _txBusySinceMs as Lang.Number = 0;
     private var _txListener as TransmitListener?;
 
+    //! Last STATE sequence number received from the phone. Echoed on every
+    //! ALIVE ("alive:<seq>") so the phone can see how far the watch has actually
+    //! caught up and stop outrunning it - which is what let Connect Mobile
+    //! buffer a minute-long backlog (issue #14).
+    private var _lastRxSeq as Lang.Number = 0;
+
     function initialize() {
         _txListener = new TransmitListener(self);
     }
@@ -43,7 +49,7 @@ class PhoneBridge {
         sendWatchInfo();
         // Heartbeat. First ack goes out immediately so the phone's Live
         // indicator doesn't wait 5 s for the bridge to come up.
-        transmitControl(Control.ALIVE);
+        sendAlive();
         _aliveTimer = new Timer.Timer();
         _aliveTimer.start(method(:onAliveTick), 5000, /* repeat = */ true);
     }
@@ -60,10 +66,27 @@ class PhoneBridge {
         // transmitControl itself skips while a prior transmit is outstanding
         // (with a timeout), so the heartbeat can't pile unacked frames into the
         // queue - that overflow is what crashed the dial (issue #13).
-        transmitControl(Control.ALIVE);
+        sendAlive();
+    }
+
+    //! ALIVE heartbeat carrying the last STATE seq we received in a separate
+    //! dict field. An older phone build ignores the extra field and still reads
+    //! cmd == "alive", so this stays backward-compatible both directions.
+    function sendAlive() as Void {
+        transmitDict({ Control.PAYLOAD_KEY => Control.ALIVE, Keys.SEQ => _lastRxSeq });
     }
 
     function onMessage(msg as Communications.PhoneAppMessage) as Void {
+        // A frame that trips an exception (odd type, malformed dict) must never
+        // take the dial down - drop it and wait for the next one. This matters
+        // most when Connect Mobile delivers a backlog burst after a stall.
+        try {
+            handleMessage(msg);
+        } catch (e) {
+        }
+    }
+
+    function handleMessage(msg as Communications.PhoneAppMessage) as Void {
         var data = msg.data;
         if (data == null) { return; }
         // CIQ delivers the phone's payload either as a Dictionary directly
@@ -77,6 +100,9 @@ class PhoneBridge {
 
         var kind = data.get(Keys.KIND);
         if (kind == null || kind.equals(Keys.KIND_STATE)) {
+            // Remember the seq so the next ALIVE tells the phone we got this far.
+            var sq = data.get(Keys.SEQ);
+            if (sq instanceof Lang.Number) { _lastRxSeq = sq; }
             WatchState.update(data);
         } else if (kind.equals(Keys.KIND_WAKE)) {
             // The phone fires this whenever its app comes to foreground. The
@@ -107,14 +133,19 @@ class PhoneBridge {
     //! uncaught System Error that takes down the dial. Catch and drop so a
     //! stuck phone link doesn't kill the watch app.
     function transmitControl(intent as Lang.String) as Void {
-        // Backpressure: never stack a second transmit on an outstanding one. A
-        // full CIQ outbound queue throws "Communications transmit queue full" as
-        // an uncaught System Error that crashes the dial while the delegate keeps
-        // running - exactly issue #13. Drop the frame if one is in flight
-        // (best-effort, like the Wear bridge), but abandon a genuinely stuck
-        // transmit after ~4 s so a lost callback can't silence the link forever.
+        transmitDict({ Control.PAYLOAD_KEY => intent });
+    }
+
+    //! Guarded transmit shared by control intents and the ALIVE heartbeat.
+    //!
+    //! Backpressure: never stack a second transmit on an outstanding one. A
+    //! full CIQ outbound queue throws "Communications transmit queue full" as
+    //! an uncaught System Error that crashes the dial while the delegate keeps
+    //! running - exactly issue #13. Drop the frame if one is in flight
+    //! (best-effort, like the Wear bridge), but abandon a genuinely stuck
+    //! transmit after ~4 s so a lost callback can't silence the link forever.
+    private function transmitDict(payload as Lang.Dictionary) as Void {
         if (_txBusy && (System.getTimer() - _txBusySinceMs) < 4000) { return; }
-        var payload = { Control.PAYLOAD_KEY => intent };
         _txBusy = true;
         _txBusySinceMs = System.getTimer();
         try {

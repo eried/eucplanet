@@ -159,6 +159,16 @@ class EucPlanetView extends WatchUi.View {
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {
+        // A draw that throws (unexpected value, resource hiccup) would otherwise
+        // crash the whole dial. Contain it: the frame is skipped and the next
+        // redraw (phone frame or the 1 s tick) recovers.
+        try {
+            drawFrame(dc);
+        } catch (e) {
+        }
+    }
+
+    function drawFrame(dc as Graphics.Dc) as Void {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
 
