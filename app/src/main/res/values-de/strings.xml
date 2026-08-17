@@ -1117,6 +1117,9 @@
     <string name="online_status_flagged">Geteilt, wird geprüft</string>
     <string name="online_status_pending">Wird hochgeladen…</string>
     <string name="online_status_failed">Upload fehlgeschlagen, tippen zum Wiederholen</string>
+    <string name="online_status_checking">Wird mit der Rangliste abgeglichen…</string>
+    <string name="online_status_check_failed">Prüfung derzeit nicht möglich, später erneut versuchen</string>
+    <string name="online_status_rejected">Nicht für die Rangliste akzeptiert</string>
     <string name="online_upload_join_caption">Tritt bei, um deine Statistiken und Fahrten in der öffentlichen Bestenliste zu teilen auf</string>
     <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

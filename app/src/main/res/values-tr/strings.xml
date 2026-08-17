@@ -1117,6 +1117,9 @@
     <string name="online_status_flagged">Paylaşıldı, inceleniyor</string>
     <string name="online_status_pending">Lider tablosuna yükleniyor…</string>
     <string name="online_status_failed">Çevrimiçi yükleme başarısız, yeniden denemek için dokunun</string>
+    <string name="online_status_checking">Lider tablosunda kontrol ediliyor…</string>
+    <string name="online_status_check_failed">Şu anda kontrol edilemedi, daha sonra tekrar deneyin</string>
+    <string name="online_status_rejected">Lider tablosuna kabul edilmedi</string>
     <string name="online_upload_join_caption">İstatistiklerinizi ve seferlerinizi şu adresteki herkese açık lider tablosuna göndermek için katılın</string>
     <string name="online_upload_linked_caption">İstatistikleriniz ve seferleriniz şu adresteki herkese açık lider tablosunda görünüyor</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

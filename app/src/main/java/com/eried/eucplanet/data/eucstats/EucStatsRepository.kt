@@ -270,6 +270,40 @@ class EucStatsRepository @Inject constructor(
         }
 
     // -------------------------------------------------------------------------
+    // Held trips: re-reading a verdict that changed after upload
+    // -------------------------------------------------------------------------
+
+    /**
+     * Re-read one trip's verdict and store it if it moved. Returns the current validation
+     * status, or null when the server couldn't be reached (so the caller can say "couldn't
+     * check" rather than implying the trip is still held).
+     *
+     * A trip held for review is not a failure and not something the rider can act on:
+     * re-uploading returns the same verdict from the server's dedupe. Asking is the only
+     * way the app can learn it cleared.
+     */
+    suspend fun refreshTripVerdict(trip: TripRecord): String? = withContext(Dispatchers.IO) {
+        val uuid = trip.tripUuid ?: return@withContext null
+        val status = api.getTripStatus(uuid) ?: return@withContext null
+        val now = status.validationStatus ?: return@withContext null
+        if (now != trip.eucstatsValidation) {
+            tripDao.update(trip.copy(eucstatsValidation = now))
+            refreshCard()          // an approved trip has just joined the rider's totals
+        }
+        now
+    }
+
+    /** Re-read every held trip. Returns how many changed verdict. */
+    suspend fun refreshHeldTrips(): Int = withContext(Dispatchers.IO) {
+        var changed = 0
+        for (trip in tripDao.getHeldEucstatsTrips()) {
+            val now = runCatching { refreshTripVerdict(trip) }.getOrNull()
+            if (now != null && now != trip.eucstatsValidation) changed++
+        }
+        changed
+    }
+
+    // -------------------------------------------------------------------------
     // Profile management
     // -------------------------------------------------------------------------
 

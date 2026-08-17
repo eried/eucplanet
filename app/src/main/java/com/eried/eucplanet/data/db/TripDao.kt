@@ -94,6 +94,23 @@ interface TripDao {
     )
     suspend fun getPendingEucstatsUploads(): List<TripRecord>
 
+    /**
+     * Trips the server accepted but is still holding for review.
+     *
+     * The verdict is not final at upload: a held trip becomes "validated" once a human
+     * approves it, and the upload response was our only look at it. Without re-reading
+     * these, the rider keeps an "under review" cloud forever on a ride that is already
+     * counting on the leaderboard.
+     */
+    @Query(
+        "SELECT * FROM trips " +
+            "WHERE tripUuid IS NOT NULL " +
+            "AND eucstatsStatus = 2 " +
+            "AND eucstatsValidation = 'flagged' " +
+            "ORDER BY startTime DESC"
+    )
+    suspend fun getHeldEucstatsTrips(): List<TripRecord>
+
     /** Clear unfinished eucstats statuses (pending / failed). Used when online
      *  uploads are toggled off or the sync folder is unlinked, so the orange /
      *  red cloud icon stops appearing for trips that can no longer upload.

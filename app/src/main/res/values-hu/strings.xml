@@ -1373,6 +1373,9 @@
     <string name="online_status_flagged">Megosztva, ellenőrzés alatt</string>
     <string name="online_status_pending">Feltöltés a ranglistára…</string>
     <string name="online_status_failed">Az online feltöltés nem sikerült, koppints az újrapróbáláshoz</string>
+    <string name="online_status_checking">Ellenőrzés a ranglistán…</string>
+    <string name="online_status_check_failed">Most nem sikerült ellenőrizni, próbáld később</string>
+    <string name="online_status_rejected">Nem került fel a ranglistára</string>
     <string name="online_upload_join_caption">Csatlakozz, hogy elküldd a statisztikáidat és meneteidet a nyilvános ranglistára itt:</string>
     <string name="online_upload_linked_caption">A statisztikáid és meneteid megjelennek a nyilvános ranglistán itt:</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

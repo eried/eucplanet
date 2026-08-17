@@ -1120,6 +1120,9 @@
     <string name="online_status_flagged">Partagé, en cours de vérification</string>
     <string name="online_status_pending">Envoi au classement…</string>
     <string name="online_status_failed">Envoi échoué, appuie pour réessayer</string>
+    <string name="online_status_checking">Vérification auprès du classement…</string>
+    <string name="online_status_check_failed">Vérification impossible pour l\'instant, réessayez plus tard</string>
+    <string name="online_status_rejected">Non accepté pour le classement</string>
     <string name="online_upload_join_caption">Rejoins pour envoyer tes stats et tes trajets au classement public sur</string>
     <string name="online_upload_linked_caption">Tes stats et tes trajets apparaissent dans le classement public sur</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

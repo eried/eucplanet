@@ -1117,6 +1117,9 @@
     <string name="online_status_flagged">已分享，審查中</string>
     <string name="online_status_pending">正在上傳至排行榜…</string>
     <string name="online_status_failed">線上上傳失敗，點擊重試</string>
+    <string name="online_status_checking">正在與排行榜核對…</string>
+    <string name="online_status_check_failed">暫時無法核對，請稍後再試</string>
+    <string name="online_status_rejected">未被排行榜接受</string>
     <string name="online_upload_join_caption">加入後可將您的統計和行程傳送至公開排行榜</string>
     <string name="online_upload_linked_caption">您的統計和行程已顯示在公開排行榜上</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

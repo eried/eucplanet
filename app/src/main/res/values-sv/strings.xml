@@ -1116,6 +1116,9 @@
     <string name="online_status_flagged">Delad, granskas</string>
     <string name="online_status_pending">Laddar upp till topplistan…</string>
     <string name="online_status_failed">Uppladdning misslyckades, tryck för att försöka igen</string>
+    <string name="online_status_checking">Kontrollerar mot topplistan…</string>
+    <string name="online_status_check_failed">Kunde inte kontrollera nu, försök igen senare</string>
+    <string name="online_status_rejected">Inte godkänd för topplistan</string>
     <string name="online_upload_join_caption">Gå med för att skicka din statistik och dina turer till den publika topplistan på</string>
     <string name="online_upload_linked_caption">Din statistik och dina turer visas på den publika topplistan på</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

@@ -1470,6 +1470,9 @@
     <string name="online_status_flagged">Delt, til gjennomgang</string>
     <string name="online_status_pending">Laster opp til ledertavlen…</string>
     <string name="online_status_failed">Opplasting mislyktes, trykk for å prøve igjen</string>
+    <string name="online_status_checking">Sjekker med resultatlisten…</string>
+    <string name="online_status_check_failed">Kunne ikke sjekke nå, prøv igjen senere</string>
+    <string name="online_status_rejected">Ikke godkjent for resultatlisten</string>
     <string name="online_upload_join_caption">Turene dine vises på den offentlige ledertavlen på</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
