@@ -995,11 +995,28 @@ class WheelService : LifecycleService() {
      * pushed into ANR territory by exactly that. The live G-force trail is left
      * out for the same reason: it is a 1100-sample buffer at IMU rate.
      */
-    private fun pushPhoneHud(data: WheelData) {
+    private fun pushPhoneHud(rawData: WheelData) {
         if (!phoneHudWindow.isShowing) return
         val now = System.currentTimeMillis()
         if (now - lastPhoneHudPush < PHONE_HUD_INTERVAL_MS) return
         lastPhoneHudPush = now
+        // Fold the phone's own fix in, the way the Overlay Studio does for its
+        // preview: the wheel stream carries lat/long and GPS speed only when a
+        // paired box (RaceBox / Dragy) is feeding them, so on a phone-only
+        // setup those elements had nothing to draw. Filled only where the
+        // stream is silent, so a paired box still wins where it speaks.
+        val loc = tripRepository.currentLocation.value
+        val data = if (loc == null) rawData else rawData.copy(
+            latitude = if (rawData.latitude == 0.0 && rawData.longitude == 0.0) loc.latitude
+                else rawData.latitude,
+            longitude = if (rawData.latitude == 0.0 && rawData.longitude == 0.0) loc.longitude
+                else rawData.longitude,
+            gpsSpeedKmh = if (rawData.gpsSpeedKmh < 0f && loc.hasSpeed()) loc.speed * 3.6f
+                else rawData.gpsSpeedKmh,
+            gpsAltitudeM = if (rawData.gpsAltitudeM.isNaN() && loc.hasAltitude()) {
+                loc.altitude.toFloat()
+            } else rawData.gpsAltitudeM,
+        )
         // Graph elements plot StudioElementData.history, so passing an empty
         // list drew their frame and axes with nothing inside. A sample is only
         // a timestamp plus the WheelData we already hold, so the buffer costs
@@ -1077,6 +1094,11 @@ class WheelService : LifecycleService() {
             com.eried.eucplanet.data.model.WidgetMetricType.TEMP -> u.tempUnit(tempUnit)
             com.eried.eucplanet.data.model.WidgetMetricType.CURRENT -> "A"
             com.eried.eucplanet.data.model.WidgetMetricType.POWER -> "W"
+            com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED -> "Wh"
+            com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
+                "Wh/" + u.distanceUnit(distUnit)
+            com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
+                u.distanceUnit(distUnit)
         }
 
         metricKeys.forEach { key ->
@@ -1112,6 +1134,16 @@ class WheelService : LifecycleService() {
                     "%.0f".format(kotlin.math.abs(data.current))
                 com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
                     "%.0f".format(kotlin.math.abs(data.voltage * data.current))
+                com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED ->
+                    "%.0f".format(data.whConsumed)
+                // Both are NaN until the rolling window has enough distance;
+                // the widget says nothing rather than showing a made-up zero.
+                com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
+                    if (data.whPerKmRecent.isNaN()) "--"
+                    else "%.0f".format(data.whPerKmRecent / u.distance(1f, distUnit))
+                com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
+                    if (data.rangeKmEstimate.isNaN()) "--"
+                    else "%.0f".format(u.distance(data.rangeKmEstimate, distUnit))
                 com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY ->
                     "$phoneBatteryCached"
             }

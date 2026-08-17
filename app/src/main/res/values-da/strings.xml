@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Gns. fart</string>
     <string name="metric_chip_wh_consumed">Energi</string>
     <string name="metric_chip_range_estimate">Rækkevidde</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Forbrug</string>
     <string name="metric_chip_phone_battery">Telefonbatteri</string>
     <string name="metric_chip_gps_altitude">Højde</string>
     <string name="metric_chip_gps_speed">GPS-fart</string>
@@ -824,7 +824,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spænding</string>
     <string name="alarm_metric_current">Strøm</string>
+    <string name="alarm_metric_wh_consumed">Energi</string>
+    <string name="alarm_metric_wh_per_km">Forbrug</string>
+    <string name="alarm_metric_range">Rækkevidde</string>
     <string name="alarm_metric_gps_speed">GPS-hastighed</string>
+    <string name="alarm_metric_gps_altitude">Højde</string>
     <string name="alarm_metric_external_gps_speed">Ekstern GPS-hastighed</string>
     <string name="alarm_metric_external_gps_battery">Ekstern GPS-batteri</string>
     <string name="alarm_metric_external_gps_speed_short">Ext GPS-hast.</string>
@@ -922,6 +926,8 @@
     <string name="recording_summary_max_current">Maks. strøm</string>
     <string name="recording_summary_max_power">Maks. effekt</string>
     <string name="recording_summary_max_temp">Maks. temp</string>
+    <string name="recording_summary_energy">Energi</string>
+    <string name="recording_summary_consumption">Forbrug</string>
     <string name="recording_chart_speed">Fart (%1$s)</string>
     <string name="recording_chart_battery">Batteri (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
@@ -1355,7 +1361,10 @@
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
-    <string name="studio_cfg_map_trace">Vis spor</string>
+    <string name="studio_cfg_map_trace">Spor</string>
+    <string name="studio_cfg_map_trace_none">Ingen</string>
+    <string name="studio_cfg_map_trace_progress">Så langt</string>
+    <string name="studio_cfg_map_trace_full">Hele turen</string>
     <string name="studio_cfg_map_use_custom_marker">Foretræk tilpasset markør</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Indstil dit foto under Navigator → Tilpas min markør</string>
     <string name="studio_cfg_camera_label">Kamera</string>
@@ -1427,6 +1436,7 @@
     <string name="studio_metric_external_gps_battery">Ekst. GPS-batteri</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-fart</string>
     <string name="studio_metric_gps_speed">GPS-fart</string>
+    <string name="studio_metric_gps_altitude">Højde</string>
     <string name="metric_chip_trip_meter">Triptæller</string>
     <string name="trip_meter_detail_title">Triptæller</string>
     <string name="trip_meter_tab_speed">Fart</string>
@@ -1445,6 +1455,9 @@
     <string name="trip_meter_col_max">Maks</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Triptæller</string>
+    <string name="studio_metric_wh_consumed">Energi</string>
+    <string name="studio_metric_wh_per_km">Forbrug</string>
+    <string name="studio_metric_range">Rækkevidde</string>
     <string name="studio_metric_gps">GPS-koordinater</string>
 
     <!-- Navigator -->
@@ -2131,6 +2144,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Strom</string>
     <string name="widget_metric_power">Effekt</string>
+    <string name="widget_metric_wh_consumed">Energi</string>
+    <string name="widget_metric_wh_per_km">Forbrug</string>
+    <string name="widget_metric_range">Rækkevidde</string>
     <string name="widget_metric_phone_battery">Telefonbatteri</string>
     <string name="widget_action_voice">Tale</string>
     <string name="widget_button_unset">Vaelg en knap i Indstillinger</string>

@@ -37,6 +37,11 @@ data class WheelData(
      *  Distinct from externalGpsSpeedKmh (a paired box); merged in like lat/long
      *  so an overlay / HUD element can show the phone GPS speed. */
     val gpsSpeedKmh: Float = -1f,
+    /** Altitude in metres above sea level from the PHONE's fused GPS, or NaN
+     *  when there is no fix or the fix carries no altitude. Merged in beside
+     *  lat/long and gpsSpeedKmh, and NaN rather than -1 because a rider below
+     *  sea level is a real reading, not a missing one. */
+    val gpsAltitudeM: Float = Float.NaN,
     /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
      *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
      *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay
@@ -61,6 +66,29 @@ data class WheelData(
     /** Wh returned to the battery since connect (regen / charge integral). Backs
      *  the REGEN_WH "Regen" tile. */
     val whRegen: Float = 0f,
+    /**
+     * Net Wh per km over the rider's dashboard rolling window: energy out minus
+     * regen, divided by the distance covered in that same window. Both ends come
+     * from the same two cumulative series, so the numerator and denominator
+     * cannot describe different stretches of road. NaN until the window holds
+     * enough distance to divide by. Backs WH_PER_KM.
+     *
+     * A rate, unlike [whConsumed], which is a running total. The two do not
+     * reconcile by division and are not meant to: this one answers what the
+     * ride is costing right now, and it moves when the road tilts.
+     */
+    val whPerKmRecent: Float = Float.NaN,
+    /**
+     * Remaining range in km at the recent consumption rate, or NaN while either
+     * that rate or the pack's Wh-per-percent is still unknown. Backs
+     * RANGE_ESTIMATE.
+     *
+     * Wh-per-percent is learned from this ride rather than from a pack size we
+     * do not know: energy spent against battery percent dropped. It needs a few
+     * percent of drop before it says anything, and it is only ever as good as
+     * the wheel's own percentage.
+     */
+    val rangeKmEstimate: Float = Float.NaN,
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,

@@ -347,7 +347,15 @@ private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Colo
     AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
     AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
     AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> MaterialTheme.appColors.statusWarn
+    // Altitude shares the position accent: both are "where you are" readings,
+    // and the palette has no altitude token to reuse.
+    AlarmMetric.GPS_ALTITUDE -> MaterialTheme.appColors.metricPosition
     AlarmMetric.EXTERNAL_GPS_BATTERY -> MaterialTheme.appColors.statusGood
+    // Energy readings share the battery accent: all three are the same
+    // question, how much is left and how fast it is going.
+    AlarmMetric.WH_CONSUMED,
+    AlarmMetric.WH_PER_KM,
+    AlarmMetric.RANGE_ESTIMATE -> MaterialTheme.appColors.statusGood
     AlarmMetric.RADAR_DISTANCE, AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
 }
 

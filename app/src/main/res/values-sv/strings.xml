@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Genomsn. fart</string>
     <string name="metric_chip_wh_consumed">Energi</string>
     <string name="metric_chip_range_estimate">Räckvidd</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Förbrukning</string>
     <string name="metric_chip_phone_battery">Telefonbatteri</string>
     <string name="metric_chip_gps_altitude">Höjd</string>
     <string name="metric_chip_gps_speed">GPS-fart</string>
@@ -820,7 +820,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spänning</string>
     <string name="alarm_metric_current">Ström</string>
+    <string name="alarm_metric_wh_consumed">Energi</string>
+    <string name="alarm_metric_wh_per_km">Förbrukning</string>
+    <string name="alarm_metric_range">Räckvidd</string>
     <string name="alarm_metric_gps_speed">GPS-hastighet</string>
+    <string name="alarm_metric_gps_altitude">Höjd</string>
     <string name="alarm_metric_external_gps_speed">Extern GPS-hastighet</string>
     <string name="alarm_metric_external_gps_battery">Externt GPS-batteri</string>
     <string name="alarm_metric_external_gps_speed_short">Ext GPS-hast.</string>
@@ -910,6 +914,8 @@
     <string name="recording_summary_top_speed">Topphastighet</string>
     <string name="recording_summary_avg_speed">Genomsnittsfart</string>
     <string name="recording_summary_max_temp">Högsta temp</string>
+    <string name="recording_summary_energy">Energi</string>
+    <string name="recording_summary_consumption">Förbrukning</string>
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spänning</string>
     <string name="recording_summary_avg_moving">Snitt i rörelse</string>
@@ -1342,7 +1348,10 @@
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Rotera med rörelsen</string>
-    <string name="studio_cfg_map_trace">Visa spår</string>
+    <string name="studio_cfg_map_trace">Spår</string>
+    <string name="studio_cfg_map_trace_none">Ingen</string>
+    <string name="studio_cfg_map_trace_progress">Hittills</string>
+    <string name="studio_cfg_map_trace_full">Hela resan</string>
     <string name="studio_cfg_map_use_custom_marker">Föredra anpassad markör</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Ange ditt foto under Navigator → Anpassa min markör</string>
     <string name="studio_cfg_camera_label">Kamera</string>
@@ -1414,6 +1423,7 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-batteri</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-fart</string>
     <string name="studio_metric_gps_speed">GPS-fart</string>
+    <string name="studio_metric_gps_altitude">Höjd</string>
     <string name="metric_chip_trip_meter">Trippmätare</string>
     <string name="trip_meter_detail_title">Trippmätare</string>
     <string name="trip_meter_tab_speed">Fart</string>
@@ -1432,6 +1442,9 @@
     <string name="trip_meter_col_max">Max</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Trippmätare</string>
+    <string name="studio_metric_wh_consumed">Energi</string>
+    <string name="studio_metric_wh_per_km">Förbrukning</string>
+    <string name="studio_metric_range">Räckvidd</string>
     <string name="studio_metric_gps">GPS-koordinater</string>
 
     <!-- Navigator -->
@@ -2116,6 +2129,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Strom</string>
     <string name="widget_metric_power">Effekt</string>
+    <string name="widget_metric_wh_consumed">Energi</string>
+    <string name="widget_metric_wh_per_km">Förbrukning</string>
+    <string name="widget_metric_range">Räckvidd</string>
     <string name="widget_metric_phone_battery">Telefonbatteri</string>
     <string name="widget_action_voice">Rost</string>
     <string name="widget_button_unset">Valj en knapp i Installningar</string>

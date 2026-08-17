@@ -253,7 +253,7 @@
     <string name="metric_chip_avg_trip_speed">Avg speed</string>
     <string name="metric_chip_wh_consumed">Energy</string>
     <string name="metric_chip_range_estimate">Range</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Consumption</string>
     <string name="metric_chip_phone_battery">Phone battery</string>
     <string name="metric_chip_gps_altitude">Altitude</string>
     <string name="metric_chip_gps_speed">GPS speed</string>
@@ -1087,7 +1087,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
+    <string name="alarm_metric_wh_consumed">Energy</string>
+    <string name="alarm_metric_wh_per_km">Consumption</string>
+    <string name="alarm_metric_range">Range</string>
     <string name="alarm_metric_gps_speed">GPS speed</string>
+    <string name="alarm_metric_gps_altitude">Altitude</string>
     <!-- Full names: used for the spoken voice message ({metric}). The short
          *_short variants below are the dropdown/list labels so they fit the
          narrow selected-metric box on one line. -->
@@ -1206,6 +1210,8 @@
     <string name="recording_summary_top_speed">Top Speed</string>
     <string name="recording_summary_avg_speed">Avg Speed</string>
     <string name="recording_summary_max_temp">Max Temp</string>
+    <string name="recording_summary_energy">Energy</string>
+    <string name="recording_summary_consumption">Consumption</string>
     <string name="recording_summary_battery">Battery (-%1$d%%)</string>
     <string name="recording_summary_voltage">Voltage</string>
     <string name="recording_summary_avg_moving">Avg Moving</string>
@@ -1254,6 +1260,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Current</string>
     <string name="widget_metric_power">Power</string>
+    <string name="widget_metric_wh_consumed">Energy</string>
+    <string name="widget_metric_wh_per_km">Consumption</string>
+    <string name="widget_metric_range">Range</string>
     <string name="widget_metric_phone_battery">Phone battery</string>
     <string name="widget_action_voice">Voice</string>
     <string name="widget_standalone_desc">Actions for the button-only widgets, separate from the row above.</string>
@@ -1779,7 +1788,10 @@
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Rotate with movement</string>
-    <string name="studio_cfg_map_trace">Show trace</string>
+    <string name="studio_cfg_map_trace">Trace</string>
+    <string name="studio_cfg_map_trace_none">None</string>
+    <string name="studio_cfg_map_trace_progress">Progress</string>
+    <string name="studio_cfg_map_trace_full">Full trip</string>
     <string name="studio_cfg_map_use_custom_marker">Prefer customized marker</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Set your photo in Navigator → Customize my marker</string>
     <string name="studio_cfg_radar_mode">Radar view</string>
@@ -1862,6 +1874,9 @@
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Trip distance</string>
     <string name="studio_metric_trip_meter">Trip meter</string>
+    <string name="studio_metric_wh_consumed">Energy</string>
+    <string name="studio_metric_wh_per_km">Consumption</string>
+    <string name="studio_metric_range">Range</string>
     <string name="studio_metric_odometer">Odometer</string>
     <string name="studio_metric_pitch">Pitch</string>
     <string name="studio_metric_roll">Roll</string>
@@ -1869,6 +1884,7 @@
     <string name="studio_metric_external_gps_battery">Ext GPS battery</string>
     <string name="studio_metric_external_gps_speed">Ext GPS speed</string>
     <string name="studio_metric_gps_speed">GPS speed</string>
+    <string name="studio_metric_gps_altitude">Altitude</string>
     <string name="studio_metric_tire_pressure">Tire pressure</string>
     <string name="studio_metric_gps">GPS coordinates</string>
 

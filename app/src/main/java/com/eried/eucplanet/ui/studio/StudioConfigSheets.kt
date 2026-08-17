@@ -122,6 +122,7 @@ import com.eried.eucplanet.ui.settings.RestoreChip
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.MapTraceMode
 import com.eried.eucplanet.hud.protocol.ReplaySourceType
 import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportLayout
@@ -2115,10 +2116,27 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_map_rotate),
                     element.mapRotateWithHeading
                 ) { onChange(element.copy(mapRotateWithHeading = it)) }
-                ToggleRow(
+                Text(
                     stringResource(R.string.studio_cfg_map_trace),
-                    element.mapTrace
-                ) { onChange(element.copy(mapTrace = it)) }
+                    fontWeight = FontWeight.SemiBold
+                )
+                val traceNone = stringResource(R.string.studio_cfg_map_trace_none)
+                val traceProgress = stringResource(R.string.studio_cfg_map_trace_progress)
+                val traceFull = stringResource(R.string.studio_cfg_map_trace_full)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        MapTraceMode.NONE to traceNone,
+                        MapTraceMode.PROGRESS to traceProgress,
+                        MapTraceMode.FULL to traceFull
+                    ).forEach { (mode, lbl) ->
+                        FilterChip(
+                            selected = element.mapTraceMode == mode,
+                            onClick = { onChange(element.copy(mapTraceMode = mode)) },
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
+                        )
+                    }
+                }
                 // Custom-marker preference. Only meaningful when the rider
                 // has set a photo in the Navigator; until then we show a
                 // hint instead of a dead toggle so it's obvious where to go.

@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">平均速度</string>
     <string name="metric_chip_wh_consumed">消費エネルギー</string>
     <string name="metric_chip_range_estimate">航続距離</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">電費</string>
     <string name="metric_chip_phone_battery">スマホバッテリー</string>
     <string name="metric_chip_gps_altitude">高度</string>
     <string name="metric_chip_gps_speed">GPS 速度</string>
@@ -821,7 +821,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>
     <string name="alarm_metric_current">電流</string>
+    <string name="alarm_metric_wh_consumed">消費電力量</string>
+    <string name="alarm_metric_wh_per_km">電費</string>
+    <string name="alarm_metric_range">走行可能距離</string>
     <string name="alarm_metric_gps_speed">GPS 速度</string>
+    <string name="alarm_metric_gps_altitude">高度</string>
     <string name="alarm_metric_external_gps_speed">外部 GPS 速度</string>
     <string name="alarm_metric_external_gps_battery">外部 GPS バッテリー</string>
     <string name="alarm_metric_external_gps_speed_short">外部GPS速度</string>
@@ -911,6 +915,8 @@
     <string name="recording_summary_top_speed">最高速度</string>
     <string name="recording_summary_avg_speed">平均速度</string>
     <string name="recording_summary_max_temp">最高温度</string>
+    <string name="recording_summary_energy">消費電力量</string>
+    <string name="recording_summary_consumption">電費</string>
     <string name="recording_summary_battery">バッテリー (-%1$d%%)</string>
     <string name="recording_summary_voltage">電圧</string>
     <string name="recording_summary_avg_moving">走行中平均</string>
@@ -1343,7 +1349,10 @@
     <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">ズーム</string>
     <string name="studio_cfg_map_rotate">動きに合わせて回転</string>
-    <string name="studio_cfg_map_trace">トレースを表示</string>
+    <string name="studio_cfg_map_trace">軌跡</string>
+    <string name="studio_cfg_map_trace_none">なし</string>
+    <string name="studio_cfg_map_trace_progress">現在まで</string>
+    <string name="studio_cfg_map_trace_full">全行程</string>
     <string name="studio_cfg_map_use_custom_marker">カスタマイズされたマーカーを優先</string>
     <string name="studio_cfg_map_use_custom_marker_hint">ナビゲーター → マーカーをカスタマイズで写真を設定してください</string>
     <string name="studio_cfg_camera_label">カメラ</string>
@@ -1415,6 +1424,7 @@
     <string name="studio_metric_external_gps_battery">外部GPSバッテリー</string>
     <string name="studio_metric_external_gps_speed">外部GPS速度</string>
     <string name="studio_metric_gps_speed">GPS速度</string>
+    <string name="studio_metric_gps_altitude">高度</string>
     <string name="metric_chip_trip_meter">トリップメーター</string>
     <string name="trip_meter_detail_title">トリップメーター</string>
     <string name="trip_meter_tab_speed">速度</string>
@@ -1433,6 +1443,9 @@
     <string name="trip_meter_col_max">最高</string>
     <string name="trip_meter_col_batt">電池</string>
     <string name="studio_metric_trip_meter">トリップメーター</string>
+    <string name="studio_metric_wh_consumed">消費電力量</string>
+    <string name="studio_metric_wh_per_km">電費</string>
+    <string name="studio_metric_range">走行可能距離</string>
     <string name="studio_metric_gps">GPS 座標</string>
 
     <!-- Navigator -->
@@ -2117,6 +2130,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">電流</string>
     <string name="widget_metric_power">出力</string>
+    <string name="widget_metric_wh_consumed">消費電力量</string>
+    <string name="widget_metric_wh_per_km">電費</string>
+    <string name="widget_metric_range">走行可能距離</string>
     <string name="widget_metric_phone_battery">スマホの電池</string>
     <string name="widget_action_voice">音声</string>
     <string name="widget_button_unset">設定でボタンを選択</string>

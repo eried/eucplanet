@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">평균 속도</string>
     <string name="metric_chip_wh_consumed">소비 에너지</string>
     <string name="metric_chip_range_estimate">예상 주행거리</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">전비</string>
     <string name="metric_chip_phone_battery">폰 배터리</string>
     <string name="metric_chip_gps_altitude">고도</string>
     <string name="metric_chip_gps_speed">GPS 속도</string>
@@ -821,7 +821,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">전압</string>
     <string name="alarm_metric_current">전류</string>
+    <string name="alarm_metric_wh_consumed">사용 전력량</string>
+    <string name="alarm_metric_wh_per_km">전비</string>
+    <string name="alarm_metric_range">주행 가능 거리</string>
     <string name="alarm_metric_gps_speed">GPS 속도</string>
+    <string name="alarm_metric_gps_altitude">고도</string>
     <string name="alarm_metric_external_gps_speed">외부 GPS 속도</string>
     <string name="alarm_metric_external_gps_battery">외부 GPS 배터리</string>
     <string name="alarm_metric_external_gps_speed_short">외부GPS속도</string>
@@ -911,6 +915,8 @@
     <string name="recording_summary_top_speed">최고 속도</string>
     <string name="recording_summary_avg_speed">평균 속도</string>
     <string name="recording_summary_max_temp">최고 온도</string>
+    <string name="recording_summary_energy">사용 전력량</string>
+    <string name="recording_summary_consumption">전비</string>
     <string name="recording_summary_battery">배터리 (-%1$d%%)</string>
     <string name="recording_summary_voltage">전압</string>
     <string name="recording_summary_avg_moving">이동 평균</string>
@@ -1343,7 +1349,10 @@
     <string name="studio_cfg_map_satellite">위성</string>
     <string name="studio_cfg_map_zoom">줌</string>
     <string name="studio_cfg_map_rotate">이동 방향으로 회전</string>
-    <string name="studio_cfg_map_trace">궤적 표시</string>
+    <string name="studio_cfg_map_trace">경로</string>
+    <string name="studio_cfg_map_trace_none">없음</string>
+    <string name="studio_cfg_map_trace_progress">진행</string>
+    <string name="studio_cfg_map_trace_full">전체 경로</string>
     <string name="studio_cfg_map_use_custom_marker">커스텀 마커 우선 사용</string>
     <string name="studio_cfg_map_use_custom_marker_hint">내비게이터 → 내 마커 커스텀에서 사진을 설정하세요</string>
     <string name="studio_cfg_camera_label">카메라</string>
@@ -1415,6 +1424,7 @@
     <string name="studio_metric_external_gps_battery">외장 GPS 배터리</string>
     <string name="studio_metric_external_gps_speed">외부 GPS 속도</string>
     <string name="studio_metric_gps_speed">GPS 속도</string>
+    <string name="studio_metric_gps_altitude">고도</string>
     <string name="metric_chip_trip_meter">트립 미터</string>
     <string name="trip_meter_detail_title">트립 미터</string>
     <string name="trip_meter_tab_speed">속도</string>
@@ -1433,6 +1443,9 @@
     <string name="trip_meter_col_max">최고</string>
     <string name="trip_meter_col_batt">배터리</string>
     <string name="studio_metric_trip_meter">트립 미터</string>
+    <string name="studio_metric_wh_consumed">사용 전력량</string>
+    <string name="studio_metric_wh_per_km">전비</string>
+    <string name="studio_metric_range">주행 가능 거리</string>
     <string name="studio_metric_gps">GPS 좌표</string>
 
     <!-- Navigator -->
@@ -2115,6 +2128,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">전류</string>
     <string name="widget_metric_power">출력</string>
+    <string name="widget_metric_wh_consumed">사용 전력량</string>
+    <string name="widget_metric_wh_per_km">전비</string>
+    <string name="widget_metric_range">주행 가능 거리</string>
     <string name="widget_metric_phone_battery">휴대폰 배터리</string>
     <string name="widget_action_voice">음성</string>
     <string name="widget_button_unset">설정에서 버튼을 고르세요</string>

@@ -85,7 +85,9 @@ class AlarmEngine @Inject constructor(
         // fixes with a speed reading tick the evaluator.
         scope.launch {
             tripRepositoryProvider.get().currentLocation.collect { loc ->
-                if (loc != null && loc.hasSpeed()) evaluateGpsSpeed(loc)
+                // Altitude comes off the same fix, so a fix carrying only one
+                // of the two still ticks the evaluator for that one.
+                if (loc != null && (loc.hasSpeed() || loc.hasAltitude())) evaluateGpsSpeed(loc)
             }
         }
     }
@@ -177,6 +179,12 @@ class AlarmEngine @Inject constructor(
                 AlarmMetric.PWM -> data.pwm.absoluteValue
                 AlarmMetric.VOLTAGE -> data.voltage
                 AlarmMetric.CURRENT -> data.current.absoluteValue
+                AlarmMetric.WH_CONSUMED -> data.whConsumed
+                // NaN until the window has enough distance. Null skips the rule
+                // rather than comparing against a number that isn't one, which
+                // would either never fire or fire constantly.
+                AlarmMetric.WH_PER_KM -> data.whPerKmRecent.takeIf { !it.isNaN() }
+                AlarmMetric.RANGE_ESTIMATE -> data.rangeKmEstimate.takeIf { !it.isNaN() }
                 // Radar + external-GPS metrics are evaluated via their own
                 // entry points ([evaluateRadar] off RadarRepository,
                 // [evaluateExternalGps] off ExternalGpsRepository), not the
@@ -185,6 +193,7 @@ class AlarmEngine @Inject constructor(
                 AlarmMetric.RADAR_DISTANCE,
                 AlarmMetric.RADAR_APPROACH_SPEED,
                 AlarmMetric.GPS_SPEED,
+                AlarmMetric.GPS_ALTITUDE,
                 AlarmMetric.EXTERNAL_GPS_SPEED,
                 AlarmMetric.EXTERNAL_GPS_BATTERY -> null
             }
@@ -323,24 +332,33 @@ class AlarmEngine @Inject constructor(
     }
 
     /**
-     * Phone-GPS-speed evaluator. Driven by the location stream (see init), so a
-     * GPS_SPEED alarm works with no wheel connected. Mirrors [evaluateRadar]:
-     * its own rule filter + value resolver, SKIP on a missing reading.
+     * Phone-location evaluator. Driven by the location stream (see init), so a
+     * GPS_SPEED or GPS_ALTITUDE alarm works with no wheel connected. Mirrors
+     * [evaluateRadar]: its own rule filter + value resolver, SKIP on a missing
+     * reading, which is what a fix without one of the two resolves to.
      */
     fun evaluateGpsSpeed(location: android.location.Location) {
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
                 if (settingsRepository.get().alarmsMuted) return@withLock
-                val rules = alarmDao.getEnabled().filter { it.metric == AlarmMetric.GPS_SPEED.name }
+                val locationMetrics = setOf(AlarmMetric.GPS_SPEED.name, AlarmMetric.GPS_ALTITUDE.name)
+                val rules = alarmDao.getEnabled().filter { it.metric in locationMetrics }
                 if (rules.isEmpty()) return@withLock
                 val now = System.currentTimeMillis()
-                val kmh = location.speed * 3.6f
+                val kmh = if (location.hasSpeed()) location.speed * 3.6f else null
+                val altitudeM = if (location.hasAltitude()) location.altitude.toFloat() else null
                 val fired = evaluator.evaluate(
                     rules.map { it.toEvaluatorRule() },
                     now,
                     AlarmEvaluator.NoReading.SKIP,
-                ) { metric -> if (metric == AlarmMetric.GPS_SPEED.name) kmh else null }
+                ) { metric ->
+                    when (metric) {
+                        AlarmMetric.GPS_SPEED.name -> kmh
+                        AlarmMetric.GPS_ALTITUDE.name -> altitudeM
+                        else -> null
+                    }
+                }
 
                 if (fired.isNotEmpty()) {
                     val byId = rules.associateBy { it.id }

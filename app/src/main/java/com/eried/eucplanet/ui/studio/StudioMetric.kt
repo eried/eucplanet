@@ -9,7 +9,7 @@ import com.eried.eucplanet.util.Units
 import kotlin.math.absoluteValue
 
 /** Whether a metric needs unit conversion, and against which unit setting. */
-enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PRESSURE, PLAIN }
+enum class StudioMetricKind { SPEED, DISTANCE, ALTITUDE, TEMPERATURE, PRESSURE, CONSUMPTION, PLAIN }
 
 /** Tire-pressure display unit follows the distance unit (mi -> psi, else bar),
  *  matching Units.effectivePressureUnit; no dedicated pressure-unit setting yet. */
@@ -44,6 +44,14 @@ enum class StudioMetric(
     TRIP("TRIP", "Trip distance", StudioMetricKind.DISTANCE, "", 2, 50f, { it.tripDistance }),
     TRIP_METER("TRIP_METER", "Trip meter", StudioMetricKind.DISTANCE, "", 1, 50f, { it.tripMeterKm.coerceAtLeast(0f) }),
     ODOMETER("ODOMETER", "Odometer", StudioMetricKind.DISTANCE, "", 1, 5000f, { it.totalDistance }),
+    // Energy is a running total since connect; consumption and range are rates
+    // over the rider's rolling window. NaN means "not enough ridden to say", and
+    // 0 is the honest stand-in for a gauge that has to draw something.
+    WH_CONSUMED("WH_CONSUMED", "Energy", StudioMetricKind.PLAIN, "Wh", 0, 1000f, { it.whConsumed }),
+    WH_PER_KM("WH_PER_KM", "Consumption", StudioMetricKind.CONSUMPTION, "", 0, 60f,
+        { if (it.whPerKmRecent.isNaN()) 0f else it.whPerKmRecent }),
+    RANGE_ESTIMATE("RANGE_ESTIMATE", "Range", StudioMetricKind.DISTANCE, "", 0, 100f,
+        { if (it.rangeKmEstimate.isNaN()) 0f else it.rangeKmEstimate }),
     PITCH("PITCH", "Pitch", StudioMetricKind.PLAIN, "°", 1, 30f, { it.pitchAngle }),
     ROLL("ROLL", "Roll", StudioMetricKind.PLAIN, "°", 1, 30f, { it.rollAngle }),
     G_FORCE("G-FORCE", "G-Force", StudioMetricKind.PLAIN, "g", 2, 2f, { it.gForce }),
@@ -51,6 +59,11 @@ enum class StudioMetric(
     EXTERNAL_GPS_SPEED("EXT_GPS_SPEED", "Ext GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.externalGpsSpeedKmh.coerceAtLeast(0f) }),
     TIRE_PRESSURE("TIRE_PRESSURE", "Tire pressure", StudioMetricKind.PRESSURE, "", 1, 50f, { it.tirePressureKpa }),
     GPS_SPEED("GPS_SPEED", "GPS speed", StudioMetricKind.SPEED, "", 1, 60f, { it.gpsSpeedKmh.coerceAtLeast(0f) }),
+    // Altitude is a DISTANCE so it follows the rider's distance unit the way
+    // the dashboard tile does (metres, or feet on miles). NaN means no fix
+    // yet; 0 would draw a rider at sea level who is not.
+    GPS_ALTITUDE("GPS_ALTITUDE", "Altitude", StudioMetricKind.ALTITUDE, "", 0, 1000f,
+        { if (it.gpsAltitudeM.isNaN()) 0f else it.gpsAltitudeM }),
     // A lat/lng pair shown as text (not a scalar), so it only makes sense on a
     // text value element. extract is a placeholder; formatted() renders the pair.
     GPS("GPS", "GPS coordinates", StudioMetricKind.PLAIN, "", 0, 1f, { 0f }, textOnly = true);
@@ -65,8 +78,17 @@ enum class StudioMetric(
         return when (kind) {
             StudioMetricKind.SPEED -> Units.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distance(raw, distUnit)
+            // Held in metres; feet for riders on miles, matching the dashboard tile.
+            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") raw * 3.28084f else raw
             StudioMetricKind.TEMPERATURE -> Units.temperature(raw, tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit))
+            // Held per km. Dividing by the display units in one km inverts the
+            // conversion the way a rate needs: Wh/mi is the km figure over
+            // 0.621371, Wh/mil over 0.1.
+            StudioMetricKind.CONSUMPTION -> {
+                val unitsPerKm = Units.distance(1f, distUnit)
+                if (raw.isNaN() || unitsPerKm <= 0f) 0f else raw / unitsPerKm
+            }
             StudioMetricKind.PLAIN -> raw
         }
     }
@@ -76,8 +98,10 @@ enum class StudioMetric(
         when (kind) {
             StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
+            StudioMetricKind.ALTITUDE -> if (distUnit == "mi") "ft" else "m"
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
             StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit))
+            StudioMetricKind.CONSUMPTION -> "Wh/${Units.distanceUnit(distUnit)}"
             StudioMetricKind.PLAIN -> plainUnit
         }
 
@@ -112,6 +136,9 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.TRIP -> stringResource(R.string.studio_metric_trip_distance)
     StudioMetric.TRIP_METER -> stringResource(R.string.studio_metric_trip_meter)
     StudioMetric.ODOMETER -> stringResource(R.string.studio_metric_odometer)
+    StudioMetric.WH_CONSUMED -> stringResource(R.string.studio_metric_wh_consumed)
+    StudioMetric.WH_PER_KM -> stringResource(R.string.studio_metric_wh_per_km)
+    StudioMetric.RANGE_ESTIMATE -> stringResource(R.string.studio_metric_range)
     StudioMetric.PITCH -> stringResource(R.string.studio_metric_pitch)
     StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)
     StudioMetric.G_FORCE -> stringResource(R.string.studio_metric_g_force)
@@ -119,5 +146,6 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.EXTERNAL_GPS_SPEED -> stringResource(R.string.studio_metric_external_gps_speed)
     StudioMetric.TIRE_PRESSURE -> stringResource(R.string.studio_metric_tire_pressure)
     StudioMetric.GPS_SPEED -> stringResource(R.string.studio_metric_gps_speed)
+    StudioMetric.GPS_ALTITUDE -> stringResource(R.string.studio_metric_gps_altitude)
     StudioMetric.GPS -> stringResource(R.string.studio_metric_gps)
 }

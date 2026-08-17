@@ -39,6 +39,22 @@ import kotlin.math.absoluteValue
 data class MetricSample(val timestampMs: Long, val value: Float)
 
 /**
+ * One tick of the ride-efficiency window: cumulative net energy and cumulative
+ * distance, stamped together. Kept as cumulative series rather than per-tick
+ * deltas so the rate is a subtraction between two endpoints, which is what
+ * makes the numerator and denominator describe the same stretch of road.
+ */
+data class EnergySample(
+    val timestampMs: Long,
+    val netWh: Float,
+    val cumulativeKm: Float,
+)
+
+/** NaN != NaN, so plain equality would republish the tile on every tick. */
+private fun Float.sameAs(other: Float): Boolean =
+    (isNaN() && other.isNaN()) || this == other
+
+/**
  * One snapshot of the running prediction. Appended to [ChargingSnapshot.predictionHistory]
  * every ~30 s while a charge session is active so the chart can plot how the
  * predicted finish times have drifted over the course of the charge -- a
@@ -143,11 +159,13 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "TIRE_PRESSURE" to { it.tirePressureKpa },
     // BLE link RSSI in dBm; null (skip) until the first read so 0 doesn't skew stats.
     "BT_RSSI" to { it.rssiDbm.takeIf { r -> r != 0 }?.toFloat() },
-    // Ride efficiency Wh/km = energy used / trip distance. Needs a little
-    // distance before it's meaningful; null (skip) below the floor so a tiny
-    // denominator doesn't spike the sparkline. WH_CONSUMED / REGEN_WH have no
-    // sparkline or stats (catalog), so they don't need a buffer here.
-    "WH_PER_KM" to { if (it.tripDistance > 0.05f && it.whConsumed > 0f) it.whConsumed / it.tripDistance else null }
+    // Ride efficiency and range, both computed over the rider's rolling window
+    // in WheelRepository and published on WheelData. NaN means "not enough to
+    // say yet"; null (skip) keeps that out of the sparkline and the stats
+    // instead of plotting a zero the rider never rode. WH_CONSUMED / REGEN_WH
+    // have no sparkline or stats (catalog), so they need no buffer here.
+    "WH_PER_KM" to { it.whPerKmRecent.takeIf { v -> !v.isNaN() } },
+    "RANGE_ESTIMATE" to { it.rangeKmEstimate.takeIf { v -> !v.isNaN() } }
 )
 
 /**
@@ -229,6 +247,12 @@ class WheelRepository @Inject constructor(
         // takeLast(300) shows ~5m10s instead of a clean 5m because the
         // sampler drifts. Time-bounding here makes the chart truly 5 min.
         private const val HISTORY_WINDOW_MS = 5 * 60 * 1000L
+        /** Efficiency / range tick. 1 Hz matches the telemetry rate; the window
+         *  is minutes long, so a faster tick would only add samples to subtract. */
+        private const val ENERGY_TICK_MS = 1000L
+        /** A single 1 Hz step larger than this is a counter reset or a garbled
+         *  odometer frame, not 3.6 km/s of riding. */
+        private const val ENERGY_MAX_STEP_KM = 1f
         // Append one PredictionSample to the charge-session log every 30 s
         // while charging. Spans a 4 h session in ~480 entries (cheap), with
         // enough resolution to see the prediction stabilise over the first
@@ -604,6 +628,14 @@ class WheelRepository @Inject constructor(
     @Volatile private var historyWindowMs: Long = HISTORY_WINDOW_MS
 
     /**
+     * The rider's dashboard rolling window in ms, unfloored. [historyWindowMs]
+     * keeps a 5-minute minimum so the detail charts stay readable; the
+     * efficiency window has to honour a rider who picked 30 s, or the tile
+     * would quietly average something else than the setting says.
+     */
+    @Volatile private var rollingWindowMs: Long = HISTORY_WINDOW_MS
+
+    /**
      * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
      * volume keys, and the dashboard. A misfire while moving locks the wheel
      * mid-ride and causes an instant motor cutout, so every lock-direction
@@ -697,6 +729,72 @@ class WheelRepository @Inject constructor(
             }
         }
 
+        // Ride efficiency and range, both over the rider's dashboard rolling
+        // window. Energy and distance are read as cumulative series and
+        // differenced across the same two endpoints, so the numerator can never
+        // describe a different stretch of road than the denominator: the old
+        // "energy since connect over the wheel's own trip meter" mixed two
+        // windows and read far too low for anyone who rode before connecting.
+        scope.launch {
+            val buf = ArrayDeque<EnergySample>()
+            var cumulativeKm = 0f
+            var lastSourceKm = Float.NaN
+            var lastNetWh = 0f
+            // Ride-learned pack size: energy spent against percent dropped.
+            var baselineWh = Float.NaN
+            var baselinePct = -1
+            while (true) {
+                kotlinx.coroutines.delay(ENERGY_TICK_MS)
+                val wd = _wheelData.value
+                val netWh = wd.whConsumed - wd.whRegen
+                // whConsumed only climbs within a session, so a drop means the
+                // session restarted (reconnect) and every baseline is stale.
+                if (netWh < lastNetWh - 0.01f) {
+                    buf.clear(); cumulativeKm = 0f; lastSourceKm = Float.NaN
+                    baselineWh = Float.NaN; baselinePct = -1
+                }
+                lastNetWh = netWh
+
+                // Odometer first: it is monotonic, where a trip meter resets on
+                // the wheel's terms mid-ride. Sum positive steps only, so a
+                // reset or a source swap restarts the count instead of
+                // subtracting a lifetime.
+                val sourceKm = if (wd.totalDistance > 0f) wd.totalDistance else wd.tripDistance
+                if (!lastSourceKm.isNaN()) {
+                    val step = sourceKm - lastSourceKm
+                    if (step > 0f && step < ENERGY_MAX_STEP_KM) cumulativeKm += step
+                }
+                lastSourceKm = sourceKm
+
+                val now = System.currentTimeMillis()
+                buf.addLast(EnergySample(now, netWh, cumulativeKm))
+                val windowMs = rollingWindowMs
+                while (buf.size > 1 && now - buf.first().timestampMs > windowMs) buf.removeFirst()
+
+                val whPerKm = RideEfficiency.whPerKm(
+                    spanWh = buf.last().netWh - buf.first().netWh,
+                    spanKm = buf.last().cumulativeKm - buf.first().cumulativeKm,
+                )
+
+                val pct = wd.batteryPercent
+                // Charging, or the first reading of a session, rebases.
+                if (pct in 1..100 && (baselinePct < 0 || pct > baselinePct)) {
+                    baselinePct = pct
+                    baselineWh = netWh
+                }
+                val whPerPct = RideEfficiency.whPerPercent(netWh, baselineWh, pct, baselinePct)
+                val rangeKm = RideEfficiency.rangeKm(whPerKm, whPerPct, pct)
+
+                val current = _wheelData.value
+                if (!current.whPerKmRecent.sameAs(whPerKm) || !current.rangeKmEstimate.sameAs(rangeKm)) {
+                    _wheelData.value = current.copy(
+                        whPerKmRecent = whPerKm,
+                        rangeKmEstimate = rangeKm,
+                    )
+                }
+            }
+        }
+
         // Track the rider's speed calibration. We mirror it into a volatile
         // multiplier so the hot telemetry path applies it without re-reading
         // the settings flow per frame. Also persist a copy into the per-wheel
@@ -717,6 +815,7 @@ class WheelRepository @Inject constructor(
                 // 15 min), floored at the 5-min default so detail charts don't
                 // shrink below it when the window is set small.
                 historyWindowMs = maxOf(s.dashboardRollingWindowSeconds * 1000L, HISTORY_WINDOW_MS)
+                rollingWindowMs = s.dashboardRollingWindowSeconds * 1000L
                 lockMaxSpeedKmh = s.lockMaxSpeedKmh.toFloat()
                 // Push the InMotion V1 access PIN to its adapter so the next
                 // connect's init sequence sends it. Stored as a 6-digit number,

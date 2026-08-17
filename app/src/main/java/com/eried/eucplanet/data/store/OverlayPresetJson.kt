@@ -2,6 +2,8 @@ package com.eried.eucplanet.data.store
 
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.MapTraceMode
+import com.eried.eucplanet.hud.protocol.mapTraceEnabled
 import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.hud.protocol.ReplaySourceType
 import com.eried.eucplanet.hud.protocol.ViewportConfig
@@ -188,7 +190,10 @@ object OverlayPresetJson {
         put("mapStyle", el.mapStyle)
         put("mapZoom", el.mapZoom)
         put("mapRotateWithHeading", el.mapRotateWithHeading)
-        put("mapTrace", el.mapTrace)
+        // Legacy on/off key kept so older network HUDs (which only read a
+        // boolean) still show/hide the trace; the mode carries the full choice.
+        put("mapTrace", el.mapTraceEnabled)
+        put("mapTraceMode", el.mapTraceMode.name)
         put("mapBorderWidth", el.mapBorderWidth.toDouble())
         put("mapUseCustomMarker", el.mapUseCustomMarker)
         put("gForceScale", el.gForceScale.toDouble())
@@ -255,7 +260,16 @@ object OverlayPresetJson {
             mapRotateWithHeading = o.optBoolean(
                 "mapRotateWithHeading", d.mapRotateWithHeading
             ),
-            mapTrace = o.optBoolean("mapTrace", d.mapTrace),
+            // Prefer the new mode; fall back to the legacy boolean (true =
+            // PROGRESS, the old trailing trace; false = NONE) for presets
+            // saved before the mode existed.
+            mapTraceMode = when (o.optString("mapTraceMode", "").uppercase()) {
+                "NONE" -> MapTraceMode.NONE
+                "PROGRESS" -> MapTraceMode.PROGRESS
+                "FULL" -> MapTraceMode.FULL
+                else -> if (o.optBoolean("mapTrace", true)) MapTraceMode.PROGRESS
+                        else MapTraceMode.NONE
+            },
             mapBorderWidth = o.optDouble("mapBorderWidth", d.mapBorderWidth.toDouble()).toFloat(),
             mapUseCustomMarker = o.optBoolean("mapUseCustomMarker", d.mapUseCustomMarker),
             gForceScale = o.optDouble("gForceScale", d.gForceScale.toDouble()).toFloat(),

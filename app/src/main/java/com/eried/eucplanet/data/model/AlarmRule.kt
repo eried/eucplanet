@@ -129,6 +129,19 @@ enum class AlarmMetric(
     PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
     VOLTAGE(R.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
     CURRENT(R.string.alarm_metric_current, "A"),
+    /** Energy spent this ride, for a rider who plans by Wh rather than percent. */
+    WH_CONSUMED(R.string.alarm_metric_wh_consumed, "Wh"),
+    /**
+     * Consumption over the rolling window. Watched high: it climbing is the
+     * early warning that the way home will not go as far as the way out.
+     */
+    WH_PER_KM(R.string.alarm_metric_wh_per_km, "Wh/km"),
+    /** Range left at the current rate. Watched low, like battery. */
+    RANGE_ESTIMATE(
+        R.string.alarm_metric_range,
+        "km",
+        defaultComparator = AlarmComparator.LESS_THAN,
+    ),
 
     /**
      * Speed from the phone's own GPS in km/h. Evaluated off the phone location
@@ -136,6 +149,14 @@ enum class AlarmMetric(
      * it works with no wheel connected. Only checked on a fresh location fix.
      */
     GPS_SPEED(R.string.alarm_metric_gps_speed, "km/h"),
+
+    /**
+     * Altitude above sea level in metres, off the same phone fix as
+     * [GPS_SPEED]. Watched upwards by default: the rider climbing past a
+     * height is the alarm worth having, and a low-altitude one is rarely
+     * meaningful when sea level is the floor.
+     */
+    GPS_ALTITUDE(R.string.alarm_metric_gps_altitude, "m"),
 
     /**
      * Speed from the paired external GPS box (RaceBox / Dragy) in km/h.

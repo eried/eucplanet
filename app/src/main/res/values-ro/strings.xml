@@ -224,7 +224,7 @@
     <string name="metric_chip_avg_trip_speed">Viteză medie</string>
     <string name="metric_chip_wh_consumed">Energie</string>
     <string name="metric_chip_range_estimate">Autonomie</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Consum</string>
     <string name="metric_chip_phone_battery">Bateria telefonului</string>
     <string name="metric_chip_gps_altitude">Altitudine</string>
     <string name="metric_chip_gps_speed">Viteză GPS</string>
@@ -987,7 +987,11 @@
     <string name="alarm_metric_pwm">Sarcină (PWM)</string>
     <string name="alarm_metric_voltage">Tensiune</string>
     <string name="alarm_metric_current">Curent</string>
+    <string name="alarm_metric_wh_consumed">Energie</string>
+    <string name="alarm_metric_wh_per_km">Consum</string>
+    <string name="alarm_metric_range">Autonomie</string>
     <string name="alarm_metric_gps_speed">Viteză GPS</string>
+    <string name="alarm_metric_gps_altitude">Altitudine</string>
     <string name="alarm_metric_external_gps_speed">Viteza GPS-ului extern</string>
     <string name="alarm_metric_external_gps_battery">Bateria GPS-ului extern</string>
     <string name="alarm_metric_external_gps_speed_short">Vit GPS ext</string>
@@ -1080,6 +1084,8 @@
     <string name="recording_summary_top_speed">Viteza maximă</string>
     <string name="recording_summary_avg_speed">Viteza medie</string>
     <string name="recording_summary_max_temp">Temp maximă</string>
+    <string name="recording_summary_energy">Energie</string>
+    <string name="recording_summary_consumption">Consum</string>
     <string name="recording_summary_battery">Baterie (-%1$d%%)</string>
     <string name="recording_summary_voltage">Tensiune</string>
     <string name="recording_summary_avg_moving">Media în mișcare</string>
@@ -1128,6 +1134,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Curent</string>
     <string name="widget_metric_power">Putere</string>
+    <string name="widget_metric_wh_consumed">Energie</string>
+    <string name="widget_metric_wh_per_km">Consum</string>
+    <string name="widget_metric_range">Autonomie</string>
     <string name="widget_metric_phone_battery">Bateria telefonului</string>
     <string name="widget_action_voice">Voce</string>
     <string name="widget_standalone_desc">Acțiuni pentru widgeturile doar cu butoane, separate de rândul de mai sus.</string>
@@ -1592,7 +1601,10 @@
     <string name="studio_cfg_map_satellite">Satelit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Rotește odată cu mișcarea</string>
-    <string name="studio_cfg_map_trace">Arată urma</string>
+    <string name="studio_cfg_map_trace">Traseu</string>
+    <string name="studio_cfg_map_trace_none">Niciunul</string>
+    <string name="studio_cfg_map_trace_progress">Progres</string>
+    <string name="studio_cfg_map_trace_full">Tot traseul</string>
     <string name="studio_cfg_map_use_custom_marker">Preferă marcajul personalizat</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Setează-ți fotografia în Navigator → Personalizează marcajul meu</string>
     <string name="studio_cfg_radar_mode">Vizualizarea radarului</string>
@@ -1663,6 +1675,9 @@
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Distanța cursei</string>
     <string name="studio_metric_trip_meter">Contor de cursă</string>
+    <string name="studio_metric_wh_consumed">Energie</string>
+    <string name="studio_metric_wh_per_km">Consum</string>
+    <string name="studio_metric_range">Autonomie</string>
     <string name="studio_metric_odometer">Odometru</string>
     <string name="studio_metric_pitch">Înclinare față-spate</string>
     <string name="studio_metric_roll">Înclinare laterală</string>
@@ -1670,6 +1685,7 @@
     <string name="studio_metric_external_gps_battery">Baterie GPS ext</string>
     <string name="studio_metric_external_gps_speed">Viteză GPS ext</string>
     <string name="studio_metric_gps_speed">Viteză GPS</string>
+    <string name="studio_metric_gps_altitude">Altitudine</string>
     <string name="studio_metric_tire_pressure">Presiunea în anvelopă</string>
     <string name="studio_metric_gps">Coordonate GPS</string>
     <string name="nav_open">Deschide navigatorul</string>

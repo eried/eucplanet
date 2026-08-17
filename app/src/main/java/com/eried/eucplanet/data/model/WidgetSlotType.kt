@@ -23,6 +23,9 @@ enum class WidgetMetricType(val key: String, @StringRes val pickerLabel: Int) {
     PWM("PWM", R.string.widget_metric_pwm),
     CURRENT("CURRENT", R.string.widget_metric_current),
     POWER("POWER", R.string.widget_metric_power),
+    WH_CONSUMED("WH_CONSUMED", R.string.widget_metric_wh_consumed),
+    WH_PER_KM("WH_PER_KM", R.string.widget_metric_wh_per_km),
+    RANGE_ESTIMATE("RANGE_ESTIMATE", R.string.widget_metric_range),
     PHONE_BATTERY("PHONE_BATTERY", R.string.widget_metric_phone_battery);
 
     companion object {

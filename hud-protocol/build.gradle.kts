@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.eried.eucplanet.hud.protocol"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         // Pure data classes - no API surface that requires anything newer.

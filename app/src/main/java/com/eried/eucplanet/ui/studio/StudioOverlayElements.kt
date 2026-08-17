@@ -95,6 +95,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.MapTraceMode
 import com.eried.eucplanet.data.model.WheelData
 import kotlinx.coroutines.launch
 
@@ -104,6 +105,13 @@ data class StudioElementData(
     val wheelName: String,
     val connected: Boolean,
     val history: List<StudioSample>,
+    /**
+     * The whole trip's telemetry rows, used only by a MAP element in
+     * [MapTraceMode.FULL] to draw the entire route start-to-end. Populated
+     * in Overlay Studio replay (the full trip is known); empty live, where
+     * FULL falls back to [history] - the ride so far.
+     */
+    val fullTrace: List<WheelData> = emptyList(),
     val cameraHub: com.eried.eucplanet.ui.studio.camera.StudioCameraHub,
     val speedUnit: String,
     val distanceUnit: String,
@@ -1914,8 +1922,24 @@ private fun ImageElement(element: OverlayElement) {
 /** Side of a single map tile, in pixels (standard slippy-map tile size). */
 private const val MAP_TILE_SIZE = 256
 
-/** Most recent trace points to draw, keeps the polyline cheap on long trips. */
-private const val MAP_TRACE_CAP = 400
+/** Point budget for a drawn trace (both PROGRESS and FULL). High enough that a
+ *  long route keeps its shape, low enough to stroke in one frame; the source is
+ *  decimated evenly to this many points. */
+private const val MAP_TRACE_CAP = 1200
+
+/** Sample [pts] down to at most [cap] points, evenly across the list and always
+ *  keeping the first and last so the route's endpoints stay put. */
+private fun decimateTrace(pts: List<WheelData>, cap: Int): List<WheelData> {
+    if (pts.size <= cap) return pts
+    val out = ArrayList<WheelData>(cap)
+    val step = (pts.size - 1).toDouble() / (cap - 1)
+    var i = 0
+    while (i < cap) {
+        out.add(pts[(i * step).toInt().coerceAtMost(pts.size - 1)])
+        i++
+    }
+    return out
+}
 
 /**
  * Process-wide raster tile cache + async loader. Tiles are immutable for a
@@ -2001,16 +2025,26 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
     // nowhere to point the map.
     val hasFix = centerLat != 0.0 || centerLon != 0.0
 
-    // Trace points with a real fix, capped to the most recent stretch. Built
-    // from history so it works identically for live recording and replay.
-    val trace = remember(data.history, element.mapTrace) {
-        if (!element.mapTrace) emptyList()
-        else data.history
-            .asSequence()
-            .map { it.data }
-            .filter { it.latitude != 0.0 || it.longitude != 0.0 }
-            .toList()
-            .takeLast(MAP_TRACE_CAP)
+    // Trace points with a real fix. NONE draws nothing. PROGRESS is the path
+    // travelled up to now: in replay that is the whole route from the start to
+    // the scrub cursor (history is pre-trimmed to the cursor), live it is the
+    // retained rolling window (the ride so far). FULL draws the entire trip
+    // start-to-end from fullTrace when replay supplies it; live has no full
+    // trip, so FULL falls back to the same history as PROGRESS. Both are
+    // decimated evenly so a long ride stays cheap to stroke.
+    val trace = remember(data.history, data.fullTrace, element.mapTraceMode) {
+        fun withFix(pts: List<WheelData>) =
+            pts.filter { it.latitude != 0.0 || it.longitude != 0.0 }
+        when (element.mapTraceMode) {
+            MapTraceMode.NONE -> emptyList()
+            MapTraceMode.PROGRESS ->
+                decimateTrace(withFix(data.history.map { it.data }), MAP_TRACE_CAP)
+            MapTraceMode.FULL -> {
+                val src = if (data.fullTrace.isNotEmpty()) data.fullTrace
+                          else data.history.map { it.data }
+                decimateTrace(withFix(src), MAP_TRACE_CAP)
+            }
+        }
     }
 
     Box(
@@ -2155,7 +2189,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 }
 
                 // Trace polyline.
-                if (element.mapTrace && trace.size >= 2) {
+                if (element.mapTraceMode != MapTraceMode.NONE && trace.size >= 2) {
                     val path = androidx.compose.ui.graphics.Path()
                     trace.forEachIndexed { i, p ->
                         val o = project(p.latitude, p.longitude)

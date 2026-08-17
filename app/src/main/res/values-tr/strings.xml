@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Ort. hız</string>
     <string name="metric_chip_wh_consumed">Enerji</string>
     <string name="metric_chip_range_estimate">Menzil</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Tüketim</string>
     <string name="metric_chip_phone_battery">Telefon akü</string>
     <string name="metric_chip_gps_altitude">İrtifa</string>
     <string name="metric_chip_gps_speed">GPS hızı</string>
@@ -821,7 +821,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Gerilim</string>
     <string name="alarm_metric_current">Akım</string>
+    <string name="alarm_metric_wh_consumed">Enerji</string>
+    <string name="alarm_metric_wh_per_km">Tüketim</string>
+    <string name="alarm_metric_range">Menzil</string>
     <string name="alarm_metric_gps_speed">GPS hızı</string>
+    <string name="alarm_metric_gps_altitude">Yükseklik</string>
     <string name="alarm_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="alarm_metric_external_gps_battery">Harici GPS aküsü</string>
     <string name="alarm_metric_external_gps_speed_short">Harici GPS hız</string>
@@ -911,6 +915,8 @@
     <string name="recording_summary_top_speed">En Yüksek Hız</string>
     <string name="recording_summary_avg_speed">Ort. Hız</string>
     <string name="recording_summary_max_temp">Maks. Sıcaklık</string>
+    <string name="recording_summary_energy">Enerji</string>
+    <string name="recording_summary_consumption">Tüketim</string>
     <string name="recording_summary_battery">Akü (-%1$d%%)</string>
     <string name="recording_summary_voltage">Gerilim</string>
     <string name="recording_summary_avg_moving">Ort. Seyir</string>
@@ -1343,7 +1349,10 @@
     <string name="studio_cfg_map_satellite">Uydu</string>
     <string name="studio_cfg_map_zoom">Yakınlaştırma</string>
     <string name="studio_cfg_map_rotate">Hareketle döndür</string>
-    <string name="studio_cfg_map_trace">İzi göster</string>
+    <string name="studio_cfg_map_trace">İz</string>
+    <string name="studio_cfg_map_trace_none">Yok</string>
+    <string name="studio_cfg_map_trace_progress">İlerleme</string>
+    <string name="studio_cfg_map_trace_full">Tüm yolculuk</string>
     <string name="studio_cfg_map_use_custom_marker">Özelleştirilmiş işaretçiyi tercih et</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Fotoğrafınızı Navigatör → İşaretçimi özelleştir kısmından ayarlayın</string>
     <string name="studio_cfg_camera_label">Kamera</string>
@@ -1415,6 +1424,7 @@
     <string name="studio_metric_external_gps_battery">Harici GPS aküsü</string>
     <string name="studio_metric_external_gps_speed">Harici GPS hızı</string>
     <string name="studio_metric_gps_speed">GPS hızı</string>
+    <string name="studio_metric_gps_altitude">Yükseklik</string>
     <string name="metric_chip_trip_meter">Sefer sayacı</string>
     <string name="trip_meter_detail_title">Sefer sayacı</string>
     <string name="trip_meter_tab_speed">Hız</string>
@@ -1433,6 +1443,9 @@
     <string name="trip_meter_col_max">Maks</string>
     <string name="trip_meter_col_batt">Akü</string>
     <string name="studio_metric_trip_meter">Sefer sayacı</string>
+    <string name="studio_metric_wh_consumed">Enerji</string>
+    <string name="studio_metric_wh_per_km">Tüketim</string>
+    <string name="studio_metric_range">Menzil</string>
     <string name="studio_metric_gps">GPS koordinatları</string>
 
     <!-- Navigator -->
@@ -2113,6 +2126,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Akim</string>
     <string name="widget_metric_power">Guc</string>
+    <string name="widget_metric_wh_consumed">Enerji</string>
+    <string name="widget_metric_wh_per_km">Tüketim</string>
+    <string name="widget_metric_range">Menzil</string>
     <string name="widget_metric_phone_battery">Telefon pili</string>
     <string name="widget_action_voice">Ses</string>
     <string name="widget_button_unset">Ayarlar da bir dugme secin</string>

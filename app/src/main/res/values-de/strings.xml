@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Ø Geschw.</string>
     <string name="metric_chip_wh_consumed">Energie</string>
     <string name="metric_chip_range_estimate">Reichweite</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Verbrauch</string>
     <string name="metric_chip_phone_battery">Handy-Akku</string>
     <string name="metric_chip_gps_altitude">Höhe</string>
     <string name="metric_chip_gps_speed">GPS-Geschw.</string>
@@ -820,7 +820,11 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spannung</string>
     <string name="alarm_metric_current">Strom</string>
+    <string name="alarm_metric_wh_consumed">Energie</string>
+    <string name="alarm_metric_wh_per_km">Verbrauch</string>
+    <string name="alarm_metric_range">Reichweite</string>
     <string name="alarm_metric_gps_speed">GPS-Geschwindigkeit</string>
+    <string name="alarm_metric_gps_altitude">Höhe</string>
     <string name="alarm_metric_external_gps_speed">Externe GPS-Geschwindigkeit</string>
     <string name="alarm_metric_external_gps_battery">Externer GPS-Akku</string>
     <string name="alarm_metric_external_gps_speed_short">Ext GPS-Geschw.</string>
@@ -918,6 +922,8 @@
     <string name="recording_summary_max_current">Max. Strom</string>
     <string name="recording_summary_max_power">Max. Leistung</string>
     <string name="recording_summary_max_temp">Max. Temp.</string>
+    <string name="recording_summary_energy">Energie</string>
+    <string name="recording_summary_consumption">Verbrauch</string>
     <string name="recording_chart_speed">Geschwindigkeit (%1$s)</string>
     <string name="recording_chart_battery">Akku (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
@@ -1356,7 +1362,10 @@
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Mit Bewegung drehen</string>
-    <string name="studio_cfg_map_trace">Strecke anzeigen</string>
+    <string name="studio_cfg_map_trace">Spur</string>
+    <string name="studio_cfg_map_trace_none">Keine</string>
+    <string name="studio_cfg_map_trace_progress">Verlauf</string>
+    <string name="studio_cfg_map_trace_full">Ganze Fahrt</string>
     <string name="studio_cfg_map_use_custom_marker">Eigenen Marker bevorzugen</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Foto unter Navigator → Marker anpassen festlegen</string>
     <string name="studio_cfg_camera_label">Kamera</string>
@@ -1438,6 +1447,7 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-Akku</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-Tempo</string>
     <string name="studio_metric_gps_speed">GPS-Tempo</string>
+    <string name="studio_metric_gps_altitude">Höhe</string>
     <string name="metric_chip_trip_meter">Tripzähler</string>
     <string name="trip_meter_detail_title">Tripzähler</string>
     <string name="trip_meter_tab_speed">Tempo</string>
@@ -1456,6 +1466,9 @@
     <string name="trip_meter_col_max">Max</string>
     <string name="trip_meter_col_batt">Akku</string>
     <string name="studio_metric_trip_meter">Tripzähler</string>
+    <string name="studio_metric_wh_consumed">Energie</string>
+    <string name="studio_metric_wh_per_km">Verbrauch</string>
+    <string name="studio_metric_range">Reichweite</string>
     <string name="studio_metric_gps">GPS-Koordinaten</string>
 
     <!-- Studio misc -->
@@ -2136,6 +2149,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Strom</string>
     <string name="widget_metric_power">Leistung</string>
+    <string name="widget_metric_wh_consumed">Energie</string>
+    <string name="widget_metric_wh_per_km">Verbrauch</string>
+    <string name="widget_metric_range">Reichweite</string>
     <string name="widget_metric_phone_battery">Handy-Akku</string>
     <string name="widget_action_voice">Sprache</string>
     <string name="widget_button_unset">Taste in den Einstellungen waehlen</string>

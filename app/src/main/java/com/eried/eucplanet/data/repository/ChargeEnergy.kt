@@ -61,4 +61,43 @@ object ChargeEnergy {
         if (charging) return kotlin.math.abs(raw)
         return if (dischargeIsPositivePower) -raw else raw
     }
+
+    /** Energy over a whole ride, split the way the live buckets are. */
+    data class RideEnergy(val outWh: Float, val regenWh: Float) {
+        /** What the pack actually lost, which is what a rider means by "used". */
+        val netWh: Float get() = outWh - regenWh
+    }
+
+    /**
+     * Integrate a recorded ride's energy from its samples, using the same step
+     * as the live path so a trip's figure and the dashboard's cannot drift.
+     *
+     * [samples] are (timestamp ms, volts, amps) in recording order. Rows with no
+     * voltage or current are skipped rather than read as zero power, which would
+     * integrate a phantom idle stretch across them.
+     *
+     * The family's sign convention is not recorded in the CSV, so it is inferred:
+     * integrating both ways, the orientation that produces net consumption is the
+     * right one, because a ride always spends more than it regenerates. A trip
+     * with no usable rows returns zeroes.
+     */
+    fun rideEnergy(samples: List<Triple<Long, Float, Float>>): RideEnergy {
+        val usable = samples.filter { (_, v, a) -> !v.isNaN() && !a.isNaN() && v > 0f }
+        if (usable.size < 2) return RideEnergy(0f, 0f)
+
+        fun integrate(dischargeIsPositivePower: Boolean): RideEnergy {
+            var out = 0f
+            var regen = 0f
+            for (i in 1 until usable.size) {
+                val (prevMs, prevV, prevA) = usable[i - 1]
+                val (nowMs, nowV, nowA) = usable[i]
+                val step = stepWh(prevV * prevA, nowV * nowA, nowMs - prevMs, dischargeIsPositivePower)
+                if (step >= 0f) regen += step else out -= step
+            }
+            return RideEnergy(out, regen)
+        }
+
+        val asNegative = integrate(dischargeIsPositivePower = false)
+        return if (asNegative.netWh >= 0f) asNegative else integrate(dischargeIsPositivePower = true)
+    }
 }

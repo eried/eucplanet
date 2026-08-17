@@ -224,7 +224,7 @@
     <string name="metric_chip_avg_trip_speed">Keskinopeus</string>
     <string name="metric_chip_wh_consumed">Energia</string>
     <string name="metric_chip_range_estimate">Toimintamatka</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Kulutus</string>
     <string name="metric_chip_phone_battery">Puhelimen akku</string>
     <string name="metric_chip_gps_altitude">Korkeus</string>
     <string name="metric_chip_gps_speed">GPS-nopeus</string>
@@ -987,7 +987,11 @@
     <string name="alarm_metric_pwm">Kuormitus (PWM)</string>
     <string name="alarm_metric_voltage">Jännite</string>
     <string name="alarm_metric_current">Virta</string>
+    <string name="alarm_metric_wh_consumed">Energia</string>
+    <string name="alarm_metric_wh_per_km">Kulutus</string>
+    <string name="alarm_metric_range">Toimintamatka</string>
     <string name="alarm_metric_gps_speed">GPS-nopeus</string>
+    <string name="alarm_metric_gps_altitude">Korkeus</string>
     <string name="alarm_metric_external_gps_speed">Ulkoisen GPS:n nopeus</string>
     <string name="alarm_metric_external_gps_battery">Ulkoisen GPS:n akku</string>
     <string name="alarm_metric_external_gps_speed_short">Ulk GPS nop</string>
@@ -1080,6 +1084,8 @@
     <string name="recording_summary_top_speed">Huippunopeus</string>
     <string name="recording_summary_avg_speed">Keskinopeus</string>
     <string name="recording_summary_max_temp">Maks lämpö</string>
+    <string name="recording_summary_energy">Energia</string>
+    <string name="recording_summary_consumption">Kulutus</string>
     <string name="recording_summary_battery">Akku (-%1$d%%)</string>
     <string name="recording_summary_voltage">Jännite</string>
     <string name="recording_summary_avg_moving">Ka liikkeessä</string>
@@ -1128,6 +1134,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Virta</string>
     <string name="widget_metric_power">Teho</string>
+    <string name="widget_metric_wh_consumed">Energia</string>
+    <string name="widget_metric_wh_per_km">Kulutus</string>
+    <string name="widget_metric_range">Toimintamatka</string>
     <string name="widget_metric_phone_battery">Puhelimen akku</string>
     <string name="widget_action_voice">Ääni</string>
     <string name="widget_standalone_desc">Toiminnot pelkkien painikkeiden widgeteille, erillään yllä olevasta rivistä.</string>
@@ -1592,7 +1601,10 @@
     <string name="studio_cfg_map_satellite">Satelliitti</string>
     <string name="studio_cfg_map_zoom">Zoomaus</string>
     <string name="studio_cfg_map_rotate">Käännä liikkeen mukaan</string>
-    <string name="studio_cfg_map_trace">Näytä jälki</string>
+    <string name="studio_cfg_map_trace">Jälki</string>
+    <string name="studio_cfg_map_trace_none">Ei mitään</string>
+    <string name="studio_cfg_map_trace_progress">Edistyminen</string>
+    <string name="studio_cfg_map_trace_full">Koko matka</string>
     <string name="studio_cfg_map_use_custom_marker">Suosi mukautettua merkkiä</string>
     <string name="studio_cfg_map_use_custom_marker_hint">Aseta kuvasi kohdassa Navigointi → Mukauta merkkini</string>
     <string name="studio_cfg_radar_mode">Tutkanäkymä</string>
@@ -1663,6 +1675,9 @@
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Matkan pituus</string>
     <string name="studio_metric_trip_meter">Matkamittari</string>
+    <string name="studio_metric_wh_consumed">Energia</string>
+    <string name="studio_metric_wh_per_km">Kulutus</string>
+    <string name="studio_metric_range">Toimintamatka</string>
     <string name="studio_metric_odometer">Kokonaismatka</string>
     <string name="studio_metric_pitch">Kallistus eteen</string>
     <string name="studio_metric_roll">Kallistus sivulle</string>
@@ -1670,6 +1685,7 @@
     <string name="studio_metric_external_gps_battery">Ulk GPS akku</string>
     <string name="studio_metric_external_gps_speed">Ulk GPS nopeus</string>
     <string name="studio_metric_gps_speed">GPS-nopeus</string>
+    <string name="studio_metric_gps_altitude">Korkeus</string>
     <string name="studio_metric_tire_pressure">Rengaspaine</string>
     <string name="studio_metric_gps">GPS-koordinaatit</string>
     <string name="nav_open">Avaa navigointi</string>
