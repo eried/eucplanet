@@ -107,6 +107,18 @@ class HeldTripRecheckTest {
     }
 
     @Test
+    fun `a sweep is capped so it cannot grow without bound`() = runBlocking {
+        // A rider whose trips are never reviewed would otherwise re-ask about all of them,
+        // every sweep, forever. Anything past the cap is still reachable by tapping it.
+        repeat(60) { i -> tripDao.insert(held(i.toLong() + 1, "uuid-$i").copy(startTime = i.toLong())) }
+        api.tripStatusResult = TripStatus("flagged", "under_review", listOf("teleport"))
+
+        repo.refreshHeldTrips()
+        assertEquals(50, api.tripStatusCalls.size)
+        assertTrue("newest should be checked first", api.tripStatusCalls.contains("uuid-59"))
+    }
+
+    @Test
     fun `a trip with no uuid is never asked about`() = runBlocking {
         val noUuid = held(1L, "x").copy(tripUuid = null)
         tripDao.insert(noUuid)

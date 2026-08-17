@@ -150,6 +150,8 @@ class FakeTripDao : TripDao {
         trips.filter { it.endTime != null && it.tripUuid != null && it.eucstatsStatus in listOf(1, 3) }
     override suspend fun getHeldEucstatsTrips(): List<TripRecord> =
         trips.filter { it.tripUuid != null && it.eucstatsStatus == 2 && it.eucstatsValidation == "flagged" }
+            .sortedByDescending { it.startTime }
+            .take(50)
     override suspend fun resetUnfinishedEucstatsStatuses() {
         for (i in trips.indices) {
             if (trips[i].eucstatsStatus in listOf(1, 3)) trips[i] = trips[i].copy(eucstatsStatus = 0)

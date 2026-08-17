@@ -101,13 +101,18 @@ interface TripDao {
      * approves it, and the upload response was our only look at it. Without re-reading
      * these, the rider keeps an "under review" cloud forever on a ride that is already
      * counting on the leaderboard.
+     *
+     * Capped and newest-first so the refresh cost stays bounded. One check is a ~150 byte
+     * response, but a rider whose trips are never reviewed would otherwise accumulate an
+     * ever-growing sweep. Anything past the cap is still reachable by tapping its cloud.
      */
     @Query(
         "SELECT * FROM trips " +
             "WHERE tripUuid IS NOT NULL " +
             "AND eucstatsStatus = 2 " +
             "AND eucstatsValidation = 'flagged' " +
-            "ORDER BY startTime DESC"
+            "ORDER BY startTime DESC " +
+            "LIMIT 50"
     )
     suspend fun getHeldEucstatsTrips(): List<TripRecord>
 
