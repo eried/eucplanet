@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Śr. prędkość</string>
     <string name="metric_chip_wh_consumed">Energia</string>
     <string name="metric_chip_range_estimate">Zasięg</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Zużycie</string>
     <string name="metric_chip_phone_battery">Bateria telefonu</string>
     <string name="metric_chip_gps_altitude">Wysokość</string>
     <string name="metric_chip_gps_speed">Pręd. GPS</string>
@@ -824,6 +824,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Napięcie</string>
     <string name="alarm_metric_current">Prąd</string>
+    <string name="alarm_metric_wh_consumed">Energia</string>
+    <string name="alarm_metric_wh_per_km">Zużycie</string>
+    <string name="alarm_metric_range">Zasięg</string>
     <string name="alarm_metric_gps_speed">Prędkość GPS</string>
     <string name="alarm_metric_gps_altitude">Wysokość</string>
     <string name="alarm_metric_external_gps_speed">Prędkość zewnętrznego GPS</string>
@@ -915,6 +918,8 @@
     <string name="recording_summary_top_speed">Maks. prędkość</string>
     <string name="recording_summary_avg_speed">Śr. prędkość</string>
     <string name="recording_summary_max_temp">Maks. temp.</string>
+    <string name="recording_summary_energy">Energia</string>
+    <string name="recording_summary_consumption">Zużycie</string>
     <string name="recording_summary_battery">Bateria (-%1$d%%)</string>
     <string name="recording_summary_voltage">Napięcie</string>
     <string name="recording_summary_avg_moving">Śr. w ruchu</string>
@@ -1454,6 +1459,9 @@
     <string name="trip_meter_col_max">Maks</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Licznik trasy</string>
+    <string name="studio_metric_wh_consumed">Energia</string>
+    <string name="studio_metric_wh_per_km">Zużycie</string>
+    <string name="studio_metric_range">Zasięg</string>
     <string name="studio_metric_gps">Współrzędne GPS</string>
 
     <!-- Navigator -->
@@ -2121,6 +2129,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Prad</string>
     <string name="widget_metric_power">Moc</string>
+    <string name="widget_metric_wh_consumed">Energia</string>
+    <string name="widget_metric_wh_per_km">Zużycie</string>
+    <string name="widget_metric_range">Zasięg</string>
     <string name="widget_metric_phone_battery">Bateria telefonu</string>
     <string name="widget_action_voice">Glos</string>
     <string name="widget_button_unset">Wybierz przycisk w Ustawieniach</string>

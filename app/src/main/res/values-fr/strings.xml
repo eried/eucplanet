@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Vit. moy.</string>
     <string name="metric_chip_wh_consumed">Énergie</string>
     <string name="metric_chip_range_estimate">Autonomie</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Consommation</string>
     <string name="metric_chip_phone_battery">Batterie du téléphone</string>
     <string name="metric_chip_gps_altitude">Altitude</string>
     <string name="metric_chip_gps_speed">Vit. GPS</string>
@@ -824,6 +824,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Tension</string>
     <string name="alarm_metric_current">Courant</string>
+    <string name="alarm_metric_wh_consumed">Énergie</string>
+    <string name="alarm_metric_wh_per_km">Consommation</string>
+    <string name="alarm_metric_range">Autonomie</string>
     <string name="alarm_metric_gps_speed">Vitesse GPS</string>
     <string name="alarm_metric_gps_altitude">Altitude</string>
     <string name="alarm_metric_external_gps_speed">Vitesse du GPS externe</string>
@@ -923,6 +926,8 @@
     <string name="recording_summary_max_current">Courant max</string>
     <string name="recording_summary_max_power">Puissance max</string>
     <string name="recording_summary_max_temp">Temp. max</string>
+    <string name="recording_summary_energy">Énergie</string>
+    <string name="recording_summary_consumption">Consommation</string>
     <string name="recording_chart_speed">Vitesse (%1$s)</string>
     <string name="recording_chart_battery">Batterie (%)</string>
     <string name="recording_chart_temp">Température (%1$s)</string>
@@ -1488,6 +1493,9 @@
     <string name="trip_meter_col_max">Max</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Compteur de trajet</string>
+    <string name="studio_metric_wh_consumed">Énergie</string>
+    <string name="studio_metric_wh_per_km">Consommation</string>
+    <string name="studio_metric_range">Autonomie</string>
     <string name="studio_metric_gps">Coordonnées GPS</string>
 
     <!-- Studio: overwrite preset -->
@@ -2125,6 +2133,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Courant</string>
     <string name="widget_metric_power">Puissance</string>
+    <string name="widget_metric_wh_consumed">Énergie</string>
+    <string name="widget_metric_wh_per_km">Consommation</string>
+    <string name="widget_metric_range">Autonomie</string>
     <string name="widget_metric_phone_battery">Batterie du telephone</string>
     <string name="widget_action_voice">Voix</string>
     <string name="widget_button_unset">Choisis un bouton dans Parametres</string>

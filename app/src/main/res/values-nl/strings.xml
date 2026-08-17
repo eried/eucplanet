@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Gem. snelheid</string>
     <string name="metric_chip_wh_consumed">Energie</string>
     <string name="metric_chip_range_estimate">Bereik</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Verbruik</string>
     <string name="metric_chip_phone_battery">Telefoonaccu</string>
     <string name="metric_chip_gps_altitude">Hoogte</string>
     <string name="metric_chip_gps_speed">GPS-snelheid</string>
@@ -824,6 +824,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spanning</string>
     <string name="alarm_metric_current">Stroom</string>
+    <string name="alarm_metric_wh_consumed">Energie</string>
+    <string name="alarm_metric_wh_per_km">Verbruik</string>
+    <string name="alarm_metric_range">Bereik</string>
     <string name="alarm_metric_gps_speed">GPS-snelheid</string>
     <string name="alarm_metric_gps_altitude">Hoogte</string>
     <string name="alarm_metric_external_gps_speed">Externe GPS-snelheid</string>
@@ -923,6 +926,8 @@
     <string name="recording_summary_max_current">Max. stroom</string>
     <string name="recording_summary_max_power">Max. vermogen</string>
     <string name="recording_summary_max_temp">Max. temp</string>
+    <string name="recording_summary_energy">Energie</string>
+    <string name="recording_summary_consumption">Verbruik</string>
     <string name="recording_chart_speed">Snelheid (%1$s)</string>
     <string name="recording_chart_battery">Accu (%)</string>
     <string name="recording_chart_temp">Temperatuur (%1$s)</string>
@@ -1486,6 +1491,9 @@
     <string name="trip_meter_col_max">Max</string>
     <string name="trip_meter_col_batt">Accu</string>
     <string name="studio_metric_trip_meter">Tripteller</string>
+    <string name="studio_metric_wh_consumed">Energie</string>
+    <string name="studio_metric_wh_per_km">Verbruik</string>
+    <string name="studio_metric_range">Bereik</string>
     <string name="studio_metric_gps">GPS-coördinaten</string>
 
     <!-- Studio: misc -->
@@ -2123,6 +2131,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Stroom</string>
     <string name="widget_metric_power">Vermogen</string>
+    <string name="widget_metric_wh_consumed">Energie</string>
+    <string name="widget_metric_wh_per_km">Verbruik</string>
+    <string name="widget_metric_range">Bereik</string>
     <string name="widget_metric_phone_battery">Telefoonaccu</string>
     <string name="widget_action_voice">Spraak</string>
     <string name="widget_button_unset">Kies een knop in Instellingen</string>

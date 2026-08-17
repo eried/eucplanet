@@ -1094,6 +1094,11 @@ class WheelService : LifecycleService() {
             com.eried.eucplanet.data.model.WidgetMetricType.TEMP -> u.tempUnit(tempUnit)
             com.eried.eucplanet.data.model.WidgetMetricType.CURRENT -> "A"
             com.eried.eucplanet.data.model.WidgetMetricType.POWER -> "W"
+            com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED -> "Wh"
+            com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
+                "Wh/" + u.distanceUnit(distUnit)
+            com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
+                u.distanceUnit(distUnit)
         }
 
         metricKeys.forEach { key ->
@@ -1129,6 +1134,16 @@ class WheelService : LifecycleService() {
                     "%.0f".format(kotlin.math.abs(data.current))
                 com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
                     "%.0f".format(kotlin.math.abs(data.voltage * data.current))
+                com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED ->
+                    "%.0f".format(data.whConsumed)
+                // Both are NaN until the rolling window has enough distance;
+                // the widget says nothing rather than showing a made-up zero.
+                com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
+                    if (data.whPerKmRecent.isNaN()) "--"
+                    else "%.0f".format(data.whPerKmRecent / u.distance(1f, distUnit))
+                com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
+                    if (data.rangeKmEstimate.isNaN()) "--"
+                    else "%.0f".format(u.distance(data.rangeKmEstimate, distUnit))
                 com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY ->
                     "$phoneBatteryCached"
             }

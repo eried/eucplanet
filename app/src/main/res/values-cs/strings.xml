@@ -224,7 +224,7 @@
     <string name="metric_chip_avg_trip_speed">Prům. rychlost</string>
     <string name="metric_chip_wh_consumed">Energie</string>
     <string name="metric_chip_range_estimate">Dojezd</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Spotřeba</string>
     <string name="metric_chip_phone_battery">Baterie telefonu</string>
     <string name="metric_chip_gps_altitude">Nadmořská výška</string>
     <string name="metric_chip_gps_speed">Rychlost GPS</string>
@@ -987,6 +987,9 @@
     <string name="alarm_metric_pwm">Zatížení (PWM)</string>
     <string name="alarm_metric_voltage">Napětí</string>
     <string name="alarm_metric_current">Proud</string>
+    <string name="alarm_metric_wh_consumed">Energie</string>
+    <string name="alarm_metric_wh_per_km">Spotřeba</string>
+    <string name="alarm_metric_range">Dojezd</string>
     <string name="alarm_metric_gps_speed">Rychlost GPS</string>
     <string name="alarm_metric_gps_altitude">Nadmořská výška</string>
     <string name="alarm_metric_external_gps_speed">Rychlost externí GPS</string>
@@ -1081,6 +1084,8 @@
     <string name="recording_summary_top_speed">Nejvyšší rychlost</string>
     <string name="recording_summary_avg_speed">Průměrná rychlost</string>
     <string name="recording_summary_max_temp">Max teplota</string>
+    <string name="recording_summary_energy">Energie</string>
+    <string name="recording_summary_consumption">Spotřeba</string>
     <string name="recording_summary_battery">Baterie (-%1$d%%)</string>
     <string name="recording_summary_voltage">Napětí</string>
     <string name="recording_summary_avg_moving">Průměr v pohybu</string>
@@ -1129,6 +1134,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Proud</string>
     <string name="widget_metric_power">Výkon</string>
+    <string name="widget_metric_wh_consumed">Energie</string>
+    <string name="widget_metric_wh_per_km">Spotřeba</string>
+    <string name="widget_metric_range">Dojezd</string>
     <string name="widget_metric_phone_battery">Baterie telefonu</string>
     <string name="widget_action_voice">Hlas</string>
     <string name="widget_standalone_desc">Akce pro widgety jen s tlačítky, nezávisle na řadě výše.</string>
@@ -1667,6 +1675,9 @@
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Vzdálenost jízdy</string>
     <string name="studio_metric_trip_meter">Počítadlo jízdy</string>
+    <string name="studio_metric_wh_consumed">Energie</string>
+    <string name="studio_metric_wh_per_km">Spotřeba</string>
+    <string name="studio_metric_range">Dojezd</string>
     <string name="studio_metric_odometer">Tachometr</string>
     <string name="studio_metric_pitch">Náklon</string>
     <string name="studio_metric_roll">Náklon do stran</string>

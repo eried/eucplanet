@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Ср. скорость</string>
     <string name="metric_chip_wh_consumed">Энергия</string>
     <string name="metric_chip_range_estimate">Запас хода</string>
-    <string name="metric_chip_wh_per_km">Вт·ч / км</string>
+    <string name="metric_chip_wh_per_km">Расход</string>
     <string name="metric_chip_phone_battery">Батарея телефона</string>
     <string name="metric_chip_gps_altitude">Высота</string>
     <string name="metric_chip_gps_speed">Скор. GPS</string>
@@ -824,6 +824,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напряжение</string>
     <string name="alarm_metric_current">Ток</string>
+    <string name="alarm_metric_wh_consumed">Энергия</string>
+    <string name="alarm_metric_wh_per_km">Расход</string>
+    <string name="alarm_metric_range">Запас хода</string>
     <string name="alarm_metric_gps_speed">Скорость GPS</string>
     <string name="alarm_metric_gps_altitude">Высота</string>
     <string name="alarm_metric_external_gps_speed">Скорость внешнего GPS</string>
@@ -915,6 +918,8 @@
     <string name="recording_summary_top_speed">Макс. скорость</string>
     <string name="recording_summary_avg_speed">Ср. скорость</string>
     <string name="recording_summary_max_temp">Макс. температура</string>
+    <string name="recording_summary_energy">Энергия</string>
+    <string name="recording_summary_consumption">Расход</string>
     <string name="recording_summary_battery">Заряд (-%1$d%%)</string>
     <string name="recording_summary_voltage">Напряжение</string>
     <string name="recording_summary_avg_moving">Ср. в движении</string>
@@ -1441,6 +1446,9 @@
     <string name="trip_meter_col_max">Макс</string>
     <string name="trip_meter_col_batt">Бат</string>
     <string name="studio_metric_trip_meter">Счётчик поездки</string>
+    <string name="studio_metric_wh_consumed">Энергия</string>
+    <string name="studio_metric_wh_per_km">Расход</string>
+    <string name="studio_metric_range">Запас хода</string>
     <string name="studio_metric_gps">Координаты GPS</string>
 
     <!-- Navigator -->
@@ -2121,6 +2129,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Ток</string>
     <string name="widget_metric_power">Мощность</string>
+    <string name="widget_metric_wh_consumed">Энергия</string>
+    <string name="widget_metric_wh_per_km">Расход</string>
+    <string name="widget_metric_range">Запас хода</string>
     <string name="widget_metric_phone_battery">Батарея телефона</string>
     <string name="widget_action_voice">Голос</string>
     <string name="widget_button_unset">Выберите кнопку в настройках</string>

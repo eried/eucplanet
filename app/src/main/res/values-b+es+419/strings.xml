@@ -249,7 +249,7 @@
     <string name="metric_chip_avg_trip_speed">Vel. media</string>
     <string name="metric_chip_wh_consumed">Energía</string>
     <string name="metric_chip_range_estimate">Autonomía</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Consumo</string>
     <string name="metric_chip_phone_battery">Batería del celular</string>
     <string name="metric_chip_gps_altitude">Altitud</string>
     <string name="metric_chip_gps_speed">Vel. GPS</string>
@@ -824,6 +824,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltaje</string>
     <string name="alarm_metric_current">Corriente</string>
+    <string name="alarm_metric_wh_consumed">Energía</string>
+    <string name="alarm_metric_wh_per_km">Consumo</string>
+    <string name="alarm_metric_range">Autonomía</string>
     <string name="alarm_metric_gps_speed">Velocidad GPS</string>
     <string name="alarm_metric_gps_altitude">Altitud</string>
     <string name="alarm_metric_external_gps_speed">Velocidad del GPS externo</string>
@@ -923,6 +926,8 @@
     <string name="recording_summary_max_current">Corriente máx.</string>
     <string name="recording_summary_max_power">Potencia máx.</string>
     <string name="recording_summary_max_temp">Temp. máx.</string>
+    <string name="recording_summary_energy">Energía</string>
+    <string name="recording_summary_consumption">Consumo</string>
     <string name="recording_chart_speed">Velocidad (%1$s)</string>
     <string name="recording_chart_battery">Batería (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
@@ -1463,6 +1468,9 @@
     <string name="trip_meter_col_max">Máx</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Odómetro parcial</string>
+    <string name="studio_metric_wh_consumed">Energía</string>
+    <string name="studio_metric_wh_per_km">Consumo</string>
+    <string name="studio_metric_range">Autonomía</string>
     <string name="studio_metric_gps">Coordenadas GPS</string>
 
     <!-- Studio misc -->
@@ -2139,6 +2147,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Corriente</string>
     <string name="widget_metric_power">Potencia</string>
+    <string name="widget_metric_wh_consumed">Energía</string>
+    <string name="widget_metric_wh_per_km">Consumo</string>
+    <string name="widget_metric_range">Autonomía</string>
     <string name="widget_metric_phone_battery">Bateria del telefono</string>
     <string name="widget_action_voice">Voz</string>
     <string name="widget_button_unset">Elige un boton en Ajustes</string>

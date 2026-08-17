@@ -431,6 +431,19 @@ fun TripDetailScreen(
                 else 1
                 sustainedTopSpeed(dataPoints.map { it.speed }, window)
             }
+            // Energy for the ride, integrated from the recorded voltage and
+            // current with the same step the live path uses. Reads off the
+            // trimmed points, so trimming a trip re-costs it rather than
+            // leaving a whole-ride figure beside windowed ones.
+            val rideEnergy = remember(dataPoints) {
+                com.eried.eucplanet.data.repository.ChargeEnergy.rideEnergy(
+                    dataPoints.mapNotNull { p ->
+                        com.eried.eucplanet.util.TripCsv.parseDate(p.date)?.let { t ->
+                            Triple(t, p.voltage, p.current)
+                        }
+                    }
+                )
+            }
             val avgSpeedRaw = dataPoints.map { it.speed }.average().toFloat()
             // Avg moving speed: mean over genuinely-moving samples (> 1 km/h).
             val movingSpeeds = dataPoints.map { it.speed }.filter { it > 1f }
@@ -666,6 +679,29 @@ fun TripDetailScreen(
                         if (batteryStats.maxPwm.isNaN()) "--" else "%.0f%%".format(batteryStats.maxPwm),
                         if (!batteryStats.maxPwm.isNaN() && batteryStats.maxPwm > 80) MaterialTheme.appColors.statusDanger
                         else MaterialTheme.appColors.metricTemp,
+                        Modifier.weight(1f)
+                    )
+                },
+                "energy" to {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_energy),
+                        if (rideEnergy.netWh <= 0f) "--" else "%.0f Wh".format(rideEnergy.netWh),
+                        MaterialTheme.appColors.metricBattery,
+                        Modifier.weight(1f)
+                    )
+                },
+                "consumption" to {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_consumption),
+                        // Distance can be zero on a trip that never moved, and a
+                        // ride with no usable voltage rows has no energy either.
+                        if (rideEnergy.netWh <= 0f || distanceKm <= 0.05f) "--"
+                        else "%.0f Wh/%s".format(
+                            rideEnergy.netWh / distanceKm /
+                                com.eried.eucplanet.util.Units.distance(1f, distanceUnit),
+                            distanceUnitLabel,
+                        ),
+                        MaterialTheme.appColors.metricBattery,
                         Modifier.weight(1f)
                     )
                 },

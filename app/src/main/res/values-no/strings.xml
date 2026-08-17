@@ -373,6 +373,8 @@
     <string name="recording_summary_max_current">Maks strøm</string>
     <string name="recording_summary_max_power">Maks effekt</string>
     <string name="recording_summary_max_temp">Maks temp</string>
+    <string name="recording_summary_energy">Energi</string>
+    <string name="recording_summary_consumption">Forbruk</string>
     <string name="recording_chart_speed">Fart (%1$s)</string>
     <string name="recording_chart_battery">Batteri (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
@@ -505,6 +507,9 @@
     <string name="alarm_metric_pwm">Last (PWM)</string>
     <string name="alarm_metric_voltage">Spenning</string>
     <string name="alarm_metric_current">Strøm</string>
+    <string name="alarm_metric_wh_consumed">Energi</string>
+    <string name="alarm_metric_wh_per_km">Forbruk</string>
+    <string name="alarm_metric_range">Rekkevidde</string>
     <string name="alarm_metric_gps_speed">GPS-fart</string>
     <string name="alarm_metric_gps_altitude">Høyde</string>
     <string name="alarm_metric_external_gps_speed">Ekstern GPS-fart</string>
@@ -974,6 +979,9 @@
     <string name="trip_meter_col_max">Maks</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Turteller</string>
+    <string name="studio_metric_wh_consumed">Energi</string>
+    <string name="studio_metric_wh_per_km">Forbruk</string>
+    <string name="studio_metric_range">Rekkevidde</string>
     <string name="studio_metric_gps">GPS-koordinater</string>
     <string name="studio_metric_odometer">Kilometerteller</string>
     <string name="studio_metric_pitch">Stigning</string>
@@ -1255,7 +1263,7 @@
     <string name="metric_chip_trip_time">Tur-tid</string>
     <string name="metric_chip_voltage">Spenning</string>
     <string name="metric_chip_wh_consumed">Energi</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Forbruk</string>
     <string name="metric_chip_wheel_alarm_speed">Hjulalarm</string>
     <string name="metric_chip_wheel_max_speed">Maks hjul</string>
     <string name="metric_desc_avg_trip_speed">Turdistanse delt på kjøretid så langt.</string>
@@ -2009,6 +2017,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Strom</string>
     <string name="widget_metric_power">Effekt</string>
+    <string name="widget_metric_wh_consumed">Energi</string>
+    <string name="widget_metric_wh_per_km">Forbruk</string>
+    <string name="widget_metric_range">Rekkevidde</string>
     <string name="widget_metric_phone_battery">Telefonbatteri</string>
     <string name="widget_action_voice">Tale</string>
     <string name="widget_button_unset">Velg en knapp i Innstillinger</string>

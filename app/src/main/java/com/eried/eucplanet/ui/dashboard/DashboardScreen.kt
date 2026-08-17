@@ -191,6 +191,26 @@ private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: (
  * to one decimal. Shared by the standalone-tile corner stats and the
  * composite cell renderer so both agree.
  */
+/**
+ * Consumption in the rider's distance unit. Stored per km, so dividing by the
+ * number of display units in one km converts it: a mile is 0.621371 of a km, so
+ * Wh/mi is the km figure over 0.621371, and a Scandinavian mil is 10 km, so it
+ * is the km figure over 0.1.
+ *
+ * Null when there is nothing worth showing yet (no window, or a stretch of
+ * regen that makes net energy zero), so each caller supplies its own
+ * placeholder rather than this inventing a zero.
+ */
+private fun formatWhPerDistance(whPerKm: Float, distanceUnit: String): String? {
+    if (whPerKm.isNaN() || whPerKm <= 0f) return null
+    val unitsPerKm = com.eried.eucplanet.util.Units.distance(1f, distanceUnit)
+    if (unitsPerKm <= 0f) return null
+    return "%.0f Wh/%s".format(
+        whPerKm / unitsPerKm,
+        com.eried.eucplanet.util.Units.distanceUnit(distanceUnit),
+    )
+}
+
 private fun formatMetricStatValue(
     key: String,
     raw: Float,
@@ -233,7 +253,11 @@ private fun formatMetricStatValue(
     else
         "%.0fm".format(raw)
     "BT_RSSI" -> "%.0f dBm".format(raw)
-    "WH_PER_KM" -> "%.0f Wh/km".format(raw)
+    "WH_PER_KM" -> formatWhPerDistance(raw, distanceUnit) ?: "-"
+    "RANGE_ESTIMATE" -> "%.0f %s".format(
+        com.eried.eucplanet.util.Units.distance(raw, distanceUnit),
+        com.eried.eucplanet.util.Units.distanceUnit(distanceUnit),
+    )
     else -> "%.1f".format(raw)
 }
 
@@ -1620,8 +1644,14 @@ fun DashboardScreen(
                     // little of it, so a tiny denominator can't spike the number.
                     "WH_CONSUMED" -> if (wheelData.whConsumed > 0f) "%.0f Wh".format(wheelData.whConsumed) else placeholder
                     "REGEN_WH" -> if (wheelData.whRegen > 0f) "%.0f Wh".format(wheelData.whRegen) else placeholder
-                    "WH_PER_KM" -> if (wheelData.tripDistance > 0.05f && wheelData.whConsumed > 0f)
-                        "%.0f Wh/km".format(wheelData.whConsumed / wheelData.tripDistance) else placeholder
+                    "WH_PER_KM" -> formatWhPerDistance(wheelData.whPerKmRecent, distanceUnit)
+                        ?: placeholder
+                    "RANGE_ESTIMATE" -> wheelData.rangeKmEstimate.takeIf { !it.isNaN() }?.let {
+                        "%.0f %s".format(
+                            com.eried.eucplanet.util.Units.distance(it, distanceUnit),
+                            com.eried.eucplanet.util.Units.distanceUnit(distanceUnit),
+                        )
+                    } ?: placeholder
                     // SLOPE / ASCENT / DESCENT need integrated altitude
                     // history (not yet wired). MOTOR_RPM isn't surfaced on
                     // WheelData today - that needs adapter-side plumbing.

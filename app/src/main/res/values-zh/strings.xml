@@ -322,6 +322,9 @@
     <string name="alarm_metric_pwm">负载 (PWM)</string>
     <string name="alarm_metric_voltage">电压</string>
     <string name="alarm_metric_current">电流</string>
+    <string name="alarm_metric_wh_consumed">能耗</string>
+    <string name="alarm_metric_wh_per_km">电耗</string>
+    <string name="alarm_metric_range">续航</string>
     <string name="alarm_metric_gps_speed">GPS 速度</string>
     <string name="alarm_metric_gps_altitude">海拔</string>
     <string name="alarm_metric_external_gps_speed">外置 GPS 速度</string>
@@ -406,6 +409,8 @@
     <string name="recording_summary_max_current">最大电流</string>
     <string name="recording_summary_max_power">最大功率</string>
     <string name="recording_summary_max_temp">最高温度</string>
+    <string name="recording_summary_energy">能耗</string>
+    <string name="recording_summary_consumption">电耗</string>
     <string name="recording_chart_speed">速度 (%1$s)</string>
     <string name="recording_chart_battery">电量 (%)</string>
     <string name="recording_chart_temp">温度 (%1$s)</string>
@@ -957,6 +962,9 @@
     <string name="trip_meter_col_max">最高</string>
     <string name="trip_meter_col_batt">电量</string>
     <string name="studio_metric_trip_meter">行程里程表</string>
+    <string name="studio_metric_wh_consumed">能耗</string>
+    <string name="studio_metric_wh_per_km">电耗</string>
+    <string name="studio_metric_range">续航</string>
     <string name="studio_metric_gps">GPS 坐标</string>
     <string name="studio_metric_odometer">总里程</string>
     <string name="studio_metric_pitch">俯仰角</string>
@@ -1238,7 +1246,7 @@
     <string name="metric_chip_trip_time">行程时间</string>
     <string name="metric_chip_voltage">电压</string>
     <string name="metric_chip_wh_consumed">能量</string>
-    <string name="metric_chip_wh_per_km">瓦时/公里</string>
+    <string name="metric_chip_wh_per_km">电耗</string>
     <string name="metric_chip_wheel_alarm_speed">车体报警</string>
     <string name="metric_chip_wheel_max_speed">车体限速</string>
     <string name="metric_desc_avg_trip_speed">行程距离除以已骑行时间。</string>
@@ -1988,6 +1996,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">电流</string>
     <string name="widget_metric_power">功率</string>
+    <string name="widget_metric_wh_consumed">能耗</string>
+    <string name="widget_metric_wh_per_km">电耗</string>
+    <string name="widget_metric_range">续航</string>
     <string name="widget_metric_phone_battery">手机电量</string>
     <string name="widget_action_voice">语音</string>
     <string name="widget_button_unset">在设置中选择一个按钮</string>

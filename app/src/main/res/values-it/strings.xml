@@ -401,6 +401,9 @@
     <string name="alarm_metric_pwm">Carico (PWM)</string>
     <string name="alarm_metric_voltage">Tensione</string>
     <string name="alarm_metric_current">Corrente</string>
+    <string name="alarm_metric_wh_consumed">Energia</string>
+    <string name="alarm_metric_wh_per_km">Consumo</string>
+    <string name="alarm_metric_range">Autonomia</string>
     <string name="alarm_metric_gps_speed">Velocità GPS</string>
     <string name="alarm_metric_gps_altitude">Altitudine</string>
     <string name="alarm_metric_external_gps_speed">Velocità GPS esterno</string>
@@ -498,6 +501,8 @@
     <string name="recording_summary_max_current">Corrente massima</string>
     <string name="recording_summary_max_power">Potenza massima</string>
     <string name="recording_summary_max_temp">Temp. massima</string>
+    <string name="recording_summary_energy">Energia</string>
+    <string name="recording_summary_consumption">Consumo</string>
     <string name="recording_chart_speed">Velocità (%1$s)</string>
     <string name="recording_chart_battery">Batteria (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
@@ -993,6 +998,9 @@
     <string name="trip_meter_col_max">Max</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Contachilometri parziale</string>
+    <string name="studio_metric_wh_consumed">Energia</string>
+    <string name="studio_metric_wh_per_km">Consumo</string>
+    <string name="studio_metric_range">Autonomia</string>
     <string name="studio_metric_gps">Coordinate GPS</string>
     <string name="studio_metric_odometer">Contachilometri</string>
     <string name="studio_metric_pitch">Beccheggio</string>
@@ -1274,7 +1282,7 @@
     <string name="metric_chip_trip_time">Tempo tragitto</string>
     <string name="metric_chip_voltage">Tensione</string>
     <string name="metric_chip_wh_consumed">Energia</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Consumo</string>
     <string name="metric_chip_wheel_alarm_speed">Allarme ruota</string>
     <string name="metric_chip_wheel_max_speed">Max ruota</string>
     <string name="metric_desc_avg_trip_speed">Distanza del tragitto divisa per il tempo di guida finora.</string>
@@ -2026,6 +2034,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Corrente</string>
     <string name="widget_metric_power">Potenza</string>
+    <string name="widget_metric_wh_consumed">Energia</string>
+    <string name="widget_metric_wh_per_km">Consumo</string>
+    <string name="widget_metric_range">Autonomia</string>
     <string name="widget_metric_phone_battery">Batteria del telefono</string>
     <string name="widget_action_voice">Voce</string>
     <string name="widget_button_unset">Scegli un pulsante nelle Impostazioni</string>

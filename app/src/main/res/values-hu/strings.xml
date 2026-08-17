@@ -224,7 +224,7 @@
     <string name="metric_chip_avg_trip_speed">Átlagsebesség</string>
     <string name="metric_chip_wh_consumed">Energia</string>
     <string name="metric_chip_range_estimate">Hatótáv</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Fogyasztás</string>
     <string name="metric_chip_phone_battery">Telefon akkumulátora</string>
     <string name="metric_chip_gps_altitude">Tengerszint feletti magasság</string>
     <string name="metric_chip_gps_speed">GPS-sebesség</string>
@@ -987,6 +987,9 @@
     <string name="alarm_metric_pwm">Terhelés (PWM)</string>
     <string name="alarm_metric_voltage">Feszültség</string>
     <string name="alarm_metric_current">Áram</string>
+    <string name="alarm_metric_wh_consumed">Energia</string>
+    <string name="alarm_metric_wh_per_km">Fogyasztás</string>
+    <string name="alarm_metric_range">Hatótáv</string>
     <string name="alarm_metric_gps_speed">GPS-sebesség</string>
     <string name="alarm_metric_gps_altitude">Magasság</string>
     <string name="alarm_metric_external_gps_speed">Külső GPS sebessége</string>
@@ -1081,6 +1084,8 @@
     <string name="recording_summary_top_speed">Csúcssebesség</string>
     <string name="recording_summary_avg_speed">Átlagsebesség</string>
     <string name="recording_summary_max_temp">Max hőmérséklet</string>
+    <string name="recording_summary_energy">Energia</string>
+    <string name="recording_summary_consumption">Fogyasztás</string>
     <string name="recording_summary_battery">Akkumulátor (-%1$d%%)</string>
     <string name="recording_summary_voltage">Feszültség</string>
     <string name="recording_summary_avg_moving">Átlag mozgásban</string>
@@ -1129,6 +1134,9 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Áram</string>
     <string name="widget_metric_power">Teljesítmény</string>
+    <string name="widget_metric_wh_consumed">Energia</string>
+    <string name="widget_metric_wh_per_km">Fogyasztás</string>
+    <string name="widget_metric_range">Hatótáv</string>
     <string name="widget_metric_phone_battery">Telefon akkumulátora</string>
     <string name="widget_action_voice">Hang</string>
     <string name="widget_standalone_desc">Műveletek a csak gombokat tartalmazó widgetekhez, a fenti sortól függetlenül.</string>
@@ -1667,6 +1675,9 @@
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Menet távolsága</string>
     <string name="studio_metric_trip_meter">Menetszámláló</string>
+    <string name="studio_metric_wh_consumed">Energia</string>
+    <string name="studio_metric_wh_per_km">Fogyasztás</string>
+    <string name="studio_metric_range">Hatótáv</string>
     <string name="studio_metric_odometer">Kilométeróra</string>
     <string name="studio_metric_pitch">Előre-hátra dőlés</string>
     <string name="studio_metric_roll">Oldaldőlés</string>

@@ -66,6 +66,29 @@ data class WheelData(
     /** Wh returned to the battery since connect (regen / charge integral). Backs
      *  the REGEN_WH "Regen" tile. */
     val whRegen: Float = 0f,
+    /**
+     * Net Wh per km over the rider's dashboard rolling window: energy out minus
+     * regen, divided by the distance covered in that same window. Both ends come
+     * from the same two cumulative series, so the numerator and denominator
+     * cannot describe different stretches of road. NaN until the window holds
+     * enough distance to divide by. Backs WH_PER_KM.
+     *
+     * A rate, unlike [whConsumed], which is a running total. The two do not
+     * reconcile by division and are not meant to: this one answers what the
+     * ride is costing right now, and it moves when the road tilts.
+     */
+    val whPerKmRecent: Float = Float.NaN,
+    /**
+     * Remaining range in km at the recent consumption rate, or NaN while either
+     * that rate or the pack's Wh-per-percent is still unknown. Backs
+     * RANGE_ESTIMATE.
+     *
+     * Wh-per-percent is learned from this ride rather than from a pack size we
+     * do not know: energy spent against battery percent dropped. It needs a few
+     * percent of drop before it says anything, and it is only ever as good as
+     * the wheel's own percentage.
+     */
+    val rangeKmEstimate: Float = Float.NaN,
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,

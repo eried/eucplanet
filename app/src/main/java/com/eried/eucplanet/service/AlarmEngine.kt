@@ -179,6 +179,12 @@ class AlarmEngine @Inject constructor(
                 AlarmMetric.PWM -> data.pwm.absoluteValue
                 AlarmMetric.VOLTAGE -> data.voltage
                 AlarmMetric.CURRENT -> data.current.absoluteValue
+                AlarmMetric.WH_CONSUMED -> data.whConsumed
+                // NaN until the window has enough distance. Null skips the rule
+                // rather than comparing against a number that isn't one, which
+                // would either never fire or fire constantly.
+                AlarmMetric.WH_PER_KM -> data.whPerKmRecent.takeIf { !it.isNaN() }
+                AlarmMetric.RANGE_ESTIMATE -> data.rangeKmEstimate.takeIf { !it.isNaN() }
                 // Radar + external-GPS metrics are evaluated via their own
                 // entry points ([evaluateRadar] off RadarRepository,
                 // [evaluateExternalGps] off ExternalGpsRepository), not the

@@ -135,6 +135,23 @@ data class HudState(
      *  instead of the skew being silent. */
     val tripMeterKm: Float = -1f,
 
+    /** Energy drawn from the pack since connect, in Wh. A running total, so it
+     *  only climbs within a session. 0 before the first integration tick.
+     *  Wired in protocol minor 16. */
+    val whConsumed: Float = 0f,
+    /** Net consumption over the phone's rolling window, in Wh per km. A rate,
+     *  not a total: it answers what the ride is costing right now, and it moves
+     *  when the road tilts. NaN until the window holds enough distance to
+     *  divide by, which the HUD must render as "no reading" rather than 0.
+     *  Always per km on the wire; the HUD converts for its own unit setting.
+     *  Wired in protocol minor 16. */
+    val whPerKm: Float = Float.NaN,
+    /** Remaining range in km at that rate, or NaN while the phone cannot say.
+     *  Derived from energy-per-percent learned during the ride, so it is only
+     *  ever as good as the wheel's own battery percentage.
+     *  Wired in protocol minor 16. */
+    val rangeKm: Float = Float.NaN,
+
     /** Wheel roll (lean) in degrees, +right. From wheel BLE telemetry
      *  (InMotion / Begode / KingSong all report it). 0 when the wheel
      *  isn't reporting it -- the HUD treats 0-degenerate as "no data" by
@@ -289,8 +306,14 @@ data class HudState(
          *    [HudState.phoneGpsSpeedKmh] / [HudState.externalGpsSpeedKmh] so a HUD
          *    can show phone AND external GPS speed at once. Older HUDs default
          *    these and fall back to the prior single-source behaviour.
+         * 16: added [HudState.whConsumed], [HudState.whPerKm] and
+         *    [HudState.rangeKm] AND the WH_CONSUMED / WH_PER_KM /
+         *    RANGE_ESTIMATE custom-overlay metric keys. An older HUD ignores the
+         *    fields and renders such an element as SPEED, so the minor bump is
+         *    what surfaces the "update your HUD" hint. Note whPerKm and rangeKm
+         *    use NaN, not 0, for "nothing to say yet".
          */
-        const val PROTOCOL_MINOR: Int = 15
+        const val PROTOCOL_MINOR: Int = 16
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
