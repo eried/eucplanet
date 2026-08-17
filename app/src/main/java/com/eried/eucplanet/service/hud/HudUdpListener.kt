@@ -129,9 +129,13 @@ class HudUdpListener @Inject constructor(
         runCatching {
             val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE)
                 as? ConnectivityManager ?: return@runCatching
+            // NO NET_CAPABILITY_INTERNET: the HUD often rides a WiFi that has
+            // no internet (a Faraday-cage shop AP, or the phone's own hotspot),
+            // and we want to recycle the listener when the rider joins exactly
+            // those. Requiring internet here meant the clean recycle never fired
+            // in the environment the HUD is most used in.
             val req = NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .build()
             val cb = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
