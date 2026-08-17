@@ -69,7 +69,6 @@ import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.filled.FiberManualRecord
@@ -2894,11 +2893,6 @@ fun DashboardScreen(
             }
 
             if (showAboutDialog) {
-                var crashes by remember {
-                    mutableStateOf(com.eried.eucplanet.util.CrashHandler.listCrashes(context))
-                }
-                var crashMenuFor by remember { mutableStateOf<java.io.File?>(null) }
-                var confirmDeleteAllCrashes by remember { mutableStateOf(false) }
                 val licenseText = remember {
                     try {
                         val raw = context.resources.openRawResource(R.raw.license)
@@ -3090,21 +3084,6 @@ fun DashboardScreen(
                                         )
                                     }
                                 )
-                                Tab(
-                                    selected = aboutTab == 2,
-                                    onClick = { aboutTab = 2 },
-                                    text = {
-                                        Text(
-                                            if (crashes.isEmpty())
-                                                stringResource(R.string.about_crash_logs)
-                                            else
-                                                "${stringResource(R.string.about_crash_logs)} (${crashes.size})",
-                                            maxLines = 1,
-                                            softWrap = false,
-                                            modifier = unbounded
-                                        )
-                                    }
-                                )
                             }
 
                             Box(modifier = Modifier.weight(1f).padding(top = 12.dp)) {
@@ -3275,54 +3254,6 @@ fun DashboardScreen(
                                             )
                                         }
                                     }
-                                    2 -> {
-                                        if (crashes.isEmpty()) {
-                                            Row(
-                                                modifier = Modifier.fillMaxSize(),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Center
-                                            ) {
-                                                Text(
-                                                    stringResource(R.string.about_crash_logs_empty),
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                )
-                                            }
-                                        } else {
-                                            Column(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .verticalScroll(rememberScrollState())
-                                            ) {
-                                                crashes.forEach { file ->
-                                                    Row(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .combinedClickable(
-                                                                onClick = { shareCrashFile(context, file) },
-                                                                onLongClick = { crashMenuFor = file }
-                                                            )
-                                                            .padding(vertical = 8.dp),
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                    ) {
-                                                        Icon(
-                                                            Icons.Default.BugReport,
-                                                            contentDescription = null,
-                                                            tint = MaterialTheme.colorScheme.error,
-                                                            modifier = Modifier.size(18.dp)
-                                                        )
-                                                        Text(
-                                                            file.name,
-                                                            style = MaterialTheme.typography.bodyMedium,
-                                                            color = MaterialTheme.colorScheme.primary,
-                                                            modifier = Modifier.weight(1f)
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
                                 }
                             }
 
@@ -3351,54 +3282,6 @@ fun DashboardScreen(
                             )
                         }
                       }  // Box (debug-overlay wrapper)
-                    }
-                    crashMenuFor?.let { target ->
-                        androidx.compose.material3.AlertDialog(
-                            onDismissRequest = { crashMenuFor = null },
-                            shape = RoundedCornerShape(12.dp),
-                            title = { Text(stringResource(R.string.about_crash_logs)) },
-                            text = {
-                                Text(stringResource(R.string.crash_log_action_prompt, target.name))
-                            },
-                            confirmButton = {
-                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    TextButton(onClick = {
-                                        runCatching { target.delete() }
-                                        crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
-                                        crashMenuFor = null
-                                    }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete)) }
-                                    TextButton(onClick = { confirmDeleteAllCrashes = true }, shape = RoundedCornerShape(12.dp)) {
-                                        Text(stringResource(R.string.crash_log_delete_all))
-                                    }
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { crashMenuFor = null }, shape = RoundedCornerShape(12.dp)) {
-                                    Text(stringResource(R.string.action_cancel))
-                                }
-                            }
-                        )
-                    }
-                    if (confirmDeleteAllCrashes) {
-                        androidx.compose.material3.AlertDialog(
-                            onDismissRequest = { confirmDeleteAllCrashes = false },
-                            shape = RoundedCornerShape(12.dp),
-                            title = { Text(stringResource(R.string.crash_log_delete_all)) },
-                            text = { Text(stringResource(R.string.crash_log_delete_all_warning)) },
-                            confirmButton = {
-                                TextButton(onClick = {
-                                    crashes.forEach { runCatching { it.delete() } }
-                                    crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
-                                    confirmDeleteAllCrashes = false
-                                    crashMenuFor = null
-                                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete)) }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { confirmDeleteAllCrashes = false }, shape = RoundedCornerShape(12.dp)) {
-                                    Text(stringResource(R.string.action_cancel))
-                                }
-                            }
-                        )
                     }
                 }
                 if (showDiagnosticsConfirm) {
@@ -4305,16 +4188,3 @@ private fun openUrl(context: Context, url: String) {
     }
 }
 
-private fun shareCrashFile(context: Context, file: java.io.File) {
-    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-    val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_STREAM, uri)
-        putExtra(Intent.EXTRA_SUBJECT, "EUC Planet crash: ${file.name}")
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
-    context.startActivity(
-        Intent.createChooser(intent, context.getString(R.string.about_share_crash))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    )
-}

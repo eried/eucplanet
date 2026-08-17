@@ -283,6 +283,18 @@ class MainActivity : AppCompatActivity() {
         // background — the warning indicator auto-clears when the rider
         // returns having granted what was missing.
         reconcilePipWithSystem()
+        // A battery-optimisation grant (and some OEM permissions) doesn't always
+        // register the instant we resume: Android - MIUI/Redmi especially -
+        // propagates the whitelist a beat later, so the immediate check above can
+        // still read the OLD value and the "Fix" warning lingers until the next
+        // check. That's why it took a second Fix tap to clear. Re-check a couple
+        // of times over the next few seconds so it clears on its own.
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(1200)
+            reconcilePipWithSystem()
+            kotlinx.coroutines.delay(1500)
+            reconcilePipWithSystem()
+        }
         // Resume a stranded Dropbox trip sync promptly on return, not only on
         // cold start: if trips are still pending and Dropbox is linked, re-kick
         // the retry worker. It no-ops when nothing is pending, so this is a

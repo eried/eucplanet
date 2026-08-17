@@ -98,6 +98,14 @@ android {
             }
         }
         release {
+            // A release build is NEVER a dev build, whatever branch it was cut
+            // from. The defaultConfig heuristic (branch != main) is only meant
+            // for debug/branch tester APKs; a release AAB submitted to Play from
+            // next-version must not inherit it, or dev-only surfaces (the welcome
+            // wizard's backup/restore tools, etc.) leak into production. This
+            // overrides the computed value so it can't depend on remembering
+            // -Pprod. Debug builds keep the branch heuristic.
+            buildConfigField("boolean", "IS_DEV", "false")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
