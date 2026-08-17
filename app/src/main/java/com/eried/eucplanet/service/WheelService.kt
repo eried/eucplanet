@@ -74,6 +74,13 @@ class WheelService : LifecycleService() {
          *  the service's onDestroy so cleanup completes first, on its own
          *  schedule -- no arbitrary delay timer needed. */
         const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
+        /** Set true on the Stop All *notification* action's intent so the service
+         *  closes the paired watch(es) itself during teardown. The in-app Stop All
+         *  (DashboardViewModel.stopEverything) sends the watch QUIT before it fires
+         *  the kill, so it leaves this false to avoid a double QUIT. Without it the
+         *  notification button killed the phone but left the watch on a stale
+         *  "phone gone" dial instead of closing. */
+        const val EXTRA_CLOSE_WATCH = "com.eried.eucplanet.extra.CLOSE_WATCH"
         /** Gentle stand-down when the "Keep app running" toggle is turned OFF.
          *  Unlike ACTION_STOP_ALL_AND_KILL this never kills the process and only
          *  stops the service if nothing else still needs it (a live connection,
@@ -189,6 +196,12 @@ class WheelService : LifecycleService() {
     // cleared, the process is going away anyway.
     @Volatile
     private var killProcessOnDestroy: Boolean = false
+    // Flipped true when Stop All arrives from the notification button (which
+    // carries EXTRA_CLOSE_WATCH). Tells onDestroy to send the watch QUIT itself,
+    // since nothing else did on that path. The in-app Stop All leaves it false
+    // because DashboardViewModel already closed the watch before the kill.
+    @Volatile
+    private var closeWatchOnKill: Boolean = false
     // Flipped true the instant a teardown begins (Stop All, or onDestroy).
     // Gates every NotificationManager.notify() so a telemetry or nav emission
     // arriving mid-shutdown can't RE-POST the ongoing notification after we
@@ -551,6 +564,9 @@ class WheelService : LifecycleService() {
                 // below seals it: even if Android wanted to redeliver,
                 // this intent's stickiness is disabled.
                 killProcessOnDestroy = true
+                // From the notification button only: onDestroy must close the
+                // watch(es) too. The in-app path already did and omits the extra.
+                closeWatchOnKill = intent?.getBooleanExtra(EXTRA_CLOSE_WATCH, false) == true
                 // Stop All clears the running trip meter (car-odometer reset):
                 // zero the total and wipe the split log. Block on the write so the
                 // wipe is durable before the SIGKILL at the end of onDestroy - a
@@ -594,6 +610,28 @@ class WheelService : LifecycleService() {
         // fallback. Either way the rider never sees a frozen-stale dial.
         try { wearBridge.publishFarewell() } catch (_: Exception) {}
         try { garminBridge.publishFarewell() } catch (_: Exception) {}
+        // Stop All from the notification button lands here directly, so nothing
+        // has told the paired watch(es) to CLOSE - the farewell above only flips
+        // them to a disconnected "--" dial, leaving the watch app open. Send the
+        // QUIT now, mirroring DashboardViewModel.stopEverything and gated on the
+        // same watchCloseOnExit setting. Runs on a short-lived worker because
+        // sendCloseToWatchBlocking uses Tasks.await(), which throws on the main
+        // thread; join (capped) so Garmin's QUIT - which dies with our process -
+        // lands before the SIGKILL at the end of onDestroy.
+        if (closeWatchOnKill) {
+            runCatching {
+                val closer = Thread {
+                    runCatching {
+                        if (kotlinx.coroutines.runBlocking { settingsRepository.get() }.watchCloseOnExit) {
+                            try { wearBridge.sendCloseToWatchBlocking() } catch (_: Exception) {}
+                            try { garminBridge.sendCloseToWatchBlocking() } catch (_: Exception) {}
+                        }
+                    }
+                }
+                closer.start()
+                closer.join(2500)
+            }
+        }
         // Same farewell for the widget, and for the same reason. Nothing else
         // repaints it on the way out: the DISCONNECTED collector that would
         // normally drop it back to dashes lives on lifecycleScope, which
@@ -900,9 +938,15 @@ class WheelService : LifecycleService() {
         label: String,
         action: String
     ): NotificationCompat.Action {
+        val actionIntent = Intent(this, WheelService::class.java).setAction(action)
+        // Stop All from the notification must also close the paired watch(es);
+        // the flag tells onDestroy to send the QUIT (the in-app path does its own).
+        if (action == ACTION_STOP_ALL_AND_KILL) {
+            actionIntent.putExtra(EXTRA_CLOSE_WATCH, true)
+        }
         val pi = PendingIntent.getService(
             this, 200 + type.ordinal,
-            Intent(this, WheelService::class.java).setAction(action),
+            actionIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Action.Builder(icon, label, pi).build()
