@@ -20,6 +20,13 @@ do about it", which is the opposite of what the state means. The upload succeede
 - **Automatically, on the upload sweep.** The worker refreshes held trips before
   it looks at pending uploads, because a held trip has already uploaded and so is
   never in the pending set. Failures there are ignored, it is only a refresh.
+  Bounded to the 20 most recent held trips: one check is a ~150 byte response, but
+  a rider whose trips are never reviewed would otherwise re-ask about all of them
+  every time. The sweep is event-driven (ride ends, manual retry, settings change),
+  not a poll.
+- **"Sync all" in settings re-checks every held trip**, with no bound, because the
+  rider asked for exactly that. A sync that only cleared verdicts reports what it
+  cleared instead of "nothing to sync".
 - **Manually, by tapping the cloud.** Tapping a held trip now re-asks and reports
   the answer, instead of repeating the same explanation. That is the one action
   that can actually change the icon.

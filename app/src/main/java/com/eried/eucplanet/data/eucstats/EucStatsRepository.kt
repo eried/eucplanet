@@ -18,11 +18,17 @@ import javax.inject.Singleton
 /** Outcome of a single [EucStatsRepository.uploadTrip] call. */
 enum class Outcome { UPLOADED, FAILED_PERMANENT, NEEDS_RETRY }
 
+/** How many held trips a background sweep re-checks, newest first. */
+const val BACKGROUND_HELD_LIMIT = 20
+
+/** No practical bound, for the rider-initiated "Sync all". */
+const val ALL_HELD_TRIPS = Int.MAX_VALUE
+
 /** Outcome of a [EucStatsRepository.syncPendingNow] batch. [total] is the
  *  number of trips that were eligible at the start of the run; [uploaded] is
  *  the number that landed cleanly. Callers use both to render an honest
  *  message ("nothing to sync" / "synced N" / "all failed"). */
-data class SyncResult(val total: Int, val uploaded: Int) {
+data class SyncResult(val total: Int, val uploaded: Int, val cleared: Int = 0) {
     val allFailed: Boolean get() = total > 0 && uploaded == 0
 }
 
@@ -254,9 +260,14 @@ class EucStatsRepository @Inject constructor(
      */
     suspend fun syncPendingNow(onProgress: (done: Int, total: Int) -> Unit): SyncResult =
         withContext(Dispatchers.IO) {
+            // The rider asked for a full sync, so re-read every held verdict too, not just
+            // the bounded set a background sweep takes. A trip approved server-side is not
+            // "pending" anything, so without this an explicit sync would leave it held.
+            val cleared = runCatching { refreshHeldTrips(ALL_HELD_TRIPS) }.getOrDefault(0)
+
             val pending = tripDao.getPendingEucstatsUploads()
             val total = pending.size
-            if (total == 0) return@withContext SyncResult(0, 0)
+            if (total == 0) return@withContext SyncResult(0, 0, cleared)
             onProgress(0, total)
             var uploaded = 0
             var done = 0
@@ -266,7 +277,7 @@ class EucStatsRepository @Inject constructor(
                 done++
                 onProgress(done, total)
             }
-            SyncResult(total = total, uploaded = uploaded)
+            SyncResult(total = total, uploaded = uploaded, cleared = cleared)
         }
 
     // -------------------------------------------------------------------------
@@ -293,15 +304,22 @@ class EucStatsRepository @Inject constructor(
         now
     }
 
-    /** Re-read every held trip. Returns how many changed verdict. */
-    suspend fun refreshHeldTrips(): Int = withContext(Dispatchers.IO) {
-        var changed = 0
-        for (trip in tripDao.getHeldEucstatsTrips()) {
-            val now = runCatching { refreshTripVerdict(trip) }.getOrNull()
-            if (now != null && now != trip.eucstatsValidation) changed++
+    /**
+     * Re-read held trips, newest first. Returns how many changed verdict.
+     *
+     * [limit] keeps a background sweep bounded: a rider whose trips are never reviewed
+     * would otherwise re-ask about every one of them, every time. The explicit "Sync all"
+     * passes [ALL_HELD_TRIPS] because the rider asked for exactly that.
+     */
+    suspend fun refreshHeldTrips(limit: Int = BACKGROUND_HELD_LIMIT): Int =
+        withContext(Dispatchers.IO) {
+            var changed = 0
+            for (trip in tripDao.getHeldEucstatsTrips(limit)) {
+                val now = runCatching { refreshTripVerdict(trip) }.getOrNull()
+                if (now != null && now != trip.eucstatsValidation) changed++
+            }
+            changed
         }
-        changed
-    }
 
     // -------------------------------------------------------------------------
     // Profile management

@@ -2423,11 +2423,15 @@ class SettingsViewModel @Inject constructor(
             _eucstatsSyncProgress.value = null
             _eucstatsSyncRunning.value = false
             _cloudEvent.value = when {
-                result.total == 0 -> CloudEvent.EucstatsNothingToSync
-                result.allFailed -> CloudEvent.EucstatsSyncFailed
-                else -> CloudEvent.EucstatsSyncFinished(result.uploaded)
+                // `cleared` counts held trips whose verdict moved, usually because a
+                // moderator approved them. Those are not uploads, but they are real work
+                // the rider can see, so a sync that only cleared verdicts must not report
+                // "nothing to sync".
+                result.total == 0 && result.cleared == 0 -> CloudEvent.EucstatsNothingToSync
+                result.allFailed && result.cleared == 0 -> CloudEvent.EucstatsSyncFailed
+                else -> CloudEvent.EucstatsSyncFinished(result.uploaded + result.cleared)
             }
-            if (result.uploaded > 0) refreshOnlineUploadCard()
+            if (result.uploaded > 0 || result.cleared > 0) refreshOnlineUploadCard()
         }
     }
 

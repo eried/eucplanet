@@ -148,10 +148,10 @@ class FakeTripDao : TripDao {
     override suspend fun allFileNames(): List<String> = trips.map { it.fileName }
     override suspend fun getPendingEucstatsUploads(): List<TripRecord> =
         trips.filter { it.endTime != null && it.tripUuid != null && it.eucstatsStatus in listOf(1, 3) }
-    override suspend fun getHeldEucstatsTrips(): List<TripRecord> =
+    override suspend fun getHeldEucstatsTrips(limit: Int): List<TripRecord> =
         trips.filter { it.tripUuid != null && it.eucstatsStatus == 2 && it.eucstatsValidation == "flagged" }
             .sortedByDescending { it.startTime }
-            .take(50)
+            .take(limit)
     override suspend fun resetUnfinishedEucstatsStatuses() {
         for (i in trips.indices) {
             if (trips[i].eucstatsStatus in listOf(1, 3)) trips[i] = trips[i].copy(eucstatsStatus = 0)

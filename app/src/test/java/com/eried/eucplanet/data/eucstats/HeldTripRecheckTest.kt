@@ -107,15 +107,36 @@ class HeldTripRecheckTest {
     }
 
     @Test
-    fun `a sweep is capped so it cannot grow without bound`() = runBlocking {
+    fun `a background sweep is capped to the most recent held trips`() = runBlocking {
         // A rider whose trips are never reviewed would otherwise re-ask about all of them,
-        // every sweep, forever. Anything past the cap is still reachable by tapping it.
-        repeat(60) { i -> tripDao.insert(held(i.toLong() + 1, "uuid-$i").copy(startTime = i.toLong())) }
+        // every sweep, forever. Anything past the cap is still reachable by tapping it, or
+        // by the rider-initiated "Sync all".
+        repeat(30) { i -> tripDao.insert(held(i.toLong() + 1, "uuid-$i").copy(startTime = i.toLong())) }
         api.tripStatusResult = TripStatus("flagged", "under_review", listOf("teleport"))
 
         repo.refreshHeldTrips()
-        assertEquals(50, api.tripStatusCalls.size)
-        assertTrue("newest should be checked first", api.tripStatusCalls.contains("uuid-59"))
+        assertEquals(BACKGROUND_HELD_LIMIT, api.tripStatusCalls.size)
+        assertTrue("newest first", api.tripStatusCalls.contains("uuid-29"))
+        assertFalse("oldest dropped", api.tripStatusCalls.contains("uuid-0"))
+    }
+
+    @Test
+    fun `an explicit sync re-checks every held trip`() = runBlocking {
+        repeat(30) { i -> tripDao.insert(held(i.toLong() + 1, "uuid-$i").copy(startTime = i.toLong())) }
+        api.tripStatusResult = TripStatus("flagged", "under_review", listOf("teleport"))
+
+        repo.refreshHeldTrips(ALL_HELD_TRIPS)
+        assertEquals(30, api.tripStatusCalls.size)
+    }
+
+    @Test
+    fun `sync all reports cleared verdicts rather than nothing to sync`() = runBlocking {
+        tripDao.insert(held(1L, "uuid-1"))          // held, nothing pending to upload
+        api.tripStatusResult = TripStatus("validated", "accepted", emptyList())
+
+        val result = repo.syncPendingNow { _, _ -> }
+        assertEquals(0, result.total)               // no uploads were due
+        assertEquals(1, result.cleared)             // but a verdict did move
     }
 
     @Test

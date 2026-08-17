@@ -102,9 +102,13 @@ interface TripDao {
      * these, the rider keeps an "under review" cloud forever on a ride that is already
      * counting on the leaderboard.
      *
-     * Capped and newest-first so the refresh cost stays bounded. One check is a ~150 byte
-     * response, but a rider whose trips are never reviewed would otherwise accumulate an
-     * ever-growing sweep. Anything past the cap is still reachable by tapping its cloud.
+     * Green (validated) and still-uploading trips are excluded: only a held verdict can
+     * change behind the app's back, so only these are worth asking about.
+     *
+     * [limit] bounds the cost, newest first. One check is a ~150 byte response, but a rider
+     * whose trips are never reviewed would otherwise re-ask about all of them on every
+     * background sweep. The explicit "Sync all" passes no meaningful bound, because the
+     * rider asked for it.
      */
     @Query(
         "SELECT * FROM trips " +
@@ -112,9 +116,9 @@ interface TripDao {
             "AND eucstatsStatus = 2 " +
             "AND eucstatsValidation = 'flagged' " +
             "ORDER BY startTime DESC " +
-            "LIMIT 50"
+            "LIMIT :limit"
     )
-    suspend fun getHeldEucstatsTrips(): List<TripRecord>
+    suspend fun getHeldEucstatsTrips(limit: Int): List<TripRecord>
 
     /** Clear unfinished eucstats statuses (pending / failed). Used when online
      *  uploads are toggled off or the sync folder is unlinked, so the orange /
