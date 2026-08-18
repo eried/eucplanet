@@ -6500,19 +6500,25 @@ private fun SpeedTab(
         }
         if (batteryOverride) {
             // Cells in series: most wheel families state their own, so the manual
-            // stepper only appears when the connected wheel stays silent. Full
-            // width, matching the speed-limit fields.
+            // stepper only appears when the connected wheel stays silent. Half
+            // width, left side, like Speed offset and the speed-limit fields.
             if (detectedSeriesCells == null) {
-                NumberUpDown(
-                    value = bp.seriesCells,
-                    onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
-                    range = BatteryPercentSettings.SERIES_RANGE,
+                Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    step = 1,
-                    suffix = "S",
-                    label = stringResource(R.string.battery_percent_series_cells),
-                    numberAlign = TextAlign.End,
-                )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    NumberUpDown(
+                        value = bp.seriesCells,
+                        onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
+                        range = BatteryPercentSettings.SERIES_RANGE,
+                        modifier = Modifier.weight(1f),
+                        step = 1,
+                        suffix = "S",
+                        label = stringResource(R.string.battery_percent_series_cells),
+                        numberAlign = TextAlign.End,
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
                 HintText(
                     stringResource(R.string.battery_percent_cells_manual),
                     small = true,
@@ -6553,17 +6559,24 @@ private fun SpeedTab(
         }
         if (batteryAdvancedOpen) {
             // Pack capacity: seeds the range estimate from the first km. 0 = unset,
-            // and the estimate learns from the ride alone, as before.
-            NumberUpDown(
-                value = bp.capacityWh,
-                onValueChange = { viewModel.updateBatteryPercentCapacityWh(it) },
-                range = 0..BatteryPercentSettings.MAX_CAPACITY_WH,
+            // and the estimate learns from the ride alone, as before. Half width,
+            // left side, like the other compact numeric pills.
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                step = 50,
-                suffix = "Wh",
-                label = stringResource(R.string.battery_capacity_label),
-                numberAlign = TextAlign.End,
-            )
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                NumberUpDown(
+                    value = bp.capacityWh,
+                    onValueChange = { viewModel.updateBatteryPercentCapacityWh(it) },
+                    range = 0..BatteryPercentSettings.MAX_CAPACITY_WH,
+                    modifier = Modifier.weight(1f),
+                    step = 50,
+                    suffix = "Wh",
+                    label = stringResource(R.string.battery_capacity_label),
+                    numberAlign = TextAlign.End,
+                )
+                Spacer(Modifier.weight(1f))
+            }
             HintText(
                 stringResource(R.string.battery_capacity_desc),
                 small = true,
