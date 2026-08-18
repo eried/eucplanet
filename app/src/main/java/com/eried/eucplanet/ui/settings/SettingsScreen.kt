@@ -541,6 +541,7 @@ fun SettingsScreen(
         stringResource(R.string.battery_override_label),
         stringResource(R.string.battery_percent_min_cell),
         stringResource(R.string.battery_percent_max_cell),
+        stringResource(R.string.battery_capacity_label),
         stringResource(R.string.battery_percent_series_cells)
     ).joinToString(" ")
 
@@ -6459,11 +6460,11 @@ private fun SpeedTab(
             Spacer(Modifier.weight(1f))
         }
 
-        // --- Battery percentage ---
+        // --- Battery calibration ---
         // Next to speed calibration because it is the same kind of thing: the
-        // rider correcting a number the wheel reports, with nothing sent back
-        // to the wheel. Always visible, since the cell count is worth setting
-        // before a wheel is connected.
+        // rider correcting the numbers the wheel reports, with nothing sent back
+        // to the wheel. The override swaps the percentage; Advanced holds the
+        // pack size that seeds the range estimate. Both save per wheel.
         SectionHeader(stringResource(R.string.section_battery_percent))
         val bp = settings.batteryPercent
         val detectedSeriesCells by viewModel.detectedSeriesCells.collectAsState()
@@ -6522,35 +6523,57 @@ private fun SpeedTab(
                     small = true,
                 )
             }
-            // Advanced: swap the built-in lithium curve for a straight line from a
-            // rider-named empty point. Curve is the default; opening this and
-            // switching it on flips the mode to CUSTOM.
-            var batteryAdvancedOpen by remember {
-                mutableStateOf(bp.mode == BatteryPercentSettings.MODE_CUSTOM)
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { batteryAdvancedOpen = !batteryAdvancedOpen }
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    if (batteryAdvancedOpen) Icons.Default.KeyboardArrowUp
-                    else Icons.Default.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = MaterialTheme.appColors.textSecondary,
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    stringResource(R.string.tab_advanced),
-                    color = MaterialTheme.appColors.textSecondary,
-                    style = MaterialTheme.typography.titleSmall,
-                )
-            }
-            if (batteryAdvancedOpen) {
+        }
+        // Advanced: pack details beyond the on/off override. Capacity feeds the
+        // range estimate whether or not the percentage is overridden, so this
+        // expander is not gated behind the switch; the custom empty and full
+        // points only make sense with the override on, so they live inside it.
+        var batteryAdvancedOpen by remember {
+            mutableStateOf(bp.mode == BatteryPercentSettings.MODE_CUSTOM || bp.capacityWh > 0)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { batteryAdvancedOpen = !batteryAdvancedOpen }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                if (batteryAdvancedOpen) Icons.Default.KeyboardArrowUp
+                else Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MaterialTheme.appColors.textSecondary,
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                stringResource(R.string.tab_advanced),
+                color = MaterialTheme.appColors.textSecondary,
+                style = MaterialTheme.typography.titleSmall,
+            )
+        }
+        if (batteryAdvancedOpen) {
+            // Pack capacity: seeds the range estimate from the first km. 0 = unset,
+            // and the estimate learns from the ride alone, as before.
+            NumberUpDown(
+                value = bp.capacityWh,
+                onValueChange = { viewModel.updateBatteryPercentCapacityWh(it) },
+                range = 0..BatteryPercentSettings.MAX_CAPACITY_WH,
+                modifier = Modifier.fillMaxWidth(),
+                step = 50,
+                suffix = "Wh",
+                label = stringResource(R.string.battery_capacity_label),
+                numberAlign = TextAlign.End,
+            )
+            HintText(
+                stringResource(R.string.battery_capacity_desc),
+                small = true,
+            )
+            if (batteryOverride) {
+                // Swap the built-in lithium curve for a straight line between a
+                // rider-named empty and full point. Curve is the default;
+                // switching this on flips the mode to CUSTOM.
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(

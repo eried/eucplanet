@@ -72,6 +72,8 @@ class SettingsRepository @Inject constructor(
             seriesCells = batteryPercent.seriesCells.coerceIn(
                 BatteryPercentSettings.SERIES_RANGE.first,
                 BatteryPercentSettings.SERIES_RANGE.last),
+            capacityWh = batteryPercent.capacityWh.coerceIn(
+                0, BatteryPercentSettings.MAX_CAPACITY_WH),
         ),
         // An imported or Dropbox-synced file can carry an unlockWhen this build
         // does not know. Fall back to never rather than letting an unrecognised

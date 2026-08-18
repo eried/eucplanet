@@ -135,6 +135,7 @@ object SettingsJson {
             put("minimumCellVoltageMv", s.batteryPercent.minimumCellVoltageMv)
             put("maximumCellVoltageMv", s.batteryPercent.maximumCellVoltageMv)
             put("seriesCells", s.batteryPercent.seriesCells)
+            put("capacityWh", s.batteryPercent.capacityWh)
         })
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
@@ -462,6 +463,7 @@ object SettingsJson {
                 maximumCellVoltageMv =
                     b.optInt("maximumCellVoltageMv", base.batteryPercent.maximumCellVoltageMv),
                 seriesCells = b.optInt("seriesCells", base.batteryPercent.seriesCells),
+                capacityWh = b.optInt("capacityWh", base.batteryPercent.capacityWh),
             )
         } ?: base.batteryPercent,
         proximityLock = j.optJSONObject("proximityLock")?.let { p ->

@@ -10,10 +10,11 @@ package com.eried.eucplanet.data.repository
  * own trip meter, two counters that reset on different events, so a rider who
  * rode before opening the app was told their wheel sipped power.
  *
- * Range then divides what is left by that rate. Pack capacity is never known
- * (no wheel reports it and no model table carries amp-hours), so energy per
- * percent is learned from the ride itself and is only ever as good as the
- * wheel's own battery percentage.
+ * Range then divides what is left by that rate. No wheel reports pack capacity
+ * and no model table carries it, so energy per percent is learned from the ride
+ * itself, only ever as good as the wheel's own battery percentage. A rider who
+ * enters their pack size seeds that rate ([seedWhPerPercent]) so the estimate
+ * answers from the first km instead of waiting for the pack to drop.
  *
  * Kept free of Android and of coroutines so it can be unit-tested directly.
  */
@@ -55,6 +56,15 @@ object RideEfficiency {
         val spent = netWh - baselineWh
         return if (spent > 0f) spent / dropped else Float.NaN
     }
+
+    /**
+     * Wh per percent implied by a rider-entered pack size, or NaN when unset
+     * (0). A full pack is 100 percent, so each percent is [capacityWh] / 100.
+     * Stands in for the ride-learned rate only until that rate exists, since a
+     * real pack sags below its nameplate and the ride measures what it did.
+     */
+    fun seedWhPerPercent(capacityWh: Int): Float =
+        if (capacityWh > 0) capacityWh / 100f else Float.NaN
 
     /**
      * Range left in km at [whPerKm], or NaN while either input is unknown.

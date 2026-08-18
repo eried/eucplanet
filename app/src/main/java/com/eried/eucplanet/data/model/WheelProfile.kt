@@ -70,6 +70,14 @@ data class WheelProfile(
     @ColumnInfo(defaultValue = "WHEEL")
     val batteryMode: String = "WHEEL",
 
+    /**
+     * Pack energy in watt-hours for this wheel, or 0 when unset. Per wheel so a
+     * two-pack rider's range estimate seeds from the right size on each; 0 keeps
+     * the estimate learning from the ride alone, as before.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val batteryCapacityWh: Int = 0,
+
     /** Wall-clock of the last connect to this wheel. Used to keep the most
      *  recently used profile easy to find if we ever expose a profile list. */
     val lastConnectedAt: Long = System.currentTimeMillis()

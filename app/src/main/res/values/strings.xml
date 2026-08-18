@@ -786,8 +786,10 @@
     <string name="battery_percent_custom_floor">Custom empty point</string>
     <string name="battery_percent_min_cell">Empty at</string>
     <string name="battery_percent_max_cell">Full at</string>
-    <string name="battery_percent_cell_range_desc">Per-cell voltage at 0%% and 100%%</string>
+    <string name="battery_percent_cell_range_desc">Volts per cell, not the whole pack</string>
     <string name="battery_percent_series_cells">Cells in series</string>
+    <string name="battery_capacity_label">Capacity</string>
+    <string name="battery_capacity_desc">Pack size, for range from the first km. 0 = off</string>
     <string name="battery_percent_cells_from_wheel">Taken from the wheel: %1$d in series.</string>
     <string name="battery_percent_cells_manual">Set the count your wheel uses, or the percentage will be wrong.</string>
     <string name="speed_calibration_label">Speed offset</string>

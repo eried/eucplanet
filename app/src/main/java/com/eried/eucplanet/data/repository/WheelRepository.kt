@@ -794,7 +794,13 @@ class WheelRepository @Inject constructor(
                     baselineWh = netWh
                 }
                 val whPerPct = RideEfficiency.whPerPercent(netWh, baselineWh, pct, baselinePct)
-                val rangeKm = RideEfficiency.rangeKm(whPerKm, whPerPct, pct)
+                // Until the ride has taught a rate, a rider-entered pack size
+                // stands in so the tile answers from the first km. 0 = unset,
+                // and the estimate stays blank as before.
+                val effectiveWhPerPct =
+                    if (!whPerPct.isNaN()) whPerPct
+                    else RideEfficiency.seedWhPerPercent(batteryPercentCached.capacityWh)
+                val rangeKm = RideEfficiency.rangeKm(whPerKm, effectiveWhPerPct, pct)
 
                 val current = _wheelData.value
                 if (!current.whPerKmRecent.sameAs(whPerKm) || !current.rangeKmEstimate.sameAs(rangeKm)) {
@@ -1283,6 +1289,9 @@ class WheelRepository @Inject constructor(
                         // Calibration follows the pack too: the estimate is on or
                         // off per wheel, not whatever the last wheel was set to.
                         mode = existing.batteryMode,
+                        // Capacity is the pack's own size, so it seeds the range
+                        // estimate from the right number on each wheel.
+                        capacityWh = existing.batteryCapacityWh,
                     ),
                 )
             )
@@ -1292,7 +1301,10 @@ class WheelRepository @Inject constructor(
             settingsRepository.update(
                 s.copy(
                     batteryPercent = s.batteryPercent.copy(
-                        mode = com.eried.eucplanet.data.model.BatteryPercentSettings.MODE_WHEEL
+                        mode = com.eried.eucplanet.data.model.BatteryPercentSettings.MODE_WHEEL,
+                        // A pack we've never sized starts blank, not carrying the
+                        // last wheel's capacity into this one's range estimate.
+                        capacityWh = 0,
                     )
                 )
             )
@@ -1315,6 +1327,7 @@ class WheelRepository @Inject constructor(
                     speedCalibrationOffsetPct = s.speedCalibrationOffsetPct,
                     seriesCells = s.batteryPercent.seriesCells,
                     batteryMode = s.batteryPercent.mode,
+                    batteryCapacityWh = s.batteryPercent.capacityWh,
                     lastConnectedAt = System.currentTimeMillis()
                 )
             )

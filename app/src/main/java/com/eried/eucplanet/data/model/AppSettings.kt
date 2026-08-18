@@ -1095,6 +1095,14 @@ data class BatteryPercentSettings(
      * connects the same way the speed calibration offset does.
      */
     val seriesCells: Int = 20,
+    /**
+     * Pack energy in watt-hours, or 0 when the rider has not said. Never
+     * reported by any wheel and carried in no model table, so it is asked of
+     * the rider and saved per wheel on [WheelProfile]. Seeds the range estimate
+     * from the first km (capacity / 100 = Wh per percent) until the ride learns
+     * a truer rate; 0 leaves the estimate blind until then, as before.
+     */
+    val capacityWh: Int = 0,
 ) {
     companion object {
         /** The wheel's own number, untouched. */
@@ -1116,6 +1124,9 @@ data class BatteryPercentSettings(
         // Li-ion near 4.20 V, a few high-voltage packs reach 4.35 V.
         const val MIN_FULL_MV = 3400
         const val MAX_FULL_MV = 4350
+        // Pack energy. 0 = unset. The largest EUC packs are ~3600 Wh today, so
+        // the ceiling is headroom rather than a real limit.
+        const val MAX_CAPACITY_WH = 6000
         val SERIES_RANGE = 1..60
     }
 }

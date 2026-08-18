@@ -117,4 +117,14 @@ class RideEfficiencyTest {
         // S22-ish: 1800 Wh pack is 18 Wh per point, at 20 Wh/km that is 90 km.
         assertEquals(90f, RideEfficiency.rangeKm(whPerKm = 20f, whPerPercent = 18f, pct = 100), 0.1f)
     }
+
+    @Test
+    fun `a rider-entered pack size seeds Wh per percent`() {
+        // 1800 Wh over 100 percent is 18 Wh per point, the same number the ride
+        // would have learned, so the tile can answer from the first km.
+        assertEquals(18f, RideEfficiency.seedWhPerPercent(1800), 0.01f)
+        // 0 is unset: no seed, and the estimate stays blind until the ride
+        // teaches it.
+        assertTrue(RideEfficiency.seedWhPerPercent(0).isNaN())
+    }
 }
