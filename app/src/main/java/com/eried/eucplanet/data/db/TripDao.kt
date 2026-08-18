@@ -51,6 +51,17 @@ interface TripDao {
     @Query("UPDATE trips SET wheelMetaJson = :json WHERE id = :id")
     suspend fun updateWheelMeta(id: Long, json: String?)
 
+    /** Set (or clear, with null) the rider's custom trip name. Single-column
+     *  update so it never disturbs upload status or timings. */
+    @Query("UPDATE trips SET customName = :name WHERE id = :id")
+    suspend fun updateCustomName(id: Long, name: String?)
+
+    /** Re-flag a trip for folder upload after its file was edited in place
+     *  (rename / change wheel). The folder worker only walks uploadStatus 1/3,
+     *  so an already-uploaded (2) trip would otherwise never re-sync. */
+    @Query("UPDATE trips SET uploadStatus = 1 WHERE id = :id")
+    suspend fun markPendingFolderUpload(id: Long)
+
     /** Every wheel identity any trip carries. Feeds the trip-tools wheel picker
      *  so a wheel that was only ever imported, never paired, is still offered. */
     @Query("SELECT wheelMetaJson FROM trips WHERE wheelMetaJson IS NOT NULL")

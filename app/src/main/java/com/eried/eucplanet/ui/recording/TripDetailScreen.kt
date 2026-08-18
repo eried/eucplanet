@@ -299,6 +299,9 @@ fun TripDetailScreen(
             timeFormat.format(Date(endMs)) else dateFormat.format(Date(endMs))
         "${dateFormat.format(Date(startMs))} → $endText"
     }
+    // Rider's custom name leads the header when set (matching the trip list and
+    // eucviewer's inspector); otherwise the start -> end date range stands in.
+    val tripTitle = trip.customName?.takeIf { it.isNotBlank() } ?: headerDateTime
 
     Scaffold(
         topBar = {
@@ -325,7 +328,7 @@ fun TripDetailScreen(
                     }
                     if (dataPoints.isNotEmpty()) {
                         Text(
-                            headerDateTime,
+                            tripTitle,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.align(Alignment.Center),
@@ -1043,7 +1046,7 @@ fun TripDetailScreen(
                 ) {
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        headerDateTime,
+                        tripTitle,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )

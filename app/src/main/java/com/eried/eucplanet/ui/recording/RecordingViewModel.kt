@@ -796,6 +796,15 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
+    /** Rename a trip (blank clears it). Writes the name into the CSV and DB and
+     *  re-syncs the file to the folder / Dropbox. */
+    fun renameTrip(trip: TripRecord, name: String) {
+        viewModelScope.launch {
+            tripRepository.renameTrip(trip, name)
+            _toasts.send(context.getString(R.string.trip_tools_renamed))
+        }
+    }
+
     /**
      * Cut points this trip plausibly contains, for the rider to choose from.
      * Reads the CSV off the main thread; a long ride is a lot of rows.

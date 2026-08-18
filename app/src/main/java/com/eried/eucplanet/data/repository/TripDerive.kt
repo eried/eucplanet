@@ -122,6 +122,72 @@ object TripDerive {
     }
 
     /**
+     * Upsert a rider-set trip name into the CSV Extra column as a single
+     * `trip.name=<name>` pair, so a rename survives export and a Dropbox
+     * round-trip with no sidecar file (the same convention eucviewer reads).
+     *
+     * A blank [name] removes the pair (the reader then falls back to the date).
+     * The name is sanitised like any Extra cell (commas / quotes / newlines
+     * collapse to a space) and capped at 60 chars to match the reader.
+     *
+     * Placement: the first existing `trip.name=` cell is rewritten (and any
+     * further duplicates cleared) so the reader, which takes the first hit,
+     * always sees the new value. If none exists, the pair is dropped into the
+     * first row whose Extra cell is empty - the same place wheel.* pairs ride,
+     * a normal telemetry row, never a fabricated one.
+     *
+     * @return 1 if the name was written/updated/removed, 0 if the file has no
+     *   Extra column (a foreign import) or no slot was available.
+     */
+    fun rewriteTripName(source: File, dest: File, name: String): Int {
+        if (!source.exists()) return 0
+        // Collapse commas / quotes / any whitespace run to a single space so the
+        // name can't break CSV framing and reads cleanly. Capped to match reader.
+        val clean = name.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
+        // Pass 1: is there already a trip.name= row to overwrite in place?
+        var hasExisting = false
+        source.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return 0
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return 0
+            while (true) {
+                val line = reader.readLine() ?: break
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("trip.name=", ignoreCase = true)) { hasExisting = true; break }
+            }
+        }
+        var wrote = 0
+        var placed = false
+        source.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return 0
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            dest.bufferedWriter().use { out ->
+                out.write(header); out.newLine()
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    if (idx < 0) { out.write(line); out.newLine(); continue }
+                    val cells = line.split(",").toMutableList()
+                    val cell = cells.getOrNull(idx)?.trim().orEmpty()
+                    val newCell: String? = when {
+                        cell.startsWith("trip.name=", ignoreCase = true) ->
+                            if (!placed && clean.isNotEmpty()) { placed = true; "trip.name=$clean" }
+                            else "" // clear duplicates, or blank the name entirely
+                        !placed && !hasExisting && clean.isNotEmpty() && cell.isEmpty() &&
+                            idx < cells.size -> { placed = true; "trip.name=$clean" }
+                        else -> null
+                    }
+                    if (newCell == null) { out.write(line); out.newLine(); continue }
+                    cells[idx] = newCell
+                    out.write(cells.joinToString(","))
+                    out.newLine()
+                    wrote = 1
+                }
+            }
+        }
+        return wrote
+    }
+
+    /**
      * Concatenate [sources] into [dest], oldest first, keeping one header.
      *
      * Each source's header is read and discarded rather than assumed identical:

@@ -120,6 +120,7 @@ fun RecordingScreen(
     var tripToDelete by remember { mutableStateOf<TripRecord?>(null) }
     // Trip whose tools sheet is open, and which tool it drilled into.
     var tripForTools by remember { mutableStateOf<TripRecord?>(null) }
+    var renameToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var wheelToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var splitToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var combineToolTrip by remember { mutableStateOf<TripRecord?>(null) }
@@ -207,9 +208,21 @@ fun RecordingScreen(
         TripToolsDialog(
             trip = trip,
             onDismiss = { tripForTools = null },
+            onRename = { renameToolTrip = trip },
             onChangeWheel = { wheelToolTrip = trip },
             onSplit = { splitToolTrip = trip },
             onCombine = { combineToolTrip = trip },
+        )
+    }
+
+    renameToolTrip?.let { trip ->
+        RenameTripDialog(
+            currentName = trip.customName,
+            onConfirm = { name ->
+                viewModel.renameTrip(trip, name)
+                renameToolTrip = null
+            },
+            onDismiss = { renameToolTrip = null },
         )
     }
 
@@ -616,7 +629,9 @@ private fun TripCard(
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    dateFormat.format(Date(trip.startTime)),
+                    // Rider's custom name when set, otherwise the ride's date.
+                    trip.customName?.takeIf { it.isNotBlank() }
+                        ?: dateFormat.format(Date(trip.startTime)),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isRecording) MaterialTheme.appColors.statusDanger else MaterialTheme.colorScheme.onSurface
                 )

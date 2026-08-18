@@ -132,6 +132,16 @@ class FakeTripDao : TripDao {
         if (idx >= 0) trips[idx] = trips[idx].copy(wheelMetaJson = json)
     }
 
+    override suspend fun updateCustomName(id: Long, name: String?) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(customName = name)
+    }
+
+    override suspend fun markPendingFolderUpload(id: Long) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 1)
+    }
+
     override suspend fun allWheelMeta(): List<String> = trips.mapNotNull { it.wheelMetaJson }
     override suspend fun getUnfinished(): List<TripRecord> = trips.filter { it.endTime == null }
     override suspend fun findByFileName(name: String): TripRecord? =
