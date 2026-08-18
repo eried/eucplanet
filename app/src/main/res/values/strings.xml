@@ -784,6 +784,7 @@
     <string name="battery_override_label">Override the wheel\'s percentage</string>
     <string name="battery_override_hint">Estimate it from pack voltage</string>
     <string name="battery_percent_custom_floor">Custom empty point</string>
+    <string name="battery_percent_custom_floor_hint">Straight line instead of the lithium curve</string>
     <string name="battery_percent_min_cell">Empty at</string>
     <string name="battery_percent_max_cell">Full at</string>
     <string name="battery_percent_cell_range_desc">Per-cell voltage where that percentage reads empty and full</string>
