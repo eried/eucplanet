@@ -33,6 +33,9 @@ module Keys {
     const UNIT_TEMP = "ut";
     const ACCENT = "ac";
     const TIMESTAMP = "ts";
+    // Per-frame STATE sequence from the phone. Echoed back on ALIVE so the
+    // phone can pace itself to what the watch actually consumes (bounds lag).
+    const SEQ = "sq";
 
     const GPS_SPEED = "gs";
     const GPS_SOURCE = "gsr";

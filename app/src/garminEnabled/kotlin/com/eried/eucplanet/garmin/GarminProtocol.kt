@@ -31,6 +31,10 @@ internal object GarminKeys {
     const val UNIT_TEMP = "ut"
     const val ACCENT = "ac"
     const val TIMESTAMP = "ts"
+    // Per-device STATE sequence number. The watch echoes the last one it
+    // received on its ALIVE heartbeat ("alive:<seq>") so the phone can cap how
+    // far ahead of the watch it publishes, bounding end-to-end lag.
+    const val SEQ = "sq"
 
     const val GPS_SPEED = "gs"
     const val GPS_SOURCE = "gsr"

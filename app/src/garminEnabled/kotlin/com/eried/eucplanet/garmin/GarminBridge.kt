@@ -61,10 +61,22 @@ class GarminBridge @Inject constructor(
         private const val TAG = "GarminBridge"
         // The CIQ phone->watch channel is rate-capped near 1 Hz. Publishing at
         // 5 Hz (200 ms) just floods the SDK's outbound queue with frames it
-        // can't drain, which backs up delivery and contributes to the watch's
-        // frozen/stale dial. Publish at ~1 Hz to match what actually gets
-        // through. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
+        // can't drain, which backs up delivery into ever-growing latency
+        // (issue #14) and can crash the dial. We floor the publish interval here
+        // AND apply per-device backpressure in sendToAll, so we never outrun the
+        // channel. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
         private const val PUBLISH_INTERVAL_MS = 1000L
+        // A device is "busy" from a sendMessage until its callback lands; if that
+        // callback is lost we free it after this timeout so a device never stalls.
+        private const val SEND_TIMEOUT_MS = 4000L
+        // End-to-end backlog cap. sendMessage's success callback only proves the
+        // frame reached Connect Mobile, not the watch, so on its own it lets us
+        // outrun the real BLE rate and Connect Mobile buffers a growing backlog
+        // (the "up to a minute" stale dial, issue #14). The watch echoes the last
+        // STATE seq it received on its ALIVE; we stop publishing once we're this
+        // many frames ahead of that ack, so the backlog - and the lag - stays
+        // bounded to a few seconds instead of growing without limit.
+        private const val MAX_INFLIGHT = 5
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -111,6 +123,27 @@ class GarminBridge @Inject constructor(
      *  registration when a status callback re-fires for a device we already
      *  saw. Cleared when [stop] is called. */
     private val registeredDevices = ConcurrentHashMap<Long, IQDevice>()
+
+    /** Per-device send backpressure: a device stays "busy until" this ms
+     *  timestamp while a sendMessage is in flight. While busy we SKIP it and let
+     *  the next publish tick deliver a fresher frame, so the CIQ outbound queue
+     *  never backs up into unbounded latency (issue #14). */
+    private val sendBusyUntilMs = ConcurrentHashMap<Long, Long>()
+
+    /** Per-device STATE sequence tracking for the end-to-end backlog cap.
+     *  [lastSentSeq] is the seq we stamped on the most recent STATE frame sent
+     *  to a device; [lastAckedSeq] is the highest seq that device has echoed
+     *  back on its ALIVE. When their difference reaches [MAX_INFLIGHT] we stop
+     *  publishing to that device until it catches up, so Connect Mobile can't
+     *  buffer an unbounded backlog. Sync-free: the watch just echoes our own
+     *  number, so a seq reset on reconnect self-corrects (see [handleIncoming]). */
+    private val lastSentSeq = ConcurrentHashMap<Long, Int>()
+    private val lastAckedSeq = ConcurrentHashMap<Long, Int>()
+
+    /** True once a device has echoed a seq on its ALIVE, proving its watch
+     *  build understands pacing. Until then the backlog cap stays off so an
+     *  older watch (which never echoes) can't stall behind an uncleared cap. */
+    private val watchSupportsSeq = ConcurrentHashMap<Long, Boolean>()
 
     @Volatile private var sdkReady = false
     @Volatile private var started = false
@@ -224,9 +257,14 @@ class GarminBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                // Rider-configured Garmin report interval; sanitized() guarantees
-                // a safe floor so this delay can never spin at 0.
-                delay(settingsRepository.get().garminReportIntervalMs.toLong())
+                // Rider-configured Garmin report interval, floored at the CIQ
+                // channel's ~1 Hz ceiling (PUBLISH_INTERVAL_MS): faster only
+                // floods the outbound queue (issue #14). The rider can still
+                // publish slower to save battery.
+                delay(
+                    settingsRepository.get().garminReportIntervalMs.toLong()
+                        .coerceAtLeast(PUBLISH_INTERVAL_MS)
+                )
             }
         }
 
@@ -269,6 +307,10 @@ class GarminBridge @Inject constructor(
                 runCatching { connectIQ.unregisterForApplicationEvents(device, app) }
             }
             registeredDevices.clear()
+            sendBusyUntilMs.clear()
+            lastSentSeq.clear()
+            lastAckedSeq.clear()
+            watchSupportsSeq.clear()
             _pairedDevices.value = emptyList()
             runCatching { connectIQ.shutdown(context) }
         } catch (e: Exception) {
@@ -305,6 +347,10 @@ class GarminBridge @Inject constructor(
                 runCatching { connectIQ.unregisterForApplicationEvents(device, app) }
             }
             registeredDevices.clear()
+            sendBusyUntilMs.clear()
+            lastSentSeq.clear()
+            lastAckedSeq.clear()
+            watchSupportsSeq.clear()
             connectIQ.shutdown(context)
         } catch (_: Exception) { /* best effort */ }
     }
@@ -370,6 +416,27 @@ class GarminBridge @Inject constructor(
                 // End-to-end proof the watch app received our last frames.
                 // Drives the Live badge + the transport-reset watchdog.
                 _lastSuccessAtMs.value = System.currentTimeMillis()
+                // The watch echoes the last STATE seq it received in a "sq"
+                // field. Its presence also proves this watch build supports
+                // pacing; an older watch omits it, so we leave the backlog cap
+                // disabled for it and fall back to plain send pacing. Clamp to
+                // what we've actually sent (a seq reset on reconnect can leave
+                // the watch echoing an old, higher number), then keep it
+                // monotonic within the session.
+                val echoed = (raw as? Map<*, *>)?.get(GarminKeys.SEQ)
+                val echoedInt = when (echoed) {
+                    is Number -> echoed.toInt()
+                    is String -> echoed.toIntOrNull()
+                    else -> null
+                }
+                if (echoedInt != null) {
+                    val id = device.deviceIdentifier
+                    watchSupportsSeq[id] = true
+                    val sent = lastSentSeq[id] ?: 0
+                    val clamped = echoedInt.coerceIn(0, sent)
+                    val prev = (lastAckedSeq[id] ?: 0).coerceAtMost(sent)
+                    lastAckedSeq[id] = maxOf(prev, clamped)
+                }
             }
             cmd == GarminControl.HORN -> wheelRepository.sendHorn()
             cmd == GarminControl.LIGHT_ON || cmd == GarminControl.LIGHT_OFF ->
@@ -504,7 +571,10 @@ class GarminBridge @Inject constructor(
                         state = ConnectionState.DISCONNECTED,
                         name = wheelRepository.modelName.value,
                         maxSpeed = 30f,
-                        settings = s
+                        settings = s,
+                        // One-shot goodbye: bypass the backlog cap so it lands
+                        // even if we were paused waiting on the watch's ack.
+                        paced = false
                     )
                 } catch (e: Exception) {
                     Log.d(TAG, "farewell publish skipped: ${e.message}")
@@ -527,33 +597,69 @@ class GarminBridge @Inject constructor(
         state: ConnectionState,
         name: String?,
         maxSpeed: Float,
-        settings: AppSettings
+        settings: AppSettings,
+        // Telemetry stream: paced + backlog-capped. The disconnect farewell
+        // passes false so it can't be dropped by the cap.
+        paced: Boolean = true
     ) {
         if (!sdkReady || registeredDevices.isEmpty()) return
         val payload = encodeSnapshot(data, state, name, maxSpeed, settings)
-        sendToAll(payload)
+        sendToAll(payload, paced)
     }
 
-    private fun sendToAll(payload: Map<String, Any>) {
+    /**
+     * @param paced true for the STATE telemetry stream: each frame is stamped
+     * with a per-device seq, skipped while a prior send hasn't returned, and
+     * held back once we're [MAX_INFLIGHT] frames ahead of the watch's echoed
+     * ack. false for one-off control frames (wake/quit/vibrate/farewell), which
+     * always go so the cap can never swallow them.
+     */
+    private fun sendToAll(payload: Map<String, Any>, paced: Boolean = false) {
+        val now = System.currentTimeMillis()
         for (device in registeredDevices.values) {
+            val id = device.deviceIdentifier
+            val outgoing: Map<String, Any>
+            var stampedSeq = -1
+            if (paced) {
+                // Don't stack a second sendMessage on one whose callback hasn't
+                // landed (its timeout frees a lost callback).
+                if (now < (sendBusyUntilMs[id] ?: 0L)) continue
+                // End-to-end cap: stop once we're MAX_INFLIGHT ahead of the
+                // watch's last echoed seq, so Connect Mobile can't build an
+                // unbounded backlog (the stale-by-a-minute dial, #14). Only once
+                // the watch has proven it echoes seqs - otherwise an older watch
+                // would stall behind a cap it can never advance.
+                val sent = lastSentSeq[id] ?: 0
+                val acked = lastAckedSeq[id] ?: 0
+                if (watchSupportsSeq[id] == true && sent - acked >= MAX_INFLIGHT) continue
+                stampedSeq = sent + 1
+                lastSentSeq[id] = stampedSeq
+                sendBusyUntilMs[id] = now + SEND_TIMEOUT_MS
+                outgoing = HashMap(payload).apply { put(GarminKeys.SEQ, stampedSeq) }
+            } else {
+                outgoing = payload
+            }
             try {
-                connectIQ.sendMessage(device, app, payload) { _, _, status ->
+                connectIQ.sendMessage(device, app, outgoing) { _, _, status ->
+                    if (paced) sendBusyUntilMs[id] = 0L // free for the freshest frame
                     if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                         // Counts send-side attempts only; the Hz badge uses this
-                        // to show "what we're pushing". End-to-end delivery
-                        // is reflected by [_lastSuccessAtMs], which is updated
-                        // only when an ALIVE heartbeat lands.
+                        // to show "what we're pushing". End-to-end delivery is
+                        // reflected by [_lastSuccessAtMs], updated only on ALIVE.
                         deliveredCount.incrementAndGet()
                     } else {
                         Log.d(TAG, "send to ${device.friendlyName}: $status")
                     }
                 }
             } catch (e: InvalidStateException) {
+                if (paced) { sendBusyUntilMs[id] = 0L; lastSentSeq[id] = stampedSeq - 1 }
                 sdkReady = false
                 return
             } catch (e: ServiceUnavailableException) {
+                if (paced) { sendBusyUntilMs[id] = 0L; lastSentSeq[id] = stampedSeq - 1 }
                 Log.d(TAG, "send to ${device.friendlyName}: Connect Mobile gone")
             } catch (e: Exception) {
+                if (paced) { sendBusyUntilMs[id] = 0L; lastSentSeq[id] = stampedSeq - 1 }
                 Log.w(TAG, "send to ${device.friendlyName} failed", e)
             }
         }
