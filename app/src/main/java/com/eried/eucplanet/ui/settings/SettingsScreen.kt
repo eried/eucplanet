@@ -6465,56 +6465,65 @@ private fun SpeedTab(
         // to the wheel. Always visible, since the cell count is worth setting
         // before a wheel is connected.
         SectionHeader(stringResource(R.string.section_battery_percent))
-        HintText(stringResource(R.string.battery_percent_caption), small = true)
         val bp = settings.batteryPercent
         val detectedSeriesCells by viewModel.detectedSeriesCells.collectAsState()
-        // One question, two sources: the wheel's own number, or worked out from
-        // pack voltage. The estimate method - the lithium curve, or a custom
-        // empty point - is a power-user detail, tucked under Advanced below.
-        val batteryFromVoltage = bp.mode != BatteryPercentSettings.MODE_WHEEL
-        val batterySourceEntries = listOf(
-            false to stringResource(R.string.battery_percent_mode_wheel),
-            true to stringResource(R.string.battery_percent_mode_voltage),
-        )
-        Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier.fillMaxWidth().height(56.dp)
-            ) {
-                batterySourceEntries.forEachIndexed { index, (voltage, label) ->
-                    SegmentedButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        selected = voltage == batteryFromVoltage,
-                        // Voltage defaults to the curve; Wheel is the raw number.
-                        onClick = {
-                            viewModel.updateBatteryPercentMode(
-                                if (voltage) BatteryPercentSettings.MODE_CURVE
-                                else BatteryPercentSettings.MODE_WHEEL
-                            )
-                        },
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index, batterySourceEntries.size,
-                            baseShape = RoundedCornerShape(12.dp)
-                        ),
-                        colors = themedSegmentedColors(),
-                    ) { Text(label) }
-                }
+        // A per-wheel override: off shows the wheel's own number, on swaps in the
+        // voltage-based estimate and reveals its options. Saved on the connected
+        // wheel's profile (WheelRepository), so it follows the pack, not the app.
+        val batteryOverride = bp.mode != BatteryPercentSettings.MODE_WHEEL
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.battery_override_label),
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+                Text(
+                    stringResource(R.string.battery_override_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                )
             }
-            FieldNotchLabel(stringResource(R.string.battery_percent_source))
+            Switch(
+                checked = batteryOverride,
+                onCheckedChange = { on ->
+                    viewModel.updateBatteryPercentMode(
+                        if (on) BatteryPercentSettings.MODE_CURVE
+                        else BatteryPercentSettings.MODE_WHEEL
+                    )
+                },
+                colors = themedSwitchColors(),
+            )
         }
-        if (batteryFromVoltage) {
+        if (batteryOverride) {
             // Cells in series: most wheel families state their own, so the manual
             // stepper only appears when the connected wheel stays silent.
             if (detectedSeriesCells == null) {
-                NumberUpDown(
-                    value = bp.seriesCells,
-                    onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
-                    range = BatteryPercentSettings.SERIES_RANGE,
-                    step = 1,
-                    suffix = "S",
-                    label = stringResource(R.string.battery_percent_series_cells),
+                Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                )
-                HintText(stringResource(R.string.battery_percent_cells_manual), small = true)
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1.4f)) {
+                        NumberUpDown(
+                            value = bp.seriesCells,
+                            onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
+                            range = BatteryPercentSettings.SERIES_RANGE,
+                            modifier = Modifier.fillMaxWidth(),
+                            step = 1,
+                            suffix = "S",
+                            label = stringResource(R.string.battery_percent_series_cells),
+                            numberAlign = TextAlign.End,
+                        )
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    HintText(
+                        stringResource(R.string.battery_percent_cells_manual),
+                        modifier = Modifier.weight(1f),
+                        small = true,
+                    )
+                }
             } else {
                 HintText(
                     stringResource(R.string.battery_percent_cells_from_wheel, detectedSeriesCells!!),
@@ -6569,17 +6578,31 @@ private fun SpeedTab(
                     )
                 }
                 if (bp.mode == BatteryPercentSettings.MODE_CUSTOM) {
-                    NumberUpDown(
-                        value = bp.minimumCellVoltageMv,
-                        onValueChange = { viewModel.updateBatteryPercentMinimumMv(it) },
-                        range = BatteryPercentSettings.MIN_CELL_MV..BatteryPercentSettings.MAX_CELL_MV,
-                        step = 50,
-                        suffix = "V",
-                        label = stringResource(R.string.battery_percent_min_cell),
-                        format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
-                        parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
+                    Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1.4f)) {
+                            NumberUpDown(
+                                value = bp.minimumCellVoltageMv,
+                                onValueChange = { viewModel.updateBatteryPercentMinimumMv(it) },
+                                range = BatteryPercentSettings.MIN_CELL_MV..BatteryPercentSettings.MAX_CELL_MV,
+                                modifier = Modifier.fillMaxWidth(),
+                                step = 50,
+                                suffix = "V",
+                                label = stringResource(R.string.battery_percent_min_cell),
+                                format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
+                                parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
+                                numberAlign = TextAlign.End,
+                            )
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        HintText(
+                            stringResource(R.string.battery_percent_min_cell_desc),
+                            modifier = Modifier.weight(1f),
+                            small = true,
+                        )
+                    }
                 }
             }
         }

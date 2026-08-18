@@ -61,6 +61,15 @@ data class WheelProfile(
     @ColumnInfo(defaultValue = "20")
     val seriesCells: Int = 20,
 
+    /**
+     * Whether the on-screen percentage for this wheel is overridden with the
+     * voltage-based estimate. Per wheel so a calibration set for one pack never
+     * carries to another; a wheel we've never calibrated shows its own number.
+     * Mirrors BatteryPercentSettings.mode: "WHEEL" off, "CURVE" / "CUSTOM" on.
+     */
+    @ColumnInfo(defaultValue = "WHEEL")
+    val batteryMode: String = "WHEEL",
+
     /** Wall-clock of the last connect to this wheel. Used to keep the most
      *  recently used profile easy to find if we ever expose a profile list. */
     val lastConnectedAt: Long = System.currentTimeMillis()

@@ -1279,12 +1279,24 @@ class WheelRepository @Inject constructor(
                     // The pack belongs to the wheel, so the count follows the
                     // wheel rather than staying whatever the last one needed.
                     batteryPercent = s.batteryPercent.copy(
-                        seriesCells = existing.seriesCells
+                        seriesCells = existing.seriesCells,
+                        // Calibration follows the pack too: the estimate is on or
+                        // off per wheel, not whatever the last wheel was set to.
+                        mode = existing.batteryMode,
                     ),
                 )
             )
         } else {
-            persistWheelProfile(name, s)
+            // A wheel we've never calibrated starts with the estimate off,
+            // regardless of the previous wheel, so an override never carries over.
+            settingsRepository.update(
+                s.copy(
+                    batteryPercent = s.batteryPercent.copy(
+                        mode = com.eried.eucplanet.data.model.BatteryPercentSettings.MODE_WHEEL
+                    )
+                )
+            )
+            persistWheelProfile(name, settingsRepository.get())
         }
     }
 
@@ -1302,6 +1314,7 @@ class WheelRepository @Inject constructor(
                     safetyAlarmKmh = s.safetyAlarmKmh,
                     speedCalibrationOffsetPct = s.speedCalibrationOffsetPct,
                     seriesCells = s.batteryPercent.seriesCells,
+                    batteryMode = s.batteryPercent.mode,
                     lastConnectedAt = System.currentTimeMillis()
                 )
             )

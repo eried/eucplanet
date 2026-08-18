@@ -780,7 +780,10 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Speed limits</string>
     <string name="section_speed_calibration">Speed calibration</string>
-    <string name="section_battery_percent">Battery percentage</string>
+    <string name="section_battery_percent">Battery calibration</string>
+    <string name="battery_override_label">Override the wheel\'s percentage</string>
+    <string name="battery_override_hint">Estimate it from pack voltage</string>
+    <string name="battery_percent_min_cell_desc">Cell voltage counted as empty</string>
     <string name="battery_percent_caption">Work the percentage out from pack voltage when the wheel\'s own number disagrees with its display. Shown in the app only, never sent to the wheel.</string>
     <string name="battery_percent_source">Percentage from</string>
     <string name="battery_percent_mode_wheel">Wheel</string>
