@@ -783,14 +783,13 @@
     <string name="section_battery_percent">Battery calibration</string>
     <string name="battery_override_label">Override the wheel\'s percentage</string>
     <string name="battery_override_hint">Estimate it from pack voltage</string>
-    <string name="battery_percent_custom_floor">Custom empty point</string>
-    <string name="battery_percent_custom_floor_hint">Straight line instead of the lithium curve</string>
+    <string name="battery_percent_custom_floor">Straight-line scale</string>
     <string name="battery_percent_min_cell">Empty at</string>
     <string name="battery_percent_max_cell">Full at</string>
-    <string name="battery_percent_cell_range_desc">Per-cell voltage where that percentage reads empty and full</string>
+    <string name="battery_percent_cell_range_desc">Per-cell voltage for empty and full</string>
     <string name="battery_percent_series_cells">Cells in series</string>
     <string name="battery_capacity_label">Capacity</string>
-    <string name="battery_capacity_desc">Sets the range estimate from the start, for the Range tile and HUD. 0 = off</string>
+    <string name="battery_capacity_desc">Optional. Sets the range estimate from the start, for the Range tile and HUD</string>
     <string name="battery_percent_cells_from_wheel">Taken from the wheel: %1$d in series.</string>
     <string name="battery_percent_cells_manual">Turns pack voltage into the percentage on the dashboard, in voice and alarms</string>
     <string name="speed_calibration_label">Speed offset</string>

@@ -6592,17 +6592,11 @@ private fun SpeedTab(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            stringResource(R.string.battery_percent_custom_floor),
-                            color = MaterialTheme.appColors.textPrimary,
-                        )
-                        Text(
-                            stringResource(R.string.battery_percent_custom_floor_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.appColors.textSecondary,
-                        )
-                    }
+                    Text(
+                        stringResource(R.string.battery_percent_custom_floor),
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.appColors.textPrimary,
+                    )
                     Switch(
                         checked = bp.mode == BatteryPercentSettings.MODE_CUSTOM,
                         onCheckedChange = { on ->
