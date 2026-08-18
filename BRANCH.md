@@ -23,7 +23,18 @@ only once you got outside the shop.
 
 From a cold start **inside the shop** (no internet), navigate the HUD to EUC
 Planet. It should discover and connect quickly - the same as it does outside.
-Let me know if it's still slow anywhere.
+
+**If it still fails inside, this build can tell us why.** Before the failing
+attempt, turn on Service Mode (About -> press and hold the logo -> Enter), then
+reproduce, then send the diagnostics log. It now records which networks the
+phone could see, whether the beacon listener was bound and whether any beacon
+ever arrived - which separates "the HUD is on another network" from "the signal
+never made it through the walls". Both look identical without it.
+
+Also worth checking on the HUD itself when it fails: which WiFi network does it
+say it is on? An Android device prefers a network that has internet, so it can
+quietly jump off the hotspot back to the shop WiFi. Nothing on the phone can see
+that happen.
 
 ## Install
 
