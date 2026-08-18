@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Ограничения скорости</string>
     <string name="section_speed_calibration">Калибровка скорости</string>
+    <string name="section_battery_percent">Процент заряда</string>
+    <string name="battery_percent_caption">Считать процент по напряжению батареи, когда число от колеса расходится с его экраном. Только в приложении, на колесо ничего не отправляется.</string>
+    <string name="battery_percent_source">Процент по</string>
+    <string name="battery_percent_mode_wheel">Колесо</string>
+    <string name="battery_percent_mode_curve">Кривая лития</string>
+    <string name="battery_percent_mode_custom">Своя</string>
+    <string name="battery_percent_min_cell">Пусто при</string>
+    <string name="battery_percent_series_cells">Ячеек последовательно</string>
+    <string name="battery_percent_cells_from_wheel">Взято у колеса: %1$d последовательно.</string>
+    <string name="battery_percent_cells_manual">Укажите число ячеек вашего колеса, иначе процент будет неверным.</string>
     <string name="speed_calibration_label">Поправка скорости</string>
     <string name="speed_calibration_caption">Корректирует скорость от колеса; влияет на сигналы, голос и журнал поездок</string>
     <string name="section_legal_mode_speed">Скорости в лег. режиме</string>

@@ -7,6 +7,8 @@ import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ble.DecodeResult
 import com.eried.eucplanet.ble.WheelAdapter
+import com.eried.eucplanet.util.BatteryPercentEstimator
+import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.ChargeStatus
 import com.eried.eucplanet.data.model.WheelData
@@ -326,6 +328,12 @@ class WheelRepository @Inject constructor(
      *  flipping the lock icon and then silently snapping back when the next
      *  settings poll resets it. False while disconnected (no adapter yet) so
      *  the button shows the same hint until a real capability is known. */
+    /** Cells in series the connected wheel states for itself, or null when its
+     *  family cannot tell. Drives whether the battery-estimate settings ask the
+     *  rider for a count. */
+    private val _wheelSeriesCells = MutableStateFlow<Int?>(null)
+    val wheelSeriesCells: StateFlow<Int?> = _wheelSeriesCells.asStateFlow()
+
     private val _wheelHasLock = MutableStateFlow(false)
     val wheelHasLock: StateFlow<Boolean> = _wheelHasLock.asStateFlow()
 
@@ -603,6 +611,9 @@ class WheelRepository @Inject constructor(
      */
     @Volatile private var speedCalibrationMultiplier: Float = 1f
 
+    /** Display-only battery estimate settings; see [BatteryPercentEstimator]. */
+    @Volatile private var batteryPercentCached: BatteryPercentSettings = BatteryPercentSettings()
+
     /**
      * Wheel poll interval in milliseconds, resolved from
      * AppSettings.wheelPollIntervalMs and mirrored into the hot poll path so the
@@ -809,6 +820,9 @@ class WheelRepository @Inject constructor(
                 // both decoupled from the watch feed (watchUpdateRate paces only
                 // WearBridge). Mirror into volatiles so the hot loops never
                 // re-collect the flow per cycle.
+                // Mirrored for the same reason as the rest: the estimate runs
+                // on every BLE frame and must not read persistent storage.
+                batteryPercentCached = s.batteryPercent
                 pollIntervalMs = s.wheelPollIntervalMs.toLong()
                 graphSampleIntervalMs = s.graphSampleIntervalMs.toLong()
                 // Retain at least the rider's dashboard rolling window (up to
@@ -899,6 +913,7 @@ class WheelRepository @Inject constructor(
                         // announced even if it matches what we last said.
                         lastAnnouncedLocked = null
                         _wheelHasLock.value = false
+                        _wheelSeriesCells.value = null
                         _chargeStatus.value = ChargeStatus.Disconnected
                         chargeInferred = false
                         chargeNegSamples = 0
@@ -1260,7 +1275,12 @@ class WheelRepository @Inject constructor(
                     alarmSpeedKmh = existing.alarmSpeedKmh,
                     safetyTiltbackKmh = existing.safetyTiltbackKmh,
                     safetyAlarmKmh = existing.safetyAlarmKmh,
-                    speedCalibrationOffsetPct = existing.speedCalibrationOffsetPct
+                    speedCalibrationOffsetPct = existing.speedCalibrationOffsetPct,
+                    // The pack belongs to the wheel, so the count follows the
+                    // wheel rather than staying whatever the last one needed.
+                    batteryPercent = s.batteryPercent.copy(
+                        seriesCells = existing.seriesCells
+                    ),
                 )
             )
         } else {
@@ -1281,6 +1301,7 @@ class WheelRepository @Inject constructor(
                     safetyTiltbackKmh = s.safetyTiltbackKmh,
                     safetyAlarmKmh = s.safetyAlarmKmh,
                     speedCalibrationOffsetPct = s.speedCalibrationOffsetPct,
+                    seriesCells = s.batteryPercent.seriesCells,
                     lastConnectedAt = System.currentTimeMillis()
                 )
             )
@@ -1919,8 +1940,21 @@ class WheelRepository @Inject constructor(
                     // into and out of the battery. Out = consumed, In = regen
                     // while riding, on every family. Do NOT re-flip here.
                     whConsumed = sessionEnergyOutWh,
-                    whRegen = sessionEnergyInWh
+                    whRegen = sessionEnergyInWh,
+                    // Display-only: the rider can have the percentage worked out
+                    // from pack voltage when the wheel's own number disagrees
+                    // with its display. Only this field changes; voltage, the raw
+                    // frame and every command are untouched, and with the feature
+                    // off the wheel's own number passes straight through.
+                    batteryPercent = BatteryPercentEstimator.estimate(
+                        voltage = result.data.voltage,
+                        seriesCells = wheelAdapter.seriesCells
+                            ?: batteryPercentCached.seriesCells,
+                        settings = batteryPercentCached,
+                        reportedPercent = result.data.batteryPercent,
+                    ),
                 )
+                _wheelSeriesCells.value = wheelAdapter.seriesCells
                 _chargeStatus.value = deriveChargeStatus(_wheelData.value)
                 // Families that report lock in their telemetry rather than in a
                 // settings frame. Null means the family says nothing, which must

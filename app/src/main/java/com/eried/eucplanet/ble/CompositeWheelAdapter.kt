@@ -118,6 +118,11 @@ class CompositeWheelAdapter @Inject constructor(
     // the detected model) rely on their own getter running.
     override val brand: String get() = active.brand
     override val capabilities: WheelCapabilities get() = active.capabilities
+    // Same reason as `brand`: only the sub-adapter knows which model it
+    // detected. Without this the interface default (null) wins and the rider
+    // is asked for a cell count their wheel could have stated. `seriesCells`
+    // derives from this, so forwarding the voltage covers both.
+    override val nominalPackVoltage: Int? get() = active.nominalPackVoltage
 
     override fun bleProfile(): BleProfile = active.bleProfile()
 

@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">速度制限</string>
     <string name="section_speed_calibration">速度キャリブレーション</string>
+    <string name="section_battery_percent">バッテリー残量</string>
+    <string name="battery_percent_caption">ホイールの数値が本体表示と合わないとき、パック電圧から残量を計算します。アプリ内のみで、ホイールには送信しません。</string>
+    <string name="battery_percent_source">残量の算出</string>
+    <string name="battery_percent_mode_wheel">ホイール</string>
+    <string name="battery_percent_mode_curve">リチウム曲線</string>
+    <string name="battery_percent_mode_custom">カスタム</string>
+    <string name="battery_percent_min_cell">空とみなす電圧</string>
+    <string name="battery_percent_series_cells">直列セル数</string>
+    <string name="battery_percent_cells_from_wheel">ホイールから取得: 直列 %1$d。</string>
+    <string name="battery_percent_cells_manual">ホイールのセル数を設定してください。違うと残量がずれます。</string>
     <string name="speed_calibration_label">速度オフセット</string>
     <string name="speed_calibration_caption">ホイール報告速度を調整します。アラーム、音声、トリップログに影響します</string>
     <string name="section_legal_mode_speed">リーガルモード速度</string>

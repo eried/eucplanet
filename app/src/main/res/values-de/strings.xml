@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
     <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
+    <string name="section_battery_percent">Batterieprozent</string>
+    <string name="battery_percent_caption">Den Prozentwert aus der Akkuspannung berechnen, wenn die Zahl des Rads von seiner Anzeige abweicht. Nur in der App, wird nie ans Rad gesendet.</string>
+    <string name="battery_percent_source">Prozent von</string>
+    <string name="battery_percent_mode_wheel">Rad</string>
+    <string name="battery_percent_mode_curve">Lithiumkurve</string>
+    <string name="battery_percent_mode_custom">Eigene</string>
+    <string name="battery_percent_min_cell">Leer bei</string>
+    <string name="battery_percent_series_cells">Zellen in Reihe</string>
+    <string name="battery_percent_cells_from_wheel">Vom Rad übernommen: %1$d in Reihe.</string>
+    <string name="battery_percent_cells_manual">Stell die Zellenzahl deines Rads ein, sonst stimmt der Prozentwert nicht.</string>
     <string name="speed_calibration_label">Geschwindigkeitsversatz</string>
     <string name="speed_calibration_caption">Passt die gemeldete Wheel-Geschwindigkeit an; betrifft Alarme, Sprache und Fahrtprotokoll</string>
     <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>

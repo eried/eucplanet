@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Hastighetsgränser</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
+    <string name="section_battery_percent">Batteriprocent</string>
+    <string name="battery_percent_caption">Räkna ut procenten från paketspänningen när hjulets egen siffra inte stämmer med dess display. Bara i appen, skickas aldrig till hjulet.</string>
+    <string name="battery_percent_source">Procent från</string>
+    <string name="battery_percent_mode_wheel">Hjul</string>
+    <string name="battery_percent_mode_curve">Litiumkurva</string>
+    <string name="battery_percent_mode_custom">Egen</string>
+    <string name="battery_percent_min_cell">Tom vid</string>
+    <string name="battery_percent_series_cells">Celler i serie</string>
+    <string name="battery_percent_cells_from_wheel">Hämtat från hjulet: %1$d i serie.</string>
+    <string name="battery_percent_cells_manual">Ställ in antalet celler ditt hjul har, annars blir procenten fel.</string>
     <string name="speed_calibration_label">Hastighetsjustering</string>
     <string name="speed_calibration_caption">Justerar hjulets rapporterade hastighet. Påverkar larm, tal och turloggen</string>
     <string name="section_legal_mode_speed">Hastighet i lagligt läge</string>

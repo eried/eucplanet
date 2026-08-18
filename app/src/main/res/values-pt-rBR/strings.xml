@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limites de velocidade</string>
     <string name="section_speed_calibration">Calibração de velocidade</string>
+    <string name="section_battery_percent">Porcentagem da bateria</string>
+    <string name="battery_percent_caption">Calcular a porcentagem pela tensão do pack quando o número da roda não bate com o display dela. Só no app, nunca enviado para a roda.</string>
+    <string name="battery_percent_source">Porcentagem por</string>
+    <string name="battery_percent_mode_wheel">Roda</string>
+    <string name="battery_percent_mode_curve">Curva de lítio</string>
+    <string name="battery_percent_mode_custom">Própria</string>
+    <string name="battery_percent_min_cell">Vazia em</string>
+    <string name="battery_percent_series_cells">Células em série</string>
+    <string name="battery_percent_cells_from_wheel">Obtido da roda: %1$d em série.</string>
+    <string name="battery_percent_cells_manual">Defina as células da sua roda ou a porcentagem ficará errada.</string>
     <string name="speed_calibration_label">Desvio de velocidade</string>
     <string name="speed_calibration_caption">Ajusta a velocidade informada pela roda; afeta alarmes, voz e o log de viagem</string>
     <string name="section_legal_mode_speed">Velocidade do Modo Legal</string>

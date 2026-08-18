@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Hız sınırları</string>
     <string name="section_speed_calibration">Hız kalibrasyonu</string>
+    <string name="section_battery_percent">Batarya yüzdesi</string>
+    <string name="battery_percent_caption">Tekerleğin kendi sayısı ekranıyla uyuşmadığında yüzdeyi paket voltajından hesapla. Yalnızca uygulamada, tekerleğe hiçbir zaman gönderilmez.</string>
+    <string name="battery_percent_source">Yüzde kaynağı</string>
+    <string name="battery_percent_mode_wheel">Teker</string>
+    <string name="battery_percent_mode_curve">Lityum eğrisi</string>
+    <string name="battery_percent_mode_custom">Kendi</string>
+    <string name="battery_percent_min_cell">Boş kabul edilen</string>
+    <string name="battery_percent_series_cells">Seri hücre</string>
+    <string name="battery_percent_cells_from_wheel">Tekerlekten alındı: %1$d seri.</string>
+    <string name="battery_percent_cells_manual">Tekerleğinin hücre sayısını gir, yoksa yüzde yanlış olur.</string>
     <string name="speed_calibration_label">Hız ofseti</string>
     <string name="speed_calibration_caption">Tekerin bildirdiği hızı düzeltir; alarmları, sesi ve sefer günlüğünü etkiler</string>
     <string name="section_legal_mode_speed">Yasal mod hızı</string>

@@ -107,6 +107,7 @@ data class AppSettings(
     val mediaControl: MediaControlSettings = MediaControlSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
+    val batteryPercent: BatteryPercentSettings = BatteryPercentSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
@@ -1058,6 +1059,59 @@ data class MediaControlSettings(
  * condition a few seconds before acting. Locking needs a live BLE link, so it
  * fires while the signal is fading, not after a full disconnect.
  */
+/**
+ * How the battery percentage on screen is worked out.
+ *
+ * Some wheels report a percentage that disagrees with their own display, so
+ * this estimates it from pack voltage instead. Display only: nothing here is
+ * ever sent to the wheel, and no firmware limit is touched. The wheel's own
+ * protection is unaffected either way, and so is the reading the wheel makes
+ * its own decisions on.
+ *
+ * The curve is battery chemistry, not a brand, so it works on any wheel. Cells
+ * in series come from the charged pack voltage the wheel's own model states,
+ * which every family records; [seriesCells] is asked of the rider only when the
+ * model is unrecognised, since a live pack voltage alone cannot distinguish a
+ * 20S from a 30S.
+ */
+data class BatteryPercentSettings(
+    /**
+     * Where the percentage on screen comes from. One answer to one question,
+     * so it is one control: two switches read as independent when they are
+     * not, and the older pair had the custom floor quietly overriding the
+     * curve whenever both were on.
+     */
+    val mode: String = MODE_WHEEL,
+    /** Lower endpoint of the custom scale, in millivolts per cell. */
+    val minimumCellVoltageMv: Int = 3300,
+    /**
+     * Cells in series, for wheels whose model does not state it. Ignored when
+     * the connected wheel's model knows its own. Saved per wheel: it belongs
+     * to the pack, not to the app, so [WheelProfile] carries it across
+     * connects the same way the speed calibration offset does.
+     */
+    val seriesCells: Int = 20,
+) {
+    companion object {
+        /** The wheel's own number, untouched. */
+        const val MODE_WHEEL = "WHEEL"
+        /**
+         * A lithium pack's discharge shape: flat below 3.20 V per cell, steep
+         * through the 3.20 to 3.40 V knee where a pack empties quickly, then
+         * shallow to 4.175 V. The number falls at a rate that matches what the
+         * rider feels.
+         */
+        const val MODE_CURVE = "CURVE"
+        /** A straight line from [minimumCellVoltageMv] to 4.20 V per cell. */
+        const val MODE_CUSTOM = "CUSTOM"
+        val MODE_VALUES = setOf(MODE_WHEEL, MODE_CURVE, MODE_CUSTOM)
+
+        const val MIN_CELL_MV = 2500
+        const val MAX_CELL_MV = 4000
+        val SERIES_RANGE = 1..60
+    }
+}
+
 data class ProximityLockSettings(
     val lockEnabled: Boolean = false,
     // Lock when the signal is at or below this (dBm) - the rider is walking away.

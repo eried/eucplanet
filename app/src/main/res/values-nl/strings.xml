@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Snelheidslimieten</string>
     <string name="section_speed_calibration">Snelheidskalibratie</string>
+    <string name="section_battery_percent">Batterijpercentage</string>
+    <string name="battery_percent_caption">Bereken het percentage uit de pakspanning als het getal van het wiel niet klopt met zijn display. Alleen in de app, gaat nooit naar het wiel.</string>
+    <string name="battery_percent_source">Percentage van</string>
+    <string name="battery_percent_mode_wheel">Wiel</string>
+    <string name="battery_percent_mode_curve">Lithiumcurve</string>
+    <string name="battery_percent_mode_custom">Eigen</string>
+    <string name="battery_percent_min_cell">Leeg bij</string>
+    <string name="battery_percent_series_cells">Cellen in serie</string>
+    <string name="battery_percent_cells_from_wheel">Van het wiel: %1$d in serie.</string>
+    <string name="battery_percent_cells_manual">Stel het aantal cellen van je wiel in, anders klopt het percentage niet.</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>
     <string name="speed_calibration_caption">Past de door het wiel gerapporteerde snelheid aan; beïnvloedt alarmen, spraak en het ritlog</string>
     <string name="section_legal_mode_speed">Snelheid voor Legal Mode</string>

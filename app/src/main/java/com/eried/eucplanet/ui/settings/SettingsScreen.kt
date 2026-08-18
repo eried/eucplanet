@@ -245,6 +245,7 @@ import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ADVANCED_DEFAULTS
 import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.AdvGroup
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
@@ -535,7 +536,12 @@ fun SettingsScreen(
         stringResource(R.string.section_legal_mode_speed),
         stringResource(R.string.speed_legal_tiltback),
         stringResource(R.string.speed_legal_alarm),
-        stringResource(R.string.section_speed_calibration)
+        stringResource(R.string.section_speed_calibration),
+        stringResource(R.string.section_battery_percent),
+        stringResource(R.string.battery_percent_source),
+        stringResource(R.string.battery_percent_mode_curve),
+        stringResource(R.string.battery_percent_mode_custom),
+        stringResource(R.string.battery_percent_series_cells)
     ).joinToString(" ")
 
     val corpusVoice = listOf(
@@ -6451,6 +6457,86 @@ private fun SpeedTab(
                 allowSign = true,
             )
             Spacer(Modifier.weight(1f))
+        }
+
+        // --- Battery percentage ---
+        // Next to speed calibration because it is the same kind of thing: the
+        // rider correcting a number the wheel reports, with nothing sent back
+        // to the wheel. Always visible, since the cell count is worth setting
+        // before a wheel is connected.
+        SectionHeader(stringResource(R.string.section_battery_percent))
+        HintText(stringResource(R.string.battery_percent_caption), small = true)
+        val bp = settings.batteryPercent
+        val detectedSeriesCells by viewModel.detectedSeriesCells.collectAsState()
+        // Three answers to one question, in one control: the wheel's own
+        // number, a lithium discharge curve, or a floor the rider names. Two
+        // switches read as independent settings when they never were.
+        val batteryModeEntries = listOf(
+            BatteryPercentSettings.MODE_WHEEL to
+                stringResource(R.string.battery_percent_mode_wheel),
+            BatteryPercentSettings.MODE_CURVE to
+                stringResource(R.string.battery_percent_mode_curve),
+            BatteryPercentSettings.MODE_CUSTOM to
+                stringResource(R.string.battery_percent_mode_custom),
+        )
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                batteryModeEntries.forEachIndexed { index, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == bp.mode,
+                        onClick = { viewModel.updateBatteryPercentMode(key) },
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index, batteryModeEntries.size,
+                            baseShape = RoundedCornerShape(12.dp)
+                        ),
+                        colors = themedSegmentedColors(),
+                    ) { Text(label) }
+                }
+            }
+            FieldNotchLabel(stringResource(R.string.battery_percent_source))
+        }
+        if (bp.mode != BatteryPercentSettings.MODE_WHEEL) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Only meaningful for the custom scale; the curve has its own
+                // fixed endpoints.
+                if (bp.mode == BatteryPercentSettings.MODE_CUSTOM) {
+                    NumberUpDown(
+                        value = bp.minimumCellVoltageMv,
+                        onValueChange = { viewModel.updateBatteryPercentMinimumMv(it) },
+                        range = BatteryPercentSettings.MIN_CELL_MV..BatteryPercentSettings.MAX_CELL_MV,
+                        step = 50,
+                        suffix = "V",
+                        label = stringResource(R.string.battery_percent_min_cell),
+                        format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
+                        parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
+                        modifier = Modifier.weight(1f),
+                    )
+                } else Spacer(Modifier.weight(1f))
+                // The wheel supplies this when its model states one, so the
+                // rider only needs it for wheels that do not.
+                NumberUpDown(
+                    value = bp.seriesCells,
+                    onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
+                    range = BatteryPercentSettings.SERIES_RANGE,
+                    step = 1,
+                    suffix = "S",
+                    label = stringResource(R.string.battery_percent_series_cells),
+                    enabled = detectedSeriesCells == null,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            HintText(
+                detectedSeriesCells?.let {
+                    stringResource(R.string.battery_percent_cells_from_wheel, it)
+                } ?: stringResource(R.string.battery_percent_cells_manual),
+                small = true,
+            )
         }
 
         SectionHeader(stringResource(R.string.section_speed_limits))

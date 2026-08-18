@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">速度限制</string>
     <string name="section_speed_calibration">速度校準</string>
+    <string name="section_battery_percent">電量百分比</string>
+    <string name="battery_percent_caption">當輪子回報的數值與它自己的顯示不一致時，用電池組電壓計算百分比。僅在應用內顯示，絕不傳送給輪子。</string>
+    <string name="battery_percent_source">百分比來源</string>
+    <string name="battery_percent_mode_wheel">輪子</string>
+    <string name="battery_percent_mode_curve">鋰電曲線</string>
+    <string name="battery_percent_mode_custom">自訂</string>
+    <string name="battery_percent_min_cell">視為沒電的電壓</string>
+    <string name="battery_percent_series_cells">串聯電芯數</string>
+    <string name="battery_percent_cells_from_wheel">來自輪子：%1$d 串。</string>
+    <string name="battery_percent_cells_manual">設定你輪子的串聯數，否則百分比會不準。</string>
     <string name="speed_calibration_label">速度偏移</string>
     <string name="speed_calibration_caption">調整車輪回報的速度，影響警報、語音及行程記錄</string>
     <string name="section_legal_mode_speed">限速模式速度</string>

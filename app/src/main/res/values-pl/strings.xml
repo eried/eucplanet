@@ -557,6 +557,16 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limity prędkości</string>
     <string name="section_speed_calibration">Kalibracja prędkości</string>
+    <string name="section_battery_percent">Procent baterii</string>
+    <string name="battery_percent_caption">Oblicz procent z napięcia pakietu, gdy liczba z koła nie zgadza się z jego wyświetlaczem. Tylko w aplikacji, nigdy nie trafia do koła.</string>
+    <string name="battery_percent_source">Procent z</string>
+    <string name="battery_percent_mode_wheel">Koło</string>
+    <string name="battery_percent_mode_curve">Krzywa litowa</string>
+    <string name="battery_percent_mode_custom">Własna</string>
+    <string name="battery_percent_min_cell">Pusty przy</string>
+    <string name="battery_percent_series_cells">Ogniwa szeregowo</string>
+    <string name="battery_percent_cells_from_wheel">Z koła: %1$d szeregowo.</string>
+    <string name="battery_percent_cells_manual">Ustaw liczbę ogniw swojego koła, inaczej procent będzie błędny.</string>
     <string name="speed_calibration_label">Korekta prędkości</string>
     <string name="speed_calibration_caption">Koryguje prędkość zgłaszaną przez koło; wpływa na alarmy, głos i log trasy</string>
     <string name="section_legal_mode_speed">Prędkość trybu legalnego</string>

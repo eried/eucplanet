@@ -27,6 +27,8 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
 
     @Volatile private var detectedModel: BegodeModel? = null
 
+    override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
+
     /**
      * Tracks the wheel's current light state across off/on/strobe so the
      * boolean [setLight] toggle can rotate predictably. Begode is the only

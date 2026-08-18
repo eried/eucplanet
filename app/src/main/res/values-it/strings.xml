@@ -729,6 +729,16 @@
     <string name="tpms_scan">Cerca sensori</string>
     <string name="external_gps_device_title">GPS esterno</string>
     <string name="section_speed_calibration">Calibrazione velocità</string>
+    <string name="section_battery_percent">Percentuale batteria</string>
+    <string name="battery_percent_caption">Calcola la percentuale dalla tensione del pacco quando il numero della ruota non coincide con il suo display. Solo nell\'app, mai inviato alla ruota.</string>
+    <string name="battery_percent_source">Percentuale da</string>
+    <string name="battery_percent_mode_wheel">Ruota</string>
+    <string name="battery_percent_mode_curve">Curva al litio</string>
+    <string name="battery_percent_mode_custom">Propria</string>
+    <string name="battery_percent_min_cell">Scarica a</string>
+    <string name="battery_percent_series_cells">Celle in serie</string>
+    <string name="battery_percent_cells_from_wheel">Presa dalla ruota: %1$d in serie.</string>
+    <string name="battery_percent_cells_manual">Imposta le celle della tua ruota, altrimenti la percentuale sarà sbagliata.</string>
     <string name="speed_calibration_caption">Regola la velocità riportata dalla ruota; influenza allarmi, voce e registro</string>
     <string name="speed_calibration_label">Scostamento velocità</string>
     <string name="sources_other_metrics">Altre metriche</string>

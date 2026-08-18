@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ble
 
+import com.eried.eucplanet.util.BatteryPercentEstimator
+
 /**
  * Models in the Veteran BLE protocol family. Veteran's `DC 5A 5C 20`-prefixed
  * frame carries a model byte at offset 6 (versionLow) and a hardware-revision
@@ -53,7 +55,7 @@ enum class VeteranModel(
      * fills them all, so shorter packs must cap the displayed cells to this or
      * the empty tail renders as phantom red cells (the NOSFET Aeon 41-cell bug).
      */
-    val seriesCells: Int get() = Math.round(nominalVoltage / 4.2f)
+    val seriesCells: Int get() = BatteryPercentEstimator.seriesCellsFor(nominalVoltage)
 
     companion object {
         fun fromReportedName(name: String): VeteranModel? {

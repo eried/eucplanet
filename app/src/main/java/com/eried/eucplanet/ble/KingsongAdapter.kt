@@ -23,6 +23,8 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
 
     @Volatile private var detectedModel: KingsongModel? = null
 
+    override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
+
     /**
      * Merged telemetry snapshot built up across the four-frame KingSong cycle
      * (0xA9 realtime + 0xB9 trip + 0xF5 PWM + 0xF6 speed limit). Each frame

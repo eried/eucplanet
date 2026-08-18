@@ -198,6 +198,20 @@ object AppModule {
     }
 
     /**
+     * v56 -> v57: per-wheel cells in series, for the display-only battery
+     * estimate on wheels whose model does not state its own pack voltage. The
+     * default matches the settings default, so an existing profile reads the
+     * same as it did before. (Was authored as 55->56 on its own branch;
+     * renumbered here because trip-details' customName migration already claimed
+     * 55->56 when both merged into next-experimental.)
+     */
+    private val MIGRATION_56_57 = object : Migration(56, 57) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE wheel_profile ADD COLUMN seriesCells INTEGER NOT NULL DEFAULT 20")
+        }
+    }
+
+    /**
      * Build the Room database with the v44->v45 migration. If the open still
      * fails (e.g. a future identity-hash mismatch from a forgotten migration),
      * wipe the DB file and rebuild, trip / alarm / profile loss is regrettable
@@ -221,7 +235,7 @@ object AppModule {
 
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49, MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53, MIGRATION_53_54, MIGRATION_54_55, MIGRATION_55_56)
+            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49, MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53, MIGRATION_53_54, MIGRATION_54_55, MIGRATION_55_56, MIGRATION_56_57)
             .build()
 
     @Provides

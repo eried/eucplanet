@@ -48,6 +48,19 @@ data class WheelProfile(
     @ColumnInfo(defaultValue = "0")
     val reverseSpeedDirection: Boolean = false,
 
+    /**
+     * Cells in series in this wheel's pack, used to turn pack voltage into a
+     * per-cell voltage for the display-only battery estimate.
+     *
+     * Per wheel rather than app-wide because it describes the pack, not a
+     * preference: a rider with two wheels would otherwise carry one wheel's
+     * count over to the other and read a confident, wrong percentage. Only
+     * consulted for wheels whose model does not state its own pack voltage;
+     * when the model states one, the wheel wins and this is left alone.
+     */
+    @ColumnInfo(defaultValue = "20")
+    val seriesCells: Int = 20,
+
     /** Wall-clock of the last connect to this wheel. Used to keep the most
      *  recently used profile easy to find if we ever expose a profile list. */
     val lastConnectedAt: Long = System.currentTimeMillis()
