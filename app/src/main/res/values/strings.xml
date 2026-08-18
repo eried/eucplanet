@@ -797,7 +797,7 @@
     <string name="speed_calibration_caption">Adjusts wheel-reported speed; affects alarms, voice and the trip log</string>
     <string name="section_legal_mode_speed">Legal mode speed</string>
     <string name="legal_mode_caption">Used when Legal Mode is on; must be lower than normal tiltback</string>
-    <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>
+    <string name="speed_limits_disconnected">Connect your wheel to edit calibration and limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
     <string name="speed_legal_tiltback">Legal Tiltback</string>

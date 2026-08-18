@@ -6495,6 +6495,7 @@ private fun SpeedTab(
                         else BatteryPercentSettings.MODE_WHEEL
                     )
                 },
+                enabled = isConnected,
                 colors = themedSwitchColors(),
             )
         }
@@ -6515,6 +6516,7 @@ private fun SpeedTab(
                         step = 1,
                         suffix = "S",
                         label = stringResource(R.string.battery_percent_series_cells),
+                        enabled = isConnected,
                         numberAlign = TextAlign.End,
                     )
                     Spacer(Modifier.weight(1f))
@@ -6573,6 +6575,7 @@ private fun SpeedTab(
                     step = 50,
                     suffix = "Wh",
                     label = stringResource(R.string.battery_capacity_label),
+                    enabled = isConnected,
                     numberAlign = TextAlign.End,
                 )
                 Spacer(Modifier.weight(1f))
@@ -6608,6 +6611,7 @@ private fun SpeedTab(
                                 else BatteryPercentSettings.MODE_CURVE
                             )
                         },
+                        enabled = isConnected,
                         colors = themedSwitchColors(),
                     )
                 }
@@ -6628,6 +6632,7 @@ private fun SpeedTab(
                             label = stringResource(R.string.battery_percent_min_cell),
                             format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
                             parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
+                            enabled = isConnected,
                             numberAlign = TextAlign.End,
                         )
                         NumberUpDown(
@@ -6640,6 +6645,7 @@ private fun SpeedTab(
                             label = stringResource(R.string.battery_percent_max_cell),
                             format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
                             parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
+                            enabled = isConnected,
                             numberAlign = TextAlign.End,
                         )
                     }
