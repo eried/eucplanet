@@ -125,6 +125,26 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Re-ask the server what a held trip's verdict is now.
+     *
+     * A hold is not a failure and not something the rider can fix: re-uploading returns the
+     * same verdict from the server's dedupe, so asking is the only thing that can clear the
+     * icon. Reports the answer either way, so a tap never looks like it did nothing.
+     */
+    fun recheckHeldTrip(trip: TripRecord) {
+        viewModelScope.launch {
+            _toasts.send(context.getString(R.string.online_status_checking))
+            val msg = when (runCatching { eucStatsRepository.refreshTripVerdict(trip) }.getOrNull()) {
+                "validated" -> context.getString(R.string.online_status_shared)
+                "rejected" -> context.getString(R.string.online_status_rejected)
+                "flagged" -> context.getString(R.string.online_status_flagged_why)
+                else -> context.getString(R.string.online_status_check_failed)
+            }
+            _toasts.send(msg)
+        }
+    }
+
     val recording: StateFlow<Boolean> = tripRepository.recording
 
     val speedUnit: StateFlow<String> = settingsRepository.settings

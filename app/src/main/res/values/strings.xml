@@ -1540,6 +1540,9 @@
     <string name="online_status_flagged">Shared, under review</string>
     <string name="online_status_pending">Uploading to leaderboard…</string>
     <string name="online_status_failed">Online upload failed, tap to retry</string>
+    <string name="online_status_checking">Checking with the leaderboard…</string>
+    <string name="online_status_check_failed">Could not check right now, try again later</string>
+    <string name="online_status_rejected">Not accepted for the leaderboard</string>
     <string name="online_upload_join_caption">Join to send your stats and trips to the public leaderboard at</string>
     <string name="online_upload_linked_caption">Your stats and trips appear on the public leaderboard at</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

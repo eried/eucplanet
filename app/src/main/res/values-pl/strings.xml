@@ -1123,6 +1123,9 @@
     <string name="online_status_flagged">Udostępniono, w weryfikacji</string>
     <string name="online_status_pending">Przesyłanie do rankingu…</string>
     <string name="online_status_failed">Przesyłanie nie powiodło się, stuknij, aby ponowić</string>
+    <string name="online_status_checking">Sprawdzanie w rankingu…</string>
+    <string name="online_status_check_failed">Nie udało się teraz sprawdzić, spróbuj później</string>
+    <string name="online_status_rejected">Nie zaakceptowano do rankingu</string>
     <string name="online_upload_join_caption">Dołącz, aby wysyłać statystyki i trasy do publicznego rankingu na</string>
     <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu na</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

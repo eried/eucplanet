@@ -1125,6 +1125,9 @@
     <string name="online_status_flagged">Compartilhado, em análise</string>
     <string name="online_status_pending">Enviando ao ranking…</string>
     <string name="online_status_failed">Envio falhou, toque para tentar novamente</string>
+    <string name="online_status_checking">Consultando o ranking…</string>
+    <string name="online_status_check_failed">Não foi possível verificar agora, tente mais tarde</string>
+    <string name="online_status_rejected">Não aceito para o ranking</string>
     <string name="online_upload_join_caption">Suas viagens aparecem no ranking público em</string>
     <string name="online_upload_linked_caption">Suas estatísticas e viagens aparecem no ranking público em</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

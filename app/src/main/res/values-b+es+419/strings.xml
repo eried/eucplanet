@@ -1123,6 +1123,9 @@
     <string name="online_status_flagged">Publicado, en revisión</string>
     <string name="online_status_pending">Subiendo al marcador…</string>
     <string name="online_status_failed">Error al subir, toca para reintentar</string>
+    <string name="online_status_checking">Consultando la tabla de posiciones…</string>
+    <string name="online_status_check_failed">No se pudo consultar ahora, inténtalo más tarde</string>
+    <string name="online_status_rejected">No aceptado para la tabla de posiciones</string>
     <string name="online_upload_join_caption">Únete para enviar tus estadísticas y viajes al marcador público en</string>
     <string name="online_upload_linked_caption">Tus estadísticas y viajes aparecen en el marcador público en</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

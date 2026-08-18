@@ -548,7 +548,8 @@ fun RecordingScreen(
                             onTools = { tripForTools = trip },
                             onShare = { tripToShare = trip },
                             onDelete = { tripToDelete = trip },
-                            onRetryOnline = { viewModel.retryOnlineUploads() }
+                            onRetryOnline = { viewModel.retryOnlineUploads() },
+                            onRecheckOnline = { viewModel.recheckHeldTrip(it) }
                         )
                     }
                 }
@@ -581,7 +582,9 @@ private fun TripCard(
     onTools: () -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit,
-    onRetryOnline: () -> Unit = {}
+    onRetryOnline: () -> Unit = {},
+    /** Re-ask the server for a held trip's verdict (it can change after upload). */
+    onRecheckOnline: (TripRecord) -> Unit = {}
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
@@ -669,7 +672,8 @@ private fun TripCard(
             when {
                 isRecording -> {}                                                   // no status while recording
                 isPending -> PendingStatusIcon()                                    // discard-grace window
-                trip.eucstatsStatus != 0 -> OnlineStatusIcon(trip, onRetryOnline)   // shared / uploading / failed
+                trip.eucstatsStatus != 0 ->
+                    OnlineStatusIcon(trip, onRetryOnline) { onRecheckOnline(trip) }
                 trip.uploadStatus == 1 -> PendingStatusIcon()                       // folder backup in flight
                 trip.uploadStatus == 2 -> UploadStatusIcon(trip)                    // saved locally only
             }
@@ -734,38 +738,46 @@ private fun UploadStatusIcon(trip: TripRecord) {
 }
 
 /** eucstats online status: green cloud = shared, warn cloud = under review / uploading,
- *  red cloud-off = failed (tap to retry). Old/imported trips have eucstatsStatus 0 and
- *  never reach here, so they keep the local disk tick. */
+ *  red cloud-off = failed (tap to retry) or not accepted. Old/imported trips have
+ *  eucstatsStatus 0 and never reach here, so they keep the local disk tick. */
 @Composable
-private fun OnlineStatusIcon(trip: TripRecord, onRetry: () -> Unit) {
+private fun OnlineStatusIcon(trip: TripRecord, onRetry: () -> Unit, onRecheck: () -> Unit) {
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
-    val flagged = trip.eucstatsStatus == 2 && trip.eucstatsValidation == "flagged"
+    val settled = trip.eucstatsStatus == 2
+    val flagged = settled && trip.eucstatsValidation == "flagged"
+    // A verdict can turn into "rejected" after upload, once someone reviews it. Without
+    // its own branch that fell through to the shared/green tick, advertising a ride the
+    // leaderboard had actually turned down.
+    val rejected = settled && trip.eucstatsValidation == "rejected"
+    val accepted = settled && !flagged && !rejected
     val isRetry = trip.eucstatsStatus == 3
     val icon = when {
-        isRetry -> Icons.Default.CloudOff
-        trip.eucstatsStatus == 2 && !flagged -> Icons.Default.CloudDone
+        isRetry || rejected -> Icons.Default.CloudOff
+        accepted -> Icons.Default.CloudDone
         flagged -> Icons.Default.Cloud
         else -> Icons.Default.CloudQueue   // 1 = pending / uploading
     }
     val tint = when {
-        isRetry -> MaterialTheme.appColors.statusDanger
-        trip.eucstatsStatus == 2 && !flagged -> MaterialTheme.appColors.statusGood
+        isRetry || rejected -> MaterialTheme.appColors.statusDanger
+        accepted -> MaterialTheme.appColors.statusGood
         else -> MaterialTheme.appColors.statusWarn
     }
     val msg = when {
         isRetry -> stringResource(R.string.online_status_failed)
-        trip.eucstatsStatus == 2 && !flagged -> stringResource(R.string.online_status_shared)
+        rejected -> stringResource(R.string.online_status_rejected)
+        accepted -> stringResource(R.string.online_status_shared)
         flagged -> stringResource(R.string.online_status_flagged)
         else -> stringResource(R.string.online_status_pending)
     }
-    // Tapping a flagged trip explains why it's held, rather than just repeating
-    // the short status label.
-    val flaggedWhy = stringResource(R.string.online_status_flagged_why)
+    // Tapping a held trip re-asks the server for its verdict. A hold is not a failure and
+    // not something the rider can fix: re-uploading returns the same verdict from the
+    // server's dedupe, so asking is the only thing that can move the icon. Repeating the
+    // explanation, as this used to do, left the rider with no way to ever clear it.
     IconButton(onClick = {
         when {
             isRetry -> onRetry()
-            flagged -> showSnackbarLocal(snackbar, scope, flaggedWhy)
+            flagged -> onRecheck()
             trip.eucstatsStatus == 1 -> onRetry()
             else -> showSnackbarLocal(snackbar, scope, msg)
         }

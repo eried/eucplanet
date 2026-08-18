@@ -1381,6 +1381,9 @@
     <string name="online_status_flagged">Partajat, în verificare</string>
     <string name="online_status_pending">Se încarcă în clasament…</string>
     <string name="online_status_failed">Încărcarea online a eșuat, atinge pentru a reîncerca</string>
+    <string name="online_status_checking">Se verifică în clasament…</string>
+    <string name="online_status_check_failed">Nu s-a putut verifica acum, încearcă mai târziu</string>
+    <string name="online_status_rejected">Neacceptat pentru clasament</string>
     <string name="online_upload_join_caption">Alătură-te ca să îți trimiți statisticile și cursele în clasamentul public de la</string>
     <string name="online_upload_linked_caption">Statisticile și cursele tale apar în clasamentul public de la</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

@@ -1125,6 +1125,9 @@
     <string name="online_status_flagged">Опубликовано, на проверке</string>
     <string name="online_status_pending">Загрузка в таблицу лидеров…</string>
     <string name="online_status_failed">Ошибка загрузки, нажмите для повтора</string>
+    <string name="online_status_checking">Проверка в таблице лидеров…</string>
+    <string name="online_status_check_failed">Сейчас не удалось проверить, попробуйте позже</string>
+    <string name="online_status_rejected">Не принято в таблицу лидеров</string>
     <string name="online_upload_join_caption">Присоединитесь, чтобы отправлять статистику и поездки в публичную таблицу лидеров на</string>
     <string name="online_upload_linked_caption">Ваша статистика и поездки отображаются в публичной таблице лидеров на</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

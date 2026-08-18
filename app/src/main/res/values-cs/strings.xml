@@ -1381,6 +1381,9 @@
     <string name="online_status_flagged">Sdíleno, prochází kontrolou</string>
     <string name="online_status_pending">Nahrávám do žebříčku…</string>
     <string name="online_status_failed">Online nahrání selhalo, klepnutím to zkusíte znovu</string>
+    <string name="online_status_checking">Ověřuji u žebříčku…</string>
+    <string name="online_status_check_failed">Teď se nepodařilo ověřit, zkuste to později</string>
+    <string name="online_status_rejected">Nepřijato do žebříčku</string>
     <string name="online_upload_join_caption">Připojte se a posílejte své statistiky a jízdy do veřejného žebříčku na</string>
     <string name="online_upload_linked_caption">Vaše statistiky a jízdy se objevují ve veřejném žebříčku na</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

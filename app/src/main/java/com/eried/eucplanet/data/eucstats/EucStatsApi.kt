@@ -28,6 +28,21 @@ data class RiderProfile(
     val canChangeAvatarAfter: String?,
 )
 
+/**
+ * Current server-side verdict for one trip, from GET /trips/{uuid}.
+ *
+ * The upload response is a snapshot, not a final answer: a trip returned as "flagged" is
+ * held for a human to look at, and the verdict changes server-side once they approve it.
+ * Without re-reading it, the rider keeps an "under review" cloud forever on a ride that
+ * was accepted days ago. Re-uploading cannot clear it either, because the same trip_uuid
+ * hits the server's dedupe and returns the same status.
+ */
+data class TripStatus(
+    val validationStatus: String?,   // "validated" | "flagged" | "rejected"
+    val verdict: String?,            // "accepted" | "under_review" | "rejected"
+    val reasons: List<String>,
+)
+
 sealed interface UploadResult {
     data class Ok(val validationStatus: String?, val duplicate: Boolean) : UploadResult
     data class PermanentFailure(val code: Int, val body: String) : UploadResult  // 400/403/413/422
@@ -64,6 +79,11 @@ interface EucStatsApiContract {
     fun deleteRider(storeId: String): Boolean
     fun exportRider(storeId: String): String?
     fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult
+
+    /** Current verdict for one trip, or null when it couldn't be read (network, or a
+     *  server too old to serve GET /trips/{uuid}). Defaulted so test fakes need not
+     *  implement it. */
+    fun getTripStatus(tripUuid: String): TripStatus? = null
 }
 
 class EucStatsApi(
@@ -192,6 +212,25 @@ class EucStatsApi(
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId/export").get().build()
         return try {
             client.newCall(req).execute().use { if (it.isSuccessful) it.body?.string() else null }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override fun getTripStatus(tripUuid: String): TripStatus? {
+        val req = Request.Builder().url("${baseUrl()}/trips/$tripUuid").get().build()
+        return try {
+            client.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) return@use null
+                val o = JSONObject(resp.body?.string().orEmpty())
+                val arr = o.optJSONArray("reasons")
+                TripStatus(
+                    validationStatus = o.optString("validation_status").ifEmpty { null },
+                    verdict = o.optString("verdict").ifEmpty { null },
+                    reasons = (0 until (arr?.length() ?: 0))
+                        .mapNotNull { arr?.optString(it)?.ifEmpty { null } },
+                )
+            }
         } catch (e: Exception) {
             null
         }

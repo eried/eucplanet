@@ -1125,6 +1125,9 @@
     <string name="online_status_flagged">Delt, under gennemgang</string>
     <string name="online_status_pending">Uploader til ranglisten…</string>
     <string name="online_status_failed">Online upload fejlede, tryk for at prøve igen</string>
+    <string name="online_status_checking">Tjekker med ranglisten…</string>
+    <string name="online_status_check_failed">Kunne ikke tjekke lige nu, prøv igen senere</string>
+    <string name="online_status_rejected">Ikke godkendt til ranglisten</string>
     <string name="online_upload_join_caption">Tilmeld dig for at sende dine statistikker og ture til den offentlige rangliste på</string>
     <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

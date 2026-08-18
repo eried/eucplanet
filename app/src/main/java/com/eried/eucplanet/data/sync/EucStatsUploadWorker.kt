@@ -47,6 +47,15 @@ class EucStatsUploadWorker @AssistedInject constructor(
         }
 
         val pending = tripDao.getPendingEucstatsUploads()
+        // Re-read the verdict of any trip the server is still holding. This runs before the
+        // "nothing pending" bail on purpose: a held trip has already uploaded, so it is
+        // never in `pending`, and its verdict can still change afterwards when a human
+        // approves it. Without this the rider keeps an "under review" cloud forever on a
+        // ride that is already counting. Failures here are ignored - it is a refresh, and
+        // it must never turn into a retry loop or block the upload sweep.
+        val cleared = runCatching { eucStatsRepository.refreshHeldTrips() }.getOrDefault(0)
+        if (cleared > 0) Log.i(TAG, "$cleared held trip(s) changed verdict")
+
         if (pending.isEmpty()) {
             Log.i(TAG, "No pending eucstats uploads")
             return Result.success()

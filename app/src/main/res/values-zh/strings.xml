@@ -1461,6 +1461,9 @@
     <string name="online_status_flagged">已分享，审核中</string>
     <string name="online_status_pending">正在上传到排行榜…</string>
     <string name="online_status_failed">上传失败，点击重试</string>
+    <string name="online_status_checking">正在与排行榜核对…</string>
+    <string name="online_status_check_failed">暂时无法核对，请稍后再试</string>
+    <string name="online_status_rejected">未被排行榜接受</string>
     <string name="online_upload_join_caption">你的骑行记录将显示在公开排行榜</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>

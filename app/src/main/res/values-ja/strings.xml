@@ -1122,6 +1122,9 @@
     <string name="online_status_flagged">共有中、審査中</string>
     <string name="online_status_pending">リーダーボードにアップロード中…</string>
     <string name="online_status_failed">アップロード失敗、タップして再試行</string>
+    <string name="online_status_checking">ランキングを確認しています…</string>
+    <string name="online_status_check_failed">現在確認できません。あとでもう一度お試しください</string>
+    <string name="online_status_rejected">ランキングに登録されませんでした</string>
     <string name="online_upload_join_caption">参加してあなたの統計とトリップを公開リーダーボードに送信してください:</string>
     <string name="online_upload_linked_caption">あなたの統計とトリップが公開リーダーボードに表示されています:</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>

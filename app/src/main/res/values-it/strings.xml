@@ -1497,6 +1497,9 @@
     <string name="online_status_flagged">Pubblicato, in revisione</string>
     <string name="online_status_pending">Upload in classifica…</string>
     <string name="online_status_failed">Upload non riuscito, tocca per riprovare</string>
+    <string name="online_status_checking">Verifica con la classifica…</string>
+    <string name="online_status_check_failed">Impossibile verificare ora, riprova più tardi</string>
+    <string name="online_status_rejected">Non accettato per la classifica</string>
     <string name="online_upload_join_caption">I tuoi viaggi appaiono nella classifica pubblica su</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>

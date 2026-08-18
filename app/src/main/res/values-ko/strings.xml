@@ -1122,6 +1122,9 @@
     <string name="online_status_flagged">공유됨, 검토 중</string>
     <string name="online_status_pending">리더보드에 업로드 중…</string>
     <string name="online_status_failed">업로드 실패. 탭하여 재시도</string>
+    <string name="online_status_checking">리더보드에서 확인 중…</string>
+    <string name="online_status_check_failed">지금은 확인할 수 없습니다. 나중에 다시 시도하세요</string>
+    <string name="online_status_rejected">리더보드에 등록되지 않음</string>
     <string name="online_upload_join_caption">통계와 트립을 다음 공개 리더보드로 보내려면 참가하세요</string>
     <string name="online_upload_linked_caption">통계와 트립이 다음 공개 리더보드에 표시됩니다</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
