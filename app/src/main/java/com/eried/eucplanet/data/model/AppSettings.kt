@@ -246,6 +246,10 @@ data class AppSettings(
     // extra graph keys that were switched ON. Empty = none, the original six
     // charts only.
     val tripExtraCharts: String = "",
+    // Same inverted store for stat tiles that ship OFF (start battery, energy,
+    // consumption): lists the extra tile keys the rider switched ON, so a new
+    // optional tile never appears for everyone on upgrade. Empty = none.
+    val tripExtraTiles: String = "",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses

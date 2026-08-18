@@ -120,6 +120,7 @@ fun RecordingScreen(
     var tripToDelete by remember { mutableStateOf<TripRecord?>(null) }
     // Trip whose tools sheet is open, and which tool it drilled into.
     var tripForTools by remember { mutableStateOf<TripRecord?>(null) }
+    var renameToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var wheelToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var splitToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var combineToolTrip by remember { mutableStateOf<TripRecord?>(null) }
@@ -207,9 +208,21 @@ fun RecordingScreen(
         TripToolsDialog(
             trip = trip,
             onDismiss = { tripForTools = null },
+            onRename = { renameToolTrip = trip },
             onChangeWheel = { wheelToolTrip = trip },
             onSplit = { splitToolTrip = trip },
             onCombine = { combineToolTrip = trip },
+        )
+    }
+
+    renameToolTrip?.let { trip ->
+        RenameTripDialog(
+            currentName = trip.customName,
+            onConfirm = { name ->
+                viewModel.renameTrip(trip, name)
+                renameToolTrip = null
+            },
+            onDismiss = { renameToolTrip = null },
         )
     }
 
@@ -256,7 +269,7 @@ fun RecordingScreen(
     }
 
     combineToolTrip?.let { trip ->
-        val dateFmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+        val dateFmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
         CombineTripsDialog(
             anchor = trip,
             // Finished trips only: a recording still being written has no end and
@@ -571,7 +584,7 @@ private fun TripCard(
     onRetryOnline: () -> Unit = {}
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
-    val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+    val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
     val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
 
     // Live ticking elapsed time for the recording trip
@@ -616,7 +629,9 @@ private fun TripCard(
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    dateFormat.format(Date(trip.startTime)),
+                    // Rider's custom name when set, otherwise the ride's date.
+                    trip.customName?.takeIf { it.isNotBlank() }
+                        ?: dateFormat.format(Date(trip.startTime)),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isRecording) MaterialTheme.appColors.statusDanger else MaterialTheme.colorScheme.onSurface
                 )
@@ -703,7 +718,7 @@ private fun PendingStatusIcon() {
 
 @Composable
 private fun UploadStatusIcon(trip: TripRecord) {
-    val fmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+    val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
 
     val uploadedAtText = trip.uploadedAt?.let { fmt.format(Date(it)) }
     val msg = uploadedAtText?.let {

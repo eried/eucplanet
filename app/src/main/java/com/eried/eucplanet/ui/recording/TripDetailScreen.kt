@@ -192,6 +192,8 @@ fun TripDetailScreen(
     // Opt-in extra graphs (smoothed variants, power, altitude) and the window
     // the smoothed ones average over.
     val extraCharts by viewModel.tripExtraCharts.collectAsState()
+    // Opt-in extra stat tiles (start->end battery, energy, consumption).
+    val extraTiles by viewModel.tripExtraTiles.collectAsState()
     val smoothWindow by viewModel.smoothingWindowSamples.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
@@ -263,7 +265,7 @@ fun TripDetailScreen(
         reveal.cancel()
     }
 
-    val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+    val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     // Trip metrics and the header date range (start -> end) are hoisted so the
@@ -297,6 +299,9 @@ fun TripDetailScreen(
             timeFormat.format(Date(endMs)) else dateFormat.format(Date(endMs))
         "${dateFormat.format(Date(startMs))} → $endText"
     }
+    // Rider's custom name leads the header when set (matching the trip list and
+    // eucviewer's inspector); otherwise the start -> end date range stands in.
+    val tripTitle = trip.customName?.takeIf { it.isNotBlank() } ?: headerDateTime
 
     Scaffold(
         topBar = {
@@ -323,7 +328,7 @@ fun TripDetailScreen(
                     }
                     if (dataPoints.isNotEmpty()) {
                         Text(
-                            headerDateTime,
+                            tripTitle,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.align(Alignment.Center),
@@ -389,7 +394,7 @@ fun TripDetailScreen(
                 // carrying current or PWM are counted optimistically; being one
                 // card out is invisible next to showing the wrong shape.
                 val skeletonTiles = applyOrder(TILE_KEYS_DEFAULT, savedTileOrder)
-                    .count { it !in hiddenTiles }
+                    .count { it !in hiddenTiles && (it !in EXTRA_TILE_KEYS || it in extraTiles) }
                 val skeletonCharts = applyOrder(CHART_KEYS_DEFAULT, savedChartOrder)
                     .count { it !in hiddenCharts && (it !in EXTRA_CHART_KEYS || it in extraCharts) }
                 TripDetailSkeleton(
@@ -660,6 +665,17 @@ fun TripDetailScreen(
                         Modifier.weight(1f)
                     )
                 },
+                // Opt-in (EXTRA_TILE_KEYS): the session's real start -> end %, which
+                // survives a mid-trip charge on a combined ride where max -> min does
+                // not. Title shows total drained.
+                "batteryRange" to {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_battery_range, batteryStats.batteryDrained),
+                        stringResource(R.string.recording_summary_battery_fmt, batteryStats.batteryStart, batteryStats.batteryEnd),
+                        if (batteryStats.batteryEnd < 20) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.statusGood,
+                        Modifier.weight(1f)
+                    )
+                },
                 "voltage" to {
                     SummaryCard(
                         stringResource(R.string.recording_summary_voltage),
@@ -776,7 +792,9 @@ fun TripDetailScreen(
             // Render the shown tiles in the rider's order, in rows of 3, padding a
             // short final row with spacers so every tile keeps the same width.
             val summaryCards: @Composable ColumnScope.() -> Unit = {
-                val visibleTiles = orderedTiles.filter { it.first !in hiddenTiles }
+                val visibleTiles = orderedTiles.filter {
+                    it.first !in hiddenTiles && (it.first !in EXTRA_TILE_KEYS || it.first in extraTiles)
+                }
                 visibleTiles.chunked(3).forEachIndexed { rowIndex, rowTiles ->
                     if (rowIndex > 0) Spacer(Modifier.height(8.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -933,9 +951,12 @@ fun TripDetailScreen(
                 // Generic label for the sheet only: the real tile still shows the
                 // per-trip "Battery (-X%)"; the customizer must stay value-free.
                 "battery" to stringResource(R.string.metric_chip_battery),
+                "batteryRange" to stringResource(R.string.metric_chip_battery_range),
                 "voltage" to stringResource(R.string.recording_summary_voltage),
                 "maxTemp" to stringResource(R.string.recording_summary_max_temp),
                 "maxPwm" to stringResource(R.string.recording_summary_max_pwm),
+                "energy" to stringResource(R.string.recording_summary_energy),
+                "consumption" to stringResource(R.string.recording_summary_consumption),
                 "maxCurrent" to stringResource(R.string.recording_summary_max_current),
                 "maxPower" to stringResource(R.string.recording_summary_max_power),
             )
@@ -959,17 +980,19 @@ fun TripDetailScreen(
                     hiddenTiles = hiddenTiles,
                     tileOrder = effectiveTileOrder,
                     tileLabels = tileLabels,
+                    extraTiles = extraTiles,
                     hiddenCharts = hiddenCharts,
                     chartOrder = effectiveChartOrder,
                     chartLabels = chartLabels,
                     extraCharts = extraCharts,
                     onToggleTile = { key, hidden -> viewModel.setTileHidden(key, hidden) },
+                    onToggleExtraTile = { key, on -> viewModel.setExtraTile(key, on) },
                     onToggleChart = { key, hidden -> viewModel.setChartHidden(key, hidden) },
                     onToggleExtraChart = { key, on -> viewModel.setExtraChart(key, on) },
                     onReorderTiles = { viewModel.setTileOrder(it) },
                     onReorderCharts = { viewModel.setChartOrder(it) },
                     canReset = hiddenTiles.isNotEmpty() || hiddenCharts.isNotEmpty() ||
-                        extraCharts.isNotEmpty() ||
+                        extraCharts.isNotEmpty() || extraTiles.isNotEmpty() ||
                         savedTileOrder.isNotEmpty() || savedChartOrder.isNotEmpty(),
                     onReset = { viewModel.resetTripLayout() },
                     onDismiss = { showCustomize = false },
@@ -1023,7 +1046,7 @@ fun TripDetailScreen(
                 ) {
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        headerDateTime,
+                        tripTitle,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -1111,11 +1134,13 @@ private fun CustomizeSheet(
     hiddenTiles: Set<String>,
     tileOrder: List<String>,
     tileLabels: Map<String, String>,
+    extraTiles: Set<String>,
     hiddenCharts: Set<String>,
     chartOrder: List<String>,
     chartLabels: Map<String, String>,
     extraCharts: Set<String>,
     onToggleTile: (String, Boolean) -> Unit,
+    onToggleExtraTile: (String, Boolean) -> Unit,
     onToggleChart: (String, Boolean) -> Unit,
     onToggleExtraChart: (String, Boolean) -> Unit,
     onReorderTiles: (List<String>) -> Unit,
@@ -1177,9 +1202,17 @@ private fun CustomizeSheet(
                                 modifier = Modifier.weight(1f),
                                 color = MaterialTheme.appColors.textPrimary,
                             )
+                            // One list, two stores - same split as the graphs:
+                            // tiles that ship on are tracked by what was HID,
+                            // the opt-in ones by what was switched ON.
+                            val isExtra = tileKey in EXTRA_TILE_KEYS
                             Switch(
-                                checked = tileKey !in hiddenTiles,
-                                onCheckedChange = { onToggleTile(tileKey, !it) },
+                                checked = if (isExtra) tileKey in extraTiles
+                                          else tileKey !in hiddenTiles,
+                                onCheckedChange = {
+                                    if (isExtra) onToggleExtraTile(tileKey, it)
+                                    else onToggleTile(tileKey, !it)
+                                },
                                 colors = themedSwitchColors(),
                             )
                         }
@@ -1521,7 +1554,20 @@ private const val SKELETON_REVEAL_MS = 120L
  */
 private val TILE_KEYS_DEFAULT = listOf(
     "distance", "duration", "points", "topSpeed", "avgSpeed", "avgMoving",
-    "battery", "voltage", "maxTemp", "maxPwm", "maxCurrent", "maxPower",
+    "battery", "batteryRange", "voltage", "maxTemp", "maxPwm",
+    "energy", "consumption", "maxCurrent", "maxPower",
+)
+
+/**
+ * Stat tiles that ship OFF, opt-in via the customizer. Same reasoning as
+ * [EXTRA_CHART_KEYS]: the tripHiddenTiles store records only what was HIDDEN, so
+ * it can't express "new and off until asked for". These live in the inverted
+ * tripExtraTiles store instead. `batteryRange` is the combined-trip-friendly
+ * start->end readout; `energy` / `consumption` were previously defined but never
+ * wired into the default order, so this also makes them reachable at last.
+ */
+private val EXTRA_TILE_KEYS = setOf(
+    "batteryRange", "energy", "consumption",
 )
 
 private val EXTRA_CHART_KEYS = setOf(
@@ -2380,6 +2426,18 @@ data class TripBatteryStats(
     val batteryMax: Int,
     val batteryMin: Int,
     val batteryConsumption: Int,
+    /** First valid battery reading (the session's true start %). Unlike
+     *  [batteryMax] this survives a mid-trip charge or regen: for a combined
+     *  trip that recharged between segments, the start is the earliest
+     *  segment's start, not the highest sample. */
+    val batteryStart: Int,
+    /** Last valid battery reading before the end-of-trip cliff (true end %). */
+    val batteryEnd: Int,
+    /** Total percent drained = sum of downward steps across valid samples.
+     *  Equals [batteryStart] - [batteryEnd] for a monotonic ride; for a
+     *  combined trip with a mid-charge it counts the real energy used
+     *  instead of pretending the recharge never happened. */
+    val batteryDrained: Int,
     val voltageMax: Float,
     val voltageMin: Float,
     /** Peak PWM / motor load (%) over valid non-NaN points. NaN when the trip has no PWM data. */
@@ -2424,7 +2482,7 @@ data class TripBatteryStats(
  */
 private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     if (points.isEmpty()) {
-        return TripBatteryStats(0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN)
+        return TripBatteryStats(0, 0, 0, 0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN)
     }
 
     val endIdx = trimEndIndex(points)
@@ -2433,6 +2491,11 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     val validBatteries = mutableListOf<Int>()
     val validVoltages = mutableListOf<Float>()
     var lastValidBattery: Int? = null
+    // Session start/end and total drained, walked in time order alongside the
+    // extremes. start = first valid sample, end = last valid sample (before the
+    // cliff), drained = sum of downward steps so a mid-charge counts honestly.
+    var firstValidBattery: Int? = null
+    var drained = 0
     // Peak PWM / current / power over the same validity mask. Tracked as a
     // running max so a single walk feeds every maximum; NaN samples are skipped.
     var maxPwm = Float.NaN
@@ -2444,6 +2507,8 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
             p.voltage > 0f &&
             (lastValidBattery == null || p.battery >= lastValidBattery!! - 10)
         if (valid) {
+            if (firstValidBattery == null) firstValidBattery = p.battery
+            lastValidBattery?.let { prev -> if (p.battery < prev) drained += prev - p.battery }
             validBatteries.add(p.battery)
             validVoltages.add(p.voltage)
             lastValidBattery = p.battery
@@ -2468,6 +2533,9 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
             batteryMax = rawBatMax,
             batteryMin = rawBatMin,
             batteryConsumption = (rawBatMax - rawBatMin).coerceAtLeast(0),
+            batteryStart = points.first().battery,
+            batteryEnd = points.last().battery,
+            batteryDrained = (points.first().battery - points.last().battery).coerceAtLeast(0),
             voltageMax = rawVoltMax,
             voltageMin = rawVoltMin,
             maxPwm = maxPwm,
@@ -2482,6 +2550,9 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
         batteryMax = batMax,
         batteryMin = batMin,
         batteryConsumption = (batMax - batMin).coerceAtLeast(0),
+        batteryStart = firstValidBattery ?: batMax,
+        batteryEnd = lastValidBattery ?: batMin,
+        batteryDrained = drained,
         voltageMax = validVoltages.max(),
         voltageMin = validVoltages.min(),
         maxPwm = maxPwm,

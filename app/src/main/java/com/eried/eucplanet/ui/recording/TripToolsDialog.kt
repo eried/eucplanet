@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CallMerge
 import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -65,6 +66,7 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
 fun TripToolsDialog(
     trip: TripRecord,
     onDismiss: () -> Unit,
+    onRename: () -> Unit,
     onChangeWheel: () -> Unit,
     onSplit: () -> Unit,
     onCombine: () -> Unit,
@@ -75,6 +77,11 @@ fun TripToolsDialog(
         title = { Text(stringResource(R.string.trip_tools_title)) },
         text = {
             Column {
+                ToolRow(
+                    Icons.Default.Edit,
+                    stringResource(R.string.trip_tools_rename),
+                    stringResource(R.string.trip_tools_rename_desc),
+                ) { onDismiss(); onRename() }
                 ToolRow(
                     // Not a vehicle glyph. This tool changes a LABEL, and the
                     // repo's terminology rule is that the device is a wheel,
@@ -96,6 +103,51 @@ fun TripToolsDialog(
             }
         },
         confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    )
+}
+
+/**
+ * Give a trip a name. Blank clears it, and the trip falls back to its date.
+ * The name is capped at 60 chars to match the CSV reader (and eucviewer).
+ */
+@Composable
+fun RenameTripDialog(
+    currentName: String?,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var text by remember { mutableStateOf(currentName.orEmpty()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
+        title = { Text(stringResource(R.string.trip_tools_rename)) },
+        text = {
+            Column {
+                Text(
+                    stringResource(R.string.trip_tools_rename_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it.take(60) },
+                    singleLine = true,
+                    colors = themedFieldColors(),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(text.trim()) }, shape = RoundedCornerShape(12.dp)) {
+                Text(stringResource(R.string.action_save))
+            }
+        },
         dismissButton = {
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(stringResource(R.string.action_cancel))

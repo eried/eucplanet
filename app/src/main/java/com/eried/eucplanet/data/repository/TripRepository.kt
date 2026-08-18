@@ -1127,7 +1127,62 @@ class TripRepository @Inject constructor(
             mac?.let { put("ble_mac", it.replace(":", "").replace("-", "").uppercase()) }
         }
         tripDao.updateWheelMeta(trip.id, meta.toString())
+        resyncEditedTrip(trip.id)
         return true
+    }
+
+    /**
+     * Give a trip a rider-set name (blank clears it, falling back to the date).
+     *
+     * The name is written into the CSV Extra column as `trip.name=` so it
+     * survives export and a Dropbox round-trip with no sidecar file, and cached
+     * on the DB row for a fast list / title. Same atomic .rewrite -> .bak swap
+     * as [changeTripWheel] so a mid-write kill can never leave the rider with
+     * neither file. Re-syncs afterwards.
+     */
+    suspend fun renameTrip(trip: TripRecord, name: String): Boolean {
+        val clean = name.trim().take(60)
+        val file = getTripFile(trip)
+        if (file.exists()) {
+            val tmp = File(file.parentFile, file.name + ".rewrite")
+            val ok = runCatching { TripDerive.rewriteTripName(file, tmp, clean) >= 0 }
+                .getOrElse { e ->
+                    Log.e(TAG, "Trip name rewrite failed for ${trip.fileName}", e)
+                    runCatching { tmp.delete() }
+                    false
+                }
+            if (ok && tmp.exists()) {
+                val bak = File(file.parentFile, file.name + ".bak")
+                runCatching { bak.delete() }
+                if (file.renameTo(bak) && tmp.renameTo(file)) {
+                    runCatching { bak.delete() }
+                } else {
+                    runCatching { if (!file.exists()) bak.renameTo(file) }
+                    runCatching { tmp.delete() }
+                    Log.e(TAG, "Could not swap in the renamed ${trip.fileName}")
+                }
+            }
+        }
+        tripDao.updateCustomName(trip.id, clean.ifBlank { null })
+        resyncEditedTrip(trip.id)
+        return true
+    }
+
+    /**
+     * Push a trip whose file was edited in place (rename / change wheel) back to
+     * the backup folder and Dropbox. The folder worker only walks uploadStatus
+     * 1/3, so the row is re-flagged first; Dropbox re-uploads on a size change.
+     * Best-effort and gated on the rider having each destination configured.
+     */
+    private suspend fun resyncEditedTrip(tripId: Long) {
+        val appSettings = settingsRepository.get()
+        if (appSettings.syncFolderUri != null) {
+            runCatching { tripDao.markPendingFolderUpload(tripId) }
+            runCatching { syncManager.enqueueTripUpload(appSettings) }
+        }
+        if (appSettings.dropboxAccessToken.isNotBlank()) {
+            runCatching { syncManager.enqueueDropboxSync() }
+        }
     }
 
     /**

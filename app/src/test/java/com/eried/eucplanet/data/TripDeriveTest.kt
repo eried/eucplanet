@@ -100,4 +100,67 @@ class TripDeriveTest {
         val dest = File(tmp.root, "joined3.csv")
         assertEquals(0, TripDerive.writeJoined(listOf(File(tmp.root, "gone.csv")), dest))
     }
+
+    // --- rewriteTripName (custom trip names, eucviewer-compatible) ---
+
+    private val headerExtra = "$header,Extra"
+
+    /** A CSV with an Extra column; [extras] is the Extra cell for each row. */
+    private fun extraCsv(name: String, extras: List<String>): File {
+        val f = tmp.newFile(name)
+        f.bufferedWriter().use { w ->
+            w.write(headerExtra); w.newLine()
+            extras.forEachIndexed { i, ex ->
+                w.write("2026-08-09 12:00:%02d.000,10,80,30,90,100,1.0,2.0,5.$i,$ex".format(i))
+                w.newLine()
+            }
+        }
+        return f
+    }
+
+    private fun tripNameCount(text: String) =
+        Regex("trip\\.name=", RegexOption.IGNORE_CASE).findAll(text).count()
+
+    @Test fun rewriteTripName_writesTheNameIntoTheFirstEmptyExtraCell() {
+        val src = extraCsv("n1.csv", listOf("", "wheel.name=V14", ""))
+        val dest = File(tmp.root, "n1_out.csv")
+        assertEquals(1, TripDerive.rewriteTripName(src, dest, "Morning commute"))
+        val text = dest.readText()
+        assertTrue(text.contains("trip.name=Morning commute")) // exact form eucviewer reads
+        assertEquals(1, tripNameCount(text))
+        assertTrue(text.contains("wheel.name=V14"))            // wheel identity untouched
+    }
+
+    @Test fun rewriteTripName_replacesAnExistingNameSoOnlyOneRemains() {
+        val src = extraCsv("n2.csv", listOf("trip.name=Old", "", ""))
+        val dest = File(tmp.root, "n2_out.csv")
+        TripDerive.rewriteTripName(src, dest, "New name")
+        val text = dest.readText()
+        assertTrue(text.contains("trip.name=New name"))
+        assertFalse(text.contains("trip.name=Old"))
+        assertEquals(1, tripNameCount(text))
+    }
+
+    @Test fun rewriteTripName_blankClearsTheName() {
+        val src = extraCsv("n3.csv", listOf("trip.name=Old", ""))
+        val dest = File(tmp.root, "n3_out.csv")
+        TripDerive.rewriteTripName(src, dest, "")
+        assertEquals(0, tripNameCount(dest.readText()))
+    }
+
+    @Test fun rewriteTripName_withNoExtraColumn_isZeroAndSafe() {
+        val src = csv("n4.csv", 2) // header carries no Extra column
+        val dest = File(tmp.root, "n4_out.csv")
+        assertEquals(0, TripDerive.rewriteTripName(src, dest, "Whatever"))
+    }
+
+    @Test fun rewriteTripName_sanitisesCommasSoFramingSurvives() {
+        val src = extraCsv("n5.csv", listOf("", ""))
+        val dest = File(tmp.root, "n5_out.csv")
+        TripDerive.rewriteTripName(src, dest, "A, B, C")
+        val lines = dest.readLines().filter { it.isNotBlank() }
+        val cols = lines.first().split(",").size
+        lines.drop(1).forEach { assertEquals(cols, it.split(",").size) } // no extra columns
+        assertTrue(dest.readText().contains("trip.name=A B C"))
+    }
 }

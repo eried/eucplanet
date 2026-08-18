@@ -20,5 +20,8 @@ data class TripRecord(
     val eucstatsValidation: String? = null,  // "validated" | "flagged"
     val isMockLocation: Boolean = false,     // any fix during recording was mock
     val sampleCount: Int = 0,                // CSV data rows
-    val wheelMetaJson: String? = null        // {brand,model,serial,ble_mac,ble_name,firmware}
+    val wheelMetaJson: String? = null,       // {brand,model,serial,ble_mac,ble_name,firmware}
+    // Rider-set trip name; null = fall back to the formatted date. Also written
+    // into the CSV Extra column as trip.name= so it survives export / Dropbox.
+    val customName: String? = null
 )

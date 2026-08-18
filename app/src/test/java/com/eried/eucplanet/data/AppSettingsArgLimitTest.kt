@@ -56,13 +56,17 @@ class AppSettingsArgLimitTest {
         // crash report. Moving the voice report flags into VoiceReportSettings
         // bought back 17 slots. Update this when the usage genuinely changes,
         // and prefer nesting over spending the headroom.
+        // 246: trip-details added tripExtraTiles, the opt-in stat-tile store
+        // (start->end battery / energy / consumption), a sibling of the existing
+        // flat tripExtraCharts. 9 slots of headroom remain; if it tightens, the
+        // six flat trip* customizer fields are the group to nest first.
         // 245: merged next-experimental brought the auto-volume connected flag,
         // on top of the PIP mode field.
         // 242: the Phone HUD added an enable flag plus the preset name and its
         // cached JSON. 239 before that.
         // 239: the widget's nested settings added a field, which also crossed a
         // 32-property boundary and so cost a second bitmask slot.
-        val expectedSlots = 245
+        val expectedSlots = 246
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

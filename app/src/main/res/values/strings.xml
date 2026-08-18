@@ -220,6 +220,7 @@
 
     <!-- Metric labels for the dashboard layout chips -->
     <string name="metric_chip_battery">Battery</string>
+    <string name="metric_chip_battery_range">Battery start → end</string>
     <string name="metric_chip_temperature">Temperature</string>
     <string name="metric_chip_voltage">Voltage</string>
     <string name="metric_chip_current">Amps</string>
@@ -1213,6 +1214,7 @@
     <string name="recording_summary_energy">Energy</string>
     <string name="recording_summary_consumption">Consumption</string>
     <string name="recording_summary_battery">Battery (-%1$d%%)</string>
+    <string name="recording_summary_battery_range">Start→end (-%1$d%%)</string>
     <string name="recording_summary_voltage">Voltage</string>
     <string name="recording_summary_avg_moving">Avg Moving</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
@@ -1285,6 +1287,10 @@
     <string name="trip_section_saved">Section saved as a new trip</string>
     <string name="trip_section_failed">Could not save the section</string>
     <string name="trip_tools_title">Trip tools</string>
+    <string name="trip_tools_rename">Rename trip</string>
+    <string name="trip_tools_rename_desc">Give this ride a name. Stored in its file, so it travels with exports and sync.</string>
+    <string name="trip_tools_rename_hint">Leave blank to use the date.</string>
+    <string name="trip_tools_renamed">Trip renamed</string>
     <string name="trip_tools_change_wheel">Change wheel</string>
     <string name="trip_tools_change_wheel_desc">Correct which wheel this ride was on. Updates the trip and its file.</string>
     <string name="trip_tools_wheel_other">Another wheel</string>

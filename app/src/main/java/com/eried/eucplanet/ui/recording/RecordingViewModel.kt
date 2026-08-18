@@ -187,6 +187,12 @@ class RecordingViewModel @Inject constructor(
         .map { csvToList(it.tripExtraCharts).toSet() }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
 
+    /** Extra stat tiles the rider switched on (start battery, energy, consumption).
+     *  Empty = the original tiles only. */
+    val tripExtraTiles: StateFlow<Set<String>> = settingsRepository.settings
+        .map { csvToList(it.tripExtraTiles).toSet() }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
+
     /** Show or hide a stat tile, persisting the compact hidden-keys CSV. */
     fun setTileHidden(key: String, hidden: Boolean) {
         viewModelScope.launch {
@@ -224,6 +230,19 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
+    /** Switch an opt-in extra stat tile on or off. Same inverted store as
+     *  [setExtraChart]: these ship OFF, so the set records only what was
+     *  switched ON. */
+    fun setExtraTile(key: String, enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                val cur = csvToList(s.tripExtraTiles).toMutableSet()
+                if (enabled) cur.add(key) else cur.remove(key)
+                s.copy(tripExtraTiles = cur.joinToString(","))
+            }
+        }
+    }
+
     /** Persist the rider's stat-tile display order as a compact CSV of tile keys. */
     fun setTileOrder(order: List<String>) {
         viewModelScope.launch {
@@ -248,6 +267,7 @@ class RecordingViewModel @Inject constructor(
                     tripHiddenTiles = "",
                     tripHiddenCharts = "",
                     tripExtraCharts = "",
+                    tripExtraTiles = "",
                     tripTileOrder = "",
                     tripChartOrder = "",
                 )
@@ -773,6 +793,15 @@ class RecordingViewModel @Inject constructor(
         viewModelScope.launch {
             tripRepository.changeTripWheel(trip, bleName, mac = null)
             _toasts.send(context.getString(R.string.trip_tools_wheel_changed, bleName))
+        }
+    }
+
+    /** Rename a trip (blank clears it). Writes the name into the CSV and DB and
+     *  re-syncs the file to the folder / Dropbox. */
+    fun renameTrip(trip: TripRecord, name: String) {
+        viewModelScope.launch {
+            tripRepository.renameTrip(trip, name)
+            _toasts.send(context.getString(R.string.trip_tools_renamed))
         }
     }
 
