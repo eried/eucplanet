@@ -6468,28 +6468,31 @@ private fun SpeedTab(
         HintText(stringResource(R.string.battery_percent_caption), small = true)
         val bp = settings.batteryPercent
         val detectedSeriesCells by viewModel.detectedSeriesCells.collectAsState()
-        // Three answers to one question, in one control: the wheel's own
-        // number, a lithium discharge curve, or a floor the rider names. Two
-        // switches read as independent settings when they never were.
-        val batteryModeEntries = listOf(
-            BatteryPercentSettings.MODE_WHEEL to
-                stringResource(R.string.battery_percent_mode_wheel),
-            BatteryPercentSettings.MODE_CURVE to
-                stringResource(R.string.battery_percent_mode_curve),
-            BatteryPercentSettings.MODE_CUSTOM to
-                stringResource(R.string.battery_percent_mode_custom),
+        // One question, two sources: the wheel's own number, or worked out from
+        // pack voltage. The estimate method - the lithium curve, or a custom
+        // empty point - is a power-user detail, tucked under Advanced below.
+        val batteryFromVoltage = bp.mode != BatteryPercentSettings.MODE_WHEEL
+        val batterySourceEntries = listOf(
+            false to stringResource(R.string.battery_percent_mode_wheel),
+            true to stringResource(R.string.battery_percent_mode_voltage),
         )
         Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
             SingleChoiceSegmentedButtonRow(
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
-                batteryModeEntries.forEachIndexed { index, (key, label) ->
+                batterySourceEntries.forEachIndexed { index, (voltage, label) ->
                     SegmentedButton(
                         modifier = Modifier.fillMaxHeight(),
-                        selected = key == bp.mode,
-                        onClick = { viewModel.updateBatteryPercentMode(key) },
+                        selected = voltage == batteryFromVoltage,
+                        // Voltage defaults to the curve; Wheel is the raw number.
+                        onClick = {
+                            viewModel.updateBatteryPercentMode(
+                                if (voltage) BatteryPercentSettings.MODE_CURVE
+                                else BatteryPercentSettings.MODE_WHEEL
+                            )
+                        },
                         shape = SegmentedButtonDefaults.itemShape(
-                            index, batteryModeEntries.size,
+                            index, batterySourceEntries.size,
                             baseShape = RoundedCornerShape(12.dp)
                         ),
                         colors = themedSegmentedColors(),
@@ -6498,13 +6501,73 @@ private fun SpeedTab(
             }
             FieldNotchLabel(stringResource(R.string.battery_percent_source))
         }
-        if (bp.mode != BatteryPercentSettings.MODE_WHEEL) {
+        if (batteryFromVoltage) {
+            // Cells in series: most wheel families state their own, so the manual
+            // stepper only appears when the connected wheel stays silent.
+            if (detectedSeriesCells == null) {
+                NumberUpDown(
+                    value = bp.seriesCells,
+                    onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
+                    range = BatteryPercentSettings.SERIES_RANGE,
+                    step = 1,
+                    suffix = "S",
+                    label = stringResource(R.string.battery_percent_series_cells),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                )
+                HintText(stringResource(R.string.battery_percent_cells_manual), small = true)
+            } else {
+                HintText(
+                    stringResource(R.string.battery_percent_cells_from_wheel, detectedSeriesCells!!),
+                    small = true,
+                )
+            }
+            // Advanced: swap the built-in lithium curve for a straight line from a
+            // rider-named empty point. Curve is the default; opening this and
+            // switching it on flips the mode to CUSTOM.
+            var batteryAdvancedOpen by remember {
+                mutableStateOf(bp.mode == BatteryPercentSettings.MODE_CUSTOM)
+            }
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { batteryAdvancedOpen = !batteryAdvancedOpen }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Only meaningful for the custom scale; the curve has its own
-                // fixed endpoints.
+                Icon(
+                    if (batteryAdvancedOpen) Icons.Default.KeyboardArrowUp
+                    else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = MaterialTheme.appColors.textSecondary,
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    stringResource(R.string.tab_advanced),
+                    color = MaterialTheme.appColors.textSecondary,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+            if (batteryAdvancedOpen) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.battery_percent_custom_floor),
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.appColors.textPrimary,
+                    )
+                    Switch(
+                        checked = bp.mode == BatteryPercentSettings.MODE_CUSTOM,
+                        onCheckedChange = { on ->
+                            viewModel.updateBatteryPercentMode(
+                                if (on) BatteryPercentSettings.MODE_CUSTOM
+                                else BatteryPercentSettings.MODE_CURVE
+                            )
+                        },
+                        colors = themedSwitchColors(),
+                    )
+                }
                 if (bp.mode == BatteryPercentSettings.MODE_CUSTOM) {
                     NumberUpDown(
                         value = bp.minimumCellVoltageMv,
@@ -6515,28 +6578,10 @@ private fun SpeedTab(
                         label = stringResource(R.string.battery_percent_min_cell),
                         format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
                         parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     )
-                } else Spacer(Modifier.weight(1f))
-                // The wheel supplies this when its model states one, so the
-                // rider only needs it for wheels that do not.
-                NumberUpDown(
-                    value = bp.seriesCells,
-                    onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
-                    range = BatteryPercentSettings.SERIES_RANGE,
-                    step = 1,
-                    suffix = "S",
-                    label = stringResource(R.string.battery_percent_series_cells),
-                    enabled = detectedSeriesCells == null,
-                    modifier = Modifier.weight(1f),
-                )
+                }
             }
-            HintText(
-                detectedSeriesCells?.let {
-                    stringResource(R.string.battery_percent_cells_from_wheel, it)
-                } ?: stringResource(R.string.battery_percent_cells_manual),
-                small = true,
-            )
         }
 
         SectionHeader(stringResource(R.string.section_speed_limits))
