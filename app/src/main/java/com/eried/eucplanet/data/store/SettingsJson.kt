@@ -190,6 +190,7 @@ object SettingsJson {
         put("tripChartOrder", s.tripChartOrder)
         put("tripHiddenCharts", s.tripHiddenCharts)
         put("tripExtraCharts", s.tripExtraCharts)
+        put("tripExtraTiles", s.tripExtraTiles)
         put("widgetMetrics", s.widget.metrics)
         put("widgetActions", s.widget.actions)
         put("widgetStandaloneActions", s.widget.standaloneActions)
@@ -514,6 +515,7 @@ object SettingsJson {
         tripChartOrder = j.optString("tripChartOrder", base.tripChartOrder),
         tripHiddenCharts = j.optString("tripHiddenCharts", base.tripHiddenCharts),
         tripExtraCharts = j.optString("tripExtraCharts", base.tripExtraCharts),
+        tripExtraTiles = j.optString("tripExtraTiles", base.tripExtraTiles),
         widget = com.eried.eucplanet.data.model.WidgetSettings(
             metrics = j.optString("widgetMetrics", base.widget.metrics),
             actions = j.optString("widgetActions", base.widget.actions),

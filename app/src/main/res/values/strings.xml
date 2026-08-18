@@ -220,6 +220,7 @@
 
     <!-- Metric labels for the dashboard layout chips -->
     <string name="metric_chip_battery">Battery</string>
+    <string name="metric_chip_battery_range">Battery start → end</string>
     <string name="metric_chip_temperature">Temperature</string>
     <string name="metric_chip_voltage">Voltage</string>
     <string name="metric_chip_current">Amps</string>
@@ -1213,6 +1214,7 @@
     <string name="recording_summary_energy">Energy</string>
     <string name="recording_summary_consumption">Consumption</string>
     <string name="recording_summary_battery">Battery (-%1$d%%)</string>
+    <string name="recording_summary_battery_range">Start→end (-%1$d%%)</string>
     <string name="recording_summary_voltage">Voltage</string>
     <string name="recording_summary_avg_moving">Avg Moving</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>

@@ -256,7 +256,7 @@ fun RecordingScreen(
     }
 
     combineToolTrip?.let { trip ->
-        val dateFmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+        val dateFmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
         CombineTripsDialog(
             anchor = trip,
             // Finished trips only: a recording still being written has no end and
@@ -571,7 +571,7 @@ private fun TripCard(
     onRetryOnline: () -> Unit = {}
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
-    val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+    val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
     val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
 
     // Live ticking elapsed time for the recording trip
@@ -703,7 +703,7 @@ private fun PendingStatusIcon() {
 
 @Composable
 private fun UploadStatusIcon(trip: TripRecord) {
-    val fmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+    val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
 
     val uploadedAtText = trip.uploadedAt?.let { fmt.format(Date(it)) }
     val msg = uploadedAtText?.let {
