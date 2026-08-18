@@ -271,10 +271,7 @@ class HudServer @Inject constructor(
      * Riders never opened Service Mode for normal use, so this stays cheap:
      * `DiagnosticsLogger.note` is a no-op when the logger isn't enabled.
      */
-    private fun log(msg: String) {
-        Log.i(TAG, "[disc] $msg")
-        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("hud_link: $msg")
-    }
+    private fun log(msg: String) = hudLinkNote(TAG, msg)
 
     private val demo = HudDemoSource()
     @Volatile private var latest: HudState = HudState()
@@ -605,6 +602,15 @@ class HudServer @Inject constructor(
         manualIp: String,
         manualPort: Int,
     ): Pair<String?, ConnectionSource> = kotlinx.coroutines.coroutineScope {
+        // Which networks the phone is on decides what every channel below can
+        // possibly reach, and it is the first thing to check when all of them
+        // come up empty. Logged per search because it changes: a hotspot coming
+        // up, home WiFi dropping as the rider leaves.
+        val phoneNets = runCatching { subnetProbe.candidateIpv4Cidrs() }.getOrDefault(emptyList())
+        log(
+            if (phoneNets.isEmpty()) "Phone networks: none (no WiFi, no hotspot)"
+            else "Phone networks: $phoneNets"
+        )
         log("Searching (all channels in parallel)…")
         val results = kotlinx.coroutines.channels.Channel<Pair<String, ConnectionSource>>(
             kotlinx.coroutines.channels.Channel.UNLIMITED
@@ -625,7 +631,19 @@ class HudServer @Inject constructor(
                 }
                 kotlinx.coroutines.delay(udpPollIntervalMs)
             }
-            log("UDP beacon: no broadcast received")
+            // "Never heard one" points off the phone: the HUD is on another
+            // network or out of range. "Heard some, none lately" points at the
+            // link going away under us, which is a different problem.
+            val heard = udpListener.totalReceived
+            val lastRx = udpListener.lastReceiveAtMs
+            val bindErr = udpListener.lastBindError
+            val since = if (lastRx == 0L) "never"
+                else "${(System.currentTimeMillis() - lastRx) / 1000}s ago"
+            log(
+                "UDP beacon: no broadcast received " +
+                    "(listener: $heard total, last $since" +
+                    (if (bindErr.isNotBlank()) ", bind error: $bindErr" else "") + ")"
+            )
         }
 
         val mdnsJob = launch {
