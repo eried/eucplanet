@@ -10756,6 +10756,12 @@ private fun HudIntegrationSection(
                     }
                 },
                 label = { Text(ipLabel) },
+                // Every keystroke is saved, so a half-typed address survives
+                // as a real setting. Flagging it while it is incomplete is the
+                // only warning the rider gets: with auto-find ON this whole
+                // row is hidden, and a stale value sits there unseen.
+                isError = ipText.isNotBlank() &&
+                    !com.eried.eucplanet.hud.protocol.HudDiscovery.isValidIpv4(ipText),
                 // 192.168.43.42 looks like a typical Android-hotspot
                 // client IP (43.0/24 is the legacy AOSP softAP subnet,
                 // .42 is obviously placeholder-ish so it doesn't get

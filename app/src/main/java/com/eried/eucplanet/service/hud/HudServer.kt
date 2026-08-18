@@ -557,10 +557,18 @@ class HudServer @Inject constructor(
         manualPort: Int,
     ): Pair<String?, ConnectionSource> {
         val typedPort = s?.hudServerPort?.takeIf { it in 1..65535 }
-        if (manualIp.isNotBlank()) {
+        if (manualIp.isNotBlank() &&
+            com.eried.eucplanet.hud.protocol.HudDiscovery.isValidIpv4(manualIp)
+        ) {
             // Always honour the typed IP. Port falls back to default 28080
             // when the rider left it blank / invalid.
             return "$manualIp:$manualPort" to ConnectionSource.MANUAL
+        }
+        if (manualIp.isNotBlank()) {
+            // Auto-find is off, so there is no other channel to fall back to.
+            // Say which value is wrong rather than looping on a DNS failure.
+            log("Manual IP \"$manualIp\" is not a complete address - fix it in Settings")
+            return null to ConnectionSource.NONE
         }
         // IP not set: rely on mDNS for the address, attach the typed port
         // if the rider set one.
@@ -616,7 +624,7 @@ class HudServer @Inject constructor(
             kotlinx.coroutines.channels.Channel.UNLIMITED
         )
 
-        val udpJob = launch {
+        val udpJob = scope.launch {
             // Check the listener's cache repeatedly so a freshly-arrived
             // beacon shows up within ~200 ms instead of waiting for the
             // dial loop's next iteration. Bounded so we eventually give
@@ -646,18 +654,25 @@ class HudServer @Inject constructor(
             )
         }
 
-        val mdnsJob = launch {
+        val mdnsJob = scope.launch {
             log("mDNS: browsing _eucplanet._tcp.local…")
+            // Elapsed, not the configured timeout. The old line always claimed
+            // the full timeout, so a cancelled browse (another channel won
+            // first) read as "the network swallowed our query" - which sent a
+            // real investigation looking for multicast filtering that was
+            // never there. A cancelled job now logs nothing at all.
+            val startedAt = System.currentTimeMillis()
             val v = resolveViaMdns()
+            val tookMs = System.currentTimeMillis() - startedAt
             if (v != null) {
                 log("mDNS: found $v")
                 results.send(v to ConnectionSource.MDNS)
             } else {
-                log("mDNS: no answer in ${mdnsTimeoutMs / 1000}s")
+                log("mDNS: no answer in ${"%.1f".format(tookMs / 1000f)}s")
             }
         }
 
-        val probeJob = launch {
+        val probeJob = scope.launch {
             // Last resort, and gated: this only runs if the faster mDNS / UDP
             // paths did not already find the HUD (a win cancels this job). It
             // starts immediately - no stagger - because the scan is bounded
@@ -673,22 +688,47 @@ class HudServer @Inject constructor(
             }
         }
 
-        val manualJob = if (manualIp.isNotBlank()) {
-            launch {
+        val manualUsable = ManualHint.decide(manualIp, beaconAgeMs = null, freshnessMs = 0L) !=
+            ManualHintDecision.IGNORE_INCOMPLETE
+        if (manualIp.isNotBlank() && !manualUsable) {
+            // Saved on every keystroke and never checked, so a half-typed
+            // address persists. Dialling it costs a DNS failure plus the whole
+            // backoff, every cycle, forever.
+            log("Manual hint: \"$manualIp\" is not a complete address, ignoring it")
+        }
+        val manualJob = if (manualUsable) {
+            scope.launch {
                 // Small grace period so a healthy UDP / mDNS hit wins the
                 // race before we fall back to a possibly-stale manual IP.
                 kotlinx.coroutines.delay(manualHintDelayMs)
+                val sighting = udpListener.latest.value
+                val decision = ManualHint.decide(
+                    manualIp,
+                    beaconAgeMs = sighting?.let { System.currentTimeMillis() - it.receivedAtMs },
+                    freshnessMs = udpBeaconFreshnessMs,
+                )
+                if (decision == ManualHintDecision.HOLD_FOR_BEACON) {
+                    log("Manual hint: holding back, a beacon from ${sighting?.ip} is live")
+                    return@launch
+                }
                 log("Manual hint: $manualIp:$manualPort")
                 results.send("$manualIp:$manualPort" to ConnectionSource.MANUAL)
             }
         } else null
 
         val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
-        val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
-            results.receive()
+        try {
+            val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
+                results.receive()
+            }
+            if (winner != null) winner else null to ConnectionSource.NONE
+        } finally {
+            // Cancel and walk away. These used to be children of this scope, so
+            // the dial waited for every loser to unwind first: a subnet scan
+            // finishing its in-flight connects, JmDNS letting go of its socket.
+            // That was a second per connect, spent after the answer was known.
+            allJobs.forEach { it.cancel() }
         }
-        allJobs.forEach { it.cancel() }
-        if (winner != null) winner else null to ConnectionSource.NONE
     }
 
     /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns
@@ -741,12 +781,27 @@ class HudServer @Inject constructor(
             }
             if (instances.isEmpty()) return null
             return kotlinx.coroutines.withTimeoutOrNull(mdnsTimeoutMs) { resolved.await() }
+        } catch (c: kotlinx.coroutines.CancellationException) {
+            // Another channel won the race. Catching this as a Throwable (as
+            // this did) swallowed the cancellation, so the job carried on and
+            // reported itself as a timeout it never reached.
+            throw c
         } catch (t: Throwable) {
             Log.w(TAG, "mDNS resolve failed: ${t.message}")
             return null
         } finally {
-            // close() unregisters listeners and frees the multicast socket.
-            instances.forEach { md -> try { md.close() } catch (_: Throwable) {} }
+            // close() unregisters listeners and frees the multicast socket,
+            // and it BLOCKS for about two seconds sending goodbyes. Closing it
+            // here put those two seconds between knowing the answer and
+            // dialling it, because coroutineScope waits for this child: every
+            // connect paid it, on every network. Hand the close to the server
+            // scope so discovery is free to get on with it.
+            val toClose = instances.toList()
+            if (toClose.isNotEmpty()) {
+                scope.launch(Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
+                    toClose.forEach { md -> runCatching { md.close() } }
+                }
+            }
         }
     }
 
