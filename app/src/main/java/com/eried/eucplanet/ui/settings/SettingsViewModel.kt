@@ -343,8 +343,13 @@ class SettingsViewModel @Inject constructor(
 
     private fun update(transform: AppSettings.() -> AppSettings) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            settingsRepository.update(current.transform())
+            // One coroutine per call, so a text field writing on every keystroke
+            // has a dozen of these in flight at once. Reading the settings here
+            // and writing the whole object back made them clobber each other:
+            // the value that stuck was whichever coroutine finished last, not
+            // whichever the rider typed last. Hand the transform to the store so
+            // the read happens inside its transaction.
+            settingsRepository.update { it.transform() }
         }
     }
 
