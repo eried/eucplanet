@@ -783,15 +783,10 @@
     <string name="section_battery_percent">Battery calibration</string>
     <string name="battery_override_label">Override the wheel\'s percentage</string>
     <string name="battery_override_hint">Estimate it from pack voltage</string>
-    <string name="battery_percent_min_cell_desc">Cell voltage counted as empty</string>
-    <string name="battery_percent_caption">Work the percentage out from pack voltage when the wheel\'s own number disagrees with its display. Shown in the app only, never sent to the wheel.</string>
-    <string name="battery_percent_source">Percentage from</string>
-    <string name="battery_percent_mode_wheel">Wheel</string>
-    <string name="battery_percent_mode_voltage">Voltage</string>
     <string name="battery_percent_custom_floor">Custom empty point</string>
-    <string name="battery_percent_mode_curve">Lithium curve</string>
-    <string name="battery_percent_mode_custom">Custom</string>
     <string name="battery_percent_min_cell">Empty at</string>
+    <string name="battery_percent_max_cell">Full at</string>
+    <string name="battery_percent_cell_range_desc">Per-cell voltage at 0%% and 100%%</string>
     <string name="battery_percent_series_cells">Cells in series</string>
     <string name="battery_percent_cells_from_wheel">Taken from the wheel: %1$d in series.</string>
     <string name="battery_percent_cells_manual">Set the count your wheel uses, or the percentage will be wrong.</string>

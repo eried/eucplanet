@@ -133,6 +133,7 @@ object SettingsJson {
         put("batteryPercent", JSONObject().apply {
             put("mode", s.batteryPercent.mode)
             put("minimumCellVoltageMv", s.batteryPercent.minimumCellVoltageMv)
+            put("maximumCellVoltageMv", s.batteryPercent.maximumCellVoltageMv)
             put("seriesCells", s.batteryPercent.seriesCells)
         })
         put("proximityLock", JSONObject().apply {
@@ -458,6 +459,8 @@ object SettingsJson {
                 },
                 minimumCellVoltageMv =
                     b.optInt("minimumCellVoltageMv", base.batteryPercent.minimumCellVoltageMv),
+                maximumCellVoltageMv =
+                    b.optInt("maximumCellVoltageMv", base.batteryPercent.maximumCellVoltageMv),
                 seriesCells = b.optInt("seriesCells", base.batteryPercent.seriesCells),
             )
         } ?: base.batteryPercent,

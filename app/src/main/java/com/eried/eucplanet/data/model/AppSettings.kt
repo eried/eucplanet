@@ -1084,6 +1084,10 @@ data class BatteryPercentSettings(
     val mode: String = MODE_WHEEL,
     /** Lower endpoint of the custom scale, in millivolts per cell. */
     val minimumCellVoltageMv: Int = 3300,
+    /** Upper endpoint of the custom scale (full), in millivolts per cell. Lets
+     *  the custom scale fit non-Li-ion packs (LFP full ~3.65 V) instead of the
+     *  fixed 4.20 V the curve assumes. */
+    val maximumCellVoltageMv: Int = 4200,
     /**
      * Cells in series, for wheels whose model does not state it. Ignored when
      * the connected wheel's model knows its own. Saved per wheel: it belongs
@@ -1102,12 +1106,16 @@ data class BatteryPercentSettings(
          * rider feels.
          */
         const val MODE_CURVE = "CURVE"
-        /** A straight line from [minimumCellVoltageMv] to 4.20 V per cell. */
+        /** A straight line from [minimumCellVoltageMv] to [maximumCellVoltageMv]. */
         const val MODE_CUSTOM = "CUSTOM"
         val MODE_VALUES = setOf(MODE_WHEEL, MODE_CURVE, MODE_CUSTOM)
 
         const val MIN_CELL_MV = 2500
         const val MAX_CELL_MV = 4000
+        // "Full at" endpoint. LFP packs top out near 3.65 V/cell, standard
+        // Li-ion near 4.20 V, a few high-voltage packs reach 4.35 V.
+        const val MIN_FULL_MV = 3400
+        const val MAX_FULL_MV = 4350
         val SERIES_RANGE = 1..60
     }
 }

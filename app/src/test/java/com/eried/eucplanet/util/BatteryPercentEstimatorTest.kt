@@ -16,6 +16,10 @@ class BatteryPercentEstimatorTest {
     private fun customMin(mv: Int) = BatteryPercentSettings(
         mode = BatteryPercentSettings.MODE_CUSTOM, minimumCellVoltageMv = mv,
     )
+    private fun customRange(minMv: Int, maxMv: Int) = BatteryPercentSettings(
+        mode = BatteryPercentSettings.MODE_CUSTOM,
+        minimumCellVoltageMv = minMv, maximumCellVoltageMv = maxMv,
+    )
 
     private fun est(v: Float, cells: Int, s: BatteryPercentSettings, reported: Int = 77) =
         BatteryPercentEstimator.estimate(v, cells, s, reported)
@@ -43,6 +47,16 @@ class BatteryPercentEstimatorTest {
         assertEquals(0, est(99.0f, 30, s))
         assertEquals(50, est(112.5f, 30, s))
         assertEquals(100, est(126.0f, 30, s))
+    }
+
+    @Test
+    fun `a custom full point below 4_20 scales an LFP pack`() {
+        // An LFP pack tops out near 3.65 V/cell, not 4.20. On a 24S pack the
+        // rider sets empty 2.80, full 3.65, so full voltage reads 100% where the
+        // old fixed-4.20 scale would have stopped at 60%.
+        val s = customRange(2800, 3650)
+        assertEquals(0, est(24 * 2.80f, 24, s))
+        assertEquals(100, est(24 * 3.65f, 24, s))
     }
 
     @Test

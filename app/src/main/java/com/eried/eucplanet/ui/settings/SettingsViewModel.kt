@@ -580,6 +580,11 @@ class SettingsViewModel @Inject constructor(
             minimumCellVoltageMv = v.coerceIn(
                 BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV)))
     }
+    fun updateBatteryPercentMaximumMv(v: Int) = update {
+        copy(batteryPercent = batteryPercent.copy(
+            maximumCellVoltageMv = v.coerceIn(
+                BatteryPercentSettings.MIN_FULL_MV, BatteryPercentSettings.MAX_FULL_MV)))
+    }
     fun updateBatteryPercentSeriesCells(v: Int) = update {
         copy(batteryPercent = batteryPercent.copy(
             seriesCells = v.coerceIn(

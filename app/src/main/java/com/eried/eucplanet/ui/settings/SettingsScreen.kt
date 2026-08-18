@@ -538,9 +538,9 @@ fun SettingsScreen(
         stringResource(R.string.speed_legal_alarm),
         stringResource(R.string.section_speed_calibration),
         stringResource(R.string.section_battery_percent),
-        stringResource(R.string.battery_percent_source),
-        stringResource(R.string.battery_percent_mode_curve),
-        stringResource(R.string.battery_percent_mode_custom),
+        stringResource(R.string.battery_override_label),
+        stringResource(R.string.battery_percent_min_cell),
+        stringResource(R.string.battery_percent_max_cell),
         stringResource(R.string.battery_percent_series_cells)
     ).joinToString(" ")
 
@@ -6499,31 +6499,23 @@ private fun SpeedTab(
         }
         if (batteryOverride) {
             // Cells in series: most wheel families state their own, so the manual
-            // stepper only appears when the connected wheel stays silent.
+            // stepper only appears when the connected wheel stays silent. Full
+            // width, matching the speed-limit fields.
             if (detectedSeriesCells == null) {
-                Row(
+                NumberUpDown(
+                    value = bp.seriesCells,
+                    onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
+                    range = BatteryPercentSettings.SERIES_RANGE,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1.4f)) {
-                        NumberUpDown(
-                            value = bp.seriesCells,
-                            onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
-                            range = BatteryPercentSettings.SERIES_RANGE,
-                            modifier = Modifier.fillMaxWidth(),
-                            step = 1,
-                            suffix = "S",
-                            label = stringResource(R.string.battery_percent_series_cells),
-                            numberAlign = TextAlign.End,
-                        )
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    HintText(
-                        stringResource(R.string.battery_percent_cells_manual),
-                        modifier = Modifier.weight(1f),
-                        small = true,
-                    )
-                }
+                    step = 1,
+                    suffix = "S",
+                    label = stringResource(R.string.battery_percent_series_cells),
+                    numberAlign = TextAlign.End,
+                )
+                HintText(
+                    stringResource(R.string.battery_percent_cells_manual),
+                    small = true,
+                )
             } else {
                 HintText(
                     stringResource(R.string.battery_percent_cells_from_wheel, detectedSeriesCells!!),
@@ -6578,31 +6570,41 @@ private fun SpeedTab(
                     )
                 }
                 if (bp.mode == BatteryPercentSettings.MODE_CUSTOM) {
+                    // Empty at | Full at, half width each, like the speed limits.
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(Modifier.weight(1.4f)) {
-                            NumberUpDown(
-                                value = bp.minimumCellVoltageMv,
-                                onValueChange = { viewModel.updateBatteryPercentMinimumMv(it) },
-                                range = BatteryPercentSettings.MIN_CELL_MV..BatteryPercentSettings.MAX_CELL_MV,
-                                modifier = Modifier.fillMaxWidth(),
-                                step = 50,
-                                suffix = "V",
-                                label = stringResource(R.string.battery_percent_min_cell),
-                                format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
-                                parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
-                                numberAlign = TextAlign.End,
-                            )
-                        }
-                        Spacer(Modifier.width(10.dp))
-                        HintText(
-                            stringResource(R.string.battery_percent_min_cell_desc),
+                        NumberUpDown(
+                            value = bp.minimumCellVoltageMv,
+                            onValueChange = { viewModel.updateBatteryPercentMinimumMv(it) },
+                            range = BatteryPercentSettings.MIN_CELL_MV..BatteryPercentSettings.MAX_CELL_MV,
                             modifier = Modifier.weight(1f),
-                            small = true,
+                            step = 50,
+                            suffix = "V",
+                            label = stringResource(R.string.battery_percent_min_cell),
+                            format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
+                            parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
+                            numberAlign = TextAlign.End,
+                        )
+                        NumberUpDown(
+                            value = bp.maximumCellVoltageMv,
+                            onValueChange = { viewModel.updateBatteryPercentMaximumMv(it) },
+                            range = BatteryPercentSettings.MIN_FULL_MV..BatteryPercentSettings.MAX_FULL_MV,
+                            modifier = Modifier.weight(1f),
+                            step = 50,
+                            suffix = "V",
+                            label = stringResource(R.string.battery_percent_max_cell),
+                            format = { String.format(java.util.Locale.US, "%.2f", it / 1000f) },
+                            parse = { it.toFloatOrNull()?.let { v -> (v * 1000).roundToInt() } },
+                            numberAlign = TextAlign.End,
                         )
                     }
+                    HintText(
+                        stringResource(R.string.battery_percent_cell_range_desc),
+                        small = true,
+                    )
                 }
             }
         }

@@ -67,6 +67,8 @@ class SettingsRepository @Inject constructor(
                 ?: BatteryPercentSettings.MODE_WHEEL,
             minimumCellVoltageMv = batteryPercent.minimumCellVoltageMv.coerceIn(
                 BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV),
+            maximumCellVoltageMv = batteryPercent.maximumCellVoltageMv.coerceIn(
+                BatteryPercentSettings.MIN_FULL_MV, BatteryPercentSettings.MAX_FULL_MV),
             seriesCells = batteryPercent.seriesCells.coerceIn(
                 BatteryPercentSettings.SERIES_RANGE.first,
                 BatteryPercentSettings.SERIES_RANGE.last),

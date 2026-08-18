@@ -57,7 +57,11 @@ object BatteryPercentEstimator {
         val cellVoltage = voltage / seriesCells
         return when (settings.mode) {
             BatteryPercentSettings.MODE_CUSTOM ->
-                customMinimum(cellVoltage, settings.minimumCellVoltageMv)
+                customLinear(
+                    cellVoltage,
+                    settings.minimumCellVoltageMv,
+                    settings.maximumCellVoltageMv,
+                )
             BatteryPercentSettings.MODE_CURVE -> lithiumCurve(cellVoltage)
             // A mode we do not recognise is not a licence to invent a number.
             else -> reportedPercent
@@ -65,16 +69,20 @@ object BatteryPercentEstimator {
     }
 
     /**
-     * A straight line from the rider's floor to full. Clamped rather than
-     * trusted: the floor is also clamped, so a settings file carrying 4.5 V
-     * cannot invert the scale.
+     * A straight line from the rider's empty point to the rider's full point.
+     * Both ends are clamped, so a settings file carrying nonsense (a full below
+     * the empty) cannot invert the scale.
      */
-    private fun customMinimum(cellVoltage: Float, minimumMv: Int): Int {
+    private fun customLinear(cellVoltage: Float, minimumMv: Int, maximumMv: Int): Int {
         val minimum = minimumMv.coerceIn(
             BatteryPercentSettings.MIN_CELL_MV,
             BatteryPercentSettings.MAX_CELL_MV,
         ) / 1000f
-        val span = FULL_V_PER_CELL - minimum
+        val maximum = maximumMv.coerceIn(
+            BatteryPercentSettings.MIN_FULL_MV,
+            BatteryPercentSettings.MAX_FULL_MV,
+        ) / 1000f
+        val span = maximum - minimum
         if (span <= 0f) return 0
         return (((cellVoltage - minimum) * 100f) / span).toInt().coerceIn(0, 100)
     }
