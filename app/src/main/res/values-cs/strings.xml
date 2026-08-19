@@ -314,8 +314,6 @@
     <string name="hud_ip_label">IP adresa zařízení</string>
     <string name="hud_ip_incomplete">Zadejte celou adresu, například 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP adresa zařízení (automaticky)</string>
-    <string name="hud_auto_discover">Zjistit adresu spojení automaticky</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Hotspot telefonu je vypnutý. Ujistěte se, že HUD i telefon jsou na stejné síti WiFi.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu vysílá. Připojte HUD k WiFi tohoto telefonu a spojení se naváže.</string>
@@ -2019,4 +2017,16 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filtr</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Obojí</string>
+    <string name="hud_discovery_desc">Auto najde HUD samo. Pevná adresa použije jen adresu níže.</string>
+    <string name="hud_discovery_fixed">Pevná</string>
+    <string name="hud_discovery_mode">Režim hledání</string>
+    <string name="metric_chip_battery_range">Baterie start → konec</string>
+    <string name="recording_summary_battery_range">Start→konec (-%1$d%%)</string>
+    <string name="trip_tools_rename">Přejmenovat jízdu</string>
+    <string name="trip_tools_rename_desc">Pojmenujte tuto jízdu. Uloží se do jejího souboru, takže putuje s exporty i synchronizací.</string>
+    <string name="trip_tools_rename_hint">Nechte prázdné pro datum.</string>
+    <string name="trip_tools_renamed">Jízda přejmenována</string>
+    <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
 </resources>

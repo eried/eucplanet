@@ -1687,8 +1687,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Hücre voltaj verileri bekleniyor…</string>
     <string name="charging_tab_cells">Hücreler</string>
-    <string name="hud_auto_discover">Bağlantı adresini otomatik bul</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Tekerlek aramak için Bluetooth\'u açın.</string>
     <string name="scan_bluetooth_off_title">Bluetooth kapalı</string>
     <string name="scan_enable_bluetooth">Bluetooth\'u aç</string>
@@ -2214,6 +2212,17 @@
     <string name="adv_smoothing_window">Yumuşatma penceresi</string>
     <string name="adv_smoothing_window_desc">\"ortalama\" sürüş grafikleri ve yumuşatılmış sesli raporlar tarafından ortalaması alınan örnek sayısı. Sürüşler saniyede yaklaşık bir kez kaydedilir, bu yüzden bu değer saniye olarak okunur. Dikkat: yüksek değerler kısa sıçramaları gizler.</string>
     <string name="auto_volume_only_connected">Yalnızca bir teker bağlıyken</string>
+    <string name="hud_discovery_auto">Oto</string>
+    <string name="hud_discovery_both">İkisi de</string>
+    <string name="hud_discovery_desc">Oto, HUD\'u kendi bulur. Sabit yalnızca aşağıdaki adresi kullanır.</string>
+    <string name="hud_discovery_fixed">Sabit</string>
+    <string name="hud_discovery_mode">Arama modu</string>
+    <string name="metric_chip_battery_range">Batarya başlangıç → bitiş</string>
+    <string name="recording_summary_battery_range">Başlangıç→bitiş (-%1$d%%)</string>
+    <string name="trip_tools_rename">Sürüşü yeniden adlandır</string>
+    <string name="trip_tools_rename_desc">Bu sürüşe bir ad ver. Dosyasında saklanır, böylece dışa aktarma ve eşitlemeyle birlikte gider.</string>
+    <string name="trip_tools_rename_hint">Tarihi kullanmak için boş bırak.</string>
+    <string name="trip_tools_renamed">Sürüş yeniden adlandırıldı</string>
 </resources>
 
 

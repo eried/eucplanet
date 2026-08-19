@@ -1687,8 +1687,6 @@
     <string name="charging_cells_pack_n">팩 %1$d</string>
     <string name="charging_cells_waiting">셀 전압 데이터 대기 중…</string>
     <string name="charging_tab_cells">셀</string>
-    <string name="hud_auto_discover">링크 주소를 자동으로 검색</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">휠을 검색하려면 Bluetooth를 켜세요.</string>
     <string name="scan_bluetooth_off_title">Bluetooth가 꺼져 있습니다</string>
     <string name="scan_enable_bluetooth">Bluetooth 켜기</string>
@@ -2216,4 +2214,15 @@
     <string name="adv_smoothing_window">평활화 구간</string>
     <string name="adv_smoothing_window_desc">\"평균\" 트립 그래프와 평활화된 음성 보고에서 평균하는 샘플 수. 트립은 약 1초마다 기록되므로 이 값은 초 단위로 읽힙니다. 주의: 값이 높으면 짧은 스파이크가 가려집니다.</string>
     <string name="auto_volume_only_connected">휠이 연결된 경우에만</string>
+    <string name="hud_discovery_auto">자동</string>
+    <string name="hud_discovery_both">둘 다</string>
+    <string name="hud_discovery_desc">자동은 HUD를 스스로 찾습니다. 고정은 아래 주소만 사용합니다.</string>
+    <string name="hud_discovery_fixed">고정</string>
+    <string name="hud_discovery_mode">검색 모드</string>
+    <string name="metric_chip_battery_range">배터리 시작 → 끝</string>
+    <string name="recording_summary_battery_range">시작→끝 (-%1$d%%)</string>
+    <string name="trip_tools_rename">주행 이름 변경</string>
+    <string name="trip_tools_rename_desc">이 주행에 이름을 붙입니다. 파일에 저장되므로 내보내기와 동기화에도 따라갑니다.</string>
+    <string name="trip_tools_rename_hint">비워 두면 날짜를 사용합니다.</string>
+    <string name="trip_tools_renamed">주행 이름을 변경했습니다</string>
 </resources>

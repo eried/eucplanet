@@ -1602,8 +1602,6 @@
     <string name="charging_cells_pack_n">Pakke %1$d</string>
     <string name="charging_cells_waiting">Venter på cellespenning…</string>
     <string name="charging_tab_cells">Celler</string>
-    <string name="hud_auto_discover">Finn lenkeadresse automatisk</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Slå på Bluetooth for å søke etter hjul.</string>
     <string name="scan_bluetooth_off_title">Bluetooth er av</string>
     <string name="scan_enable_bluetooth">Slå på Bluetooth</string>
@@ -2105,4 +2103,15 @@
     <string name="adv_smoothing_window">Utjevningsvindu</string>
     <string name="adv_smoothing_window_desc">Antall målinger som midles av \"gjennomsnitt\"-turgrafene og de utjevnede stemmerapportene. Turer logges omtrent én gang i sekundet, så dette tilsvarer sekunder. Fare: høye verdier skjuler korte topper.</string>
     <string name="auto_volume_only_connected">Bare når et hjul er tilkoblet</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Begge</string>
+    <string name="hud_discovery_desc">Auto finner HUD-en selv. Fast bruker bare adressen under.</string>
+    <string name="hud_discovery_fixed">Fast</string>
+    <string name="hud_discovery_mode">Søkemodus</string>
+    <string name="metric_chip_battery_range">Batteri start → slutt</string>
+    <string name="recording_summary_battery_range">Start→slutt (-%1$d%%)</string>
+    <string name="trip_tools_rename">Gi turen nytt navn</string>
+    <string name="trip_tools_rename_desc">Gi denne turen et navn. Lagres i fila, så det følger med eksport og synk.</string>
+    <string name="trip_tools_rename_hint">La stå tomt for å bruke datoen.</string>
+    <string name="trip_tools_renamed">Turen fikk nytt navn</string>
 </resources>

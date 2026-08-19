@@ -1687,8 +1687,6 @@
     <string name="charging_cells_pack_n">パック %1$d</string>
     <string name="charging_cells_waiting">セル電圧データを待機中…</string>
     <string name="charging_tab_cells">セル</string>
-    <string name="hud_auto_discover">リンクアドレスを自動検出</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">ホイールを検索するには Bluetooth をオンにしてください。</string>
     <string name="scan_bluetooth_off_title">Bluetooth がオフです</string>
     <string name="scan_enable_bluetooth">Bluetooth をオンにする</string>
@@ -2218,6 +2216,17 @@
     <string name="adv_smoothing_window">平滑化ウィンドウ</string>
     <string name="adv_smoothing_window_desc">「平均」トリップグラフと平滑化された音声レポートで平均するサンプル数。トリップは約1秒ごとに記録されるため、これは秒として読み取れます。危険: 値が大きいと短いスパイクが隠れます。</string>
     <string name="auto_volume_only_connected">ホイール接続時のみ</string>
+    <string name="hud_discovery_auto">自動</string>
+    <string name="hud_discovery_both">両方</string>
+    <string name="hud_discovery_desc">自動は HUD を自分で見つけます。固定は下のアドレスだけを使います。</string>
+    <string name="hud_discovery_fixed">固定</string>
+    <string name="hud_discovery_mode">検索モード</string>
+    <string name="metric_chip_battery_range">バッテリー 開始 → 終了</string>
+    <string name="recording_summary_battery_range">開始→終了 (-%1$d%%)</string>
+    <string name="trip_tools_rename">走行の名前を変更</string>
+    <string name="trip_tools_rename_desc">この走行に名前を付けます。ファイルに保存されるので、書き出しや同期にも付いていきます。</string>
+    <string name="trip_tools_rename_hint">空欄にすると日付を使います。</string>
+    <string name="trip_tools_renamed">走行の名前を変更しました</string>
 </resources>
 
 

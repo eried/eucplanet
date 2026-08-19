@@ -1713,8 +1713,6 @@
     <string name="charging_cells_pack_n">Блок %1$d</string>
     <string name="charging_cells_waiting">Очікування даних напруги комірок…</string>
     <string name="charging_tab_cells">Комірки</string>
-    <string name="hud_auto_discover">Автоматично знаходити адресу</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Увімкніть Bluetooth, щоб шукати колеса.</string>
     <string name="scan_bluetooth_off_title">Bluetooth вимкнено</string>
     <string name="scan_enable_bluetooth">Увімкнути Bluetooth</string>
@@ -2214,6 +2212,17 @@
     <string name="adv_smoothing_window">Вікно згладжування</string>
     <string name="adv_smoothing_window_desc">Відліки, що усереднюються графіками поїздки \"середнє\" та згладженими голосовими звітами. Поїздки записуються приблизно раз на секунду, тому значення відповідає секундам. Увага: великі значення приховують короткі сплески.</string>
     <string name="auto_volume_only_connected">Тільки коли колесо підключене</string>
+    <string name="hud_discovery_auto">Авто</string>
+    <string name="hud_discovery_both">Обидва</string>
+    <string name="hud_discovery_desc">Авто знаходить HUD сам. Фіксований використовує лише адресу нижче.</string>
+    <string name="hud_discovery_fixed">Фіксований</string>
+    <string name="hud_discovery_mode">Режим пошуку</string>
+    <string name="metric_chip_battery_range">Батарея початок → кінець</string>
+    <string name="recording_summary_battery_range">Початок→кінець (-%1$d%%)</string>
+    <string name="trip_tools_rename">Перейменувати поїздку</string>
+    <string name="trip_tools_rename_desc">Дайте назву цій поїздці. Зберігається в її файлі, тому мандрує з експортом і синхронізацією.</string>
+    <string name="trip_tools_rename_hint">Залиште порожнім, щоб використати дату.</string>
+    <string name="trip_tools_renamed">Поїздку перейменовано</string>
 </resources>
 
 

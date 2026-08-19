@@ -1714,8 +1714,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Esperando datos de voltaje por celda…</string>
     <string name="charging_tab_cells">Celdas</string>
-    <string name="hud_auto_discover">Detectar la dirección del enlace automáticamente</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Activa el Bluetooth para buscar ruedas.</string>
     <string name="scan_bluetooth_off_title">Bluetooth desactivado</string>
     <string name="scan_enable_bluetooth">Activar Bluetooth</string>
@@ -2214,5 +2212,16 @@
     <string name="adv_smoothing_window">Ventana de suavizado</string>
     <string name="adv_smoothing_window_desc">Muestras que promedian los gráficos de viaje «promedio» y los avisos de voz suavizados. Los viajes se registran una vez por segundo, así que esto se lee como segundos. Peligro: los valores altos ocultan picos breves.</string>
     <string name="auto_volume_only_connected">Solo cuando hay una rueda conectada</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Ambos</string>
+    <string name="hud_discovery_desc">Auto encuentra el HUD solo. Fija usa solo la dirección de abajo.</string>
+    <string name="hud_discovery_fixed">Fija</string>
+    <string name="hud_discovery_mode">Modo de búsqueda</string>
+    <string name="metric_chip_battery_range">Batería inicio → fin</string>
+    <string name="recording_summary_battery_range">Inicio→fin (-%1$d%%)</string>
+    <string name="trip_tools_rename">Renombrar viaje</string>
+    <string name="trip_tools_rename_desc">Ponle nombre a esta ruta. Se guarda en su archivo, así viaja con exportaciones y sincronización.</string>
+    <string name="trip_tools_rename_hint">Déjalo vacío para usar la fecha.</string>
+    <string name="trip_tools_renamed">Viaje renombrado</string>
 </resources>
 

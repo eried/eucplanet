@@ -314,8 +314,6 @@
     <string name="hud_ip_label">Laitteen IP</string>
     <string name="hud_ip_incomplete">Anna koko osoite, esimerkiksi 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Laitteen IP (automaattinen)</string>
-    <string name="hud_auto_discover">Etsi yhteysosoite automaattisesti</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="hud_server_port">Portti</string>
     <string name="hud_hotspot_off_hint">Puhelimen yhteyspiste on pois päältä. Varmista, että HUD ja puhelin ovat samassa WiFi-verkossa.</string>
     <string name="hud_hotspot_on_hint">Puhelimen yhteyspiste lähettää. Yhdistä HUD tämän puhelimen WiFiin, niin yhteys muodostuu.</string>
@@ -2019,4 +2017,16 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Suodatin</string>
     <string name="alarm_fx_crush">Bittimurskain</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Molemmat</string>
+    <string name="hud_discovery_desc">Auto löytää HUDin itse. Kiinteä käyttää vain alla olevaa osoitetta.</string>
+    <string name="hud_discovery_fixed">Kiinteä</string>
+    <string name="hud_discovery_mode">Hakutila</string>
+    <string name="metric_chip_battery_range">Akku alku → loppu</string>
+    <string name="recording_summary_battery_range">Alku→loppu (-%1$d%%)</string>
+    <string name="trip_tools_rename">Nimeä ajo uudelleen</string>
+    <string name="trip_tools_rename_desc">Anna tälle ajolle nimi. Tallentuu sen tiedostoon, joten se kulkee vientien ja synkronoinnin mukana.</string>
+    <string name="trip_tools_rename_hint">Jätä tyhjäksi käyttääksesi päivämäärää.</string>
+    <string name="trip_tools_renamed">Ajo nimetty uudelleen</string>
+    <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
 </resources>

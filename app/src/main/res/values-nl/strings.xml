@@ -1714,8 +1714,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Wachten op celspanningsdata…</string>
     <string name="charging_tab_cells">Cellen</string>
-    <string name="hud_auto_discover">Linkadres automatisch detecteren</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Schakel Bluetooth in om naar wielen te zoeken.</string>
     <string name="scan_bluetooth_off_title">Bluetooth is uit</string>
     <string name="scan_enable_bluetooth">Bluetooth inschakelen</string>
@@ -2219,5 +2217,16 @@
     <string name="adv_smoothing_window">Afvlakkingsvenster</string>
     <string name="adv_smoothing_window_desc">Metingen die worden gemiddeld door de \"gemiddelde\" ritgrafieken en de afgevlakte gesproken meldingen. Ritten worden ongeveer één keer per seconde vastgelegd, dus deze waarde komt overeen met seconden. Gevaar: hoge waarden verbergen korte pieken.</string>
     <string name="auto_volume_only_connected">Alleen wanneer een wiel is verbonden</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Beide</string>
+    <string name="hud_discovery_desc">Auto vindt de HUD zelf. Vast gebruikt alleen het adres hieronder.</string>
+    <string name="hud_discovery_fixed">Vast</string>
+    <string name="hud_discovery_mode">Zoekmodus</string>
+    <string name="metric_chip_battery_range">Accu begin → eind</string>
+    <string name="recording_summary_battery_range">Begin→eind (-%1$d%%)</string>
+    <string name="trip_tools_rename">Rit hernoemen</string>
+    <string name="trip_tools_rename_desc">Geef deze rit een naam. Staat in het bestand, dus gaat mee met export en synchronisatie.</string>
+    <string name="trip_tools_rename_hint">Laat leeg om de datum te gebruiken.</string>
+    <string name="trip_tools_renamed">Rit hernoemd</string>
 </resources>
 

@@ -1687,8 +1687,6 @@
     <string name="charging_cells_pack_n">組 %1$d</string>
     <string name="charging_cells_waiting">等候電芯電壓資料…</string>
     <string name="charging_tab_cells">電芯</string>
-    <string name="hud_auto_discover">自動偵測連結位址</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">請開啟藍牙以搜尋車輪。</string>
     <string name="scan_bluetooth_off_title">藍牙已關閉</string>
     <string name="scan_enable_bluetooth">開啟藍牙</string>
@@ -2216,6 +2214,17 @@
     <string name="adv_smoothing_window">平滑視窗</string>
     <string name="adv_smoothing_window_desc">\"平均\"行程圖表與平滑語音播報所平均的取樣數。行程大約每秒記錄一次，因此可視為秒數。危險：數值過高會掩蓋短暫的尖峰。</string>
     <string name="auto_volume_only_connected">僅在車輪已連線時</string>
+    <string name="hud_discovery_auto">自動</string>
+    <string name="hud_discovery_both">兩者</string>
+    <string name="hud_discovery_desc">自動會自己找到 HUD。固定只使用下面的位址。</string>
+    <string name="hud_discovery_fixed">固定</string>
+    <string name="hud_discovery_mode">搜尋模式</string>
+    <string name="metric_chip_battery_range">電量 開始 → 結束</string>
+    <string name="recording_summary_battery_range">開始→結束 (-%1$d%%)</string>
+    <string name="trip_tools_rename">重新命名行程</string>
+    <string name="trip_tools_rename_desc">給這次騎乘起個名字。儲存在它的檔案裡，所以會隨匯出和同步一起走。</string>
+    <string name="trip_tools_rename_hint">留空則使用日期。</string>
+    <string name="trip_tools_renamed">行程已重新命名</string>
 </resources>
 
 

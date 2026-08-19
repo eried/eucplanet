@@ -1729,8 +1729,6 @@
     <string name="charging_cells_pack_n">Pakke %1$d</string>
     <string name="charging_cells_waiting">Venter på cellespændingsdata…</string>
     <string name="charging_tab_cells">Celler</string>
-    <string name="hud_auto_discover">Find linkadressen automatisk</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Tænd Bluetooth for at scanne efter hjul.</string>
     <string name="scan_bluetooth_off_title">Bluetooth er slukket</string>
     <string name="scan_enable_bluetooth">Tænd Bluetooth</string>
@@ -2232,4 +2230,15 @@
     <string name="adv_smoothing_window">Udjævningsvindue</string>
     <string name="adv_smoothing_window_desc">Antal målinger, der midles af \"gennemsnits\"-turgraferne og de udjævnede stemmerapporter. Ture logges cirka én gang i sekundet, så det læses som sekunder. Fare: høje værdier skjuler korte udsving.</string>
     <string name="auto_volume_only_connected">Kun når et hjul er forbundet</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Begge</string>
+    <string name="hud_discovery_desc">Auto finder HUD\'en selv. Fast bruger kun adressen nedenfor.</string>
+    <string name="hud_discovery_fixed">Fast</string>
+    <string name="hud_discovery_mode">Søgetilstand</string>
+    <string name="metric_chip_battery_range">Batteri start → slut</string>
+    <string name="recording_summary_battery_range">Start→slut (-%1$d%%)</string>
+    <string name="trip_tools_rename">Omdøb tur</string>
+    <string name="trip_tools_rename_desc">Giv turen et navn. Gemmes i dens fil, så det følger med eksport og synk.</string>
+    <string name="trip_tools_rename_hint">Lad stå tomt for at bruge datoen.</string>
+    <string name="trip_tools_renamed">Tur omdøbt</string>
 </resources>

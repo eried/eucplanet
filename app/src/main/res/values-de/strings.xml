@@ -1734,8 +1734,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Warte auf Zellspannungsdaten…</string>
     <string name="charging_tab_cells">Zellen</string>
-    <string name="hud_auto_discover">Link-Adresse automatisch finden</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Bluetooth einschalten, um nach Rädern zu suchen.</string>
     <string name="scan_bluetooth_off_title">Bluetooth ist aus</string>
     <string name="scan_enable_bluetooth">Bluetooth einschalten</string>
@@ -2237,4 +2235,15 @@
     <string name="adv_smoothing_window">Glättungsfenster</string>
     <string name="adv_smoothing_window_desc">Messwerte, die von den „Durchschnitt"-Fahrtdiagrammen und den geglätteten Sprachberichten gemittelt werden. Fahrten protokollieren etwa einmal pro Sekunde, das liest sich also als Sekunden. Gefahr: Hohe Werte verbergen kurze Spitzen.</string>
     <string name="auto_volume_only_connected">Nur wenn ein Wheel verbunden ist</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Beides</string>
+    <string name="hud_discovery_desc">Auto findet das HUD selbst. Fest nutzt nur die Adresse unten.</string>
+    <string name="hud_discovery_fixed">Fest</string>
+    <string name="hud_discovery_mode">Suchmodus</string>
+    <string name="metric_chip_battery_range">Akku Start → Ende</string>
+    <string name="recording_summary_battery_range">Start→Ende (-%1$d%%)</string>
+    <string name="trip_tools_rename">Fahrt umbenennen</string>
+    <string name="trip_tools_rename_desc">Gib dieser Fahrt einen Namen. Steht in ihrer Datei, kommt also bei Export und Sync mit.</string>
+    <string name="trip_tools_rename_hint">Leer lassen für das Datum.</string>
+    <string name="trip_tools_renamed">Fahrt umbenannt</string>
 </resources>

@@ -1720,8 +1720,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Attente des tensions des cellules…</string>
     <string name="charging_tab_cells">Cellules</string>
-    <string name="hud_auto_discover">Détecter l\'adresse automatiquement</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Active le Bluetooth pour chercher des roues.</string>
     <string name="scan_bluetooth_off_title">Bluetooth désactivé</string>
     <string name="scan_enable_bluetooth">Activer le Bluetooth</string>
@@ -2221,4 +2219,15 @@
     <string name="adv_smoothing_window">Fenêtre de lissage</string>
     <string name="adv_smoothing_window_desc">Échantillons moyennés par les graphiques de trajet « moyenne » et les rapports vocaux lissés. Les trajets s\'enregistrent environ une fois par seconde, donc cette valeur correspond à des secondes. Danger : des valeurs élevées masquent les pics brefs.</string>
     <string name="auto_volume_only_connected">Uniquement lorsqu\'une roue est connectée</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Les deux</string>
+    <string name="hud_discovery_desc">Auto trouve le HUD tout seul. Fixe n\'utilise que l\'adresse ci-dessous.</string>
+    <string name="hud_discovery_fixed">Fixe</string>
+    <string name="hud_discovery_mode">Mode de recherche</string>
+    <string name="metric_chip_battery_range">Batterie début → fin</string>
+    <string name="recording_summary_battery_range">Début→fin (-%1$d%%)</string>
+    <string name="trip_tools_rename">Renommer la sortie</string>
+    <string name="trip_tools_rename_desc">Donne un nom à cette sortie. Enregistré dans son fichier, il suit les exports et la synchro.</string>
+    <string name="trip_tools_rename_hint">Laisse vide pour utiliser la date.</string>
+    <string name="trip_tools_renamed">Sortie renommée</string>
 </resources>
