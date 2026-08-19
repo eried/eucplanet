@@ -1976,11 +1976,16 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     background:rgba(0,0,0,0.26)!important;
     color:rgba(255,255,255,0.58)!important;
     font-size:8px!important;
-    padding:1px 5px!important;
-    /* The map sits in a rounded card, so a chip flush to the corner would sit
-       inside the curve. Held off the left edge it stays square against the
-       bottom, with only the two corners that face the map rounded. */
-    margin:0 0 0 14px!important;
+    padding:1px 6px!important;
+    /* Centred along the bottom edge: the map sits in a rounded card, and the
+       middle of that edge is the one spot no corner curve and none of the
+       buttons reach. Only the two upper corners are rounded, so it reads as a
+       tab off the edge rather than a floating box. */
+    position:fixed!important;
+    left:50%!important;
+    bottom:0!important;
+    transform:translateX(-50%)!important;
+    margin:0!important;
     border-radius:5px 5px 0 0;
     pointer-events:none;
   }
