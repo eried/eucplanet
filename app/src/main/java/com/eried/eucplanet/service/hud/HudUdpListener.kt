@@ -68,6 +68,10 @@ class HudUdpListener @Inject constructor(
     @Volatile var lastReceiveAtMs: Long = 0L; private set
     @Volatile var lastBindError: String = ""; private set
 
+    /** Rate limit for the beacon trace; see the receive loop. */
+    private var lastNotedSourceIp: String = ""
+    private var lastNotedAtMs: Long = 0L
+
     fun start() {
         if (job != null) return
         acquireMulticastLock()
@@ -78,6 +82,7 @@ class HudUdpListener @Inject constructor(
                     .onFailure {
                         Log.w(TAG, "UDP listener crashed, restarting", it)
                         lastBindError = it.message ?: it::class.simpleName.orEmpty()
+                        hudLinkNote(TAG, "Beacon listener: bind/receive failed: $lastBindError")
                     }
                 // Brief backoff so a persistent failure (e.g. permission
                 // denied) doesn't spin a tight retry loop and chew battery.
@@ -110,8 +115,13 @@ class HudUdpListener @Inject constructor(
             lock.setReferenceCounted(false)
             lock.acquire()
             multicastLock = lock
-            Log.i(TAG, "multicast lock acquired")
-        }.onFailure { Log.w(TAG, "couldn't acquire multicast lock", it) }
+            hudLinkNote(TAG, "Beacon listener: multicast lock acquired")
+        }.onFailure {
+            // Without the lock many drivers drop inbound broadcast entirely, so
+            // this failing explains a silent beacon channel by itself.
+            hudLinkNote(TAG, "Beacon listener: NO multicast lock (${it.message}), " +
+                "inbound broadcast may be dropped")
+        }
     }
 
     private fun releaseMulticastLock() {
@@ -129,13 +139,17 @@ class HudUdpListener @Inject constructor(
         runCatching {
             val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE)
                 as? ConnectivityManager ?: return@runCatching
+            // NO NET_CAPABILITY_INTERNET: the HUD often rides a WiFi that has
+            // no internet (a Faraday-cage shop AP, or the phone's own hotspot),
+            // and we want to recycle the listener when the rider joins exactly
+            // those. Requiring internet here meant the clean recycle never fired
+            // in the environment the HUD is most used in.
             val req = NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .build()
             val cb = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
-                    Log.i(TAG, "wifi available; recycling listener")
+                    hudLinkNote(TAG, "Beacon listener: WiFi available, recycling")
                     job?.cancel()
                     job = scope.launch {
                         kotlinx.coroutines.delay(250L) // let socket fully release
@@ -146,12 +160,14 @@ class HudUdpListener @Inject constructor(
                     }
                 }
                 override fun onLost(network: Network) {
-                    Log.i(TAG, "wifi lost")
+                    // A HUD that stops answering right here was not lost by us:
+                    // the phone changed networks underneath the listener.
+                    hudLinkNote(TAG, "Beacon listener: WiFi lost")
                 }
             }
             cm.registerNetworkCallback(req, cb)
             networkCallback = cb
-        }.onFailure { Log.w(TAG, "couldn't register network callback", it) }
+        }.onFailure { hudLinkNote(TAG, "Beacon listener: network callback failed: ${it.message}") }
     }
 
     private fun unwatchNetworkChanges() {
@@ -171,7 +187,7 @@ class HudUdpListener @Inject constructor(
             socket.soTimeout = 0
             socket.bind(InetSocketAddress(port))
             lastBindError = ""
-            Log.i(TAG, "listening on 0.0.0.0:$port")
+            hudLinkNote(TAG, "Beacon listener: bound to 0.0.0.0:$port")
             val buf = ByteArray(512)
             while (job?.isCancelled == false) {
                 val packet = DatagramPacket(buf, buf.size)
@@ -181,8 +197,16 @@ class HudUdpListener @Inject constructor(
                 parse(text, srcIp)?.let {
                     _latest.value = it
                     totalReceived++
-                    lastReceiveAtMs = System.currentTimeMillis()
-                    Log.v(TAG, "beacon RX from $srcIp -> ${it.ip}:${it.port}")
+                    val now = System.currentTimeMillis()
+                    lastReceiveAtMs = now
+                    // First beacon from a source, then one a minute. Enough to
+                    // prove the channel is alive and to show it going quiet,
+                    // without burying the rest of the capture at 1 Hz.
+                    if (srcIp != lastNotedSourceIp || now - lastNotedAtMs > BEACON_NOTE_INTERVAL_MS) {
+                        lastNotedSourceIp = srcIp
+                        lastNotedAtMs = now
+                        hudLinkNote(TAG, "Beacon RX from $srcIp -> ${it.ip}:${it.port} (#$totalReceived)")
+                    }
                 }
             }
         }
@@ -213,5 +237,8 @@ class HudUdpListener @Inject constructor(
     companion object {
         private const val TAG = "HudUdpListener"
         private const val LOCK_TAG = "eucplanet-hud-udp-listener"
+        /** Beacons land about once a second; one trace line a minute is enough
+         *  to show the channel alive and to show it going quiet. */
+        private const val BEACON_NOTE_INTERVAL_MS = 60_000L
     }
 }
