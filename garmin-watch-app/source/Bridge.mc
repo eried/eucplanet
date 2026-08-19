@@ -104,6 +104,11 @@ class PhoneBridge {
             var sq = data.get(Keys.SEQ);
             if (sq instanceof Lang.Number) { _lastRxSeq = sq; }
             WatchState.update(data);
+            // fix-4 experiment: echo the seq right now (backpressured by
+            // _txBusy so it can't overflow the queue) instead of waiting for
+            // the 5 s heartbeat, so the phone's backlog cap releases as fast
+            // as we actually consume frames.
+            sendAlive();
         } else if (kind.equals(Keys.KIND_WAKE)) {
             // The phone fires this whenever its app comes to foreground. The
             // phone separately calls ConnectIQ.openApplication() to actually
