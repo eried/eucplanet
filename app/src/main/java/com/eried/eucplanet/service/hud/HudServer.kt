@@ -330,7 +330,7 @@ class HudServer @Inject constructor(
         val s = runCatching { settingsRepository.get() }.getOrNull()
         if (s?.hudAutoDiscover == true) {
             udpListener.start()
-            log("Auto-discovery on (UDP + mDNS + subnet + manual)")
+            log("Auto-discovery on (UDP + mDNS + subnet, then a saved IP if all three miss)")
         } else {
             val ip = s?.hudIp?.trim().orEmpty()
             val port = s?.hudServerPort?.takeIf { it in 1..65535 }
@@ -698,8 +698,17 @@ class HudServer @Inject constructor(
         }
         val manualJob = if (manualUsable) {
             scope.launch {
-                // Small grace period so a healthy UDP / mDNS hit wins the
-                // race before we fall back to a possibly-stale manual IP.
+                // Auto-find is ON here, and the settings row that shows this
+                // address is hidden in that mode - so whatever is saved is
+                // invisible to the rider while still being dialled. It only
+                // gets a turn once the three channels that can actually see the
+                // network have finished and found nothing. Before, it posted
+                // 1.5s in and beat live discovery: a tester connected nine
+                // seconds after his HUD had already announced itself, because a
+                // stale address won the race twice.
+                kotlinx.coroutines.joinAll(udpJob, mdnsJob, probeJob)
+                // Still honour the grace period, so a beacon that lands as the
+                // others give up is not pipped at the post.
                 kotlinx.coroutines.delay(manualHintDelayMs)
                 val sighting = udpListener.latest.value
                 val decision = ManualHint.decide(
