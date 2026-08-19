@@ -77,6 +77,11 @@ class GarminBridge @Inject constructor(
         // many frames ahead of that ack, so the backlog - and the lag - stays
         // bounded to a few seconds instead of growing without limit.
         private const val MAX_INFLIGHT = 5
+        // Cap escape hatch. Honour MAX_INFLIGHT, but never let it freeze the
+        // dial: if no STATE frame has reached a device in this long (a stalled
+        // watch->phone ack channel would otherwise pin the cap forever), send
+        // one anyway. Bounds the worst-case dial freeze to this interval.
+        private const val CAP_ESCAPE_MS = 2500L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -139,6 +144,10 @@ class GarminBridge @Inject constructor(
      *  number, so a seq reset on reconnect self-corrects (see [handleIncoming]). */
     private val lastSentSeq = ConcurrentHashMap<Long, Int>()
     private val lastAckedSeq = ConcurrentHashMap<Long, Int>()
+
+    /** Wall-clock of the last STATE frame actually handed to each device.
+     *  Drives the [CAP_ESCAPE_MS] bypass so a stalled ack can't freeze the dial. */
+    private val lastStateSentAtMs = ConcurrentHashMap<Long, Long>()
 
     /** True once a device has echoed a seq on its ALIVE, proving its watch
      *  build understands pacing. Until then the backlog cap stays off so an
@@ -631,9 +640,14 @@ class GarminBridge @Inject constructor(
                 // would stall behind a cap it can never advance.
                 val sent = lastSentSeq[id] ?: 0
                 val acked = lastAckedSeq[id] ?: 0
-                if (watchSupportsSeq[id] == true && sent - acked >= MAX_INFLIGHT) continue
+                // Escape hatch: obey the cap, but if it's been CAP_ESCAPE_MS
+                // since a frame last reached this device, push one through
+                // regardless - a possibly-buffered frame beats a frozen dial.
+                val capped = watchSupportsSeq[id] == true && sent - acked >= MAX_INFLIGHT
+                if (capped && (now - (lastStateSentAtMs[id] ?: 0L)) < CAP_ESCAPE_MS) continue
                 stampedSeq = sent + 1
                 lastSentSeq[id] = stampedSeq
+                lastStateSentAtMs[id] = now
                 sendBusyUntilMs[id] = now + SEND_TIMEOUT_MS
                 outgoing = HashMap(payload).apply { put(GarminKeys.SEQ, stampedSeq) }
             } else {
