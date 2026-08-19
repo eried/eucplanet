@@ -330,7 +330,7 @@ class HudServer @Inject constructor(
         val s = runCatching { settingsRepository.get() }.getOrNull()
         if (s?.hudAutoDiscover == true) {
             udpListener.start()
-            log("Auto-discovery on (UDP + mDNS + subnet, then a saved IP if all three miss)")
+            log("Auto-discovery on (UDP + mDNS + subnet)")
         } else {
             val ip = s?.hudIp?.trim().orEmpty()
             val port = s?.hudServerPort?.takeIf { it in 1..65535 }
@@ -598,8 +598,11 @@ class HudServer @Inject constructor(
      *    otherwise blocks waiting for the next packet up to a soft cap)
      *  - mDNS browse (5 s timeout, common on real WiFi)
      *  - Subnet probe across the phone's own /24 (~3 s on fast LAN)
-     *  - Manual IP, fired after a short grace period so the first three
-     *    have a chance to win cleanly when they will
+     *
+     * A saved manual IP is NOT one of them. Auto-find hides the field that
+     * holds it, so using it here meant dialling an address the rider could not
+     * see: one tester's stale entry beat his HUD's own beacon twice in a row.
+     * Auto-find off is how you ask for that address ([resolveManualOnly]).
      *
      * This is the "try harder" the rider asked for: instead of stepping
      * through sequentially and waiting for each to give up before the
@@ -688,44 +691,16 @@ class HudServer @Inject constructor(
             }
         }
 
-        val manualUsable = ManualHint.decide(manualIp, beaconAgeMs = null, freshnessMs = 0L) !=
-            ManualHintDecision.IGNORE_INCOMPLETE
-        if (manualIp.isNotBlank() && !manualUsable) {
-            // Saved on every keystroke and never checked, so a half-typed
-            // address persists. Dialling it costs a DNS failure plus the whole
-            // backoff, every cycle, forever.
-            log("Manual hint: \"$manualIp\" is not a complete address, ignoring it")
+        if (manualIp.isNotBlank()) {
+            // Auto-find is on, so the saved address is not used. The settings
+            // row that shows it is hidden in this mode, so dialling it meant
+            // dialling something the rider could not see, could not check and
+            // could not stop - and it beat live discovery to do it. Turning
+            // auto-find off is how you ask for that address to be used.
+            log("Auto-find is on, ignoring the saved IP $manualIp")
         }
-        val manualJob = if (manualUsable) {
-            scope.launch {
-                // Auto-find is ON here, and the settings row that shows this
-                // address is hidden in that mode - so whatever is saved is
-                // invisible to the rider while still being dialled. It only
-                // gets a turn once the three channels that can actually see the
-                // network have finished and found nothing. Before, it posted
-                // 1.5s in and beat live discovery: a tester connected nine
-                // seconds after his HUD had already announced itself, because a
-                // stale address won the race twice.
-                kotlinx.coroutines.joinAll(udpJob, mdnsJob, probeJob)
-                // Still honour the grace period, so a beacon that lands as the
-                // others give up is not pipped at the post.
-                kotlinx.coroutines.delay(manualHintDelayMs)
-                val sighting = udpListener.latest.value
-                val decision = ManualHint.decide(
-                    manualIp,
-                    beaconAgeMs = sighting?.let { System.currentTimeMillis() - it.receivedAtMs },
-                    freshnessMs = udpBeaconFreshnessMs,
-                )
-                if (decision == ManualHintDecision.HOLD_FOR_BEACON) {
-                    log("Manual hint: holding back, a beacon from ${sighting?.ip} is live")
-                    return@launch
-                }
-                log("Manual hint: $manualIp:$manualPort")
-                results.send("$manualIp:$manualPort" to ConnectionSource.MANUAL)
-            }
-        } else null
 
-        val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
+        val allJobs = listOf(udpJob, mdnsJob, probeJob)
         try {
             val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
                 results.receive()
