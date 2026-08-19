@@ -630,8 +630,13 @@ class GarminBridge @Inject constructor(
                 // the watch has proven it echoes seqs - otherwise an older watch
                 // would stall behind a cap it can never advance.
                 val sent = lastSentSeq[id] ?: 0
-                val acked = lastAckedSeq[id] ?: 0
-                if (watchSupportsSeq[id] == true && sent - acked >= MAX_INFLIGHT) continue
+                // fix-3 experiment: backlog cap DISABLED. Publish is gated only
+                // by the per-device busy-skip + the 1 Hz floor, to test whether
+                // the seq cap is what freezes the dial. Seq is still stamped and
+                // echoed so the ack telemetry stays intact for comparison. Risk:
+                // Connect Mobile may rebuild an unbounded backlog (#14).
+                // val acked = lastAckedSeq[id] ?: 0
+                // if (watchSupportsSeq[id] == true && sent - acked >= MAX_INFLIGHT) continue
                 stampedSeq = sent + 1
                 lastSentSeq[id] = stampedSeq
                 sendBusyUntilMs[id] = now + SEND_TIMEOUT_MS
