@@ -312,6 +312,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Ota datayhteys käyttöön</string>
     <string name="hud_ip_label">Laitteen IP</string>
+    <string name="hud_ip_incomplete">Anna koko osoite, esimerkiksi 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Laitteen IP (automaattinen)</string>
     <string name="hud_auto_discover">Etsi yhteysosoite automaattisesti</string>
     <string name="hud_auto_discover_desc"></string>

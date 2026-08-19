@@ -312,6 +312,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Activează legătura de date</string>
     <string name="hud_ip_label">IP-ul dispozitivului</string>
+    <string name="hud_ip_incomplete">Introdu o adresă completă, de exemplu 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP-ul dispozitivului (automat)</string>
     <string name="hud_auto_discover">Descoperă automat adresa legăturii</string>
     <string name="hud_auto_discover_desc"></string>

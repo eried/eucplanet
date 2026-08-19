@@ -380,12 +380,18 @@ class SettingsViewModel @Inject constructor(
     }
     fun updateSafetyTiltback(value: Float) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val capped = value.coerceAtMost((current.tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
-            val cappedAlarm = current.safetyAlarmKmh.coerceAtMost(capped)
-            settingsRepository.update(
+            // Read and write in one transaction: this sits behind a NumberUpDown
+            // whose hold-to-repeat fires several of these a second, and reading
+            // outside meant a slower coroutine could write back a value computed
+            // from a stale cap. The HUD address that started all this was the
+            // same shape.
+            var capped = 0f
+            var cappedAlarm = 0f
+            settingsRepository.update { current ->
+                capped = value.coerceAtMost((current.tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
+                cappedAlarm = current.safetyAlarmKmh.coerceAtMost(capped)
                 current.copy(safetyTiltbackKmh = capped, safetyAlarmKmh = cappedAlarm)
-            )
+            }
             // If Legal mode is currently on, push the new legal limit to the wheel
             // so it follows the slider. Otherwise the wheel keeps the old legal
             // value and the confirm-from-readback would think Legal turned off (it
@@ -398,11 +404,11 @@ class SettingsViewModel @Inject constructor(
 
     fun updateSafetyAlarm(value: Float) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val newTilt = current.safetyTiltbackKmh.coerceAtLeast(value)
-            settingsRepository.update(
+            var newTilt = 0f
+            settingsRepository.update { current ->
+                newTilt = current.safetyTiltbackKmh.coerceAtLeast(value)
                 current.copy(safetyAlarmKmh = value, safetyTiltbackKmh = newTilt)
-            )
+            }
             if (wheelRepository.safetySpeedActive.value) {
                 wheelRepository.setSpeed(newTilt, value)
             }
@@ -883,17 +889,19 @@ class SettingsViewModel @Inject constructor(
      *  one enabled screen so the carousel can't be emptied. */
     fun setHudScreenEnabled(id: String, enabled: Boolean) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val set = parseEnabledSet(current.hudScreensEnabled).toMutableSet()
-            if (enabled) {
-                set.add(id)
-            } else {
-                if (set.size <= 1 && id in set) return@launch // keep one
-                set.remove(id)
-            }
-            settingsRepository.update(
+            settingsRepository.update { current ->
+                val set = parseEnabledSet(current.hudScreensEnabled).toMutableSet()
+                if (enabled) {
+                    set.add(id)
+                } else {
+                    // Keep one. Returning the settings unchanged is the
+                    // in-transaction way to say "no", now that the early
+                    // return would leave the transform half-applied.
+                    if (set.size <= 1 && id in set) return@update current
+                    set.remove(id)
+                }
                 current.copy(hudScreensEnabled = set.joinToString(","))
-            )
+            }
         }
     }
 
@@ -902,14 +910,19 @@ class SettingsViewModel @Inject constructor(
      *  which is what the Personalize ReorderableColumn renders. */
     fun moveHudScreen(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val order = parseOrder(current.hudScreensOrder).toMutableList()
-            if (fromIndex in order.indices && toIndex in order.indices) {
-                val item = order.removeAt(fromIndex)
-                order.add(toIndex, item)
-                settingsRepository.update(
+            // A single drag settles several times, each landing here. Reading
+            // outside the transaction let two of them start from the same order
+            // and the last to finish decide, so a drag across a few rows could
+            // settle somewhere the rider did not drop it.
+            settingsRepository.update { current ->
+                val order = parseOrder(current.hudScreensOrder).toMutableList()
+                if (fromIndex in order.indices && toIndex in order.indices) {
+                    val item = order.removeAt(fromIndex)
+                    order.add(toIndex, item)
                     current.copy(hudScreensOrder = order.joinToString(","))
-                )
+                } else {
+                    current
+                }
             }
         }
     }

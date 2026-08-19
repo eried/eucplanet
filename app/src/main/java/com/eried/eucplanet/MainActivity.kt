@@ -866,8 +866,17 @@ class MainActivity : AppCompatActivity() {
                 // No live HUD counters are exposed to the activity, so this is the
                 // HUD config we have (endpoint + which screens / map style).
                 detail = buildString {
+                    // With auto-find on, hudIp is not dialled at all, so
+                    // printing it as "endpoint" pointed a support engineer at an
+                    // address the app was ignoring.
                     append("endpoint: ")
-                    append(s?.hudIp?.ifBlank { "mDNS auto" } ?: "mDNS auto")
+                    if (s?.hudAutoDiscover != false) {
+                        append("auto-find")
+                        val saved = s?.hudIp.orEmpty()
+                        if (saved.isNotBlank()) append(" (saved $saved unused)")
+                    } else {
+                        append(s.hudIp.ifBlank { "not set" })
+                    }
                     append(':').append(s?.hudServerPort ?: 28080).append('\n')
                     append("screens:  ").append(s?.hudScreensEnabled?.ifBlank { "(default)" } ?: "(default)").append('\n')
                     append("map:      ").append(s?.hudMapStyle?.ifBlank { "(default)" } ?: "(default)")

@@ -477,10 +477,11 @@ class HudServer @Inject constructor(
      *   1. UDP beacon sighting (freshest first; cheap, the most reliable
      *      channel because it works on hotspots that block multicast)
      *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
-     *   3. Manual `hudIp` from settings (treated as a last-known hint
-     *      rather than the only truth)
-     *   4. /24 subnet probe of the phone's own IP (slow, ~3 s, only fires
-     *      when the first three failed)
+     *   3. /24 subnet probe of the phone's own IP (slow, ~3 s)
+     *
+     * A saved `hudIp` is NOT one of them. Auto-discover hides the field that
+     * holds it, so an address the rider cannot see was being dialled - and it
+     * beat a HUD that had already announced itself.
      *
      * When auto-discover is OFF we fall back to the legacy single-path
      * behaviour: manual IP only. That mode exists as an escape hatch for
@@ -707,11 +708,26 @@ class HudServer @Inject constructor(
             }
             if (winner != null) winner else null to ConnectionSource.NONE
         } finally {
-            // Cancel and walk away. These used to be children of this scope, so
-            // the dial waited for every loser to unwind first: a subnet scan
-            // finishing its in-flight connects, JmDNS letting go of its socket.
-            // That was a second per connect, spent after the answer was known.
+            // Cancel, then wait for the three to actually stop - but NOT for the
+            // JmDNS close, which is detached in resolveViaMdns and is the two
+            // seconds this change set removed. Waiting here costs a suspension
+            // point for the beacon and mDNS jobs and at most one 250 ms connect
+            // timeout for the probe.
+            //
+            // Without the wait, a cycle that fails fast (a stale beacon still
+            // inside its freshness window wins instantly, the dial is refused,
+            // backoff is 1 s) starts the next cycle while this one is still
+            // unwinding, and JmDNS.create runs again on an address whose
+            // previous instance has not let go of 5353 yet. Two generations of
+            // mDNS sockets, for as long as the HUD stays undialable.
+            //
+            // NonCancellable because this finally also runs when the caller
+            // itself was cancelled (link switched off), where a plain join
+            // would return immediately and skip the wait entirely.
             allJobs.forEach { it.cancel() }
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                kotlinx.coroutines.joinAll(*allJobs.toTypedArray())
+            }
         }
     }
 

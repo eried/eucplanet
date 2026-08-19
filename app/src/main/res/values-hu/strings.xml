@@ -312,6 +312,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Adatkapcsolat bekapcsolása</string>
     <string name="hud_ip_label">Eszköz IP-címe</string>
+    <string name="hud_ip_incomplete">Add meg a teljes címet, például 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Eszköz IP-címe (automatikus)</string>
     <string name="hud_auto_discover">Kapcsolati cím automatikus felderítése</string>
     <string name="hud_auto_discover_desc"></string>
