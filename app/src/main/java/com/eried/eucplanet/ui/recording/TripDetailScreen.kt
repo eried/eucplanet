@@ -765,8 +765,10 @@ fun TripDetailScreen(
             // the date line in portrait, at the head of the info column in
             // landscape where the date lives in the top bar instead.
             val trimBar: @Composable ColumnScope.() -> Unit = {
-                if (showTrimBar && elapsedMs.isNotEmpty()) {
-                    val full = elapsedMs.last()
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = showTrimBar && elapsedMs.isNotEmpty(),
+                ) {
+                    val full = elapsedMs.lastOrNull() ?: 0L
                     // The strip appears above wherever the rider has scrolled to,
                     // so everything below it shifts down and the control they just
                     // asked for is off-screen. Scroll it into view instead of
