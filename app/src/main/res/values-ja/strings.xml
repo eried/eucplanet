@@ -352,6 +352,7 @@
     <string name="section_hud_companion">MotoEye HUD</string>
     <string name="hud_server_enabled">データリンクを有効にする</string>
     <string name="hud_ip_label">デバイス IP</string>
+    <string name="hud_ip_incomplete">完全なアドレスを入力してください（例: 192.168.43.42）</string>
     <string name="hud_ip_label_autodetect">デバイス IP（自動）</string>
     <string name="hud_server_port">ポート</string>
     <string name="hud_hotspot_off_hint">スマホのホットスポットがオフです。HUD とスマホが同じ WiFi ネットワークに接続されているか確認してください。</string>

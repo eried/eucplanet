@@ -352,6 +352,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Включить передачу данных</string>
     <string name="hud_ip_label">IP устройства</string>
+    <string name="hud_ip_incomplete">Введите полный адрес, например 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP устройства (автоматически)</string>
     <string name="hud_server_port">Порт</string>
     <string name="hud_hotspot_off_hint">Точка доступа телефона отключена. Убедитесь, что HUD и телефон в одной WiFi-сети.</string>

@@ -352,6 +352,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Aktivér datalink</string>
     <string name="hud_ip_label">Enheds-IP</string>
+    <string name="hud_ip_incomplete">Indtast en fuld adresse, f.eks. 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Enheds-IP (automatisk)</string>
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Telefonens hotspot er slukket. Sørg for, at HUD\'en og telefonen er på samme WiFi-netværk.</string>

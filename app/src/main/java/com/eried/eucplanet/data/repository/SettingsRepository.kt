@@ -30,12 +30,12 @@ class SettingsRepository @Inject constructor(
         store.update(settings)
     }
 
-    /** Read-modify-write wrapper for callers that only want to change a
-     *  field or two without echoing the whole [AppSettings] copy. Single
-     *  read + write inside the same coroutine, so there's no torn-write
-     *  window against the StateFlow. */
+    /** Read-modify-write for callers that only want to change a field or two.
+     *  The read happens inside the store's transaction, so two changes made in
+     *  the same breath (a text field writing per keystroke, two toggles tapped
+     *  quickly) cannot overwrite each other's fields. */
     suspend fun update(transform: (AppSettings) -> AppSettings) {
-        update(transform(get()))
+        store.update { current -> transform(current.sanitized()) }
     }
 
     suspend fun updateLastDevice(address: String, name: String) {

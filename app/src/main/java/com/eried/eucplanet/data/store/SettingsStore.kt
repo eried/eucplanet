@@ -44,6 +44,28 @@ class SettingsStore(private val context: Context) {
     }
 
     /**
+     * Change a few fields without losing a concurrent change to the others.
+     *
+     * Every setting lives in one JSON blob, so a write is a read, a copy and a
+     * write of the whole thing. Doing the read outside the transaction made two
+     * quick changes race: both read the same state, both wrote the whole blob,
+     * and whichever landed last silently undid the other. The HUD IP field
+     * writes on every keystroke, which is how a rider who typed a full address
+     * ended up with `10.240.` saved - an early keystroke landing last. (The
+     * same reordering is what produced the "192 appears as 921" report in the
+     * settings screen.)
+     *
+     * DataStore serialises the transforms it is given, so doing the read inside
+     * [androidx.datastore.preferences.core.edit] makes each change atomic and
+     * ordered against every other change.
+     */
+    suspend fun update(transform: (AppSettings) -> AppSettings) {
+        dataStore.edit { prefs ->
+            prefs[KEY_JSON] = SettingsJson.toJson(transform(readSettings(prefs))).toString()
+        }
+    }
+
+    /**
      * One-shot import: if DataStore has no settings yet, write [imported]
      * verbatim. No-op on subsequent calls so re-running the legacy-Room
      * migration is safe.

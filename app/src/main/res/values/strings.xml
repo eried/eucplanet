@@ -357,6 +357,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Enable data link</string>
     <string name="hud_ip_label">Device IP</string>
+    <string name="hud_ip_incomplete">Enter a full address, like 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Device IP (automatic)</string>
     <string name="hud_auto_discover">Discover link address automatically</string>
     <string name="hud_auto_discover_desc"></string>

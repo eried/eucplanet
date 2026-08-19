@@ -352,6 +352,7 @@
     <string name="section_hud_companion">MotoEye HUD</string>
     <string name="hud_server_enabled">啟用資料連結</string>
     <string name="hud_ip_label">裝置 IP</string>
+    <string name="hud_ip_incomplete">請輸入完整位址，例如 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">裝置 IP（自動）</string>
     <string name="hud_server_port">埠號</string>
     <string name="hud_hotspot_off_hint">手機熱點已關閉。請確保 HUD 和手機在同一個 WiFi 網路上。</string>

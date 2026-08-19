@@ -352,6 +352,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">데이터 링크 활성화</string>
     <string name="hud_ip_label">기기 IP</string>
+    <string name="hud_ip_incomplete">전체 주소를 입력하세요. 예: 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">기기 IP (자동)</string>
     <string name="hud_server_port">포트</string>
     <string name="hud_hotspot_off_hint">폰 핫스팟이 꺼져 있습니다. HUD와 폰이 같은 Wi-Fi 네트워크에 있는지 확인하세요.</string>

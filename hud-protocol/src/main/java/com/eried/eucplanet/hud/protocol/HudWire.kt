@@ -458,6 +458,24 @@ object HudDiscovery {
     const val SERVICE_TYPE: String = "_eucplanet._tcp.local."
     /** Default port; overridable per phone if 28080 collides on the LAN. */
     const val DEFAULT_PORT: Int = 28080
+    /**
+     * True when [text] is a complete dotted-quad IPv4 address.
+     *
+     * The manual-IP field is saved on every keystroke, so a rider who typed
+     * half an address and stopped left a half address behind: a real capture
+     * carried `10.240.` for months. Nothing checked it, so discovery dialled
+     * it every cycle, failed to resolve it as a hostname, and backed off five
+     * seconds - beating a HUD that had already announced itself on the LAN.
+     */
+    fun isValidIpv4(text: String): Boolean {
+        val parts = text.trim().split('.')
+        if (parts.size != 4) return false
+        return parts.all { part ->
+            part.isNotEmpty() && part.length <= 3 && part.all(Char::isDigit) &&
+                (part.toIntOrNull() ?: -1) in 0..255
+        }
+    }
+
     /** TXT-record key for the wire protocol version. HUD refuses to pair
      *  against a phone advertising a higher major version than it speaks. */
     const val TXT_VERSION: String = "v"

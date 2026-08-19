@@ -352,6 +352,7 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Ativar link de dados</string>
     <string name="hud_ip_label">IP do dispositivo</string>
+    <string name="hud_ip_incomplete">Digite um endereço completo, por exemplo 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP do dispositivo (automático)</string>
     <string name="hud_server_port">Porta</string>
     <string name="hud_hotspot_off_hint">O hotspot do celular está desligado. Verifique se o HUD e o celular estão na mesma rede Wi-Fi.</string>

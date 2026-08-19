@@ -330,7 +330,7 @@ class HudServer @Inject constructor(
         val s = runCatching { settingsRepository.get() }.getOrNull()
         if (s?.hudAutoDiscover == true) {
             udpListener.start()
-            log("Auto-discovery on (UDP + mDNS + subnet + manual)")
+            log("Auto-discovery on (UDP + mDNS + subnet)")
         } else {
             val ip = s?.hudIp?.trim().orEmpty()
             val port = s?.hudServerPort?.takeIf { it in 1..65535 }
@@ -477,10 +477,11 @@ class HudServer @Inject constructor(
      *   1. UDP beacon sighting (freshest first; cheap, the most reliable
      *      channel because it works on hotspots that block multicast)
      *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
-     *   3. Manual `hudIp` from settings (treated as a last-known hint
-     *      rather than the only truth)
-     *   4. /24 subnet probe of the phone's own IP (slow, ~3 s, only fires
-     *      when the first three failed)
+     *   3. /24 subnet probe of the phone's own IP (slow, ~3 s)
+     *
+     * A saved `hudIp` is NOT one of them. Auto-discover hides the field that
+     * holds it, so an address the rider cannot see was being dialled - and it
+     * beat a HUD that had already announced itself.
      *
      * When auto-discover is OFF we fall back to the legacy single-path
      * behaviour: manual IP only. That mode exists as an escape hatch for
@@ -557,10 +558,18 @@ class HudServer @Inject constructor(
         manualPort: Int,
     ): Pair<String?, ConnectionSource> {
         val typedPort = s?.hudServerPort?.takeIf { it in 1..65535 }
-        if (manualIp.isNotBlank()) {
+        if (manualIp.isNotBlank() &&
+            com.eried.eucplanet.hud.protocol.HudDiscovery.isValidIpv4(manualIp)
+        ) {
             // Always honour the typed IP. Port falls back to default 28080
             // when the rider left it blank / invalid.
             return "$manualIp:$manualPort" to ConnectionSource.MANUAL
+        }
+        if (manualIp.isNotBlank()) {
+            // Auto-find is off, so there is no other channel to fall back to.
+            // Say which value is wrong rather than looping on a DNS failure.
+            log("Manual IP \"$manualIp\" is not a complete address - fix it in Settings")
+            return null to ConnectionSource.NONE
         }
         // IP not set: rely on mDNS for the address, attach the typed port
         // if the rider set one.
@@ -590,8 +599,11 @@ class HudServer @Inject constructor(
      *    otherwise blocks waiting for the next packet up to a soft cap)
      *  - mDNS browse (5 s timeout, common on real WiFi)
      *  - Subnet probe across the phone's own /24 (~3 s on fast LAN)
-     *  - Manual IP, fired after a short grace period so the first three
-     *    have a chance to win cleanly when they will
+     *
+     * A saved manual IP is NOT one of them. Auto-find hides the field that
+     * holds it, so using it here meant dialling an address the rider could not
+     * see: one tester's stale entry beat his HUD's own beacon twice in a row.
+     * Auto-find off is how you ask for that address ([resolveManualOnly]).
      *
      * This is the "try harder" the rider asked for: instead of stepping
      * through sequentially and waiting for each to give up before the
@@ -616,7 +628,7 @@ class HudServer @Inject constructor(
             kotlinx.coroutines.channels.Channel.UNLIMITED
         )
 
-        val udpJob = launch {
+        val udpJob = scope.launch {
             // Check the listener's cache repeatedly so a freshly-arrived
             // beacon shows up within ~200 ms instead of waiting for the
             // dial loop's next iteration. Bounded so we eventually give
@@ -646,18 +658,25 @@ class HudServer @Inject constructor(
             )
         }
 
-        val mdnsJob = launch {
+        val mdnsJob = scope.launch {
             log("mDNS: browsing _eucplanet._tcp.local…")
+            // Elapsed, not the configured timeout. The old line always claimed
+            // the full timeout, so a cancelled browse (another channel won
+            // first) read as "the network swallowed our query" - which sent a
+            // real investigation looking for multicast filtering that was
+            // never there. A cancelled job now logs nothing at all.
+            val startedAt = System.currentTimeMillis()
             val v = resolveViaMdns()
+            val tookMs = System.currentTimeMillis() - startedAt
             if (v != null) {
                 log("mDNS: found $v")
                 results.send(v to ConnectionSource.MDNS)
             } else {
-                log("mDNS: no answer in ${mdnsTimeoutMs / 1000}s")
+                log("mDNS: no answer in ${"%.1f".format(tookMs / 1000f)}s")
             }
         }
 
-        val probeJob = launch {
+        val probeJob = scope.launch {
             // Last resort, and gated: this only runs if the faster mDNS / UDP
             // paths did not already find the HUD (a win cancels this job). It
             // starts immediately - no stagger - because the scan is bounded
@@ -673,22 +692,43 @@ class HudServer @Inject constructor(
             }
         }
 
-        val manualJob = if (manualIp.isNotBlank()) {
-            launch {
-                // Small grace period so a healthy UDP / mDNS hit wins the
-                // race before we fall back to a possibly-stale manual IP.
-                kotlinx.coroutines.delay(manualHintDelayMs)
-                log("Manual hint: $manualIp:$manualPort")
-                results.send("$manualIp:$manualPort" to ConnectionSource.MANUAL)
-            }
-        } else null
-
-        val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
-        val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
-            results.receive()
+        if (manualIp.isNotBlank()) {
+            // Auto-find is on, so the saved address is not used. The settings
+            // row that shows it is hidden in this mode, so dialling it meant
+            // dialling something the rider could not see, could not check and
+            // could not stop - and it beat live discovery to do it. Turning
+            // auto-find off is how you ask for that address to be used.
+            log("Auto-find is on, ignoring the saved IP $manualIp")
         }
-        allJobs.forEach { it.cancel() }
-        if (winner != null) winner else null to ConnectionSource.NONE
+
+        val allJobs = listOf(udpJob, mdnsJob, probeJob)
+        try {
+            val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
+                results.receive()
+            }
+            if (winner != null) winner else null to ConnectionSource.NONE
+        } finally {
+            // Cancel, then wait for the three to actually stop - but NOT for the
+            // JmDNS close, which is detached in resolveViaMdns and is the two
+            // seconds this change set removed. Waiting here costs a suspension
+            // point for the beacon and mDNS jobs and at most one 250 ms connect
+            // timeout for the probe.
+            //
+            // Without the wait, a cycle that fails fast (a stale beacon still
+            // inside its freshness window wins instantly, the dial is refused,
+            // backoff is 1 s) starts the next cycle while this one is still
+            // unwinding, and JmDNS.create runs again on an address whose
+            // previous instance has not let go of 5353 yet. Two generations of
+            // mDNS sockets, for as long as the HUD stays undialable.
+            //
+            // NonCancellable because this finally also runs when the caller
+            // itself was cancelled (link switched off), where a plain join
+            // would return immediately and skip the wait entirely.
+            allJobs.forEach { it.cancel() }
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                kotlinx.coroutines.joinAll(*allJobs.toTypedArray())
+            }
+        }
     }
 
     /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns
@@ -741,12 +781,27 @@ class HudServer @Inject constructor(
             }
             if (instances.isEmpty()) return null
             return kotlinx.coroutines.withTimeoutOrNull(mdnsTimeoutMs) { resolved.await() }
+        } catch (c: kotlinx.coroutines.CancellationException) {
+            // Another channel won the race. Catching this as a Throwable (as
+            // this did) swallowed the cancellation, so the job carried on and
+            // reported itself as a timeout it never reached.
+            throw c
         } catch (t: Throwable) {
             Log.w(TAG, "mDNS resolve failed: ${t.message}")
             return null
         } finally {
-            // close() unregisters listeners and frees the multicast socket.
-            instances.forEach { md -> try { md.close() } catch (_: Throwable) {} }
+            // close() unregisters listeners and frees the multicast socket,
+            // and it BLOCKS for about two seconds sending goodbyes. Closing it
+            // here put those two seconds between knowing the answer and
+            // dialling it, because coroutineScope waits for this child: every
+            // connect paid it, on every network. Hand the close to the server
+            // scope so discovery is free to get on with it.
+            val toClose = instances.toList()
+            if (toClose.isNotEmpty()) {
+                scope.launch(Dispatchers.IO + kotlinx.coroutines.NonCancellable) {
+                    toClose.forEach { md -> runCatching { md.close() } }
+                }
+            }
         }
     }
 

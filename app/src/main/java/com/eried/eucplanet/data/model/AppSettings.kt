@@ -616,13 +616,13 @@ data class AppSettings(
      */
     val hudIp: String = "",
     /**
-     * When ON (default), the phone runs a 4-layer discovery chain to find
-     * the HUD's IP automatically: UDP beacon → mDNS browse → manual hint
-     * (whatever is in [hudIp]) → subnet probe of the phone's own /24. The
-     * winning channel is published on the HUD-settings status line so the
-     * rider can see how the link was established. When OFF, only [hudIp]
-     * is tried -- legacy behaviour, retained as an escape hatch for cases
-     * where every auto path is broken (very rare).
+     * When ON (default), the phone finds the HUD by itself: UDP beacon, mDNS
+     * browse and a subnet probe of its own /24, raced together. The winning
+     * channel is published on the HUD-settings status line so the rider can
+     * see how the link was established. [hudIp] is NOT consulted in this mode,
+     * and the settings row that holds it is hidden, so nothing is dialled that
+     * the rider cannot see. When OFF, only [hudIp] is tried -- the escape
+     * hatch for cases where every auto path is broken (very rare).
      */
     val hudAutoDiscover: Boolean = true,
     /**
