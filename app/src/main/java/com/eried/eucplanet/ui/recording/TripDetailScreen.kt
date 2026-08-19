@@ -1631,15 +1631,22 @@ private fun RouteMapView(
     // default reads the active background luminance (a dark theme, including a
     // custom dark one, gets the dark map; a light one gets the white map).
     val themeMapDefault = if (MaterialTheme.appColors.appBackground.luminance() < 0.5f) "DARK" else "LIGHT"
+    // byId resolves the ids this screen used to persist (SAT) onto the shared
+    // ones, so a rider who last chose satellite still gets satellite.
     var mapType by rememberSaveable {
-        mutableStateOf(tripMapTypeSession ?: savedMapType.ifBlank { themeMapDefault })
+        mutableStateOf(
+            com.eried.eucplanet.hud.protocol.MapLayers
+                .byId(tripMapTypeSession ?: savedMapType.ifBlank { themeMapDefault })
+                .id
+        )
     }
     // The persisted value is served through an Eagerly-started flow, so it is
     // normally present by first composition; guard the rare case where it arrives
     // after. Only adopt it while the rider has not picked this session.
     LaunchedEffect(savedMapType) {
-        if (tripMapTypeSession == null && savedMapType.isNotBlank() && savedMapType != mapType) {
-            mapType = savedMapType
+        val resolved = com.eried.eucplanet.hud.protocol.MapLayers.byId(savedMapType).id
+        if (tripMapTypeSession == null && savedMapType.isNotBlank() && resolved != mapType) {
+            mapType = resolved
         }
     }
     val onPick: (String) -> Unit = { mapType = it; tripMapTypeSession = it; onPersistMapType(it) }
@@ -1765,7 +1772,9 @@ private fun MapSurface(
     var webView by remember { mutableStateOf<WebView?>(null) }
     // Same seven as the navigator and eucviewer, same order. No overlays
     // here: a recorded trip has no chargers or places to draw.
-    val mapTypes = listOf("OSM", "CYCLOSM", "TOPO", "HUMANITARIAN", "LIGHT", "DARK", "SAT")
+    // Straight from the registry: this list once said SAT while the tile table
+    // said SATELLITE, so picking satellite silently fell back to plain OSM.
+    val mapTypes = com.eried.eucplanet.hud.protocol.MapLayers.ALL.map { it.id }
     // The HTML actually showing in the WebView.
     //
     // A plain holder rather than Compose state on purpose: it is written from
@@ -1854,9 +1863,7 @@ private fun MapSurface(
                     containerColor = MaterialTheme.appColors.menuBackground
                 ) {
                     RouteBuilderViewModel.MAP_LAYERS.forEach { layer ->
-                        // The navigator's SAT is spelled SATELLITE; this screen
-                        // has always used the short form in its tile table.
-                        val id = if (layer.id == "SATELLITE") "SAT" else layer.id
+                        val id = layer.id
                         DropdownMenuItem(
                             leadingIcon = {
                                 RadioButton(
@@ -1965,7 +1972,8 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
 <script>
   var coords=[$coordsJson];
   var fadedCoords=[$fadedCoordsJson];
-  var map=L.map('map',{zoomControl:false,attributionControl:false});
+  var map=L.map('map',{zoomControl:false,attributionControl:true});
+  map.attributionControl.setPrefix('');
   var baseLayer=null;
   // {r} asks the provider for its @2x tile on a high-density screen. Without it
   // a phone upscales a 256 px tile threefold or more, which is most of why the
@@ -1976,33 +1984,15 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   // refresh on their own schedule: side by side on the same tile it loses the
   // street names, the POIs and most of the building detail, which is what made
   // this map look dated next to the Studio one.
-  var tileUrls={
-    OSM:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    CYCLOSM:'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
-    TOPO:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    HUMANITARIAN:'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    LIGHT:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    DARK:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    SAT:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-  };
+  var MAP_LAYERS = ${com.eried.eucplanet.ui.navigator.mapLayersJson()};
   window.setMapType=function(t){
     if(baseLayer) map.removeLayer(baseLayer);
-    // maxNativeZoom stops requesting tiles the provider does not have, while
-    // maxZoom lets the rider keep zooming on upscaled ones rather than hitting
-    // a wall at street level.
-    //
-    // detectRetina on the OSM layer because it serves no @2x: Leaflet instead
-    // pulls four tiles from one zoom deeper and draws them at half size, which
-    // gets the sharpness on a dense screen without the provider needing to
-    // offer a retina URL.
-    var opts = {maxZoom:21, subdomains:'abcd'};
-    if (t === 'DARK' || t === 'LIGHT') { opts.maxNativeZoom = 20; }
-    else if (t === 'SAT') { opts.maxNativeZoom = 19; }
-    else if (t === 'TOPO') { opts.maxNativeZoom = 17; opts.subdomains = 'abc'; }
-    else if (t === 'CYCLOSM') { opts.maxNativeZoom = 20; opts.subdomains = 'abc'; opts.detectRetina = true; }
-    else if (t === 'HUMANITARIAN') { opts.maxNativeZoom = 20; opts.subdomains = 'ab'; opts.detectRetina = true; }
-    else { opts.maxNativeZoom = 19; opts.detectRetina = true; }
-    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.OSM, opts).addTo(map);
+    // One table for every map in the app, credits included: see MapLayers.
+    var layer = MAP_LAYERS[t] || MAP_LAYERS['OSM'];
+    var opts = {maxZoom:21, maxNativeZoom:layer.maxNative, attribution:layer.attr};
+    if (layer.subs) opts.subdomains = layer.subs;
+    if (layer.retina) opts.detectRetina = true;
+    baseLayer=L.tileLayer(layer.url, opts).addTo(map);
     baseLayer.bringToBack();
   };
   window.setMapType('$initialType');

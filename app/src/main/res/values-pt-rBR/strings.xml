@@ -1367,6 +1367,8 @@
     <string name="studio_cfg_map_dark">Escuro</string>
     <string name="studio_cfg_map_satellite">Satélite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Mostrar crédito do mapa</string>
+    <string name="studio_cfg_map_attribution_off">A licença do mapa exige este crédito em tudo o que você compartilhar. Desligar é decisão sua.</string>
     <string name="studio_cfg_map_style_community">Ladrilhos mantidos por voluntários. Uma exportação longa baixa milhares de uma vez, algo que esses servidores pedem para evitar.</string>
     <string name="studio_cfg_map_rotate">Girar com o movimento</string>
     <string name="studio_cfg_map_trace">Traço</string>

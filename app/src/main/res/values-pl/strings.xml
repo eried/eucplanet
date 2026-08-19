@@ -1369,6 +1369,8 @@
     <string name="studio_cfg_map_dark">Ciemny</string>
     <string name="studio_cfg_map_satellite">Satelita</string>
     <string name="studio_cfg_map_zoom">Powiększenie</string>
+    <string name="studio_cfg_map_attribution">Pokaż źródło mapy</string>
+    <string name="studio_cfg_map_attribution_off">Licencja mapy wymaga tego oznaczenia na wszystkim, co udostępniasz. Wyłączenie to Twoja decyzja.</string>
     <string name="studio_cfg_map_style_community">Kafelki utrzymywane przez wolontariuszy. Długi eksport pobiera tysiące naraz, o czym te serwery proszą, by tego unikać.</string>
     <string name="studio_cfg_map_rotate">Obracaj zgodnie z ruchem</string>
     <string name="studio_cfg_map_trace">Ślad</string>

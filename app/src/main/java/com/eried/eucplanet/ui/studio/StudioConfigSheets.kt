@@ -2124,6 +2124,17 @@ fun ElementConfigSheet(
                         color = MaterialTheme.appColors.statusWarn,
                     )
                 }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_map_attribution),
+                    element.mapAttribution
+                ) { onChange(element.copy(mapAttribution = it)) }
+                if (!element.mapAttribution) {
+                    Text(
+                        stringResource(R.string.studio_cfg_map_attribution_off),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.statusWarn,
+                    )
+                }
                 LabeledSlider(
                     stringResource(R.string.studio_cfg_map_zoom),
                     element.mapZoom.toString(),

@@ -1069,6 +1069,8 @@
     <string name="studio_cfg_map_dark">Mørk</string>
     <string name="studio_cfg_map_satellite">Satellitt</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Vis kartkreditering</string>
+    <string name="studio_cfg_map_attribution_off">Kartlisensen krever denne krediteringen på alt du deler. Å slå den av er ditt valg.</string>
     <string name="studio_cfg_map_style_community">Fliser driftet av frivillige. En lang eksport laster ned tusenvis på én gang, noe disse serverne ber apper unngå.</string>
     <string name="studio_cfg_map_rotate">Roter med bevegelsen</string>
     <string name="studio_cfg_map_trace">Spor</string>

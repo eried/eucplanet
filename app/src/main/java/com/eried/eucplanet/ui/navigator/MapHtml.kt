@@ -19,6 +19,21 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
     ROUTE_BUILDER_HTML
         .replace("__INITIAL_MAP_TYPE__", mapType)
         .replace("__INITIAL_BG__", mapTypeInitialBg(mapType))
+        .replace("__LAYERS_JSON__", mapLayersJson())
+
+/**
+ * The shared layer registry as JSON for the Leaflet side.
+ *
+ * Built from [com.eried.eucplanet.hud.protocol.MapLayers] rather than written
+ * out again here, so a layer cannot exist on one map screen and not another,
+ * and cannot be drawn anywhere without the credit its licence requires.
+ */
+internal fun mapLayersJson(): String =
+    com.eried.eucplanet.hud.protocol.MapLayers.ALL.joinToString(",", "{", "}") { l ->
+        val esc = l.attribution.replace("\\", "\\\\").replace("'", "\'")
+        "'${l.id}':{url:'${l.urlTemplate}',attr:'$esc'," +
+            "maxNative:${l.maxNativeZoom},subs:'${l.subdomains}',retina:${l.detectRetina}}"
+    }
 
 /**
  * The self-contained HTML document for the Route Builder's Leaflet map.
@@ -68,6 +83,16 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   /* On-map controls (zoom +/-, recenter) follow the rider's theme accent,
      pushed from native via nativeSetAccent -> the --accent CSS variable. */
   .leaflet-bar a, .leaflet-control a { color: var(--accent, #4FC3F7) !important; }
+  /* The credit has to be readable, not prominent: small, translucent, and out
+     of the way of the controls on the right. */
+  .leaflet-control-attribution {
+    background: rgba(0,0,0,0.35) !important;
+    color: rgba(255,255,255,0.85) !important;
+    font-size: 9px !important;
+    padding: 1px 5px !important;
+    border-radius: 6px 0 0 0;
+  }
+  .leaflet-control-attribution a { color: rgba(255,255,255,0.85) !important; }
   .leaflet-tile-container { transition: none !important; }
   .leaflet-fade-anim .leaflet-tile { opacity: 1 !important; }
   /* Force GPU compositing on the panes we animate. Without explicit
@@ -196,7 +221,11 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // rotated, in which case we pause the auto-follow for a few seconds.
   var map = L.map('map', {
     zoomControl: false,
-    attributionControl: false,
+    // Required by the tile providers and by ODbL on the OSM data underneath,
+    // so it is on. Leaflet's own "Leaflet" prefix is dropped below: it is an
+    // advert, not a licence term, and the space is better spent on the credit
+    // that actually has to be there.
+    attributionControl: true,
     rotate: true,
     touchRotate: true,
     bearing: 0,
@@ -224,6 +253,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     zoomAnimation: false,
     markerZoomAnimation: false
   });
+  var MAP_LAYERS = __LAYERS_JSON__;
+  // "Leaflet" is an advert; the provider credit beside it is a licence term.
+  map.attributionControl.setPrefix('');
   var tileLayer = null;
 
   // --- Auto-orient: snap the map's bearing to follow the rider's heading,
@@ -602,36 +634,17 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     // map keeps zooming past it on upscaled tiles rather than refusing to zoom
     // and leaving the rider stuck at street level.
     var common = {keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
-    // Layer table. Every entry here is free and needs no API key; the ones
-    // that do (Thunderforest's cycle and transport maps, Tracestrack Topo)
-    // are deliberately absent, because a key shipped in an APK is public and
-    // the whole rider base would share one free quota.
-    //
-    // detectRetina on the plain-OSM styles: they serve no @2x, so Leaflet
-    // pulls four tiles a zoom deeper and draws them half size, which is what
-    // keeps them sharp on a dense phone screen.
-    if (type === 'SATELLITE'){
-      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
-    } else if (type === 'LIGHT'){
-      url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
-    } else if (type === 'OSM'){
-      url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-      opts = Object.assign({maxNativeZoom:19, maxZoom:21, detectRetina:true}, common);
-    } else if (type === 'CYCLOSM'){
-      url = 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abc', detectRetina:true}, common);
-    } else if (type === 'TOPO'){
-      url = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
-      opts = Object.assign({maxNativeZoom:17, maxZoom:21, subdomains:'abc'}, common);
-    } else if (type === 'HUMANITARIAN'){
-      url = 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'ab', detectRetina:true}, common);
-    } else {
-      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
-    }
+    // Table injected from the shared Kotlin registry, so the layers, their
+    // zoom ceilings and their credits are defined once for the whole app.
+    var layer = MAP_LAYERS[type] || MAP_LAYERS['OSM'];
+    url = layer.url;
+    opts = Object.assign({
+      maxNativeZoom: layer.maxNative,
+      maxZoom: 21,
+      attribution: layer.attr
+    }, common);
+    if (layer.subs) opts.subdomains = layer.subs;
+    if (layer.retina) opts.detectRetina = true;
     if (tileLayer){ map.removeLayer(tileLayer); }
     tileLayer = L.tileLayer(url, opts).addTo(map);
     // Tell the screen as soon as the first ring of tiles has actually

@@ -1812,6 +1812,8 @@
     <string name="studio_cfg_map_dark">Dark</string>
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Show map credit</string>
+    <string name="studio_cfg_map_attribution_off">The map licence requires this credit on anything you share. Turning it off is your call.</string>
     <string name="studio_cfg_map_style_community">Volunteer-run tiles. A long export downloads thousands at once, which these servers ask apps not to do.</string>
     <string name="studio_cfg_map_rotate">Rotate with movement</string>
     <string name="studio_cfg_map_trace">Trace</string>

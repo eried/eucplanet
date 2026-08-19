@@ -1376,6 +1376,8 @@
     <string name="studio_cfg_map_dark">Mørk</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Vis kortkredit</string>
+    <string name="studio_cfg_map_attribution_off">Kortlicensen kræver denne kredit på alt, du deler. At slå den fra er dit valg.</string>
     <string name="studio_cfg_map_style_community">Fliser drevet af frivillige. En lang eksport henter tusindvis på én gang, hvilket disse servere beder apps om at undgå.</string>
     <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
     <string name="studio_cfg_map_trace">Spor</string>

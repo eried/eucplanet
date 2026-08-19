@@ -1614,6 +1614,8 @@
     <string name="studio_cfg_map_dark">Tmavá</string>
     <string name="studio_cfg_map_satellite">Satelitní</string>
     <string name="studio_cfg_map_zoom">Přiblížení</string>
+    <string name="studio_cfg_map_attribution">Zobrazit autorství mapy</string>
+    <string name="studio_cfg_map_attribution_off">Licence mapy vyžaduje toto autorství u všeho, co sdílíte. Vypnutí je na vás.</string>
     <string name="studio_cfg_map_style_community">Dlaždice provozují dobrovolníci. Dlouhý export jich stáhne tisíce najednou, což tyto servery aplikacím nedoporučují.</string>
     <string name="studio_cfg_map_rotate">Otáčet podle pohybu</string>
     <string name="studio_cfg_map_trace">Stopa</string>

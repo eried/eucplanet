@@ -190,6 +190,7 @@ object OverlayPresetJson {
         put("mapStyle", el.mapStyle)
         put("mapZoom", el.mapZoom)
         put("mapRotateWithHeading", el.mapRotateWithHeading)
+        put("mapAttribution", el.mapAttribution)
         // Legacy on/off key kept so older network HUDs (which only read a
         // boolean) still show/hide the trace; the mode carries the full choice.
         put("mapTrace", el.mapTraceEnabled)
@@ -257,6 +258,7 @@ object OverlayPresetJson {
             clock24Hour = o.optBoolean("clock24Hour", d.clock24Hour),
             mapStyle = o.optString("mapStyle", d.mapStyle),
             mapZoom = o.optInt("mapZoom", d.mapZoom),
+            mapAttribution = o.optBoolean("mapAttribution", d.mapAttribution),
             mapRotateWithHeading = o.optBoolean(
                 "mapRotateWithHeading", d.mapRotateWithHeading
             ),

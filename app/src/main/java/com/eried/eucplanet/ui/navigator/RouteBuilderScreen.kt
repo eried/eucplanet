@@ -989,10 +989,11 @@ fun RouteBuilderScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = padding.calculateTopPadding())
-                        .padding(end = 16.dp, top = 12.dp)
-                        // Needle points where the map is turned, so it reads as
-                        // a compass rather than an unlabelled button.
-                        .rotate(-mapBearing)
+                        .padding(end = 16.dp, top = 12.dp),
+                    // Needle points where the map is turned, so it reads as a
+                    // compass. On the modifier this span the whole button and
+                    // tilted its housing with it.
+                    iconRotation = -mapBearing
                 )
             }
 
@@ -1125,7 +1126,11 @@ fun RouteBuilderScreen(
                 // the buttons that actually need to be one tap away.
                 Box(modifier = Modifier.align(Alignment.End)) {
                     OverlayFab(
-                        active = showChargers || showPlaces,
+                        // Only lit when something is actually on the map. With
+                        // advanced map features off the overlays are not
+                        // fetched or drawn, so a lit button would be claiming
+                        // something that is not there.
+                        active = advancedMap && (showChargers || showPlaces),
                         loading = chargerLoading || placeLoading,
                         icon = Icons.Default.Layers,
                         contentDescription = stringResource(R.string.nav_map_style),
@@ -2596,6 +2601,9 @@ private fun OverlayFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
+    /** Turns the glyph inside, not the button. The compass needle has to point
+     *  where the map is turned while its housing stays square to the screen. */
+    iconRotation: Float = 0f,
 ) {
     val onColor = if (active) MaterialTheme.colorScheme.onPrimary
     else MaterialTheme.colorScheme.onSurface
@@ -2609,7 +2617,12 @@ private fun OverlayFab(
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription, tint = onColor)
+            Icon(
+                icon,
+                contentDescription,
+                tint = onColor,
+                modifier = if (iconRotation != 0f) Modifier.rotate(iconRotation) else Modifier
+            )
             if (loading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(40.dp),

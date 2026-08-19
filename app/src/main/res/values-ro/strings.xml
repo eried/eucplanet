@@ -1614,6 +1614,8 @@
     <string name="studio_cfg_map_dark">Întunecat</string>
     <string name="studio_cfg_map_satellite">Satelit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Afișează creditul hărții</string>
+    <string name="studio_cfg_map_attribution_off">Licența hărții cere acest credit pe tot ce distribui. Dezactivarea ține de tine.</string>
     <string name="studio_cfg_map_style_community">Dale întreținute de voluntari. Un export lung descarcă mii deodată, lucru pe care aceste servere cer să fie evitat.</string>
     <string name="studio_cfg_map_rotate">Rotește odată cu mișcarea</string>
     <string name="studio_cfg_map_trace">Traseu</string>

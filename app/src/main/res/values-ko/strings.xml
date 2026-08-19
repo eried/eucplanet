@@ -1364,6 +1364,8 @@
     <string name="studio_cfg_map_dark">다크</string>
     <string name="studio_cfg_map_satellite">위성</string>
     <string name="studio_cfg_map_zoom">줌</string>
+    <string name="studio_cfg_map_attribution">지도 출처 표시</string>
+    <string name="studio_cfg_map_attribution_off">지도 라이선스는 공유하는 모든 것에 이 출처 표시를 요구합니다. 끄는 것은 사용자의 선택입니다.</string>
     <string name="studio_cfg_map_style_community">자원봉사자가 운영하는 타일입니다. 긴 내보내기는 한 번에 수천 개를 내려받는데, 이 서버들은 이를 피해 달라고 요청합니다.</string>
     <string name="studio_cfg_map_rotate">이동 방향으로 회전</string>
     <string name="studio_cfg_map_trace">경로</string>

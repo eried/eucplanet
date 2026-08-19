@@ -1403,6 +1403,8 @@
     <string name="studio_cfg_map_dark">Sombre</string>
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Afficher le crédit de la carte</string>
+    <string name="studio_cfg_map_attribution_off">La licence de la carte exige ce crédit sur tout ce que tu partages. Le retirer est ton choix.</string>
     <string name="studio_cfg_map_style_community">Tuiles gérées par des bénévoles. Un long export en télécharge des milliers d\'un coup, ce que ces serveurs demandent d\'éviter.</string>
     <string name="studio_cfg_map_rotate">Pivoter avec le mouvement</string>
     <string name="studio_cfg_map_trace">Tracé</string>

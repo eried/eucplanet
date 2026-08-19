@@ -1377,6 +1377,8 @@
     <string name="studio_cfg_map_dark">Dunkel</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Kartenhinweis anzeigen</string>
+    <string name="studio_cfg_map_attribution_off">Die Kartenlizenz verlangt diesen Hinweis auf allem, was du teilst. Ausschalten ist deine Entscheidung.</string>
     <string name="studio_cfg_map_style_community">Kacheln von Freiwilligen betrieben. Ein langer Export lädt Tausende auf einmal, worum diese Server Apps ausdrücklich bitten, es zu lassen.</string>
     <string name="studio_cfg_map_rotate">Mit Bewegung drehen</string>
     <string name="studio_cfg_map_trace">Spur</string>

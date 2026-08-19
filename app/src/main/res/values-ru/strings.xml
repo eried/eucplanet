@@ -1367,6 +1367,8 @@
     <string name="studio_cfg_map_dark">Тёмная</string>
     <string name="studio_cfg_map_satellite">Спутник</string>
     <string name="studio_cfg_map_zoom">Масштаб</string>
+    <string name="studio_cfg_map_attribution">Показывать источник карты</string>
+    <string name="studio_cfg_map_attribution_off">Лицензия карты требует указывать источник на всём, чем вы делитесь. Отключать его - ваше решение.</string>
     <string name="studio_cfg_map_style_community">Тайлы поддерживают волонтёры. Длинный экспорт скачивает тысячи сразу, чего эти серверы просят не делать.</string>
     <string name="studio_cfg_map_rotate">Поворот по движению</string>
     <string name="studio_cfg_map_trace">Трек</string>

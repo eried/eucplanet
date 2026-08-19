@@ -1052,6 +1052,8 @@
     <string name="studio_cfg_map_dark">深色</string>
     <string name="studio_cfg_map_satellite">卫星</string>
     <string name="studio_cfg_map_zoom">缩放</string>
+    <string name="studio_cfg_map_attribution">显示地图署名</string>
+    <string name="studio_cfg_map_attribution_off">地图许可要求你分享的内容都带上这个署名。关掉与否由你决定。</string>
     <string name="studio_cfg_map_style_community">这些瓦片由志愿者运营。长视频导出会一次下载数千张，这些服务器希望应用避免这样做。</string>
     <string name="studio_cfg_map_rotate">随移动旋转</string>
     <string name="studio_cfg_map_trace">轨迹</string>

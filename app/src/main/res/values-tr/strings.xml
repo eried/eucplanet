@@ -1364,6 +1364,8 @@
     <string name="studio_cfg_map_dark">Koyu</string>
     <string name="studio_cfg_map_satellite">Uydu</string>
     <string name="studio_cfg_map_zoom">Yakınlaştırma</string>
+    <string name="studio_cfg_map_attribution">Harita künyesini göster</string>
+    <string name="studio_cfg_map_attribution_off">Harita lisansı, paylaştığın her şeyde bu künyeyi ister. Kapatmak senin kararın.</string>
     <string name="studio_cfg_map_style_community">Gönüllülerin işlettiği döşemeler. Uzun bir dışa aktarma bir anda binlercesini indirir, bu sunucular bundan kaçınılmasını ister.</string>
     <string name="studio_cfg_map_rotate">Hareketle döndür</string>
     <string name="studio_cfg_map_trace">İz</string>

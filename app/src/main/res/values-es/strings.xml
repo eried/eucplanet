@@ -1367,6 +1367,8 @@
     <string name="studio_cfg_map_dark">Oscuro</string>
     <string name="studio_cfg_map_satellite">Satélite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Mostrar créditos del mapa</string>
+    <string name="studio_cfg_map_attribution_off">La licencia del mapa exige este crédito en todo lo que compartas. Quitarlo es decisión tuya.</string>
     <string name="studio_cfg_map_style_community">Teselas mantenidas por voluntarios. Una exportación larga descarga miles de golpe, algo que estos servidores piden evitar.</string>
     <string name="studio_cfg_map_rotate">Girar con el movimiento</string>
     <string name="studio_cfg_map_trace">Traza</string>

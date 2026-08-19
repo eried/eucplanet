@@ -227,6 +227,13 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |
+| [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) | The map data under every layer in the app (ODbL) |
+| [CyclOSM](https://www.cyclosm.org/) | Cycle and trail style, tiles served by OpenStreetMap France |
+| [OpenTopoMap](https://opentopomap.org/) | Topographic style with contours (CC-BY-SA) |
+| [Humanitarian OSM Team](https://www.hotosm.org/) | HOT style, tiles served by OpenStreetMap France |
+| [CARTO](https://carto.com/attributions) | Voyager and Dark basemaps |
+| [Esri](https://www.esri.com/) | World Imagery satellite tiles (Esri, Maxar, Earthstar Geographics) |
+| [Leaflet](https://leafletjs.com/) | The map component every in-app map is drawn with (BSD-2) |
 
 ## License
 

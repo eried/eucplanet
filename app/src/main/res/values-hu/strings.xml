@@ -1614,6 +1614,8 @@
     <string name="studio_cfg_map_dark">Sötét</string>
     <string name="studio_cfg_map_satellite">Műhold</string>
     <string name="studio_cfg_map_zoom">Nagyítás</string>
+    <string name="studio_cfg_map_attribution">Térkép forrásának mutatása</string>
+    <string name="studio_cfg_map_attribution_off">A térkép licence megköveteli ezt a forrást mindenen, amit megosztasz. A kikapcsolás a te döntésed.</string>
     <string name="studio_cfg_map_style_community">Önkéntesek üzemeltette csempék. Egy hosszú exportálás egyszerre több ezret tölt le, amit ezek a szerverek kérnek elkerülni.</string>
     <string name="studio_cfg_map_rotate">Forgatás a mozgással</string>
     <string name="studio_cfg_map_trace">Nyomvonal</string>

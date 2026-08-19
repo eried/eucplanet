@@ -1088,6 +1088,8 @@
     <string name="studio_cfg_map_dark">Scuro</string>
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Mostra crediti mappa</string>
+    <string name="studio_cfg_map_attribution_off">La licenza della mappa richiede questo credito su tutto ciò che condividi. Toglierlo è una tua scelta.</string>
     <string name="studio_cfg_map_style_community">Tasselli gestiti da volontari. Un\'esportazione lunga ne scarica migliaia in una volta, cosa che questi server chiedono di evitare.</string>
     <string name="studio_cfg_map_rotate">Ruota con il movimento</string>
     <string name="studio_cfg_map_trace">Traccia</string>

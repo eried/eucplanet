@@ -1363,6 +1363,8 @@
     <string name="studio_cfg_map_dark">Mörk</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Visa kartkälla</string>
+    <string name="studio_cfg_map_attribution_off">Kartlicensen kräver den här källan på allt du delar. Att stänga av den är ditt val.</string>
     <string name="studio_cfg_map_style_community">Rutor som drivs av frivilliga. En lång export hämtar tusentals på en gång, vilket dessa servrar ber appar att undvika.</string>
     <string name="studio_cfg_map_rotate">Rotera med rörelsen</string>
     <string name="studio_cfg_map_trace">Spår</string>

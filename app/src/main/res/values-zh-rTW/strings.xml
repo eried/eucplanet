@@ -1364,6 +1364,8 @@
     <string name="studio_cfg_map_dark">深色</string>
     <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">縮放</string>
+    <string name="studio_cfg_map_attribution">顯示地圖署名</string>
+    <string name="studio_cfg_map_attribution_off">地圖授權要求你分享的內容都帶上這個署名。關掉與否由你決定。</string>
     <string name="studio_cfg_map_style_community">這些圖磚由志工營運。長影片匯出會一次下載數千張，這些伺服器希望應用避免這樣做。</string>
     <string name="studio_cfg_map_rotate">隨移動旋轉</string>
     <string name="studio_cfg_map_trace">軌跡</string>

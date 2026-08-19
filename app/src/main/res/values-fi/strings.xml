@@ -1614,6 +1614,8 @@
     <string name="studio_cfg_map_dark">Tumma</string>
     <string name="studio_cfg_map_satellite">Satelliitti</string>
     <string name="studio_cfg_map_zoom">Zoomaus</string>
+    <string name="studio_cfg_map_attribution">Näytä kartan lähde</string>
+    <string name="studio_cfg_map_attribution_off">Kartan lisenssi vaatii tämän maininnan kaikessa, mitä jaat. Poistaminen on sinun vastuullasi.</string>
     <string name="studio_cfg_map_style_community">Vapaaehtoisten ylläpitämät ruudut. Pitkä vienti lataa tuhansia kerralla, mitä nämä palvelimet pyytävät välttämään.</string>
     <string name="studio_cfg_map_rotate">Käännä liikkeen mukaan</string>
     <string name="studio_cfg_map_trace">Jälki</string>
