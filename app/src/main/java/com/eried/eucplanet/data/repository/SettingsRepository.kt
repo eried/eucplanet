@@ -4,6 +4,7 @@ import com.eried.eucplanet.data.model.ADVANCED_SPECS
 import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.store.SettingsStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -83,5 +84,9 @@ class SettingsRepository @Inject constructor(
         } else {
             proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEVER)
         },
+        // An unknown discovery mode (hand-edited or newer file) falls back to
+        // AUTO, which never uses the saved IP.
+        hudDiscoveryMode = hudDiscoveryMode.takeIf { it in HudDiscoveryMode.VALUES }
+            ?: HudDiscoveryMode.AUTO,
     )
 }

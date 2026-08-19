@@ -246,6 +246,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ADVANCED_DEFAULTS
 import com.eried.eucplanet.data.model.ADVANCED_SPECS
 import com.eried.eucplanet.data.model.BatteryPercentSettings
+import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.AdvGroup
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
@@ -9886,7 +9887,8 @@ private fun SegmentedChoice(
     current: String,
     onChange: (String) -> Unit,
     onPreview: (() -> Unit)? = null,
-    previewEnabled: Boolean = true
+    previewEnabled: Boolean = true,
+    enabled: Boolean = true,
 ) {
     Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
         SingleChoiceSegmentedButtonRow(
@@ -9899,6 +9901,7 @@ private fun SegmentedChoice(
                     modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },
+                    enabled = enabled,
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
@@ -10905,25 +10908,29 @@ private fun HudIntegrationSection(
         // hotspot is intentionally off doesn't think anything is wrong.
         HudHotspotHint()
 
-        // "Find HUD automatically" comes FIRST -- it's the choice that
-        // decides whether the rider needs to know the IP at all.
-        // Default ON. While the link is enabled the toggle is locked, so a
-        // mid-session flip can't drop the connection by switching paths.
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.hud_auto_discover),
-            description = stringResource(R.string.hud_auto_discover_desc),
-            checked = settings.hudAutoDiscover,
-            onCheckedChange = { viewModel.updateHudAutoDiscover(it) },
+        // Discovery mode comes FIRST -- it decides whether the rider needs to
+        // know the IP at all. Auto finds the HUD on its own; Fixed uses only
+        // the address below; Hybrid tries auto then falls back to it. Locked
+        // while the link is enabled so a mid-session flip can't drop it.
+        SegmentedChoice(
+            label = stringResource(R.string.hud_discovery_mode),
+            options = listOf(
+                HudDiscoveryMode.AUTO to stringResource(R.string.hud_discovery_auto),
+                HudDiscoveryMode.HYBRID to stringResource(R.string.hud_discovery_hybrid),
+                HudDiscoveryMode.FIXED to stringResource(R.string.hud_discovery_fixed),
+            ),
+            current = settings.hudDiscoveryMode,
+            onChange = { viewModel.updateHudDiscoveryMode(it) },
             enabled = !settings.hudServerEnabled,
         )
+        HintText(stringResource(R.string.hud_discovery_desc), small = true)
 
         // IP + port live side by side as one logical input: the rider
         // reads the IP off the HUD's screen, port is almost always the
         // default. They're disabled while the link is active so an
         // accidental keystroke can't drop a live connection. We HIDE the
-        // whole row when auto-find is ON, since the rider doesn't need to
-        // know the IP in that mode and showing fields they shouldn't touch
-        // is just visual noise.
+        // whole row in AUTO mode, since that mode never uses the IP; Fixed
+        // and Hybrid both show it.
         val fieldsEnabled = !settings.hudServerEnabled
         // Local edit buffers, seeded from settings ONCE at first
         // composition and never re-keyed. The DataStore-backed write
@@ -10932,7 +10939,7 @@ private fun HudIntegrationSection(
         // mid-edit keystrokes (testers reported "192" appearing as "921").
         var ipText by remember { mutableStateOf(settings.hudIp) }
         var portText by remember { mutableStateOf(settings.hudServerPort.toString()) }
-        AnimatedVisibility(visible = !settings.hudAutoDiscover) {
+        AnimatedVisibility(visible = settings.hudDiscoveryMode != HudDiscoveryMode.AUTO) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)

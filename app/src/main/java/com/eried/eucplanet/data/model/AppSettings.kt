@@ -3,6 +3,23 @@ package com.eried.eucplanet.data.model
 import com.eried.eucplanet.R
 
 /**
+ * How the phone finds the network HUD. Three modes so the rider controls
+ * whether the saved [AppSettings.hudIp] is ever used:
+ *  - [AUTO]   discovery only (UDP beacon / mDNS / subnet probe); the saved
+ *             IP is never touched, so a stale address from another network
+ *             can't capture the connection.
+ *  - [HYBRID] discovery, with the saved IP/port as a last-resort fallback hint.
+ *  - [FIXED]  the saved IP/port only, no discovery.
+ * FIXED and HYBRID use the IP/port; AUTO does not.
+ */
+object HudDiscoveryMode {
+    const val AUTO = "AUTO"
+    const val HYBRID = "HYBRID"
+    const val FIXED = "FIXED"
+    val VALUES = setOf(AUTO, HYBRID, FIXED)
+}
+
+/**
  * The full set of rider preferences. Lives in DataStore as one JSON blob
  * ([com.eried.eucplanet.data.store.SettingsStore]) so adding a new field is
  * just a one-line data-class change, no DB migration, no risk of losing
@@ -616,15 +633,15 @@ data class AppSettings(
      */
     val hudIp: String = "",
     /**
-     * When ON (default), the phone finds the HUD by itself: UDP beacon, mDNS
-     * browse and a subnet probe of its own /24, raced together. The winning
-     * channel is published on the HUD-settings status line so the rider can
-     * see how the link was established. [hudIp] is NOT consulted in this mode,
-     * and the settings row that holds it is hidden, so nothing is dialled that
-     * the rider cannot see. When OFF, only [hudIp] is tried -- the escape
-     * hatch for cases where every auto path is broken (very rare).
+     * How the phone finds the HUD (see [HudDiscoveryMode]). AUTO (default)
+     * races UDP beacon, mDNS browse and a subnet probe of its own /24 and
+     * never touches [hudIp] - the settings row that holds it is hidden, so
+     * nothing is dialled that the rider cannot see. HYBRID adds the saved
+     * [hudIp] as a fallback hint in that race. FIXED uses only [hudIp] - the
+     * escape hatch for when every auto path is broken. The winning channel is
+     * published on the HUD-settings status line so the rider sees how it linked.
      */
-    val hudAutoDiscover: Boolean = true,
+    val hudDiscoveryMode: String = HudDiscoveryMode.AUTO,
     /**
      * Name of the Overlay Studio preset the rider chose to mirror on the
      * HUD as a "Custom" screen. Empty = no custom overlay configured.

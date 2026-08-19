@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.RadarRepository
@@ -323,20 +324,20 @@ class HudServer @Inject constructor(
             }
         }
 
-        // UDP beacon listener only runs when auto-discovery is enabled.
-        // When the rider has turned auto-discovery off they explicitly do
-        // not want any background "find" activity -- only the manual IP
-        // they typed should be dialled.
+        // UDP beacon listener only runs when we're discovering (AUTO or
+        // HYBRID). In FIXED mode the rider explicitly wants no background
+        // "find" activity -- only the manual IP they typed should be dialled.
         val s = runCatching { settingsRepository.get() }.getOrNull()
-        if (s?.hudAutoDiscover == true) {
+        val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
+        if (mode != HudDiscoveryMode.FIXED) {
             udpListener.start()
-            log("Auto-discovery on (UDP + mDNS + subnet)")
+            log("Discovery on ($mode)")
         } else {
             val ip = s?.hudIp?.trim().orEmpty()
             val port = s?.hudServerPort?.takeIf { it in 1..65535 }
                 ?: HudDiscovery.DEFAULT_PORT
             val target = if (ip.isBlank()) "(no IP set)" else "$ip:$port"
-            log("Auto-discovery off, manual only -> $target")
+            log("Fixed mode, manual only -> $target")
         }
         acquireWifiPerfLock()
         registerNetworkCallback()
@@ -471,21 +472,22 @@ class HudServer @Inject constructor(
      * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
      * state until it dies, back off, retry.
      *
-     * When [AppSettings.hudAutoDiscover] is ON (default), we walk a
-     * priority chain on each iteration:
+     * In AUTO (default) and HYBRID modes we walk a priority chain on each
+     * iteration:
      *
      *   1. UDP beacon sighting (freshest first; cheap, the most reliable
      *      channel because it works on hotspots that block multicast)
      *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
-     *   3. /24 subnet probe of the phone's own IP (slow, ~3 s)
+     *   3. Manual `hudIp` from settings, HYBRID mode only (a last-known hint,
+     *      not the only truth). AUTO skips this so a stale IP the rider cannot
+     *      see (the field is hidden) can never win the race - the bug that had
+     *      a stale entry beat a HUD that had already announced itself.
+     *   4. /24 subnet probe of the phone's own IP (slow, ~3 s, only fires
+     *      when the first channels failed)
      *
-     * A saved `hudIp` is NOT one of them. Auto-discover hides the field that
-     * holds it, so an address the rider cannot see was being dialled - and it
-     * beat a HUD that had already announced itself.
-     *
-     * When auto-discover is OFF we fall back to the legacy single-path
-     * behaviour: manual IP only. That mode exists as an escape hatch for
-     * the very rare environment where all three auto channels mislead us.
+     * FIXED mode skips discovery entirely and uses only the manual IP - an
+     * escape hatch for the rare environment where every auto channel misleads
+     * us. See [HudDiscoveryMode].
      *
      * Each attempt's source is published on [connectionSource] so the
      * settings screen can show "Connected via: UDP beacon" and the rider
@@ -502,15 +504,19 @@ class HudServer @Inject constructor(
             acquireWifiPerfLock()
             val s = runCatching { settingsRepository.get() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
-            val autoDiscover = s?.hudAutoDiscover ?: true
+            val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
             val manualIp = s?.hudIp?.trim().orEmpty()
             val manualPort = s?.hudServerPort?.takeIf { it in 1..65535 }
                 ?: HudDiscovery.DEFAULT_PORT
 
             val (peer, source) = when {
                 override != null -> override to ConnectionSource.DEBUG_OVERRIDE
-                !autoDiscover -> resolveManualOnly(s, manualIp, manualPort)
-                else -> resolvePeer(manualIp, manualPort)
+                mode == HudDiscoveryMode.FIXED -> resolveManualOnly(s, manualIp, manualPort)
+                // HYBRID adds the saved IP as a fallback hint; AUTO never does.
+                else -> resolvePeer(
+                    manualIp, manualPort,
+                    useManualHint = mode == HudDiscoveryMode.HYBRID,
+                )
             }
 
             if (peer == null) {
@@ -613,6 +619,7 @@ class HudServer @Inject constructor(
     private suspend fun resolvePeer(
         manualIp: String,
         manualPort: Int,
+        useManualHint: Boolean,
     ): Pair<String?, ConnectionSource> = kotlinx.coroutines.coroutineScope {
         // Which networks the phone is on decides what every channel below can
         // possibly reach, and it is the first thing to check when all of them
@@ -692,38 +699,38 @@ class HudServer @Inject constructor(
             }
         }
 
-        if (manualIp.isNotBlank()) {
-            // Auto-find is on, so the saved address is not used. The settings
-            // row that shows it is hidden in this mode, so dialling it meant
-            // dialling something the rider could not see, could not check and
-            // could not stop - and it beat live discovery to do it. Turning
-            // auto-find off is how you ask for that address to be used.
-            log("Auto-find is on, ignoring the saved IP $manualIp")
+        // HYBRID only: AUTO passes useManualHint = false so a saved IP the
+        // rider cannot see (its field is hidden) can never enter the race.
+        val manualJob = if (useManualHint && manualIp.isNotBlank()) {
+            scope.launch {
+                // Small grace period so a healthy UDP / mDNS hit wins the race
+                // before we fall back to a possibly-stale manual IP.
+                kotlinx.coroutines.delay(manualHintDelayMs)
+                log("Manual hint: $manualIp:$manualPort")
+                results.send("$manualIp:$manualPort" to ConnectionSource.MANUAL)
+            }
+        } else {
+            if (manualIp.isNotBlank()) log("Auto mode, ignoring the saved IP $manualIp")
+            null
         }
 
-        val allJobs = listOf(udpJob, mdnsJob, probeJob)
+        val allJobs = listOfNotNull(udpJob, mdnsJob, probeJob, manualJob)
         try {
             val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
                 results.receive()
             }
             if (winner != null) winner else null to ConnectionSource.NONE
         } finally {
-            // Cancel, then wait for the three to actually stop - but NOT for the
-            // JmDNS close, which is detached in resolveViaMdns and is the two
-            // seconds this change set removed. Waiting here costs a suspension
-            // point for the beacon and mDNS jobs and at most one 250 ms connect
-            // timeout for the probe.
+            // Cancel, then wait for the channels to actually stop - but NOT for
+            // the JmDNS close, which is detached in resolveViaMdns. Without the
+            // wait, a fast-failing cycle (a stale beacon inside its freshness
+            // window wins instantly, the dial is refused, backoff 1 s) starts
+            // the next cycle while this one is still unwinding, and JmDNS.create
+            // runs again on a socket the previous instance has not let go of.
             //
-            // Without the wait, a cycle that fails fast (a stale beacon still
-            // inside its freshness window wins instantly, the dial is refused,
-            // backoff is 1 s) starts the next cycle while this one is still
-            // unwinding, and JmDNS.create runs again on an address whose
-            // previous instance has not let go of 5353 yet. Two generations of
-            // mDNS sockets, for as long as the HUD stays undialable.
-            //
-            // NonCancellable because this finally also runs when the caller
-            // itself was cancelled (link switched off), where a plain join
-            // would return immediately and skip the wait entirely.
+            // NonCancellable because this finally also runs when the caller was
+            // cancelled (link switched off), where a plain join would return
+            // immediately and skip the wait.
             allJobs.forEach { it.cancel() }
             kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
                 kotlinx.coroutines.joinAll(*allJobs.toTypedArray())

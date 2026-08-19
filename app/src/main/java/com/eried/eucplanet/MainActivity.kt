@@ -866,16 +866,23 @@ class MainActivity : AppCompatActivity() {
                 // No live HUD counters are exposed to the activity, so this is the
                 // HUD config we have (endpoint + which screens / map style).
                 detail = buildString {
-                    // With auto-find on, hudIp is not dialled at all, so
-                    // printing it as "endpoint" pointed a support engineer at an
-                    // address the app was ignoring.
+                    // In AUTO the saved hudIp is not dialled at all, so printing
+                    // it as "endpoint" pointed a support engineer at an address
+                    // the app was ignoring. FIXED dials it, HYBRID uses it as a
+                    // fallback hint.
                     append("endpoint: ")
-                    if (s?.hudAutoDiscover != false) {
-                        append("auto-find")
-                        val saved = s?.hudIp.orEmpty()
-                        if (saved.isNotBlank()) append(" (saved $saved unused)")
-                    } else {
-                        append(s.hudIp.ifBlank { "not set" })
+                    val saved = s?.hudIp.orEmpty()
+                    when (s?.hudDiscoveryMode ?: com.eried.eucplanet.data.model.HudDiscoveryMode.AUTO) {
+                        com.eried.eucplanet.data.model.HudDiscoveryMode.FIXED ->
+                            append(saved.ifBlank { "not set" })
+                        com.eried.eucplanet.data.model.HudDiscoveryMode.HYBRID -> {
+                            append("auto-find")
+                            if (saved.isNotBlank()) append(" (fallback $saved)")
+                        }
+                        else -> {
+                            append("auto-find")
+                            if (saved.isNotBlank()) append(" (saved $saved unused)")
+                        }
                     }
                     append(':').append(s?.hudServerPort ?: 28080).append('\n')
                     append("screens:  ").append(s?.hudScreensEnabled?.ifBlank { "(default)" } ?: "(default)").append('\n')
