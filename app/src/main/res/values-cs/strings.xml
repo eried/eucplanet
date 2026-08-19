@@ -1616,6 +1616,7 @@
     <string name="studio_cfg_map_dark">Tmavá</string>
     <string name="studio_cfg_map_satellite">Satelitní</string>
     <string name="studio_cfg_map_zoom">Přiblížení</string>
+    <string name="studio_cfg_map_style_community">Dlaždice provozují dobrovolníci. Dlouhý export jich stáhne tisíce najednou, což tyto servery aplikacím nedoporučují.</string>
     <string name="studio_cfg_map_rotate">Otáčet podle pohybu</string>
     <string name="studio_cfg_map_trace">Stopa</string>
     <string name="studio_cfg_map_trace_none">Žádná</string>
@@ -1768,6 +1769,15 @@
     <string name="nav_last_stop">Poslední zastávka</string>
     <string name="nav_need_destination">Nejprve přidejte cíl</string>
     <string name="nav_map_style">Styl mapy</string>
+    <string name="nav_overlays">Vrstvy navíc</string>
+    <string name="nav_reset_north">Otočit na sever</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelitní</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>První zastávka</item>
         <item>Druhá zastávka</item>

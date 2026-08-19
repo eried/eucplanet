@@ -65,7 +65,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.Button
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import coil.compose.AsyncImage
@@ -252,6 +256,7 @@ fun RouteBuilderScreen(
     var menuOpen by remember { mutableStateOf(false) }
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+    var showLayerSheet by remember { mutableStateOf(false) }
     // The bottom stops panel's measured height in pixels, used to offset
     // recenter / tap-stop centring so the target lands in the centre of
     // the VISIBLE map area rather than behind the panel. Updated via
@@ -882,7 +887,8 @@ fun RouteBuilderScreen(
                                         markerMenuOffset = DpOffset(x.dp, y.dp)
                                     }
                                 },
-                                poiTapped = { id -> viewModel.onPoiTapped(id) }
+                                poiTapped = { id -> viewModel.onPoiTapped(id) },
+                                bearingChanged = { deg -> viewModel.setMapBearing(deg) }
                             ),
                             "AndroidNav"
                         )
@@ -964,6 +970,30 @@ fun RouteBuilderScreen(
                         }
                     }
                 }
+            }
+
+            // --- Reset to north ---------------------------------------------
+            // Top right, clear of the bottom stack: that side keeps gaining
+            // buttons (chargers, places, and more to come) and a compass that
+            // only appears sometimes would keep shuffling them around.
+            // Shown only while the map is actually turned, which is almost
+            // always an accidental two-finger twist while pinching.
+            val mapBearing by viewModel.mapBearing.collectAsState()
+            if (mapBearing > 2f && mapBearing < 358f) {
+                OverlayFab(
+                    active = false,
+                    loading = false,
+                    icon = Icons.Default.Explore,
+                    contentDescription = stringResource(R.string.nav_reset_north),
+                    onClick = { webView?.evaluateJavascript("nativeResetNorth();", null) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = padding.calculateTopPadding())
+                        .padding(end = 16.dp, top = 12.dp)
+                        // Needle points where the map is turned, so it reads as
+                        // a compass rather than an unlabelled button.
+                        .rotate(-mapBearing)
+                )
             }
 
             // --- Search results overlay ---
@@ -1087,36 +1117,82 @@ fun RouteBuilderScreen(
                 // map features are on. The icon stays visible while loading (a
                 // ring overlays it) so the button is always tappable, and the
                 // spinner only shows on the layer(s) actually being fetched.
-                if (advancedMap) {
+                // One button for everything that changes what the map draws:
+                // the basemap and the overlays on top of it. It used to be
+                // three (chargers, attractions, layers) stacked above the
+                // recentre button, which in landscape left almost no map. This
+                // is the Google Maps arrangement and it frees the column for
+                // the buttons that actually need to be one tap away.
+                Box(modifier = Modifier.align(Alignment.End)) {
                     OverlayFab(
-                        active = showChargers,
-                        loading = chargerLoading,
-                        icon = Icons.Default.EvStation,
-                        contentDescription = stringResource(R.string.nav_show_chargers),
-                        onClick = { viewModel.toggleChargers() },
-                        // Long-press jumps to Navigation settings (where the
-                        // Open Charge Map / charger community key lives).
-                        onLongClick = { onOpenNavSettings() },
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(end = 16.dp, bottom = 12.dp)
+                        active = showChargers || showPlaces,
+                        loading = chargerLoading || placeLoading,
+                        icon = Icons.Default.Layers,
+                        contentDescription = stringResource(R.string.nav_map_style),
+                        onClick = { showLayerSheet = true },
+                        modifier = Modifier.padding(end = 16.dp, bottom = 12.dp)
                     )
-                    Box(modifier = Modifier.align(Alignment.End)) {
-                        var placesMenu by remember { mutableStateOf(false) }
-                        OverlayFab(
-                            active = showPlaces,
-                            loading = placeLoading,
-                            icon = Icons.Default.Explore,
-                            contentDescription = stringResource(R.string.nav_show_places),
-                            onClick = { viewModel.togglePlaces() },
-                            onLongClick = { placesMenu = true },
-                            modifier = Modifier.padding(end = 16.dp, bottom = 12.dp)
+                    DropdownMenu(
+                        expanded = showLayerSheet,
+                        onDismissRequest = { showLayerSheet = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
+                    ) {
+                        Text(
+                            stringResource(R.string.nav_map_style),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
                         )
-                        DropdownMenu(
-                            expanded = placesMenu,
-                            onDismissRequest = { placesMenu = false },
-                            containerColor = MaterialTheme.appColors.menuBackground
-                        ) {
+                        RouteBuilderViewModel.MAP_LAYERS.forEach { layer ->
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    RadioButton(
+                                        selected = layer.id == mapType,
+                                        onClick = {
+                                            viewModel.setMapTypePublic(layer.id)
+                                            showLayerSheet = false
+                                        }
+                                    )
+                                },
+                                text = { Text(stringResource(layer.labelRes)) },
+                                onClick = {
+                                    viewModel.setMapTypePublic(layer.id)
+                                    showLayerSheet = false
+                                }
+                            )
+                        }
+                        // Overlays stay open on tap: turning on chargers and
+                        // two place kinds is one trip into the menu, not three.
+                        if (advancedMap) {
+                            HorizontalDivider()
+                            Text(
+                                stringResource(R.string.nav_overlays),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        if (showChargers) Icons.Default.CheckBox
+                                        else Icons.Default.CheckBoxOutlineBlank,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = { Text(stringResource(R.string.nav_show_chargers)) },
+                                onClick = { viewModel.toggleChargers() }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        if (showPlaces) Icons.Default.CheckBox
+                                        else Icons.Default.CheckBoxOutlineBlank,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = { Text(stringResource(R.string.nav_show_places)) },
+                                onClick = { viewModel.togglePlaces() }
+                            )
                             PoiKind.PLACES.forEach { kind ->
                                 val on = kind in placeCats
                                 DropdownMenuItem(
@@ -1124,7 +1200,8 @@ fun RouteBuilderScreen(
                                         Icon(
                                             if (on) Icons.Default.CheckBox
                                             else Icons.Default.CheckBoxOutlineBlank,
-                                            contentDescription = null
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(start = 16.dp)
                                         )
                                     },
                                     text = { Text(stringResource(placeCategoryLabel(kind))) },
@@ -1133,15 +1210,6 @@ fun RouteBuilderScreen(
                             }
                         }
                     }
-                }
-                FloatingActionButton(
-                    onClick = { viewModel.cycleMapType() },
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(end = 16.dp, bottom = 12.dp),
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) {
-                    Icon(Icons.Default.Layers, stringResource(R.string.nav_map_style))
                 }
                 FloatingActionButton(
                     onClick = {
@@ -2611,9 +2679,16 @@ private class NavJsBridge(
     private val mapViewChanged: (Double, Double, Float) -> Unit,
     private val mapBoundsChanged: (Double, Double, Double, Double) -> Unit,
     private val tilesLoaded: () -> Unit,
-    private val poiTapped: (Long) -> Unit
+    private val poiTapped: (Long) -> Unit,
+    private val bearingChanged: (Float) -> Unit
 ) {
     private val main = Handler(Looper.getMainLooper())
+
+    @JavascriptInterface
+    fun onBearingChanged(deg: Double) {
+        // Drives the reset-to-north button's visibility and needle angle.
+        main.post { bearingChanged(deg.toFloat()) }
+    }
 
     @JavascriptInterface
     fun onMapClick(lat: Double, lng: Double) {

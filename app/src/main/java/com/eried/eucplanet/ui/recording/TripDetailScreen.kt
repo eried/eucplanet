@@ -26,7 +26,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.RadioButton
+import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -1758,7 +1763,9 @@ private fun MapSurface(
     val startLabelJs = remember(startLabel) { org.json.JSONObject.quote(startLabel) }
     val endLabelJs = remember(endLabel) { org.json.JSONObject.quote(endLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
-    val mapTypes = listOf("LIGHT", "DARK", "SAT")
+    // Same seven as the navigator and eucviewer, same order. No overlays
+    // here: a recorded trip has no chargers or places to draw.
+    val mapTypes = listOf("OSM", "CYCLOSM", "TOPO", "HUMANITARIAN", "LIGHT", "DARK", "SAT")
     // The HTML actually showing in the WebView.
     //
     // A plain holder rather than Compose state on purpose: it is written from
@@ -1834,13 +1841,35 @@ private fun MapSurface(
                 desc = "Fullscreen map",
                 onClick = onToggleFullscreen,
             )
-            MapButton(
-                icon = Icons.Default.Layers,
-                desc = "Map style",
-                onClick = {
-                    onMapTypeChange(mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.size])
-                },
-            )
+            Box {
+                var layerMenu by remember { mutableStateOf(false) }
+                MapButton(
+                    icon = Icons.Default.Layers,
+                    desc = stringResource(R.string.nav_map_style),
+                    onClick = { layerMenu = true },
+                )
+                DropdownMenu(
+                    expanded = layerMenu,
+                    onDismissRequest = { layerMenu = false },
+                    containerColor = MaterialTheme.appColors.menuBackground
+                ) {
+                    RouteBuilderViewModel.MAP_LAYERS.forEach { layer ->
+                        // The navigator's SAT is spelled SATELLITE; this screen
+                        // has always used the short form in its tile table.
+                        val id = if (layer.id == "SATELLITE") "SAT" else layer.id
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                RadioButton(
+                                    selected = id == mapType,
+                                    onClick = { onMapTypeChange(id); layerMenu = false }
+                                )
+                            },
+                            text = { Text(stringResource(layer.labelRes)) },
+                            onClick = { onMapTypeChange(id); layerMenu = false }
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -1876,14 +1905,20 @@ private fun MapSurface(
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
+private fun MapButton(
+    icon: ImageVector,
+    desc: String,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
+) {
     Box(
         Modifier
             .size(40.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
-            .clickable(onClick = onClick),
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = desc, tint = MaterialTheme.colorScheme.onSurface)
@@ -1942,7 +1977,11 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   // street names, the POIs and most of the building detail, which is what made
   // this map look dated next to the Studio one.
   var tileUrls={
-    LIGHT:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    OSM:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    CYCLOSM:'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+    TOPO:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    HUMANITARIAN:'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    LIGHT:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     DARK:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     SAT:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
   };
@@ -1957,10 +1996,13 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     // gets the sharpness on a dense screen without the provider needing to
     // offer a retina URL.
     var opts = {maxZoom:21, subdomains:'abcd'};
-    if (t === 'DARK') { opts.maxNativeZoom = 20; }
+    if (t === 'DARK' || t === 'LIGHT') { opts.maxNativeZoom = 20; }
     else if (t === 'SAT') { opts.maxNativeZoom = 19; }
+    else if (t === 'TOPO') { opts.maxNativeZoom = 17; opts.subdomains = 'abc'; }
+    else if (t === 'CYCLOSM') { opts.maxNativeZoom = 20; opts.subdomains = 'abc'; opts.detectRetina = true; }
+    else if (t === 'HUMANITARIAN') { opts.maxNativeZoom = 20; opts.subdomains = 'ab'; opts.detectRetina = true; }
     else { opts.maxNativeZoom = 19; opts.detectRetina = true; }
-    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT, opts).addTo(map);
+    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.OSM, opts).addTo(map);
     baseLayer.bringToBack();
   };
   window.setMapType('$initialType');

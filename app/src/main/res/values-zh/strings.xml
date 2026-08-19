@@ -744,6 +744,15 @@
     <string name="nav_load_failed">无法读取该 GPX 文件</string>
     <string name="nav_locating">正在定位你的位置…</string>
     <string name="nav_map_style">地图样式</string>
+    <string name="nav_overlays">叠加图层</string>
+    <string name="nav_reset_north">正北朝上</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">卫星</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string name="nav_max_stops">最多一个目的地和 24 个途经点</string>
     <string name="nav_menu">菜单</string>
     <string name="nav_menu_clear">新路线</string>
@@ -1043,6 +1052,7 @@
     <string name="studio_cfg_map_dark">深色</string>
     <string name="studio_cfg_map_satellite">卫星</string>
     <string name="studio_cfg_map_zoom">缩放</string>
+    <string name="studio_cfg_map_style_community">这些瓦片由志愿者运营。长视频导出会一次下载数千张，这些服务器希望应用避免这样做。</string>
     <string name="studio_cfg_map_rotate">随移动旋转</string>
     <string name="studio_cfg_map_trace">轨迹</string>
     <string name="studio_cfg_map_trace_none">无</string>

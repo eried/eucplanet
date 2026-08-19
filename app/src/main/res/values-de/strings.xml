@@ -1377,6 +1377,7 @@
     <string name="studio_cfg_map_dark">Dunkel</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_style_community">Kacheln von Freiwilligen betrieben. Ein langer Export lädt Tausende auf einmal, worum diese Server Apps ausdrücklich bitten, es zu lassen.</string>
     <string name="studio_cfg_map_rotate">Mit Bewegung drehen</string>
     <string name="studio_cfg_map_trace">Spur</string>
     <string name="studio_cfg_map_trace_none">Keine</string>
@@ -1537,6 +1538,15 @@
     <string name="nav_last_stop">Letzter Halt</string>
     <string name="nav_need_destination">Zuerst ein Ziel hinzufügen</string>
     <string name="nav_map_style">Kartenstil</string>
+    <string name="nav_overlays">Ebenen</string>
+    <string name="nav_reset_north">Nach Norden ausrichten</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellit</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Erster Halt</item>
         <item>Zweiter Halt</item>

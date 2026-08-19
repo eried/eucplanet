@@ -1616,6 +1616,7 @@
     <string name="studio_cfg_map_dark">Tumma</string>
     <string name="studio_cfg_map_satellite">Satelliitti</string>
     <string name="studio_cfg_map_zoom">Zoomaus</string>
+    <string name="studio_cfg_map_style_community">Vapaaehtoisten ylläpitämät ruudut. Pitkä vienti lataa tuhansia kerralla, mitä nämä palvelimet pyytävät välttämään.</string>
     <string name="studio_cfg_map_rotate">Käännä liikkeen mukaan</string>
     <string name="studio_cfg_map_trace">Jälki</string>
     <string name="studio_cfg_map_trace_none">Ei mitään</string>
@@ -1768,6 +1769,15 @@
     <string name="nav_last_stop">Viimeinen pysähdys</string>
     <string name="nav_need_destination">Lisää ensin määränpää</string>
     <string name="nav_map_style">Kartan tyyli</string>
+    <string name="nav_overlays">Päällystasot</string>
+    <string name="nav_reset_north">Suuntaa pohjoiseen</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelliitti</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Ensimmäinen pysähdys</item>
         <item>Toinen pysähdys</item>

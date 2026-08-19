@@ -1364,6 +1364,7 @@
     <string name="studio_cfg_map_dark">ダーク</string>
     <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">ズーム</string>
+    <string name="studio_cfg_map_style_community">ボランティア運営のタイルです。長い書き出しは一度に数千枚を取得するため、これらのサーバーは避けるよう求めています。</string>
     <string name="studio_cfg_map_rotate">動きに合わせて回転</string>
     <string name="studio_cfg_map_trace">軌跡</string>
     <string name="studio_cfg_map_trace_none">なし</string>
@@ -1504,6 +1505,15 @@
     <string name="nav_last_stop">最後の経由地</string>
     <string name="nav_need_destination">先に目的地を追加してください</string>
     <string name="nav_map_style">マップスタイル</string>
+    <string name="nav_overlays">重ねる情報</string>
+    <string name="nav_reset_north">北を上に</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">衛星写真</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>1番目の経由地</item>
         <item>2番目の経由地</item>

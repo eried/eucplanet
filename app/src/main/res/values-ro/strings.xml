@@ -1616,6 +1616,7 @@
     <string name="studio_cfg_map_dark">Întunecat</string>
     <string name="studio_cfg_map_satellite">Satelit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_style_community">Dale întreținute de voluntari. Un export lung descarcă mii deodată, lucru pe care aceste servere cer să fie evitat.</string>
     <string name="studio_cfg_map_rotate">Rotește odată cu mișcarea</string>
     <string name="studio_cfg_map_trace">Traseu</string>
     <string name="studio_cfg_map_trace_none">Niciunul</string>
@@ -1768,6 +1769,15 @@
     <string name="nav_last_stop">Ultima oprire</string>
     <string name="nav_need_destination">Adaugă mai întâi o destinație</string>
     <string name="nav_map_style">Stilul hărții</string>
+    <string name="nav_overlays">Straturi</string>
+    <string name="nav_reset_north">Orientează spre nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelit</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Prima oprire</item>
         <item>A doua oprire</item>

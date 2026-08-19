@@ -527,6 +527,56 @@ private const val ROUTE_BUILDER_HTML_1: String = """
 
   // Swappable base map: dark / light streets / satellite imagery, all key-less.
   var currentMapType = '';
+  // Reset-to-north. Two-finger rotate is easy to trigger by accident while
+  // pinching or dragging, and once the map sits at 7 degrees off there is no
+  // way back to square except rotating it by hand. The screen shows a compass
+  // button whenever the map is off north; this is what it calls.
+  var northEase = null;
+  window.nativeResetNorth = function(){
+    // Stop auto-follow fighting the reset: mid-ride the heading tween would
+    // otherwise pull the map straight back off north. This is the same hold
+    // a two-finger twist takes, so the behaviour matches the gesture.
+    lastManualRotateMs = Date.now();
+    bearingEase = null;
+    var current = map.getBearing();
+    var delta = ((0 - current + 540) % 360) - 180;
+    if (Math.abs(delta) < 0.2) { map.setBearing(0); reportBearing(); return; }
+    northEase = {from: current, delta: delta, startMs: Date.now()};
+    requestAnimationFrame(tickNorthEase);
+  };
+  function tickNorthEase(){
+    if (!northEase) return;
+    var p = (Date.now() - northEase.startMs) / 450;
+    if (p >= 1) {
+      map.setBearing(0);
+      northEase = null;
+      reportBearing();
+      return;
+    }
+    var eased = p * p * p * (p * (p * 6 - 15) + 10);
+    map.setBearing(northEase.from + northEase.delta * eased);
+    reportBearing();
+    requestAnimationFrame(tickNorthEase);
+  }
+
+  // Tell the screen which way the map is facing, so it can show or hide the
+  // compass. Throttled and only on real change: the heading tween moves the
+  // bearing every frame while riding, and a bridge call per frame is a lot of
+  // traffic for a button that only needs to know "off north or not".
+  var lastReportedBearing = 999;
+  var lastBearingReportMs = 0;
+  function reportBearing(){
+    if (!window.AndroidNav || !AndroidNav.onBearingChanged) return;
+    var b = ((map.getBearing() % 360) + 360) % 360;
+    var now = Date.now();
+    var moved = Math.abs(((b - lastReportedBearing + 540) % 360) - 180);
+    if (moved < 1 || now - lastBearingReportMs < 200) return;
+    lastReportedBearing = b;
+    lastBearingReportMs = now;
+    AndroidNav.onBearingChanged(b);
+  }
+  map.on('rotate', reportBearing);
+
   window.nativeSetMapType = function(type){
     // Idempotent: a redundant call for the same type (the screen's
     // pageReady-triggered LaunchedEffect fires nativeSetMapType after
@@ -552,12 +602,32 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     // map keeps zooming past it on upscaled tiles rather than refusing to zoom
     // and leaving the rider stuck at street level.
     var common = {keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
+    // Layer table. Every entry here is free and needs no API key; the ones
+    // that do (Thunderforest's cycle and transport maps, Tracestrack Topo)
+    // are deliberately absent, because a key shipped in an APK is public and
+    // the whole rider base would share one free quota.
+    //
+    // detectRetina on the plain-OSM styles: they serve no @2x, so Leaflet
+    // pulls four tiles a zoom deeper and draws them half size, which is what
+    // keeps them sharp on a dense phone screen.
     if (type === 'SATELLITE'){
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
     } else if (type === 'LIGHT'){
       url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
       opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
+    } else if (type === 'OSM'){
+      url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+      opts = Object.assign({maxNativeZoom:19, maxZoom:21, detectRetina:true}, common);
+    } else if (type === 'CYCLOSM'){
+      url = 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png';
+      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abc', detectRetina:true}, common);
+    } else if (type === 'TOPO'){
+      url = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+      opts = Object.assign({maxNativeZoom:17, maxZoom:21, subdomains:'abc'}, common);
+    } else if (type === 'HUMANITARIAN'){
+      url = 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'ab', detectRetina:true}, common);
     } else {
       url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
       opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);

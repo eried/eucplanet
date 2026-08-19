@@ -11323,6 +11323,15 @@ private fun HudMapStylePicker(
     // names, not localised friendly text. Order: voyager family,
     // positron (light_*) family, dark matter (dark_*) family.
     val options = listOf(
+        // The same providers the app's own maps offer, first because they are
+        // the ones riders asked for: plain OSM and the two that actually draw
+        // trails. Needs HUD protocol minor 17; an older HUD does not know these
+        // codes and the phone already flags "update your HUD".
+        "osm",
+        "cyclosm",
+        "topo",
+        "hot",
+        "satellite",
         "voyager",
         "voyager_nolabels",
         "voyager_labels_under",

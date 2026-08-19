@@ -1403,6 +1403,7 @@
     <string name="studio_cfg_map_dark">Sombre</string>
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_style_community">Tuiles gérées par des bénévoles. Un long export en télécharge des milliers d\'un coup, ce que ces serveurs demandent d\'éviter.</string>
     <string name="studio_cfg_map_rotate">Pivoter avec le mouvement</string>
     <string name="studio_cfg_map_trace">Tracé</string>
     <string name="studio_cfg_map_trace_none">Aucune</string>
@@ -1566,6 +1567,15 @@
     <string name="nav_last_stop">Dernier arrêt</string>
     <string name="nav_need_destination">Ajoute d\'abord une destination</string>
     <string name="nav_map_style">Style de carte</string>
+    <string name="nav_overlays">Calques</string>
+    <string name="nav_reset_north">Orienter au nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellite</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Premier arrêt</item>
         <item>Deuxième arrêt</item>

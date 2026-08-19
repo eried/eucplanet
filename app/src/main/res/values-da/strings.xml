@@ -1376,6 +1376,7 @@
     <string name="studio_cfg_map_dark">Mørk</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_style_community">Fliser drevet af frivillige. En lang eksport henter tusindvis på én gang, hvilket disse servere beder apps om at undgå.</string>
     <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
     <string name="studio_cfg_map_trace">Spor</string>
     <string name="studio_cfg_map_trace_none">Ingen</string>
@@ -1516,6 +1517,15 @@
     <string name="nav_last_stop">Sidste stop</string>
     <string name="nav_need_destination">Tilføj en destination først</string>
     <string name="nav_map_style">Kortstil</string>
+    <string name="nav_overlays">Lag ovenpå</string>
+    <string name="nav_reset_north">Vend mod nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellit</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Første stop</item>
         <item>Andet stop</item>

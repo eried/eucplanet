@@ -1616,6 +1616,7 @@
     <string name="studio_cfg_map_dark">Sötét</string>
     <string name="studio_cfg_map_satellite">Műhold</string>
     <string name="studio_cfg_map_zoom">Nagyítás</string>
+    <string name="studio_cfg_map_style_community">Önkéntesek üzemeltette csempék. Egy hosszú exportálás egyszerre több ezret tölt le, amit ezek a szerverek kérnek elkerülni.</string>
     <string name="studio_cfg_map_rotate">Forgatás a mozgással</string>
     <string name="studio_cfg_map_trace">Nyomvonal</string>
     <string name="studio_cfg_map_trace_none">Nincs</string>
@@ -1768,6 +1769,15 @@
     <string name="nav_last_stop">Utolsó megálló</string>
     <string name="nav_need_destination">Előbb adj hozzá célállomást</string>
     <string name="nav_map_style">Térkép stílusa</string>
+    <string name="nav_overlays">Rétegek</string>
+    <string name="nav_reset_north">Északra forgatás</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Műhold</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Első megálló</item>
         <item>Második megálló</item>

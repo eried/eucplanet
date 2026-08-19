@@ -75,6 +75,30 @@ class RouteBuilderViewModel @Inject constructor(
 
     companion object {
         /**
+         * Base layers the rider can pick between, in cycle order.
+         *
+         * All free, none needing an API key: a key shipped in an APK is public
+         * the moment someone unzips it, and every rider would share one free
+         * quota. DARK is a backdrop style that mutes paths and tracks on
+         * purpose, which is why offroad trails are hard to make out on it;
+         * CYCLOSM and TOPO are the two that draw tracks and surfaces with
+         * contrast.
+         */
+        // Names and order match eucviewer exactly, so a rider moving between
+        // the app and the viewer reads one vocabulary rather than two. The
+        // provider names also say what you get, where "Light" and "Dark" did
+        // not.
+        val MAP_LAYERS = listOf(
+            MapLayer("OSM", com.eried.eucplanet.R.string.nav_layer_osm),
+            MapLayer("CYCLOSM", com.eried.eucplanet.R.string.nav_layer_cyclosm),
+            MapLayer("TOPO", com.eried.eucplanet.R.string.nav_layer_topo),
+            MapLayer("HUMANITARIAN", com.eried.eucplanet.R.string.nav_layer_humanitarian),
+            MapLayer("LIGHT", com.eried.eucplanet.R.string.nav_layer_light),
+            MapLayer("DARK", com.eried.eucplanet.R.string.nav_layer_dark),
+            MapLayer("SATELLITE", com.eried.eucplanet.R.string.nav_layer_satellite),
+        )
+
+        /**
          * Listed destinations + stops (the rider is the implicit origin).
          * OSRM solves the whole chain in one /route request, so this cap is a
          * usability limit (a manageable list), not a router limit.
@@ -201,8 +225,16 @@ class RouteBuilderViewModel @Inject constructor(
     private val _routing = MutableStateFlow(false)
     val routing: StateFlow<Boolean> = _routing.asStateFlow()
 
-    /** Route Builder base map style: DARK / LIGHT / SATELLITE. */
-    private val _mapType = MutableStateFlow("DARK")
+    /**
+     * Route Builder base layer, defaulting to plain OSM.
+     *
+     * It was Carto Dark, which is a backdrop style: it mutes paths and tracks
+     * on purpose so data drawn over it stands out. Riders kept saying trails
+     * were missing or too faint to follow, and comparing the same wood side by
+     * side with eucviewer showed why - eucviewer opens on standard OSM, which
+     * draws them. Same data underneath, different stylesheet.
+     */
+    private val _mapType = MutableStateFlow("OSM")
     val mapType: StateFlow<String> = _mapType.asStateFlow()
 
     /** Custom rider-marker photo as a base64 data URL, or null when the rider
@@ -974,14 +1006,26 @@ class RouteBuilderViewModel @Inject constructor(
      * the app look like it had stale map data.
      */
     fun cycleMapType() {
-        setMapType(
-            when (_mapType.value) {
-                "DARK" -> "LIGHT"
-                "LIGHT" -> "SATELLITE"
-                else -> "DARK"
-            }
-        )
+        val ids = MAP_LAYERS.map { it.id }
+        val next = ids[(ids.indexOf(_mapType.value).coerceAtLeast(0) + 1) % ids.size]
+        setMapType(next)
     }
+
+    /**
+     * How far the map is turned from north, in degrees, as the JS reports it.
+     *
+     * Drives the reset-to-north button: a two-finger twist is easy to trigger
+     * by accident while pinching or dragging, and once the map sits a few
+     * degrees off there is no way back to square by hand.
+     */
+    private val _mapBearing = MutableStateFlow(0f)
+    val mapBearing: StateFlow<Float> = _mapBearing.asStateFlow()
+
+    fun setMapBearing(deg: Float) {
+        _mapBearing.value = ((deg % 360f) + 360f) % 360f
+    }
+
+    fun setMapTypePublic(type: String) = setMapType(type)
 
     private fun setMapType(type: String) {
         if (_mapType.value == type) return
@@ -992,6 +1036,20 @@ class RouteBuilderViewModel @Inject constructor(
             settingsRepository.update(s.copy(navMapType = type))
         }
     }
+
+    /**
+     * Base layers the rider can pick between.
+     *
+     * Every one is free to use and needs no API key. Thunderforest's cycle and
+     * transport maps and Tracestrack Topo are deliberately absent: they need a
+     * key, and a key shipped inside an APK is public the moment anyone unzips
+     * it, with the whole rider base sharing one free quota.
+     *
+     * DARK is a backdrop style - it mutes paths and tracks on purpose, which is
+     * why offroad trails were hard to make out on it. CYCLOSM and TOPO are the
+     * two that draw tracks, paths and surfaces with real contrast.
+     */
+    data class MapLayer(val id: String, val labelRes: Int)
 
     // --- Address search ----------------------------------------------------------
 

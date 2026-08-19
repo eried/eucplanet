@@ -1378,6 +1378,7 @@
     <string name="studio_cfg_map_dark">Oscuro</string>
     <string name="studio_cfg_map_satellite">Satélite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_style_community">Teselas mantenidas por voluntarios. Una exportación larga descarga miles de golpe, algo que estos servidores piden evitar.</string>
     <string name="studio_cfg_map_rotate">Girar con el movimiento</string>
     <string name="studio_cfg_map_trace">Traza</string>
     <string name="studio_cfg_map_trace_none">Ninguna</string>
@@ -1539,6 +1540,15 @@
     <string name="nav_last_stop">Última parada</string>
     <string name="nav_need_destination">Primero agrega un destino</string>
     <string name="nav_map_style">Estilo de mapa</string>
+    <string name="nav_overlays">Capas encima</string>
+    <string name="nav_reset_north">Orientar al norte</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satélite</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Primera parada</item>
         <item>Segunda parada</item>

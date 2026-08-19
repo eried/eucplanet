@@ -116,6 +116,29 @@ class HudTileCache {
 
     fun peek(z: Int, x: Int, y: Int): Bitmap? = cache.get(key(z, x, y))
 
+    /**
+     * Tile URL for a style code.
+     *
+     * Anything not recognised is treated as a Carto raster slug, which is what
+     * every style used to be - so a phone sending "voyager" or "dark_all"
+     * keeps working exactly as before, and a HUD that predates the other
+     * providers simply never receives their codes.
+     */
+    private fun tileUrl(style: String, z: Int, x: Int, y: Int): String {
+        val shard = SHARDS[(x + y) % SHARDS.size]
+        return when (style) {
+            "osm" -> "https://tile.openstreetmap.org/$z/$x/$y.png"
+            "cyclosm" ->
+                "https://a.tile-cyclosm.openstreetmap.fr/cyclosm/$z/$x/$y.png"
+            "topo" -> "https://a.tile.opentopomap.org/$z/$x/$y.png"
+            "hot" -> "https://a.tile.openstreetmap.fr/hot/$z/$x/$y.png"
+            "satellite" ->
+                "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+                    "World_Imagery/MapServer/tile/$z/$y/$x"
+            else -> "https://$shard.basemaps.cartocdn.com/$style/$z/$x/$y.png"
+        }
+    }
+
     /** Queue a tile fetch if not already cached or in flight. [onLoaded] is
      *  invoked on the IO dispatcher after the bitmap lands in the cache, so
      *  the Compose caller can trigger a recomposition (a tick counter is
@@ -127,8 +150,7 @@ class HudTileCache {
         val pathAtStart = stylePath
         scope.launch {
             try {
-                val shard = SHARDS[(x + y) % SHARDS.size]
-                val url = "https://$shard.basemaps.cartocdn.com/$pathAtStart/$z/$x/$y.png"
+                val url = tileUrl(pathAtStart, z, x, y)
                 val req = Request.Builder()
                     .url(url)
                     .header("User-Agent", USER_AGENT)

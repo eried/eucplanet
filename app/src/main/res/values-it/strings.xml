@@ -780,6 +780,15 @@
     <string name="nav_load_failed">Impossibile leggere quel file GPX</string>
     <string name="nav_locating">Individuazione della tua posizione…</string>
     <string name="nav_map_style">Stile mappa</string>
+    <string name="nav_overlays">Livelli</string>
+    <string name="nav_reset_north">Orienta a nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellite</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string name="nav_max_stops">Fino a una destinazione e 24 fermate</string>
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_clear">Nuovo percorso</string>
@@ -1079,6 +1088,7 @@
     <string name="studio_cfg_map_dark">Scuro</string>
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_style_community">Tasselli gestiti da volontari. Un\'esportazione lunga ne scarica migliaia in una volta, cosa che questi server chiedono di evitare.</string>
     <string name="studio_cfg_map_rotate">Ruota con il movimento</string>
     <string name="studio_cfg_map_trace">Traccia</string>
     <string name="studio_cfg_map_trace_none">Nessuna</string>

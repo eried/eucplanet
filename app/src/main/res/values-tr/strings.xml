@@ -1364,6 +1364,7 @@
     <string name="studio_cfg_map_dark">Koyu</string>
     <string name="studio_cfg_map_satellite">Uydu</string>
     <string name="studio_cfg_map_zoom">Yakınlaştırma</string>
+    <string name="studio_cfg_map_style_community">Gönüllülerin işlettiği döşemeler. Uzun bir dışa aktarma bir anda binlercesini indirir, bu sunucular bundan kaçınılmasını ister.</string>
     <string name="studio_cfg_map_rotate">Hareketle döndür</string>
     <string name="studio_cfg_map_trace">İz</string>
     <string name="studio_cfg_map_trace_none">Yok</string>
@@ -1504,6 +1505,15 @@
     <string name="nav_last_stop">Son durak</string>
     <string name="nav_need_destination">Önce bir varış noktası ekleyin</string>
     <string name="nav_map_style">Harita stili</string>
+    <string name="nav_overlays">Katmanlar</string>
+    <string name="nav_reset_north">Kuzeye çevir</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Uydu</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Birinci durak</item>
         <item>İkinci durak</item>

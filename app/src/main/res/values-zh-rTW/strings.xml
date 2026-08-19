@@ -1364,6 +1364,7 @@
     <string name="studio_cfg_map_dark">深色</string>
     <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">縮放</string>
+    <string name="studio_cfg_map_style_community">這些圖磚由志工營運。長影片匯出會一次下載數千張，這些伺服器希望應用避免這樣做。</string>
     <string name="studio_cfg_map_rotate">隨移動旋轉</string>
     <string name="studio_cfg_map_trace">軌跡</string>
     <string name="studio_cfg_map_trace_none">無</string>
@@ -1504,6 +1505,15 @@
     <string name="nav_last_stop">最後停靠點</string>
     <string name="nav_need_destination">請先新增目的地</string>
     <string name="nav_map_style">地圖樣式</string>
+    <string name="nav_overlays">疊加圖層</string>
+    <string name="nav_reset_north">正北朝上</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">衛星</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>第一站</item>
         <item>第二站</item>

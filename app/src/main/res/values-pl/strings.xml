@@ -1369,6 +1369,7 @@
     <string name="studio_cfg_map_dark">Ciemny</string>
     <string name="studio_cfg_map_satellite">Satelita</string>
     <string name="studio_cfg_map_zoom">Powiększenie</string>
+    <string name="studio_cfg_map_style_community">Kafelki utrzymywane przez wolontariuszy. Długi eksport pobiera tysiące naraz, o czym te serwery proszą, by tego unikać.</string>
     <string name="studio_cfg_map_rotate">Obracaj zgodnie z ruchem</string>
     <string name="studio_cfg_map_trace">Ślad</string>
     <string name="studio_cfg_map_trace_none">Brak</string>
@@ -1520,6 +1521,15 @@
     <string name="nav_last_stop">Ostatni przystanek</string>
     <string name="nav_need_destination">Najpierw dodaj cel</string>
     <string name="nav_map_style">Styl mapy</string>
+    <string name="nav_overlays">Warstwy</string>
+    <string name="nav_reset_north">Ustaw na północ</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelita</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Pierwszy przystanek</item>
         <item>Drugi przystanek</item>

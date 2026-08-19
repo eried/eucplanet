@@ -1401,6 +1401,7 @@
     <string name="studio_cfg_map_dark">Donker</string>
     <string name="studio_cfg_map_satellite">Satelliet</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_style_community">Tegels door vrijwilligers gehost. Een lange export haalt er duizenden tegelijk op, wat deze servers apps vragen niet te doen.</string>
     <string name="studio_cfg_map_rotate">Meedraaien met beweging</string>
     <string name="studio_cfg_map_trace">Spoor</string>
     <string name="studio_cfg_map_trace_none">Geen</string>
@@ -1562,6 +1563,15 @@
     <string name="nav_last_stop">Laatste stop</string>
     <string name="nav_need_destination">Voeg eerst een bestemming toe</string>
     <string name="nav_map_style">Kaartstijl</string>
+    <string name="nav_overlays">Lagen</string>
+    <string name="nav_reset_north">Noord boven</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelliet</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Eerste stop</item>
         <item>Tweede stop</item>

@@ -1985,9 +1985,17 @@ private object MapTileCache {
 /** Tile URL for a style + z/x/y. */
 private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String = when (style) {
     "DARK" -> "https://basemaps.cartocdn.com/dark_all/$z/$x/$y.png"
+    "LIGHT" -> "https://basemaps.cartocdn.com/rastertiles/voyager/$z/$x/$y.png"
     "SATELLITE" ->
         "https://server.arcgisonline.com/ArcGIS/rest/services/" +
             "World_Imagery/MapServer/tile/$z/$y/$x"
+    // Same providers as the navigator and trip details. Subdomain-free forms:
+    // a render pulls a burst of tiles and rotating hostnames buys nothing when
+    // they are fetched once and cached per element.
+    "CYCLOSM" -> "https://a.tile-cyclosm.openstreetmap.fr/cyclosm/$z/$x/$y.png"
+    "TOPO" -> "https://a.tile.opentopomap.org/$z/$x/$y.png"
+    "HUMANITARIAN" -> "https://a.tile.openstreetmap.fr/hot/$z/$x/$y.png"
+    // "STREET" is the id this screen has always stored for plain OSM.
     else -> "https://tile.openstreetmap.org/$z/$x/$y.png"
 }
 

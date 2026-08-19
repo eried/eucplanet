@@ -312,8 +312,14 @@ data class HudState(
          *    fields and renders such an element as SPEED, so the minor bump is
          *    what surfaces the "update your HUD" hint. Note whPerKm and rangeKm
          *    use NaN, not 0, for "nothing to say yet".
+         * 17: [HudState.hudMapStyle] may now carry non-Carto codes - "osm",
+         *    "cyclosm", "topo", "hot", "satellite" - alongside the Carto raster
+         *    slugs it has always carried. A HUD older than this treats every
+         *    code as a Carto slug and would request a URL that does not exist,
+         *    leaving the map blank, so the minor bump is what tells the rider to
+         *    update rather than leaving them staring at an empty map.
          */
-        const val PROTOCOL_MINOR: Int = 16
+        const val PROTOCOL_MINOR: Int = 17
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
