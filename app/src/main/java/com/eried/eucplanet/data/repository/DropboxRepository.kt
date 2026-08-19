@@ -199,38 +199,58 @@ class DropboxRepository @Inject constructor(
      *  relative). Empty map on "not_found" (folder doesn't exist yet — normal on
      *  first link). Null on auth / network failure so caller can distinguish
      *  "no files" from "couldn't check". */
+    /** One page of a folder listing: the files on it, and where to continue. */
+    internal data class ListPage(
+        val files: Map<String, RemoteFile>,
+        val cursor: String?,
+        val hasMore: Boolean,
+    )
+
     suspend fun listFolder(remoteFolder: String): Map<String, RemoteFile>? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
-        val body = JSONObject().apply {
-            put("path", remoteFolder)
-            put("recursive", false)
-            put("include_deleted", false)
-        }
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/files/list_folder")
-            .addHeader("Authorization", "Bearer $token")
-            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-            .build()
-        try {
-            http.newCall(req).execute().use { resp ->
-                if (resp.code == 409) return@withContext emptyMap()  // folder absent
-                if (!resp.isSuccessful) return@withContext null
-                val json = JSONObject(resp.body?.string().orEmpty())
-                val entries = json.optJSONArray("entries") ?: return@withContext emptyMap()
-                val out = mutableMapOf<String, RemoteFile>()
-                for (i in 0 until entries.length()) {
-                    val e = entries.getJSONObject(i)
-                    if (e.optString(".tag") != "file") continue
-                    val name = e.optString("name")
-                    val mod = e.optString("server_modified")  // ISO-8601
-                    val epoch = try {
-                        java.time.OffsetDateTime.parse(mod).toEpochSecond()
-                    } catch (_: Exception) { 0L }
-                    if (name.isNotBlank()) out[name] = RemoteFile(epoch, e.optLong("size", -1L))
+        var absent = false
+        val all = collectPages(warn = { Log.w("DBXSHARE", it) }) { cursor ->
+            val (url, body) = if (cursor == null) {
+                "https://api.dropboxapi.com/2/files/list_folder" to JSONObject().apply {
+                    put("path", remoteFolder)
+                    put("recursive", false)
+                    put("include_deleted", false)
+                    // A hint only: Dropbox may return fewer, and says so. The
+                    // loop is what actually gets every entry.
+                    put("limit", PAGE_LIMIT)
                 }
-                out
+            } else {
+                "https://api.dropboxapi.com/2/files/list_folder/continue" to JSONObject().apply {
+                    put("cursor", cursor)
+                }
             }
-        } catch (e: Exception) { null }
+            val req = Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer $token")
+                .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+                .build()
+            try {
+                http.newCall(req).execute().use { resp ->
+                    // 409 on the first call is "folder doesn't exist yet", which
+                    // is normal before the first upload. On a continue it means
+                    // the cursor went stale, which is a failed listing, not an
+                    // empty one.
+                    if (resp.code == 409 && cursor == null) {
+                        absent = true
+                        return@use null
+                    }
+                    if (!resp.isSuccessful) {
+                        Log.w("DBXSHARE", "list_folder HTTP ${resp.code}: ${resp.body?.string()?.take(300)}")
+                        return@use null
+                    }
+                    parseListPage(JSONObject(resp.body?.string().orEmpty()))
+                }
+            } catch (e: Exception) {
+                Log.w("DBXSHARE", "list_folder exception: ${e.message}")
+                null
+            }
+        }
+        if (absent) emptyMap() else all
     }
 
     /**
@@ -433,6 +453,79 @@ class DropboxRepository @Inject constructor(
     companion object {
         const val APP_KEY = "5auhxf7gswy7j54"
         const val REDIRECT_URI = "db-$APP_KEY://1/connect"
+
+        /** Page size asked for. Dropbox treats it as approximate and can return
+         *  fewer, so it saves round trips on a big folder and nothing more. */
+        private const val PAGE_LIMIT = 2000
+
+        /** Runaway guard. At [PAGE_LIMIT] a folder would have to hold millions
+         *  of trips to reach this, so hitting it means something is wrong with
+         *  the cursor rather than with the rider's collection. */
+        private const val MAX_LIST_PAGES = 500
+
+        /**
+         * Walk every page of a listing.
+         *
+         * Dropbox pages this endpoint and decides the page size itself: it is not
+         * documented, not guaranteed, and `limit` is only approximate. A client that
+         * reads the first page and stops sees a folder that ends early, which this
+         * one did. The damage is not only missing downloads: the sync treats a local
+         * file whose remote twin is past the last visible page as local-only and
+         * uploads it again on every single sync, forever, because uploading cannot
+         * bring it into view. One rider had 22 trips doing exactly that.
+         *
+         * [fetch] returns null for a failed page. A failure returns null overall
+         * rather than the pages gathered so far: a partial listing is
+         * indistinguishable from a smaller folder to every caller, and would set off
+         * that same re-upload of everything missing from it.
+         */
+        internal suspend fun collectPages(
+                maxPages: Int = MAX_LIST_PAGES,
+                warn: (String) -> Unit = {},
+                fetch: suspend (cursor: String?) -> ListPage?,
+            ): Map<String, RemoteFile>? {
+            val out = mutableMapOf<String, RemoteFile>()
+            var cursor: String? = null
+            var pages = 0
+            while (true) {
+                val page = fetch(cursor) ?: return null
+                out.putAll(page.files)
+                pages++
+                if (!page.hasMore) break
+                cursor = page.cursor ?: return null  // more to come but nowhere to go
+                if (pages >= maxPages) {
+                    // Better to report "couldn't check" than to hand back a folder
+                    // that stops in the middle.
+                    warn("list_folder stopped after $maxPages pages (${out.size} entries)")
+                    return null
+                }
+            }
+                if (pages > 1) warn("list_folder walked $pages pages, ${out.size} entries")
+                return out
+        }
+
+        /** Files on one listing page, plus the cursor for the next. Folders and
+         *  deleted entries are skipped: callers only ever want files. */
+        internal fun parseListPage(json: JSONObject): ListPage {
+            val entries = json.optJSONArray("entries")
+            val files = mutableMapOf<String, RemoteFile>()
+            for (i in 0 until (entries?.length() ?: 0)) {
+                val e = entries!!.getJSONObject(i)
+                if (e.optString(".tag") != "file") continue
+                val name = e.optString("name")
+                if (name.isBlank()) continue
+                val epoch = try {
+                    java.time.OffsetDateTime.parse(e.optString("server_modified")).toEpochSecond()
+                } catch (_: Exception) { 0L }
+                files[name] = RemoteFile(epoch, e.optLong("size", -1L))
+            }
+            return ListPage(
+                files = files,
+                cursor = json.optString("cursor").ifBlank { null },
+                hasMore = json.optBoolean("has_more", false),
+            )
+        }
+
 
         /** RFC 7636 — 43-128 chars from a fixed unreserved set. */
         private fun randomCodeVerifier(): String {
