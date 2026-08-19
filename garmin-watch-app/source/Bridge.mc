@@ -13,7 +13,7 @@ using Toybox.Timer;
 //! wraps a control intent in `{Control.PAYLOAD_KEY: <intent>}` so the phone
 //! listener can route it the same way `PhoneGarminListenerService` does.
 class PhoneBridge {
-    //! Heartbeat timer. Fires every 5 s and transmits Control.ALIVE so the
+    //! Heartbeat timer. Fires every 1.5 s and transmits Control.ALIVE so the
     //! phone can drive its Live indicator from actual end-to-end delivery
     //! rather than CIQ sendMessage's misleading local-write success.
     private var _aliveTimer as Timer.Timer? = null;
@@ -51,7 +51,10 @@ class PhoneBridge {
         // indicator doesn't wait 5 s for the bridge to come up.
         sendAlive();
         _aliveTimer = new Timer.Timer();
-        _aliveTimer.start(method(:onAliveTick), 5000, /* repeat = */ true);
+        // fix-2 experiment: 1.5 s instead of 5 s so the phone's backlog cap,
+        // which only advances on our echoed seq, releases ~3x faster and the
+        // dial stops updating in 5 s clumps. Still backpressured by _txBusy.
+        _aliveTimer.start(method(:onAliveTick), 1500, /* repeat = */ true);
     }
 
     function stop() as Void {
