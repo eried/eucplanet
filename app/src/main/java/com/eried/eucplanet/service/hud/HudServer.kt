@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.RadarRepository
@@ -323,20 +324,20 @@ class HudServer @Inject constructor(
             }
         }
 
-        // UDP beacon listener only runs when auto-discovery is enabled.
-        // When the rider has turned auto-discovery off they explicitly do
-        // not want any background "find" activity -- only the manual IP
-        // they typed should be dialled.
+        // UDP beacon listener only runs when we're discovering (AUTO or
+        // HYBRID). In FIXED mode the rider explicitly wants no background
+        // "find" activity -- only the manual IP they typed should be dialled.
         val s = runCatching { settingsRepository.get() }.getOrNull()
-        if (s?.hudAutoDiscover == true) {
+        val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
+        if (mode != HudDiscoveryMode.FIXED) {
             udpListener.start()
-            log("Auto-discovery on (UDP + mDNS + subnet + manual)")
+            log("Discovery on ($mode)")
         } else {
             val ip = s?.hudIp?.trim().orEmpty()
             val port = s?.hudServerPort?.takeIf { it in 1..65535 }
                 ?: HudDiscovery.DEFAULT_PORT
             val target = if (ip.isBlank()) "(no IP set)" else "$ip:$port"
-            log("Auto-discovery off, manual only -> $target")
+            log("Fixed mode, manual only -> $target")
         }
         acquireWifiPerfLock()
         registerNetworkCallback()
@@ -471,20 +472,21 @@ class HudServer @Inject constructor(
      * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
      * state until it dies, back off, retry.
      *
-     * When [AppSettings.hudAutoDiscover] is ON (default), we walk a
-     * priority chain on each iteration:
+     * In AUTO (default) and HYBRID modes we walk a priority chain on each
+     * iteration:
      *
      *   1. UDP beacon sighting (freshest first; cheap, the most reliable
      *      channel because it works on hotspots that block multicast)
      *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
-     *   3. Manual `hudIp` from settings (treated as a last-known hint
-     *      rather than the only truth)
+     *   3. Manual `hudIp` from settings, HYBRID mode only (a last-known hint,
+     *      not the only truth). AUTO skips this so a stale IP from another
+     *      network can never win the race.
      *   4. /24 subnet probe of the phone's own IP (slow, ~3 s, only fires
-     *      when the first three failed)
+     *      when the first channels failed)
      *
-     * When auto-discover is OFF we fall back to the legacy single-path
-     * behaviour: manual IP only. That mode exists as an escape hatch for
-     * the very rare environment where all three auto channels mislead us.
+     * FIXED mode skips discovery entirely and uses only the manual IP - an
+     * escape hatch for the rare environment where every auto channel misleads
+     * us. See [HudDiscoveryMode].
      *
      * Each attempt's source is published on [connectionSource] so the
      * settings screen can show "Connected via: UDP beacon" and the rider
@@ -501,15 +503,19 @@ class HudServer @Inject constructor(
             acquireWifiPerfLock()
             val s = runCatching { settingsRepository.get() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
-            val autoDiscover = s?.hudAutoDiscover ?: true
+            val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
             val manualIp = s?.hudIp?.trim().orEmpty()
             val manualPort = s?.hudServerPort?.takeIf { it in 1..65535 }
                 ?: HudDiscovery.DEFAULT_PORT
 
             val (peer, source) = when {
                 override != null -> override to ConnectionSource.DEBUG_OVERRIDE
-                !autoDiscover -> resolveManualOnly(s, manualIp, manualPort)
-                else -> resolvePeer(manualIp, manualPort)
+                mode == HudDiscoveryMode.FIXED -> resolveManualOnly(s, manualIp, manualPort)
+                // HYBRID adds the saved IP as a fallback hint; AUTO never does.
+                else -> resolvePeer(
+                    manualIp, manualPort,
+                    useManualHint = mode == HudDiscoveryMode.HYBRID,
+                )
             }
 
             if (peer == null) {
@@ -601,6 +607,7 @@ class HudServer @Inject constructor(
     private suspend fun resolvePeer(
         manualIp: String,
         manualPort: Int,
+        useManualHint: Boolean,
     ): Pair<String?, ConnectionSource> = kotlinx.coroutines.coroutineScope {
         log("Searching (all channels in parallel)…")
         val results = kotlinx.coroutines.channels.Channel<Pair<String, ConnectionSource>>(
@@ -652,7 +659,9 @@ class HudServer @Inject constructor(
             }
         }
 
-        val manualJob = if (manualIp.isNotBlank()) {
+        // HYBRID only: AUTO passes useManualHint = false so a saved IP from
+        // another network can never enter the race.
+        val manualJob = if (useManualHint && manualIp.isNotBlank()) {
             launch {
                 // Small grace period so a healthy UDP / mDNS hit wins the
                 // race before we fall back to a possibly-stale manual IP.

@@ -3,6 +3,23 @@ package com.eried.eucplanet.data.model
 import com.eried.eucplanet.R
 
 /**
+ * How the phone finds the network HUD. Three modes so the rider controls
+ * whether the saved [AppSettings.hudIp] is ever used:
+ *  - [AUTO]   discovery only (UDP beacon / mDNS / subnet probe); the saved
+ *             IP is never touched, so a stale address from another network
+ *             can't capture the connection.
+ *  - [HYBRID] discovery, with the saved IP/port as a last-resort fallback hint.
+ *  - [FIXED]  the saved IP/port only, no discovery.
+ * FIXED and HYBRID use the IP/port; AUTO does not.
+ */
+object HudDiscoveryMode {
+    const val AUTO = "AUTO"
+    const val HYBRID = "HYBRID"
+    const val FIXED = "FIXED"
+    val VALUES = setOf(AUTO, HYBRID, FIXED)
+}
+
+/**
  * The full set of rider preferences. Lives in DataStore as one JSON blob
  * ([com.eried.eucplanet.data.store.SettingsStore]) so adding a new field is
  * just a one-line data-class change, no DB migration, no risk of losing
@@ -617,14 +634,13 @@ data class AppSettings(
     val hudIp: String = "",
     /**
      * When ON (default), the phone runs a 4-layer discovery chain to find
-     * the HUD's IP automatically: UDP beacon → mDNS browse → manual hint
-     * (whatever is in [hudIp]) → subnet probe of the phone's own /24. The
-     * winning channel is published on the HUD-settings status line so the
-     * rider can see how the link was established. When OFF, only [hudIp]
-     * is tried -- legacy behaviour, retained as an escape hatch for cases
-     * where every auto path is broken (very rare).
+     * the HUD: UDP beacon → mDNS browse → (HYBRID only) the saved [hudIp]
+     * as a fallback hint → subnet probe of the phone's own /24. The winning
+     * channel is published on the HUD-settings status line so the rider can
+     * see how the link was established. See [HudDiscoveryMode]: AUTO never
+     * touches [hudIp], HYBRID uses it as a fallback, FIXED uses only it.
      */
-    val hudAutoDiscover: Boolean = true,
+    val hudDiscoveryMode: String = HudDiscoveryMode.AUTO,
     /**
      * Name of the Overlay Studio preset the rider chose to mirror on the
      * HUD as a "Custom" screen. Empty = no custom overlay configured.
