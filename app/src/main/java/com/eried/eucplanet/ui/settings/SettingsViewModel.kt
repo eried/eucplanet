@@ -798,7 +798,7 @@ class SettingsViewModel @Inject constructor(
         copy(hudServerPort = v.coerceIn(1024, 65535))
     }
     fun updateHudIp(v: String) = update { copy(hudIp = v.trim()) }
-    fun updateHudDiscoveryMode(v: String) = update { copy(hudDiscoveryMode = v) }
+    fun updateHudAutoDiscover(v: Boolean) = update { copy(hudAutoDiscover = v) }
 
     // HUD joystick long-press action bindings (UP / DOWN / LEFT / RIGHT). Same
     // ActionCatalog vocabulary as Flic / Volume keys; "NONE" = unbound.

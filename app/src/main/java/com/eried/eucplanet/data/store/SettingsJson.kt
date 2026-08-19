@@ -3,7 +3,6 @@ package com.eried.eucplanet.data.store
 import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AppSettings
-import com.eried.eucplanet.data.model.HudDiscoveryMode
 import org.json.JSONObject
 
 /**
@@ -304,10 +303,7 @@ object SettingsJson {
         put("hudActionRight", s.hudActionRight)
         put("hudServerPort", s.hudServerPort)
         put("hudIp", s.hudIp)
-        put("hudDiscoveryMode", s.hudDiscoveryMode)
-        // Downgrade hint: an older build reads only this boolean. Anything but
-        // FIXED behaved like the old "auto-discover on".
-        put("hudAutoDiscover", s.hudDiscoveryMode != HudDiscoveryMode.FIXED)
+        put("hudAutoDiscover", s.hudAutoDiscover)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
         put("hudCustomOverlayJson", s.hudCustomOverlayJson)
         put("phoneHudEnabled", s.phoneHudEnabled)
@@ -656,14 +652,7 @@ object SettingsJson {
         hudActionRight = j.optString("hudActionRight", base.hudActionRight),
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         hudIp = j.optString("hudIp", base.hudIp),
-        // Migrate the old boolean: on (auto + manual hint) -> HYBRID, off
-        // (manual only) -> FIXED. A file with neither key keeps the default.
-        hudDiscoveryMode = j.optString("hudDiscoveryMode", null)?.takeIf { it.isNotBlank() }
-            ?: when {
-                !j.has("hudAutoDiscover") -> base.hudDiscoveryMode
-                j.optBoolean("hudAutoDiscover", true) -> HudDiscoveryMode.HYBRID
-                else -> HudDiscoveryMode.FIXED
-            },
+        hudAutoDiscover = j.optBoolean("hudAutoDiscover", base.hudAutoDiscover),
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
         hudCustomOverlayJson = j.optString("hudCustomOverlayJson", base.hudCustomOverlayJson),
         phoneHudEnabled = j.optBoolean("phoneHudEnabled", base.phoneHudEnabled),
