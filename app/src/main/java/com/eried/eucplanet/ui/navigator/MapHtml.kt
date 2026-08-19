@@ -83,14 +83,27 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   /* On-map controls (zoom +/-, recenter) follow the rider's theme accent,
      pushed from native via nativeSetAccent -> the --accent CSS variable. */
   .leaflet-bar a, .leaflet-control a { color: var(--accent, #4FC3F7) !important; }
-  /* The credit has to be readable, not prominent: small, translucent, and out
-     of the way of the controls on the right. */
+  /* The credit has to be readable, not prominent, and the bottom-right corner
+     it defaults to is the one place it cannot live here: the stop list covers
+     the bottom and the controls own the right. Stood up along the left edge it
+     stays visible and lands in the same place in both orientations, since that
+     edge is the one nothing else uses. */
   .leaflet-control-attribution {
-    background: rgba(0,0,0,0.35) !important;
-    color: rgba(255,255,255,0.85) !important;
-    font-size: 9px !important;
-    padding: 1px 5px !important;
-    border-radius: 6px 0 0 0;
+    position: fixed !important;
+    left: 0 !important;
+    top: 50% !important;
+    margin: 0 !important;
+    /* vertical-rl runs the text downward; the half turn flips it to read
+       bottom-to-top, the way a label on a left edge is read. */
+    writing-mode: vertical-rl !important;
+    transform: translateY(-50%) rotate(180deg) !important;
+    background: rgba(0,0,0,0.28) !important;
+    color: rgba(255,255,255,0.70) !important;
+    font-size: 8px !important;
+    padding: 7px 2px !important;
+    border-radius: 6px 0 0 6px;
+    line-height: 1 !important;
+    pointer-events: none;
   }
   .leaflet-control-attribution a { color: rgba(255,255,255,0.85) !important; }
   .leaflet-tile-container { transition: none !important; }

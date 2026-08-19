@@ -1968,6 +1968,19 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     box-shadow:0 1px 4px rgba(0,0,0,0.5);
   }
   .scrub-tip:before{ border-top-color:rgba(20,22,26,0.92); }
+  /* Tile credit: required, but it should read as a footnote rather than a
+     label. Leaflet's default is an opaque white box at 11px, which on a card
+     this size is the loudest thing on the map. Dim and small, and moved off
+     the bottom-right where the layer and fullscreen buttons sit. */
+  .leaflet-control-attribution{
+    background:rgba(0,0,0,0.26)!important;
+    color:rgba(255,255,255,0.58)!important;
+    font-size:8px!important;
+    padding:1px 4px!important;
+    margin:0!important;
+    border-radius:0 5px 0 0;
+    pointer-events:none;
+  }
 </style>
 </head><body>
 <div id="map"></div>
@@ -1976,6 +1989,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   var fadedCoords=[$fadedCoordsJson];
   var map=L.map('map',{zoomControl:false,attributionControl:true});
   map.attributionControl.setPrefix('');
+  map.attributionControl.setPosition('bottomleft');
   var baseLayer=null;
   // {r} asks the provider for its @2x tile on a high-density screen. Without it
   // a phone upscales a 256 px tile threefold or more, which is most of why the
