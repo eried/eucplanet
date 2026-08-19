@@ -93,15 +93,16 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     left: 0 !important;
     top: 50% !important;
     margin: 0 !important;
-    /* vertical-rl runs the text downward; the half turn flips it to read
-       bottom-to-top, the way a label on a left edge is read. */
+    /* vertical-rl runs the text downward, which is the way to tilt the phone
+       to read it: turn it clockwise and the credit comes up level, the same
+       turn as reading a book spine on a shelf. */
     writing-mode: vertical-rl !important;
-    transform: translateY(-50%) rotate(180deg) !important;
+    transform: translateY(-50%) !important;
     background: rgba(0,0,0,0.28) !important;
     color: rgba(255,255,255,0.70) !important;
     font-size: 8px !important;
     padding: 7px 2px !important;
-    border-radius: 6px 0 0 6px;
+    border-radius: 0 6px 6px 0;
     line-height: 1 !important;
     pointer-events: none;
   }
