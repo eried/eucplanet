@@ -361,9 +361,9 @@
     <string name="hud_ip_label_autodetect">Device IP (automatic)</string>
     <string name="hud_discovery_mode">Discovery mode</string>
     <string name="hud_discovery_auto">Auto</string>
-    <string name="hud_discovery_hybrid">Hybrid</string>
     <string name="hud_discovery_fixed">Fixed</string>
-    <string name="hud_discovery_desc">Auto finds the HUD on the network. Fixed uses only the address below. Hybrid tries both.</string>
+    <string name="hud_discovery_both">Both</string>
+    <string name="hud_discovery_desc">Auto finds the HUD on the network. Fixed uses only the address below. Both tries discovery, then that address.</string>
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>

@@ -325,7 +325,7 @@ class HudServer @Inject constructor(
         }
 
         // UDP beacon listener only runs when we're discovering (AUTO or
-        // HYBRID). In FIXED mode the rider explicitly wants no background
+        // BOTH). In FIXED mode the rider explicitly wants no background
         // "find" activity -- only the manual IP they typed should be dialled.
         val s = runCatching { settingsRepository.get() }.getOrNull()
         val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
@@ -472,13 +472,13 @@ class HudServer @Inject constructor(
      * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
      * state until it dies, back off, retry.
      *
-     * In AUTO (default) and HYBRID modes we walk a priority chain on each
+     * In AUTO (default) and BOTH modes we walk a priority chain on each
      * iteration:
      *
      *   1. UDP beacon sighting (freshest first; cheap, the most reliable
      *      channel because it works on hotspots that block multicast)
      *   2. mDNS browse on `_eucplanet._tcp.local.` (5 s wait)
-     *   3. Manual `hudIp` from settings, HYBRID mode only (a last-known hint,
+     *   3. Manual `hudIp` from settings, BOTH mode only (a last-known hint,
      *      not the only truth). AUTO skips this so a stale IP the rider cannot
      *      see (the field is hidden) can never win the race - the bug that had
      *      a stale entry beat a HUD that had already announced itself.
@@ -512,10 +512,10 @@ class HudServer @Inject constructor(
             val (peer, source) = when {
                 override != null -> override to ConnectionSource.DEBUG_OVERRIDE
                 mode == HudDiscoveryMode.FIXED -> resolveManualOnly(s, manualIp, manualPort)
-                // HYBRID adds the saved IP as a fallback hint; AUTO never does.
+                // BOTH adds the saved IP as a fallback hint; AUTO never does.
                 else -> resolvePeer(
                     manualIp, manualPort,
-                    useManualHint = mode == HudDiscoveryMode.HYBRID,
+                    useManualHint = mode == HudDiscoveryMode.BOTH,
                 )
             }
 
@@ -699,7 +699,7 @@ class HudServer @Inject constructor(
             }
         }
 
-        // HYBRID only: AUTO passes useManualHint = false so a saved IP the
+        // BOTH only: AUTO passes useManualHint = false so a saved IP the
         // rider cannot see (its field is hidden) can never enter the race.
         val manualJob = if (useManualHint && manualIp.isNotBlank()) {
             scope.launch {

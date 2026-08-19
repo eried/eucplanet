@@ -5,18 +5,19 @@ import com.eried.eucplanet.R
 /**
  * How the phone finds the network HUD. Three modes so the rider controls
  * whether the saved [AppSettings.hudIp] is ever used:
- *  - [AUTO]   discovery only (UDP beacon / mDNS / subnet probe); the saved
- *             IP is never touched, so a stale address from another network
- *             can't capture the connection.
- *  - [HYBRID] discovery, with the saved IP/port as a last-resort fallback hint.
- *  - [FIXED]  the saved IP/port only, no discovery.
- * FIXED and HYBRID use the IP/port; AUTO does not.
+ *  - [AUTO]  discovery only (UDP beacon / mDNS / subnet probe); the saved
+ *            IP is never touched, so a stale address from another network
+ *            can't capture the connection.
+ *  - [FIXED] the saved IP/port only, no discovery.
+ *  - [BOTH]  discovery, with the saved IP/port as a last-resort fallback hint.
+ * FIXED and BOTH use the IP/port; AUTO does not. Value strings are stored, so
+ * "HYBRID" from an earlier build is normalised to [BOTH] on read.
  */
 object HudDiscoveryMode {
     const val AUTO = "AUTO"
-    const val HYBRID = "HYBRID"
     const val FIXED = "FIXED"
-    val VALUES = setOf(AUTO, HYBRID, FIXED)
+    const val BOTH = "BOTH"
+    val VALUES = setOf(AUTO, FIXED, BOTH)
 }
 
 /**
@@ -636,7 +637,7 @@ data class AppSettings(
      * How the phone finds the HUD (see [HudDiscoveryMode]). AUTO (default)
      * races UDP beacon, mDNS browse and a subnet probe of its own /24 and
      * never touches [hudIp] - the settings row that holds it is hidden, so
-     * nothing is dialled that the rider cannot see. HYBRID adds the saved
+     * nothing is dialled that the rider cannot see. BOTH adds the saved
      * [hudIp] as a fallback hint in that race. FIXED uses only [hudIp] - the
      * escape hatch for when every auto path is broken. The winning channel is
      * published on the HUD-settings status line so the rider sees how it linked.

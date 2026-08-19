@@ -868,14 +868,14 @@ class MainActivity : AppCompatActivity() {
                 detail = buildString {
                     // In AUTO the saved hudIp is not dialled at all, so printing
                     // it as "endpoint" pointed a support engineer at an address
-                    // the app was ignoring. FIXED dials it, HYBRID uses it as a
+                    // the app was ignoring. FIXED dials it, BOTH uses it as a
                     // fallback hint.
                     append("endpoint: ")
                     val saved = s?.hudIp.orEmpty()
                     when (s?.hudDiscoveryMode ?: com.eried.eucplanet.data.model.HudDiscoveryMode.AUTO) {
                         com.eried.eucplanet.data.model.HudDiscoveryMode.FIXED ->
                             append(saved.ifBlank { "not set" })
-                        com.eried.eucplanet.data.model.HudDiscoveryMode.HYBRID -> {
+                        com.eried.eucplanet.data.model.HudDiscoveryMode.BOTH -> {
                             append("auto-find")
                             if (saved.isNotBlank()) append(" (fallback $saved)")
                         }

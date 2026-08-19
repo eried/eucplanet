@@ -10910,14 +10910,14 @@ private fun HudIntegrationSection(
 
         // Discovery mode comes FIRST -- it decides whether the rider needs to
         // know the IP at all. Auto finds the HUD on its own; Fixed uses only
-        // the address below; Hybrid tries auto then falls back to it. Locked
+        // the address below; Both tries auto then falls back to it. Locked
         // while the link is enabled so a mid-session flip can't drop it.
         SegmentedChoice(
             label = stringResource(R.string.hud_discovery_mode),
             options = listOf(
                 HudDiscoveryMode.AUTO to stringResource(R.string.hud_discovery_auto),
-                HudDiscoveryMode.HYBRID to stringResource(R.string.hud_discovery_hybrid),
                 HudDiscoveryMode.FIXED to stringResource(R.string.hud_discovery_fixed),
+                HudDiscoveryMode.BOTH to stringResource(R.string.hud_discovery_both),
             ),
             current = settings.hudDiscoveryMode,
             onChange = { viewModel.updateHudDiscoveryMode(it) },

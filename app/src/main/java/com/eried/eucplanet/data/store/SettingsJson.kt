@@ -657,9 +657,11 @@ object SettingsJson {
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         hudIp = j.optString("hudIp", base.hudIp),
         // Migrate the old boolean: on (auto, saved IP not used) -> AUTO, off
-        // (manual only) -> FIXED. HYBRID is a new opt-in that nothing migrates
-        // to. A file with neither key keeps the default.
+        // (manual only) -> FIXED. BOTH is a new opt-in that nothing migrates
+        // to. A file with neither key keeps the default. An earlier build's
+        // "HYBRID" value is normalised to BOTH (same mode, renamed).
         hudDiscoveryMode = j.optString("hudDiscoveryMode", null)?.takeIf { it.isNotBlank() }
+            ?.let { if (it == "HYBRID") HudDiscoveryMode.BOTH else it }
             ?: when {
                 !j.has("hudAutoDiscover") -> base.hudDiscoveryMode
                 j.optBoolean("hudAutoDiscover", true) -> HudDiscoveryMode.AUTO
