@@ -1973,10 +1973,11 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
      this size is the loudest thing on the map. Dim and small, and moved off
      the bottom-right where the layer and fullscreen buttons sit. */
   .leaflet-control-attribution{
-    background:rgba(0,0,0,0.26)!important;
-    color:rgba(255,255,255,0.58)!important;
+    background:transparent!important;
+    color:rgba(255,255,255,0.88)!important;
+    text-shadow:0 0 2px rgba(0,0,0,0.95),0 0 5px rgba(0,0,0,0.75)!important;
     font-size:8px!important;
-    padding:1px 6px!important;
+    padding:2px 6px!important;
     /* Centred along the bottom edge: the map sits in a rounded card, and the
        middle of that edge is the one spot no corner curve and none of the
        buttons reach. Only the two upper corners are rounded, so it reads as a
@@ -1986,7 +1987,6 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     bottom:0!important;
     transform:translateX(-50%)!important;
     margin:0!important;
-    border-radius:5px 5px 0 0;
     pointer-events:none;
   }
 </style>

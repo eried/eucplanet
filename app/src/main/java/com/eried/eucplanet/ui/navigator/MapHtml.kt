@@ -98,15 +98,18 @@ private const val ROUTE_BUILDER_HTML_1: String = """
        turn as reading a book spine on a shelf. */
     writing-mode: vertical-rl !important;
     transform: translateY(-50%) !important;
-    background: rgba(0,0,0,0.28) !important;
-    color: rgba(255,255,255,0.70) !important;
+    /* No plate behind it: a dark halo carries the text over both a pale
+       street map and dark satellite imagery, the way map labels do, and
+       nothing rectangular sits over the tiles. */
+    background: transparent !important;
+    color: rgba(255,255,255,0.92) !important;
+    text-shadow: 0 0 2px rgba(0,0,0,0.95), 0 0 5px rgba(0,0,0,0.75) !important;
     font-size: 8px !important;
-    padding: 7px 2px !important;
-    border-radius: 0 6px 6px 0;
+    padding: 7px 3px !important;
     line-height: 1 !important;
     pointer-events: none;
   }
-  .leaflet-control-attribution a { color: rgba(255,255,255,0.85) !important; }
+  .leaflet-control-attribution a { color: rgba(255,255,255,0.92) !important; }
   .leaflet-tile-container { transition: none !important; }
   .leaflet-fade-anim .leaflet-tile { opacity: 1 !important; }
   /* Force GPU compositing on the panes we animate. Without explicit

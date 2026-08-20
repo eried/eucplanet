@@ -13,6 +13,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -976,10 +978,19 @@ fun RouteBuilderScreen(
             // Top right, clear of the bottom stack: that side keeps gaining
             // buttons (chargers, places, and more to come) and a compass that
             // only appears sometimes would keep shuffling them around.
-            // Shown only while the map is actually turned, which is almost
-            // always an accidental two-finger twist while pinching.
+            // Always present, and faded rather than removed once the map is
+            // square to north: appearing and vanishing on a twist made it
+            // flicker, and a button that comes and goes is one the rider has
+            // to hunt for. Dimmed it reads as "nothing to reset" while still
+            // showing which way the map is turned.
             val mapBearing by viewModel.mapBearing.collectAsState()
-            if (mapBearing > 2f && mapBearing < 358f) {
+            val pointingNorth = mapBearing <= 2f || mapBearing >= 358f
+            val compassAlpha by animateFloatAsState(
+                targetValue = if (pointingNorth) 0.35f else 1f,
+                animationSpec = tween(durationMillis = 450),
+                label = "compassAlpha",
+            )
+            run {
                 OverlayFab(
                     active = false,
                     loading = false,
@@ -989,7 +1000,8 @@ fun RouteBuilderScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = padding.calculateTopPadding())
-                        .padding(end = 16.dp, top = 12.dp),
+                        .padding(end = 16.dp, top = 12.dp)
+                        .alpha(compassAlpha),
                     // Needle points where the map is turned, so it reads as a
                     // compass. On the modifier this span the whole button and
                     // tilted its housing with it.
