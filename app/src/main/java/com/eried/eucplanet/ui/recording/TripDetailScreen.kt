@@ -130,6 +130,7 @@ import androidx.compose.ui.unit.Dp
 import com.eried.eucplanet.util.Smoothing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.eried.eucplanet.ui.theme.appColors
@@ -268,6 +269,28 @@ fun TripDetailScreen(
         trimRange = null
         loadingTrip = false
         reveal.cancel()
+    }
+
+    // Live-recording view. When the open trip is the one currently recording,
+    // keep re-reading its still-growing CSV so the charts and the map trace
+    // extend as the ride goes, instead of being frozen at the snapshot taken
+    // when the screen opened. This never touches loadingTrip/showSkeleton, so a
+    // refresh never flashes the placeholder. `> allPoints.size` only swaps in a
+    // genuinely fuller read, so a momentarily truncated tail (a row half-written
+    // when we read) can't shrink the view.
+    LaunchedEffect(trip.id, isLiveTrip) {
+        if (isLiveTrip) {
+            while (isActive) {
+                delay(LIVE_REFRESH_MS)
+                val fresh = withContext(Dispatchers.IO) { viewModel.readTripData(trip) }
+                if (fresh.size > allPoints.size) allPoints = fresh
+            }
+        } else if (allPoints.isNotEmpty()) {
+            // Recording just ended: pick up the final rows close() flushed after
+            // the last live refresh. Guarded so the very first (pre-load) pass
+            // for an ordinary completed trip doesn't clobber the initial read.
+            allPoints = withContext(Dispatchers.IO) { viewModel.readTripData(trip) }
+        }
     }
 
     val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
@@ -576,6 +599,23 @@ fun TripDetailScreen(
             val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
             val liveLocation by viewModel.liveLocation.collectAsState()
             val hasMap = gpsPoints.size >= 2 || (isLive && liveLocation != null)
+            // The trace baked into the map. While this trip is still recording,
+            // pin it to the snapshot from when the data first loaded so the map
+            // WebView isn't rebuilt on every live refresh - a rebuild reloads
+            // the page, resetting the rider's pan/zoom and flashing the tiles.
+            // The live path (updateLivePoint) grows the trace smoothly instead.
+            // Not recording: track gpsPoints directly, so a completed trip and
+            // the final trace the moment recording stops both draw in full, one
+            // clean reload.
+            var pinnedTrace by remember(trip.id) { mutableStateOf<List<TripDataPoint>?>(null) }
+            LaunchedEffect(isLive, gpsPoints) {
+                if (isLive) {
+                    if (pinnedTrace == null && gpsPoints.isNotEmpty()) pinnedTrace = gpsPoints
+                } else {
+                    pinnedTrace = null
+                }
+            }
+            val mapPoints = if (isLive) (pinnedTrace ?: gpsPoints) else gpsPoints
             // The scrubbed sample's own GPS fix (from the full dataPoints, which the
             // chart index maps onto), or null if it had none.
             val scrubPoint = scrubIndex?.let { i ->
@@ -632,7 +672,7 @@ fun TripDetailScreen(
             // Route map, reused inline (portrait) and permanent-left (landscape).
             val routeMap: @Composable (Modifier) -> Unit = { mod ->
                 RouteMapView(
-                    points = gpsPoints,
+                    points = mapPoints,
                     fadedPoints = if (trimmed) fullGpsPoints else emptyList(),
                     fadedSwitches = fadedSwitches,
                     startIncluded = startIncluded,
@@ -1551,6 +1591,12 @@ private val CHART_KEYS_DEFAULT = listOf(
  */
 /** How long a trip may take to load before the skeleton is shown. */
 private const val SKELETON_REVEAL_MS = 120L
+// While the open trip is the one still recording, re-read its (still-open) CSV
+// this often so the charts and the map trace grow as new samples land. The CSV
+// flushes every 10 rows, so the visible data trails the ride by under a flush;
+// the live position dot on the map comes straight from GPS and moves smoothly
+// regardless of this interval.
+private const val LIVE_REFRESH_MS = 3_000L
 
 /**
  * Stat tile keys, in default display order.
@@ -2115,6 +2161,17 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       if (!hasRoute) map.setView(p, 17);
     } else {
       live.setLatLng(p);
+    }
+    // Grow the trace as the ride goes. The baked coords are pinned to the
+    // open-time snapshot while recording (Kotlin stops feeding growth so the
+    // page never reloads), so this live line carries every step after it. Seed
+    // it from the last baked coord so it joins the existing trace rather than
+    // starting detached.
+    if (!livePath){
+      var seed = coords.length ? [coords[coords.length-1], p] : [p];
+      livePath = L.polyline(seed,{color:'#4FC3F7',weight:4,interactive:false}).addTo(map);
+    } else {
+      livePath.addLatLng(p);
     }
   };
 
