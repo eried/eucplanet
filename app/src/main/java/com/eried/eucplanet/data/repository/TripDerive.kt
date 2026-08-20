@@ -86,12 +86,40 @@ object TripDerive {
      * the app. Rows carrying `wheel.name=` or `wheel.mac=` get the new value;
      * everything else is copied byte for byte.
      *
-     * @return rows rewritten. 0 means the file records no wheel identity at all,
-     *   which is normal for an imported foreign CSV.
+     * When the file records no wheel at all - a GPS-only ride, or a foreign
+     * import - the pair is placed into the first rows with an empty Extra cell,
+     * the same way a trip name is. Without that, assigning a wheel to such a
+     * trip lived only in the database: it survived in the app and vanished the
+     * moment the file was shared, synced or re-imported.
+     *
+     * @return rows rewritten, 0 when the file has no Extra column to carry it.
      */
     fun rewriteWheelIdentity(source: File, dest: File, name: String, mac: String?): Int {
         if (!source.exists()) return 0
+        // Same sanitising as a trip name: an Extra cell cannot carry commas,
+        // quotes or newlines without breaking the row it sits in.
+        val cleanName = name.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
+        val cleanMac = mac?.replace(":", "")?.replace("-", "")?.uppercase()
+
+        // Pass 1: does the file already say which wheel this was?
+        var hasName = false
+        var hasMac = false
+        source.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return 0
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return 0
+            while (true) {
+                val line = reader.readLine() ?: break
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("wheel.name=")) hasName = true
+                if (cell.startsWith("wheel.mac=")) hasMac = true
+                if (hasName && hasMac) break
+            }
+        }
+
         var changed = 0
+        var placedName = false
+        var placedMac = false
         source.bufferedReader().use { reader ->
             val headerLine = reader.readLine() ?: return 0
             val extraIdx = headerLine.lowercase().split(",").map { it.trim() }.indexOf("extra")
@@ -104,9 +132,26 @@ object TripDerive {
                     val cells = line.split(",")
                     val cell = cells.getOrNull(extraIdx)?.trim().orEmpty()
                     val replacement = when {
-                        cell.startsWith("wheel.name=") -> "wheel.name=$name"
-                        cell.startsWith("wheel.mac=") && mac != null ->
-                            "wheel.mac=" + mac.replace(":", "").replace("-", "").uppercase()
+                        cell.startsWith("wheel.name=") -> {
+                            placedName = true
+                            "wheel.name=$cleanName"
+                        }
+                        cell.startsWith("wheel.mac=") && cleanMac != null -> {
+                            placedMac = true
+                            "wheel.mac=$cleanMac"
+                        }
+                        // Nothing recorded the wheel, so put it in the first
+                        // free Extra cell rather than leaving the file silent.
+                        !hasName && !placedName && cleanName.isNotEmpty() &&
+                            cell.isEmpty() && extraIdx < cells.size -> {
+                            placedName = true
+                            "wheel.name=$cleanName"
+                        }
+                        !hasMac && !placedMac && cleanMac != null &&
+                            cell.isEmpty() && extraIdx < cells.size -> {
+                            placedMac = true
+                            "wheel.mac=$cleanMac"
+                        }
                         else -> null
                     }
                     if (replacement == null) { out.write(line); out.newLine(); continue }

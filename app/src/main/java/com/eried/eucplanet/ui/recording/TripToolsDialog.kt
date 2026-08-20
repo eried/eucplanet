@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.data.repository.ExtendPlan
 import com.eried.eucplanet.data.repository.TripSplitDetector
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
@@ -508,75 +509,18 @@ fun CombineTripsDialog(
     var toIdx by remember(ordered) { mutableStateOf(anchorIdx) }
     var archiveSources by remember { mutableStateOf(true) }
 
-    // Trips whose data this one already holds are left out of the extend
-    // entirely: not offered as an end, and stepped over when they fall inside
-    // the range.
-    //
-    // A trip that overlaps this one in time is either a piece already inside
-    // it, or - when the rider is standing on a piece - the combined trip that
-    // contains it. Merging either writes the same samples into the result
-    // twice: doubled distance, a duration longer than the ride took. Skipping
-    // rather than stopping, because the ride before an already-merged piece is
-    // still a fair thing to extend into, and with a handful of trips either
-    // side there is nothing to gain by refusing it.
-    val anchorStart = anchor.startTime
-    val anchorEnd = anchor.endTime ?: anchor.startTime
-    fun overlapsAnchor(t: TripRecord): Boolean =
-        t.id != anchor.id &&
-            t.startTime < anchorEnd && (t.endTime ?: t.startTime) > anchorStart
+    // Which trips this extend may reach, and what a chosen span would really
+    // merge, both from ExtendPlan so the rules can be tested without Compose.
+    val reach = remember(ordered, anchorIdx) { ExtendPlan.reach(ordered, anchor) }
+    val backIdx = reach.back
+    val fwdIdx = reach.forward
+    val nothingReachable = reach.isDeadEnd
 
-    /**
-     * True when [t] sits entirely inside some other trip: a piece whose
-     * combined trip is still in the list.
-     *
-     * Overlapping the anchor is not the only way to merge the same samples
-     * twice. A range that reaches past an unrelated combined trip sweeps up
-     * both it and the pieces it was made from, and neither of them touches the
-     * anchor, so the check above lets it through. A trip already contained in
-     * another has nothing to add to a merge, so it is left out of the extend
-     * the same way.
-     */
-    fun isInsideAnother(t: TripRecord): Boolean {
-        val tEnd = t.endTime ?: t.startTime
-        return ordered.any { o ->
-            val oEnd = o.endTime ?: o.startTime
-            o.id != t.id && o.startTime <= t.startTime && oEnd >= tEnd &&
-                // Strictly bigger, so two trips of the same span do not each
-                // swallow the other and vanish together.
-                (o.startTime < t.startTime || oEnd > tEnd)
-        }
+    val merge = remember(fromIdx, toIdx, ordered) {
+        ExtendPlan.merge(ordered, anchor, fromIdx, toIdx)
     }
-
-    /** Trips an extend must leave alone, whichever way it reaches. */
-    fun excluded(t: TripRecord): Boolean = overlapsAnchor(t) || isInsideAnother(t)
-    // Reach counts trips the rider can actually pick, so a combined trip's
-    // pieces do not eat the budget of eight and hide the rides beyond them.
-    val backIdx = remember(ordered, anchorIdx) {
-        buildList {
-            var i = anchorIdx - 1
-            while (i >= 0 && size < EXTEND_REACH) {
-                if (!excluded(ordered[i])) add(i)
-                i--
-            }
-        }.reversed()
-    }
-    val fwdIdx = remember(ordered, anchorIdx) {
-        buildList {
-            var i = anchorIdx + 1
-            while (i <= ordered.size - 1 && size < EXTEND_REACH) {
-                if (!excluded(ordered[i])) add(i)
-                i++
-            }
-        }
-    }
-    val nothingReachable = backIdx.isEmpty() && fwdIdx.isEmpty()
-
-    val span = remember(fromIdx, toIdx, ordered) {
-        if (anchorIdx < 0) emptyList()
-        else ordered.subList(fromIdx.coerceAtMost(anchorIdx), toIdx.coerceAtLeast(anchorIdx) + 1).toList()
-    }
-    val range = remember(span) { span.filter { it.id == anchor.id || !excluded(it) } }
-    val skipped = span.size - range.size
+    val range = merge.trips
+    val skipped = merge.skipped
     val mixedWheels = remember(range) {
         range.mapNotNull { wheelOf(it)?.takeIf { w -> w.isNotBlank() } }.distinct().size > 1
     }

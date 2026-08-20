@@ -530,44 +530,15 @@ class VoiceService @Inject constructor(
     private fun buildReportParts(
         data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean
     ): List<String> {
-        // Append any known items missing from the saved order (e.g. PhoneBattery
-        // added after the rider's order was saved) so new report types still speak.
-        val known = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Current", "Power", "Distance", "Recording", "Time", "Navigation")
+        // Which reports, in what order: VoiceReportPlan, so the choice can be
+        // tested without a TTS engine. Everything below is formatting.
         // Window the load-style reports average over. The advanced setting is in
         // samples for the ~1 Hz trip graphs, which makes it seconds here.
         val loadWindowMs = settings.smoothingWindowSamples.coerceAtLeast(1) * 1000L
-        val saved = settings.voiceReportOrder.split(",").map { it.trim() }.filter { it in known }
-        val order = saved + known.filter { it !in saved }
         val parts = mutableListOf<String>()
-        for (item in order) {
-            val enabled = if (periodic) when (item) {
-                "Speed" -> settings.voiceReportSpeed
-                "Battery" -> settings.voiceReportBattery
-                "Temp" -> settings.voiceReportTemp
-                "PWM" -> settings.voiceReportPwm
-                "Current" -> settings.voiceReports.periodicCurrent
-                "Power" -> settings.voiceReports.periodicPower
-                "Distance" -> settings.voiceReportDistance
-                "Recording" -> settings.voiceReportRecording
-                "Time" -> settings.voiceReportTime
-                "Navigation" -> settings.voiceReportNavigation
-                "PhoneBattery" -> settings.voiceReportPhoneBattery
-                else -> false
-            } else when (item) {
-                "Speed" -> settings.triggerReportSpeed
-                "Battery" -> settings.triggerReportBattery
-                "Temp" -> settings.triggerReportTemp
-                "PWM" -> settings.triggerReportPwm
-                "Current" -> settings.voiceReports.triggerCurrent
-                "Power" -> settings.voiceReports.triggerPower
-                "Distance" -> settings.triggerReportDistance
-                "Recording" -> settings.triggerReportRecording
-                "Time" -> settings.triggerReportTime
-                "Navigation" -> settings.triggerReportNavigation
-                "PhoneBattery" -> settings.triggerReportPhoneBattery
-                else -> false
-            }
-            if (enabled) {
+        for (item in VoiceReportPlan.items(settings, periodic)) {
+            run {
+
                 // Convert each value to the user's display unit before
                 // formatting. The "kilometers / miles" wording in
                 // voice_trip_fmt also switches via the distance-imperial variant.

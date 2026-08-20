@@ -1208,19 +1208,16 @@ class SyncManager @Inject constructor(
         val settings = settingsRepository.get()
         val moved = if (settings.dropboxAccessToken.isNotBlank()) {
             dropboxRepository.moveFile("/trips/$fileName", "/trips/archive/$fileName")
-        } else MoveOutcome.Absent
-        if (moved is MoveOutcome.Failed) return false
-
-        if (!archiveInBackupFolder(settings, fileName)) {
-            if (moved is MoveOutcome.Moved) {
-                // Best effort: if putting it back also fails, the phone still
-                // has the trip and the next sync re-uploads it, so the rider
-                // loses nothing either way.
-                dropboxRepository.moveFile(moved.toPath, "/trips/$fileName")
-            }
-            return false
+        } else null
+        val folderOk = moved !is MoveOutcome.Failed && archiveInBackupFolder(settings, fileName)
+        val decision = ArchivePolicy.decide(moved, folderOk)
+        if (decision.rollback && moved is MoveOutcome.Moved) {
+            // Best effort: if putting it back also fails, the phone still has
+            // the trip and the next sync re-uploads it, so the rider loses
+            // nothing either way.
+            dropboxRepository.moveFile(moved.toPath, "/trips/$fileName")
         }
-        return true
+        return decision.archived
     }
 
     /**
@@ -1246,14 +1243,24 @@ class SyncManager @Inject constructor(
         val dropboxLinked = settings.dropboxAccessToken.isNotBlank()
         if (dropboxLinked) {
             val pairs = fileNames.map { "/trips/$it" to "/trips/archive/$it" }
-            if (!dropboxRepository.moveFilesBatch(pairs)) return emptySet()
+            if (!dropboxRepository.moveFilesBatch(pairs)) {
+                // A batch that reports failure may still have moved some of it:
+                // the job runs on Dropbox's side and the answer can be lost on
+                // the way back. Ask for the reverse before giving up, so the
+                // two sides cannot be left disagreeing. Entries that never
+                // moved simply are not found, which the batch tolerates.
+                dropboxRepository.moveFilesBatch(
+                    fileNames.map { "/trips/archive/$it" to "/trips/$it" }
+                )
+                return emptySet()
+            }
         }
-        val done = fileNames.filterTo(HashSet()) { archiveInBackupFolder(settings, it) }
-        if (dropboxLinked && done.size < fileNames.size) {
+        val accepted = fileNames.filterTo(HashSet()) { archiveInBackupFolder(settings, it) }
+        val (done, putBack) = ArchivePolicy.decideBatch(fileNames, dropboxOk = true, folderAccepted = accepted)
+        if (dropboxLinked && putBack.isNotEmpty()) {
             // Whatever the folder would not take goes back to /trips, so the
             // two sides never disagree about where a trip lives.
-            val back = (fileNames - done).map { "/trips/archive/$it" to "/trips/$it" }
-            dropboxRepository.moveFilesBatch(back)
+            dropboxRepository.moveFilesBatch(putBack.map { "/trips/archive/$it" to "/trips/$it" })
         }
         return done
     }

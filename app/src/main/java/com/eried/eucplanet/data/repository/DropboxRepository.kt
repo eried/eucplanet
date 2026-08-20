@@ -269,12 +269,13 @@ class DropboxRepository @Inject constructor(
         // Small batches come back done; larger ones hand over a job id.
         if (started.optString(".tag") == "complete") return true
         val job = started.optString("async_job_id").ifBlank { return false }
-        // Dropbox gives no ETA, so poll with a ceiling rather than forever:
-        // a job still running after this is left alone, and the rider's trips
-        // are still on the phone because the caller has not touched them.
+        // check_v2, not check: a v2 batch job polled through the v1 endpoint
+        // answers internal_error, which reads as a failed move even though
+        // Dropbox has already done it - the files end up archived there while
+        // the phone still holds its copies.
         repeat(POLL_TRIES) {
             Thread.sleep(POLL_WAIT_MS)
-            val check = postJson(token, "files/move_batch/check",
+            val check = postJson(token, "files/move_batch/check_v2",
                 JSONObject().apply { put("async_job_id", job) }) ?: return false
             when (check.optString(".tag")) {
                 "complete" -> return true
