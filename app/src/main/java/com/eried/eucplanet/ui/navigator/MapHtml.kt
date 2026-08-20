@@ -589,7 +589,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     bearingEase = null;
     var current = map.getBearing();
     var delta = ((0 - current + 540) % 360) - 180;
-    if (Math.abs(delta) < 0.2) { map.setBearing(0); reportBearing(); return; }
+    if (Math.abs(delta) < 0.2) { map.setBearing(0); reportBearing(true); return; }
     northEase = {from: current, delta: delta, startMs: Date.now()};
     requestAnimationFrame(tickNorthEase);
   };
@@ -599,12 +599,12 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (p >= 1) {
       map.setBearing(0);
       northEase = null;
-      reportBearing();
+      reportBearing(true);
       return;
     }
     var eased = p * p * p * (p * (p * 6 - 15) + 10);
     map.setBearing(northEase.from + northEase.delta * eased);
-    reportBearing();
+    reportBearing(false);
     requestAnimationFrame(tickNorthEase);
   }
 
@@ -614,17 +614,36 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // traffic for a button that only needs to know "off north or not".
   var lastReportedBearing = 999;
   var lastBearingReportMs = 0;
-  function reportBearing(){
+  var bearingSettleTimer = null;
+  function reportBearing(force){
     if (!window.AndroidNav || !AndroidNav.onBearingChanged) return;
     var b = ((map.getBearing() % 360) + 360) % 360;
     var now = Date.now();
     var moved = Math.abs(((b - lastReportedBearing + 540) % 360) - 180);
-    if (moved < 1 || now - lastBearingReportMs < 200) return;
+    // The throttle is right for the frames in the middle of a turn and wrong
+    // for the last one, which is the report that says where the map came to
+    // rest. Dropping it left the screen believing the map was still off north
+    // - the compass stayed lit with nothing left to reset - so the callers
+    // that know a turn has finished send theirs with force.
+    if (!force && (moved < 1 || now - lastBearingReportMs < 200)) return;
     lastReportedBearing = b;
     lastBearingReportMs = now;
     AndroidNav.onBearingChanged(b);
   }
-  map.on('rotate', reportBearing);
+  // A two-finger twist ends wherever the rider lifts their fingers, and the
+  // last degrees of it fall inside the throttle just as the reset does. There
+  // is no rotateend event to hang this on (the plugin only fires 'rotate'), so
+  // a short settle timer stands in for one.
+  function scheduleBearingSettle(){
+    if (bearingSettleTimer) clearTimeout(bearingSettleTimer);
+    bearingSettleTimer = setTimeout(function(){
+      bearingSettleTimer = null;
+      reportBearing(true);
+    }, 220);
+  }
+  // Wrapped rather than passed straight to on(): the handler is called with
+  // the event object, which would arrive as a truthy force on every frame.
+  map.on('rotate', function(){ reportBearing(false); scheduleBearingSettle(); });
 
   window.nativeSetMapType = function(type){
     // Idempotent: a redundant call for the same type (the screen's
