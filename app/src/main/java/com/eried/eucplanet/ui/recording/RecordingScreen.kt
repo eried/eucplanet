@@ -332,7 +332,15 @@ fun RecordingScreen(
             title = { Text(stringResource(R.string.recording_delete_trip_title)) },
             text = {
                 Column {
-                    Text(stringResource(R.string.recording_delete_trip_body))
+                    // Same rule as delete-all: the question has to match the
+                    // box under it, or it reads as if the backup goes too.
+                    Text(
+                        stringResource(
+                            if (canArchiveTrips && archiveBackups)
+                                R.string.recording_delete_trip_body_archive
+                            else R.string.recording_delete_trip_body
+                        )
+                    )
                     if (canArchiveTrips) {
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.appColors.divider)

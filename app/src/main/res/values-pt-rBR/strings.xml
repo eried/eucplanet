@@ -2230,14 +2230,13 @@
     <string name="trip_tools_rename_desc">Dê um nome a este trajeto. Fica no arquivo dele, então acompanha exportações e sincronização.</string>
     <string name="trip_tools_rename_hint">Deixe em branco para usar a data.</string>
     <string name="trip_tools_renamed">Trajeto renomeado</string>
-    <string name="trip_tools_archive_sources">Arquivar os originais</string>
-    <string name="trip_tools_archive_sources_desc">Remove daqui e arquiva as cópias de backup.</string>
     <string name="trip_tools_archived">%1$d arquivado(s)</string>
     <string name="trip_tools_archive_failed">Alguns trajetos não puderam ser arquivados e continuam aqui</string>
     <string name="recording_delete_archive">Arquivar as cópias de backup</string>
-    <string name="recording_delete_archive_desc">Move as cópias para uma pasta de arquivo, para o trajeto não voltar.</string>
+    <string name="recording_delete_archive_desc">Move as cópias para uma pasta de arquivo.</string>
     <string name="trip_tools_extend_all_inside">Os trajetos em volta já fazem parte deste.</string>
     <string name="trip_tools_extend_skipped">Pula %1$d trajetos que já estão dentro deste.</string>
     <string name="recording_clear_all_body_archive">Isso exclui os trajetos deste telefone. As cópias de backup vão para uma pasta de arquivo.</string>
+    <string name="recording_delete_trip_body_archive">Excluir este trajeto do telefone? A cópia de backup vai para uma pasta de arquivo.</string>
 </resources>
 

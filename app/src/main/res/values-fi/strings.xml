@@ -2031,13 +2031,12 @@
     <string name="trip_tools_rename_hint">Jätä tyhjäksi käyttääksesi päivämäärää.</string>
     <string name="trip_tools_renamed">Ajo nimetty uudelleen</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
-    <string name="trip_tools_archive_sources">Arkistoi alkuperäiset</string>
-    <string name="trip_tools_archive_sources_desc">Poistaa ne täältä ja arkistoi varmuuskopiot.</string>
     <string name="trip_tools_archived">Arkistoitu: %1$d</string>
     <string name="trip_tools_archive_failed">Joitakin ajoja ei voitu arkistoida, ne ovat yhä täällä</string>
     <string name="recording_delete_archive">Arkistoi varmuuskopiot</string>
-    <string name="recording_delete_archive_desc">Siirtää ne arkistokansioon, jotta ajo ei palaa.</string>
+    <string name="recording_delete_archive_desc">Siirtää ne arkistokansioon.</string>
     <string name="trip_tools_extend_all_inside">Tämän ympärillä olevat ajot ovat jo osa sitä.</string>
     <string name="trip_tools_extend_skipped">Ohittaa %1$d ajoa, jotka ovat jo tämän sisällä.</string>
     <string name="recording_clear_all_body_archive">Tämä poistaa ajot tästä puhelimesta. Varmuuskopiot siirtyvät arkistokansioon.</string>
+    <string name="recording_delete_trip_body_archive">Poistetaanko tämä ajo puhelimesta? Varmuuskopio siirtyy arkistokansioon.</string>
 </resources>

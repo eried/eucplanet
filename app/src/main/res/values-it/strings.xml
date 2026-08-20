@@ -2133,13 +2133,12 @@
     <string name="trip_tools_rename_desc">Dai un nome a questa uscita. Sta nel suo file, quindi viaggia con esportazioni e sincronizzazione.</string>
     <string name="trip_tools_rename_hint">Lascia vuoto per usare la data.</string>
     <string name="trip_tools_renamed">Uscita rinominata</string>
-    <string name="trip_tools_archive_sources">Archivia gli originali</string>
-    <string name="trip_tools_archive_sources_desc">Le rimuove da qui e archivia le copie di backup.</string>
     <string name="trip_tools_archived">Archiviate: %1$d</string>
     <string name="trip_tools_archive_failed">Alcune uscite non si sono potute archiviare e sono ancora qui</string>
     <string name="recording_delete_archive">Archivia le copie di backup</string>
-    <string name="recording_delete_archive_desc">Le sposta in una cartella di archivio, così l\'uscita non torna.</string>
+    <string name="recording_delete_archive_desc">Le sposta in una cartella di archivio.</string>
     <string name="trip_tools_extend_all_inside">Le uscite intorno fanno già parte di questa.</string>
     <string name="trip_tools_extend_skipped">Salta %1$d uscite già dentro questa.</string>
     <string name="recording_clear_all_body_archive">Elimina le uscite da questo telefono. Le copie di backup passano in una cartella di archivio.</string>
+    <string name="recording_delete_trip_body_archive">Eliminare questa uscita dal telefono? La copia di backup passa in una cartella di archivio.</string>
 </resources>

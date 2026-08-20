@@ -2228,13 +2228,12 @@
     <string name="trip_tools_rename_desc">Nadaj nazwę temu przejazdowi. Zapisuje się w jego pliku, więc wędruje z eksportem i synchronizacją.</string>
     <string name="trip_tools_rename_hint">Zostaw puste, aby użyć daty.</string>
     <string name="trip_tools_renamed">Nazwa przejazdu zmieniona</string>
-    <string name="trip_tools_archive_sources">Zarchiwizuj oryginały</string>
-    <string name="trip_tools_archive_sources_desc">Usuwa je stąd i archiwizuje kopie zapasowe.</string>
     <string name="trip_tools_archived">Zarchiwizowano: %1$d</string>
     <string name="trip_tools_archive_failed">Niektórych przejazdów nie udało się zarchiwizować, nadal tu są</string>
     <string name="recording_delete_archive">Zarchiwizuj kopie zapasowe</string>
-    <string name="recording_delete_archive_desc">Przenosi je do folderu archiwum, żeby przejazd nie wracał.</string>
+    <string name="recording_delete_archive_desc">Przenosi je do folderu archiwum.</string>
     <string name="trip_tools_extend_all_inside">Przejazdy dookoła są już częścią tego.</string>
     <string name="trip_tools_extend_skipped">Pomija %1$d przejazdów, które już są w tym.</string>
     <string name="recording_clear_all_body_archive">To usuwa przejazdy z tego telefonu. Kopie zapasowe trafiają do folderu archiwum.</string>
+    <string name="recording_delete_trip_body_archive">Usunąć ten przejazd z telefonu? Kopia zapasowa trafi do folderu archiwum.</string>
 </resources>

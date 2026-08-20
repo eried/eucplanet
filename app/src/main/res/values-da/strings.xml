@@ -2243,13 +2243,12 @@
     <string name="trip_tools_rename_desc">Giv turen et navn. Gemmes i dens fil, så det følger med eksport og synk.</string>
     <string name="trip_tools_rename_hint">Lad stå tomt for at bruge datoen.</string>
     <string name="trip_tools_renamed">Tur omdøbt</string>
-    <string name="trip_tools_archive_sources">Arkivér originalerne</string>
-    <string name="trip_tools_archive_sources_desc">Fjerner dem her og arkiverer kopierne i backuppen.</string>
     <string name="trip_tools_archived">Arkiveret: %1$d</string>
     <string name="trip_tools_archive_failed">Nogle ture kunne ikke arkiveres og er her stadig</string>
     <string name="recording_delete_archive">Arkivér kopierne i backuppen</string>
-    <string name="recording_delete_archive_desc">Flytter dem til en arkivmappe, så turen ikke kommer tilbage.</string>
+    <string name="recording_delete_archive_desc">Flytter dem til en arkivmappe.</string>
     <string name="trip_tools_extend_all_inside">Turene omkring denne er allerede en del af den.</string>
     <string name="trip_tools_extend_skipped">Springer %1$d ture over, der allerede er inde i denne.</string>
     <string name="recording_clear_all_body_archive">Dette sletter turene fra denne telefon. Kopierne i backuppen flyttes til en arkivmappe.</string>
+    <string name="recording_delete_trip_body_archive">Slet denne tur fra telefonen? Kopien i backuppen flyttes til en arkivmappe.</string>
 </resources>

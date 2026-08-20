@@ -2228,13 +2228,12 @@
     <string name="trip_tools_rename_desc">Ge den här turen ett namn. Sparas i dess fil, så det följer med export och synk.</string>
     <string name="trip_tools_rename_hint">Lämna tomt för att använda datumet.</string>
     <string name="trip_tools_renamed">Turen bytte namn</string>
-    <string name="trip_tools_archive_sources">Arkivera originalen</string>
-    <string name="trip_tools_archive_sources_desc">Tar bort dem härifrån och arkiverar backupkopiorna.</string>
     <string name="trip_tools_archived">Arkiverade: %1$d</string>
     <string name="trip_tools_archive_failed">Vissa turer kunde inte arkiveras och finns kvar här</string>
     <string name="recording_delete_archive">Arkivera backupkopiorna</string>
-    <string name="recording_delete_archive_desc">Flyttar dem till en arkivmapp, så turen inte kommer tillbaka.</string>
+    <string name="recording_delete_archive_desc">Flyttar dem till en arkivmapp.</string>
     <string name="trip_tools_extend_all_inside">Turerna omkring är redan en del av den här.</string>
     <string name="trip_tools_extend_skipped">Hoppar över %1$d turer som redan finns i den här.</string>
     <string name="recording_clear_all_body_archive">Det här raderar turerna från den här telefonen. Backupkopiorna flyttas till en arkivmapp.</string>
+    <string name="recording_delete_trip_body_archive">Radera den här turen från telefonen? Backupkopian flyttas till en arkivmapp.</string>
 </resources>

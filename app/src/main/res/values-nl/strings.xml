@@ -2230,14 +2230,13 @@
     <string name="trip_tools_rename_desc">Geef deze rit een naam. Staat in het bestand, dus gaat mee met export en synchronisatie.</string>
     <string name="trip_tools_rename_hint">Laat leeg om de datum te gebruiken.</string>
     <string name="trip_tools_renamed">Rit hernoemd</string>
-    <string name="trip_tools_archive_sources">Originelen archiveren</string>
-    <string name="trip_tools_archive_sources_desc">Haalt ze hier weg en archiveert de back-upkopieën.</string>
     <string name="trip_tools_archived">%1$d gearchiveerd</string>
     <string name="trip_tools_archive_failed">Sommige ritten konden niet worden gearchiveerd en staan er nog</string>
     <string name="recording_delete_archive">Back-upkopieën archiveren</string>
-    <string name="recording_delete_archive_desc">Verplaatst ze naar een archiefmap, zodat de rit niet terugkomt.</string>
+    <string name="recording_delete_archive_desc">Verplaatst ze naar een archiefmap.</string>
     <string name="trip_tools_extend_all_inside">De ritten eromheen zitten al in deze rit.</string>
     <string name="trip_tools_extend_skipped">Slaat %1$d ritten over die al in deze zitten.</string>
     <string name="recording_clear_all_body_archive">Dit verwijdert de ritten van deze telefoon. De back-upkopieën gaan naar een archiefmap.</string>
+    <string name="recording_delete_trip_body_archive">Deze rit van de telefoon verwijderen? De back-upkopie gaat naar een archiefmap.</string>
 </resources>
 

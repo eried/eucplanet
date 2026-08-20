@@ -2227,15 +2227,14 @@
     <string name="trip_tools_rename_desc">給這次騎乘起個名字。儲存在它的檔案裡，所以會隨匯出和同步一起走。</string>
     <string name="trip_tools_rename_hint">留空則使用日期。</string>
     <string name="trip_tools_renamed">行程已重新命名</string>
-    <string name="trip_tools_archive_sources">封存原始行程</string>
-    <string name="trip_tools_archive_sources_desc">從這裡移除，並封存備份裡的副本。</string>
     <string name="trip_tools_archived">已封存 %1$d 個</string>
     <string name="trip_tools_archive_failed">有些行程無法封存，仍然留在這裡</string>
     <string name="recording_delete_archive">封存備份裡的副本</string>
-    <string name="recording_delete_archive_desc">把它們移到封存資料夾，這樣行程不會回來。</string>
+    <string name="recording_delete_archive_desc">把它們移到封存資料夾。</string>
     <string name="trip_tools_extend_all_inside">前後的行程已經包含在這次行程裡了。</string>
     <string name="trip_tools_extend_skipped">跳過已經在這次行程裡的 %1$d 個行程。</string>
     <string name="recording_clear_all_body_archive">這會從這台手機刪除行程。備份裡的副本會移到封存資料夾。</string>
+    <string name="recording_delete_trip_body_archive">從這台手機刪除這次行程？備份裡的副本會移到封存資料夾。</string>
 </resources>
 
 

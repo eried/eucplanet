@@ -2232,13 +2232,12 @@
     <string name="trip_tools_rename_desc">Donne un nom à cette sortie. Enregistré dans son fichier, il suit les exports et la synchro.</string>
     <string name="trip_tools_rename_hint">Laisse vide pour utiliser la date.</string>
     <string name="trip_tools_renamed">Sortie renommée</string>
-    <string name="trip_tools_archive_sources">Archiver les originaux</string>
-    <string name="trip_tools_archive_sources_desc">Les retire d\'ici et archive les copies de sauvegarde.</string>
     <string name="trip_tools_archived">%1$d archivée(s)</string>
     <string name="trip_tools_archive_failed">Certaines sorties n\'ont pas pu être archivées et sont toujours là</string>
     <string name="recording_delete_archive">Archiver les copies de sauvegarde</string>
-    <string name="recording_delete_archive_desc">Les déplace vers un dossier d\'archive, pour que la sortie ne revienne pas.</string>
+    <string name="recording_delete_archive_desc">Les déplace vers un dossier d\'archive.</string>
     <string name="trip_tools_extend_all_inside">Les sorties autour font déjà partie de celle-ci.</string>
     <string name="trip_tools_extend_skipped">Ignore %1$d sorties déjà comprises dans celle-ci.</string>
     <string name="recording_clear_all_body_archive">Ça supprime les sorties de ce téléphone. Les copies de sauvegarde partent dans un dossier d\'archive.</string>
+    <string name="recording_delete_trip_body_archive">Supprimer cette sortie du téléphone ? La copie de sauvegarde part dans un dossier d\'archive.</string>
 </resources>

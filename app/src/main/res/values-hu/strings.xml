@@ -2031,13 +2031,12 @@
     <string name="trip_tools_rename_hint">Hagyd üresen a dátumhoz.</string>
     <string name="trip_tools_renamed">Túra átnevezve</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
-    <string name="trip_tools_archive_sources">Eredetik archiválása</string>
-    <string name="trip_tools_archive_sources_desc">Eltávolítja őket innen, és archiválja a mentett másolatokat.</string>
     <string name="trip_tools_archived">%1$d archiválva</string>
     <string name="trip_tools_archive_failed">Néhány túrát nem sikerült archiválni, még itt vannak</string>
     <string name="recording_delete_archive">Mentett másolatok archiválása</string>
-    <string name="recording_delete_archive_desc">Áthelyezi őket egy archív mappába, hogy a túra ne jöjjön vissza.</string>
+    <string name="recording_delete_archive_desc">Áthelyezi őket egy archív mappába.</string>
     <string name="trip_tools_extend_all_inside">A körülötte lévő túrák már ennek a részei.</string>
     <string name="trip_tools_extend_skipped">Kihagy %1$d túrát, amely már ebben van.</string>
     <string name="recording_clear_all_body_archive">Ez törli a túrákat erről a telefonról. A mentett másolatok egy archív mappába kerülnek.</string>
+    <string name="recording_delete_trip_body_archive">Törlöd ezt a túrát a telefonról? A mentett másolat egy archív mappába kerül.</string>
 </resources>

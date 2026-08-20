@@ -2229,15 +2229,14 @@
     <string name="trip_tools_rename_desc">この走行に名前を付けます。ファイルに保存されるので、書き出しや同期にも付いていきます。</string>
     <string name="trip_tools_rename_hint">空欄にすると日付を使います。</string>
     <string name="trip_tools_renamed">走行の名前を変更しました</string>
-    <string name="trip_tools_archive_sources">元の走行をアーカイブ</string>
-    <string name="trip_tools_archive_sources_desc">ここから消し、バックアップの控えをアーカイブします。</string>
     <string name="trip_tools_archived">%1$d 件をアーカイブしました</string>
     <string name="trip_tools_archive_failed">アーカイブできなかった走行があり、ここに残っています</string>
     <string name="recording_delete_archive">バックアップの控えをアーカイブ</string>
-    <string name="recording_delete_archive_desc">アーカイブフォルダーへ移すので、走行は戻ってきません。</string>
+    <string name="recording_delete_archive_desc">アーカイブフォルダーへ移します。</string>
     <string name="trip_tools_extend_all_inside">前後の走行は、すでにこの走行に含まれています。</string>
     <string name="trip_tools_extend_skipped">すでにこの走行に含まれる %1$d 件を飛ばします。</string>
     <string name="recording_clear_all_body_archive">この端末から走行を削除します。バックアップの控えはアーカイブフォルダーへ移ります。</string>
+    <string name="recording_delete_trip_body_archive">この走行を端末から削除しますか？バックアップの控えはアーカイブフォルダーへ移ります。</string>
 </resources>
 
 

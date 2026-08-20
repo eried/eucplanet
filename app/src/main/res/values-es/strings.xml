@@ -2225,14 +2225,13 @@
     <string name="trip_tools_rename_desc">Ponle nombre a esta ruta. Se guarda en su archivo, así viaja con exportaciones y sincronización.</string>
     <string name="trip_tools_rename_hint">Déjalo vacío para usar la fecha.</string>
     <string name="trip_tools_renamed">Viaje renombrado</string>
-    <string name="trip_tools_archive_sources">Archivar los originales</string>
-    <string name="trip_tools_archive_sources_desc">Los quita de aquí y archiva las copias de seguridad.</string>
     <string name="trip_tools_archived">Archivados: %1$d</string>
     <string name="trip_tools_archive_failed">Algunos viajes no se pudieron archivar y siguen aquí</string>
     <string name="recording_delete_archive">Archivar las copias de la copia de seguridad</string>
-    <string name="recording_delete_archive_desc">Las mueve a una carpeta de archivo, para que el viaje no vuelva.</string>
+    <string name="recording_delete_archive_desc">Las mueve a una carpeta de archivo.</string>
     <string name="trip_tools_extend_all_inside">Los viajes de alrededor ya forman parte de este.</string>
     <string name="trip_tools_extend_skipped">Omite %1$d viajes que ya están dentro de este.</string>
     <string name="recording_clear_all_body_archive">Esto borra los viajes de este teléfono. Las copias de seguridad pasan a una carpeta de archivo.</string>
+    <string name="recording_delete_trip_body_archive">¿Borrar este viaje del teléfono? La copia de seguridad pasa a una carpeta de archivo.</string>
 </resources>
 

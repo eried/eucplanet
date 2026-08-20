@@ -2228,14 +2228,13 @@
     <string name="trip_tools_rename_desc">Дайте название этой поездке. Хранится в её файле, поэтому едет с экспортом и синхронизацией.</string>
     <string name="trip_tools_rename_hint">Оставьте пустым, чтобы использовать дату.</string>
     <string name="trip_tools_renamed">Поездка переименована</string>
-    <string name="trip_tools_archive_sources">Архивировать оригиналы</string>
-    <string name="trip_tools_archive_sources_desc">Убирает их отсюда и архивирует резервные копии.</string>
     <string name="trip_tools_archived">Архивировано: %1$d</string>
     <string name="trip_tools_archive_failed">Некоторые поездки не удалось архивировать, они остались здесь</string>
     <string name="recording_delete_archive">Архивировать резервные копии</string>
-    <string name="recording_delete_archive_desc">Переносит их в папку архива, чтобы поездка не вернулась.</string>
+    <string name="recording_delete_archive_desc">Переносит их в папку архива.</string>
     <string name="trip_tools_extend_all_inside">Поездки рядом уже входят в эту.</string>
     <string name="trip_tools_extend_skipped">Пропускает %1$d поездок, уже входящих в эту.</string>
     <string name="recording_clear_all_body_archive">Это удалит поездки с этого телефона. Резервные копии переедут в папку архива.</string>
+    <string name="recording_delete_trip_body_archive">Удалить эту поездку с телефона? Резервная копия переедет в папку архива.</string>
 </resources>
 

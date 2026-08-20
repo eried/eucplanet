@@ -2227,13 +2227,12 @@
     <string name="trip_tools_rename_desc">이 주행에 이름을 붙입니다. 파일에 저장되므로 내보내기와 동기화에도 따라갑니다.</string>
     <string name="trip_tools_rename_hint">비워 두면 날짜를 사용합니다.</string>
     <string name="trip_tools_renamed">주행 이름을 변경했습니다</string>
-    <string name="trip_tools_archive_sources">원본 보관</string>
-    <string name="trip_tools_archive_sources_desc">여기에서 지우고 백업 사본을 보관합니다.</string>
     <string name="trip_tools_archived">%1$d개 보관함</string>
     <string name="trip_tools_archive_failed">일부 주행을 보관하지 못해 여기에 남아 있습니다</string>
     <string name="recording_delete_archive">백업 사본 보관</string>
-    <string name="recording_delete_archive_desc">보관 폴더로 옮겨 주행이 다시 돌아오지 않게 합니다.</string>
+    <string name="recording_delete_archive_desc">보관 폴더로 옮깁니다.</string>
     <string name="trip_tools_extend_all_inside">앞뒤 주행은 이미 이 주행에 들어 있습니다.</string>
     <string name="trip_tools_extend_skipped">이미 이 주행에 포함된 %1$d개를 건너뜁니다.</string>
     <string name="recording_clear_all_body_archive">이 휴대폰에서 주행을 삭제합니다. 백업 사본은 보관 폴더로 옮겨집니다.</string>
+    <string name="recording_delete_trip_body_archive">이 주행을 휴대폰에서 삭제할까요? 백업 사본은 보관 폴더로 옮겨집니다.</string>
 </resources>

@@ -2031,13 +2031,12 @@
     <string name="trip_tools_rename_hint">Lasă gol pentru a folosi data.</string>
     <string name="trip_tools_renamed">Tură redenumită</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
-    <string name="trip_tools_archive_sources">Arhivează originalele</string>
-    <string name="trip_tools_archive_sources_desc">Le elimină de aici și arhivează copiile din backup.</string>
     <string name="trip_tools_archived">%1$d arhivate</string>
     <string name="trip_tools_archive_failed">Unele ture nu au putut fi arhivate și sunt încă aici</string>
     <string name="recording_delete_archive">Arhivează copiile din backup</string>
-    <string name="recording_delete_archive_desc">Le mută într-un folder de arhivă, ca tura să nu revină.</string>
+    <string name="recording_delete_archive_desc">Le mută într-un folder de arhivă.</string>
     <string name="trip_tools_extend_all_inside">Turele din jur fac deja parte din aceasta.</string>
     <string name="trip_tools_extend_skipped">Sare peste %1$d ture aflate deja în aceasta.</string>
     <string name="recording_clear_all_body_archive">Asta șterge turele de pe acest telefon. Copiile din backup trec într-un folder de arhivă.</string>
+    <string name="recording_delete_trip_body_archive">Ștergi tura de pe telefon? Copia din backup trece într-un folder de arhivă.</string>
 </resources>

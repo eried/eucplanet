@@ -391,8 +391,8 @@ fun SplitTripDialog(
                     Spacer(Modifier.height(4.dp))
                     ArchiveChoiceRow(
                         checked = archiveSource,
-                        title = stringResource(R.string.trip_tools_archive_sources),
-                        desc = stringResource(R.string.trip_tools_archive_sources_desc),
+                        title = stringResource(R.string.recording_delete_archive),
+                        desc = stringResource(R.string.recording_delete_archive_desc),
                         onCheckedChange = { archiveSource = it },
                     )
                     }
@@ -663,8 +663,8 @@ fun CombineTripsDialog(
                         Spacer(Modifier.height(4.dp))
                         ArchiveChoiceRow(
                             checked = archiveSources,
-                            title = stringResource(R.string.trip_tools_archive_sources),
-                            desc = stringResource(R.string.trip_tools_archive_sources_desc),
+                            title = stringResource(R.string.recording_delete_archive),
+                            desc = stringResource(R.string.recording_delete_archive_desc),
                             onCheckedChange = { archiveSources = it },
                         )
                     }

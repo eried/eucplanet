@@ -2225,15 +2225,14 @@
     <string name="trip_tools_rename_desc">Bu sürüşe bir ad ver. Dosyasında saklanır, böylece dışa aktarma ve eşitlemeyle birlikte gider.</string>
     <string name="trip_tools_rename_hint">Tarihi kullanmak için boş bırak.</string>
     <string name="trip_tools_renamed">Sürüş yeniden adlandırıldı</string>
-    <string name="trip_tools_archive_sources">Orijinalleri arşivle</string>
-    <string name="trip_tools_archive_sources_desc">Onları buradan kaldırır ve yedekteki kopyaları arşivler.</string>
     <string name="trip_tools_archived">%1$d arşivlendi</string>
     <string name="trip_tools_archive_failed">Bazı sürüşler arşivlenemedi ve hâlâ burada</string>
     <string name="recording_delete_archive">Yedekteki kopyaları arşivle</string>
-    <string name="recording_delete_archive_desc">Onları bir arşiv klasörüne taşır, böylece sürüş geri gelmez.</string>
+    <string name="recording_delete_archive_desc">Onları bir arşiv klasörüne taşır.</string>
     <string name="trip_tools_extend_all_inside">Çevresindeki sürüşler zaten bunun parçası.</string>
     <string name="trip_tools_extend_skipped">Zaten bunun içinde olan %1$d sürüşü atlar.</string>
     <string name="recording_clear_all_body_archive">Bu, sürüşleri bu telefondan siler. Yedekteki kopyalar bir arşiv klasörüne taşınır.</string>
+    <string name="recording_delete_trip_body_archive">Bu sürüş telefondan silinsin mi? Yedekteki kopya bir arşiv klasörüne taşınır.</string>
 </resources>
 
 
