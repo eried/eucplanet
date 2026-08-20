@@ -14,6 +14,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
+import com.eried.eucplanet.util.LocaleHelper
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
@@ -28,6 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -634,6 +636,7 @@ class SyncManager @Inject constructor(
                 dropboxLastSyncAt = current.dropboxLastSyncAt,
             )
             settingsRepository.update(restored)
+            applyRestoredLanguage(restored.language)
             // Replace alarm rules wholesale only if the backup contains an
             // "alarms" array. Older backups (pre-v0.4.3) keep the user's
             // current rules untouched.
@@ -647,6 +650,26 @@ class SyncManager @Inject constructor(
             Log.e(TAG, "Settings restore failed", e)
             false
         }
+    }
+
+    /**
+     * Put the restored language into effect, not just into the settings row.
+     *
+     * Language is the one setting the app does not own: the picker writes the
+     * row and hands the tag to the system, which is what actually decides
+     * which strings load. A restore wrote the row alone, so the app carried on
+     * in whatever language the phone is set to, and the next launch overwrote
+     * the restored row to match - the rider's choice arrived and was thrown
+     * away, twice over. Reinstall then restore is exactly when the row and the
+     * system disagree, since a fresh install has no app locale at all.
+     */
+    private suspend fun applyRestoredLanguage(tag: String) {
+        if (tag.isBlank()) return
+        val applied = LocaleHelper.normalizeToSupportedTag(LocaleHelper.current())
+        // Setting the same locale again would restart the activity for
+        // nothing, and a restore that changes no language should not blink.
+        if (applied == tag) return
+        withContext(Dispatchers.Main) { LocaleHelper.apply(tag) }
     }
 
     /**
