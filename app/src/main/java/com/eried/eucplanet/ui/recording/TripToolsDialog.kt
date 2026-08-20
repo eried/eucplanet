@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -282,11 +283,12 @@ fun SplitTripDialog(
     /** The ride's first sample, so a cut can be named by clock time and not
      *  only by how far into the ride it falls. */
     tripStartMs: Long,
-    onConfirm: (List<TripSplitDetector.Cut>) -> Unit,
+    onConfirm: (List<TripSplitDetector.Cut>, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val clockFmt = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
     val selected = remember { mutableStateOf(cuts.map { it.index }.toSet()) }
+    var archiveSource by remember { mutableStateOf(true) }
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
@@ -378,7 +380,17 @@ fun SplitTripDialog(
                             }
                         }
                     }
-
+                    // A rule, because this is a different kind of thing from
+                    // the cuts above it: what to do afterwards, not where to cut.
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(color = MaterialTheme.appColors.divider)
+                    Spacer(Modifier.height(4.dp))
+                    ArchiveChoiceRow(
+                        checked = archiveSource,
+                        title = stringResource(R.string.trip_tools_archive_sources),
+                        desc = stringResource(R.string.trip_tools_archive_sources_desc),
+                        onCheckedChange = { archiveSource = it },
+                    )
                 }
             }
         },
@@ -388,7 +400,7 @@ fun SplitTripDialog(
             if (cuts.isNotEmpty()) {
                 val chosen = cuts.filter { it.index in selected.value }
                 TextButton(
-                    onClick = { onConfirm(chosen) },
+                    onClick = { onConfirm(chosen, archiveSource) },
                     enabled = chosen.isNotEmpty(),
                     shape = RoundedCornerShape(12.dp),
                 ) { Text(stringResource(R.string.action_apply)) }
@@ -404,6 +416,46 @@ fun SplitTripDialog(
             }
         }
     )
+}
+
+/**
+ * The archive choice, shared by every action that takes a trip off the list:
+ * extend, split, delete, and delete all.
+ *
+ * One row and one behaviour, because they are one decision - whether the ride
+ * keeps existing outside the list. Ticked, the file moves to an archive folder
+ * in each place it lives: the phone, the backup folder, Dropbox. Unticked, the
+ * phone's copy is deleted and any backup keeps its own.
+ *
+ * On by default. Every one of these actions is about a trip the rider is done
+ * with, not one they want destroyed, and archiving is the answer that cannot
+ * lose anything.
+ */
+@Composable
+internal fun ArchiveChoiceRow(
+    checked: Boolean,
+    title: String,
+    desc: String,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Spacer(Modifier.width(4.dp))
+        Column {
+            Text(title, color = MaterialTheme.appColors.textPrimary)
+            Text(
+                desc,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+            )
+        }
+    }
 }
 
 /**
@@ -434,7 +486,7 @@ fun CombineTripsDialog(
     trips: List<TripRecord>,
     label: (TripRecord) -> String,
     wheelOf: (TripRecord) -> String?,
-    onConfirm: (List<TripRecord>) -> Unit,
+    onConfirm: (List<TripRecord>, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     // Chronological, because the span only means anything in time order.
@@ -447,11 +499,77 @@ fun CombineTripsDialog(
     // nothing until the rider actually reaches out.
     var fromIdx by remember(ordered) { mutableStateOf(anchorIdx) }
     var toIdx by remember(ordered) { mutableStateOf(anchorIdx) }
+    var archiveSources by remember { mutableStateOf(true) }
 
-    val range = remember(fromIdx, toIdx, ordered) {
+    // Trips whose data this one already holds are left out of the extend
+    // entirely: not offered as an end, and stepped over when they fall inside
+    // the range.
+    //
+    // A trip that overlaps this one in time is either a piece already inside
+    // it, or - when the rider is standing on a piece - the combined trip that
+    // contains it. Merging either writes the same samples into the result
+    // twice: doubled distance, a duration longer than the ride took. Skipping
+    // rather than stopping, because the ride before an already-merged piece is
+    // still a fair thing to extend into, and with a handful of trips either
+    // side there is nothing to gain by refusing it.
+    val anchorStart = anchor.startTime
+    val anchorEnd = anchor.endTime ?: anchor.startTime
+    fun overlapsAnchor(t: TripRecord): Boolean =
+        t.id != anchor.id &&
+            t.startTime < anchorEnd && (t.endTime ?: t.startTime) > anchorStart
+
+    /**
+     * True when [t] sits entirely inside some other trip: a piece whose
+     * combined trip is still in the list.
+     *
+     * Overlapping the anchor is not the only way to merge the same samples
+     * twice. A range that reaches past an unrelated combined trip sweeps up
+     * both it and the pieces it was made from, and neither of them touches the
+     * anchor, so the check above lets it through. A trip already contained in
+     * another has nothing to add to a merge, so it is left out of the extend
+     * the same way.
+     */
+    fun isInsideAnother(t: TripRecord): Boolean {
+        val tEnd = t.endTime ?: t.startTime
+        return ordered.any { o ->
+            val oEnd = o.endTime ?: o.startTime
+            o.id != t.id && o.startTime <= t.startTime && oEnd >= tEnd &&
+                // Strictly bigger, so two trips of the same span do not each
+                // swallow the other and vanish together.
+                (o.startTime < t.startTime || oEnd > tEnd)
+        }
+    }
+
+    /** Trips an extend must leave alone, whichever way it reaches. */
+    fun excluded(t: TripRecord): Boolean = overlapsAnchor(t) || isInsideAnother(t)
+    // Reach counts trips the rider can actually pick, so a combined trip's
+    // pieces do not eat the budget of eight and hide the rides beyond them.
+    val backIdx = remember(ordered, anchorIdx) {
+        buildList {
+            var i = anchorIdx - 1
+            while (i >= 0 && size < EXTEND_REACH) {
+                if (!excluded(ordered[i])) add(i)
+                i--
+            }
+        }.reversed()
+    }
+    val fwdIdx = remember(ordered, anchorIdx) {
+        buildList {
+            var i = anchorIdx + 1
+            while (i <= ordered.size - 1 && size < EXTEND_REACH) {
+                if (!excluded(ordered[i])) add(i)
+                i++
+            }
+        }
+    }
+    val nothingReachable = backIdx.isEmpty() && fwdIdx.isEmpty()
+
+    val span = remember(fromIdx, toIdx, ordered) {
         if (anchorIdx < 0) emptyList()
         else ordered.subList(fromIdx.coerceAtMost(anchorIdx), toIdx.coerceAtLeast(anchorIdx) + 1).toList()
     }
+    val range = remember(span) { span.filter { it.id == anchor.id || !excluded(it) } }
+    val skipped = span.size - range.size
     val mixedWheels = remember(range) {
         range.mapNotNull { wheelOf(it)?.takeIf { w -> w.isNotBlank() } }.distinct().size > 1
     }
@@ -462,9 +580,14 @@ fun CombineTripsDialog(
         title = { Text(stringResource(R.string.trip_tools_extend)) },
         text = {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
-                if (ordered.size < 2) {
+                if (ordered.size < 2 || nothingReachable) {
                     Text(
-                        stringResource(R.string.trip_tools_combine_none),
+                        stringResource(
+                            // Different dead ends: nothing else recorded, or
+                            // everything nearby is already part of this trip.
+                            if (ordered.size < 2) R.string.trip_tools_combine_none
+                            else R.string.trip_tools_extend_all_inside
+                        ),
                         color = MaterialTheme.appColors.textSecondary,
                     )
                 } else {
@@ -480,8 +603,7 @@ fun CombineTripsDialog(
                     // that got split a moment ago.
                     TripPicker(
                         title = stringResource(R.string.trip_tools_extend_to),
-                        options = (anchorIdx..(anchorIdx + EXTEND_REACH).coerceAtMost(ordered.size - 1))
-                            .toList(),
+                        options = listOf(anchorIdx) + fwdIdx,
                         selectedIdx = toIdx,
                         optionLabel = { i ->
                             if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
@@ -493,7 +615,7 @@ fun CombineTripsDialog(
                     // Earlier end: the anchor plus the nearest trips before it.
                     TripPicker(
                         title = stringResource(R.string.trip_tools_extend_from),
-                        options = ((anchorIdx - EXTEND_REACH).coerceAtLeast(0)..anchorIdx).toList(),
+                        options = backIdx + listOf(anchorIdx),
                         selectedIdx = fromIdx,
                         optionLabel = { i ->
                             if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
@@ -510,6 +632,14 @@ fun CombineTripsDialog(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textPrimary,
                     )
+                    if (skipped > 0) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            stringResource(R.string.trip_tools_extend_skipped, skipped),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    }
                     if (mixedWheels) {
                         Spacer(Modifier.height(4.dp))
                         Text(
@@ -518,13 +648,26 @@ fun CombineTripsDialog(
                             color = MaterialTheme.appColors.statusWarn,
                         )
                     }
+                    // Only once the rider has reached out to something: with
+                    // nothing selected there are no sources to archive.
+                    if (range.size >= 2) {
+                        Spacer(Modifier.height(8.dp))
+                        HorizontalDivider(color = MaterialTheme.appColors.divider)
+                        Spacer(Modifier.height(4.dp))
+                        ArchiveChoiceRow(
+                            checked = archiveSources,
+                            title = stringResource(R.string.trip_tools_archive_sources),
+                            desc = stringResource(R.string.trip_tools_archive_sources_desc),
+                            onCheckedChange = { archiveSources = it },
+                        )
+                    }
                 }
             }
         },
         confirmButton = {
-            if (ordered.size >= 2) {
+            if (ordered.size >= 2 && !nothingReachable) {
                 TextButton(
-                    onClick = { onConfirm(range) },
+                    onClick = { onConfirm(range, archiveSources) },
                     enabled = range.size >= 2,
                     shape = RoundedCornerShape(12.dp),
                 ) { Text(stringResource(R.string.action_apply)) }
@@ -534,7 +677,9 @@ fun CombineTripsDialog(
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(
                     stringResource(
-                        if (ordered.size < 2) R.string.action_close else R.string.action_cancel
+                        // A dead end has nothing to cancel, so it offers Close.
+                        if (ordered.size < 2 || nothingReachable) R.string.action_close
+                        else R.string.action_cancel
                     )
                 )
             }

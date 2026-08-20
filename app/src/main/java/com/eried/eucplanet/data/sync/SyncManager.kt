@@ -21,6 +21,7 @@ import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.DropboxRepository
+import com.eried.eucplanet.data.repository.MoveOutcome
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.SettingsJson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -1168,6 +1169,137 @@ class SyncManager @Inject constructor(
             }
         }
         return count
+    }
+
+    /**
+     * Move a trip's file out of the way on every destination it reached.
+     *
+     * A trip that was extended into a longer one, or split into pieces, still
+     * has its own file sitting in Dropbox and in the backup folder. Leave it
+     * there and the same ride is stored twice, and the copy comes back down
+     * the next time the rider syncs on another phone. Archiving moves it into
+     * an "archive" subfolder on both: out of the listing the sync walks, but
+     * still the rider's data.
+     *
+     * Best effort per destination. Dropbox reports a missing file as done,
+     * since a trip that never got there needs no archiving.
+     */
+    /**
+     * Move a trip's file out of the way on every destination that has it.
+     *
+     * A trip that was extended into a longer one, split into pieces, or that
+     * the rider deleted and meant it, still has its own file in Dropbox and in
+     * the backup folder. Both syncs treat a file the phone does not have as one
+     * to fetch, so leaving it there hands the trip straight back. Archiving
+     * moves it into an "archive" subfolder on each: out of the listings the
+     * syncs walk, still the rider's data, and undeletable by us.
+     *
+     * Order is the whole design. Dropbox goes first because it is the step that
+     * needs the network and therefore the step that fails, and failing there
+     * has touched nothing yet. The backup folder goes second, and if it fails
+     * the Dropbox move is put back, so a half-archived trip never exists. The
+     * phone's copy goes last of all: while it is here the rider can try again,
+     * and deleting it while a backup still holds the file is what produces a
+     * trip that keeps coming back.
+     *
+     * @return true only when the file is archived everywhere it existed
+     */
+    suspend fun archiveTripFile(fileName: String): Boolean {
+        val settings = settingsRepository.get()
+        val moved = if (settings.dropboxAccessToken.isNotBlank()) {
+            dropboxRepository.moveFile("/trips/$fileName", "/trips/archive/$fileName")
+        } else MoveOutcome.Absent
+        if (moved is MoveOutcome.Failed) return false
+
+        if (!archiveInBackupFolder(settings, fileName)) {
+            if (moved is MoveOutcome.Moved) {
+                // Best effort: if putting it back also fails, the phone still
+                // has the trip and the next sync re-uploads it, so the rider
+                // loses nothing either way.
+                dropboxRepository.moveFile(moved.toPath, "/trips/$fileName")
+            }
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Archive many trips at once, for "delete all".
+     *
+     * Same rule as the single-file path - Dropbox first, folder second, and
+     * the caller only drops its phone copies for the names that come back -
+     * but in batches, because a rider with two thousand trips would otherwise
+     * wait out two thousand round trips.
+     *
+     * All or nothing per destination rather than per file: a batch either goes
+     * through or it does not, and a partly-moved batch is put back the same
+     * way the single move is.
+     *
+     * @return the file names that are now archived everywhere they existed
+     */
+    suspend fun archiveTripFiles(fileNames: List<String>): Set<String> {
+        if (fileNames.isEmpty()) return emptySet()
+        if (fileNames.size == 1) {
+            return if (archiveTripFile(fileNames.first())) fileNames.toSet() else emptySet()
+        }
+        val settings = settingsRepository.get()
+        val dropboxLinked = settings.dropboxAccessToken.isNotBlank()
+        if (dropboxLinked) {
+            val pairs = fileNames.map { "/trips/$it" to "/trips/archive/$it" }
+            if (!dropboxRepository.moveFilesBatch(pairs)) return emptySet()
+        }
+        val done = fileNames.filterTo(HashSet()) { archiveInBackupFolder(settings, it) }
+        if (dropboxLinked && done.size < fileNames.size) {
+            // Whatever the folder would not take goes back to /trips, so the
+            // two sides never disagree about where a trip lives.
+            val back = (fileNames - done).map { "/trips/archive/$it" to "/trips/$it" }
+            dropboxRepository.moveFilesBatch(back)
+        }
+        return done
+    }
+
+    /**
+     * Move [fileName] into trips/archive inside the backup folder.
+     *
+     * Trips live in the folder's trips/ subdirectory, the same place
+     * listFolderTripNames and downloadCsv read them from, so the archive sits
+     * beside them rather than at the root next to themes/ and overlays/.
+     *
+     * @return true when the file was moved, or when there was nothing to move
+     */
+    private fun archiveInBackupFolder(settings: AppSettings, fileName: String): Boolean {
+        val tripsDir = getSyncFolder(settings)
+            ?.findFile(TRIPS_SUBFOLDER)?.takeIf { it.isDirectory }
+            ?: return true
+        return try {
+            val doc = tripsDir.findFile(fileName)?.takeIf { it.isFile } ?: return true
+            val archive = tripsDir.findFile("archive")?.takeIf { it.isDirectory }
+                ?: tripsDir.createDirectory("archive") ?: return false
+            // SAF has no rename-into-another-directory that every provider
+            // implements, so copy the bytes across and drop the original only
+            // once the copy is safely written.
+            // A provider-side move is a rename: no bytes read, no bytes
+            // written. Every provider is allowed to refuse it, so the copy
+            // below stays as the fallback.
+            val moved = runCatching {
+                android.provider.DocumentsContract.moveDocument(
+                    context.contentResolver, doc.uri, tripsDir.uri, archive.uri
+                )
+            }.getOrNull()
+            if (moved != null) return true
+            val bytes = context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
+                ?: return false
+            val dest = archive.findFile(fileName) ?: archive.createFile("text/csv", fileName)
+                ?: return false
+            val wrote = runCatching {
+                context.contentResolver.openOutputStream(dest.uri, "wt")?.use { it.write(bytes) }
+                true
+            }.getOrDefault(false)
+            if (wrote) doc.delete() else false
+        } catch (e: Exception) {
+            Log.w(TAG, "archive in backup folder failed for $fileName: ${e.message}")
+            false
+        }
     }
 
     fun scheduleDropboxSyncAttempt(attempt: Int) {

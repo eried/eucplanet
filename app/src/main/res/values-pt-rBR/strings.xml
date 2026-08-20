@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Configurações restauradas</string>
     <string name="cloud_restore_failed">Nenhum backup encontrado na pasta</string>
     <string name="section_cloud_trips">Backup de viagens</string>
-    <string name="cloud_trips_caption">As viagens ficam neste telefone e são sincronizadas automaticamente com sua pasta de backup. Limpar aqui apaga apenas as cópias do telefone, não o seu backup.</string>
+    <string name="cloud_trips_caption">Os trajetos ficam neste telefone e sincronizam com sua pasta de backup. Ao limpar aqui você pode arquivar as cópias ou deixá-las.</string>
     <string name="cloud_retry_now">Sincronizar tudo</string>
     <string name="cloud_retry_enqueued">Envio agendado</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -2230,5 +2230,14 @@
     <string name="trip_tools_rename_desc">Dê um nome a este trajeto. Fica no arquivo dele, então acompanha exportações e sincronização.</string>
     <string name="trip_tools_rename_hint">Deixe em branco para usar a data.</string>
     <string name="trip_tools_renamed">Trajeto renomeado</string>
+    <string name="trip_tools_archive_sources">Arquivar os originais</string>
+    <string name="trip_tools_archive_sources_desc">Move os arquivos deles para uma pasta de arquivo.</string>
+    <string name="trip_tools_archived">%1$d arquivado(s)</string>
+    <string name="trip_tools_archive_failed">Alguns trajetos não puderam ser arquivados e continuam aqui</string>
+    <string name="recording_delete_archive">Arquivar em vez de excluir</string>
+    <string name="recording_delete_archive_desc">Move o arquivo para uma pasta de arquivo, aqui e nos seus backups.</string>
+    <string name="trip_tools_extend_all_inside">Os trajetos em volta já fazem parte deste.</string>
+    <string name="trip_tools_extend_skipped">Pula %1$d trajetos que já estão dentro deste.</string>
+    <string name="recording_clear_all_body_archive">Isso limpa a lista de trajetos. Os arquivos vão para uma pasta de arquivo, aqui e nos seus backups.</string>
 </resources>
 

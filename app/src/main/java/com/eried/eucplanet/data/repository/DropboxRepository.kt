@@ -38,6 +38,21 @@ import org.json.JSONObject
  *   3. Tokens land in [SettingsRepository]; from then on [linked] is true.
  */
 @Singleton
+/**
+ * What a Dropbox move did, rather than just whether it worked.
+ *
+ * A caller archiving a trip has to be able to undo its own half-finished work,
+ * and [Moved.toPath] is where the file really went - move_v2 renames on a
+ * collision, so it is not always the path that was asked for. [Absent] is a
+ * file that was never on Dropbox, which for archiving is the state we wanted
+ * anyway and not an error.
+ */
+sealed interface MoveOutcome {
+    data class Moved(val toPath: String) : MoveOutcome
+    data object Absent : MoveOutcome
+    data object Failed : MoveOutcome
+}
+
 class DropboxRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
 ) {
@@ -167,6 +182,127 @@ class DropboxRepository @Inject constructor(
                 resp.isSuccessful
             }
         } catch (e: Exception) { Log.w("DBXSHARE", "upload exception: ${e.message}"); false }
+    }
+
+    /**
+     * Move [from] to [to] inside the App Folder.
+     *
+     * Used to archive a trip whose data now lives inside another one: a piece
+     * that was extended into a longer ride, or the original a split replaced.
+     * Deleting it would be the obvious move and the wrong one - the rider may
+     * still want the raw ride - so it goes to a subfolder instead, which also
+     * takes it out of the /trips listing the sync walks, so it stops coming
+     * back down on the next sync.
+     *
+     * autorename, because a later combine can produce a file named like one
+     * already archived and the archive must never overwrite itself.
+     *
+     * A file that is not there is reported as done: it means the trip never
+     * reached Dropbox, which is the state archiving was trying to arrive at.
+     */
+    suspend fun moveFile(from: String, to: String): MoveOutcome = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext MoveOutcome.Failed
+        val body = JSONObject().apply {
+            put("from_path", from)
+            put("to_path", to)
+            put("autorename", true)
+            put("allow_ownership_transfer", false)
+        }
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/files/move_v2")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
+        try {
+            http.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (resp.isSuccessful) {
+                    // autorename means the file may not have landed at [to],
+                    // and the caller needs where it actually went to be able
+                    // to put it back.
+                    val landed = runCatching {
+                        JSONObject(text).optJSONObject("metadata")?.optString("path_display")
+                    }.getOrNull()?.ifBlank { null } ?: to
+                    return@use MoveOutcome.Moved(landed)
+                }
+                if (resp.code == 409 && text.contains("not_found")) {
+                    Log.i("DBXSHARE", "move: $from is not on Dropbox, nothing to archive")
+                    return@use MoveOutcome.Absent
+                }
+                Log.w("DBXSHARE", "move HTTP ${resp.code}: ${text.take(300)}")
+                MoveOutcome.Failed
+            }
+        } catch (e: Exception) {
+            Log.w("DBXSHARE", "move exception: ${e.message}")
+            MoveOutcome.Failed
+        }
+    }
+
+    /**
+     * Move many files in one go, for archiving a whole library at once.
+     *
+     * "Delete all" over a rider with two thousand trips is two thousand round
+     * trips one at a time, which is minutes of waiting and a rate limit
+     * waiting at the end of it. move_batch_v2 takes up to a thousand entries
+     * per call and hands back a job to poll, so the same work is a handful of
+     * requests.
+     *
+     * @return true when every entry moved (or was already gone)
+     */
+    suspend fun moveFilesBatch(pairs: List<Pair<String, String>>): Boolean =
+        withContext(Dispatchers.IO) {
+            if (pairs.isEmpty()) return@withContext true
+            val token = activeAccessToken() ?: return@withContext false
+            pairs.chunked(BATCH_MAX).all { chunk -> moveChunk(token, chunk) }
+        }
+
+    private fun moveChunk(token: String, chunk: List<Pair<String, String>>): Boolean {
+        val body = JSONObject().apply {
+            put("autorename", true)
+            put("entries", org.json.JSONArray().apply {
+                chunk.forEach { (from, to) ->
+                    put(JSONObject().apply { put("from_path", from); put("to_path", to) })
+                }
+            })
+        }
+        val started = postJson(token, "files/move_batch_v2", body) ?: return false
+        // Small batches come back done; larger ones hand over a job id.
+        if (started.optString(".tag") == "complete") return true
+        val job = started.optString("async_job_id").ifBlank { return false }
+        // Dropbox gives no ETA, so poll with a ceiling rather than forever:
+        // a job still running after this is left alone, and the rider's trips
+        // are still on the phone because the caller has not touched them.
+        repeat(POLL_TRIES) {
+            Thread.sleep(POLL_WAIT_MS)
+            val check = postJson(token, "files/move_batch/check",
+                JSONObject().apply { put("async_job_id", job) }) ?: return false
+            when (check.optString(".tag")) {
+                "complete" -> return true
+                "failed" -> return false
+            }
+        }
+        Log.w("DBXSHARE", "move_batch still running after ${POLL_TRIES * POLL_WAIT_MS} ms")
+        return false
+    }
+
+    private fun postJson(token: String, endpoint: String, body: JSONObject): JSONObject? {
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/$endpoint")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
+        return try {
+            http.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "$endpoint HTTP ${resp.code}: ${text.take(300)}")
+                    null
+                } else JSONObject(text)
+            }
+        } catch (e: Exception) {
+            Log.w("DBXSHARE", "$endpoint exception: ${e.message}")
+            null
+        }
     }
 
     /**
@@ -451,6 +587,11 @@ class DropboxRepository @Inject constructor(
     }
 
     companion object {
+        /** move_batch_v2 takes at most this many entries per call. */
+        private const val BATCH_MAX = 1000
+        private const val POLL_TRIES = 60
+        private const val POLL_WAIT_MS = 500L
+
         const val APP_KEY = "5auhxf7gswy7j54"
         const val REDIRECT_URI = "db-$APP_KEY://1/connect"
 

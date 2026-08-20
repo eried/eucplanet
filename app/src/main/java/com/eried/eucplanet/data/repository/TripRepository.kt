@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -1207,6 +1208,11 @@ class TripRepository @Inject constructor(
             val piece = saveSectionInternal(source, srcFile, from, to, index = i + 1)
             if (piece != null) out.add(piece)
         }
+        // A piece is a new file in the trips folder, which the folder worker
+        // and the Dropbox sync would both pick up eventually - but only at
+        // their next run. A rename pushes straight away, and a rider who just
+        // cut a ride in three has the same expectation.
+        out.forEach { resyncEditedTrip(it.id) }
         return out
     }
 
@@ -1240,8 +1246,72 @@ class TripRepository @Inject constructor(
             tripUuid = null,
             wheelMetaJson = ordered.first().wheelMetaJson,
         )
-        return record.copy(id = tripDao.insert(record))
+        return record.copy(id = tripDao.insert(record)).also { resyncEditedTrip(it.id) }
     }
+
+    /**
+     * Archive [trips]: move their files into the archive on every destination
+     * that has them, then drop them from this phone.
+     *
+     * For a source that an extend or a split has replaced. Its samples now live
+     * inside another trip, so keeping it means the same ride is counted twice
+     * in any listing, and on the next sync it would come back down to a phone
+     * that had already merged it away.
+     *
+     * @return how many were archived and removed
+     */
+    suspend fun archiveTrips(trips: List<TripRecord>): Int {
+        if (trips.isEmpty()) return 0
+        // Only drop the phone's copies once the files are out of the way in
+        // the backups, otherwise the next sync hands them straight back and
+        // the rider is left doing this again.
+        val archived = runCatching { syncManager.archiveTripFiles(trips.map { it.fileName }) }
+            .getOrDefault(emptySet())
+        var done = 0
+        for (t in trips) {
+            if (t.fileName !in archived) {
+                Log.w(TAG, "Could not archive ${t.fileName}, leaving the trip alone")
+                continue
+            }
+            archiveLocalFile(t)
+            deleteTrip(t)
+            done++
+        }
+        return done
+    }
+
+    /**
+     * Move a trip's own file into the phone's archive folder before its row
+     * goes.
+     *
+     * Archiving should mean the same thing everywhere: the ride leaves the
+     * list, and its file is somewhere the rider can still get at. Deleting the
+     * phone's copy while calling it an archive would make this the one place
+     * that quietly destroys it - and it is the only copy a rider with no
+     * Dropbox and no backup folder has.
+     */
+    private fun archiveLocalFile(trip: TripRecord) {
+        val src = getTripFile(trip)
+        if (!src.exists()) return
+        val dir = File(getTripsDir(), "archive")
+        if (!dir.exists() && !dir.mkdirs()) return
+        var dest = File(dir, src.name)
+        // Never overwrite an earlier archive: a combine can produce a file
+        // named like one already in there.
+        var n = 1
+        while (dest.exists()) {
+            dest = File(dir, src.nameWithoutExtension + " ($n)." + src.extension)
+            n++
+        }
+        if (!src.renameTo(dest)) {
+            runCatching { src.copyTo(dest, overwrite = false) }
+                .onSuccess { src.delete() }
+                .onFailure { Log.w(TAG, "Could not archive ${src.name} on the phone", it) }
+        }
+    }
+
+    /** Archive every trip: what "delete all" does when the rider keeps them. */
+    suspend fun archiveAllTrips(): Int = archiveTrips(tripDao.observeAll().first())
 
     suspend fun insertTrip(trip: TripRecord): Long = tripDao.insert(trip)
 

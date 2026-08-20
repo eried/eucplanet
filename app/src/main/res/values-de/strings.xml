@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Einstellungen wiederhergestellt</string>
     <string name="cloud_restore_failed">Kein Backup im Ordner gefunden</string>
     <string name="section_cloud_trips">Fahrten-Backup</string>
-    <string name="cloud_trips_caption">Fahrten bleiben auf diesem Telefon und werden automatisch mit deinem Backup-Ordner synchronisiert. Löschen hier entfernt nur die Kopien auf dem Telefon, nicht dein Backup.</string>
+    <string name="cloud_trips_caption">Fahrten bleiben auf diesem Handy und werden automatisch in deinen Backup-Ordner synchronisiert. Beim Löschen hier kannst du die Backup-Kopien archivieren oder in Ruhe lassen.</string>
     <string name="cloud_retry_now">Alle sync.</string>
     <string name="cloud_retry_enqueued">Upload geplant</string>
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
@@ -2248,4 +2248,13 @@
     <string name="trip_tools_rename_desc">Gib dieser Fahrt einen Namen. Steht in ihrer Datei, kommt also bei Export und Sync mit.</string>
     <string name="trip_tools_rename_hint">Leer lassen für das Datum.</string>
     <string name="trip_tools_renamed">Fahrt umbenannt</string>
+    <string name="trip_tools_archive_sources">Originale archivieren</string>
+    <string name="trip_tools_archive_sources_desc">Verschiebt ihre Dateien in einen Archivordner.</string>
+    <string name="trip_tools_archived">%1$d archiviert</string>
+    <string name="trip_tools_archive_failed">Einige Fahrten konnten nicht archiviert werden und sind noch da</string>
+    <string name="recording_delete_archive">Archivieren statt löschen</string>
+    <string name="recording_delete_archive_desc">Verschiebt die Datei in einen Archivordner, hier und in deinen Backups.</string>
+    <string name="trip_tools_extend_all_inside">Die Fahrten ringsum sind schon Teil dieser Fahrt.</string>
+    <string name="trip_tools_extend_skipped">Überspringt %1$d Fahrten, die schon in dieser stecken.</string>
+    <string name="recording_clear_all_body_archive">Das leert die Fahrtenliste. Die Dateien wandern in einen Archivordner, hier und in deinen Backups.</string>
 </resources>

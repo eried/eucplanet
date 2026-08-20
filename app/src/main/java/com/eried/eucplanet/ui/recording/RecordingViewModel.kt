@@ -391,8 +391,21 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    fun deleteTrip(trip: TripRecord) {
-        viewModelScope.launch { tripRepository.deleteTrip(trip) }
+    /**
+     * Delete [trip] from this phone, and optionally from the backups too.
+     *
+     * Both syncs treat a file the phone does not have as one to fetch, so a
+     * deleted trip is handed straight back on the next sync and the rider has
+     * to delete it again. [archiveBackups] moves the file into the archive on
+     * Dropbox and in the backup folder first, which takes it out of the
+     * listings the syncs walk. Off by default, because the app promises that
+     * clearing here only removes the copies on the phone.
+     */
+    fun deleteTrip(trip: TripRecord, archiveBackups: Boolean = false) {
+        viewModelScope.launch {
+            if (archiveBackups) tripRepository.archiveTrips(listOf(trip))
+            else tripRepository.deleteTrip(trip)
+        }
     }
 
     fun shareTrip(trip: TripRecord) {
@@ -789,9 +802,27 @@ class RecordingViewModel @Inject constructor(
 
     // --- Clear all ---
 
-    fun clearAllTrips(onDone: () -> Unit) {
+    /**
+     * Clear the trip list, keeping the files when [archive] is set.
+     *
+     * Archiving a whole library is the one case where doing it a file at a
+     * time would be felt: the repository batches the Dropbox side, and the
+     * folder side is a rename rather than a copy, so a big library is seconds
+     * rather than minutes.
+     */
+    fun clearAllTrips(archive: Boolean, onDone: () -> Unit) {
         viewModelScope.launch {
-            tripRepository.clearAll()
+            if (archive) {
+                val n = tripRepository.archiveAllTrips()
+                _toasts.send(
+                    if (n > 0) context.getString(R.string.trip_tools_archived, n)
+                    else context.getString(R.string.trip_tools_archive_failed)
+                )
+                // Whatever could not be archived stays: the rider asked to
+                // keep the files, so nothing goes without its copy being safe.
+            } else {
+                tripRepository.clearAll()
+            }
             onDone()
         }
     }
@@ -875,7 +906,11 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    fun splitTrip(trip: TripRecord, cuts: List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>) {
+    fun splitTrip(
+        trip: TripRecord,
+        cuts: List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>,
+        archiveSource: Boolean = false,
+    ) {
         viewModelScope.launch {
             val base = withContext(Dispatchers.IO) {
                 readTripData(trip).firstNotNullOfOrNull { TripCsv.parseDate(it.date) }
@@ -889,6 +924,9 @@ class RecordingViewModel @Inject constructor(
                 if (pieces.isEmpty()) context.getString(R.string.trip_tools_split_failed)
                 else context.getString(R.string.trip_tools_split_done, pieces.size)
             )
+            // Only once there are pieces to replace it with: a failed split
+            // that archived its source would leave the rider with neither.
+            if (archiveSource && pieces.isNotEmpty()) archive(listOf(trip))
             flashTrips(pieces.map { it.id }.toSet())
         }
     }
@@ -898,7 +936,7 @@ class RecordingViewModel @Inject constructor(
      * alone. [range] is already the full inclusive span the rider chose,
      * including anything that fell between the two ends.
      */
-    fun combineRange(range: List<TripRecord>) {
+    fun combineRange(range: List<TripRecord>, archiveSources: Boolean = false) {
         viewModelScope.launch {
             val made = tripRepository.combineTrips(range)
             _toasts.send(
@@ -910,8 +948,18 @@ class RecordingViewModel @Inject constructor(
             // a combine, but a split cannot open its several results, and one
             // behaviour across both tools beats a better one that only half of
             // them can use.
+            if (archiveSources && made != null) archive(range)
             made?.let { flashTrips(setOf(it.id)) }
         }
+    }
+
+    /** Move superseded sources into the archive and say how many went. */
+    private suspend fun archive(sources: List<TripRecord>) {
+        val n = tripRepository.archiveTrips(sources)
+        _toasts.send(
+            if (n == sources.size) context.getString(R.string.trip_tools_archived, n)
+            else context.getString(R.string.trip_tools_archive_failed)
+        )
     }
 
     fun saveTripSection(trip: TripRecord, startMs: Long, endMs: Long) {

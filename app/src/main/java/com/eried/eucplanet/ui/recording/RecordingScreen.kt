@@ -64,6 +64,8 @@ import com.eried.eucplanet.ui.common.LocalSnackbar
 import com.eried.eucplanet.ui.common.LocalSnackbarScope
 import com.eried.eucplanet.ui.common.showSnackbar as showSnackbarLocal
 import kotlinx.coroutines.launch
+import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -175,14 +177,36 @@ fun RecordingScreen(
     }
 
     if (showClearDialog) {
+        var archiveAll by remember(showClearDialog) { mutableStateOf(true) }
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.recording_clear_all_title)) },
-            text = { Text(stringResource(R.string.recording_clear_all_body)) },
+            text = {
+                Column {
+                    // The warning has to match the box below it: with
+                    // archiving on, nothing is destroyed and "cannot be
+                    // undone" would be a lie.
+                    Text(
+                        stringResource(
+                            if (archiveAll) R.string.recording_clear_all_body_archive
+                            else R.string.recording_clear_all_body
+                        )
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(color = MaterialTheme.appColors.divider)
+                    Spacer(Modifier.height(4.dp))
+                    ArchiveChoiceRow(
+                        checked = archiveAll,
+                        title = stringResource(R.string.recording_delete_archive),
+                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        onCheckedChange = { archiveAll = it },
+                    )
+                }
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.clearAllTrips { showClearDialog = false }
+                    viewModel.clearAllTrips(archiveAll) { showClearDialog = false }
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
@@ -259,8 +283,8 @@ fun RecordingScreen(
                 cuts = found,
                 formatElapsed = { com.eried.eucplanet.util.Units.humanDuration(it / 1000) },
                 tripStartMs = trip.startTime,
-                onConfirm = { chosen ->
-                    viewModel.splitTrip(trip, chosen)
+                onConfirm = { chosen, archiveSource ->
+                    viewModel.splitTrip(trip, chosen, archiveSource)
                     splitToolTrip = null
                 },
                 onDismiss = { splitToolTrip = null },
@@ -287,8 +311,8 @@ fun RecordingScreen(
                 t.wheelMetaJson
                     ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
             },
-            onConfirm = { chosen ->
-                viewModel.combineRange(chosen)
+            onConfirm = { chosen, archiveSources ->
+                viewModel.combineRange(chosen, archiveSources)
                 combineToolTrip = null
             },
             onDismiss = { combineToolTrip = null },
@@ -296,14 +320,28 @@ fun RecordingScreen(
     }
 
     if (tripToDelete != null) {
+        var archiveBackups by remember(tripToDelete) { mutableStateOf(true) }
         AlertDialog(
             onDismissRequest = { tripToDelete = null },
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.recording_delete_trip_title)) },
-            text = { Text(stringResource(R.string.recording_delete_trip_body)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.recording_delete_trip_body))
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(color = MaterialTheme.appColors.divider)
+                    Spacer(Modifier.height(4.dp))
+                    ArchiveChoiceRow(
+                        checked = archiveBackups,
+                        title = stringResource(R.string.recording_delete_archive),
+                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        onCheckedChange = { archiveBackups = it },
+                    )
+                }
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.deleteTrip(tripToDelete!!)
+                    viewModel.deleteTrip(tripToDelete!!, archiveBackups)
                     tripToDelete = null
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },

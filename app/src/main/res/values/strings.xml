@@ -654,7 +654,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">Trips stay on this phone and sync to your backup folder automatically. Clearing here deletes only the phone copies, not your backup.</string>
+    <string name="cloud_trips_caption">Trips stay on this phone and sync to your backup folder automatically. Clearing here can archive the backup copies or leave them alone, your choice at the time.</string>
     <string name="cloud_retry_now">Sync all</string>
     <string name="cloud_reset_local">Clear local trips</string>
     <string name="cloud_reset_local_title">Clear local trips?</string>
@@ -1203,6 +1203,7 @@
     <string name="action_stop">Stop</string>
     <string name="recording_title">Trip recorder</string>
     <string name="recording_clear_all_title">Clear All Trips</string>
+    <string name="recording_clear_all_body_archive">This clears the trip list. The files move to an archive folder, here and in your backups.</string>
     <string name="recording_clear_all_body">This will permanently delete all recorded trips and their data files. This cannot be undone.</string>
     <string name="recording_delete_trip_title">Delete Trip</string>
     <string name="recording_delete_trip_body">Delete this trip and its data file?</string>
@@ -1317,7 +1318,15 @@
     <string name="trip_tools_extend_from">Start from</string>
     <string name="trip_tools_extend_to">End at</string>
     <string name="trip_tools_extend_none">This trip</string>
+    <string name="recording_delete_archive">Archive instead of deleting</string>
+    <string name="recording_delete_archive_desc">Moves the file to an archive folder, here and in your backups.</string>
+    <string name="trip_tools_archive_sources">Archive the originals</string>
+    <string name="trip_tools_archive_sources_desc">Moves their files to an archive folder.</string>
+    <string name="trip_tools_archived">Archived %1$d</string>
+    <string name="trip_tools_archive_failed">Some trips could not be archived and are still here</string>
     <string name="trip_tools_extend_pick_one">Pick an earlier or later trip to extend into.</string>
+    <string name="trip_tools_extend_all_inside">The trips around this one are already part of it.</string>
+    <string name="trip_tools_extend_skipped">Skips %1$d trip(s) already inside this one.</string>
     <string name="trip_tools_combine_summary">Combines %1$d trips into one new trip.</string>
     <string name="trip_tools_wheel_uploaded_warning">This ride is already on the leaderboard. The entry there keeps the old wheel and cannot be corrected from here.</string>
     <string name="trip_tools_wheel_changed">Wheel set to %1$s</string>

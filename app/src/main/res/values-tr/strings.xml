@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Ayarlar geri yüklendi</string>
     <string name="cloud_restore_failed">Klasörde yedek bulunamadı</string>
     <string name="section_cloud_trips">Sefer yedekleme</string>
-    <string name="cloud_trips_caption">Seferler bu telefonda kalır ve otomatik olarak yedek klasörünüzle eşitlenir. Buradan temizlemek yalnızca telefondaki kopyaları siler, yedeğinizi silmez.</string>
+    <string name="cloud_trips_caption">Sürüşler bu telefonda kalır ve yedek klasörüne otomatik eşitlenir. Buradan silerken yedekteki kopyaları arşivleyebilir ya da olduğu gibi bırakabilirsin.</string>
     <string name="cloud_retry_now">Tümünü eşitle</string>
     <string name="cloud_retry_enqueued">Yükleme planlandı</string>
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
@@ -2225,6 +2225,15 @@
     <string name="trip_tools_rename_desc">Bu sürüşe bir ad ver. Dosyasında saklanır, böylece dışa aktarma ve eşitlemeyle birlikte gider.</string>
     <string name="trip_tools_rename_hint">Tarihi kullanmak için boş bırak.</string>
     <string name="trip_tools_renamed">Sürüş yeniden adlandırıldı</string>
+    <string name="trip_tools_archive_sources">Orijinalleri arşivle</string>
+    <string name="trip_tools_archive_sources_desc">Dosyalarını bir arşiv klasörüne taşır.</string>
+    <string name="trip_tools_archived">%1$d arşivlendi</string>
+    <string name="trip_tools_archive_failed">Bazı sürüşler arşivlenemedi ve hâlâ burada</string>
+    <string name="recording_delete_archive">Silmek yerine arşivle</string>
+    <string name="recording_delete_archive_desc">Dosyayı bir arşiv klasörüne taşır, burada ve yedeklerinde.</string>
+    <string name="trip_tools_extend_all_inside">Çevresindeki sürüşler zaten bunun parçası.</string>
+    <string name="trip_tools_extend_skipped">Zaten bunun içinde olan %1$d sürüşü atlar.</string>
+    <string name="recording_clear_all_body_archive">Bu, sürüş listesini boşaltır. Dosyalar bir arşiv klasörüne taşınır, burada ve yedeklerinde.</string>
 </resources>
 
 

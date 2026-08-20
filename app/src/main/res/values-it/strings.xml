@@ -188,7 +188,7 @@
     <string name="cloud_restore_success">Impostazioni ripristinate</string>
     <string name="cloud_restore_failed">Nessun backup trovato nella cartella</string>
     <string name="section_cloud_trips">Backup dei viaggi</string>
-    <string name="cloud_trips_caption">I viaggi restano su questo telefono e si sincronizzano automaticamente con la cartella di backup. Cancellare qui rimuove solo le copie sul telefono, non il backup.</string>
+    <string name="cloud_trips_caption">Le uscite restano su questo telefono e si sincronizzano con la cartella di backup. Cancellando qui puoi archiviare le copie o lasciarle stare.</string>
     <string name="cloud_retry_now">Sincr. tutto</string>
     <string name="cloud_retry_enqueued">Upload programmato</string>
     <string name="sync_progress">Sincronizzazione %1$d di %2$d</string>
@@ -2133,4 +2133,13 @@
     <string name="trip_tools_rename_desc">Dai un nome a questa uscita. Sta nel suo file, quindi viaggia con esportazioni e sincronizzazione.</string>
     <string name="trip_tools_rename_hint">Lascia vuoto per usare la data.</string>
     <string name="trip_tools_renamed">Uscita rinominata</string>
+    <string name="trip_tools_archive_sources">Archivia gli originali</string>
+    <string name="trip_tools_archive_sources_desc">Sposta i loro file in una cartella di archivio.</string>
+    <string name="trip_tools_archived">Archiviate: %1$d</string>
+    <string name="trip_tools_archive_failed">Alcune uscite non si sono potute archiviare e sono ancora qui</string>
+    <string name="recording_delete_archive">Archivia invece di eliminare</string>
+    <string name="recording_delete_archive_desc">Sposta il file in una cartella di archivio, qui e nei tuoi backup.</string>
+    <string name="trip_tools_extend_all_inside">Le uscite intorno fanno già parte di questa.</string>
+    <string name="trip_tools_extend_skipped">Salta %1$d uscite già dentro questa.</string>
+    <string name="recording_clear_all_body_archive">Svuota l\'elenco delle uscite. I file passano in una cartella di archivio, qui e nei tuoi backup.</string>
 </resources>

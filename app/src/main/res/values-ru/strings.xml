@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Настройки восстановлены</string>
     <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
     <string name="section_cloud_trips">Резервная копия поездок</string>
-    <string name="cloud_trips_caption">Поездки остаются на этом телефоне и автоматически синхронизируются с папкой резервных копий. Очистка здесь удаляет только копии на телефоне, но не резервную копию.</string>
+    <string name="cloud_trips_caption">Поездки остаются на этом телефоне и синхронизируются с папкой резервных копий. При очистке здесь копии можно архивировать или оставить, на ваш выбор.</string>
     <string name="cloud_retry_now">Синхр. всё</string>
     <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
@@ -2228,5 +2228,14 @@
     <string name="trip_tools_rename_desc">Дайте название этой поездке. Хранится в её файле, поэтому едет с экспортом и синхронизацией.</string>
     <string name="trip_tools_rename_hint">Оставьте пустым, чтобы использовать дату.</string>
     <string name="trip_tools_renamed">Поездка переименована</string>
+    <string name="trip_tools_archive_sources">Архивировать оригиналы</string>
+    <string name="trip_tools_archive_sources_desc">Переносит их файлы в папку архива.</string>
+    <string name="trip_tools_archived">Архивировано: %1$d</string>
+    <string name="trip_tools_archive_failed">Некоторые поездки не удалось архивировать, они остались здесь</string>
+    <string name="recording_delete_archive">Архивировать вместо удаления</string>
+    <string name="recording_delete_archive_desc">Переносит файл в папку архива, здесь и в резервных копиях.</string>
+    <string name="trip_tools_extend_all_inside">Поездки рядом уже входят в эту.</string>
+    <string name="trip_tools_extend_skipped">Пропускает %1$d поездок, уже входящих в эту.</string>
+    <string name="recording_clear_all_body_archive">Это очистит список поездок. Файлы переедут в папку архива, здесь и в резервных копиях.</string>
 </resources>
 

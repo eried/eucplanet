@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Inställningarna återställda</string>
     <string name="cloud_restore_failed">Ingen kopia hittades i mappen</string>
     <string name="section_cloud_trips">Turbackup</string>
-    <string name="cloud_trips_caption">Turerna stannar på den här telefonen och synkas automatiskt till din backupmapp. Att rensa här tar bara bort kopiorna på telefonen, inte din backup.</string>
+    <string name="cloud_trips_caption">Turerna stannar på den här telefonen och synkas automatiskt till din backupmapp. Rensning här kan arkivera backupkopiorna eller låta dem vara.</string>
     <string name="cloud_retry_now">Synka allt</string>
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="sync_progress">Synkroniserar %1$d av %2$d</string>
@@ -2228,4 +2228,13 @@
     <string name="trip_tools_rename_desc">Ge den här turen ett namn. Sparas i dess fil, så det följer med export och synk.</string>
     <string name="trip_tools_rename_hint">Lämna tomt för att använda datumet.</string>
     <string name="trip_tools_renamed">Turen bytte namn</string>
+    <string name="trip_tools_archive_sources">Arkivera originalen</string>
+    <string name="trip_tools_archive_sources_desc">Flyttar deras filer till en arkivmapp.</string>
+    <string name="trip_tools_archived">Arkiverade: %1$d</string>
+    <string name="trip_tools_archive_failed">Vissa turer kunde inte arkiveras och finns kvar här</string>
+    <string name="recording_delete_archive">Arkivera i stället för att radera</string>
+    <string name="recording_delete_archive_desc">Flyttar filen till en arkivmapp, här och i dina backuper.</string>
+    <string name="trip_tools_extend_all_inside">Turerna omkring är redan en del av den här.</string>
+    <string name="trip_tools_extend_skipped">Hoppar över %1$d turer som redan finns i den här.</string>
+    <string name="recording_clear_all_body_archive">Det här tömmer turlistan. Filerna flyttas till en arkivmapp, här och i dina backuper.</string>
 </resources>

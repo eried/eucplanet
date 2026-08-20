@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">設定を復元しました</string>
     <string name="cloud_restore_failed">フォルダー内にバックアップが見つかりません</string>
     <string name="section_cloud_trips">トリップバックアップ</string>
-    <string name="cloud_trips_caption">トリップはこの端末に残り、自動的にバックアップフォルダーと同期されます。ここで削除しても消えるのは端末のコピーだけで、バックアップは消えません。</string>
+    <string name="cloud_trips_caption">走行はこの端末に残り、バックアップフォルダーへ自動で同期されます。ここで消すとき、バックアップの控えをアーカイブするかそのままにするか選べます。</string>
     <string name="cloud_retry_now">すべて同期</string>
     <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
@@ -2229,6 +2229,15 @@
     <string name="trip_tools_rename_desc">この走行に名前を付けます。ファイルに保存されるので、書き出しや同期にも付いていきます。</string>
     <string name="trip_tools_rename_hint">空欄にすると日付を使います。</string>
     <string name="trip_tools_renamed">走行の名前を変更しました</string>
+    <string name="trip_tools_archive_sources">元の走行をアーカイブ</string>
+    <string name="trip_tools_archive_sources_desc">ファイルをアーカイブフォルダーへ移します。</string>
+    <string name="trip_tools_archived">%1$d 件をアーカイブしました</string>
+    <string name="trip_tools_archive_failed">アーカイブできなかった走行があり、ここに残っています</string>
+    <string name="recording_delete_archive">削除せずアーカイブ</string>
+    <string name="recording_delete_archive_desc">ファイルをアーカイブフォルダーへ移します。ここでもバックアップでも。</string>
+    <string name="trip_tools_extend_all_inside">前後の走行は、すでにこの走行に含まれています。</string>
+    <string name="trip_tools_extend_skipped">すでにこの走行に含まれる %1$d 件を飛ばします。</string>
+    <string name="recording_clear_all_body_archive">走行リストを空にします。ファイルはアーカイブフォルダーへ移ります。ここでもバックアップでも。</string>
 </resources>
 
 
