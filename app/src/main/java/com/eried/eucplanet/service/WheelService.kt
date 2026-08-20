@@ -49,7 +49,8 @@ class WheelService : LifecycleService() {
         // auto-record start/stop loop and the "When riding" announcement gate
         // so the two never drift. Small enough to catch a real roll, large
         // enough to ignore sensor jitter at a standstill.
-        private const val MOTION_MIN_KMH = 0.1f
+        // One definition, shared with the tests through AutoRecordPolicy.
+        private const val MOTION_MIN_KMH = AutoRecordPolicy.MOTION_MIN_KMH
         /** Phone HUD redraw interval. 5 Hz reads as live without recomposing
          *  a window-manager view at BLE frame rate for a whole ride. */
         private const val PHONE_HUD_INTERVAL_MS = 200L
@@ -688,14 +689,16 @@ class WheelService : LifecycleService() {
         settings: com.eried.eucplanet.data.model.AppSettings
     ) {
         if (!settings.autoRecord) return
-        val moving = kotlin.math.abs(data.speed) > MOTION_MIN_KMH
+        val moving = AutoRecordPolicy.isMoving(data.speed)
         if (moving) lastMotionAtMs = System.currentTimeMillis()
 
         // Motion-linked loop: start on first motion and restart after each idle auto-stop.
-        if (settings.autoRecordStartInMotion &&
-            moving &&
-            wheelRepository.connectionState.value == ConnectionState.CONNECTED &&
-            !tripRepository.recording.value
+        if (AutoRecordPolicy.shouldStart(
+                settings,
+                moving = moving,
+                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+                alreadyRecording = tripRepository.recording.value,
+            )
         ) {
             lifecycleScope.launch { tripRepository.startRecording() }
         }
@@ -720,8 +723,7 @@ class WheelService : LifecycleService() {
                 // recording so we don't instantly stop a recording that began before the wheel moves.
                 if (lastMotionAtMs == 0L) lastMotionAtMs = System.currentTimeMillis()
                 val idleMs = System.currentTimeMillis() - lastMotionAtMs
-                val thresholdMs = settings.autoRecordStopIdleSeconds * 1000L
-                if (idleMs >= thresholdMs) {
+                if (AutoRecordPolicy.shouldStop(settings, recording = true, idleMs = idleMs)) {
                     Log.i(TAG, "Auto-stop: idle for ${idleMs / 1000}s (connected=$connected)")
                     tripRepository.stopRecording()
                 }
