@@ -283,6 +283,9 @@ fun SplitTripDialog(
     /** The ride's first sample, so a cut can be named by clock time and not
      *  only by how far into the ride it falls. */
     tripStartMs: Long,
+    /** Whether there are backup copies to archive: Dropbox linked, or a backup
+     *  folder chosen. With neither the row would act on nothing. */
+    canArchive: Boolean,
     onConfirm: (List<TripSplitDetector.Cut>, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -382,6 +385,7 @@ fun SplitTripDialog(
                     }
                     // A rule, because this is a different kind of thing from
                     // the cuts above it: what to do afterwards, not where to cut.
+                    if (canArchive) {
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.appColors.divider)
                     Spacer(Modifier.height(4.dp))
@@ -391,6 +395,7 @@ fun SplitTripDialog(
                         desc = stringResource(R.string.trip_tools_archive_sources_desc),
                         onCheckedChange = { archiveSource = it },
                     )
+                    }
                 }
             }
         },
@@ -419,17 +424,16 @@ fun SplitTripDialog(
 }
 
 /**
- * The archive choice, shared by every action that takes a trip off the list:
+ * The backup choice, shared by every action that takes a trip off the list:
  * extend, split, delete, and delete all.
  *
- * One row and one behaviour, because they are one decision - whether the ride
- * keeps existing outside the list. Ticked, the file moves to an archive folder
- * in each place it lives: the phone, the backup folder, Dropbox. Unticked, the
- * phone's copy is deleted and any backup keeps its own.
+ * The phone's copy always goes - that is what these actions are. The question
+ * is what happens to the copies in the backup folder and on Dropbox: ticked,
+ * they move to an archive folder there, which is also what stops the sync
+ * handing the trip back; unticked, they are left exactly as they are.
  *
- * On by default. Every one of these actions is about a trip the rider is done
- * with, not one they want destroyed, and archiving is the answer that cannot
- * lose anything.
+ * On by default, since a rider taking a ride off the list rarely means "and
+ * put it back tomorrow". Shown only when there is a backup to act on.
  */
 @Composable
 internal fun ArchiveChoiceRow(
@@ -486,6 +490,9 @@ fun CombineTripsDialog(
     trips: List<TripRecord>,
     label: (TripRecord) -> String,
     wheelOf: (TripRecord) -> String?,
+    /** Whether there are backup copies to archive: Dropbox linked, or a backup
+     *  folder chosen. With neither the row would act on nothing. */
+    canArchive: Boolean,
     onConfirm: (List<TripRecord>, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -650,7 +657,7 @@ fun CombineTripsDialog(
                     }
                     // Only once the rider has reached out to something: with
                     // nothing selected there are no sources to archive.
-                    if (range.size >= 2) {
+                    if (canArchive && range.size >= 2) {
                         Spacer(Modifier.height(8.dp))
                         HorizontalDivider(color = MaterialTheme.appColors.divider)
                         Spacer(Modifier.height(4.dp))

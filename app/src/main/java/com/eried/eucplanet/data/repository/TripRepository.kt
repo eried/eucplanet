@@ -1250,8 +1250,8 @@ class TripRepository @Inject constructor(
     }
 
     /**
-     * Archive [trips]: move their files into the archive on every destination
-     * that has them, then drop them from this phone.
+     * Delete [trips] from this phone, moving their backup copies into the
+     * archive first.
      *
      * For a source that an extend or a split has replaced. Its samples now live
      * inside another trip, so keeping it means the same ride is counted twice
@@ -1273,44 +1273,13 @@ class TripRepository @Inject constructor(
                 Log.w(TAG, "Could not archive ${t.fileName}, leaving the trip alone")
                 continue
             }
-            archiveLocalFile(t)
             deleteTrip(t)
             done++
         }
         return done
     }
 
-    /**
-     * Move a trip's own file into the phone's archive folder before its row
-     * goes.
-     *
-     * Archiving should mean the same thing everywhere: the ride leaves the
-     * list, and its file is somewhere the rider can still get at. Deleting the
-     * phone's copy while calling it an archive would make this the one place
-     * that quietly destroys it - and it is the only copy a rider with no
-     * Dropbox and no backup folder has.
-     */
-    private fun archiveLocalFile(trip: TripRecord) {
-        val src = getTripFile(trip)
-        if (!src.exists()) return
-        val dir = File(getTripsDir(), "archive")
-        if (!dir.exists() && !dir.mkdirs()) return
-        var dest = File(dir, src.name)
-        // Never overwrite an earlier archive: a combine can produce a file
-        // named like one already in there.
-        var n = 1
-        while (dest.exists()) {
-            dest = File(dir, src.nameWithoutExtension + " ($n)." + src.extension)
-            n++
-        }
-        if (!src.renameTo(dest)) {
-            runCatching { src.copyTo(dest, overwrite = false) }
-                .onSuccess { src.delete() }
-                .onFailure { Log.w(TAG, "Could not archive ${src.name} on the phone", it) }
-        }
-    }
-
-    /** Archive every trip: what "delete all" does when the rider keeps them. */
+    /** Delete every trip here, archiving the backup copies as it goes. */
     suspend fun archiveAllTrips(): Int = archiveTrips(tripDao.observeAll().first())
 
     suspend fun insertTrip(trip: TripRecord): Long = tripDao.insert(trip)

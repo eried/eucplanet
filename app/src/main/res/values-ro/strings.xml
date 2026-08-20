@@ -575,7 +575,7 @@
     <string name="cloud_restore_success">Setările au fost restaurate</string>
     <string name="cloud_restore_failed">Nu s-a găsit nicio copie în dosar</string>
     <string name="section_cloud_trips">Copie de rezervă a curselor</string>
-    <string name="cloud_trips_caption">Turele rămân pe acest telefon și se sincronizează automat în folderul de backup. Ștergerea de aici poate arhiva copiile din backup sau le poate lăsa.</string>
+    <string name="cloud_trips_caption">Turele rămân pe acest telefon și se sincronizează automat în folderul de backup. Ștergerea de aici elimină copiile de pe telefon și poate arhiva și copiile din backup.</string>
     <string name="cloud_retry_now">Sincronizează tot</string>
     <string name="cloud_reset_local">Șterge cursele locale</string>
     <string name="cloud_reset_local_title">Ștergi cursele locale?</string>
@@ -2032,12 +2032,12 @@
     <string name="trip_tools_renamed">Tură redenumită</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archive_sources">Arhivează originalele</string>
-    <string name="trip_tools_archive_sources_desc">Mută fișierele lor într-un folder de arhivă.</string>
+    <string name="trip_tools_archive_sources_desc">Le elimină de aici și arhivează copiile din backup.</string>
     <string name="trip_tools_archived">%1$d arhivate</string>
     <string name="trip_tools_archive_failed">Unele ture nu au putut fi arhivate și sunt încă aici</string>
-    <string name="recording_delete_archive">Arhivează în loc să ștergi</string>
-    <string name="recording_delete_archive_desc">Mută fișierul într-un folder de arhivă, aici și în backupurile tale.</string>
+    <string name="recording_delete_archive">Arhivează copiile din backup</string>
+    <string name="recording_delete_archive_desc">Le mută într-un folder de arhivă, ca tura să nu revină.</string>
     <string name="trip_tools_extend_all_inside">Turele din jur fac deja parte din aceasta.</string>
     <string name="trip_tools_extend_skipped">Sare peste %1$d ture aflate deja în aceasta.</string>
-    <string name="recording_clear_all_body_archive">Asta golește lista de ture. Fișierele trec într-un folder de arhivă, aici și în backupurile tale.</string>
+    <string name="recording_clear_all_body_archive">Asta șterge turele de pe acest telefon. Copiile din backup trec într-un folder de arhivă.</string>
 </resources>

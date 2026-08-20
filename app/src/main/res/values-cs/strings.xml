@@ -575,7 +575,7 @@
     <string name="cloud_restore_success">Nastavení obnoveno</string>
     <string name="cloud_restore_failed">Ve složce nebyla nalezena žádná záloha</string>
     <string name="section_cloud_trips">Záloha jízd</string>
-    <string name="cloud_trips_caption">Jízdy zůstávají v telefonu a automaticky se synchronizují do záložní složky. Mazání tady může kopie v záloze archivovat, nebo je nechat být - vyberete si.</string>
+    <string name="cloud_trips_caption">Jízdy zůstávají v telefonu a automaticky se synchronizují do záložní složky. Mazání tady smaže kopie v telefonu a může archivovat i kopie v záloze.</string>
     <string name="cloud_retry_now">Synchronizovat vše</string>
     <string name="cloud_reset_local">Vymazat místní jízdy</string>
     <string name="cloud_reset_local_title">Vymazat místní jízdy?</string>
@@ -2032,12 +2032,12 @@
     <string name="trip_tools_renamed">Jízda přejmenována</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archive_sources">Archivovat originály</string>
-    <string name="trip_tools_archive_sources_desc">Přesune jejich soubory do složky archive.</string>
+    <string name="trip_tools_archive_sources_desc">Odebere je odsud a kopie v záloze archivuje.</string>
     <string name="trip_tools_archived">Archivováno: %1$d</string>
     <string name="trip_tools_archive_failed">Některé jízdy se nepodařilo archivovat a zůstávají tady</string>
-    <string name="recording_delete_archive">Archivovat místo smazání</string>
-    <string name="recording_delete_archive_desc">Přesune soubor do složky archive, tady i v zálohách.</string>
+    <string name="recording_delete_archive">Archivovat kopie v záloze</string>
+    <string name="recording_delete_archive_desc">Přesune je do složky archive, takže se jízda nevrátí.</string>
     <string name="trip_tools_extend_all_inside">Jízdy kolem této už jsou její součástí.</string>
     <string name="trip_tools_extend_skipped">Přeskočí %1$d jízd, které už jsou uvnitř této.</string>
-    <string name="recording_clear_all_body_archive">Vyčistí seznam jízd. Soubory se přesunou do složky archive, tady i v zálohách.</string>
+    <string name="recording_clear_all_body_archive">Smaže jízdy z tohoto telefonu. Kopie v záloze se přesunou do složky archive.</string>
 </resources>

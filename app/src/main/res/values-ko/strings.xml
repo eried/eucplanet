@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">설정이 복원되었습니다</string>
     <string name="cloud_restore_failed">폴더에서 백업을 찾을 수 없습니다</string>
     <string name="section_cloud_trips">트립 백업</string>
-    <string name="cloud_trips_caption">주행은 이 휴대폰에 남고 백업 폴더로 자동 동기화됩니다. 여기서 지울 때 백업 사본을 보관할지 그대로 둘지 고를 수 있습니다.</string>
+    <string name="cloud_trips_caption">주행은 이 휴대폰에 남고 백업 폴더로 자동 동기화됩니다. 여기서 지우면 휴대폰 사본이 사라지고, 백업 사본도 보관할 수 있습니다.</string>
     <string name="cloud_retry_now">전체 동기화</string>
     <string name="cloud_retry_enqueued">업로드 예약됨</string>
     <string name="sync_progress">%1$d / %2$d 동기화 중</string>
@@ -2228,12 +2228,12 @@
     <string name="trip_tools_rename_hint">비워 두면 날짜를 사용합니다.</string>
     <string name="trip_tools_renamed">주행 이름을 변경했습니다</string>
     <string name="trip_tools_archive_sources">원본 보관</string>
-    <string name="trip_tools_archive_sources_desc">파일을 보관 폴더로 옮깁니다.</string>
+    <string name="trip_tools_archive_sources_desc">여기에서 지우고 백업 사본을 보관합니다.</string>
     <string name="trip_tools_archived">%1$d개 보관함</string>
     <string name="trip_tools_archive_failed">일부 주행을 보관하지 못해 여기에 남아 있습니다</string>
-    <string name="recording_delete_archive">삭제 대신 보관</string>
-    <string name="recording_delete_archive_desc">파일을 보관 폴더로 옮깁니다. 여기서도 백업에서도.</string>
+    <string name="recording_delete_archive">백업 사본 보관</string>
+    <string name="recording_delete_archive_desc">보관 폴더로 옮겨 주행이 다시 돌아오지 않게 합니다.</string>
     <string name="trip_tools_extend_all_inside">앞뒤 주행은 이미 이 주행에 들어 있습니다.</string>
     <string name="trip_tools_extend_skipped">이미 이 주행에 포함된 %1$d개를 건너뜁니다.</string>
-    <string name="recording_clear_all_body_archive">주행 목록을 비웁니다. 파일은 보관 폴더로 옮겨집니다. 여기서도 백업에서도.</string>
+    <string name="recording_clear_all_body_archive">이 휴대폰에서 주행을 삭제합니다. 백업 사본은 보관 폴더로 옮겨집니다.</string>
 </resources>

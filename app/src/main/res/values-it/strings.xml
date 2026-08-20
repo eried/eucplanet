@@ -188,7 +188,7 @@
     <string name="cloud_restore_success">Impostazioni ripristinate</string>
     <string name="cloud_restore_failed">Nessun backup trovato nella cartella</string>
     <string name="section_cloud_trips">Backup dei viaggi</string>
-    <string name="cloud_trips_caption">Le uscite restano su questo telefono e si sincronizzano con la cartella di backup. Cancellando qui puoi archiviare le copie o lasciarle stare.</string>
+    <string name="cloud_trips_caption">Le uscite restano su questo telefono e si sincronizzano con la cartella di backup. Cancellando qui vanno via le copie sul telefono, e volendo si archiviano anche quelle di backup.</string>
     <string name="cloud_retry_now">Sincr. tutto</string>
     <string name="cloud_retry_enqueued">Upload programmato</string>
     <string name="sync_progress">Sincronizzazione %1$d di %2$d</string>
@@ -2134,12 +2134,12 @@
     <string name="trip_tools_rename_hint">Lascia vuoto per usare la data.</string>
     <string name="trip_tools_renamed">Uscita rinominata</string>
     <string name="trip_tools_archive_sources">Archivia gli originali</string>
-    <string name="trip_tools_archive_sources_desc">Sposta i loro file in una cartella di archivio.</string>
+    <string name="trip_tools_archive_sources_desc">Le rimuove da qui e archivia le copie di backup.</string>
     <string name="trip_tools_archived">Archiviate: %1$d</string>
     <string name="trip_tools_archive_failed">Alcune uscite non si sono potute archiviare e sono ancora qui</string>
-    <string name="recording_delete_archive">Archivia invece di eliminare</string>
-    <string name="recording_delete_archive_desc">Sposta il file in una cartella di archivio, qui e nei tuoi backup.</string>
+    <string name="recording_delete_archive">Archivia le copie di backup</string>
+    <string name="recording_delete_archive_desc">Le sposta in una cartella di archivio, così l\'uscita non torna.</string>
     <string name="trip_tools_extend_all_inside">Le uscite intorno fanno già parte di questa.</string>
     <string name="trip_tools_extend_skipped">Salta %1$d uscite già dentro questa.</string>
-    <string name="recording_clear_all_body_archive">Svuota l\'elenco delle uscite. I file passano in una cartella di archivio, qui e nei tuoi backup.</string>
+    <string name="recording_clear_all_body_archive">Elimina le uscite da questo telefono. Le copie di backup passano in una cartella di archivio.</string>
 </resources>

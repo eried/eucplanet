@@ -128,6 +128,7 @@ fun RecordingScreen(
     var combineToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var tripToShare by remember { mutableStateOf<TripRecord?>(null) }
     val highlightedTripIds by viewModel.highlightedTripIds.collectAsState()
+    val canArchiveTrips by viewModel.canArchiveTrips.collectAsState()
     val listState = rememberLazyListState()
 
     // Shared snackbar host so status icons / ViewModel auto-stop toasts use
@@ -193,6 +194,7 @@ fun RecordingScreen(
                             else R.string.recording_clear_all_body
                         )
                     )
+                    if (canArchiveTrips) {
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.appColors.divider)
                     Spacer(Modifier.height(4.dp))
@@ -202,6 +204,7 @@ fun RecordingScreen(
                         desc = stringResource(R.string.recording_delete_archive_desc),
                         onCheckedChange = { archiveAll = it },
                     )
+                    }
                 }
             },
             confirmButton = {
@@ -283,6 +286,7 @@ fun RecordingScreen(
                 cuts = found,
                 formatElapsed = { com.eried.eucplanet.util.Units.humanDuration(it / 1000) },
                 tripStartMs = trip.startTime,
+                canArchive = canArchiveTrips,
                 onConfirm = { chosen, archiveSource ->
                     viewModel.splitTrip(trip, chosen, archiveSource)
                     splitToolTrip = null
@@ -311,6 +315,7 @@ fun RecordingScreen(
                 t.wheelMetaJson
                     ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
             },
+            canArchive = canArchiveTrips,
             onConfirm = { chosen, archiveSources ->
                 viewModel.combineRange(chosen, archiveSources)
                 combineToolTrip = null
@@ -328,6 +333,7 @@ fun RecordingScreen(
             text = {
                 Column {
                     Text(stringResource(R.string.recording_delete_trip_body))
+                    if (canArchiveTrips) {
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.appColors.divider)
                     Spacer(Modifier.height(4.dp))
@@ -337,6 +343,7 @@ fun RecordingScreen(
                         desc = stringResource(R.string.recording_delete_archive_desc),
                         onCheckedChange = { archiveBackups = it },
                     )
+                    }
                 }
             },
             confirmButton = {

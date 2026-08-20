@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Ustawienia przywrócone</string>
     <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
     <string name="section_cloud_trips">Kopia zapasowa tras</string>
-    <string name="cloud_trips_caption">Przejazdy zostają w tym telefonie i synchronizują się z folderem kopii. Czyszczenie tutaj może zarchiwizować kopie albo je zostawić, Ty wybierasz.</string>
+    <string name="cloud_trips_caption">Przejazdy zostają w tym telefonie i synchronizują się z folderem kopii. Czyszczenie usuwa kopie z telefonu i może też zarchiwizować kopie zapasowe.</string>
     <string name="cloud_retry_now">Synchronizuj wszystko</string>
     <string name="cloud_retry_enqueued">Wysyłanie zaplanowane</string>
     <string name="sync_progress">Synchronizowanie %1$d z %2$d</string>
@@ -2229,12 +2229,12 @@
     <string name="trip_tools_rename_hint">Zostaw puste, aby użyć daty.</string>
     <string name="trip_tools_renamed">Nazwa przejazdu zmieniona</string>
     <string name="trip_tools_archive_sources">Zarchiwizuj oryginały</string>
-    <string name="trip_tools_archive_sources_desc">Przenosi ich pliki do folderu archiwum.</string>
+    <string name="trip_tools_archive_sources_desc">Usuwa je stąd i archiwizuje kopie zapasowe.</string>
     <string name="trip_tools_archived">Zarchiwizowano: %1$d</string>
     <string name="trip_tools_archive_failed">Niektórych przejazdów nie udało się zarchiwizować, nadal tu są</string>
-    <string name="recording_delete_archive">Zarchiwizuj zamiast usuwać</string>
-    <string name="recording_delete_archive_desc">Przenosi plik do folderu archiwum, tutaj i w kopiach zapasowych.</string>
+    <string name="recording_delete_archive">Zarchiwizuj kopie zapasowe</string>
+    <string name="recording_delete_archive_desc">Przenosi je do folderu archiwum, żeby przejazd nie wracał.</string>
     <string name="trip_tools_extend_all_inside">Przejazdy dookoła są już częścią tego.</string>
     <string name="trip_tools_extend_skipped">Pomija %1$d przejazdów, które już są w tym.</string>
-    <string name="recording_clear_all_body_archive">To czyści listę przejazdów. Pliki trafiają do folderu archiwum, tutaj i w kopiach zapasowych.</string>
+    <string name="recording_clear_all_body_archive">To usuwa przejazdy z tego telefonu. Kopie zapasowe trafiają do folderu archiwum.</string>
 </resources>

@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
-    <string name="cloud_trips_caption">Поїздки лишаються на цьому телефоні й автоматично синхронізуються з текою резервних копій. Очищення тут може архівувати копії або лишити їх.</string>
+    <string name="cloud_trips_caption">Поїздки лишаються на цьому телефоні й автоматично синхронізуються з текою резервних копій. Очищення видаляє копії на телефоні та може архівувати резервні копії.</string>
     <string name="cloud_retry_now">Синхр. усе</string>
     <string name="cloud_retry_enqueued">Вивантаження заплановано</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
@@ -2226,14 +2226,14 @@
     <string name="trip_tools_rename_hint">Залиште порожнім, щоб використати дату.</string>
     <string name="trip_tools_renamed">Поїздку перейменовано</string>
     <string name="trip_tools_archive_sources">Архівувати оригінали</string>
-    <string name="trip_tools_archive_sources_desc">Переносить їхні файли до теки архіву.</string>
+    <string name="trip_tools_archive_sources_desc">Прибирає їх звідси й архівує резервні копії.</string>
     <string name="trip_tools_archived">Архівовано: %1$d</string>
     <string name="trip_tools_archive_failed">Деякі поїздки не вдалося архівувати, вони лишилися тут</string>
-    <string name="recording_delete_archive">Архівувати замість видалення</string>
-    <string name="recording_delete_archive_desc">Переносить файл до теки архіву, тут і у ваших резервних копіях.</string>
+    <string name="recording_delete_archive">Архівувати резервні копії</string>
+    <string name="recording_delete_archive_desc">Переносить їх до теки архіву, щоб поїздка не повернулася.</string>
     <string name="trip_tools_extend_all_inside">Поїздки навколо вже є частиною цієї.</string>
     <string name="trip_tools_extend_skipped">Пропускає %1$d поїздок, які вже всередині цієї.</string>
-    <string name="recording_clear_all_body_archive">Це очистить список поїздок. Файли перейдуть до теки архіву, тут і у ваших резервних копіях.</string>
+    <string name="recording_clear_all_body_archive">Це видалить поїздки з цього телефона. Резервні копії перейдуть до теки архіву.</string>
 </resources>
 
 

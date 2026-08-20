@@ -155,6 +155,15 @@ class RecordingViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "km")
 
+    /**
+     * Whether there are backup copies for the archive choice to act on:
+     * Dropbox linked, or a backup folder chosen. With neither, the row would
+     * offer to do something to files that do not exist.
+     */
+    val canArchiveTrips: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.dropboxAccessToken.isNotBlank() || it.syncFolderUri != null }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
+
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "C")

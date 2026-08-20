@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Configuración restaurada</string>
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
-    <string name="cloud_trips_caption">Los viajes se quedan en este teléfono y se sincronizan con tu carpeta de copias. Al borrar aquí puedes archivar las copias o dejarlas, tú eliges.</string>
+    <string name="cloud_trips_caption">Los viajes se quedan en este teléfono y se sincronizan con tu carpeta de copias. Al borrar aquí se quitan las copias del teléfono y puedes archivar también las de la copia de seguridad.</string>
     <string name="cloud_retry_now">Sincr. todo</string>
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -2247,13 +2247,13 @@
     <string name="trip_tools_rename_hint">Déjalo vacío para usar la fecha.</string>
     <string name="trip_tools_renamed">Viaje renombrado</string>
     <string name="trip_tools_archive_sources">Archivar los originales</string>
-    <string name="trip_tools_archive_sources_desc">Mueve sus archivos a una carpeta de archivo.</string>
+    <string name="trip_tools_archive_sources_desc">Los quita de aquí y archiva las copias de seguridad.</string>
     <string name="trip_tools_archived">Archivados: %1$d</string>
     <string name="trip_tools_archive_failed">Algunos viajes no se pudieron archivar y siguen aquí</string>
-    <string name="recording_delete_archive">Archivar en vez de borrar</string>
-    <string name="recording_delete_archive_desc">Mueve el archivo a una carpeta de archivo, aquí y en tus copias.</string>
+    <string name="recording_delete_archive">Archivar las copias de la copia de seguridad</string>
+    <string name="recording_delete_archive_desc">Las mueve a una carpeta de archivo, para que el viaje no vuelva.</string>
     <string name="trip_tools_extend_all_inside">Los viajes de alrededor ya forman parte de este.</string>
     <string name="trip_tools_extend_skipped">Omite %1$d viajes que ya están dentro de este.</string>
-    <string name="recording_clear_all_body_archive">Esto vacía la lista de viajes. Los archivos pasan a una carpeta de archivo, aquí y en tus copias.</string>
+    <string name="recording_clear_all_body_archive">Esto borra los viajes de este teléfono. Las copias de seguridad pasan a una carpeta de archivo.</string>
 </resources>
 

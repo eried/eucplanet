@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Paramètres restaurés</string>
     <string name="cloud_restore_failed">Aucune sauvegarde trouvée dans le dossier</string>
     <string name="section_cloud_trips">Sauvegarde des trajets</string>
-    <string name="cloud_trips_caption">Les sorties restent sur ce téléphone et se synchronisent avec ton dossier de sauvegarde. En supprimant ici, tu peux archiver les copies ou les laisser.</string>
+    <string name="cloud_trips_caption">Les sorties restent sur ce téléphone et se synchronisent avec ton dossier de sauvegarde. Supprimer ici enlève les copies du téléphone, et peut aussi archiver celles de la sauvegarde.</string>
     <string name="cloud_retry_now">Tout sync</string>
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="sync_progress">Synchronisation %1$d sur %2$d</string>
@@ -2233,12 +2233,12 @@
     <string name="trip_tools_rename_hint">Laisse vide pour utiliser la date.</string>
     <string name="trip_tools_renamed">Sortie renommée</string>
     <string name="trip_tools_archive_sources">Archiver les originaux</string>
-    <string name="trip_tools_archive_sources_desc">Déplace leurs fichiers vers un dossier d\'archive.</string>
+    <string name="trip_tools_archive_sources_desc">Les retire d\'ici et archive les copies de sauvegarde.</string>
     <string name="trip_tools_archived">%1$d archivée(s)</string>
     <string name="trip_tools_archive_failed">Certaines sorties n\'ont pas pu être archivées et sont toujours là</string>
-    <string name="recording_delete_archive">Archiver au lieu de supprimer</string>
-    <string name="recording_delete_archive_desc">Déplace le fichier vers un dossier d\'archive, ici et dans tes sauvegardes.</string>
+    <string name="recording_delete_archive">Archiver les copies de sauvegarde</string>
+    <string name="recording_delete_archive_desc">Les déplace vers un dossier d\'archive, pour que la sortie ne revienne pas.</string>
     <string name="trip_tools_extend_all_inside">Les sorties autour font déjà partie de celle-ci.</string>
     <string name="trip_tools_extend_skipped">Ignore %1$d sorties déjà comprises dans celle-ci.</string>
-    <string name="recording_clear_all_body_archive">Ça vide la liste des sorties. Les fichiers partent dans un dossier d\'archive, ici et dans tes sauvegardes.</string>
+    <string name="recording_clear_all_body_archive">Ça supprime les sorties de ce téléphone. Les copies de sauvegarde partent dans un dossier d\'archive.</string>
 </resources>

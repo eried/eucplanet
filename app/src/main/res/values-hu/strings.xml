@@ -575,7 +575,7 @@
     <string name="cloud_restore_success">Beállítások visszaállítva</string>
     <string name="cloud_restore_failed">Nem található mentés a mappában</string>
     <string name="section_cloud_trips">Menetek mentése</string>
-    <string name="cloud_trips_caption">A túrák ezen a telefonon maradnak, és automatikusan szinkronizálódnak a mentési mappádba. A törlés archiválhatja a mentett másolatokat, vagy békén hagyhatja őket.</string>
+    <string name="cloud_trips_caption">A túrák ezen a telefonon maradnak, és automatikusan szinkronizálódnak a mentési mappádba. A törlés eltünteti a telefonon lévő másolatokat, és a mentetteket is archiválhatja.</string>
     <string name="cloud_retry_now">Összes szinkronizálása</string>
     <string name="cloud_reset_local">Helyi menetek törlése</string>
     <string name="cloud_reset_local_title">Törlöd a helyi meneteket?</string>
@@ -2032,12 +2032,12 @@
     <string name="trip_tools_renamed">Túra átnevezve</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archive_sources">Eredetik archiválása</string>
-    <string name="trip_tools_archive_sources_desc">Áthelyezi a fájljaikat egy archív mappába.</string>
+    <string name="trip_tools_archive_sources_desc">Eltávolítja őket innen, és archiválja a mentett másolatokat.</string>
     <string name="trip_tools_archived">%1$d archiválva</string>
     <string name="trip_tools_archive_failed">Néhány túrát nem sikerült archiválni, még itt vannak</string>
-    <string name="recording_delete_archive">Archiválás törlés helyett</string>
-    <string name="recording_delete_archive_desc">Áthelyezi a fájlt egy archív mappába, itt és a mentéseidben.</string>
+    <string name="recording_delete_archive">Mentett másolatok archiválása</string>
+    <string name="recording_delete_archive_desc">Áthelyezi őket egy archív mappába, hogy a túra ne jöjjön vissza.</string>
     <string name="trip_tools_extend_all_inside">A körülötte lévő túrák már ennek a részei.</string>
     <string name="trip_tools_extend_skipped">Kihagy %1$d túrát, amely már ebben van.</string>
-    <string name="recording_clear_all_body_archive">Ez kiüríti a túralistát. A fájlok egy archív mappába kerülnek, itt és a mentéseidben.</string>
+    <string name="recording_clear_all_body_archive">Ez törli a túrákat erről a telefonról. A mentett másolatok egy archív mappába kerülnek.</string>
 </resources>

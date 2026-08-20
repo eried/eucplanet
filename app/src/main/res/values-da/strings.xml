@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Turene bliver på denne telefon og synkroniseres automatisk til din backup-mappe. Rydning her kan arkivere kopierne i backuppen eller lade dem være, du vælger.</string>
+    <string name="cloud_trips_caption">Turene bliver på denne telefon og synkroniseres automatisk til din backup-mappe. Rydning her sletter kopierne på telefonen og kan også arkivere kopierne i backuppen.</string>
     <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d af %2$d</string>
@@ -2244,12 +2244,12 @@
     <string name="trip_tools_rename_hint">Lad stå tomt for at bruge datoen.</string>
     <string name="trip_tools_renamed">Tur omdøbt</string>
     <string name="trip_tools_archive_sources">Arkivér originalerne</string>
-    <string name="trip_tools_archive_sources_desc">Flytter deres filer til en arkivmappe.</string>
+    <string name="trip_tools_archive_sources_desc">Fjerner dem her og arkiverer kopierne i backuppen.</string>
     <string name="trip_tools_archived">Arkiveret: %1$d</string>
     <string name="trip_tools_archive_failed">Nogle ture kunne ikke arkiveres og er her stadig</string>
-    <string name="recording_delete_archive">Arkivér i stedet for at slette</string>
-    <string name="recording_delete_archive_desc">Flytter filen til en arkivmappe, her og i dine backupper.</string>
+    <string name="recording_delete_archive">Arkivér kopierne i backuppen</string>
+    <string name="recording_delete_archive_desc">Flytter dem til en arkivmappe, så turen ikke kommer tilbage.</string>
     <string name="trip_tools_extend_all_inside">Turene omkring denne er allerede en del af den.</string>
     <string name="trip_tools_extend_skipped">Springer %1$d ture over, der allerede er inde i denne.</string>
-    <string name="recording_clear_all_body_archive">Dette rydder listen over ture. Filerne flyttes til en arkivmappe, her og i dine backupper.</string>
+    <string name="recording_clear_all_body_archive">Dette sletter turene fra denne telefon. Kopierne i backuppen flyttes til en arkivmappe.</string>
 </resources>

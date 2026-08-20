@@ -575,7 +575,7 @@
     <string name="cloud_restore_success">Asetukset palautettu</string>
     <string name="cloud_restore_failed">Kansiosta ei löytynyt varmuuskopiota</string>
     <string name="section_cloud_trips">Matkojen varmuuskopio</string>
-    <string name="cloud_trips_caption">Ajot pysyvät tässä puhelimessa ja synkronoituvat varmuuskopiokansioosi. Tyhjennys voi arkistoida varmuuskopiot tai jättää ne rauhaan, sinä valitset.</string>
+    <string name="cloud_trips_caption">Ajot pysyvät tässä puhelimessa ja synkronoituvat varmuuskopiokansioosi. Tyhjennys poistaa puhelimen kopiot ja voi arkistoida myös varmuuskopiot.</string>
     <string name="cloud_retry_now">Synkronoi kaikki</string>
     <string name="cloud_reset_local">Tyhjennä paikalliset matkat</string>
     <string name="cloud_reset_local_title">Tyhjennetäänkö paikalliset matkat?</string>
@@ -2032,12 +2032,12 @@
     <string name="trip_tools_renamed">Ajo nimetty uudelleen</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="trip_tools_archive_sources">Arkistoi alkuperäiset</string>
-    <string name="trip_tools_archive_sources_desc">Siirtää niiden tiedostot arkistokansioon.</string>
+    <string name="trip_tools_archive_sources_desc">Poistaa ne täältä ja arkistoi varmuuskopiot.</string>
     <string name="trip_tools_archived">Arkistoitu: %1$d</string>
     <string name="trip_tools_archive_failed">Joitakin ajoja ei voitu arkistoida, ne ovat yhä täällä</string>
-    <string name="recording_delete_archive">Arkistoi poistamisen sijaan</string>
-    <string name="recording_delete_archive_desc">Siirtää tiedoston arkistokansioon, täällä ja varmuuskopioissasi.</string>
+    <string name="recording_delete_archive">Arkistoi varmuuskopiot</string>
+    <string name="recording_delete_archive_desc">Siirtää ne arkistokansioon, jotta ajo ei palaa.</string>
     <string name="trip_tools_extend_all_inside">Tämän ympärillä olevat ajot ovat jo osa sitä.</string>
     <string name="trip_tools_extend_skipped">Ohittaa %1$d ajoa, jotka ovat jo tämän sisällä.</string>
-    <string name="recording_clear_all_body_archive">Tämä tyhjentää ajolistan. Tiedostot siirtyvät arkistokansioon, täällä ja varmuuskopioissasi.</string>
+    <string name="recording_clear_all_body_archive">Tämä poistaa ajot tästä puhelimesta. Varmuuskopiot siirtyvät arkistokansioon.</string>
 </resources>

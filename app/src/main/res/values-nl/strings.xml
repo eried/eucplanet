@@ -469,7 +469,7 @@
     <string name="cloud_restore_success">Instellingen teruggezet</string>
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
     <string name="section_cloud_trips">Back-up van ritten</string>
-    <string name="cloud_trips_caption">Ritten blijven op deze telefoon en synchroniseren automatisch met je back-upmap. Wissen kan de back-upkopieën archiveren of laten staan, jouw keuze.</string>
+    <string name="cloud_trips_caption">Ritten blijven op deze telefoon en synchroniseren automatisch met je back-upmap. Wissen haalt de telefooncopieën weg en kan ook de back-upkopieën archiveren.</string>
     <string name="cloud_retry_now">Alles synchr.</string>
     <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
@@ -2231,13 +2231,13 @@
     <string name="trip_tools_rename_hint">Laat leeg om de datum te gebruiken.</string>
     <string name="trip_tools_renamed">Rit hernoemd</string>
     <string name="trip_tools_archive_sources">Originelen archiveren</string>
-    <string name="trip_tools_archive_sources_desc">Verplaatst hun bestanden naar een archiefmap.</string>
+    <string name="trip_tools_archive_sources_desc">Haalt ze hier weg en archiveert de back-upkopieën.</string>
     <string name="trip_tools_archived">%1$d gearchiveerd</string>
     <string name="trip_tools_archive_failed">Sommige ritten konden niet worden gearchiveerd en staan er nog</string>
-    <string name="recording_delete_archive">Archiveren in plaats van verwijderen</string>
-    <string name="recording_delete_archive_desc">Verplaatst het bestand naar een archiefmap, hier en in je back-ups.</string>
+    <string name="recording_delete_archive">Back-upkopieën archiveren</string>
+    <string name="recording_delete_archive_desc">Verplaatst ze naar een archiefmap, zodat de rit niet terugkomt.</string>
     <string name="trip_tools_extend_all_inside">De ritten eromheen zitten al in deze rit.</string>
     <string name="trip_tools_extend_skipped">Slaat %1$d ritten over die al in deze zitten.</string>
-    <string name="recording_clear_all_body_archive">Dit leegt de rittenlijst. De bestanden gaan naar een archiefmap, hier en in je back-ups.</string>
+    <string name="recording_clear_all_body_archive">Dit verwijdert de ritten van deze telefoon. De back-upkopieën gaan naar een archiefmap.</string>
 </resources>
 
