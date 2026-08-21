@@ -1403,6 +1403,9 @@
     <string name="studio_cfg_map_dark">Sombre</string>
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Afficher le crédit de la carte</string>
+    <string name="studio_cfg_map_attribution_off">La licence de la carte exige ce crédit sur tout ce que tu partages. Le retirer est ton choix.</string>
+    <string name="studio_cfg_map_style_community">Tuiles gérées par des bénévoles. Un long export en télécharge des milliers d\'un coup, ce que ces serveurs demandent d\'éviter.</string>
     <string name="studio_cfg_map_rotate">Pivoter avec le mouvement</string>
     <string name="studio_cfg_map_trace">Tracé</string>
     <string name="studio_cfg_map_trace_none">Aucune</string>
@@ -1566,6 +1569,15 @@
     <string name="nav_last_stop">Dernier arrêt</string>
     <string name="nav_need_destination">Ajoute d\'abord une destination</string>
     <string name="nav_map_style">Style de carte</string>
+    <string name="nav_overlays">Calques</string>
+    <string name="nav_reset_north">Orienter au nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellite</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Premier arrêt</item>
         <item>Deuxième arrêt</item>
@@ -1710,8 +1722,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Attente des tensions des cellules…</string>
     <string name="charging_tab_cells">Cellules</string>
-    <string name="hud_auto_discover">Détecter l\'adresse automatiquement</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Active le Bluetooth pour chercher des roues.</string>
     <string name="scan_bluetooth_off_title">Bluetooth désactivé</string>
     <string name="scan_enable_bluetooth">Activer le Bluetooth</string>
@@ -2211,4 +2221,15 @@
     <string name="adv_smoothing_window">Fenêtre de lissage</string>
     <string name="adv_smoothing_window_desc">Échantillons moyennés par les graphiques de trajet « moyenne » et les rapports vocaux lissés. Les trajets s\'enregistrent environ une fois par seconde, donc cette valeur correspond à des secondes. Danger : des valeurs élevées masquent les pics brefs.</string>
     <string name="auto_volume_only_connected">Uniquement lorsqu\'une roue est connectée</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Les deux</string>
+    <string name="hud_discovery_desc">Auto trouve le HUD tout seul. Fixe n\'utilise que l\'adresse ci-dessous.</string>
+    <string name="hud_discovery_fixed">Fixe</string>
+    <string name="hud_discovery_mode">Mode de recherche</string>
+    <string name="metric_chip_battery_range">Batterie début → fin</string>
+    <string name="recording_summary_battery_range">Début→fin (-%1$d%%)</string>
+    <string name="trip_tools_rename">Renommer la sortie</string>
+    <string name="trip_tools_rename_desc">Donne un nom à cette sortie. Enregistré dans son fichier, il suit les exports et la synchro.</string>
+    <string name="trip_tools_rename_hint">Laisse vide pour utiliser la date.</string>
+    <string name="trip_tools_renamed">Sortie renommée</string>
 </resources>

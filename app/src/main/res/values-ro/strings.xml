@@ -314,8 +314,6 @@
     <string name="hud_ip_label">IP-ul dispozitivului</string>
     <string name="hud_ip_incomplete">Introdu o adresă completă, de exemplu 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP-ul dispozitivului (automat)</string>
-    <string name="hud_auto_discover">Descoperă automat adresa legăturii</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Hotspotul telefonului este oprit. Asigură-te că HUD-ul și telefonul sunt în aceeași rețea WiFi.</string>
     <string name="hud_hotspot_on_hint">Hotspotul telefonului emite. Conectează HUD-ul la WiFi-ul acestui telefon pentru a activa legătura.</string>
@@ -1616,6 +1614,9 @@
     <string name="studio_cfg_map_dark">Întunecat</string>
     <string name="studio_cfg_map_satellite">Satelit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Afișează creditul hărții</string>
+    <string name="studio_cfg_map_attribution_off">Licența hărții cere acest credit pe tot ce distribui. Dezactivarea ține de tine.</string>
+    <string name="studio_cfg_map_style_community">Dale întreținute de voluntari. Un export lung descarcă mii deodată, lucru pe care aceste servere cer să fie evitat.</string>
     <string name="studio_cfg_map_rotate">Rotește odată cu mișcarea</string>
     <string name="studio_cfg_map_trace">Traseu</string>
     <string name="studio_cfg_map_trace_none">Niciunul</string>
@@ -1768,6 +1769,15 @@
     <string name="nav_last_stop">Ultima oprire</string>
     <string name="nav_need_destination">Adaugă mai întâi o destinație</string>
     <string name="nav_map_style">Stilul hărții</string>
+    <string name="nav_overlays">Straturi</string>
+    <string name="nav_reset_north">Orientează spre nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelit</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Prima oprire</item>
         <item>A doua oprire</item>
@@ -2009,4 +2019,16 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filtru</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Ambele</string>
+    <string name="hud_discovery_desc">Auto găsește HUD-ul singur. Fix folosește doar adresa de mai jos.</string>
+    <string name="hud_discovery_fixed">Fix</string>
+    <string name="hud_discovery_mode">Mod de căutare</string>
+    <string name="metric_chip_battery_range">Baterie start → final</string>
+    <string name="recording_summary_battery_range">Start→final (-%1$d%%)</string>
+    <string name="trip_tools_rename">Redenumește tura</string>
+    <string name="trip_tools_rename_desc">Dă un nume acestei ture. Se salvează în fișierul ei, deci merge cu exporturile și sincronizarea.</string>
+    <string name="trip_tools_rename_hint">Lasă gol pentru a folosi data.</string>
+    <string name="trip_tools_renamed">Tură redenumită</string>
+    <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
 </resources>

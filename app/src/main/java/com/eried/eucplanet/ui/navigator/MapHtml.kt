@@ -19,6 +19,21 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
     ROUTE_BUILDER_HTML
         .replace("__INITIAL_MAP_TYPE__", mapType)
         .replace("__INITIAL_BG__", mapTypeInitialBg(mapType))
+        .replace("__LAYERS_JSON__", mapLayersJson())
+
+/**
+ * The shared layer registry as JSON for the Leaflet side.
+ *
+ * Built from [com.eried.eucplanet.hud.protocol.MapLayers] rather than written
+ * out again here, so a layer cannot exist on one map screen and not another,
+ * and cannot be drawn anywhere without the credit its licence requires.
+ */
+internal fun mapLayersJson(): String =
+    com.eried.eucplanet.hud.protocol.MapLayers.ALL.joinToString(",", "{", "}") { l ->
+        val esc = l.attribution.replace("\\", "\\\\").replace("'", "\'")
+        "'${l.id}':{url:'${l.urlTemplate}',attr:'$esc'," +
+            "maxNative:${l.maxNativeZoom},subs:'${l.subdomains}',retina:${l.detectRetina}}"
+    }
 
 /**
  * The self-contained HTML document for the Route Builder's Leaflet map.
@@ -68,6 +83,33 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   /* On-map controls (zoom +/-, recenter) follow the rider's theme accent,
      pushed from native via nativeSetAccent -> the --accent CSS variable. */
   .leaflet-bar a, .leaflet-control a { color: var(--accent, #4FC3F7) !important; }
+  /* The credit has to be readable, not prominent, and the bottom-right corner
+     it defaults to is the one place it cannot live here: the stop list covers
+     the bottom and the controls own the right. Stood up along the left edge it
+     stays visible and lands in the same place in both orientations, since that
+     edge is the one nothing else uses. */
+  .leaflet-control-attribution {
+    position: fixed !important;
+    left: 0 !important;
+    top: 50% !important;
+    margin: 0 !important;
+    /* vertical-rl runs the text downward, which is the way to tilt the phone
+       to read it: turn it clockwise and the credit comes up level, the same
+       turn as reading a book spine on a shelf. */
+    writing-mode: vertical-rl !important;
+    transform: translateY(-50%) !important;
+    /* No plate behind it: a dark halo carries the text over both a pale
+       street map and dark satellite imagery, the way map labels do, and
+       nothing rectangular sits over the tiles. */
+    background: transparent !important;
+    color: rgba(255,255,255,0.92) !important;
+    text-shadow: 0 0 2px rgba(0,0,0,0.95), 0 0 5px rgba(0,0,0,0.75) !important;
+    font-size: 8px !important;
+    padding: 7px 3px !important;
+    line-height: 1 !important;
+    pointer-events: none;
+  }
+  .leaflet-control-attribution a { color: rgba(255,255,255,0.92) !important; }
   .leaflet-tile-container { transition: none !important; }
   .leaflet-fade-anim .leaflet-tile { opacity: 1 !important; }
   /* Force GPU compositing on the panes we animate. Without explicit
@@ -196,7 +238,11 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // rotated, in which case we pause the auto-follow for a few seconds.
   var map = L.map('map', {
     zoomControl: false,
-    attributionControl: false,
+    // Required by the tile providers and by ODbL on the OSM data underneath,
+    // so it is on. Leaflet's own "Leaflet" prefix is dropped below: it is an
+    // advert, not a licence term, and the space is better spent on the credit
+    // that actually has to be there.
+    attributionControl: true,
     rotate: true,
     touchRotate: true,
     bearing: 0,
@@ -224,6 +270,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     zoomAnimation: false,
     markerZoomAnimation: false
   });
+  var MAP_LAYERS = __LAYERS_JSON__;
+  // "Leaflet" is an advert; the provider credit beside it is a licence term.
+  map.attributionControl.setPrefix('');
   var tileLayer = null;
 
   // --- Auto-orient: snap the map's bearing to follow the rider's heading,
@@ -527,6 +576,75 @@ private const val ROUTE_BUILDER_HTML_1: String = """
 
   // Swappable base map: dark / light streets / satellite imagery, all key-less.
   var currentMapType = '';
+  // Reset-to-north. Two-finger rotate is easy to trigger by accident while
+  // pinching or dragging, and once the map sits at 7 degrees off there is no
+  // way back to square except rotating it by hand. The screen shows a compass
+  // button whenever the map is off north; this is what it calls.
+  var northEase = null;
+  window.nativeResetNorth = function(){
+    // Stop auto-follow fighting the reset: mid-ride the heading tween would
+    // otherwise pull the map straight back off north. This is the same hold
+    // a two-finger twist takes, so the behaviour matches the gesture.
+    lastManualRotateMs = Date.now();
+    bearingEase = null;
+    var current = map.getBearing();
+    var delta = ((0 - current + 540) % 360) - 180;
+    if (Math.abs(delta) < 0.2) { map.setBearing(0); reportBearing(true); return; }
+    northEase = {from: current, delta: delta, startMs: Date.now()};
+    requestAnimationFrame(tickNorthEase);
+  };
+  function tickNorthEase(){
+    if (!northEase) return;
+    var p = (Date.now() - northEase.startMs) / 450;
+    if (p >= 1) {
+      map.setBearing(0);
+      northEase = null;
+      reportBearing(true);
+      return;
+    }
+    var eased = p * p * p * (p * (p * 6 - 15) + 10);
+    map.setBearing(northEase.from + northEase.delta * eased);
+    reportBearing(false);
+    requestAnimationFrame(tickNorthEase);
+  }
+
+  // Tell the screen which way the map is facing, so it can show or hide the
+  // compass. Throttled and only on real change: the heading tween moves the
+  // bearing every frame while riding, and a bridge call per frame is a lot of
+  // traffic for a button that only needs to know "off north or not".
+  var lastReportedBearing = 999;
+  var lastBearingReportMs = 0;
+  var bearingSettleTimer = null;
+  function reportBearing(force){
+    if (!window.AndroidNav || !AndroidNav.onBearingChanged) return;
+    var b = ((map.getBearing() % 360) + 360) % 360;
+    var now = Date.now();
+    var moved = Math.abs(((b - lastReportedBearing + 540) % 360) - 180);
+    // The throttle is right for the frames in the middle of a turn and wrong
+    // for the last one, which is the report that says where the map came to
+    // rest. Dropping it left the screen believing the map was still off north
+    // - the compass stayed lit with nothing left to reset - so the callers
+    // that know a turn has finished send theirs with force.
+    if (!force && (moved < 1 || now - lastBearingReportMs < 200)) return;
+    lastReportedBearing = b;
+    lastBearingReportMs = now;
+    AndroidNav.onBearingChanged(b);
+  }
+  // A two-finger twist ends wherever the rider lifts their fingers, and the
+  // last degrees of it fall inside the throttle just as the reset does. There
+  // is no rotateend event to hang this on (the plugin only fires 'rotate'), so
+  // a short settle timer stands in for one.
+  function scheduleBearingSettle(){
+    if (bearingSettleTimer) clearTimeout(bearingSettleTimer);
+    bearingSettleTimer = setTimeout(function(){
+      bearingSettleTimer = null;
+      reportBearing(true);
+    }, 220);
+  }
+  // Wrapped rather than passed straight to on(): the handler is called with
+  // the event object, which would arrive as a truthy force on every frame.
+  map.on('rotate', function(){ reportBearing(false); scheduleBearingSettle(); });
+
   window.nativeSetMapType = function(type){
     // Idempotent: a redundant call for the same type (the screen's
     // pageReady-triggered LaunchedEffect fires nativeSetMapType after
@@ -552,16 +670,17 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     // map keeps zooming past it on upscaled tiles rather than refusing to zoom
     // and leaving the rider stuck at street level.
     var common = {keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
-    if (type === 'SATELLITE'){
-      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
-    } else if (type === 'LIGHT'){
-      url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
-    } else {
-      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
-    }
+    // Table injected from the shared Kotlin registry, so the layers, their
+    // zoom ceilings and their credits are defined once for the whole app.
+    var layer = MAP_LAYERS[type] || MAP_LAYERS['OSM'];
+    url = layer.url;
+    opts = Object.assign({
+      maxNativeZoom: layer.maxNative,
+      maxZoom: 21,
+      attribution: layer.attr
+    }, common);
+    if (layer.subs) opts.subdomains = layer.subs;
+    if (layer.retina) opts.detectRetina = true;
     if (tileLayer){ map.removeLayer(tileLayer); }
     tileLayer = L.tileLayer(url, opts).addTo(map);
     // Tell the screen as soon as the first ring of tiles has actually

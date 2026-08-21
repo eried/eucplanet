@@ -314,8 +314,6 @@
     <string name="hud_ip_label">Eszköz IP-címe</string>
     <string name="hud_ip_incomplete">Add meg a teljes címet, például 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Eszköz IP-címe (automatikus)</string>
-    <string name="hud_auto_discover">Kapcsolati cím automatikus felderítése</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">A telefon hotspotja ki van kapcsolva. Győződj meg róla, hogy a HUD és a telefon ugyanazon a WiFi-hálózaton van.</string>
     <string name="hud_hotspot_on_hint">A telefon hotspotja sugároz. Csatlakoztasd a HUD-ot ennek a telefonnak a WiFi-jéhez a kapcsolat létrehozásához.</string>
@@ -1616,6 +1614,9 @@
     <string name="studio_cfg_map_dark">Sötét</string>
     <string name="studio_cfg_map_satellite">Műhold</string>
     <string name="studio_cfg_map_zoom">Nagyítás</string>
+    <string name="studio_cfg_map_attribution">Térkép forrásának mutatása</string>
+    <string name="studio_cfg_map_attribution_off">A térkép licence megköveteli ezt a forrást mindenen, amit megosztasz. A kikapcsolás a te döntésed.</string>
+    <string name="studio_cfg_map_style_community">Önkéntesek üzemeltette csempék. Egy hosszú exportálás egyszerre több ezret tölt le, amit ezek a szerverek kérnek elkerülni.</string>
     <string name="studio_cfg_map_rotate">Forgatás a mozgással</string>
     <string name="studio_cfg_map_trace">Nyomvonal</string>
     <string name="studio_cfg_map_trace_none">Nincs</string>
@@ -1768,6 +1769,15 @@
     <string name="nav_last_stop">Utolsó megálló</string>
     <string name="nav_need_destination">Előbb adj hozzá célállomást</string>
     <string name="nav_map_style">Térkép stílusa</string>
+    <string name="nav_overlays">Rétegek</string>
+    <string name="nav_reset_north">Északra forgatás</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Műhold</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Első megálló</item>
         <item>Második megálló</item>
@@ -2009,4 +2019,16 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Szűrő</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Mindkettő</string>
+    <string name="hud_discovery_desc">Az Auto magától megtalálja a HUD-ot. A Rögzített csak az alábbi címet használja.</string>
+    <string name="hud_discovery_fixed">Rögzített</string>
+    <string name="hud_discovery_mode">Keresési mód</string>
+    <string name="metric_chip_battery_range">Akku eleje → vége</string>
+    <string name="recording_summary_battery_range">Eleje→vége (-%1$d%%)</string>
+    <string name="trip_tools_rename">Túra átnevezése</string>
+    <string name="trip_tools_rename_desc">Adj nevet ennek a túrának. A fájljába kerül, így az exporttal és a szinkronnal is utazik.</string>
+    <string name="trip_tools_rename_hint">Hagyd üresen a dátumhoz.</string>
+    <string name="trip_tools_renamed">Túra átnevezve</string>
+    <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
 </resources>

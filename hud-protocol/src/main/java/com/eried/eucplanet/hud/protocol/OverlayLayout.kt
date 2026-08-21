@@ -264,6 +264,15 @@ data class OverlayElement(
     /** Map border thickness in dp (0 = no border). Border colour is [foreground]. */
     val mapBorderWidth: Float = 2f,
     /**
+     * Draw the tile provider's credit inside the map.
+     *
+     * On by default and meant to stay on: an exported video leaves the app with
+     * no interface attached, so the credit the map licence requires has to be
+     * in the pixels or it is nowhere. The rider can turn it off, and owns that
+     * decision.
+     */
+    val mapAttribution: Boolean = true,
+    /**
      * When the rider has set a custom marker photo in the Navigator
      * (`AppSettings.navUserMarkerPhotoDataUrl`), draw that photo as the
      * map widget's rider marker instead of the plain white-ring + dot.

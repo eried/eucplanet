@@ -1982,14 +1982,9 @@ private object MapTileCache {
     }
 }
 
-/** Tile URL for a style + z/x/y. */
-private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String = when (style) {
-    "DARK" -> "https://basemaps.cartocdn.com/dark_all/$z/$x/$y.png"
-    "SATELLITE" ->
-        "https://server.arcgisonline.com/ArcGIS/rest/services/" +
-            "World_Imagery/MapServer/tile/$z/$y/$x"
-    else -> "https://tile.openstreetmap.org/$z/$x/$y.png"
-}
+/** Tile URL for a style + z/x/y, from the registry every map screen shares. */
+private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String =
+    com.eried.eucplanet.hud.protocol.MapLayers.tileUrl(style, z, x, y)
 
 /** Fractional tile X for a longitude at [zoom] (slippy-map / Web Mercator). */
 private fun lonToTileX(lon: Double, zoom: Int): Double =
@@ -2276,6 +2271,40 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                     color = Color.Black, radius = headR,
                     center = Offset(cx, cy),
                     style = Stroke(width = borderW)
+                )
+            }
+
+            // The credit, last so nothing covers it, and outside the rotation
+            // so it stays level however the map is turned. An exported video
+            // travels with no interface attached, so this is the only place the
+            // provider can be credited, and the map licences require it.
+            if (element.mapAttribution) {
+                val layer = com.eried.eucplanet.hud.protocol.MapLayers.byId(element.mapStyle)
+                val textSize = (size.minDimension * 0.055f).coerceIn(9f, 22f)
+                val pad = textSize * 0.35f
+                val paint = android.graphics.Paint().apply {
+                    isAntiAlias = true
+                    this.textSize = textSize
+                    color = android.graphics.Color.WHITE
+                    // A shadow rather than a plate: it stays legible over
+                    // satellite and over pale topo without boxing off the map.
+                    setShadowLayer(textSize * 0.35f, 0f, 0f, android.graphics.Color.BLACK)
+                }
+                // A clipped credit credits nobody, and a map element is often a
+                // thumbnail. Use the full string when it fits, the short one
+                // when it does not, and shrink the type only as a last resort.
+                val room = size.width - pad * 2
+                var text = layer.attribution
+                if (paint.measureText(text) > room) text = layer.attributionShort
+                while (paint.measureText(text) > room && paint.textSize > 7f) {
+                    paint.textSize = paint.textSize - 0.5f
+                }
+                val width = paint.measureText(text)
+                drawContext.canvas.nativeCanvas.drawText(
+                    text,
+                    (size.width - width - pad).coerceAtLeast(pad),
+                    size.height - pad,
+                    paint
                 )
             }
         }

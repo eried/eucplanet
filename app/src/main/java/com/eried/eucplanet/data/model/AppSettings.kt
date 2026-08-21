@@ -435,7 +435,9 @@ data class AppSettings(
     //    (com.eried.eucplanet.data.store.NavMarkerStore); survives app updates but
     //    not a full uninstall / new device (never recovered).
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
-    val navMapType: String = "LIGHT",
+    /** Route Builder base layer. Plain OSM, which draws paths and tracks;
+     *  the Carto styles mute them by design, so trails read as missing. */
+    val navMapType: String = "OSM",
     /**
      * When true (the default) the route builder solves the WHOLE multi-stop
      * tour in one routing request -- a single solid line, a whole-tour distance

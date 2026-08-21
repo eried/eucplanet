@@ -780,6 +780,15 @@
     <string name="nav_load_failed">Impossibile leggere quel file GPX</string>
     <string name="nav_locating">Individuazione della tua posizione…</string>
     <string name="nav_map_style">Stile mappa</string>
+    <string name="nav_overlays">Livelli</string>
+    <string name="nav_reset_north">Orienta a nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellite</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string name="nav_max_stops">Fino a una destinazione e 24 fermate</string>
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_clear">Nuovo percorso</string>
@@ -1079,6 +1088,9 @@
     <string name="studio_cfg_map_dark">Scuro</string>
     <string name="studio_cfg_map_satellite">Satellite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Mostra crediti mappa</string>
+    <string name="studio_cfg_map_attribution_off">La licenza della mappa richiede questo credito su tutto ciò che condividi. Toglierlo è una tua scelta.</string>
+    <string name="studio_cfg_map_style_community">Tasselli gestiti da volontari. Un\'esportazione lunga ne scarica migliaia in una volta, cosa che questi server chiedono di evitare.</string>
     <string name="studio_cfg_map_rotate">Ruota con il movimento</string>
     <string name="studio_cfg_map_trace">Traccia</string>
     <string name="studio_cfg_map_trace_none">Nessuna</string>
@@ -1611,8 +1623,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">In attesa dei dati di tensione delle celle…</string>
     <string name="charging_tab_cells">Celle</string>
-    <string name="hud_auto_discover">Rileva automaticamente l\'indirizzo del link</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Attiva il Bluetooth per cercare le ruote.</string>
     <string name="scan_bluetooth_off_title">Bluetooth disattivato</string>
     <string name="scan_enable_bluetooth">Attiva Bluetooth</string>
@@ -2112,4 +2122,15 @@
     <string name="adv_smoothing_window">Finestra di livellamento</string>
     <string name="adv_smoothing_window_desc">Campioni mediati dai grafici del percorso «media» e dai rapporti vocali livellati. I percorsi vengono registrati circa una volta al secondo, quindi questo valore corrisponde a secondi. Pericolo: valori elevati nascondono i picchi brevi.</string>
     <string name="auto_volume_only_connected">Solo quando una ruota è connessa</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Entrambi</string>
+    <string name="hud_discovery_desc">Auto trova l\'HUD da solo. Fisso usa solo l\'indirizzo qui sotto.</string>
+    <string name="hud_discovery_fixed">Fisso</string>
+    <string name="hud_discovery_mode">Modo ricerca</string>
+    <string name="metric_chip_battery_range">Batteria inizio → fine</string>
+    <string name="recording_summary_battery_range">Inizio→fine (-%1$d%%)</string>
+    <string name="trip_tools_rename">Rinomina uscita</string>
+    <string name="trip_tools_rename_desc">Dai un nome a questa uscita. Sta nel suo file, quindi viaggia con esportazioni e sincronizzazione.</string>
+    <string name="trip_tools_rename_hint">Lascia vuoto per usare la data.</string>
+    <string name="trip_tools_renamed">Uscita rinominata</string>
 </resources>

@@ -1367,6 +1367,9 @@
     <string name="studio_cfg_map_dark">Тёмная</string>
     <string name="studio_cfg_map_satellite">Спутник</string>
     <string name="studio_cfg_map_zoom">Масштаб</string>
+    <string name="studio_cfg_map_attribution">Показывать источник карты</string>
+    <string name="studio_cfg_map_attribution_off">Лицензия карты требует указывать источник на всём, чем вы делитесь. Отключать его - ваше решение.</string>
+    <string name="studio_cfg_map_style_community">Тайлы поддерживают волонтёры. Длинный экспорт скачивает тысячи сразу, чего эти серверы просят не делать.</string>
     <string name="studio_cfg_map_rotate">Поворот по движению</string>
     <string name="studio_cfg_map_trace">Трек</string>
     <string name="studio_cfg_map_trace_none">Нет</string>
@@ -1507,6 +1510,15 @@
     <string name="nav_last_stop">Последняя остановка</string>
     <string name="nav_need_destination">Сначала добавьте пункт назначения</string>
     <string name="nav_map_style">Стиль карты</string>
+    <string name="nav_overlays">Слои поверх</string>
+    <string name="nav_reset_north">На север</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Спутник</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Первая остановка</item>
         <item>Вторая остановка</item>
@@ -1704,8 +1716,6 @@
     <string name="charging_cells_pack_n">Блок %1$d</string>
     <string name="charging_cells_waiting">Ожидание данных напряжения ячеек…</string>
     <string name="charging_tab_cells">Ячейки</string>
-    <string name="hud_auto_discover">Автоматически находить адрес</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Включите Bluetooth, чтобы искать колёса.</string>
     <string name="scan_bluetooth_off_title">Bluetooth выключен</string>
     <string name="scan_enable_bluetooth">Включить Bluetooth</string>
@@ -2207,5 +2217,16 @@
     <string name="adv_smoothing_window">Окно сглаживания</string>
     <string name="adv_smoothing_window_desc">Отсчёты, усредняемые графиками поездки \"среднее\" и сглаженными голосовыми отчётами. Поездки записываются примерно раз в секунду, поэтому значение соответствует секундам. Внимание: большие значения скрывают короткие всплески.</string>
     <string name="auto_volume_only_connected">Только когда колесо подключено</string>
+    <string name="hud_discovery_auto">Авто</string>
+    <string name="hud_discovery_both">Оба</string>
+    <string name="hud_discovery_desc">Авто находит HUD сам. Фиксированный использует только адрес ниже.</string>
+    <string name="hud_discovery_fixed">Фиксированный</string>
+    <string name="hud_discovery_mode">Режим поиска</string>
+    <string name="metric_chip_battery_range">Батарея начало → конец</string>
+    <string name="recording_summary_battery_range">Начало→конец (-%1$d%%)</string>
+    <string name="trip_tools_rename">Переименовать поездку</string>
+    <string name="trip_tools_rename_desc">Дайте название этой поездке. Хранится в её файле, поэтому едет с экспортом и синхронизацией.</string>
+    <string name="trip_tools_rename_hint">Оставьте пустым, чтобы использовать дату.</string>
+    <string name="trip_tools_renamed">Поездка переименована</string>
 </resources>
 

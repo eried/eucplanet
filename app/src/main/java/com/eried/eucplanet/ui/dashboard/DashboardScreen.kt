@@ -3201,7 +3201,14 @@ fun DashboardScreen(
                                                     "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",
                                                     "Kotlin & coroutines" to "JetBrains. Apache 2.0. Language and structured concurrency.",
                                                     "Flic2 SDK" to "Shortcut Labs. Used for hardware Flic button integration.",
-                                                    "Play services (location, wearable)" to "Google. Apache 2.0. GPS and watch companion data layer."
+                                                    "Play services (location, wearable)" to "Google. Apache 2.0. GPS and watch companion data layer.",
+                                                    "OpenStreetMap contributors" to "openstreetmap.org/copyright. ODbL. The map data under every layer in the app, surveyed and drawn by people who did it for nothing.",
+                                                    "CyclOSM" to "cyclosm.org. Cycle and trail style, tiles served by OpenStreetMap France on donated hardware.",
+                                                    "OpenTopoMap" to "opentopomap.org. CC-BY-SA. Topographic style with contours.",
+                                                    "Humanitarian OSM Team" to "hotosm.org. HOT style, tiles served by OpenStreetMap France.",
+                                                    "CARTO" to "carto.com/attributions. The Voyager and Dark basemaps.",
+                                                    "Esri" to "Esri, Maxar, Earthstar Geographics. World Imagery satellite tiles.",
+                                                    "Leaflet" to "leafletjs.com. BSD-2. The map component every in-app map is drawn with."
                                                 )
                                                 resources.forEachIndexed { idx, (name, why) ->
                                                     if (idx > 0) {

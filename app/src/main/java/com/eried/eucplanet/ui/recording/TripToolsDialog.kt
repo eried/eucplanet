@@ -475,19 +475,9 @@ fun CombineTripsDialog(
                     )
                     Spacer(Modifier.height(12.dp))
 
-                    // Earlier end: the anchor plus the nearest trips before it.
-                    TripPicker(
-                        title = stringResource(R.string.trip_tools_extend_from),
-                        options = ((anchorIdx - EXTEND_REACH).coerceAtLeast(0)..anchorIdx).toList(),
-                        selectedIdx = fromIdx,
-                        optionLabel = { i ->
-                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
-                            else label(ordered[i])
-                        },
-                        onSelect = { fromIdx = it },
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    // Later end: the anchor plus the nearest trips after it.
+                    // Later end first: the trips after this one are the ones a
+                    // rider reaches for, since an extend usually follows a ride
+                    // that got split a moment ago.
                     TripPicker(
                         title = stringResource(R.string.trip_tools_extend_to),
                         options = (anchorIdx..(anchorIdx + EXTEND_REACH).coerceAtMost(ordered.size - 1))
@@ -498,6 +488,18 @@ fun CombineTripsDialog(
                             else label(ordered[i])
                         },
                         onSelect = { toIdx = it },
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    // Earlier end: the anchor plus the nearest trips before it.
+                    TripPicker(
+                        title = stringResource(R.string.trip_tools_extend_from),
+                        options = ((anchorIdx - EXTEND_REACH).coerceAtLeast(0)..anchorIdx).toList(),
+                        selectedIdx = fromIdx,
+                        optionLabel = { i ->
+                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
+                            else label(ordered[i])
+                        },
+                        onSelect = { fromIdx = it },
                     )
 
                     Spacer(Modifier.height(12.dp))

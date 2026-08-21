@@ -1401,6 +1401,9 @@
     <string name="studio_cfg_map_dark">Donker</string>
     <string name="studio_cfg_map_satellite">Satelliet</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Kaartvermelding tonen</string>
+    <string name="studio_cfg_map_attribution_off">De kaartlicentie vereist deze vermelding op alles wat je deelt. Uitzetten is jouw keuze.</string>
+    <string name="studio_cfg_map_style_community">Tegels door vrijwilligers gehost. Een lange export haalt er duizenden tegelijk op, wat deze servers apps vragen niet te doen.</string>
     <string name="studio_cfg_map_rotate">Meedraaien met beweging</string>
     <string name="studio_cfg_map_trace">Spoor</string>
     <string name="studio_cfg_map_trace_none">Geen</string>
@@ -1562,6 +1565,15 @@
     <string name="nav_last_stop">Laatste stop</string>
     <string name="nav_need_destination">Voeg eerst een bestemming toe</string>
     <string name="nav_map_style">Kaartstijl</string>
+    <string name="nav_overlays">Lagen</string>
+    <string name="nav_reset_north">Noord boven</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelliet</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Eerste stop</item>
         <item>Tweede stop</item>
@@ -1704,8 +1716,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Wachten op celspanningsdata…</string>
     <string name="charging_tab_cells">Cellen</string>
-    <string name="hud_auto_discover">Linkadres automatisch detecteren</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Schakel Bluetooth in om naar wielen te zoeken.</string>
     <string name="scan_bluetooth_off_title">Bluetooth is uit</string>
     <string name="scan_enable_bluetooth">Bluetooth inschakelen</string>
@@ -2209,5 +2219,16 @@
     <string name="adv_smoothing_window">Afvlakkingsvenster</string>
     <string name="adv_smoothing_window_desc">Metingen die worden gemiddeld door de \"gemiddelde\" ritgrafieken en de afgevlakte gesproken meldingen. Ritten worden ongeveer één keer per seconde vastgelegd, dus deze waarde komt overeen met seconden. Gevaar: hoge waarden verbergen korte pieken.</string>
     <string name="auto_volume_only_connected">Alleen wanneer een wiel is verbonden</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Beide</string>
+    <string name="hud_discovery_desc">Auto vindt de HUD zelf. Vast gebruikt alleen het adres hieronder.</string>
+    <string name="hud_discovery_fixed">Vast</string>
+    <string name="hud_discovery_mode">Zoekmodus</string>
+    <string name="metric_chip_battery_range">Accu begin → eind</string>
+    <string name="recording_summary_battery_range">Begin→eind (-%1$d%%)</string>
+    <string name="trip_tools_rename">Rit hernoemen</string>
+    <string name="trip_tools_rename_desc">Geef deze rit een naam. Staat in het bestand, dus gaat mee met export en synchronisatie.</string>
+    <string name="trip_tools_rename_hint">Laat leeg om de datum te gebruiken.</string>
+    <string name="trip_tools_renamed">Rit hernoemd</string>
 </resources>
 

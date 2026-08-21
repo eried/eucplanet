@@ -1363,6 +1363,9 @@
     <string name="studio_cfg_map_dark">Mörk</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Visa kartkälla</string>
+    <string name="studio_cfg_map_attribution_off">Kartlicensen kräver den här källan på allt du delar. Att stänga av den är ditt val.</string>
+    <string name="studio_cfg_map_style_community">Rutor som drivs av frivilliga. En lång export hämtar tusentals på en gång, vilket dessa servrar ber appar att undvika.</string>
     <string name="studio_cfg_map_rotate">Rotera med rörelsen</string>
     <string name="studio_cfg_map_trace">Spår</string>
     <string name="studio_cfg_map_trace_none">Ingen</string>
@@ -1503,6 +1506,15 @@
     <string name="nav_last_stop">Sista stoppet</string>
     <string name="nav_need_destination">Lägg till en destination först</string>
     <string name="nav_map_style">Kartstil</string>
+    <string name="nav_overlays">Lager ovanpå</string>
+    <string name="nav_reset_north">Rikta mot norr</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellit</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Första stoppet</item>
         <item>Andra stoppet</item>
@@ -1704,8 +1716,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Väntar på cellspänningsdata…</string>
     <string name="charging_tab_cells">Celler</string>
-    <string name="hud_auto_discover">Identifiera länkadressen automatiskt</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Slå på Bluetooth för att söka efter hjul.</string>
     <string name="scan_bluetooth_off_title">Bluetooth är av</string>
     <string name="scan_enable_bluetooth">Slå på Bluetooth</string>
@@ -2207,4 +2217,15 @@
     <string name="adv_smoothing_window">Utjämningsfönster</string>
     <string name="adv_smoothing_window_desc">Antal mätvärden som medelvärdesbildas av \"medel\"-turgraferna och de utjämnade röstrapporterna. Turer loggas ungefär en gång i sekunden, så detta motsvarar sekunder. Fara: höga värden döljer korta toppar.</string>
     <string name="auto_volume_only_connected">Bara när ett hjul är anslutet</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Båda</string>
+    <string name="hud_discovery_desc">Auto hittar HUD:en själv. Fast använder bara adressen nedan.</string>
+    <string name="hud_discovery_fixed">Fast</string>
+    <string name="hud_discovery_mode">Sökläge</string>
+    <string name="metric_chip_battery_range">Batteri start → slut</string>
+    <string name="recording_summary_battery_range">Start→slut (-%1$d%%)</string>
+    <string name="trip_tools_rename">Byt namn på turen</string>
+    <string name="trip_tools_rename_desc">Ge den här turen ett namn. Sparas i dess fil, så det följer med export och synk.</string>
+    <string name="trip_tools_rename_hint">Lämna tomt för att använda datumet.</string>
+    <string name="trip_tools_renamed">Turen bytte namn</string>
 </resources>

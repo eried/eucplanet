@@ -1376,6 +1376,9 @@
     <string name="studio_cfg_map_dark">Mørk</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Vis kortkredit</string>
+    <string name="studio_cfg_map_attribution_off">Kortlicensen kræver denne kredit på alt, du deler. At slå den fra er dit valg.</string>
+    <string name="studio_cfg_map_style_community">Fliser drevet af frivillige. En lang eksport henter tusindvis på én gang, hvilket disse servere beder apps om at undgå.</string>
     <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
     <string name="studio_cfg_map_trace">Spor</string>
     <string name="studio_cfg_map_trace_none">Ingen</string>
@@ -1516,6 +1519,15 @@
     <string name="nav_last_stop">Sidste stop</string>
     <string name="nav_need_destination">Tilføj en destination først</string>
     <string name="nav_map_style">Kortstil</string>
+    <string name="nav_overlays">Lag ovenpå</string>
+    <string name="nav_reset_north">Vend mod nord</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satellit</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Første stop</item>
         <item>Andet stop</item>
@@ -1719,8 +1731,6 @@
     <string name="charging_cells_pack_n">Pakke %1$d</string>
     <string name="charging_cells_waiting">Venter på cellespændingsdata…</string>
     <string name="charging_tab_cells">Celler</string>
-    <string name="hud_auto_discover">Find linkadressen automatisk</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Tænd Bluetooth for at scanne efter hjul.</string>
     <string name="scan_bluetooth_off_title">Bluetooth er slukket</string>
     <string name="scan_enable_bluetooth">Tænd Bluetooth</string>
@@ -2222,4 +2232,15 @@
     <string name="adv_smoothing_window">Udjævningsvindue</string>
     <string name="adv_smoothing_window_desc">Antal målinger, der midles af \"gennemsnits\"-turgraferne og de udjævnede stemmerapporter. Ture logges cirka én gang i sekundet, så det læses som sekunder. Fare: høje værdier skjuler korte udsving.</string>
     <string name="auto_volume_only_connected">Kun når et hjul er forbundet</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Begge</string>
+    <string name="hud_discovery_desc">Auto finder HUD\'en selv. Fast bruger kun adressen nedenfor.</string>
+    <string name="hud_discovery_fixed">Fast</string>
+    <string name="hud_discovery_mode">Søgetilstand</string>
+    <string name="metric_chip_battery_range">Batteri start → slut</string>
+    <string name="recording_summary_battery_range">Start→slut (-%1$d%%)</string>
+    <string name="trip_tools_rename">Omdøb tur</string>
+    <string name="trip_tools_rename_desc">Giv turen et navn. Gemmes i dens fil, så det følger med eksport og synk.</string>
+    <string name="trip_tools_rename_hint">Lad stå tomt for at bruge datoen.</string>
+    <string name="trip_tools_renamed">Tur omdøbt</string>
 </resources>

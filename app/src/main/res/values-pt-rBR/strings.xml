@@ -1367,6 +1367,9 @@
     <string name="studio_cfg_map_dark">Escuro</string>
     <string name="studio_cfg_map_satellite">Satélite</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Mostrar crédito do mapa</string>
+    <string name="studio_cfg_map_attribution_off">A licença do mapa exige este crédito em tudo o que você compartilhar. Desligar é decisão sua.</string>
+    <string name="studio_cfg_map_style_community">Ladrilhos mantidos por voluntários. Uma exportação longa baixa milhares de uma vez, algo que esses servidores pedem para evitar.</string>
     <string name="studio_cfg_map_rotate">Girar com o movimento</string>
     <string name="studio_cfg_map_trace">Traço</string>
     <string name="studio_cfg_map_trace_none">Nenhum</string>
@@ -1507,6 +1510,15 @@
     <string name="nav_last_stop">Última parada</string>
     <string name="nav_need_destination">Adicione um destino primeiro</string>
     <string name="nav_map_style">Estilo do mapa</string>
+    <string name="nav_overlays">Camadas</string>
+    <string name="nav_reset_north">Apontar para o norte</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satélite</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Primeira parada</item>
         <item>Segunda parada</item>
@@ -1756,8 +1768,6 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Aguardando dados de tensão das células…</string>
     <string name="charging_tab_cells">Células</string>
-    <string name="hud_auto_discover">Descobrir endereço do link automaticamente</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Ative o Bluetooth para procurar rodas.</string>
     <string name="scan_bluetooth_off_title">Bluetooth desligado</string>
     <string name="scan_enable_bluetooth">Ativar Bluetooth</string>
@@ -2209,5 +2219,16 @@
     <string name="adv_smoothing_window">Janela de suavização</string>
     <string name="adv_smoothing_window_desc">Amostras usadas na média dos gráficos de viagem «média» e dos avisos de voz suavizados. As viagens são registradas cerca de uma vez por segundo, então isto é lido como segundos. Perigo: valores altos escondem picos curtos.</string>
     <string name="auto_volume_only_connected">Somente quando há uma roda conectada</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Ambos</string>
+    <string name="hud_discovery_desc">Auto encontra o HUD sozinho. Fixo usa apenas o endereço abaixo.</string>
+    <string name="hud_discovery_fixed">Fixo</string>
+    <string name="hud_discovery_mode">Modo de busca</string>
+    <string name="metric_chip_battery_range">Bateria início → fim</string>
+    <string name="recording_summary_battery_range">Início→fim (-%1$d%%)</string>
+    <string name="trip_tools_rename">Renomear trajeto</string>
+    <string name="trip_tools_rename_desc">Dê um nome a este trajeto. Fica no arquivo dele, então acompanha exportações e sincronização.</string>
+    <string name="trip_tools_rename_hint">Deixe em branco para usar a data.</string>
+    <string name="trip_tools_renamed">Trajeto renomeado</string>
 </resources>
 

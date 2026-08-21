@@ -2091,14 +2091,20 @@ fun ElementConfigSheet(
 
             if (element.type == OverlayElementType.MAP) {
                 Text(stringResource(R.string.studio_cfg_map_style), fontWeight = FontWeight.SemiBold)
-                val mapStreet = stringResource(R.string.studio_cfg_map_street)
-                val mapDark = stringResource(R.string.studio_cfg_map_dark)
-                val mapSatellite = stringResource(R.string.studio_cfg_map_satellite)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(
-                        "STREET" to mapStreet, "DARK" to mapDark,
-                        "SATELLITE" to mapSatellite
-                    ).forEach { (key, lbl) ->
+                // Same seven as the navigator, trip details and eucviewer, in
+                // the same order. STREET is this screen's long-standing id for
+                // plain OSM, kept so existing presets keep their style.
+                val layers = listOf(
+                    "STREET" to stringResource(R.string.nav_layer_osm),
+                    "CYCLOSM" to stringResource(R.string.nav_layer_cyclosm),
+                    "TOPO" to stringResource(R.string.nav_layer_topo),
+                    "HUMANITARIAN" to stringResource(R.string.nav_layer_humanitarian),
+                    "LIGHT" to stringResource(R.string.nav_layer_light),
+                    "DARK" to stringResource(R.string.nav_layer_dark),
+                    "SATELLITE" to stringResource(R.string.nav_layer_satellite),
+                )
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    layers.forEach { (key, lbl) ->
                         FilterChip(
                             selected = element.mapStyle == key,
                             onClick = { onChange(element.copy(mapStyle = key)) },
@@ -2106,6 +2112,28 @@ fun ElementConfigSheet(
                             colors = themedFilterChipColors(),
                         )
                     }
+                }
+                // These three are served by volunteers and donations, and an
+                // export pulls a tile burst per frame. Say so where the choice
+                // is made rather than letting a rider find out by being
+                // rate-limited mid-render.
+                if (element.mapStyle in setOf("CYCLOSM", "TOPO", "HUMANITARIAN")) {
+                    Text(
+                        stringResource(R.string.studio_cfg_map_style_community),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.statusWarn,
+                    )
+                }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_map_attribution),
+                    element.mapAttribution
+                ) { onChange(element.copy(mapAttribution = it)) }
+                if (!element.mapAttribution) {
+                    Text(
+                        stringResource(R.string.studio_cfg_map_attribution_off),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.statusWarn,
+                    )
                 }
                 LabeledSlider(
                     stringResource(R.string.studio_cfg_map_zoom),

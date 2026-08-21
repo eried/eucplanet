@@ -1364,6 +1364,9 @@
     <string name="studio_cfg_map_dark">深色</string>
     <string name="studio_cfg_map_satellite">衛星</string>
     <string name="studio_cfg_map_zoom">縮放</string>
+    <string name="studio_cfg_map_attribution">顯示地圖署名</string>
+    <string name="studio_cfg_map_attribution_off">地圖授權要求你分享的內容都帶上這個署名。關掉與否由你決定。</string>
+    <string name="studio_cfg_map_style_community">這些圖磚由志工營運。長影片匯出會一次下載數千張，這些伺服器希望應用避免這樣做。</string>
     <string name="studio_cfg_map_rotate">隨移動旋轉</string>
     <string name="studio_cfg_map_trace">軌跡</string>
     <string name="studio_cfg_map_trace_none">無</string>
@@ -1504,6 +1507,15 @@
     <string name="nav_last_stop">最後停靠點</string>
     <string name="nav_need_destination">請先新增目的地</string>
     <string name="nav_map_style">地圖樣式</string>
+    <string name="nav_overlays">疊加圖層</string>
+    <string name="nav_reset_north">正北朝上</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">衛星</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>第一站</item>
         <item>第二站</item>
@@ -1677,8 +1689,6 @@
     <string name="charging_cells_pack_n">組 %1$d</string>
     <string name="charging_cells_waiting">等候電芯電壓資料…</string>
     <string name="charging_tab_cells">電芯</string>
-    <string name="hud_auto_discover">自動偵測連結位址</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">請開啟藍牙以搜尋車輪。</string>
     <string name="scan_bluetooth_off_title">藍牙已關閉</string>
     <string name="scan_enable_bluetooth">開啟藍牙</string>
@@ -2206,6 +2216,17 @@
     <string name="adv_smoothing_window">平滑視窗</string>
     <string name="adv_smoothing_window_desc">\"平均\"行程圖表與平滑語音播報所平均的取樣數。行程大約每秒記錄一次，因此可視為秒數。危險：數值過高會掩蓋短暫的尖峰。</string>
     <string name="auto_volume_only_connected">僅在車輪已連線時</string>
+    <string name="hud_discovery_auto">自動</string>
+    <string name="hud_discovery_both">兩者</string>
+    <string name="hud_discovery_desc">自動會自己找到 HUD。固定只使用下面的位址。</string>
+    <string name="hud_discovery_fixed">固定</string>
+    <string name="hud_discovery_mode">搜尋模式</string>
+    <string name="metric_chip_battery_range">電量 開始 → 結束</string>
+    <string name="recording_summary_battery_range">開始→結束 (-%1$d%%)</string>
+    <string name="trip_tools_rename">重新命名行程</string>
+    <string name="trip_tools_rename_desc">給這次騎乘起個名字。儲存在它的檔案裡，所以會隨匯出和同步一起走。</string>
+    <string name="trip_tools_rename_hint">留空則使用日期。</string>
+    <string name="trip_tools_renamed">行程已重新命名</string>
 </resources>
 
 

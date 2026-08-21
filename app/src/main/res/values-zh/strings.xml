@@ -744,6 +744,15 @@
     <string name="nav_load_failed">无法读取该 GPX 文件</string>
     <string name="nav_locating">正在定位你的位置…</string>
     <string name="nav_map_style">地图样式</string>
+    <string name="nav_overlays">叠加图层</string>
+    <string name="nav_reset_north">正北朝上</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">卫星</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string name="nav_max_stops">最多一个目的地和 24 个途经点</string>
     <string name="nav_menu">菜单</string>
     <string name="nav_menu_clear">新路线</string>
@@ -1043,6 +1052,9 @@
     <string name="studio_cfg_map_dark">深色</string>
     <string name="studio_cfg_map_satellite">卫星</string>
     <string name="studio_cfg_map_zoom">缩放</string>
+    <string name="studio_cfg_map_attribution">显示地图署名</string>
+    <string name="studio_cfg_map_attribution_off">地图许可要求你分享的内容都带上这个署名。关掉与否由你决定。</string>
+    <string name="studio_cfg_map_style_community">这些瓦片由志愿者运营。长视频导出会一次下载数千张，这些服务器希望应用避免这样做。</string>
     <string name="studio_cfg_map_rotate">随移动旋转</string>
     <string name="studio_cfg_map_trace">轨迹</string>
     <string name="studio_cfg_map_trace_none">无</string>
@@ -1575,8 +1587,6 @@
     <string name="charging_cells_pack_n">组 %1$d</string>
     <string name="charging_cells_waiting">等待电芯电压数据…</string>
     <string name="charging_tab_cells">电芯</string>
-    <string name="hud_auto_discover">自动检测链接地址</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">请打开蓝牙以搜索车轮。</string>
     <string name="scan_bluetooth_off_title">蓝牙已关闭</string>
     <string name="scan_enable_bluetooth">开启蓝牙</string>
@@ -2074,4 +2084,15 @@
     <string name="adv_smoothing_window">平滑窗口</string>
     <string name="adv_smoothing_window_desc">\"平均\"行程图表和平滑语音播报所平均的样本数。行程大约每秒记录一次，因此这相当于秒数。危险:数值过高会掩盖短暂的尖峰。</string>
     <string name="auto_volume_only_connected">仅在独轮车已连接时</string>
+    <string name="hud_discovery_auto">自动</string>
+    <string name="hud_discovery_both">两者</string>
+    <string name="hud_discovery_desc">自动会自己找到 HUD。固定只使用下面的地址。</string>
+    <string name="hud_discovery_fixed">固定</string>
+    <string name="hud_discovery_mode">搜索模式</string>
+    <string name="metric_chip_battery_range">电量 开始 → 结束</string>
+    <string name="recording_summary_battery_range">开始→结束 (-%1$d%%)</string>
+    <string name="trip_tools_rename">重命名行程</string>
+    <string name="trip_tools_rename_desc">给这次骑行起个名字。保存在它的文件里，所以会随导出和同步一起走。</string>
+    <string name="trip_tools_rename_hint">留空则使用日期。</string>
+    <string name="trip_tools_renamed">行程已重命名</string>
 </resources>

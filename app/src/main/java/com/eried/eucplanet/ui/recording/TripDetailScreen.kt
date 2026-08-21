@@ -26,7 +26,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.RadioButton
+import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -125,6 +130,7 @@ import androidx.compose.ui.unit.Dp
 import com.eried.eucplanet.util.Smoothing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.eried.eucplanet.ui.theme.appColors
@@ -263,6 +269,28 @@ fun TripDetailScreen(
         trimRange = null
         loadingTrip = false
         reveal.cancel()
+    }
+
+    // Live-recording view. When the open trip is the one currently recording,
+    // keep re-reading its still-growing CSV so the charts and the map trace
+    // extend as the ride goes, instead of being frozen at the snapshot taken
+    // when the screen opened. This never touches loadingTrip/showSkeleton, so a
+    // refresh never flashes the placeholder. `> allPoints.size` only swaps in a
+    // genuinely fuller read, so a momentarily truncated tail (a row half-written
+    // when we read) can't shrink the view.
+    LaunchedEffect(trip.id, isLiveTrip) {
+        if (isLiveTrip) {
+            while (isActive) {
+                delay(LIVE_REFRESH_MS)
+                val fresh = withContext(Dispatchers.IO) { viewModel.readTripData(trip) }
+                if (fresh.size > allPoints.size) allPoints = fresh
+            }
+        } else if (allPoints.isNotEmpty()) {
+            // Recording just ended: pick up the final rows close() flushed after
+            // the last live refresh. Guarded so the very first (pre-load) pass
+            // for an ordinary completed trip doesn't clobber the initial read.
+            allPoints = withContext(Dispatchers.IO) { viewModel.readTripData(trip) }
+        }
     }
 
     val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
@@ -571,6 +599,23 @@ fun TripDetailScreen(
             val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
             val liveLocation by viewModel.liveLocation.collectAsState()
             val hasMap = gpsPoints.size >= 2 || (isLive && liveLocation != null)
+            // The trace baked into the map. While this trip is still recording,
+            // pin it to the snapshot from when the data first loaded so the map
+            // WebView isn't rebuilt on every live refresh - a rebuild reloads
+            // the page, resetting the rider's pan/zoom and flashing the tiles.
+            // The live path (updateLivePoint) grows the trace smoothly instead.
+            // Not recording: track gpsPoints directly, so a completed trip and
+            // the final trace the moment recording stops both draw in full, one
+            // clean reload.
+            var pinnedTrace by remember(trip.id) { mutableStateOf<List<TripDataPoint>?>(null) }
+            LaunchedEffect(isLive, gpsPoints) {
+                if (isLive) {
+                    if (pinnedTrace == null && gpsPoints.isNotEmpty()) pinnedTrace = gpsPoints
+                } else {
+                    pinnedTrace = null
+                }
+            }
+            val mapPoints = if (isLive) (pinnedTrace ?: gpsPoints) else gpsPoints
             // The scrubbed sample's own GPS fix (from the full dataPoints, which the
             // chart index maps onto), or null if it had none.
             val scrubPoint = scrubIndex?.let { i ->
@@ -627,7 +672,7 @@ fun TripDetailScreen(
             // Route map, reused inline (portrait) and permanent-left (landscape).
             val routeMap: @Composable (Modifier) -> Unit = { mod ->
                 RouteMapView(
-                    points = gpsPoints,
+                    points = mapPoints,
                     fadedPoints = if (trimmed) fullGpsPoints else emptyList(),
                     fadedSwitches = fadedSwitches,
                     startIncluded = startIncluded,
@@ -760,8 +805,10 @@ fun TripDetailScreen(
             // the date line in portrait, at the head of the info column in
             // landscape where the date lives in the top bar instead.
             val trimBar: @Composable ColumnScope.() -> Unit = {
-                if (showTrimBar && elapsedMs.isNotEmpty()) {
-                    val full = elapsedMs.last()
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = showTrimBar && elapsedMs.isNotEmpty(),
+                ) {
+                    val full = elapsedMs.lastOrNull() ?: 0L
                     // The strip appears above wherever the rider has scrolled to,
                     // so everything below it shifts down and the control they just
                     // asked for is off-screen. Scroll it into view instead of
@@ -1544,6 +1591,12 @@ private val CHART_KEYS_DEFAULT = listOf(
  */
 /** How long a trip may take to load before the skeleton is shown. */
 private const val SKELETON_REVEAL_MS = 120L
+// While the open trip is the one still recording, re-read its (still-open) CSV
+// this often so the charts and the map trace grow as new samples land. The CSV
+// flushes every 10 rows, so the visible data trails the ride by under a flush;
+// the live position dot on the map comes straight from GPS and moves smoothly
+// regardless of this interval.
+private const val LIVE_REFRESH_MS = 3_000L
 
 /**
  * Stat tile keys, in default display order.
@@ -1626,15 +1679,22 @@ private fun RouteMapView(
     // default reads the active background luminance (a dark theme, including a
     // custom dark one, gets the dark map; a light one gets the white map).
     val themeMapDefault = if (MaterialTheme.appColors.appBackground.luminance() < 0.5f) "DARK" else "LIGHT"
+    // byId resolves the ids this screen used to persist (SAT) onto the shared
+    // ones, so a rider who last chose satellite still gets satellite.
     var mapType by rememberSaveable {
-        mutableStateOf(tripMapTypeSession ?: savedMapType.ifBlank { themeMapDefault })
+        mutableStateOf(
+            com.eried.eucplanet.hud.protocol.MapLayers
+                .byId(tripMapTypeSession ?: savedMapType.ifBlank { themeMapDefault })
+                .id
+        )
     }
     // The persisted value is served through an Eagerly-started flow, so it is
     // normally present by first composition; guard the rare case where it arrives
     // after. Only adopt it while the rider has not picked this session.
     LaunchedEffect(savedMapType) {
-        if (tripMapTypeSession == null && savedMapType.isNotBlank() && savedMapType != mapType) {
-            mapType = savedMapType
+        val resolved = com.eried.eucplanet.hud.protocol.MapLayers.byId(savedMapType).id
+        if (tripMapTypeSession == null && savedMapType.isNotBlank() && resolved != mapType) {
+            mapType = resolved
         }
     }
     val onPick: (String) -> Unit = { mapType = it; tripMapTypeSession = it; onPersistMapType(it) }
@@ -1758,7 +1818,11 @@ private fun MapSurface(
     val startLabelJs = remember(startLabel) { org.json.JSONObject.quote(startLabel) }
     val endLabelJs = remember(endLabel) { org.json.JSONObject.quote(endLabel) }
     var webView by remember { mutableStateOf<WebView?>(null) }
-    val mapTypes = listOf("LIGHT", "DARK", "SAT")
+    // Same seven as the navigator and eucviewer, same order. No overlays
+    // here: a recorded trip has no chargers or places to draw.
+    // Straight from the registry: this list once said SAT while the tile table
+    // said SATELLITE, so picking satellite silently fell back to plain OSM.
+    val mapTypes = com.eried.eucplanet.hud.protocol.MapLayers.ALL.map { it.id }
     // The HTML actually showing in the WebView.
     //
     // A plain holder rather than Compose state on purpose: it is written from
@@ -1834,13 +1898,33 @@ private fun MapSurface(
                 desc = "Fullscreen map",
                 onClick = onToggleFullscreen,
             )
-            MapButton(
-                icon = Icons.Default.Layers,
-                desc = "Map style",
-                onClick = {
-                    onMapTypeChange(mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.size])
-                },
-            )
+            Box {
+                var layerMenu by remember { mutableStateOf(false) }
+                MapButton(
+                    icon = Icons.Default.Layers,
+                    desc = stringResource(R.string.nav_map_style),
+                    onClick = { layerMenu = true },
+                )
+                DropdownMenu(
+                    expanded = layerMenu,
+                    onDismissRequest = { layerMenu = false },
+                    containerColor = MaterialTheme.appColors.menuBackground
+                ) {
+                    RouteBuilderViewModel.MAP_LAYERS.forEach { layer ->
+                        val id = layer.id
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                RadioButton(
+                                    selected = id == mapType,
+                                    onClick = { onMapTypeChange(id); layerMenu = false }
+                                )
+                            },
+                            text = { Text(stringResource(layer.labelRes)) },
+                            onClick = { onMapTypeChange(id); layerMenu = false }
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -1876,14 +1960,20 @@ private fun MapSurface(
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun MapButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
+private fun MapButton(
+    icon: ImageVector,
+    desc: String,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
+) {
     Box(
         Modifier
             .size(40.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
-            .clickable(onClick = onClick),
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = desc, tint = MaterialTheme.colorScheme.onSurface)
@@ -1924,13 +2014,36 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     box-shadow:0 1px 4px rgba(0,0,0,0.5);
   }
   .scrub-tip:before{ border-top-color:rgba(20,22,26,0.92); }
+  /* Tile credit: required, but it should read as a footnote rather than a
+     label. Leaflet's default is an opaque white box at 11px, which on a card
+     this size is the loudest thing on the map. Dim and small, and moved off
+     the bottom-right where the layer and fullscreen buttons sit. */
+  .leaflet-control-attribution{
+    background:transparent!important;
+    color:rgba(255,255,255,0.88)!important;
+    text-shadow:0 0 2px rgba(0,0,0,0.95),0 0 5px rgba(0,0,0,0.75)!important;
+    font-size:8px!important;
+    padding:2px 6px!important;
+    /* Centred along the bottom edge: the map sits in a rounded card, and the
+       middle of that edge is the one spot no corner curve and none of the
+       buttons reach. Only the two upper corners are rounded, so it reads as a
+       tab off the edge rather than a floating box. */
+    position:fixed!important;
+    left:50%!important;
+    bottom:0!important;
+    transform:translateX(-50%)!important;
+    margin:0!important;
+    pointer-events:none;
+  }
 </style>
 </head><body>
 <div id="map"></div>
 <script>
   var coords=[$coordsJson];
   var fadedCoords=[$fadedCoordsJson];
-  var map=L.map('map',{zoomControl:false,attributionControl:false});
+  var map=L.map('map',{zoomControl:false,attributionControl:true});
+  map.attributionControl.setPrefix('');
+  map.attributionControl.setPosition('bottomleft');
   var baseLayer=null;
   // {r} asks the provider for its @2x tile on a high-density screen. Without it
   // a phone upscales a 256 px tile threefold or more, which is most of why the
@@ -1941,26 +2054,15 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   // refresh on their own schedule: side by side on the same tile it loses the
   // street names, the POIs and most of the building detail, which is what made
   // this map look dated next to the Studio one.
-  var tileUrls={
-    LIGHT:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    DARK:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    SAT:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-  };
+  var MAP_LAYERS = ${com.eried.eucplanet.ui.navigator.mapLayersJson()};
   window.setMapType=function(t){
     if(baseLayer) map.removeLayer(baseLayer);
-    // maxNativeZoom stops requesting tiles the provider does not have, while
-    // maxZoom lets the rider keep zooming on upscaled ones rather than hitting
-    // a wall at street level.
-    //
-    // detectRetina on the OSM layer because it serves no @2x: Leaflet instead
-    // pulls four tiles from one zoom deeper and draws them at half size, which
-    // gets the sharpness on a dense screen without the provider needing to
-    // offer a retina URL.
-    var opts = {maxZoom:21, subdomains:'abcd'};
-    if (t === 'DARK') { opts.maxNativeZoom = 20; }
-    else if (t === 'SAT') { opts.maxNativeZoom = 19; }
-    else { opts.maxNativeZoom = 19; opts.detectRetina = true; }
-    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT, opts).addTo(map);
+    // One table for every map in the app, credits included: see MapLayers.
+    var layer = MAP_LAYERS[t] || MAP_LAYERS['OSM'];
+    var opts = {maxZoom:21, maxNativeZoom:layer.maxNative, attribution:layer.attr};
+    if (layer.subs) opts.subdomains = layer.subs;
+    if (layer.retina) opts.detectRetina = true;
+    baseLayer=L.tileLayer(layer.url, opts).addTo(map);
     baseLayer.bringToBack();
   };
   window.setMapType('$initialType');
@@ -2059,6 +2161,17 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       if (!hasRoute) map.setView(p, 17);
     } else {
       live.setLatLng(p);
+    }
+    // Grow the trace as the ride goes. The baked coords are pinned to the
+    // open-time snapshot while recording (Kotlin stops feeding growth so the
+    // page never reloads), so this live line carries every step after it. Seed
+    // it from the last baked coord so it joins the existing trace rather than
+    // starting detached.
+    if (!livePath){
+      var seed = coords.length ? [coords[coords.length-1], p] : [p];
+      livePath = L.polyline(seed,{color:'#4FC3F7',weight:4,interactive:false}).addTo(map);
+    } else {
+      livePath.addLatLng(p);
     }
   };
 

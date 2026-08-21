@@ -1369,6 +1369,9 @@
     <string name="studio_cfg_map_dark">Ciemny</string>
     <string name="studio_cfg_map_satellite">Satelita</string>
     <string name="studio_cfg_map_zoom">Powiększenie</string>
+    <string name="studio_cfg_map_attribution">Pokaż źródło mapy</string>
+    <string name="studio_cfg_map_attribution_off">Licencja mapy wymaga tego oznaczenia na wszystkim, co udostępniasz. Wyłączenie to Twoja decyzja.</string>
+    <string name="studio_cfg_map_style_community">Kafelki utrzymywane przez wolontariuszy. Długi eksport pobiera tysiące naraz, o czym te serwery proszą, by tego unikać.</string>
     <string name="studio_cfg_map_rotate">Obracaj zgodnie z ruchem</string>
     <string name="studio_cfg_map_trace">Ślad</string>
     <string name="studio_cfg_map_trace_none">Brak</string>
@@ -1520,6 +1523,15 @@
     <string name="nav_last_stop">Ostatni przystanek</string>
     <string name="nav_need_destination">Najpierw dodaj cel</string>
     <string name="nav_map_style">Styl mapy</string>
+    <string name="nav_overlays">Warstwy</string>
+    <string name="nav_reset_north">Ustaw na północ</string>
+    <string name="nav_layer_dark">Carto Dark</string>
+    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_satellite">Satelita</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Pierwszy przystanek</item>
         <item>Drugi przystanek</item>
@@ -1702,8 +1714,6 @@
     <string name="charging_cells_pack_n">Pakiet %1$d</string>
     <string name="charging_cells_waiting">Oczekiwanie na dane napięć ogniw…</string>
     <string name="charging_tab_cells">Ogniwa</string>
-    <string name="hud_auto_discover">Automatycznie wykryj adres</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Włącz Bluetooth, aby wyszukać kółka.</string>
     <string name="scan_bluetooth_off_title">Bluetooth jest wyłączony</string>
     <string name="scan_enable_bluetooth">Włącz Bluetooth</string>
@@ -2207,4 +2217,15 @@
     <string name="adv_smoothing_window">Okno wygładzania</string>
     <string name="adv_smoothing_window_desc">Próbki uśredniane przez wykresy przejazdu \"średnia\" i wygładzone raporty głosowe. Przejazdy zapisują dane mniej więcej raz na sekundę, więc wartość odpowiada sekundom. Uwaga: wysokie wartości ukrywają krótkie skoki.</string>
     <string name="auto_volume_only_connected">Tylko gdy koło jest połączone</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Oba</string>
+    <string name="hud_discovery_desc">Auto samo znajduje HUD. Stały używa tylko adresu poniżej.</string>
+    <string name="hud_discovery_fixed">Stały</string>
+    <string name="hud_discovery_mode">Tryb wyszukiwania</string>
+    <string name="metric_chip_battery_range">Bateria start → koniec</string>
+    <string name="recording_summary_battery_range">Start→koniec (-%1$d%%)</string>
+    <string name="trip_tools_rename">Zmień nazwę przejazdu</string>
+    <string name="trip_tools_rename_desc">Nadaj nazwę temu przejazdowi. Zapisuje się w jego pliku, więc wędruje z eksportem i synchronizacją.</string>
+    <string name="trip_tools_rename_hint">Zostaw puste, aby użyć daty.</string>
+    <string name="trip_tools_renamed">Nazwa przejazdu zmieniona</string>
 </resources>

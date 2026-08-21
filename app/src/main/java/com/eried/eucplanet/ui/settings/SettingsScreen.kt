@@ -4,6 +4,12 @@ import android.content.ClipData
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.ui.draw.rotate
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -1013,17 +1019,41 @@ private fun CollapsibleSection(
                     color = MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
+                val chevron by animateFloatAsState(
+                    targetValue = if (expanded) 180f else 0f,
+                    animationSpec = tween(180),
+                    label = "sectionChevron",
+                )
                 Icon(
-                    if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = MaterialTheme.appColors.textSecondary
+                    tint = MaterialTheme.appColors.textSecondary,
+                    modifier = Modifier.rotate(chevron)
                 )
             }
-            if (expanded) {
+            // Every settings section opens through here, so animating it once
+            // gives the whole screen the behaviour the Discovery-mode row had on
+            // its own: the rest of the page slides instead of jumping, which is
+            // what tells the eye where the new rows came from.
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(
+                    animationSpec = tween(180),
+                    expandFrom = Alignment.Top,
+                ) + fadeIn(tween(140)),
+                exit = shrinkVertically(
+                    animationSpec = tween(160),
+                    shrinkTowards = Alignment.Top,
+                ) + fadeOut(tween(90)),
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
+                        // Rows that appear inside an open section - a toggle
+                        // revealing its options - slide the ones below them
+                        // rather than shoving them down a frame later.
+                        .animateContentSize()
                 ) {
                     content()
                 }
@@ -6368,7 +6398,17 @@ private fun UnitsSetting(
             FieldNotchLabel(stringResource(R.string.units_label))
         }
 
-        if (expanded) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(
+                    animationSpec = tween(180),
+                    expandFrom = Alignment.Top,
+                ) + fadeIn(tween(140)),
+            exit = shrinkVertically(
+                    animationSpec = tween(160),
+                    shrinkTowards = Alignment.Top,
+                ) + fadeOut(tween(90)),
+        ) {
             BringIntoViewSection(expanded = true, spacing = 8.dp) {
                 SimpleDropdown(
                     label = stringResource(R.string.units_speed),
@@ -10495,12 +10535,21 @@ private fun AdvancedCollapsable(
                     modifier = Modifier.weight(1f)
                 )
                 Icon(
-                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp
-                    else Icons.Default.KeyboardArrowDown,
+                    imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null
                 )
             }
-            if (expanded) {
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(
+                    animationSpec = tween(180),
+                    expandFrom = Alignment.Top,
+                ) + fadeIn(tween(140)),
+                exit = shrinkVertically(
+                    animationSpec = tween(160),
+                    shrinkTowards = Alignment.Top,
+                ) + fadeOut(tween(90)),
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -10556,12 +10605,21 @@ private fun WatchButtonsCollapsable(
                     modifier = Modifier.weight(1f)
                 )
                 Icon(
-                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp
-                    else Icons.Default.KeyboardArrowDown,
+                    imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null
                 )
             }
-            if (expanded) {
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(
+                    animationSpec = tween(180),
+                    expandFrom = Alignment.Top,
+                ) + fadeIn(tween(140)),
+                exit = shrinkVertically(
+                    animationSpec = tween(160),
+                    shrinkTowards = Alignment.Top,
+                ) + fadeOut(tween(90)),
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -11323,6 +11381,15 @@ private fun HudMapStylePicker(
     // names, not localised friendly text. Order: voyager family,
     // positron (light_*) family, dark matter (dark_*) family.
     val options = listOf(
+        // The same providers the app's own maps offer, first because they are
+        // the ones riders asked for: plain OSM and the two that actually draw
+        // trails. Needs HUD protocol minor 17; an older HUD does not know these
+        // codes and the phone already flags "update your HUD".
+        "osm",
+        "cyclosm",
+        "topo",
+        "hot",
+        "satellite",
         "voyager",
         "voyager_nolabels",
         "voyager_labels_under",
