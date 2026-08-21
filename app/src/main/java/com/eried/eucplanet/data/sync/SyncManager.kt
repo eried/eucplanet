@@ -1046,6 +1046,52 @@ class SyncManager @Inject constructor(
     /** Initial enqueue of the Dropbox sync worker. Retries reschedule
      *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
      *  the linked state before calling — this is unconditional. */
+    /**
+     * Push one edited trip to every configured backup, right now, in-process.
+     *
+     * The rider who renames a trip is looking at the row while it says
+     * "Backing up", and that promise used to be handed to WorkManager -
+     * which is free to sit on the job for minutes even with the network up
+     * (seen on a Pixel: renamed trip parked at "Backing up", JobScheduler
+     * holding the job on an unsatisfied network bit, on AC power with wifi).
+     * The app is in the foreground with the network right there; use it.
+     * The workers stay behind this as the retry net for everything that
+     * fails or happens with the app gone.
+     *
+     * Overwrites the Dropbox copy without asking who changed it last, which
+     * is correct here and only here: the rider has just edited this trip on
+     * this phone, so this copy is the newest by definition.
+     */
+    fun pushEditedTripNow(tripId: Long) {
+        scope.launch {
+            val settings = settingsRepository.get()
+            val trip = tripDao.getById(tripId) ?: return@launch
+            val file = File(getTripsDir(), trip.fileName)
+            if (!file.exists()) return@launch
+            if (settings.syncFolderUri != null) {
+                val ok = runCatching { withUploadPass { uploadCsv(settings, file) } }
+                    .getOrDefault(false)
+                tripDao.update((tripDao.getById(tripId) ?: return@launch).copy(
+                    uploadStatus = if (ok) 2 else 3,
+                    uploadedAt = if (ok) System.currentTimeMillis() else trip.uploadedAt,
+                ))
+                if (!ok) scheduleTripUploadAttempt(1)
+            }
+            if (settings.dropboxAccessToken.isNotBlank()) {
+                tripDao.setDropboxStatusByName(trip.fileName, 1, null)
+                val sec = dropboxRepository.uploadFileStamped(
+                    "/trips/${trip.fileName}", file.readBytes())
+                if (sec != null) {
+                    if (sec > 0L) file.setLastModified(sec * 1000L)
+                    tripDao.setDropboxStatusByName(trip.fileName, 2, System.currentTimeMillis())
+                } else {
+                    tripDao.setDropboxStatusByName(trip.fileName, 3, null)
+                    scheduleDropboxSyncAttempt(1)
+                }
+            }
+        }
+    }
+
     fun enqueueDropboxSync() {
         // Do NOT set the pending flag here. This runs on every app start
         // (TripRepository reconcile) whenever Dropbox is linked, so flipping it

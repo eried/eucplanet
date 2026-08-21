@@ -734,15 +734,12 @@ private fun TripCard(
             when {
                 isRecording -> {}                                                   // no status while recording
                 isPending -> PendingStatusIcon()                                    // discard-grace window
-                trip.eucstatsStatus != 0 ->
-                    OnlineStatusIcon(trip, onRetryOnline) { onRecheckOnline(trip) }
-            }
-            // Backups are their own question and get their own icon. Folding
-            // them into one slot meant the leaderboard, which wins that slot,
-            // hid whether a trip had reached the rider's own backups - and a
-            // trip on the leaderboard is exactly the kind they go on to rename.
-            if (!isRecording && !isPending && (folderConfigured || dropboxLinked)) {
-                BackupStatusIcon(trip, folderConfigured, dropboxLinked) { onRetryBackup(trip) }
+                else -> TripStatusIcon(
+                    trip, folderConfigured, dropboxLinked,
+                    onRetryBackup = { onRetryBackup(trip) },
+                    onRetryOnline = onRetryOnline,
+                    onRecheckOnline = { onRecheckOnline(trip) },
+                )
             }
             // Tools. This slot used to hold a "view" eye, which did exactly what
             // tapping the row already does, so it was a second door to the same
@@ -788,39 +785,51 @@ private fun PendingStatusIcon() {
 }
 
 /**
- * Where this trip's backups stand: in flight, failed, or done.
+ * One icon for everything that happens to a trip after it is saved: the
+ * rider's own backups (folder, Dropbox) and the public leaderboard.
  *
- * It used to be a green tick and nothing else - drawn only for a trip already
- * backed up to the folder, hardcoded green, and tapping it explained itself in
- * a message. A failed backup (status 3) drew no icon at all, so the one state
- * worth showing was the one state invisible, with no way to ask for a retry.
+ * One, deliberately. The first version gave backups their own icon next to
+ * the leaderboard's, and the row grew a second cloud - a control for every
+ * destination instead of an answer to the rider's actual question, which is
+ * "is this trip taken care of?". Red if anything failed (tap fixes it),
+ * orange if anything is still moving (tap nudges it), green when everything
+ * this trip is meant to reach has it. Tapping green says where it stands,
+ * backup time and leaderboard verdict together, in one message.
  *
- * Both destinations are read, because they fail independently: green means
- * every backup the rider has actually set up has this trip, not just whichever
- * one answered first.
+ * Failures outrank progress, and the tap acts on the worst thing showing.
  */
 @Composable
-private fun BackupStatusIcon(
+private fun TripStatusIcon(
     trip: TripRecord,
     folderConfigured: Boolean,
     dropboxLinked: Boolean,
-    onRetry: () -> Unit,
+    onRetryBackup: () -> Unit,
+    onRetryOnline: () -> Unit,
+    onRecheckOnline: () -> Unit,
 ) {
     val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
-    val folderFailed = folderConfigured && trip.uploadStatus == 3
-    val dropboxFailed = dropboxLinked && trip.dropboxStatus == 3
-    val folderWaiting = folderConfigured && (trip.uploadStatus == 1 || trip.uploadStatus == 4)
-    val dropboxWaiting = dropboxLinked && trip.dropboxStatus == 1
-    val failed = folderFailed || dropboxFailed
-    val waiting = folderWaiting || dropboxWaiting
 
-    val at = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { fmt.format(Date(it)) }
-    val msg = when {
-        failed -> stringResource(R.string.backup_status_failed)
-        waiting -> stringResource(R.string.backup_status_pending)
-        at != null -> stringResource(R.string.cloud_uploaded_on, at)
-        else -> stringResource(R.string.cloud_not_uploaded)
-    }
+    // The rider's own backups.
+    val backupFailed = (folderConfigured && trip.uploadStatus == 3) ||
+        (dropboxLinked && trip.dropboxStatus == 3)
+    val backupWaiting = (folderConfigured && (trip.uploadStatus == 1 || trip.uploadStatus == 4)) ||
+        (dropboxLinked && trip.dropboxStatus == 1)
+    val backupAt = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { fmt.format(Date(it)) }
+    val backupDone = !backupFailed && !backupWaiting && backupAt != null
+
+    // The leaderboard.
+    val settled = trip.eucstatsStatus == 2
+    val flagged = settled && trip.eucstatsValidation == "flagged"
+    val rejected = settled && trip.eucstatsValidation == "rejected"
+    val onlineFailed = trip.eucstatsStatus == 3 || rejected
+    val onlineWaiting = trip.eucstatsStatus == 1 || flagged
+    val onlineDone = settled && !flagged && !rejected
+
+    // Nothing configured, nothing sent, nothing to say.
+    if (!folderConfigured && !dropboxLinked && trip.eucstatsStatus == 0 && backupAt == null) return
+
+    val failed = backupFailed || onlineFailed
+    val waiting = backupWaiting || onlineWaiting
     val icon = when {
         failed -> Icons.Default.CloudOff
         waiting -> Icons.Default.CloudQueue
@@ -831,63 +840,37 @@ private fun BackupStatusIcon(
         waiting -> MaterialTheme.appColors.statusWarn
         else -> MaterialTheme.appColors.statusGood
     }
-    val snackbar = LocalSnackbar.current
-    val scope = LocalSnackbarScope.current
-    IconButton(onClick = {
-        // A failure is the one the rider can do something about, so tapping it
-        // acts rather than explains. Waiting can be nudged too: it costs
-        // nothing and is what someone tapping a stuck upload means by it.
-        if (failed || waiting) onRetry() else showSnackbarLocal(snackbar, scope, msg)
-    }) {
-        Icon(icon, contentDescription = msg, tint = tint, modifier = Modifier.size(20.dp))
+    // The whole story in one message: each part only speaks when it has
+    // something to say, so a trip with no leaderboard life reads as before.
+    val parts = mutableListOf<String>()
+    parts += when {
+        backupFailed -> stringResource(R.string.backup_status_failed)
+        backupWaiting -> stringResource(R.string.backup_status_pending)
+        backupAt != null -> stringResource(R.string.cloud_uploaded_on, backupAt)
+        else -> stringResource(R.string.cloud_not_uploaded)
     }
-}
+    when {
+        onlineFailed && rejected -> parts += stringResource(R.string.online_status_rejected)
+        onlineFailed -> parts += stringResource(R.string.online_status_failed)
+        flagged -> parts += stringResource(R.string.online_status_flagged)
+        onlineWaiting -> parts += stringResource(R.string.online_status_pending)
+        onlineDone -> parts += stringResource(R.string.online_status_shared)
+    }
+    val msg = parts.joinToString(separator = "\n")
 
-/** eucstats online status: green cloud = shared, warn cloud = under review / uploading,
- *  red cloud-off = failed (tap to retry) or not accepted. Old/imported trips have
- *  eucstatsStatus 0 and never reach here, so they keep the local disk tick. */
-@Composable
-private fun OnlineStatusIcon(trip: TripRecord, onRetry: () -> Unit, onRecheck: () -> Unit) {
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
-    val settled = trip.eucstatsStatus == 2
-    val flagged = settled && trip.eucstatsValidation == "flagged"
-    // A verdict can turn into "rejected" after upload, once someone reviews it. Without
-    // its own branch that fell through to the shared/green tick, advertising a ride the
-    // leaderboard had actually turned down.
-    val rejected = settled && trip.eucstatsValidation == "rejected"
-    val accepted = settled && !flagged && !rejected
-    val isRetry = trip.eucstatsStatus == 3
-    val icon = when {
-        isRetry || rejected -> Icons.Default.CloudOff
-        accepted -> Icons.Default.CloudDone
-        flagged -> Icons.Default.Cloud
-        else -> Icons.Default.CloudQueue   // 1 = pending / uploading
-    }
-    val tint = when {
-        isRetry || rejected -> MaterialTheme.appColors.statusDanger
-        accepted -> MaterialTheme.appColors.statusGood
-        else -> MaterialTheme.appColors.statusWarn
-    }
-    val msg = when {
-        isRetry -> stringResource(R.string.online_status_failed)
-        rejected -> stringResource(R.string.online_status_rejected)
-        accepted -> stringResource(R.string.online_status_shared)
-        flagged -> stringResource(R.string.online_status_flagged)
-        else -> stringResource(R.string.online_status_pending)
-    }
-    // Tapping a held trip re-asks the server for its verdict. A hold is not a failure and
-    // not something the rider can fix: re-uploading returns the same verdict from the
-    // server's dedupe, so asking is the only thing that can move the icon. Repeating the
-    // explanation, as this used to do, left the rider with no way to ever clear it.
     IconButton(onClick = {
         when {
-            isRetry -> onRetry()
-            flagged -> onRecheck()
-            trip.eucstatsStatus == 1 -> onRetry()
+            backupFailed -> onRetryBackup()
+            trip.eucstatsStatus == 3 -> onRetryOnline()
+            flagged -> onRecheckOnline()
+            backupWaiting -> onRetryBackup()
+            trip.eucstatsStatus == 1 -> onRetryOnline()
             else -> showSnackbarLocal(snackbar, scope, msg)
         }
     }) {
         Icon(icon, contentDescription = msg, tint = tint, modifier = Modifier.size(20.dp))
     }
 }
+

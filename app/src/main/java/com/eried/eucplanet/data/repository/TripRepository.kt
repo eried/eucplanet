@@ -1189,17 +1189,18 @@ class TripRepository @Inject constructor(
 
     private suspend fun resyncEditedTrip(tripId: Long) {
         val appSettings = settingsRepository.get()
-        if (appSettings.syncFolderUri != null) {
-            runCatching { tripDao.markPendingFolderUpload(tripId) }
-            runCatching { syncManager.enqueueTripUpload(appSettings) }
-        }
-        if (appSettings.dropboxAccessToken.isNotBlank()) {
-            // Mark it before the sync is even queued, so the row shows the
-            // upload starting the moment the rider renames it rather than
-            // announcing "renamed" and going quiet.
-            runCatching { tripDao.setDropboxStatus(tripId, 1) }
-            runCatching { syncManager.enqueueDropboxSync() }
-        }
+        val hasFolder = appSettings.syncFolderUri != null
+        val hasDropbox = appSettings.dropboxAccessToken.isNotBlank()
+        if (!hasFolder && !hasDropbox) return
+        // Mark both destinations before anything runs, so the row shows the
+        // upload starting the moment the rider makes the edit.
+        if (hasFolder) runCatching { tripDao.markPendingFolderUpload(tripId) }
+        if (hasDropbox) runCatching { tripDao.setDropboxStatus(tripId, 1) }
+        // Then upload right now, in-process. WorkManager only backstops the
+        // failures: handed the whole job, it parked a rename at "Backing up"
+        // for minutes while the rider watched (JobScheduler holding the job on
+        // a network constraint it would not call satisfied).
+        runCatching { syncManager.pushEditedTripNow(tripId) }
     }
 
     /**

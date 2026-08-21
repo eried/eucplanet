@@ -6,16 +6,15 @@ import org.junit.Test
 import java.io.File
 
 /**
- * What the trip row says about a trip's backups.
+ * The trip row's one status icon, and the path that feeds it.
  *
- * It used to say almost nothing: a green tick, drawn only once the backup
- * FOLDER had the trip, hardcoded green, and tapping it produced a message. A
- * failed backup drew no icon at all, so the one state a rider can act on was
- * the one state they could not see. Dropbox had no per-trip state whatsoever,
- * so a rider with only Dropbox linked never saw a thing.
- *
- * These pin the wiring; the states themselves are Compose and are checked on a
- * device.
+ * History, because both halves were rebuilt on rider feedback. Renaming used
+ * to post a toast and the row said nothing: the cloud appeared only for a trip
+ * already in the backup folder, hardcoded green, a failed backup drew no icon
+ * at all, and Dropbox had no per-trip state. The first fix added a second
+ * cloud beside the leaderboard's, which was wrong the other way - a control
+ * per destination instead of an answer. One icon now, and its message carries
+ * the detail: backup time and leaderboard verdict together.
  */
 class BackupStatusIconTest {
 
@@ -23,6 +22,7 @@ class BackupStatusIconTest {
     private val vm = File("src/main/java/com/eried/eucplanet/ui/recording/RecordingViewModel.kt").readText()
     private val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
     private val repo = File("src/main/java/com/eried/eucplanet/data/repository/TripRepository.kt").readText()
+    private val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
 
     @Test fun `renaming no longer announces itself with a toast`() {
         val rename = vm.substringAfter("fun renameTrip(").substringBefore("fun ")
@@ -30,10 +30,26 @@ class BackupStatusIconTest {
     }
 
     @Test fun `a renamed trip shows as backing up straight away`() {
-        // Marked before the sync is even queued, so the row reacts to the
-        // rename instead of going quiet until some worker gets to it.
-        val resync = repo.substringAfter("private suspend fun resyncEditedTrip").take(900)
+        val resync = repo.substringAfter("private suspend fun resyncEditedTrip").take(1400)
         assertTrue(resync.contains("setDropboxStatus(tripId, 1)"))
+        assertTrue(resync.contains("markPendingFolderUpload(tripId)"))
+    }
+
+    @Test fun `an edit uploads now, with the workers as the retry net`() {
+        // WorkManager sat on a rename for minutes with the network up while
+        // the row said "Backing up" - seen on a real Pixel, JobScheduler
+        // holding the job on an unsatisfied network bit. The rider watching
+        // the row gets an in-process upload; the workers keep the failures.
+        val resync = repo.substringAfter("private suspend fun resyncEditedTrip").take(1400)
+        assertTrue("edits are handed back to WorkManager alone",
+            resync.contains("pushEditedTripNow"))
+        val push = sync.substringAfter("fun pushEditedTripNow").take(2400)
+        assertTrue("a failed direct Dropbox push is not handed to the retry worker",
+            push.contains("scheduleDropboxSyncAttempt(1)"))
+        assertTrue("a failed direct folder push is not handed to the retry worker",
+            push.contains("scheduleTripUploadAttempt(1)"))
+        assertTrue("the direct push skips the folder pass lock",
+            push.contains("withUploadPass"))
     }
 
     @Test fun `the worker records how each upload went`() {
@@ -42,31 +58,40 @@ class BackupStatusIconTest {
         assertTrue("failure is not recorded", worker.contains("setDropboxStatusByName(name, 3, null)"))
     }
 
-    @Test fun `the icon reads both destinations`() {
-        val icon = screen.substringAfter("private fun BackupStatusIcon").substringBefore("IconButton")
+    @Test fun `one icon, not one per destination`() {
+        val row = screen.substringAfter("isRecording -> {}").substringBefore("// Tools.")
+        assertTrue(row.contains("TripStatusIcon"))
+        assertTrue("a second icon slot crept back in",
+            !screen.contains("fun OnlineStatusIcon") && !screen.contains("fun BackupStatusIcon"))
+    }
+
+    @Test fun `the icon reads both backup destinations`() {
+        val icon = screen.substringAfter("private fun TripStatusIcon").substringBefore("IconButton")
         assertTrue("the folder is ignored", icon.contains("trip.uploadStatus == 3"))
         assertTrue("Dropbox is ignored", icon.contains("trip.dropboxStatus == 3"))
         assertTrue("waiting is not shown", icon.contains("trip.dropboxStatus == 1"))
     }
 
-    @Test fun `a failure can be tapped to try again`() {
-        val body = screen.substringAfter("private fun BackupStatusIcon").substringBefore("\n}")
-        assertTrue("tapping a failure only explains it", body.contains("if (failed || waiting) onRetry()"))
+    @Test fun `failures outrank progress, and a tap acts on the worst thing`() {
+        val body = screen.substringAfter("private fun TripStatusIcon").substringBefore("\n}")
+        assertTrue("a failed backup is not first in the tap order",
+            body.indexOf("backupFailed -> onRetryBackup()") < body.indexOf("flagged -> onRecheckOnline()"))
         assertTrue("there is no failed icon", body.contains("failed -> Icons.Default.CloudOff"))
         assertTrue("failure is not coloured as a problem",
             body.contains("failed -> MaterialTheme.appColors.statusDanger"))
     }
 
-    @Test fun `the leaderboard no longer hides the backup state`() {
-        // A trip on the leaderboard is exactly the kind a rider renames, and
-        // the online icon used to win the only status slot.
-        val row = screen.substringAfter("isRecording -> {}").substringBefore("// Tools.")
-        assertTrue(row.contains("BackupStatusIcon(trip, folderConfigured, dropboxLinked)"))
+    @Test fun `the message tells the whole story, parts joined`() {
+        val body = screen.substringAfter("private fun TripStatusIcon").substringBefore("IconButton")
+        assertTrue(body.contains("parts.joinToString"))
+        assertTrue("the leaderboard verdict is missing", body.contains("online_status_shared"))
+        assertTrue("the backup time is missing", body.contains("cloud_uploaded_on"))
     }
 
-    @Test fun `nothing is claimed about a backup the rider never set up`() {
-        val row = screen.substringAfter("isRecording -> {}").substringBefore("// Tools.")
-        assertTrue(row.contains("(folderConfigured || dropboxLinked)"))
+    @Test fun `nothing is claimed about a destination the rider never set up`() {
+        val body = screen.substringAfter("private fun TripStatusIcon").substringBefore("IconButton")
+        assertTrue(body.contains("folderConfigured && "))
+        assertTrue(body.contains("dropboxLinked && "))
     }
 
     @Test fun `both messages exist in every locale`() {
