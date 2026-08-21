@@ -598,7 +598,19 @@ class DashboardViewModel @Inject constructor(
 
     /** Whether a trip sync is running (disables the dev wizard's Sync button while
      *  it works). */
-    val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
+    /**
+     * A sync is happening, whether or not it is the one on screen.
+     *
+     * syncManager.syncRunning only knows about a foreground pass. Linking
+     * Dropbox now hands the fetch to the background worker, and during that the
+     * wizard's Sync buttons would have stayed enabled, inviting a rider to
+     * start a second one over the top of it.
+     */
+    val syncRunning: StateFlow<Boolean> = combine(
+        syncManager.syncRunning,
+        settingsRepository.settings.map { it.dropboxSyncPending },
+    ) { foreground, background -> foreground || background }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     /** Whether the rider has already joined leaderboards (online upload enabled).
      *  Gates the dev wizard's Join button so it greys out and stays greyed once

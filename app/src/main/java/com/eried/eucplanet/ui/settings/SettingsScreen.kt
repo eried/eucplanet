@@ -8145,8 +8145,22 @@ private fun CloudTab(
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
-            // Dropped the "No folder selected" hint, the Choose folder
-            // button right below says everything that's needed.
+            // With trips already recorded, the missing folder is not a setting
+            // the rider has yet to reach - it is rides sitting on one phone and
+            // nowhere else. Say so, in the warning colour, and let the line
+            // itself open the picker.
+            val unbackedUp by viewModel.localTripCount.collectAsState()
+            if (unbackedUp > 0) {
+                Text(
+                    stringResource(R.string.cloud_trips_no_folder, unbackedUp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.statusWarn,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { pickFolder.launch(null) }
+                        .padding(vertical = 6.dp),
+                )
+            }
             LeftAlignedScanButton(
                 label = stringResource(R.string.cloud_choose_folder),
                 onClick = { pickFolder.launch(null) }

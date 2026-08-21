@@ -55,6 +55,7 @@ sealed interface MoveOutcome {
 }
 
 class DropboxRepository @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
 ) {
 
@@ -112,11 +113,29 @@ class DropboxRepository @Inject constructor(
         return ((secs ?: 2L) * 1000L).coerceIn(500L, 30_000L)
     }
 
-    /** Set by [startLinkFlow], read by [handleAuthCallback]. The verifier
-     *  has to survive the trip out to Dropbox and back, but lives only in
-     *  memory — losing it on process death just forces the rider to tap
-     *  Link again, which is fine. */
-    @Volatile private var pendingVerifier: String? = null
+    /**
+     * Set by [startLinkFlow], read by [handleAuthCallback].
+     *
+     * Kept on disk, not in memory. The rider leaves the app to authorise in a
+     * browser, which is exactly when Android is most willing to reclaim it, and
+     * a verifier lost that way cannot be recovered: the callback arrives at a
+     * fresh process, the exchange fails, and all the rider sees is that linking
+     * "failed" - again on every retry, since each one loses it the same way.
+     *
+     * Its own small file rather than AppSettings: it is scratch state for one
+     * link attempt, not a setting, and it is cleared the moment it is used.
+     */
+    private val linkPrefs by lazy {
+        context.getSharedPreferences("dropbox_link", Context.MODE_PRIVATE)
+    }
+
+    private var pendingVerifier: String?
+        get() = linkPrefs.getString("verifier", null)
+        set(value) {
+            linkPrefs.edit().apply {
+                if (value == null) remove("verifier") else putString("verifier", value)
+            }.apply()
+        }
 
     val linked: Flow<Boolean> =
         settingsRepository.settings.map { it.dropboxAccessToken.isNotBlank() }
@@ -164,8 +183,17 @@ class DropboxRepository @Inject constructor(
      * success so the caller (MainActivity) can surface a snackbar.
      */
     suspend fun handleAuthCallback(uri: Uri): Boolean = withContext(Dispatchers.IO) {
-        val code = uri.getQueryParameter("code") ?: return@withContext false
-        val verifier = pendingVerifier ?: return@withContext false
+        val code = uri.getQueryParameter("code")
+        if (code == null) {
+            Log.w("DBXSHARE", "link callback carried no code")
+            return@withContext false
+        }
+        val verifier = pendingVerifier
+        if (verifier == null) {
+            // The app was reclaimed while the rider was in the browser.
+            Log.w("DBXSHARE", "link callback arrived with no verifier stored")
+            return@withContext false
+        }
         pendingVerifier = null
         val body = FormBody.Builder()
             .add("code", code)
@@ -180,9 +208,16 @@ class DropboxRepository @Inject constructor(
             .build()
         try {
             http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext false
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "token exchange HTTP " + resp.code + ": " +
+                        resp.body?.string()?.take(300))
+                    return@withContext false
+                }
                 val json = JSONObject(resp.body?.string().orEmpty())
-                val access = json.optString("access_token").ifBlank { return@withContext false }
+                val access = json.optString("access_token").ifBlank {
+                    Log.w("DBXSHARE", "token exchange returned no access_token")
+                    return@withContext false
+                }
                 val refresh = json.optString("refresh_token", "")
                 val ttlSec = json.optLong("expires_in", 14400L)
                 val expiresAt = System.currentTimeMillis() + ttlSec * 1000L
@@ -198,6 +233,7 @@ class DropboxRepository @Inject constructor(
                 true
             }
         } catch (e: Exception) {
+            Log.w("DBXSHARE", "token exchange failed: " + e.message)
             false
         }
     }
