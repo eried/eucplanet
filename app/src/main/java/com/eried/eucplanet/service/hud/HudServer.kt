@@ -119,6 +119,10 @@ class HudServer @Inject constructor(
          *  reachable HUD is grabbed within a few seconds. After the window
          *  expires the tick relaxes to 5 s. */
         private const val DISCOVERY_SPRINT_MS = 30_000L
+        /** TCP probe budget for "is the HUD still reachable after the phone's
+         *  WiFi changed". Short: on the same LAN a listener answers in tens of
+         *  ms, and the point is to beat the 15 s background ping window. */
+        private const val PEER_PROBE_TIMEOUT_MS = 2_500
         // Default carousel order shipped with all 12 known screens.
         // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
         // install gets a non-empty wire field on the first frame --
@@ -177,6 +181,10 @@ class HudServer @Inject constructor(
     @Volatile private var beaconKickJob: Job? = null
     @Volatile private var publishJob: Job? = null
     @Volatile private var ws: WebSocket? = null
+    /** "ip:port" of the HUD the live WebSocket is talking to; null when down.
+     *  Read by the network-loss probe to test whether the peer is still
+     *  reachable after a WiFi transition. */
+    @Volatile private var currentPeer: String? = null
 
     /**
      * Cancels any pending dial-loop backoff the moment something interesting
@@ -365,6 +373,7 @@ class HudServer @Inject constructor(
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null
+        currentPeer = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
         beaconKickJob?.cancel(); beaconKickJob = null
@@ -415,6 +424,11 @@ class HudServer @Inject constructor(
             override fun onLost(network: Network) {
                 Log.i(TAG, "network onLost: home WiFi gone")
                 wifiInterference.onStaTransition(System.currentTimeMillis())
+                // If the live WS rode the network that just vanished, it is a
+                // zombie that OkHttp only notices at the ping window - 15 s in
+                // background, the whole "riding away from WiFi with a frozen
+                // HUD" gap. Probe and cut it now instead.
+                probePeerAfterNetworkLoss()
             }
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 // DO NOT close the WS here. This callback filters for
@@ -460,6 +474,43 @@ class HudServer @Inject constructor(
         select<Unit> {
             onTimeout(ms) { }
             reconnectKick.onReceive { }
+        }
+    }
+
+    /**
+     * A WiFi network we were on just vanished (rider leaving the area, most
+     * commonly). If the live WebSocket actually rode that network it is now a
+     * zombie: OkHttp only notices at the ping window, which is 15 s while
+     * riding (background). Probe the peer directly - a listener on the same
+     * LAN answers a TCP connect in tens of ms - and:
+     *
+     *  - unreachable: cancel the socket NOW. streamUntilClosed returns, the
+     *    dial loop re-enters discovery immediately, and the beacon listener
+     *    catches the HUD the moment it lands on the next network.
+     *  - reachable: do nothing. The HUD rides the phone's own hotspot and the
+     *    lost STA network never carried this link (the common riding setup).
+     *
+     * Probing can't hurt a healthy link, so this is safe on every onLost.
+     */
+    private fun probePeerAfterNetworkLoss() {
+        val peer = currentPeer ?: return
+        scope.launch {
+            val host = peer.substringBefore(':')
+            val port = peer.substringAfter(':', "").toIntOrNull() ?: HudDiscovery.DEFAULT_PORT
+            val reachable = runCatching {
+                java.net.Socket().use { s ->
+                    s.connect(java.net.InetSocketAddress(host, port), PEER_PROBE_TIMEOUT_MS)
+                    true
+                }
+            }.getOrDefault(false)
+            if (!reachable && currentPeer == peer) {
+                log("WiFi lost and $peer stopped answering - reconnecting now")
+                // cancel(), not close(): close() queues a frame on a transport
+                // that is already gone and still waits out the ping window.
+                // cancel() fails the socket immediately (onFailure fires).
+                try { ws?.cancel() } catch (_: Throwable) {}
+                reconnectKick.trySend(Unit)
+            }
         }
     }
 
@@ -903,6 +954,7 @@ class HudServer @Inject constructor(
                 log("Connected to $peer ✓")
                 wasOpen = true
                 ws = webSocket
+                currentPeer = peer
                 // Push a frame on the rider's HUD report interval off the
                 // snapshot buffer. We don't dedupe: even when no field changed, the
                 // timestamp bump in [snapshot] keeps the HUD's last-frame
@@ -952,6 +1004,7 @@ class HudServer @Inject constructor(
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 sendJob?.cancel()
                 ws = null
+                currentPeer = null
                 commandSink.onHudDisconnected()
                 done.complete(true)
             }
@@ -966,6 +1019,7 @@ class HudServer @Inject constructor(
                 }
                 sendJob?.cancel()
                 ws = null
+                currentPeer = null
                 commandSink.onHudDisconnected()
                 done.complete(false)
             }
