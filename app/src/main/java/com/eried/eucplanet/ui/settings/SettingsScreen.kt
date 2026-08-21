@@ -7910,6 +7910,8 @@ private fun CloudTab(
             CloudEvent.UploadEnqueued -> sEnqueued
             CloudEvent.SyncNoFolder -> sSyncNoFolder
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
+            is CloudEvent.SyncRateLimited ->
+                context.getString(R.string.sync_rate_limited, event.done, event.total)
             CloudEvent.SyncUpToDate -> context.getString(R.string.sync_up_to_date)
             CloudEvent.EucstatsNothingToSync -> context.getString(R.string.online_upload_sync_nothing)
             is CloudEvent.EucstatsSyncFinished -> context.getString(R.string.online_upload_sync_done, event.count)

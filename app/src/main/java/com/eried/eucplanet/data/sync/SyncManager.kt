@@ -986,6 +986,7 @@ class SyncManager @Inject constructor(
             _syncResult.value = SyncResult.NoFolder
             return
         }
+        dropboxRepository.clearRateLimited()
         val remote = dropboxRepository.listFolder("/trips")
         if (remote == null) {
             // Auth or network failed: same UX as "no folder" since the rider
@@ -1090,7 +1091,12 @@ class SyncManager @Inject constructor(
                         endTime = meta.endTime,
                         fileName = name,
                         distanceKm = meta.distanceKm,
-                        uploadStatus = 0,
+                        // Pending, so the folder worker mirrors it: a trip that
+                        // arrived from Dropbox is exactly as absent from the
+                        // backup folder as a trip just recorded, and marking it
+                        // "nothing to do" left the two backups disagreeing until
+                        // the rider happened to press Sync all.
+                        uploadStatus = if (settings.syncFolderUri != null) 1 else 0,
                     ))
                 }
             }
@@ -1129,6 +1135,15 @@ class SyncManager @Inject constructor(
             // moved, say "already up to date" instead of "0 trips".
             _syncResult.value =
                 if (total == 0) SyncResult.UpToDate else SyncResult.Finished(total)
+            if (settings.syncFolderUri != null) enqueueTripUpload(settings)
+        } else if (dropboxRepository.rateLimited) {
+            // Say which it was. The retry worker still picks the rest up, but
+            // the rider is owed the reason their library stopped halfway.
+            _syncResult.value = SyncResult.RateLimited(total - failed, total)
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = true, dropboxPendingCount = failed)
+            }
+            scheduleDropboxSyncAttempt(0)
         } else {
             // Hand the skipped trips to the retry worker (missing/newer only), so
             // they upload once the network is back instead of being silently lost.

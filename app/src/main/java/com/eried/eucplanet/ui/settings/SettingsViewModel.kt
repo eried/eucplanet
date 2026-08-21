@@ -1279,6 +1279,8 @@ class SettingsViewModel @Inject constructor(
                     is SyncResult.NoFolder -> CloudEvent.SyncNoFolder
                     is SyncResult.Finished -> CloudEvent.SyncFinished(result.count)
                     is SyncResult.UpToDate -> CloudEvent.SyncUpToDate
+                    is SyncResult.RateLimited ->
+                        CloudEvent.SyncRateLimited(result.done, result.total)
                 }
                 syncManager.consumeSyncResult()
             }
@@ -2775,6 +2777,10 @@ sealed interface CloudEvent {
     data class SyncFinished(val count: Int) : CloudEvent
     /** A sync ran but nothing needed transferring (everything already backed up). */
     data object SyncUpToDate : CloudEvent
+
+    /** Dropbox asked the account to slow down and kept asking, so the sync
+     *  stopped partway. The rest is queued for the retry worker. */
+    data class SyncRateLimited(val done: Int, val total: Int) : CloudEvent
     data object EucstatsNothingToSync : CloudEvent
     data class EucstatsSyncFinished(val count: Int) : CloudEvent
     /** A sync ran with trips to upload but every attempt failed (network down,

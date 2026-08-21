@@ -16,6 +16,7 @@ import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONObject
 
 /**
@@ -58,6 +59,58 @@ class DropboxRepository @Inject constructor(
 ) {
 
     private val http = OkHttpClient()
+
+    /**
+     * True when Dropbox last answered 429 and the retries did not clear it.
+     *
+     * Dropbox rate-limits per account, not per file, so a rider pulling a
+     * library of two thousand trips can hit it partway through - and every
+     * limited request looked exactly like a missing file: a null, a skipped
+     * trip, and a sync that reported a number without a reason. The sync reads
+     * this to tell the rider what actually happened.
+     */
+    @Volatile
+    var rateLimited: Boolean = false
+        private set
+
+    /** Cleared at the start of a sync, so the flag describes this run. */
+    fun clearRateLimited() { rateLimited = false }
+
+    /**
+     * Run [attempt] and, when Dropbox says it is rate limited, wait the number
+     * of seconds it asks for and try again.
+     *
+     * Dropbox sends retry_after in the body and in a header. Honouring it is
+     * the difference between a sync that pauses for a second and one that
+     * silently drops a trip: the API is telling us exactly when it will answer.
+     */
+    private fun <T> withRateLimitRetry(what: String, attempt: () -> Pair<Response, T?>): T? {
+        var wait = 0L
+        repeat(RATE_LIMIT_TRIES) { round ->
+            if (wait > 0) Thread.sleep(wait)
+            val (resp, value) = attempt()
+            if (resp.code != 429) return value
+            wait = retryAfterMs(resp)
+            Log.w("DBXSHARE", "$what rate limited, waiting ${wait}ms (attempt ${round + 1})")
+            resp.close()
+        }
+        rateLimited = true
+        Log.w("DBXSHARE", "$what still rate limited after $RATE_LIMIT_TRIES attempts")
+        return null
+    }
+
+    /** How long Dropbox asked us to wait, from the header or the body. */
+    private fun retryAfterMs(resp: Response): Long {
+        val header = resp.header("Retry-After")?.toLongOrNull()
+        if (header != null) return (header * 1000L).coerceIn(500L, 30_000L)
+        val body = runCatching { resp.peekBody(512).string() }.getOrNull().orEmpty()
+        // Dropbox puts it inside the error object:
+        //   {"error":{"reason":{...},"retry_after":1},"error_summary":""}
+        val secs = runCatching {
+            JSONObject(body).optJSONObject("error")?.optLong("retry_after")
+        }.getOrNull()?.takeIf { it > 0 }
+        return ((secs ?: 2L) * 1000L).coerceIn(500L, 30_000L)
+    }
 
     /** Set by [startLinkFlow], read by [handleAuthCallback]. The verifier
      *  has to survive the trip out to Dropbox and back, but lives only in
@@ -174,15 +227,27 @@ class DropboxRepository @Inject constructor(
             .addHeader("Dropbox-API-Arg", args.toString())
             .post(okhttp3.RequestBody.create(mediaOctet, bytes))
             .build()
-        try {
-            http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) {
-                    Log.w("DBXSHARE", "upload HTTP ${resp.code}: ${resp.body?.string()?.take(300)}")
+        withRateLimitRetry("upload $remotePath") {
+            try {
+                val resp = http.newCall(req).execute()
+                if (resp.code == 429) return@withRateLimitRetry resp to null
+                resp.use {
+                    if (!it.isSuccessful) {
+                        Log.w("DBXSHARE", "upload HTTP ${it.code}: ${it.body?.string()?.take(300)}")
+                    }
+                    it to (if (it.isSuccessful) true else null)
                 }
-                resp.isSuccessful
+            } catch (e: Exception) {
+                Log.w("DBXSHARE", "upload exception: ${e.message}")
+                errorResponse(req) to null
             }
-        } catch (e: Exception) { Log.w("DBXSHARE", "upload exception: ${e.message}"); false }
+        } ?: false
     }
+
+    /** A stand-in response for a request that never reached Dropbox, so the
+     *  retry helper can treat it as a plain failure rather than a rate limit. */
+    private fun errorResponse(req: Request): Response = Response.Builder()
+        .request(req).protocol(okhttp3.Protocol.HTTP_1_1).code(599).message("no response").build()
 
     /**
      * Move [from] to [to] inside the App Folder.
@@ -319,12 +384,22 @@ class DropboxRepository @Inject constructor(
             .addHeader("Dropbox-API-Arg", args.toString())
             .post(okhttp3.RequestBody.create(null, ByteArray(0)))
             .build()
-        try {
-            http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext null
-                resp.body?.bytes()
+        withRateLimitRetry("download $remotePath") {
+            try {
+                val resp = http.newCall(req).execute()
+                if (resp.code == 429) return@withRateLimitRetry resp to null
+                resp.use {
+                    if (!it.isSuccessful) {
+                        Log.w("DBXSHARE", "download HTTP ${it.code} for $remotePath")
+                        it to null
+                    } else it to it.body?.bytes()
+                }
+            } catch (e: Exception) {
+                Log.w("DBXSHARE", "download exception: ${e.message}")
+                // No response to inspect: report it as a non-429 failure.
+                errorResponse(req) to null
             }
-        } catch (e: Exception) { null }
+        }
     }
 
     /** Metadata for one remote file from a folder listing. [size] is the byte
@@ -590,6 +665,8 @@ class DropboxRepository @Inject constructor(
     companion object {
         /** move_batch_v2 takes at most this many entries per call. */
         private const val BATCH_MAX = 1000
+        /** How many times to wait out a 429 before giving up on a file. */
+        private const val RATE_LIMIT_TRIES = 4
         private const val POLL_TRIES = 60
         private const val POLL_WAIT_MS = 500L
 

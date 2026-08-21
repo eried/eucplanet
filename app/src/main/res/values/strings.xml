@@ -663,6 +663,7 @@
     <string name="action_retry">Retry</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
     <string name="sync_no_folder">Pick a backup folder first</string>
+    <string name="sync_rate_limited">Dropbox is limiting this account. %1$d of %2$d trips synced, the rest will retry.</string>
     <string name="sync_finished">Synchronized %1$d trips</string>
     <string name="sync_up_to_date">Already up to date</string>
     <string name="sync_conflict_title">Synchronization conflict</string>
