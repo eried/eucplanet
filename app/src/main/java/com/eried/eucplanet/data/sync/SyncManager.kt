@@ -352,6 +352,57 @@ class SyncManager @Inject constructor(
 
     private data class CsvMeta(val startTime: Long, val endTime: Long, val distanceKm: Float)
 
+    /**
+     * Pull the trips Dropbox has and this phone does not, for up to [budgetMs].
+     *
+     * The background worker owns the upload half; this is the download half it
+     * never had. A rider setting up a new phone from a big Dropbox library could
+     * only get it through the foreground sync, which at real-world speed runs
+     * for the better part of an hour - so it only finished if they sat and
+     * watched it, and nothing continued once Android reclaimed the app.
+     *
+     * Time-bounded rather than count-bounded, because WorkManager gives a job
+     * about ten minutes: take what fits, report what is left, and let the
+     * worker be run again. Already-downloaded trips are skipped, so each run
+     * picks up where the last one stopped.
+     *
+     * @return how many trips are still missing when the budget ran out
+     */
+    suspend fun downloadMissingTrips(budgetMs: Long, isStopped: () -> Boolean): Int {
+        val settings = settingsRepository.get()
+        if (settings.dropboxAccessToken.isBlank()) return 0
+        val remote = dropboxRepository.listFolder("/trips") ?: return 0
+        val tripsDir = getTripsDir()
+        val localLower = tripsDir.listFiles { f -> f.isFile }
+            ?.map { it.name.lowercase() }?.toHashSet().orEmpty()
+        val missing = remote.keys.filter { it.lowercase() !in localLower }
+        if (missing.isEmpty()) return 0
+
+        val deadline = System.currentTimeMillis() + budgetMs
+        var left = missing.size
+        for (name in missing) {
+            if (isStopped() || System.currentTimeMillis() > deadline) break
+            val bytes = dropboxRepository.downloadFile("/trips/$name") ?: continue
+            val dest = File(tripsDir, name)
+            dest.outputStream().use { it.write(bytes) }
+            if (tripDao.findByFileName(name) == null) {
+                val meta = parseCsvMeta(dest)
+                tripDao.insert(TripRecord(
+                    startTime = meta.startTime,
+                    endTime = meta.endTime,
+                    fileName = name,
+                    distanceKm = meta.distanceKm,
+                    // Pending when a backup folder exists, so the folder worker
+                    // mirrors it: same rule as the foreground pass.
+                    uploadStatus = if (settings.syncFolderUri != null) 1 else 0,
+                ))
+            }
+            left--
+        }
+        if (left < missing.size && settings.syncFolderUri != null) enqueueTripUpload(settings)
+        return left
+    }
+
     private fun parseCsvMeta(file: File): CsvMeta {
         var startTime = System.currentTimeMillis()
         var endTime = startTime

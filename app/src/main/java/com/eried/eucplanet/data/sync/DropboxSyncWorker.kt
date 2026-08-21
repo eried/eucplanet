@@ -18,11 +18,16 @@ import java.io.File
  * Mirror local trips + settings into the linked Dropbox App Folder.
  *
  * Comparison-based rather than per-file-status: list both sides, upload
- * anything that's newer locally or missing remote. No download in this
- * pass (Phase 3 brings the conflict dialog + restore flow). Skipping the
- * Room migration for a status column keeps Phase 2 short; the trade-off
- * is an extra /files/list_folder round-trip per sync, which is cheap
- * compared to the upload bodies themselves.
+ * anything that's newer locally or missing remote, then pull down what
+ * Dropbox has and this phone does not.
+ *
+ * The download half matters for a rider setting a new phone up from a big
+ * library. It used to exist only in the foreground sync, which takes the
+ * better part of an hour for a couple of thousand trips - so it finished only
+ * if they sat and watched, and nothing carried on when Android reclaimed the
+ * app. Here it is bounded by the time WorkManager gives a job, and whatever is
+ * left schedules another run, so a library arrives across several passes
+ * without anyone watching.
  */
 @HiltWorker
 class DropboxSyncWorker @AssistedInject constructor(
@@ -34,7 +39,12 @@ class DropboxSyncWorker @AssistedInject constructor(
     private val syncManager: SyncManager,
 ) : CoroutineWorker(context, params) {
 
-    companion object { private const val TAG = "DropboxSyncWorker" }
+    companion object {
+        private const val TAG = "DropboxSyncWorker"
+        /** Leaves room inside WorkManager's ~10 minute window for the upload
+         *  half and the folder mirror that run before it. */
+        private const val DOWNLOAD_BUDGET_MS = 6 * 60_000L
+    }
 
     override suspend fun doWork(): Result {
         val settings = settingsRepository.get()
@@ -167,10 +177,18 @@ class DropboxSyncWorker @AssistedInject constructor(
             )
         }
 
-        if (anyFailed) {
+        // --- Trips Dropbox has that this phone does not. Bounded, because a
+        //     job gets about ten minutes; the rest comes on the next run.
+        val stillMissing = syncManager.downloadMissingTrips(
+            budgetMs = DOWNLOAD_BUDGET_MS,
+            isStopped = { isStopped },
+        )
+        if (stillMissing > 0) Log.i(TAG, "$stillMissing trips still to come down")
+
+        if (anyFailed || stillMissing > 0) {
             val attempt = inputData.getInt(SyncManager.KEY_ATTEMPT, 0)
             syncManager.scheduleDropboxSyncAttempt(attempt + 1)
-            Log.i(TAG, "Some uploads failed; retry scheduled (uploaded $uploaded)")
+            Log.i(TAG, "Retry scheduled (uploaded $uploaded, $stillMissing left to download)")
         } else {
             Log.i(TAG, "Sync OK (uploaded $uploaded)")
         }

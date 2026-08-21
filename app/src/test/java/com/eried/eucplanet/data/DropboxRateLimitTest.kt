@@ -67,6 +67,35 @@ class DropboxRateLimitTest {
         assertTrue("no message for it", strings.contains("sync_rate_limited"))
     }
 
+    @Test fun `the background worker downloads, not just uploads`() {
+        // For a long time it only uploaded, so a rider setting up a new phone
+        // could only pull their library through the foreground sync - which
+        // means sitting and watching it for the better part of an hour, and
+        // losing it the moment Android reclaimed the app.
+        val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
+        assertTrue("the worker never downloads", worker.contains("downloadMissingTrips"))
+    }
+
+    @Test fun `a download pass is time-bounded and asks to be run again`() {
+        val worker = File("src/main/java/com/eried/eucplanet/data/sync/DropboxSyncWorker.kt").readText()
+        // WorkManager gives a job about ten minutes; taking what fits and
+        // rescheduling is what lets a big library arrive across several runs.
+        assertTrue("no budget on the download pass", worker.contains("DOWNLOAD_BUDGET_MS"))
+        assertTrue("nothing reschedules when trips remain",
+            worker.contains("stillMissing > 0"))
+        // Read the minutes out of "DOWNLOAD_BUDGET_MS = 6 * 60_000L" without
+        // a regex, so the assertion cannot be broken by escaping.
+        val minutes = worker.substringAfter("DOWNLOAD_BUDGET_MS = ", "")
+            .substringBefore(" *", "")
+            .trim().toIntOrNull()
+        assertTrue("budget missing or too close to the 10 minute limit",
+            minutes != null && minutes <= 8)
+    }
+
+    @Test fun `the download pass stops when the rider cancels`() {
+        assertTrue(sync.contains("isStopped: () -> Boolean"))
+    }
+
     @Test fun `a trip pulled from Dropbox is queued for the backup folder`() {
         // Downloads used to insert with uploadStatus 0, which the folder worker
         // skips, so the two backups disagreed until the rider pressed Sync all.
