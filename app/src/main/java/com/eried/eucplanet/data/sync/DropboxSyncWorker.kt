@@ -61,6 +61,17 @@ class DropboxSyncWorker @AssistedInject constructor(
         // --- Trips: upload anything local that's missing or newer on Dropbox.
         val remoteTrips = dropboxRepository.listFolder("/trips")
         if (remoteTrips == null) {
+            // A refusal fails here, at the first call of the pass, so this is
+            // the return that ran once a minute all night. WorkManager's retry
+            // would do the same again; hand it a long delay instead.
+            if (dropboxRepository.refused) {
+                syncManager.scheduleDropboxSyncAttempt(
+                    0, delaySeconds = SyncManager.REFUSED_RETRY_SECONDS
+                )
+                Log.w(TAG, "Dropbox refused us; backing off " +
+                    "${SyncManager.REFUSED_RETRY_SECONDS / 60} min")
+                return Result.success()
+            }
             Log.w(TAG, "list_folder failed, will retry")
             return Result.retry()
         }
@@ -189,6 +200,18 @@ class DropboxSyncWorker @AssistedInject constructor(
         )
         if (stillMissing > 0) Log.i(TAG, "$stillMissing trips still to come down")
 
+        // Dropbox refusing us is not a transient failure to retry through. Its
+        // edge cuts a client off wholesale, and the ordinary backoff starts at
+        // a minute, so the app spends the outage knocking once a minute and
+        // earning more of it. Leave it alone for half an hour instead.
+        if (dropboxRepository.refused) {
+            syncManager.scheduleDropboxSyncAttempt(
+                0, delaySeconds = SyncManager.REFUSED_RETRY_SECONDS
+            )
+            Log.w(TAG, "Dropbox refused us; backing off " +
+                "${SyncManager.REFUSED_RETRY_SECONDS / 60} min")
+            return Result.success()
+        }
         if (anyFailed || stillMissing > 0) {
             val attempt = inputData.getInt(SyncManager.KEY_ATTEMPT, 0)
             syncManager.scheduleDropboxSyncAttempt(attempt + 1)

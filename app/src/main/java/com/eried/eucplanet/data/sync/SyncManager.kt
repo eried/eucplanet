@@ -109,6 +109,14 @@ class SyncManager @Inject constructor(
         private const val BACKOFF_BASE_SECONDS = 15L
         private const val BACKOFF_MAX_SECONDS = 300L
 
+        /**
+         * How long to leave Dropbox alone after it refuses us outright.
+         *
+         * Long on purpose: a refusal is not a hiccup, and retrying into one
+         * every minute is what earns a longer one.
+         */
+        const val REFUSED_RETRY_SECONDS = 30L * 60
+
         fun delayForAttempt(attempt: Int): Long {
             if (attempt <= 0) return 0L
             val shift = (attempt - 1).coerceAtMost(20)
@@ -1261,6 +1269,16 @@ class SyncManager @Inject constructor(
                 if (total == 0) SyncResult.UpToDate else SyncResult.Finished(total)
             if (settings.syncFolderUri != null) enqueueTripUpload(settings)
             settingsRepository.update { it.copy(dropboxPullRequested = false) }
+        } else if (dropboxRepository.refused) {
+            // Dropbox has cut us off rather than asked us to wait. Coming back
+            // in a minute, as an ordinary failure would, is what keeps us cut
+            // off - so wait properly. The rider is told the same thing either
+            // way: Dropbox is limiting us and their trips are not lost.
+            _syncResult.value = SyncResult.RateLimited(total - failed, total)
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = true, dropboxPendingCount = failed)
+            }
+            scheduleDropboxSyncAttempt(0, delaySeconds = REFUSED_RETRY_SECONDS)
         } else if (dropboxRepository.rateLimited) {
             // Say which it was. The retry worker still picks the rest up, but
             // the rider is owed the reason their library stopped halfway.
@@ -1474,7 +1492,7 @@ class SyncManager @Inject constructor(
         }
     }
 
-    fun scheduleDropboxSyncAttempt(attempt: Int) {
+    fun scheduleDropboxSyncAttempt(attempt: Int, delaySeconds: Long? = null) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -1482,7 +1500,7 @@ class SyncManager @Inject constructor(
         val request = OneTimeWorkRequestBuilder<DropboxSyncWorker>()
             .setConstraints(constraints)
             .setInputData(data)
-            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
+            .setInitialDelay(delaySeconds ?: delayForAttempt(attempt), TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             DROPBOX_SYNC_WORK_NAME,

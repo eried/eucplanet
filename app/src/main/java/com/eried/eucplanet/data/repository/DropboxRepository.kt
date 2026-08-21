@@ -59,7 +59,23 @@ class DropboxRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
 ) {
 
-    private val http = OkHttpClient()
+    /**
+     * Every Dropbox request goes through here, which is the point: a refusal
+     * has to be noticed wherever it lands, not only at the call that happened
+     * to be first. Scattering the check over a dozen response handlers would
+     * mean the one that was missed is the one that loops.
+     */
+    private val http = OkHttpClient.Builder()
+        .addInterceptor { chain ->
+            chain.proceed(chain.request()).also { resp ->
+                if (resp.code == 403) {
+                    refused = true
+                    Log.w("DBXSHARE", "refused by Dropbox (403): " +
+                        chain.request().url.encodedPath)
+                }
+            }
+        }
+        .build()
 
     /**
      * True when Dropbox last answered 429 and the retries did not clear it.
@@ -74,8 +90,23 @@ class DropboxRepository @Inject constructor(
     var rateLimited: Boolean = false
         private set
 
-    /** Cleared at the start of a sync, so the flag describes this run. */
-    fun clearRateLimited() { rateLimited = false }
+    /**
+     * Dropbox refused us outright, rather than asking us to slow down.
+     *
+     * Their edge answers 403 with a `.tag` of "other" when it cuts a client
+     * off - every endpoint at once, including reading the account. It is not a
+     * 429 and carries no retry_after, so the sync read it as an ordinary
+     * failure and came straight back a minute later, which is the surest way
+     * to stay cut off. Seen for real: an hour of one refused list_folder a
+     * minute, all night, with nothing said to the rider.
+     */
+    @Volatile
+    var refused: Boolean = false
+        private set
+
+    /** Cleared at the start of a sync, so the flags describe this run. */
+    fun clearRateLimited() { rateLimited = false; refused = false }
+
 
     /**
      * Run [attempt] and, when Dropbox says it is rate limited, wait the number
@@ -488,7 +519,8 @@ class DropboxRepository @Inject constructor(
                         return@use null
                     }
                     if (!resp.isSuccessful) {
-                        Log.w("DBXSHARE", "list_folder HTTP ${resp.code}: ${resp.body?.string()?.take(300)}")
+                        val text = resp.body?.string().orEmpty()
+                        Log.w("DBXSHARE", "list_folder HTTP ${resp.code}: ${text.take(300)}")
                         return@use null
                     }
                     parseListPage(JSONObject(resp.body?.string().orEmpty()))
