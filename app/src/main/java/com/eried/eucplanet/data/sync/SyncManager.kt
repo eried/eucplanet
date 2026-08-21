@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.eried.eucplanet.util.TripCsv
@@ -245,7 +246,17 @@ class SyncManager @Inject constructor(
         }
     }
 
-    private suspend fun runSync() {
+    /**
+     * Takes the same pass lock as the upload worker.
+     *
+     * Both write into the trips folder, and the app runs this on launch, which
+     * is exactly when a worker mirroring a restored library is busy. Two of
+     * them creating one file does not fail: the document provider renames the
+     * loser, leaving "trip (1) (1).csv" beside the backup. Seen happening.
+     */
+    private suspend fun runSync() = withUploadPass { runSyncPass() }
+
+    private suspend fun runSyncPass() {
         val settings = settingsRepository.get()
         if (settings.syncFolderUri == null) {
             _syncResult.value = SyncResult.NoFolder
@@ -259,6 +270,8 @@ class SyncManager @Inject constructor(
 
         val dbTrips = tripDao.observeAll().first()
         val folderByLower = folderNames.associateBy { it.lowercase() }
+        // Handed to uploadCsv so it does not re-list the folder per trip.
+        val folderNameSet = folderNames.toSet()
         val dbByLower = dbTrips.associateBy { it.fileName.lowercase() }
 
         val conflictKeys = folderByLower.keys intersect dbByLower.keys
@@ -303,7 +316,7 @@ class SyncManager @Inject constructor(
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val file = File(getTripsDir(), trip.fileName)
             if (file.exists()) {
-                val ok = uploadCsv(settings, file)
+                val ok = uploadCsv(settings, file, knownNames = folderNameSet)
                 if (ok) {
                     tripDao.update(trip.copy(
                         uploadStatus = 2,
@@ -1547,6 +1560,21 @@ class SyncManager @Inject constructor(
         }
     }
 
+    /**
+     * Serialises folder-upload passes.
+     *
+     * The one-time upload worker and the periodic one are separate unique work
+     * names, so WorkManager is free to run both at once, and both walk the same
+     * pending list. Two passes creating the same file is not a harmless race:
+     * the document provider renames the loser rather than refusing it, leaving
+     * "trip (1).csv" beside the real backup. They share a process, so a lock is
+     * all it takes.
+     */
+    private val uploadPassLock = kotlinx.coroutines.sync.Mutex()
+
+    suspend fun <T> withUploadPass(block: suspend () -> T): T =
+        uploadPassLock.withLock { block() }
+
     /** Copy a folder CSV into destFile. */
     fun downloadCsv(settings: AppSettings, fileName: String, destFile: File): Boolean {
         val root = getSyncFolder(settings) ?: return false
@@ -1574,13 +1602,31 @@ class SyncManager @Inject constructor(
          *  trips that came down from Dropbox: the folder's copy may be a
          *  different version and is not ours to overwrite unasked. */
         skipIfPresent: Boolean = false,
+        /**
+         * The names the folder already held when the pass started, if the
+         * caller has them.
+         *
+         * findFile lists the whole directory to answer one question, so a
+         * caller looping over a library pays that once per trip: with 2000
+         * trips backed up it slowed to eight files a minute and got slower as
+         * the folder filled. A caller that already enumerated the folder can
+         * hand the names over, and the common case - a name the folder does
+         * not have - then costs nothing.
+         */
+        knownNames: Set<String>? = null,
     ): Boolean {
         val root = getSyncFolder(settings) ?: return false
         val tripsFolder = root.findFile(TRIPS_SUBFOLDER)
             ?: root.createDirectory(TRIPS_SUBFOLDER)
             ?: return false
         return try {
-            val existing = tripsFolder.findFile(localFile.name)
+            val knownHas = knownNames?.contains(localFile.name)
+            // Nothing to do, and the caller's listing already proves it. Going
+            // to the folder to confirm costs a full directory listing, which is
+            // the whole reason mirroring a restored library crawled: most of
+            // those trips are already backed up.
+            if (knownHas == true && skipIfPresent) return true
+            val existing = if (knownHas == false) null else tripsFolder.findFile(localFile.name)
             if (existing != null && skipIfPresent) return true
             existing?.delete()
             val dest = tripsFolder.createFile("text/csv", localFile.name) ?: return false

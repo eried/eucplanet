@@ -27,15 +27,19 @@ class TripUploadWorker @AssistedInject constructor(
 
     companion object { private const val TAG = "TripUploadWorker" }
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = syncManager.withUploadPass {
         val settings = settingsRepository.get()
         if (settings.syncFolderUri == null) {
             Log.i(TAG, "No sync folder configured, skipping")
-            return Result.success()
+            return@withUploadPass Result.success()
         }
 
         val pending = tripDao.getPendingUploads()
-        if (pending.isEmpty()) return Result.success()
+        if (pending.isEmpty()) return@withUploadPass Result.success()
+
+        // One listing for the whole pass. Asking the folder about each trip in
+        // turn is what made mirroring a restored library crawl.
+        val knownNames = syncManager.listFolderTripNames(settings)?.toSet()
 
         var anyFailed = false
         for (trip in pending) {
@@ -48,7 +52,11 @@ class TripUploadWorker @AssistedInject constructor(
 
             // Status 4 came from Dropbox: mirror it in, but never over a file
             // the folder already holds.
-            val ok = syncManager.uploadCsv(settings, file, skipIfPresent = trip.uploadStatus == 4)
+            val ok = syncManager.uploadCsv(
+                settings, file,
+                skipIfPresent = trip.uploadStatus == 4,
+                knownNames = knownNames,
+            )
             if (ok) {
                 tripDao.update(trip.copy(
                     uploadStatus = 2,
@@ -68,6 +76,6 @@ class TripUploadWorker @AssistedInject constructor(
             Log.i(TAG, "Scheduling retry attempt $next in ${SyncManager.delayForAttempt(next)}s")
             syncManager.scheduleTripUploadAttempt(next)
         }
-        return Result.success()
+        return@withUploadPass Result.success()
     }
 }
