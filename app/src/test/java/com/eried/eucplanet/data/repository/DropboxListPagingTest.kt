@@ -101,10 +101,10 @@ class DropboxListPagingTest {
         val page = DropboxRepository.parseListPage(json)
         assertEquals(setOf("trip_a.csv", "trip_b.csv"), page.files.keys)
         assertEquals(1234L, page.files["trip_a.csv"]?.size)
-        assertEquals(1787054400L, page.files["trip_a.csv"]?.serverModified)
+        assertEquals(1787054400L, page.files["trip_a.csv"]?.serverModifiedSec)
         // An unparseable date must not drop the file: size is what conflict
         // detection actually uses.
-        assertEquals(0L, page.files["trip_b.csv"]?.serverModified)
+        assertEquals(0L, page.files["trip_b.csv"]?.serverModifiedSec)
         assertEquals("CURSOR", page.cursor)
         assertEquals(true, page.hasMore)
     }

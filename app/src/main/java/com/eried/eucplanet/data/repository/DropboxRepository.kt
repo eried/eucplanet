@@ -472,7 +472,15 @@ class DropboxRepository @Inject constructor(
     /** Metadata for one remote file from a folder listing. [size] is the byte
      *  count Dropbox holds, the stable signal for "already uploaded" (a trip
      *  CSV's modified-time can be bumped locally, its content-length cannot). */
-    data class RemoteFile(val serverModified: Long, val size: Long)
+    /**
+     * A file as Dropbox describes it. The timestamp is in SECONDS, which the
+     * name now says out loud: it was called serverModified, and comparing it
+     * against a millisecond timestamp is a comparison that is simply never
+     * true. That silently disabled a guard against overwriting remote edits,
+     * and read as working in every test that checked the code rather than ran
+     * it.
+     */
+    data class RemoteFile(val serverModifiedSec: Long, val size: Long)
 
     /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
      *  relative). Empty map on "not_found" (folder doesn't exist yet — normal on

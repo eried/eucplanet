@@ -12,7 +12,6 @@ import com.eried.eucplanet.data.store.SettingsJson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.json.JSONObject
-import kotlinx.coroutines.flow.first
 import java.io.File
 
 /**
@@ -44,15 +43,16 @@ class DropboxSyncWorker @AssistedInject constructor(
         private const val TAG = "DropboxSyncWorker"
 
         /**
-         * How far Dropbox's timestamp may run ahead of ours before we read it
-         * as someone else's edit rather than our own upload.
+         * How far Dropbox's copy must be ahead of this phone's before it counts
+         * as someone else's edit rather than clock skew.
          *
-         * Dropbox stamps server_modified with its clock, we stamp uploadedAt
-         * with the phone's, and the two are never exactly the same. Minutes of
-         * slack cost nothing: an edit made in another tool is hours or days
-         * later, not five minutes.
+         * In seconds, matching what Dropbox reports. Dropbox stamps with its
+         * clock and the filesystem with the phone's, so a little slack is
+         * needed. Not much: an edit made in another tool is
+         * hours or days later, and slack this small still keeps a local change
+         * winning when the two happen close together.
          */
-        private const val EDIT_GRACE_MS = 5L * 60 * 1000
+        private const val EDIT_GRACE_SEC = 2L * 60
         /** Leaves room inside WorkManager's ~10 minute window for the upload
          *  half and the folder mirror that run before it. */
         private const val DOWNLOAD_BUDGET_MS = 6 * 60_000L
@@ -104,30 +104,18 @@ class DropboxSyncWorker @AssistedInject constructor(
         // made every trip look "newer" and re-upload forever, so the sync never
         // converged and the indicator never cleared. failedTrips tracks how many
         // of the needed uploads never made it this pass.
-        // When we last put each trip on Dropbox, so an edit made there can be
-        // told apart from one made here.
-        val uploadedAt = tripRepository.allTrips.first()
-            .associate { it.fileName.lowercase() to (it.uploadedAt ?: 0L) }
         fun needsUpload(f: File): Boolean {
-            val remote = remoteTrips[f.name] ?: return true
-            if (remote.size == f.length()) return false
-            // Sizes differ, and "ours is different" used to be enough to
-            // upload over theirs. It is not: renaming a trip in another tool
-            // writes the name into the file, which changes its size, so the
-            // next pass quietly replaced the renamed copy with this phone's
-            // nameless one. Riders reported renames coming back "normal" days
-            // later, and this is what did it.
-            //
-            // If Dropbox's copy has changed since we last put it there, it was
-            // changed somewhere else. Leave it alone. The grace window covers
-            // the clock skew between this phone and Dropbox's own timestamp on
-            // our upload, which is seconds, not days.
-            val ours = uploadedAt[f.name.lowercase()] ?: 0L
-            if (ours > 0L && remote.serverModified > ours + EDIT_GRACE_MS) {
-                Log.i(TAG, "${f.name} changed on Dropbox since we uploaded it; not overwriting")
-                return false
+            val remote = remoteTrips[f.name]
+            val up = UploadPolicy.needsUpload(
+                remoteSize = remote?.size,
+                remoteModifiedSec = remote?.serverModifiedSec ?: 0L,
+                localSize = f.length(),
+                localModifiedMs = f.lastModified(),
+            )
+            if (!up && remote != null && remote.size != f.length()) {
+                Log.i(TAG, "${f.name} changed on Dropbox since this phone wrote it; not overwriting")
             }
-            return true
+            return up
         }
         val needUpload = localFiles.count { needsUpload(it) }
         settingsRepository.update {
@@ -167,7 +155,7 @@ class DropboxSyncWorker @AssistedInject constructor(
         val settingsJson = SettingsJson.toJson(settings).toString().toByteArray(Charsets.UTF_8)
         val now = System.currentTimeMillis()
         val rootList = dropboxRepository.listFolder("")
-        val remoteSettingsMod = rootList?.get("settings.json")?.serverModified
+        val remoteSettingsMod = rootList?.get("settings.json")?.serverModifiedSec
         val lastSync = settings.dropboxLastSyncAt / 1000L
         if (remoteSettingsMod == null || remoteSettingsMod < lastSync) {
             val ok = dropboxRepository.uploadFile("/settings.json", settingsJson)
@@ -189,7 +177,7 @@ class DropboxSyncWorker @AssistedInject constructor(
                         if (!doc.isFile) continue
                         val name = doc.name ?: continue
                         val localMod = doc.lastModified() / 1000L
-                        if (remoteSub[name]?.let { it.serverModified >= localMod } == true) continue
+                        if (remoteSub[name]?.let { it.serverModifiedSec >= localMod } == true) continue
                         val bytes = try {
                             applicationContext.contentResolver
                                 .openInputStream(doc.uri)?.use { it.readBytes() }

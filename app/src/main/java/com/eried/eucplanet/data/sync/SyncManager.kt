@@ -1370,7 +1370,7 @@ class SyncManager @Inject constructor(
                     if (!doc.isFile) continue
                     val name = doc.name ?: continue
                     val localMod = doc.lastModified() / 1000L
-                    if (remote[name]?.let { it.serverModified >= localMod } == true) continue
+                    if (remote[name]?.let { it.serverModifiedSec >= localMod } == true) continue
                     val bytes = try {
                         context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
                     } catch (e: Exception) { null } ?: continue
