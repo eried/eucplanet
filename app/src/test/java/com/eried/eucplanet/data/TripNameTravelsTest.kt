@@ -106,4 +106,27 @@ class TripNameTravelsTest {
         val download = sync.substringAfter("for (name in toDownload)").take(3400)
         assertTrue(download.contains("uploadStatus = if (settings.syncFolderUri != null) 1 else existing.uploadStatus"))
     }
+
+    // --- resetting back to the date ----------------------------------------
+
+    @Test fun `a blank name clears the cell from the file`() {
+        // The dialog's Reset goes through the same door as a rename with an
+        // empty field: the cell is emptied, so the cleared name travels to the
+        // backups the same way a set name does.
+        val src = csv("2026-02-01 10:00:00.000,10,80,1,80,90,52.1,4.3,100,")
+        val named = tmp.newFile()
+        val cleared = tmp.newFile()
+        TripDerive.rewriteTripName(src, named, "Coast road")
+        TripDerive.rewriteTripName(named, cleared, "")
+        assertTrue("the name survived the reset", !cleared.readText().contains("trip.name="))
+    }
+
+    @Test fun `the dialog's reset clears and accepts in one tap`() {
+        val dialog = File("src/main/java/com/eried/eucplanet/ui/recording/TripToolsDialog.kt").readText()
+        val rename = dialog.substringAfter("fun RenameTripDialog").substringBefore("fun ")
+        assertTrue("reset does not confirm the cleared name",
+            rename.contains("""onConfirm("")"""))
+        assertTrue("reset is offered on a trip with no name to clear",
+            rename.contains("!currentName.isNullOrBlank()"))
+    }
 }

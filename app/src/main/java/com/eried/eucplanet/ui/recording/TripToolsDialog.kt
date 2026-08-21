@@ -151,8 +151,20 @@ fun RenameTripDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_cancel))
+            Row {
+                // One tap back to the date: clears the name AND accepts, so a
+                // rider undoing a rename is not asked to empty the field by
+                // hand and then find Save. Only offered while there is a name
+                // to clear - on an unnamed trip it would just be a second
+                // Cancel.
+                if (!currentName.isNullOrBlank()) {
+                    TextButton(onClick = { onConfirm("") }, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.action_reset))
+                    }
+                }
+                TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                    Text(stringResource(R.string.action_cancel))
+                }
             }
         }
     )
