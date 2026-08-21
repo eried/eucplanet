@@ -101,6 +101,10 @@ class SyncManager @Inject constructor(
         // back home. A 5m ceiling means a stranded trip catches up within minutes.
         // The workers no-op once nothing is pending, so a tighter cap costs
         // nothing in the common case.
+        /** Attempt number for the watchdog queued when a foreground sync
+         *  starts: far enough up the backoff curve to sit ~5 minutes behind
+         *  it, so it only ever runs if the foreground pass stopped. */
+        const val WATCHDOG_ATTEMPT = 8
         private const val BACKOFF_BASE_SECONDS = 15L
         private const val BACKOFF_MAX_SECONDS = 300L
 
@@ -215,6 +219,13 @@ class SyncManager @Inject constructor(
         _syncCancelling.value = true
         conflictChoice?.complete(SyncChoice.CANCEL)
         activeSyncJob?.cancel()
+        // The Dropbox pass queues a watchdog run behind itself in case Android
+        // takes the app away mid-sync. A rider who cancels wants it stopped,
+        // not resumed five minutes later, so the queued run goes too.
+        if (_activeSyncKind.value == SyncConflictKind.DROPBOX) {
+            WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
+            scope.launch { settingsRepository.update { it.copy(dropboxPullRequested = false) } }
+        }
     }
 
     fun startSync() {
@@ -371,15 +382,34 @@ class SyncManager @Inject constructor(
     suspend fun downloadMissingTrips(budgetMs: Long, isStopped: () -> Boolean): Int {
         val settings = settingsRepository.get()
         if (settings.dropboxAccessToken.isBlank()) return 0
+        // Only ever finishing a pull the rider asked for. Downloading on the
+        // app's own initiative would spend a rider's data on a library they may
+        // have linked Dropbox only to back up.
+        if (!settings.dropboxPullRequested) return 0
         val remote = dropboxRepository.listFolder("/trips") ?: return 0
         val tripsDir = getTripsDir()
         val localLower = tripsDir.listFiles { f -> f.isFile }
             ?.map { it.name.lowercase() }?.toHashSet().orEmpty()
         val missing = remote.keys.filter { it.lowercase() !in localLower }
-        if (missing.isEmpty()) return 0
+        if (missing.isEmpty()) {
+            // Nothing left to bring over: the request is finished.
+            settingsRepository.update { it.copy(dropboxPullRequested = false) }
+            return 0
+        }
 
         val deadline = System.currentTimeMillis() + budgetMs
         var left = missing.size
+        // The rider sees the same persistent indicator a foreground pass puts
+        // up. Without it a background download is invisible: trips appear in
+        // the list with nothing to say where they came from or how many are
+        // still on the way.
+        settingsRepository.update {
+            it.copy(
+                dropboxSyncPending = true,
+                dropboxPendingCount = missing.size,
+                dropboxSyncTotal = missing.size,
+            )
+        }
         for (name in missing) {
             if (isStopped() || System.currentTimeMillis() > deadline) break
             val bytes = dropboxRepository.downloadFile("/trips/$name") ?: continue
@@ -398,8 +428,17 @@ class SyncManager @Inject constructor(
                 ))
             }
             left--
+            settingsRepository.update { it.copy(dropboxPendingCount = left) }
         }
         if (left < missing.size && settings.syncFolderUri != null) enqueueTripUpload(settings)
+        settingsRepository.update {
+            it.copy(
+                dropboxSyncPending = left > 0,
+                dropboxPendingCount = left,
+                dropboxSyncTotal = if (left > 0) it.dropboxSyncTotal else 0,
+                dropboxPullRequested = left > 0,
+            )
+        }
         return left
     }
 
@@ -1010,9 +1049,32 @@ class SyncManager @Inject constructor(
      * then upload / download to reconcile. Runs in the app-scoped coroutine
      * so leaving Settings does NOT cancel a half-finished reconcile.
      */
+    /**
+     * Ask for the Dropbox library to come down, without taking over the screen.
+     *
+     * For linking, where the rider has just said "bring my trips over" but is
+     * still in the middle of setting the app up. The worker does the fetching:
+     * it takes what it can in the time it is given, leaves anything the phone
+     * already has alone, and comes back for the rest.
+     */
+    fun requestDropboxPull() {
+        scope.launch {
+            settingsRepository.update { it.copy(dropboxPullRequested = true) }
+            enqueueDropboxSync()
+        }
+    }
+
     fun startDropboxSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
         _activeSyncKind.value = SyncConflictKind.DROPBOX
+        // A safety net for the pass about to start. Pulling a big library takes
+        // the better part of an hour, and the rider will put the phone in a
+        // pocket long before that: Android reclaims the app, the coroutine dies
+        // mid-loop, and the code that would have scheduled a retry never runs.
+        // WorkManager outlives the process, so this is queued up front. If the
+        // foreground pass finishes, the worker wakes to nothing left to do.
+        scope.launch { settingsRepository.update { it.copy(dropboxPullRequested = true) } }
+        scheduleDropboxSyncAttempt(WATCHDOG_ATTEMPT)
         activeSyncJob = scope.launch {
             try {
                 // A manual sync is starting: mark trips as pending so the
@@ -1185,6 +1247,7 @@ class SyncManager @Inject constructor(
             _syncResult.value =
                 if (total == 0) SyncResult.UpToDate else SyncResult.Finished(total)
             if (settings.syncFolderUri != null) enqueueTripUpload(settings)
+            settingsRepository.update { it.copy(dropboxPullRequested = false) }
         } else if (dropboxRepository.rateLimited) {
             // Say which it was. The retry worker still picks the rest up, but
             // the rider is owed the reason their library stopped halfway.

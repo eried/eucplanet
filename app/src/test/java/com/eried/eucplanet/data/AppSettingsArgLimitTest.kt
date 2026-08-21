@@ -56,6 +56,10 @@ class AppSettingsArgLimitTest {
         // crash report. Moving the voice report flags into VoiceReportSettings
         // bought back 17 slots. Update this when the usage genuinely changes,
         // and prefer nesting over spending the headroom.
+        // 248: dropboxPullRequested, the flag that keeps downloading something
+        // the rider asked for rather than something the app decided. It has to
+        // outlive the process - a library takes the better part of an hour and
+        // the phone goes in a pocket - so it is settings, not memory.
         // 247: next-experimental combines two additions on top of the 245 base -
         // trip-details' flat tripExtraTiles (opt-in stat-tile store), and the
         // nested battery-percent estimate (four fields inside
@@ -67,7 +71,7 @@ class AppSettingsArgLimitTest {
         // cached JSON. 239 before that.
         // 239: the widget's nested settings added a field, which also crossed a
         // 32-property boundary and so cost a second bitmask slot.
-        val expectedSlots = 247
+        val expectedSlots = 248
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

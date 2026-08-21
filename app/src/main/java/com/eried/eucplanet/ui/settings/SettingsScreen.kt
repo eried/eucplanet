@@ -8407,9 +8407,17 @@ private fun CloudTab(
             val missingFromFolder by viewModel.tripsMissingFromFolder.collectAsState()
             LaunchedEffect(Unit) { viewModel.refreshFolderGap() }
             if (missingFromFolder > 0) {
-                HintText(
+                // Tappable, because the hint names the fix: reading "N trips
+                // are not in your backup folder" and then hunting for the
+                // button that copies them is a step the app can save.
+                Text(
                     stringResource(R.string.cloud_trips_folder_gap, missingFromFolder),
-                    small = true,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.statusWarn,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = !syncRunning) { viewModel.syncAllTrips() }
+                        .padding(vertical = 6.dp),
                 )
             }
             Row(

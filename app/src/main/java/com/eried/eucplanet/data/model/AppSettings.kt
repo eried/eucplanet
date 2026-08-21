@@ -916,7 +916,23 @@ data class AppSettings(
     val dropboxPendingCount: Int = 0,
     /** Trips in the current sync batch, so the pending indicator can show
      *  "X of Y" like the foreground sync (done = total - pending). 0 = no batch. */
-    val dropboxSyncTotal: Int = 0
+    val dropboxSyncTotal: Int = 0,
+    /**
+     * The rider asked for their Dropbox trips to come down, and some are still
+     * missing.
+     *
+     * Downloading is never something the app decides on its own: it is a lot of
+     * data and a lot of battery, and a rider who links Dropbox to back trips
+     * *up* should not find a library arriving unasked. So the background worker
+     * only pulls while this is set - by pressing Sync all, or by linking, which
+     * is a rider saying "bring my trips over".
+     *
+     * It survives the app being killed, which is the point: a big library takes
+     * the better part of an hour, and the phone goes in a pocket long before
+     * that. Cleared when nothing is left to fetch, or the moment the rider
+     * cancels.
+     */
+    val dropboxPullRequested: Boolean = false
 ) {
     // Delegating getters so reads like `settings.wheelPollIntervalMs` keep working
     // after the 46 advanced fields moved into the nested [AdvancedSettings] (which

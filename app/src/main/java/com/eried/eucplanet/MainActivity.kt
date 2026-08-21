@@ -340,6 +340,12 @@ class MainActivity : AppCompatActivity() {
                 appNotifier.post(
                     getString(if (ok) R.string.dropbox_link_ok else R.string.dropbox_link_failed)
                 )
+                // Linking is a rider saying "bring my trips over", so the pull
+                // is requested here and the worker carries it out in the
+                // background - conflicts left alone, cancellable, and picked up
+                // again if the app is killed halfway. Nothing downloads without
+                // this having been asked for.
+                if (ok) syncManager.requestDropboxPull()
             }
             return true
         }

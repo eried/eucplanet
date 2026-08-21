@@ -179,7 +179,11 @@ class DropboxSyncWorker @AssistedInject constructor(
 
         // --- Trips Dropbox has that this phone does not. Bounded, because a
         //     job gets about ten minutes; the rest comes on the next run.
-        val stillMissing = syncManager.downloadMissingTrips(
+        // Never alongside a foreground pass: both would pull the same files.
+        val stillMissing = if (syncManager.syncRunning.value) {
+            Log.i(TAG, "Foreground sync is running, leaving the download to it")
+            0
+        } else syncManager.downloadMissingTrips(
             budgetMs = DOWNLOAD_BUDGET_MS,
             isStopped = { isStopped },
         )

@@ -345,6 +345,7 @@ object SettingsJson {
         put("dropboxAccountLabel", s.dropboxAccountLabel)
         put("dropboxLastSyncAt", s.dropboxLastSyncAt)
         put("dropboxSyncPending", s.dropboxSyncPending)
+        put("dropboxPullRequested", s.dropboxPullRequested)
         put("dropboxPendingCount", s.dropboxPendingCount)
         put("dropboxSyncTotal", s.dropboxSyncTotal)
     }
@@ -722,6 +723,7 @@ object SettingsJson {
         dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
         dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt),
         dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
+        dropboxPullRequested = j.optBoolean("dropboxPullRequested", base.dropboxPullRequested),
         dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
         dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )

@@ -96,6 +96,45 @@ class DropboxRateLimitTest {
         assertTrue(sync.contains("isStopped: () -> Boolean"))
     }
 
+    @Test fun `nothing downloads unless the rider asked for it`() {
+        // Downloading is a lot of data and a lot of battery, and someone who
+        // links Dropbox to back trips *up* should not find a library arriving.
+        // The worker only ever finishes a pull that was requested.
+        val pass = sync.substringAfter("suspend fun downloadMissingTrips").substringBefore("private fun parseCsvMeta")
+        assertTrue("the download pass does not check for a request",
+            pass.contains("if (!settings.dropboxPullRequested) return 0"))
+    }
+
+    @Test fun `pressing sync, or linking, is what asks for it`() {
+        assertTrue("a foreground sync does not record the request",
+            sync.contains("dropboxPullRequested = true"))
+        assertTrue("linking has no way to ask", sync.contains("fun requestDropboxPull"))
+        val main = File("src/main/java/com/eried/eucplanet/MainActivity.kt").readText()
+        assertTrue("linking does not ask for the trips", main.contains("requestDropboxPull()"))
+    }
+
+    @Test fun `the request survives the app being killed`() {
+        // The whole point: a big library outlasts the app's time in memory.
+        val settings = File("src/main/java/com/eried/eucplanet/data/model/AppSettings.kt").readText()
+        assertTrue("the flag is not persisted", settings.contains("val dropboxPullRequested"))
+        val json = File("src/main/java/com/eried/eucplanet/data/store/SettingsJson.kt").readText()
+        assertTrue("the flag is not in the settings json", json.contains("dropboxPullRequested"))
+    }
+
+    @Test fun `cancelling stops it coming back`() {
+        // Cancel used to leave the queued watchdog alive, which would have
+        // resumed the download minutes later and undone the rider's decision.
+        val cancel = sync.substringAfter("fun cancelActiveSync").take(900)
+        assertTrue("cancel leaves the queued work running",
+            cancel.contains("cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)"))
+        assertTrue("cancel leaves the request standing",
+            cancel.contains("dropboxPullRequested = false"))
+    }
+
+    @Test fun `finishing the pull clears the request`() {
+        assertTrue(sync.contains("dropboxPullRequested = left > 0"))
+    }
+
     @Test fun `a trip pulled from Dropbox is queued for the backup folder`() {
         // Downloads used to insert with uploadStatus 0, which the folder worker
         // skips, so the two backups disagreed until the rider pressed Sync all.
