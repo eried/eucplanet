@@ -12,6 +12,7 @@ import com.eried.eucplanet.data.store.SettingsJson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.json.JSONObject
+import kotlinx.coroutines.flow.first
 import java.io.File
 
 /**
@@ -41,6 +42,17 @@ class DropboxSyncWorker @AssistedInject constructor(
 
     companion object {
         private const val TAG = "DropboxSyncWorker"
+
+        /**
+         * How far Dropbox's timestamp may run ahead of ours before we read it
+         * as someone else's edit rather than our own upload.
+         *
+         * Dropbox stamps server_modified with its clock, we stamp uploadedAt
+         * with the phone's, and the two are never exactly the same. Minutes of
+         * slack cost nothing: an edit made in another tool is hours or days
+         * later, not five minutes.
+         */
+        private const val EDIT_GRACE_MS = 5L * 60 * 1000
         /** Leaves room inside WorkManager's ~10 minute window for the upload
          *  half and the folder mirror that run before it. */
         private const val DOWNLOAD_BUDGET_MS = 6 * 60_000L
@@ -92,9 +104,30 @@ class DropboxSyncWorker @AssistedInject constructor(
         // made every trip look "newer" and re-upload forever, so the sync never
         // converged and the indicator never cleared. failedTrips tracks how many
         // of the needed uploads never made it this pass.
+        // When we last put each trip on Dropbox, so an edit made there can be
+        // told apart from one made here.
+        val uploadedAt = tripRepository.allTrips.first()
+            .associate { it.fileName.lowercase() to (it.uploadedAt ?: 0L) }
         fun needsUpload(f: File): Boolean {
-            val remote = remoteTrips[f.name]
-            return remote == null || remote.size != f.length()
+            val remote = remoteTrips[f.name] ?: return true
+            if (remote.size == f.length()) return false
+            // Sizes differ, and "ours is different" used to be enough to
+            // upload over theirs. It is not: renaming a trip in another tool
+            // writes the name into the file, which changes its size, so the
+            // next pass quietly replaced the renamed copy with this phone's
+            // nameless one. Riders reported renames coming back "normal" days
+            // later, and this is what did it.
+            //
+            // If Dropbox's copy has changed since we last put it there, it was
+            // changed somewhere else. Leave it alone. The grace window covers
+            // the clock skew between this phone and Dropbox's own timestamp on
+            // our upload, which is seconds, not days.
+            val ours = uploadedAt[f.name.lowercase()] ?: 0L
+            if (ours > 0L && remote.serverModified > ours + EDIT_GRACE_MS) {
+                Log.i(TAG, "${f.name} changed on Dropbox since we uploaded it; not overwriting")
+                return false
+            }
+            return true
         }
         val needUpload = localFiles.count { needsUpload(it) }
         settingsRepository.update {
