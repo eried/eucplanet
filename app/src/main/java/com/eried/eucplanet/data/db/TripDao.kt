@@ -33,8 +33,22 @@ interface TripDao {
      * Trips that still need to be uploaded (pending or failed, and recording finished).
      * Returned newest-first so a single pass starts with the trip just completed.
      */
-    @Query("SELECT * FROM trips WHERE endTime IS NOT NULL AND uploadStatus IN (1, 3) ORDER BY startTime DESC")
+    @Query("SELECT * FROM trips WHERE endTime IS NOT NULL AND uploadStatus IN (1, 3, 4) ORDER BY startTime DESC")
     suspend fun getPendingUploads(): List<TripRecord>
+
+    /**
+     * Status 4: mirror this into the backup folder, but never over something
+     * already there.
+     *
+     * For a trip that arrived from Dropbox. The usual mirror overwrites,
+     * because a locally recorded or edited trip is the authority on its own
+     * file - but a download is not: if the folder already holds that name, its
+     * copy could be a different version, and quietly replacing it would lose
+     * whatever the rider had. Those are left for an explicit sync, where the
+     * rider is asked which side wins.
+     */
+    @Query("UPDATE trips SET uploadStatus = 4 WHERE id = :id")
+    suspend fun markMirrorIfAbsent(id: Long)
 
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?

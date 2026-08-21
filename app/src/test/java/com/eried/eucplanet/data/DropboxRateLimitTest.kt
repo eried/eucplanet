@@ -100,8 +100,22 @@ class DropboxRateLimitTest {
         // Downloads used to insert with uploadStatus 0, which the folder worker
         // skips, so the two backups disagreed until the rider pressed Sync all.
         val download = sync.substringAfter("for (name in toDownload)").substringBefore("// Refresh settings.json")
-        assertTrue("a downloaded trip is not marked pending for the folder",
-            download.contains("uploadStatus = if (settings.syncFolderUri != null) 1 else 0"))
+        assertTrue("a downloaded trip is not queued for the folder",
+            download.contains("uploadStatus = if (settings.syncFolderUri != null) 4 else 0"))
         assertFalse("still inserting as nothing-to-do", download.contains("uploadStatus = 0,"))
+    }
+
+    @Test fun `mirroring a download never overwrites what the folder already has`() {
+        // Status 4 rather than 1: a locally recorded trip is the authority on
+        // its own file and may replace the folder's copy, but a download is
+        // not - the folder's version could be different and is not ours to
+        // discard without asking.
+        val worker = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
+        assertTrue("the mirror does not distinguish a downloaded trip",
+            worker.contains("skipIfPresent = trip.uploadStatus == 4"))
+        assertTrue("uploadCsv cannot skip", sync.contains("skipIfPresent: Boolean = false"))
+        val dao = File("src/main/java/com/eried/eucplanet/data/db/TripDao.kt").readText()
+        assertTrue("status 4 is not picked up by the folder worker",
+            dao.contains("uploadStatus IN (1, 3, 4)"))
     }
 }

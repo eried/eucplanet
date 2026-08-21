@@ -32,6 +32,8 @@ import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -1308,6 +1310,34 @@ class SettingsViewModel @Inject constructor(
     val hasLocalTrips: StateFlow<Boolean> = tripRepository.tripCount
         .map { it > 0 }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    /**
+     * How many trips are on the phone but not in the backup folder.
+     *
+     * The folder only keeps in step with trips the app puts there itself. A
+     * rider who set the folder up after riding for a while, or who imported a
+     * library, has trips the folder has never seen - and nothing in the app
+     * ever said so, because the sync is silent about what it has not been
+     * asked to do. This is what the hint beside Sync all reports.
+     */
+    private val _tripsMissingFromFolder = MutableStateFlow(0)
+    val tripsMissingFromFolder: StateFlow<Int> = _tripsMissingFromFolder
+
+    /** Recount, cheap enough to run whenever the Backups section is opened. */
+    fun refreshFolderGap() {
+        viewModelScope.launch {
+            val settings = settingsRepository.get()
+            if (settings.syncFolderUri == null) {
+                _tripsMissingFromFolder.value = 0
+                return@launch
+            }
+            val inFolder = withContext(Dispatchers.IO) {
+                syncManager.listFolderTripNames(settings)?.map { it.lowercase() }?.toHashSet()
+            } ?: return@launch
+            val local = tripRepository.allTripFileNames()
+            _tripsMissingFromFolder.value = local.count { it.lowercase() !in inFolder }
+        }
+    }
     fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
     fun cancelActiveSync() = syncManager.cancelActiveSync()

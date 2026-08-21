@@ -8401,6 +8401,17 @@ private fun CloudTab(
             HintText(stringResource(R.string.cloud_trips_caption))
             var showResetLocalDialog by remember { mutableStateOf(false) }
             val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
+            // Counted when the section opens: the folder only keeps up with
+            // trips the app put there, so a rider who added the folder later,
+            // or imported a library, can be carrying trips it has never seen.
+            val missingFromFolder by viewModel.tripsMissingFromFolder.collectAsState()
+            LaunchedEffect(Unit) { viewModel.refreshFolderGap() }
+            if (missingFromFolder > 0) {
+                HintText(
+                    stringResource(R.string.cloud_trips_folder_gap, missingFromFolder),
+                    small = true,
+                )
+            }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()

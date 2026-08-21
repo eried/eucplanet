@@ -394,7 +394,7 @@ class SyncManager @Inject constructor(
                     distanceKm = meta.distanceKm,
                     // Pending when a backup folder exists, so the folder worker
                     // mirrors it: same rule as the foreground pass.
-                    uploadStatus = if (settings.syncFolderUri != null) 1 else 0,
+                    uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
                 ))
             }
             left--
@@ -1142,12 +1142,10 @@ class SyncManager @Inject constructor(
                         endTime = meta.endTime,
                         fileName = name,
                         distanceKm = meta.distanceKm,
-                        // Pending, so the folder worker mirrors it: a trip that
-                        // arrived from Dropbox is exactly as absent from the
-                        // backup folder as a trip just recorded, and marking it
-                        // "nothing to do" left the two backups disagreeing until
-                        // the rider happened to press Sync all.
-                        uploadStatus = if (settings.syncFolderUri != null) 1 else 0,
+                        // Mirror it into the backup folder, but only where the
+                        // folder has nothing by that name: a download is not the
+                        // authority on a file the rider already has there.
+                        uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
                     ))
                 }
             }
@@ -1481,13 +1479,22 @@ class SyncManager @Inject constructor(
      * Write a single CSV file to trips subfolder, returning true on success.
      * Called from the worker.
      */
-    fun uploadCsv(settings: AppSettings, localFile: java.io.File): Boolean {
+    fun uploadCsv(
+        settings: AppSettings,
+        localFile: java.io.File,
+        /** Leave a file of the same name alone instead of replacing it. Set for
+         *  trips that came down from Dropbox: the folder's copy may be a
+         *  different version and is not ours to overwrite unasked. */
+        skipIfPresent: Boolean = false,
+    ): Boolean {
         val root = getSyncFolder(settings) ?: return false
         val tripsFolder = root.findFile(TRIPS_SUBFOLDER)
             ?: root.createDirectory(TRIPS_SUBFOLDER)
             ?: return false
         return try {
-            tripsFolder.findFile(localFile.name)?.delete()
+            val existing = tripsFolder.findFile(localFile.name)
+            if (existing != null && skipIfPresent) return true
+            existing?.delete()
             val dest = tripsFolder.createFile("text/csv", localFile.name) ?: return false
             context.contentResolver.openOutputStream(dest.uri)?.use { out ->
                 localFile.inputStream().use { it.copyTo(out) }

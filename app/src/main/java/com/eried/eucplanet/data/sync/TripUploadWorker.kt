@@ -46,7 +46,9 @@ class TripUploadWorker @AssistedInject constructor(
                 continue
             }
 
-            val ok = syncManager.uploadCsv(settings, file)
+            // Status 4 came from Dropbox: mirror it in, but never over a file
+            // the folder already holds.
+            val ok = syncManager.uploadCsv(settings, file, skipIfPresent = trip.uploadStatus == 4)
             if (ok) {
                 tripDao.update(trip.copy(
                     uploadStatus = 2,

@@ -654,6 +654,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
+    <string name="cloud_trips_folder_gap">%1$d trips are not in your backup folder yet. Sync all copies them over.</string>
     <string name="cloud_trips_caption">Trips stay on this phone and sync to your backup folder automatically. Clearing here deletes the phone copies, and can archive the backup copies too.</string>
     <string name="cloud_retry_now">Sync all</string>
     <string name="cloud_reset_local">Clear local trips</string>

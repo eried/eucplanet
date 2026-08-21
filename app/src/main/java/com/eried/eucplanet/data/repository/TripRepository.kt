@@ -112,6 +112,10 @@ class TripRepository @Inject constructor(
     val allTrips: Flow<List<TripRecord>> = tripDao.observeAll()
     val tripCount: Flow<Int> = tripDao.observeCount()
 
+    /** Every trip file this phone holds, for comparing against a backup. */
+    suspend fun allTripFileNames(): List<String> =
+        tripDao.observeAll().first().map { it.fileName }
+
     private var csvWriter: CsvWriter? = null
     private var currentTrip: TripRecord? = null
     private var recordJob: kotlinx.coroutines.Job? = null
