@@ -350,6 +350,10 @@ class SyncManager @Inject constructor(
                         startTime = meta.startTime,
                         endTime = meta.endTime,
                         distanceKm = meta.distanceKm,
+                        // Take the file's name when it has one, and keep the
+                        // rider's when it does not: an older copy without the
+                        // Extra cell must not wipe a name set on this phone.
+                        customName = meta.name ?: existing.customName,
                         uploadStatus = 2,
                         uploadedAt = System.currentTimeMillis()
                     ))
@@ -359,6 +363,9 @@ class SyncManager @Inject constructor(
                         endTime = meta.endTime,
                         fileName = fileName,
                         distanceKm = meta.distanceKm,
+                        // The file carries the rider's name for it; a downloaded
+                        // trip used to arrive nameless and show its date instead.
+                        customName = meta.name,
                         uploadStatus = 2,
                         uploadedAt = System.currentTimeMillis()
                     ))
@@ -382,7 +389,22 @@ class SyncManager @Inject constructor(
         return dir
     }
 
-    private data class CsvMeta(val startTime: Long, val endTime: Long, val distanceKm: Float)
+    private data class CsvMeta(
+        val startTime: Long,
+        val endTime: Long,
+        val distanceKm: Float,
+        /**
+         * The rider's name for the trip, carried in the CSV's Extra column as
+         * `trip.name=`.
+         *
+         * A rename writes it into the file precisely so it survives export and
+         * Dropbox, but nothing ever read it back: a trip arriving by download
+         * was inserted nameless and shown as its date. Rename a trip, let it
+         * sync, come back to it on a new phone or after a restore, and the
+         * name was gone - the file had it all along.
+         */
+        val name: String? = null,
+    )
 
     /**
      * Pull the trips Dropbox has and this phone does not, for up to [budgetMs].
@@ -443,6 +465,9 @@ class SyncManager @Inject constructor(
                     endTime = meta.endTime,
                     fileName = name,
                     distanceKm = meta.distanceKm,
+                    // The file carries the rider's name for it; a downloaded
+                    // trip used to arrive nameless and show its date instead.
+                    customName = meta.name,
                     // Pending when a backup folder exists, so the folder worker
                     // mirrors it: same rule as the foreground pass.
                     uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
@@ -467,6 +492,7 @@ class SyncManager @Inject constructor(
         var startTime = System.currentTimeMillis()
         var endTime = startTime
         var gpsDistanceKm = 0.0
+        var tripName: String? = null
         var lastLat = Double.NaN
         var lastLon = Double.NaN
         var minMileage = Float.MAX_VALUE
@@ -477,6 +503,7 @@ class SyncManager @Inject constructor(
             file.bufferedReader().use { reader ->
                 val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
                 val header = headerLine.lowercase().split(",").map { it.trim() }
+                val extraIdx = header.indexOf("extra")
                 val dateIdx = TripCsv.Columns.date(header).takeIf { it >= 0 } ?: 0
                 val latIdx = TripCsv.Columns.latitude(header).takeIf { it >= 0 } ?: 6
                 val lonIdx = TripCsv.Columns.longitude(header).takeIf { it >= 0 } ?: 7
@@ -490,6 +517,13 @@ class SyncManager @Inject constructor(
                     if (line.isEmpty()) return@forEachLine
                     val parts = line.split(",")
                     if (parts.size < 2) return@forEachLine
+                    if (tripName == null && extraIdx >= 0) {
+                        val cell = parts.getOrNull(extraIdx)?.trim().orEmpty()
+                        if (cell.startsWith("trip.name=", ignoreCase = true)) {
+                            tripName = cell.substringAfter('=').trim().take(60)
+                                .takeIf { it.isNotEmpty() }
+                        }
+                    }
                     TripCsv.parseDate(parts.getOrNull(dateIdx)?.trim())?.let { t ->
                         if (first) { startTime = t; first = false }
                         endTime = t
@@ -517,7 +551,7 @@ class SyncManager @Inject constructor(
             minMileage != Float.MAX_VALUE && maxMileage > minMileage -> maxMileage - minMileage
             else -> 0f
         }
-        return CsvMeta(startTime, endTime, distance)
+        return CsvMeta(startTime, endTime, distance, tripName)
     }
 
     /**
@@ -1225,6 +1259,9 @@ class SyncManager @Inject constructor(
                         endTime = meta.endTime,
                         fileName = name,
                         distanceKm = meta.distanceKm,
+                        // The file carries the rider's name for it; a downloaded
+                        // trip used to arrive nameless and show its date instead.
+                        customName = meta.name,
                         // Mirror it into the backup folder, but only where the
                         // folder has nothing by that name: a download is not the
                         // authority on a file the rider already has there.
