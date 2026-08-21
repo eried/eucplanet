@@ -2141,4 +2141,6 @@
     <string name="trip_tools_extend_skipped">Salta %1$d uscite già dentro questa.</string>
     <string name="recording_clear_all_body_archive">Elimina le uscite da questo telefono. Le copie di backup passano in una cartella di archivio.</string>
     <string name="recording_delete_trip_body_archive">Eliminare questa uscita dal telefono? La copia di backup passa in una cartella di archivio.</string>
+    <string name="backup_status_pending">Backup in corso…</string>
+    <string name="backup_status_failed">Backup non riuscito, tocca per riprovare</string>
 </resources>

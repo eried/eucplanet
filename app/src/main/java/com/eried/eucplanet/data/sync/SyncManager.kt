@@ -1237,11 +1237,18 @@ class SyncManager @Inject constructor(
 
         for (file in toUpload) {
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
-            if (dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())) {
+            tripDao.setDropboxStatusByName(file.name, 1, null)
+            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/${file.name}", file.readBytes())
+            if (storedAtSec != null) {
+                if (storedAtSec > 0L) file.setLastModified(storedAtSec * 1000L)
+                tripDao.setDropboxStatusByName(file.name, 2, System.currentTimeMillis())
                 settingsRepository.update {
                     it.copy(dropboxPendingCount = (it.dropboxPendingCount - 1).coerceAtLeast(0))
                 }
-            } else failed++
+            } else {
+                tripDao.setDropboxStatusByName(file.name, 3, null)
+                failed++
+            }
             done++
             _syncProgress.value = done to total
         }
@@ -1273,6 +1280,9 @@ class SyncManager @Inject constructor(
                         // The file carries the rider's name for it; a downloaded
                         // trip used to arrive nameless and show its date instead.
                         customName = meta.name,
+                        // It came from Dropbox, so that is where it already is.
+                        dropboxStatus = 2,
+                        dropboxUploadedAt = System.currentTimeMillis(),
                         // Mirror it into the backup folder, but only where the
                         // folder has nothing by that name: a download is not the
                         // authority on a file the rider already has there.

@@ -106,6 +106,8 @@ fun RecordingScreen(
     val importing by viewModel.importing.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val liveTripKm by viewModel.liveTripDistanceKm.collectAsState()
+    val folderConfigured by viewModel.folderConfigured.collectAsState()
+    val dropboxLinked by viewModel.dropboxLinked.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val gpsFix by viewModel.gpsFix.collectAsState()
@@ -602,7 +604,10 @@ fun RecordingScreen(
                             onShare = { tripToShare = trip },
                             onDelete = { tripToDelete = trip },
                             onRetryOnline = { viewModel.retryOnlineUploads() },
-                            onRecheckOnline = { viewModel.recheckHeldTrip(it) }
+                            onRecheckOnline = { viewModel.recheckHeldTrip(it) },
+                            folderConfigured = folderConfigured,
+                            dropboxLinked = dropboxLinked,
+                            onRetryBackup = { viewModel.retryBackup(it) },
                         )
                     }
                 }
@@ -637,7 +642,11 @@ private fun TripCard(
     onDelete: () -> Unit,
     onRetryOnline: () -> Unit = {},
     /** Re-ask the server for a held trip's verdict (it can change after upload). */
-    onRecheckOnline: (TripRecord) -> Unit = {}
+    onRecheckOnline: (TripRecord) -> Unit = {},
+    /** Which backups the rider actually has, so the row only reports on those. */
+    folderConfigured: Boolean = false,
+    dropboxLinked: Boolean = false,
+    onRetryBackup: (TripRecord) -> Unit = {},
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
@@ -727,8 +736,13 @@ private fun TripCard(
                 isPending -> PendingStatusIcon()                                    // discard-grace window
                 trip.eucstatsStatus != 0 ->
                     OnlineStatusIcon(trip, onRetryOnline) { onRecheckOnline(trip) }
-                trip.uploadStatus == 1 -> PendingStatusIcon()                       // folder backup in flight
-                trip.uploadStatus == 2 -> UploadStatusIcon(trip)                    // saved locally only
+            }
+            // Backups are their own question and get their own icon. Folding
+            // them into one slot meant the leaderboard, which wins that slot,
+            // hid whether a trip had reached the rider's own backups - and a
+            // trip on the leaderboard is exactly the kind they go on to rename.
+            if (!isRecording && !isPending && (folderConfigured || dropboxLinked)) {
+                BackupStatusIcon(trip, folderConfigured, dropboxLinked) { onRetryBackup(trip) }
             }
             // Tools. This slot used to hold a "view" eye, which did exactly what
             // tapping the row already does, so it was a second door to the same
@@ -773,20 +787,59 @@ private fun PendingStatusIcon() {
     }
 }
 
+/**
+ * Where this trip's backups stand: in flight, failed, or done.
+ *
+ * It used to be a green tick and nothing else - drawn only for a trip already
+ * backed up to the folder, hardcoded green, and tapping it explained itself in
+ * a message. A failed backup (status 3) drew no icon at all, so the one state
+ * worth showing was the one state invisible, with no way to ask for a retry.
+ *
+ * Both destinations are read, because they fail independently: green means
+ * every backup the rider has actually set up has this trip, not just whichever
+ * one answered first.
+ */
 @Composable
-private fun UploadStatusIcon(trip: TripRecord) {
+private fun BackupStatusIcon(
+    trip: TripRecord,
+    folderConfigured: Boolean,
+    dropboxLinked: Boolean,
+    onRetry: () -> Unit,
+) {
     val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
+    val folderFailed = folderConfigured && trip.uploadStatus == 3
+    val dropboxFailed = dropboxLinked && trip.dropboxStatus == 3
+    val folderWaiting = folderConfigured && (trip.uploadStatus == 1 || trip.uploadStatus == 4)
+    val dropboxWaiting = dropboxLinked && trip.dropboxStatus == 1
+    val failed = folderFailed || dropboxFailed
+    val waiting = folderWaiting || dropboxWaiting
 
-    val uploadedAtText = trip.uploadedAt?.let { fmt.format(Date(it)) }
-    val msg = uploadedAtText?.let {
-        stringResource(R.string.cloud_uploaded_on, it)
-    } ?: stringResource(R.string.cloud_not_uploaded)
-
+    val at = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { fmt.format(Date(it)) }
+    val msg = when {
+        failed -> stringResource(R.string.backup_status_failed)
+        waiting -> stringResource(R.string.backup_status_pending)
+        at != null -> stringResource(R.string.cloud_uploaded_on, at)
+        else -> stringResource(R.string.cloud_not_uploaded)
+    }
+    val icon = when {
+        failed -> Icons.Default.CloudOff
+        waiting -> Icons.Default.CloudQueue
+        else -> Icons.Default.CloudDone
+    }
+    val tint = when {
+        failed -> MaterialTheme.appColors.statusDanger
+        waiting -> MaterialTheme.appColors.statusWarn
+        else -> MaterialTheme.appColors.statusGood
+    }
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
-    IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
-        Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = MaterialTheme.appColors.statusGood,
-            modifier = Modifier.size(20.dp))
+    IconButton(onClick = {
+        // A failure is the one the rider can do something about, so tapping it
+        // acts rather than explains. Waiting can be nudged too: it costs
+        // nothing and is what someone tapping a stuck upload means by it.
+        if (failed || waiting) onRetry() else showSnackbarLocal(snackbar, scope, msg)
+    }) {
+        Icon(icon, contentDescription = msg, tint = tint, modifier = Modifier.size(20.dp))
     }
 }
 

@@ -2256,4 +2256,6 @@
     <string name="trip_tools_extend_skipped">Überspringt %1$d Fahrten, die schon in dieser stecken.</string>
     <string name="recording_clear_all_body_archive">Das löscht die Fahrten von diesem Handy. Die Backup-Kopien wandern in einen Archivordner.</string>
     <string name="recording_delete_trip_body_archive">Diese Fahrt vom Handy löschen? Die Backup-Kopie wandert in einen Archivordner.</string>
+    <string name="backup_status_pending">Sicherung läuft…</string>
+    <string name="backup_status_failed">Sicherung fehlgeschlagen, zum Wiederholen tippen</string>
 </resources>

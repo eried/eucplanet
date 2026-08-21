@@ -132,8 +132,10 @@ class DropboxSyncWorker @AssistedInject constructor(
             if (isStopped) return Result.success()
             val name = file.name
             if (!needsUpload(file)) continue
+            tripRepository.setDropboxStatusByName(name, 1, null)
             val storedAtSec = dropboxRepository.uploadFileStamped("/trips/$name", file.readBytes())
             if (storedAtSec != null) {
+                tripRepository.setDropboxStatusByName(name, 2, System.currentTimeMillis())
                 // Wear Dropbox's timestamp, so an untouched file matches the
                 // copy it was sent as. Anything that rewrites the file after
                 // this - a rename, a wheel change - moves it off that mark, and
@@ -147,6 +149,7 @@ class DropboxSyncWorker @AssistedInject constructor(
                 }
                 Log.i(TAG, "Uploaded $name")
             } else {
+                tripRepository.setDropboxStatusByName(name, 3, null)
                 anyFailed = true
                 failedTrips++
                 Log.w(TAG, "Upload failed for $name")

@@ -2238,5 +2238,6 @@
     <string name="trip_tools_extend_skipped">Slaat %1$d ritten over die al in deze zitten.</string>
     <string name="recording_clear_all_body_archive">Dit verwijdert de ritten van deze telefoon. De back-upkopieën gaan naar een archiefmap.</string>
     <string name="recording_delete_trip_body_archive">Deze rit van de telefoon verwijderen? De back-upkopie gaat naar een archiefmap.</string>
+    <string name="backup_status_pending">Back-up bezig…</string>
+    <string name="backup_status_failed">Back-up mislukt, tik om opnieuw te proberen</string>
 </resources>
-

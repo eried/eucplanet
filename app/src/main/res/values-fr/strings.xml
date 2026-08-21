@@ -2240,4 +2240,6 @@
     <string name="trip_tools_extend_skipped">Ignore %1$d sorties déjà comprises dans celle-ci.</string>
     <string name="recording_clear_all_body_archive">Ça supprime les sorties de ce téléphone. Les copies de sauvegarde partent dans un dossier d\'archive.</string>
     <string name="recording_delete_trip_body_archive">Supprimer cette sortie du téléphone ? La copie de sauvegarde part dans un dossier d\'archive.</string>
+    <string name="backup_status_pending">Sauvegarde en cours…</string>
+    <string name="backup_status_failed">Echec de la sauvegarde, touchez pour reessayer</string>
 </resources>

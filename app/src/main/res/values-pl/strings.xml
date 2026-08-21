@@ -2236,4 +2236,6 @@
     <string name="trip_tools_extend_skipped">Pomija %1$d przejazdów, które już są w tym.</string>
     <string name="recording_clear_all_body_archive">To usuwa przejazdy z tego telefonu. Kopie zapasowe trafiają do folderu archiwum.</string>
     <string name="recording_delete_trip_body_archive">Usunąć ten przejazd z telefonu? Kopia zapasowa trafi do folderu archiwum.</string>
+    <string name="backup_status_pending">Tworzenie kopii…</string>
+    <string name="backup_status_failed">Kopia nie powiodła się, dotknij, aby ponowić</string>
 </resources>

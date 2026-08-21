@@ -2256,4 +2256,6 @@
     <string name="alarm_fx_drive">Overdrive</string>
     <string name="alarm_fx_sweep">Filter</string>
     <string name="alarm_fx_crush">Bitcrush</string>
+    <string name="backup_status_pending">Backing up…</string>
+    <string name="backup_status_failed">Backup failed, tap to retry</string>
 </resources>

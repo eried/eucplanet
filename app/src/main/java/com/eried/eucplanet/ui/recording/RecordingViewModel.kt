@@ -155,6 +155,14 @@ class RecordingViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "km")
 
+    /** Whether a backup folder is set, so a row only reports on destinations
+     *  the rider actually has: a cloud that can never go green because nothing
+     *  was configured is just a complaint. Dropbox already has [dropboxLinked]
+     *  below. */
+    val folderConfigured: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.syncFolderUri != null }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
+
     /**
      * Whether there are backup copies for the archive choice to act on:
      * Dropbox linked, or a backup folder chosen. With neither, the row would
@@ -861,8 +869,17 @@ class RecordingViewModel @Inject constructor(
     fun renameTrip(trip: TripRecord, name: String) {
         viewModelScope.launch {
             tripRepository.renameTrip(trip, name)
-            _toasts.send(context.getString(R.string.trip_tools_renamed))
+            // No toast. The rename is already visible - the row is showing the
+            // new name - so a message saying so tells the rider nothing, and
+            // then vanishes before the part they actually care about: whether
+            // the new name reached their backups. The row's cloud says that,
+            // and keeps saying it.
         }
+    }
+
+    /** Send a trip to the backups again, from the row's cloud icon. */
+    fun retryBackup(trip: TripRecord) {
+        viewModelScope.launch { tripRepository.resyncTrip(trip.id) }
     }
 
     /**

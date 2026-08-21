@@ -2238,5 +2238,6 @@
     <string name="trip_tools_extend_skipped">Pula %1$d trajetos que já estão dentro deste.</string>
     <string name="recording_clear_all_body_archive">Isso exclui os trajetos deste telefone. As cópias de backup vão para uma pasta de arquivo.</string>
     <string name="recording_delete_trip_body_archive">Excluir este trajeto do telefone? A cópia de backup vai para uma pasta de arquivo.</string>
+    <string name="backup_status_pending">Fazendo backup…</string>
+    <string name="backup_status_failed">O backup falhou, toque para tentar de novo</string>
 </resources>
-

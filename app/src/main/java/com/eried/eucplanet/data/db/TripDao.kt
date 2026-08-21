@@ -76,6 +76,13 @@ interface TripDao {
     @Query("UPDATE trips SET uploadStatus = 1 WHERE id = :id")
     suspend fun markPendingFolderUpload(id: Long)
 
+    /** Dropbox state by file name: the sync works in files, not row ids. */
+    @Query("UPDATE trips SET dropboxStatus = :status, dropboxUploadedAt = :at WHERE fileName = :fileName")
+    suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?)
+
+    @Query("UPDATE trips SET dropboxStatus = :status WHERE id = :id")
+    suspend fun setDropboxStatus(id: Long, status: Int)
+
     /** Every wheel identity any trip carries. Feeds the trip-tools wheel picker
      *  so a wheel that was only ever imported, never paired, is still offered. */
     @Query("SELECT wheelMetaJson FROM trips WHERE wheelMetaJson IS NOT NULL")

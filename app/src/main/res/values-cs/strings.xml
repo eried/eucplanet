@@ -2039,4 +2039,6 @@
     <string name="trip_tools_extend_skipped">Přeskočí %1$d jízd, které už jsou uvnitř této.</string>
     <string name="recording_clear_all_body_archive">Smaže jízdy z tohoto telefonu. Kopie v záloze se přesunou do složky archive.</string>
     <string name="recording_delete_trip_body_archive">Smazat tuto jízdu z telefonu? Kopie v záloze se přesune do složky archive.</string>
+    <string name="backup_status_pending">Zálohování…</string>
+    <string name="backup_status_failed">Záloha selhala, klepnutím to zkuste znovu</string>
 </resources>

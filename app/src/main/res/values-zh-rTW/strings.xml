@@ -2235,8 +2235,6 @@
     <string name="trip_tools_extend_skipped">跳過已經在這次行程裡的 %1$d 個行程。</string>
     <string name="recording_clear_all_body_archive">這會從這台手機刪除行程。備份裡的副本會移到封存資料夾。</string>
     <string name="recording_delete_trip_body_archive">從這台手機刪除這次行程？備份裡的副本會移到封存資料夾。</string>
+    <string name="backup_status_pending">正在備份…</string>
+    <string name="backup_status_failed">備份失敗，點擊重試</string>
 </resources>
-
-
-
-

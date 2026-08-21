@@ -2233,8 +2233,6 @@
     <string name="trip_tools_extend_skipped">Zaten bunun içinde olan %1$d sürüşü atlar.</string>
     <string name="recording_clear_all_body_archive">Bu, sürüşleri bu telefondan siler. Yedekteki kopyalar bir arşiv klasörüne taşınır.</string>
     <string name="recording_delete_trip_body_archive">Bu sürüş telefondan silinsin mi? Yedekteki kopya bir arşiv klasörüne taşınır.</string>
+    <string name="backup_status_pending">Yedekleniyor…</string>
+    <string name="backup_status_failed">Yedekleme başarısız, yeniden denemek için dokunun</string>
 </resources>
-
-
-
-

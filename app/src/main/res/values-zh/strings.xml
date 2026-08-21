@@ -2103,4 +2103,6 @@
     <string name="trip_tools_extend_skipped">跳过已经在这次行程里的 %1$d 个行程。</string>
     <string name="recording_clear_all_body_archive">这会从这台手机删除行程。备份里的副本会移到归档文件夹。</string>
     <string name="recording_delete_trip_body_archive">从这台手机删除这次行程？备份里的副本会移到归档文件夹。</string>
+    <string name="backup_status_pending">正在备份…</string>
+    <string name="backup_status_failed">备份失败，点击重试</string>
 </resources>

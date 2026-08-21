@@ -2251,4 +2251,6 @@
     <string name="trip_tools_extend_skipped">Springer %1$d ture over, der allerede er inde i denne.</string>
     <string name="recording_clear_all_body_archive">Dette sletter turene fra denne telefon. Kopierne i backuppen flyttes til en arkivmappe.</string>
     <string name="recording_delete_trip_body_archive">Slet denne tur fra telefonen? Kopien i backuppen flyttes til en arkivmappe.</string>
+    <string name="backup_status_pending">Sikkerhedskopierer…</string>
+    <string name="backup_status_failed">Sikkerhedskopiering mislykkedes, tryk for at prøve igen</string>
 </resources>

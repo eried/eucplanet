@@ -2235,4 +2235,6 @@
     <string name="trip_tools_extend_skipped">이미 이 주행에 포함된 %1$d개를 건너뜁니다.</string>
     <string name="recording_clear_all_body_archive">이 휴대폰에서 주행을 삭제합니다. 백업 사본은 보관 폴더로 옮겨집니다.</string>
     <string name="recording_delete_trip_body_archive">이 주행을 휴대폰에서 삭제할까요? 백업 사본은 보관 폴더로 옮겨집니다.</string>
+    <string name="backup_status_pending">백업 중…</string>
+    <string name="backup_status_failed">백업 실패, 다시 시도하려면 탭하세요</string>
 </resources>

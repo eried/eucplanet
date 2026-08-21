@@ -151,6 +151,16 @@ class FakeTripDao : TripDao {
         if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 1)
     }
 
+    override suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?) {
+        val idx = trips.indexOfFirst { it.fileName == fileName }
+        if (idx >= 0) trips[idx] = trips[idx].copy(dropboxStatus = status, dropboxUploadedAt = at)
+    }
+
+    override suspend fun setDropboxStatus(id: Long, status: Int) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(dropboxStatus = status)
+    }
+
     override suspend fun markMirrorIfAbsent(id: Long) {
         val idx = trips.indexOfFirst { it.id == id }
         if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 4)

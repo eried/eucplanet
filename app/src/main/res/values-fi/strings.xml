@@ -2039,4 +2039,6 @@
     <string name="trip_tools_extend_skipped">Ohittaa %1$d ajoa, jotka ovat jo tämän sisällä.</string>
     <string name="recording_clear_all_body_archive">Tämä poistaa ajot tästä puhelimesta. Varmuuskopiot siirtyvät arkistokansioon.</string>
     <string name="recording_delete_trip_body_archive">Poistetaanko tämä ajo puhelimesta? Varmuuskopio siirtyy arkistokansioon.</string>
+    <string name="backup_status_pending">Varmuuskopioidaan…</string>
+    <string name="backup_status_failed">Varmuuskopiointi epäonnistui, yritä napauttamalla</string>
 </resources>

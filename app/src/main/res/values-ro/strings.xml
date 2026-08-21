@@ -2039,4 +2039,6 @@
     <string name="trip_tools_extend_skipped">Sare peste %1$d ture aflate deja în aceasta.</string>
     <string name="recording_clear_all_body_archive">Asta șterge turele de pe acest telefon. Copiile din backup trec într-un folder de arhivă.</string>
     <string name="recording_delete_trip_body_archive">Ștergi tura de pe telefon? Copia din backup trece într-un folder de arhivă.</string>
+    <string name="backup_status_pending">Se face backup…</string>
+    <string name="backup_status_failed">Backupul a eșuat, atinge pentru a reîncerca</string>
 </resources>

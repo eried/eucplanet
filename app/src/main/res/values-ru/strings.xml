@@ -2236,5 +2236,6 @@
     <string name="trip_tools_extend_skipped">Пропускает %1$d поездок, уже входящих в эту.</string>
     <string name="recording_clear_all_body_archive">Это удалит поездки с этого телефона. Резервные копии переедут в папку архива.</string>
     <string name="recording_delete_trip_body_archive">Удалить эту поездку с телефона? Резервная копия переедет в папку архива.</string>
+    <string name="backup_status_pending">Создание копии…</string>
+    <string name="backup_status_failed">Не удалось, нажмите для повтора</string>
 </resources>
-

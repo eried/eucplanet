@@ -2236,4 +2236,6 @@
     <string name="trip_tools_extend_skipped">Hoppar över %1$d turer som redan finns i den här.</string>
     <string name="recording_clear_all_body_archive">Det här raderar turerna från den här telefonen. Backupkopiorna flyttas till en arkivmapp.</string>
     <string name="recording_delete_trip_body_archive">Radera den här turen från telefonen? Backupkopian flyttas till en arkivmapp.</string>
+    <string name="backup_status_pending">Säkerhetskopierar…</string>
+    <string name="backup_status_failed">Säkerhetskopieringen misslyckades, tryck för att försöka igen</string>
 </resources>

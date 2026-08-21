@@ -2237,6 +2237,6 @@
     <string name="trip_tools_extend_skipped">すでにこの走行に含まれる %1$d 件を飛ばします。</string>
     <string name="recording_clear_all_body_archive">この端末から走行を削除します。バックアップの控えはアーカイブフォルダーへ移ります。</string>
     <string name="recording_delete_trip_body_archive">この走行を端末から削除しますか？バックアップの控えはアーカイブフォルダーへ移ります。</string>
+    <string name="backup_status_pending">バックアップ中…</string>
+    <string name="backup_status_failed">バックアップ失敗、タップして再試行</string>
 </resources>
-
-

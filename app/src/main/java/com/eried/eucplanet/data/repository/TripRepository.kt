@@ -1179,6 +1179,14 @@ class TripRepository @Inject constructor(
      * 1/3, so the row is re-flagged first; Dropbox re-uploads on a size change.
      * Best-effort and gated on the rider having each destination configured.
      */
+    /** Dropbox backup state for one trip, by file name. */
+    suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?) =
+        tripDao.setDropboxStatusByName(fileName, status, at)
+
+    /** Public door to [resyncEditedTrip], for the rider tapping a failed
+     *  backup in the trip list. */
+    suspend fun resyncTrip(tripId: Long) = resyncEditedTrip(tripId)
+
     private suspend fun resyncEditedTrip(tripId: Long) {
         val appSettings = settingsRepository.get()
         if (appSettings.syncFolderUri != null) {
@@ -1186,6 +1194,10 @@ class TripRepository @Inject constructor(
             runCatching { syncManager.enqueueTripUpload(appSettings) }
         }
         if (appSettings.dropboxAccessToken.isNotBlank()) {
+            // Mark it before the sync is even queued, so the row shows the
+            // upload starting the moment the rider renames it rather than
+            // announcing "renamed" and going quiet.
+            runCatching { tripDao.setDropboxStatus(tripId, 1) }
             runCatching { syncManager.enqueueDropboxSync() }
         }
     }

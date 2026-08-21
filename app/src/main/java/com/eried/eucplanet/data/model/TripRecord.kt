@@ -23,5 +23,12 @@ data class TripRecord(
     val wheelMetaJson: String? = null,       // {brand,model,serial,ble_mac,ble_name,firmware}
     // Rider-set trip name; null = fall back to the formatted date. Also written
     // into the CSV Extra column as trip.name= so it survives export / Dropbox.
-    val customName: String? = null
+    val customName: String? = null,
+    // Dropbox backup state, separate from uploadStatus above, which is the
+    // backup FOLDER. The two are different destinations that fail
+    // independently, and a rider with only Dropbox linked had no per-trip
+    // state at all: the list showed a green tick that meant the folder, or
+    // nothing whatsoever. 0=n/a 1=pending 2=uploaded 3=failed
+    val dropboxStatus: Int = 0,
+    val dropboxUploadedAt: Long? = null,
 )

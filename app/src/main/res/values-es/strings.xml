@@ -2233,5 +2233,6 @@
     <string name="trip_tools_extend_skipped">Omite %1$d viajes que ya están dentro de este.</string>
     <string name="recording_clear_all_body_archive">Esto borra los viajes de este teléfono. Las copias de seguridad pasan a una carpeta de archivo.</string>
     <string name="recording_delete_trip_body_archive">¿Borrar este viaje del teléfono? La copia de seguridad pasa a una carpeta de archivo.</string>
+    <string name="backup_status_pending">Copia de seguridad…</string>
+    <string name="backup_status_failed">Fallo la copia, toca para reintentar</string>
 </resources>
-

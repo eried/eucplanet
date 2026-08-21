@@ -2124,4 +2124,6 @@
     <string name="trip_tools_extend_skipped">Hopper over %1$d turer som allerede er inni denne.</string>
     <string name="recording_clear_all_body_archive">Dette sletter turene fra denne telefonen. Kopiene i sikkerhetskopien flyttes til en arkivmappe.</string>
     <string name="recording_delete_trip_body_archive">Slette denne turen fra telefonen? Kopien i sikkerhetskopien flyttes til en arkivmappe.</string>
+    <string name="backup_status_pending">Sikkerhetskopierer…</string>
+    <string name="backup_status_failed">Sikkerhetskopiering mislyktes, trykk for å prøve igjen</string>
 </resources>

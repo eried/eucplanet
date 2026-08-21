@@ -2039,4 +2039,6 @@
     <string name="trip_tools_extend_skipped">Kihagy %1$d túrát, amely már ebben van.</string>
     <string name="recording_clear_all_body_archive">Ez törli a túrákat erről a telefonról. A mentett másolatok egy archív mappába kerülnek.</string>
     <string name="recording_delete_trip_body_archive">Törlöd ezt a túrát a telefonról? A mentett másolat egy archív mappába kerül.</string>
+    <string name="backup_status_pending">Mentés…</string>
+    <string name="backup_status_failed">A mentés nem sikerült, koppintson az újrapróbáláshoz</string>
 </resources>
