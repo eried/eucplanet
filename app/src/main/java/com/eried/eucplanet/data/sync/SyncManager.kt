@@ -458,6 +458,10 @@ class SyncManager @Inject constructor(
             val bytes = dropboxRepository.downloadFile("/trips/$name") ?: continue
             val dest = File(tripsDir, name)
             dest.outputStream().use { it.write(bytes) }
+            // Same reason as the foreground pass: a file wearing this moment's
+            // timestamp reads as edited here, and a whole pulled library would
+            // be uploaded straight back.
+            remote[name]?.let { dest.setLastModified(it.serverModifiedSec * 1000L) }
             if (tripDao.findByFileName(name) == null) {
                 val meta = parseCsvMeta(dest)
                 tripDao.insert(TripRecord(
@@ -1249,6 +1253,13 @@ class SyncManager @Inject constructor(
             if (bytes != null) {
                 val dest = File(tripsDir, name)
                 dest.outputStream().use { it.write(bytes) }
+                // Carry Dropbox's timestamp on to the file. Without it every
+                // trip just pulled down looks like it was written on this phone
+                // a moment ago, and the next pass sends the whole library
+                // straight back up.
+                remoteMetaByLower[name.lowercase()]?.let {
+                    dest.setLastModified(it.serverModifiedSec * 1000L)
+                }
                 // Mirror the SAF path: if the file is not yet known to Room,
                 // insert a row so it shows up in the trips list.
                 val existing = tripDao.findByFileName(name)

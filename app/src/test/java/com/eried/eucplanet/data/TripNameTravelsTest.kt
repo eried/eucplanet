@@ -91,7 +91,7 @@ class TripNameTravelsTest {
         // The bytes were always replaced. The row was only written when the
         // trip was new, so a conflict the rider resolved in Dropbox's favour
         // left the list showing what the old copy said - including its name.
-        val download = sync.substringAfter("for (name in toDownload)").take(2600)
+        val download = sync.substringAfter("for (name in toDownload)").take(3400)
         assertTrue("the row is still only written for a new trip",
             download.contains("} else {"))
         assertTrue("the name does not follow the file",
@@ -103,7 +103,7 @@ class TripNameTravelsTest {
 
     @Test fun `the chosen copy is pushed on to the backup folder`() {
         // The folder still holds the copy the rider chose against.
-        val download = sync.substringAfter("for (name in toDownload)").take(2600)
+        val download = sync.substringAfter("for (name in toDownload)").take(3400)
         assertTrue(download.contains("uploadStatus = if (settings.syncFolderUri != null) 1 else existing.uploadStatus"))
     }
 }

@@ -35,11 +35,26 @@ object UploadPolicy {
     ): Boolean {
         // Dropbox has nothing by that name.
         if (remoteSize == null) return true
-        // Trip CSVs are append-only, so equal length means equal content.
-        if (remoteSize == localSize) return false
-        // The two differ, and "ours is different" is not a reason to overwrite
-        // theirs: renaming a trip in another tool writes the name into the file
-        // and changes its length. Ask which copy is newer instead.
-        return remoteModifiedSec <= localModifiedMs / 1000L + EDIT_GRACE_SEC
+        val localSec = localModifiedMs / 1000L
+        // The file still wears the timestamp Dropbox stored it under, so
+        // nothing has rewritten it since. This is the common case and the one
+        // worth being exact about: it is an equality, not a comparison of two
+        // clocks, so it holds however far apart the phone and Dropbox are.
+        if (localSec == remoteModifiedSec) return false
+        // Their copy is newer: changed somewhere else, and this phone's is the
+        // stale one. A trip renamed in another tool lands here.
+        if (remoteModifiedSec > localSec + EDIT_GRACE_SEC) return false
+        // Ours is newer: something on this phone wrote the file after Dropbox
+        // last stored it.
+        //
+        // Length alone used to decide this, on the grounds that trip CSVs are
+        // append-only - true while recording, false for an edit. Renaming
+        // writes the name into the file, so "Coast road" to "Beach ride"
+        // changed the content and not one byte of the length, and the rename
+        // never left the phone. Verified against a real account: the app said
+        // "uploaded 0" and Dropbox kept the old name.
+        if (localSec > remoteModifiedSec) return true
+        // Neither: fall back to what the old rule knew.
+        return remoteSize != localSize
     }
 }

@@ -34,8 +34,10 @@ class DropboxRateLimitTest {
     }
 
     @Test fun `uploads wait it out too`() {
-        val body = repo.substringAfter("suspend fun uploadFile").substringBefore("suspend fun ")
-        assertTrue("uploadFile does not go through the retry helper",
+        // uploadFile is a one-line delegate now; the work is in the variant
+        // that also reports the timestamp Dropbox stored the file under.
+        val body = repo.substringAfter("suspend fun uploadFileStamped").substringBefore("suspend fun ")
+        assertTrue("the upload does not go through the retry helper",
             body.contains("withRateLimitRetry"))
     }
 

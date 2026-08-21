@@ -132,8 +132,14 @@ class DropboxSyncWorker @AssistedInject constructor(
             if (isStopped) return Result.success()
             val name = file.name
             if (!needsUpload(file)) continue
-            val ok = dropboxRepository.uploadFile("/trips/$name", file.readBytes())
-            if (ok) {
+            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/$name", file.readBytes())
+            if (storedAtSec != null) {
+                // Wear Dropbox's timestamp, so an untouched file matches the
+                // copy it was sent as. Anything that rewrites the file after
+                // this - a rename, a wheel change - moves it off that mark, and
+                // that is what the next pass looks for, rather than a change in
+                // the file's length that an edit need not produce.
+                if (storedAtSec > 0L) file.setLastModified(storedAtSec * 1000L)
                 uploaded++
                 // Decrement live so the indicator reflects trips remaining.
                 settingsRepository.update {

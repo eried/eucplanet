@@ -278,8 +278,19 @@ class DropboxRepository @Inject constructor(
      *
      * Returns true on success.
      */
-    suspend fun uploadFile(remotePath: String, bytes: ByteArray): Boolean = withContext(Dispatchers.IO) {
-        val token = activeAccessToken() ?: return@withContext false
+    suspend fun uploadFile(remotePath: String, bytes: ByteArray): Boolean =
+        uploadFileStamped(remotePath, bytes) != null
+
+    /**
+     * Upload, and report the timestamp Dropbox stored it under, in seconds.
+     *
+     * The caller stamps the local file with it, so a file that has not been
+     * touched since it was synced carries Dropbox's own timestamp rather than
+     * the phone's. "Changed since we synced it" is then a comparison of a
+     * value against itself, and does not care whether the two clocks agree.
+     */
+    suspend fun uploadFileStamped(remotePath: String, bytes: ByteArray): Long? = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext null
         val args = JSONObject().apply {
             put("path", remotePath)
             put("mode", "overwrite")
@@ -299,16 +310,22 @@ class DropboxRepository @Inject constructor(
                 val resp = http.newCall(req).execute()
                 if (resp.code == 429) return@withRateLimitRetry resp to null
                 resp.use {
+                    val text = it.body?.string().orEmpty()
                     if (!it.isSuccessful) {
-                        Log.w("DBXSHARE", "upload HTTP ${it.code}: ${it.body?.string()?.take(300)}")
+                        Log.w("DBXSHARE", "upload HTTP ${it.code}: ${text.take(300)}")
+                        return@use it to null
                     }
-                    it to (if (it.isSuccessful) true else null)
+                    val sec = try {
+                        java.time.OffsetDateTime
+                            .parse(JSONObject(text).optString("server_modified")).toEpochSecond()
+                    } catch (_: Exception) { 0L }
+                    it to sec
                 }
             } catch (e: Exception) {
                 Log.w("DBXSHARE", "upload exception: ${e.message}")
                 errorResponse(req) to null
             }
-        } ?: false
+        }
     }
 
     /** A stand-in response for a request that never reached Dropbox, so the
