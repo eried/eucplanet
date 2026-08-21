@@ -5,6 +5,7 @@ import com.eried.eucplanet.data.sync.ArchivePolicy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import java.io.File
 import org.junit.Test
 
 /**
@@ -120,6 +121,21 @@ class ArchivePolicyTest {
         val (done, back) = ArchivePolicy.decideBatch(emptyList(), dropboxOk = true, folderAccepted = emptySet())
         assertTrue(done.isEmpty())
         assertTrue(back.isEmpty())
+    }
+
+    @Test fun `archiving the same name twice keeps both, on both sides`() {
+        // Clear all with archiving, restore the library from Dropbox, clear it
+        // again: the same file names arrive at the archive a second time. An
+        // archive that overwrote them would destroy the first generation, which
+        // is the one thing archiving promises not to do.
+        val sync = File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText()
+        assertTrue("the folder archive does not look for a free name",
+            sync.contains("freeArchiveName"))
+        assertTrue("the archive name is not made unique",
+            sync.contains("archive.findFile(candidate) == null"))
+        val repo = File("src/main/java/com/eried/eucplanet/data/repository/DropboxRepository.kt").readText()
+        val move = repo.substringAfter("suspend fun moveFile").take(600)
+        assertTrue("the Dropbox move would overwrite", move.contains("autorename"))
     }
 
     @Test fun `the batch never claims a file the folder did not take`() {

@@ -1348,6 +1348,26 @@ class SyncManager @Inject constructor(
     }
 
     /**
+     * A name nothing in [archive] is using yet: "trip.csv", then "trip (1).csv".
+     *
+     * The same shape Dropbox's autorename produces, so a rider looking at the
+     * two archives sees the same thing in both.
+     */
+    private fun freeArchiveName(archive: DocumentFile, fileName: String): String {
+        if (archive.findFile(fileName) == null) return fileName
+        val stem = fileName.substringBeforeLast('.', fileName)
+        val ext = fileName.substringAfterLast('.', "")
+        val suffix = if (ext.isEmpty()) "" else ".$ext"
+        var n = 1
+        while (n < 1000) {
+            val candidate = "$stem ($n)$suffix"
+            if (archive.findFile(candidate) == null) return candidate
+            n++
+        }
+        return fileName
+    }
+
+    /**
      * Archive many trips at once, for "delete all".
      *
      * Same rule as the single-file path - Dropbox first, folder second, and
@@ -1409,22 +1429,27 @@ class SyncManager @Inject constructor(
             val doc = tripsDir.findFile(fileName)?.takeIf { it.isFile } ?: return true
             val archive = tripsDir.findFile("archive")?.takeIf { it.isDirectory }
                 ?: tripsDir.createDirectory("archive") ?: return false
-            // SAF has no rename-into-another-directory that every provider
-            // implements, so copy the bytes across and drop the original only
-            // once the copy is safely written.
+            // An archive never destroys: a name already in there is an earlier
+            // ride the rider archived, and a second one of the same name - the
+            // same library restored and cleared again - has to sit beside it,
+            // not on top of it. Dropbox does this for us with autorename; here
+            // it has to be worked out, so the two sides behave the same way.
+            val free = freeArchiveName(archive, fileName)
             // A provider-side move is a rename: no bytes read, no bytes
-            // written. Every provider is allowed to refuse it, so the copy
-            // below stays as the fallback.
-            val moved = runCatching {
-                android.provider.DocumentsContract.moveDocument(
-                    context.contentResolver, doc.uri, tripsDir.uri, archive.uri
-                )
-            }.getOrNull()
-            if (moved != null) return true
+            // written. Only usable when the name is untaken, since the move
+            // cannot rename as it goes. Every provider is allowed to refuse it,
+            // so the copy below stays as the fallback.
+            if (free == fileName) {
+                val moved = runCatching {
+                    android.provider.DocumentsContract.moveDocument(
+                        context.contentResolver, doc.uri, tripsDir.uri, archive.uri
+                    )
+                }.getOrNull()
+                if (moved != null) return true
+            }
             val bytes = context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
                 ?: return false
-            val dest = archive.findFile(fileName) ?: archive.createFile("text/csv", fileName)
-                ?: return false
+            val dest = archive.createFile("text/csv", free) ?: return false
             val wrote = runCatching {
                 context.contentResolver.openOutputStream(dest.uri, "wt")?.use { it.write(bytes) }
                 true
