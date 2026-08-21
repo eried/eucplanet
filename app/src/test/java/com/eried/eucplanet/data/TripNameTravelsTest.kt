@@ -84,4 +84,26 @@ class TripNameTravelsTest {
         // would turn syncing into losing the rename.
         assertTrue(sync.contains("customName = meta.name ?: existing.customName"))
     }
+
+    // --- keeping Dropbox's copy at the conflict prompt ---------------------
+
+    @Test fun `choosing Dropbox's copy updates the trip, not just the file`() {
+        // The bytes were always replaced. The row was only written when the
+        // trip was new, so a conflict the rider resolved in Dropbox's favour
+        // left the list showing what the old copy said - including its name.
+        val download = sync.substringAfter("for (name in toDownload)").take(2600)
+        assertTrue("the row is still only written for a new trip",
+            download.contains("} else {"))
+        assertTrue("the name does not follow the file",
+            download.contains("customName = meta.name ?: existing.customName"))
+        assertTrue("the dates and distance do not follow the file",
+            download.contains("startTime = meta.startTime") &&
+                download.contains("distanceKm = meta.distanceKm"))
+    }
+
+    @Test fun `the chosen copy is pushed on to the backup folder`() {
+        // The folder still holds the copy the rider chose against.
+        val download = sync.substringAfter("for (name in toDownload)").take(2600)
+        assertTrue(download.contains("uploadStatus = if (settings.syncFolderUri != null) 1 else existing.uploadStatus"))
+    }
 }

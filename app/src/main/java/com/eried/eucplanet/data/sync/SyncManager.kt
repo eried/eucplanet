@@ -1252,8 +1252,8 @@ class SyncManager @Inject constructor(
                 // Mirror the SAF path: if the file is not yet known to Room,
                 // insert a row so it shows up in the trips list.
                 val existing = tripDao.findByFileName(name)
+                val meta = parseCsvMeta(dest)
                 if (existing == null) {
-                    val meta = parseCsvMeta(dest)
                     tripDao.insert(TripRecord(
                         startTime = meta.startTime,
                         endTime = meta.endTime,
@@ -1266,6 +1266,23 @@ class SyncManager @Inject constructor(
                         // folder has nothing by that name: a download is not the
                         // authority on a file the rider already has there.
                         uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
+                    ))
+                } else {
+                    // The rider reached this file by answering "keep Dropbox's
+                    // copy" at the conflict prompt, and the bytes on disk have
+                    // just been replaced. The row has to follow, or the list
+                    // goes on showing what the old copy said - which is how a
+                    // rename made in another tool arrived on the phone and was
+                    // still displayed under its old name.
+                    tripDao.update(existing.copy(
+                        startTime = meta.startTime,
+                        endTime = meta.endTime,
+                        distanceKm = meta.distanceKm,
+                        // A copy with no name in it does not erase one set here.
+                        customName = meta.name ?: existing.customName,
+                        // The backup folder now holds the copy the rider chose
+                        // against, so send this one over it.
+                        uploadStatus = if (settings.syncFolderUri != null) 1 else existing.uploadStatus,
                     ))
                 }
             }
