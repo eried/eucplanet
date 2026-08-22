@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- See backup_rules.xml for why the lockdown store is excluded. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="datastore/legal_lockdown.preferences_pb" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="datastore/legal_lockdown.preferences_pb" />
+    </device-transfer>
+</data-extraction-rules>

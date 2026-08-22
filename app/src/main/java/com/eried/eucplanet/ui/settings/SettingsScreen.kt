@@ -541,6 +541,9 @@ fun SettingsScreen(
         stringResource(R.string.speed_tiltback),
         stringResource(R.string.speed_alarm),
         stringResource(R.string.section_legal_mode_speed),
+        stringResource(R.string.lockdown_title),
+        stringResource(R.string.lockdown_setting_label),
+        stringResource(R.string.lockdown_setting_desc),
         stringResource(R.string.speed_legal_tiltback),
         stringResource(R.string.speed_legal_alarm),
         stringResource(R.string.section_speed_calibration),
@@ -2037,11 +2040,11 @@ private fun AdvancedTab(
                     Spacer(Modifier.height(8.dp))
                     changed.forEach { spec ->
                         val u = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
-                        Text(
-                            "•  ${stringResource(spec.label)}:  " +
+                        com.eried.eucplanet.ui.common.BulletPoint(
+                            text = "${stringResource(spec.label)}:  " +
                                 "${spec.format(spec.get(settings.advanced))}$u  →  " +
                                 "${spec.format(spec.get(ADVANCED_DEFAULTS))}$u",
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
                             modifier = Modifier.padding(vertical = 1.dp),
                         )
                     }
@@ -6749,6 +6752,7 @@ private fun SpeedTab(
             )
         }
 
+        LegalLockdownSetting(viewModel)
     }
 }
 

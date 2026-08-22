@@ -3872,7 +3872,7 @@ private fun FlicIndicator(
 }
 
 @Composable
-private fun ConnectionDot(state: ConnectionState) {
+internal fun ConnectionDot(state: ConnectionState) {
     val color = when (state) {
         ConnectionState.CONNECTED -> MaterialTheme.appColors.connectionActive
         ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING -> MaterialTheme.appColors.statusWarn

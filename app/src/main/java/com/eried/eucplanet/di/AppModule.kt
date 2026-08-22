@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.AppDatabase
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.store.SettingsJson
+import com.eried.eucplanet.data.store.LegalLockdownStore
 import com.eried.eucplanet.data.store.SettingsStore
 import dagger.Module
 import dagger.Provides
@@ -38,6 +39,12 @@ object AppModule {
         runBlocking { store.seedDefaultsIfAbsent() }
         return store
     }
+
+    /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
+    @Provides
+    @Singleton
+    fun provideLegalLockdownStore(@ApplicationContext context: Context): LegalLockdownStore =
+        LegalLockdownStore(context)
 
     @Provides
     @Singleton

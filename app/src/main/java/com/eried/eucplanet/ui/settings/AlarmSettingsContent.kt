@@ -622,7 +622,7 @@ private fun AlarmRuleEditorDialog(
                                 Text(stringResource(R.string.alarm_constant_body))
                                 if (changes.isNotEmpty()) {
                                     Spacer(Modifier.height(8.dp))
-                                    changes.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
+                                    changes.forEach { com.eried.eucplanet.ui.common.BulletPoint(it) }
                                 }
                             }
                         },

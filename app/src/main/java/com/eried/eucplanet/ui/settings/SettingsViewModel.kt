@@ -105,6 +105,7 @@ internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
+    val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
     private val voiceService: VoiceService,
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
@@ -381,7 +382,48 @@ class SettingsViewModel @Inject constructor(
             wheelRepository.setSpeed(s.tiltbackSpeedKmh.coerceAtLeast(value), value)
         }
     }
+    /**
+     * Arms Legal Mode Lockdown. Order matters: the rider's in-progress trip is
+     * finalised and saved BEFORE the recorder gate goes up, otherwise the
+     * partial ride is stranded by TripRepository.startRecording's own guard.
+     *
+     * Returns false on an invalid code, having changed nothing. Nothing here
+     * writes an AppSettings field: the lock lives in its own store, so the
+     * rider's configuration is untouched by arming.
+     */
+    /** Whether a trip is recording right now, read before arming so the dialog
+     *  can say the trip was saved rather than guessing. */
+    fun isRecordingNow(): Boolean = tripRepository.recording.value
+
+    /** Legal mode's live state, so the arming dialog can warn that the lock
+     *  will take effect immediately instead of waiting. */
+    val legalModeActive: kotlinx.coroutines.flow.StateFlow<Boolean> =
+        wheelRepository.safetySpeedActive
+
+    /**
+     * Arms lockdown mode.
+     *
+     * This does NOT switch legal mode on. Arming is the resident half: if legal
+     * mode is off the mode simply waits, and engages the next time the rider
+     * turns legal mode on. When legal mode is already on there is nothing to
+     * wait for, so it engages at once.
+     *
+     * Nothing here writes an AppSettings field: the lock lives in its own store,
+     * so the rider's configuration is untouched by arming.
+     */
+    suspend fun armLockdown(pin: String): Boolean {
+        if (!com.eried.eucplanet.data.repository.LegalLockdownCode.isValidPin(pin)) return false
+        return legalLockdown.arm(pin, engageNow = wheelRepository.safetySpeedActive.value)
+    }
+
+    /** Switches the resident setting back off. Only possible before it engages. */
+    fun disarmLockdown() {
+        viewModelScope.launch { legalLockdown.disarmIfNotEngaged() }
+    }
+
     fun updateSafetyTiltback(value: Float) {
+        // Legal Mode Lockdown: raising the legal limit would be the bypass.
+        if (legalLockdown.isEngaged()) return
         viewModelScope.launch {
             // Read and write in one transaction: this sits behind a NumberUpDown
             // whose hold-to-repeat fires several of these a second, and reading
@@ -406,6 +448,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun updateSafetyAlarm(value: Float) {
+        // Legal Mode Lockdown: raising the legal limit would be the bypass.
+        if (legalLockdown.isEngaged()) return
         viewModelScope.launch {
             var newTilt = 0f
             settingsRepository.update { current ->

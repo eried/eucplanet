@@ -59,7 +59,8 @@ class NavigationEngine @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val routingService: RoutingService,
     private val voiceService: VoiceService,
-    private val currentRouteStore: CurrentRouteStore
+    private val currentRouteStore: CurrentRouteStore,
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 ) {
     companion object {
         private const val TAG = "NavigationEngine"
@@ -266,6 +267,11 @@ class NavigationEngine @Inject constructor(
 
     /** Begins guidance. Must be called while the app is in the foreground. */
     fun start(route: NavRoute, mode: NavMode) {
+        // Legal Mode Lockdown stops navigation and will not let a route start.
+        if (legalLockdown.isEngaged()) {
+            Log.i(TAG, "start() ignored, legal mode lockdown armed")
+            return
+        }
         if (route.waypoints.size < 2 && route.geometry.size < 2) {
             Log.w(TAG, "start() ignored, route has nothing to navigate")
             return

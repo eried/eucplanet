@@ -53,7 +53,8 @@ class TripRepository @Inject constructor(
     private val voiceService: VoiceService,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager,
-    private val externalGpsRepository: ExternalGpsRepository
+    private val externalGpsRepository: ExternalGpsRepository,
+    private val legalLockdown: LegalLockdownController
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -637,7 +638,22 @@ class TripRepository @Inject constructor(
         runCatching { tripDao.updateWheelMeta(id, json) }
     }
 
+    init {
+        // Lockdown can engage long after it was armed, the moment legal mode
+        // comes on, so a ride may already be in progress. Finalise and save it
+        // rather than leaving a partial trip open behind a locked screen.
+        scope.launch {
+            legalLockdown.engaged.collect { engaged ->
+                if (engaged && _recording.value) stopRecording()
+            }
+        }
+    }
+
     suspend fun startRecording() {
+        // Legal Mode Lockdown stops the recorders. Auto-record reaches this same
+        // function, so gating here covers the policy too.
+        if (legalLockdown.isEngaged()) return
+
         // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
         // calls this on every moving packet (~10/s); without this it would spin
         // retrying a doomed file open.

@@ -218,6 +218,7 @@ class WheelRepository @Inject constructor(
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val phoneSensorRepository: PhoneSensorRepository,
     private val externalGpsRepository: ExternalGpsRepository,
+    private val legalLockdown: LegalLockdownController,
     // Lazy breaks the Hilt dependency cycle: TripRepository injects this
     // repository, so a direct TripRepository here would be circular. Only
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
@@ -294,6 +295,19 @@ class WheelRepository @Inject constructor(
 
     private val _safetySpeedActive = MutableStateFlow(false)
     val safetySpeedActive: StateFlow<Boolean> = _safetySpeedActive.asStateFlow()
+
+    /**
+     * The only place legal mode's flag is written.
+     *
+     * Lockdown mode latches when legal mode comes on, and there are three paths
+     * that turn it on (the toggle, the connect-time reconcile, the settings
+     * readback). Routing them all through here means a fourth added later
+     * cannot quietly skip the latch.
+     */
+    private fun setSafetyActive(active: Boolean) {
+        _safetySpeedActive.value = active
+        if (active) legalLockdown.onLegalModeActivated()
+    }
 
     // Lock state derived from wheel telemetry pcMode
     private val _locked = MutableStateFlow(false)
@@ -910,7 +924,7 @@ class WheelRepository @Inject constructor(
                         lastSyncedWheelMaxKmh = -1f
                         lastSyncedWheelAlarmKmh = -1f
                         // Reset states that depend on wheel connection
-                        _safetySpeedActive.value = false
+                        setSafetyActive(false)
                         lastAnnouncedSafety = false
                         _locked.value = false
                         // Not a state the rider is told about: the wheel did
@@ -1662,6 +1676,13 @@ class WheelRepository @Inject constructor(
     suspend fun toggleSafetySpeed() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_safetyBusy.value) return  // cooldown active, ignore the spam tap (lock parity)
+        // Legal Mode Lockdown backstop, for any caller that does not go through
+        // FlicManager.executeAction. Turning the limits ON is always allowed,
+        // turning them OFF while locked down never is.
+        if (legalLockdown.isEngaged() && _safetySpeedActive.value) {
+            Log.i(TAG, "Safety speed off refused: legal mode lockdown armed")
+            return
+        }
         val wantActive = !_safetySpeedActive.value
         val settings = settingsRepository.get()
 
@@ -1669,7 +1690,7 @@ class WheelRepository @Inject constructor(
         // it through the cooldown (same as toggleLock). setSpeed sets the cooldown
         // window; startCooldown drives the busy flag so the button disables and
         // spam taps are ignored while the wheel confirms.
-        _safetySpeedActive.value = wantActive
+        setSafetyActive(wantActive)
         startCooldown(_safetyBusy, SAFETY_COOLDOWN_MS) { safetyCooldownUntilMs = it }
 
         if (wantActive) {
@@ -1695,6 +1716,7 @@ class WheelRepository @Inject constructor(
     }
 
     fun disableSafetySpeed() {
+        if (legalLockdown.isEngaged()) return  // locked down, only the code lifts the limits
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_safetySpeedActive.value) {
             scope.launch { toggleSafetySpeed() }
@@ -1851,10 +1873,16 @@ class WheelRepository @Inject constructor(
         if (updated !== appSettings) {
             settingsRepository.update(updated)
         }
-        _safetySpeedActive.value = isLegalOn
+        setSafetyActive(isLegalOn)
         // Seed the last-spoken state to the connect-time reading so the first
         // in-session toggle is detected as a change and announced.
         lastAnnouncedSafety = isLegalOn
+        // Legal Mode Lockdown can be armed with no wheel present, and a wheel
+        // that was power-cycled comes back at its normal limits. Push them back.
+        if (LockdownReapply.shouldReapply(legalLockdown.isEngaged(), isLegalOn)) {
+            Log.i(TAG, "Lockdown armed, re-applying legal limits on connect")
+            enableSafetySpeed()
+        }
 
         Log.i(TAG, "Reconciled: wheel=$wTilt/$wAlarm → " +
                 "normal=${updated.tiltbackSpeedKmh}/${updated.alarmSpeedKmh} " +
@@ -2151,7 +2179,11 @@ class WheelRepository @Inject constructor(
                         isSafety
                     }
                     if (confirmedSafety != null) {
-                        _safetySpeedActive.value = confirmedSafety
+                        setSafetyActive(confirmedSafety)
+                        if (LockdownReapply.shouldReapply(legalLockdown.isEngaged(), confirmedSafety)) {
+                            Log.i(TAG, "Lockdown armed, re-applying legal limits after readback")
+                            enableSafetySpeed()
+                        }
                         if (confirmedSafety != lastAnnouncedSafety) {
                             lastAnnouncedSafety = confirmedSafety
                             if (appSettings.announceSafetyMode) {
@@ -2286,4 +2318,18 @@ internal fun mergeBmsSlice(
         packs = (others + updated).sortedBy { it.packIndex },
         updatedAt = System.currentTimeMillis(),
     )
+}
+
+/**
+ * Whether a freshly connected wheel needs the legal limits pushed back onto it.
+ *
+ * Split out from the connect path so the rule is testable without a BLE stack.
+ * Keyed on engaged, not merely armed: an armed but still waiting lockdown must
+ * not switch legal mode on by itself, that is the rider's move to make. Once it
+ * has engaged, though, a power cycled wheel comes back reporting legal mode off
+ * and the limits go straight back on, so the wheel is not a way out.
+ */
+object LockdownReapply {
+    fun shouldReapply(engaged: Boolean, wheelReportsLegalOn: Boolean): Boolean =
+        engaged && !wheelReportsLegalOn
 }
