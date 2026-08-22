@@ -20,8 +20,17 @@ using Toybox.System;
 //! need a separate "Garmin" section.
 class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
 
+    //! How fresh an onKey must be for a behavior callback to count as
+    //! physical. A real press delivers onKey and the behavior in the same
+    //! input cycle; 1 s is orders of magnitude above that while never
+    //! bridging two separate interactions.
+    private const KEY_FRESH_MS = 1000;
+
     private var _view as EucPlanetView;
     private var _actions as ActionDispatch;
+    //! System.getTimer() of the last raw key event. Behaviors arriving
+    //! without a fresh key are tap-synthesized, not button presses.
+    private var _lastKeyMs as Lang.Number = -100000;
 
     function initialize(view as EucPlanetView, actions as ActionDispatch) {
         BehaviorDelegate.initialize();
@@ -29,8 +38,29 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
         _actions = actions;
     }
 
+    //! True when a raw key event arrived within the same input cycle.
+    //! Field evidence (Fenix 8, 2026-08-22 diag): screen taps arrive
+    //! DIRECTLY as onSelect - never as onTap, onHold or onKey - so the
+    //! only way to tell "rider pressed START" from "rider brushed the
+    //! screen" is whether a real key event preceded the behavior.
+    //!
+    //! Non-touch watches (Instinct 2) skip the gate entirely: with no
+    //! screen to synthesize from, every behavior IS a physical press, and
+    //! gating there could only break buttons if a firmware skips onKey.
+    private function keyWasPhysical() as Lang.Boolean {
+        var settings = System.getDeviceSettings();
+        if (!settings.isTouchScreen) { return true; }
+        return (System.getTimer() - _lastKeyMs) < KEY_FRESH_MS;
+    }
+
     function onSelect() as Lang.Boolean {
         var s = WatchState.snapshot;
+        if (!keyWasPhysical()) {
+            // Tap promoted to the select behavior. Swallow it: the rider's
+            // Button 1 binding must only fire from the physical button.
+            _actions.debug("onSelect ignored (tap-synthesized, no key)");
+            return true;
+        }
         _actions.debug("onSelect act=" + s.stem1Click);
         _actions.dispatch(s.stem1Click);
         return true;
@@ -38,18 +68,21 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
 
     function onMenu() as Lang.Boolean {
         var s = WatchState.snapshot;
+        if (!keyWasPhysical()) {
+            _actions.debug("onMenu ignored (tap-synthesized, no key)");
+            return true;
+        }
         _actions.debug("onMenu act=" + s.stem2Click);
         _actions.dispatch(s.stem2Click);
         return true;
     }
 
-    //! Instrumentation probe, added for the Fenix 8 "whole screen fires
-    //! Button 1" report: on some touch watches a screen tap is synthesised
-    //! into a KEY_ENTER key event rather than (or before) a ClickEvent, and
-    //! BehaviorDelegate's DEFAULT onKey then routes it to onSelect - a path
-    //! onTap can never intercept. Log the raw key, then let the default
-    //! routing continue so behavior is unchanged while we gather evidence.
+    //! Raw key events. Every PHYSICAL press passes through here before the
+    //! system maps it to a behavior (onSelect / onMenu); tap-synthesized
+    //! behaviors do not. Stamp the time, log while diag records, and let
+    //! the default routing continue.
     function onKey(evt as WatchUi.KeyEvent) as Lang.Boolean {
+        _lastKeyMs = System.getTimer();
         _actions.debug("onKey k=" + evt.getKey() + " type=" + evt.getType());
         return false;
     }
