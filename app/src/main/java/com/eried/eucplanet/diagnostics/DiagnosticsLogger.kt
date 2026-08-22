@@ -42,6 +42,14 @@ object DiagnosticsLogger {
     private val _enabled = MutableStateFlow(false)
     val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
 
+    /**
+     * True while Legal Mode Lockdown is armed. Service mode records raw BLE and
+     * has to stop with the other recorders, but this is an object with no
+     * injection, so the state is pushed in from EucPlanetApp rather than pulled.
+     */
+    @Volatile
+    var lockedDown: Boolean = false
+
     private val _entries = MutableStateFlow<List<Entry>>(emptyList())
     val entries: StateFlow<List<Entry>> = _entries.asStateFlow()
 
@@ -51,6 +59,7 @@ object DiagnosticsLogger {
     @Volatile private var sessionInfoCaptured = false
 
     fun enable() {
+        if (lockedDown) return
         if (_enabled.value) return
         _enabled.value = true
         sessionInfoCaptured = false

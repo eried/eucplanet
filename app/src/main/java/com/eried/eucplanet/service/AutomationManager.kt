@@ -27,7 +27,8 @@ class AutomationManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val wheelRepository: WheelRepository,
     private val tripRepository: TripRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 ) {
     companion object {
         private const val TAG = "AutomationManager"
@@ -91,6 +92,10 @@ class AutomationManager @Inject constructor(
 
     /** Called from the UI / Flic paths whenever the user toggles the light manually. */
     fun notifyManualLightChange() {
+        // Legal Mode Lockdown is temporary, so its light button must not leave
+        // auto-lights suspended for the rest of the session. Guarded here so
+        // every caller is covered, not just the two we know about today.
+        if (legalLockdown.isArmed()) return
         if (!_autoLightsSuspended.value) {
             Log.i(TAG, "Auto-lights suspended for this session (manual change)")
         }
@@ -115,11 +120,15 @@ class AutomationManager @Inject constructor(
      * Called every telemetry tick (~250ms). Evaluates automation rules.
      */
     suspend fun evaluate(settings: AppSettings) {
+        // Legal Mode Lockdown stops media control and proximity auto-lock.
+        // Auto lights and auto volume keep running: lights are a safety
+        // behaviour and the light button is on the locked screen anyway.
+        val lockedDown = legalLockdown.isArmed()
         detectManualLightChange(settings)
         if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
         if (settings.autoVolumeEnabled) evaluateVolume(settings)
         val mc = settings.mediaControl
-        if (mc.pauseEnabled || mc.resumeEnabled) evaluateMediaControl(settings)
+        if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
         // lockEnabled is the whole feature's switch; unlockEnabled is a
         // sub-option of it, and the settings screen only draws the unlock
         // switch while this one is on. Gating on either used to keep the
@@ -127,7 +136,7 @@ class AutomationManager @Inject constructor(
         // off - they could see no switch for it and had no way to stop it.
         // Resetting on the off path also covers every route that turns it off
         // (settings, the dashboard long-press, restoring a backup).
-        if (settings.proximityLock.lockEnabled) evaluateProximityLock(settings)
+        if (!lockedDown && settings.proximityLock.lockEnabled) evaluateProximityLock(settings)
         else proximityLock.reset()
     }
 

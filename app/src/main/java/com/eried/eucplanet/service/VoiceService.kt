@@ -51,7 +51,8 @@ class VoiceService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 ) {
     companion object {
         private const val TAG = "VoiceService"
@@ -491,6 +492,10 @@ class VoiceService @Inject constructor(
     }
 
     fun announceStatus(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
+        // Legal Mode Lockdown silences app chatter, including anything that
+        // would say "legal mode" or "recording". AlarmEngine speaks through
+        // speak() instead, so the rider's own alarms still fire.
+        if (legalLockdown.isArmed()) return
         val parts = buildReportParts(data, settings, isRecording, periodic = true)
         if (parts.isEmpty()) return
         speakInternal(parts.joinToString(", "), isTrigger = false,
@@ -498,6 +503,10 @@ class VoiceService @Inject constructor(
     }
 
     fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
+        // Legal Mode Lockdown silences app chatter, including anything that
+        // would say "legal mode" or "recording". AlarmEngine speaks through
+        // speak() instead, so the rider's own alarms still fire.
+        if (legalLockdown.isArmed()) return
         warnIfLowVolume(settings.voiceOutputChannel)
         // Drop immediately if a trigger is already in flight/queued; never queue more than one.
         if (triggerInFlight) return
@@ -608,6 +617,10 @@ class VoiceService @Inject constructor(
     }
 
     fun announceEvent(text: String) {
+        // Legal Mode Lockdown silences app chatter, including anything that
+        // would say "legal mode" or "recording". AlarmEngine speaks through
+        // speak() instead, so the rider's own alarms still fire.
+        if (legalLockdown.isArmed()) return
         speak(text)
     }
 

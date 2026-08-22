@@ -53,7 +53,8 @@ class TripRepository @Inject constructor(
     private val voiceService: VoiceService,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager,
-    private val externalGpsRepository: ExternalGpsRepository
+    private val externalGpsRepository: ExternalGpsRepository,
+    private val legalLockdown: LegalLockdownController
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -638,6 +639,10 @@ class TripRepository @Inject constructor(
     }
 
     suspend fun startRecording() {
+        // Legal Mode Lockdown stops the recorders. Auto-record reaches this same
+        // function, so gating here covers the policy too.
+        if (legalLockdown.isArmed()) return
+
         // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
         // calls this on every moving packet (~10/s); without this it would spin
         // retrying a doomed file open.

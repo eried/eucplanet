@@ -155,6 +155,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
     @Inject lateinit var radarRepository: com.eried.eucplanet.data.repository.RadarRepository
     @Inject lateinit var phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow
+    @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
     // Phone HUD, mirrored so the telemetry loop can read it without suspending.
     @Volatile
@@ -886,7 +887,11 @@ class WheelService : LifecycleService() {
         // No setSilent(true): IMPORTANCE_LOW already means no sound/peek, and
         // tagging it silent made lock screens set to "hide silent
         // notifications" suppress it entirely.
-        buildNotificationActions(nav.active, data).forEach { builder.addAction(it) }
+        // Lockdown strips the notification buttons: they are another surface
+        // that could reach a gated action.
+        if (!legalLockdown.isArmed()) {
+            buildNotificationActions(nav.active, data).forEach { builder.addAction(it) }
+        }
         return builder.build()
     }
 
@@ -973,6 +978,7 @@ class WheelService : LifecycleService() {
      * so a disconnected wheel still has numbers.
      */
     private fun pushWidget(data: WheelData) {
+        if (legalLockdown.isArmed()) return  // lockdown stops the widgets
         if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val now = System.currentTimeMillis()
         if (now - lastWidgetUpdate < 1_000L) return
@@ -996,6 +1002,13 @@ class WheelService : LifecycleService() {
      * can be called from every settings emission without churning the window.
      */
     private fun applyPhoneHud() {
+        // Legal Mode Lockdown hides the overlay. Not an early return: the
+        // window may already be up when the rider arms, so it has to be told
+        // to go away rather than merely stop being re-shown.
+        if (legalLockdown.isArmed()) {
+            phoneHudWindow.hide()
+            return
+        }
         // Hidden while the app itself is in front, unless the rider asked for
         // it everywhere. Drawing the overlay over the dashboard would cover a
         // fuller version of the same numbers.
@@ -1042,6 +1055,7 @@ class WheelService : LifecycleService() {
      * out for the same reason: it is a 1100-sample buffer at IMU rate.
      */
     private fun pushPhoneHud(rawData: WheelData) {
+        if (legalLockdown.isArmed()) return  // lockdown stops the overlay updates
         if (!phoneHudWindow.isShowing) return
         val now = System.currentTimeMillis()
         if (now - lastPhoneHudPush < PHONE_HUD_INTERVAL_MS) return
@@ -1113,6 +1127,7 @@ class WheelService : LifecycleService() {
     }
 
     private fun renderWidget(data: WheelData?) {
+        if (legalLockdown.isArmed()) return  // lockdown stops the widgets
         if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val connected =
             wheelRepository.connectionState.value == ConnectionState.CONNECTED && data != null

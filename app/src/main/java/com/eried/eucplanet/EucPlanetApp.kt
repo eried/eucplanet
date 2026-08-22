@@ -8,6 +8,7 @@ import com.eried.eucplanet.garmin.GarminBridge
 import com.eried.eucplanet.util.CrashHandler
 import com.eried.eucplanet.wear.WearBridge
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -32,6 +33,13 @@ class EucPlanetApp : Application(), Configuration.Provider {
      * that was closed mid-sync -- the "closed too early" case.
      */
     @Inject lateinit var syncManager: com.eried.eucplanet.data.sync.SyncManager
+
+    /**
+     * Constructed eagerly so its armed flag is read from disk before the first
+     * screen composes, and so the app relaunches straight into the locked
+     * screen instead of flashing the dashboard first.
+     */
+    @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -74,5 +82,14 @@ class EucPlanetApp : Application(), Configuration.Provider {
         syncManager.reconcilePendingEucStatsUploads()
         syncManager.reconcilePendingDropboxSync()
         syncManager.startPendingUploadWatcher()
+        // Legal Mode Lockdown stops service mode too. DiagnosticsLogger is an
+        // object with no injection, so the armed state is mirrored onto it here,
+        // the one place that already lives for the whole process.
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
+            legalLockdown.armed.collect { armed ->
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.lockedDown = armed
+                if (armed) com.eried.eucplanet.diagnostics.DiagnosticsLogger.disable()
+            }
+        }
     }
 }
