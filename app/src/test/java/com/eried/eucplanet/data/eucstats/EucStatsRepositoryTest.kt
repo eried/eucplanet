@@ -156,6 +156,9 @@ class FakeTripDao : TripDao {
         if (idx >= 0) trips[idx] = trips[idx].copy(dropboxStatus = status, dropboxUploadedAt = at)
     }
 
+    override suspend fun tripsWithoutWheelMeta(): List<TripRecord> =
+        trips.filter { it.wheelMetaJson == null && it.endTime != null }
+
     override suspend fun setDropboxStatus(id: Long, status: Int) {
         val idx = trips.indexOfFirst { it.id == id }
         if (idx >= 0) trips[idx] = trips[idx].copy(dropboxStatus = status)

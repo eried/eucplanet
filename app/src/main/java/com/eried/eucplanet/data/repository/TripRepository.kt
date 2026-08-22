@@ -208,6 +208,14 @@ class TripRepository @Inject constructor(
         scope.launch {
             runCatching { finalizeUnfinishedTrips() }
             runCatching { adoptOrphanCsvs() }
+            // Then read the wheel out of any file that has never been asked.
+            // Old rows predate the wheelMetaJson column and restored trips
+            // arrived before downloads captured it, so the change-wheel picker
+            // sat empty while every CSV named its wheel. One streaming read
+            // per file, once ever: files with no wheel rows are stamped "{}"
+            // so they are never opened again. A 352-trip library takes a few
+            // seconds in the background; even thousands stay under a minute.
+            runCatching { backfillWheelMetaFromFiles() }
         }
         // App-start recovery sweep. Both workers also pick up orphaned/failed
         // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
@@ -1104,6 +1112,49 @@ class TripRepository @Inject constructor(
      * only ever arrived as an imported CSV, which is exactly the case where the
      * rider is most likely to be correcting a wrong label.
      */
+    private suspend fun backfillWheelMetaFromFiles() {
+        for (trip in tripDao.tripsWithoutWheelMeta()) {
+            val file = getTripFile(trip)
+            if (!file.exists()) continue
+            val json = runCatching { readWheelJsonFromCsv(file) }.getOrNull()
+            // "{}" = looked, nothing there. Distinguishable from NULL (never
+            // looked) so the sweep converges instead of re-reading forever.
+            tripDao.updateWheelMeta(trip.id, json ?: "{}")
+        }
+    }
+
+    /** First wheel.name= / wheel.mac= / brand / model in the Extra column,
+     *  as the same JSON shape the recorder caches. Streams; a long ride
+     *  never sits in memory. */
+    private fun readWheelJsonFromCsv(file: java.io.File): String? {
+        var name: String? = null; var mac: String? = null
+        var brand: String? = null; var model: String? = null
+        file.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return null
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return null
+            reader.forEachLine { line ->
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("wheel.", ignoreCase = true)) {
+                    val v = cell.substringAfter('=').trim().take(80)
+                    if (v.isNotEmpty()) when {
+                        cell.startsWith("wheel.name=", true) -> name = name ?: v
+                        cell.startsWith("wheel.mac=", true) -> mac = mac ?: v
+                        cell.startsWith("wheel.brand=", true) -> brand = brand ?: v
+                        cell.startsWith("wheel.model=", true) -> model = model ?: v
+                    }
+                }
+            }
+        }
+        if (name == null && mac == null) return null
+        return org.json.JSONObject().apply {
+            name?.let { put("ble_name", it) }
+            mac?.let { put("ble_mac", it) }
+            brand?.let { put("brand", it) }
+            model?.let { put("model", it) }
+        }.toString()
+    }
+
     suspend fun knownWheelNames(): List<String> {
         val fromProfiles = runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
         val fromTrips = runCatching {

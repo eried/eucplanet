@@ -88,6 +88,12 @@ interface TripDao {
     @Query("SELECT wheelMetaJson FROM trips WHERE wheelMetaJson IS NOT NULL")
     suspend fun allWheelMeta(): List<String>
 
+    /** Finished trips whose wheel has never been read out of their file.
+     *  Feeds the one-time backfill; rows it finds nothing in are stamped
+     *  "{}" so they are never opened again. */
+    @Query("SELECT * FROM trips WHERE wheelMetaJson IS NULL AND endTime IS NOT NULL")
+    suspend fun tripsWithoutWheelMeta(): List<TripRecord>
+
     /** Live-recorded trips with no end time. Normally just the one currently
      *  recording, but at cold start any left here are recordings a previous
      *  session was killed mid-flight (force-close / crash). Finalized from their

@@ -354,6 +354,7 @@ class SyncManager @Inject constructor(
                         // rider's when it does not: an older copy without the
                         // Extra cell must not wipe a name set on this phone.
                         customName = meta.name ?: existing.customName,
+                        wheelMetaJson = meta.wheelJson ?: existing.wheelMetaJson,
                         uploadStatus = 2,
                         uploadedAt = System.currentTimeMillis()
                     ))
@@ -366,6 +367,7 @@ class SyncManager @Inject constructor(
                         // The file carries the rider's name for it; a downloaded
                         // trip used to arrive nameless and show its date instead.
                         customName = meta.name,
+                        wheelMetaJson = meta.wheelJson,
                         uploadStatus = 2,
                         uploadedAt = System.currentTimeMillis()
                     ))
@@ -404,6 +406,14 @@ class SyncManager @Inject constructor(
          * name was gone - the file had it all along.
          */
         val name: String? = null,
+        /**
+         * The wheel identity the file carries (wheel.name= / wheel.mac= rows
+         * in the Extra column), as the same JSON shape TripRecord caches.
+         * Same story as the trip name: the file always had it - eucviewer
+         * reads exactly these rows - and every download dropped it, so the
+         * change-wheel picker on a restored library offered nothing.
+         */
+        val wheelJson: String? = null,
     )
 
     /**
@@ -472,6 +482,7 @@ class SyncManager @Inject constructor(
                     // The file carries the rider's name for it; a downloaded
                     // trip used to arrive nameless and show its date instead.
                     customName = meta.name,
+                        wheelMetaJson = meta.wheelJson,
                     // Pending when a backup folder exists, so the folder worker
                     // mirrors it: same rule as the foreground pass.
                     uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
@@ -497,6 +508,10 @@ class SyncManager @Inject constructor(
         var endTime = startTime
         var gpsDistanceKm = 0.0
         var tripName: String? = null
+        var wheelName: String? = null
+        var wheelMac: String? = null
+        var wheelBrand: String? = null
+        var wheelModel: String? = null
         var lastLat = Double.NaN
         var lastLon = Double.NaN
         var minMileage = Float.MAX_VALUE
@@ -521,11 +536,20 @@ class SyncManager @Inject constructor(
                     if (line.isEmpty()) return@forEachLine
                     val parts = line.split(",")
                     if (parts.size < 2) return@forEachLine
-                    if (tripName == null && extraIdx >= 0) {
+                    if (extraIdx >= 0) {
                         val cell = parts.getOrNull(extraIdx)?.trim().orEmpty()
-                        if (cell.startsWith("trip.name=", ignoreCase = true)) {
+                        if (tripName == null && cell.startsWith("trip.name=", ignoreCase = true)) {
                             tripName = cell.substringAfter('=').trim().take(60)
                                 .takeIf { it.isNotEmpty() }
+                        }
+                        if (cell.startsWith("wheel.", ignoreCase = true)) {
+                            val v = cell.substringAfter('=').trim().take(80)
+                            if (v.isNotEmpty()) when {
+                                cell.startsWith("wheel.name=", true) -> wheelName = wheelName ?: v
+                                cell.startsWith("wheel.mac=", true) -> wheelMac = wheelMac ?: v
+                                cell.startsWith("wheel.brand=", true) -> wheelBrand = wheelBrand ?: v
+                                cell.startsWith("wheel.model=", true) -> wheelModel = wheelModel ?: v
+                            }
                         }
                     }
                     TripCsv.parseDate(parts.getOrNull(dateIdx)?.trim())?.let { t ->
@@ -555,7 +579,14 @@ class SyncManager @Inject constructor(
             minMileage != Float.MAX_VALUE && maxMileage > minMileage -> maxMileage - minMileage
             else -> 0f
         }
-        return CsvMeta(startTime, endTime, distance, tripName)
+        val wheelJson = if (wheelName == null && wheelMac == null) null else
+            org.json.JSONObject().apply {
+                wheelName?.let { put("ble_name", it) }
+                wheelMac?.let { put("ble_mac", it) }
+                wheelBrand?.let { put("brand", it) }
+                wheelModel?.let { put("model", it) }
+            }.toString()
+        return CsvMeta(startTime, endTime, distance, tripName, wheelJson)
     }
 
     /**
@@ -1326,6 +1357,7 @@ class SyncManager @Inject constructor(
                         // The file carries the rider's name for it; a downloaded
                         // trip used to arrive nameless and show its date instead.
                         customName = meta.name,
+                        wheelMetaJson = meta.wheelJson,
                         // It came from Dropbox, so that is where it already is.
                         dropboxStatus = 2,
                         dropboxUploadedAt = System.currentTimeMillis(),
@@ -1347,6 +1379,7 @@ class SyncManager @Inject constructor(
                         distanceKm = meta.distanceKm,
                         // A copy with no name in it does not erase one set here.
                         customName = meta.name ?: existing.customName,
+                        wheelMetaJson = meta.wheelJson ?: existing.wheelMetaJson,
                         // The backup folder now holds the copy the rider chose
                         // against, so send this one over it.
                         uploadStatus = if (settings.syncFolderUri != null) 1 else existing.uploadStatus,

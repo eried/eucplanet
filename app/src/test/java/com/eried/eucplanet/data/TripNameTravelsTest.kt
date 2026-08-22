@@ -129,4 +129,29 @@ class TripNameTravelsTest {
         assertTrue("reset is offered on a trip with no name to clear",
             rename.contains("!currentName.isNullOrBlank()"))
     }
+
+    // --- the wheel travels the same way ------------------------------------
+
+    @Test fun `the sync parser reads the wheel identity too`() {
+        // Same disease as the trip name, one column over: wheel.name= rows
+        // were in every recorded CSV - eucviewer reads exactly them - and
+        // every download dropped them, so the change-wheel picker on a
+        // restored library offered nothing but "another wheel".
+        assertTrue(sync.contains("val wheelJson: String? = null"))
+        assertTrue(sync.contains("""cell.startsWith("wheel.name=", true)"""))
+        assertTrue("downloads do not store the wheel",
+            sync.contains("wheelMetaJson = meta.wheelJson,"))
+        assertTrue("a wheel-less copy wipes a known wheel",
+            sync.contains("wheelMetaJson = meta.wheelJson ?: existing.wheelMetaJson,"))
+    }
+
+    @Test fun `old rows are backfilled from their files, once`() {
+        val repo = File("src/main/java/com/eried/eucplanet/data/repository/TripRepository.kt").readText()
+        assertTrue("no backfill sweep at start", repo.contains("backfillWheelMetaFromFiles()"))
+        // Files with no wheel rows are stamped "{}" - looked, nothing there -
+        // so the sweep converges instead of re-reading every start.
+        assertTrue(repo.contains("""tripDao.updateWheelMeta(trip.id, json ?: "{}")"""))
+        val dao = File("src/main/java/com/eried/eucplanet/data/db/TripDao.kt").readText()
+        assertTrue(dao.contains("WHERE wheelMetaJson IS NULL AND endTime IS NOT NULL"))
+    }
 }
