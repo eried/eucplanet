@@ -2238,7 +2238,7 @@
     <string name="recording_delete_trip_body_archive">Radera den här turen från telefonen? Backupkopian flyttas till en arkivmapp.</string>
     <string name="backup_status_pending">Säkerhetskopierar…</string>
     <string name="backup_status_failed">Säkerhetskopieringen misslyckades, tryck för att försöka igen</string>
-    <string name="lockdown_title">Legal-lägeslås</string>
+    <string name="lockdown_title">Låsläge</string>
     <string name="lockdown_action_speed_limit">Gräns</string>
     <string name="lockdown_action_vehicle">Fordon</string>
     <string name="lockdown_no_wheel">Inget wheel anslutet. Använd Bluetooth-ikonen för att ansluta.</string>
@@ -2253,8 +2253,8 @@
     <string name="lockdown_unlock">Lås upp</string>
     <string name="lockdown_wrong_code">Fel kod</string>
     <string name="lockdown_connect">Anslut</string>
-    <string name="lockdown_setting_label">Legal-lägeslås</string>
-    <string name="lockdown_setting_desc">Låser appen till en enkel skärm. Kräver en tillverkarkod för att ångra.</string>
+    <string name="lockdown_setting_label">Låsläge</string>
+    <string name="lockdown_setting_desc">Låser appen till en enkel skärm</string>
     <string name="lockdown_set_code">Ange tillverkarkoden</string>
     <string name="lockdown_confirm_code">Upprepa koden</string>
     <string name="lockdown_code_hint">4 till 8 siffror</string>

@@ -2260,7 +2260,7 @@
     <string name="backup_status_failed">Backup failed, tap to retry</string>
 
     <!-- Legal Mode Lockdown -->
-    <string name="lockdown_title">Legal Mode Lockdown</string>
+    <string name="lockdown_title">Lockdown mode</string>
     <string name="lockdown_action_speed_limit">Speed limit</string>
     <string name="lockdown_action_vehicle">Vehicle</string>
     <string name="lockdown_no_wheel">No wheel connected. Use the Bluetooth icon to connect.</string>
@@ -2275,8 +2275,8 @@
     <string name="lockdown_unlock">Unlock</string>
     <string name="lockdown_wrong_code">Incorrect code</string>
     <string name="lockdown_connect">Connect</string>
-    <string name="lockdown_setting_label">Legal Mode Lockdown</string>
-    <string name="lockdown_setting_desc">Lock the app to a simple screen. Needs a manufacturer code to undo.</string>
+    <string name="lockdown_setting_label">Lockdown mode</string>
+    <string name="lockdown_setting_desc">Locks the app to a simple screen</string>
     <string name="lockdown_set_code">Set the manufacturer code</string>
     <string name="lockdown_confirm_code">Repeat the code</string>
     <string name="lockdown_code_hint">4 to 8 digits</string>

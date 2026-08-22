@@ -2237,7 +2237,7 @@
     <string name="recording_delete_trip_body_archive">從這台手機刪除這次行程？備份裡的副本會移到封存資料夾。</string>
     <string name="backup_status_pending">正在備份…</string>
     <string name="backup_status_failed">備份失敗，點擊重試</string>
-    <string name="lockdown_title">合法模式鎖定</string>
+    <string name="lockdown_title">鎖定模式</string>
     <string name="lockdown_action_speed_limit">限速</string>
     <string name="lockdown_action_vehicle">車輛</string>
     <string name="lockdown_no_wheel">未連接輪子。請點選藍牙圖示進行連接。</string>
@@ -2252,8 +2252,8 @@
     <string name="lockdown_unlock">解鎖</string>
     <string name="lockdown_wrong_code">代碼不正確</string>
     <string name="lockdown_connect">連接</string>
-    <string name="lockdown_setting_label">合法模式鎖定</string>
-    <string name="lockdown_setting_desc">將應用程式鎖定在簡化畫面。解除需要廠商代碼。</string>
+    <string name="lockdown_setting_label">鎖定模式</string>
+    <string name="lockdown_setting_desc">將應用程式鎖定在簡化畫面</string>
     <string name="lockdown_set_code">設定廠商代碼</string>
     <string name="lockdown_confirm_code">再次輸入代碼</string>
     <string name="lockdown_code_hint">4 至 8 位數字</string>

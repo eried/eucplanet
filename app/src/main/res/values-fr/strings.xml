@@ -2242,7 +2242,7 @@
     <string name="recording_delete_trip_body_archive">Supprimer cette sortie du téléphone ? La copie de sauvegarde part dans un dossier d\'archive.</string>
     <string name="backup_status_pending">Sauvegarde en cours…</string>
     <string name="backup_status_failed">Echec de la sauvegarde, touchez pour reessayer</string>
-    <string name="lockdown_title">Verrouillage du mode légal</string>
+    <string name="lockdown_title">Mode verrouillé</string>
     <string name="lockdown_action_speed_limit">Limite</string>
     <string name="lockdown_action_vehicle">Véhicule</string>
     <string name="lockdown_no_wheel">Aucune roue connectée. Utilise l’icône Bluetooth pour te connecter.</string>
@@ -2257,8 +2257,8 @@
     <string name="lockdown_unlock">Déverrouiller</string>
     <string name="lockdown_wrong_code">Code incorrect</string>
     <string name="lockdown_connect">Connecter</string>
-    <string name="lockdown_setting_label">Verrouillage du mode légal</string>
-    <string name="lockdown_setting_desc">Verrouille l’application sur un écran simple. Un code fabricant est nécessaire pour l’annuler.</string>
+    <string name="lockdown_setting_label">Mode verrouillé</string>
+    <string name="lockdown_setting_desc">Verrouille l’application sur un écran simple</string>
     <string name="lockdown_set_code">Définir le code fabricant</string>
     <string name="lockdown_confirm_code">Répéter le code</string>
     <string name="lockdown_code_hint">4 à 8 chiffres</string>

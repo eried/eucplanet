@@ -2239,7 +2239,7 @@
     <string name="recording_delete_trip_body_archive">この走行を端末から削除しますか？バックアップの控えはアーカイブフォルダーへ移ります。</string>
     <string name="backup_status_pending">バックアップ中…</string>
     <string name="backup_status_failed">バックアップ失敗、タップして再試行</string>
-    <string name="lockdown_title">リーガルモードロック</string>
+    <string name="lockdown_title">ロックモード</string>
     <string name="lockdown_action_speed_limit">速度制限</string>
     <string name="lockdown_action_vehicle">車両</string>
     <string name="lockdown_no_wheel">ホイールが接続されていません。Bluetooth アイコンから接続してください。</string>
@@ -2254,8 +2254,8 @@
     <string name="lockdown_unlock">解除</string>
     <string name="lockdown_wrong_code">コードが違います</string>
     <string name="lockdown_connect">接続</string>
-    <string name="lockdown_setting_label">リーガルモードロック</string>
-    <string name="lockdown_setting_desc">アプリをシンプルな画面に固定します。解除にはメーカーコードが必要です。</string>
+    <string name="lockdown_setting_label">ロックモード</string>
+    <string name="lockdown_setting_desc">アプリをシンプルな画面に固定します</string>
     <string name="lockdown_set_code">メーカーコードを設定</string>
     <string name="lockdown_confirm_code">コードを再入力</string>
     <string name="lockdown_code_hint">4 - 8 桁</string>

@@ -2253,7 +2253,7 @@
     <string name="recording_delete_trip_body_archive">Slet denne tur fra telefonen? Kopien i backuppen flyttes til en arkivmappe.</string>
     <string name="backup_status_pending">Sikkerhedskopierer…</string>
     <string name="backup_status_failed">Sikkerhedskopiering mislykkedes, tryk for at prøve igen</string>
-    <string name="lockdown_title">Legal-tilstandslås</string>
+    <string name="lockdown_title">Låsetilstand</string>
     <string name="lockdown_action_speed_limit">Grænse</string>
     <string name="lockdown_action_vehicle">Køretøj</string>
     <string name="lockdown_no_wheel">Intet wheel forbundet. Brug Bluetooth-ikonet for at forbinde.</string>
@@ -2268,8 +2268,8 @@
     <string name="lockdown_unlock">Lås op</string>
     <string name="lockdown_wrong_code">Forkert kode</string>
     <string name="lockdown_connect">Forbind</string>
-    <string name="lockdown_setting_label">Legal-tilstandslås</string>
-    <string name="lockdown_setting_desc">Låser appen til en enkel skærm. Kræver en producentkode for at ophæve.</string>
+    <string name="lockdown_setting_label">Låsetilstand</string>
+    <string name="lockdown_setting_desc">Låser appen til en enkel skærm</string>
     <string name="lockdown_set_code">Angiv producentkoden</string>
     <string name="lockdown_confirm_code">Gentag koden</string>
     <string name="lockdown_code_hint">4 til 8 cifre</string>

@@ -2235,7 +2235,7 @@
     <string name="recording_delete_trip_body_archive">Bu sürüş telefondan silinsin mi? Yedekteki kopya bir arşiv klasörüne taşınır.</string>
     <string name="backup_status_pending">Yedekleniyor…</string>
     <string name="backup_status_failed">Yedekleme başarısız, yeniden denemek için dokunun</string>
-    <string name="lockdown_title">Legal mod kilidi</string>
+    <string name="lockdown_title">Kilit modu</string>
     <string name="lockdown_action_speed_limit">Limit</string>
     <string name="lockdown_action_vehicle">Araç</string>
     <string name="lockdown_no_wheel">Bağlı tekerlek yok. Bağlanmak için Bluetooth simgesini kullan.</string>
@@ -2250,8 +2250,8 @@
     <string name="lockdown_unlock">Kilidi aç</string>
     <string name="lockdown_wrong_code">Hatalı kod</string>
     <string name="lockdown_connect">Bağlan</string>
-    <string name="lockdown_setting_label">Legal mod kilidi</string>
-    <string name="lockdown_setting_desc">Uygulamayı basit bir ekrana kilitler. Geri almak için üretici kodu gerekir.</string>
+    <string name="lockdown_setting_label">Kilit modu</string>
+    <string name="lockdown_setting_desc">Uygulamayı basit bir ekrana kilitler</string>
     <string name="lockdown_set_code">Üretici kodunu belirle</string>
     <string name="lockdown_confirm_code">Kodu tekrarla</string>
     <string name="lockdown_code_hint">4 - 8 rakam</string>

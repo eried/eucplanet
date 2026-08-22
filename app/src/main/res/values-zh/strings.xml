@@ -2105,7 +2105,7 @@
     <string name="recording_delete_trip_body_archive">从这台手机删除这次行程？备份里的副本会移到归档文件夹。</string>
     <string name="backup_status_pending">正在备份…</string>
     <string name="backup_status_failed">备份失败，点击重试</string>
-    <string name="lockdown_title">合法模式锁定</string>
+    <string name="lockdown_title">锁定模式</string>
     <string name="lockdown_action_speed_limit">限速</string>
     <string name="lockdown_action_vehicle">车辆</string>
     <string name="lockdown_no_wheel">未连接轮子。请点击蓝牙图标进行连接。</string>
@@ -2120,8 +2120,8 @@
     <string name="lockdown_unlock">解锁</string>
     <string name="lockdown_wrong_code">代码不正确</string>
     <string name="lockdown_connect">连接</string>
-    <string name="lockdown_setting_label">合法模式锁定</string>
-    <string name="lockdown_setting_desc">把应用锁定在一个简化界面。解除需要厂商代码。</string>
+    <string name="lockdown_setting_label">锁定模式</string>
+    <string name="lockdown_setting_desc">把应用锁定在一个简化界面</string>
     <string name="lockdown_set_code">设置厂商代码</string>
     <string name="lockdown_confirm_code">再次输入代码</string>
     <string name="lockdown_code_hint">4 至 8 位数字</string>

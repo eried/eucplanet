@@ -2143,7 +2143,7 @@
     <string name="recording_delete_trip_body_archive">Eliminare questa uscita dal telefono? La copia di backup passa in una cartella di archivio.</string>
     <string name="backup_status_pending">Backup in corso…</string>
     <string name="backup_status_failed">Backup non riuscito, tocca per riprovare</string>
-    <string name="lockdown_title">Blocco modalità legale</string>
+    <string name="lockdown_title">Modalità blocco</string>
     <string name="lockdown_action_speed_limit">Limite</string>
     <string name="lockdown_action_vehicle">Veicolo</string>
     <string name="lockdown_no_wheel">Nessuna ruota collegata. Usa l’icona Bluetooth per collegarti.</string>
@@ -2158,8 +2158,8 @@
     <string name="lockdown_unlock">Sblocca</string>
     <string name="lockdown_wrong_code">Codice errato</string>
     <string name="lockdown_connect">Collega</string>
-    <string name="lockdown_setting_label">Blocco modalità legale</string>
-    <string name="lockdown_setting_desc">Blocca l’app su una schermata semplice. Serve un codice del produttore per annullarlo.</string>
+    <string name="lockdown_setting_label">Modalità blocco</string>
+    <string name="lockdown_setting_desc">Blocca l’app su una schermata semplice</string>
     <string name="lockdown_set_code">Imposta il codice del produttore</string>
     <string name="lockdown_confirm_code">Ripeti il codice</string>
     <string name="lockdown_code_hint">Da 4 a 8 cifre</string>

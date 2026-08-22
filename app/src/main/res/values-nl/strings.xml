@@ -2240,7 +2240,7 @@
     <string name="recording_delete_trip_body_archive">Deze rit van de telefoon verwijderen? De back-upkopie gaat naar een archiefmap.</string>
     <string name="backup_status_pending">Back-up bezig…</string>
     <string name="backup_status_failed">Back-up mislukt, tik om opnieuw te proberen</string>
-    <string name="lockdown_title">Legal-modus vergrendeling</string>
+    <string name="lockdown_title">Vergrendelmodus</string>
     <string name="lockdown_action_speed_limit">Limiet</string>
     <string name="lockdown_action_vehicle">Voertuig</string>
     <string name="lockdown_no_wheel">Geen wheel verbonden. Gebruik het Bluetooth-icoon om te verbinden.</string>
@@ -2255,8 +2255,8 @@
     <string name="lockdown_unlock">Ontgrendelen</string>
     <string name="lockdown_wrong_code">Onjuiste code</string>
     <string name="lockdown_connect">Verbinden</string>
-    <string name="lockdown_setting_label">Legal-modus vergrendeling</string>
-    <string name="lockdown_setting_desc">Zet de app vast op een eenvoudig scherm. Een fabrikantcode is nodig om dit ongedaan te maken.</string>
+    <string name="lockdown_setting_label">Vergrendelmodus</string>
+    <string name="lockdown_setting_desc">Zet de app vast op een eenvoudig scherm</string>
     <string name="lockdown_set_code">Stel de fabrikantcode in</string>
     <string name="lockdown_confirm_code">Herhaal de code</string>
     <string name="lockdown_code_hint">4 tot 8 cijfers</string>

@@ -2041,7 +2041,7 @@
     <string name="recording_delete_trip_body_archive">Smazat tuto jízdu z telefonu? Kopie v záloze se přesune do složky archive.</string>
     <string name="backup_status_pending">Zálohování…</string>
     <string name="backup_status_failed">Záloha selhala, klepnutím to zkuste znovu</string>
-    <string name="lockdown_title">Zámek legálního režimu</string>
+    <string name="lockdown_title">Režim zámku</string>
     <string name="lockdown_action_speed_limit">Limit</string>
     <string name="lockdown_action_vehicle">Vozidlo</string>
     <string name="lockdown_no_wheel">Není připojeno žádné kolo. Připoj se ikonou Bluetooth.</string>
@@ -2056,8 +2056,8 @@
     <string name="lockdown_unlock">Odemknout</string>
     <string name="lockdown_wrong_code">Nesprávný kód</string>
     <string name="lockdown_connect">Připojit</string>
-    <string name="lockdown_setting_label">Zámek legálního režimu</string>
-    <string name="lockdown_setting_desc">Uzamkne aplikaci na jednoduchou obrazovku. Ke zrušení je potřeba kód výrobce.</string>
+    <string name="lockdown_setting_label">Režim zámku</string>
+    <string name="lockdown_setting_desc">Uzamkne aplikaci na jednoduchou obrazovku</string>
     <string name="lockdown_set_code">Nastav kód výrobce</string>
     <string name="lockdown_confirm_code">Zopakuj kód</string>
     <string name="lockdown_code_hint">4 až 8 číslic</string>

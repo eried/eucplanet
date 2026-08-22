@@ -2126,7 +2126,7 @@
     <string name="recording_delete_trip_body_archive">Slette denne turen fra telefonen? Kopien i sikkerhetskopien flyttes til en arkivmappe.</string>
     <string name="backup_status_pending">Sikkerhetskopierer…</string>
     <string name="backup_status_failed">Sikkerhetskopiering mislyktes, trykk for å prøve igjen</string>
-    <string name="lockdown_title">Legal-modus-lås</string>
+    <string name="lockdown_title">Låsemodus</string>
     <string name="lockdown_action_speed_limit">Grense</string>
     <string name="lockdown_action_vehicle">Kjøretøy</string>
     <string name="lockdown_no_wheel">Ingen wheel tilkoblet. Bruk Bluetooth-ikonet for å koble til.</string>
@@ -2141,8 +2141,8 @@
     <string name="lockdown_unlock">Lås opp</string>
     <string name="lockdown_wrong_code">Feil kode</string>
     <string name="lockdown_connect">Koble til</string>
-    <string name="lockdown_setting_label">Legal-modus-lås</string>
-    <string name="lockdown_setting_desc">Låser appen til en enkel skjerm. Krever en produsentkode for å oppheve.</string>
+    <string name="lockdown_setting_label">Låsemodus</string>
+    <string name="lockdown_setting_desc">Låser appen til en enkel skjerm</string>
     <string name="lockdown_set_code">Angi produsentkoden</string>
     <string name="lockdown_confirm_code">Gjenta koden</string>
     <string name="lockdown_code_hint">4 til 8 sifre</string>

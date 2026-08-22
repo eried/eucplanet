@@ -2238,7 +2238,7 @@
     <string name="recording_delete_trip_body_archive">Usunąć ten przejazd z telefonu? Kopia zapasowa trafi do folderu archiwum.</string>
     <string name="backup_status_pending">Tworzenie kopii…</string>
     <string name="backup_status_failed">Kopia nie powiodła się, dotknij, aby ponowić</string>
-    <string name="lockdown_title">Blokada trybu legalnego</string>
+    <string name="lockdown_title">Tryb blokady</string>
     <string name="lockdown_action_speed_limit">Limit</string>
     <string name="lockdown_action_vehicle">Pojazd</string>
     <string name="lockdown_no_wheel">Brak połączonego koła. Użyj ikony Bluetooth, aby połączyć.</string>
@@ -2253,8 +2253,8 @@
     <string name="lockdown_unlock">Odblokuj</string>
     <string name="lockdown_wrong_code">Nieprawidłowy kod</string>
     <string name="lockdown_connect">Połącz</string>
-    <string name="lockdown_setting_label">Blokada trybu legalnego</string>
-    <string name="lockdown_setting_desc">Blokuje aplikację na prostym ekranie. Do cofnięcia potrzebny jest kod producenta.</string>
+    <string name="lockdown_setting_label">Tryb blokady</string>
+    <string name="lockdown_setting_desc">Blokuje aplikację na prostym ekranie</string>
     <string name="lockdown_set_code">Ustaw kod producenta</string>
     <string name="lockdown_confirm_code">Powtórz kod</string>
     <string name="lockdown_code_hint">Od 4 do 8 cyfr</string>

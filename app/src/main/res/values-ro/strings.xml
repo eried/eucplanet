@@ -2041,7 +2041,7 @@
     <string name="recording_delete_trip_body_archive">Ștergi tura de pe telefon? Copia din backup trece într-un folder de arhivă.</string>
     <string name="backup_status_pending">Se face backup…</string>
     <string name="backup_status_failed">Backupul a eșuat, atinge pentru a reîncerca</string>
-    <string name="lockdown_title">Blocare mod legal</string>
+    <string name="lockdown_title">Mod blocare</string>
     <string name="lockdown_action_speed_limit">Limită</string>
     <string name="lockdown_action_vehicle">Vehicul</string>
     <string name="lockdown_no_wheel">Nicio roată conectată. Folosește pictograma Bluetooth pentru a conecta.</string>
@@ -2056,8 +2056,8 @@
     <string name="lockdown_unlock">Deblochează</string>
     <string name="lockdown_wrong_code">Cod incorect</string>
     <string name="lockdown_connect">Conectează</string>
-    <string name="lockdown_setting_label">Blocare mod legal</string>
-    <string name="lockdown_setting_desc">Blochează aplicația pe un ecran simplu. Este nevoie de codul producătorului pentru a anula.</string>
+    <string name="lockdown_setting_label">Mod blocare</string>
+    <string name="lockdown_setting_desc">Blochează aplicația pe un ecran simplu</string>
     <string name="lockdown_set_code">Setează codul producătorului</string>
     <string name="lockdown_confirm_code">Repetă codul</string>
     <string name="lockdown_code_hint">4 - 8 cifre</string>

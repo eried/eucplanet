@@ -2240,7 +2240,7 @@
     <string name="recording_delete_trip_body_archive">Excluir este trajeto do telefone? A cópia de backup vai para uma pasta de arquivo.</string>
     <string name="backup_status_pending">Fazendo backup…</string>
     <string name="backup_status_failed">O backup falhou, toque para tentar de novo</string>
-    <string name="lockdown_title">Bloqueio do Modo Legal</string>
+    <string name="lockdown_title">Modo bloqueio</string>
     <string name="lockdown_action_speed_limit">Limite</string>
     <string name="lockdown_action_vehicle">Veículo</string>
     <string name="lockdown_no_wheel">Nenhuma roda conectada. Use o ícone de Bluetooth para conectar.</string>
@@ -2255,8 +2255,8 @@
     <string name="lockdown_unlock">Desbloquear</string>
     <string name="lockdown_wrong_code">Código incorreto</string>
     <string name="lockdown_connect">Conectar</string>
-    <string name="lockdown_setting_label">Bloqueio do Modo Legal</string>
-    <string name="lockdown_setting_desc">Trava o app em uma tela simples. Precisa de um código do fabricante para desfazer.</string>
+    <string name="lockdown_setting_label">Modo bloqueio</string>
+    <string name="lockdown_setting_desc">Trava o app em uma tela simples</string>
     <string name="lockdown_set_code">Defina o código do fabricante</string>
     <string name="lockdown_confirm_code">Repita o código</string>
     <string name="lockdown_code_hint">De 4 a 8 dígitos</string>

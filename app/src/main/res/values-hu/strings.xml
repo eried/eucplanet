@@ -2041,7 +2041,7 @@
     <string name="recording_delete_trip_body_archive">Törlöd ezt a túrát a telefonról? A mentett másolat egy archív mappába kerül.</string>
     <string name="backup_status_pending">Mentés…</string>
     <string name="backup_status_failed">A mentés nem sikerült, koppintson az újrapróbáláshoz</string>
-    <string name="lockdown_title">Legális mód zárolása</string>
+    <string name="lockdown_title">Zárolt mód</string>
     <string name="lockdown_action_speed_limit">Limit</string>
     <string name="lockdown_action_vehicle">Jármű</string>
     <string name="lockdown_no_wheel">Nincs csatlakoztatott kerék. A csatlakozáshoz használd a Bluetooth ikont.</string>
@@ -2056,8 +2056,8 @@
     <string name="lockdown_unlock">Feloldás</string>
     <string name="lockdown_wrong_code">Hibás kód</string>
     <string name="lockdown_connect">Csatlakozás</string>
-    <string name="lockdown_setting_label">Legális mód zárolása</string>
-    <string name="lockdown_setting_desc">Egy egyszerű képernyőre zárja az appot. A feloldáshoz gyártói kód kell.</string>
+    <string name="lockdown_setting_label">Zárolt mód</string>
+    <string name="lockdown_setting_desc">Egy egyszerű képernyőre zárja az appot</string>
     <string name="lockdown_set_code">Add meg a gyártói kódot</string>
     <string name="lockdown_confirm_code">Ismételd meg a kódot</string>
     <string name="lockdown_code_hint">4 - 8 számjegy</string>

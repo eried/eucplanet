@@ -2258,7 +2258,7 @@
     <string name="recording_delete_trip_body_archive">Diese Fahrt vom Handy löschen? Die Backup-Kopie wandert in einen Archivordner.</string>
     <string name="backup_status_pending">Sicherung läuft…</string>
     <string name="backup_status_failed">Sicherung fehlgeschlagen, zum Wiederholen tippen</string>
-    <string name="lockdown_title">Legal-Modus-Sperre</string>
+    <string name="lockdown_title">Sperrmodus</string>
     <string name="lockdown_action_speed_limit">Tempolimit</string>
     <string name="lockdown_action_vehicle">Fahrzeug</string>
     <string name="lockdown_no_wheel">Kein Wheel verbunden. Zum Verbinden das Bluetooth-Symbol antippen.</string>
@@ -2273,8 +2273,8 @@
     <string name="lockdown_unlock">Entsperren</string>
     <string name="lockdown_wrong_code">Falscher Code</string>
     <string name="lockdown_connect">Verbinden</string>
-    <string name="lockdown_setting_label">Legal-Modus-Sperre</string>
-    <string name="lockdown_setting_desc">Sperrt die App auf einen einfachen Bildschirm. Zum Aufheben ist ein Herstellercode nötig.</string>
+    <string name="lockdown_setting_label">Sperrmodus</string>
+    <string name="lockdown_setting_desc">Sperrt die App auf einen einfachen Bildschirm</string>
     <string name="lockdown_set_code">Herstellercode festlegen</string>
     <string name="lockdown_confirm_code">Code wiederholen</string>
     <string name="lockdown_code_hint">4 bis 8 Ziffern</string>

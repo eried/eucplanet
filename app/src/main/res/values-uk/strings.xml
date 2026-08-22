@@ -2235,7 +2235,7 @@
     <string name="recording_delete_trip_body_archive">Видалити цю поїздку з телефона? Резервна копія перейде до теки архіву.</string>
     <string name="backup_status_pending">Створення копії…</string>
     <string name="backup_status_failed">Не вдалося, торкніться для повтору</string>
-    <string name="lockdown_title">Блокування легального режиму</string>
+    <string name="lockdown_title">Режим блокування</string>
     <string name="lockdown_action_speed_limit">Ліміт</string>
     <string name="lockdown_action_vehicle">Транспорт</string>
     <string name="lockdown_no_wheel">Колесо не підключено. Натисніть значок Bluetooth, щоб підключитися.</string>
@@ -2250,8 +2250,8 @@
     <string name="lockdown_unlock">Розблокувати</string>
     <string name="lockdown_wrong_code">Невірний код</string>
     <string name="lockdown_connect">Підключити</string>
-    <string name="lockdown_setting_label">Блокування легального режиму</string>
-    <string name="lockdown_setting_desc">Замикає застосунок на простому екрані. Для скасування потрібен код виробника.</string>
+    <string name="lockdown_setting_label">Режим блокування</string>
+    <string name="lockdown_setting_desc">Замикає застосунок на простому екрані</string>
     <string name="lockdown_set_code">Задайте код виробника</string>
     <string name="lockdown_confirm_code">Повторіть код</string>
     <string name="lockdown_code_hint">Від 4 до 8 цифр</string>
