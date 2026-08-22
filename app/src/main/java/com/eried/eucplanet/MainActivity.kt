@@ -35,6 +35,7 @@ import com.eried.eucplanet.diagnostics.ServiceOverlaySnapshot
 import com.eried.eucplanet.diagnostics.ServiceOverlayState
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.WheelService
+import androidx.navigation.compose.composable
 import com.eried.eucplanet.ui.navigation.NavGraph
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
     @Inject lateinit var appNotifier: com.eried.eucplanet.util.AppNotifier
+    @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
 
@@ -579,11 +581,22 @@ class MainActivity : AppCompatActivity() {
                     // The main dashboard is portrait-locked by default; the
                     // navigator and other screens default to allowing rotation.
                     val routeNow = currentRoute?.destination?.route
+                    val lockdownArmedForRotation by legalLockdown.armed.collectAsState()
                     androidx.compose.runtime.LaunchedEffect(
                         routeNow, s?.rotateDashboard, s?.rotateNavigator,
                         s?.rotateOtherScreens, s?.rotateSettings, s?.rotateTripDetail,
-                        s?.rotateTripList, s?.blockUpsideDown, s?.ignoreSystemRotateLock
+                        s?.rotateTripList, s?.blockUpsideDown, s?.ignoreSystemRotateLock,
+                        lockdownArmedForRotation
                     ) {
+                        // Legal Mode Lockdown pins the screen to portrait. It
+                        // reads none of the rotate* settings and writes none of
+                        // them, so the rider's own rotation behaviour is exactly
+                        // what it was once they unlock.
+                        if (legalLockdown.isArmed()) {
+                            this@MainActivity.requestedOrientation =
+                                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                            return@LaunchedEffect
+                        }
                         val allow = when (routeNow) {
                             Screen.Dashboard.route, null -> s?.rotateDashboard ?: false
                             Screen.RouteBuilder.route -> s?.rotateNavigator ?: true
@@ -617,6 +630,38 @@ class MainActivity : AppCompatActivity() {
                             else -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
                         }
                     }
+                    val lockdownArmed by legalLockdown.armed.collectAsState()
+                    if (lockdownArmed) {
+                        // Legal Mode Lockdown replaces the whole graph rather
+                        // than changing its start destination. Only these two
+                        // routes exist while armed, so every other screen is
+                        // genuinely unreachable instead of merely not-the-start.
+                        // The navigation overlay and the service-mode overlay
+                        // are outside this branch, so neither can draw here.
+                        val lockdownNav = androidx.navigation.compose.rememberNavController()
+                        androidx.navigation.compose.NavHost(
+                            navController = lockdownNav,
+                            startDestination = "legal_lockdown"
+                        ) {
+                            composable("legal_lockdown") {
+                                com.eried.eucplanet.ui.lockdown.LegalLockdownScreen(
+                                    onNavigateToScan = {
+                                        runCatching {
+                                            lockdownNav.navigate(Screen.Scan.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                            composable(Screen.Scan.route) {
+                                com.eried.eucplanet.ui.scan.ScanScreen(
+                                    onDeviceSelected = { runCatching { lockdownNav.popBackStack() } },
+                                    onBack = { runCatching { lockdownNav.popBackStack() } }
+                                )
+                            }
+                        }
+                    } else {
                     Box(modifier = Modifier.fillMaxSize()) {
                         NavGraph(navController = navController)
                         com.eried.eucplanet.ui.navigator.NavigationOverlay(
@@ -734,6 +779,7 @@ class MainActivity : AppCompatActivity() {
                             hostState = rootSnackbar,
                             modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)
                         )
+                    }
                     }
                 }
             }

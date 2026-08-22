@@ -2258,4 +2258,21 @@
     <string name="alarm_fx_crush">Bitcrush</string>
     <string name="backup_status_pending">Backing up…</string>
     <string name="backup_status_failed">Backup failed, tap to retry</string>
+
+    <!-- Legal Mode Lockdown -->
+    <string name="lockdown_title">Legal Mode Lockdown</string>
+    <string name="lockdown_action_speed_limit">Speed limit</string>
+    <string name="lockdown_action_vehicle">Vehicle</string>
+    <string name="lockdown_no_wheel">No wheel connected. Use the Bluetooth icon to connect.</string>
+    <string name="lockdown_vehicle_name">Bluetooth name</string>
+    <string name="lockdown_vehicle_brand">Maker</string>
+    <string name="lockdown_vehicle_model">Model</string>
+    <string name="lockdown_vehicle_max_speed">Max speed limit</string>
+    <string name="lockdown_vehicle_alarm">Alarm</string>
+    <string name="lockdown_vehicle_odometer">Odometer</string>
+    <string name="lockdown_speed_limit_title">Speed limit</string>
+    <string name="lockdown_unlock_prompt">Unlock with manufacturer code</string>
+    <string name="lockdown_unlock">Unlock</string>
+    <string name="lockdown_wrong_code">Incorrect code</string>
+    <string name="lockdown_connect">Connect</string>
 </resources>
