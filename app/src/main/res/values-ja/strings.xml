@@ -2249,7 +2249,7 @@
     <string name="lockdown_vehicle_max_speed">最大速度制限</string>
     <string name="lockdown_vehicle_alarm">アラーム</string>
     <string name="lockdown_vehicle_odometer">総走行距離</string>
-    <string name="lockdown_speed_limit_title">速度制限</string>
+    <string name="lockdown_speed_limit_title">制限</string>
     <string name="lockdown_unlock_prompt">メーカーコード</string>
     <string name="lockdown_unlock">解除</string>
     <string name="lockdown_connect">接続</string>
@@ -2283,4 +2283,7 @@
     <string name="lockdown_limit_18">このモードは設定のバックアップに含まれません。</string>
     <string name="lockdown_warning_settings_safe">設定は変更されません。解除すると、すべて今の状態にそのまま戻ります。</string>
     <string name="lockdown_warning_recovery">唯一の解除方法は、速度制限ボタンから入力するメーカーコードです。このコードを失うと、アプリを元に戻すにはアンインストールして再インストールするしかありません。</string>
+    <string name="lockdown_tiltback_alarm">チルトバック警告</string>
+    <string name="lockdown_warning_waits">リーガルモードはオフなので、まだ何も変わりません。次にリーガルモードをオンにしたときにアプリがロックされます。</string>
+    <string name="lockdown_warning_now">リーガルモードがオンなので、これはすぐに適用され、アプリは直ちにロックされます。</string>
 </resources>

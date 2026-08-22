@@ -2115,7 +2115,7 @@
     <string name="lockdown_vehicle_max_speed">最高限速</string>
     <string name="lockdown_vehicle_alarm">警报</string>
     <string name="lockdown_vehicle_odometer">总里程</string>
-    <string name="lockdown_speed_limit_title">限速</string>
+    <string name="lockdown_speed_limit_title">限制</string>
     <string name="lockdown_unlock_prompt">厂商代码</string>
     <string name="lockdown_unlock">解锁</string>
     <string name="lockdown_connect">连接</string>
@@ -2149,4 +2149,7 @@
     <string name="lockdown_limit_18">此模式不会包含在设置备份中。</string>
     <string name="lockdown_warning_settings_safe">你的设置不会被更改。解锁后一切都会原样恢复。</string>
     <string name="lockdown_warning_recovery">唯一的退出方式是通过限速按钮输入厂商代码。如果丢失该代码，只能卸载并重新安装应用才能恢复。</string>
+    <string name="lockdown_tiltback_alarm">回倾警报</string>
+    <string name="lockdown_warning_waits">合法模式已关闭，因此暂时不会有变化。下次开启合法模式时应用才会锁定。</string>
+    <string name="lockdown_warning_now">合法模式已开启，因此立即生效，应用会马上锁定。</string>
 </resources>

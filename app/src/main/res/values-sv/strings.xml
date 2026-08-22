@@ -2248,7 +2248,7 @@
     <string name="lockdown_vehicle_max_speed">Högsta hastighetsgräns</string>
     <string name="lockdown_vehicle_alarm">Larm</string>
     <string name="lockdown_vehicle_odometer">Mätarställning</string>
-    <string name="lockdown_speed_limit_title">Hastighetsgräns</string>
+    <string name="lockdown_speed_limit_title">Gränser</string>
     <string name="lockdown_unlock_prompt">Tillverkarkod</string>
     <string name="lockdown_unlock">Lås upp</string>
     <string name="lockdown_connect">Anslut</string>
@@ -2282,4 +2282,7 @@
     <string name="lockdown_limit_18">Det här läget ingår inte i säkerhetskopiorna av inställningarna.</string>
     <string name="lockdown_warning_settings_safe">Dina inställningar ändras inte. Allt kommer tillbaka precis som det är nu när du låser upp.</string>
     <string name="lockdown_warning_recovery">Enda vägen ut är tillverkarkoden, via knappen Hastighetsgräns. Om du tappar bort koden är enda sättet att få tillbaka appen att avinstallera och installera om den.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback-larm</string>
+    <string name="lockdown_warning_waits">Legal-läget är av, så inget ändras än. Appen låses nästa gång du slår på Legal-läget.</string>
+    <string name="lockdown_warning_now">Legal-läget är på, så det här gäller nu och appen låses direkt.</string>
 </resources>

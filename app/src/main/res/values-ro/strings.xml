@@ -2051,7 +2051,7 @@
     <string name="lockdown_vehicle_max_speed">Limita maximă de viteză</string>
     <string name="lockdown_vehicle_alarm">Alarmă</string>
     <string name="lockdown_vehicle_odometer">Kilometraj</string>
-    <string name="lockdown_speed_limit_title">Limită de viteză</string>
+    <string name="lockdown_speed_limit_title">Limite</string>
     <string name="lockdown_unlock_prompt">Codul producătorului</string>
     <string name="lockdown_unlock">Deblochează</string>
     <string name="lockdown_connect">Conectează</string>
@@ -2085,4 +2085,7 @@
     <string name="lockdown_limit_18">Acest mod nu este inclus în copiile de rezervă ale setărilor.</string>
     <string name="lockdown_warning_settings_safe">Setările tale nu se modifică. La deblocare totul revine exact așa cum este acum.</string>
     <string name="lockdown_warning_recovery">Singura ieșire este codul producătorului, din butonul Limită de viteză. Dacă pierzi codul, singurul mod de a recupera aplicația este să o dezinstalezi și să o instalezi din nou.</string>
+    <string name="lockdown_tiltback_alarm">Alarmă tiltback</string>
+    <string name="lockdown_warning_waits">Modul legal este oprit, deci nu se schimbă nimic încă. Aplicația se va bloca data viitoare când pornești modul legal.</string>
+    <string name="lockdown_warning_now">Modul legal este pornit, deci are efect acum și aplicația se blochează imediat.</string>
 </resources>

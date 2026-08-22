@@ -2248,7 +2248,7 @@
     <string name="lockdown_vehicle_max_speed">Maksymalny limit prędkości</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Licznik całkowity</string>
-    <string name="lockdown_speed_limit_title">Limit prędkości</string>
+    <string name="lockdown_speed_limit_title">Limity</string>
     <string name="lockdown_unlock_prompt">Kod producenta</string>
     <string name="lockdown_unlock">Odblokuj</string>
     <string name="lockdown_connect">Połącz</string>
@@ -2282,4 +2282,7 @@
     <string name="lockdown_limit_18">Ten tryb nie jest zapisywany w kopiach zapasowych ustawień.</string>
     <string name="lockdown_warning_settings_safe">Twoje ustawienia nie zostaną zmienione. Po odblokowaniu wszystko wróci dokładnie tak, jak jest teraz.</string>
     <string name="lockdown_warning_recovery">Jedyne wyjście to kod producenta, z przycisku Limit prędkości. Jeśli zgubisz ten kod, jedynym sposobem odzyskania aplikacji jest odinstalowanie jej i zainstalowanie od nowa.</string>
+    <string name="lockdown_tiltback_alarm">Alarm tiltbacku</string>
+    <string name="lockdown_warning_waits">Tryb legalny jest wyłączony, więc nic się jeszcze nie zmienia. Aplikacja zablokuje się przy następnym włączeniu trybu legalnego.</string>
+    <string name="lockdown_warning_now">Tryb legalny jest włączony, więc zadziała to od razu i aplikacja zablokuje się natychmiast.</string>
 </resources>

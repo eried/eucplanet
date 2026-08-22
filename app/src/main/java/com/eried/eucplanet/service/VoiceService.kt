@@ -495,7 +495,7 @@ class VoiceService @Inject constructor(
         // Legal Mode Lockdown silences app chatter, including anything that
         // would say "legal mode" or "recording". AlarmEngine speaks through
         // speak() instead, so the rider's own alarms still fire.
-        if (legalLockdown.isArmed()) return
+        if (legalLockdown.isEngaged()) return
         val parts = buildReportParts(data, settings, isRecording, periodic = true)
         if (parts.isEmpty()) return
         speakInternal(parts.joinToString(", "), isTrigger = false,
@@ -506,7 +506,7 @@ class VoiceService @Inject constructor(
         // Legal Mode Lockdown silences app chatter, including anything that
         // would say "legal mode" or "recording". AlarmEngine speaks through
         // speak() instead, so the rider's own alarms still fire.
-        if (legalLockdown.isArmed()) return
+        if (legalLockdown.isEngaged()) return
         warnIfLowVolume(settings.voiceOutputChannel)
         // Drop immediately if a trigger is already in flight/queued; never queue more than one.
         if (triggerInFlight) return
@@ -620,7 +620,7 @@ class VoiceService @Inject constructor(
         // Legal Mode Lockdown silences app chatter, including anything that
         // would say "legal mode" or "recording". AlarmEngine speaks through
         // speak() instead, so the rider's own alarms still fire.
-        if (legalLockdown.isArmed()) return
+        if (legalLockdown.isEngaged()) return
         speak(text)
     }
 

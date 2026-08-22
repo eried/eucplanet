@@ -2245,7 +2245,7 @@
     <string name="lockdown_vehicle_max_speed">En yüksek hız limiti</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Kilometre sayacı</string>
-    <string name="lockdown_speed_limit_title">Hız limiti</string>
+    <string name="lockdown_speed_limit_title">Limitler</string>
     <string name="lockdown_unlock_prompt">Üretici kodu</string>
     <string name="lockdown_unlock">Kilidi aç</string>
     <string name="lockdown_connect">Bağlan</string>
@@ -2279,4 +2279,7 @@
     <string name="lockdown_limit_18">Bu mod ayar yedeklerine dahil edilmez.</string>
     <string name="lockdown_warning_settings_safe">Ayarların değişmez. Kilidi açtığında her şey tam olarak şu anki haline döner.</string>
     <string name="lockdown_warning_recovery">Tek çıkış yolu, Hız limiti düğmesindeki üretici kodudur. Bu kodu kaybedersen uygulamayı geri kazanmanın tek yolu kaldırıp yeniden kurmaktır.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback alarmı</string>
+    <string name="lockdown_warning_waits">Legal mod kapalı, bu yüzden henüz bir şey değişmiyor. Uygulama, legal modu bir sonraki açışında kilitlenir.</string>
+    <string name="lockdown_warning_now">Legal mod açık, bu yüzden şimdi geçerli olur ve uygulama hemen kilitlenir.</string>
 </resources>

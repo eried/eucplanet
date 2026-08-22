@@ -2248,7 +2248,7 @@
     <string name="lockdown_vehicle_max_speed">Максимальный лимит скорости</string>
     <string name="lockdown_vehicle_alarm">Сигнал</string>
     <string name="lockdown_vehicle_odometer">Одометр</string>
-    <string name="lockdown_speed_limit_title">Лимит скорости</string>
+    <string name="lockdown_speed_limit_title">Лимиты</string>
     <string name="lockdown_unlock_prompt">Код производителя</string>
     <string name="lockdown_unlock">Разблокировать</string>
     <string name="lockdown_connect">Подключить</string>
@@ -2282,4 +2282,7 @@
     <string name="lockdown_limit_18">Этот режим не входит в резервные копии настроек.</string>
     <string name="lockdown_warning_settings_safe">Ваши настройки не меняются. После разблокировки всё вернётся ровно таким, как сейчас.</string>
     <string name="lockdown_warning_recovery">Единственный выход, это код производителя, через кнопку Лимит скорости. Если вы потеряете этот код, восстановить приложение можно будет только переустановкой.</string>
+    <string name="lockdown_tiltback_alarm">Сигнал tiltback</string>
+    <string name="lockdown_warning_waits">Легальный режим выключен, поэтому пока ничего не меняется. Приложение заблокируется при следующем включении легального режима.</string>
+    <string name="lockdown_warning_now">Легальный режим включён, поэтому это сработает сразу и приложение заблокируется немедленно.</string>
 </resources>

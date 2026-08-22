@@ -2270,7 +2270,7 @@
     <string name="lockdown_vehicle_max_speed">Max speed limit</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Odometer</string>
-    <string name="lockdown_speed_limit_title">Speed limit</string>
+    <string name="lockdown_speed_limit_title">Limits</string>
     <string name="lockdown_unlock_prompt">Manufacturer code</string>
     <string name="lockdown_unlock">Unlock</string>
     <string name="lockdown_connect">Connect</string>
@@ -2304,4 +2304,7 @@
     <string name="lockdown_limit_18">This mode is not included in settings backups.</string>
     <string name="lockdown_warning_settings_safe">Your settings are not changed. Everything comes back exactly as it is now when you unlock.</string>
     <string name="lockdown_warning_recovery">The only way out is the manufacturer code, from the Speed limit button. If you lose that code, the only way to recover the app is to uninstall and reinstall it.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback alarm</string>
+    <string name="lockdown_warning_waits">Legal Mode is off, so nothing changes yet. The app locks the next time you switch Legal Mode on.</string>
+    <string name="lockdown_warning_now">Legal Mode is on, so this takes effect now and the app locks immediately.</string>
 </resources>

@@ -2252,7 +2252,7 @@
     <string name="lockdown_vehicle_max_speed">Vitesse maximale</string>
     <string name="lockdown_vehicle_alarm">Alarme</string>
     <string name="lockdown_vehicle_odometer">Compteur total</string>
-    <string name="lockdown_speed_limit_title">Limite de vitesse</string>
+    <string name="lockdown_speed_limit_title">Limites</string>
     <string name="lockdown_unlock_prompt">Code fabricant</string>
     <string name="lockdown_unlock">Déverrouiller</string>
     <string name="lockdown_connect">Connecter</string>
@@ -2286,4 +2286,7 @@
     <string name="lockdown_limit_18">Ce mode n’est pas inclus dans les sauvegardes des réglages.</string>
     <string name="lockdown_warning_settings_safe">Tes réglages ne sont pas modifiés. Tout revient exactement comme maintenant au déverrouillage.</string>
     <string name="lockdown_warning_recovery">La seule sortie est le code fabricant, depuis le bouton Limite de vitesse. Si tu perds ce code, le seul moyen de récupérer l’application est de la désinstaller et de la réinstaller.</string>
+    <string name="lockdown_tiltback_alarm">Alarme tiltback</string>
+    <string name="lockdown_warning_waits">Le mode légal est désactivé, rien ne change encore. L’application se verrouillera la prochaine fois que tu activeras le mode légal.</string>
+    <string name="lockdown_warning_now">Le mode légal est actif, cela prend donc effet maintenant et l’application se verrouille immédiatement.</string>
 </resources>

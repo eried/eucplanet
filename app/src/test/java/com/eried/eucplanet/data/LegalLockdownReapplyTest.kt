@@ -8,18 +8,23 @@ import org.junit.Test
 class LegalLockdownReapplyTest {
 
     @Test
-    fun `armed and wheel came back without legal mode means reapply`() {
-        assertTrue(LockdownReapply.shouldReapply(armed = true, wheelReportsLegalOn = false))
+    fun `engaged and wheel came back without legal mode means reapply`() {
+        assertTrue(LockdownReapply.shouldReapply(engaged = true, wheelReportsLegalOn = false))
     }
 
     @Test
-    fun `armed and wheel already legal means leave it alone`() {
-        assertFalse(LockdownReapply.shouldReapply(armed = true, wheelReportsLegalOn = true))
+    fun `engaged and wheel already legal means leave it alone`() {
+        assertFalse(LockdownReapply.shouldReapply(engaged = true, wheelReportsLegalOn = true))
     }
 
+    /**
+     * Armed but not yet engaged must never switch legal mode on by itself. The
+     * resident setting waits for the rider to turn legal mode on; forcing it
+     * here would defeat the whole point of the mode being latent.
+     */
     @Test
-    fun `not armed never reapplies`() {
-        assertFalse(LockdownReapply.shouldReapply(armed = false, wheelReportsLegalOn = false))
-        assertFalse(LockdownReapply.shouldReapply(armed = false, wheelReportsLegalOn = true))
+    fun `not engaged never reapplies`() {
+        assertFalse(LockdownReapply.shouldReapply(engaged = false, wheelReportsLegalOn = false))
+        assertFalse(LockdownReapply.shouldReapply(engaged = false, wheelReportsLegalOn = true))
     }
 }

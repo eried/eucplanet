@@ -268,7 +268,7 @@ class NavigationEngine @Inject constructor(
     /** Begins guidance. Must be called while the app is in the foreground. */
     fun start(route: NavRoute, mode: NavMode) {
         // Legal Mode Lockdown stops navigation and will not let a route start.
-        if (legalLockdown.isArmed()) {
+        if (legalLockdown.isEngaged()) {
             Log.i(TAG, "start() ignored, legal mode lockdown armed")
             return
         }

@@ -2153,7 +2153,7 @@
     <string name="lockdown_vehicle_max_speed">Limite di velocità max</string>
     <string name="lockdown_vehicle_alarm">Allarme</string>
     <string name="lockdown_vehicle_odometer">Contachilometri</string>
-    <string name="lockdown_speed_limit_title">Limite di velocità</string>
+    <string name="lockdown_speed_limit_title">Limiti</string>
     <string name="lockdown_unlock_prompt">Codice del produttore</string>
     <string name="lockdown_unlock">Sblocca</string>
     <string name="lockdown_connect">Collega</string>
@@ -2187,4 +2187,7 @@
     <string name="lockdown_limit_18">Questa modalità non è inclusa nei backup delle impostazioni.</string>
     <string name="lockdown_warning_settings_safe">Le tue impostazioni non vengono modificate. Allo sblocco torna tutto esattamente com’è adesso.</string>
     <string name="lockdown_warning_recovery">L’unica via d’uscita è il codice del produttore, dal pulsante Limite di velocità. Se perdi quel codice, l’unico modo di recuperare l’app è disinstallarla e reinstallarla.</string>
+    <string name="lockdown_tiltback_alarm">Allarme tiltback</string>
+    <string name="lockdown_warning_waits">La modalità legale è disattivata, quindi non cambia ancora nulla. L’app si bloccherà la prossima volta che la attivi.</string>
+    <string name="lockdown_warning_now">La modalità legale è attiva, quindi ha effetto subito e l’app si blocca immediatamente.</string>
 </resources>

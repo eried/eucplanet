@@ -2250,7 +2250,7 @@
     <string name="lockdown_vehicle_max_speed">Limite de velocidade máx.</string>
     <string name="lockdown_vehicle_alarm">Alarme</string>
     <string name="lockdown_vehicle_odometer">Odômetro</string>
-    <string name="lockdown_speed_limit_title">Limite de velocidade</string>
+    <string name="lockdown_speed_limit_title">Limites</string>
     <string name="lockdown_unlock_prompt">Código do fabricante</string>
     <string name="lockdown_unlock">Desbloquear</string>
     <string name="lockdown_connect">Conectar</string>
@@ -2284,4 +2284,7 @@
     <string name="lockdown_limit_18">Este modo não entra nos backups das configurações.</string>
     <string name="lockdown_warning_settings_safe">Suas configurações não mudam. Tudo volta exatamente como está agora quando você desbloquear.</string>
     <string name="lockdown_warning_recovery">A única saída é o código do fabricante, pelo botão Limite de velocidade. Se você perder esse código, o único jeito de recuperar o app é desinstalar e instalar de novo.</string>
+    <string name="lockdown_tiltback_alarm">Alarme de tiltback</string>
+    <string name="lockdown_warning_waits">O Modo Legal está desligado, então nada muda ainda. O app vai travar na próxima vez que você ligar o Modo Legal.</string>
+    <string name="lockdown_warning_now">O Modo Legal está ligado, então isto vale agora e o app trava imediatamente.</string>
 </resources>

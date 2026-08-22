@@ -889,7 +889,7 @@ class WheelService : LifecycleService() {
         // notifications" suppress it entirely.
         // Lockdown strips the notification buttons: they are another surface
         // that could reach a gated action.
-        if (!legalLockdown.isArmed()) {
+        if (!legalLockdown.isEngaged()) {
             buildNotificationActions(nav.active, data).forEach { builder.addAction(it) }
         }
         return builder.build()
@@ -978,7 +978,7 @@ class WheelService : LifecycleService() {
      * so a disconnected wheel still has numbers.
      */
     private fun pushWidget(data: WheelData) {
-        if (legalLockdown.isArmed()) return  // lockdown stops the widgets
+        if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
         if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val now = System.currentTimeMillis()
         if (now - lastWidgetUpdate < 1_000L) return
@@ -1005,7 +1005,7 @@ class WheelService : LifecycleService() {
         // Legal Mode Lockdown hides the overlay. Not an early return: the
         // window may already be up when the rider arms, so it has to be told
         // to go away rather than merely stop being re-shown.
-        if (legalLockdown.isArmed()) {
+        if (legalLockdown.isEngaged()) {
             phoneHudWindow.hide()
             return
         }
@@ -1055,7 +1055,7 @@ class WheelService : LifecycleService() {
      * out for the same reason: it is a 1100-sample buffer at IMU rate.
      */
     private fun pushPhoneHud(rawData: WheelData) {
-        if (legalLockdown.isArmed()) return  // lockdown stops the overlay updates
+        if (legalLockdown.isEngaged()) return  // lockdown stops the overlay updates
         if (!phoneHudWindow.isShowing) return
         val now = System.currentTimeMillis()
         if (now - lastPhoneHudPush < PHONE_HUD_INTERVAL_MS) return
@@ -1127,7 +1127,7 @@ class WheelService : LifecycleService() {
     }
 
     private fun renderWidget(data: WheelData?) {
-        if (legalLockdown.isArmed()) return  // lockdown stops the widgets
+        if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
         if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         val connected =
             wheelRepository.connectionState.value == ConnectionState.CONNECTED && data != null

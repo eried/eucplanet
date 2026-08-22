@@ -86,7 +86,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // object with no injection, so the armed state is mirrored onto it here,
         // the one place that already lives for the whole process.
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default).launch {
-            legalLockdown.armed.collect { armed ->
+            legalLockdown.engaged.collect { armed ->
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.lockedDown = armed
                 if (armed) com.eried.eucplanet.diagnostics.DiagnosticsLogger.disable()
             }

@@ -44,9 +44,10 @@ import kotlinx.coroutines.launch
  * speed. Lives in its own file rather than inside SettingsScreen.kt, which is
  * already past nine thousand lines.
  *
- * The switch is one way. Once armed the settings screen is unreachable, so the
- * only thing that can turn it off is the manufacturer code on the locked
- * screen, and an off event here would be a bug rather than a rider action.
+ * The switch is resident: turning it on arms the mode and then waits, and the
+ * locked screen only appears once legal mode comes on. Until it engages the
+ * switch is an ordinary one and can be turned back off. After that the settings
+ * screen is unreachable anyway, so only the manufacturer code gets out.
  */
 @Composable
 internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
@@ -54,6 +55,7 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
     val snackbar = LocalSnackbar.current
     val scope = rememberCoroutineScope()
     val armed by viewModel.legalLockdown.armed.collectAsState()
+    val legalModeOn by viewModel.legalModeActive.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -77,7 +79,9 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
         }
         Switch(
             checked = armed,
-            onCheckedChange = { on -> if (on) showDialog = true },
+            onCheckedChange = { on ->
+                if (on) showDialog = true else viewModel.disarmLockdown()
+            },
             colors = themedSwitchColors()
         )
     }
@@ -114,6 +118,18 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
+                        // Arming normally just waits. With legal mode already on
+                        // there is nothing to wait for, so say so plainly before
+                        // the rider taps a button that locks the app on the spot.
+                        Text(
+                            text = stringResource(
+                                if (legalModeOn) R.string.lockdown_warning_now
+                                else R.string.lockdown_warning_waits
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (legalModeOn) colors.statusWarn else colors.textPrimary
+                        )
+                        Spacer(Modifier.height(4.dp))
                         Text(
                             text = stringResource(R.string.lockdown_warning_intro),
                             style = MaterialTheme.typography.bodySmall,

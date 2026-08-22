@@ -77,7 +77,7 @@ fun LockdownUnlockDialog(
                         modifier = Modifier.weight(1f)
                     )
                     ReadOnlySpeedField(
-                        label = stringResource(R.string.lockdown_vehicle_alarm),
+                        label = stringResource(R.string.lockdown_tiltback_alarm),
                         value = formatSpeed(legalAlarmKmh, speedUnit, context),
                         modifier = Modifier.weight(1f)
                     )

@@ -581,7 +581,7 @@ class MainActivity : AppCompatActivity() {
                     // The main dashboard is portrait-locked by default; the
                     // navigator and other screens default to allowing rotation.
                     val routeNow = currentRoute?.destination?.route
-                    val lockdownArmedForRotation by legalLockdown.armed.collectAsState()
+                    val lockdownArmedForRotation by legalLockdown.engaged.collectAsState()
                     androidx.compose.runtime.LaunchedEffect(
                         routeNow, s?.rotateDashboard, s?.rotateNavigator,
                         s?.rotateOtherScreens, s?.rotateSettings, s?.rotateTripDetail,
@@ -592,7 +592,7 @@ class MainActivity : AppCompatActivity() {
                         // reads none of the rotate* settings and writes none of
                         // them, so the rider's own rotation behaviour is exactly
                         // what it was once they unlock.
-                        if (legalLockdown.isArmed()) {
+                        if (legalLockdown.isEngaged()) {
                             this@MainActivity.requestedOrientation =
                                 android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                             return@LaunchedEffect
@@ -630,7 +630,7 @@ class MainActivity : AppCompatActivity() {
                             else -> android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_USER
                         }
                     }
-                    val lockdownArmed by legalLockdown.armed.collectAsState()
+                    val lockdownArmed by legalLockdown.engaged.collectAsState()
                     if (lockdownArmed) {
                         // Legal Mode Lockdown replaces the whole graph rather
                         // than changing its start destination. Only these two

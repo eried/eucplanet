@@ -11,9 +11,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-/** Armed flag plus the MD5 of the manufacturer code. */
+/**
+ * The resident setting, whether it has actually engaged, and the MD5 of the
+ * manufacturer code.
+ *
+ * [armed] is the rider-facing switch: it arms the mode and then waits. [engaged]
+ * latches the moment legal mode comes on while armed, and only the code clears
+ * it. The latch is persisted rather than recomputed as "armed and legal mode is
+ * on", because a power cycled wheel reconnects reporting legal mode off, which
+ * would otherwise pop the lock open on its own.
+ */
 data class LockdownState(
     val armed: Boolean = false,
+    val engaged: Boolean = false,
     val codeHash: String = ""
 )
 
@@ -44,21 +54,29 @@ class LegalLockdownStore(private val context: Context) {
     val state: Flow<LockdownState> = dataStore.data.map { prefs ->
         LockdownState(
             armed = prefs[KEY_ARMED] ?: false,
+            engaged = prefs[KEY_ENGAGED] ?: false,
             codeHash = prefs[KEY_HASH].orEmpty()
         )
     }
 
     suspend fun get(): LockdownState = state.first()
 
-    suspend fun set(armed: Boolean, codeHash: String) {
+    suspend fun set(armed: Boolean, engaged: Boolean, codeHash: String) {
         dataStore.edit { prefs ->
             prefs[KEY_ARMED] = armed
+            prefs[KEY_ENGAGED] = engaged
             prefs[KEY_HASH] = codeHash
         }
     }
 
+    /** Latch the mode on without touching the armed flag or the code. */
+    suspend fun setEngaged(engaged: Boolean) {
+        dataStore.edit { prefs -> prefs[KEY_ENGAGED] = engaged }
+    }
+
     private companion object {
         val KEY_ARMED = booleanPreferencesKey("armed")
+        val KEY_ENGAGED = booleanPreferencesKey("engaged")
         val KEY_HASH = stringPreferencesKey("codeHash")
     }
 }

@@ -334,7 +334,7 @@ class FlicManager @Inject constructor(
         // connected: checked after it, a legal-mode hotkey press with no wheel
         // present would give silence instead of the dialog that explains the
         // way out.
-        if (legalLockdown.isArmed() && !LockdownGate.isAllowed(key)) {
+        if (legalLockdown.isEngaged() && !LockdownGate.isAllowed(key)) {
             if (LockdownGate.raisesUnlockPrompt(key)) {
                 com.eried.eucplanet.ui.lockdown.LockdownPromptBus.request()
             }
@@ -376,7 +376,7 @@ class FlicManager @Inject constructor(
                 // While locked down the light button must not suspend
                 // auto-lights. The mode is temporary, and the rider is never
                 // told an automation was overridden by it.
-                if (!legalLockdown.isArmed()) automationManager.notifyManualLightChange()
+                if (!legalLockdown.isEngaged()) automationManager.notifyManualLightChange()
                 wheelRepository.toggleLight()
             }
             "LOCK_TOGGLE" -> wheelRepository.toggleLock()

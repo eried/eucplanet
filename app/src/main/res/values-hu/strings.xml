@@ -2051,7 +2051,7 @@
     <string name="lockdown_vehicle_max_speed">Legnagyobb sebességkorlát</string>
     <string name="lockdown_vehicle_alarm">Riasztás</string>
     <string name="lockdown_vehicle_odometer">Kilométeróra</string>
-    <string name="lockdown_speed_limit_title">Sebességkorlát</string>
+    <string name="lockdown_speed_limit_title">Korlátok</string>
     <string name="lockdown_unlock_prompt">Gyártói kód</string>
     <string name="lockdown_unlock">Feloldás</string>
     <string name="lockdown_connect">Csatlakozás</string>
@@ -2085,4 +2085,7 @@
     <string name="lockdown_limit_18">Ez a mód nem kerül bele a beállítások biztonsági mentésébe.</string>
     <string name="lockdown_warning_settings_safe">A beállításaid nem változnak. Feloldáskor minden pontosan úgy tér vissza, ahogy most van.</string>
     <string name="lockdown_warning_recovery">Az egyetlen kiút a gyártói kód, a Sebességkorlát gombról. Ha elveszíted ezt a kódot, az appot csak eltávolítással és újratelepítéssel lehet visszaállítani.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback riasztás</string>
+    <string name="lockdown_warning_waits">A legális mód ki van kapcsolva, így még semmi sem változik. Az app akkor zárol, amikor legközelebb bekapcsolod a legális módot.</string>
+    <string name="lockdown_warning_now">A legális mód be van kapcsolva, így ez most lép életbe és az app azonnal zárol.</string>
 </resources>

@@ -2051,7 +2051,7 @@
     <string name="lockdown_vehicle_max_speed">Suurin nopeusrajoitus</string>
     <string name="lockdown_vehicle_alarm">Hälytys</string>
     <string name="lockdown_vehicle_odometer">Kokonaismatka</string>
-    <string name="lockdown_speed_limit_title">Nopeusrajoitus</string>
+    <string name="lockdown_speed_limit_title">Rajat</string>
     <string name="lockdown_unlock_prompt">Valmistajan koodi</string>
     <string name="lockdown_unlock">Avaa lukitus</string>
     <string name="lockdown_connect">Yhdistä</string>
@@ -2085,4 +2085,7 @@
     <string name="lockdown_limit_18">Tämä tila ei sisälly asetusten varmuuskopioihin.</string>
     <string name="lockdown_warning_settings_safe">Asetuksiasi ei muuteta. Lukituksen avautuessa kaikki palaa täsmälleen nykyiselleen.</string>
     <string name="lockdown_warning_recovery">Ainoa ulospääsy on valmistajan koodi, Nopeusrajoitus-painikkeesta. Jos koodi katoaa, sovelluksen saa takaisin vain poistamalla ja asentamalla sen uudelleen.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback-hälytys</string>
+    <string name="lockdown_warning_waits">Legal-tila on pois päältä, joten mikään ei vielä muutu. Sovellus lukittuu, kun seuraavan kerran otat Legal-tilan käyttöön.</string>
+    <string name="lockdown_warning_now">Legal-tila on päällä, joten tämä astuu voimaan heti ja sovellus lukittuu välittömästi.</string>
 </resources>

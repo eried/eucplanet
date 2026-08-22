@@ -38,12 +38,15 @@ object LegalLockdownCode {
 
 /**
  * The single owner of Legal Mode Lockdown state. Every other part of the app
- * only reads [armed] or calls [isArmed].
+ * only reads [engaged] or calls [isEngaged].
  *
- * The side effects of arming (finalising the trip, stopping the recorder,
- * forcing legal mode on) deliberately do NOT live here. Putting them here would
- * make this a hub that depends on half the app and cannot be constructed in a
- * test. The caller in the settings layer runs them, then calls [arm].
+ * Two flags, not one. [armed] is the resident setting the rider switches on: by
+ * itself it changes nothing and simply waits. [engaged] is the mode actually
+ * running, and it latches the first time legal mode comes on while armed. Only
+ * the manufacturer code clears it.
+ *
+ * The side effects of arming do NOT live here. Putting them here would make this
+ * a hub that depends on half the app and cannot be constructed in a test.
  */
 @Singleton
 class LegalLockdownController @Inject constructor(
@@ -51,12 +54,20 @@ class LegalLockdownController @Inject constructor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    /** The resident setting. Armed and waiting, or off. */
     private val _armed = MutableStateFlow(false)
     val armed: StateFlow<Boolean> = _armed.asStateFlow()
 
+    /** The mode actually running. This is what every gate and the UI key on. */
+    private val _engaged = MutableStateFlow(false)
+    val engaged: StateFlow<Boolean> = _engaged.asStateFlow()
+
     init {
         scope.launch {
-            store.state.collect { s -> _armed.value = s.armed }
+            store.state.collect { s ->
+                _armed.value = s.armed
+                _engaged.value = s.engaged
+            }
         }
     }
 
@@ -65,22 +76,54 @@ class LegalLockdownController @Inject constructor(
      * in FlicManager, WheelRepository, WheelService and AutomationManager). The
      * StateFlow is seeded from disk at process start, so this never blocks.
      */
+    fun isEngaged(): Boolean = _engaged.value
+
     fun isArmed(): Boolean = _armed.value
 
-    /** Returns false and changes nothing when [pin] is not 4 to 8 digits. */
-    suspend fun arm(pin: String): Boolean {
+    /**
+     * Called by [WheelRepository] every time legal mode turns on.
+     *
+     * This is the latch. Armed plus legal mode on means the mode is now running,
+     * and from here only the code gets out of it.
+     */
+    fun onLegalModeActivated() {
+        if (!_armed.value || _engaged.value) return
+        scope.launch { store.setEngaged(true) }
+    }
+
+    /**
+     * Arms the mode. Returns false and changes nothing when [pin] is not 4 to 8
+     * digits.
+     *
+     * [engageNow] is true when legal mode is already on, in which case there is
+     * nothing to wait for and the lock takes effect immediately.
+     */
+    suspend fun arm(pin: String, engageNow: Boolean): Boolean {
         if (!LegalLockdownCode.isValidPin(pin)) return false
-        store.set(armed = true, codeHash = LegalLockdownCode.hash(pin))
+        store.set(armed = true, engaged = engageNow, codeHash = LegalLockdownCode.hash(pin))
         return true
     }
 
-    /** Returns true and unlocks only on a matching code. */
+    /**
+     * Switches the resident setting back off without a code.
+     *
+     * Only valid while the mode has not engaged yet. Once it has, the settings
+     * screen is unreachable anyway, but the guard keeps the rule in one place.
+     */
+    suspend fun disarmIfNotEngaged() {
+        val current = store.get()
+        if (current.engaged) return
+        store.set(armed = false, engaged = false, codeHash = current.codeHash)
+    }
+
+    /** Returns true and ends the mode only on a matching code. */
     suspend fun tryDisarm(pin: String): Boolean {
         val current = store.get()
         if (!LegalLockdownCode.matches(pin, current.codeHash)) return false
-        // The hash is kept so arming again later can reuse the same code. It is
-        // never read while disarmed, and clearing it would buy nothing.
-        store.set(armed = false, codeHash = current.codeHash)
+        // The code turns the whole thing off, resident setting included, so the
+        // rider is not locked again the moment legal mode comes back on. The
+        // hash is kept so arming again can reuse the same code.
+        store.set(armed = false, engaged = false, codeHash = current.codeHash)
         return true
     }
 }

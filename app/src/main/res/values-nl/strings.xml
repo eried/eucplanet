@@ -2250,7 +2250,7 @@
     <string name="lockdown_vehicle_max_speed">Max. snelheidslimiet</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Kilometerstand</string>
-    <string name="lockdown_speed_limit_title">Snelheidslimiet</string>
+    <string name="lockdown_speed_limit_title">Limieten</string>
     <string name="lockdown_unlock_prompt">Fabrikantcode</string>
     <string name="lockdown_unlock">Ontgrendelen</string>
     <string name="lockdown_connect">Verbinden</string>
@@ -2284,4 +2284,7 @@
     <string name="lockdown_limit_18">Deze modus zit niet in de back-ups van de instellingen.</string>
     <string name="lockdown_warning_settings_safe">Je instellingen worden niet gewijzigd. Bij het ontgrendelen komt alles precies terug zoals het nu is.</string>
     <string name="lockdown_warning_recovery">De enige uitweg is de fabrikantcode, via de knop Snelheidslimiet. Als je die code kwijtraakt, is de app alleen te herstellen door hem te verwijderen en opnieuw te installeren.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback-alarm</string>
+    <string name="lockdown_warning_waits">De Legal-modus staat uit, er verandert dus nog niets. De app vergrendelt de volgende keer dat je de Legal-modus aanzet.</string>
+    <string name="lockdown_warning_now">De Legal-modus staat aan, dit werkt dus meteen en de app vergrendelt direct.</string>
 </resources>

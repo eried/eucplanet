@@ -121,8 +121,13 @@ fun LegalLockdownScreen(
             // no warnings panel, no Flic indicator, no charging button.
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+              Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
                 ConnectionDot(connectionState)
                 Spacer(Modifier.width(8.dp))
                 Text(
@@ -139,7 +144,7 @@ fun LegalLockdownScreen(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false)
                 )
-                Spacer(Modifier.weight(1f))
+              }
                 IconButton(onClick = onNavigateToScan) {
                     Icon(
                         imageVector = if (connected) Icons.Default.BluetoothConnected

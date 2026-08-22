@@ -95,7 +95,7 @@ class AutomationManager @Inject constructor(
         // Legal Mode Lockdown is temporary, so its light button must not leave
         // auto-lights suspended for the rest of the session. Guarded here so
         // every caller is covered, not just the two we know about today.
-        if (legalLockdown.isArmed()) return
+        if (legalLockdown.isEngaged()) return
         if (!_autoLightsSuspended.value) {
             Log.i(TAG, "Auto-lights suspended for this session (manual change)")
         }
@@ -123,7 +123,7 @@ class AutomationManager @Inject constructor(
         // Legal Mode Lockdown stops media control and proximity auto-lock.
         // Auto lights and auto volume keep running: lights are a safety
         // behaviour and the light button is on the locked screen anyway.
-        val lockedDown = legalLockdown.isArmed()
+        val lockedDown = legalLockdown.isEngaged()
         detectManualLightChange(settings)
         if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
         if (settings.autoVolumeEnabled) evaluateVolume(settings)

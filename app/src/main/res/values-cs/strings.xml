@@ -2051,7 +2051,7 @@
     <string name="lockdown_vehicle_max_speed">Maximální rychlostní limit</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Tachometr</string>
-    <string name="lockdown_speed_limit_title">Rychlostní limit</string>
+    <string name="lockdown_speed_limit_title">Limity</string>
     <string name="lockdown_unlock_prompt">Kód výrobce</string>
     <string name="lockdown_unlock">Odemknout</string>
     <string name="lockdown_connect">Připojit</string>
@@ -2085,4 +2085,7 @@
     <string name="lockdown_limit_18">Tento režim není součástí záloh nastavení.</string>
     <string name="lockdown_warning_settings_safe">Tvoje nastavení se nemění. Po odemčení se všechno vrátí přesně tak, jak to je teď.</string>
     <string name="lockdown_warning_recovery">Jediná cesta ven je kód výrobce, přes tlačítko Rychlostní limit. Pokud ten kód ztratíš, aplikaci půjde obnovit jen odinstalováním a novou instalací.</string>
+    <string name="lockdown_tiltback_alarm">Alarm tiltbacku</string>
+    <string name="lockdown_warning_waits">Legální režim je vypnutý, takže se zatím nic nemění. Aplikace se zamkne, až legální režim příště zapneš.</string>
+    <string name="lockdown_warning_now">Legální režim je zapnutý, takže to platí hned a aplikace se okamžitě zamkne.</string>
 </resources>

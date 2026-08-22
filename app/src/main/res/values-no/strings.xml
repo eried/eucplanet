@@ -2136,7 +2136,7 @@
     <string name="lockdown_vehicle_max_speed">Høyeste fartsgrense</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Kilometerstand</string>
-    <string name="lockdown_speed_limit_title">Fartsgrense</string>
+    <string name="lockdown_speed_limit_title">Grenser</string>
     <string name="lockdown_unlock_prompt">Produsentkode</string>
     <string name="lockdown_unlock">Lås opp</string>
     <string name="lockdown_connect">Koble til</string>
@@ -2170,4 +2170,7 @@
     <string name="lockdown_limit_18">Denne modusen er ikke med i sikkerhetskopiene av innstillingene.</string>
     <string name="lockdown_warning_settings_safe">Innstillingene dine endres ikke. Alt kommer tilbake nøyaktig slik det er nå når du låser opp.</string>
     <string name="lockdown_warning_recovery">Eneste vei ut er produsentkoden, via knappen Fartsgrense. Mister du den koden, er eneste måte å få appen tilbake på å avinstallere og installere den på nytt.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback-alarm</string>
+    <string name="lockdown_warning_waits">Legal-modus er av, så ingenting endres ennå. Appen låses neste gang du slår på Legal-modus.</string>
+    <string name="lockdown_warning_now">Legal-modus er på, så dette gjelder nå og appen låses umiddelbart.</string>
 </resources>

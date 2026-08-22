@@ -2268,7 +2268,7 @@
     <string name="lockdown_vehicle_max_speed">Maximales Tempolimit</string>
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Gesamtstrecke</string>
-    <string name="lockdown_speed_limit_title">Tempolimit</string>
+    <string name="lockdown_speed_limit_title">Grenzwerte</string>
     <string name="lockdown_unlock_prompt">Herstellercode</string>
     <string name="lockdown_unlock">Entsperren</string>
     <string name="lockdown_connect">Verbinden</string>
@@ -2302,4 +2302,7 @@
     <string name="lockdown_limit_18">Dieser Modus ist nicht Teil der Einstellungs-Backups.</string>
     <string name="lockdown_warning_settings_safe">Deine Einstellungen werden nicht verändert. Beim Entsperren kommt alles genau so zurück, wie es jetzt ist.</string>
     <string name="lockdown_warning_recovery">Der einzige Weg heraus ist der Herstellercode über die Taste Tempolimit. Wenn du diesen Code verlierst, hilft nur noch, die App zu deinstallieren und neu zu installieren.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback-Alarm</string>
+    <string name="lockdown_warning_waits">Der Legal-Modus ist aus, es ändert sich also noch nichts. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
+    <string name="lockdown_warning_now">Der Legal-Modus ist an, das wirkt also sofort und die App sperrt umgehend.</string>
 </resources>
