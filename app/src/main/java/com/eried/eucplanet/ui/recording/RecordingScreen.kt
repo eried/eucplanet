@@ -809,35 +809,39 @@ private fun TripStatusIcon(
 ) {
     val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
 
-    // The rider's own backups.
+    // The rider's own backups. These, and only these, pick the icon's color:
+    // the question the cloud answers is "is this ride safe", and a ride is
+    // safe when a backup holds it. The leaderboard has its own opinions - a
+    // months-old "held for review" among them - and letting those tint the
+    // icon painted whole pages of properly backed-up trips orange.
     val backupFailed = (folderConfigured && trip.uploadStatus == 3) ||
         (dropboxLinked && trip.dropboxStatus == 3)
-    val backupWaiting = (folderConfigured && (trip.uploadStatus == 1 || trip.uploadStatus == 4)) ||
+    // Only an active upload counts as waiting. uploadStatus 4 is a trip that
+    // CAME from Dropbox: a backup already holds it by definition, and the
+    // folder mirror catching up quietly is not something to warn about.
+    val backupWaiting = (folderConfigured && trip.uploadStatus == 1) ||
         (dropboxLinked && trip.dropboxStatus == 1)
     val backupAt = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { fmt.format(Date(it)) }
-    val backupDone = !backupFailed && !backupWaiting && backupAt != null
+    val backupHeld = trip.uploadStatus == 2 || trip.uploadStatus == 4 ||
+        trip.dropboxStatus == 2 || backupAt != null
 
-    // The leaderboard.
+    // The leaderboard: message and tap behaviour only, never the color.
     val settled = trip.eucstatsStatus == 2
     val flagged = settled && trip.eucstatsValidation == "flagged"
     val rejected = settled && trip.eucstatsValidation == "rejected"
-    val onlineFailed = trip.eucstatsStatus == 3 || rejected
-    val onlineWaiting = trip.eucstatsStatus == 1 || flagged
     val onlineDone = settled && !flagged && !rejected
 
     // Nothing configured, nothing sent, nothing to say.
-    if (!folderConfigured && !dropboxLinked && trip.eucstatsStatus == 0 && backupAt == null) return
+    if (!folderConfigured && !dropboxLinked && trip.eucstatsStatus == 0 && !backupHeld) return
 
-    val failed = backupFailed || onlineFailed
-    val waiting = backupWaiting || onlineWaiting
     val icon = when {
-        failed -> Icons.Default.CloudOff
-        waiting -> Icons.Default.CloudQueue
+        backupFailed -> Icons.Default.CloudOff
+        backupWaiting -> Icons.Default.CloudQueue
         else -> Icons.Default.CloudDone
     }
     val tint = when {
-        failed -> MaterialTheme.appColors.statusDanger
-        waiting -> MaterialTheme.appColors.statusWarn
+        backupFailed -> MaterialTheme.appColors.statusDanger
+        backupWaiting -> MaterialTheme.appColors.statusWarn
         else -> MaterialTheme.appColors.statusGood
     }
     // The whole story in one message: each part only speaks when it has
@@ -850,10 +854,10 @@ private fun TripStatusIcon(
         else -> stringResource(R.string.cloud_not_uploaded)
     }
     when {
-        onlineFailed && rejected -> parts += stringResource(R.string.online_status_rejected)
-        onlineFailed -> parts += stringResource(R.string.online_status_failed)
+        rejected -> parts += stringResource(R.string.online_status_rejected)
+        trip.eucstatsStatus == 3 -> parts += stringResource(R.string.online_status_failed)
         flagged -> parts += stringResource(R.string.online_status_flagged)
-        onlineWaiting -> parts += stringResource(R.string.online_status_pending)
+        trip.eucstatsStatus == 1 -> parts += stringResource(R.string.online_status_pending)
         onlineDone -> parts += stringResource(R.string.online_status_shared)
     }
     val msg = parts.joinToString(separator = "\n")
@@ -862,11 +866,14 @@ private fun TripStatusIcon(
     val scope = LocalSnackbarScope.current
     IconButton(onClick = {
         when {
-            backupFailed -> onRetryBackup()
+            // A backup problem is the rider's to fix, so the tap acts on it.
+            backupFailed || backupWaiting -> onRetryBackup()
+            // A failed leaderboard upload of an original ride can be retried.
             trip.eucstatsStatus == 3 -> onRetryOnline()
-            flagged -> onRecheckOnline()
-            backupWaiting -> onRetryBackup()
-            trip.eucstatsStatus == 1 -> onRetryOnline()
+            // A held trip: re-ask the server for its verdict - asking is the
+            // only thing that can move it - and say where things stand. No
+            // background rechecking ever happens; this tap is it.
+            flagged -> { onRecheckOnline(); showSnackbarLocal(snackbar, scope, msg) }
             else -> showSnackbarLocal(snackbar, scope, msg)
         }
     }) {

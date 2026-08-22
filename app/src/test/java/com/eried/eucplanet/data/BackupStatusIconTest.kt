@@ -72,13 +72,37 @@ class BackupStatusIconTest {
         assertTrue("waiting is not shown", icon.contains("trip.dropboxStatus == 1"))
     }
 
-    @Test fun `failures outrank progress, and a tap acts on the worst thing`() {
-        val body = screen.substringAfter("private fun TripStatusIcon").substringBefore("\n}")
-        assertTrue("a failed backup is not first in the tap order",
-            body.indexOf("backupFailed -> onRetryBackup()") < body.indexOf("flagged -> onRecheckOnline()"))
-        assertTrue("there is no failed icon", body.contains("failed -> Icons.Default.CloudOff"))
+    @Test fun `only the backups pick the color`() {
+        // A months-old leaderboard "held for review" tinted whole pages of
+        // properly backed-up trips orange. The cloud answers "is this ride
+        // safe": red and orange belong to the backups alone, and the
+        // leaderboard speaks only in the message and the tap.
+        val body = screen.substringAfter("private fun TripStatusIcon")
+        assertTrue("there is no failed icon", body.contains("backupFailed -> Icons.Default.CloudOff"))
         assertTrue("failure is not coloured as a problem",
-            body.contains("failed -> MaterialTheme.appColors.statusDanger"))
+            body.contains("backupFailed -> MaterialTheme.appColors.statusDanger"))
+        val icons = body.substringAfter("val icon = when {").substringBefore("}")
+        val tints = body.substringAfter("val tint = when {").substringBefore("}")
+        assertTrue("the leaderboard state still drives the icon",
+            !icons.contains("flagged") && !icons.contains("online") &&
+            !tints.contains("flagged") && !tints.contains("online"))
+    }
+
+    @Test fun `a trip restored from Dropbox reads as backed up, not as waiting`() {
+        // uploadStatus 4 means it CAME from a backup. The folder mirror
+        // catching up quietly is not something to warn the rider about.
+        val body = screen.substringAfter("private fun TripStatusIcon")
+        val waiting = body.substringAfter("val backupWaiting =").substringBefore("val backupAt")
+        assertTrue("status 4 counts as an upload in flight", !waiting.contains("== 4"))
+        val held = body.substringAfter("val backupHeld =").substringBefore("// The leaderboard")
+        assertTrue("status 4 does not count as held by a backup", held.contains("trip.uploadStatus == 4"))
+    }
+
+    @Test fun `the tap still acts on what the rider can fix`() {
+        val body = screen.substringAfter("private fun TripStatusIcon")
+        assertTrue(body.contains("backupFailed || backupWaiting -> onRetryBackup()"))
+        assertTrue("a held trip can no longer be rechecked",
+            body.contains("flagged -> { onRecheckOnline(); showSnackbarLocal(snackbar, scope, msg) }"))
     }
 
     @Test fun `the message tells the whole story, parts joined`() {
