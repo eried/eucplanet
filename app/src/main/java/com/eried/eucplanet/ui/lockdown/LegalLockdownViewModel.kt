@@ -9,6 +9,7 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.util.Units
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -32,7 +33,9 @@ class LegalLockdownViewModel @Inject constructor(
     private val lockdown: LegalLockdownController
 ) : ViewModel() {
 
-    private val initialSettings = runBlocking { settingsRepository.get() }
+    // Synchronous initial read so the StateFlows start on the rider's persisted
+    // values instead of defaults, the same reason DashboardViewModel does it.
+    private val initialSettings = runBlocking(Dispatchers.IO) { settingsRepository.get() }
 
     val wheelData: StateFlow<WheelData> = wheelRepository.wheelData
     val connectionState: StateFlow<ConnectionState> = wheelRepository.connectionState

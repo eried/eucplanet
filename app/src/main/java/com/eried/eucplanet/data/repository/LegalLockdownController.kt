@@ -54,15 +54,9 @@ class LegalLockdownController @Inject constructor(
     private val _armed = MutableStateFlow(false)
     val armed: StateFlow<Boolean> = _armed.asStateFlow()
 
-    private val _configured = MutableStateFlow(false)
-    val configured: StateFlow<Boolean> = _configured.asStateFlow()
-
     init {
         scope.launch {
-            store.state.collect { s ->
-                _armed.value = s.armed
-                _configured.value = s.codeHash.isNotEmpty()
-            }
+            store.state.collect { s -> _armed.value = s.armed }
         }
     }
 
