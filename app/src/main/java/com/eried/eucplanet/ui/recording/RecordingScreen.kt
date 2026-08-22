@@ -860,11 +860,14 @@ private fun TripStatusIcon(
         backupAt != null -> stringResource(R.string.cloud_uploaded_on, backupAt)
         else -> stringResource(R.string.cloud_not_uploaded)
     }
+    // Final leaderboard states only. "Uploading" and "held for automated
+    // check" are the pipeline's business, not the rider's: a hold months old
+    // reads as a problem when it is just a verdict nobody re-asked for.
+    // Tapping a held trip still re-asks silently, so stale holds clear
+    // themselves without ever being announced.
     when {
         rejected -> parts += stringResource(R.string.online_status_rejected)
         trip.eucstatsStatus == 3 -> parts += stringResource(R.string.online_status_failed)
-        flagged -> parts += stringResource(R.string.online_status_flagged)
-        trip.eucstatsStatus == 1 -> parts += stringResource(R.string.online_status_pending)
         onlineDone -> parts += stringResource(R.string.online_status_shared)
     }
     val msg = parts.joinToString(separator = "\n")
@@ -882,6 +885,7 @@ private fun TripStatusIcon(
             // A held trip: re-ask the server for its verdict - asking is the
             // only thing that can move it - and say where things stand. No
             // background rechecking ever happens; this tap is it.
+            // Quietly: the hold itself is no longer in the message.
             flagged -> { onRecheckOnline(); showSnackbarLocal(snackbar, scope, msg) }
             else -> showSnackbarLocal(snackbar, scope, msg)
         }

@@ -112,6 +112,17 @@ class BackupStatusIconTest {
         assertTrue("the backup time is missing", body.contains("cloud_uploaded_on"))
     }
 
+    @Test fun `only final leaderboard states are spoken`() {
+        // "Uploading" and "held for automated check" are pipeline states, not
+        // rider states: a months-old hold reads as a problem when it is just a
+        // verdict nobody re-asked for. The tap still re-asks silently.
+        val msgBlock = screen.substringAfter("private fun TripStatusIcon").substringBefore("IconButton")
+        assertTrue("the held-for-review line is back", !msgBlock.contains("online_status_flagged"))
+        assertTrue("the uploading line is back", !msgBlock.contains("online_status_pending"))
+        assertTrue("a held trip is no longer rechecked on tap",
+            screen.substringAfter("private fun TripStatusIcon").contains("flagged -> { onRecheckOnline()"))
+    }
+
     @Test fun `nothing is claimed about a destination the rider never set up`() {
         val body = screen.substringAfter("private fun TripStatusIcon").substringBefore("IconButton")
         assertTrue(body.contains("folderConfigured && "))
