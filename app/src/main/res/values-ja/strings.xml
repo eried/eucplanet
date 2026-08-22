@@ -2108,7 +2108,6 @@
     <string name="trip_tools_change_wheel">ホイールを変更</string>
     <string name="trip_tools_change_wheel_desc">この走行のホイールを修正します。走行とファイルを更新します。</string>
     <string name="trip_tools_wheel_other">別のホイール</string>
-    <string name="trip_tools_wheel_uploaded_warning">この走行はすでにランキングに登録されています。そちらの記録は以前のホイールのままで、ここからは修正できません。</string>
     <string name="trip_tools_split">走行を分割</string>
     <string name="trip_tools_split_desc">ホイール交換、長い停止、記録の欠落を見つけてそこで分割します。</string>
     <string name="trip_tools_split_none">分割できる箇所はありません。ホイール交換、長い停止、記録の欠落は見つかりませんでした。</string>
@@ -2288,4 +2287,5 @@
     <string name="lockdown_warning_now">リーガルモードがオンなので、これはすぐに適用され、アプリは直ちにロックされます。</string>
     <string name="lockdown_warning_no_wheel">ホイールが接続されていないため、リーガルモードの状態は不明です。次にリーガルモードがオンになったときにアプリがロックされます。</string>
     <string name="lockdown_continue">次へ</string>
+    <string name="trip_tools_wheel_none">このトリップにはまだホイールが記録されていません。</string>
 </resources>

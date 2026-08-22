@@ -2106,7 +2106,6 @@
     <string name="trip_tools_change_wheel">휠 변경</string>
     <string name="trip_tools_change_wheel_desc">이 주행의 휠을 수정합니다. 주행과 파일을 갱신합니다.</string>
     <string name="trip_tools_wheel_other">다른 휠</string>
-    <string name="trip_tools_wheel_uploaded_warning">이 주행은 이미 순위표에 있습니다. 그곳의 기록은 이전 휠을 유지하며 여기서 수정할 수 없습니다.</string>
     <string name="trip_tools_split">주행 나누기</string>
     <string name="trip_tools_split_desc">휠 교체, 긴 정지, 기록 공백을 찾아 그 지점에서 자릅니다.</string>
     <string name="trip_tools_split_none">나눌 곳이 없습니다. 휠 교체, 긴 정지, 기록 공백을 찾지 못했습니다.</string>
@@ -2286,4 +2285,5 @@
     <string name="lockdown_warning_now">리걸 모드가 켜져 있어 지금 바로 적용되며 앱이 즉시 잠깁니다.</string>
     <string name="lockdown_warning_no_wheel">연결된 휠이 없어 리걸 모드 상태를 알 수 없습니다. 다음에 리걸 모드를 켤 때 앱이 잠깁니다.</string>
     <string name="lockdown_continue">계속</string>
+    <string name="trip_tools_wheel_none">이 주행에는 아직 휠이 기록되지 않았습니다.</string>
 </resources>

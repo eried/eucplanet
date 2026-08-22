@@ -2104,7 +2104,6 @@
     <string name="trip_tools_change_wheel">Tekeri degistir</string>
     <string name="trip_tools_change_wheel_desc">Bu surusun hangi tekerde oldugunu duzeltir. Surusu ve dosyasini gunceller.</string>
     <string name="trip_tools_wheel_other">Baska bir teker</string>
-    <string name="trip_tools_wheel_uploaded_warning">Bu surus zaten siralamada. Oradaki kayit eski tekeri korur ve buradan duzeltilemez.</string>
     <string name="trip_tools_split">Surusu bol</string>
     <string name="trip_tools_split_desc">Teker degisimlerini, uzun molalari ve kayit bosluklarini bulup orada boler.</string>
     <string name="trip_tools_split_none">Bolunecek bir sey yok. Teker degisimi, uzun mola veya bosluk bulunamadi.</string>
@@ -2284,4 +2283,5 @@
     <string name="lockdown_warning_now">Legal mod açık, bu yüzden şimdi geçerli olur ve uygulama hemen kilitlenir.</string>
     <string name="lockdown_warning_no_wheel">Bağlı tekerlek yok, bu yüzden legal modun durumu bilinmiyor. Uygulama, legal mod bir sonraki açılışında kilitlenir.</string>
     <string name="lockdown_continue">Devam</string>
+    <string name="trip_tools_wheel_none">Bu sürüş için henüz bir teker kaydedilmedi.</string>
 </resources>

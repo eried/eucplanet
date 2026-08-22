@@ -2122,7 +2122,6 @@
     <string name="trip_tools_change_wheel">Skift hjul</string>
     <string name="trip_tools_change_wheel_desc">Ret hvilket hjul turen var pa. Opdaterer turen og dens fil.</string>
     <string name="trip_tools_wheel_other">Et andet hjul</string>
-    <string name="trip_tools_wheel_uploaded_warning">Denne tur er allerede pa ranglisten. Posten der beholder det gamle hjul og kan ikke rettes herfra.</string>
     <string name="trip_tools_split">Opdel tur</string>
     <string name="trip_tools_split_desc">Find hjulskift, lange pauser og huller i optagelsen, og klip turen der.</string>
     <string name="trip_tools_split_none">Intet at opdele. Ingen hjulskift, lange pauser eller huller i optagelsen blev fundet.</string>
@@ -2302,4 +2301,5 @@
     <string name="lockdown_warning_now">Legal-tilstand er slået til, så det gælder nu, og appen låser med det samme.</string>
     <string name="lockdown_warning_no_wheel">Intet wheel forbundet, så Legal-tilstandens tilstand er ukendt. Appen låser næste gang Legal-tilstand slås til.</string>
     <string name="lockdown_continue">Fortsæt</string>
+    <string name="trip_tools_wheel_none">Der er endnu ikke registreret et hjul for denne tur.</string>
 </resources>

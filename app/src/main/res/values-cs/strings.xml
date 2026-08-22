@@ -1182,7 +1182,6 @@
     <string name="trip_tools_extend_none">Tato jízda</string>
     <string name="trip_tools_extend_pick_one">Vyberte dřívější nebo pozdější jízdu, o kterou se má rozšířit.</string>
     <string name="trip_tools_combine_summary">Spojí %1$d jízd do jedné nové jízdy.</string>
-    <string name="trip_tools_wheel_uploaded_warning">Tato jízda už je v žebříčku. Záznam tam si ponechá staré monokolo a odsud jej nelze opravit.</string>
     <string name="trip_tools_wheel_changed">Monokolo nastaveno na %1$s</string>
     <string name="trip_tools_split">Rozdělit jízdu</string>
     <string name="trip_tools_split_desc">Najde změny monokola, dlouhé pauzy a mezery v nahrávání a jízdu tam rozdělí.</string>
@@ -2090,4 +2089,5 @@
     <string name="lockdown_warning_now">Legální režim je zapnutý, takže to platí hned a aplikace se okamžitě zamkne.</string>
     <string name="lockdown_warning_no_wheel">Není připojeno žádné kolo, takže stav legálního režimu je neznámý. Aplikace se zamkne, až se legální režim příště zapne.</string>
     <string name="lockdown_continue">Pokračovat</string>
+    <string name="trip_tools_wheel_none">K této jízdě zatím není zaznamenané žádné kolo.</string>
 </resources>

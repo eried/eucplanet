@@ -2111,7 +2111,6 @@
     <string name="trip_tools_change_wheel">Changer de roue</string>
     <string name="trip_tools_change_wheel_desc">Corrige la roue de ce trajet. Met a jour le trajet et son fichier.</string>
     <string name="trip_tools_wheel_other">Une autre roue</string>
-    <string name="trip_tools_wheel_uploaded_warning">Ce trajet est deja au classement. Son entree la-bas garde l ancienne roue et ne peut pas etre corrigee ici.</string>
     <string name="trip_tools_split">Diviser le trajet</string>
     <string name="trip_tools_split_desc">Trouve les changements de roue, longues pauses et trous d enregistrement, et coupe la.</string>
     <string name="trip_tools_split_none">Rien a diviser. Aucun changement de roue, longue pause ou trou trouve.</string>
@@ -2291,4 +2290,5 @@
     <string name="lockdown_warning_now">Le mode légal est actif, cela prend donc effet maintenant et l’application se verrouille immédiatement.</string>
     <string name="lockdown_warning_no_wheel">Aucune roue connectée, l’état du mode légal est donc inconnu. L’application se verrouillera à la prochaine activation du mode légal.</string>
     <string name="lockdown_continue">Continuer</string>
+    <string name="trip_tools_wheel_none">Aucune roue enregistrée pour ce trajet pour le moment.</string>
 </resources>

@@ -1974,7 +1974,6 @@
     <string name="trip_tools_change_wheel">更换轮子</string>
     <string name="trip_tools_change_wheel_desc">更正这次行程使用的轮子。会更新行程和文件。</string>
     <string name="trip_tools_wheel_other">其他轮子</string>
-    <string name="trip_tools_wheel_uploaded_warning">此行程已在排行榜上。那里的记录会保留旧轮子，无法从这里更正。</string>
     <string name="trip_tools_split">拆分行程</string>
     <string name="trip_tools_split_desc">查找换轮、长时间停留和记录中断，并在那里切分。</string>
     <string name="trip_tools_split_none">没有可拆分的地方。未发现换轮、长时间停留或记录中断。</string>
@@ -2154,4 +2153,5 @@
     <string name="lockdown_warning_now">合法模式已开启，因此立即生效，应用会马上锁定。</string>
     <string name="lockdown_warning_no_wheel">未连接轮子，因此合法模式的状态未知。下次开启合法模式时应用才会锁定。</string>
     <string name="lockdown_continue">继续</string>
+    <string name="trip_tools_wheel_none">此行程尚未记录独轮车。</string>
 </resources>

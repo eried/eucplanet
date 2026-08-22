@@ -2104,7 +2104,6 @@
     <string name="trip_tools_change_wheel">Cambiar rueda</string>
     <string name="trip_tools_change_wheel_desc">Corrige en que rueda fue este viaje. Actualiza el viaje y su archivo.</string>
     <string name="trip_tools_wheel_other">Otra rueda</string>
-    <string name="trip_tools_wheel_uploaded_warning">Este viaje ya esta en la clasificacion. La entrada alli conserva la rueda anterior y no se puede corregir desde aqui.</string>
     <string name="trip_tools_split">Dividir viaje</string>
     <string name="trip_tools_split_desc">Busca cambios de rueda, pausas largas y huecos de grabacion, y corta ahi.</string>
     <string name="trip_tools_split_none">Nada que dividir. No se encontraron cambios de rueda, pausas largas ni huecos.</string>
@@ -2284,4 +2283,5 @@
     <string name="lockdown_warning_now">El Modo Legal está activo, así que esto surte efecto ahora y la app se bloquea de inmediato.</string>
     <string name="lockdown_warning_no_wheel">No hay rueda conectada, así que el estado del Modo Legal es desconocido. La app se bloqueará la próxima vez que se active el Modo Legal.</string>
     <string name="lockdown_continue">Continuar</string>
+    <string name="trip_tools_wheel_none">Este viaje aún no tiene rueda registrada.</string>
 </resources>

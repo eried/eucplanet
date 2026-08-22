@@ -267,7 +267,6 @@ fun RecordingScreen(
                 ?.takeIf { it.isNotBlank() },
             // Status 2 means the ride is already on the leaderboard, where the
             // old wheel stays. The rider chose to be warned rather than blocked.
-            alreadyUploaded = trip.eucstatsStatus == 2,
             onConfirm = { name ->
                 viewModel.changeTripWheel(trip, name)
                 wheelToolTrip = null

@@ -146,24 +146,29 @@ fun RenameTripDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(text.trim()) }, shape = RoundedCornerShape(12.dp)) {
-                Text(stringResource(R.string.action_save))
-            }
-        },
-        dismissButton = {
-            Row {
-                // One tap back to the date: clears the name AND accepts, so a
-                // rider undoing a rename is not asked to empty the field by
-                // hand and then find Save. Only offered while there is a name
-                // to clear - on an unnamed trip it would just be a second
-                // Cancel.
+            // Reset sits alone on the far left, apart from Cancel/Save: it is
+            // the one action that destroys something (the rider's name), and
+            // distance is what keeps it from being hit while reaching for
+            // Save. No other dialog has a third action yet; this is the
+            // pattern when one does.
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                // One tap back to the date: clears the name AND accepts. Only
+                // offered while there is a name to clear - on an unnamed trip
+                // it would just be a second Cancel.
                 if (!currentName.isNullOrBlank()) {
                     TextButton(onClick = { onConfirm("") }, shape = RoundedCornerShape(12.dp)) {
                         Text(stringResource(R.string.action_reset))
                     }
+                } else {
+                    Spacer(Modifier.width(1.dp))
                 }
-                TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
-                    Text(stringResource(R.string.action_cancel))
+                Row {
+                    TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                    TextButton(onClick = { onConfirm(text.trim()) }, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.action_save))
+                    }
                 }
             }
         }
@@ -179,14 +184,14 @@ fun RenameTripDialog(
  * exactly when a rider is most likely to be fixing a wrong label. A free-text
  * field still covers a wheel neither source has heard of.
  *
- * [alreadyUploaded] shows the warning the rider agreed to: the leaderboard entry
- * keeps the old wheel and cannot be corrected from the app.
+ * No leaderboard warning here on purpose: the wheel label is for the rider's
+ * own organisation (and eucviewer's wheel selector). An edited trip is never
+ * resubmitted, so the change cannot touch the leaderboard either way.
  */
 @Composable
 fun ChangeWheelDialog(
     knownWheels: List<String>,
     currentWheel: String?,
-    alreadyUploaded: Boolean,
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -196,7 +201,9 @@ fun ChangeWheelDialog(
     val options = remember(currentWheel, knownWheels) {
         (listOfNotNull(currentWheel?.takeIf { it.isNotBlank() }) + knownWheels).distinct()
     }
-    var picked by remember(options) { mutableStateOf(currentWheel ?: options.firstOrNull() ?: "") }
+    // No wheel on the trip -> nothing preselected. Starting with someone
+    // else's wheel chosen invites a change the rider never meant.
+    var picked by remember(options) { mutableStateOf(currentWheel.orEmpty()) }
     var custom by remember { mutableStateOf("") }
     var usingCustom by remember(options) { mutableStateOf(options.isEmpty()) }
     val chosen = if (usingCustom) custom.trim() else picked
@@ -207,11 +214,13 @@ fun ChangeWheelDialog(
         title = { Text(stringResource(R.string.trip_tools_change_wheel)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                if (alreadyUploaded) {
+                // A trip with no wheel recorded says so, instead of quietly
+                // preselecting whatever wheel happened to lead the list.
+                if (currentWheel.isNullOrBlank()) {
                     Text(
-                        stringResource(R.string.trip_tools_wheel_uploaded_warning),
+                        stringResource(R.string.trip_tools_wheel_none),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.statusWarn,
+                        color = MaterialTheme.appColors.textSecondary,
                     )
                     Spacer(Modifier.width(8.dp))
                 }

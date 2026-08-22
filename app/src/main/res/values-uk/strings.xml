@@ -2104,7 +2104,6 @@
     <string name="trip_tools_change_wheel">Змінити колесо</string>
     <string name="trip_tools_change_wheel_desc">Виправляє, на якому колесі була поїздка. Оновлює поїздку та файл.</string>
     <string name="trip_tools_wheel_other">Інше колесо</string>
-    <string name="trip_tools_wheel_uploaded_warning">Ця поїздка вже в таблиці лідерів. Запис там збереже старе колесо і не може бути виправлений звідси.</string>
     <string name="trip_tools_split">Розділити поїздку</string>
     <string name="trip_tools_split_desc">Знаходить зміни колеса, довгі зупинки та пропуски в записі і ріже там.</string>
     <string name="trip_tools_split_none">Ділити нема чого. Змін колеса, довгих зупинок і пропусків не знайдено.</string>
@@ -2284,4 +2283,5 @@
     <string name="lockdown_warning_now">Легальний режим увімкнено, тож це спрацює одразу і застосунок заблокується негайно.</string>
     <string name="lockdown_warning_no_wheel">Колесо не підключено, тому стан легального режиму невідомий. Застосунок заблокується наступного разу, коли легальний режим буде увімкнено.</string>
     <string name="lockdown_continue">Далі</string>
+    <string name="trip_tools_wheel_none">Для цієї поїздки колесо ще не записано.</string>
 </resources>

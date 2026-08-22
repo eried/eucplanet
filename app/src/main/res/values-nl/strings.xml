@@ -2109,7 +2109,6 @@
     <string name="trip_tools_change_wheel">Wiel wijzigen</string>
     <string name="trip_tools_change_wheel_desc">Corrigeert op welk wiel deze rit was. Werkt rit en bestand bij.</string>
     <string name="trip_tools_wheel_other">Een ander wiel</string>
-    <string name="trip_tools_wheel_uploaded_warning">Deze rit staat al op de ranglijst. Die vermelding houdt het oude wiel en kan hier niet worden gecorrigeerd.</string>
     <string name="trip_tools_split">Rit splitsen</string>
     <string name="trip_tools_split_desc">Zoekt wielwissels, lange pauzes en opnamegaten en knipt daar.</string>
     <string name="trip_tools_split_none">Niets te splitsen. Geen wielwissels, lange pauzes of opnamegaten gevonden.</string>
@@ -2289,4 +2288,5 @@
     <string name="lockdown_warning_now">De Legal-modus staat aan, dit werkt dus meteen en de app vergrendelt direct.</string>
     <string name="lockdown_warning_no_wheel">Geen wheel verbonden, de staat van de Legal-modus is dus onbekend. De app vergrendelt de volgende keer dat de Legal-modus wordt aangezet.</string>
     <string name="lockdown_continue">Doorgaan</string>
+    <string name="trip_tools_wheel_none">Voor deze rit is nog geen wiel vastgelegd.</string>
 </resources>

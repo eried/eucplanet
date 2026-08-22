@@ -1182,7 +1182,6 @@
     <string name="trip_tools_extend_none">Ez a menet</string>
     <string name="trip_tools_extend_pick_one">Válassz egy korábbi vagy későbbi menetet, amelyre kiterjeszted.</string>
     <string name="trip_tools_combine_summary">%1$d menetet egyesít egy új menetbe.</string>
-    <string name="trip_tools_wheel_uploaded_warning">Ez a menet már fent van a ranglistán. Az ottani bejegyzés megtartja a régi egykerekűt, és innen nem javítható.</string>
     <string name="trip_tools_wheel_changed">Egykerekű beállítva erre: %1$s</string>
     <string name="trip_tools_split">Menet felosztása</string>
     <string name="trip_tools_split_desc">Megkeresi az egykerekűváltásokat, hosszú szüneteket és rögzítési kihagyásokat, és ott vágja el a menetet.</string>
@@ -2090,4 +2089,5 @@
     <string name="lockdown_warning_now">A legális mód be van kapcsolva, így ez most lép életbe és az app azonnal zárol.</string>
     <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott kerék, így a legális mód állapota ismeretlen. Az app akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
     <string name="lockdown_continue">Tovább</string>
+    <string name="trip_tools_wheel_none">Ehhez az úthoz még nincs kerék rögzítve.</string>
 </resources>

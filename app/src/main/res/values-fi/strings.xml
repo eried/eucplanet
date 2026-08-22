@@ -1182,7 +1182,6 @@
     <string name="trip_tools_extend_none">Tämä matka</string>
     <string name="trip_tools_extend_pick_one">Valitse aiempi tai myöhempi matka, johon laajennetaan.</string>
     <string name="trip_tools_combine_summary">Yhdistää %1$d matkaa yhdeksi uudeksi matkaksi.</string>
-    <string name="trip_tools_wheel_uploaded_warning">Tämä ajo on jo tulostaulussa. Siellä oleva merkintä säilyttää vanhan yksipyöräisen eikä sitä voi korjata täältä.</string>
     <string name="trip_tools_wheel_changed">Yksipyöräiseksi asetettu %1$s</string>
     <string name="trip_tools_split">Jaa matka</string>
     <string name="trip_tools_split_desc">Etsii yksipyöräisen vaihdot, pitkät tauot ja tallennuskatkot ja katkaisee ajon niistä.</string>
@@ -2090,4 +2089,5 @@
     <string name="lockdown_warning_now">Legal-tila on päällä, joten tämä astuu voimaan heti ja sovellus lukittuu välittömästi.</string>
     <string name="lockdown_warning_no_wheel">Yhtään pyörää ei ole yhdistetty, joten Legal-tilan tila on tuntematon. Sovellus lukittuu, kun Legal-tila seuraavan kerran otetaan käyttöön.</string>
     <string name="lockdown_continue">Jatka</string>
+    <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu pyörää.</string>
 </resources>

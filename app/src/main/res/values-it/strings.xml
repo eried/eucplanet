@@ -2012,7 +2012,6 @@
     <string name="trip_tools_change_wheel">Cambia ruota</string>
     <string name="trip_tools_change_wheel_desc">Corregge su quale ruota era il viaggio. Aggiorna viaggio e file.</string>
     <string name="trip_tools_wheel_other">Un altra ruota</string>
-    <string name="trip_tools_wheel_uploaded_warning">Questo viaggio e gia in classifica. La voce li mantiene la vecchia ruota e non si puo correggere da qui.</string>
     <string name="trip_tools_split">Dividi viaggio</string>
     <string name="trip_tools_split_desc">Trova cambi ruota, lunghe pause e buchi di registrazione, e taglia li.</string>
     <string name="trip_tools_split_none">Niente da dividere. Nessun cambio ruota, lunga pausa o buco trovato.</string>
@@ -2192,4 +2191,5 @@
     <string name="lockdown_warning_now">La modalità legale è attiva, quindi ha effetto subito e l’app si blocca immediatamente.</string>
     <string name="lockdown_warning_no_wheel">Nessuna ruota collegata, quindi lo stato della modalità legale è sconosciuto. L’app si bloccherà alla prossima attivazione della modalità legale.</string>
     <string name="lockdown_continue">Continua</string>
+    <string name="trip_tools_wheel_none">Nessuna ruota registrata per questo viaggio.</string>
 </resources>

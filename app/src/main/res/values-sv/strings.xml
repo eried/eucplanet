@@ -2107,7 +2107,6 @@
     <string name="trip_tools_change_wheel">Byt hjul</string>
     <string name="trip_tools_change_wheel_desc">Rattar vilket hjul turen var pa. Uppdaterar turen och filen.</string>
     <string name="trip_tools_wheel_other">Ett annat hjul</string>
-    <string name="trip_tools_wheel_uploaded_warning">Den har turen finns redan pa listan. Posten dar behaller det gamla hjulet och kan inte rattas harifran.</string>
     <string name="trip_tools_split">Dela upp tur</string>
     <string name="trip_tools_split_desc">Hittar hjulbyten, langa pauser och luckor i inspelningen och klipper dar.</string>
     <string name="trip_tools_split_none">Inget att dela. Inga hjulbyten, langa pauser eller luckor hittades.</string>
@@ -2287,4 +2286,5 @@
     <string name="lockdown_warning_now">Legal-läget är på, så det här gäller nu och appen låses direkt.</string>
     <string name="lockdown_warning_no_wheel">Inget wheel anslutet, så Legal-lägets tillstånd är okänt. Appen låses nästa gång Legal-läget slås på.</string>
     <string name="lockdown_continue">Fortsätt</string>
+    <string name="trip_tools_wheel_none">Inget hjul har registrerats för den här turen ännu.</string>
 </resources>

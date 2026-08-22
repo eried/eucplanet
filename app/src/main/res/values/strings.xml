@@ -1330,7 +1330,6 @@
     <string name="trip_tools_extend_all_inside">The trips around this one are already part of it.</string>
     <string name="trip_tools_extend_skipped">Skips %1$d trip(s) already inside this one.</string>
     <string name="trip_tools_combine_summary">Combines %1$d trips into one new trip.</string>
-    <string name="trip_tools_wheel_uploaded_warning">This ride is already on the leaderboard. The entry there keeps the old wheel and cannot be corrected from here.</string>
     <string name="trip_tools_wheel_changed">Wheel set to %1$s</string>
     <string name="trip_tools_split">Split trip</string>
     <string name="trip_tools_split_desc">Find wheel changes, long pauses and recording gaps, and cut the ride there.</string>
@@ -2309,4 +2308,5 @@
     <string name="lockdown_warning_now">Legal Mode is on, so this takes effect now and the app locks immediately.</string>
     <string name="lockdown_warning_no_wheel">No wheel is connected, so the Legal Mode state is unknown. The app locks the next time Legal Mode is switched on.</string>
     <string name="lockdown_continue">Continue</string>
+    <string name="trip_tools_wheel_none">No wheel is recorded on this trip yet.</string>
 </resources>

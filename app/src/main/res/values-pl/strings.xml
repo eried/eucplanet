@@ -2107,7 +2107,6 @@
     <string name="trip_tools_change_wheel">Zmien kolo</string>
     <string name="trip_tools_change_wheel_desc">Poprawia, na ktorym kole byl przejazd. Aktualizuje przejazd i plik.</string>
     <string name="trip_tools_wheel_other">Inne kolo</string>
-    <string name="trip_tools_wheel_uploaded_warning">Ten przejazd jest juz w rankingu. Wpis tam zachowa stare kolo i nie mozna go stad poprawic.</string>
     <string name="trip_tools_split">Podziel przejazd</string>
     <string name="trip_tools_split_desc">Znajduje zmiany kola, dlugie postoje i luki w nagraniu i tam tnie.</string>
     <string name="trip_tools_split_none">Nie ma czego dzielic. Nie znaleziono zmian kola, dlugich postojow ani luk.</string>
@@ -2287,4 +2286,5 @@
     <string name="lockdown_warning_now">Tryb legalny jest włączony, więc zadziała to od razu i aplikacja zablokuje się natychmiast.</string>
     <string name="lockdown_warning_no_wheel">Brak połączonego koła, więc stan trybu legalnego jest nieznany. Aplikacja zablokuje się przy następnym włączeniu trybu legalnego.</string>
     <string name="lockdown_continue">Dalej</string>
+    <string name="trip_tools_wheel_none">Ten przejazd nie ma jeszcze zapisanego koła.</string>
 </resources>

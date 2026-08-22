@@ -2127,7 +2127,6 @@
     <string name="trip_tools_change_wheel">Wheel wechseln</string>
     <string name="trip_tools_change_wheel_desc">Korrigiert, auf welchem Wheel die Fahrt war. Aktualisiert Fahrt und Datei.</string>
     <string name="trip_tools_wheel_other">Anderes Wheel</string>
-    <string name="trip_tools_wheel_uploaded_warning">Diese Fahrt ist bereits in der Rangliste. Der Eintrag dort behaelt das alte Wheel und kann hier nicht korrigiert werden.</string>
     <string name="trip_tools_split">Fahrt teilen</string>
     <string name="trip_tools_split_desc">Findet Wheel-Wechsel, lange Pausen und Aufnahmeluecken und schneidet dort.</string>
     <string name="trip_tools_split_none">Nichts zu teilen. Keine Wheel-Wechsel, langen Pausen oder Aufnahmeluecken gefunden.</string>
@@ -2307,4 +2306,5 @@
     <string name="lockdown_warning_now">Der Legal-Modus ist an, das wirkt also sofort und die App sperrt umgehend.</string>
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
+    <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Einrad hinterlegt.</string>
 </resources>

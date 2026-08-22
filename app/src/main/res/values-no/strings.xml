@@ -1995,7 +1995,6 @@
     <string name="trip_tools_change_wheel">Bytt hjul</string>
     <string name="trip_tools_change_wheel_desc">Retter hvilket hjul turen var pa. Oppdaterer turen og filen.</string>
     <string name="trip_tools_wheel_other">Et annet hjul</string>
-    <string name="trip_tools_wheel_uploaded_warning">Denne turen er allerede pa rangeringen. Oppforingen der beholder det gamle hjulet og kan ikke rettes herfra.</string>
     <string name="trip_tools_split">Del opp tur</string>
     <string name="trip_tools_split_desc">Finner hjulbytter, lange pauser og hull i opptaket, og klipper der.</string>
     <string name="trip_tools_split_none">Ingenting a dele. Ingen hjulbytter, lange pauser eller hull ble funnet.</string>
@@ -2175,4 +2174,5 @@
     <string name="lockdown_warning_now">Legal-modus er på, så dette gjelder nå og appen låses umiddelbart.</string>
     <string name="lockdown_warning_no_wheel">Ingen wheel tilkoblet, så tilstanden til Legal-modus er ukjent. Appen låses neste gang Legal-modus slås på.</string>
     <string name="lockdown_continue">Fortsett</string>
+    <string name="trip_tools_wheel_none">Ingen hjul er registrert for denne turen ennå.</string>
 </resources>
