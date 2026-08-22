@@ -761,7 +761,7 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
                 ) {
                     timeModes.forEachIndexed { i, m ->
                         androidx.compose.material3.DropdownMenuItem(
-                            text = { Text(if (i == timeMode) "$m ✓" else m) },
+                            text = { Text(m) },
                             onClick = { timeMode = i; timeMenuOpen = false }
                         )
                     }
