@@ -2287,4 +2287,5 @@
     <string name="lockdown_warning_waits">リーガルモードはオフなので、まだ何も変わりません。次にリーガルモードをオンにしたときにアプリがロックされます。</string>
     <string name="lockdown_warning_now">リーガルモードがオンなので、これはすぐに適用され、アプリは直ちにロックされます。</string>
     <string name="lockdown_warning_no_wheel">ホイールが接続されていないため、リーガルモードの状態は不明です。次にリーガルモードがオンになったときにアプリがロックされます。</string>
+    <string name="lockdown_continue">次へ</string>
 </resources>

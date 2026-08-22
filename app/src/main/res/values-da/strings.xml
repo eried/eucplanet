@@ -2301,4 +2301,5 @@
     <string name="lockdown_warning_waits">Legal-tilstand er slået fra, så der ændres ikke noget endnu. Appen låser næste gang du slår Legal-tilstand til.</string>
     <string name="lockdown_warning_now">Legal-tilstand er slået til, så det gælder nu, og appen låser med det samme.</string>
     <string name="lockdown_warning_no_wheel">Intet wheel forbundet, så Legal-tilstandens tilstand er ukendt. Appen låser næste gang Legal-tilstand slås til.</string>
+    <string name="lockdown_continue">Fortsæt</string>
 </resources>

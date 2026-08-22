@@ -2174,4 +2174,5 @@
     <string name="lockdown_warning_waits">Legal-modus er av, så ingenting endres ennå. Appen låses neste gang du slår på Legal-modus.</string>
     <string name="lockdown_warning_now">Legal-modus er på, så dette gjelder nå og appen låses umiddelbart.</string>
     <string name="lockdown_warning_no_wheel">Ingen wheel tilkoblet, så tilstanden til Legal-modus er ukjent. Appen låses neste gang Legal-modus slås på.</string>
+    <string name="lockdown_continue">Fortsett</string>
 </resources>

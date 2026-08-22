@@ -2286,4 +2286,5 @@
     <string name="lockdown_warning_waits">Legal-läget är av, så inget ändras än. Appen låses nästa gång du slår på Legal-läget.</string>
     <string name="lockdown_warning_now">Legal-läget är på, så det här gäller nu och appen låses direkt.</string>
     <string name="lockdown_warning_no_wheel">Inget wheel anslutet, så Legal-lägets tillstånd är okänt. Appen låses nästa gång Legal-läget slås på.</string>
+    <string name="lockdown_continue">Fortsätt</string>
 </resources>

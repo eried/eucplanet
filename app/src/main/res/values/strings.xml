@@ -2308,4 +2308,5 @@
     <string name="lockdown_warning_waits">Legal Mode is off, so nothing changes yet. The app locks the next time you switch Legal Mode on.</string>
     <string name="lockdown_warning_now">Legal Mode is on, so this takes effect now and the app locks immediately.</string>
     <string name="lockdown_warning_no_wheel">No wheel is connected, so the Legal Mode state is unknown. The app locks the next time Legal Mode is switched on.</string>
+    <string name="lockdown_continue">Continue</string>
 </resources>

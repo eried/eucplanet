@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,13 +20,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -101,6 +99,17 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
     }
 
     if (showDialog) {
+        // Two steps: read what it does, then set the code.
+        //
+        // One step could not work. The warning is long enough that the dialog
+        // filled the screen, and once the keyboard opened for a code field the
+        // other field was pushed off the bottom with no way to reach it. Sizing
+        // the warning from the IME insets fixed the reach and introduced a
+        // feedback loop instead: the dialog resized, which moved the field,
+        // which re-reported the insets, which resized it again, and the field
+        // flickered in and out of focus. Split in two, no dialog ever holds
+        // both a long scroll and a text field, so none of that arises.
+        var step by remember { mutableIntStateOf(STEP_WARNING) }
         var pin by remember { mutableStateOf("") }
         var confirm by remember { mutableStateOf("") }
         val validPin = LegalLockdownCode.isValidPin(pin)
@@ -119,33 +128,25 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
             containerColor = colors.dialog,
             title = { Text(stringResource(R.string.lockdown_title)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // Only the warning scrolls, so both code fields stay on
-                    // screen. Behind a wall of text the rider saw nothing but a
-                    // disabled Turn on button and no way forward.
-                    //
-                    // The cap collapses while the keyboard is up. At its full
-                    // height the dialog is taller than what is left above the
-                    // keyboard, which pushed the repeat field off the bottom
-                    // with no way to reach it.
-                    val imeUp = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+                if (step == STEP_WARNING) {
                     Column(
                         modifier = Modifier
-                            // Tall enough that the list obviously continues past
-                            // the fold rather than looking like it ends, but
-                            // still capped so the buttons are never pushed off a
-                            // short screen such as a flip cover.
-                            .heightIn(max = dialogContentMaxHeight(if (imeUp) 150 else 430))
+                            // Capped through the shared helper so the buttons
+                            // are never pushed off a short screen such as a
+                            // flip cover. No keyboard on this step, so the cap
+                            // can be generous and the list plainly reads as
+                            // continuing past the fold.
+                            .heightIn(max = dialogContentMaxHeight(430))
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        // What happens when the rider taps Turn on, which is not
-                        // the same question in all three states.
+                        // What happens on Turn on, which is not the same
+                        // question in all three states.
                         //
-                        // Disconnected is its own case on purpose: legal mode's
-                        // flag reads false with no wheel attached, so claiming
-                        // "Legal Mode is off" would be stating something the app
-                        // cannot actually know.
+                        // Disconnected is its own case on purpose: the legal
+                        // mode flag reads false with no wheel attached, so
+                        // saying it is off would state something the app does
+                        // not actually know.
                         when {
                             !connected -> InfoHint(
                                 text = stringResource(R.string.lockdown_warning_no_wheel),
@@ -185,80 +186,97 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                             color = colors.statusDanger
                         )
                     }
-                    OutlinedTextField(
-                        value = pin,
-                        onValueChange = { pin = it.filter { c -> c.isDigit() }.take(8) },
-                        label = { Text(stringResource(R.string.lockdown_set_code)) },
-                        placeholder = { Text(stringResource(R.string.lockdown_code_hint)) },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        // Enter moves to the repeat field. Left to itself the
-                        // key reached the dialog and dismissed it, losing a
-                        // half-entered code.
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.NumberPassword,
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { confirmFocus.requestFocus() }
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = confirm,
-                        onValueChange = { confirm = it.filter { c -> c.isDigit() }.take(8) },
-                        label = { Text(stringResource(R.string.lockdown_confirm_code)) },
-                        singleLine = true,
-                        isError = error != null,
-                        visualTransformation = PasswordVisualTransformation(),
-                        // Done only puts the keyboard away. Arming is a
-                        // deliberate tap on Turn on, never a stray Enter.
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.NumberPassword,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { focusManager.clearFocus() }
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(confirmFocus)
-                    )
-                    if (error != null) {
-                        Text(
-                            text = error,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.statusDanger
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = pin,
+                            onValueChange = { pin = it.filter { c -> c.isDigit() }.take(8) },
+                            label = { Text(stringResource(R.string.lockdown_set_code)) },
+                            placeholder = { Text(stringResource(R.string.lockdown_code_hint)) },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation(),
+                            // Enter moves to the repeat field. Left to itself
+                            // the key reached the dialog and dismissed it,
+                            // taking a half-typed code with it.
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.NumberPassword,
+                                imeAction = ImeAction.Next
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = { confirmFocus.requestFocus() }
+                            ),
+                            modifier = Modifier.fillMaxWidth()
                         )
+                        OutlinedTextField(
+                            value = confirm,
+                            onValueChange = { confirm = it.filter { c -> c.isDigit() }.take(8) },
+                            label = { Text(stringResource(R.string.lockdown_confirm_code)) },
+                            singleLine = true,
+                            isError = error != null,
+                            visualTransformation = PasswordVisualTransformation(),
+                            // Done only puts the keyboard away. Arming is a
+                            // deliberate tap on Turn on, never a stray Enter.
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.NumberPassword,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { focusManager.clearFocus() }
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(confirmFocus)
+                        )
+                        if (error != null) {
+                            Text(
+                                text = error,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.statusDanger
+                            )
+                        }
                     }
                 }
             },
             confirmButton = {
-                val savedMsg = stringResource(R.string.lockdown_trip_saved)
-                TextButton(
-                    enabled = validPin && matches,
-                    onClick = {
-                        scope.launch {
-                            val wasRecording = viewModel.isRecordingNow()
-                            if (viewModel.armLockdown(pin)) {
-                                showDialog = false
-                                // MainActivity swaps to the locked screen when
-                                // the armed flag flips, so there is nothing to
-                                // navigate to from here.
-                                if (wasRecording) snackbar?.showSnackbar(savedMsg)
+                if (step == STEP_WARNING) {
+                    TextButton(onClick = { step = STEP_CODE }) {
+                        Text(stringResource(R.string.lockdown_continue))
+                    }
+                } else {
+                    val savedMsg = stringResource(R.string.lockdown_trip_saved)
+                    TextButton(
+                        enabled = validPin && matches,
+                        onClick = {
+                            scope.launch {
+                                val wasRecording = viewModel.isRecordingNow()
+                                if (viewModel.armLockdown(pin)) {
+                                    showDialog = false
+                                    // MainActivity swaps to the locked screen
+                                    // if this engaged, so nothing to navigate.
+                                    if (wasRecording) snackbar?.showSnackbar(savedMsg)
+                                }
                             }
                         }
-                    }
-                ) { Text(stringResource(R.string.lockdown_arm)) }
+                    ) { Text(stringResource(R.string.lockdown_arm)) }
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
+                if (step == STEP_WARNING) {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                } else {
+                    TextButton(onClick = { step = STEP_WARNING }) {
+                        Text(stringResource(R.string.action_back))
+                    }
                 }
             }
         )
     }
 }
+
+private const val STEP_WARNING = 0
+private const val STEP_CODE = 1
 
 /**
  * Every limitation the rider is agreeing to, in display order.

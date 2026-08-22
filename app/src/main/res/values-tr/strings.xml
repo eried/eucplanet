@@ -2283,4 +2283,5 @@
     <string name="lockdown_warning_waits">Legal mod kapalı, bu yüzden henüz bir şey değişmiyor. Uygulama, legal modu bir sonraki açışında kilitlenir.</string>
     <string name="lockdown_warning_now">Legal mod açık, bu yüzden şimdi geçerli olur ve uygulama hemen kilitlenir.</string>
     <string name="lockdown_warning_no_wheel">Bağlı tekerlek yok, bu yüzden legal modun durumu bilinmiyor. Uygulama, legal mod bir sonraki açılışında kilitlenir.</string>
+    <string name="lockdown_continue">Devam</string>
 </resources>

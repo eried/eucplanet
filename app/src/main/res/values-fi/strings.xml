@@ -2089,4 +2089,5 @@
     <string name="lockdown_warning_waits">Legal-tila on pois päältä, joten mikään ei vielä muutu. Sovellus lukittuu, kun seuraavan kerran otat Legal-tilan käyttöön.</string>
     <string name="lockdown_warning_now">Legal-tila on päällä, joten tämä astuu voimaan heti ja sovellus lukittuu välittömästi.</string>
     <string name="lockdown_warning_no_wheel">Yhtään pyörää ei ole yhdistetty, joten Legal-tilan tila on tuntematon. Sovellus lukittuu, kun Legal-tila seuraavan kerran otetaan käyttöön.</string>
+    <string name="lockdown_continue">Jatka</string>
 </resources>

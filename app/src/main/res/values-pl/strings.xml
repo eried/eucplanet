@@ -2286,4 +2286,5 @@
     <string name="lockdown_warning_waits">Tryb legalny jest wyłączony, więc nic się jeszcze nie zmienia. Aplikacja zablokuje się przy następnym włączeniu trybu legalnego.</string>
     <string name="lockdown_warning_now">Tryb legalny jest włączony, więc zadziała to od razu i aplikacja zablokuje się natychmiast.</string>
     <string name="lockdown_warning_no_wheel">Brak połączonego koła, więc stan trybu legalnego jest nieznany. Aplikacja zablokuje się przy następnym włączeniu trybu legalnego.</string>
+    <string name="lockdown_continue">Dalej</string>
 </resources>
