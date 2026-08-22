@@ -12,6 +12,7 @@ import com.eried.eucplanet.data.store.SettingsJson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.json.JSONObject
+import kotlinx.coroutines.flow.first
 import java.io.File
 
 /**
@@ -95,6 +96,10 @@ class DropboxSyncWorker @AssistedInject constructor(
         val localFiles = tripRepository.getTripsDir()
             .listFiles { f -> f.isFile && f.name.endsWith(".csv", ignoreCase = true) }
             ?.toList().orEmpty()
+        // Current per-trip Dropbox state, to mark verified backups without
+        // rewriting rows that already say so on every pass.
+        val knownStatus = tripRepository.allTrips.first()
+            .associate { it.fileName.lowercase() to it.dropboxStatus }
         var anyFailed = false
         var uploaded = 0
         // How many trips still need uploading. A trip is "already up" when Dropbox
@@ -131,7 +136,22 @@ class DropboxSyncWorker @AssistedInject constructor(
             // and leave the flag/count alone - stopDropboxSync already cleared them.
             if (isStopped) return Result.success()
             val name = file.name
-            if (!needsUpload(file)) continue
+            if (!needsUpload(file)) {
+                // Not uploading because Dropbox already holds this trip - an
+                // identical copy, or a newer one edited elsewhere. That is a
+                // verified backup, so record it, with Dropbox's own date. The
+                // rows this fills are the old library: trips that were synced
+                // long before per-trip Dropbox state existed showed "not
+                // backed up yet" although the check right here had proved
+                // otherwise on every pass, and the answer was thrown away.
+                val known = knownStatus[name.lowercase()]
+                val remote = remoteTrips[name]
+                if (remote != null && known != null && known != 2) {
+                    tripRepository.setDropboxStatusByName(
+                        name, 2, remote.serverModifiedSec * 1000L)
+                }
+                continue
+            }
             tripRepository.setDropboxStatusByName(name, 1, null)
             val storedAtSec = dropboxRepository.uploadFileStamped("/trips/$name", file.readBytes())
             if (storedAtSec != null) {

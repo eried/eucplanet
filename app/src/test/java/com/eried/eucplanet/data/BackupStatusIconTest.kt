@@ -131,4 +131,29 @@ class BackupStatusIconTest {
         }.map { it.name }
         assertEquals("locales missing the backup strings: $missing", emptyList<String>(), missing)
     }
+
+    @Test fun `green is only shown when a backup holds the trip`() {
+        // The first cut fell through to green whenever nothing was failing or
+        // uploading, which put a green cloud on trips whose own tap message
+        // said "Not backed up yet".
+        val body = screen.substringAfter("private fun TripStatusIcon")
+        assertTrue(body.contains("backupHeld -> Icons.Default.CloudDone"))
+        assertTrue("an unbacked trip still reads green",
+            body.substringAfter("val icon = when {").substringBefore("}")
+                .lines().any { it.trim() == "else -> Icons.Default.Cloud" })
+        assertTrue("tapping an unbacked trip does not start the backup",
+            body.contains("!backupHeld && (folderConfigured || dropboxLinked) -> onRetryBackup()"))
+    }
+
+    @Test fun `the worker records the backups it verifies, with Dropbox's date`() {
+        // Trips synced before per-trip Dropbox state existed said "not backed
+        // up yet" while the worker proved the opposite on every pass and threw
+        // the answer away. The skip branch records what it verified - stamped
+        // with Dropbox's own date, not the time of the pass that noticed.
+        assertTrue(worker.contains("val known = knownStatus[name.lowercase()]"))
+        assertTrue("the mark does not use Dropbox's date",
+            worker.contains("name, 2, remote.serverModifiedSec * 1000L)"))
+        assertTrue("already-marked rows are rewritten every pass",
+            worker.contains("known != null && known != 2"))
+    }
 }

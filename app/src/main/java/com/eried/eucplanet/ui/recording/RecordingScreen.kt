@@ -834,15 +834,22 @@ private fun TripStatusIcon(
     // Nothing configured, nothing sent, nothing to say.
     if (!folderConfigured && !dropboxLinked && trip.eucstatsStatus == 0 && !backupHeld) return
 
+    // Green is a promise - a backup HOLDS this trip - so it is only shown
+    // when one does. The first cut fell through to green whenever nothing was
+    // failing or in flight, which put a green cloud on trips whose own tap
+    // message said "Not backed up yet". A trip in that state gets a muted
+    // cloud instead, and tapping it starts the backup.
     val icon = when {
         backupFailed -> Icons.Default.CloudOff
         backupWaiting -> Icons.Default.CloudQueue
-        else -> Icons.Default.CloudDone
+        backupHeld -> Icons.Default.CloudDone
+        else -> Icons.Default.Cloud
     }
     val tint = when {
         backupFailed -> MaterialTheme.appColors.statusDanger
         backupWaiting -> MaterialTheme.appColors.statusWarn
-        else -> MaterialTheme.appColors.statusGood
+        backupHeld -> MaterialTheme.appColors.statusGood
+        else -> MaterialTheme.appColors.textSecondary
     }
     // The whole story in one message: each part only speaks when it has
     // something to say, so a trip with no leaderboard life reads as before.
@@ -867,7 +874,9 @@ private fun TripStatusIcon(
     IconButton(onClick = {
         when {
             // A backup problem is the rider's to fix, so the tap acts on it.
+            // "Not backed up yet" is one of those problems: the tap sends it.
             backupFailed || backupWaiting -> onRetryBackup()
+            !backupHeld && (folderConfigured || dropboxLinked) -> onRetryBackup()
             // A failed leaderboard upload of an original ride can be retried.
             trip.eucstatsStatus == 3 -> onRetryOnline()
             // A held trip: re-ask the server for its verdict - asking is the
