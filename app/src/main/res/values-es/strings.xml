@@ -2282,4 +2282,5 @@
     <string name="lockdown_tiltback_alarm">Alarma de tiltback</string>
     <string name="lockdown_warning_waits">El Modo Legal está apagado, así que aún no cambia nada. La app se bloqueará la próxima vez que actives el Modo Legal.</string>
     <string name="lockdown_warning_now">El Modo Legal está activo, así que esto surte efecto ahora y la app se bloquea de inmediato.</string>
+    <string name="lockdown_warning_no_wheel">No hay rueda conectada, así que no se puede leer el Modo Legal. La app se bloqueará la próxima vez que se active el Modo Legal.</string>
 </resources>

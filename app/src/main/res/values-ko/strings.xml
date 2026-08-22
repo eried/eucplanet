@@ -2284,4 +2284,5 @@
     <string name="lockdown_tiltback_alarm">틸트백 알람</string>
     <string name="lockdown_warning_waits">리걸 모드가 꺼져 있어 아직 아무것도 바뀌지 않습니다. 다음에 리걸 모드를 켤 때 앱이 잠깁니다.</string>
     <string name="lockdown_warning_now">리걸 모드가 켜져 있어 지금 바로 적용되며 앱이 즉시 잠깁니다.</string>
+    <string name="lockdown_warning_no_wheel">연결된 휠이 없어 리걸 모드 상태를 읽을 수 없습니다. 다음에 리걸 모드를 켤 때 앱이 잠깁니다.</string>
 </resources>

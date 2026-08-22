@@ -32,7 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.LegalLockdownCode
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BluetoothDisabled
+import androidx.compose.material.icons.outlined.Warning
 import com.eried.eucplanet.ui.common.BulletPoint
+import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.LocalSnackbar
 import com.eried.eucplanet.ui.common.dialogContentMaxHeight
 import com.eried.eucplanet.ui.theme.appColors
@@ -56,6 +60,7 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
     val scope = rememberCoroutineScope()
     val armed by viewModel.legalLockdown.armed.collectAsState()
     val legalModeOn by viewModel.legalModeActive.collectAsState()
+    val connected by viewModel.isConnected.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -112,23 +117,35 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                     // button and no way forward.
                     Column(
                         modifier = Modifier
-                            // Shared cap, so the Turn on button is never
+                            // Tall enough that the list obviously continues
+                            // past the fold rather than looking like it ends,
+                            // but still capped so the Turn on button is never
                             // pushed off a short screen such as a flip cover.
-                            .heightIn(max = dialogContentMaxHeight(260))
+                            .heightIn(max = dialogContentMaxHeight(430))
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        // Arming normally just waits. With legal mode already on
-                        // there is nothing to wait for, so say so plainly before
-                        // the rider taps a button that locks the app on the spot.
-                        Text(
-                            text = stringResource(
-                                if (legalModeOn) R.string.lockdown_warning_now
-                                else R.string.lockdown_warning_waits
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (legalModeOn) colors.statusWarn else colors.textPrimary
-                        )
+                        // What happens when the rider taps Turn on, which is not
+                        // the same question in all three states.
+                        //
+                        // Disconnected is its own case on purpose: legal mode's
+                        // flag reads false with no wheel attached, so claiming
+                        // "Legal Mode is off" would be stating something the app
+                        // cannot actually know.
+                        when {
+                            !connected -> InfoHint(
+                                text = stringResource(R.string.lockdown_warning_no_wheel),
+                                icon = Icons.Outlined.BluetoothDisabled
+                            )
+                            legalModeOn -> InfoHint(
+                                text = stringResource(R.string.lockdown_warning_now),
+                                icon = Icons.Outlined.Warning,
+                                tint = colors.statusWarn
+                            )
+                            else -> InfoHint(
+                                text = stringResource(R.string.lockdown_warning_waits)
+                            )
+                        }
                         Spacer(Modifier.height(4.dp))
                         Text(
                             text = stringResource(R.string.lockdown_warning_intro),

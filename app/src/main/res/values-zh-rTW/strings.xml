@@ -2284,4 +2284,5 @@
     <string name="lockdown_tiltback_alarm">回傾警報</string>
     <string name="lockdown_warning_waits">合法模式已關閉，因此暫時不會有變化。下次開啟合法模式時應用程式才會鎖定。</string>
     <string name="lockdown_warning_now">合法模式已開啟，因此立即生效，應用程式會馬上鎖定。</string>
+    <string name="lockdown_warning_no_wheel">未連接輪子，因此無法讀取合法模式狀態。下次開啟合法模式時應用程式才會鎖定。</string>
 </resources>

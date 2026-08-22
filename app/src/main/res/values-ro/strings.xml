@@ -2088,4 +2088,5 @@
     <string name="lockdown_tiltback_alarm">Alarmă tiltback</string>
     <string name="lockdown_warning_waits">Modul legal este oprit, deci nu se schimbă nimic încă. Aplicația se va bloca data viitoare când pornești modul legal.</string>
     <string name="lockdown_warning_now">Modul legal este pornit, deci are efect acum și aplicația se blochează imediat.</string>
+    <string name="lockdown_warning_no_wheel">Nicio roată conectată, deci modul legal nu poate fi citit. Aplicația se va bloca data viitoare când modul legal este pornit.</string>
 </resources>

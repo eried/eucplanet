@@ -2305,4 +2305,5 @@
     <string name="lockdown_tiltback_alarm">Tiltback-Alarm</string>
     <string name="lockdown_warning_waits">Der Legal-Modus ist aus, es ändert sich also noch nichts. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_warning_now">Der Legal-Modus ist an, das wirkt also sofort und die App sperrt umgehend.</string>
+    <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Legal-Modus lässt sich also nicht auslesen. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
 </resources>

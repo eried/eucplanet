@@ -2289,4 +2289,5 @@
     <string name="lockdown_tiltback_alarm">Alarme tiltback</string>
     <string name="lockdown_warning_waits">Le mode légal est désactivé, rien ne change encore. L’application se verrouillera la prochaine fois que tu activeras le mode légal.</string>
     <string name="lockdown_warning_now">Le mode légal est actif, cela prend donc effet maintenant et l’application se verrouille immédiatement.</string>
+    <string name="lockdown_warning_no_wheel">Aucune roue connectée, le mode légal ne peut donc pas être lu. L’application se verrouillera à la prochaine activation du mode légal.</string>
 </resources>
