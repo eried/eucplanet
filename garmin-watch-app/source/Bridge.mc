@@ -13,7 +13,7 @@ using Toybox.Timer;
 //! wraps a control intent in `{Control.PAYLOAD_KEY: <intent>}` so the phone
 //! listener can route it the same way `PhoneGarminListenerService` does.
 class PhoneBridge {
-    //! Heartbeat timer. Fires every 5 s and transmits Control.ALIVE so the
+    //! Heartbeat timer. Fires every 1.5 s and transmits Control.ALIVE so the
     //! phone can drive its Live indicator from actual end-to-end delivery
     //! rather than CIQ sendMessage's misleading local-write success.
     private var _aliveTimer as Timer.Timer? = null;
@@ -51,7 +51,11 @@ class PhoneBridge {
         // indicator doesn't wait 5 s for the bridge to come up.
         sendAlive();
         _aliveTimer = new Timer.Timer();
-        _aliveTimer.start(method(:onAliveTick), 5000, /* repeat = */ true);
+        // 1.5 s, not the old 5 s: the phone's backlog cap only advances on our
+        // echoed seq, so a lazy heartbeat had the dial updating in 5 s clumps.
+        // Field-tested as fix-2: no crash, smoother dial. Still backpressured
+        // by _txBusy so a stalled transport can't stack frames in the queue.
+        _aliveTimer.start(method(:onAliveTick), 1500, /* repeat = */ true);
     }
 
     function stop() as Void {
@@ -104,6 +108,12 @@ class PhoneBridge {
             var sq = data.get(Keys.SEQ);
             if (sq instanceof Lang.Number) { _lastRxSeq = sq; }
             WatchState.update(data);
+            // Echo the seq right now instead of waiting for the heartbeat, so
+            // the phone's backlog cap releases as fast as we actually consume
+            // frames (fix-4). Backpressured by _txBusy: while a transmit is
+            // outstanding this is a no-op, so a frame burst can't overflow
+            // the CIQ outbound queue - the crash the cap exists to prevent.
+            sendAlive();
         } else if (kind.equals(Keys.KIND_WAKE)) {
             // The phone fires this whenever its app comes to foreground. The
             // phone separately calls ConnectIQ.openApplication() to actually

@@ -62,7 +62,12 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
                 return true;
             }
         }
-        return false;
+        // Consume the tap even when it hits nothing. Returning false here
+        // lets BehaviorDelegate promote an unhandled tap to onSelect - the
+        // same callback as the physical start button - so ANY screen touch
+        // fired the rider's Button 1 action (Fenix 8 field report: had to
+        // disable the touchscreen to stop mode changes from stray taps).
+        return true;
     }
 
     function onHold(evt as WatchUi.ClickEvent) as Lang.Boolean {
@@ -82,7 +87,10 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
                 return true;
             }
         }
-        return false;
+        // Same reasoning as onTap: never let an unhandled hold fall through
+        // to a behavior callback (onMenu on touch watches), which would fire
+        // the rider's Button 2 binding from a stray long-press.
+        return true;
     }
 
     function onBack() as Lang.Boolean {
