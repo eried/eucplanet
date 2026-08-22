@@ -32,7 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.LegalLockdownCode
+import com.eried.eucplanet.ui.common.BulletPoint
 import com.eried.eucplanet.ui.common.LocalSnackbar
+import com.eried.eucplanet.ui.common.dialogContentMaxHeight
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import kotlinx.coroutines.launch
@@ -106,7 +108,9 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                     // button and no way forward.
                     Column(
                         modifier = Modifier
-                            .heightIn(max = 260.dp)
+                            // Shared cap, so the Turn on button is never
+                            // pushed off a short screen such as a flip cover.
+                            .heightIn(max = dialogContentMaxHeight(260))
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
@@ -116,18 +120,11 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                             color = colors.textPrimary
                         )
                         for (limit in lockdownLimitStrings()) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text(
-                                    text = "-",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = colors.textSecondary
-                                )
-                                Text(
-                                    text = limit,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = colors.textSecondary
-                                )
-                            }
+                            BulletPoint(
+                                text = limit,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.textSecondary
+                            )
                         }
                         Spacer(Modifier.height(4.dp))
                         Text(

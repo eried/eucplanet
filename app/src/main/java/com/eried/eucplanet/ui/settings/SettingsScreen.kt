@@ -2040,11 +2040,11 @@ private fun AdvancedTab(
                     Spacer(Modifier.height(8.dp))
                     changed.forEach { spec ->
                         val u = if (spec.unit.isEmpty()) "" else " ${spec.unit}"
-                        Text(
-                            "•  ${stringResource(spec.label)}:  " +
+                        com.eried.eucplanet.ui.common.BulletPoint(
+                            text = "${stringResource(spec.label)}:  " +
                                 "${spec.format(spec.get(settings.advanced))}$u  →  " +
                                 "${spec.format(spec.get(ADVANCED_DEFAULTS))}$u",
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
                             modifier = Modifier.padding(vertical = 1.dp),
                         )
                     }

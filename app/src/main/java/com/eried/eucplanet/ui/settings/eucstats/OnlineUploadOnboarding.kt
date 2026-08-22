@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.eried.eucplanet.ui.common.BulletPoint
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.navigator.UserMarkerCropDialog
 import com.eried.eucplanet.ui.navigator.decodeDownsampledBitmap
@@ -161,11 +162,11 @@ fun OnlineUploadOnboardingDialog(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(4.dp))
-                    ConsentBullet(stringResource(R.string.online_upload_consent_bullet_name))
-                    ConsentBullet(stringResource(R.string.online_upload_consent_bullet_flag))
-                    ConsentBullet(stringResource(R.string.online_upload_consent_bullet_avatar))
-                    ConsentBullet(stringResource(R.string.online_upload_consent_bullet_stats))
-                    ConsentBullet(stringResource(R.string.online_upload_consent_bullet_location))
+                    BulletPoint(stringResource(R.string.online_upload_consent_bullet_name))
+                    BulletPoint(stringResource(R.string.online_upload_consent_bullet_flag))
+                    BulletPoint(stringResource(R.string.online_upload_consent_bullet_avatar))
+                    BulletPoint(stringResource(R.string.online_upload_consent_bullet_stats))
+                    BulletPoint(stringResource(R.string.online_upload_consent_bullet_location))
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = stringResource(R.string.online_upload_consent_no_raw_gps),
@@ -517,27 +518,6 @@ internal fun countryName(code: String): String =
     Locale("", code.uppercase()).displayCountry.ifBlank { code.uppercase() }
 
 // ---- Private helpers --------------------------------------------------------
-
-/** A single "•" bullet point for the consent list. */
-@Composable
-private fun ConsentBullet(text: String) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = "•",
-            color = MaterialTheme.appColors.primary,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = text,
-            color = MaterialTheme.appColors.textPrimary,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
-}
 
 /** Encode the cropped 64×64 avatar to a base64 PNG (no data-URL prefix). */
 private fun encodeBitmapToBase64(bitmap: Bitmap): String {
