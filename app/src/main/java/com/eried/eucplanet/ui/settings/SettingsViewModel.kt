@@ -382,6 +382,28 @@ class SettingsViewModel @Inject constructor(
             wheelRepository.setSpeed(s.tiltbackSpeedKmh.coerceAtLeast(value), value)
         }
     }
+    /**
+     * Arms Legal Mode Lockdown. Order matters: the rider's in-progress trip is
+     * finalised and saved BEFORE the recorder gate goes up, otherwise the
+     * partial ride is stranded by TripRepository.startRecording's own guard.
+     *
+     * Returns false on an invalid code, having changed nothing. Nothing here
+     * writes an AppSettings field: the lock lives in its own store, so the
+     * rider's configuration is untouched by arming.
+     */
+    /** Whether a trip is recording right now, read before arming so the arming
+     *  dialog can say the trip was saved rather than guessing. */
+    fun isRecordingNow(): Boolean = tripRepository.recording.value
+
+    suspend fun armLockdown(pin: String): Boolean {
+        if (!com.eried.eucplanet.data.repository.LegalLockdownCode.isValidPin(pin)) return false
+        if (tripRepository.recording.value) tripRepository.stopRecording()
+        // Force the wheel to the legal limits now. With no wheel connected this
+        // is a no-op and the limits are pushed on the next connect instead.
+        wheelRepository.enableSafetySpeed()
+        return legalLockdown.arm(pin)
+    }
+
     fun updateSafetyTiltback(value: Float) {
         // Legal Mode Lockdown: raising the legal limit would be the bypass.
         if (legalLockdown.isArmed()) return

@@ -541,6 +541,9 @@ fun SettingsScreen(
         stringResource(R.string.speed_tiltback),
         stringResource(R.string.speed_alarm),
         stringResource(R.string.section_legal_mode_speed),
+        stringResource(R.string.lockdown_title),
+        stringResource(R.string.lockdown_setting_label),
+        stringResource(R.string.lockdown_setting_desc),
         stringResource(R.string.speed_legal_tiltback),
         stringResource(R.string.speed_legal_alarm),
         stringResource(R.string.section_speed_calibration),
@@ -6749,6 +6752,7 @@ private fun SpeedTab(
             )
         }
 
+        LegalLockdownSetting(viewModel)
     }
 }
 
