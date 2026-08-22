@@ -120,6 +120,21 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
             !matches -> stringResource(R.string.lockdown_code_mismatch)
             else -> null
         }
+        val savedMsg = stringResource(R.string.lockdown_trip_saved)
+        // One action for the Turn on button and for Done on the last field, so
+        // finishing the form with the keyboard does the same thing as tapping.
+        val arm: () -> Unit = {
+            scope.launch {
+                val wasRecording = viewModel.isRecordingNow()
+                if (viewModel.armLockdown(pin)) {
+                    showDialog = false
+                    // MainActivity swaps to the locked screen if this engaged,
+                    // so there is nothing to navigate to from here.
+                    if (wasRecording) snackbar?.showSnackbar(savedMsg)
+                }
+            }
+            Unit
+        }
 
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -214,14 +229,19 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                             singleLine = true,
                             isError = error != null,
                             visualTransformation = PasswordVisualTransformation(),
-                            // Done only puts the keyboard away. Arming is a
-                            // deliberate tap on Turn on, never a stray Enter.
+                            // Done on the last field arms, the way finishing
+                            // any form with the keyboard submits it. It is
+                            // refused unless both codes are valid and match,
+                            // so it can only ever do what Turn on would.
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.NumberPassword,
                                 imeAction = ImeAction.Done
                             ),
                             keyboardActions = KeyboardActions(
-                                onDone = { focusManager.clearFocus() }
+                                onDone = {
+                                    focusManager.clearFocus()
+                                    if (validPin && matches) arm()
+                                }
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -243,20 +263,9 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                         Text(stringResource(R.string.lockdown_continue))
                     }
                 } else {
-                    val savedMsg = stringResource(R.string.lockdown_trip_saved)
                     TextButton(
                         enabled = validPin && matches,
-                        onClick = {
-                            scope.launch {
-                                val wasRecording = viewModel.isRecordingNow()
-                                if (viewModel.armLockdown(pin)) {
-                                    showDialog = false
-                                    // MainActivity swaps to the locked screen
-                                    // if this engaged, so nothing to navigate.
-                                    if (wasRecording) snackbar?.showSnackbar(savedMsg)
-                                }
-                            }
-                        }
+                        onClick = arm
                     ) { Text(stringResource(R.string.lockdown_arm)) }
                 }
             },

@@ -59,6 +59,18 @@ fun LockdownUnlockDialog(
 
     var pin by remember { mutableStateOf("") }
 
+    // One action for the Unlock button and for Done on the code field, so
+    // finishing with the keyboard does the same thing as tapping.
+    val unlock: () -> Unit = {
+        scope.launch {
+            // Right or wrong, the dialog closes. On success the armed flag
+            // flips and MainActivity swaps back to the nav graph on its own.
+            onTryUnlock(pin)
+            onDismiss()
+        }
+        Unit
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         // A stray tap must not drop a half-typed code.
@@ -95,15 +107,17 @@ fun LockdownUnlockDialog(
                     label = { Text(stringResource(R.string.lockdown_unlock_prompt)) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
-                    // Done only puts the keyboard away. Unlocking is a
-                    // deliberate tap, so a stray Enter cannot spend an attempt
-                    // or close the dialog out from under a half-typed code.
+                    // Done unlocks, the way finishing any form with the
+                    // keyboard submits it.
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.NumberPassword,
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = { focusManager.clearFocus() }
+                        onDone = {
+                            focusManager.clearFocus()
+                            if (pin.isNotEmpty()) unlock()
+                        }
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -112,15 +126,7 @@ fun LockdownUnlockDialog(
         confirmButton = {
             TextButton(
                 enabled = pin.isNotEmpty(),
-                onClick = {
-                    scope.launch {
-                        // Right or wrong, the dialog closes. On success the
-                        // armed flag flips and MainActivity swaps back to the
-                        // nav graph on its own, so there is nothing to navigate.
-                        onTryUnlock(pin)
-                        onDismiss()
-                    }
-                }
+                onClick = unlock
             ) { Text(stringResource(R.string.lockdown_unlock)) }
         },
         dismissButton = {
