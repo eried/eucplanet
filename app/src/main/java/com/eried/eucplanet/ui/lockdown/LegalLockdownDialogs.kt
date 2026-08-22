@@ -13,9 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -30,18 +29,18 @@ import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-/** How long the Unlock button stays disabled after a wrong code. */
-private const val WRONG_CODE_COOLDOWN_MS = 3_000L
 
 /**
  * The Speed limit dialog, and the only way out of Legal Mode Lockdown.
  *
- * Shows the real limits the wheel is being held to, then asks for the
- * manufacturer code. A wrong code costs a flat three seconds, which is what
- * makes walking a four digit PIN impractical at a stoplight.
+ * Shows the limits the wheel is being held to as read-only fields, then asks
+ * for the manufacturer code.
+ *
+ * A wrong code simply closes the dialog, with no message and nothing changed.
+ * That is deliberate: there is no error to read and no field left focused, so
+ * guessing means reopening the dialog and starting over every single time. It
+ * makes walking a four digit code a chore without ever locking anyone out.
  */
 @Composable
 fun LockdownUnlockDialog(
@@ -56,18 +55,6 @@ fun LockdownUnlockDialog(
     val context = androidx.compose.ui.platform.LocalContext.current
 
     var pin by remember { mutableStateOf("") }
-    var wrong by remember { mutableStateOf(false) }
-    var cooldownUntil by remember { mutableLongStateOf(0L) }
-    var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    LaunchedEffect(cooldownUntil) {
-        while (System.currentTimeMillis() < cooldownUntil) {
-            nowMs = System.currentTimeMillis()
-            delay(200)
-        }
-        nowMs = System.currentTimeMillis()
-    }
-    val cooling = nowMs < cooldownUntil
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -77,63 +64,70 @@ fun LockdownUnlockDialog(
         title = { Text(stringResource(R.string.lockdown_speed_limit_title)) },
         text = {
             Column {
-                LockdownInfoRow(
-                    stringResource(R.string.lockdown_vehicle_max_speed),
-                    formatSpeed(legalTiltbackKmh, speedUnit, context)
-                )
-                LockdownInfoRow(
-                    stringResource(R.string.lockdown_vehicle_alarm),
-                    formatSpeed(legalAlarmKmh, speedUnit, context)
-                )
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.lockdown_unlock_prompt),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.textSecondary
-                )
-                Spacer(Modifier.height(6.dp))
+                // Half and half, the same shape the Legal Tiltback / Legal Alarm
+                // pair uses in settings, so the two limits read as a pair. Both
+                // are read-only: this dialog reports them, it does not set them.
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ReadOnlySpeedField(
+                        label = stringResource(R.string.lockdown_action_speed_limit),
+                        value = formatSpeed(legalTiltbackKmh, speedUnit, context),
+                        modifier = Modifier.weight(1f)
+                    )
+                    ReadOnlySpeedField(
+                        label = stringResource(R.string.lockdown_vehicle_alarm),
+                        value = formatSpeed(legalAlarmKmh, speedUnit, context),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
                 OutlinedTextField(
                     value = pin,
                     onValueChange = {
                         // Digits only, and never longer than the longest code.
                         pin = it.filter { c -> c.isDigit() }.take(8)
-                        wrong = false
                     },
+                    label = { Text(stringResource(R.string.lockdown_unlock_prompt)) },
                     singleLine = true,
-                    isError = wrong,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     modifier = Modifier.fillMaxWidth()
                 )
-                if (wrong) {
-                    Text(
-                        text = stringResource(R.string.lockdown_wrong_code),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.statusDanger
-                    )
-                }
             }
         },
         confirmButton = {
             TextButton(
-                enabled = !cooling && pin.isNotEmpty(),
+                enabled = pin.isNotEmpty(),
                 onClick = {
                     scope.launch {
-                        if (!onTryUnlock(pin)) {
-                            wrong = true
-                            pin = ""
-                            cooldownUntil = System.currentTimeMillis() + WRONG_CODE_COOLDOWN_MS
-                            nowMs = System.currentTimeMillis()
-                        }
-                        // On success the armed flag flips and MainActivity swaps
-                        // back to the nav graph on its own. Nothing to do here.
+                        // Right or wrong, the dialog closes. On success the
+                        // armed flag flips and MainActivity swaps back to the
+                        // nav graph on its own, so there is nothing to navigate.
+                        onTryUnlock(pin)
+                        onDismiss()
                     }
                 }
             ) { Text(stringResource(R.string.lockdown_unlock)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_close)) }
         }
+    )
+}
+
+/** A limit shown the way it is edited elsewhere, but read-only. */
+@Composable
+private fun ReadOnlySpeedField(label: String, value: String, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(label) },
+        singleLine = true,
+        textStyle = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.End),
+        modifier = modifier
     )
 }
 

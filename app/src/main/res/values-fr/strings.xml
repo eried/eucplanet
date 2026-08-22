@@ -2253,9 +2253,8 @@
     <string name="lockdown_vehicle_alarm">Alarme</string>
     <string name="lockdown_vehicle_odometer">Compteur total</string>
     <string name="lockdown_speed_limit_title">Limite de vitesse</string>
-    <string name="lockdown_unlock_prompt">Déverrouiller avec le code fabricant</string>
+    <string name="lockdown_unlock_prompt">Code fabricant</string>
     <string name="lockdown_unlock">Déverrouiller</string>
-    <string name="lockdown_wrong_code">Code incorrect</string>
     <string name="lockdown_connect">Connecter</string>
     <string name="lockdown_setting_label">Mode verrouillé</string>
     <string name="lockdown_setting_desc">Verrouille l’application sur un écran simple</string>

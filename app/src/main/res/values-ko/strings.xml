@@ -2248,9 +2248,8 @@
     <string name="lockdown_vehicle_alarm">알람</string>
     <string name="lockdown_vehicle_odometer">총 주행거리</string>
     <string name="lockdown_speed_limit_title">속도 제한</string>
-    <string name="lockdown_unlock_prompt">제조사 코드로 잠금 해제</string>
+    <string name="lockdown_unlock_prompt">제조사 코드</string>
     <string name="lockdown_unlock">잠금 해제</string>
-    <string name="lockdown_wrong_code">코드가 올바르지 않습니다</string>
     <string name="lockdown_connect">연결</string>
     <string name="lockdown_setting_label">잠금 모드</string>
     <string name="lockdown_setting_desc">앱을 단순한 화면에 잠급니다</string>

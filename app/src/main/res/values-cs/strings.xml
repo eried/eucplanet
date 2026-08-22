@@ -2052,9 +2052,8 @@
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Tachometr</string>
     <string name="lockdown_speed_limit_title">Rychlostní limit</string>
-    <string name="lockdown_unlock_prompt">Odemkni kódem výrobce</string>
+    <string name="lockdown_unlock_prompt">Kód výrobce</string>
     <string name="lockdown_unlock">Odemknout</string>
-    <string name="lockdown_wrong_code">Nesprávný kód</string>
     <string name="lockdown_connect">Připojit</string>
     <string name="lockdown_setting_label">Režim zámku</string>
     <string name="lockdown_setting_desc">Uzamkne aplikaci na jednoduchou obrazovku</string>

@@ -2246,9 +2246,8 @@
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Kilometre sayacı</string>
     <string name="lockdown_speed_limit_title">Hız limiti</string>
-    <string name="lockdown_unlock_prompt">Üretici koduyla kilidi aç</string>
+    <string name="lockdown_unlock_prompt">Üretici kodu</string>
     <string name="lockdown_unlock">Kilidi aç</string>
-    <string name="lockdown_wrong_code">Hatalı kod</string>
     <string name="lockdown_connect">Bağlan</string>
     <string name="lockdown_setting_label">Kilit modu</string>
     <string name="lockdown_setting_desc">Uygulamayı basit bir ekrana kilitler</string>

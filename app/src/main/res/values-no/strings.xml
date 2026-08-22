@@ -2137,9 +2137,8 @@
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Kilometerstand</string>
     <string name="lockdown_speed_limit_title">Fartsgrense</string>
-    <string name="lockdown_unlock_prompt">Lås opp med produsentkode</string>
+    <string name="lockdown_unlock_prompt">Produsentkode</string>
     <string name="lockdown_unlock">Lås opp</string>
-    <string name="lockdown_wrong_code">Feil kode</string>
     <string name="lockdown_connect">Koble til</string>
     <string name="lockdown_setting_label">Låsemodus</string>
     <string name="lockdown_setting_desc">Låser appen til en enkel skjerm</string>

@@ -2251,9 +2251,8 @@
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Kilometerstand</string>
     <string name="lockdown_speed_limit_title">Snelheidslimiet</string>
-    <string name="lockdown_unlock_prompt">Ontgrendelen met fabrikantcode</string>
+    <string name="lockdown_unlock_prompt">Fabrikantcode</string>
     <string name="lockdown_unlock">Ontgrendelen</string>
-    <string name="lockdown_wrong_code">Onjuiste code</string>
     <string name="lockdown_connect">Verbinden</string>
     <string name="lockdown_setting_label">Vergrendelmodus</string>
     <string name="lockdown_setting_desc">Zet de app vast op een eenvoudig scherm</string>

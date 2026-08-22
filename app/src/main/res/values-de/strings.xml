@@ -2269,9 +2269,8 @@
     <string name="lockdown_vehicle_alarm">Alarm</string>
     <string name="lockdown_vehicle_odometer">Gesamtstrecke</string>
     <string name="lockdown_speed_limit_title">Tempolimit</string>
-    <string name="lockdown_unlock_prompt">Mit Herstellercode entsperren</string>
+    <string name="lockdown_unlock_prompt">Herstellercode</string>
     <string name="lockdown_unlock">Entsperren</string>
-    <string name="lockdown_wrong_code">Falscher Code</string>
     <string name="lockdown_connect">Verbinden</string>
     <string name="lockdown_setting_label">Sperrmodus</string>
     <string name="lockdown_setting_desc">Sperrt die App auf einen einfachen Bildschirm</string>

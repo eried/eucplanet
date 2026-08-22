@@ -2052,9 +2052,8 @@
     <string name="lockdown_vehicle_alarm">Hälytys</string>
     <string name="lockdown_vehicle_odometer">Kokonaismatka</string>
     <string name="lockdown_speed_limit_title">Nopeusrajoitus</string>
-    <string name="lockdown_unlock_prompt">Avaa valmistajan koodilla</string>
+    <string name="lockdown_unlock_prompt">Valmistajan koodi</string>
     <string name="lockdown_unlock">Avaa lukitus</string>
-    <string name="lockdown_wrong_code">Väärä koodi</string>
     <string name="lockdown_connect">Yhdistä</string>
     <string name="lockdown_setting_label">Lukitustila</string>
     <string name="lockdown_setting_desc">Lukitsee sovelluksen yksinkertaiseen näkymään</string>

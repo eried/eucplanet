@@ -2246,9 +2246,8 @@
     <string name="lockdown_vehicle_alarm">Alarma</string>
     <string name="lockdown_vehicle_odometer">Odómetro</string>
     <string name="lockdown_speed_limit_title">Límite de velocidad</string>
-    <string name="lockdown_unlock_prompt">Desbloquear con el código del fabricante</string>
+    <string name="lockdown_unlock_prompt">Código del fabricante</string>
     <string name="lockdown_unlock">Desbloquear</string>
-    <string name="lockdown_wrong_code">Código incorrecto</string>
     <string name="lockdown_connect">Conectar</string>
     <string name="lockdown_setting_label">Modo bloqueo</string>
     <string name="lockdown_setting_desc">Bloquea la app en una pantalla simple</string>

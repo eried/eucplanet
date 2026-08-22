@@ -2116,9 +2116,8 @@
     <string name="lockdown_vehicle_alarm">警报</string>
     <string name="lockdown_vehicle_odometer">总里程</string>
     <string name="lockdown_speed_limit_title">限速</string>
-    <string name="lockdown_unlock_prompt">使用厂商代码解锁</string>
+    <string name="lockdown_unlock_prompt">厂商代码</string>
     <string name="lockdown_unlock">解锁</string>
-    <string name="lockdown_wrong_code">代码不正确</string>
     <string name="lockdown_connect">连接</string>
     <string name="lockdown_setting_label">锁定模式</string>
     <string name="lockdown_setting_desc">把应用锁定在一个简化界面</string>

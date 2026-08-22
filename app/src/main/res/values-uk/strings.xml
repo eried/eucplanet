@@ -2246,9 +2246,8 @@
     <string name="lockdown_vehicle_alarm">Сигнал</string>
     <string name="lockdown_vehicle_odometer">Одометр</string>
     <string name="lockdown_speed_limit_title">Ліміт швидкості</string>
-    <string name="lockdown_unlock_prompt">Розблокувати кодом виробника</string>
+    <string name="lockdown_unlock_prompt">Код виробника</string>
     <string name="lockdown_unlock">Розблокувати</string>
-    <string name="lockdown_wrong_code">Невірний код</string>
     <string name="lockdown_connect">Підключити</string>
     <string name="lockdown_setting_label">Режим блокування</string>
     <string name="lockdown_setting_desc">Замикає застосунок на простому екрані</string>

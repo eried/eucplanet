@@ -2250,9 +2250,8 @@
     <string name="lockdown_vehicle_alarm">アラーム</string>
     <string name="lockdown_vehicle_odometer">総走行距離</string>
     <string name="lockdown_speed_limit_title">速度制限</string>
-    <string name="lockdown_unlock_prompt">メーカーコードで解除</string>
+    <string name="lockdown_unlock_prompt">メーカーコード</string>
     <string name="lockdown_unlock">解除</string>
-    <string name="lockdown_wrong_code">コードが違います</string>
     <string name="lockdown_connect">接続</string>
     <string name="lockdown_setting_label">ロックモード</string>
     <string name="lockdown_setting_desc">アプリをシンプルな画面に固定します</string>

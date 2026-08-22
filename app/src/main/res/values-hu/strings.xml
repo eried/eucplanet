@@ -2052,9 +2052,8 @@
     <string name="lockdown_vehicle_alarm">Riasztás</string>
     <string name="lockdown_vehicle_odometer">Kilométeróra</string>
     <string name="lockdown_speed_limit_title">Sebességkorlát</string>
-    <string name="lockdown_unlock_prompt">Feloldás a gyártói kóddal</string>
+    <string name="lockdown_unlock_prompt">Gyártói kód</string>
     <string name="lockdown_unlock">Feloldás</string>
-    <string name="lockdown_wrong_code">Hibás kód</string>
     <string name="lockdown_connect">Csatlakozás</string>
     <string name="lockdown_setting_label">Zárolt mód</string>
     <string name="lockdown_setting_desc">Egy egyszerű képernyőre zárja az appot</string>

@@ -30,6 +30,7 @@ import javax.inject.Inject
 class LegalLockdownViewModel @Inject constructor(
     private val wheelRepository: WheelRepository,
     settingsRepository: SettingsRepository,
+    tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     private val lockdown: LegalLockdownController
 ) : ViewModel() {
 
@@ -65,6 +66,17 @@ class LegalLockdownViewModel @Inject constructor(
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, Units.effectiveTempUnit(initialSettings))
+
+    /**
+     * The trip meter, not the wheel's own trip counter.
+     *
+     * Recording is stopped in this mode, and the meter is documented as
+     * independent of it: it counts while a wheel is connected. The wheel's TRIP
+     * would also keep counting, but it resets when the wheel is power cycled,
+     * which is exactly what a handover or a demo does.
+     */
+    val tripMeter: StateFlow<com.eried.eucplanet.data.model.TripMeterState> =
+        tripMeterRepository.state
 
     fun onHornPress() = wheelRepository.sendHorn()
 

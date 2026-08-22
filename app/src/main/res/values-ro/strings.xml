@@ -2052,9 +2052,8 @@
     <string name="lockdown_vehicle_alarm">Alarmă</string>
     <string name="lockdown_vehicle_odometer">Kilometraj</string>
     <string name="lockdown_speed_limit_title">Limită de viteză</string>
-    <string name="lockdown_unlock_prompt">Deblochează cu codul producătorului</string>
+    <string name="lockdown_unlock_prompt">Codul producătorului</string>
     <string name="lockdown_unlock">Deblochează</string>
-    <string name="lockdown_wrong_code">Cod incorect</string>
     <string name="lockdown_connect">Conectează</string>
     <string name="lockdown_setting_label">Mod blocare</string>
     <string name="lockdown_setting_desc">Blochează aplicația pe un ecran simplu</string>

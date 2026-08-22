@@ -2249,9 +2249,8 @@
     <string name="lockdown_vehicle_alarm">Larm</string>
     <string name="lockdown_vehicle_odometer">Mätarställning</string>
     <string name="lockdown_speed_limit_title">Hastighetsgräns</string>
-    <string name="lockdown_unlock_prompt">Lås upp med tillverkarkod</string>
+    <string name="lockdown_unlock_prompt">Tillverkarkod</string>
     <string name="lockdown_unlock">Lås upp</string>
-    <string name="lockdown_wrong_code">Fel kod</string>
     <string name="lockdown_connect">Anslut</string>
     <string name="lockdown_setting_label">Låsläge</string>
     <string name="lockdown_setting_desc">Låser appen till en enkel skärm</string>

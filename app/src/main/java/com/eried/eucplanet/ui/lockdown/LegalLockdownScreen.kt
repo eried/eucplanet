@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,11 +44,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.ui.dashboard.ConnectionDot
 import com.eried.eucplanet.ui.dashboard.SpeedGauge
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
@@ -77,6 +81,7 @@ fun LegalLockdownScreen(
     val speedUnit by viewModel.speedUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val tripMeter by viewModel.tripMeter.collectAsState()
     val deviceName by viewModel.connectedDeviceName.collectAsState()
     val brand by viewModel.connectedBrand.collectAsState()
     val model by viewModel.modelName.collectAsState()
@@ -111,14 +116,30 @@ fun LegalLockdownScreen(
                 .safeDrawingPadding()
                 .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            // Chrome: the Bluetooth icon and nothing else. No settings gear, no
-            // camera, GPS, PND or navigator icons, no warnings panel, no Flic
-            // indicator, no charging button.
+            // Chrome: the connection status and the Bluetooth icon, nothing
+            // else. No settings gear, no camera, GPS, PND or navigator icons,
+            // no warnings panel, no Flic indicator, no charging button.
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                ConnectionDot(connectionState)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = when (connectionState) {
+                        ConnectionState.CONNECTED -> stringResource(R.string.connection_connected)
+                        ConnectionState.CONNECTING -> stringResource(R.string.connection_connecting)
+                        ConnectionState.INITIALIZING -> stringResource(R.string.connection_initializing)
+                        ConnectionState.SCANNING -> stringResource(R.string.connection_scanning)
+                        ConnectionState.DISCONNECTED -> stringResource(R.string.connection_disconnected)
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                Spacer(Modifier.weight(1f))
                 IconButton(onClick = onNavigateToScan) {
                     Icon(
                         imageVector = if (connected) Icons.Default.BluetoothConnected
@@ -145,7 +166,8 @@ fun LegalLockdownScreen(
 
             // Six metrics, 2 columns x 3 rows, matching the app's own default
             // dashboardMetricsColumns of 2. The same six the catalog defaults
-            // to: BATTERY, TEMPERATURE, VOLTAGE, CURRENT, LOAD (PWM), TRIP.
+            // to, with the trip meter standing in for the wheel's own trip
+            // counter because recording is stopped and the meter is not.
             val metrics = listOf(
                 stringResource(R.string.metric_chip_battery) to "${wheelData.batteryPercent}%",
                 stringResource(R.string.metric_chip_temperature) to "%.0f%s".format(
@@ -155,8 +177,8 @@ fun LegalLockdownScreen(
                 stringResource(R.string.metric_chip_voltage) to "%.1fV".format(wheelData.voltage),
                 stringResource(R.string.metric_chip_current) to "%.1fA".format(wheelData.current),
                 stringResource(R.string.metric_chip_load) to "%.0f%%".format(wheelData.pwm),
-                stringResource(R.string.metric_chip_trip) to "%.2f %s".format(
-                    Units.distance(wheelData.tripDistance, distanceUnit),
+                stringResource(R.string.metric_chip_trip_meter) to "%.2f %s".format(
+                    Units.distance(tripMeter.distanceKm, distanceUnit),
                     Units.distanceUnit(distanceUnit)
                 )
             )
@@ -173,15 +195,22 @@ fun LegalLockdownScreen(
                 }
             }
 
-            Spacer(Modifier.weight(1f))
-
-            // Four buttons, 2 columns x 2 rows, so they line up under the six
-            // pills. The app's dashboardActionsColumns default is 3; this mode
-            // fixes it at 2 rather than reading the setting.
+            // Four buttons, 2 columns x 2 rows, lined up under the six pills.
+            // The app's dashboardActionsColumns default is 3; this mode fixes
+            // it at 2 rather than reading the setting. The block takes every
+            // pixel left over between the pills and the version line, so the
+            // targets are as big as the screen allows.
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 6.dp),
+                    .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 LockdownButton(
@@ -201,7 +230,9 @@ fun LegalLockdownScreen(
                 )
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 LockdownButton(
@@ -218,6 +249,8 @@ fun LegalLockdownScreen(
                     onClick = { showVehicle = true },
                     modifier = Modifier.weight(1f)
                 )
+            }
+
             }
 
             // Static. Tapping it does not open About in this mode.
@@ -318,7 +351,7 @@ private fun LockdownButton(
             disabledContainerColor = colors.surfaceVariant,
             disabledContentColor = colors.textDisabled
         ),
-        modifier = modifier.height(72.dp)
+        modifier = modifier.fillMaxHeight()
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, contentDescription = null)
