@@ -1864,6 +1864,12 @@ class WheelRepository @Inject constructor(
         // Seed the last-spoken state to the connect-time reading so the first
         // in-session toggle is detected as a change and announced.
         lastAnnouncedSafety = isLegalOn
+        // Legal Mode Lockdown can be armed with no wheel present, and a wheel
+        // that was power-cycled comes back at its normal limits. Push them back.
+        if (LockdownReapply.shouldReapply(legalLockdown.isArmed(), isLegalOn)) {
+            Log.i(TAG, "Lockdown armed, re-applying legal limits on connect")
+            enableSafetySpeed()
+        }
 
         Log.i(TAG, "Reconciled: wheel=$wTilt/$wAlarm → " +
                 "normal=${updated.tiltbackSpeedKmh}/${updated.alarmSpeedKmh} " +
@@ -2161,6 +2167,10 @@ class WheelRepository @Inject constructor(
                     }
                     if (confirmedSafety != null) {
                         _safetySpeedActive.value = confirmedSafety
+                        if (LockdownReapply.shouldReapply(legalLockdown.isArmed(), confirmedSafety)) {
+                            Log.i(TAG, "Lockdown armed, re-applying legal limits after readback")
+                            enableSafetySpeed()
+                        }
                         if (confirmedSafety != lastAnnouncedSafety) {
                             lastAnnouncedSafety = confirmedSafety
                             if (appSettings.announceSafetyMode) {
@@ -2295,4 +2305,16 @@ internal fun mergeBmsSlice(
         packs = (others + updated).sortedBy { it.packIndex },
         updatedAt = System.currentTimeMillis(),
     )
+}
+
+/**
+ * Whether a freshly connected wheel needs the legal limits pushed back onto it.
+ *
+ * Split out from the connect path so the rule is testable without a BLE stack.
+ * A wheel that was power-cycled, or one connected for the first time after the
+ * lock was armed with no wheel present, comes back reporting legal mode off.
+ */
+object LockdownReapply {
+    fun shouldReapply(armed: Boolean, wheelReportsLegalOn: Boolean): Boolean =
+        armed && !wheelReportsLegalOn
 }
