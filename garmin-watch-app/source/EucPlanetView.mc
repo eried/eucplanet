@@ -474,24 +474,46 @@ class EucPlanetView extends WatchUi.View {
         var leftX = (w * 36) / 100;
         var rightX = (w * 64) / 100;
 
-        var hornBg = enabled ? 0x29B6F6 : 0x1A1A1A;
-        var lightBg = (s.lightOn && enabled) ? 0xFFB400 : (enabled ? 0x444444 : 0x1A1A1A);
-        var iconSize = 24;
-        var iconOffset = iconSize / 2;
+        // A button shows whenever its slot is bound, and its face follows the
+        // BINDING: horn / light keep their icons, anything else shows the
+        // slot's numeral - the same "Button 1 / Button 2" the phone Settings
+        // names. The old fixed horn+light faces made a rebound slot invisible:
+        // a Fenix 8 rider bound Lock to touch Button 1, saw only a horn, and
+        // concluded touch didn't work at all.
+        drawTouchButton(dc, s, enabled, leftX, btnY, btnR, s.screen1Click, s.screen1Hold, "1");
+        drawTouchButton(dc, s, enabled, rightX, btnY, btnR, s.screen2Click, s.screen2Hold, "2");
+    }
 
-        if (s.hasHorn) {
-            dc.setColor(hornBg, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(leftX, btnY, btnR);
-            if (_iconHorn != null) {
-                dc.drawBitmap(leftX - iconOffset, btnY - iconOffset, _iconHorn);
-            }
+    //! One touch button face. [click]/[hold] are the slot's bindings; the
+    //! button is hidden only when both are NONE (slot fully unbound).
+    private function drawTouchButton(
+        dc as Graphics.Dc, s as WatchSnapshot, enabled as Lang.Boolean,
+        x as Lang.Number, y as Lang.Number, r as Lang.Number,
+        click as Lang.String, hold as Lang.String, numeral as Lang.String
+    ) as Void {
+        var bound = !(click.equals("NONE") && hold.equals("NONE"));
+        if (!bound) { return; }
+        var iconOffset = 24 / 2;
+
+        var bg;
+        var icon = null;
+        if (click.equals("LIGHT_TOGGLE")) {
+            bg = (s.lightOn && enabled) ? 0xFFB400 : (enabled ? 0x444444 : 0x1A1A1A);
+            icon = _iconLight;
+        } else if (click.equals("HORN")) {
+            bg = enabled ? 0x29B6F6 : 0x1A1A1A;
+            icon = _iconHorn;
+        } else {
+            bg = enabled ? 0x29B6F6 : 0x1A1A1A;
         }
-        if (s.hasLight) {
-            dc.setColor(lightBg, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(rightX, btnY, btnR);
-            if (_iconLight != null) {
-                dc.drawBitmap(rightX - iconOffset, btnY - iconOffset, _iconLight);
-            }
+        dc.setColor(bg, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, r);
+        if (icon != null) {
+            dc.drawBitmap(x - iconOffset, y - iconOffset, icon);
+        } else {
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(x, y, Graphics.FONT_TINY, numeral,
+                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
     }
 

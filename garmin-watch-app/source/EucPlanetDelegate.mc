@@ -53,14 +53,15 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
         var sw = settings.screenWidth;
         var sh = settings.screenHeight;
         if (y > (sh * 80) / 100) {
-            if (x < sw / 2 && s.hasHorn) {
+            // Zones follow the touch-slot BINDINGS, not the horn/light
+            // capability flags: a slot rebound to Lock (or anything else)
+            // keeps its tap target. dispatch() is a no-op for NONE.
+            if (x < sw / 2) {
                 _actions.dispatch(s.screen1Click);
                 return true;
             }
-            if (x >= sw / 2 && s.hasLight) {
-                _actions.dispatch(s.screen2Click);
-                return true;
-            }
+            _actions.dispatch(s.screen2Click);
+            return true;
         }
         // Consume the tap even when it hits nothing. Returning false here
         // lets BehaviorDelegate promote an unhandled tap to onSelect - the
