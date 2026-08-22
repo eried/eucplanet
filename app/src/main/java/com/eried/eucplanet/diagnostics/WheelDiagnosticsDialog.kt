@@ -709,10 +709,12 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()
     var active by remember { mutableStateOf<List<String>>(emptyList()) }
     var menuOpen by remember { mutableStateOf(false) }
-    // Time column mode, cycled by the header button: absolute clock, delta
-    // to the previous matching entry (gaps jump out), both, or none.
+    // Time column mode: absolute clock, delta to the previous matching
+    // entry (gaps jump out), both, or none. A combo so all options are
+    // visible at once instead of blind-cycling.
     val timeModes = listOf("Time", "Delta", "Both", "None")
     var timeMode by remember { mutableStateOf(0) }
+    var timeMenuOpen by remember { mutableStateOf(false) }
     val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
 
     val shown = remember(entries, active) {
@@ -744,10 +746,27 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
                 }
             }
             Spacer(Modifier.width(8.dp))
-            OutlinedButton(
-                shape = RoundedCornerShape(0.dp),
-                onClick = { timeMode = (timeMode + 1) % timeModes.size }
-            ) { Text(timeModes[timeMode]) }
+            Box {
+                OutlinedButton(
+                    shape = RoundedCornerShape(0.dp),
+                    onClick = { timeMenuOpen = true }
+                ) {
+                    Text(timeModes[timeMode])
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = timeMenuOpen,
+                    onDismissRequest = { timeMenuOpen = false }
+                ) {
+                    timeModes.forEachIndexed { i, m ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(if (i == timeMode) "$m ✓" else m) },
+                            onClick = { timeMode = i; timeMenuOpen = false }
+                        )
+                    }
+                }
+            }
             Spacer(Modifier.weight(1f))
             TextButton(
                 shape = RoundedCornerShape(0.dp),
