@@ -30,9 +30,9 @@ import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.Pending
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
@@ -779,7 +779,9 @@ private fun PendingStatusIcon() {
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
     IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
-        Icon(Icons.Default.Pending, contentDescription = msg, tint = MaterialTheme.appColors.statusWarn,
+        // Three plain dots. The filled Pending circle read as one more cloud
+        // state; Erwin picked this from the full candidate lineup instead.
+        Icon(Icons.Default.MoreHoriz, contentDescription = msg, tint = MaterialTheme.appColors.statusWarn,
             modifier = Modifier.size(20.dp))
     }
 }
