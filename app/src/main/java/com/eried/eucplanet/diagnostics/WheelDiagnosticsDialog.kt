@@ -68,6 +68,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -180,27 +181,59 @@ fun WheelDiagnosticsDialog(
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-                var tab by remember { mutableStateOf(0) }
-                TabRow(
-                    selectedTabIndex = tab,
-                    containerColor = MaterialTheme.colorScheme.background
-                ) {
-                    Tab(selected = tab == 0, onClick = { tab = 0 },
-                        text = { Text("Commands") })
-                    Tab(selected = tab == 1, onClick = { tab = 1 },
-                        text = { Text("Inspector") })
-                    Tab(selected = tab == 2, onClick = { tab = 2 },
-                        text = { Text("Raw") })
-                    Tab(selected = tab == 3, onClick = { tab = 3 },
-                        text = { Text("Watch") })
+                // Two sections so the tab row stays short: the wheel's own
+                // deep tools, and the accessory dashboards - dumb filtered
+                // views over what is already logged, costing nothing new.
+                var section by remember { mutableStateOf(0) }
+                var wheelTab by remember { mutableStateOf(0) }
+                var accTab by remember { mutableStateOf(0) }
+
+                Row(Modifier.fillMaxWidth()) {
+                    SectionButton("Wheel", section == 0, Modifier.weight(1f)) { section = 0 }
+                    SectionButton("Accessories", section == 1, Modifier.weight(1f)) { section = 1 }
+                }
+
+                if (section == 0) {
+                    TabRow(
+                        selectedTabIndex = wheelTab,
+                        containerColor = MaterialTheme.colorScheme.background
+                    ) {
+                        Tab(selected = wheelTab == 0, onClick = { wheelTab = 0 },
+                            text = { Text("Commands") })
+                        Tab(selected = wheelTab == 1, onClick = { wheelTab = 1 },
+                            text = { Text("Inspector") })
+                        Tab(selected = wheelTab == 2, onClick = { wheelTab = 2 },
+                            text = { Text("Raw") })
+                    }
+                } else {
+                    ScrollableTabRow(
+                        selectedTabIndex = accTab,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        edgePadding = 0.dp
+                    ) {
+                        listOf("Watch", "HUD", "GPS", "Flic", "Radar", "TPMS").forEachIndexed { i, t ->
+                            Tab(selected = accTab == i, onClick = { accTab = i },
+                                text = { Text(t) })
+                        }
+                    }
                 }
 
                 Box(modifier = Modifier.weight(1f, fill = true)) {
-                    when (tab) {
-                        0 -> CommandsTab(vm)
-                        1 -> InspectTab(vm)
-                        2 -> RawTab(vm)
-                        3 -> WearablesTab()
+                    if (section == 0) {
+                        when (wheelTab) {
+                            0 -> CommandsTab(vm)
+                            1 -> InspectTab(vm)
+                            2 -> RawTab(vm)
+                        }
+                    } else {
+                        when (accTab) {
+                            0 -> WearablesTab()
+                            1 -> LogDashboardTab(vm, listOf("hud_link:"), "HUD link")
+                            2 -> LogDashboardTab(vm, listOf("dragy:", "racebox", "external gps"), "external GPS")
+                            3 -> LogDashboardTab(vm, listOf("flic"), "Flic buttons")
+                            4 -> LogDashboardTab(vm, listOf("radar"), "radar")
+                            5 -> LogDashboardTab(vm, listOf("tpms"), "TPMS")
+                        }
                     }
                 }
             }
@@ -623,6 +656,76 @@ private fun shortInspectLabel(prefix: String, familyDisplayName: String): String
  * just clicked with whatever value the wheel's own UI is showing, useful
  * for finding unknown offsets like motor temp.
  */
+/** Half-width section switch, flat like the rest of the service dialog. */
+@Composable
+private fun SectionButton(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    TextButton(
+        shape = RoundedCornerShape(0.dp),
+        onClick = onClick,
+        modifier = modifier,
+        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+            containerColor = if (selected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = if (selected) MaterialTheme.colorScheme.onPrimary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    ) { Text(label) }
+}
+
+/**
+ * Dumb accessory dashboard: a live, filtered view over what the shared
+ * DiagnosticsLogger ALREADY records for one subsystem. No instrumentation
+ * of its own and no cost outside Service Mode - if a subsystem logs
+ * nothing yet, the tab says so instead of inventing data.
+ */
+@Composable
+private fun LogDashboardTab(
+    vm: WheelDiagnosticsViewModel,
+    prefixes: List<String>,
+    label: String,
+) {
+    val entries by vm.entries.collectAsState()
+    val shown = remember(entries, prefixes) {
+        entries.filter { e ->
+            (e.kind == DiagnosticsLogger.Kind.NOTE || e.kind == DiagnosticsLogger.Kind.INFO) &&
+                prefixes.any { p -> e.text.startsWith(p, ignoreCase = true) }
+        }.asReversed()
+    }
+    val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
+    if (shown.isEmpty()) {
+        Text(
+            "Nothing logged for $label yet.\n\nEverything this accessory writes to " +
+                "the shared log while Service Mode records shows up here live.",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(16.dp)
+        )
+        return
+    }
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        items(shown) { e ->
+            Row(modifier = Modifier.padding(vertical = 2.dp)) {
+                Text(
+                    timeFmt.format(java.util.Date(e.timestampMs)),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    e.text,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace
+                )
+            }
+        }
+    }
+}
+
 /**
  * Live wearable input events (Garmin + Wear OS). Watches only report while
  * Service Mode is recording - the diag flag rides the state frames - so this
