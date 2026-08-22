@@ -2284,51 +2284,25 @@
     <string name="lockdown_code_invalid">The code must be 4 to 8 digits</string>
     <string name="lockdown_arm">Turn on</string>
     <string name="lockdown_trip_saved">Trip saved. Recording stopped.</string>
-    <string name="lockdown_warning">This switches the app to a simple, locked screen. While it is on:
-
-
-
-- Legal mode speed limits are forced on and cannot be turned off, from the screen, a Flic button, the volume keys, the watch or the HUD.
-
-- The legal tiltback and alarm speeds cannot be changed.
-
-- Trip recording stops, and auto record will not start new trips.
-
-- Navigation stops and routes cannot be started.
-
-- The floating overlay is hidden.
-
-- Home screen widgets stop updating.
-
-- Service mode and diagnostics recording stop.
-
-- The dashboard is replaced by a fixed screen: speedometer, six metrics, four buttons.
-
-- The screen will not rotate.
-
-- Settings cannot be opened.
-
-- Trip history, the battery monitor, the studio and metric details cannot be opened.
-
-- Tapping a metric does nothing.
-
-- Voice announcements, periodic reports and accel splits are silent. Your alarms still work.
-
-- The wheel cannot be locked or unlocked, and proximity auto-lock will not run.
-
-- Auto lights and auto volume keep working. Media control stops.
-
-- The notification loses its buttons.
-
-- The version number will not open About.
-
-- This mode is not included in settings backups.
-
-
-
-Your settings are not changed. Everything comes back exactly as it is now when you unlock.
-
-
-
-The only way out is the manufacturer code, from the Speed limit button. If you lose that code, the only way to recover the app is to uninstall and reinstall it.</string>
+    <string name="lockdown_warning_intro">This switches the app to a simple, locked screen. While it is on:</string>
+    <string name="lockdown_limit_1">Legal mode speed limits are forced on and cannot be turned off, from the screen, a Flic button, the volume keys, the watch or the HUD.</string>
+    <string name="lockdown_limit_2">The legal tiltback and alarm speeds cannot be changed.</string>
+    <string name="lockdown_limit_3">Trip recording stops, and auto record will not start new trips.</string>
+    <string name="lockdown_limit_4">Navigation stops and routes cannot be started.</string>
+    <string name="lockdown_limit_5">The floating overlay is hidden.</string>
+    <string name="lockdown_limit_6">Home screen widgets stop updating.</string>
+    <string name="lockdown_limit_7">Service mode and diagnostics recording stop.</string>
+    <string name="lockdown_limit_8">The dashboard is replaced by a fixed screen: speedometer, six metrics, four buttons.</string>
+    <string name="lockdown_limit_9">The screen will not rotate.</string>
+    <string name="lockdown_limit_10">Settings cannot be opened.</string>
+    <string name="lockdown_limit_11">Trip history, the battery monitor, the studio and metric details cannot be opened.</string>
+    <string name="lockdown_limit_12">Tapping a metric does nothing.</string>
+    <string name="lockdown_limit_13">Voice announcements, periodic reports and accel splits are silent. Your alarms still work.</string>
+    <string name="lockdown_limit_14">The wheel cannot be locked or unlocked, and proximity auto-lock will not run.</string>
+    <string name="lockdown_limit_15">Auto lights and auto volume keep working. Media control stops.</string>
+    <string name="lockdown_limit_16">The notification loses its buttons.</string>
+    <string name="lockdown_limit_17">The version number will not open About.</string>
+    <string name="lockdown_limit_18">This mode is not included in settings backups.</string>
+    <string name="lockdown_warning_settings_safe">Your settings are not changed. Everything comes back exactly as it is now when you unlock.</string>
+    <string name="lockdown_warning_recovery">The only way out is the manufacturer code, from the Speed limit button. If you lose that code, the only way to recover the app is to uninstall and reinstall it.</string>
 </resources>

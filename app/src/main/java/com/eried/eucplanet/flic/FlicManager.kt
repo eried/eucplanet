@@ -323,6 +323,25 @@ class FlicManager @Inject constructor(
         _lastActionAt.value = System.currentTimeMillis()
         Log.d(TAG, "executeAction key=$key")
 
+        // Legal Mode Lockdown, checked first and before anything else.
+        //
+        // Every eyes-free surface (Flic, volume keys, the watch through
+        // PhoneWearListenerService, the HUD through HudCommandSink) and the
+        // dashboard tiles funnel through this function, so one allowlist here
+        // covers all of them. It sits above the custom-BLE branch because a
+        // rider's own raw frames could carry a speed-limit write, and above
+        // the catalog precondition because the lock can be armed with no wheel
+        // connected: checked after it, a legal-mode hotkey press with no wheel
+        // present would give silence instead of the dialog that explains the
+        // way out.
+        if (legalLockdown.isArmed() && !LockdownGate.isAllowed(key)) {
+            if (LockdownGate.raisesUnlockPrompt(key)) {
+                com.eried.eucplanet.ui.lockdown.LockdownPromptBus.request()
+            }
+            Log.i(TAG, "action $key blocked: legal mode lockdown armed")
+            return
+        }
+
         // Shared precondition gate (chokepoint A). Every eyes-free surface
         // funnels here, so this single check covers Flic, volume keys, the
         // dashboard tiles, the watch, the HUD long-press and Garmin `action:`.
@@ -349,17 +368,6 @@ class FlicManager @Inject constructor(
         )
         if (spec?.enabledReader?.invoke(ctx) == false) {
             Log.i(TAG, "action $key blocked: precondition not met (connected=$connected)")
-            return
-        }
-        // Legal Mode Lockdown. Every remote surface (Flic, volume keys, the
-        // watch through PhoneWearListenerService, the HUD through
-        // HudCommandSink) and the dashboard tiles funnel through this
-        // function, so one allowlist here covers all of them.
-        if (legalLockdown.isArmed() && !LockdownGate.isAllowed(key)) {
-            if (LockdownGate.raisesUnlockPrompt(key)) {
-                com.eried.eucplanet.ui.lockdown.LockdownPromptBus.request()
-            }
-            Log.i(TAG, "action $key blocked: legal mode lockdown armed")
             return
         }
         when (key) {

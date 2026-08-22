@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
@@ -104,6 +105,10 @@ fun LegalLockdownScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                // The activity is edge to edge, so without this the Bluetooth
+                // icon sits under the status bar and the version line under the
+                // gesture pill. Same treatment the Overlay Studio uses.
+                .safeDrawingPadding()
                 .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
             // Chrome: the Bluetooth icon and nothing else. No settings gear, no
@@ -131,7 +136,7 @@ fun LegalLockdownScreen(
                 maxSpeed = if (legalTiltback > 1f) legalTiltback else 25f,
                 speedUnit = speedUnit,
                 modifier = Modifier
-                    .fillMaxWidth(0.70f)
+                    .fillMaxWidth(0.78f)
                     .aspectRatio(1f)
                     .align(Alignment.CenterHorizontally)
             )
