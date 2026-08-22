@@ -21,6 +21,7 @@ import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.protocol.RadarTargetWire
+import com.eried.eucplanet.hud.protocol.StaleLink
 import com.eried.eucplanet.hud.protocol.WifiInterferenceDetector
 import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
@@ -123,6 +124,11 @@ class HudServer @Inject constructor(
          *  WiFi changed". Short: on the same LAN a listener answers in tens of
          *  ms, and the point is to beat the 15 s background ping window. */
         private const val PEER_PROBE_TIMEOUT_MS = 2_500
+        /** Minimum gap between "the beacon disagrees with our peer" probes.
+         *  Beacons land every 2 s, and one probe every few seconds catches a
+         *  moved HUD long before any heartbeat would while still leaving a
+         *  healthy link almost entirely alone. */
+        private const val BEACON_MISMATCH_PROBE_MS = 5_000L
         // Default carousel order shipped with all 12 known screens.
         // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
         // install gets a non-empty wire field on the first frame --
@@ -201,6 +207,18 @@ class HudServer @Inject constructor(
 
     /** Currently-registered ConnectivityManager callback; cleared on doStop. */
     @Volatile private var netCallback: ConnectivityManager.NetworkCallback? = null
+
+    /** WiFi networks that carry internet, i.e. the rider's own home / other AP
+     *  rather than the HUD's. The callback watches every WiFi network now (see
+     *  [registerNetworkCallback]), so this is what still tells a STA transition
+     *  apart from the HUD's own network coming and going. */
+    private val staNetworks: MutableSet<Network> =
+        java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap())
+
+    /** Last time a beacon disagreeing with the live peer sent us to check on it.
+     *  Beacons land every 2 s; one probe per [BEACON_MISMATCH_PROBE_MS] is
+     *  plenty to catch a moved HUD without probing on a loop. */
+    @Volatile private var lastBeaconMismatchProbeMs: Long = 0L
 
     /** Detects when the phone's OWN home/other Wi-Fi keeps interrupting the HUD
      *  link (single-radio channel-follow): correlates established-link drops
@@ -351,6 +369,7 @@ class HudServer @Inject constructor(
                     if (sighting != null &&
                         System.currentTimeMillis() - sighting.receivedAtMs < udpBeaconFreshnessMs
                     ) {
+                        checkPeerAgainstBeacon(sighting)
                         reconnectKick.trySend(Unit)
                     }
                 }
@@ -399,53 +418,82 @@ class HudServer @Inject constructor(
      *    starts from a clean slate instead of waiting for OkHttp to surface
      *    "Software caused connection abort" on the radio teardown.
      *
-     * Filter for WiFi-internet-capable networks so we don't react to every
-     * cellular or Bluetooth tether handoff that doesn't touch our reachability.
+     * Track every WiFi network, NOT only the internet-capable ones. Requiring
+     * NET_CAPABILITY_INTERNET here was a real bug: when the phone joins the HUD's
+     * own AP it joins a network with no internet, so the one network whose loss
+     * can strand this link was the one network this callback could never see,
+     * and `probePeerAfterNetworkLoss` never fired for the case it was written
+     * for. [HudUdpListener] already omits the capability for the same reason;
+     * these two now agree.
+     *
+     * This still cannot see a hotspot the PHONE is hosting, which the OS never
+     * surfaces as a Network at all. `checkPeerAgainstBeacon` is what covers a
+     * stale link in that direction, from the HUD's own announcements.
+     *
+     * The interference detector still wants only the rider's OWN home / other
+     * WiFi (a STA transition on a single radio re-tunes the hotspot and blips
+     * the HUD). Internet-capable WiFi is that signal, so it is tracked in
+     * [staNetworks] from the capability callback and fed from there, rather
+     * than from the request filter.
      */
     private fun registerNetworkCallback() {
         if (netCallback != null) return
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return
         val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .build()
         val cb = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 Log.i(TAG, "network onAvailable: kicking dial loop")
                 log("Network came up, retrying immediately")
+                reconnectKick.trySend(Unit)
+            }
+            override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
                 // The phone's own home/other Wi-Fi just (re)joined: on a single
                 // radio this re-tunes the hotspot and tends to drop the HUD a
                 // few seconds later. Feed the detector so a correlated drop is
                 // recognised as channel-follow, not a plain out-of-range loss.
-                wifiInterference.onStaTransition(System.currentTimeMillis())
-                reconnectKick.trySend(Unit)
+                // Read here, not in onAvailable, because capabilities are only
+                // known a beat after a network appears.
+                val internet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                if (internet) {
+                    if (staNetworks.add(network)) {
+                        wifiInterference.onStaTransition(System.currentTimeMillis())
+                    }
+                } else {
+                    staNetworks.remove(network)
+                }
             }
             override fun onLost(network: Network) {
-                Log.i(TAG, "network onLost: home WiFi gone")
-                wifiInterference.onStaTransition(System.currentTimeMillis())
+                val wasSta = staNetworks.remove(network)
+                Log.i(TAG, "network onLost (sta=$wasSta)")
+                if (wasSta) wifiInterference.onStaTransition(System.currentTimeMillis())
                 // If the live WS rode the network that just vanished, it is a
                 // zombie that OkHttp only notices at the ping window - 15 s in
                 // background, the whole "riding away from WiFi with a frozen
-                // HUD" gap. Probe and cut it now instead.
+                // HUD" gap. Probe and cut it now instead. Runs for EVERY WiFi
+                // network, including the HUD's own: that is the whole point.
                 probePeerAfterNetworkLoss()
             }
             override fun onLosing(network: Network, maxMsToLive: Int) {
-                // DO NOT close the WS here. This callback filters for
-                // TRANSPORT_WIFI + NET_CAPABILITY_INTERNET, so the only network
-                // it ever tracks is the rider's HOME WiFi (STA) -- the HUD link
-                // rides the phone's hotspot, which has no INTERNET capability and
-                // is never surfaced as a Network. The home WiFi going away (rider
-                // leaves range) does NOT affect the hotspot route, so closing the
-                // WS here is pure collateral damage: it tore down a perfectly good
-                // hotspot link the instant the rider walked out of home range.
-                // Just note it and let the dial loop / heartbeat handle any real
-                // drop. (Verified against the 2026-06-29 tester log: the link
-                // died via ping-timeout, NOT this path -- but this close was a
-                // latent amplifier waiting to fire.)
+                // DO NOT close the WS here, on either kind of network.
+                //
+                // For the rider's HOME WiFi (STA): the HUD link rides a separate,
+                // no-internet network, so home WiFi going away (rider leaves
+                // range) does NOT affect the HUD route, and closing here was pure
+                // collateral damage - it tore down a perfectly good link the
+                // instant the rider walked out of home range. (Verified against
+                // the 2026-06-29 tester log: the link died via ping-timeout, NOT
+                // this path, but this close was a latent amplifier.)
+                //
+                // For the HUD's own network: "losing" is a warning, not a loss.
+                // onLost is where we probe and cut, so acting a few seconds early
+                // here would just churn a link that may well not go away.
+                if (!staNetworks.contains(network)) return
                 Log.i(TAG, "network onLosing (${maxMsToLive}ms): home WiFi leaving; " +
-                    "leaving hotspot WS intact")
-                log("Home WiFi dropping in ${maxMsToLive}ms (hotspot link unaffected)")
+                    "leaving HUD link intact")
+                log("Home WiFi dropping in ${maxMsToLive}ms (HUD link unaffected)")
                 wifiInterference.onStaTransition(System.currentTimeMillis())
             }
         }
@@ -493,6 +541,40 @@ class HudServer @Inject constructor(
      * Probing can't hurt a healthy link, so this is safe on every onLost.
      */
     private fun probePeerAfterNetworkLoss() {
+        cutPeerIfUnreachable("WiFi lost")
+    }
+
+    /**
+     * A discovery beacon that names an address we are NOT connected to is the
+     * earliest evidence available that the live socket is half-open, and it
+     * arrives every 2 s while the rider waits.
+     *
+     * This is what the 2026-08-22 capture cost us. The HUD's WiFi re-formed on a
+     * new subnet, the phone kept holding a socket to the old address, and the
+     * HUD announced its new one from 15:12:47.745 onward. The phone received
+     * roughly six of those announcements and acted on none of them, because a
+     * beacon could only ever cancel a BACKOFF SLEEP ([delayOrKick]) and never
+     * preempt an established socket. The link came back only when the HUD's 12 s
+     * heartbeat gave up, after which the re-pair itself took 573 ms.
+     *
+     * We do not cut on the beacon alone. Two HUD interfaces, or a beacon we
+     * misread, must never cost a healthy link, so the disagreement only sends us
+     * to CHECK: the peer gets the same TCP probe a network loss triggers, and
+     * only an unreachable peer is cut. Probing cannot hurt a live link.
+     */
+    private fun checkPeerAgainstBeacon(sighting: HudUdpListener.Sighting) {
+        val peer = currentPeer ?: return
+        if (!StaleLink.beaconContradictsPeer(peer, sighting.ip, sighting.port)) return
+        val now = System.currentTimeMillis()
+        if (now - lastBeaconMismatchProbeMs < BEACON_MISMATCH_PROBE_MS) return
+        lastBeaconMismatchProbeMs = now
+        log("HUD announces ${sighting.ip}:${sighting.port} but we hold $peer - checking it")
+        cutPeerIfUnreachable("the HUD moved to ${sighting.ip}:${sighting.port}")
+    }
+
+    /** Probe [currentPeer] and cut the socket if nothing answers. [why] is the
+     *  reason that sent us looking, quoted back into the rider's trace. */
+    private fun cutPeerIfUnreachable(why: String) {
         val peer = currentPeer ?: return
         scope.launch {
             val host = peer.substringBefore(':')
@@ -504,7 +586,7 @@ class HudServer @Inject constructor(
                 }
             }.getOrDefault(false)
             if (!reachable && currentPeer == peer) {
-                log("WiFi lost and $peer stopped answering - reconnecting now")
+                log("$why, and $peer stopped answering - reconnecting now")
                 // cancel(), not close(): close() queues a frame on a transport
                 // that is already gone and still waits out the ping window.
                 // cancel() fails the socket immediately (onFailure fires).
@@ -999,6 +1081,13 @@ class HudServer @Inject constructor(
             }
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                 Log.i(TAG, "HUD link closing: $code $reason")
+                // The HUD hanging up was the ONE way this link could end without
+                // leaving a single line in the rider's capture, which is exactly
+                // how the 2026-08-22 report arrived: eleven silent seconds, then
+                // a search out of nowhere. It is the normal end of a half-open
+                // socket (the HUD's heartbeat gives up and closes), so it is the
+                // line most worth having.
+                log("HUD closed the link: $code ${reason.ifBlank { "(no reason given)" }}")
                 webSocket.close(1000, null)
             }
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {

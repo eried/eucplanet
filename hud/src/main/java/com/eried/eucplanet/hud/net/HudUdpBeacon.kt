@@ -1,6 +1,7 @@
 package com.eried.eucplanet.hud.net
 
 import android.util.Log
+import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -139,6 +140,9 @@ class HudUdpBeacon(
     /** First non-loopback IPv4 across the up interfaces. Re-walked each
      *  tick so a DHCP renew is reflected within one beacon interval. */
     private fun pickLocalIpv4(): String {
+        // Same debug override the HUD server honours, so a simulated address
+        // change is announced as well as acted on. See HudServer.pickLocalIp.
+        HudDebug.read(HudServer.DEBUG_IP_PROP)?.takeIf { it.isNotBlank() }?.let { return it }
         return runCatching {
             val ifs = NetworkInterface.getNetworkInterfaces() ?: return@runCatching ""
             while (ifs.hasMoreElements()) {

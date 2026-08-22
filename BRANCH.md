@@ -1,93 +1,139 @@
-# Legal Mode Lockdown
+# HUD: a half-open link is nobody's job to notice
 
-A manufacturer code that pins the app to a simple, locked screen and stops every
-surface from lifting the wheel's legal speed limits.
+Fixes the slow re-pair the tester reported on 2026-08-22: "seemed to take a
+minute to connect but still connected before the timeout".
+
+**HUD APK: updated, 0.1.12 -> 0.1.13. The tester needs both sides.**
 
 ## The problem
 
-Legal Mode already exists: the legal tiltback and alarm in Wheel parameters,
-toggled from the dashboard tile, a Flic button, the volume keys, the watch or the
-HUD. Any rider can switch it off in one tap.
+The capture (`diagnostics-20260822-151316.txt`, app 0.16.3/265, HUD 0.1.12,
+SM-F766U1 / Android 16) shows the whole incident in three numbers:
 
-For a wheel handed over by a shop or a distributor, or shown to a reviewer, that
-is not enough. The limits have to hold, and the app around them has to be simple
-enough that nothing else can be reached.
+```
+15:12:47.745  Beacon RX from 10.222.65.125 -> 10.222.65.125:28080 (#1)
+              ... 11.3 s, roughly six more beacons, not one line of trace ...
+15:12:59.060  Phone networks / Searching / UDP beacon: 10.222.65.125:28080
+15:12:59.633  Connected ✓
+```
+
+The phone knew exactly where the HUD was from 47.745 onward and did nothing
+with it for 11.3 s. Once it did look, the whole re-pair took **573 ms**.
+Discovery was never slow. Noticing the dead socket was.
+
+The HUD's Wi-Fi had re-formed on a new subnet (the stale saved address in
+settings still read `10.240.`), which left the phone holding a **half-open**
+socket. A TCP connection whose peer went away without a FIN stays open on both
+ends, so neither side could tell it from a live one, and every fast-re-pair
+mechanism on both sides turned out to be gated behind a heartbeat expiring:
+
+- HUD: Ktor ping 5 s, peer declared dead after 12 s. The 11.3 s is that timeout.
+- HUD watchdog: `verdict = if (status == CONNECTED) HEALTHY else assess(health)`.
+  A stale CONNECTED short-circuits it, so it never looked at the radio at all.
+  The capture proves it: the `HUD paired` line carries no `HUD self-heal:` note,
+  meaning no off-air episode was ever recorded.
+- Phone: OkHttp ping 5 s foreground, 15 s background, so up to 30 s. And
+  `webSocket.send()` keeps returning true for the better part of an hour,
+  because OkHttp buffers to 16 MiB and a frame is about a KB.
+- Phone: a fresh beacon kicks `delayOrKick`, which cancels a BACKOFF SLEEP. It
+  could never preempt an established socket.
+- Phone: `probePeerAfterNetworkLoss`, the one path that cuts a zombie, hung off
+  a `NetworkRequest` requiring `NET_CAPABILITY_INTERNET`. The HUD link rides a
+  network that by definition has none, so the rescue written for exactly this
+  case could never fire for it.
+
+Which end noticed first was a race between two timeouts. Nothing was watching
+the evidence both ends already had.
 
 ## What changed
 
-- **A new locked screen.** While armed the whole nav graph is replaced by
-  `LegalLockdownScreen`: the speedometer capped at the legal tiltback, six fixed
-  metrics in 2 x 3 (battery, temperature, voltage, amps, PWM, trip), and four big
-  buttons in 2 x 2 under them (horn, light, speed limit, vehicle). Only the
-  Bluetooth icon remains as chrome. The pills are inert, back does nothing, and
-  the screen is pinned to portrait.
-- **One gate, first in line.** `FlicManager.executeAction` is already the single
-  dispatch table for Flic, the volume keys, the watch and the HUD, so an allowlist
-  there covers every remote surface. It runs before the custom-BLE branch and
-  before the catalog precondition, so raw frames cannot slip through and a
-  legal-mode hotkey press with no wheel connected still opens the unlock dialog
-  rather than silently doing nothing. `WheelRepository` refuses the off direction
-  as a backstop.
-- **The limits follow the wheel.** Arming with no wheel present is allowed, and
-  the legal limits are pushed on every connect and after every settings readback.
-- **The rider's settings are never touched.** The lock lives in its own DataStore
-  file, not in `AppSettings`, so the arm and disarm paths never call
-  `SettingsRepository.update()`. Unlocking gives back the exact dashboard layout,
-  action order, rotation behaviour and auto-lights state the rider had.
+Three layers, each acting on evidence rather than on a timer.
 
-## Why the state is not an AppSettings field
+- **The HUD hangs up when its own address moves** (`refreshIpAndMdns`). A socket
+  the phone opened on the old address cannot still be good, so this is proof,
+  not suspicion. It already detected the change to refresh mDNS and kick the
+  beacon; now it also drops the connection. This is the root-cause fix.
+- **The phone checks when a beacon disagrees with its peer.** A beacon naming an
+  address we are not connected to is the earliest evidence available, and it
+  arrives every 2 s. It does not cut on the beacon alone: two HUD interfaces or
+  a misread packet must never cost a healthy link, so the disagreement triggers
+  the same TCP probe a network loss does, and only an unreachable peer is cut.
+- **The phone watches every Wi-Fi network, not just internet-capable ones.**
+  `NET_CAPABILITY_INTERNET` is dropped from the request, so `onLost` for the
+  HUD's own network now reaches the peer probe. The interference detector still
+  wants only real STA transitions, so internet-capable networks are tracked in
+  `staNetworks` from `onCapabilitiesChanged` and it is fed from there.
+  `HudUdpListener` already omitted the capability; these two now agree.
 
-Everything in `AppSettings` flows through `SettingsJson` and `SyncManager`, and
-the restore path overwrites the device's current values from the payload. A
-lockdown flag living there would be cleared by restoring any older backup, which
-is a one-tap bypass of the whole feature. Its own store makes that impossible by
-construction rather than by remembering to strip a field in two places. It is
-also excluded from Android auto-backup and device transfer, so the lock does not
-ride a cloud backup onto a new phone and a reinstall is genuinely clean.
+Plus the two reasons this was nearly undiagnosable:
 
-## What stops while armed
+- **The link trace records whether or not anyone is watching.**
+  `DiagnosticsLogger.note` is a no-op until Service Mode opens, so a capture
+  only ever began when the rider went looking, and the run-up, where the answer
+  was, had never been recorded. `HudLinkTrace` keeps the last 600 link lines
+  always (well under 100 KB, and nothing at all while a link is healthy) and
+  replays them into the capture with their original timestamps. Raw BLE stays
+  opt-in; that is the firehose this ring is deliberately not.
+- **`onClosing` now writes to the trace.** The HUD hanging up was the one way
+  this link could end leaving no line at all, which is exactly how the report
+  arrived: eleven silent seconds and then a search out of nowhere.
 
-Trip recording and auto-record, navigation, the floating overlay, home screen
-widgets, service mode and diagnostics recording, the notification's action
-buttons, media control, and proximity auto-lock. The wheel cannot be locked or
-unlocked at all.
+`StaleLink` in `hud-protocol` holds both predicates, pure and shared, next to
+`LinkWatchdog`.
 
-Voice splits cleanly: `AlarmEngine` speaks through `VoiceService.speak`, so the
-rider's own alarms still fire, while `announceEvent`, `announceTrigger` and
-`announceStatus` go quiet. Those are the ones that would say "legal mode" or
-"recording".
+## Verified on device
 
-Auto lights and auto volume keep running. The light button skips
-`notifyManualLightChange()` while armed, so a temporary mode never leaves
-auto-lights suspended for the rest of the session.
+HTC U23 pro (Android 13), both APKs on the one device so the beacon, the
+discovery and the WebSocket are all real. `setprop debug.eucplanet.hud.ip
+<addr>` (new, follows the existing `HudDebug` pattern) simulates the HUD moving
+between APs, which is otherwise only reproducible by carrying it between two.
 
-## Recovery
+Forcing the address change on a link whose socket was perfectly healthy, which
+under the old code would never have recovered at all:
 
-There is no backdoor. The arming dialog lists all eighteen limitations and states
-plainly that losing the code means uninstalling and reinstalling.
+```
+23:06:14.549 phone  HUD announces .99:28080 but we hold .75:28080 - checking it
+                    -> probes .75, finds it REACHABLE, correctly does NOT cut
+23:06:22.378 HUD    local IP changed 192.168.212.75 -> 192.168.212.99
+23:06:22.381 HUD    dropping the phone connection: HUD address changed        (+3 ms)
+23:06:22.405 phone  HUD closed the link: 1001 HUD address changed             (+27 ms)
+23:06:22.423 phone  Searching (all channels in parallel)  - no backoff        (+45 ms)
+23:06:24.869 phone  Connected ✓                                              (2.49 s total)
+```
 
-## Verified
+The trace replay, entering Service Mode at 23:10:07:
 
-`./gradlew :app:testDebugUnitTest`: 741 tests, 0 failures. `:app:assembleDebug`
-BUILD SUCCESSFUL.
+```
+104 entries, oldest 23:05:35.551 NOTE hud_link: Link enabled, starting discovery
+```
 
-On a clean `legalmode` AVD (Pixel 7, API 36.1), in English and German:
+4.5 minutes of history that under the old code would not have existed.
 
-- The row sits under Legal mode speed. Turning it on lists every limitation and
-  takes the code twice. A mismatch and a 3-digit code are both refused.
-- Arming lands on the locked screen. Six pills 2 x 3, four buttons 2 x 2, gauge
-  capped at the legal tiltback, static version line.
-- Metric pills do nothing, with no ripple. Back does nothing.
-- Forcing `user_rotation` to landscape leaves the display at 1080x2400.
-- Speed limit shows the real limit and alarm. A wrong code shows "Incorrect code"
-  and disables Unlock for 3 seconds. Vehicle with no wheel shows the connect line.
-- Force-stop and relaunch comes back locked.
-- Volume-down bound to Legal OFF, with no wheel connected: refused, and the
-  unlock dialog opens by itself.
-- The correct code returns the dashboard identical to before arming: same metric
-  order, same six action tiles in three columns, same units and gauge.
+## Tests
 
-Not exercised on device, since no wheel can be connected to an emulator: the
-recorder, navigation, overlay, widget and notification suppression, and the
-push-limits-on-connect path. Those are single guarded early-returns on the armed
-flag.
+- `:hud-protocol:testDebugUnitTest` - `StaleLinkTest`, both predicates including
+  every "do not cut" case (agreeing beacon, no peer, unparseable peer, first
+  address of a session, lost lease).
+- `:app:testDebugUnitTest` - `HudLinkTraceTest`, the ring and its replay:
+  recorded-before-open reaches the capture, timestamps and ordering survive,
+  bounded, and reopening Service Mode never duplicates a line.
+- `app/build.gradle.kts` gains `testOptions.unitTests.isReturnDefaultValues`, so
+  a JVM test crossing `android.util.Log` no-ops instead of throwing. Full app
+  suite re-run green with it.
+
+## Still open, deliberately not in this branch
+
+Found while reading, each real and each its own change:
+
+- `HudUdpListener.runListenLoop` ends on `while (job?.isCancelled == false)`,
+  but `onAvailable` has already reassigned `job` to the replacement, so the old
+  loop parks forever in an uncancellable `socket.receive()` and never closes its
+  socket. One `Dispatchers.IO` slot and one FD leaked per Wi-Fi transition.
+  Visible in the device log above as two `bound to 0.0.0.0:28079` lines.
+- `HudSubnetProbe` runs 64 concurrent blocking connects on `Dispatchers.IO`,
+  whose total parallelism is 64, so a sweep can starve every other IO coroutine
+  in the app. Wants its own `limitedParallelism`.
+- The malformed saved address `"10.240."` in the tester's settings. AUTO ignores
+  it, but BOTH mode would race it as a peer after 1.5 s.
+- `hud/HUD_TESTING.md` still documents the pre-0.1.4 architecture where the
+  phone was the server.

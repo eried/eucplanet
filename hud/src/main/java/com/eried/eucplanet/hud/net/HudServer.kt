@@ -16,18 +16,22 @@ import com.eried.eucplanet.hud.protocol.LinkHealth
 import com.eried.eucplanet.hud.protocol.LinkVerdict
 import com.eried.eucplanet.hud.protocol.LinkWatchdog
 import com.eried.eucplanet.hud.protocol.RecoveryStep
+import com.eried.eucplanet.hud.protocol.StaleLink
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import io.ktor.websocket.send
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
@@ -42,6 +46,7 @@ import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.Inet4Address
@@ -92,6 +97,13 @@ class HudServer(private val context: Context) {
         private const val TCP_PROBE_TIMEOUT_MS: Int = 1_500
         /** Wake-lock tag; shows up in `dumpsys power` for debugging. */
         private const val WAKE_LOCK_TAG = "eucplanet-hud:server"
+        /** How long a deliberate hang-up waits for the close frame to land
+         *  before the session is cancelled outright. Short: on a live link a
+         *  close is sub-10ms on this LAN, and the case we are hanging up on is
+         *  precisely the one where the peer will never answer. */
+        private const val CLOSE_GRACE_MS: Long = 750L
+        /** Debug-only local-address override, see [pickLocalIp]. */
+        const val DEBUG_IP_PROP = "debug.eucplanet.hud.ip"
         /** Faster watchdog cadence once the link looks unhealthy, so an
          *  off-air radio is detected and the recovery ladder escalates within
          *  seconds instead of the lazy 10 s healthy interval. Tightened from 3 s
@@ -225,6 +237,11 @@ class HudServer(private val context: Context) {
      *  handler doesn't clobber the status/peer of a newer connection that
      *  arrived during a fast reconnect. */
     private val connSeq = java.util.concurrent.atomic.AtomicInteger(0)
+
+    /** The phone's live WebSocket session, so [dropPhoneConnection] can end it
+     *  the moment we learn it cannot possibly still be good. Cleared by the
+     *  handler's own finally, guarded by [connSeq] like the status is. */
+    @Volatile private var liveSession: io.ktor.server.websocket.DefaultWebSocketServerSession? = null
     // Always-on UDP broadcast beacon so the phone can find us on networks
     // where mDNS multicast is blocked (most phone hotspots, every carrier
     // mobile hotspot). Runs in parallel with the mDNS advertise -- whichever
@@ -279,6 +296,7 @@ class HudServer(private val context: Context) {
                     Log.i(TAG, "phone connected: $remote (#$myConn)")
                     _peer.value = remote
                     _status.value = Status.CONNECTED
+                    liveSession = this
                     // Diagnostic: remember the phone IP across reconnects
                     // so the HUD-side stats card can show "last phone: X"
                     // even after the link drops.
@@ -376,6 +394,7 @@ class HudServer(private val context: Context) {
                         if (connSeq.get() == myConn) {
                             _peer.value = null
                             _status.value = Status.LISTENING
+                            liveSession = null
                         }
                     }
                 }
@@ -667,6 +686,14 @@ class HudServer(private val context: Context) {
         val prior = _localIp.value
         if (!current.isNullOrBlank() && current != prior) {
             HudDiag.log("watchdog", "local IP changed $prior -> $current; refreshing mDNS")
+            // Our address moved, so whatever socket the phone opened on the old
+            // one is dead. Say so now instead of letting it time out: this is
+            // the fix for the 2026-08-22 report, where the phone sat on exactly
+            // such a socket for the full 12 s heartbeat while we announced the
+            // new address every 2 s, then re-paired in 573 ms once it let go.
+            if (StaleLink.hudAddressChanged(prior, current)) {
+                dropPhoneConnection("HUD address changed $prior -> $current")
+            }
             _localIp.value = current
             try { jmdns?.close() } catch (_: Throwable) {}
             jmdns = null
@@ -680,6 +707,35 @@ class HudServer(private val context: Context) {
         } else if (jmdns == null && !current.isNullOrBlank()) {
             HudDiag.log("watchdog", "mDNS advertise was down; reviving")
             startMdnsAdvertise()
+        }
+    }
+
+    /**
+     * End the phone's WebSocket now, because we know something that makes it
+     * impossible for it to still be good (today: our own address moved).
+     *
+     * A half-open socket is the expensive case. Neither end can tell one from a
+     * live one, so both sit on it until a heartbeat expires, and while they do,
+     * every fast-re-pair path on both sides is blocked: our watchdog reads the
+     * stale CONNECTED status and short-circuits to HEALTHY, and the phone cannot
+     * act on the beacons it is receiving. Closing takes that whole wait away,
+     * and the phone treats a close as "try again straight away" with no backoff.
+     *
+     * Graceful first so the phone gets the fast path, then cancelled: a close
+     * frame written to a transport whose peer is already gone would otherwise
+     * wait out the very timeout we are here to avoid.
+     */
+    private fun dropPhoneConnection(why: String) {
+        val session = liveSession ?: return
+        liveSession = null
+        HudDiag.log("watchdog", "dropping the phone connection: $why")
+        scope.launch {
+            runCatching {
+                withTimeoutOrNull(CLOSE_GRACE_MS) {
+                    session.close(CloseReason(CloseReason.Codes.GOING_AWAY, why))
+                }
+            }
+            runCatching { session.cancel() }
         }
     }
 
@@ -815,6 +871,14 @@ class HudServer(private val context: Context) {
      *  Motoeye E6 this is the wlan0 interface joining the rider's hotspot;
      *  on the emulator it's whatever the host gave us. */
     private fun pickLocalIp(): String? = try {
+        // Test harness: `setprop debug.eucplanet.hud.ip 10.0.0.9` makes the HUD
+        // report a different address from the next watchdog tick on, which is
+        // the trigger for [dropPhoneConnection]. Without it, exercising an
+        // address change means physically carrying the HUD between two APs, so
+        // the one fix that matters most here would never be verified on
+        // hardware. Read live (not cached) so it can be set mid-session.
+        // See HudDebug: nothing reads this unless a developer sets it.
+        HudDebug.read(DEBUG_IP_PROP)?.takeIf { it.isNotBlank() } ?:
         NetworkInterface.getNetworkInterfaces().asSequence()
             .filter { it.isUp && !it.isLoopback }
             .flatMap { it.inetAddresses.asSequence() }
