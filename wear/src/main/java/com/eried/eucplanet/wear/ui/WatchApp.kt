@@ -753,11 +753,13 @@ private fun ConfigurableActionButton(
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
+                            sendDebugEvent(context, "tapButton act=$clickAction")
                             fireAction(context, state, clickAction, showToast = false)
                         }
                     },
                     onLongPress = if (holdAction != "NONE") {
                         {
+                            sendDebugEvent(context, "holdButton act=$holdAction")
                             fireAction(context, state, holdAction, showToast = true)
                         }
                     } else null
@@ -783,6 +785,23 @@ private fun ConfigurableActionButton(
  * uses the `action:<FlicAction>` prefix that the phone routes through
  * FlicManager.dispatchActionByName.
  */
+/**
+ * Input-event report for the phone's Service Mode Wearables tab. No-op
+ * unless the phone flagged diag recording in the state frames, so a normal
+ * ride sends nothing extra over the Data Layer.
+ *
+ * Reads the LIVE repository state, not a composable-captured snapshot: the
+ * tap handlers' pointerInput closure only restarts on the binding keys, so
+ * a captured state would still hold diagOn=false from before Service Mode
+ * was switched on (found by the emulator gate test).
+ */
+private fun sendDebugEvent(context: Context, msg: String) {
+    if (!com.eried.eucplanet.wear.bridge.WatchStateRepository.state.value.diagOn) return
+    com.eried.eucplanet.wear.bridge.WatchStateRepository.sendControl(
+        context, WatchControl.DEBUG_PREFIX + msg
+    )
+}
+
 private fun fireAction(
     context: Context,
     state: WatchState,

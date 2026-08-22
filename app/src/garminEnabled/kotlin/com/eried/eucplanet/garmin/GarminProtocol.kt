@@ -71,6 +71,11 @@ internal object GarminKeys {
 
     const val HAPTIC_ON_ACTION = "hap"
 
+    /** True while the phone's Service Mode is recording. The watch reports
+     *  its input events (debug: prefix) only while this is set, so riders
+     *  who never open Service Mode get zero extra watch->phone traffic. */
+    const val DIAG = "dg"
+
     const val NAV_ACTIVE = "na"
     const val NAV_ANGLE = "ng"
     const val NAV_PRIMARY = "np"
@@ -109,6 +114,10 @@ internal object GarminControl {
      *  frames. After 30 s without an ack the bridge resets the CIQ
      *  transport so a fresh socket can land. */
     const val ALIVE = "alive"
+    /** Input-event report from the watch (tap coords, key codes, which
+     *  binding fired). Only sent while [GarminKeys.DIAG] is true in the
+     *  state frames, i.e. while Service Mode is recording. */
+    const val DEBUG_PREFIX = "debug:"
     /** Dictionary key for incoming control payloads from the watch. */
     const val PAYLOAD_KEY = "cmd"
 }

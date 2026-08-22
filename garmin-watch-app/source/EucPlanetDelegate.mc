@@ -31,14 +31,27 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
 
     function onSelect() as Lang.Boolean {
         var s = WatchState.snapshot;
+        _actions.debug("onSelect act=" + s.stem1Click);
         _actions.dispatch(s.stem1Click);
         return true;
     }
 
     function onMenu() as Lang.Boolean {
         var s = WatchState.snapshot;
+        _actions.debug("onMenu act=" + s.stem2Click);
         _actions.dispatch(s.stem2Click);
         return true;
+    }
+
+    //! Instrumentation probe, added for the Fenix 8 "whole screen fires
+    //! Button 1" report: on some touch watches a screen tap is synthesised
+    //! into a KEY_ENTER key event rather than (or before) a ClickEvent, and
+    //! BehaviorDelegate's DEFAULT onKey then routes it to onSelect - a path
+    //! onTap can never intercept. Log the raw key, then let the default
+    //! routing continue so behavior is unchanged while we gather evidence.
+    function onKey(evt as WatchUi.KeyEvent) as Lang.Boolean {
+        _actions.debug("onKey k=" + evt.getKey() + " type=" + evt.getType());
+        return false;
     }
 
     function onTap(evt as WatchUi.ClickEvent) as Lang.Boolean {
@@ -59,14 +72,17 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
             // capability flags: a slot rebound to Lock (or anything else)
             // keeps its tap target. dispatch() is a no-op for NONE.
             if (x < sw / 2) {
+                _actions.debug("tap x=" + x + " y=" + y + " slot=1 act=" + s.screen1Click);
                 _view.notifyTouch(1);
                 _actions.dispatch(s.screen1Click);
                 return true;
             }
+            _actions.debug("tap x=" + x + " y=" + y + " slot=2 act=" + s.screen2Click);
             _view.notifyTouch(2);
             _actions.dispatch(s.screen2Click);
             return true;
         }
+        _actions.debug("tap x=" + x + " y=" + y + " slot=none (consumed)");
         // Consume the tap even when it hits nothing. Returning false here
         // lets BehaviorDelegate promote an unhandled tap to onSelect - the
         // same callback as the physical start button - so ANY screen touch
@@ -85,10 +101,12 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
         var sh = settings.screenHeight;
         if (y > (sh * 72) / 100) {
             if (x < sw / 2) {
+                _actions.debug("hold x=" + x + " y=" + y + " slot=1 act=" + s.screen1Hold);
                 _view.notifyTouch(1);
                 _actions.dispatch(s.screen1Hold);
                 return true;
             } else {
+                _actions.debug("hold x=" + x + " y=" + y + " slot=2 act=" + s.screen2Hold);
                 _view.notifyTouch(2);
                 _actions.dispatch(s.screen2Hold);
                 return true;
@@ -97,10 +115,12 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
         // Same reasoning as onTap: never let an unhandled hold fall through
         // to a behavior callback (onMenu on touch watches), which would fire
         // the rider's Button 2 binding from a stray long-press.
+        _actions.debug("hold x=" + x + " y=" + y + " slot=none (consumed)");
         return true;
     }
 
     function onBack() as Lang.Boolean {
+        _actions.debug("onBack");
         // Default behavior: pop the view. Returning false lets CIQ handle the
         // exit. If the rider has bound a hold binding to the back button we
         // could route it here, but for now keep parity with the Wear OS dial

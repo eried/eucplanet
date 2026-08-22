@@ -191,6 +191,8 @@ fun WheelDiagnosticsDialog(
                         text = { Text("Inspector") })
                     Tab(selected = tab == 2, onClick = { tab = 2 },
                         text = { Text("Raw") })
+                    Tab(selected = tab == 3, onClick = { tab = 3 },
+                        text = { Text("Watch") })
                 }
 
                 Box(modifier = Modifier.weight(1f, fill = true)) {
@@ -198,6 +200,7 @@ fun WheelDiagnosticsDialog(
                         0 -> CommandsTab(vm)
                         1 -> InspectTab(vm)
                         2 -> RawTab(vm)
+                        3 -> WearablesTab()
                     }
                 }
             }
@@ -620,6 +623,75 @@ private fun shortInspectLabel(prefix: String, familyDisplayName: String): String
  * just clicked with whatever value the wheel's own UI is showing, useful
  * for finding unknown offsets like motor temp.
  */
+/**
+ * Live wearable input events (Garmin + Wear OS). Watches only report while
+ * Service Mode is recording - the diag flag rides the state frames - so this
+ * list mirrors exactly what lands in the shared log as "garmin input:" /
+ * "wearos input:" notes. Built to answer "which callback actually fired when
+ * the rider touched the watch", which prose bug reports cannot.
+ */
+@Composable
+private fun WearablesTab() {
+    val entries by WearableDebugFeed.entries.collectAsState()
+    var filter by remember { mutableStateOf("all") }
+    val shown = remember(entries, filter) {
+        (if (filter == "all") entries else entries.filter { it.source == filter }).asReversed()
+    }
+    val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
+
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            listOf("all", "garmin", "wearos").forEach { f ->
+                androidx.compose.material3.FilterChip(
+                    selected = filter == f,
+                    onClick = { filter = f },
+                    label = { Text(f) },
+                    modifier = Modifier.padding(end = 6.dp)
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            TextButton(shape = RoundedCornerShape(0.dp), onClick = { WearableDebugFeed.clear() }) {
+                Text("Clear")
+            }
+        }
+        if (shown.isEmpty()) {
+            Text(
+                "No wearable events yet.\n\nWith the watch app open, press its buttons " +
+                    "or tap its screen: every input reports here and into the shared log, " +
+                    "with coordinates, key codes and the binding it fired.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(shown) { e ->
+                    Row(modifier = Modifier.padding(vertical = 2.dp)) {
+                        Text(
+                            timeFmt.format(java.util.Date(e.atMs)),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            e.source,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (e.source == "garmin") MaterialTheme.colorScheme.tertiary
+                                else MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            e.text,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun InspectTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()

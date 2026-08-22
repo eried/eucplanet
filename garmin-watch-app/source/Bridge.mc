@@ -134,6 +134,15 @@ class PhoneBridge {
         }
     }
 
+    //! Input-event report for the phone's Service Mode Wearables tab. A
+    //! no-op unless the phone flagged diag recording in the state frames,
+    //! so a normal ride sends nothing extra. Best-effort like every other
+    //! control: _txBusy may drop one, and that is fine for diagnostics.
+    function sendDebug(msg as Lang.String) as Void {
+        if (!WatchState.snapshot.diagOn) { return; }
+        transmitControl(Control.DEBUG_PREFIX + msg);
+    }
+
     //! Send a control intent to the phone. Best-effort, no ack. Matches the
     //! semantics of `WatchStateRepository.sendControl` on the Wear OS side.
     //!

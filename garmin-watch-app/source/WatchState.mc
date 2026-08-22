@@ -68,6 +68,10 @@ module Keys {
 
     const HAPTIC_ON_ACTION = "hap";
 
+    //! True while the phone's Service Mode is recording: report input
+    //! events (Control.DEBUG_PREFIX). False = send nothing extra, ever.
+    const DIAG = "dg";
+
     const NAV_ACTIVE = "na";
     const NAV_ANGLE = "ng";
     const NAV_PRIMARY = "np";
@@ -83,6 +87,9 @@ module Control {
     const LIGHT_OFF = "light_off";
     const ACTION_PREFIX = "action:";
     const WATCH_INFO_PREFIX = "info:";
+    //! Input-event report (tap coords, key codes, fired binding). Gated on
+    //! the phone-pushed Keys.DIAG flag, i.e. Service Mode recording only.
+    const DEBUG_PREFIX = "debug:";
     //! Heartbeat the watch transmits every 5 s while the dial is on-screen.
     //! The phone uses these acks (not sendMessage success callbacks) to
     //! drive its Live indicator + delivery-rate badge — necessary because
@@ -145,6 +152,8 @@ class WatchSnapshot {
     public var screen2Click as Lang.String = "LIGHT_TOGGLE";
     public var screen2Hold as Lang.String = "NONE";
     public var hapticOnAction as Lang.Boolean = false;
+    //! Phone's Service Mode is recording; report input events over the wire.
+    public var diagOn as Lang.Boolean = false;
 
     public var gpsSpeedKmh as Lang.Float = -1.0; // -1 == not present
     public var gpsSource as Lang.String = "";
@@ -221,6 +230,7 @@ module WatchState {
         s.screen2Click = string(dict, Keys.SCREEN2_CLICK, "LIGHT_TOGGLE");
         s.screen2Hold = string(dict, Keys.SCREEN2_HOLD, "NONE");
         s.hapticOnAction = boolean(dict, Keys.HAPTIC_ON_ACTION, false);
+        s.diagOn = boolean(dict, Keys.DIAG, false);
 
         s.gpsSpeedKmh = float(dict, Keys.GPS_SPEED, -1.0);
         s.gpsSource = string(dict, Keys.GPS_SOURCE, "");

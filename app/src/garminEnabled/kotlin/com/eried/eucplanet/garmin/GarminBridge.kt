@@ -443,10 +443,18 @@ class GarminBridge @Inject constructor(
                 wheelRepository.toggleLight()
             cmd.startsWith(GarminControl.ACTION_PREFIX) ->
                 flicManager.dispatchActionByName(cmd.removePrefix(GarminControl.ACTION_PREFIX))
+            cmd.startsWith(GarminControl.DEBUG_PREFIX) -> {
+                // Input-event report (only sent while Service Mode records).
+                // Lands in the diag.txt AND the live Wearables tab.
+                val ev = cmd.removePrefix(GarminControl.DEBUG_PREFIX)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("garmin input: $ev")
+                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("garmin", ev)
+            }
             cmd.startsWith(GarminControl.WATCH_INFO_PREFIX) -> {
                 val info = cmd.removePrefix(GarminControl.WATCH_INFO_PREFIX)
                 Log.i(TAG, "Garmin watch info: $info")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("garmin: $info")
+                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("garmin", "info $info")
                 // The watch sends its info immediately on start, so treat
                 // this as the first "Live" signal too — saves the user
                 // staring at "Idle" for the first 5 s while the heartbeat
@@ -729,6 +737,9 @@ class GarminBridge @Inject constructor(
             put(GarminKeys.SCREEN2_CLICK, settings.watchScreen2Click)
             put(GarminKeys.SCREEN2_HOLD, settings.watchScreen2Hold)
             put(GarminKeys.HAPTIC_ON_ACTION, settings.watchHapticOnAction)
+            // Watch reports its input events back only while Service Mode is
+            // recording. One boolean per frame; older watch builds ignore it.
+            put(GarminKeys.DIAG, com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.value)
             // CIQ Dictionary doesn't accept NaN; use a sentinel and a boolean flag.
             put(GarminKeys.GPS_SPEED, gps?.first ?: -1f)
             put(GarminKeys.GPS_SOURCE, gps?.second ?: "")

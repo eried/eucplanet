@@ -30,6 +30,9 @@ class PhoneWearListenerService : WearableListenerService() {
         private const val CMD_LIGHT_ON = "light_on"
         private const val CMD_LIGHT_OFF = "light_off"
         private const val ACTION_PREFIX = "action:"
+        // Input-event report; the watch only sends these while Service Mode
+        // is recording (the diag flag rides the state frames).
+        private const val DEBUG_PREFIX = "debug:"
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
@@ -46,6 +49,7 @@ class PhoneWearListenerService : WearableListenerService() {
                 val info = String(event.data)
                 Log.i(TAG, "watch info: $info")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("watch: $info")
+                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("wearos", "info $info")
             }
         }
     }
@@ -58,6 +62,12 @@ class PhoneWearListenerService : WearableListenerService() {
                 wheelRepository.toggleLight()
             command.startsWith(ACTION_PREFIX) ->
                 flicManager.dispatchActionByName(command.removePrefix(ACTION_PREFIX))
+            command.startsWith(DEBUG_PREFIX) -> {
+                // Lands in the diag.txt AND the live Wearables tab.
+                val ev = command.removePrefix(DEBUG_PREFIX)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("wearos input: $ev")
+                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("wearos", ev)
+            }
             else -> Log.w(TAG, "unknown control: $command")
         }
     }
