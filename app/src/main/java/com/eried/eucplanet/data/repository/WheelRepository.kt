@@ -218,6 +218,7 @@ class WheelRepository @Inject constructor(
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val phoneSensorRepository: PhoneSensorRepository,
     private val externalGpsRepository: ExternalGpsRepository,
+    private val legalLockdown: LegalLockdownController,
     // Lazy breaks the Hilt dependency cycle: TripRepository injects this
     // repository, so a direct TripRepository here would be circular. Only
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
@@ -1662,6 +1663,13 @@ class WheelRepository @Inject constructor(
     suspend fun toggleSafetySpeed() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_safetyBusy.value) return  // cooldown active, ignore the spam tap (lock parity)
+        // Legal Mode Lockdown backstop, for any caller that does not go through
+        // FlicManager.executeAction. Turning the limits ON is always allowed,
+        // turning them OFF while locked down never is.
+        if (legalLockdown.isArmed() && _safetySpeedActive.value) {
+            Log.i(TAG, "Safety speed off refused: legal mode lockdown armed")
+            return
+        }
         val wantActive = !_safetySpeedActive.value
         val settings = settingsRepository.get()
 
@@ -1695,6 +1703,7 @@ class WheelRepository @Inject constructor(
     }
 
     fun disableSafetySpeed() {
+        if (legalLockdown.isArmed()) return  // locked down, only the code lifts the limits
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_safetySpeedActive.value) {
             scope.launch { toggleSafetySpeed() }

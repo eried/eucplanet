@@ -105,6 +105,7 @@ internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
+    val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
     private val voiceService: VoiceService,
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
@@ -382,6 +383,8 @@ class SettingsViewModel @Inject constructor(
         }
     }
     fun updateSafetyTiltback(value: Float) {
+        // Legal Mode Lockdown: raising the legal limit would be the bypass.
+        if (legalLockdown.isArmed()) return
         viewModelScope.launch {
             // Read and write in one transaction: this sits behind a NumberUpDown
             // whose hold-to-repeat fires several of these a second, and reading
@@ -406,6 +409,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun updateSafetyAlarm(value: Float) {
+        // Legal Mode Lockdown: raising the legal limit would be the bypass.
+        if (legalLockdown.isArmed()) return
         viewModelScope.launch {
             var newTilt = 0f
             settingsRepository.update { current ->
