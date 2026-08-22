@@ -181,59 +181,25 @@ fun WheelDiagnosticsDialog(
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-                // Two sections so the tab row stays short: the wheel's own
-                // deep tools, and the accessory dashboards - dumb filtered
-                // views over what is already logged, costing nothing new.
-                var section by remember { mutableStateOf(0) }
-                var wheelTab by remember { mutableStateOf(0) }
-                var accTab by remember { mutableStateOf(0) }
-
-                Row(Modifier.fillMaxWidth()) {
-                    SectionButton("Wheel", section == 0, Modifier.weight(1f)) { section = 0 }
-                    SectionButton("Accessories", section == 1, Modifier.weight(1f)) { section = 1 }
-                }
-
-                if (section == 0) {
-                    TabRow(
-                        selectedTabIndex = wheelTab,
-                        containerColor = MaterialTheme.colorScheme.background
-                    ) {
-                        Tab(selected = wheelTab == 0, onClick = { wheelTab = 0 },
-                            text = { Text("Commands") })
-                        Tab(selected = wheelTab == 1, onClick = { wheelTab = 1 },
-                            text = { Text("Inspector") })
-                        Tab(selected = wheelTab == 2, onClick = { wheelTab = 2 },
-                            text = { Text("Raw") })
-                    }
-                } else {
-                    ScrollableTabRow(
-                        selectedTabIndex = accTab,
-                        containerColor = MaterialTheme.colorScheme.background,
-                        edgePadding = 0.dp
-                    ) {
-                        listOf("Watch", "HUD", "GPS", "Flic", "Radar", "TPMS").forEachIndexed { i, t ->
-                            Tab(selected = accTab == i, onClick = { accTab = i },
-                                text = { Text(t) })
-                        }
-                    }
+                var tab by remember { mutableStateOf(0) }
+                TabRow(
+                    selectedTabIndex = tab,
+                    containerColor = MaterialTheme.colorScheme.background
+                ) {
+                    // Compact tabs: the stock Tab text slot pads 16 dp per
+                    // side, which is why three tabs already felt cramped.
+                    CompactTab("Commands", tab == 0) { tab = 0 }
+                    CompactTab("Inspector", tab == 1) { tab = 1 }
+                    CompactTab("Raw", tab == 2) { tab = 2 }
+                    CompactTab("Filter", tab == 3) { tab = 3 }
                 }
 
                 Box(modifier = Modifier.weight(1f, fill = true)) {
-                    if (section == 0) {
-                        when (wheelTab) {
-                            0 -> CommandsTab(vm)
-                            1 -> InspectTab(vm)
-                            2 -> RawTab(vm)
-                        }
-                    } else {
-                        when (accTab) {
-                            0 -> WearablesTab()
-                            1 -> LogDashboardTab(vm, listOf("hud_link:"), "HUD link")
-                            2 -> LogDashboardTab(vm, listOf("dragy:", "racebox", "external gps"), "external GPS")
-                            3 -> LogDashboardTab(vm, listOf("flic"), "Flic buttons")
-                            4 -> LogDashboardTab(vm, listOf("radar"), "radar")
-                            5 -> LogDashboardTab(vm, listOf("tpms"), "TPMS")
-                        }
+                    when (tab) {
+                        0 -> CommandsTab(vm)
+                        1 -> InspectTab(vm)
+                        2 -> RawTab(vm)
+                        3 -> FilterTab(vm)
                     }
                 }
             }
@@ -656,112 +622,121 @@ private fun shortInspectLabel(prefix: String, familyDisplayName: String): String
  * just clicked with whatever value the wheel's own UI is showing, useful
  * for finding unknown offsets like motor temp.
  */
-/** Half-width section switch, flat like the rest of the service dialog. */
+/** Tab with tight padding so four fit without the stock 16 dp side gutters. */
 @Composable
-private fun SectionButton(
-    label: String,
-    selected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    TextButton(
-        shape = RoundedCornerShape(0.dp),
-        onClick = onClick,
-        modifier = modifier,
-        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = if (selected) MaterialTheme.colorScheme.onPrimary
-                else MaterialTheme.colorScheme.onSurfaceVariant,
+private fun CompactTab(label: String, selected: Boolean, onClick: () -> Unit) {
+    Tab(selected = selected, onClick = onClick) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 2.dp, vertical = 12.dp)
         )
-    ) { Text(label) }
+    }
 }
 
+/** One selectable slice of the shared log for the Filter tab. */
+private data class LogFilter(
+    val label: String,
+    val match: (DiagnosticsLogger.Entry) -> Boolean,
+)
+
+private val LOG_FILTERS = listOf(
+    LogFilter("Garmin") { it.text.startsWith("garmin", ignoreCase = true) },
+    LogFilter("WearOS") {
+        it.text.startsWith("wearos", true) || it.text.startsWith("watch:", true) ||
+            it.text.startsWith("wear:", true)
+    },
+    LogFilter("HUD") { it.text.startsWith("hud_link", true) },
+    LogFilter("GPS") {
+        it.text.startsWith("dragy", true) || it.text.startsWith("racebox", true) ||
+            it.text.startsWith("external gps", true)
+    },
+    LogFilter("Flic") { it.text.startsWith("flic", true) },
+    LogFilter("Radar") { it.text.startsWith("radar", true) },
+    LogFilter("TPMS") { it.text.startsWith("tpms", true) },
+    LogFilter("Sent") { it.kind == DiagnosticsLogger.Kind.SEND },
+    LogFilter("Received") { it.kind == DiagnosticsLogger.Kind.RECV },
+    LogFilter("Notes") { it.kind == DiagnosticsLogger.Kind.NOTE },
+    LogFilter("Info") { it.kind == DiagnosticsLogger.Kind.INFO },
+    LogFilter("Comments") { it.kind == DiagnosticsLogger.Kind.USER },
+    LogFilter("Tests") { it.kind == DiagnosticsLogger.Kind.TEST },
+)
+
 /**
- * Dumb accessory dashboard: a live, filtered view over what the shared
- * DiagnosticsLogger ALREADY records for one subsystem. No instrumentation
- * of its own and no cost outside Service Mode - if a subsystem logs
- * nothing yet, the tab says so instead of inventing data.
+ * Filtered live view over the shared log. Pick slices from the combo -
+ * accessories (Garmin, WearOS, HUD, GPS...) or message kinds (Sent, Notes,
+ * Comments...) - and they stack as removable pills, OR-combined. Purely a
+ * view: nothing new is instrumented and nothing outside Service Mode pays
+ * for it. Wearable input events land here through their "garmin input:" /
+ * "wearos input:" log notes.
  */
 @Composable
-private fun LogDashboardTab(
-    vm: WheelDiagnosticsViewModel,
-    prefixes: List<String>,
-    label: String,
-) {
+private fun FilterTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()
-    val shown = remember(entries, prefixes) {
-        entries.filter { e ->
-            (e.kind == DiagnosticsLogger.Kind.NOTE || e.kind == DiagnosticsLogger.Kind.INFO) &&
-                prefixes.any { p -> e.text.startsWith(p, ignoreCase = true) }
-        }.asReversed()
-    }
+    var active by remember { mutableStateOf<List<String>>(emptyList()) }
+    var menuOpen by remember { mutableStateOf(false) }
     val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
-    if (shown.isEmpty()) {
-        Text(
-            "Nothing logged for $label yet.\n\nEverything this accessory writes to " +
-                "the shared log while Service Mode records shows up here live.",
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(16.dp)
-        )
-        return
-    }
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        items(shown) { e ->
-            Row(modifier = Modifier.padding(vertical = 2.dp)) {
-                Text(
-                    timeFmt.format(java.util.Date(e.timestampMs)),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    e.text,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace
-                )
-            }
+
+    val shown = remember(entries, active) {
+        if (active.isEmpty()) emptyList()
+        else {
+            val preds = LOG_FILTERS.filter { it.label in active }
+            entries.filter { e -> preds.any { it.match(e) } }.asReversed()
         }
     }
-}
-
-/**
- * Live wearable input events (Garmin + Wear OS). Watches only report while
- * Service Mode is recording - the diag flag rides the state frames - so this
- * list mirrors exactly what lands in the shared log as "garmin input:" /
- * "wearos input:" notes. Built to answer "which callback actually fired when
- * the rider touched the watch", which prose bug reports cannot.
- */
-@Composable
-private fun WearablesTab() {
-    val entries by WearableDebugFeed.entries.collectAsState()
-    var filter by remember { mutableStateOf("all") }
-    val shown = remember(entries, filter) {
-        (if (filter == "all") entries else entries.filter { it.source == filter }).asReversed()
-    }
-    val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
 
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            listOf("all", "garmin", "wearos").forEach { f ->
-                androidx.compose.material3.FilterChip(
-                    selected = filter == f,
-                    onClick = { filter = f },
-                    label = { Text(f) },
-                    modifier = Modifier.padding(end = 6.dp)
-                )
+            Box {
+                OutlinedButton(shape = RoundedCornerShape(0.dp), onClick = { menuOpen = true }) {
+                    Text("Add filter")
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = menuOpen,
+                    onDismissRequest = { menuOpen = false }
+                ) {
+                    LOG_FILTERS.filter { it.label !in active }.forEach { f ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(f.label) },
+                            onClick = { active = active + f.label; menuOpen = false }
+                        )
+                    }
+                }
             }
             Spacer(Modifier.weight(1f))
-            TextButton(shape = RoundedCornerShape(0.dp), onClick = { WearableDebugFeed.clear() }) {
-                Text("Clear")
+            TextButton(
+                shape = RoundedCornerShape(0.dp),
+                onClick = { active = emptyList() },
+                enabled = active.isNotEmpty()
+            ) { Text("Clear") }
+        }
+        if (active.isNotEmpty()) {
+            Row(Modifier.horizontalScroll(rememberScrollState())) {
+                active.forEach { label ->
+                    androidx.compose.material3.FilterChip(
+                        selected = true,
+                        onClick = { active = active - label },
+                        label = { Text(label) },
+                        trailingIcon = { Icon(Icons.Filled.Close, contentDescription = "Remove") },
+                        modifier = Modifier.padding(end = 6.dp)
+                    )
+                }
             }
         }
-        if (shown.isEmpty()) {
+        if (active.isEmpty()) {
             Text(
-                "No wearable events yet.\n\nWith the watch app open, press its buttons " +
-                    "or tap its screen: every input reports here and into the shared log, " +
-                    "with coordinates, key codes and the binding it fired.",
+                "Pick one or more filters to view a slice of the log: an accessory " +
+                    "(Garmin, WearOS, HUD, GPS...) or a message kind (Sent, Notes, " +
+                    "Comments...). Pills combine, tap one to remove it.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else if (shown.isEmpty()) {
+            Text(
+                "Nothing in the log matches the active filters yet.",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(16.dp)
             )
@@ -770,17 +745,16 @@ private fun WearablesTab() {
                 items(shown) { e ->
                     Row(modifier = Modifier.padding(vertical = 2.dp)) {
                         Text(
-                            timeFmt.format(java.util.Date(e.atMs)),
+                            timeFmt.format(java.util.Date(e.timestampMs)),
                             style = MaterialTheme.typography.bodySmall,
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            e.source,
+                            e.kind.name,
                             style = MaterialTheme.typography.bodySmall,
-                            color = if (e.source == "garmin") MaterialTheme.colorScheme.tertiary
-                                else MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(

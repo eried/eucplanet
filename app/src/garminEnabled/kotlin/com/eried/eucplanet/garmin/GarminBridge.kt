@@ -445,16 +445,14 @@ class GarminBridge @Inject constructor(
                 flicManager.dispatchActionByName(cmd.removePrefix(GarminControl.ACTION_PREFIX))
             cmd.startsWith(GarminControl.DEBUG_PREFIX) -> {
                 // Input-event report (only sent while Service Mode records).
-                // Lands in the diag.txt AND the live Wearables tab.
+                // The Service Mode Filter tab surfaces these via this note.
                 val ev = cmd.removePrefix(GarminControl.DEBUG_PREFIX)
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("garmin input: $ev")
-                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("garmin", ev)
             }
             cmd.startsWith(GarminControl.WATCH_INFO_PREFIX) -> {
                 val info = cmd.removePrefix(GarminControl.WATCH_INFO_PREFIX)
                 Log.i(TAG, "Garmin watch info: $info")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("garmin: $info")
-                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("garmin", "info $info")
                 // The watch sends its info immediately on start, so treat
                 // this as the first "Live" signal too — saves the user
                 // staring at "Idle" for the first 5 s while the heartbeat

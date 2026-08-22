@@ -49,7 +49,6 @@ class PhoneWearListenerService : WearableListenerService() {
                 val info = String(event.data)
                 Log.i(TAG, "watch info: $info")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("watch: $info")
-                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("wearos", "info $info")
             }
         }
     }
@@ -63,10 +62,9 @@ class PhoneWearListenerService : WearableListenerService() {
             command.startsWith(ACTION_PREFIX) ->
                 flicManager.dispatchActionByName(command.removePrefix(ACTION_PREFIX))
             command.startsWith(DEBUG_PREFIX) -> {
-                // Lands in the diag.txt AND the live Wearables tab.
+                // The Service Mode Filter tab surfaces these via this note.
                 val ev = command.removePrefix(DEBUG_PREFIX)
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("wearos input: $ev")
-                com.eried.eucplanet.diagnostics.WearableDebugFeed.push("wearos", ev)
             }
             else -> Log.w(TAG, "unknown control: $command")
         }
