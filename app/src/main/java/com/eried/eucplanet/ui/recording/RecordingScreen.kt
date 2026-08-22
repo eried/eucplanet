@@ -890,11 +890,12 @@ private fun TripStatusIcon(
             !backupHeld && (folderConfigured || dropboxLinked) -> onRetryBackup()
             // A failed leaderboard upload of an original ride can be retried.
             trip.eucstatsStatus == 3 -> onRetryOnline()
-            // A held trip: re-ask the server for its verdict - asking is the
-            // only thing that can move it - and say where things stand. No
-            // background rechecking ever happens; this tap is it.
-            // Quietly: the hold itself is no longer in the message.
-            flagged -> { onRecheckOnline(); showSnackbarLocal(snackbar, scope, msg) }
+            // One tap, one toast. The recheck that used to ride along here
+            // posted two more toasts of its own ("Checking with the
+            // leaderboard...", then the verdict), so tapping a held trip
+            // produced a three-message sequence about a pipeline the rider
+            // never asked after. A stale hold can stay stale; it colors
+            // nothing and says nothing.
             else -> showSnackbarLocal(snackbar, scope, msg)
         }
     }) {

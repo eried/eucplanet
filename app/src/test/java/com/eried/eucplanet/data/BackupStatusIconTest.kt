@@ -108,8 +108,16 @@ class BackupStatusIconTest {
     @Test fun `the tap still acts on what the rider can fix`() {
         val body = screen.substringAfter("private fun TripStatusIcon")
         assertTrue(body.contains("backupFailed || backupWaiting -> onRetryBackup()"))
-        assertTrue("a held trip can no longer be rechecked",
-            body.contains("flagged -> { onRecheckOnline(); showSnackbarLocal(snackbar, scope, msg) }"))
+    }
+
+    @Test fun `one tap, one toast`() {
+        // The recheck that used to ride along with the tap posted two more
+        // toasts of its own, so tapping a held trip produced a three-message
+        // sequence. The informational tap shows exactly the one message.
+        val tap = screen.substringAfter("private fun TripStatusIcon")
+            .substringAfter("IconButton(onClick = {").substringBefore("})")
+        assertTrue("the recheck chatter is back", !tap.contains("onRecheckOnline"))
+        assertTrue(tap.split("showSnackbarLocal").size - 1 == 1)
     }
 
     @Test fun `the message tells the whole story, parts joined`() {
@@ -126,8 +134,10 @@ class BackupStatusIconTest {
         val msgBlock = screen.substringAfter("private fun TripStatusIcon").substringBefore("IconButton")
         assertTrue("the held-for-review line is back", !msgBlock.contains("online_status_flagged"))
         assertTrue("the uploading line is back", !msgBlock.contains("online_status_pending"))
-        assertTrue("a held trip is no longer rechecked on tap",
-            screen.substringAfter("private fun TripStatusIcon").contains("flagged -> { onRecheckOnline()"))
+        assertTrue("the held state seeped back into the tap",
+            !screen.substringAfter("private fun TripStatusIcon")
+                .substringAfter("IconButton(onClick = {").substringBefore("})")
+                .contains("flagged"))
     }
 
     @Test fun `nothing is claimed about a destination the rider never set up`() {
