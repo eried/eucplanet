@@ -29,6 +29,28 @@ class EucPlanetView extends WatchUi.View {
     //! Drawn in drawHornLight / drawBatteryRow.
     private var _iconHorn as WatchUi.BitmapResource? = null;
     private var _iconLight as WatchUi.BitmapResource? = null;
+
+    //! Which touch slot (1 or 2, 0 = none) was just tapped, for the ~300 ms
+    //! press flash. Riding gloves and sun glare make it impossible to tell a
+    //! missed tap from a dead binding without visible confirmation.
+    private var _pressedSlot as Lang.Number = 0;
+    private var _pressTimer as Timer.Timer? = null;
+
+    //! Delegate calls this on a recognised touch-slot tap/hold. Flashes the
+    //! button face so the rider sees the press landed (haptic covers feel,
+    //! this covers sight).
+    function notifyTouch(slot as Lang.Number) as Void {
+        _pressedSlot = slot;
+        WatchUi.requestUpdate();
+        if (_pressTimer == null) { _pressTimer = new Timer.Timer(); }
+        _pressTimer.stop();
+        _pressTimer.start(method(:onPressFlashEnd), 300, /* repeat = */ false);
+    }
+
+    function onPressFlashEnd() as Void {
+        _pressedSlot = 0;
+        WatchUi.requestUpdate();
+    }
     private var _iconWheel as WatchUi.BitmapResource? = null;
     private var _iconPhone as WatchUi.BitmapResource? = null;
     private var _iconWatch as WatchUi.BitmapResource? = null;
@@ -462,15 +484,18 @@ class EucPlanetView extends WatchUi.View {
     //! inside each circle. Tap targets handled in the Delegate via `onTap`
     //! over the same fractional regions; keep both in sync.
     //!
-    //! Button radius is 7% of width so on small MIP watches (Fenix 8 Solar
-    //! 240x240, Fenix 6X Pro 280x280) the buttons stay clear of the
-    //! battery row above. On larger AMOLED panels the buttons still read
-    //! as deliberate touch targets.
+    //! Button radius is 10% of width - the previous 7% was ~3 mm on a Fenix,
+    //! unusable with riding gloves. Centred at 84% height so the circle
+    //! stays on the round glass on small MIP faces (Fenix 8 Solar 240x240)
+    //! while clearing the battery row above.
     private function drawHornLight(dc as Graphics.Dc, s as WatchSnapshot, enabled as Lang.Boolean) as Void {
         var w = dc.getWidth();
         var h = dc.getHeight();
-        var btnY = (h * 86) / 100;
-        var btnR = (w * 7) / 100;
+        // 84% height + 10% radius (was 86% + 7%): a 7% circle is ~3 mm on a
+        // Fenix - unhittable with gloves - and at 86% the lower arc started
+        // clipping off the round glass on small faces.
+        var btnY = (h * 84) / 100;
+        var btnR = (w * 10) / 100;
         var leftX = (w * 36) / 100;
         var rightX = (w * 64) / 100;
 
@@ -480,16 +505,17 @@ class EucPlanetView extends WatchUi.View {
         // names. The old fixed horn+light faces made a rebound slot invisible:
         // a Fenix 8 rider bound Lock to touch Button 1, saw only a horn, and
         // concluded touch didn't work at all.
-        drawTouchButton(dc, s, enabled, leftX, btnY, btnR, s.screen1Click, s.screen1Hold, "1");
-        drawTouchButton(dc, s, enabled, rightX, btnY, btnR, s.screen2Click, s.screen2Hold, "2");
+        drawTouchButton(dc, s, enabled, leftX, btnY, btnR, s.screen1Click, s.screen1Hold, 1);
+        drawTouchButton(dc, s, enabled, rightX, btnY, btnR, s.screen2Click, s.screen2Hold, 2);
     }
 
     //! One touch button face. [click]/[hold] are the slot's bindings; the
     //! button is hidden only when both are NONE (slot fully unbound).
+    //! (Max 9 params on older CIQ targets - the numeral derives from [slot].)
     private function drawTouchButton(
         dc as Graphics.Dc, s as WatchSnapshot, enabled as Lang.Boolean,
         x as Lang.Number, y as Lang.Number, r as Lang.Number,
-        click as Lang.String, hold as Lang.String, numeral as Lang.String
+        click as Lang.String, hold as Lang.String, slot as Lang.Number
     ) as Void {
         var bound = !(click.equals("NONE") && hold.equals("NONE"));
         if (!bound) { return; }
@@ -506,13 +532,18 @@ class EucPlanetView extends WatchUi.View {
         } else {
             bg = enabled ? 0x29B6F6 : 0x1A1A1A;
         }
+        // Press flash: invert to white for ~300 ms so the rider SEES the tap
+        // landed. Gloves mute the haptic and glare hides subtle changes.
+        var pressed = _pressedSlot == slot;
+        if (pressed) { bg = 0xFFFFFF; }
         dc.setColor(bg, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(x, y, r);
-        if (icon != null) {
+        if (icon != null && !pressed) {
             dc.drawBitmap(x - iconOffset, y - iconOffset, icon);
         } else {
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(x, y, Graphics.FONT_TINY, numeral,
+            dc.setColor(pressed ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE,
+                        Graphics.COLOR_TRANSPARENT);
+            dc.drawText(x, y, Graphics.FONT_TINY, slot.toString(),
                         Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
     }

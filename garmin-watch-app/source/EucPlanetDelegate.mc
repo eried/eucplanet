@@ -52,14 +52,18 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
         var settings = System.getDeviceSettings();
         var sw = settings.screenWidth;
         var sh = settings.screenHeight;
-        if (y > (sh * 80) / 100) {
+        // Band matches the drawn buttons (centre 84% height, radius 10%)
+        // with headroom above so a hurried glove-tap still lands.
+        if (y > (sh * 72) / 100) {
             // Zones follow the touch-slot BINDINGS, not the horn/light
             // capability flags: a slot rebound to Lock (or anything else)
             // keeps its tap target. dispatch() is a no-op for NONE.
             if (x < sw / 2) {
+                _view.notifyTouch(1);
                 _actions.dispatch(s.screen1Click);
                 return true;
             }
+            _view.notifyTouch(2);
             _actions.dispatch(s.screen2Click);
             return true;
         }
@@ -79,11 +83,13 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
         var settings = System.getDeviceSettings();
         var sw = settings.screenWidth;
         var sh = settings.screenHeight;
-        if (y > (sh * 80) / 100) {
+        if (y > (sh * 72) / 100) {
             if (x < sw / 2) {
+                _view.notifyTouch(1);
                 _actions.dispatch(s.screen1Hold);
                 return true;
             } else {
+                _view.notifyTouch(2);
                 _actions.dispatch(s.screen2Hold);
                 return true;
             }
