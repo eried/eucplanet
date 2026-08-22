@@ -1,6 +1,10 @@
 package com.eried.eucplanet.hud.net
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.wifi.SupplicantState
 import android.net.wifi.WifiManager
 import android.util.Log
@@ -34,6 +38,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.onTimeout
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
@@ -179,6 +185,14 @@ class HudServer(private val context: Context) {
      *  [WATCHDOG_INTERVAL_MS] so a hotspot IP-renew or a silently-dead Ktor
      *  socket gets fixed without the rider having to reboot the HUD. */
     private var watchdogJob: Job? = null
+    /** Wakes the watchdog the moment the OS reports a WiFi transition instead
+     *  of letting an off-air radio sit undetected for the rest of a lazy 10 s
+     *  healthy tick. Conflated: N kicks while awake still mean one early tick. */
+    private val watchdogKick = Channel<Unit>(Channel.CONFLATED)
+    /** WiFi transition listener driving [watchdogKick]. The rider leaving the
+     *  WiFi area is exactly the moment the watchdog must run NOW, not in up
+     *  to 10 s. */
+    private var netCallback: ConnectivityManager.NetworkCallback? = null
     /** Count of consecutive watchdog ticks where the local TCP probe failed.
      *  We require [WATCHDOG_FAIL_THRESHOLD] in a row before a full restart so
      *  a transient localhost blip doesn't churn the server. */
@@ -389,11 +403,48 @@ class HudServer(private val context: Context) {
         // re-broadcasts mDNS if it changed.
         watchdogFailStreak = 0
         watchdogJob = scope.launch { runWatchdog() }
+        registerNetworkCallback()
+    }
+
+    /** WiFi up/down events wake the watchdog immediately (and, on a rejoin,
+     *  kick the beacon so the new IP is announced within a beat). No
+     *  NET_CAPABILITY_INTERNET filter: the rider's phone hotspot often has no
+     *  validated internet, and it is precisely the network we care about. */
+    private fun registerNetworkCallback() {
+        if (netCallback != null) return
+        val cm = context.applicationContext
+            .getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
+        val request = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+        val cb = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                HudDiag.log("watchdog", "wifi onAvailable: waking watchdog + beacon")
+                watchdogKick.trySend(Unit)
+                udpBeacon.kick()
+            }
+            override fun onLost(network: Network) {
+                HudDiag.log("watchdog", "wifi onLost: waking watchdog")
+                watchdogKick.trySend(Unit)
+            }
+        }
+        runCatching { cm.registerNetworkCallback(request, cb) }
+            .onSuccess { netCallback = cb }
+            .onFailure { HudDiag.log("watchdog", "netcallback register failed: ${it.message}") }
+    }
+
+    private fun unregisterNetworkCallback() {
+        val cb = netCallback ?: return
+        netCallback = null
+        val cm = context.applicationContext
+            .getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
+        runCatching { cm.unregisterNetworkCallback(cb) }
     }
 
     private suspend fun doStop() {
         watchdogJob?.cancel()
         watchdogJob = null
+        unregisterNetworkCallback()
         udpBeacon.stop()
         phoneFinder.stop()
         try { jmdns?.close() } catch (_: Throwable) {}
@@ -491,9 +542,14 @@ class HudServer(private val context: Context) {
         while (true) {
             // Cadence: lazy when healthy, brisk while we suspect or repair an
             // off-air radio so the ladder escalates in seconds, not tens of them.
+            // A WiFi transition (rider leaving the area, hotspot re-tune) cuts
+            // the sleep short via [watchdogKick] so detection is immediate.
             val interval = if (offAirStreak > 0 || watchdogFailStreak > 0)
                 RECOVERY_INTERVAL_MS else WATCHDOG_INTERVAL_MS
-            delay(interval)
+            select<Unit> {
+                onTimeout(interval) { }
+                watchdogKick.onReceive { }
+            }
             // Re-assert the power locks (idempotent) each tick.
             acquireWakeLock()
             acquireWifiLock()
@@ -617,6 +673,10 @@ class HudServer(private val context: Context) {
             try { multicastLock?.release() } catch (_: Throwable) {}
             multicastLock = null
             startMdnsAdvertise()
+            // Announce the new address NOW: the phone's discovery acts on a
+            // beacon within ~200 ms, so this beat is the difference between
+            // an instant re-pair and idling out the beacon interval.
+            udpBeacon.kick()
         } else if (jmdns == null && !current.isNullOrBlank()) {
             HudDiag.log("watchdog", "mDNS advertise was down; reviving")
             startMdnsAdvertise()

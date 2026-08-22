@@ -78,6 +78,23 @@ class BleConnectionManager @Inject constructor(
          *  data) never trips it; any real frame resets the timer. */
         private const val NO_DATA_TIMEOUT_MS = 15000L
 
+        /** How long a connect attempt may sit with NO GATT callback at all
+         *  before we give up on it. Some stacks (Samsung with the screen off,
+         *  most visibly) quietly drop a background connectGatt without ever
+         *  delivering onConnectionStateChange; the state machine then wedges
+         *  in CONNECTING and every reconnect path - all gated on DISCONNECTED -
+         *  stops until the rider turns the screen on. Slightly above the
+         *  stack's own 30 s supervision window so a legitimately slow callback
+         *  still wins. */
+        private const val CONNECT_NO_CALLBACK_TIMEOUT_MS = 35_000L
+        /** One reconnect-scan window. Bounded so a LOW_LATENCY scan is never
+         *  held open forever (Android downgrades or blocks abusive scanners). */
+        private const val RECONNECT_SCAN_WINDOW_MS = 60_000L
+        /** Pauses between re-armed reconnect-scan cycles. Grows so a wheel
+         *  that is genuinely gone (powered off, left at home) costs little
+         *  battery, while one that comes back mid-ride is still caught. */
+        private val RECONNECT_SCAN_PAUSES_MS = longArrayOf(5_000L, 15_000L, 30_000L, 60_000L)
+
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
@@ -163,6 +180,14 @@ class BleConnectionManager @Inject constructor(
     // status-133 failure. Reset on each fresh tap ([connect] with isAuto=false)
     // so a new attempt gets a full budget; capped so it can't spin forever.
     @Volatile private var manualRetryCount = 0
+
+    // Monotonic id of the newest connectGatt attempt. The no-callback watchdog
+    // captures it at arm time and stands down if a newer attempt has started.
+    @Volatile private var connectAttemptSeq = 0
+
+    // Completed reconnect-scan windows since the link was last up. Indexes into
+    // RECONNECT_SCAN_PAUSES_MS; reset when the wheel is seen or connects.
+    @Volatile private var reconnectScanCycle = 0
 
     // Write serialization - only one BLE write at a time
     private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
@@ -281,6 +306,7 @@ class BleConnectionManager @Inject constructor(
         val cb = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 Log.i(TAG, "Reconnect scan found $address; connecting")
+                reconnectScanCycle = 0
                 stopReconnectScan()
                 connect(address, name, isAuto = true)
             }
@@ -299,16 +325,29 @@ class BleConnectionManager @Inject constructor(
             connect(address, name, isAuto = true)
             return
         }
-        // Don't scan forever: if the wheel never shows (off / out of range),
-        // stop after a while and leave it to the next disconnect/BT event.
+        // Bound each scan window, then re-arm after a growing pause instead of
+        // going dead. The old "stop and leave it to the next disconnect/BT
+        // event" was a dead end for the pocket-mid-ride case: the wheel comes
+        // back in range at minute 3, no event ever fires, and the app sits
+        // disconnected until the rider opens it.
         scope.launch {
-            delay(60_000)
-            if (reconnectScanCallback === cb) {
-                Log.i(TAG, "Reconnect scan timed out for $address")
-                stopReconnectScan()
-                if (_connectionState.value == ConnectionState.SCANNING) {
-                    _connectionState.value = ConnectionState.DISCONNECTED
-                }
+            delay(RECONNECT_SCAN_WINDOW_MS)
+            if (reconnectScanCallback !== cb) return@launch
+            Log.i(TAG, "Reconnect scan window over for $address (cycle $reconnectScanCycle)")
+            stopReconnectScan()
+            if (_connectionState.value == ConnectionState.SCANNING) {
+                _connectionState.value = ConnectionState.DISCONNECTED
+            }
+            val pause = RECONNECT_SCAN_PAUSES_MS[
+                minOf(reconnectScanCycle, RECONNECT_SCAN_PAUSES_MS.lastIndex)
+            ]
+            reconnectScanCycle++
+            delay(pause)
+            if (shouldReconnect && !autoConnectSuppressed &&
+                currentAddress == address &&
+                _connectionState.value == ConnectionState.DISCONNECTED
+            ) {
+                reconnectViaScan(address, name)
             }
         }
     }
@@ -342,8 +381,12 @@ class BleConnectionManager @Inject constructor(
         }
         currentConnectIsAuto = isAuto
         // A fresh rider tap starts a new status-133 retry budget (see the
-        // manual-retry branch in onConnectionStateChange).
-        if (!isAuto) manualRetryCount = 0
+        // manual-retry branch in onConnectionStateChange) and a fresh
+        // reconnect-scan backoff.
+        if (!isAuto) {
+            manualRetryCount = 0
+            reconnectScanCycle = 0
+        }
         // Demo / simulator mode: VIRTUAL:<id> bypasses GATT and connects to a fake wheel.
         val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
         if (virtualId != null) {
@@ -399,6 +442,41 @@ class BleConnectionManager @Inject constructor(
         // connect (30s status-147 timeout) or autoConnect=true (slow/flaky on
         // some stacks).
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+        armConnectCallbackWatchdog()
+    }
+
+    /**
+     * Watchdog for the connect attempt just fired: if NO GATT callback of any
+     * kind arrives within [CONNECT_NO_CALLBACK_TIMEOUT_MS], release the handle
+     * and put the state machine back in DISCONNECTED. Without this, a silently
+     * dropped background connectGatt (screen-off Samsung, most visibly) wedges
+     * us in CONNECTING forever: every retry path checks for DISCONNECTED first,
+     * so nothing ever fires again until the rider opens the app - "HUD showed
+     * zeros for minutes, reconnected seconds after I opened the app".
+     *
+     * An auto attempt re-enters through [reconnectViaScan] so the next connect
+     * only fires once the wheel is actually seen advertising. A manual attempt
+     * just releases to DISCONNECTED - the rider is looking at the screen and
+     * their next tap starts a fresh budget.
+     */
+    private fun armConnectCallbackWatchdog() {
+        val seq = ++connectAttemptSeq
+        scope.launch {
+            delay(CONNECT_NO_CALLBACK_TIMEOUT_MS)
+            if (connectAttemptSeq != seq) return@launch
+            if (_connectionState.value != ConnectionState.CONNECTING) return@launch
+            Log.w(TAG, "No GATT callback ${CONNECT_NO_CALLBACK_TIMEOUT_MS} ms after connect; releasing")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Connect attempt got no callback in ${CONNECT_NO_CALLBACK_TIMEOUT_MS / 1000}s - releasing"
+            )
+            gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
+            gatt = null
+            _connectionState.value = ConnectionState.DISCONNECTED
+            val addr = currentAddress
+            if (shouldReconnect && currentConnectIsAuto && addr != null && !autoConnectSuppressed) {
+                reconnectViaScan(addr, currentName)
+            }
+        }
     }
 
     /**
@@ -420,6 +498,7 @@ class BleConnectionManager @Inject constructor(
         val device = bluetoothManager.adapter.getRemoteDevice(address)
         gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+        armConnectCallbackWatchdog()
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Retry manual connect #$manualRetryCount to $address (status-133 recovery)"
         )
@@ -466,6 +545,9 @@ class BleConnectionManager @Inject constructor(
             return
         }
         Log.i(TAG, "Connecting to virtual wheel: ${wheel.displayName}")
+        // Invalidate any pending no-callback watchdog from a prior real
+        // attempt so it can't fire into this session's CONNECTING blip.
+        connectAttemptSeq++
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Connect requested: virtual id=$id name=${wheel.bleName.ifEmpty { "(none)" }} display=\"${wheel.displayName}\""
         )
@@ -708,6 +790,7 @@ class BleConnectionManager @Inject constructor(
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
                     Log.i(TAG, "Connected to GATT server")
+                    reconnectScanCycle = 0
                     _connectionState.value = ConnectionState.INITIALIZING
                     // (Removed the InMotion V1 requestConnectionPriority(HIGH)
                     // experiment: the tester's failure logs show a RX-perfect /
@@ -781,7 +864,16 @@ class BleConnectionManager @Inject constructor(
                                 currentAddress == reconnectAddress &&
                                 _connectionState.value == ConnectionState.DISCONNECTED
                             ) {
-                                connect(reconnectAddress, isAuto = true)
+                                // Scan-first, not a blind connectGatt: a wheel
+                                // that just dropped takes seconds to resume
+                                // advertising, and a blind background connect is
+                                // exactly what some stacks quietly defer with
+                                // the screen off. The address-filtered scan is
+                                // allowed to deliver screen-off results, so the
+                                // direct connect only fires once the wheel is
+                                // actually back.
+                                currentConnectIsAuto = true
+                                reconnectViaScan(reconnectAddress, currentName)
                             }
                         }
                     }

@@ -26,6 +26,7 @@ import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -118,6 +119,10 @@ class HudServer @Inject constructor(
          *  reachable HUD is grabbed within a few seconds. After the window
          *  expires the tick relaxes to 5 s. */
         private const val DISCOVERY_SPRINT_MS = 30_000L
+        /** TCP probe budget for "is the HUD still reachable after the phone's
+         *  WiFi changed". Short: on the same LAN a listener answers in tens of
+         *  ms, and the point is to beat the 15 s background ping window. */
+        private const val PEER_PROBE_TIMEOUT_MS = 2_500
         // Default carousel order shipped with all 12 known screens.
         // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
         // install gets a non-empty wire field on the first frame --
@@ -173,8 +178,13 @@ class HudServer @Inject constructor(
     }
 
     @Volatile private var loopJob: Job? = null
+    @Volatile private var beaconKickJob: Job? = null
     @Volatile private var publishJob: Job? = null
     @Volatile private var ws: WebSocket? = null
+    /** "ip:port" of the HUD the live WebSocket is talking to; null when down.
+     *  Read by the network-loss probe to test whether the peer is still
+     *  reachable after a WiFi transition. */
+    @Volatile private var currentPeer: String? = null
 
     /**
      * Cancels any pending dial-loop backoff the moment something interesting
@@ -332,6 +342,19 @@ class HudServer @Inject constructor(
         if (mode != HudDiscoveryMode.FIXED) {
             udpListener.start()
             log("Discovery on ($mode)")
+            // A fresh beacon that lands during a backoff between attempts wakes
+            // the dial loop at once instead of waiting out the 2-5 s sleep, so a
+            // HUD that comes online mid-session is picked up the moment it
+            // announces itself rather than on the next scheduled retry.
+            beaconKickJob = scope.launch {
+                udpListener.latest.collect { sighting ->
+                    if (sighting != null &&
+                        System.currentTimeMillis() - sighting.receivedAtMs < udpBeaconFreshnessMs
+                    ) {
+                        reconnectKick.trySend(Unit)
+                    }
+                }
+            }
         } else {
             val ip = s?.hudIp?.trim().orEmpty()
             val port = s?.hudServerPort?.takeIf { it in 1..65535 }
@@ -350,8 +373,10 @@ class HudServer @Inject constructor(
         try { demo.stop() } catch (_: Throwable) {}
         try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
         ws = null
+        currentPeer = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
+        beaconKickJob?.cancel(); beaconKickJob = null
         udpListener.stop()
         _connectionSource.value = ConnectionSource.NONE
         try { multicastLock?.release() } catch (_: Throwable) {}
@@ -399,6 +424,11 @@ class HudServer @Inject constructor(
             override fun onLost(network: Network) {
                 Log.i(TAG, "network onLost: home WiFi gone")
                 wifiInterference.onStaTransition(System.currentTimeMillis())
+                // If the live WS rode the network that just vanished, it is a
+                // zombie that OkHttp only notices at the ping window - 15 s in
+                // background, the whole "riding away from WiFi with a frozen
+                // HUD" gap. Probe and cut it now instead.
+                probePeerAfterNetworkLoss()
             }
             override fun onLosing(network: Network, maxMsToLive: Int) {
                 // DO NOT close the WS here. This callback filters for
@@ -444,6 +474,43 @@ class HudServer @Inject constructor(
         select<Unit> {
             onTimeout(ms) { }
             reconnectKick.onReceive { }
+        }
+    }
+
+    /**
+     * A WiFi network we were on just vanished (rider leaving the area, most
+     * commonly). If the live WebSocket actually rode that network it is now a
+     * zombie: OkHttp only notices at the ping window, which is 15 s while
+     * riding (background). Probe the peer directly - a listener on the same
+     * LAN answers a TCP connect in tens of ms - and:
+     *
+     *  - unreachable: cancel the socket NOW. streamUntilClosed returns, the
+     *    dial loop re-enters discovery immediately, and the beacon listener
+     *    catches the HUD the moment it lands on the next network.
+     *  - reachable: do nothing. The HUD rides the phone's own hotspot and the
+     *    lost STA network never carried this link (the common riding setup).
+     *
+     * Probing can't hurt a healthy link, so this is safe on every onLost.
+     */
+    private fun probePeerAfterNetworkLoss() {
+        val peer = currentPeer ?: return
+        scope.launch {
+            val host = peer.substringBefore(':')
+            val port = peer.substringAfter(':', "").toIntOrNull() ?: HudDiscovery.DEFAULT_PORT
+            val reachable = runCatching {
+                java.net.Socket().use { s ->
+                    s.connect(java.net.InetSocketAddress(host, port), PEER_PROBE_TIMEOUT_MS)
+                    true
+                }
+            }.getOrDefault(false)
+            if (!reachable && currentPeer == peer) {
+                log("WiFi lost and $peer stopped answering - reconnecting now")
+                // cancel(), not close(): close() queues a frame on a transport
+                // that is already gone and still waits out the ping window.
+                // cancel() fails the socket immediately (onFailure fires).
+                try { ws?.cancel() } catch (_: Throwable) {}
+                reconnectKick.trySend(Unit)
+            }
         }
     }
 
@@ -636,11 +703,22 @@ class HudServer @Inject constructor(
         )
 
         val udpJob = scope.launch {
-            // Check the listener's cache repeatedly so a freshly-arrived
-            // beacon shows up within ~200 ms instead of waiting for the
-            // dial loop's next iteration. Bounded so we eventually give
-            // up if the other channels are also losing.
-            val until = System.currentTimeMillis() + udpProbeTimeoutMs
+            // Check the listener's cache repeatedly so a freshly-arrived beacon
+            // shows up within ~200 ms. Listen for the WHOLE attempt, not a short
+            // sub-window: a beacon that lands late in the search still wins
+            // immediately instead of being missed after udpProbeTimeoutMs while
+            // the attempt idled on until the total timeout. That gap cost a real
+            // HUD ~10 s of dead air - it beaconed a few seconds after the old
+            // 8 s window had already closed, and only the next backoff dialled
+            // it. Bounded by discoveryTotalTimeoutMs, which also cancels this
+            // job the instant any channel wins.
+            val until = System.currentTimeMillis() + maxOf(udpProbeTimeoutMs, discoveryTotalTimeoutMs)
+            // Log the "none yet" diagnostic once, after the short probe window,
+            // then keep listening. "Never heard one" points off the phone (HUD
+            // on another network or out of range); "heard some, none lately"
+            // points at the link going away under us, a different problem.
+            val diagAt = System.currentTimeMillis() + udpProbeTimeoutMs
+            var diagnosed = false
             while (System.currentTimeMillis() < until) {
                 val s = udpListener.latest.value
                 if (s != null && System.currentTimeMillis() - s.receivedAtMs < udpBeaconFreshnessMs) {
@@ -648,21 +726,21 @@ class HudServer @Inject constructor(
                     results.send("${s.ip}:${s.port}" to ConnectionSource.UDP_BEACON)
                     return@launch
                 }
+                if (!diagnosed && System.currentTimeMillis() >= diagAt) {
+                    diagnosed = true
+                    val heard = udpListener.totalReceived
+                    val lastRx = udpListener.lastReceiveAtMs
+                    val bindErr = udpListener.lastBindError
+                    val since = if (lastRx == 0L) "never"
+                        else "${(System.currentTimeMillis() - lastRx) / 1000}s ago"
+                    log(
+                        "UDP beacon: none yet, still listening " +
+                            "(listener: $heard total, last $since" +
+                            (if (bindErr.isNotBlank()) ", bind error: $bindErr" else "") + ")"
+                    )
+                }
                 kotlinx.coroutines.delay(udpPollIntervalMs)
             }
-            // "Never heard one" points off the phone: the HUD is on another
-            // network or out of range. "Heard some, none lately" points at the
-            // link going away under us, which is a different problem.
-            val heard = udpListener.totalReceived
-            val lastRx = udpListener.lastReceiveAtMs
-            val bindErr = udpListener.lastBindError
-            val since = if (lastRx == 0L) "never"
-                else "${(System.currentTimeMillis() - lastRx) / 1000}s ago"
-            log(
-                "UDP beacon: no broadcast received " +
-                    "(listener: $heard total, last $since" +
-                    (if (bindErr.isNotBlank()) ", bind error: $bindErr" else "") + ")"
-            )
         }
 
         val mdnsJob = scope.launch {
@@ -876,6 +954,7 @@ class HudServer @Inject constructor(
                 log("Connected to $peer ✓")
                 wasOpen = true
                 ws = webSocket
+                currentPeer = peer
                 // Push a frame on the rider's HUD report interval off the
                 // snapshot buffer. We don't dedupe: even when no field changed, the
                 // timestamp bump in [snapshot] keeps the HUD's last-frame
@@ -925,6 +1004,7 @@ class HudServer @Inject constructor(
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 sendJob?.cancel()
                 ws = null
+                currentPeer = null
                 commandSink.onHudDisconnected()
                 done.complete(true)
             }
@@ -939,6 +1019,7 @@ class HudServer @Inject constructor(
                 }
                 sendJob?.cancel()
                 ws = null
+                currentPeer = null
                 commandSink.onHudDisconnected()
                 done.complete(false)
             }
