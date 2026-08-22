@@ -56,10 +56,14 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
     function onSelect() as Lang.Boolean {
         var s = WatchState.snapshot;
         if (!keyWasPhysical()) {
-            // Tap promoted to the select behavior. Swallow it: the rider's
-            // Button 1 binding must only fire from the physical button.
-            _actions.debug("onSelect ignored (tap-synthesized, no key)");
-            return true;
+            // Tap mapped to the select behavior. Per the SDK docs, a
+            // behavior returning true SUPPRESSES its corresponding raw
+            // input - which is why the Fenix 8 logs never showed onTap:
+            // the old always-true onSelect ate the ClickEvents. Return
+            // false instead so the tap falls through to onTap with real
+            // coordinates and the touch-button zones work.
+            _actions.debug("onSelect keyless -> fall through to onTap");
+            return false;
         }
         _actions.debug("onSelect act=" + s.stem1Click);
         _actions.dispatch(s.stem1Click);
@@ -69,21 +73,57 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
     function onMenu() as Lang.Boolean {
         var s = WatchState.snapshot;
         if (!keyWasPhysical()) {
-            _actions.debug("onMenu ignored (tap-synthesized, no key)");
-            return true;
+            // Same fall-through reasoning as onSelect: let the raw touch
+            // event (a hold, typically) reach onHold's zones.
+            _actions.debug("onMenu keyless -> fall through");
+            return false;
         }
         _actions.debug("onMenu act=" + s.stem2Click);
         _actions.dispatch(s.stem2Click);
         return true;
     }
 
-    //! Raw key events. Every PHYSICAL press passes through here before the
-    //! system maps it to a behavior (onSelect / onMenu); tap-synthesized
-    //! behaviors do not. Stamp the time, log while diag records, and let
-    //! the default routing continue.
+    //! Raw key notifications. Field evidence (Fenix 8, second capture):
+    //! BehaviorDelegate maps ENTER to onSelect BEFORE raw onKey, so a
+    //! consumed behavior means onKey never fires for the start button -
+    //! only unconsumed keys (up / down) fell through with k=13 / k=8.
+    //! onKeyPressed / onKeyReleased are the raw press notifications that
+    //! fire for every PHYSICAL key regardless of behavior consumption,
+    //! and never for taps - so THEY carry the physical-press stamp the
+    //! onSelect gate reads. All three stamp; whichever a firmware
+    //! delivers, the gate sees it.
+    function onKeyPressed(evt as WatchUi.KeyEvent) as Lang.Boolean {
+        _lastKeyMs = System.getTimer();
+        _actions.debug("onKeyPressed k=" + evt.getKey());
+        return false;
+    }
+
+    function onKeyReleased(evt as WatchUi.KeyEvent) as Lang.Boolean {
+        _lastKeyMs = System.getTimer();
+        _actions.debug("onKeyReleased k=" + evt.getKey());
+        return false;
+    }
+
     function onKey(evt as WatchUi.KeyEvent) as Lang.Boolean {
         _lastKeyMs = System.getTimer();
-        _actions.debug("onKey k=" + evt.getKey() + " type=" + evt.getType());
+        var k = evt.getKey();
+        _actions.debug("onKey k=" + k + " type=" + evt.getType());
+        // Order-independent physical dispatch: when a keyless behavior fell
+        // through (stale stamp, e.g. a slow press whose down was >1 s before
+        // the up), the raw key STILL lands here - and a tap never does (it
+        // falls to onTap). Simulator-verified: up-cycle order is behavior,
+        // then raw key, then released.
+        var s = WatchState.snapshot;
+        if (k == WatchUi.KEY_ENTER) {
+            _actions.debug("onKey dispatch act=" + s.stem1Click);
+            _actions.dispatch(s.stem1Click);
+            return true;
+        }
+        if (k == WatchUi.KEY_MENU) {
+            _actions.debug("onKey dispatch act=" + s.stem2Click);
+            _actions.dispatch(s.stem2Click);
+            return true;
+        }
         return false;
     }
 

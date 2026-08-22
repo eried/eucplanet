@@ -139,6 +139,11 @@ class PhoneBridge {
     //! so a normal ride sends nothing extra. Best-effort like every other
     //! control: _txBusy may drop one, and that is fine for diagnostics.
     function sendDebug(msg as Lang.String) as Void {
+        // Println first: on real watches it goes nowhere (unless an app log
+        // file exists), but in the CIQ simulator it lands in the console -
+        // the only way to verify the input pipeline without a tester, since
+        // the tethered simulator's watch->phone transmits stall.
+        System.println("dbg " + msg);
         if (!WatchState.snapshot.diagOn) { return; }
         transmitControl(Control.DEBUG_PREFIX + msg);
     }
