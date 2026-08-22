@@ -2088,5 +2088,5 @@
     <string name="lockdown_tiltback_alarm">Alarm tiltbacku</string>
     <string name="lockdown_warning_waits">Legální režim je vypnutý, takže se zatím nic nemění. Aplikace se zamkne, až legální režim příště zapneš.</string>
     <string name="lockdown_warning_now">Legální režim je zapnutý, takže to platí hned a aplikace se okamžitě zamkne.</string>
-    <string name="lockdown_warning_no_wheel">Není připojeno žádné kolo, takže legální režim nelze načíst. Aplikace se zamkne, až se legální režim příště zapne.</string>
+    <string name="lockdown_warning_no_wheel">Není připojeno žádné kolo, takže stav legálního režimu je neznámý. Aplikace se zamkne, až se legální režim příště zapne.</string>
 </resources>

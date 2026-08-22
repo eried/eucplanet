@@ -2152,5 +2152,5 @@
     <string name="lockdown_tiltback_alarm">回倾警报</string>
     <string name="lockdown_warning_waits">合法模式已关闭，因此暂时不会有变化。下次开启合法模式时应用才会锁定。</string>
     <string name="lockdown_warning_now">合法模式已开启，因此立即生效，应用会马上锁定。</string>
-    <string name="lockdown_warning_no_wheel">未连接轮子，因此无法读取合法模式状态。下次开启合法模式时应用才会锁定。</string>
+    <string name="lockdown_warning_no_wheel">未连接轮子，因此合法模式的状态未知。下次开启合法模式时应用才会锁定。</string>
 </resources>

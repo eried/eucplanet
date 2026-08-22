@@ -2190,5 +2190,5 @@
     <string name="lockdown_tiltback_alarm">Allarme tiltback</string>
     <string name="lockdown_warning_waits">La modalità legale è disattivata, quindi non cambia ancora nulla. L’app si bloccherà la prossima volta che la attivi.</string>
     <string name="lockdown_warning_now">La modalità legale è attiva, quindi ha effetto subito e l’app si blocca immediatamente.</string>
-    <string name="lockdown_warning_no_wheel">Nessuna ruota collegata, quindi la modalità legale non può essere letta. L’app si bloccherà alla prossima attivazione della modalità legale.</string>
+    <string name="lockdown_warning_no_wheel">Nessuna ruota collegata, quindi lo stato della modalità legale è sconosciuto. L’app si bloccherà alla prossima attivazione della modalità legale.</string>
 </resources>

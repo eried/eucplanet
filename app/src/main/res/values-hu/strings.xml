@@ -2088,5 +2088,5 @@
     <string name="lockdown_tiltback_alarm">Tiltback riasztás</string>
     <string name="lockdown_warning_waits">A legális mód ki van kapcsolva, így még semmi sem változik. Az app akkor zárol, amikor legközelebb bekapcsolod a legális módot.</string>
     <string name="lockdown_warning_now">A legális mód be van kapcsolva, így ez most lép életbe és az app azonnal zárol.</string>
-    <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott kerék, így a legális mód nem olvasható ki. Az app akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
+    <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott kerék, így a legális mód állapota ismeretlen. Az app akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
 </resources>

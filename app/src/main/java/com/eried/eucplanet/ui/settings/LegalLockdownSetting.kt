@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -25,7 +28,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -58,6 +65,8 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
     val colors = MaterialTheme.appColors
     val snackbar = LocalSnackbar.current
     val scope = rememberCoroutineScope()
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val confirmFocus = remember { FocusRequester() }
     val armed by viewModel.legalLockdown.armed.collectAsState()
     val legalModeOn by viewModel.legalModeActive.collectAsState()
     val connected by viewModel.isConnected.collectAsState()
@@ -111,17 +120,22 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
             title = { Text(stringResource(R.string.lockdown_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // The limitation list scrolls inside its own capped box so
-                    // the two code fields below it are always on screen. Behind
-                    // a wall of text the rider saw only a disabled Turn on
-                    // button and no way forward.
+                    // Only the warning scrolls, so both code fields stay on
+                    // screen. Behind a wall of text the rider saw nothing but a
+                    // disabled Turn on button and no way forward.
+                    //
+                    // The cap collapses while the keyboard is up. At its full
+                    // height the dialog is taller than what is left above the
+                    // keyboard, which pushed the repeat field off the bottom
+                    // with no way to reach it.
+                    val imeUp = WindowInsets.ime.getBottom(LocalDensity.current) > 0
                     Column(
                         modifier = Modifier
-                            // Tall enough that the list obviously continues
-                            // past the fold rather than looking like it ends,
-                            // but still capped so the Turn on button is never
-                            // pushed off a short screen such as a flip cover.
-                            .heightIn(max = dialogContentMaxHeight(430))
+                            // Tall enough that the list obviously continues past
+                            // the fold rather than looking like it ends, but
+                            // still capped so the buttons are never pushed off a
+                            // short screen such as a flip cover.
+                            .heightIn(max = dialogContentMaxHeight(if (imeUp) 150 else 430))
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
@@ -178,7 +192,16 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                         placeholder = { Text(stringResource(R.string.lockdown_code_hint)) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                        // Enter moves to the repeat field. Left to itself the
+                        // key reached the dialog and dismissed it, losing a
+                        // half-entered code.
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.NumberPassword,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { confirmFocus.requestFocus() }
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
@@ -188,8 +211,18 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                         singleLine = true,
                         isError = error != null,
                         visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        modifier = Modifier.fillMaxWidth()
+                        // Done only puts the keyboard away. Arming is a
+                        // deliberate tap on Turn on, never a stray Enter.
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.NumberPassword,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(confirmFocus)
                     )
                     if (error != null) {
                         Text(
