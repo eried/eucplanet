@@ -86,7 +86,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -641,27 +644,57 @@ private data class LogFilter(
     val match: (DiagnosticsLogger.Entry) -> Boolean,
 )
 
+// Labels are EXACTLY what they match: the verbatim (case-sensitive) text
+// prefix, or the kind column as the log prints it. No friendly renames -
+// what you pick is what gets filtered.
 private val LOG_FILTERS = listOf(
-    LogFilter("Garmin") { it.text.startsWith("garmin", ignoreCase = true) },
-    LogFilter("WearOS") {
-        it.text.startsWith("wearos", true) || it.text.startsWith("watch:", true) ||
-            it.text.startsWith("wear:", true)
-    },
-    LogFilter("HUD") { it.text.startsWith("hud_link", true) },
-    LogFilter("GPS") {
-        it.text.startsWith("dragy", true) || it.text.startsWith("racebox", true) ||
-            it.text.startsWith("external gps", true)
-    },
-    LogFilter("Flic") { it.text.startsWith("flic", true) },
-    LogFilter("Radar") { it.text.startsWith("radar", true) },
-    LogFilter("TPMS") { it.text.startsWith("tpms", true) },
-    LogFilter("Sent") { it.kind == DiagnosticsLogger.Kind.SEND },
-    LogFilter("Received") { it.kind == DiagnosticsLogger.Kind.RECV },
-    LogFilter("Notes") { it.kind == DiagnosticsLogger.Kind.NOTE },
-    LogFilter("Info") { it.kind == DiagnosticsLogger.Kind.INFO },
-    LogFilter("Comments") { it.kind == DiagnosticsLogger.Kind.USER },
-    LogFilter("Tests") { it.kind == DiagnosticsLogger.Kind.TEST },
+    LogFilter("garmin") { it.text.startsWith("garmin") },
+    LogFilter("wearos") { it.text.startsWith("wearos") },
+    LogFilter("watch:") { it.text.startsWith("watch:") },
+    LogFilter("wear:") { it.text.startsWith("wear:") },
+    LogFilter("hud_link:") { it.text.startsWith("hud_link:") },
+    LogFilter("dragy:") { it.text.startsWith("dragy:") },
+    LogFilter("racebox") { it.text.startsWith("racebox") },
+    LogFilter("flic") { it.text.startsWith("flic") },
+    LogFilter("radar") { it.text.startsWith("radar") },
+    LogFilter("tpms") { it.text.startsWith("tpms") },
+    LogFilter("SEND") { it.kind == DiagnosticsLogger.Kind.SEND },
+    LogFilter("RECV") { it.kind == DiagnosticsLogger.Kind.RECV },
+    LogFilter("NOTE") { it.kind == DiagnosticsLogger.Kind.NOTE },
+    LogFilter("INFO") { it.kind == DiagnosticsLogger.Kind.INFO },
+    LogFilter("USER") { it.kind == DiagnosticsLogger.Kind.USER },
+    LogFilter("TEST") { it.kind == DiagnosticsLogger.Kind.TEST },
 )
+
+// Token classes for the filter list's syntax highlight. Hoisted so the
+// regexes compile once, not per row.
+private val HEX_BYTE = Regex("[0-9a-f]{2}")
+private val NUMBER = Regex("-?[0-9]+([.,][0-9]+)?%?")
+
+/** Console-style highlight: key=value pairs, hex bytes, numbers and the
+ *  "subsystem:" prefix each get their own color so a line can be scanned
+ *  instead of read. Same neon palette as the live console above. */
+private fun highlightLogText(text: String) = androidx.compose.ui.text.buildAnnotatedString {
+    text.split(" ").forEachIndexed { i, tok ->
+        if (i > 0) append(" ")
+        when {
+            tok.length == 2 && HEX_BYTE.matches(tok) ->
+                withStyle(SpanStyle(color = Color(0xFF40C4FF))) { append(tok) }
+            tok.length > 1 && tok.contains('=') && !tok.startsWith("=") -> {
+                withStyle(SpanStyle(color = Color(0xFF80CBC4))) { append(tok.substringBefore('=')) }
+                withStyle(SpanStyle(color = Color(0x66FFFFFF))) { append("=") }
+                withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                    append(tok.substringAfter('='))
+                }
+            }
+            tok.endsWith(':') ->
+                withStyle(SpanStyle(color = Color(0xFF4DD0E1), fontWeight = FontWeight.Bold)) { append(tok) }
+            NUMBER.matches(tok) ->
+                withStyle(SpanStyle(color = Color(0xFFFFAB40))) { append(tok) }
+            else -> withStyle(SpanStyle(color = Color(0xFFECEFF1))) { append(tok) }
+        }
+    }
+}
 
 /**
  * Filtered live view over the shared log. Pick slices from the combo -
@@ -676,6 +709,10 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()
     var active by remember { mutableStateOf<List<String>>(emptyList()) }
     var menuOpen by remember { mutableStateOf(false) }
+    // Time column mode, cycled by the header button: absolute clock, delta
+    // to the previous matching entry (gaps jump out), both, or none.
+    val timeModes = listOf("Time", "Delta", "Both", "None")
+    var timeMode by remember { mutableStateOf(0) }
     val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
 
     val shown = remember(entries, active) {
@@ -700,12 +737,17 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
                 ) {
                     LOG_FILTERS.filter { it.label !in active }.forEach { f ->
                         androidx.compose.material3.DropdownMenuItem(
-                            text = { Text(f.label) },
+                            text = { Text(f.label, fontFamily = FontFamily.Monospace) },
                             onClick = { active = active + f.label; menuOpen = false }
                         )
                     }
                 }
             }
+            Spacer(Modifier.width(8.dp))
+            OutlinedButton(
+                shape = RoundedCornerShape(0.dp),
+                onClick = { timeMode = (timeMode + 1) % timeModes.size }
+            ) { Text(timeModes[timeMode]) }
             Spacer(Modifier.weight(1f))
             TextButton(
                 shape = RoundedCornerShape(0.dp),
@@ -719,7 +761,7 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
                     androidx.compose.material3.FilterChip(
                         selected = true,
                         onClick = { active = active - label },
-                        label = { Text(label) },
+                        label = { Text(label, fontFamily = FontFamily.Monospace) },
                         trailingIcon = { Icon(Icons.Filled.Close, contentDescription = "Remove") },
                         modifier = Modifier.padding(end = 6.dp)
                     )
@@ -728,45 +770,71 @@ private fun FilterTab(vm: WheelDiagnosticsViewModel) {
         }
         if (active.isEmpty()) {
             Text(
-                "Pick one or more filters to view a slice of the log: an accessory " +
-                    "(Garmin, WearOS, HUD, GPS...) or a message kind (Sent, Notes, " +
-                    "Comments...). Pills combine, tap one to remove it.",
+                "No filter, nothing to show.",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(16.dp)
             )
         } else if (shown.isEmpty()) {
             Text(
-                "Nothing in the log matches the active filters yet.",
+                "No matches.",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(16.dp)
             )
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(shown) { e ->
-                    Row(modifier = Modifier.padding(vertical = 2.dp)) {
-                        Text(
-                            timeFmt.format(java.util.Date(e.timestampMs)),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+            // Same console styling as the live log above: dark surface so
+            // the syntax highlight carries, monospace, kind in its color.
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF0A0A0A))
+                    .border(1.dp, Color(0xFF00FF41).copy(alpha = 0.3f))
+                    .padding(6.dp)
+            ) {
+                items(shown.size) { i ->
+                    val e = shown[i]
+                    val mono = MaterialTheme.typography.labelSmall.copy(
+                        fontFamily = FontFamily.Monospace, fontSize = 10.sp
+                    )
+                    Row(modifier = Modifier.padding(vertical = 1.dp)) {
+                        if (timeMode == 0 || timeMode == 2) {
+                            Text(
+                                timeFmt.format(java.util.Date(e.timestampMs)),
+                                style = mono,
+                                color = Color(0xFF00FF41).copy(alpha = 0.6f)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                        }
+                        if (timeMode == 1 || timeMode == 2) {
+                            // Delta to the PREVIOUS matching entry (the one
+                            // below in this newest-first list).
+                            val prev = shown.getOrNull(i + 1)
+                            val delta = if (prev == null) 0L else e.timestampMs - prev.timestampMs
+                            Text(
+                                "+%.3fs".format(delta / 1000.0),
+                                style = mono,
+                                color = Color(0xFFFFEB3B).copy(alpha = 0.8f)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                        }
+                        Text(kindTag(e.kind), style = mono, color = kindColor(e.kind))
                         Spacer(Modifier.width(6.dp))
-                        Text(
-                            e.kind.name,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            e.text,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace
-                        )
+                        Text(highlightLogText(e.text), style = mono)
                     }
                 }
             }
         }
     }
+}
+
+private fun kindTag(kind: DiagnosticsLogger.Kind) = kind.name.padEnd(4)
+
+private fun kindColor(kind: DiagnosticsLogger.Kind): Color = when (kind) {
+    DiagnosticsLogger.Kind.RECV -> Color(0xFF40C4FF)
+    DiagnosticsLogger.Kind.SEND -> Color(0xFFFFAB40)
+    DiagnosticsLogger.Kind.TEST -> Color(0xFFE040FB)
+    DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1)
+    DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41)
+    DiagnosticsLogger.Kind.USER -> Color(0xFFFFEB3B)
 }
 
 @Composable
