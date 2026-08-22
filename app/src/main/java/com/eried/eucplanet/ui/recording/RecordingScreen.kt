@@ -839,15 +839,21 @@ private fun TripStatusIcon(
     // failing or in flight, which put a green cloud on trips whose own tap
     // message said "Not backed up yet". A trip in that state gets a muted
     // cloud instead, and tapping it starts the backup.
+    // The leaderboard's two FINAL bad endings warrant a color of their own:
+    // a failed upload (the tap retries it) and a rejection. Yellow, not red -
+    // the ride itself is safe in a backup, something just wants attention.
+    // Interim pipeline states still color nothing.
+    val onlineProblem = trip.eucstatsStatus == 3 || rejected
     val icon = when {
         backupFailed -> Icons.Default.CloudOff
         backupWaiting -> Icons.Default.CloudQueue
+        onlineProblem -> Icons.Default.Cloud
         backupHeld -> Icons.Default.CloudDone
         else -> Icons.Default.Cloud
     }
     val tint = when {
         backupFailed -> MaterialTheme.appColors.statusDanger
-        backupWaiting -> MaterialTheme.appColors.statusWarn
+        backupWaiting || onlineProblem -> MaterialTheme.appColors.statusWarn
         backupHeld -> MaterialTheme.appColors.statusGood
         else -> MaterialTheme.appColors.textSecondary
     }

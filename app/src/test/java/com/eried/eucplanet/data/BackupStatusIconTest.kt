@@ -83,9 +83,16 @@ class BackupStatusIconTest {
             body.contains("backupFailed -> MaterialTheme.appColors.statusDanger"))
         val icons = body.substringAfter("val icon = when {").substringBefore("}")
         val tints = body.substringAfter("val tint = when {").substringBefore("}")
-        assertTrue("the leaderboard state still drives the icon",
-            !icons.contains("flagged") && !icons.contains("online") &&
-            !tints.contains("flagged") && !tints.contains("online"))
+        assertTrue("an interim leaderboard state drives the icon",
+            !icons.contains("flagged") && !tints.contains("flagged"))
+        // The two FINAL bad endings do color it - yellow, never red: red is
+        // the backups' alone, and a failed or rejected share still means the
+        // ride is safe somewhere.
+        assertTrue("a failed or rejected share shows no color",
+            icons.contains("onlineProblem") && tints.contains("onlineProblem"))
+        assertTrue("a leaderboard problem outranks the backups' red",
+            body.indexOf("backupFailed -> Icons.Default.CloudOff") <
+                body.indexOf("onlineProblem -> Icons.Default.Cloud"))
     }
 
     @Test fun `a trip restored from Dropbox reads as backed up, not as waiting`() {
