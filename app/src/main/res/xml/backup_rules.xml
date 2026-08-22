@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Legal Mode Lockdown must not travel to another phone and must not come back
+  on a restore. Uninstall and reinstall is the documented recovery when the
+  manufacturer code is lost, so the state cannot survive it. Everything else
+  keeps the platform default of being backed up.
+-->
+<full-backup-content>
+    <exclude domain="file" path="datastore/legal_lockdown.preferences_pb" />
+</full-backup-content>
