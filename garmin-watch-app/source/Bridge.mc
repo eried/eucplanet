@@ -145,11 +145,22 @@ class PhoneBridge {
         // the tethered simulator's watch->phone transmits stall.
         System.println("dbg " + msg);
         if (!WatchState.snapshot.diagOn) { return; }
-        transmitControl(Control.DEBUG_PREFIX + msg);
+        // Straight to the guarded sender, NOT transmitControl: debug frames
+        // are droppable and must never occupy the rider-control queue.
+        transmitDict({ Control.PAYLOAD_KEY => Control.DEBUG_PREFIX + msg });
     }
 
-    //! Send a control intent to the phone. Best-effort, no ack. Matches the
-    //! semantics of `WatchStateRepository.sendControl` on the Wear OS side.
+    //! Rider controls waiting for the transmit slot. With per-frame acks and
+    //! the heartbeat sharing the single in-flight transmit, the slot is busy
+    //! more often than not on a slow link - dropping controls there was the
+    //! field report "a press 1-2 s after the last one does not register,
+    //! waiting three seconds works". Bounded so a dead link cannot pile up
+    //! stale horn blasts to fire on reconnect.
+    private var _pendingControls as Lang.Array = [];
+
+    //! Send a control intent to the phone. Queued (bounded) rather than
+    //! dropped when a transmit is outstanding; the queue drains from
+    //! onTransmitDone, ahead of any ack.
     //!
     //! When the phone-side listener never acks (TETHERED simulator is half-
     //! duplex, real BT can also stall), the SDK queues every transmit and
@@ -157,6 +168,12 @@ class PhoneBridge {
     //! uncaught System Error that takes down the dial. Catch and drop so a
     //! stuck phone link doesn't kill the watch app.
     function transmitControl(intent as Lang.String) as Void {
+        if (_txBusy && (System.getTimer() - _txBusySinceMs) < 4000) {
+            if (_pendingControls.size() < 4) {
+                _pendingControls = _pendingControls.add(intent);
+            }
+            return;
+        }
         transmitDict({ Control.PAYLOAD_KEY => intent });
     }
 
@@ -182,9 +199,16 @@ class PhoneBridge {
     }
 
     //! Cleared by the shared TransmitListener when a transmit finishes (ok or
-    //! error), freeing the heartbeat to send the next one.
+    //! error). Pending rider controls drain FIRST - before any heartbeat or
+    //! ack can grab the freed slot - so a queued tap goes out the moment the
+    //! link can carry it.
     function onTransmitDone() as Void {
         _txBusy = false;
+        if (_pendingControls.size() > 0) {
+            var next = _pendingControls[0] as Lang.String;
+            _pendingControls = _pendingControls.slice(1, null);
+            transmitDict({ Control.PAYLOAD_KEY => next });
+        }
     }
 
     //! Tell the phone about the watch's identity on launch. Mirrors
