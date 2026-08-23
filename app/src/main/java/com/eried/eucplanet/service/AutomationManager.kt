@@ -35,12 +35,6 @@ class AutomationManager @Inject constructor(
         // Below this multiplier we treat manual volume changes as direct baseline edits
         // (avoids divide-by-near-zero amplification when standing still).
         private const val MIN_REBASE_MULTIPLIER = 0.05f
-        // Media control: the speed condition must hold this long before we act, so a
-        // momentary GPS / speed blip doesn't pause or resume playback.
-        private const val MEDIA_CONTROL_HOLD_MS = 3000L
-        // Minimum dead-band (km/h) enforced between the pause and resume speeds even
-        // if the rider set them equal - guarantees the anti-thrash gap always exists.
-        private const val MEDIA_CONTROL_MIN_GAP_KMH = 2
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -62,8 +56,8 @@ class AutomationManager @Inject constructor(
     // timestamps implement the "hold past the line" debounce (0 = the condition is
     // not currently met).
     @Volatile private var mediaAutoPaused: Boolean = false
-    private var mediaPauseCandidateSinceMs: Long = 0L
-    private var mediaResumeCandidateSinceMs: Long = 0L
+    // The rules themselves live in MediaControlPolicy, where they are tested.
+    private var mediaState = MediaControlPolicy.State()
 
     /** Proximity lock / unlock decisions. See [ProximityLockEvaluator]. */
     private val proximityLock = ProximityLockEvaluator()
@@ -261,7 +255,7 @@ class AutomationManager @Inject constructor(
      * below [MediaControlSettings.pauseBelowKmh] and resumes it when they speed up to
      * or above [MediaControlSettings.resumeAboveKmh]. The gap between the two is a
      * dead-band that prevents rapid flipping; on top of that the speed must hold past
-     * the line for [MEDIA_CONTROL_HOLD_MS] before we act, so a brief GPS / speed blip
+     * the line for [MediaControlPolicy.HOLD_MS] before we act, so a brief GPS / speed blip
      * is ignored. Resume only ever restarts playback THIS feature paused
      * ([mediaAutoPaused]), so speeding up never starts music the rider deliberately
      * stopped.
@@ -270,48 +264,36 @@ class AutomationManager @Inject constructor(
         // Only act on a live wheel connection. A disconnected wheel reports 0 speed,
         // which would otherwise pause your music the moment you walk off with the phone.
         if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
-            mediaPauseCandidateSinceMs = 0L
-            mediaResumeCandidateSinceMs = 0L
+            mediaState = mediaState.copy(pauseSince = 0L, resumeSince = 0L)
             return
         }
         val mc = settings.mediaControl
-        val speed = wheelRepository.wheelData.value.speed.absoluteValue
-        val now = System.currentTimeMillis()
-        val pauseAt = mc.pauseBelowKmh
-        // Always keep the resume threshold above the pause one so a dead-band exists.
-        val resumeAt = maxOf(mc.resumeAboveKmh, pauseAt + MEDIA_CONTROL_MIN_GAP_KMH)
-
-        // Pause when slow (only if we haven't already auto-paused).
-        if (mc.pauseEnabled && !mediaAutoPaused && speed <= pauseAt) {
-            if (mediaPauseCandidateSinceMs == 0L) mediaPauseCandidateSinceMs = now
-            if (now - mediaPauseCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+        val step = MediaControlPolicy.step(
+            state = mediaState,
+            speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+            nowMs = System.currentTimeMillis(),
+            pauseEnabled = mc.pauseEnabled,
+            pauseBelowKmh = mc.pauseBelowKmh,
+            resumeEnabled = mc.resumeEnabled,
+            resumeAboveKmh = mc.resumeAboveKmh,
+            // Polled only when a resume is otherwise due: the policy short-
+            // circuits on it last, and the poll is the expensive part.
+            externalOk = !mc.requireExternalOutput ||
+                (mediaState.autoPaused && AudioOutput.isExternalActive(audioManager)),
+            connected = true,
+        )
+        mediaState = step.state
+        mediaAutoPaused = step.state.autoPaused
+        when (step.action) {
+            MediaControlPolicy.Action.PAUSE -> {
                 sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
-                mediaAutoPaused = true
-                mediaPauseCandidateSinceMs = 0L
-                Log.i(TAG, "Media control: paused (speed=${speed.roundToInt()} <= $pauseAt km/h)")
+                Log.i(TAG, "Media control: paused (<= ${mc.pauseBelowKmh} km/h)")
             }
-        } else {
-            mediaPauseCandidateSinceMs = 0L
-        }
-
-        // Resume when moving again - only what we paused, and (if the rider asked)
-        // only while audio is on an external output. Pausing is deliberately NOT
-        // gated on the route: slowing down near people should always hush the music,
-        // whatever it is playing on. Resuming is the risky half (it could blast the
-        // phone speaker), so that is the half the headphones/Bluetooth check guards.
-        // The isExternalActive poll is short-circuited to fire only when a resume is
-        // otherwise due.
-        if (mc.resumeEnabled && mediaAutoPaused && speed >= resumeAt &&
-            (!mc.requireExternalOutput || AudioOutput.isExternalActive(audioManager))) {
-            if (mediaResumeCandidateSinceMs == 0L) mediaResumeCandidateSinceMs = now
-            if (now - mediaResumeCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+            MediaControlPolicy.Action.PLAY -> {
                 sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
-                mediaAutoPaused = false
-                mediaResumeCandidateSinceMs = 0L
-                Log.i(TAG, "Media control: resumed (speed=${speed.roundToInt()} >= $resumeAt km/h)")
+                Log.i(TAG, "Media control: resumed")
             }
-        } else {
-            mediaResumeCandidateSinceMs = 0L
+            MediaControlPolicy.Action.NONE -> {}
         }
     }
 
@@ -333,8 +315,7 @@ class AutomationManager @Inject constructor(
      */
     fun resetMediaControl() {
         mediaAutoPaused = false
-        mediaPauseCandidateSinceMs = 0L
-        mediaResumeCandidateSinceMs = 0L
+        mediaState = MediaControlPolicy.State()
     }
 
     /**
