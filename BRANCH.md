@@ -80,7 +80,10 @@ on screen showing that idle draw.
   own; the per-wheel Capacity field has existed since.) It shows only once the
   session has actually seen a charge: percent gained is measured from the
   session's low, which on a pack that sags reads several points on any ride, and
-  the row read "~50 Wh" mid-trip before the gate.
+  the row read "~50 Wh" mid-trip before the gate. It also comes before the
+  measured row rather than after it, because on these wheels the measured bucket
+  holds nothing but the ride's own regen: it read "Charged 29 Wh" through a
+  charge that had put back 120.
 - **`RideEfficiencyTracker`**, the window extracted out of `WheelRepository` so a
   whole ride can be replayed against it.
 
@@ -116,6 +119,12 @@ On a Pixel-class AVD (API 36) against the virtual V8S, English, miles:
   connecting, both with a filled sparkline, and both hold through the braking
   phases that used to blank them and through the end of the ride. RANGE read 4
   miles before the pack was read at rest, against 88 % of a 1000 Wh pack.
+- The Battery screen through a simulated charge: the gauge turns green, Rate
+  reads +0.67 %/min against the simulator's real 0.67, the "Used" row is gone,
+  and "Charged (est.) ~110 Wh" stands against "Added +11.0 %" on a 1000 Wh pack.
+  Before, that screen read "Used" and counted the board's idle draw. (Checked on
+  a build with the simulator's ride shortened to three minutes, since the real
+  script rides for forty; the shipped timings are back and re-verified.)
 - The rest of the InMotion V1 surface still decodes off the simulator's bytes:
   model V8S, firmware 1.2.22, tiltback 45 km/h, odometer, trip, speed, voltage,
   current sign on regen.
