@@ -43,7 +43,12 @@ data class EnergySample(
  *
  * The baseline keeps the highest reading of the first [BASELINE_SETTLE_MS] and
  * then holds: later peaks are lower once the ride has drained past the sag band,
- * and a charge is the only thing that genuinely invalidates it.
+ * and a charge is the only thing that genuinely invalidates it. A charge has to
+ * last [CHARGE_CONFIRM_MS] to count, because the current-based half of charge
+ * detection latches on the regen of a hard brake and takes a couple of seconds
+ * to let go once the wheel stops, so every red light briefly reads as a charge.
+ * Moving the baseline there restarted the measurement every minute or so, which
+ * put RANGE back to a fraction of the pack by another route.
  *
  * **The window ages in riding time, not in wall time.** A rate needs ground
  * covered, so ageing samples out by the clock empties the window the moment the
@@ -85,6 +90,11 @@ class RideEfficiencyTracker {
          *  the level it reports is still current. */
         private const val REST_WINDOW_MS = 90_000L
 
+        /** How long a charge has to hold before it moves the pack baseline.
+         *  Longer than the couple of seconds a brake's regen can hold the
+         *  current-based charge inference on at a standstill. */
+        private const val CHARGE_CONFIRM_MS = 60_000L
+
         /** Float noise on a counter that only climbs; anything past it is a
          *  session that restarted. */
         private const val RESTART_EPSILON_WH = 0.01f
@@ -112,6 +122,8 @@ class RideEfficiencyTracker {
     private var baselineWh = Float.NaN
     private var baselinePct = -1
     private var baselineSetMs = 0L
+    /** When the wheel last started reading as charging, 0 when it is not. */
+    private var chargingSinceMs = 0L
 
     /** Forget the session. Called on a reconnect and by the repository. */
     fun reset() {
@@ -126,6 +138,7 @@ class RideEfficiencyTracker {
         baselineWh = Float.NaN
         baselinePct = -1
         baselineSetMs = 0L
+        chargingSinceMs = 0L
     }
 
     /**
@@ -188,11 +201,18 @@ class RideEfficiencyTracker {
             spanKm = window.last().cumulativeKm - window.first().cumulativeKm,
         )
 
+        // A charge has to hold before it counts: a hard brake latches the
+        // current-based inference, and it lets go a couple of seconds after the
+        // wheel stops, so every red light reads as a charge for a moment.
+        if (!charging) chargingSinceMs = 0L
+        else if (chargingSinceMs == 0L) chargingSinceMs = nowMs
+        val onCharge = chargingSinceMs != 0L && nowMs - chargingSinceMs >= CHARGE_CONFIRM_MS
+
         // The pack read with the load off: the highest of the trailing window,
         // paired with what the ride had spent at that moment.
         val rest = restLevel(nowMs, batteryPercent, netWh)
         if (rest.percent in 1..100) {
-            if (baselinePct < 0 || charging) {
+            if (baselinePct < 0 || onCharge) {
                 // A session starting, or a charge, which is the one thing that
                 // genuinely puts energy back into the pack.
                 baselinePct = rest.percent

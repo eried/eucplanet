@@ -266,6 +266,29 @@ class RideEfficiencyTrackerTest {
     }
 
     @Test
+    fun `a brake at a red light does not count as a charge`() {
+        // The current-based half of charge detection latches on the regen of a
+        // hard brake and lets go a couple of seconds after the wheel stops, so
+        // every stop reads as a charge for a moment. Moving the pack baseline
+        // there restarts the measurement every minute or so, and RANGE goes back
+        // to a fraction of the pack.
+        val ride = Ride()
+        ride.capacityWh = 0
+        repeat(20) { ride.cycle() }
+        val honest = PACK_WH * ride.socPct / 100f / ride.lastEstimate.whPerKm
+
+        repeat(6) {
+            ride.charging = true
+            ride.park(3)          // the flicker at a stop
+            ride.charging = false
+            ride.run(60, 25f, 4.2f)
+        }
+        val after = PACK_WH * ride.socPct / 100f / ride.lastEstimate.whPerKm
+        assertEquals(after, ride.lastEstimate.rangeKm, after * 0.4f)
+        assertTrue("range collapsed after six stops", ride.lastEstimate.rangeKm > honest * 0.6f)
+    }
+
+    @Test
     fun `a charge rebases the pack baseline`() {
         // Ride the pack down, put it on a charger, ride again. Without moving the
         // baseline the second ride measures its energy against a percentage that
@@ -276,7 +299,7 @@ class RideEfficiencyTrackerTest {
 
         ride.charging = true
         ride.socPct = 96f
-        ride.park(120)
+        ride.park(180)
         ride.charging = false
 
         repeat(20) { ride.cycle() }

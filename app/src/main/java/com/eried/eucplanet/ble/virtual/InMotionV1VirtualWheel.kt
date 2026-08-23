@@ -21,7 +21,10 @@ import com.eried.eucplanet.ble.InMotionV1Protocol.CanId
  *   really does. That is the case where energy integration has nothing to work
  *   with and the Battery screen has to fall back to the pack size.
  *
- * The script loops, so leaving it connected overnight keeps exercising both.
+ * The timeline is 40 minutes of riding, 2 parked, then 120 on the charger, and
+ * it loops, so leaving it connected overnight keeps exercising both. Watching the
+ * charge means waiting out the ride: it is deliberately long, because that is
+ * where the rolling window and the charge detector are worth watching.
  *
  * The pack is modelled rather than scripted: a state of charge in watt-hours
  * that the ride spends and the charger refills, mapped back to a terminal

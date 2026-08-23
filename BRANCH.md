@@ -1,6 +1,7 @@
 # InMotion V1 metrics: consumption, range, and what a charge added
 
-Three defects a V8S rider hit, plus the simulator that reproduces them.
+Two things a V8S rider reported, five defects behind them, and the simulator that
+reproduces the lot.
 
 ## The report
 
@@ -29,6 +30,18 @@ net. On a simulated V8S city ride the window was wiped 296 times in 45 minutes
 and the tiles were blank two thirds of the time, showing a number only when a
 stretch of road happened to survive long enough to cross the distance floor,
 which is where the single digits came from.
+
+**Range measured the throttle, not the pack.** Energy per percent needs two
+readings of the same pack in the same state, and this family reports no state of
+charge at all: the app works the percentage out from pack voltage, which sags
+about seven points under a 14 A pull and comes back the moment the rider stops.
+Against a ride that drains half a point a minute, the sag is the whole signal, so
+whichever two instants were sampled, the drop between them was mostly load. Both
+ends now read the highest percentage of a trailing 90 seconds, which is the pack
+with the load off. A charge still moves the baseline, but only once it has held
+for a minute: the current-based half of charge detection latches on the regen of
+a hard brake and lets go a couple of seconds after the wheel stops, so every red
+light briefly read as a charge and restarted the measurement.
 
 **The window aged on the wall clock.** A rate needs ground covered, so ageing
 samples out by time empties the window the moment the wheel stops, which is
@@ -86,18 +99,20 @@ to tell apart from a real charger.
 
 ## Verified
 
-`./gradlew :app:testDebugUnitTest`: 802 tests, 0 failures. `:app:assembleDebug`
+`./gradlew :app:testDebugUnitTest`: 807 tests, 0 failures. `:app:assembleDebug`
 BUILD SUCCESSFUL.
 
-Both regressions were confirmed to fail the new tests before the fix: restoring
-the net-energy restart check fails five of the eight tracker tests, and restoring
-wall-clock ageing fails the end-of-trip one.
+Each regression was confirmed to fail the new tests before the fix: restoring the
+net-energy restart check fails five of the tracker tests, restoring wall-clock
+ageing fails the end-of-trip one, and rebasing on an unconfirmed charge fails the
+red-light one.
 
 On a Pixel-class AVD (API 36) against the virtual V8S, English, miles:
 
-- CONSUMPTION reads 26 Wh/mi and RANGE 36 mi within two minutes of connecting,
-  both with a filled sparkline, and both hold through the braking phases that
-  used to blank them.
+- CONSUMPTION reads about 26 Wh/mi and RANGE about 35 mi within two minutes of
+  connecting, both with a filled sparkline, and both hold through the braking
+  phases that used to blank them and through the end of the ride. RANGE read 4
+  miles before the pack was read at rest, against 88 % of a 1000 Wh pack.
 - The rest of the InMotion V1 surface still decodes off the simulator's bytes:
   model V8S, firmware 1.2.22, tiltback 45 km/h, odometer, trip, speed, voltage,
   current sign on regen.
