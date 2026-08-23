@@ -125,13 +125,16 @@ fun ChargingMonitorScreen(
     onBack: () -> Unit,
     onOpenHistory: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    /** Open with the details flyout already up - the dashboard battery
+     *  icon's long-press promises the graphs, not the dial. */
+    initialDetailsOpen: Boolean = false,
     viewModel: ChargingMonitorViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val ctx = LocalContext.current
     val charging = state.status == ChargeStatus.Charging || state.status == ChargeStatus.Full
 
-    var showSheet by remember { mutableStateOf(false) }
+    var showSheet by remember { mutableStateOf(initialDetailsOpen) }
     // skipPartiallyExpanded = true so the sheet opens straight to its full (expanded)
     // height instead of a half state, reliably, without racing an expand() animation
     // that used to settle back at ~half. contentH (in InfoTabs) is capped so even at

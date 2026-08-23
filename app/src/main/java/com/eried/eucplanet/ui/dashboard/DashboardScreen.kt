@@ -272,6 +272,8 @@ fun DashboardScreen(
     onNavigateToTripDetail: (Long) -> Unit = {},
     onNavigateToMetric: (String) -> Unit = {},
     onNavigateToCharging: () -> Unit = {},
+    /** Long-press on the battery icon: charging monitor, details already up. */
+    onNavigateToChargingDetails: () -> Unit = {},
     onNavigateToTripMeter: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
@@ -800,7 +802,20 @@ fun DashboardScreen(
                     val chargeStatus by viewModel.chargeStatus.collectAsState()
                     val showChargingIcon by viewModel.chargingDashboardIcon.collectAsState()
                     if (showChargingIcon) {
-                        IconButton(onClick = onNavigateToCharging) {
+                        // Not an IconButton: it has no long-press. A tap opens
+                        // the charging monitor as before; holding opens it with
+                        // the details flyout already up, skipping the extra tap
+                        // for the rider who came for the graphs.
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .combinedClickable(
+                                    onClick = onNavigateToCharging,
+                                    onLongClick = onNavigateToChargingDetails,
+                                )
+                        ) {
                             val chargingNow = chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
                                 chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Full
                             Icon(
