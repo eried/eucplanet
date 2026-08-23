@@ -528,6 +528,9 @@ class TripRepository @Inject constructor(
         Log.i(TAG, "adoptOrphanCsvs: dir=${dir.absolutePath} csv=${csvs.size}")
         if (csvs.isEmpty()) return
         val known = tripDao.allFileNames().toHashSet()
+        val settings = runCatching { settingsRepository.get() }.getOrNull()
+        val hasFolder = settings?.syncFolderUri != null
+        var adopted = 0
         for (f in csvs) {
             if (f.name in known) continue
             val text = runCatching { f.readText() }.getOrNull() ?: continue
@@ -541,16 +544,22 @@ class TripRepository @Inject constructor(
                     endTime = if (m.valid) m.endMs else null,
                     distanceKm = m.distanceKm,
                     sampleCount = rows,
-                    // A derived file (a saved section, a join) must not gain an
-                    // upload identity just because the database was rebuilt. The
-                    // name is the only marker that survives, which is why
-                    // TripDerive puts it there.
                     tripUuid = if (TripDerive.isDerived(f.name)) null
-                               else java.util.UUID.randomUUID().toString()
+                               else java.util.UUID.randomUUID().toString(),
+                    // The file's own name, the way every other road in reads
+                    // it. Ten real files adopted on the emulator showed "test
+                    // 3" to eucviewer and a date to the phone.
+                    customName = runCatching { readTripNameFromCsv(f) }.getOrNull(),
+                    // Queued for the folder like a recorded trip. Adopted files
+                    // stayed at status 0, which no worker walks, so they never
+                    // reached the backup folder until a manual sync.
+                    uploadStatus = if (hasFolder) 1 else 0,
                 )
             )
+            adopted++
             Log.i(TAG, "Adopted orphan trip CSV ${f.name} ($rows rows, ${m.distanceKm} km)")
         }
+        if (adopted > 0 && hasFolder && settings != null) syncManager.enqueueTripUpload(settings)
     }
 
     /** Header-driven extraction of (date, lat, lon, mileage) rows for metrics. */
@@ -1052,6 +1061,7 @@ class TripRepository @Inject constructor(
             runCatching { destFile.delete() }
             return null
         }
+        stampDerived(destFile, source.wheelMetaJson)
         val metrics = TripCsv.metricsFrom(readQuads(destFile))
         val record = TripRecord(
             fileName = destName,
@@ -1065,6 +1075,33 @@ class TripRepository @Inject constructor(
         )
         val id = tripDao.insert(record)
         return record.copy(id = id)
+    }
+
+    /** The wheel the trip row knows, written into a derived file; see
+     *  [TripDerive.stampDerived]. Best effort: a file that cannot carry it
+     *  is still a valid trip. */
+    private fun stampDerived(file: File, wheelJson: String?) {
+        val identity = WheelChoice.fromJson(wheelJson)?.extraFields().orEmpty()
+        runCatching { TripDerive.stampDerived(file, identity) }
+            .onFailure { Log.w(TAG, "Could not stamp derived ${file.name}", it) }
+    }
+
+    /** First trip.name= in the Extra column, the way the sync parser reads it. */
+    private fun readTripNameFromCsv(file: File): String? {
+        file.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return null
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return null
+            while (true) {
+                val line = reader.readLine() ?: break
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("trip.name=", ignoreCase = true)) {
+                    val v = cell.substringAfter('=').trim().take(60)
+                    if (v.isNotEmpty()) return v
+                }
+            }
+        }
+        return null
     }
 
     /** Date, lat, lon and odometer per row, for metric recomputation. */
@@ -1321,6 +1358,7 @@ class TripRepository @Inject constructor(
             return null
         }
         if (rows <= 0) { runCatching { destFile.delete() }; return null }
+        stampDerived(destFile, ordered.first().wheelMetaJson)
         val metrics = TripCsv.metricsFrom(readQuads(destFile))
         val record = TripRecord(
             fileName = destName,

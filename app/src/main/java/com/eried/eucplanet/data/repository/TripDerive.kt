@@ -258,6 +258,34 @@ object TripDerive {
      *
      * @return rows written, excluding the header.
      */
+    /**
+     * Make a freshly derived file (a split piece, a join) describe itself.
+     *
+     * A piece cut from the second half of a ride carried no wheel at all:
+     * the recorder writes the identity once, near the top, so everything
+     * after the cut was anonymous and eucviewer filed it as a generic wheel.
+     * The identity is re-emitted into the piece from the source trip.
+     *
+     * And a piece or a join inherited whatever trip.name= row it happened to
+     * contain, while the app lists derived trips by date: the file said
+     * "test 3" to eucviewer and the phone said Aug 19. Derived trips start
+     * nameless in the file too, so the two agree until the rider names it.
+     *
+     * @return false when the file has no Extra column to carry any of it.
+     */
+    fun stampDerived(file: File, identity: Map<String, String>): Boolean {
+        val tmp = File(file.parentFile, file.name + ".rewrite")
+        fun swapIn(): Boolean {
+            if (!tmp.exists() || tmp.length() == 0L) { runCatching { tmp.delete() }; return false }
+            return file.delete() && tmp.renameTo(file)
+        }
+        if (rewriteTripName(file, tmp, "") < 0) return false
+        if (!swapIn()) return false
+        if (identity.isEmpty()) return true
+        rewriteWheelIdentity(file, tmp, identity)
+        return swapIn()
+    }
+
     fun writeJoined(sources: List<File>, dest: File): Int {
         val present = sources.filter { it.exists() }
         if (present.isEmpty()) return 0
