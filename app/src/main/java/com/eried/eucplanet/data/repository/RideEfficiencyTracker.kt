@@ -31,6 +31,20 @@ data class EnergySample(
  * about two thirds of the time, showing a number only when a stretch happened
  * to survive long enough to cross the distance floor.
  *
+ * **The pack level is read at rest, at both ends.** Energy per percent needs two
+ * readings of the same pack in the same state, and on the InMotion V1 family the
+ * percentage is worked out from pack voltage: it sags about seven points under a
+ * 14 A pull and comes back the moment the rider stops. Against a ride that only
+ * drains half a point a minute, that sag is the whole signal, so a drop measured
+ * between whatever two instants happened to be sampled is mostly load. Both ends
+ * therefore read the highest percentage of a trailing [REST_WINDOW_MS], which is
+ * the pack with the load off, and the sag cancels. Range reads the same figure,
+ * so the tile stops swinging with the throttle.
+ *
+ * The baseline keeps the highest reading of the first [BASELINE_SETTLE_MS] and
+ * then holds: later peaks are lower once the ride has drained past the sag band,
+ * and a charge is the only thing that genuinely invalidates it.
+ *
  * **The window ages in riding time, not in wall time.** A rate needs ground
  * covered, so ageing samples out by the clock empties the window the moment the
  * wheel stops, which is exactly when a rider looks at the dashboard: that is
@@ -61,6 +75,16 @@ class RideEfficiencyTracker {
          *  stalled tick or a resumed session cannot age the window in one step. */
         private const val MAX_TICK_MS = 5_000L
 
+        /** How long the pack baseline keeps taking the highest reading before it
+         *  holds. Long enough to catch a standstill, short enough that the ride's
+         *  own drain has not yet moved the percentage much. */
+        private const val BASELINE_SETTLE_MS = 3 * 60_000L
+
+        /** Trailing window the pack level is read as the highest reading of.
+         *  Long enough to contain a stop in ordinary riding, short enough that
+         *  the level it reports is still current. */
+        private const val REST_WINDOW_MS = 90_000L
+
         /** Float noise on a counter that only climbs; anything past it is a
          *  session that restarted. */
         private const val RESTART_EPSILON_WH = 0.01f
@@ -77,13 +101,22 @@ class RideEfficiencyTracker {
     private var lastTickMs = 0L
     private var lastMovedMs = 0L
 
+    /** One reading of the pack: how full it says it is, and what the ride had
+     *  spent by then. Kept paired so the two always describe the same moment. */
+    private data class PackSample(val timestampMs: Long, val percent: Int, val netWh: Float)
+
+    /** Trailing readings, so the pack can be read with the load off. */
+    private val restWindow = ArrayDeque<PackSample>()
+
     // Ride-learned pack size: energy spent against percent dropped.
     private var baselineWh = Float.NaN
     private var baselinePct = -1
+    private var baselineSetMs = 0L
 
     /** Forget the session. Called on a reconnect and by the repository. */
     fun reset() {
         window.clear()
+        restWindow.clear()
         cumulativeKm = 0f
         lastSourceKm = Float.NaN
         lastWhConsumed = 0f
@@ -92,6 +125,7 @@ class RideEfficiencyTracker {
         lastMovedMs = 0L
         baselineWh = Float.NaN
         baselinePct = -1
+        baselineSetMs = 0L
     }
 
     /**
@@ -100,6 +134,7 @@ class RideEfficiencyTracker {
      * @param sourceKm       a cumulative distance counter, odometer for preference
      * @param windowMs       the rider's dashboard rolling window
      * @param packCapacityWh rider-entered pack size, 0 when unset
+     * @param charging       the wheel is on a charger, so the pack baseline moves
      */
     fun sample(
         nowMs: Long,
@@ -109,6 +144,7 @@ class RideEfficiencyTracker {
         batteryPercent: Int,
         windowMs: Long,
         packCapacityWh: Int,
+        charging: Boolean = false,
     ): Estimate {
         // The consumed counter only climbs within a session, so a drop means the
         // session restarted (reconnect) and every baseline is stale.
@@ -152,12 +188,27 @@ class RideEfficiencyTracker {
             spanKm = window.last().cumulativeKm - window.first().cumulativeKm,
         )
 
-        // Charging, or the first reading of a session, rebases.
-        if (batteryPercent in 1..100 && (baselinePct < 0 || batteryPercent > baselinePct)) {
-            baselinePct = batteryPercent
-            baselineWh = netWh
+        // The pack read with the load off: the highest of the trailing window,
+        // paired with what the ride had spent at that moment.
+        val rest = restLevel(nowMs, batteryPercent, netWh)
+        if (rest.percent in 1..100) {
+            if (baselinePct < 0 || charging) {
+                // A session starting, or a charge, which is the one thing that
+                // genuinely puts energy back into the pack.
+                baselinePct = rest.percent
+                baselineWh = rest.netWh
+                baselineSetMs = nowMs
+            } else if (nowMs - baselineSetMs < BASELINE_SETTLE_MS &&
+                rest.percent > baselinePct
+            ) {
+                // Still settling: keep the highest reading, since the first one
+                // of a session is as likely as not to be taken mid pull.
+                baselinePct = rest.percent
+                baselineWh = rest.netWh
+            }
         }
-        val whPerPct = RideEfficiency.whPerPercent(netWh, baselineWh, batteryPercent, baselinePct)
+        val whPerPct =
+            RideEfficiency.whPerPercent(rest.netWh, baselineWh, rest.percent, baselinePct)
         // Until the ride has taught a rate, a rider-entered pack size stands in
         // so the tile answers from the first km. 0 = unset, and the estimate
         // stays blank as before.
@@ -167,7 +218,22 @@ class RideEfficiencyTracker {
 
         return Estimate(
             whPerKm = whPerKm,
-            rangeKm = RideEfficiency.rangeKm(whPerKm, effectiveWhPerPct, batteryPercent),
+            rangeKm = RideEfficiency.rangeKm(whPerKm, effectiveWhPerPct, rest.percent),
         )
+    }
+
+    /**
+     * The pack as it reads with the load off: the highest percentage of the
+     * trailing [REST_WINDOW_MS], with the energy spent at that same moment. Ties
+     * go to the newest reading, so a pack standing still reports the present.
+     */
+    private fun restLevel(nowMs: Long, percent: Int, netWh: Float): PackSample {
+        restWindow.addLast(PackSample(nowMs, percent, netWh))
+        while (restWindow.size > 1 && nowMs - restWindow.first().timestampMs > REST_WINDOW_MS) {
+            restWindow.removeFirst()
+        }
+        var best = restWindow.first()
+        for (sample in restWindow) if (sample.percent >= best.percent) best = sample
+        return best
     }
 }

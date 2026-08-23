@@ -30,13 +30,25 @@ class RideEfficiencyTrackerTest {
         var odoKm = 2517f
         var outWh = 0f
         var regenWh = 0f
-        var pct = 90
+        /** Pack state of charge, in percent of [PACK_WH]. */
+        var socPct = 92f
+        /**
+         * What the wheel reports. On the InMotion V1 family that is not a state
+         * of charge at all: the app works it out from pack voltage, which sags
+         * under load and comes back at a standstill. A 14 A pull moves it about
+         * seven points on a V8S.
+         */
+        var reportsSaggingPercent = true
+        var charging = false
         private var lastPowerW = 0f
         private var primed = false
 
         var blanks = 0
         var readings = 0
         val values = mutableListOf<Float>()
+        /** Wh the estimator thinks is left in the pack: range x consumption,
+         *  which strips the consumption rate back out of the range. */
+        val packWhLeft = mutableListOf<Float>()
         var lastEstimate = RideEfficiencyTracker.Estimate()
 
         /** Rider-entered pack size; 0 means they never entered one. */
@@ -56,19 +68,26 @@ class RideEfficiencyTrackerTest {
                 lastPowerW = powerW
                 if (inc >= 0f) regenWh += inc else outWh -= inc
 
+                socPct = (socPct - powerW / 3600f / PACK_WH * 100f).coerceIn(0f, 100f)
                 odoKm += speedKmh / 3600f
                 tMs += 1000L
+                // 0.08 ohm of pack resistance over a 14.5 V percent scale.
+                val sagPct = if (reportsSaggingPercent) amps * 0.08f / 14.5f * 100f else 0f
                 lastEstimate = tracker.sample(
                     nowMs = tMs,
                     whConsumed = outWh,
                     whRegen = regenWh,
                     sourceKm = odoKm,
-                    batteryPercent = pct,
+                    batteryPercent = (socPct - sagPct).toInt().coerceIn(0, 100),
                     windowMs = WINDOW_MS,
                     packCapacityWh = capacityWh,
+                    charging = charging,
                 )
                 if (lastEstimate.whPerKm.isNaN()) blanks++
                 else { readings++; values += lastEstimate.whPerKm }
+                if (!lastEstimate.rangeKm.isNaN()) {
+                    packWhLeft += lastEstimate.rangeKm * lastEstimate.whPerKm
+                }
             }
         }
 
@@ -181,13 +200,89 @@ class RideEfficiencyTrackerTest {
         // the ride to have measured its own.
         val blind = Ride()
         blind.capacityWh = 0
-        repeat(5) { blind.cycle() }
+        blind.reportsSaggingPercent = false   // a wheel with a steady percentage
+        repeat(2) { blind.cycle() }           // barely a percent off the pack
         assertTrue(!blind.lastEstimate.whPerKm.isNaN())
         assertTrue(blind.lastEstimate.rangeKm.isNaN())
 
         val seeded = Ride()
-        repeat(5) { seeded.cycle() }
+        seeded.reportsSaggingPercent = false
+        repeat(2) { seeded.cycle() }
         assertTrue(!seeded.lastEstimate.rangeKm.isNaN())
+    }
+
+    @Test
+    fun `an early range is the pack the rider entered`() {
+        // Five minutes in, the ride has not drained enough for its own rate to
+        // mean anything, and the pack size the rider entered is the better
+        // answer. It read a fraction of that while a sag-sized drop was being
+        // taken for real discharge.
+        val ride = Ride()
+        repeat(4) { ride.cycle() }
+
+        val honest = PACK_WH * ride.socPct / 100f / ride.lastEstimate.whPerKm
+        assertEquals(honest, ride.lastEstimate.rangeKm, honest * 0.25f)
+    }
+
+    @Test
+    fun `range does not swing with the throttle`() {
+        // The percentage this family reports drops several points the moment the
+        // rider accelerates, so a range read straight off it lurched between a
+        // third and the whole of the real figure, several times a minute.
+        fun swingOverThreeCycles(sagging: Boolean): Float {
+            val ride = Ride()
+            ride.reportsSaggingPercent = sagging
+            repeat(10) { ride.cycle() }
+            val settled = ride.packWhLeft.takeLast(72 * 3)
+            return settled.max() / settled.min()
+        }
+
+        // Against a wheel whose percentage holds steady, which is the best this
+        // can be: what is left is the percentage arriving in whole numbers, and
+        // the step it takes each time it drops one.
+        val steady = swingOverThreeCycles(sagging = false)
+        val sagging = swingOverThreeCycles(sagging = true)
+        assertTrue(
+            "sag adds $sagging against $steady on a steady wheel",
+            sagging <= steady * 1.1f,
+        )
+    }
+
+    @Test
+    fun `range is the whole pack, not one sag in the percentage`() {
+        // The V1 family works its percentage out from pack voltage, so it drops
+        // several points the moment the rider accelerates and comes back when
+        // they stop. Rebasing on every rebound measured a few seconds of energy
+        // against a sag-sized drop, and RANGE read a fraction of the truth.
+        val ride = Ride()
+        ride.capacityWh = 0   // no rider-entered pack size, so this is the learned rate
+        repeat(20) { ride.cycle() }
+
+        val whPerKm = ride.lastEstimate.whPerKm
+        val pct = ride.socPct
+        // The pack really holds PACK_WH, so what is left is pct percent of it.
+        val honest = PACK_WH * pct / 100f / whPerKm
+        assertEquals(honest, ride.lastEstimate.rangeKm, honest * 0.35f)
+    }
+
+    @Test
+    fun `a charge rebases the pack baseline`() {
+        // Ride the pack down, put it on a charger, ride again. Without moving the
+        // baseline the second ride measures its energy against a percentage that
+        // went up, and the learned rate is nonsense.
+        val ride = Ride()
+        ride.capacityWh = 0
+        repeat(20) { ride.cycle() }
+
+        ride.charging = true
+        ride.socPct = 96f
+        ride.park(120)
+        ride.charging = false
+
+        repeat(20) { ride.cycle() }
+        val whPerKm = ride.lastEstimate.whPerKm
+        val honest = PACK_WH * ride.socPct / 100f / whPerKm
+        assertEquals(honest, ride.lastEstimate.rangeKm, honest * 0.4f)
     }
 
     @Test

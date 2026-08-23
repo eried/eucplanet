@@ -766,6 +766,8 @@ class WheelRepository @Inject constructor(
                     batteryPercent = wd.batteryPercent,
                     windowMs = rollingWindowMs,
                     packCapacityWh = batteryPercentCached.capacityWh,
+                    charging = _chargeStatus.value == ChargeStatus.Charging ||
+                        _chargeStatus.value == ChargeStatus.Full,
                 )
 
                 val current = _wheelData.value
