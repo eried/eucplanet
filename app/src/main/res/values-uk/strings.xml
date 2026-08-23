@@ -1998,6 +1998,7 @@
     <string name="sync_stopping">Зупинка…</string>
     <string name="charging_stat_used">Витрачено</string>
     <string name="charging_stat_charged">Заряджено</string>
+    <string name="charging_stat_charged_est">Заряджено (оцінка)</string>
     <string name="voice_quality_high">висока якість</string>
     <string name="voice_quality_low">базова</string>
     <string name="voice_sample_default">Це голос за замовчуванням для цієї мови</string>

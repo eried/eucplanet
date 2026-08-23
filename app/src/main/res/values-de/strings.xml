@@ -2021,6 +2021,7 @@
     <string name="sync_stopping">Wird gestoppt…</string>
     <string name="charging_stat_used">Verbraucht</string>
     <string name="charging_stat_charged">Geladen</string>
+    <string name="charging_stat_charged_est">Geladen (geschätzt)</string>
     <string name="voice_quality_high">hohe Qualität</string>
     <string name="voice_quality_low">einfach</string>
     <string name="voice_sample_default">Dies ist die Standardstimme für diese Sprache</string>

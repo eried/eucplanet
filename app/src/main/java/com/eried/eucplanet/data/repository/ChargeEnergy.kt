@@ -43,11 +43,20 @@ object ChargeEnergy {
      * decides the riding case, where consumption and regen both occur and only
      * the sign separates them.
      *
+     * [measuresChargeCurrent] is the other half of that rule. Both InMotion
+     * families keep reporting the board's own idle draw while the charger works,
+     * so there is no charge current on the wire to integrate. Filing that draw as
+     * energy either way is worse than filing nothing: it read as "Used 4 Wh"
+     * against +54 % added on a V8S, which is the wheel's standby consumption
+     * presented as what the charge did. Charged energy for those wheels comes
+     * from the percentage and the pack size instead.
+     *
      * @param prevPowerW  V x I at the previous sample, in the wheel's own sign
      * @param nowPowerW   V x I at this sample, in the wheel's own sign
      * @param dtMs        elapsed since the previous sample
      * @param dischargeIsPositivePower  true for InMotion V1, false elsewhere
      * @param charging    the wheel reports itself charging right now
+     * @param measuresChargeCurrent  the wheel puts a real charge current on the wire
      */
     fun stepWh(
         prevPowerW: Float,
@@ -55,12 +64,27 @@ object ChargeEnergy {
         dtMs: Long,
         dischargeIsPositivePower: Boolean,
         charging: Boolean = false,
+        measuresChargeCurrent: Boolean = true,
     ): Float {
         if (dtMs <= 0L || dtMs > MAX_GAP_MS) return 0f
+        if (charging && !measuresChargeCurrent) return 0f
         val raw = ((prevPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
         if (charging) return kotlin.math.abs(raw)
         return if (dischargeIsPositivePower) -raw else raw
     }
+
+    /**
+     * Charged Wh worked out from the percentage a charge added and the pack's
+     * rated size, for the wheels [stepWh] has no charge current to integrate.
+     *
+     * Rough on purpose, and labelled as an estimate on screen: it is only as
+     * good as the wheel's own percentage, and a real pack sags below its
+     * nameplate. It is still the only figure those wheels can give, and a rider
+     * watching +54 % go by is better served by "about 540 Wh" than by silence.
+     * 0 means there is nothing to show: no capacity entered, or nothing added.
+     */
+    fun chargedWhFromPercent(addedPercent: Float, capacityWh: Int): Float =
+        if (addedPercent > 0f && capacityWh > 0) addedPercent / 100f * capacityWh else 0f
 
     /** Energy over a whole ride, split the way the live buckets are. */
     data class RideEnergy(val outWh: Float, val regenWh: Float) {

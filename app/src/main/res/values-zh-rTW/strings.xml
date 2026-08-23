@@ -2000,6 +2000,7 @@
     <string name="sync_stopping">正在停止…</string>
     <string name="charging_stat_used">已用</string>
     <string name="charging_stat_charged">已充</string>
+    <string name="charging_stat_charged_est">已充 (估算)</string>
     <string name="voice_quality_high">高品質</string>
     <string name="voice_quality_low">基本</string>
     <string name="voice_sample_default">這是此語言的預設語音</string>

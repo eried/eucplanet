@@ -1999,6 +1999,7 @@
     <string name="sync_stopping">Zatrzymywanie…</string>
     <string name="charging_stat_used">Zużyto</string>
     <string name="charging_stat_charged">Naładowano</string>
+    <string name="charging_stat_charged_est">Naładowano (szac.)</string>
     <string name="voice_quality_high">wysoka jakość</string>
     <string name="voice_quality_low">podstawowa</string>
     <string name="voice_sample_default">To jest domyślny głos dla tego języka</string>

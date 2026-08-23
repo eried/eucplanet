@@ -2016,6 +2016,7 @@
     <string name="sync_stopping">Stopper…</string>
     <string name="charging_stat_used">Brugt</string>
     <string name="charging_stat_charged">Opladet</string>
+    <string name="charging_stat_charged_est">Opladet (est.)</string>
     <string name="voice_quality_high">høj kvalitet</string>
     <string name="voice_quality_low">enkel</string>
     <string name="voice_sample_default">Dette er standardstemmen for dette sprog</string>

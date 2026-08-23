@@ -2236,6 +2236,7 @@
     <string name="charging_stat_current">Current</string>
     <string name="charging_stat_used">Used</string>
     <string name="charging_stat_charged">Charged</string>
+    <string name="charging_stat_charged_est">Charged (est.)</string>
     <string name="charging_chart_empty">Collecting data</string>
     <string name="charging_reset_data">Reset data</string>
     <string name="charging_export">Export</string>

@@ -1103,8 +1103,17 @@ private fun InfoTabs(state: ChargingUiState) {
                         if (state.energyUsedWh >= 1f && !state.charging) {
                             StatRow(stringResource(R.string.charging_stat_used), fmtWh(state.energyUsedWh))
                         }
+                        // Charged: the integral when the wheel reports a charge
+                        // current, otherwise the percentage times the rider's pack
+                        // size, labelled as the estimate it is. Both InMotion
+                        // generations only ever reach the second one.
                         if (state.energyChargedWh >= 1f) {
                             StatRow(stringResource(R.string.charging_stat_charged), fmtWh(state.energyChargedWh))
+                        } else if (state.estimatedChargedWh >= 1f) {
+                            StatRow(
+                                stringResource(R.string.charging_stat_charged_est),
+                                "~" + fmtWh(state.estimatedChargedWh),
+                            )
                         }
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))
                     }

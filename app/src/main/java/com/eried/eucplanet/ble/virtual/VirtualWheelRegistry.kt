@@ -1,8 +1,8 @@
 package com.eried.eucplanet.ble.virtual
 
 /**
- * Registry of available virtual wheels. Currently V14 only; Phase 4-6 add
- * V12, V10F, S18, Lynx as their real adapters land. The pseudo-address
+ * Registry of available virtual wheels: the two InMotion generations plus a
+ * Begode; S18 and Lynx follow as their simulators land. The pseudo-address
  * "VIRTUAL:<id>" is what BleConnectionManager.connect() recognises to route
  * to the simulator instead of real GATT.
  */
@@ -12,6 +12,7 @@ object VirtualWheelRegistry {
     private val factories: Map<String, () -> VirtualWheel> = mapOf(
         "V14" to ::V14VirtualWheel,
         "P6" to ::P6VirtualWheel,
+        "V8S" to { InMotionV1VirtualWheel() },
         "MASTER" to ::BegodeMasterVirtualWheel
     )
 

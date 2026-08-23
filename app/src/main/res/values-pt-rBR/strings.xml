@@ -2001,6 +2001,7 @@
     <string name="sync_stopping">Parando…</string>
     <string name="charging_stat_used">Usado</string>
     <string name="charging_stat_charged">Carregado</string>
+    <string name="charging_stat_charged_est">Carregado (est.)</string>
     <string name="voice_quality_high">alta qualidade</string>
     <string name="voice_quality_low">básica</string>
     <string name="voice_sample_default">Esta é a voz padrão para este idioma</string>

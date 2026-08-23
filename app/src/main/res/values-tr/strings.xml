@@ -1998,6 +1998,7 @@
     <string name="sync_stopping">Durduruluyor…</string>
     <string name="charging_stat_used">Kullanılan</string>
     <string name="charging_stat_charged">Şarj edilen</string>
+    <string name="charging_stat_charged_est">Şarj edilen (tahmini)</string>
     <string name="voice_quality_high">yüksek kalite</string>
     <string name="voice_quality_low">temel</string>
     <string name="voice_sample_default">Bu, bu dil için varsayılan sestir</string>

@@ -1906,6 +1906,7 @@
     <string name="sync_stopping">Arresto…</string>
     <string name="charging_stat_used">Usata</string>
     <string name="charging_stat_charged">Caricata</string>
+    <string name="charging_stat_charged_est">Caricata (stima)</string>
     <string name="voice_quality_high">alta qualità</string>
     <string name="voice_quality_low">base</string>
     <string name="voice_sample_default">Questa è la voce predefinita per questa lingua</string>
