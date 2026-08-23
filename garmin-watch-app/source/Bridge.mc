@@ -67,9 +67,14 @@ class PhoneBridge {
     }
 
     function onAliveTick() as Void {
-        // transmitControl itself skips while a prior transmit is outstanding
-        // (with a timeout), so the heartbeat can't pile unacked frames into the
-        // queue - that overflow is what crashed the dial (issue #13).
+        // A rider control stranded by a lost transmit callback outranks the
+        // heartbeat for the freed slot.
+        if (_pendingControls.size() > 0 && txSlotFree()) {
+            var next = _pendingControls[0] as Lang.String;
+            _pendingControls = _pendingControls.slice(1, null);
+            transmitDict({ Control.PAYLOAD_KEY => next });
+            return;
+        }
         sendAlive();
     }
 
@@ -110,10 +115,14 @@ class PhoneBridge {
             WatchState.update(data);
             // Echo the seq right now instead of waiting for the heartbeat, so
             // the phone's backlog cap releases as fast as we actually consume
-            // frames (fix-4). Backpressured by _txBusy: while a transmit is
-            // outstanding this is a no-op, so a frame burst can't overflow
-            // the CIQ outbound queue - the crash the cap exists to prevent.
-            sendAlive();
+            // frames (fix-4) - but ONLY while the link is proving fast. On a
+            // congested link (last completion slower than the heartbeat
+            // period) the per-frame ack adds nothing the 1.5 s heartbeat
+            // doesn't, and its extra transmits are what slow-leaked the SDK
+            // queue toward "transmit queue full" over a long session.
+            if (!_txBusy && _lastTxDurationMs < 1500) {
+                sendAlive();
+            }
         } else if (kind.equals(Keys.KIND_WAKE)) {
             // The phone fires this whenever its app comes to foreground. The
             // phone separately calls ConnectIQ.openApplication() to actually
@@ -168,7 +177,7 @@ class PhoneBridge {
     //! uncaught System Error that takes down the dial. Catch and drop so a
     //! stuck phone link doesn't kill the watch app.
     function transmitControl(intent as Lang.String) as Void {
-        if (_txBusy && (System.getTimer() - _txBusySinceMs) < 4000) {
+        if (!txSlotFree()) {
             if (_pendingControls.size() < 4) {
                 _pendingControls = _pendingControls.add(intent);
             }
@@ -177,16 +186,40 @@ class PhoneBridge {
         transmitDict({ Control.PAYLOAD_KEY => intent });
     }
 
+    //! How long a transmit may sit without its completion callback before
+    //! the busy flag is presumed orphaned. Raised from 4 s: field timing
+    //! put normal completions at 2-3 s on a congested link, so 4 s
+    //! reclaimed slots whose transmits were merely slow.
+    private const TX_ABANDON_MS = 8000;
+    //! Duration of the last COMPLETED transmit (ms). The per-frame ack
+    //! reads it to stand down while the link is slow.
+    private var _lastTxDurationMs as Lang.Number = 0;
+
+    //! True when the transmit slot is available. A stale flag (no callback
+    //! within [TX_ABANDON_MS]) is reclaimed here, but the CURRENT send is
+    //! still refused: the old behavior of overriding a stale flag sent a
+    //! new transmit on top of one the SDK might still be delivering, and
+    //! each such stack added an entry the radio never drained - the slow
+    //! leak behind "Communications transmit queue full" after 10+ minutes.
+    //! Reclaim-without-send gives the queue a full extra tick to drain.
+    private function txSlotFree() as Lang.Boolean {
+        if (!_txBusy) { return true; }
+        if (System.getTimer() - _txBusySinceMs >= TX_ABANDON_MS) {
+            _txBusy = false;
+            _lastTxDurationMs = TX_ABANDON_MS;
+        }
+        return false;
+    }
+
     //! Guarded transmit shared by control intents and the ALIVE heartbeat.
     //!
-    //! Backpressure: never stack a second transmit on an outstanding one. A
-    //! full CIQ outbound queue throws "Communications transmit queue full" as
-    //! an uncaught System Error that crashes the dial while the delegate keeps
-    //! running - exactly issue #13. Drop the frame if one is in flight
-    //! (best-effort, like the Wear bridge), but abandon a genuinely stuck
-    //! transmit after ~4 s so a lost callback can't silence the link forever.
+    //! Backpressure: NEVER a second transmit on an outstanding one - a full
+    //! CIQ outbound queue throws "Communications transmit queue full" as an
+    //! uncaught System Error that takes down the dial (issue #13). Busy =
+    //! this frame is dropped (or queued upstream for rider controls); a
+    //! stale flag is reclaimed by [txSlotFree] without sending.
     private function transmitDict(payload as Lang.Dictionary) as Void {
-        if (_txBusy && (System.getTimer() - _txBusySinceMs) < 4000) { return; }
+        if (!txSlotFree()) { return; }
         _txBusy = true;
         _txBusySinceMs = System.getTimer();
         try {
@@ -199,10 +232,12 @@ class PhoneBridge {
     }
 
     //! Cleared by the shared TransmitListener when a transmit finishes (ok or
-    //! error). Pending rider controls drain FIRST - before any heartbeat or
-    //! ack can grab the freed slot - so a queued tap goes out the moment the
-    //! link can carry it.
+    //! error). Records the completion time for the adaptive ack, then drains
+    //! pending rider controls FIRST - before any heartbeat or ack can grab
+    //! the freed slot - so a queued tap goes out the moment the link can
+    //! carry it.
     function onTransmitDone() as Void {
+        _lastTxDurationMs = System.getTimer() - _txBusySinceMs;
         _txBusy = false;
         if (_pendingControls.size() > 0) {
             var next = _pendingControls[0] as Lang.String;
