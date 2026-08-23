@@ -11,6 +11,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -22,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -82,19 +87,16 @@ fun LockdownUnlockDialog(
                 // Half and half, the same shape the Legal Tiltback / Legal Alarm
                 // pair uses in settings, so the two limits read as a pair. Both
                 // are read-only: this dialog reports them, it does not set them.
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     ReadOnlySpeedField(
                         label = stringResource(R.string.lockdown_action_speed_limit),
                         value = formatSpeed(legalTiltbackKmh, speedUnit, context),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth()
                     )
                     ReadOnlySpeedField(
                         label = stringResource(R.string.lockdown_tiltback_alarm),
                         value = formatSpeed(legalAlarmKmh, speedUnit, context),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
                 Spacer(Modifier.height(20.dp))
@@ -135,18 +137,33 @@ fun LockdownUnlockDialog(
     )
 }
 
-/** A limit shown the way it is edited elsewhere, but read-only. */
+/**
+ * A limit the rider can read but not touch: a lock-badged pill.
+ *
+ * It was an OutlinedTextField with readOnly, which still looked editable and
+ * still let the text be selected - a field that refuses to change reads as
+ * broken, not as information. Of three candidates drawn side by side (stat
+ * tiles, plain rows, these pills) Erwin chose the pills: the lock says what
+ * the value is doing here, and this section is allowed to look a little
+ * different from the rest of the app.
+ */
 @Composable
 private fun ReadOnlySpeedField(label: String, value: String, modifier: Modifier = Modifier) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = {},
-        readOnly = true,
-        label = { Text(label) },
-        singleLine = true,
-        textStyle = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.End),
+    val colors = MaterialTheme.appColors
+    Row(
         modifier = modifier
-    )
+            .border(1.dp, colors.divider, androidx.compose.foundation.shape.RoundedCornerShape(50))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        androidx.compose.material3.Icon(
+            Icons.Outlined.Lock, contentDescription = null,
+            tint = colors.textSecondary, modifier = Modifier.size(16.dp))
+        Text(label, style = MaterialTheme.typography.labelMedium, color = colors.textSecondary)
+        Spacer(Modifier.weight(1f))
+        Text(value, style = MaterialTheme.typography.titleMedium, color = colors.textPrimary)
+    }
 }
 
 /** Read-only wheel identity, for showing what is connected without any menus. */
