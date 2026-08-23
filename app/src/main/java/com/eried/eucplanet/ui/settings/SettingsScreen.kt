@@ -405,15 +405,28 @@ fun SettingsScreen(
     var targetSectionTop by remember { mutableStateOf<Float?>(null) }
     var hasScrolledToSection by rememberSaveable(initialTab) { mutableStateOf(false) }
 
-    LaunchedEffect(scrollContainerTop, targetSectionTop, hasScrolledToSection) {
-        val container = scrollContainerTop
-        val target = targetSectionTop
-        if (!hasScrolledToSection && targetSectionKey != null &&
-            container != null && target != null) {
-            val offset = (target - container).toInt().coerceAtLeast(0)
-            if (offset > 0) scrollState.animateScrollTo(offset)
-            hasScrolledToSection = true
+    // One non-restarting effect. Keying this on the target position - the
+    // obvious thing - cancels its own animateScrollTo the moment the scroll
+    // moves the target, and the restart then computes an absolute offset from
+    // an already-scrolled window: it converges, deterministically, on the
+    // wrong place. So: wait for the position to sit still through the
+    // section-open animation, then scroll RELATIVE to wherever we are, and
+    // once more for late reflows.
+    LaunchedEffect(targetSectionKey) {
+        if (targetSectionKey == null || hasScrolledToSection) return@LaunchedEffect
+        while (scrollContainerTop == null || targetSectionTop == null) kotlinx.coroutines.delay(16)
+        while (true) {
+            val t0 = targetSectionTop
+            kotlinx.coroutines.delay(240)
+            if (targetSectionTop == t0) break
         }
+        val container = scrollContainerTop ?: return@LaunchedEffect
+        repeat(2) {
+            val delta = ((targetSectionTop ?: return@repeat) - container).toInt()
+            if (delta > 8) scrollState.animateScrollTo((scrollState.value + delta).coerceAtLeast(0))
+            kotlinx.coroutines.delay(160)
+        }
+        hasScrolledToSection = true
     }
 
     val settings = settingsState ?: return
@@ -699,7 +712,7 @@ fun SettingsScreen(
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
             GeneralTab(settings, viewModel, scrollToBattery) { y ->
-                if (targetSectionTop == null) targetSectionTop = y
+                targetSectionTop = y
             }
         },
         SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
@@ -895,7 +908,7 @@ fun SettingsScreen(
                     val isExpanded = explicitlyExpanded || searching
                     var sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
                         Modifier.onGloballyPositioned {
-                            if (targetSectionTop == null) targetSectionTop = it.positionInWindow().y
+                            targetSectionTop = it.positionInWindow().y
                         }
                     } else Modifier
                     if (indent) sectionModifier = sectionModifier.padding(start = 12.dp)
@@ -959,6 +972,7 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     7 -> "integration"
     8 -> "navigator"
     9 -> "general"
+    10 -> "location"
     else -> null
 }
 
@@ -8419,25 +8433,10 @@ private fun CloudTab(
             HintText(stringResource(R.string.cloud_trips_caption))
             var showResetLocalDialog by remember { mutableStateOf(false) }
             val hasLocalTrips by viewModel.hasLocalTrips.collectAsState()
-            // Counted when the section opens: the folder only keeps up with
-            // trips the app put there, so a rider who added the folder later,
-            // or imported a library, can be carrying trips it has never seen.
-            val missingFromFolder by viewModel.tripsMissingFromFolder.collectAsState()
-            LaunchedEffect(Unit) { viewModel.refreshFolderGap() }
-            if (missingFromFolder > 0) {
-                // Tappable, because the hint names the fix: reading "N trips
-                // are not in your backup folder" and then hunting for the
-                // button that copies them is a step the app can save.
-                Text(
-                    stringResource(R.string.cloud_trips_folder_gap, missingFromFolder),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.statusWarn,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(enabled = !syncRunning) { viewModel.syncAllTrips() }
-                        .padding(vertical = 6.dp),
-                )
-            }
+            // No "N trips are not in your backup folder" line here any more:
+            // the folder worker fills gaps on every pass by itself, and the
+            // one state it cannot fix alone - same name, different content on
+            // the two sides - surfaces as the dashboard warning with Fix.
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()

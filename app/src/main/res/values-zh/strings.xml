@@ -2154,4 +2154,6 @@
     <string name="lockdown_warning_no_wheel">未连接轮子，因此合法模式的状态未知。下次开启合法模式时应用才会锁定。</string>
     <string name="lockdown_continue">继续</string>
     <string name="trip_tools_wheel_none">此行程尚未记录独轮车。</string>
+    <string name="backup_conflict_warning">%1$d 条行程备份需要手动同步：两侧副本不同。点击同步并选择以哪侧为准。</string>
+    <string name="backup_conflict_fix">修复</string>
 </resources>

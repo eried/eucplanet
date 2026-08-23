@@ -1723,13 +1723,22 @@ class SyncManager @Inject constructor(
      * List CSV filenames in the trips subfolder. Returns null if the folder
      * is unavailable, empty list if the folder exists but has no trips yet.
      */
-    fun listFolderTripNames(settings: AppSettings): List<String>? {
+    fun listFolderTripNames(settings: AppSettings): List<String>? =
+        listFolderTripSizes(settings)?.keys?.toList()
+
+    /** CSV name -> byte size for the trips subfolder, in one directory walk.
+     *  Sizes are what tell an already-backed-up trip from a conflict: same
+     *  name, different bytes means the two sides disagree and neither may be
+     *  overwritten without the rider choosing. */
+    fun listFolderTripSizes(settings: AppSettings): Map<String, Long>? {
         val root = getSyncFolder(settings) ?: return null
-        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyList()
-        return trips.listFiles().mapNotNull { doc ->
-            val name = doc.name ?: return@mapNotNull null
-            if (doc.isFile && name.endsWith(".csv", ignoreCase = true)) name else null
+        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyMap()
+        val out = LinkedHashMap<String, Long>()
+        for (doc in trips.listFiles()) {
+            val name = doc.name ?: continue
+            if (doc.isFile && name.endsWith(".csv", ignoreCase = true)) out[name] = doc.length()
         }
+        return out
     }
 
     /**

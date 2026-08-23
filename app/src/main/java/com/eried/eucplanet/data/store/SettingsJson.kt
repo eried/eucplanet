@@ -347,6 +347,7 @@ object SettingsJson {
         put("dropboxSyncPending", s.dropboxSyncPending)
         put("dropboxPullRequested", s.dropboxPullRequested)
         put("dropboxPendingCount", s.dropboxPendingCount)
+        put("folderConflictCount", s.folderConflictCount)
         put("dropboxSyncTotal", s.dropboxSyncTotal)
     }
 
@@ -725,6 +726,7 @@ object SettingsJson {
         dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
         dropboxPullRequested = j.optBoolean("dropboxPullRequested", base.dropboxPullRequested),
         dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
+        folderConflictCount = j.optInt("folderConflictCount", base.folderConflictCount),
         dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )
 

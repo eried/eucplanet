@@ -39,7 +39,8 @@ class TripUploadWorker @AssistedInject constructor(
 
         // One listing for the whole pass. Asking the folder about each trip in
         // turn is what made mirroring a restored library crawl.
-        val knownNames = syncManager.listFolderTripNames(settings)?.toSet()
+        val folderSizes = syncManager.listFolderTripSizes(settings)
+        val knownNames = folderSizes?.keys
 
         // The queue, plus everything the folder is missing. This worker used
         // to walk only its queue while the Dropbox worker compares every
@@ -56,6 +57,24 @@ class TripUploadWorker @AssistedInject constructor(
                     t.fileName !in knownNames
             }
         }
+        // Conflicts: both sides have the file, with different bytes. The
+        // sweep must not touch those - overwriting either direction destroys
+        // somebody's copy - so they are counted and told to the dashboard,
+        // whose warning sends the rider to the sync conflict dialog. Counted
+        // on every pass, so fixing them (or deleting a side) clears the
+        // warning without anyone tapping anything.
+        if (folderSizes != null) {
+            val conflicts = tripRepository.allTrips.first().count { t ->
+                if (t.endTime == null) return@count false
+                val folderLen = folderSizes[t.fileName] ?: return@count false
+                val local = tripRepository.getTripFile(t)
+                local.exists() && local.length() != folderLen
+            }
+            if (settings.folderConflictCount != conflicts) {
+                settingsRepository.update { it.copy(folderConflictCount = conflicts) }
+            }
+        }
+
         if (pending.isEmpty() && reconcile.isEmpty()) return@withUploadPass Result.success()
         if (reconcile.isNotEmpty()) Log.i(TAG, "Reconcile: folder is missing ${reconcile.size} trip(s)")
 

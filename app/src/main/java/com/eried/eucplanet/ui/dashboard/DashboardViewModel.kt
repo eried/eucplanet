@@ -108,6 +108,13 @@ class DashboardViewModel @Inject constructor(
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
     // Proximity auto-lock automation on? Long-pressing the dashboard lock button
     // toggles it - a quick shortcut without opening Settings.
+    /** Trips whose file differs between phone and backup folder; only the
+     *  rider can pick a side, in the sync conflict dialog. Set by the folder
+     *  worker on every pass, cleared the same way. */
+    val folderConflictCount: StateFlow<Int> = settingsRepository.settings
+        .map { it.folderConflictCount }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.proximityLock.lockEnabled }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)

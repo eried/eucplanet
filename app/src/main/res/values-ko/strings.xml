@@ -2286,4 +2286,6 @@
     <string name="lockdown_warning_no_wheel">연결된 휠이 없어 리걸 모드 상태를 알 수 없습니다. 다음에 리걸 모드를 켤 때 앱이 잠깁니다.</string>
     <string name="lockdown_continue">계속</string>
     <string name="trip_tools_wheel_none">이 주행에는 아직 휠이 기록되지 않았습니다.</string>
+    <string name="backup_conflict_warning">트립 백업 %1$d개에 수동 동기화가 필요합니다. 사본이 서로 다릅니다. 동기화를 누르고 남길 쪽을 선택하세요.</string>
+    <string name="backup_conflict_fix">수정</string>
 </resources>

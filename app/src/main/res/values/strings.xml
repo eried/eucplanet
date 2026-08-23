@@ -2309,4 +2309,6 @@
     <string name="lockdown_warning_no_wheel">No wheel is connected, so the Legal Mode state is unknown. The app locks the next time Legal Mode is switched on.</string>
     <string name="lockdown_continue">Continue</string>
     <string name="trip_tools_wheel_none">No wheel is recorded on this trip yet.</string>
+    <string name="backup_conflict_warning">%1$d trip backups need a manual sync: the copies differ. Press Sync and pick which side wins.</string>
+    <string name="backup_conflict_fix">Fix</string>
 </resources>

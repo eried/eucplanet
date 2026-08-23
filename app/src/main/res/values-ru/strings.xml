@@ -2287,4 +2287,6 @@
     <string name="lockdown_warning_no_wheel">Колесо не подключено, поэтому состояние легального режима неизвестно. Приложение заблокируется при следующем включении легального режима.</string>
     <string name="lockdown_continue">Далее</string>
     <string name="trip_tools_wheel_none">Для этой поездки колесо еще не записано.</string>
+    <string name="backup_conflict_warning">%1$d резервных копий поездок требуют ручной синхронизации: копии различаются. Нажмите «Синхронизация» и выберите верную сторону.</string>
+    <string name="backup_conflict_fix">Исправить</string>
 </resources>

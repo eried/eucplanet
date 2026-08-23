@@ -35,7 +35,7 @@ class FolderMirrorTest {
     }
 
     @Test fun `the worker lists the folder once, before the loop`() {
-        val listedAt = worker.indexOf("listFolderTripNames")
+        val listedAt = worker.indexOf("listFolderTripSizes")
         val loopAt = worker.indexOf("for (trip in pending")
         assertTrue("the worker never lists the folder up front", listedAt > 0)
         assertTrue("the listing happens inside the loop, which is the bug",

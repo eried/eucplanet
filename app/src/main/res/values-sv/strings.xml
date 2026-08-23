@@ -2287,4 +2287,6 @@
     <string name="lockdown_warning_no_wheel">Inget wheel anslutet, så Legal-lägets tillstånd är okänt. Appen låses nästa gång Legal-läget slås på.</string>
     <string name="lockdown_continue">Fortsätt</string>
     <string name="trip_tools_wheel_none">Inget hjul har registrerats för den här turen ännu.</string>
+    <string name="backup_conflict_warning">%1$d tursäkerhetskopior behöver manuell synkronisering: kopiorna skiljer sig. Tryck Synkronisera och välj vilken sida som gäller.</string>
+    <string name="backup_conflict_fix">Fixa</string>
 </resources>
