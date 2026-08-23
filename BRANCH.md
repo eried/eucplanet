@@ -77,7 +77,10 @@ on screen showing that idle draw.
   Rough, and labelled as an estimate, but a rider watching +54 % go by is better
   served by "about 540 Wh" than by silence. (An earlier attempt at this,
   60ce4b6c, was reverted in fcac0563 because it needed an Advanced setting of its
-  own; the per-wheel Capacity field has existed since.)
+  own; the per-wheel Capacity field has existed since.) It shows only once the
+  session has actually seen a charge: percent gained is measured from the
+  session's low, which on a pack that sags reads several points on any ride, and
+  the row read "~50 Wh" mid-trip before the gate.
 - **`RideEfficiencyTracker`**, the window extracted out of `WheelRepository` so a
   whole ride can be replayed against it.
 
@@ -99,7 +102,7 @@ to tell apart from a real charger.
 
 ## Verified
 
-`./gradlew :app:testDebugUnitTest`: 807 tests, 0 failures. `:app:assembleDebug`
+`./gradlew :app:testDebugUnitTest`: 808 tests, 0 failures. `:app:assembleDebug`
 BUILD SUCCESSFUL.
 
 Each regression was confirmed to fail the new tests before the fix: restoring the

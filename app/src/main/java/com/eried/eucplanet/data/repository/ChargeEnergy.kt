@@ -81,10 +81,23 @@ object ChargeEnergy {
      * good as the wheel's own percentage, and a real pack sags below its
      * nameplate. It is still the only figure those wheels can give, and a rider
      * watching +54 % go by is better served by "about 540 Wh" than by silence.
-     * 0 means there is nothing to show: no capacity entered, or nothing added.
+     *
+     * [sawCharge] is what keeps it honest. [addedPercent] is measured from the
+     * session's low, and on a pack whose percentage is worked out from voltage
+     * that reads several points on any ride: the pack sags under a pull and
+     * comes back at a standstill. Without the gate, a rider mid-trip was told
+     * their wheel had charged 50 Wh.
+     *
+     * 0 means there is nothing to show: no charge this session, no capacity
+     * entered, or nothing added.
      */
-    fun chargedWhFromPercent(addedPercent: Float, capacityWh: Int): Float =
-        if (addedPercent > 0f && capacityWh > 0) addedPercent / 100f * capacityWh else 0f
+    fun chargedWhFromPercent(
+        addedPercent: Float,
+        capacityWh: Int,
+        sawCharge: Boolean = true,
+    ): Float =
+        if (sawCharge && addedPercent > 0f && capacityWh > 0) addedPercent / 100f * capacityWh
+        else 0f
 
     /** Energy over a whole ride, split the way the live buckets are. */
     data class RideEnergy(val outWh: Float, val regenWh: Float) {

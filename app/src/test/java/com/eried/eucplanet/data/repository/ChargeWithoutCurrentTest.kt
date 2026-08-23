@@ -62,6 +62,16 @@ class ChargeWithoutCurrentTest {
     }
 
     @Test
+    fun `a ride that never charged reports nothing`() {
+        // Percent gained is measured from the session low, and on a pack whose
+        // percentage comes from voltage that reads several points on any ride:
+        // it sags under a pull and comes back at a standstill. A rider mid-trip
+        // was told their wheel had charged 50 Wh.
+        assertEquals(0f, ChargeEnergy.chargedWhFromPercent(5f, 1000, sawCharge = false), 0.001f)
+        assertEquals(50f, ChargeEnergy.chargedWhFromPercent(5f, 1000, sawCharge = true), 0.001f)
+    }
+
+    @Test
     fun `no pack size and no gain mean no figure`() {
         assertEquals(0f, ChargeEnergy.chargedWhFromPercent(54f, 0), 0.001f)
         assertEquals(0f, ChargeEnergy.chargedWhFromPercent(0f, 1000), 0.001f)

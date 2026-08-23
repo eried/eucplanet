@@ -372,6 +372,10 @@ class WheelRepository @Inject constructor(
         warmupMinDurationMs = 40_000L,  // two jitter windows for a steady rate
     )
     private var chargingSessionActive = false
+    /** True once this session has actually seen the wheel charging. Gates the
+     *  percentage-based charged-energy estimate, whose input (percent gained
+     *  over the session low) reads a few points on any ride whose pack sags. */
+    private var chargedThisSession = false
     private val chargePctHist = ArrayDeque<MetricSample>()
     private val chargeVoltHist = ArrayDeque<MetricSample>()
     private val chargeTempHist = ArrayDeque<MetricSample>()
@@ -967,8 +971,12 @@ class WheelRepository @Inject constructor(
                 sessionEnergyWh = 0f
                 sessionEnergyInWh = 0f
                 sessionEnergyOutWh = 0f
+                chargedThisSession = false
                 sessionLastEnergyMs = data.timestamp
                 sessionLastPowerW = data.voltage * data.current
+            }
+            if (status == ChargeStatus.Charging || status == ChargeStatus.Full) {
+                chargedThisSession = true
             }
             val pct = batteryPercentOf(data)
             chargingEstimator.addSample(data.timestamp, pct)
@@ -1087,6 +1095,7 @@ class WheelRepository @Inject constructor(
         sessionEnergyWh = 0f
         sessionEnergyInWh = 0f
         sessionEnergyOutWh = 0f
+        chargedThisSession = false
         sessionLastEnergyMs = 0L
         sessionLastPowerW = 0f
         // The efficiency window reads the same energy series, so it restarts too.
@@ -1183,12 +1192,18 @@ class WheelRepository @Inject constructor(
      * wheels with no charge current to integrate. 0 (hidden) when the wheel
      * measures its own charge, when no capacity is set, or before the charge has
      * added anything.
+     *
+     * Gated on the session having actually seen a charge. Its input is the
+     * percentage gained over the session's low, and on a pack whose percentage
+     * is worked out from voltage that reads several points on any ride, so
+     * without the gate a rider mid-trip was told the wheel had charged 50 Wh.
      */
     private fun estimatedChargedWh(est: ChargingEstimate): Float {
         if (wheelAdapter.capabilities.reportsChargeCurrent) return 0f
         return ChargeEnergy.chargedWhFromPercent(
             addedPercent = est.percent - est.startPercent,
             capacityWh = batteryPercentCached.capacityWh,
+            sawCharge = chargedThisSession,
         )
     }
 
