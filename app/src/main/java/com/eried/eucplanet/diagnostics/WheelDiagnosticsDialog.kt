@@ -268,7 +268,13 @@ private fun LogPanel(modifier: Modifier = Modifier) {
     LaunchedEffect(entries.size) {
         if (entries.isNotEmpty()) {
             kotlinx.coroutines.yield()
-            listState.scrollToItem(entries.size - 1)
+            // Re-read AFTER the yield: entries is a live snapshot list, and a
+            // Clear tapped inside that one-frame gap emptied it between the
+            // guard above and the scroll - scrollToItem(-1), a crash straight
+            // off a rider's Z Flip. The guard alone cannot close a gap it
+            // stands on the wrong side of.
+            val last = entries.size - 1
+            if (last >= 0) listState.scrollToItem(last)
         }
     }
     // Matrix-terminal aesthetic stays isolated from the rest of Service
