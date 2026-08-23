@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -65,6 +66,7 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
     val scope = rememberCoroutineScope()
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     val confirmFocus = remember { FocusRequester() }
+    val codeFocus = remember { FocusRequester() }
     val armed by viewModel.legalLockdown.armed.collectAsState()
     val legalModeOn by viewModel.legalModeActive.collectAsState()
     val connected by viewModel.isConnected.collectAsState()
@@ -203,6 +205,10 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                     }
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        // The step exists to type a code, so the code field is
+                        // focused the moment it appears, keyboard up - not
+                        // after a tap on the one box the rider could want.
+                        LaunchedEffect(Unit) { codeFocus.requestFocus() }
                         OutlinedTextField(
                             value = pin,
                             onValueChange = { pin = it.filter { c -> c.isDigit() }.take(8) },
@@ -220,7 +226,9 @@ internal fun LegalLockdownSetting(viewModel: SettingsViewModel) {
                             keyboardActions = KeyboardActions(
                                 onNext = { confirmFocus.requestFocus() }
                             ),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(codeFocus)
                         )
                         OutlinedTextField(
                             value = confirm,
