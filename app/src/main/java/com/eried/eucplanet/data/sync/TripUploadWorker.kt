@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.sync
 
+import kotlinx.coroutines.flow.first
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
@@ -35,14 +36,31 @@ class TripUploadWorker @AssistedInject constructor(
         }
 
         val pending = tripDao.getPendingUploads()
-        if (pending.isEmpty()) return@withUploadPass Result.success()
 
         // One listing for the whole pass. Asking the folder about each trip in
         // turn is what made mirroring a restored library crawl.
         val knownNames = syncManager.listFolderTripNames(settings)?.toSet()
 
+        // The queue, plus everything the folder is missing. This worker used
+        // to walk only its queue while the Dropbox worker compares every
+        // local file against the remote listing on every pass - so Dropbox
+        // was a mirror and the folder was a mailbox, and trips older than the
+        // folder (or files deleted from it behind the app's back) stayed
+        // missing forever, surfacing only as the warning in Backups. Same
+        // rule as everything else in this pass: skip-if-present, so a copy
+        // the folder already holds is never overwritten.
+        val reconcile = if (knownNames == null) emptyList() else {
+            val queued = pending.map { it.fileName.lowercase() }.toHashSet()
+            tripRepository.allTrips.first().filter { t ->
+                t.endTime != null && t.fileName.lowercase() !in queued &&
+                    t.fileName !in knownNames
+            }
+        }
+        if (pending.isEmpty() && reconcile.isEmpty()) return@withUploadPass Result.success()
+        if (reconcile.isNotEmpty()) Log.i(TAG, "Reconcile: folder is missing ${reconcile.size} trip(s)")
+
         var anyFailed = false
-        for (trip in pending) {
+        for (trip in pending + reconcile.map { it.copy(uploadStatus = 4) }) {
             val file = tripRepository.getTripFile(trip)
             if (!file.exists()) {
                 // Mark as uploaded anyway so it stops retrying forever

@@ -36,7 +36,7 @@ class FolderMirrorTest {
 
     @Test fun `the worker lists the folder once, before the loop`() {
         val listedAt = worker.indexOf("listFolderTripNames")
-        val loopAt = worker.indexOf("for (trip in pending)")
+        val loopAt = worker.indexOf("for (trip in pending")
         assertTrue("the worker never lists the folder up front", listedAt > 0)
         assertTrue("the listing happens inside the loop, which is the bug",
             listedAt < loopAt)
@@ -75,5 +75,22 @@ class FolderMirrorTest {
         // library is running, and both create files in the same folder.
         assertTrue("runSync no longer holds the pass lock",
             sync.contains("fun runSync() = withUploadPass { runSyncPass() }"))
+    }
+
+    @Test fun `the worker fills the folder's gaps, not only its queue`() {
+        // The Dropbox worker compares every local file against the remote
+        // listing on every pass; this one walked only its queue, so Dropbox
+        // was a mirror and the folder was a mailbox. Trips older than the
+        // folder, or files deleted from it behind the app's back, stayed
+        // missing forever - surfacing only as the warning in Backups.
+        assertTrue("the reconcile sweep is gone",
+            worker.contains("t.fileName !in knownNames"))
+        assertTrue("the sweep does not ride the same upload loop",
+            worker.contains("for (trip in pending + reconcile"))
+        // Skip-if-present: a reconciled trip is pushed as status 4, the
+        // mirror-if-absent mode, so a copy the folder holds is never touched.
+        assertTrue(worker.contains("reconcile.map { it.copy(uploadStatus = 4) }"))
+        assertTrue("the empty-queue early return ignores the sweep",
+            worker.contains("if (pending.isEmpty() && reconcile.isEmpty())"))
     }
 }
