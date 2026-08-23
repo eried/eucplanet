@@ -854,13 +854,14 @@ class RecordingViewModel @Inject constructor(
      * [com.eried.eucplanet.data.repository.TripDerive].
      */
     /** BLE names of every wheel the rider has a profile for, for the wheel picker. */
-    suspend fun knownWheelNames(): List<String> = tripRepository.knownWheelNames()
+    suspend fun knownWheels(): List<com.eried.eucplanet.data.repository.WheelChoice> =
+        tripRepository.knownWheels()
 
     /** Reassign a trip's wheel, rewriting both the row and the CSV. */
-    fun changeTripWheel(trip: TripRecord, bleName: String) {
+    fun changeTripWheel(trip: TripRecord, wheel: com.eried.eucplanet.data.repository.WheelChoice) {
         viewModelScope.launch {
-            tripRepository.changeTripWheel(trip, bleName, mac = null)
-            _toasts.send(context.getString(R.string.trip_tools_wheel_changed, bleName))
+            tripRepository.changeTripWheel(trip, wheel)
+            _toasts.send(context.getString(R.string.trip_tools_wheel_changed, wheel.label))
         }
     }
 

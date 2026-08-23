@@ -94,16 +94,35 @@ object TripDerive {
      *
      * @return rows rewritten, 0 when the file has no Extra column to carry it.
      */
-    fun rewriteWheelIdentity(source: File, dest: File, name: String, mac: String?): Int {
-        if (!source.exists()) return 0
-        // Same sanitising as a trip name: an Extra cell cannot carry commas,
-        // quotes or newlines without breaking the row it sits in.
-        val cleanName = name.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
-        val cleanMac = mac?.replace(":", "")?.replace("-", "")?.uppercase()
+    fun rewriteWheelIdentity(source: File, dest: File, name: String, mac: String?): Int =
+        rewriteWheelIdentity(source, dest, linkedMapOf<String, String>().apply {
+            if (name.isNotBlank()) put("name", name)
+            mac?.takeIf { it.isNotBlank() }?.let { put("mac", it) }
+        })
 
-        // Pass 1: does the file already say which wheel this was?
-        var hasName = false
-        var hasMac = false
+    /**
+     * Replace the wheel identity a file carries with [identity]: keys are the
+     * Extra-column fields (name, mac, brand, model, serial), values the new
+     * ones. Every wheel.* line the file has is rewritten to the new identity
+     * or cleared if the new identity has no such field; fields the file never
+     * carried are placed into free Extra cells. Mirrors eucviewer: picking a
+     * known wheel copies the whole identity, a custom name is one line, and
+     * nothing of the old wheel survives either way - eucviewer labels by
+     * brand/model before name, so a stale wheel.model= would keep a
+     * reassigned trip filed under the old wheel there.
+     *
+     * @return rows rewritten, 0 when the file has no Extra column to carry it.
+     */
+    fun rewriteWheelIdentity(source: File, dest: File, identity: Map<String, String>): Int {
+        if (!source.exists()) return 0
+        val clean = identity.mapValues { (k, v) ->
+            val one = v.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
+            if (k == "mac") one.replace(":", "").replace("-", "").uppercase() else one
+        }.filterValues { it.isNotEmpty() }
+        val known = listOf("name", "mac", "brand", "model", "serial", "firmware")
+
+        // Pass 1: which identity fields does the file already carry?
+        val present = HashSet<String>()
         source.bufferedReader().use { reader ->
             val header = reader.readLine() ?: return 0
             val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
@@ -111,15 +130,15 @@ object TripDerive {
             while (true) {
                 val line = reader.readLine() ?: break
                 val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
-                if (cell.startsWith("wheel.name=")) hasName = true
-                if (cell.startsWith("wheel.mac=")) hasMac = true
-                if (hasName && hasMac) break
+                if (cell.startsWith("wheel.")) {
+                    val f = cell.substringAfter("wheel.").substringBefore('=')
+                    if (f in known) present += f
+                }
             }
         }
+        val toPlace = ArrayDeque(clean.keys.filter { it !in present })
 
         var changed = 0
-        var placedName = false
-        var placedMac = false
         source.bufferedReader().use { reader ->
             val headerLine = reader.readLine() ?: return 0
             val extraIdx = headerLine.lowercase().split(",").map { it.trim() }.indexOf("extra")
@@ -131,37 +150,22 @@ object TripDerive {
                     if (extraIdx < 0) { out.write(line); out.newLine(); continue }
                     val cells = line.split(",")
                     val cell = cells.getOrNull(extraIdx)?.trim().orEmpty()
-                    val replacement = when {
-                        cell.startsWith("wheel.name=") -> {
-                            placedName = true
-                            "wheel.name=$cleanName"
+                    val replacement: String? = when {
+                        cell.startsWith("wheel.") -> {
+                            val f = cell.substringAfter("wheel.").substringBefore('=')
+                            when {
+                                f !in known -> null
+                                // A field the new identity has: rewrite every
+                                // occurrence (reconnects re-emit the block).
+                                clean.containsKey(f) -> "wheel.$f=" + clean.getValue(f)
+                                // A field it lacks belongs to the old wheel.
+                                else -> ""
+                            }
                         }
-                        cell.startsWith("wheel.mac=") && cleanMac != null -> {
-                            placedMac = true
-                            "wheel.mac=$cleanMac"
-                        }
-                        // The rest of the OLD wheel's identity goes with it.
-                        // These lines described the wheel being replaced, and
-                        // eucviewer labels by brand/model BEFORE the name - so
-                        // leaving a stale wheel.model= behind kept a
-                        // reassigned trip filed under the old wheel there, and
-                        // the whole point of the change is consolidation.
-                        // The new wheel's brand/model are unknown from here
-                        // (the picker knows a name and maybe a MAC), so the
-                        // cells are cleared, not guessed.
-                        cell.startsWith("wheel.brand=") || cell.startsWith("wheel.model=") ||
-                            cell.startsWith("wheel.serial=") || cell.startsWith("wheel.firmware=") -> ""
-                        // Nothing recorded the wheel, so put it in the first
-                        // free Extra cell rather than leaving the file silent.
-                        !hasName && !placedName && cleanName.isNotEmpty() &&
-                            cell.isEmpty() && extraIdx < cells.size -> {
-                            placedName = true
-                            "wheel.name=$cleanName"
-                        }
-                        !hasMac && !placedMac && cleanMac != null &&
-                            cell.isEmpty() && extraIdx < cells.size -> {
-                            placedMac = true
-                            "wheel.mac=$cleanMac"
+                        // Nothing recorded this field: the first free cell takes it.
+                        cell.isEmpty() && extraIdx < cells.size && toPlace.isNotEmpty() -> {
+                            val f = toPlace.removeFirst()
+                            "wheel.$f=" + clean.getValue(f)
                         }
                         else -> null
                     }

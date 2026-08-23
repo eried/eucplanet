@@ -258,17 +258,15 @@ fun RecordingScreen(
     wheelToolTrip?.let { trip ->
         // Loaded on open rather than held in state: the picker is rare and the
         // list is tiny, so there is nothing to gain from keeping it warm.
-        var known by remember(trip.id) { mutableStateOf<List<String>?>(null) }
-        LaunchedEffect(trip.id) { known = viewModel.knownWheelNames() }
+        var known by remember(trip.id) {
+            mutableStateOf<List<com.eried.eucplanet.data.repository.WheelChoice>?>(null)
+        }
+        LaunchedEffect(trip.id) { known = viewModel.knownWheels() }
         ChangeWheelDialog(
             knownWheels = known.orEmpty(),
-            currentWheel = trip.wheelMetaJson
-                ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
-                ?.takeIf { it.isNotBlank() },
-            // Status 2 means the ride is already on the leaderboard, where the
-            // old wheel stays. The rider chose to be warned rather than blocked.
-            onConfirm = { name ->
-                viewModel.changeTripWheel(trip, name)
+            currentWheel = com.eried.eucplanet.data.repository.WheelChoice.fromJson(trip.wheelMetaJson),
+            onConfirm = { wheel ->
+                viewModel.changeTripWheel(trip, wheel)
                 wheelToolTrip = null
             },
             onDismiss = { wheelToolTrip = null },

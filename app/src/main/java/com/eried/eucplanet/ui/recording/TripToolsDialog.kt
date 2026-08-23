@@ -190,23 +190,31 @@ fun RenameTripDialog(
  */
 @Composable
 fun ChangeWheelDialog(
-    knownWheels: List<String>,
-    currentWheel: String?,
-    onConfirm: (String) -> Unit,
+    knownWheels: List<com.eried.eucplanet.data.repository.WheelChoice>,
+    currentWheel: com.eried.eucplanet.data.repository.WheelChoice?,
+    onConfirm: (com.eried.eucplanet.data.repository.WheelChoice) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    // The trip's own wheel leads the list and starts selected, even when it has
-    // no saved profile. Showing the picker with nothing chosen, or with someone
-    // else's wheel chosen, invites a rider to apply a change they never meant.
+    // Every wheel is a whole identity, labelled the way eucviewer labels it,
+    // so picking one here files the trip where eucviewer files it. The
+    // trip's own wheel leads the list and starts selected, even when it has
+    // no saved profile; a trip with no wheel starts with nothing selected,
+    // because starting on someone else's wheel invites a change the rider
+    // never meant.
     val options = remember(currentWheel, knownWheels) {
-        (listOfNotNull(currentWheel?.takeIf { it.isNotBlank() }) + knownWheels).distinct()
+        val all = listOfNotNull(currentWheel) + knownWheels
+        all.distinctBy { it.key }
     }
-    // No wheel on the trip -> nothing preselected. Starting with someone
-    // else's wheel chosen invites a change the rider never meant.
-    var picked by remember(options) { mutableStateOf(currentWheel.orEmpty()) }
+    var picked by remember(options) { mutableStateOf(currentWheel?.key.orEmpty()) }
     var custom by remember { mutableStateOf("") }
     var usingCustom by remember(options) { mutableStateOf(options.isEmpty()) }
-    val chosen = if (usingCustom) custom.trim() else picked
+    // A known pick carries the whole identity - name, MAC, brand, model,
+    // serial - exactly as eucviewer copies it. "Another wheel" is a name and
+    // nothing else, exactly as eucviewer's custom entry is.
+    val chosen: com.eried.eucplanet.data.repository.WheelChoice? =
+        if (usingCustom) custom.trim().takeIf { it.isNotEmpty() }
+            ?.let { com.eried.eucplanet.data.repository.WheelChoice(name = it) }
+        else options.firstOrNull { it.key == picked }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -216,7 +224,7 @@ fun ChangeWheelDialog(
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 // A trip with no wheel recorded says so, instead of quietly
                 // preselecting whatever wheel happened to lead the list.
-                if (currentWheel.isNullOrBlank()) {
+                if (currentWheel == null) {
                     Text(
                         stringResource(R.string.trip_tools_wheel_none),
                         style = MaterialTheme.typography.bodySmall,
@@ -224,24 +232,32 @@ fun ChangeWheelDialog(
                     )
                     Spacer(Modifier.width(8.dp))
                 }
-                options.forEach { name ->
+                options.forEach { wheel ->
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .clickable { usingCustom = false; picked = name }
+                            .clickable { usingCustom = false; picked = wheel.key }
                             .padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
-                            selected = !usingCustom && picked == name,
-                            onClick = { usingCustom = false; picked = name },
+                            selected = !usingCustom && picked == wheel.key,
+                            onClick = { usingCustom = false; picked = wheel.key },
                         )
                         Spacer(Modifier.width(8.dp))
                         Column {
-                            Text(name, color = MaterialTheme.appColors.textPrimary)
+                            Text(wheel.label, color = MaterialTheme.appColors.textPrimary)
+                            // The advertised name, when the label came from
+                            // brand/model and differs from it: it is how the
+                            // wheel shows up when pairing, and how two of the
+                            // same model are told apart.
+                            wheel.name?.takeIf { it != wheel.label }?.let {
+                                Text(it, style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.appColors.textSecondary)
+                            }
                             // Says which one the trip already has, so applying
                             // without changing anything is obviously a no-op.
-                            if (name == currentWheel) {
+                            if (wheel.key == currentWheel?.key) {
                                 Text(
                                     stringResource(R.string.trip_tools_wheel_current),
                                     style = MaterialTheme.typography.bodySmall,
@@ -279,8 +295,8 @@ fun ChangeWheelDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { if (chosen.isNotBlank()) onConfirm(chosen) },
-                enabled = chosen.isNotBlank(),
+                onClick = { chosen?.let(onConfirm) },
+                enabled = chosen != null,
                 shape = RoundedCornerShape(12.dp),
             ) { Text(stringResource(R.string.action_apply)) }
         },

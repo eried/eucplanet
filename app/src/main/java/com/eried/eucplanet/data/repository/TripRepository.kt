@@ -1155,22 +1155,29 @@ class TripRepository @Inject constructor(
         }.toString()
     }
 
-    suspend fun knownWheelNames(): List<String> {
+    suspend fun knownWheels(): List<WheelChoice> {
         val fromProfiles = runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
+            .map { WheelChoice(name = it) }
         val fromTrips = runCatching {
-            tripDao.allWheelMeta().mapNotNull { json ->
-                runCatching { org.json.JSONObject(json).optString("ble_name") }
-                    .getOrNull()?.takeIf { it.isNotBlank() }
-            }
+            tripDao.allWheelMeta().mapNotNull { WheelChoice.fromJson(it) }
         }.getOrDefault(emptyList())
-        return (fromProfiles + fromTrips).distinct().sorted()
+        // Distinct the way eucviewer groups: label plus serial or MAC. A
+        // profile that only knows a name folds into a trip identity with the
+        // same label once one exists, so the list does not show a wheel twice.
+        val byKey = LinkedHashMap<String, WheelChoice>()
+        for (w in fromTrips + fromProfiles) {
+            if (w.isEmpty) continue
+            if (byKey.values.any { it.label == w.label && (w.mac == null || it.mac == w.mac) }) continue
+            byKey.putIfAbsent(w.key, w)
+        }
+        return byKey.values.sortedBy { it.label.lowercase() }
     }
 
-    suspend fun changeTripWheel(trip: TripRecord, bleName: String, mac: String?): Boolean {
+    suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice): Boolean {
         val file = getTripFile(trip)
         if (file.exists()) {
             val tmp = File(file.parentFile, file.name + ".rewrite")
-            val ok = runCatching { TripDerive.rewriteWheelIdentity(file, tmp, bleName, mac) >= 0 }
+            val ok = runCatching { TripDerive.rewriteWheelIdentity(file, tmp, wheel.extraFields()) >= 0 }
                 .getOrElse { e ->
                     Log.e(TAG, "Wheel rewrite failed for ${trip.fileName}", e)
                     runCatching { tmp.delete() }
@@ -1189,16 +1196,10 @@ class TripRepository @Inject constructor(
                 }
             }
         }
-        val meta = org.json.JSONObject().apply {
-            trip.wheelMetaJson?.let { existing ->
-                runCatching { org.json.JSONObject(existing) }.getOrNull()?.let { old ->
-                    old.keys().forEach { k -> put(k, old.get(k)) }
-                }
-            }
-            put("ble_name", bleName)
-            mac?.let { put("ble_mac", it.replace(":", "").replace("-", "").uppercase()) }
-        }
-        tripDao.updateWheelMeta(trip.id, meta.toString())
+        // The cache is replaced, not merged: merging kept the old wheel's
+        // brand and model under the new name, the same stale identity the
+        // file rewrite above now clears.
+        tripDao.updateWheelMeta(trip.id, wheel.toJson())
         resyncEditedTrip(trip.id)
         return true
     }
