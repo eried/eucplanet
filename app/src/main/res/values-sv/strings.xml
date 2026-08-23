@@ -2001,6 +2001,7 @@
     <string name="sync_stopping">Stoppar…</string>
     <string name="charging_stat_used">Använt</string>
     <string name="charging_stat_charged">Laddat</string>
+    <string name="charging_stat_charged_est">Laddat (uppsk.)</string>
     <string name="voice_quality_high">hög kvalitet</string>
     <string name="voice_quality_low">enkel</string>
     <string name="voice_sample_default">Detta är standardrösten för det här språket</string>

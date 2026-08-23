@@ -1,93 +1,146 @@
-# Legal Mode Lockdown
+# InMotion V1 metrics: consumption, range, and what a charge added
 
-A manufacturer code that pins the app to a simple, locked screen and stops every
-surface from lifting the wheel's legal speed limits.
+Two things a V8S rider reported, five defects behind them, and the simulator that
+reproduces the lot.
 
-## The problem
+## The report
 
-Legal Mode already exists: the legal tiltback and alarm in Wheel parameters,
-toggled from the dashboard tile, a Flic button, the volume keys, the watch or the
-HUD. Any rider can switch it off in one tap.
+- The Battery screen showed **"Added +54.0 %"** and, under it, **"Used 4 Wh"**.
+  Four watt-hours is not what three hours of charging did; it is the wheel's own
+  standby draw, presented as if it were the charge.
+- **CONSUMPTION and RANGE read "--"** after a trip. During the ride they showed a
+  number "a couple of times, for a very quick time", and the numbers were single
+  digits against a real 15 Wh per km.
 
-For a wheel handed over by a shop or a distributor, or shown to a reviewer, that
-is not enough. The limits have to hold, and the app around them has to be simple
-enough that nothing else can be reached.
+## What was wrong
+
+**A telemetry frame threw away every number the phone worked out.** The decoded
+frame is built from what the parser returned, so each field the parser does not
+fill arrives at its default. Six of them are not the wheel's to report: the IMU
+g-force, the forward-G estimate, and the two ride-efficiency figures, all written
+by loops in `WheelRepository` on their own cadence. The efficiency loop wrote
+them once a second and the next frame, 250 ms later on an InMotion V1, put NaN
+back. That is the "answers for an instant, then blank" the rider described.
+`WheelData.carryPhoneSideFrom` now names the rule in one place.
+
+**Braking looked like a reconnect.** The efficiency window restarted whenever net
+energy fell, and net energy falls every time a rider brakes. The comment above it
+described the consumed counter, which really is monotonic; the code tested the
+net. On a simulated V8S city ride the window was wiped 296 times in 45 minutes
+and the tiles were blank two thirds of the time, showing a number only when a
+stretch of road happened to survive long enough to cross the distance floor,
+which is where the single digits came from.
+
+**Range measured the throttle, not the pack.** Energy per percent needs two
+readings of the same pack in the same state, and this family reports no state of
+charge at all: the app works the percentage out from pack voltage, which sags
+about seven points under a 14 A pull and comes back the moment the rider stops.
+Against a ride that drains half a point a minute, the sag is the whole signal, so
+whichever two instants were sampled, the drop between them was mostly load. Both
+ends now read the highest percentage of a trailing 90 seconds, which is the pack
+with the load off. A charge still moves the baseline, but only once it has held
+for a minute: the current-based half of charge detection latches on the regen of
+a hard brake and lets go a couple of seconds after the wheel stops, so every red
+light briefly read as a charge and restarted the measurement.
+
+**The window aged on the wall clock.** A rate needs ground covered, so ageing
+samples out by time empties the window the moment the wheel stops, which is
+exactly when a rider looks at the dashboard. It now ages in riding time: standing
+still freezes the window rather than draining it, and a half hour of standing
+ends the hold, because by then it describes a ride that is over.
+
+**A charge with no charge current was never seen as a charge.** InMotion wheels
+report nothing useful while charging: the V14 and P6 sit at about 0 A, and a V8S
+keeps reporting its board's idle draw, +0.02 A, for the whole session. Detection
+fell back to the pack percentage climbing, but that fallback was gated on the
+model name containing "P6", so a V1 charge was read as idle for its whole
+session, which is why the "Used" row (already meant to hide while charging) was
+on screen showing that idle draw.
 
 ## What changed
 
-- **A new locked screen.** While armed the whole nav graph is replaced by
-  `LegalLockdownScreen`: the speedometer capped at the legal tiltback, six fixed
-  metrics in 2 x 3 (battery, temperature, voltage, amps, PWM, trip), and four big
-  buttons in 2 x 2 under them (horn, light, speed limit, vehicle). Only the
-  Bluetooth icon remains as chrome. The pills are inert, back does nothing, and
-  the screen is pinned to portrait.
-- **One gate, first in line.** `FlicManager.executeAction` is already the single
-  dispatch table for Flic, the volume keys, the watch and the HUD, so an allowlist
-  there covers every remote surface. It runs before the custom-BLE branch and
-  before the catalog precondition, so raw frames cannot slip through and a
-  legal-mode hotkey press with no wheel connected still opens the unlock dialog
-  rather than silently doing nothing. `WheelRepository` refuses the off direction
-  as a backstop.
-- **The limits follow the wheel.** Arming with no wheel present is allowed, and
-  the legal limits are pushed on every connect and after every settings readback.
-- **The rider's settings are never touched.** The lock lives in its own DataStore
-  file, not in `AppSettings`, so the arm and disarm paths never call
-  `SettingsRepository.update()`. Unlocking gives back the exact dashboard layout,
-  action order, rotation behaviour and auto-lights state the rider had.
+- **`WheelCapabilities.reportsChargeCurrent`**, false for both InMotion
+  generations, replaces the P6 model-name gate. A wheel that states a charge flag
+  never reaches the detector while the flag is set, so this only adds detection
+  where there was none.
+- **`ChargeRiseDetector`**, extracted from `deriveChargeStatus` and rewritten for
+  a percentage that arrives in whole numbers. A fixed 45-second horizon against a
+  whole-number percentage reads either 0 or 1.33 %/min depending on where the step
+  lands, so it alternated on and off all through a charge. It now waits for the
+  pack to gain a point and divides by however long that took, and latches only
+  after three minutes of climbing without a break, so the voltage rebound after a
+  rider steps off a V1 cannot be mistaken for a charger.
 
-## Why the state is not an AppSettings field
+  It also has to survive that percentage wobbling, which is what a first pass
+  missed. On the V1 family the whole number is worked out from pack voltage, and
+  the reading dips a point and comes back every few seconds the whole way up a
+  charge: on a rider's own charge graph the voltage trace is a clean line and the
+  percentage beside it is a band. Treating each dip as the pack discharging
+  restarted the three-minute confirmation over and over, and a real charge was
+  only confirmed when the noise happened to leave a clean run: a rider reported
+  twenty-five minutes and ten percent before the row appeared. The level is now
+  read as a mean over a minute, and only a fall of a whole point counts as the
+  pack going down, which brings that down to about seven minutes.
+- **`ChargeEnergy.stepWh` integrates nothing while a currentless wheel charges.**
+  Filing the board's idle draw either way is worse than filing nothing.
+- **"Charged (est.)"** on the Battery screen instead, from the percentage the
+  charge added and the pack size the rider already enters for the range estimate.
+  Rough, and labelled as an estimate, but a rider watching +54 % go by is better
+  served by "about 540 Wh" than by silence. (An earlier attempt at this,
+  60ce4b6c, was reverted in fcac0563 because it needed an Advanced setting of its
+  own; the per-wheel Capacity field has existed since.) It shows only once the
+  session has actually seen a charge: percent gained is measured from the
+  session's low, which on a pack that sags reads several points on any ride, and
+  the row read "~50 Wh" mid-trip before the gate. It also comes before the
+  measured row rather than after it, because on these wheels the measured bucket
+  holds nothing but the ride's own regen: it read "Charged 29 Wh" through a
+  charge that had put back 120.
+- **`RideEfficiencyTracker`**, the window extracted out of `WheelRepository` so a
+  whole ride can be replayed against it.
 
-Everything in `AppSettings` flows through `SettingsJson` and `SyncManager`, and
-the restore path overwrites the device's current values from the payload. A
-lockdown flag living there would be cleared by restoring any older backup, which
-is a one-tap bypass of the whole feature. Its own store makes that impossible by
-construction rather than by remembering to strip a field in two places. It is
-also excluded from Android auto-backup and device transfer, so the lock does not
-ride a cloud backup onto a new phone and a reinstall is genuinely clean.
+## The simulator
 
-## What stops while armed
+`InMotionV1VirtualWheel` (scan screen, Virtual wheels, Service Mode only) emits
+real V1 wire bytes: the `AA AA ... 55 55` envelope with `0xA5` stuffing around a
+16-byte CAN prefix and an extended payload, decoded by the unchanged adapter and
+parser. Both defects only appear over time, so the script runs long: 40 minutes of
+city riding with regen on every brake, a two-minute park, then two hours on a
+charger that never reports a current. It loops.
 
-Trip recording and auto-record, navigation, the floating overlay, home screen
-widgets, service mode and diagnostics recording, the notification's action
-buttons, media control, and proximity auto-lock. The wheel cannot be locked or
-unlocked at all.
-
-Voice splits cleanly: `AlarmEngine` speaks through `VoiceService.speak`, so the
-rider's own alarms still fire, while `announceEvent`, `announceTrigger` and
-`announceStatus` go quiet. Those are the ones that would say "legal mode" or
-"recording".
-
-Auto lights and auto volume keep running. The light button skips
-`notifyManualLightChange()` while armed, so a temporary mode never leaves
-auto-lights suspended for the rest of the session.
-
-## Recovery
-
-There is no backdoor. The arming dialog lists all eighteen limitations and states
-plainly that losing the code means uninstalling and reinstalling.
+The pack is modelled rather than scripted, a state of charge in watt-hours that
+the ride spends and the charger refills, mapped back to a terminal voltage through
+an open-circuit curve, an internal resistance, and a ninety-millivolt ripple. The
+ripple is deliberate: without it the simulated charge was a clean ramp, which is
+what let a detector that restarted on every dip look like it worked here while it
+took a rider twenty-five minutes on a real wheel. With it, the old detector fails
+the simulation test the same way it failed in the field. Battery percent is not on the
+wire on this family, so the app derives it from that voltage, sag under load and
+rebound at a standstill included, and the rebound is what the charge detector has
+to tell apart from a real charger.
 
 ## Verified
 
-`./gradlew :app:testDebugUnitTest`: 741 tests, 0 failures. `:app:assembleDebug`
+`./gradlew :app:testDebugUnitTest`: 809 tests, 0 failures. `:app:assembleDebug`
 BUILD SUCCESSFUL.
 
-On a clean `legalmode` AVD (Pixel 7, API 36.1), in English and German:
+Each regression was confirmed to fail the new tests before the fix: restoring the
+net-energy restart check fails five of the tracker tests, restoring wall-clock
+ageing fails the end-of-trip one, rebasing on an unconfirmed charge fails the
+red-light one, and reading the pack level off a single frame fails both the
+wobbling-charge test and the end-to-end simulation.
 
-- The row sits under Legal mode speed. Turning it on lists every limitation and
-  takes the code twice. A mismatch and a 3-digit code are both refused.
-- Arming lands on the locked screen. Six pills 2 x 3, four buttons 2 x 2, gauge
-  capped at the legal tiltback, static version line.
-- Metric pills do nothing, with no ripple. Back does nothing.
-- Forcing `user_rotation` to landscape leaves the display at 1080x2400.
-- Speed limit shows the real limit and alarm. A wrong code shows "Incorrect code"
-  and disables Unlock for 3 seconds. Vehicle with no wheel shows the connect line.
-- Force-stop and relaunch comes back locked.
-- Volume-down bound to Legal OFF, with no wheel connected: refused, and the
-  unlock dialog opens by itself.
-- The correct code returns the dashboard identical to before arming: same metric
-  order, same six action tiles in three columns, same units and gauge.
+On a Pixel-class AVD (API 36) against the virtual V8S, English, miles:
 
-Not exercised on device, since no wheel can be connected to an emulator: the
-recorder, navigation, overlay, widget and notification suppression, and the
-push-limits-on-connect path. Those are single guarded early-returns on the armed
-flag.
+- CONSUMPTION reads about 26 Wh/mi and RANGE about 35 mi within two minutes of
+  connecting, both with a filled sparkline, and both hold through the braking
+  phases that used to blank them and through the end of the ride. RANGE read 4
+  miles before the pack was read at rest, against 88 % of a 1000 Wh pack.
+- The Battery screen through a simulated charge: the gauge turns green, Rate
+  reads +0.67 %/min against the simulator's real 0.67, the "Used" row is gone,
+  and "Charged (est.) ~110 Wh" stands against "Added +11.0 %" on a 1000 Wh pack.
+  Before, that screen read "Used" and counted the board's idle draw. (Checked on
+  a build with the simulator's ride shortened to three minutes, since the real
+  script rides for forty; the shipped timings are back and re-verified.)
+- The rest of the InMotion V1 surface still decodes off the simulator's bytes:
+  model V8S, firmware 1.2.22, tiltback 45 km/h, odometer, trip, speed, voltage,
+  current sign on regen.

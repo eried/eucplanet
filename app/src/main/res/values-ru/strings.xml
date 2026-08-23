@@ -2001,6 +2001,7 @@
     <string name="sync_stopping">Остановка…</string>
     <string name="charging_stat_used">Израсходовано</string>
     <string name="charging_stat_charged">Заряжено</string>
+    <string name="charging_stat_charged_est">Заряжено (оценка)</string>
     <string name="voice_quality_high">высокое качество</string>
     <string name="voice_quality_low">базовое</string>
     <string name="voice_sample_default">Это голос по умолчанию для этого языка</string>

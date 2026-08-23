@@ -2019,6 +2019,7 @@
     <string name="sync_stopping">Deteniendo…</string>
     <string name="charging_stat_used">Usado</string>
     <string name="charging_stat_charged">Cargado</string>
+    <string name="charging_stat_charged_est">Cargado (est.)</string>
     <string name="voice_quality_high">alta calidad</string>
     <string name="voice_quality_low">básica</string>
     <string name="voice_sample_default">Esta es la voz predeterminada para este idioma</string>

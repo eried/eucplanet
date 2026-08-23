@@ -1999,6 +1999,7 @@
     <string name="charging_stat_current">Virta</string>
     <string name="charging_stat_used">Käytetty</string>
     <string name="charging_stat_charged">Ladattu</string>
+    <string name="charging_stat_charged_est">Ladattu (arvio)</string>
     <string name="charging_chart_empty">Kerätään dataa</string>
     <string name="charging_reset_data">Nollaa data</string>
     <string name="charging_export">Vie</string>

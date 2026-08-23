@@ -55,6 +55,9 @@ data class ChargingUiState(
     val energyUsedWh: Float = 0f,
     /** Wh added while charging this session. */
     val energyChargedWh: Float = 0f,
+    /** Charged Wh worked out from the percentage and the rider's pack size, for
+     *  wheels that report no charge current. 0 when there is nothing to show. */
+    val estimatedChargedWh: Float = 0f,
     /** True while the wheel reports itself charging (or full). */
     val charging: Boolean = false,
     val warmedUp: Boolean = false,
@@ -289,6 +292,7 @@ class ChargingMonitorViewModel @Inject constructor(
             energyWh = snap.sessionEnergyWh,
             energyUsedWh = snap.sessionEnergyOutWh,
             energyChargedWh = snap.sessionEnergyInWh,
+            estimatedChargedWh = snap.estimatedChargedWh,
             charging = charging,
             warmedUp = est.warmedUp,
             minutesToTarget = est.minutesToTarget,

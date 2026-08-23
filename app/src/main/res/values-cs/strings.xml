@@ -1999,6 +1999,7 @@
     <string name="charging_stat_current">Proud</string>
     <string name="charging_stat_used">Spotřebováno</string>
     <string name="charging_stat_charged">Nabito</string>
+    <string name="charging_stat_charged_est">Nabito (odhad)</string>
     <string name="charging_chart_empty">Sbírám data</string>
     <string name="charging_reset_data">Vynulovat data</string>
     <string name="charging_export">Exportovat</string>

@@ -1998,6 +1998,7 @@
     <string name="sync_stopping">중지 중…</string>
     <string name="charging_stat_used">사용</string>
     <string name="charging_stat_charged">충전</string>
+    <string name="charging_stat_charged_est">충전 (추정)</string>
     <string name="voice_quality_high">고품질</string>
     <string name="voice_quality_low">기본</string>
     <string name="voice_sample_default">이 언어의 기본 음성입니다</string>

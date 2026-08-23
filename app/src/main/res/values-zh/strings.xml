@@ -1868,6 +1868,7 @@
     <string name="sync_stopping">正在停止…</string>
     <string name="charging_stat_used">已用</string>
     <string name="charging_stat_charged">已充</string>
+    <string name="charging_stat_charged_est">已充 (估算)</string>
     <string name="voice_quality_high">高品质</string>
     <string name="voice_quality_low">基础</string>
     <string name="voice_sample_default">这是该语言的默认语音</string>

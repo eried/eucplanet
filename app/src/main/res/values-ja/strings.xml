@@ -2000,6 +2000,7 @@
     <string name="sync_stopping">停止中…</string>
     <string name="charging_stat_used">使用</string>
     <string name="charging_stat_charged">充電</string>
+    <string name="charging_stat_charged_est">充電 (推定)</string>
     <string name="voice_quality_high">高品質</string>
     <string name="voice_quality_low">標準</string>
     <string name="voice_sample_default">これはこの言語のデフォルトの音声です</string>

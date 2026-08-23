@@ -1999,6 +1999,7 @@
     <string name="charging_stat_current">Curent</string>
     <string name="charging_stat_used">Consumat</string>
     <string name="charging_stat_charged">Încărcat</string>
+    <string name="charging_stat_charged_est">Încărcat (est.)</string>
     <string name="charging_chart_empty">Se colectează date</string>
     <string name="charging_reset_data">Resetează datele</string>
     <string name="charging_export">Exportă</string>
