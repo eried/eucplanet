@@ -71,6 +71,15 @@ class InMotionV1VirtualWheel(
          *  voltage down about a volt, which is a V8S to within a tenth. */
         const val PACK_OHMS = 0.08f
 
+        /** Ripple on the reported terminal voltage. A real V8S wobbles by about
+         *  this much frame to frame, which is most of a percentage point once
+         *  the app has worked a whole-number percent out of it: on a rider's own
+         *  charge graph the voltage trace is a line and the percentage beside it
+         *  is a band. Deliberately here rather than idealised away, because a
+         *  clean ramp is what let a charge detector that restarted on every dip
+         *  look like it worked. */
+        const val RIPPLE_V = 0.09f
+
         /** Charger output at the pack. About 0.7 % a minute on this pack. */
         const val CHARGER_W = 400f
 
@@ -196,7 +205,19 @@ class InMotionV1VirtualWheel(
      */
     private fun volts(t: Long): Float {
         val ocv = VOLT_EMPTY + VOLT_SPAN * (socWh / PACK_WH)
-        return (ocv - amps(t) * PACK_OHMS).coerceIn(VOLT_EMPTY, VOLT_EMPTY + VOLT_SPAN)
+        return (ocv - amps(t) * PACK_OHMS + ripple(t))
+            .coerceIn(VOLT_EMPTY, VOLT_EMPTY + VOLT_SPAN)
+    }
+
+    /**
+     * Measurement ripple, from the script's own clock so a replay is repeatable.
+     * Two periods that do not divide into each other, so it does not line up
+     * with any poll rate and land on the same value every frame.
+     */
+    private fun ripple(t: Long): Float {
+        val a = kotlin.math.sin(t / 1_700.0)
+        val b = kotlin.math.sin(t / 640.0)
+        return (RIPPLE_V * (a + b) / 2.0).toFloat()
     }
 
     /**

@@ -56,9 +56,36 @@ class ChargeRiseDetectorTest {
             if (rising && detectedAtS < 0) detectedAtS = second
             if (!rising && detectedAtS >= 0) droppedAfterDetection++
         }
-        assertTrue("took $detectedAtS s to call it a charge", detectedAtS in 0..360)
+        // Under ten minutes. The level is a mean over the last minute, so it
+        // trails the pack by about half that before the first window can close.
+        assertTrue("took $detectedAtS s to call it a charge", detectedAtS in 0..(10 * 60))
         assertEquals("dropped $droppedAfterDetection times mid-charge",
             0, droppedAfterDetection)
+    }
+
+    @Test
+    fun `a charge is still a charge when the percentage wobbles`() {
+        // What a real V8S reports. The percentage is worked out from pack
+        // voltage, so it dips a point and comes back every few seconds all the
+        // way up a charge: on a rider's own charge graph the voltage trace is a
+        // clean line and the percentage beside it is a band. Reading each dip as
+        // the pack discharging restarted the confirmation every few seconds, and
+        // three hours on the charger were never confirmed at all.
+        val detector = ChargeRiseDetector()
+        var rising = false
+        var detectedAtS = -1
+        for (second in 0..(20 * 60)) {
+            val trend = 32f + 0.30f * (second / 60f)      // the rider's own rate
+            val wobble = if ((second / 7) % 2 == 0) 0f else -1f
+            rising = detector.update(
+                nowMs = 1_000_000L + second * 1000L,
+                percent = (trend + wobble).toInt().toFloat(),
+                applicable = true,
+            )
+            if (rising && detectedAtS < 0) detectedAtS = second
+        }
+        assertTrue("never called it a charge in twenty minutes", rising)
+        assertTrue("took $detectedAtS s to call it a charge", detectedAtS in 0..(12 * 60))
     }
 
     @Test

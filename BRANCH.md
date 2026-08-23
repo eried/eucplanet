@@ -70,6 +70,17 @@ on screen showing that idle draw.
   pack to gain a point and divides by however long that took, and latches only
   after three minutes of climbing without a break, so the voltage rebound after a
   rider steps off a V1 cannot be mistaken for a charger.
+
+  It also has to survive that percentage wobbling, which is what a first pass
+  missed. On the V1 family the whole number is worked out from pack voltage, and
+  the reading dips a point and comes back every few seconds the whole way up a
+  charge: on a rider's own charge graph the voltage trace is a clean line and the
+  percentage beside it is a band. Treating each dip as the pack discharging
+  restarted the three-minute confirmation over and over, and a real charge was
+  only confirmed when the noise happened to leave a clean run: a rider reported
+  twenty-five minutes and ten percent before the row appeared. The level is now
+  read as a mean over a minute, and only a fall of a whole point counts as the
+  pack going down, which brings that down to about seven minutes.
 - **`ChargeEnergy.stepWh` integrates nothing while a currentless wheel charges.**
   Filing the board's idle draw either way is worse than filing nothing.
 - **"Charged (est.)"** on the Battery screen instead, from the percentage the
@@ -98,20 +109,25 @@ charger that never reports a current. It loops.
 
 The pack is modelled rather than scripted, a state of charge in watt-hours that
 the ride spends and the charger refills, mapped back to a terminal voltage through
-an open-circuit curve and an internal resistance. Battery percent is not on the
+an open-circuit curve, an internal resistance, and a ninety-millivolt ripple. The
+ripple is deliberate: without it the simulated charge was a clean ramp, which is
+what let a detector that restarted on every dip look like it worked here while it
+took a rider twenty-five minutes on a real wheel. With it, the old detector fails
+the simulation test the same way it failed in the field. Battery percent is not on the
 wire on this family, so the app derives it from that voltage, sag under load and
 rebound at a standstill included, and the rebound is what the charge detector has
 to tell apart from a real charger.
 
 ## Verified
 
-`./gradlew :app:testDebugUnitTest`: 808 tests, 0 failures. `:app:assembleDebug`
+`./gradlew :app:testDebugUnitTest`: 809 tests, 0 failures. `:app:assembleDebug`
 BUILD SUCCESSFUL.
 
 Each regression was confirmed to fail the new tests before the fix: restoring the
 net-energy restart check fails five of the tracker tests, restoring wall-clock
-ageing fails the end-of-trip one, and rebasing on an unconfirmed charge fails the
-red-light one.
+ageing fails the end-of-trip one, rebasing on an unconfirmed charge fails the
+red-light one, and reading the pack level off a single frame fails both the
+wobbling-charge test and the end-to-end simulation.
 
 On a Pixel-class AVD (API 36) against the virtual V8S, English, miles:
 
