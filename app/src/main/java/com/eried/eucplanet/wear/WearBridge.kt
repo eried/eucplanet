@@ -121,6 +121,9 @@ class WearBridge @Inject constructor(
         private const val K_SCREEN2_CLICK = "b2c"
         private const val K_SCREEN2_HOLD = "b2h"
         private const val K_HAPTIC_ON_ACTION = "hap"
+        // True while Service Mode is recording: the watch reports its input
+        // events back ("debug:" control) only then. Same key as Garmin's.
+        private const val K_DIAG = "dg"
         // Navigation mirror, only populated when the rider opted in via the
         // Watch settings. K_NAV_ACTIVE already folds in that toggle and the
         // phone popup's minimized state, so the watch just shows/hides on it.
@@ -373,6 +376,10 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_SCREEN2_CLICK, settings.watchScreen2Click)
                 dataMap.putString(K_SCREEN2_HOLD, settings.watchScreen2Hold)
                 dataMap.putBoolean(K_HAPTIC_ON_ACTION, settings.watchHapticOnAction)
+                dataMap.putBoolean(
+                    K_DIAG,
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.value
+                )
                 // GPS extra speed: computed exactly like DashboardViewModel.
                 // gpsExtraSpeed so the watch mirrors the phone dashboard.
                 val gps = computeGpsExtraSpeed(settings)

@@ -84,6 +84,7 @@ class WatchBridgeService : WearableListenerService() {
                         screen2Click = map.getString(WatchKeys.SCREEN2_CLICK, "LIGHT_TOGGLE") ?: "LIGHT_TOGGLE",
                         screen2Hold = map.getString(WatchKeys.SCREEN2_HOLD, "NONE") ?: "NONE",
                         hapticOnAction = map.getBoolean(WatchKeys.HAPTIC_ON_ACTION, false),
+                        diagOn = map.getBoolean(WatchKeys.DIAG, false),
                         // Absent on older phone builds → NaN keeps the watch
                         // GPS readout hidden rather than rendering a fake 0.
                         gpsSpeedKmh = map.getFloat(WatchKeys.GPS_SPEED, Float.NaN),

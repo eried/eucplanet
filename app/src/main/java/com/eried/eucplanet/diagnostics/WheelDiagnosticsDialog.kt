@@ -68,6 +68,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -85,7 +86,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -185,12 +189,12 @@ fun WheelDiagnosticsDialog(
                     selectedTabIndex = tab,
                     containerColor = MaterialTheme.colorScheme.background
                 ) {
-                    Tab(selected = tab == 0, onClick = { tab = 0 },
-                        text = { Text("Commands") })
-                    Tab(selected = tab == 1, onClick = { tab = 1 },
-                        text = { Text("Inspector") })
-                    Tab(selected = tab == 2, onClick = { tab = 2 },
-                        text = { Text("Raw") })
+                    // Compact tabs: the stock Tab text slot pads 16 dp per
+                    // side, which is why three tabs already felt cramped.
+                    CompactTab("Commands", tab == 0) { tab = 0 }
+                    CompactTab("Inspector", tab == 1) { tab = 1 }
+                    CompactTab("Raw", tab == 2) { tab = 2 }
+                    CompactTab("Filter", tab == 3) { tab = 3 }
                 }
 
                 Box(modifier = Modifier.weight(1f, fill = true)) {
@@ -198,6 +202,7 @@ fun WheelDiagnosticsDialog(
                         0 -> CommandsTab(vm)
                         1 -> InspectTab(vm)
                         2 -> RawTab(vm)
+                        3 -> FilterTab(vm)
                     }
                 }
             }
@@ -266,10 +271,13 @@ private fun LogPanel(modifier: Modifier = Modifier) {
     // state to scroll to it, otherwise animateScrollToItem races the layout
     // and the request gets dropped, especially right after a comment send.
     LaunchedEffect(entries.size) {
-        if (entries.isNotEmpty()) {
-            kotlinx.coroutines.yield()
-            listState.scrollToItem(entries.size - 1)
-        }
+        // Re-read AFTER the yield: `entries` is live state, and Stop clears
+        // the log mid-suspension - the old pre-yield check then asked for
+        // scrollToItem(-1), which is a hard crash (field crash log,
+        // 2026-08-22, Fenix 8 tester's phone).
+        kotlinx.coroutines.yield()
+        val last = entries.size - 1
+        if (last >= 0) listState.scrollToItem(last)
     }
     // Matrix-terminal aesthetic stays isolated from the rest of Service
     // Mode's forced-light theme. Per-kind hues are picked in LogRow.
@@ -620,6 +628,237 @@ private fun shortInspectLabel(prefix: String, familyDisplayName: String): String
  * just clicked with whatever value the wheel's own UI is showing, useful
  * for finding unknown offsets like motor temp.
  */
+/** Tab with tight padding so four fit without the stock 16 dp side gutters. */
+@Composable
+private fun CompactTab(label: String, selected: Boolean, onClick: () -> Unit) {
+    Tab(selected = selected, onClick = onClick) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 2.dp, vertical = 12.dp)
+        )
+    }
+}
+
+/** One selectable slice of the shared log for the Filter tab. */
+private data class LogFilter(
+    val label: String,
+    val match: (DiagnosticsLogger.Entry) -> Boolean,
+)
+
+// Labels are EXACTLY what they match: the verbatim (case-sensitive) text
+// prefix, or the kind column as the log prints it. No friendly renames -
+// what you pick is what gets filtered.
+private val LOG_FILTERS = listOf(
+    LogFilter("garmin") { it.text.startsWith("garmin") },
+    LogFilter("wearos") { it.text.startsWith("wearos") },
+    LogFilter("watch:") { it.text.startsWith("watch:") },
+    LogFilter("wear:") { it.text.startsWith("wear:") },
+    LogFilter("hud_link:") { it.text.startsWith("hud_link:") },
+    LogFilter("dragy:") { it.text.startsWith("dragy:") },
+    LogFilter("racebox") { it.text.startsWith("racebox") },
+    LogFilter("flic") { it.text.startsWith("flic") },
+    LogFilter("radar") { it.text.startsWith("radar") },
+    LogFilter("tpms") { it.text.startsWith("tpms") },
+    LogFilter("SEND") { it.kind == DiagnosticsLogger.Kind.SEND },
+    LogFilter("RECV") { it.kind == DiagnosticsLogger.Kind.RECV },
+    LogFilter("NOTE") { it.kind == DiagnosticsLogger.Kind.NOTE },
+    LogFilter("INFO") { it.kind == DiagnosticsLogger.Kind.INFO },
+    LogFilter("USER") { it.kind == DiagnosticsLogger.Kind.USER },
+    LogFilter("TEST") { it.kind == DiagnosticsLogger.Kind.TEST },
+)
+
+// Token classes for the filter list's syntax highlight. Hoisted so the
+// regexes compile once, not per row.
+private val HEX_BYTE = Regex("[0-9a-f]{2}")
+private val NUMBER = Regex("-?[0-9]+([.,][0-9]+)?%?")
+
+/** Console-style highlight: key=value pairs, hex bytes, numbers and the
+ *  "subsystem:" prefix each get their own color so a line can be scanned
+ *  instead of read. Same neon palette as the live console above. */
+private fun highlightLogText(text: String) = androidx.compose.ui.text.buildAnnotatedString {
+    text.split(" ").forEachIndexed { i, tok ->
+        if (i > 0) append(" ")
+        when {
+            tok.length == 2 && HEX_BYTE.matches(tok) ->
+                withStyle(SpanStyle(color = Color(0xFF40C4FF))) { append(tok) }
+            tok.length > 1 && tok.contains('=') && !tok.startsWith("=") -> {
+                withStyle(SpanStyle(color = Color(0xFF80CBC4))) { append(tok.substringBefore('=')) }
+                withStyle(SpanStyle(color = Color(0x66FFFFFF))) { append("=") }
+                withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                    append(tok.substringAfter('='))
+                }
+            }
+            tok.endsWith(':') ->
+                withStyle(SpanStyle(color = Color(0xFF4DD0E1), fontWeight = FontWeight.Bold)) { append(tok) }
+            NUMBER.matches(tok) ->
+                withStyle(SpanStyle(color = Color(0xFFFFAB40))) { append(tok) }
+            else -> withStyle(SpanStyle(color = Color(0xFFECEFF1))) { append(tok) }
+        }
+    }
+}
+
+/**
+ * Filtered live view over the shared log. Pick slices from the combo -
+ * accessories (Garmin, WearOS, HUD, GPS...) or message kinds (Sent, Notes,
+ * Comments...) - and they stack as removable pills, OR-combined. Purely a
+ * view: nothing new is instrumented and nothing outside Service Mode pays
+ * for it. Wearable input events land here through their "garmin input:" /
+ * "wearos input:" log notes.
+ */
+@Composable
+private fun FilterTab(vm: WheelDiagnosticsViewModel) {
+    val entries by vm.entries.collectAsState()
+    var active by remember { mutableStateOf<List<String>>(emptyList()) }
+    var menuOpen by remember { mutableStateOf(false) }
+    // Time column mode: absolute clock, delta to the previous matching
+    // entry (gaps jump out), both, or none. A combo so all options are
+    // visible at once instead of blind-cycling.
+    val timeModes = listOf("Time", "Delta", "Both", "None")
+    var timeMode by remember { mutableStateOf(0) }
+    var timeMenuOpen by remember { mutableStateOf(false) }
+    val timeFmt = remember { SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US) }
+
+    val shown = remember(entries, active) {
+        if (active.isEmpty()) emptyList()
+        else {
+            val preds = LOG_FILTERS.filter { it.label in active }
+            entries.filter { e -> preds.any { it.match(e) } }.asReversed()
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box {
+                OutlinedButton(shape = RoundedCornerShape(0.dp), onClick = { menuOpen = true }) {
+                    Text("Add filter")
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = menuOpen,
+                    onDismissRequest = { menuOpen = false }
+                ) {
+                    LOG_FILTERS.filter { it.label !in active }.forEach { f ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(f.label, fontFamily = FontFamily.Monospace) },
+                            onClick = { active = active + f.label; menuOpen = false }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+            Box {
+                OutlinedButton(
+                    shape = RoundedCornerShape(0.dp),
+                    onClick = { timeMenuOpen = true }
+                ) {
+                    Text(timeModes[timeMode])
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = timeMenuOpen,
+                    onDismissRequest = { timeMenuOpen = false }
+                ) {
+                    timeModes.forEachIndexed { i, m ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(m) },
+                            onClick = { timeMode = i; timeMenuOpen = false }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.weight(1f))
+            TextButton(
+                shape = RoundedCornerShape(0.dp),
+                onClick = { active = emptyList() },
+                enabled = active.isNotEmpty()
+            ) { Text("Clear") }
+        }
+        if (active.isNotEmpty()) {
+            Row(Modifier.horizontalScroll(rememberScrollState())) {
+                active.forEach { label ->
+                    androidx.compose.material3.FilterChip(
+                        selected = true,
+                        onClick = { active = active - label },
+                        label = { Text(label, fontFamily = FontFamily.Monospace) },
+                        trailingIcon = { Icon(Icons.Filled.Close, contentDescription = "Remove") },
+                        modifier = Modifier.padding(end = 6.dp)
+                    )
+                }
+            }
+        }
+        if (active.isEmpty()) {
+            Text(
+                "No filter, nothing to show.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else if (shown.isEmpty()) {
+            Text(
+                "No matches.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else {
+            // Same console styling as the live log above: dark surface so
+            // the syntax highlight carries, monospace, kind in its color.
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF0A0A0A))
+                    .border(1.dp, Color(0xFF00FF41).copy(alpha = 0.3f))
+                    .padding(6.dp)
+            ) {
+                items(shown.size) { i ->
+                    val e = shown[i]
+                    val mono = MaterialTheme.typography.labelSmall.copy(
+                        fontFamily = FontFamily.Monospace, fontSize = 10.sp
+                    )
+                    Row(modifier = Modifier.padding(vertical = 1.dp)) {
+                        if (timeMode == 0 || timeMode == 2) {
+                            Text(
+                                timeFmt.format(java.util.Date(e.timestampMs)),
+                                style = mono,
+                                color = Color(0xFF00FF41).copy(alpha = 0.6f)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                        }
+                        if (timeMode == 1 || timeMode == 2) {
+                            // Delta to the PREVIOUS matching entry (the one
+                            // below in this newest-first list).
+                            val prev = shown.getOrNull(i + 1)
+                            val delta = if (prev == null) 0L else e.timestampMs - prev.timestampMs
+                            Text(
+                                "+%.3fs".format(delta / 1000.0),
+                                style = mono,
+                                color = Color(0xFFFFEB3B).copy(alpha = 0.8f)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                        }
+                        Text(kindTag(e.kind), style = mono, color = kindColor(e.kind))
+                        Spacer(Modifier.width(6.dp))
+                        Text(highlightLogText(e.text), style = mono)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun kindTag(kind: DiagnosticsLogger.Kind) = kind.name.padEnd(4)
+
+private fun kindColor(kind: DiagnosticsLogger.Kind): Color = when (kind) {
+    DiagnosticsLogger.Kind.RECV -> Color(0xFF40C4FF)
+    DiagnosticsLogger.Kind.SEND -> Color(0xFFFFAB40)
+    DiagnosticsLogger.Kind.TEST -> Color(0xFFE040FB)
+    DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1)
+    DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41)
+    DiagnosticsLogger.Kind.USER -> Color(0xFFFFEB3B)
+}
+
 @Composable
 private fun InspectTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()

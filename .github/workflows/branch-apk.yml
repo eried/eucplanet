@@ -221,15 +221,19 @@ jobs:
           # format); .prgs are advanced-sideload-only — bundling them keeps
           # the release page scannable.
           mkdir -p /tmp/prgs
-          for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8solar47mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
+          for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8pro47mm fenix8solar47mm fenix8solar51mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
             OUT="/tmp/prgs/garmin-${{ needs.meta.outputs.suffix }}-${d}.prg"
             echo "--- building $d ---"
+            # Warn-and-continue: a device profile missing from the hosted
+            # bundle must cost that one .prg, not the whole zip. Real
+            # compile errors still fail the .iq step above, which builds
+            # every manifest device.
             monkeyc \
               -f garmin-watch-app/monkey.jungle \
               -o "$OUT" \
               -y /tmp/ciq/dev_key.der \
               -d "$d" \
-              -w
+              -w || { echo "::warning::$d PRG failed (profile missing from bundle?)"; continue; }
           done
           (cd /tmp/prgs && zip -q "/tmp/out/garmin-${{ needs.meta.outputs.suffix }}-prgs.zip" *.prg)
           ls -la /tmp/out

@@ -103,6 +103,9 @@ object WatchKeys {
     /** Global toggle: vibrate the watch briefly when an action fires. */
     const val HAPTIC_ON_ACTION = "hap"
 
+    /** Phone's Service Mode is recording: report input events back. */
+    const val DIAG = "dg"
+
     // --- Navigation mirror (phone popup → watch). NAV_ACTIVE already folds in
     //     the rider's opt-in toggle and the phone popup's minimized state. ---
     const val NAV_ACTIVE = "na"
@@ -127,6 +130,13 @@ object WatchControl {
      * compat with prior watch builds.
      */
     const val ACTION_PREFIX = "action:"
+
+    /**
+     * Input-event report (key codes, tap slots, fired binding) for the
+     * phone's Service Mode Wearables tab. Only sent while the phone flags
+     * diag recording in the state frames; a normal ride sends none.
+     */
+    const val DEBUG_PREFIX = "debug:"
 }
 
 /**
@@ -212,6 +222,8 @@ data class WatchState(
     val screen2Click: String = "LIGHT_TOGGLE",
     val screen2Hold: String = "NONE",
     val hapticOnAction: Boolean = false,
+    /** Phone's Service Mode is recording; input handlers report events. */
+    val diagOn: Boolean = false,
     /**
      * GPS extra speed in km/h, or [Float.NaN] when there is nothing to show.
      * Mirrors the phone dashboard's gpsExtraSpeed indicator. NaN is the
