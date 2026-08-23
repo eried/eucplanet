@@ -2001,6 +2001,7 @@
     <string name="sync_stopping">Остановка…</string>
     <string name="charging_stat_used">Израсходовано</string>
     <string name="charging_stat_charged">Заряжено</string>
+    <string name="charging_stat_charged_est">Заряжено (оценка)</string>
     <string name="voice_quality_high">высокое качество</string>
     <string name="voice_quality_low">базовое</string>
     <string name="voice_sample_default">Это голос по умолчанию для этого языка</string>
@@ -2287,4 +2288,6 @@
     <string name="lockdown_warning_no_wheel">Колесо не подключено, поэтому состояние легального режима неизвестно. Приложение заблокируется при следующем включении легального режима.</string>
     <string name="lockdown_continue">Далее</string>
     <string name="trip_tools_wheel_none">Для этой поездки колесо еще не записано.</string>
+    <string name="backup_conflict_warning">%1$d резервных копий поездок требуют ручной синхронизации: копии различаются. Нажмите «Синхронизация» и выберите верную сторону.</string>
+    <string name="backup_conflict_fix">Исправить</string>
 </resources>

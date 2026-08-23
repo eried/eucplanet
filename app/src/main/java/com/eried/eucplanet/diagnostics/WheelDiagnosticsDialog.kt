@@ -271,13 +271,16 @@ private fun LogPanel(modifier: Modifier = Modifier) {
     // state to scroll to it, otherwise animateScrollToItem races the layout
     // and the request gets dropped, especially right after a comment send.
     LaunchedEffect(entries.size) {
-        // Re-read AFTER the yield: `entries` is live state, and Stop clears
-        // the log mid-suspension - the old pre-yield check then asked for
-        // scrollToItem(-1), which is a hard crash (field crash log,
-        // 2026-08-22, Fenix 8 tester's phone).
-        kotlinx.coroutines.yield()
-        val last = entries.size - 1
-        if (last >= 0) listState.scrollToItem(last)
+        if (entries.isNotEmpty()) {
+            kotlinx.coroutines.yield()
+            // Re-read AFTER the yield: entries is a live snapshot list, and a
+            // Clear tapped inside that one-frame gap emptied it between the
+            // guard above and the scroll - scrollToItem(-1), a crash straight
+            // off a rider's Z Flip. The guard alone cannot close a gap it
+            // stands on the wrong side of.
+            val last = entries.size - 1
+            if (last >= 0) listState.scrollToItem(last)
+        }
     }
     // Matrix-terminal aesthetic stays isolated from the rest of Service
     // Mode's forced-light theme. Per-kind hues are picked in LogRow.

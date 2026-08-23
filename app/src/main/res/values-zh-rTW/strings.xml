@@ -2000,6 +2000,7 @@
     <string name="sync_stopping">正在停止…</string>
     <string name="charging_stat_used">已用</string>
     <string name="charging_stat_charged">已充</string>
+    <string name="charging_stat_charged_est">已充 (估算)</string>
     <string name="voice_quality_high">高品質</string>
     <string name="voice_quality_low">基本</string>
     <string name="voice_sample_default">這是此語言的預設語音</string>
@@ -2286,4 +2287,6 @@
     <string name="lockdown_warning_no_wheel">未連接輪子，因此合法模式的狀態未知。下次開啟合法模式時應用程式才會鎖定。</string>
     <string name="lockdown_continue">繼續</string>
     <string name="trip_tools_wheel_none">此行程尚未記錄獨輪車。</string>
+    <string name="backup_conflict_warning">%1$d 筆行程備份需要手動同步：兩側副本不同。點擊同步並選擇以哪側為準。</string>
+    <string name="backup_conflict_fix">修復</string>
 </resources>

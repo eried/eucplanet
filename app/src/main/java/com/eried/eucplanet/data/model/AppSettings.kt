@@ -914,6 +914,10 @@ data class AppSettings(
     /** Number of trips still to upload to Dropbox; drives the "Syncing N trips…"
      *  indicator, decrementing live as each upload lands. */
     val dropboxPendingCount: Int = 0,
+    // Trips whose file exists on both the phone and the backup folder with
+    // different content. The folder worker counts them each pass; the
+    // dashboard shows the warning while it is non-zero.
+    val folderConflictCount: Int = 0,
     /** Trips in the current sync batch, so the pending indicator can show
      *  "X of Y" like the foreground sync (done = total - pending). 0 = no batch. */
     val dropboxSyncTotal: Int = 0,

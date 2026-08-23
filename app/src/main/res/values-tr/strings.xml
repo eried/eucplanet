@@ -1998,6 +1998,7 @@
     <string name="sync_stopping">Durduruluyor…</string>
     <string name="charging_stat_used">Kullanılan</string>
     <string name="charging_stat_charged">Şarj edilen</string>
+    <string name="charging_stat_charged_est">Şarj edilen (tahmini)</string>
     <string name="voice_quality_high">yüksek kalite</string>
     <string name="voice_quality_low">temel</string>
     <string name="voice_sample_default">Bu, bu dil için varsayılan sestir</string>
@@ -2284,4 +2285,6 @@
     <string name="lockdown_warning_no_wheel">Bağlı tekerlek yok, bu yüzden legal modun durumu bilinmiyor. Uygulama, legal mod bir sonraki açılışında kilitlenir.</string>
     <string name="lockdown_continue">Devam</string>
     <string name="trip_tools_wheel_none">Bu sürüş için henüz bir teker kaydedilmedi.</string>
+    <string name="backup_conflict_warning">%1$d sürüş yedeği manuel eşitleme istiyor: kopyalar farklı. Eşitle’ye basıp geçerli tarafı seçin.</string>
+    <string name="backup_conflict_fix">Düzelt</string>
 </resources>

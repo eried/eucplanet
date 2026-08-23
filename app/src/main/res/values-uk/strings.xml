@@ -1998,6 +1998,7 @@
     <string name="sync_stopping">Зупинка…</string>
     <string name="charging_stat_used">Витрачено</string>
     <string name="charging_stat_charged">Заряджено</string>
+    <string name="charging_stat_charged_est">Заряджено (оцінка)</string>
     <string name="voice_quality_high">висока якість</string>
     <string name="voice_quality_low">базова</string>
     <string name="voice_sample_default">Це голос за замовчуванням для цієї мови</string>
@@ -2284,4 +2285,6 @@
     <string name="lockdown_warning_no_wheel">Колесо не підключено, тому стан легального режиму невідомий. Застосунок заблокується наступного разу, коли легальний режим буде увімкнено.</string>
     <string name="lockdown_continue">Далі</string>
     <string name="trip_tools_wheel_none">Для цієї поїздки колесо ще не записано.</string>
+    <string name="backup_conflict_warning">%1$d резервних копій поїздок потребують ручної синхронізації: копії різняться. Натисніть «Синхронізація» і оберіть правильну сторону.</string>
+    <string name="backup_conflict_fix">Виправити</string>
 </resources>

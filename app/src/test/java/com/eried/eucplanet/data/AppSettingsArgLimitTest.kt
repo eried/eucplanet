@@ -71,7 +71,12 @@ class AppSettingsArgLimitTest {
         // cached JSON. 239 before that.
         // 239: the widget's nested settings added a field, which also crossed a
         // 32-property boundary and so cost a second bitmask slot.
-        val expectedSlots = 248
+        // 249: folderConflictCount - trips whose file differs between phone
+        // and backup folder. Counted by the folder worker each pass; the
+        // dashboard warning with its Fix button shows while it is non-zero.
+        // It has to survive the process so the warning does not vanish on a
+        // relaunch before the next pass.
+        val expectedSlots = 249
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

@@ -1999,6 +1999,7 @@
     <string name="charging_stat_current">Proud</string>
     <string name="charging_stat_used">Spotřebováno</string>
     <string name="charging_stat_charged">Nabito</string>
+    <string name="charging_stat_charged_est">Nabito (odhad)</string>
     <string name="charging_chart_empty">Sbírám data</string>
     <string name="charging_reset_data">Vynulovat data</string>
     <string name="charging_export">Exportovat</string>
@@ -2090,4 +2091,6 @@
     <string name="lockdown_warning_no_wheel">Není připojeno žádné kolo, takže stav legálního režimu je neznámý. Aplikace se zamkne, až se legální režim příště zapne.</string>
     <string name="lockdown_continue">Pokračovat</string>
     <string name="trip_tools_wheel_none">K této jízdě zatím není zaznamenané žádné kolo.</string>
+    <string name="backup_conflict_warning">%1$d zálohy jízd vyžadují ruční synchronizaci: kopie se liší. Stiskněte Synchronizovat a vyberte platnou stranu.</string>
+    <string name="backup_conflict_fix">Opravit</string>
 </resources>

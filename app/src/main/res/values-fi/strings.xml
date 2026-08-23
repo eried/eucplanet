@@ -1999,6 +1999,7 @@
     <string name="charging_stat_current">Virta</string>
     <string name="charging_stat_used">Käytetty</string>
     <string name="charging_stat_charged">Ladattu</string>
+    <string name="charging_stat_charged_est">Ladattu (arvio)</string>
     <string name="charging_chart_empty">Kerätään dataa</string>
     <string name="charging_reset_data">Nollaa data</string>
     <string name="charging_export">Vie</string>
@@ -2090,4 +2091,6 @@
     <string name="lockdown_warning_no_wheel">Yhtään pyörää ei ole yhdistetty, joten Legal-tilan tila on tuntematon. Sovellus lukittuu, kun Legal-tila seuraavan kerran otetaan käyttöön.</string>
     <string name="lockdown_continue">Jatka</string>
     <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu pyörää.</string>
+    <string name="backup_conflict_warning">%1$d matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
+    <string name="backup_conflict_fix">Korjaa</string>
 </resources>

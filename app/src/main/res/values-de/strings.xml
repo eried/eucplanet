@@ -2021,6 +2021,7 @@
     <string name="sync_stopping">Wird gestoppt…</string>
     <string name="charging_stat_used">Verbraucht</string>
     <string name="charging_stat_charged">Geladen</string>
+    <string name="charging_stat_charged_est">Geladen (geschätzt)</string>
     <string name="voice_quality_high">hohe Qualität</string>
     <string name="voice_quality_low">einfach</string>
     <string name="voice_sample_default">Dies ist die Standardstimme für diese Sprache</string>
@@ -2307,4 +2308,6 @@
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
     <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Einrad hinterlegt.</string>
+    <string name="backup_conflict_warning">%1$d Fahrt-Sicherungen brauchen einen manuellen Abgleich: die Kopien unterscheiden sich. Auf Synchronisieren tippen und die gültige Seite wählen.</string>
+    <string name="backup_conflict_fix">Beheben</string>
 </resources>

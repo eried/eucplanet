@@ -1999,6 +1999,7 @@
     <string name="charging_stat_current">Curent</string>
     <string name="charging_stat_used">Consumat</string>
     <string name="charging_stat_charged">Încărcat</string>
+    <string name="charging_stat_charged_est">Încărcat (est.)</string>
     <string name="charging_chart_empty">Se colectează date</string>
     <string name="charging_reset_data">Resetează datele</string>
     <string name="charging_export">Exportă</string>
@@ -2090,4 +2091,6 @@
     <string name="lockdown_warning_no_wheel">Nicio roată conectată, deci starea modului legal este necunoscută. Aplicația se va bloca data viitoare când modul legal este pornit.</string>
     <string name="lockdown_continue">Continuă</string>
     <string name="trip_tools_wheel_none">Această călătorie nu are încă o roată înregistrată.</string>
+    <string name="backup_conflict_warning">%1$d copii de siguranță ale călătoriilor cer o sincronizare manuală: copiile diferă. Apăsați Sincronizare și alegeți partea valabilă.</string>
+    <string name="backup_conflict_fix">Repară</string>
 </resources>

@@ -2005,6 +2005,7 @@
     <string name="sync_stopping">Arrêt…</string>
     <string name="charging_stat_used">Utilisé</string>
     <string name="charging_stat_charged">Chargé</string>
+    <string name="charging_stat_charged_est">Chargé (est.)</string>
     <string name="voice_quality_high">haute qualité</string>
     <string name="voice_quality_low">basique</string>
     <string name="voice_sample_default">Ceci est la voix par défaut pour cette langue</string>
@@ -2291,4 +2292,6 @@
     <string name="lockdown_warning_no_wheel">Aucune roue connectée, l’état du mode légal est donc inconnu. L’application se verrouillera à la prochaine activation du mode légal.</string>
     <string name="lockdown_continue">Continuer</string>
     <string name="trip_tools_wheel_none">Aucune roue enregistrée pour ce trajet pour le moment.</string>
+    <string name="backup_conflict_warning">%1$d sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
+    <string name="backup_conflict_fix">Corriger</string>
 </resources>

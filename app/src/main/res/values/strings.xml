@@ -2236,6 +2236,7 @@
     <string name="charging_stat_current">Current</string>
     <string name="charging_stat_used">Used</string>
     <string name="charging_stat_charged">Charged</string>
+    <string name="charging_stat_charged_est">Charged (est.)</string>
     <string name="charging_chart_empty">Collecting data</string>
     <string name="charging_reset_data">Reset data</string>
     <string name="charging_export">Export</string>
@@ -2309,4 +2310,6 @@
     <string name="lockdown_warning_no_wheel">No wheel is connected, so the Legal Mode state is unknown. The app locks the next time Legal Mode is switched on.</string>
     <string name="lockdown_continue">Continue</string>
     <string name="trip_tools_wheel_none">No wheel is recorded on this trip yet.</string>
+    <string name="backup_conflict_warning">%1$d trip backups need a manual sync: the copies differ. Press Sync and pick which side wins.</string>
+    <string name="backup_conflict_fix">Fix</string>
 </resources>

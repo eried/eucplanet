@@ -53,7 +53,7 @@ data class WheelData(
     val accelX: Float = 0f,
     /** Phone IMU forward acceleration in g (+forward). 0 for trips recorded before this. */
     val accelY: Float = 0f,
-    /** Forward G estimated from wheel-speed change (dv/dt / g) — orientation-independent,
+    /** Forward G estimated from wheel-speed change (dv/dt / g), orientation-independent:
      *  unlike the IMU axes above. Drives the FORWARD_G dashboard metric. */
     val forwardGFromSpeed: Float = 0f,
     val batteryPower: Int = 0,
@@ -124,4 +124,29 @@ data class WheelData(
      *  telemetry). 0 = unknown / not yet read. Backs the BT_RSSI metric. */
     val rssiDbm: Int = 0,
     val timestamp: Long = System.currentTimeMillis()
-)
+) {
+    /**
+     * Carry the fields no wheel reports across a telemetry frame.
+     *
+     * A decoded frame is built from what the parser returned, so every field the
+     * parser does not fill arrives at its default. Most of those are wheel
+     * fields the wheel simply did not send, and a default is the honest answer.
+     * These are not: they are worked out on the phone, by loops in
+     * WheelRepository that run on their own cadence, so a frame that resets them
+     * is throwing away the only copy.
+     *
+     * That is what emptied the dashboard's CONSUMPTION and RANGE tiles. The
+     * ride-efficiency loop wrote them once a second and the next frame, 250 ms
+     * later on an InMotion V1, put NaN back, so the tiles answered for an
+     * instant a few times a ride and read blank the rest of the time. The
+     * g-force fields sit behind the same defect at 8 and 10 Hz.
+     */
+    fun carryPhoneSideFrom(previous: WheelData): WheelData = copy(
+        gForce = previous.gForce,
+        accelX = previous.accelX,
+        accelY = previous.accelY,
+        forwardGFromSpeed = previous.forwardGFromSpeed,
+        whPerKmRecent = previous.whPerKmRecent,
+        rangeKmEstimate = previous.rangeKmEstimate,
+    )
+}

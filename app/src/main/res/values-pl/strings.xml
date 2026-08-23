@@ -1999,6 +1999,7 @@
     <string name="sync_stopping">Zatrzymywanie…</string>
     <string name="charging_stat_used">Zużyto</string>
     <string name="charging_stat_charged">Naładowano</string>
+    <string name="charging_stat_charged_est">Naładowano (szac.)</string>
     <string name="voice_quality_high">wysoka jakość</string>
     <string name="voice_quality_low">podstawowa</string>
     <string name="voice_sample_default">To jest domyślny głos dla tego języka</string>
@@ -2287,4 +2288,6 @@
     <string name="lockdown_warning_no_wheel">Brak połączonego koła, więc stan trybu legalnego jest nieznany. Aplikacja zablokuje się przy następnym włączeniu trybu legalnego.</string>
     <string name="lockdown_continue">Dalej</string>
     <string name="trip_tools_wheel_none">Ten przejazd nie ma jeszcze zapisanego koła.</string>
+    <string name="backup_conflict_warning">%1$d kopie zapasowe przejazdów wymagają ręcznej synchronizacji: kopie się różnią. Naciśnij Synchronizuj i wybierz właściwą stronę.</string>
+    <string name="backup_conflict_fix">Napraw</string>
 </resources>

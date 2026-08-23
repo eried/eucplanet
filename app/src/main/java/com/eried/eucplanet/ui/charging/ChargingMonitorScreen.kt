@@ -125,13 +125,16 @@ fun ChargingMonitorScreen(
     onBack: () -> Unit,
     onOpenHistory: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    /** Open with the details flyout already up - the dashboard battery
+     *  icon's long-press promises the graphs, not the dial. */
+    initialDetailsOpen: Boolean = false,
     viewModel: ChargingMonitorViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val ctx = LocalContext.current
     val charging = state.status == ChargeStatus.Charging || state.status == ChargeStatus.Full
 
-    var showSheet by remember { mutableStateOf(false) }
+    var showSheet by remember { mutableStateOf(initialDetailsOpen) }
     // skipPartiallyExpanded = true so the sheet opens straight to its full (expanded)
     // height instead of a half state, reliably, without racing an expand() animation
     // that used to settle back at ~half. contentH (in InfoTabs) is capped so even at
@@ -1103,7 +1106,18 @@ private fun InfoTabs(state: ChargingUiState) {
                         if (state.energyUsedWh >= 1f && !state.charging) {
                             StatRow(stringResource(R.string.charging_stat_used), fmtWh(state.energyUsedWh))
                         }
-                        if (state.energyChargedWh >= 1f) {
+                        // Charged: the percentage times the rider's pack size on
+                        // the wheels that report no charge current, otherwise the
+                        // integral. The estimate comes first because it only
+                        // exists on those wheels, where the measured bucket holds
+                        // nothing but the ride's own regen: it read "Charged 29 Wh"
+                        // through a charge that had actually put back 120.
+                        if (state.estimatedChargedWh >= 1f) {
+                            StatRow(
+                                stringResource(R.string.charging_stat_charged_est),
+                                "~" + fmtWh(state.estimatedChargedWh),
+                            )
+                        } else if (state.energyChargedWh >= 1f) {
                             StatRow(stringResource(R.string.charging_stat_charged), fmtWh(state.energyChargedWh))
                         }
                         StatRow(stringResource(R.string.charging_stat_voltage), "%.1f V".format(state.voltage))

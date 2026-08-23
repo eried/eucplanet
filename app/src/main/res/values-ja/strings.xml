@@ -2000,6 +2000,7 @@
     <string name="sync_stopping">停止中…</string>
     <string name="charging_stat_used">使用</string>
     <string name="charging_stat_charged">充電</string>
+    <string name="charging_stat_charged_est">充電 (推定)</string>
     <string name="voice_quality_high">高品質</string>
     <string name="voice_quality_low">標準</string>
     <string name="voice_sample_default">これはこの言語のデフォルトの音声です</string>
@@ -2288,4 +2289,6 @@
     <string name="lockdown_warning_no_wheel">ホイールが接続されていないため、リーガルモードの状態は不明です。次にリーガルモードがオンになったときにアプリがロックされます。</string>
     <string name="lockdown_continue">次へ</string>
     <string name="trip_tools_wheel_none">このトリップにはまだホイールが記録されていません。</string>
+    <string name="backup_conflict_warning">%1$d件のトリップバックアップは手動同期が必要です。コピーが異なります。同期を押して残す側を選んでください。</string>
+    <string name="backup_conflict_fix">修正</string>
 </resources>

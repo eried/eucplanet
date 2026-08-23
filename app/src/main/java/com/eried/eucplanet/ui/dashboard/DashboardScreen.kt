@@ -272,6 +272,8 @@ fun DashboardScreen(
     onNavigateToTripDetail: (Long) -> Unit = {},
     onNavigateToMetric: (String) -> Unit = {},
     onNavigateToCharging: () -> Unit = {},
+    /** Long-press on the battery icon: charging monitor, details already up. */
+    onNavigateToChargingDetails: () -> Unit = {},
     onNavigateToTripMeter: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
@@ -800,7 +802,20 @@ fun DashboardScreen(
                     val chargeStatus by viewModel.chargeStatus.collectAsState()
                     val showChargingIcon by viewModel.chargingDashboardIcon.collectAsState()
                     if (showChargingIcon) {
-                        IconButton(onClick = onNavigateToCharging) {
+                        // Not an IconButton: it has no long-press. A tap opens
+                        // the charging monitor as before; holding opens it with
+                        // the details flyout already up, skipping the extra tap
+                        // for the rider who came for the graphs.
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .combinedClickable(
+                                    onClick = onNavigateToCharging,
+                                    onLongClick = onNavigateToChargingDetails,
+                                )
+                        ) {
                             val chargingNow = chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
                                 chargeStatus == com.eried.eucplanet.data.model.ChargeStatus.Full
                             Icon(
@@ -898,6 +913,31 @@ fun DashboardScreen(
                 detectedWheelName = modelName,
                 detectedFirmware = firmwareVersion
             )
+            // Backups that need a decision. The folder worker mirrors gaps by
+            // itself, so the one state left that it must not repair alone is a
+            // file that exists on both sides with different content -
+            // overwriting either would destroy somebody's copy. That needs
+            // the rider in the conflict dialog, so it is said here, on the
+            // screen they actually look at, with the button that goes there.
+            val folderConflicts by viewModel.folderConflictCount.collectAsState()
+            if (folderConflicts > 0) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.backup_conflict_warning, folderConflicts),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.statusWarn,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TextButton(onClick = { onNavigateToSettings(4) }) {
+                        Text(stringResource(R.string.backup_conflict_fix))
+                    }
+                }
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -1161,7 +1201,10 @@ fun DashboardScreen(
                             },
                             onClick = {
                                 showGpsMenu = false
-                                onNavigateToSettings(7)
+                                // External GPS lives in GPS & sensors, which
+                                // no tab number could reach; 7 landed on
+                                // Integration instead.
+                                onNavigateToSettings(10)
                             }
                         )
                     }
