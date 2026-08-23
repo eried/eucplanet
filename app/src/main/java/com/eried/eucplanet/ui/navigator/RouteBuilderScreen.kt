@@ -1977,8 +1977,18 @@ private fun BottomPanel(
                             TravelMode.DRIVING  -> Color(0xFFFB8C00)
                             TravelMode.STRAIGHT -> Color(0xFF42A5F5)
                         }
+                        val selected = travelMode == mode
+                        // The selected mode is filled with its own colour and
+                        // its icon goes white. A tinted icon on the theme's
+                        // pale selected fill was near-invisible next to three
+                        // tinted icons on the pale unselected fill. White is a
+                        // literal on purpose: the four mode fills are fixed,
+                        // saturated colours in every theme, so the glyph's
+                        // contrast is against them, not against the theme.
+                        val onSelected = Color.White
+                        val glyphTint = if (selected) onSelected else modeColor
                         SegmentedButton(
-                            selected = travelMode == mode,
+                            selected = selected,
                             onClick = { onModeChange(mode) },
                             enabled = !modesLocked,
                             shape = SegmentedButtonDefaults.itemShape(
@@ -1986,7 +1996,18 @@ private fun BottomPanel(
                                 baseShape = RoundedCornerShape(12.dp)
                             ),
                             icon = {},
-                            colors = themedSegmentedColors(),
+                            colors = themedSegmentedColors().copy(
+                                activeContainerColor = modeColor,
+                                activeContentColor = onSelected,
+                            ),
+                            // A stroke the eye can find. The default outline is
+                            // so close to the panel that the selector read as
+                            // its 1 dp-inset fill, a few dp shorter than the
+                            // solid Start button beside it - though both boxes
+                            // are exactly 40 dp. Same box, now visibly so.
+                            border = SegmentedButtonDefaults.borderStroke(
+                                MaterialTheme.appColors.textSecondary.copy(alpha = 0.55f)
+                            ),
                         ) {
                             if (!solveFullPath && mode != TravelMode.STRAIGHT) {
                                 // Next segment + routed mode: icon with a
@@ -2001,7 +2022,7 @@ private fun BottomPanel(
                                     Icon(
                                         icon,
                                         contentDescription = stringResource(labelRes),
-                                        tint = modeColor,
+                                        tint = glyphTint,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(Modifier.height(3.dp))
@@ -2011,7 +2032,7 @@ private fun BottomPanel(
                                                 modifier = Modifier
                                                     .width(4.dp)
                                                     .height(2.dp)
-                                                    .background(modeColor, RoundedCornerShape(1.dp))
+                                                    .background(glyphTint, RoundedCornerShape(1.dp))
                                             )
                                         }
                                     }
@@ -2020,7 +2041,7 @@ private fun BottomPanel(
                                 Icon(
                                     icon,
                                     contentDescription = stringResource(labelRes),
-                                    tint = modeColor,
+                                    tint = glyphTint,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
