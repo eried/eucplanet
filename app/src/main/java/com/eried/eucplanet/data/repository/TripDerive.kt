@@ -140,6 +140,17 @@ object TripDerive {
                             placedMac = true
                             "wheel.mac=$cleanMac"
                         }
+                        // The rest of the OLD wheel's identity goes with it.
+                        // These lines described the wheel being replaced, and
+                        // eucviewer labels by brand/model BEFORE the name - so
+                        // leaving a stale wheel.model= behind kept a
+                        // reassigned trip filed under the old wheel there, and
+                        // the whole point of the change is consolidation.
+                        // The new wheel's brand/model are unknown from here
+                        // (the picker knows a name and maybe a MAC), so the
+                        // cells are cleared, not guessed.
+                        cell.startsWith("wheel.brand=") || cell.startsWith("wheel.model=") ||
+                            cell.startsWith("wheel.serial=") || cell.startsWith("wheel.firmware=") -> ""
                         // Nothing recorded the wheel, so put it in the first
                         // free Extra cell rather than leaving the file silent.
                         !hasName && !placedName && cleanName.isNotEmpty() &&

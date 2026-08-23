@@ -127,4 +127,26 @@ class WheelIdentityRewriteTest {
         assertEquals(3, rows.size)
         assertTrue(rows.all { it.startsWith("2026-08-21 01:00:") })
     }
+
+    @Test fun `changing the wheel takes the old identity with it`() {
+        // eucviewer labels by brand/model BEFORE the name. Rewriting only the
+        // name left the old wheel's model line in the file, so a trip moved to
+        // another wheel stayed filed under the old one there - the opposite of
+        // what changing the wheel is for.
+        val src = tmp.newFile()
+        src.writeText(
+            "date,speed,voltage,current,power,battery,latitude,longitude,mileage,extra\n" +
+            "2026-02-01 10:00:00.000,10,80,1,80,90,52.1,4.3,100,wheel.name=Inmotion V14\n" +
+            "2026-02-01 10:00:01.000,10,80,1,80,90,52.1,4.3,100,wheel.brand=Inmotion\n" +
+            "2026-02-01 10:00:02.000,10,80,1,80,90,52.1,4.3,100,wheel.model=V14 50GB\n" +
+            "2026-02-01 10:00:03.000,10,80,1,80,90,52.1,4.3,100,wheel.serial=ABC123\n"
+        )
+        val dest = tmp.newFile()
+        TripDerive.rewriteWheelIdentity(src, dest, "Adventure-E0000298", null)
+        val text = dest.readText()
+        assertTrue(text.contains("wheel.name=Adventure-E0000298"))
+        assertTrue("the old model line survived the change", !text.contains("wheel.model="))
+        assertTrue("the old brand line survived the change", !text.contains("wheel.brand="))
+        assertTrue("the old serial line survived the change", !text.contains("wheel.serial="))
+    }
 }
