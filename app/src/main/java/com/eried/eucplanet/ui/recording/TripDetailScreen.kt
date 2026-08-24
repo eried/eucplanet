@@ -805,8 +805,23 @@ fun TripDetailScreen(
             // the date line in portrait, at the head of the info column in
             // landscape where the date lives in the top bar instead.
             val trimBar: @Composable ColumnScope.() -> Unit = {
+                // Explicit vertical enter/exit. The fully qualified call
+                // resolves to the generic AnimatedVisibility overload, whose
+                // default is fadeIn + expandIn - a clip growing from a CORNER,
+                // so the trim bar appeared to wipe in from the left, sideways,
+                // unlike every other reveal in the app. The ColumnScope
+                // overload's vertical defaults never applied to a qualified
+                // call. Same spec as the settings sections.
                 androidx.compose.animation.AnimatedVisibility(
                     visible = showTrimBar && elapsedMs.isNotEmpty(),
+                    enter = androidx.compose.animation.expandVertically(
+                        animationSpec = androidx.compose.animation.core.tween(180),
+                        expandFrom = Alignment.Top,
+                    ) + androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(140)),
+                    exit = androidx.compose.animation.shrinkVertically(
+                        animationSpec = androidx.compose.animation.core.tween(160),
+                        shrinkTowards = Alignment.Top,
+                    ) + androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(90)),
                 ) {
                     val full = elapsedMs.lastOrNull() ?: 0L
                     // The strip appears above wherever the rider has scrolled to,
@@ -844,7 +859,15 @@ fun TripDetailScreen(
                 }
                 visibleTiles.chunked(3).forEachIndexed { rowIndex, rowTiles ->
                     if (rowIndex > 0) Spacer(Modifier.height(8.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Row height comes from its tallest tile, and every tile
+                    // fills it (see SummaryCard): cards in one row are always
+                    // level, and since each card reserves its two-line label
+                    // space, toggling tiles in the customizer cannot nudge row
+                    // heights as a wrapped label moves between rows.
+                    Row(
+                        Modifier.fillMaxWidth().height(androidx.compose.foundation.layout.IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         rowTiles.forEach { (_, tile) -> tile() }
                         repeat(3 - rowTiles.size) { Spacer(Modifier.weight(1f)) }
                     }
@@ -1370,19 +1393,37 @@ private fun SummaryCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.fillMaxHeight(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(10.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(horizontal = 12.dp, vertical = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            // The label always reserves two lines: most fit one, some locales
+            // wrap, and a card that grows for its wrapped label made its whole
+            // row 3 dp taller than the others - so tile heights appeared to
+            // shift whenever the customizer moved tiles between rows.
             Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium)
-            Text(value, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = color)
+                fontWeight = FontWeight.Medium, minLines = 2, maxLines = 2,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            // Explicit line height: the arrow in range values ("91→84%")
+            // comes from a taller fallback font, and without a pinned height
+            // those values rendered 3 dp taller than plain ones - the whole
+            // row grew with them.
+            // A fixed-height slot rather than font styling: the arrow in
+            // range values ("91→84%") pulls a taller fallback font, and
+            // neither lineHeight nor LineHeightStyle.Trim reliably caps a
+            // fallback's line box. A 22 dp slot fits every value and cannot
+            // be stretched, so all cards measure identically by construction.
+            Box(Modifier.height(22.dp), contentAlignment = Alignment.Center) {
+                Text(value, fontSize = 16.sp, maxLines = 1,
+                    fontWeight = FontWeight.Bold, color = color)
+            }
         }
     }
 }
