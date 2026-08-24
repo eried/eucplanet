@@ -2080,6 +2080,11 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     bottom:0!important;
     transform:translateX(-50%)!important;
     margin:0!important;
+    /* One line, as wide as it needs: left:50% caps a fixed element's
+       shrink-to-fit width at the remaining half of the viewport, so the
+       credit word-wrapped whenever it was longer than half the card. */
+    white-space:nowrap!important;
+    width:max-content!important;
     pointer-events:none;
   }
 </style>
