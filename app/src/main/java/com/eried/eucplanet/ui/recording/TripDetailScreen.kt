@@ -166,9 +166,15 @@ fun TripDetailScreen(
     // computed the moment the rider opens the dialog or a trim is live, and not
     // before.
     val needElapsed = showTrim || showTrimBar || trimRange != null
-    val elapsedMs = remember(allPoints, needElapsed) {
-        if (needElapsed) TripTrim.elapsedOffsets(allPoints) else LongArray(0)
+    // Sticky once computed: hiding the bar used to flip needElapsed off,
+    // which dropped this table while the bar was still animating away - its
+    // numbers visibly snapped to 0:00 mid-exit. Once the rider has paid for
+    // the parse, keep it for the life of the screen.
+    val elapsedHolder = remember(allPoints) { mutableStateOf<LongArray?>(null) }
+    if (needElapsed && elapsedHolder.value == null) {
+        elapsedHolder.value = TripTrim.elapsedOffsets(allPoints)
     }
+    val elapsedMs = elapsedHolder.value ?: LongArray(0)
     // Everything else on this screen reads dataPoints, so filtering here trims
     // the tiles, the charts, the header and the map in one move.
     val dataPoints = remember(allPoints, elapsedMs, trimRange) {
@@ -1404,23 +1410,23 @@ private fun SummaryCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // The label always reserves two lines: most fit one, some locales
-            // wrap, and a card that grows for its wrapped label made its whole
-            // row 3 dp taller than the others - so tile heights appeared to
-            // shift whenever the customizer moved tiles between rows.
+            // One line, ellipsized. Reserving two label lines kept the cards
+            // uniform but grew every tile; labels are written to fit one line
+            // (keep copy short), and a locale that overflows ellipsizes
+            // rather than growing its row.
             Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium, minLines = 2, maxLines = 2,
+                fontWeight = FontWeight.Medium, maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            // Explicit line height: the arrow in range values ("91→84%")
-            // comes from a taller fallback font, and without a pinned height
-            // those values rendered 3 dp taller than plain ones - the whole
-            // row grew with them.
             // A fixed-height slot rather than font styling: the arrow in
             // range values ("91→84%") pulls a taller fallback font, and
             // neither lineHeight nor LineHeightStyle.Trim reliably caps a
-            // fallback's line box. A 22 dp slot fits every value and cannot
-            // be stretched, so all cards measure identically by construction.
-            Box(Modifier.height(22.dp), contentAlignment = Alignment.Center) {
+            // fallback's line box. The slot is the plain value's natural line
+            // (19.sp for 16.sp text) so cards sit at their old height and the
+            // arrow's taller line box centers inside it instead of stretching
+            // the row. Sized in sp so it grows with the rider's font scale.
+            val valueSlot = with(LocalDensity.current) { 19.sp.toDp() }
+            Box(Modifier.height(valueSlot), contentAlignment = Alignment.Center) {
                 Text(value, fontSize = 16.sp, maxLines = 1,
                     fontWeight = FontWeight.Bold, color = color)
             }
