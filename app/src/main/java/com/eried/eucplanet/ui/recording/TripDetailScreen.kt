@@ -2861,12 +2861,18 @@ private fun TripDetailSkeleton(
 
         // Tiles: 10dp corners and the same 8dp gaps as SummaryCard, with a short
         // final row padded by spacers so the widths stay uniform.
+        // The height is the real card's, built the same way: 10dp padding top
+        // and bottom, an 11sp one-line label (a ~13sp line box), and the 19sp
+        // value slot - in sp so the skeleton follows the rider's font scale
+        // exactly like the cards, and the screen does not shift when the data
+        // lands.
+        val tileHeight = 20.dp + with(LocalDensity.current) { 32.sp.toDp() }
         val rows = (tileCount + 2) / 3
         repeat(rows) { row ->
             if (row > 0) Spacer(Modifier.height(8.dp))
             val inRow = minOf(3, tileCount - row * 3)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(inRow) { Block(56.dp, Modifier.weight(1f), corner = 10.dp) }
+                repeat(inRow) { Block(tileHeight, Modifier.weight(1f), corner = 10.dp) }
                 repeat(3 - inRow) { Spacer(Modifier.weight(1f)) }
             }
         }
