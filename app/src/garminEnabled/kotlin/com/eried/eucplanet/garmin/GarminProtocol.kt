@@ -63,6 +63,8 @@ internal object GarminKeys {
     const val STEM1_HOLD = "s1h"
     const val STEM2_CLICK = "s2c"
     const val STEM2_HOLD = "s2h"
+    /** Garmin-only third hardware button (the Down key), click only. */
+    const val STEM3_CLICK = "s3c"
 
     const val SCREEN1_CLICK = "b1c"
     const val SCREEN1_HOLD = "b1h"

@@ -525,6 +525,10 @@ data class AppSettings(
     val watchStem1Click: String = "NONE",
     val watchStem1Hold: String = "NONE",
     val watchStem2Click: String = "NONE",
+    // Third hardware button. Garmin only (the Down key); Wear watches have
+    // two stems, so the wear bridge never sends it. Click only: the watch
+    // system can claim Down's long press for its own shortcut.
+    val watchStem3Click: String = "NONE",
     val watchStem2Hold: String = "NONE",
 
     /**

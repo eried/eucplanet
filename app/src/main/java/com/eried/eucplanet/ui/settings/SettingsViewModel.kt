@@ -776,6 +776,7 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchStem1Click(action: String) = update { copy(watchStem1Click = action) }
     fun updateWatchStem1Hold(action: String) = update { copy(watchStem1Hold = action) }
     fun updateWatchStem2Click(action: String) = update { copy(watchStem2Click = action) }
+    fun updateWatchStem3Click(action: String) = update { copy(watchStem3Click = action) }
     fun updateWatchStem2Hold(action: String) = update { copy(watchStem2Hold = action) }
     fun updateWatchScreen1Click(action: String) = update { copy(watchScreen1Click = action) }
     fun updateWatchScreen1Hold(action: String) = update { copy(watchScreen1Hold = action) }

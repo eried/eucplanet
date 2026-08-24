@@ -76,7 +76,10 @@ class AppSettingsArgLimitTest {
         // dashboard warning with its Fix button shows while it is non-zero.
         // It has to survive the process so the warning does not vanish on a
         // relaunch before the next pass.
-        val expectedSlots = 249
+        // 250: watchStem3Click - the Garmin three-button model's Down key.
+        // A single string like its stem siblings; nesting the watch button
+        // fields is the move if another one ever appears.
+        val expectedSlots = 250
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

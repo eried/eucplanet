@@ -124,6 +124,21 @@ class EucPlanetDelegate extends WatchUi.BehaviorDelegate {
             _actions.dispatch(s.stem2Click);
             return true;
         }
+        // Three-button model (Fenix 8 field mapping, 2026-08-24 diag):
+        // UP short-press falls through here as KEY_UP - same Button 2 as
+        // its long press (which the firmware turns into onMenu), so a
+        // lingering press can never fire a different action. DOWN is the
+        // new Button 3, click only.
+        if (k == WatchUi.KEY_UP) {
+            _actions.debug("onKey dispatch act=" + s.stem2Click);
+            _actions.dispatch(s.stem2Click);
+            return true;
+        }
+        if (k == WatchUi.KEY_DOWN) {
+            _actions.debug("onKey dispatch act=" + s.stem3Click);
+            _actions.dispatch(s.stem3Click);
+            return true;
+        }
         return false;
     }
 

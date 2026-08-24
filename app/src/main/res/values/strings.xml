@@ -624,8 +624,10 @@
     <string name="section_watch_buttons">Buttons</string>
     <string name="watch_hardware_button_1">Button 1</string>
     <string name="watch_hardware_button_2">Button 2</string>
+    <string name="watch_hardware_button_3">Button 3</string>
     <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: orange Action button</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Up (long press) · Galaxy Watch Ultra: lower side button</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: lower side button</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Down · not on Wear OS watches</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not

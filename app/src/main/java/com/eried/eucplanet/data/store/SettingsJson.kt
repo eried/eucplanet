@@ -243,6 +243,7 @@ object SettingsJson {
         put("watchStem1Click", s.watchStem1Click)
         put("watchStem1Hold", s.watchStem1Hold)
         put("watchStem2Click", s.watchStem2Click)
+        put("watchStem3Click", s.watchStem3Click)
         put("watchStem2Hold", s.watchStem2Hold)
         put("watchScreen1Click", s.watchScreen1Click)
         put("watchScreen1Hold", s.watchScreen1Hold)
@@ -589,6 +590,7 @@ object SettingsJson {
         watchStem1Click = j.optString("watchStem1Click", base.watchStem1Click),
         watchStem1Hold = j.optString("watchStem1Hold", base.watchStem1Hold),
         watchStem2Click = j.optString("watchStem2Click", base.watchStem2Click),
+        watchStem3Click = j.optString("watchStem3Click", base.watchStem3Click),
         watchStem2Hold = j.optString("watchStem2Hold", base.watchStem2Hold),
         watchScreen1Click = j.optString("watchScreen1Click", base.watchScreen1Click),
         watchScreen1Hold = j.optString("watchScreen1Hold", base.watchScreen1Hold),

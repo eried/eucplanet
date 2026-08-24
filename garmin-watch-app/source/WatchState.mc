@@ -60,6 +60,8 @@ module Keys {
     const STEM1_HOLD = "s1h";
     const STEM2_CLICK = "s2c";
     const STEM2_HOLD = "s2h";
+    //! Garmin-only third hardware button (the Down key), click only.
+    const STEM3_CLICK = "s3c";
 
     const SCREEN1_CLICK = "b1c";
     const SCREEN1_HOLD = "b1h";
@@ -144,6 +146,8 @@ class WatchSnapshot {
     public var closeOnExit as Lang.Boolean = false;
 
     public var stem1Click as Lang.String = "NONE";
+    //! Down-key click, Garmin only. NONE until a new-enough phone sends it.
+    public var stem3Click as Lang.String = "NONE";
     public var stem1Hold as Lang.String = "NONE";
     public var stem2Click as Lang.String = "NONE";
     public var stem2Hold as Lang.String = "NONE";
@@ -222,6 +226,7 @@ module WatchState {
         s.closeOnExit = boolean(dict, Keys.OPT_CLOSE_ON_EXIT, false);
 
         s.stem1Click = string(dict, Keys.STEM1_CLICK, "NONE");
+        s.stem3Click = string(dict, Keys.STEM3_CLICK, "NONE");
         s.stem1Hold = string(dict, Keys.STEM1_HOLD, "NONE");
         s.stem2Click = string(dict, Keys.STEM2_CLICK, "NONE");
         s.stem2Hold = string(dict, Keys.STEM2_HOLD, "NONE");

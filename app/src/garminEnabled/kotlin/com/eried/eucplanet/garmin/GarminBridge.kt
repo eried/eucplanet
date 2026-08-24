@@ -729,6 +729,7 @@ class GarminBridge @Inject constructor(
             put(GarminKeys.STEM1_CLICK, settings.watchStem1Click)
             put(GarminKeys.STEM1_HOLD, settings.watchStem1Hold)
             put(GarminKeys.STEM2_CLICK, settings.watchStem2Click)
+            put(GarminKeys.STEM3_CLICK, settings.watchStem3Click)
             put(GarminKeys.STEM2_HOLD, settings.watchStem2Hold)
             put(GarminKeys.SCREEN1_CLICK, settings.watchScreen1Click)
             put(GarminKeys.SCREEN1_HOLD, settings.watchScreen1Hold)
