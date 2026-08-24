@@ -147,6 +147,14 @@ class PhoneBridge {
     //! no-op unless the phone flagged diag recording in the state frames,
     //! so a normal ride sends nothing extra. Best-effort like every other
     //! control: _txBusy may drop one, and that is fine for diagnostics.
+    //! Debug lines waiting for a free transmit slot. Dropping them (the old
+    //! behavior) made the diag stream lossy in exactly the interesting
+    //! moments: a press produces 2-3 events milliseconds apart, one transmit
+    //! holds the slot for seconds on a slow link, so only the FIRST line of
+    //! every burst survived (field log: onKeyPressed with no onSelect after
+    //! it). Buffered lines flush as ONE joined frame when the slot frees.
+    private var _pendingDebug as Lang.Array = [];
+
     function sendDebug(msg as Lang.String) as Void {
         // Println first: on real watches it goes nowhere (unless an app log
         // file exists), but in the CIQ simulator it lands in the console -
@@ -154,9 +162,13 @@ class PhoneBridge {
         // the tethered simulator's watch->phone transmits stall.
         System.println("dbg " + msg);
         if (!WatchState.snapshot.diagOn) { return; }
-        // Straight to the guarded sender, NOT transmitControl: debug frames
-        // are droppable and must never occupy the rider-control queue.
-        transmitDict({ Control.PAYLOAD_KEY => Control.DEBUG_PREFIX + msg });
+        // Never ahead of a rider control, and never a transmit of its own
+        // while one is outstanding - buffer and let onTransmitDone flush.
+        if (_pendingControls.size() == 0 && txSlotFree()) {
+            transmitDict({ Control.PAYLOAD_KEY => Control.DEBUG_PREFIX + msg });
+        } else if (_pendingDebug.size() < 8) {
+            _pendingDebug = _pendingDebug.add(msg);
+        }
     }
 
     //! Rider controls waiting for the transmit slot. With per-frame acks and
@@ -243,6 +255,20 @@ class PhoneBridge {
             var next = _pendingControls[0] as Lang.String;
             _pendingControls = _pendingControls.slice(1, null);
             transmitDict({ Control.PAYLOAD_KEY => next });
+            return;
+        }
+        // Buffered debug lines ride out as one frame. Joined so a whole
+        // press sequence (pressed / behavior / released) costs one transmit;
+        // the phone renders the joined note as-is, timestamps are arrival
+        // time - order within the line is the on-watch order.
+        if (_pendingDebug.size() > 0) {
+            var joined = "";
+            for (var i = 0; i < _pendingDebug.size(); i++) {
+                if (i > 0) { joined += " | "; }
+                joined += _pendingDebug[i] as Lang.String;
+            }
+            _pendingDebug = [];
+            transmitDict({ Control.PAYLOAD_KEY => Control.DEBUG_PREFIX + joined });
         }
     }
 
