@@ -168,6 +168,29 @@ vocabulary: `horn`, `light_on`, `light_off`, `action:<FlicAction>`,
 
 The server binds `127.0.0.1` only. Nothing off the phone can reach it.
 
+## If the watch stays on "Open EUC Planet on your phone"
+
+That screen means the watch app is fine but no data has arrived. In order:
+
+1. **Use the branch phone APK.** A normal Play Store EUC Planet has no Amazfit
+   support and nothing listens on the phone. Install `phone-amazfit-watch-*.apk`.
+2. **The Zepp app must be running and un-optimised.** The side service that
+   feeds the watch lives inside the Zepp app, so if Android sleeps or kills
+   Zepp, the watch goes quiet. Set Zepp to unrestricted battery, open it once.
+3. **Check the phone.** EUC Planet, Settings, Watch: an "Amazfit (Zepp OS)"
+   card (even Idle) means the link is reaching the phone. Settings,
+   Diagnostics: an `amazfit:` line is the same proof.
+
+The watch itself now distinguishes the two failure modes: it stays on "Open
+EUC Planet on your phone" when it cannot reach its own side service (Zepp not
+relaying), and switches to "Can't reach EUC Planet, open it on your phone"
+when the side service is alive but its loopback fetch to the phone app fails.
+
+The loopback server binds the IPv4 address `127.0.0.1` explicitly, not
+`getLoopbackAddress()`, because that can hand back the IPv6 loopback `::1` on a
+dual-stack phone while the watch connects to the IPv4 literal, which the
+emulator never reproduces.
+
 ## Limitations vs Wear OS
 
 - **No auto-start.** Zepp OS offers no remote launch for third-party mini

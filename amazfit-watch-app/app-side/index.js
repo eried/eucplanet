@@ -69,6 +69,8 @@ AppSideService(
       timer: null,
       running: false,
       lastPingAt: 0,
+      fails: 0,
+      toldWatchUnreachable: false,
     },
 
     onInit() {},
@@ -98,17 +100,36 @@ AppSideService(
         .then((state) => {
           if (!this.state.running) return null
           if (state) {
+            this.state.fails = 0
+            this.state.toldWatchUnreachable = false
             this.call({ method: 'frame', params: state })
             const pi = typeof state[K.POLL_MS] === 'number' ? state[K.POLL_MS] : RETRY_MS
             return Math.max(250, Math.min(5000, pi))
           }
+          this.noteFail()
           return RETRY_MS
         })
-        .catch(() => RETRY_MS)
+        .catch(() => {
+          this.noteFail()
+          return RETRY_MS
+        })
         .then((wait) => {
           if (wait === null || !this.state.running) return
           this.state.timer = setTimeout(() => this.tick(), wait)
         })
+    },
+
+    // The Side Service is alive (it is running this loop) but its fetch to
+    // EUC Planet on the phone keeps failing. After a few tries, tell the watch
+    // so it can say "phone app not reachable" instead of the generic waiting
+    // screen. This is the one signal that separates "Zepp is not relaying to
+    // the watch" from "the phone app is not answering on localhost".
+    noteFail() {
+      this.state.fails++
+      if (this.state.fails >= 3 && !this.state.toldWatchUnreachable) {
+        this.state.toldWatchUnreachable = true
+        this.call({ method: 'status', params: { phoneReachable: false } })
+      }
     },
 
     onRequest(req, res) {

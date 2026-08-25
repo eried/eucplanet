@@ -361,8 +361,21 @@ Page(
 
     // Frames arrive here from the Side Service loop.
     onCall(data) {
-      if (!data || data.method !== 'frame' || !data.params) return
-      this.onFrame(data.params)
+      if (!data) return
+      if (data.method === 'frame' && data.params) {
+        this.onFrame(data.params)
+        return
+      }
+      // Diagnostic from the Side Service: it is running but cannot reach EUC
+      // Planet on the phone. Only meaningful before the first frame; once
+      // frames arrive the dial takes over.
+      if (data.method === 'status' && data.params && data.params.phoneReachable === false) {
+        if (!this.state.phoneSynced) {
+          this.state.w.waiting.setProperty(prop.MORE, {
+            text: "Can't reach EUC Planet.\nOpen it on your phone.",
+          })
+        }
+      }
     },
 
     // Ask the Side Service to (re)start its loop, or tell it we are still here.
@@ -740,3 +753,4 @@ Page(
     },
   }),
 )
+

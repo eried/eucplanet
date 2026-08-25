@@ -55,7 +55,13 @@ class AmazfitLocalServer(
         val ss = try {
             ServerSocket().apply {
                 reuseAddress = true
-                bind(InetSocketAddress(InetAddress.getLoopbackAddress(), port), BACKLOG)
+                // Bind the IPv4 loopback explicitly. getLoopbackAddress() can
+                // return the IPv6 loopback (::1) on a dual-stack phone, and the
+                // watch's Side Service connects to the IPv4 literal
+                // http://127.0.0.1, so an ::1-only socket refuses it and the
+                // watch never gets a frame. The emulator never showed this
+                // because it prefers IPv4.
+                bind(InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), BACKLOG)
             }
         } catch (e: IOException) {
             log("bind 127.0.0.1:$port failed: ${e.message}")
