@@ -371,9 +371,7 @@ Page(
       // frames arrive the dial takes over.
       if (data.method === 'status' && data.params && data.params.phoneReachable === false) {
         if (!this.state.phoneSynced) {
-          this.state.w.waiting.setProperty(prop.MORE, {
-            text: "Can't reach EUC Planet.\nOpen it on your phone.",
-          })
+          this.state.w.waiting.setProperty(prop.TEXT, "Can't reach EUC Planet.\nOpen it on your phone.")
         }
       }
     },
