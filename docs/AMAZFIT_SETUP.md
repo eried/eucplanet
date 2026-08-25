@@ -99,7 +99,7 @@ npx zeus dev
 The dial appears on the T-Rex 3 simulator and updates at the rate the phone
 asks for. The simulator Console shows one `request`/`response` pair per poll;
 the phone's Settings, Watch tab lists "Amazfit T-Rex 3 / Amazfit (Zepp OS)"
-with a Live badge near 0.7 Hz (1 s poll plus the round trip).
+with a Live badge at the configured rate (2 Hz on Normal).
 
 `zeus dev` asks for the target by display name: `zeus dev -t "Amazfit T-Rex 3"`.
 
@@ -155,8 +155,8 @@ given phone.
 `s`, `b`, `b2`, `v`, `i`, `p`, `t`, `tr`, `tq`, `l`, `ms`, `n`, `us`, `ud`,
 `ut`, `wko` ... `hap`, `gs`, `gsr`, `na` ... `nar`, `ts`) plus:
 
-- `pi`: milliseconds the watch waits after this answer before polling again
-  (1500 / 1000 / 500 for the CONSERVATIVE / NORMAL / FAST update-rate tier).
+- `pi`: milliseconds between frames (1000 / 500 / 250 for the CONSERVATIVE /
+  NORMAL / FAST update-rate tier, so 1, 2 or 4 frames a second).
 - `ev`: list of one-shot events queued since the previous poll, each
   `{"k": "vibe", "ms": 300}` or `{"k": "quit"}`.
 - `s3c`: binding of the third hardware button, and `dg`: true while the
@@ -175,8 +175,9 @@ The server binds `127.0.0.1` only. Nothing off the phone can reach it.
   badge while an Amazfit is paired.
 - **Dial rotation** is not implemented (Zepp OS widgets do not rotate a whole
   page). Wear-only row, badged.
-- **Roughly 1 Hz.** One request round trip (watch, Bluetooth, Zepp app,
-  loopback HTTP, back) is a few hundred milliseconds; FAST lands near 1.5 Hz.
+- **Up to 4 Hz.** Normal is 2 frames a second, Fast 4, Conservative 1. The
+  simulator sustains about 7 a second, so Fast keeps a margin; faster costs
+  watch battery for little visible gain.
 - **Accent colour is ignored**, same as Garmin: fixed green / amber / red.
 - **English only** on the watch, same as Garmin.
 - **The Zepp app must be running** on the phone; it hosts the Side Service.

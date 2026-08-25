@@ -77,9 +77,9 @@ class AmazfitSnapshotTest {
 
     @Test
     fun `poll interval follows the update-rate tier`() {
-        assertEquals(1000, encode(AppSettings().copy(watchUpdateRate = "NORMAL"))["pi"])
-        assertEquals(500, encode(AppSettings().copy(watchUpdateRate = "FAST"))["pi"])
-        assertEquals(1500, encode(AppSettings().copy(watchUpdateRate = "CONSERVATIVE"))["pi"])
+        assertEquals(500, encode(AppSettings().copy(watchUpdateRate = "NORMAL"))["pi"])
+        assertEquals(250, encode(AppSettings().copy(watchUpdateRate = "FAST"))["pi"])
+        assertEquals(1000, encode(AppSettings().copy(watchUpdateRate = "CONSERVATIVE"))["pi"])
     }
 
     @Test

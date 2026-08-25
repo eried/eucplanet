@@ -13,10 +13,10 @@ class AmazfitProtocolTest {
 
     @Test
     fun `poll interval follows the watchUpdateRate tiers`() {
-        assertEquals(1500, amazfitPollIntervalMsFor("CONSERVATIVE"))
-        assertEquals(1000, amazfitPollIntervalMsFor("NORMAL"))
-        assertEquals(500, amazfitPollIntervalMsFor("FAST"))
-        assertEquals(1000, amazfitPollIntervalMsFor("garbage"))
+        assertEquals(1000, amazfitPollIntervalMsFor("CONSERVATIVE"))
+        assertEquals(500, amazfitPollIntervalMsFor("NORMAL"))
+        assertEquals(250, amazfitPollIntervalMsFor("FAST"))
+        assertEquals(500, amazfitPollIntervalMsFor("garbage"))
     }
 
     @Test

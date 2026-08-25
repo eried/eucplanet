@@ -132,15 +132,16 @@ internal const val AMAZFIT_PATH_STATE = "/state"
 internal const val AMAZFIT_PATH_CONTROL = "/control"
 
 /**
- * Poll interval the phone asks the watch for, per `AppSettings.watchUpdateRate`
- * tier. A Zepp OS request round trip (watch, Bluetooth, Zepp app, loopback
- * HTTP and back) takes a few hundred milliseconds, so FAST lands near 1.5 Hz
- * on the wire and NORMAL near 1 Hz, the same neighbourhood as Garmin.
+ * Interval between frames the phone hands the Side Service, per
+ * `AppSettings.watchUpdateRate` tier. Each frame is one ~1 KB Bluetooth push
+ * to the watch, and the simulator sustains about 7 a second, so FAST at 4 Hz
+ * keeps a comfortable margin. Unlike Garmin (capped near 1 Hz by Connect IQ)
+ * this link is not rate-limited; the tiers match Wear OS more closely now.
  */
 internal fun amazfitPollIntervalMsFor(rate: String): Int = when (rate) {
-    "CONSERVATIVE" -> 1500
-    "FAST" -> 500
-    else -> 1000
+    "CONSERVATIVE" -> 1000
+    "FAST" -> 250
+    else -> 500
 }
 
 /** Tiny JSON glue: the snapshot is built as a plain `Map<String, Any>` (the

@@ -61,18 +61,12 @@ What it does not do: auto-start (Zepp OS has no way to launch an app from the
 phone) and dial rotation. Both rows show an AMAZFIT badge in Settings so it is
 clear where they stop.
 
-## Known issue in this build
-
-The watch app currently stops updating after about 25 minutes of continuous
-use (the watch runs out of memory and the dial freezes; closing and reopening
-the app brings it back). The cause is being tracked down with the simulator
-right now and a fixed build will replace this one shortly. Everything on the
-phone side is unaffected.
-
 ## What to look for
 
 - Does the dial follow the wheel without noticeable lag? The card in
-  Settings, Watch should read around 1 Hz on Normal, 1.5 Hz on Fast.
+  Settings, Watch should read about 2 Hz on Normal and 4 Hz on Fast.
+- Leave it running for a long ride: it should keep updating for the whole
+  trip (an earlier build stopped after about 25 minutes; that is fixed).
 - Do the taps and the three buttons reach the wheel? While Service Mode is
   recording, every key and tap the watch sees is written to the diagnostics
   log, so a log is enough to tell which side lost a press.

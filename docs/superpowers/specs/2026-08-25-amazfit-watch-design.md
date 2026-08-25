@@ -53,7 +53,7 @@ The watch polls. There is no phone-initiated push, so:
 
 Poll cadence is set by the phone through the `pi` field (milliseconds between
 polls, measured from the previous response), derived from the existing
-`watchUpdateRate` tier: CONSERVATIVE 1500, NORMAL 1000, FAST 500. No new
+`watchUpdateRate` tier: CONSERVATIVE 1000, NORMAL 500, FAST 250. No new
 setting.
 
 ## Phone side
