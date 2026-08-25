@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.zeus/
+.zepp/
+*.log
