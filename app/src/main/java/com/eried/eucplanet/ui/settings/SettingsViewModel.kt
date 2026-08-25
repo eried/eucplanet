@@ -112,6 +112,7 @@ class SettingsViewModel @Inject constructor(
     private val automationManager: AutomationManager,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
+    private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
@@ -258,13 +259,19 @@ class SettingsViewModel @Inject constructor(
             garminBridge.pairedDevices,
             settingsRepository.settings,
             garminBridge.deliveryRateHz,
-            garminBridge.lastSuccessAtMs
+            garminBridge.lastSuccessAtMs,
+            amazfitBridge.pairedDevices,
+            amazfitBridge.deliveryRateHz,
+            amazfitBridge.lastSuccessAtMs
         ) { args ->
             @Suppress("UNCHECKED_CAST") val wear = args[0] as List<String>
             @Suppress("UNCHECKED_CAST") val garmin = args[1] as List<String>
             val settings = args[2] as AppSettings?
             val garminHz = args[3] as Double
             val lastGarminMs = args[4] as Long
+            @Suppress("UNCHECKED_CAST") val amazfit = args[5] as List<String>
+            val amazfitHz = args[6] as Double
+            val lastAmazfitMs = args[7] as Long
             val wearHz = settings?.let { wearRateHzFor(it.watchUpdateRate) } ?: 5.0
             // "Active" = the bridge has delivered a frame in the last 3 s.
             // Reading the timestamp (not the rolling rate) avoids the
@@ -273,12 +280,18 @@ class SettingsViewModel @Inject constructor(
             val garminActive = lastGarminMs > 0L &&
                 (System.currentTimeMillis() - lastGarminMs) < 3_000L
             val wearActive = wear.isNotEmpty()
+            // Amazfit polls the phone; a poll in the last 3 s means Live.
+            val amazfitActive = lastAmazfitMs > 0L &&
+                (System.currentTimeMillis() - lastAmazfitMs) < 3_000L
             buildList {
                 wear.forEach { name ->
                     add(PairedSurface(PairedSurface.Kind.WEAR_OS, name, wearActive, wearHz))
                 }
                 garmin.forEach { name ->
                     add(PairedSurface(PairedSurface.Kind.GARMIN, name, garminActive, garminHz))
+                }
+                amazfit.forEach { name ->
+                    add(PairedSurface(PairedSurface.Kind.AMAZFIT, name, amazfitActive, amazfitHz))
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -309,11 +322,21 @@ class SettingsViewModel @Inject constructor(
             .map { it.isNotEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /** True while an Amazfit (Zepp OS) watch is polling the phone. The Watch
+     *  tab uses this to show the rows the Amazfit dial honours (keep-on, update
+     *  rate) and to badge the ones it cannot do (auto-start, dial rotation). */
+    val hasAmazfitPaired: StateFlow<Boolean> =
+        amazfitBridge.pairedDevices
+            .map { it.isNotEmpty() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     /**
      * True when at least one paired surface has bindable hardware buttons:
      *  - Any Garmin device (every Garmin watch ships ≥2 physical buttons,
      *    and our CIQ Delegate maps the universal Start + Up-hold pair to
      *    `stem1` and `stem2`).
+     *  - Any Amazfit (Zepp OS) watch: the dial maps Select to `stem1` and
+     *    Down to `stem2`.
      *  - A Galaxy Watch Ultra on Wear OS — the only Wear OS device that
      *    delivers `KEYCODE_STEM_1` (orange Action) and `KEYCODE_STEM_2`
      *    (bottom side) to third-party apps. Detected by friendly-name
@@ -325,8 +348,13 @@ class SettingsViewModel @Inject constructor(
      * that wouldn't do anything.
      */
     val hasHardwareButtonCapableWatch: StateFlow<Boolean> =
-        wearBridge.pairedNodes.combine(garminBridge.pairedDevices) { wear, garmin ->
-            garmin.isNotEmpty() || wear.any { it.contains("Ultra", ignoreCase = true) }
+        combine(
+            wearBridge.pairedNodes,
+            garminBridge.pairedDevices,
+            amazfitBridge.pairedDevices
+        ) { wear, garmin, amazfit ->
+            garmin.isNotEmpty() || amazfit.isNotEmpty() ||
+                wear.any { it.contains("Ultra", ignoreCase = true) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**

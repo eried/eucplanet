@@ -303,9 +303,10 @@
     <string name="action_unsupported_on_wheel">Ei tuettu tässä yksipyöräisessä</string>
     <string name="section_watch_device">Laitteet</string>
     <string name="watch_paired_none">Ei pariliitettyjä kelloja</string>
-    <string name="watch_paired_none_desc">Asenna EUC Planet -kumppanisovellus Wear OS- tai Garmin-kelloon, niin alat saada kellotaulua tänne</string>
+    <string name="watch_paired_none_desc">Asenna EUC Planet -kumppanisovellus Wear OS-, Garmin- tai Amazfit-kelloon, niin kellotaulu alkaa näkyä täällä</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Joutilas</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
@@ -551,8 +552,8 @@
     <string name="section_watch_buttons">Painikkeet</string>
     <string name="watch_hardware_button_1">Painike 1</string>
     <string name="watch_hardware_button_2">Painike 2</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oranssi Action-painike</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Ylös (pitkä painallus) · Galaxy Watch Ultra: alempi sivupainike</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oranssi Action-painike · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Ylös (pitkä painallus) · Galaxy Watch Ultra: alempi sivupainike · Amazfit: Alas</string>
     <string name="watch_screen_button_1">Painike 1</string>
     <string name="watch_screen_button_2">Painike 2</string>
     <string name="watch_haptic_on_action">Värinä toiminnosta</string>

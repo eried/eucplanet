@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var flicManager: FlicManager
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
     @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
+    @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
     @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
     @Inject lateinit var incomingShareRepository:
@@ -892,6 +893,14 @@ class MainActivity : AppCompatActivity() {
                 label = "Watch (Wear)",
                 state = if (nodes.isEmpty()) "none" else "${nodes.size} node(s)",
                 detail = if (nodes.isEmpty()) "no paired watch" else nodes.joinToString("\n")
+            )
+        )
+        val amazfit = amazfitBridge.pairedDevices.value
+        add(
+            ConnectionInfo(
+                label = "Watch (Amazfit)",
+                state = if (amazfit.isEmpty()) "none" else "polling",
+                detail = if (amazfit.isEmpty()) "no watch polling" else amazfit.joinToString("\n")
             )
         )
         val flics = flicManager.pairedButtons.value

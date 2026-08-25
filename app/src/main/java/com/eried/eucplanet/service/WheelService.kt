@@ -149,6 +149,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
     @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
+    @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     @Inject lateinit var externalGpsRepository:
         com.eried.eucplanet.data.repository.ExternalGpsRepository
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
@@ -612,6 +613,7 @@ class WheelService : LifecycleService() {
         // fallback. Either way the rider never sees a frozen-stale dial.
         try { wearBridge.publishFarewell() } catch (_: Exception) {}
         try { garminBridge.publishFarewell() } catch (_: Exception) {}
+        try { amazfitBridge.publishFarewell() } catch (_: Exception) {}
         // Stop All from the notification button lands here directly, so nothing
         // has told the paired watch(es) to CLOSE - the farewell above only flips
         // them to a disconnected "--" dial, leaving the watch app open. Send the
@@ -627,6 +629,7 @@ class WheelService : LifecycleService() {
                         if (kotlinx.coroutines.runBlocking { settingsRepository.get() }.watchCloseOnExit) {
                             try { wearBridge.sendCloseToWatchBlocking() } catch (_: Exception) {}
                             try { garminBridge.sendCloseToWatchBlocking() } catch (_: Exception) {}
+                            try { amazfitBridge.sendCloseToWatchBlocking() } catch (_: Exception) {}
                         }
                     }
                 }

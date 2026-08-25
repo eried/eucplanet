@@ -26,7 +26,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class WatchVibrator @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val amazfitInbox: com.eried.eucplanet.amazfit.AmazfitInbox
 ) {
     companion object {
         private const val TAG = "WatchVibrator"
@@ -37,6 +38,13 @@ class WatchVibrator @Inject constructor(
 
     fun vibrate(durationMs: Int) {
         val ms = durationMs.coerceIn(50, 5000)
+        // Amazfit cannot be pushed to; the hint rides in the next poll from the watch.
+        amazfitInbox.enqueue(
+            mapOf(
+                com.eried.eucplanet.amazfit.AmazfitKeys.KIND to com.eried.eucplanet.amazfit.AmazfitKeys.KIND_VIBRATE,
+                com.eried.eucplanet.amazfit.AmazfitKeys.VIBRATE_MS to ms
+            )
+        )
         val payload = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(ms).array()
         scope.launch {
             try {

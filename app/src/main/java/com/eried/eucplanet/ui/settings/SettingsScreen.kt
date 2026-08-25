@@ -7407,6 +7407,12 @@ private fun WatchTab(
     val hasWearOs by viewModel.hasWearOsPaired.collectAsStateWithLifecycle()
     val hasHardwareButtons by viewModel.hasHardwareButtonCapableWatch.collectAsStateWithLifecycle()
     val hasGarminPaired by viewModel.hasGarminPaired.collectAsStateWithLifecycle()
+    val hasAmazfitPaired by viewModel.hasAmazfitPaired.collectAsStateWithLifecycle()
+    // "Not on Amazfit" badge: the Zepp OS dial cannot be launched from the
+    // phone and cannot rotate. Shown only while an Amazfit is polling.
+    val amazfitBadge: (@Composable () -> Unit)? = if (hasAmazfitPaired) {
+        { com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("AMAZFIT") }
+    } else null
     // "Not on Garmin" badge for the Wear-only rows — shown only when a Garmin is
     // ALSO paired (the feature works on the Wear watch, just not the Garmin one).
     // When only a Garmin is paired these rows stay hidden (hasWearOs gate).
@@ -7434,13 +7440,14 @@ private fun WatchTab(
         // openApplication() to launch the watch app (a one-time "Always"
         // consent on the watch, then automatic). Shown whenever any watch is
         // paired, and with no Garmin-unsupported badge anymore.
-        if (hasWearOs || hasGarminPaired) {
+        if (hasWearOs || hasGarminPaired || hasAmazfitPaired) {
             SwitchSettingWithDesc(
                 label = stringResource(R.string.watch_auto_start),
                 description = stringResource(R.string.watch_auto_start_desc),
                 checked = settings.watchAutoStart,
                 onCheckedChange = { viewModel.updateWatchAutoStart(it) },
-                onTest = { viewModel.testWatchWake() }
+                onTest = { viewModel.testWatchWake() },
+                badge = amazfitBadge
             )
         }
         SwitchSettingWithDesc(
@@ -7459,7 +7466,7 @@ private fun WatchTab(
         // tweaks that live in Customization below.
         SectionHeader(stringResource(R.string.section_watch_display))
 
-        if (hasWearOs) {
+        if (hasWearOs || hasAmazfitPaired) {
             SwitchSettingWithDesc(
                 label = stringResource(R.string.watch_keep_on),
                 description = stringResource(R.string.watch_keep_on_desc),
@@ -7489,7 +7496,7 @@ private fun WatchTab(
             // enforces its own rate cap on the Garmin transport regardless
             // of what we set here, so the choice would be misleading on a
             // Garmin-only setup. Surfaced only when a Wear OS device is paired.
-            if (hasWearOs) {
+            if (hasWearOs || hasAmazfitPaired) {
                 val gb = garminBadge
                 val gbTrailing: (@Composable RowScope.() -> Unit)? =
                     if (gb != null) {
@@ -7589,6 +7596,10 @@ private fun WatchTab(
                 if (garminBadge != null) {
                     Spacer(Modifier.width(6.dp))
                     garminBadge()
+                }
+                if (amazfitBadge != null) {
+                    Spacer(Modifier.width(6.dp))
+                    amazfitBadge()
                 }
             }
             SliderSetting(
@@ -10700,6 +10711,7 @@ private fun DeviceCard(
                 imageVector = when (surface.kind) {
                     com.eried.eucplanet.data.model.PairedSurface.Kind.WEAR_OS -> Icons.Outlined.WatchOutlined
                     com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN -> Icons.Default.Watch
+                    com.eried.eucplanet.data.model.PairedSurface.Kind.AMAZFIT -> Icons.Default.Watch
                 },
                 contentDescription = null,
                 modifier = Modifier.size(22.dp)
@@ -10819,6 +10831,8 @@ private fun surfaceKindLabel(kind: com.eried.eucplanet.data.model.PairedSurface.
             stringResource(R.string.watch_paired_kind_wear)
         com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN ->
             stringResource(R.string.watch_paired_kind_garmin)
+        com.eried.eucplanet.data.model.PairedSurface.Kind.AMAZFIT ->
+            stringResource(R.string.watch_paired_kind_amazfit)
     }
 @Composable
 private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean) {
