@@ -1351,10 +1351,6 @@ class SettingsViewModel @Inject constructor(
     /** True while the phone holds at least one local trip. "Reset local trips"
      *  is disabled when this is false, so it can't be tapped with nothing to
      *  clear (and it greys out the moment a reset empties the list). */
-    /** Trips on this phone, for the "nowhere else but here" warning. */
-    val localTripCount: StateFlow<Int> = tripRepository.tripCount
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
-
     val hasLocalTrips: StateFlow<Boolean> = tripRepository.tripCount
         .map { it > 0 }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
