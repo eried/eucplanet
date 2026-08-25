@@ -48,6 +48,15 @@ phone, which is the first thing to check.
 
 ## Verified
 
-`./gradlew :app:testDebugUnitTest :app:assembleDebug` BUILD SUCCESSFUL,
-including 22 new unit tests for the bridge pieces. `zeus build` produces the
-`.zab`. Simulator and real-watch checks are listed in the setup doc.
+- `./gradlew :app:testDebugUnitTest :app:assembleDebug`: 845 tests, 0
+  failures (21 new for the bridge pieces), BUILD SUCCESSFUL.
+- On a Pixel-class AVD (API 36) with a virtual InMotion V8S connected, with
+  `adb forward tcp:28193 tcp:28193`: `GET /state` answers the full frame,
+  `POST /control` with an `info:` intent lands in logcat and the diagnostics
+  log, unknown paths get 404. Polling once a second from the PC makes
+  Settings, Watch show "Amazfit T-Rex 3 / Amazfit (Zepp OS) / Live / 1.0 Hz",
+  the AMAZFIT badge on Auto-start and the GARMIN badge on Keep display on.
+- `zeus build` produces the `.zab` for both targets.
+- Still to run: the dial itself in the Zepp OS Simulator (needs the T-Rex 3
+  device simulator, which the simulator only downloads after a Zepp developer
+  login) and on the real T-Rex 3.
