@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EUC Planet · Service Mode</title>
-<meta name="description" content="What Service Mode does in the EUC Planet app: how to enter it, what it records, and how to use the test commands and Raw tab.">
+<meta name="description" content="What Service Mode does in the EUC Planet app: how to enter it, what it records, and how to use the test commands, Raw tab and log Filter.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
   body {
@@ -48,7 +48,7 @@
 
   <h2>Enter / exit</h2>
   <p>Dashboard version number → About → tap-and-hold the logo (drag off to abort). Confirm the warning. Version pulses red. Tap it again any time to reopen. Stop icon exits and clears the log.</p>
-  <p>The log keeps capturing in the background while you use the app normally.</p>
+  <p>The log keeps capturing in the background while you use the app normally. Volume-UP opens a quick overlay (Actions / Metrics / Connections) on top of any screen while recording.</p>
 
   <h2>What gets logged</h2>
   <ul>
@@ -57,13 +57,17 @@
     <li><code>NOTE</code> reassembled frames + internal events</li>
     <li><code>COMMENT</code> your free-text notes (or attached snapshots:see below)</li>
     <li><code>INFO</code> session metadata: phone, Android, RAM/storage, BLE adapter, paired Wear node, wheel firmware</li>
+    <li><code>NOTE garmin input:</code> / <code>wearos input:</code> watch inputs, see below</li>
   </ul>
   <p>Nothing leaves the device until you tap Share.</p>
+
+  <h2>Watch input reporting</h2>
+  <p>While Service Mode records, a paired Garmin or Wear OS watch reports every input back: screen taps with coordinates and the slot they hit, raw key codes, and the binding that fired. Lands in the log as <code>garmin input:</code> / <code>wearos input:</code> notes. When Service Mode is off the watch sends nothing extra, so normal rides are unaffected. Use it to see exactly which callback a misbehaving button or touch goes through.</p>
 
   <h2>Commands tab</h2>
   <p>Per-wheel-family preset list. Pick a family in the dropdown (single-family adapters show it disabled), fire a command, watch the log, comment what changed physically. The dashboard's Light/Horn/Lock keep working in parallel.</p>
 
-  <h2>Inspect tab</h2>
+  <h2>Inspector tab</h2>
   <p>Live byte-grid of the incoming stream. Pick family + message type. Tap a byte cell to log <code>byte N = X</code>. The min/max range filter hides cells outside the range and shows a hidden-count badge. Use it to find which offset carries which value.</p>
 
   <h2>Raw tab</h2>
@@ -90,6 +94,10 @@
     <li><code>02 07</code>:realtime telemetry</li>
     <li><code>20 20</code>:settings page A</li>
   </ul>
+
+  <h2>Filter tab</h2>
+  <p>Filtered live view over the log, console-styled with syntax highlight (key=value pairs, hex bytes, numbers). Add filter offers exactly what it matches:the verbatim text prefix (<code>garmin</code>, <code>wearos</code>, <code>watch:</code>, <code>hud_link:</code>, <code>dragy:</code>, ...) or the kind column as printed (<code>SEND</code>, <code>RECV</code>, <code>NOTE</code>, <code>INFO</code>, <code>USER</code>, <code>TEST</code>). Picks stack as removable pills and combine as OR; Clear resets.</p>
+  <p>The time selector switches the left column: <strong>Time</strong> (clock), <strong>Delta</strong> (gap to the previous matching entry, makes bursts and stalls obvious), <strong>Both</strong>, or <strong>None</strong>.</p>
 
   <h2>Attach data to a comment</h2>
   <p>The comment row has an Attach picker. Drops a structured snapshot into the log as a COMMENT:</p>
