@@ -170,3 +170,55 @@ export function speedUnitLabel(unit) {
       return 'km/h'
   }
 }
+
+export function convertDistanceFromKm(km, unit) {
+  switch (unit) {
+    case 'mi':
+      return km * 0.621371
+    case 'm':
+      return km * 1000
+    case 'ft':
+      return km * 3280.84
+    case 'mil':
+      return km * 0.539957
+    default:
+      return km
+  }
+}
+
+export function distanceUnitLabel(unit) {
+  switch (unit) {
+    case 'mi':
+      return 'mi'
+    case 'm':
+      return 'm'
+    case 'ft':
+      return 'ft'
+    case 'mil':
+      return 'nmi'
+    default:
+      return 'km'
+  }
+}
+
+export function convertTempFromC(c, unit) {
+  switch (unit) {
+    case 'F':
+      return (c * 9) / 5 + 32
+    case 'K':
+      return c + 273.15
+    default:
+      return c
+  }
+}
+
+export function tempUnitLabel(unit) {
+  switch (unit) {
+    case 'F':
+      return 'F'
+    case 'K':
+      return 'K'
+    default:
+      return 'C'
+  }
+}

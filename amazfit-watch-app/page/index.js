@@ -17,7 +17,18 @@ import {
 } from '@zos/sensor'
 import { exit } from '@zos/router'
 import { BasePage } from '@zeppos/zml/base-page'
-import { K, CONTROL, snapshotFrom, convertSpeedFromKmh, speedUnitLabel } from '../utils/protocol'
+import { onGesture, GESTURE_LEFT, GESTURE_RIGHT } from '@zos/interaction'
+import {
+  K,
+  CONTROL,
+  snapshotFrom,
+  convertSpeedFromKmh,
+  speedUnitLabel,
+  convertDistanceFromKm,
+  distanceUnitLabel,
+  convertTempFromC,
+  tempUnitLabel,
+} from '../utils/protocol'
 
 // Main dial. Port of garmin-watch-app/source/EucPlanetView.mc + SpeedGauge.mc
 // onto Zepp OS widgets: speed gauge, PWM badge, battery row, horn / light
@@ -79,6 +90,7 @@ Page(
       lastFrameAt: 0,
       pollMs: 1000,
       lastKickAt: 0,
+      page: 0,
       destroyed: false,
       keepOnApplied: null,
       layout: null,
@@ -251,24 +263,33 @@ Page(
       }
 
       // --- horn / light buttons ---------------------------------------------
-      const D = btnR * 2
+      // A true round button: an OS-drawn CIRCLE for the disc, the icon as an
+      // IMG on top, and a transparent BUTTON over both to catch taps (a
+      // BUTTON's hit area is its rectangle, independent of its clear image).
+      // This stays perfectly round at any size, unlike a circular PNG inside a
+      // square BUTTON, whose square press chrome showed through.
+      const iconSz = 32
+      w.hornCircle = createWidget(widget.CIRCLE, { center_x: leftX, center_y: btnY, radius: btnR, color: 0x29b6f6 })
+      w.hornIcon = createWidget(widget.IMG, { x: leftX - iconSz / 2, y: btnY - iconSz / 2, src: 'icon_horn.png' })
       w.horn = createWidget(widget.BUTTON, {
         x: leftX - btnR,
         y: btnY - btnR,
-        w: D,
-        h: D,
-        normal_src: 'btn_horn_off.png',
-        press_src: 'btn_horn_press.png',
+        w: btnR * 2,
+        h: btnR * 2,
+        normal_src: 'btn_clear.png',
+        press_src: 'btn_tap.png',
         click_func: () => this.onScreenButton(1, false),
         longpress_func: () => this.onScreenButton(1, true),
       })
+      w.lightCircle = createWidget(widget.CIRCLE, { center_x: rightX, center_y: btnY, radius: btnR, color: 0x444444 })
+      w.lightIcon = createWidget(widget.IMG, { x: rightX - iconSz / 2, y: btnY - iconSz / 2, src: 'icon_light.png' })
       w.light = createWidget(widget.BUTTON, {
         x: rightX - btnR,
         y: btnY - btnR,
-        w: D,
-        h: D,
-        normal_src: 'btn_light_off.png',
-        press_src: 'btn_light_press.png',
+        w: btnR * 2,
+        h: btnR * 2,
+        normal_src: 'btn_clear.png',
+        press_src: 'btn_tap.png',
         click_func: () => this.onScreenButton(2, false),
         longpress_func: () => this.onScreenButton(2, true),
       })
@@ -310,14 +331,92 @@ Page(
         text: '',
       })
 
+      // --- details page (swipe left from the dial) --------------------------
+      // Wear OS parity: a header (wheel name, or "Disconnected"), a headline
+      // speed, then seven telemetry rows. Hidden until the rider swipes left;
+      // values refresh every frame so it is live the instant it appears.
+      w.detHeader = createWidget(widget.TEXT, {
+        x: Math.floor(W * 0.08), y: Math.floor(H * 0.075), w: Math.floor(W * 0.84), h: 34,
+        color: COLOR_WHITE, text_size: 24, align_h: align.CENTER_H, align_v: align.CENTER_V,
+        text: '',
+      })
+      // Headline speed: a big number ending at centre, small unit just right of
+      // centre, mirroring the dial and the Wear OS details header.
+      w.detSpeed = createWidget(widget.TEXT, {
+        x: cx - 170, y: Math.floor(H * 0.125), w: 170, h: 56,
+        color: COLOR_SAFE, text_size: 48, align_h: align.RIGHT, align_v: align.CENTER_V,
+        text: '0',
+      })
+      w.detSpeedUnit = createWidget(widget.TEXT, {
+        x: cx + 6, y: Math.floor(H * 0.125) + 14, w: 110, h: 34,
+        color: COLOR_DIM, text_size: 24, align_h: align.LEFT, align_v: align.CENTER_V,
+        text: '',
+      })
+
+      const DETAIL_ROWS = ['Voltage', 'Current', 'Power', 'PWM', 'Temp', 'Torque', 'Trip']
+      const rowN = DETAIL_ROWS.length
+      const rowTop = Math.floor(H * 0.3)
+      const rowStep = Math.floor((H * 0.58) / rowN)
+      const rowFont = Math.max(20, Math.floor(W * 0.046))
+      const labelX = Math.floor(W * 0.22)
+      const valueW = Math.floor(W * 0.3)
+      const valueX = Math.floor(W * 0.78) - valueW
+      w.detail = []
+      for (let i = 0; i < rowN; i++) {
+        const ry = rowTop + rowStep * i
+        w.detail.push({
+          label: createWidget(widget.TEXT, {
+            x: labelX, y: ry, w: Math.floor(W * 0.3), h: rowStep,
+            color: COLOR_DIM, text_size: rowFont, align_h: align.LEFT, align_v: align.CENTER_V,
+            text: DETAIL_ROWS[i],
+          }),
+          value: createWidget(widget.TEXT, {
+            x: valueX, y: ry, w: valueW, h: rowStep,
+            color: COLOR_WHITE, text_size: rowFont, align_h: align.RIGHT, align_v: align.CENTER_V,
+            text: '--',
+          }),
+        })
+      }
+      // Page dots at the bottom, filled = current page.
+      const dotY = Math.floor(H * 0.945)
+      const pageDotR = Math.max(3, Math.floor(W * 0.013))
+      const dotGap = Math.floor(W * 0.045)
+      L.dots = { y: dotY, r: pageDotR, gap: dotGap, cx }
+      w.dot0 = createWidget(widget.CIRCLE, { center_x: cx - dotGap, center_y: dotY, radius: pageDotR, color: COLOR_WHITE })
+      w.dot1 = createWidget(widget.CIRCLE, { center_x: cx + dotGap, center_y: dotY, radius: pageDotR, color: COLOR_TRACK })
+
       this.dialWidgets = [
         w.track, w.bandSafe, w.bandWarn, w.bandDanger, w.speedArc, w.gpsDotBg, w.gpsDot,
-        w.speed, w.unit, w.pwmTrack, w.pwmFill, w.pwmText, w.horn, w.light,
+        w.speed, w.unit, w.pwmTrack, w.pwmFill, w.pwmText,
+        w.hornCircle, w.hornIcon, w.horn, w.lightCircle, w.lightIcon, w.light,
       ]
       w.batt.forEach((b) => this.dialWidgets.push(b.icon, b.text))
       this.navWidgets = [w.navRing, w.navDisc, w.navArrow, w.navArrived, w.navDistance]
+      this.detailWidgets = [w.detHeader, w.detSpeed, w.detSpeedUnit]
+      w.detail.forEach((d) => this.detailWidgets.push(d.label, d.value))
+      this.dotWidgets = [w.dot0, w.dot1]
       this.showDial(false)
       this.showNav(false)
+      this.showDetails(false)
+      this.showDots(false)
+
+      // Swipe left goes to the details page, swipe right comes back. A right
+      // swipe on the dial is left to the system (leave the app), matching the
+      // Wear OS pager where page 0 is the edge.
+      onGesture({
+        callback: (event) => {
+          if (!this.state.phoneSynced) return false
+          if (event === GESTURE_LEFT && this.state.page === 0) {
+            this.showPage(1)
+            return true
+          }
+          if (event === GESTURE_RIGHT && this.state.page === 1) {
+            this.showPage(0)
+            return true
+          }
+          return false
+        },
+      })
 
       // Physical keys, same three-button model as Garmin: Select = button 1
       // (click and hold), Up = button 2 (click and hold), Down = button 3
@@ -424,6 +523,9 @@ Page(
       if (stale) {
         this.showDial(false)
         this.showNav(false)
+        this.showDetails(false)
+        this.showDots(false)
+        st.page = 0
       }
       // Self-close fallback for "Auto-stop on watch", same rule as Garmin.
       if (st.s && st.s.closeOnExit && silent > AUTO_CLOSE_MS) exit()
@@ -513,6 +615,33 @@ Page(
       this.navWidgets.forEach((x) => x.setProperty(prop.VISIBLE, visible))
     },
 
+    showDetails(visible) {
+      this.detailWidgets.forEach((x) => x.setProperty(prop.VISIBLE, visible))
+    },
+
+    showDots(visible) {
+      this.dotWidgets.forEach((x) => x.setProperty(prop.VISIBLE, visible))
+    },
+
+    // Switch between the dial (page 0) and the details list (page 1). Called on
+    // swipe and, every frame, from applyState so the active page stays shown
+    // while the other stays hidden.
+    showPage(p) {
+      this.state.page = p
+      const onDial = p === 0
+      this.showDial(onDial)
+      this.showDetails(!onDial)
+      if (!onDial) this.showNav(false)
+      this.showDots(true)
+      const D = this.state.layout.dots
+      this.state.w.dot0.setProperty(prop.MORE, {
+        center_x: D.cx - D.gap, center_y: D.y, radius: D.r, color: onDial ? COLOR_WHITE : COLOR_TRACK,
+      })
+      this.state.w.dot1.setProperty(prop.MORE, {
+        center_x: D.cx + D.gap, center_y: D.y, radius: D.r, color: onDial ? COLOR_TRACK : COLOR_WHITE,
+      })
+    },
+
     applyState(s) {
       const L = this.state.layout
       const w = this.state.w
@@ -595,28 +724,24 @@ Page(
       this.applyPwm(s)
       this.applyBatteryRow(s)
 
-      // Buttons: greyed when no wheel is connected, light turns amber when on.
-      // A BUTTON update only applies when x, y, w and h travel with it, so
-      // the geometry is repeated here (Zepp OS widget rule, not a layout change).
+      // Buttons: the round disc is a CIRCLE whose colour tracks state (horn
+      // blue live / dark when no wheel; light amber when on, grey when off,
+      // dark when no wheel). The icon and the transparent tap BUTTON sit on
+      // top. Circle updates carry their geometry, the same rule the gauge dot
+      // follows.
       const B = L.btn
-      w.horn.setProperty(prop.MORE, {
-        x: B.leftX - B.r,
-        y: B.y - B.r,
-        w: B.r * 2,
-        h: B.r * 2,
-        normal_src: s.connected ? 'btn_horn.png' : 'btn_horn_off.png',
-        press_src: 'btn_horn_press.png',
-      })
-      w.horn.setProperty(prop.VISIBLE, !!s.hasHorn)
-      w.light.setProperty(prop.MORE, {
-        x: B.rightX - B.r,
-        y: B.y - B.r,
-        w: B.r * 2,
-        h: B.r * 2,
-        normal_src: !s.connected ? 'btn_light_off.png' : s.lightOn ? 'btn_light_on.png' : 'btn_light.png',
-        press_src: 'btn_light_press.png',
-      })
-      w.light.setProperty(prop.VISIBLE, !!s.hasLight)
+      const hornColor = s.connected ? 0x29b6f6 : 0x1a1a1a
+      w.hornCircle.setProperty(prop.MORE, { center_x: B.leftX, center_y: B.y, radius: B.r, color: hornColor })
+      const hornVis = !!s.hasHorn
+      w.hornCircle.setProperty(prop.VISIBLE, hornVis)
+      w.hornIcon.setProperty(prop.VISIBLE, hornVis)
+      w.horn.setProperty(prop.VISIBLE, hornVis)
+      const lightColor = !s.connected ? 0x1a1a1a : s.lightOn ? 0xffb400 : 0x444444
+      w.lightCircle.setProperty(prop.MORE, { center_x: B.rightX, center_y: B.y, radius: B.r, color: lightColor })
+      const lightVis = !!s.hasLight
+      w.lightCircle.setProperty(prop.VISIBLE, lightVis)
+      w.lightIcon.setProperty(prop.VISIBLE, lightVis)
+      w.light.setProperty(prop.VISIBLE, lightVis)
 
       // Navigation overlay over the gauge while the phone popup is up.
       if (s.navActive) {
@@ -627,6 +752,69 @@ Page(
         w.navDistance.setProperty(prop.TEXT, s.navArrived ? '' : s.navDistance)
       } else {
         this.showNav(false)
+      }
+
+      // Keep the details list current, then enforce the active page: the dial
+      // above rendered as if on screen, so when the rider has swiped to the
+      // details page hide the whole dial and nav and show the list instead.
+      this.applyDetails(s)
+      const onDial = this.state.page === 0
+      if (!onDial) {
+        this.showDial(false)
+        this.showNav(false)
+      }
+      this.showDetails(!onDial)
+      this.showDots(true)
+      const Dt = L.dots
+      w.dot0.setProperty(prop.MORE, { center_x: Dt.cx - Dt.gap, center_y: Dt.y, radius: Dt.r, color: onDial ? COLOR_WHITE : COLOR_TRACK })
+      w.dot1.setProperty(prop.MORE, { center_x: Dt.cx + Dt.gap, center_y: Dt.y, radius: Dt.r, color: onDial ? COLOR_TRACK : COLOR_WHITE })
+    },
+
+    // Refresh the details-page values. Cheap, runs every frame so the list is
+    // live the moment the rider swipes to it. Layout mirrors the Wear OS
+    // details screen: wheel-name header, headline speed, then the rows.
+    applyDetails(s) {
+      const w = this.state.w
+      const live = s.connected
+      const dash = '--'
+      const CYAN = 0x26c6da
+
+      if (live) {
+        w.detHeader.setProperty(prop.MORE, { text: s.wheelName || 'EUC', color: COLOR_WHITE })
+      } else {
+        w.detHeader.setProperty(prop.MORE, { text: 'Disconnected', color: COLOR_DIM })
+      }
+
+      const maxSafe = s.maxSpeedKmh > 0 ? s.maxSpeedKmh : 1
+      const frac = clamp(s.speedKmh / maxSafe, 0, 1)
+      const orangeFrac = clamp(s.gaugeOrangeThresholdPct / 100, 0.05, 0.95)
+      const redFrac = clamp(s.gaugeRedThresholdPct / 100, orangeFrac + 0.04, 0.95)
+      const spdColor = !live
+        ? COLOR_DIM
+        : s.showGaugeBand && frac >= redFrac
+          ? COLOR_DANGER
+          : s.showGaugeBand && frac >= orangeFrac
+            ? COLOR_WARN
+            : COLOR_SAFE
+      const spd = Math.round(convertSpeedFromKmh(s.speedKmh, s.speedUnit))
+      w.detSpeed.setProperty(prop.MORE, { text: live ? String(spd) : dash, color: spdColor })
+      w.detSpeedUnit.setProperty(prop.TEXT, s.showSpeedUnit ? speedUnitLabel(s.speedUnit) : '')
+
+      const powerW = s.voltage * s.current
+      const tempDisp = convertTempFromC(s.temperatureC, s.tempUnit)
+      const tripDisp = convertDistanceFromKm(s.tripKm, s.distanceUnit)
+      const tempColor = s.temperatureC > 60 ? COLOR_DANGER : s.temperatureC > 45 ? COLOR_WARN : CYAN
+      const rows = [
+        { v: live ? s.voltage.toFixed(1) + ' V' : dash, c: CYAN },
+        { v: live ? s.current.toFixed(1) + ' A' : dash, c: CYAN },
+        { v: live ? Math.round(powerW) + ' W' : dash, c: CYAN },
+        { v: live ? Math.round(s.pwmPercent) + ' %' : dash, c: live ? pwmColor(Math.round(s.pwmPercent)) : CYAN },
+        { v: live ? Math.round(tempDisp) + ' ' + tempUnitLabel(s.tempUnit) : dash, c: live ? tempColor : CYAN },
+        { v: live ? s.torque.toFixed(1) : dash, c: CYAN },
+        { v: live ? tripDisp.toFixed(2) + ' ' + distanceUnitLabel(s.distanceUnit) : dash, c: CYAN },
+      ]
+      for (let i = 0; i < w.detail.length && i < rows.length; i++) {
+        w.detail[i].value.setProperty(prop.MORE, { text: rows[i].v, color: rows[i].c })
       }
     },
 
