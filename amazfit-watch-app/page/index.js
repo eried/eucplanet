@@ -22,8 +22,14 @@ import { K, CONTROL, snapshotFrom, convertSpeedFromKmh, speedUnitLabel } from '.
 // Main dial. Port of garmin-watch-app/source/EucPlanetView.mc + SpeedGauge.mc
 // onto Zepp OS widgets: speed gauge, PWM badge, battery row, horn / light
 // buttons, nav overlay. Widgets are created once in build() and updated in
-// place from applyState(); the phone frame arrives through the Side Service
-// (app-side/index.js) on a poll loop whose cadence the phone sets ("pi").
+// place from applyState().
+//
+// Frames are pushed by the Side Service (app-side/index.js), which polls the
+// phone at the cadence the phone sets ("pi") and sends each frame with a
+// one-way call. The watch only kicks that loop ("start"), keeps it alive with
+// a "ping" every KEEPALIVE_MS, and re-kicks it when frames stop. Polling from
+// the watch itself ran the device out of memory after twenty minutes: every
+// ZML request on the device costs a handshake, timers and a session.
 
 const COLOR_TRACK = 0x2a2a2a
 const COLOR_DIM = 0x9aa0a6
@@ -41,6 +47,8 @@ const ARC_SWEEP = 260
 
 const STALE_MS = 10000
 const AUTO_CLOSE_MS = 20000
+const KEEPALIVE_MS = 60000
+const REKICK_MS = 5000
 
 function clamp(v, lo, hi) {
   return v < lo ? lo : v > hi ? hi : v
@@ -70,6 +78,7 @@ Page(
       phoneSynced: false,
       lastFrameAt: 0,
       pollMs: 1000,
+      lastKickAt: 0,
       destroyed: false,
       keepOnApplied: null,
       layout: null,
@@ -332,14 +341,16 @@ Page(
       })
 
       this.sendWatchInfo()
-      this.poll()
+      this.kick('start')
       this.tickTimer = setInterval(() => this.onTick(), 1000)
     },
 
     onDestroy() {
       this.state.destroyed = true
-      if (this.pollTimer) clearTimeout(this.pollTimer)
       if (this.tickTimer) clearInterval(this.tickTimer)
+      try {
+        this.request({ method: 'stop', params: {} }).catch(() => {})
+      } catch (e) {}
       try {
         resetDropWristScreenOff()
       } catch (e) {}
@@ -347,17 +358,17 @@ Page(
 
     // --- phone link ----------------------------------------------------------
 
-    poll() {
+    // Frames arrive here from the Side Service loop.
+    onCall(data) {
+      if (!data || data.method !== 'frame' || !data.params) return
+      this.onFrame(data.params)
+    },
+
+    // Ask the Side Service to (re)start its loop, or tell it we are still here.
+    kick(method) {
       if (this.state.destroyed) return
-      this.request({ method: 'state', params: {} })
-        .then((r) => {
-          if (r && r.ok && r.state) this.onFrame(r.state)
-        })
-        .catch(() => {})
-        .then(() => {
-          if (this.state.destroyed) return
-          this.pollTimer = setTimeout(() => this.poll(), this.state.pollMs)
-        })
+      this.state.lastKickAt = Date.now()
+      this.request({ method, params: {} }).catch(() => {})
     },
 
     onFrame(raw) {
@@ -385,8 +396,17 @@ Page(
 
     onTick() {
       const st = this.state
+      const now = Date.now()
+      // Keepalive for the Side Service loop, and a re-kick when frames stop
+      // (the Zepp app may have restarted its side service).
+      const sinceKick = now - st.lastKickAt
+      const sinceFrame = st.lastFrameAt ? now - st.lastFrameAt : Infinity
+      const stalled = sinceFrame > Math.max(REKICK_MS, st.pollMs * 3)
+      if (sinceKick > KEEPALIVE_MS || (stalled && sinceKick > REKICK_MS)) {
+        this.kick(stalled ? 'start' : 'ping')
+      }
       if (!st.phoneSynced) return
-      const silent = Date.now() - st.lastFrameAt
+      const silent = now - st.lastFrameAt
       const stale = silent > STALE_MS
       st.w.disconnected.setProperty(prop.VISIBLE, stale)
       if (stale) {
