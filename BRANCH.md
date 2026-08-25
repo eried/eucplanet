@@ -1,69 +1,90 @@
-# Amazfit (Zepp OS) watch companion
+# Amazfit watches
 
-The EUC Planet wrist dial on Amazfit watches, next to Wear OS and Garmin.
-Same Settings, Watch tab, same wire vocabulary, same look. Built and checked
-against the Amazfit T-Rex 3; the Balance shares the screen and is in the
-targets.
+EUC Planet now talks to Amazfit watches. The same dial that runs on Wear OS and
+Garmin: speed gauge, PWM, three batteries, horn and light, navigation arrow,
+plus the two side buttons. Built and tested against the T-Rex 3; the Balance
+has the same screen and is in the build as well.
 
-## What to test
+![The dial on a T-Rex 3](https://raw.githubusercontent.com/eried/eucplanet/feature/amazfit-watch/docs/screenshots/amazfit-dash.png)
 
-You need the phone APK from this release and the watch app. The watch app
-cannot be sideloaded from a file: run `npx zeus preview` from a checkout of
-this branch (`amazfit-watch-app/`, after `zeus login` with a free Zepp
-developer account) and scan the QR code with the Zepp app in Developer mode.
-Full steps in `docs/AMAZFIT_SETUP.md`.
+## How it works, in one paragraph
 
-Then, with the Zepp app running on the phone:
+Zepp OS does not let a phone app talk to a watch app directly, so the watch
+asks instead. Its little helper inside the Zepp phone app fetches the dial data
+from EUC Planet about once a second over the phone's own loopback address and
+sends it up to the wrist. Nothing leaves the phone. It means the Zepp app has
+to be running (it normally is, it handles your notifications), and it means
+the watch cannot be launched from the phone: you open it from the app list.
 
-- Open EUC Planet, connect the wheel, open EUC Planet on the watch. The dial
-  should show speed, PWM, batteries, horn and light within a couple of seconds.
-- Settings, Watch: an "Amazfit (Zepp OS)" card with a Live badge and a rate
-  near 1 Hz (FAST tier: about 1.5 Hz, CONSERVATIVE: about 0.7 Hz).
-- Horn and light circles, tap and hold. Select (top right) and Down (bottom
-  right) buttons, click and long press. Bindings from Settings, Watch, Buttons.
-- Keep display on, the battery toggles, PWM display mode, Prioritize PWM,
-  speed unit label: all follow the phone settings on the next poll.
-- An alarm rule with Vibrate on Watch buzzes the wrist.
-- Stop the ride: the dial zeroes out; with Auto-stop on, the watch app closes.
-- Kill the phone app: "Disconnected" after 10 s.
-- Navigation with the watch mirror on: arrow and distance over the gauge.
+## Installing
 
-## Report back
+You need two things: the phone APK from this release, and the watch app.
 
-Issues go to https://github.com/eried/eucplanet/issues (or the testing
-channel). Include the watch model and Zepp OS version, the Zepp app version,
-phone and Android version, and the diagnostics log (Settings, Diagnostics,
-Share): it carries an `amazfit: model=...` line when the watch app reached the
-phone, which is the first thing to check.
+**Phone.** Download `phone-amazfit-watch-<sha>.apk` below and install it. If
+you have the Play Store version, uninstall that first, a debug build cannot
+update over it.
 
-## What changed
+**Watch.** Zepp OS only installs unsigned apps through the Zepp app's
+developer mode, and only from a QR code:
 
-- Phone: `AmazfitBridge` serves the dial snapshot over a loopback-only HTTP
-  socket (`127.0.0.1:28193`) that the Zepp app relays to the watch. Farewell,
-  quit and alarm vibrate work like the other bridges. Settings, Watch gains an
-  Amazfit device card and AMAZFIT badges on Auto-start and Dial rotation.
-- Watch: `amazfit-watch-app/`, a Zepp OS mini program, port of the Garmin dial.
-- CI: an `amazfit` job attaches `amazfit-<branch>-<sha>.zab`.
-- Docs: `docs/AMAZFIT_SETUP.md`.
+1. In the Zepp app on your phone, go to Profile and tap the Zepp logo at the
+   top seven times. A toast confirms "Developer mode".
+2. Profile, Developer mode, Scan, and point the phone at this code. The watch
+   picks the app up in a few seconds.
 
-## Verified
+![Install QR](https://raw.githubusercontent.com/eried/eucplanet/feature/amazfit-watch/docs/screenshots/amazfit-preview-qr.png)
 
-- `./gradlew :app:testDebugUnitTest :app:assembleDebug`: 845 tests, 0
-  failures (21 new for the bridge pieces), BUILD SUCCESSFUL.
-- On a Pixel-class AVD (API 36) with a virtual InMotion V8S connected, with
-  `adb forward tcp:28193 tcp:28193`: `GET /state` answers the full frame,
-  `POST /control` with an `info:` intent lands in logcat and the diagnostics
-  log, unknown paths get 404. Polling once a second from the PC makes
-  Settings, Watch show "Amazfit T-Rex 3 / Amazfit (Zepp OS) / Live / 1.0 Hz",
-  the AMAZFIT badge on Auto-start and the GARMIN badge on Keep display on.
-- `zeus build` produces the `.zab` for both targets.
-- Zepp OS Simulator 2.1.2, T-Rex 3 v1.0.2 device image, `zeus dev`, side
-  service reaching the Android emulator through `adb forward`: the dial
-  renders the gauge, speed and unit, PWM bar, three batteries and both
-  buttons; a virtual V8S at 25 km/h reads "16 mph" with the arc at half of
-  the 50 km/h gauge; the phone card shows "Amazfit T-Rex 3, Live, 0.7 Hz";
-  stopping the phone app shows "Disconnected" after 10 s and the dial comes
-  back on restart; the watch's `info:` control reaches the phone log. Not
-  driven in the simulator: taps on the horn/light circles and the physical
-  keys (synthetic input does not reach the QEMU window), and the quit event.
-- Still to run: the real T-Rex 3.
+The code is valid until the 1st of September 2026. If it has expired, ask in
+the testing channel for a fresh one, or build it yourself: install Node.js,
+`npm i -g @zeppos/zeus-cli`, `zeus login` with a free Zepp account, then
+`npx zeus preview` inside `amazfit-watch-app/` prints a new code. Details in
+`docs/AMAZFIT_SETUP.md`.
+
+## Using it
+
+Open EUC Planet on the phone and connect the wheel, then open "EUC Planet" on
+the watch. The dial says "Open EUC Planet on your phone" until the first data
+arrives, and "Disconnected" if the phone goes quiet for ten seconds.
+
+- Tap the horn circle for the horn, the light circle for the light. Hold
+  either for the hold action.
+- Select (top right) is button 1, Down (bottom right) is button 2, click and
+  long press. Assign what they do in Settings, Watch, Buttons.
+- Settings, Watch shows the watch as "Amazfit (Zepp OS)" with a Live badge and
+  the real update rate. Keep display on, the battery toggles, PWM display,
+  Prioritize PWM and the speed unit label all apply on the next update.
+- Auto-stop closes the watch app when you stop the ride; alarm rules set to
+  vibrate on the watch buzz the wrist.
+
+What it does not do: auto-start (Zepp OS has no way to launch an app from the
+phone) and dial rotation. Both rows show an AMAZFIT badge in Settings so it is
+clear where they stop.
+
+## What to look for
+
+- Does the dial follow the wheel without noticeable lag? The card in
+  Settings, Watch should read around 1 Hz on Normal, 1.5 Hz on Fast.
+- Do the taps and the two buttons reach the wheel?
+- Leave the phone in your pocket for a ride: does the watch keep updating, or
+  does Android put the Zepp app to sleep? If it stops, check the battery
+  settings for the Zepp app and tell us which phone you have.
+- Stop the ride from the phone: does the watch app close?
+- Anything odd in the layout on your watch model.
+
+## Reporting
+
+https://github.com/eried/eucplanet/issues or the testing channel. Include the
+watch model and its Zepp OS version, the Zepp app version, the phone and its
+Android version, and the diagnostics log from Settings, Diagnostics, Share. The
+log has a line starting with `amazfit: model=` when the watch reached the
+phone; if that line is missing, the problem is on the phone side.
+
+## For developers
+
+New code lives in `app/src/main/java/com/eried/eucplanet/amazfit/` (phone
+side: a tiny loopback HTTP responder serving the same snapshot the Garmin
+bridge builds) and `amazfit-watch-app/` (the Zepp OS mini program, a port of
+the Garmin dial). CI attaches `amazfit-<branch>-<sha>.zab` to this release; that
+is the store submission bundle, not something you can sideload. 845 unit
+tests pass, 21 of them new. The simulator recipe, wire contract and the
+Zepp simulator quirks are in `docs/AMAZFIT_SETUP.md`.
