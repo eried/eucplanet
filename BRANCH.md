@@ -34,7 +34,7 @@ developer mode, and only from a QR code:
 
 ![Install QR](https://raw.githubusercontent.com/eried/eucplanet/feature/amazfit-watch/docs/screenshots/amazfit-preview-qr.png)
 
-The code is valid until the 1st of September 2026 (regenerated for this build). If it has expired, ask in
+The code is valid until the 1st of September 2026. If it has expired, ask in
 the testing channel for a fresh one, or build it yourself: install Node.js,
 `npm i -g @zeppos/zeus-cli`, `zeus login` with a free Zepp account, then
 `npx zeus preview` inside `amazfit-watch-app/` prints a new code. Details in
