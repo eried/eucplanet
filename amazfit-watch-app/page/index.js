@@ -7,7 +7,7 @@ import {
   resetDropWristScreenOff,
   setWakeUpRelaunch,
 } from '@zos/display'
-import { onKey, KEY_SELECT, KEY_DOWN, KEY_EVENT_CLICK, KEY_EVENT_LONG_PRESS } from '@zos/interaction'
+import { onKey, KEY_SELECT, KEY_UP, KEY_DOWN, KEY_EVENT_CLICK, KEY_EVENT_LONG_PRESS } from '@zos/interaction'
 import {
   Vibrator,
   VIBRATOR_SCENE_SHORT_STRONG,
@@ -319,24 +319,25 @@ Page(
       this.showDial(false)
       this.showNav(false)
 
-      // Physical keys: Select = button 1, Down = button 2, click and long press.
+      // Physical keys, same three-button model as Garmin: Select = button 1
+      // (click and hold), Up = button 2 (click and hold), Down = button 3
+      // (click only, the system owns its long press). Back is left alone so
+      // the rider can leave the app.
       onKey({
         callback: (key, keyEvent) => {
           const s = this.state.s
           if (!s) return false
-          if (key === KEY_SELECT) {
-            if (keyEvent === KEY_EVENT_CLICK) this.dispatch(s.stem1Click)
-            else if (keyEvent === KEY_EVENT_LONG_PRESS) this.dispatch(s.stem1Hold)
-            else return false
-            return true
-          }
-          if (key === KEY_DOWN) {
-            if (keyEvent === KEY_EVENT_CLICK) this.dispatch(s.stem2Click)
-            else if (keyEvent === KEY_EVENT_LONG_PRESS) this.dispatch(s.stem2Hold)
-            else return false
-            return true
-          }
-          return false
+          const name = key === KEY_SELECT ? 'select' : key === KEY_UP ? 'up' : key === KEY_DOWN ? 'down' : String(key)
+          const ev = keyEvent === KEY_EVENT_CLICK ? 'click' : keyEvent === KEY_EVENT_LONG_PRESS ? 'hold' : String(keyEvent)
+          this.debug('key ' + name + ' ' + ev)
+          let act = null
+          if (key === KEY_SELECT) act = ev === 'click' ? s.stem1Click : ev === 'hold' ? s.stem1Hold : null
+          else if (key === KEY_UP) act = ev === 'click' ? s.stem2Click : ev === 'hold' ? s.stem2Hold : null
+          else if (key === KEY_DOWN) act = ev === 'click' ? s.stem3Click : null
+          if (act === null) return false
+          this.debug('key dispatch act=' + act)
+          this.dispatch(act)
+          return true
         },
       })
 
@@ -453,11 +454,19 @@ Page(
     },
 
     onScreenButton(which, hold) {
-      console.log('[eucplanet] screen button ' + which + (hold ? ' hold' : ' click'))
       const s = this.state.s
+      const act = !s ? 'NONE' : which === 1 ? (hold ? s.screen1Hold : s.screen1Click) : hold ? s.screen2Hold : s.screen2Click
+      this.debug('tap slot=' + which + (hold ? ' hold' : ' click') + ' act=' + act)
       if (!s || !s.connected) return
-      if (which === 1) this.dispatch(hold ? s.screen1Hold : s.screen1Click)
-      else this.dispatch(hold ? s.screen2Hold : s.screen2Click)
+      this.dispatch(act)
+    },
+
+    // Input-event report for the phone's Service Mode. Only sent while the
+    // phone says it is recording ("dg"), so a normal ride costs nothing extra.
+    debug(msg) {
+      const s = this.state.s
+      if (!s || !s.diag) return
+      this.sendControl(CONTROL.DEBUG_PREFIX + msg)
     },
 
     buzz(mode) {

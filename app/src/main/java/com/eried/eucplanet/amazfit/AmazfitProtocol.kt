@@ -68,6 +68,8 @@ internal object AmazfitKeys {
     const val STEM1_HOLD = "s1h"
     const val STEM2_CLICK = "s2c"
     const val STEM2_HOLD = "s2h"
+    /** Third hardware button (Down on Garmin and Amazfit), click only. */
+    const val STEM3_CLICK = "s3c"
 
     const val SCREEN1_CLICK = "b1c"
     const val SCREEN1_HOLD = "b1h"
@@ -75,6 +77,11 @@ internal object AmazfitKeys {
     const val SCREEN2_HOLD = "b2h"
 
     const val HAPTIC_ON_ACTION = "hap"
+
+    /** True while the phone's Service Mode is recording. The watch reports
+     *  its input events (`debug:` controls) only while this is set, so riders
+     *  who never open Service Mode get no extra watch-to-phone traffic. */
+    const val DIAG = "dg"
 
     const val NAV_ACTIVE = "na"
     const val NAV_ANGLE = "ng"
@@ -112,6 +119,9 @@ internal object AmazfitControl {
     /** Watch tells the phone its build info once on launch:
      *  `info:model=<name>|fw=<version>|api=<level>`. */
     const val WATCH_INFO_PREFIX = "info:"
+    /** Input-event report from the watch (key codes, which binding fired).
+     *  Only sent while [AmazfitKeys.DIAG] is true in the frames. */
+    const val DEBUG_PREFIX = "debug:"
     const val PAYLOAD_KEY = "cmd"
 }
 

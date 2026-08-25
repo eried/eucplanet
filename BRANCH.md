@@ -48,8 +48,9 @@ arrives, and "Disconnected" if the phone goes quiet for ten seconds.
 
 - Tap the horn circle for the horn, the light circle for the light. Hold
   either for the hold action.
-- Select (top right) is button 1, Down (bottom right) is button 2, click and
-  long press. Assign what they do in Settings, Watch, Buttons.
+- The side buttons follow the same layout as on Garmin: Select is button 1,
+  Up is button 2 (both click and hold), Down is button 3 (click only). Assign
+  what they do in Settings, Watch, Buttons.
 - Settings, Watch shows the watch as "Amazfit (Zepp OS)" with a Live badge and
   the real update rate. Keep display on, the battery toggles, PWM display,
   Prioritize PWM and the speed unit label all apply on the next update.
@@ -64,7 +65,9 @@ clear where they stop.
 
 - Does the dial follow the wheel without noticeable lag? The card in
   Settings, Watch should read around 1 Hz on Normal, 1.5 Hz on Fast.
-- Do the taps and the two buttons reach the wheel?
+- Do the taps and the three buttons reach the wheel? While Service Mode is
+  recording, every key and tap the watch sees is written to the diagnostics
+  log, so a log is enough to tell which side lost a press.
 - Leave the phone in your pocket for a ride: does the watch keep updating, or
   does Android put the Zepp app to sleep? If it stops, check the battery
   settings for the Zepp app and tell us which phone you have.

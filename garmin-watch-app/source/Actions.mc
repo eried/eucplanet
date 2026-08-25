@@ -16,6 +16,12 @@ class ActionDispatch {
         _bridge = bridge;
     }
 
+    //! Forward an input-event report to the bridge (Service Mode gated
+    //! there). Lets the delegate and view report without holding the bridge.
+    function debug(msg as Lang.String) as Void {
+        _bridge.sendDebug(msg);
+    }
+
     //! Send the named action over the wire. `actionName` is a FlicAction
     //! enum name like "HORN" / "LIGHT_TOGGLE" / "LOCK_TOGGLE" / "RECORD_TOGGLE".
     //! "NONE" is a no-op (the user has unbound this slot).

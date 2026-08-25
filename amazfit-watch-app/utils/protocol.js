@@ -60,11 +60,13 @@ export const K = {
   STEM1_HOLD: 's1h',
   STEM2_CLICK: 's2c',
   STEM2_HOLD: 's2h',
+  STEM3_CLICK: 's3c',
   SCREEN1_CLICK: 'b1c',
   SCREEN1_HOLD: 'b1h',
   SCREEN2_CLICK: 'b2c',
   SCREEN2_HOLD: 'b2h',
   HAPTIC_ON_ACTION: 'hap',
+  DIAG: 'dg',
 
   NAV_ACTIVE: 'na',
   NAV_ANGLE: 'ng',
@@ -80,6 +82,7 @@ export const CONTROL = {
   LIGHT_OFF: 'light_off',
   ACTION_PREFIX: 'action:',
   INFO_PREFIX: 'info:',
+  DEBUG_PREFIX: 'debug:',
 }
 
 // Defaults mirror garmin-watch-app/source/WatchState.mc so a partial frame
@@ -122,11 +125,13 @@ export function snapshotFrom(d) {
     stem1Hold: s(K.STEM1_HOLD, 'NONE'),
     stem2Click: s(K.STEM2_CLICK, 'NONE'),
     stem2Hold: s(K.STEM2_HOLD, 'NONE'),
+    stem3Click: s(K.STEM3_CLICK, 'NONE'),
     screen1Click: s(K.SCREEN1_CLICK, 'HORN'),
     screen1Hold: s(K.SCREEN1_HOLD, 'NONE'),
     screen2Click: s(K.SCREEN2_CLICK, 'LIGHT_TOGGLE'),
     screen2Hold: s(K.SCREEN2_HOLD, 'NONE'),
     hapticOnAction: b(K.HAPTIC_ON_ACTION, false),
+    diag: b(K.DIAG, false),
     gpsSpeedKmh: n(K.GPS_SPEED, -1),
     gpsSource: s(K.GPS_SOURCE, ''),
     navActive: b(K.NAV_ACTIVE, false),

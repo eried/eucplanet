@@ -106,7 +106,7 @@ Settings, Watch tab (no new rows):
 | Battery toggles, PWM display, prioritize PWM, speed unit | supported |
 | Dial rotation | unsupported, stays Wear-gated, `AMAZFIT` badge alongside the Garmin one |
 | Touch buttons | supported, click and hold |
-| Hardware buttons | supported: button 1 = SELECT (top right), button 2 = DOWN (bottom right), click and long press |
+| Hardware buttons | supported: button 1 = Select (click, hold), button 2 = Up (click, hold), button 3 = Down (click), the Garmin three-button model |
 | Haptic on action | supported |
 
 Strings: `watch_paired_kind_amazfit` ("Amazfit (Zepp OS)", universal),

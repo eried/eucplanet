@@ -39,7 +39,8 @@ internal object AmazfitSnapshot {
         gps: Pair<Float, String>?,
         nav: Nav,
         events: List<Map<String, Any>>,
-        nowMs: Long
+        nowMs: Long,
+        diag: Boolean = false
     ): Map<String, Any> {
         val speedUnit = Units.effectiveSpeedUnit(settings)
         val distanceUnit = Units.effectiveDistanceUnit(settings)
@@ -82,11 +83,13 @@ internal object AmazfitSnapshot {
             put(AmazfitKeys.STEM1_HOLD, settings.watchStem1Hold)
             put(AmazfitKeys.STEM2_CLICK, settings.watchStem2Click)
             put(AmazfitKeys.STEM2_HOLD, settings.watchStem2Hold)
+            put(AmazfitKeys.STEM3_CLICK, settings.watchStem3Click)
             put(AmazfitKeys.SCREEN1_CLICK, settings.watchScreen1Click)
             put(AmazfitKeys.SCREEN1_HOLD, settings.watchScreen1Hold)
             put(AmazfitKeys.SCREEN2_CLICK, settings.watchScreen2Click)
             put(AmazfitKeys.SCREEN2_HOLD, settings.watchScreen2Hold)
             put(AmazfitKeys.HAPTIC_ON_ACTION, settings.watchHapticOnAction)
+            put(AmazfitKeys.DIAG, diag)
             // Same -1 sentinel as Garmin for "nothing to show"; JSON has no NaN.
             put(AmazfitKeys.GPS_SPEED, gps?.first ?: -1f)
             put(AmazfitKeys.GPS_SOURCE, gps?.second ?: "")
@@ -107,7 +110,7 @@ internal object AmazfitSnapshot {
         "k", "c", "n", "s", "b", "b2", "v", "i", "p", "t", "tr", "tq", "l", "ms", "ch", "cl",
         "us", "ud", "ut", "im", "ac",
         "wko", "wsb", "wpb", "wwb", "wpd", "wsu", "wpp", "wrot", "wgb", "wgo", "wgr", "wce",
-        "s1c", "s1h", "s2c", "s2h", "b1c", "b1h", "b2c", "b2h", "hap",
+        "s1c", "s1h", "s2c", "s2h", "s3c", "b1c", "b1h", "b2c", "b2h", "hap", "dg",
         "gs", "gsr", "na", "ng", "np", "nd", "nar",
         "pi", "ev", "ts"
     )

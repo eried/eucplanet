@@ -335,8 +335,8 @@ class SettingsViewModel @Inject constructor(
      *  - Any Garmin device (every Garmin watch ships ≥2 physical buttons,
      *    and our CIQ Delegate maps the universal Start + Up-hold pair to
      *    `stem1` and `stem2`).
-     *  - Any Amazfit (Zepp OS) watch: the dial maps Select to `stem1` and
-     *    Down to `stem2`.
+     *  - Any Amazfit (Zepp OS) watch: the dial maps Select to `stem1`, Up to
+     *    `stem2` and Down to `stem3`, the same layout as the Garmin model.
      *  - A Galaxy Watch Ultra on Wear OS — the only Wear OS device that
      *    delivers `KEYCODE_STEM_1` (orange Action) and `KEYCODE_STEM_2`
      *    (bottom side) to third-party apps. Detected by friendly-name
@@ -804,6 +804,7 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchStem1Click(action: String) = update { copy(watchStem1Click = action) }
     fun updateWatchStem1Hold(action: String) = update { copy(watchStem1Hold = action) }
     fun updateWatchStem2Click(action: String) = update { copy(watchStem2Click = action) }
+    fun updateWatchStem3Click(action: String) = update { copy(watchStem3Click = action) }
     fun updateWatchStem2Hold(action: String) = update { copy(watchStem2Hold = action) }
     fun updateWatchScreen1Click(action: String) = update { copy(watchScreen1Click = action) }
     fun updateWatchScreen1Hold(action: String) = update { copy(watchScreen1Hold = action) }

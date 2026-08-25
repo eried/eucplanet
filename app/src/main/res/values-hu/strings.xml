@@ -552,8 +552,10 @@
     <string name="section_watch_buttons">Gombok</string>
     <string name="watch_hardware_button_1">1. gomb</string>
     <string name="watch_hardware_button_2">2. gomb</string>
+    <string name="watch_hardware_button_3">3. gomb</string>
     <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: narancssárga Action gomb · Amazfit: Select</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Fel (hosszú nyomás) · Galaxy Watch Ultra: alsó oldalsó gomb · Amazfit: Le</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Fel · Galaxy Watch Ultra: alsó oldalsó gomb · Amazfit: Fel</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Le · Amazfit: Le · Wear OS órákon nem elérhető</string>
     <string name="watch_screen_button_1">1. gomb</string>
     <string name="watch_screen_button_2">2. gomb</string>
     <string name="watch_haptic_on_action">Rezgés műveletnél</string>

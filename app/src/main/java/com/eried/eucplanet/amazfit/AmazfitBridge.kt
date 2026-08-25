@@ -212,20 +212,28 @@ class AmazfitBridge @Inject constructor(
             gps = computeGpsExtraSpeed(s),
             nav = navMirror,
             events = inbox.drainEvents(),
-            nowMs = nowMs
+            nowMs = nowMs,
+            // Service Mode recording: the watch reports its inputs only then.
+            diag = com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.value
         )
     }
 
     /** Routes one control intent from the watch into the same code paths the
      *  Wear OS and Garmin bridges use. */
     private fun handleControl(cmd: String) {
-        Log.i(TAG, "control from Amazfit: $cmd")
+        // Input reports are chatty while Service Mode records; keep logcat quiet.
+        if (!cmd.startsWith(AmazfitControl.DEBUG_PREFIX)) Log.i(TAG, "control from Amazfit: $cmd")
         when {
             cmd == AmazfitControl.HORN -> wheelRepository.sendHorn()
             cmd == AmazfitControl.LIGHT_ON || cmd == AmazfitControl.LIGHT_OFF ->
                 wheelRepository.toggleLight()
             cmd.startsWith(AmazfitControl.ACTION_PREFIX) ->
                 flicManager.dispatchActionByName(cmd.removePrefix(AmazfitControl.ACTION_PREFIX))
+            cmd.startsWith(AmazfitControl.DEBUG_PREFIX) -> {
+                // Input-event report, only while Service Mode records.
+                val ev = cmd.removePrefix(AmazfitControl.DEBUG_PREFIX)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("amazfit input: $ev")
+            }
             cmd.startsWith(AmazfitControl.WATCH_INFO_PREFIX) -> {
                 val info = cmd.removePrefix(AmazfitControl.WATCH_INFO_PREFIX)
                 Log.i(TAG, "Amazfit watch info: $info")

@@ -45,6 +45,28 @@ class AmazfitSnapshotTest {
     }
 
     @Test
+    fun `third button binding and the diag flag travel with the frame`() {
+        val frame = AmazfitSnapshot.encode(
+            data = WheelData(),
+            connected = false,
+            wheelName = null,
+            maxSpeedKmh = 30f,
+            settings = AppSettings().copy(watchStem3Click = "LOCK_TOGGLE"),
+            speedMultiplier = 1f,
+            phoneBatteryPercent = 0,
+            accentArgb = "#FF000000",
+            gps = null,
+            nav = nav,
+            events = emptyList(),
+            nowMs = 0L,
+            diag = true
+        )
+        assertEquals("LOCK_TOGGLE", frame["s3c"])
+        assertEquals(true, frame["dg"])
+        assertEquals(false, encode()["dg"])
+    }
+
+    @Test
     fun `gps uses the -1 sentinel when absent and the value when present`() {
         assertEquals(-1f, encode()["gs"])
         assertEquals("", encode()["gsr"])

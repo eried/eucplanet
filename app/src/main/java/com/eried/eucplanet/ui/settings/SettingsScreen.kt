@@ -7682,6 +7682,17 @@ private fun WatchTab(
                     onClick = { viewModel.updateWatchStem2Click(it) },
                     onHold = { viewModel.updateWatchStem2Hold(it) }
                 )
+                // Third button (Down on Garmin and Amazfit). Click only: the
+                // watch system can claim Down's long press for its own
+                // shortcut, so a hold binding here could never be trusted.
+                HardwareButtonGroup(
+                    title = stringResource(R.string.watch_hardware_button_3),
+                    subtitle = stringResource(R.string.watch_hardware_button_3_subtitle),
+                    clickKey = settings.watchStem3Click,
+                    holdKey = null,
+                    onClick = { viewModel.updateWatchStem3Click(it) },
+                    onHold = null
+                )
             }
         }
 
@@ -7737,9 +7748,9 @@ private fun HardwareButtonGroup(
     title: String,
     subtitle: String,
     clickKey: String,
-    holdKey: String,
+    holdKey: String?,
     onClick: (String) -> Unit,
-    onHold: (String) -> Unit
+    onHold: ((String) -> Unit)?
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(title, style = MaterialTheme.typography.bodyLarge)
@@ -7755,12 +7766,18 @@ private fun HardwareButtonGroup(
                 onSelect = onClick,
                 modifier = Modifier.weight(1f),
             )
-            WatchActionPicker(
-                label = stringResource(R.string.watch_button_hold_label),
-                currentKey = holdKey,
-                onSelect = onHold,
-                modifier = Modifier.weight(1f),
-            )
+            if (holdKey != null && onHold != null) {
+                WatchActionPicker(
+                    label = stringResource(R.string.watch_button_hold_label),
+                    currentKey = holdKey,
+                    onSelect = onHold,
+                    modifier = Modifier.weight(1f),
+                )
+            } else {
+                // Click-only button: keep the picker half-width, same as
+                // every numeric pill and paired row in Settings.
+                Spacer(Modifier.weight(1f))
+            }
         }
     }
 }

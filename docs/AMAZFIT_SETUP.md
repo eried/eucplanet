@@ -139,8 +139,11 @@ the Zepp app store listing.
 Open EUC Planet on the phone, then open "EUC Planet" in the watch's app list.
 The dial reads "Open EUC Planet on your phone" until the first frame lands,
 "Disconnected" after 10 s without one. Tap the horn and light circles, or
-press Select (button 1) and Down (button 2); holds work too. Bindings come
-from Settings, Watch, Buttons on the phone.
+press Select (button 1, click and hold), Up (button 2, click and hold) and
+Down (button 3, click only), the same three-button model as the Garmin app.
+Bindings come from Settings, Watch, Buttons on the phone. While Service Mode
+is recording, the watch reports every key and tap it sees into the
+diagnostics log (`amazfit input: ...`).
 
 Settings, Diagnostics logs `amazfit: model=...|fw=...|api=...` once when the
 watch app starts; that line is the end-to-end proof the chain works on a
@@ -156,10 +159,12 @@ given phone.
   (1500 / 1000 / 500 for the CONSERVATIVE / NORMAL / FAST update-rate tier).
 - `ev`: list of one-shot events queued since the previous poll, each
   `{"k": "vibe", "ms": 300}` or `{"k": "quit"}`.
+- `s3c`: binding of the third hardware button, and `dg`: true while the
+  phone's Service Mode records (the watch then sends `debug:` reports).
 
 `POST /control` takes `{"cmd": "<intent>"}` with the `GarminControl`
 vocabulary: `horn`, `light_on`, `light_off`, `action:<FlicAction>`,
-`info:model=...|fw=...|api=...`.
+`info:model=...|fw=...|api=...`, and `debug:<event>` while `dg` is set.
 
 The server binds `127.0.0.1` only. Nothing off the phone can reach it.
 

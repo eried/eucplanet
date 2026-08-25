@@ -66,7 +66,10 @@ class MainActivity : ComponentActivity() {
                     showWheelBattery = intent.getBooleanExtra("showWheelBatt", true),
                     showPhoneBattery = intent.getBooleanExtra("showPhoneBatt", true),
                     showWatchBattery = intent.getBooleanExtra("showWatchBatt", true),
-                    keepScreenOn = intent.getBooleanExtra("keepOn", true)
+                    keepScreenOn = intent.getBooleanExtra("keepOn", true),
+                    // --ez diag true: exercise the Service Mode input-event
+                    // reporting without a live phone pairing.
+                    diagOn = intent.getBooleanExtra("diag", false)
                 )
             )
         }
@@ -140,6 +143,7 @@ class MainActivity : ComponentActivity() {
      */
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         val state = WatchStateRepository.state.value
+        sendDebugEvent("keyDown code=$keyCode")
         val action = when (keyCode) {
             KeyEvent.KEYCODE_STEM_1 -> state.stem1Click
             KeyEvent.KEYCODE_STEM_2 -> state.stem2Click
@@ -162,6 +166,7 @@ class MainActivity : ComponentActivity() {
             else -> null
         }
         if (action == null || action == "NONE") return super.onKeyLongPress(keyCode, event)
+        sendDebugEvent("keyLongPress code=$keyCode act=$action")
         dispatchAction(action)
         return true
     }
@@ -176,6 +181,7 @@ class MainActivity : ComponentActivity() {
                 val action = if (keyCode == KeyEvent.KEYCODE_STEM_1) state.stem1Click
                              else state.stem2Click
                 if (action != "NONE") {
+                    sendDebugEvent("keyClick code=$keyCode act=$action")
                     dispatchAction(action)
                     return true
                 }
@@ -191,6 +197,16 @@ class MainActivity : ComponentActivity() {
      * goes through the prefixed passthrough that PhoneWearListenerService
      * forwards to FlicManager.dispatchActionByName().
      */
+    /**
+     * Input-event report for the phone's Service Mode Wearables tab. A no-op
+     * unless the phone flagged diag recording in the state frames, so a
+     * normal ride sends nothing extra over the Data Layer.
+     */
+    private fun sendDebugEvent(msg: String) {
+        if (!WatchStateRepository.state.value.diagOn) return
+        WatchStateRepository.sendControl(this, WatchControl.DEBUG_PREFIX + msg)
+    }
+
     private fun dispatchAction(action: String) {
         val intent = when (action) {
             "HORN" -> WatchControl.HORN

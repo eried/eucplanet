@@ -60,6 +60,8 @@ module Keys {
     const STEM1_HOLD = "s1h";
     const STEM2_CLICK = "s2c";
     const STEM2_HOLD = "s2h";
+    //! Garmin-only third hardware button (the Down key), click only.
+    const STEM3_CLICK = "s3c";
 
     const SCREEN1_CLICK = "b1c";
     const SCREEN1_HOLD = "b1h";
@@ -67,6 +69,10 @@ module Keys {
     const SCREEN2_HOLD = "b2h";
 
     const HAPTIC_ON_ACTION = "hap";
+
+    //! True while the phone's Service Mode is recording: report input
+    //! events (Control.DEBUG_PREFIX). False = send nothing extra, ever.
+    const DIAG = "dg";
 
     const NAV_ACTIVE = "na";
     const NAV_ANGLE = "ng";
@@ -83,6 +89,9 @@ module Control {
     const LIGHT_OFF = "light_off";
     const ACTION_PREFIX = "action:";
     const WATCH_INFO_PREFIX = "info:";
+    //! Input-event report (tap coords, key codes, fired binding). Gated on
+    //! the phone-pushed Keys.DIAG flag, i.e. Service Mode recording only.
+    const DEBUG_PREFIX = "debug:";
     //! Heartbeat the watch transmits every 5 s while the dial is on-screen.
     //! The phone uses these acks (not sendMessage success callbacks) to
     //! drive its Live indicator + delivery-rate badge — necessary because
@@ -137,6 +146,8 @@ class WatchSnapshot {
     public var closeOnExit as Lang.Boolean = false;
 
     public var stem1Click as Lang.String = "NONE";
+    //! Down-key click, Garmin only. NONE until a new-enough phone sends it.
+    public var stem3Click as Lang.String = "NONE";
     public var stem1Hold as Lang.String = "NONE";
     public var stem2Click as Lang.String = "NONE";
     public var stem2Hold as Lang.String = "NONE";
@@ -145,6 +156,8 @@ class WatchSnapshot {
     public var screen2Click as Lang.String = "LIGHT_TOGGLE";
     public var screen2Hold as Lang.String = "NONE";
     public var hapticOnAction as Lang.Boolean = false;
+    //! Phone's Service Mode is recording; report input events over the wire.
+    public var diagOn as Lang.Boolean = false;
 
     public var gpsSpeedKmh as Lang.Float = -1.0; // -1 == not present
     public var gpsSource as Lang.String = "";
@@ -213,6 +226,7 @@ module WatchState {
         s.closeOnExit = boolean(dict, Keys.OPT_CLOSE_ON_EXIT, false);
 
         s.stem1Click = string(dict, Keys.STEM1_CLICK, "NONE");
+        s.stem3Click = string(dict, Keys.STEM3_CLICK, "NONE");
         s.stem1Hold = string(dict, Keys.STEM1_HOLD, "NONE");
         s.stem2Click = string(dict, Keys.STEM2_CLICK, "NONE");
         s.stem2Hold = string(dict, Keys.STEM2_HOLD, "NONE");
@@ -221,6 +235,7 @@ module WatchState {
         s.screen2Click = string(dict, Keys.SCREEN2_CLICK, "LIGHT_TOGGLE");
         s.screen2Hold = string(dict, Keys.SCREEN2_HOLD, "NONE");
         s.hapticOnAction = boolean(dict, Keys.HAPTIC_ON_ACTION, false);
+        s.diagOn = boolean(dict, Keys.DIAG, false);
 
         s.gpsSpeedKmh = float(dict, Keys.GPS_SPEED, -1.0);
         s.gpsSource = string(dict, Keys.GPS_SOURCE, "");
