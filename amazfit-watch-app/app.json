@@ -13,7 +13,8 @@
     "description": "Live wheel telemetry from EUC Planet on your wrist"
   },
   "permissions": [
-    "data:os.device.info"
+    "data:os.device.info",
+    "device:os.local_storage"
   ],
   "runtime": {
     "apiVersion": {
@@ -33,12 +34,34 @@
         },
         "app-side": {
           "path": "app-side/index"
+        },
+        "secondary-widget": {
+          "widgets": [
+            {
+              "path": "secondary-widget/index",
+              "icon": "icon.png",
+              "name": "EUC Planet",
+              "runtime": {
+                "type": "js"
+              },
+              "preview": "preview.png"
+            }
+          ]
         }
       },
       "platforms": [
-        { "name": "t-rex-3", "deviceSource": 8716544 },
-        { "name": "t-rex-3", "deviceSource": 8716545 },
-        { "name": "t-rex-3", "deviceSource": 8716547 }
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716544
+        },
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716545
+        },
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716547
+        }
       ],
       "designWidth": 480
     },
@@ -51,12 +74,34 @@
         },
         "app-side": {
           "path": "app-side/index"
+        },
+        "secondary-widget": {
+          "widgets": [
+            {
+              "path": "secondary-widget/index",
+              "icon": "icon.png",
+              "name": "EUC Planet",
+              "runtime": {
+                "type": "js"
+              },
+              "preview": "preview.png"
+            }
+          ]
         }
       },
       "platforms": [
-        { "name": "balance", "deviceSource": 8519936 },
-        { "name": "balance", "deviceSource": 8519937 },
-        { "name": "balance", "deviceSource": 8519939 }
+        {
+          "name": "balance",
+          "deviceSource": 8519936
+        },
+        {
+          "name": "balance",
+          "deviceSource": 8519937
+        },
+        {
+          "name": "balance",
+          "deviceSource": 8519939
+        }
       ],
       "designWidth": 480
     }

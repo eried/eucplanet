@@ -16,6 +16,7 @@ import {
   Battery,
 } from '@zos/sensor'
 import { exit } from '@zos/router'
+import { localStorage } from '@zos/storage'
 import { BasePage } from '@zeppos/zml/base-page'
 import { onGesture, GESTURE_LEFT, GESTURE_RIGHT } from '@zos/interaction'
 import {
@@ -490,7 +491,31 @@ Page(
       this.state.pollMs = s.pollMs
       this.applyKeepOn(s.keepScreenOn)
       this.applyState(s)
+      this.cacheForWidget(s)
       s.events.forEach((ev) => this.onEvent(ev))
+    },
+
+    // Cache a compact frame to on-watch storage so the glanceable widget
+    // (secondary-widget) can show current telemetry without opening the app.
+    cacheForWidget(s) {
+      try {
+        localStorage.setItem(
+          'euc_last',
+          JSON.stringify({
+            s: s.speedKmh,
+            us: s.speedUnit,
+            b: s.batteryPercent,
+            p: s.pwmPercent,
+            n: s.wheelName,
+            c: s.connected,
+            ms: s.maxSpeedKmh,
+            wgb: s.showGaugeBand,
+            wgo: s.gaugeOrangeThresholdPct,
+            wgr: s.gaugeRedThresholdPct,
+            ts: Date.now(),
+          }),
+        )
+      } catch (e) {}
     },
 
     onEvent(ev) {

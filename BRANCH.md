@@ -60,6 +60,11 @@ arrives, and "Disconnected" if the phone goes quiet for ten seconds.
 - Auto-stop closes the watch app when you stop the ride; alarm rules set to
   vibrate on the watch buzz the wrist.
 
+There is also a glanceable widget: add "EUC Planet" to the watch's card
+carousel to see the latest speed, battery and PWM without opening the app.
+It reads the last frame the dial cached on the watch, so it needs the app
+to have run on that ride.
+
 What it does not do: auto-start (Zepp OS has no way to launch an app from the
 phone) and dial rotation. Both rows show an AMAZFIT badge in Settings so it is
 clear where they stop.
@@ -71,6 +76,9 @@ clear where they stop.
 - Leave it running for a long ride: it should keep updating for the whole
   trip (an earlier build stopped after about 25 minutes; that is fixed).
 - Do the horn/light circles and the three side buttons reach the wheel?
+- Add the EUC Planet widget to the watch's card carousel (long-press the
+  watchface, add widget). Does it show recent speed / battery / PWM at a
+  glance without opening the app?
 - Swipe left to the details page (wheel name, speed, then the rows) and back:
   do the values look right and live, and do the dots track the page?
 - While Service Mode is recording, every key and tap the watch sees is
