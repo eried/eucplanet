@@ -114,5 +114,5 @@
 - Modify: `README.md` (one paragraph next to Garmin), `BRANCH.md` (replace with this branch's notes)
 
 - [ ] **Step 1:** Edit workflows; validate YAML with `python -c "import yaml,sys; yaml.safe_load(open(...))"`.
-- [ ] **Step 2:** Write docs; run `grep -rn "—" docs/AMAZFIT_SETUP.md BRANCH.md` to confirm no em-dashes.
+- [ ] **Step 2:** Write docs; grep the new docs for the em-dash character to confirm there are none.
 - [ ] **Step 3:** Commit `docs(amazfit): setup guide, CI job and branch notes`.

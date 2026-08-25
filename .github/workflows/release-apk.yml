@@ -14,6 +14,8 @@ name: Release builds
 #                                      for advanced sideload via
 #                                      Connect IQ Mobile on Garmins
 #                                      without store access)
+#   amazfit-<version>.zab             (Zepp OS mini program bundle, the
+#                                      file submitted to the Zepp app store)
 #
 # `<version>` is the tag with the leading `v` stripped (v0.9.0 -> 0.9.0).
 # Naming matches the branch-builds workflow's `<device>-...` convention.
@@ -305,10 +307,46 @@ jobs:
           path: /tmp/out/*
           retention-days: 1
 
+  amazfit:
+    runs-on: ubuntu-latest
+    needs: meta
+    # The Zepp OS mini program builds with the zeus CLI from npm; no SDK
+    # download, no secrets. Produces the .zab store-submission bundle.
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.tag }}
+          fetch-depth: 1
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build .zab
+        run: |
+          npm i -g @zeppos/zeus-cli
+          cd amazfit-watch-app
+          npm ci --no-audit --no-fund
+          zeus build
+          mkdir -p /tmp/out
+          zab=$(ls dist/*.zab | head -1)
+          test -n "$zab"
+          cp "$zab" "/tmp/out/amazfit-${{ needs.meta.outputs.version }}.zab"
+          ls -la /tmp/out
+
+      - name: Stage for publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-amazfit
+          path: /tmp/out/*
+          retention-days: 1
+
   publish:
     runs-on: ubuntu-latest
-    needs: [meta, android, garmin]
-    # Run even if garmin was skipped, as long as android succeeded.
+    needs: [meta, android, garmin, amazfit]
+    # Run even if garmin or amazfit was skipped or failed, as long as android succeeded.
     if: always() && needs.android.result == 'success'
     steps:
       - name: Download staged artifacts

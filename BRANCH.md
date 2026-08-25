@@ -1,146 +1,53 @@
-# InMotion V1 metrics: consumption, range, and what a charge added
+# Amazfit (Zepp OS) watch companion
 
-Two things a V8S rider reported, five defects behind them, and the simulator that
-reproduces the lot.
+The EUC Planet wrist dial on Amazfit watches, next to Wear OS and Garmin.
+Same Settings, Watch tab, same wire vocabulary, same look. Built and checked
+against the Amazfit T-Rex 3; the Balance shares the screen and is in the
+targets.
 
-## The report
+## What to test
 
-- The Battery screen showed **"Added +54.0 %"** and, under it, **"Used 4 Wh"**.
-  Four watt-hours is not what three hours of charging did; it is the wheel's own
-  standby draw, presented as if it were the charge.
-- **CONSUMPTION and RANGE read "--"** after a trip. During the ride they showed a
-  number "a couple of times, for a very quick time", and the numbers were single
-  digits against a real 15 Wh per km.
+You need the phone APK from this release and the watch app. The watch app
+cannot be sideloaded from a file: run `npx zeus preview` from a checkout of
+this branch (`amazfit-watch-app/`, after `zeus login` with a free Zepp
+developer account) and scan the QR code with the Zepp app in Developer mode.
+Full steps in `docs/AMAZFIT_SETUP.md`.
 
-## What was wrong
+Then, with the Zepp app running on the phone:
 
-**A telemetry frame threw away every number the phone worked out.** The decoded
-frame is built from what the parser returned, so each field the parser does not
-fill arrives at its default. Six of them are not the wheel's to report: the IMU
-g-force, the forward-G estimate, and the two ride-efficiency figures, all written
-by loops in `WheelRepository` on their own cadence. The efficiency loop wrote
-them once a second and the next frame, 250 ms later on an InMotion V1, put NaN
-back. That is the "answers for an instant, then blank" the rider described.
-`WheelData.carryPhoneSideFrom` now names the rule in one place.
+- Open EUC Planet, connect the wheel, open EUC Planet on the watch. The dial
+  should show speed, PWM, batteries, horn and light within a couple of seconds.
+- Settings, Watch: an "Amazfit (Zepp OS)" card with a Live badge and a rate
+  near 1 Hz (FAST tier: about 1.5 Hz, CONSERVATIVE: about 0.7 Hz).
+- Horn and light circles, tap and hold. Select (top right) and Down (bottom
+  right) buttons, click and long press. Bindings from Settings, Watch, Buttons.
+- Keep display on, the battery toggles, PWM display mode, Prioritize PWM,
+  speed unit label: all follow the phone settings on the next poll.
+- An alarm rule with Vibrate on Watch buzzes the wrist.
+- Stop the ride: the dial zeroes out; with Auto-stop on, the watch app closes.
+- Kill the phone app: "Disconnected" after 10 s.
+- Navigation with the watch mirror on: arrow and distance over the gauge.
 
-**Braking looked like a reconnect.** The efficiency window restarted whenever net
-energy fell, and net energy falls every time a rider brakes. The comment above it
-described the consumed counter, which really is monotonic; the code tested the
-net. On a simulated V8S city ride the window was wiped 296 times in 45 minutes
-and the tiles were blank two thirds of the time, showing a number only when a
-stretch of road happened to survive long enough to cross the distance floor,
-which is where the single digits came from.
+## Report back
 
-**Range measured the throttle, not the pack.** Energy per percent needs two
-readings of the same pack in the same state, and this family reports no state of
-charge at all: the app works the percentage out from pack voltage, which sags
-about seven points under a 14 A pull and comes back the moment the rider stops.
-Against a ride that drains half a point a minute, the sag is the whole signal, so
-whichever two instants were sampled, the drop between them was mostly load. Both
-ends now read the highest percentage of a trailing 90 seconds, which is the pack
-with the load off. A charge still moves the baseline, but only once it has held
-for a minute: the current-based half of charge detection latches on the regen of
-a hard brake and lets go a couple of seconds after the wheel stops, so every red
-light briefly read as a charge and restarted the measurement.
-
-**The window aged on the wall clock.** A rate needs ground covered, so ageing
-samples out by time empties the window the moment the wheel stops, which is
-exactly when a rider looks at the dashboard. It now ages in riding time: standing
-still freezes the window rather than draining it, and a half hour of standing
-ends the hold, because by then it describes a ride that is over.
-
-**A charge with no charge current was never seen as a charge.** InMotion wheels
-report nothing useful while charging: the V14 and P6 sit at about 0 A, and a V8S
-keeps reporting its board's idle draw, +0.02 A, for the whole session. Detection
-fell back to the pack percentage climbing, but that fallback was gated on the
-model name containing "P6", so a V1 charge was read as idle for its whole
-session, which is why the "Used" row (already meant to hide while charging) was
-on screen showing that idle draw.
+Issues go to https://github.com/eried/eucplanet/issues (or the testing
+channel). Include the watch model and Zepp OS version, the Zepp app version,
+phone and Android version, and the diagnostics log (Settings, Diagnostics,
+Share): it carries an `amazfit: model=...` line when the watch app reached the
+phone, which is the first thing to check.
 
 ## What changed
 
-- **`WheelCapabilities.reportsChargeCurrent`**, false for both InMotion
-  generations, replaces the P6 model-name gate. A wheel that states a charge flag
-  never reaches the detector while the flag is set, so this only adds detection
-  where there was none.
-- **`ChargeRiseDetector`**, extracted from `deriveChargeStatus` and rewritten for
-  a percentage that arrives in whole numbers. A fixed 45-second horizon against a
-  whole-number percentage reads either 0 or 1.33 %/min depending on where the step
-  lands, so it alternated on and off all through a charge. It now waits for the
-  pack to gain a point and divides by however long that took, and latches only
-  after three minutes of climbing without a break, so the voltage rebound after a
-  rider steps off a V1 cannot be mistaken for a charger.
-
-  It also has to survive that percentage wobbling, which is what a first pass
-  missed. On the V1 family the whole number is worked out from pack voltage, and
-  the reading dips a point and comes back every few seconds the whole way up a
-  charge: on a rider's own charge graph the voltage trace is a clean line and the
-  percentage beside it is a band. Treating each dip as the pack discharging
-  restarted the three-minute confirmation over and over, and a real charge was
-  only confirmed when the noise happened to leave a clean run: a rider reported
-  twenty-five minutes and ten percent before the row appeared. The level is now
-  read as a mean over a minute, and only a fall of a whole point counts as the
-  pack going down, which brings that down to about seven minutes.
-- **`ChargeEnergy.stepWh` integrates nothing while a currentless wheel charges.**
-  Filing the board's idle draw either way is worse than filing nothing.
-- **"Charged (est.)"** on the Battery screen instead, from the percentage the
-  charge added and the pack size the rider already enters for the range estimate.
-  Rough, and labelled as an estimate, but a rider watching +54 % go by is better
-  served by "about 540 Wh" than by silence. (An earlier attempt at this,
-  60ce4b6c, was reverted in fcac0563 because it needed an Advanced setting of its
-  own; the per-wheel Capacity field has existed since.) It shows only once the
-  session has actually seen a charge: percent gained is measured from the
-  session's low, which on a pack that sags reads several points on any ride, and
-  the row read "~50 Wh" mid-trip before the gate. It also comes before the
-  measured row rather than after it, because on these wheels the measured bucket
-  holds nothing but the ride's own regen: it read "Charged 29 Wh" through a
-  charge that had put back 120.
-- **`RideEfficiencyTracker`**, the window extracted out of `WheelRepository` so a
-  whole ride can be replayed against it.
-
-## The simulator
-
-`InMotionV1VirtualWheel` (scan screen, Virtual wheels, Service Mode only) emits
-real V1 wire bytes: the `AA AA ... 55 55` envelope with `0xA5` stuffing around a
-16-byte CAN prefix and an extended payload, decoded by the unchanged adapter and
-parser. Both defects only appear over time, so the script runs long: 40 minutes of
-city riding with regen on every brake, a two-minute park, then two hours on a
-charger that never reports a current. It loops.
-
-The pack is modelled rather than scripted, a state of charge in watt-hours that
-the ride spends and the charger refills, mapped back to a terminal voltage through
-an open-circuit curve, an internal resistance, and a ninety-millivolt ripple. The
-ripple is deliberate: without it the simulated charge was a clean ramp, which is
-what let a detector that restarted on every dip look like it worked here while it
-took a rider twenty-five minutes on a real wheel. With it, the old detector fails
-the simulation test the same way it failed in the field. Battery percent is not on the
-wire on this family, so the app derives it from that voltage, sag under load and
-rebound at a standstill included, and the rebound is what the charge detector has
-to tell apart from a real charger.
+- Phone: `AmazfitBridge` serves the dial snapshot over a loopback-only HTTP
+  socket (`127.0.0.1:28193`) that the Zepp app relays to the watch. Farewell,
+  quit and alarm vibrate work like the other bridges. Settings, Watch gains an
+  Amazfit device card and AMAZFIT badges on Auto-start and Dial rotation.
+- Watch: `amazfit-watch-app/`, a Zepp OS mini program, port of the Garmin dial.
+- CI: an `amazfit` job attaches `amazfit-<branch>-<sha>.zab`.
+- Docs: `docs/AMAZFIT_SETUP.md`.
 
 ## Verified
 
-`./gradlew :app:testDebugUnitTest`: 809 tests, 0 failures. `:app:assembleDebug`
-BUILD SUCCESSFUL.
-
-Each regression was confirmed to fail the new tests before the fix: restoring the
-net-energy restart check fails five of the tracker tests, restoring wall-clock
-ageing fails the end-of-trip one, rebasing on an unconfirmed charge fails the
-red-light one, and reading the pack level off a single frame fails both the
-wobbling-charge test and the end-to-end simulation.
-
-On a Pixel-class AVD (API 36) against the virtual V8S, English, miles:
-
-- CONSUMPTION reads about 26 Wh/mi and RANGE about 35 mi within two minutes of
-  connecting, both with a filled sparkline, and both hold through the braking
-  phases that used to blank them and through the end of the ride. RANGE read 4
-  miles before the pack was read at rest, against 88 % of a 1000 Wh pack.
-- The Battery screen through a simulated charge: the gauge turns green, Rate
-  reads +0.67 %/min against the simulator's real 0.67, the "Used" row is gone,
-  and "Charged (est.) ~110 Wh" stands against "Added +11.0 %" on a 1000 Wh pack.
-  Before, that screen read "Used" and counted the board's idle draw. (Checked on
-  a build with the simulator's ride shortened to three minutes, since the real
-  script rides for forty; the shipped timings are back and re-verified.)
-- The rest of the InMotion V1 surface still decodes off the simulator's bytes:
-  model V8S, firmware 1.2.22, tiltback 45 km/h, odometer, trip, speed, voltage,
-  current sign on regen.
+`./gradlew :app:testDebugUnitTest :app:assembleDebug` BUILD SUCCESSFUL,
+including 22 new unit tests for the bridge pieces. `zeus build` produces the
+`.zab`. Simulator and real-watch checks are listed in the setup doc.
