@@ -102,7 +102,14 @@ Page(
       const arcRadius = Math.floor(dim / 2) - arcThickness - arcInset
       const bandThickness = Math.max(2, Math.floor((arcThickness * 25) / 100))
       const bandRadius = arcRadius + Math.floor((arcThickness * 60) / 100) + Math.floor(bandThickness / 2)
-      this.state.layout = { W, H, dim, cx, cy, arcThickness, arcRadius, bandThickness, bandRadius }
+      const btnY = Math.floor((H * 86) / 100)
+      const btnR = Math.floor((W * 7) / 100)
+      const leftX = Math.floor((W * 36) / 100)
+      const rightX = Math.floor((W * 64) / 100)
+      this.state.layout = {
+        W, H, dim, cx, cy, arcThickness, arcRadius, bandThickness, bandRadius,
+        btn: { y: btnY, r: btnR, leftX, rightX },
+      }
       const L = this.state.layout
       const w = this.state.w
 
@@ -235,10 +242,6 @@ Page(
       }
 
       // --- horn / light buttons ---------------------------------------------
-      const btnY = Math.floor((H * 86) / 100)
-      const btnR = Math.floor((W * 7) / 100)
-      const leftX = Math.floor((W * 36) / 100)
-      const rightX = Math.floor((W * 64) / 100)
       const D = btnR * 2
       w.horn = createWidget(widget.BUTTON, {
         x: leftX - btnR,
@@ -413,6 +416,7 @@ Page(
     },
 
     sendControl(cmd) {
+      console.log('[eucplanet] control ' + cmd)
       this.request({ method: 'control', params: { cmd } }).catch(() => {})
     },
 
@@ -429,6 +433,7 @@ Page(
     },
 
     onScreenButton(which, hold) {
+      console.log('[eucplanet] screen button ' + which + (hold ? ' hold' : ' click'))
       const s = this.state.s
       if (!s || !s.connected) return
       if (which === 1) this.dispatch(hold ? s.screen1Hold : s.screen1Click)
@@ -551,12 +556,25 @@ Page(
       this.applyBatteryRow(s)
 
       // Buttons: greyed when no wheel is connected, light turns amber when on.
+      // A BUTTON update only applies when x, y, w and h travel with it, so
+      // the geometry is repeated here (Zepp OS widget rule, not a layout change).
+      const B = L.btn
       w.horn.setProperty(prop.MORE, {
+        x: B.leftX - B.r,
+        y: B.y - B.r,
+        w: B.r * 2,
+        h: B.r * 2,
         normal_src: s.connected ? 'btn_horn.png' : 'btn_horn_off.png',
+        press_src: 'btn_horn_press.png',
       })
       w.horn.setProperty(prop.VISIBLE, !!s.hasHorn)
       w.light.setProperty(prop.MORE, {
+        x: B.rightX - B.r,
+        y: B.y - B.r,
+        w: B.r * 2,
+        h: B.r * 2,
         normal_src: !s.connected ? 'btn_light_off.png' : s.lightOn ? 'btn_light_on.png' : 'btn_light.png',
+        press_src: 'btn_light_press.png',
       })
       w.light.setProperty(prop.VISIBLE, !!s.hasLight)
 

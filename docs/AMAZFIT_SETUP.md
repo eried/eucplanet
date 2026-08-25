@@ -97,8 +97,26 @@ npx zeus dev
 ```
 
 The dial appears on the T-Rex 3 simulator and updates at the rate the phone
-asks for. The Side Service log window in the simulator shows the HTTP calls;
-the phone's Settings, Watch tab lists "Amazfit (Zepp OS)" with a Live badge.
+asks for. The simulator Console shows one `request`/`response` pair per poll;
+the phone's Settings, Watch tab lists "Amazfit T-Rex 3 / Amazfit (Zepp OS)"
+with a Live badge near 0.7 Hz (1 s poll plus the round trip).
+
+`zeus dev` asks for the target by display name: `zeus dev -t "Amazfit T-Rex 3"`.
+
+Simulator 2.1.2 quirks met on Windows, in case the device never starts:
+
+- With exactly one device simulator downloaded, the shell stores the selected
+  device as `{id, name}` while its launcher expects the id string, so it
+  looks for `emulator_cache\[object Object]` and later crashes with
+  "Cannot read properties of undefined (reading 'device')". Close the
+  simulator, open `%APPDATA%\simulator\config.json` and replace the
+  `platform` value with the plain id (the `id` of the entry in
+  `selectDeviceList`), then start it again. Downloading a second device
+  simulator avoids the bug too.
+- The first device launch raises a Windows Security prompt for the QEMU
+  based device simulator; accept it once.
+- The device runs in a QEMU window that cannot be resized; maximise it to
+  see the whole 480 px face.
 
 ### 5. Put it on a real watch
 
@@ -158,6 +176,9 @@ The server binds `127.0.0.1` only. Nothing off the phone can reach it.
 - **English only** on the watch, same as Garmin.
 - **The Zepp app must be running** on the phone; it hosts the Side Service.
   Battery optimisation that kills the Zepp app also stops the dial.
+- **Updating a BUTTON needs its geometry.** Zepp OS ignores a BUTTON
+  `setProperty` that does not carry `x, y, w, h`; the dial repeats the button
+  frame on every state change for that reason.
 
 ## File map
 

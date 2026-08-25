@@ -57,6 +57,13 @@ phone, which is the first thing to check.
   Settings, Watch show "Amazfit T-Rex 3 / Amazfit (Zepp OS) / Live / 1.0 Hz",
   the AMAZFIT badge on Auto-start and the GARMIN badge on Keep display on.
 - `zeus build` produces the `.zab` for both targets.
-- Still to run: the dial itself in the Zepp OS Simulator (needs the T-Rex 3
-  device simulator, which the simulator only downloads after a Zepp developer
-  login) and on the real T-Rex 3.
+- Zepp OS Simulator 2.1.2, T-Rex 3 v1.0.2 device image, `zeus dev`, side
+  service reaching the Android emulator through `adb forward`: the dial
+  renders the gauge, speed and unit, PWM bar, three batteries and both
+  buttons; a virtual V8S at 25 km/h reads "16 mph" with the arc at half of
+  the 50 km/h gauge; the phone card shows "Amazfit T-Rex 3, Live, 0.7 Hz";
+  stopping the phone app shows "Disconnected" after 10 s and the dial comes
+  back on restart; the watch's `info:` control reaches the phone log. Not
+  driven in the simulator: taps on the horn/light circles and the physical
+  keys (synthetic input does not reach the QEMU window), and the quit event.
+- Still to run: the real T-Rex 3.
