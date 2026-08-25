@@ -2193,6 +2193,6 @@
     <string name="lockdown_warning_no_wheel">Nessuna ruota collegata, quindi lo stato della modalità legale è sconosciuto. L’app si bloccherà alla prossima attivazione della modalità legale.</string>
     <string name="lockdown_continue">Continua</string>
     <string name="trip_tools_wheel_none">Nessuna ruota registrata per questo viaggio.</string>
-    <string name="backup_conflict_warning">%1$d backup di viaggi richiedono una sincronizzazione manuale: le copie differiscono. Premi Sincronizza e scegli quale vale.</string>
-    <string name="backup_conflict_fix">Correggi</string>
+    <string name="backup_conflict_warning">Alcuni backup di viaggi richiedono una sincronizzazione manuale: le copie differiscono. Premi Sincronizza e scegli quale vale.</string>
+    <string name="backup_conflict_title">Conflitti di backup</string>
 </resources>

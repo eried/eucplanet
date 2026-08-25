@@ -108,12 +108,33 @@ class DashboardViewModel @Inject constructor(
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
     // Proximity auto-lock automation on? Long-pressing the dashboard lock button
     // toggles it - a quick shortcut without opening Settings.
-    /** Trips whose file differs between phone and backup folder; only the
-     *  rider can pick a side, in the sync conflict dialog. Set by the folder
-     *  worker on every pass, cleared the same way. */
-    val folderConflictCount: StateFlow<Int> = settingsRepository.settings
-        .map { it.folderConflictCount }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    init {
+        // Trips whose file differs between phone and backup folder; only the
+        // rider can pick a side, in the sync conflict dialog. Set by the
+        // folder worker on every pass, cleared the same way. Registered in
+        // Needs attention with every other fixable problem - not as a
+        // one-off dashboard banner - so the triangle, the count and the Fix
+        // button all come from the same place.
+        viewModelScope.launch {
+            settingsRepository.settings
+                .map { it.folderConflictCount }
+                .distinctUntilChanged()
+                .collect { conflicts ->
+                    if (conflicts > 0) {
+                        appHealthRepository.upsert(
+                            com.eried.eucplanet.data.repository.AppWarning(
+                                id = "backup_conflicts",
+                                titleRes = com.eried.eucplanet.R.string.backup_conflict_title,
+                                bodyRes = com.eried.eucplanet.R.string.backup_conflict_warning,
+                                settingsTab = 4,
+                            )
+                        )
+                    } else {
+                        appHealthRepository.dismiss("backup_conflicts")
+                    }
+                }
+        }
+    }
 
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.proximityLock.lockEnabled }

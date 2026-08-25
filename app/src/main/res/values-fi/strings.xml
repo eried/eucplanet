@@ -2091,6 +2091,6 @@
     <string name="lockdown_warning_no_wheel">Yhtään pyörää ei ole yhdistetty, joten Legal-tilan tila on tuntematon. Sovellus lukittuu, kun Legal-tila seuraavan kerran otetaan käyttöön.</string>
     <string name="lockdown_continue">Jatka</string>
     <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu pyörää.</string>
-    <string name="backup_conflict_warning">%1$d matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
-    <string name="backup_conflict_fix">Korjaa</string>
+    <string name="backup_conflict_warning">Jotkin matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
+    <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
 </resources>

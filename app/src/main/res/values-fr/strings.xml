@@ -2292,6 +2292,6 @@
     <string name="lockdown_warning_no_wheel">Aucune roue connectée, l’état du mode légal est donc inconnu. L’application se verrouillera à la prochaine activation du mode légal.</string>
     <string name="lockdown_continue">Continuer</string>
     <string name="trip_tools_wheel_none">Aucune roue enregistrée pour ce trajet pour le moment.</string>
-    <string name="backup_conflict_warning">%1$d sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
-    <string name="backup_conflict_fix">Corriger</string>
+    <string name="backup_conflict_warning">Certaines sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
+    <string name="backup_conflict_title">Conflits de sauvegarde</string>
 </resources>

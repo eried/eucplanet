@@ -2290,6 +2290,6 @@
     <string name="lockdown_warning_no_wheel">Geen wheel verbonden, de staat van de Legal-modus is dus onbekend. De app vergrendelt de volgende keer dat de Legal-modus wordt aangezet.</string>
     <string name="lockdown_continue">Doorgaan</string>
     <string name="trip_tools_wheel_none">Voor deze rit is nog geen wiel vastgelegd.</string>
-    <string name="backup_conflict_warning">%1$d ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
-    <string name="backup_conflict_fix">Herstel</string>
+    <string name="backup_conflict_warning">Sommige ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
+    <string name="backup_conflict_title">Back-upconflicten</string>
 </resources>

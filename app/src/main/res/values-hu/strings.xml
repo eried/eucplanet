@@ -2091,6 +2091,6 @@
     <string name="lockdown_warning_no_wheel">Nincs csatlakoztatott kerék, így a legális mód állapota ismeretlen. Az app akkor zárol, amikor legközelebb bekapcsolják a legális módot.</string>
     <string name="lockdown_continue">Tovább</string>
     <string name="trip_tools_wheel_none">Ehhez az úthoz még nincs kerék rögzítve.</string>
-    <string name="backup_conflict_warning">%1$d út mentése kézi szinkronizálást igényel: a másolatok eltérnek. Nyomja meg a Szinkronizálást, és válassza ki a helyeset.</string>
-    <string name="backup_conflict_fix">Javítás</string>
+    <string name="backup_conflict_warning">Néhány út mentése kézi szinkronizálást igényel: a másolatok eltérnek. Nyomja meg a Szinkronizálást, és válassza ki a helyeset.</string>
+    <string name="backup_conflict_title">Mentési ütközések</string>
 </resources>

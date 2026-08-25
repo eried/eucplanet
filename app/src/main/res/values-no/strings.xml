@@ -2176,6 +2176,6 @@
     <string name="lockdown_warning_no_wheel">Ingen wheel tilkoblet, så tilstanden til Legal-modus er ukjent. Appen låses neste gang Legal-modus slås på.</string>
     <string name="lockdown_continue">Fortsett</string>
     <string name="trip_tools_wheel_none">Ingen hjul er registrert for denne turen ennå.</string>
-    <string name="backup_conflict_warning">%1$d tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
-    <string name="backup_conflict_fix">Fiks</string>
+    <string name="backup_conflict_warning">Noen tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
+    <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
 </resources>

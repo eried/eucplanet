@@ -2290,6 +2290,6 @@
     <string name="lockdown_warning_no_wheel">Nenhuma roda conectada, então o estado do Modo Legal é desconhecido. O app vai travar na próxima vez que o Modo Legal for ligado.</string>
     <string name="lockdown_continue">Continuar</string>
     <string name="trip_tools_wheel_none">Esta viagem ainda não tem roda registrada.</string>
-    <string name="backup_conflict_warning">%1$d backups de viagens precisam de sincronização manual: as cópias diferem. Toque em Sincronizar e escolha qual vale.</string>
-    <string name="backup_conflict_fix">Corrigir</string>
+    <string name="backup_conflict_warning">Alguns backups de viagens precisam de sincronização manual: as cópias diferem. Toque em Sincronizar e escolha qual vale.</string>
+    <string name="backup_conflict_title">Conflitos de backup</string>
 </resources>

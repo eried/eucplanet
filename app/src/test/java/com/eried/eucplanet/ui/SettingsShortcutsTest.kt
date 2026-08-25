@@ -19,6 +19,7 @@ class SettingsShortcutsTest {
     private val settings = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
     private val dash = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
     private val worker = File("src/main/java/com/eried/eucplanet/data/sync/TripUploadWorker.kt").readText()
+    private val vm = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardViewModel.kt").readText()
 
     // --- deep-link scroll --------------------------------------------------
 
@@ -65,11 +66,15 @@ class SettingsShortcutsTest {
             block.contains("folderConflictCount = conflicts"))
     }
 
-    @Test fun `the dashboard says it, with a Fix that goes to Backups`() {
-        val banner = dash.substringAfter("val folderConflicts by viewModel.folderConflictCount").take(900)
-        assertTrue(banner.contains("backup_conflict_warning"))
-        assertTrue("Fix does not open the Backups section",
-            banner.contains("onNavigateToSettings(4)"))
+    @Test fun `the conflicts register in Needs attention, with Fix going to Backups`() {
+        // Not a one-off dashboard banner: the warning lives in the Needs
+        // attention dialog with every other fixable problem, so the amber
+        // triangle, the count badge and the Fix button all come for free.
+        assertTrue("the standalone banner is back", !dash.contains("backup_conflict_warning"))
+        val reg = vm.substringAfter("it.folderConflictCount").take(900)
+        assertTrue(reg.contains("appHealthRepository.upsert"))
+        assertTrue("Fix does not open the Backups section", reg.contains("settingsTab = 4"))
+        assertTrue("the warning never clears", reg.contains("dismiss(\"backup_conflicts\")"))
     }
 
     @Test fun `both conflict strings exist in every locale`() {
@@ -78,7 +83,7 @@ class SettingsShortcutsTest {
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }
             .filter {
                 val t = File(it, "strings.xml").readText()
-                !t.contains("backup_conflict_warning") || !t.contains("backup_conflict_fix")
+                !t.contains("backup_conflict_warning") || !t.contains("backup_conflict_title")
             }.map { it.name }
         assertTrue("locales missing conflict strings: $missing", missing.isEmpty())
     }

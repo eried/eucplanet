@@ -2308,6 +2308,6 @@
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
     <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Einrad hinterlegt.</string>
-    <string name="backup_conflict_warning">%1$d Fahrt-Sicherungen brauchen einen manuellen Abgleich: die Kopien unterscheiden sich. Auf Synchronisieren tippen und die gültige Seite wählen.</string>
-    <string name="backup_conflict_fix">Beheben</string>
+    <string name="backup_conflict_warning">Einige Fahrt-Sicherungen brauchen einen manuellen Abgleich: die Kopien unterscheiden sich. Auf Synchronisieren tippen und die gültige Seite wählen.</string>
+    <string name="backup_conflict_title">Backup-Konflikte</string>
 </resources>

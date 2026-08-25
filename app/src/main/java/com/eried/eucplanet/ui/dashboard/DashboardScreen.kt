@@ -913,31 +913,6 @@ fun DashboardScreen(
                 detectedWheelName = modelName,
                 detectedFirmware = firmwareVersion
             )
-            // Backups that need a decision. The folder worker mirrors gaps by
-            // itself, so the one state left that it must not repair alone is a
-            // file that exists on both sides with different content -
-            // overwriting either would destroy somebody's copy. That needs
-            // the rider in the conflict dialog, so it is said here, on the
-            // screen they actually look at, with the button that goes there.
-            val folderConflicts by viewModel.folderConflictCount.collectAsState()
-            if (folderConflicts > 0) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        stringResource(R.string.backup_conflict_warning, folderConflicts),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.statusWarn,
-                        modifier = Modifier.weight(1f)
-                    )
-                    TextButton(onClick = { onNavigateToSettings(4) }) {
-                        Text(stringResource(R.string.backup_conflict_fix))
-                    }
-                }
-            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
