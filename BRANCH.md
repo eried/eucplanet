@@ -61,6 +61,14 @@ What it does not do: auto-start (Zepp OS has no way to launch an app from the
 phone) and dial rotation. Both rows show an AMAZFIT badge in Settings so it is
 clear where they stop.
 
+## Known issue in this build
+
+The watch app currently stops updating after about 25 minutes of continuous
+use (the watch runs out of memory and the dial freezes; closing and reopening
+the app brings it back). The cause is being tracked down with the simulator
+right now and a fixed build will replace this one shortly. Everything on the
+phone side is unaffected.
+
 ## What to look for
 
 - Does the dial follow the wheel without noticeable lag? The card in
