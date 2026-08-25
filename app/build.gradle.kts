@@ -29,8 +29,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 36
-        versionCode = 268
-        versionName = "0.17.1"
+        versionCode = 267
+        versionName = "0.18.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
