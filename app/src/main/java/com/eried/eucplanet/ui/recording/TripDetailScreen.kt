@@ -372,15 +372,21 @@ fun TripDetailScreen(
                         modifier = Modifier.align(Alignment.CenterEnd),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (dataPoints.isNotEmpty()) {
-                            IconButton(onClick = { showCustomize = true }) {
+                        // Visible from the start, disabled until the data
+                        // lands: hiding them while loading made the bar reflow
+                        // as they popped in. Hidden only for a trip that
+                        // finished loading genuinely empty - there they would
+                        // never work at all.
+                        if (loadingTrip || dataPoints.isNotEmpty()) {
+                            val ready = dataPoints.isNotEmpty()
+                            IconButton(onClick = { showCustomize = true }, enabled = ready) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
-                            TrimAction(trimmed = trimmed, open = showTrimBar, onClick = { showTrimBar = !showTrimBar })
+                            TrimAction(trimmed = trimmed, open = showTrimBar, enabled = ready, onClick = { showTrimBar = !showTrimBar })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
-                            enabled = !isLiveTrip,
+                            enabled = !isLiveTrip && !loadingTrip,
                         ) {
                             Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
                         }
@@ -395,15 +401,21 @@ fun TripDetailScreen(
                         }
                     },
                     actions = {
-                        if (dataPoints.isNotEmpty()) {
-                            IconButton(onClick = { showCustomize = true }) {
+                        // Visible from the start, disabled until the data
+                        // lands: hiding them while loading made the bar reflow
+                        // as they popped in. Hidden only for a trip that
+                        // finished loading genuinely empty - there they would
+                        // never work at all.
+                        if (loadingTrip || dataPoints.isNotEmpty()) {
+                            val ready = dataPoints.isNotEmpty()
+                            IconButton(onClick = { showCustomize = true }, enabled = ready) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.trip_customize))
                             }
-                            TrimAction(trimmed = trimmed, open = showTrimBar, onClick = { showTrimBar = !showTrimBar })
+                            TrimAction(trimmed = trimmed, open = showTrimBar, enabled = ready, onClick = { showTrimBar = !showTrimBar })
                         }
                         IconButton(
                             onClick = { showShareDialog = true },
-                            enabled = !isLiveTrip
+                            enabled = !isLiveTrip && !loadingTrip
                         ) {
                             Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
                         }
@@ -2907,13 +2919,17 @@ private fun TripDetailSkeleton(
  * clearer signal.
  */
 @Composable
-private fun TrimAction(trimmed: Boolean, open: Boolean, onClick: () -> Unit) {
+private fun TrimAction(trimmed: Boolean, open: Boolean, enabled: Boolean = true, onClick: () -> Unit) {
     val appColors = MaterialTheme.appColors
     IconButton(
         onClick = onClick,
+        enabled = enabled,
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = if (open) appColors.primary.copy(alpha = 0.15f) else Color.Transparent,
             contentColor = if (trimmed || open) appColors.primary else LocalContentColor.current,
+            // Custom contentColor above replaces the defaults factory's
+            // disabled derivation, so grey out explicitly like a stock button.
+            disabledContentColor = LocalContentColor.current.copy(alpha = 0.38f),
         ),
     ) {
         Icon(
