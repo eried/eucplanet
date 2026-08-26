@@ -840,6 +840,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spanning</string>
     <string name="alarm_metric_current">Stroom</string>
+    <string name="alarm_metric_torque">Koppel</string>
+    <string name="alarm_metric_phase_current">Fasestroom</string>
+    <string name="alarm_metric_phase_current_voice">fase-ampère</string>
     <string name="alarm_metric_wh_consumed">Energie</string>
     <string name="alarm_metric_wh_per_km">Verbruik</string>
     <string name="alarm_metric_range">Bereik</string>
@@ -941,6 +944,8 @@
     <string name="recording_summary_max_pwm">Max. PWM</string>
     <string name="recording_summary_max_current">Max. stroom</string>
     <string name="recording_summary_max_power">Max. vermogen</string>
+    <string name="recording_summary_max_torque">Max koppel</string>
+    <string name="recording_summary_max_phase_current">Max fase-A</string>
     <string name="recording_summary_max_temp">Max. temp</string>
     <string name="recording_summary_energy">Energie</string>
     <string name="recording_summary_consumption">Verbruik</string>
@@ -950,6 +955,8 @@
     <string name="recording_chart_voltage">Spanning (V)</string>
     <string name="recording_chart_current">Stroom (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Koppel (Nm)</string>
+    <string name="recording_chart_phase_current">Fasestroom (A)</string>
     <string name="recording_chart_battery_smooth">Accu, gemiddeld (%)</string>
     <string name="recording_chart_speed_smooth">Snelheid, gemiddeld (%1$s)</string>
     <string name="recording_chart_current_smooth">Stroom, gemiddeld (A)</string>
@@ -1484,6 +1491,7 @@
     <string name="studio_metric_voltage">Spanning</string>
     <string name="studio_metric_current">Stroom</string>
     <string name="studio_metric_phase_current">Fasestroom</string>
+    <string name="studio_metric_torque">Koppel</string>
     <string name="studio_metric_power">Vermogen</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Ritafstand</string>
@@ -2164,6 +2172,8 @@
     <string name="widget_metric_wh_per_km">Verbruik</string>
     <string name="widget_metric_range">Bereik</string>
     <string name="widget_metric_phone_battery">Telefoonaccu</string>
+    <string name="widget_metric_torque">Koppel</string>
+    <string name="widget_metric_phase_current">Fasestroom</string>
     <string name="widget_action_voice">Spraak</string>
     <string name="widget_button_unset">Kies een knop in Instellingen</string>
     <string name="trip_tools_extend">Rit verlengen</string>

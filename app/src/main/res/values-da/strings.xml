@@ -840,6 +840,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spænding</string>
     <string name="alarm_metric_current">Strøm</string>
+    <string name="alarm_metric_torque">Moment</string>
+    <string name="alarm_metric_phase_current">Fasestrøm</string>
+    <string name="alarm_metric_phase_current_voice">faseampere</string>
     <string name="alarm_metric_wh_consumed">Energi</string>
     <string name="alarm_metric_wh_per_km">Forbrug</string>
     <string name="alarm_metric_range">Rækkevidde</string>
@@ -941,6 +944,8 @@
     <string name="recording_summary_max_pwm">Maks. PWM</string>
     <string name="recording_summary_max_current">Maks. strøm</string>
     <string name="recording_summary_max_power">Maks. effekt</string>
+    <string name="recording_summary_max_torque">Maks. moment</string>
+    <string name="recording_summary_max_phase_current">Maks fase-A</string>
     <string name="recording_summary_max_temp">Maks. temp</string>
     <string name="recording_summary_energy">Energi</string>
     <string name="recording_summary_consumption">Forbrug</string>
@@ -950,6 +955,8 @@
     <string name="recording_chart_voltage">Spænding (V)</string>
     <string name="recording_chart_current">Strøm (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Moment (Nm)</string>
+    <string name="recording_chart_phase_current">Fasestrøm (A)</string>
     <string name="recording_chart_battery_smooth">Batteri, gennemsnit (%)</string>
     <string name="recording_chart_speed_smooth">Hastighed, gennemsnit (%1$s)</string>
     <string name="recording_chart_current_smooth">Strøm, gennemsnit (A)</string>
@@ -1448,6 +1455,7 @@
     <string name="studio_metric_voltage">Spænding</string>
     <string name="studio_metric_current">Strøm</string>
     <string name="studio_metric_phase_current">Fasestrøm</string>
+    <string name="studio_metric_torque">Moment</string>
     <string name="studio_metric_power">Effekt</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Tripdistance</string>
@@ -2177,6 +2185,8 @@
     <string name="widget_metric_wh_per_km">Forbrug</string>
     <string name="widget_metric_range">Rækkevidde</string>
     <string name="widget_metric_phone_battery">Telefonbatteri</string>
+    <string name="widget_metric_torque">Moment</string>
+    <string name="widget_metric_phase_current">Fasestrøm</string>
     <string name="widget_action_voice">Tale</string>
     <string name="widget_button_unset">Vaelg en knap i Indstillinger</string>
     <string name="trip_tools_extend">Forlaeng tur</string>

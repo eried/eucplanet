@@ -837,6 +837,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>
     <string name="alarm_metric_current">電流</string>
+    <string name="alarm_metric_torque">トルク</string>
+    <string name="alarm_metric_phase_current">相電流</string>
+    <string name="alarm_metric_phase_current_voice">相電流</string>
     <string name="alarm_metric_wh_consumed">消費電力量</string>
     <string name="alarm_metric_wh_per_km">電費</string>
     <string name="alarm_metric_range">走行可能距離</string>
@@ -941,12 +944,16 @@
     <string name="recording_summary_max_pwm">最大 PWM</string>
     <string name="recording_summary_max_current">最大電流</string>
     <string name="recording_summary_max_power">最大電力</string>
+    <string name="recording_summary_max_torque">最大トルク</string>
+    <string name="recording_summary_max_phase_current">最大相電流</string>
     <string name="recording_chart_speed">速度 (%1$s)</string>
     <string name="recording_chart_battery">バッテリー (%)</string>
     <string name="recording_chart_temp">温度 (%1$s)</string>
     <string name="recording_chart_voltage">電圧 (V)</string>
     <string name="recording_chart_current">電流 (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">トルク (Nm)</string>
+    <string name="recording_chart_phase_current">相電流 (A)</string>
     <string name="recording_chart_battery_smooth">バッテリー、平均 (%)</string>
     <string name="recording_chart_speed_smooth">速度、平均 (%1$s)</string>
     <string name="recording_chart_current_smooth">電流、平均 (A)</string>
@@ -1436,6 +1443,7 @@
     <string name="studio_metric_voltage">電圧</string>
     <string name="studio_metric_current">電流</string>
     <string name="studio_metric_phase_current">相電流</string>
+    <string name="studio_metric_torque">トルク</string>
     <string name="studio_metric_power">電力</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">トリップ距離</string>
@@ -2163,6 +2171,8 @@
     <string name="widget_metric_wh_per_km">電費</string>
     <string name="widget_metric_range">走行可能距離</string>
     <string name="widget_metric_phone_battery">スマホの電池</string>
+    <string name="widget_metric_torque">トルク</string>
+    <string name="widget_metric_phase_current">相電流</string>
     <string name="widget_action_voice">音声</string>
     <string name="widget_button_unset">設定でボタンを選択</string>
     <string name="trip_tools_extend">走行を延長</string>

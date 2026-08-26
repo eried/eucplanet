@@ -64,6 +64,10 @@ data class TripDataPoint(
     val current: Float = Float.NaN,
     /** PWM / motor load in percent. NaN when the trip's CSV predates the column or the cell is blank. */
     val pwm: Float = Float.NaN,
+    /** Motor torque in Nm, signed. NaN when the trip's CSV predates the column or the cell is blank. */
+    val torque: Float = Float.NaN,
+    /** Motor phase current in amps, signed. NaN when the trip's CSV predates the column or the cell is blank. */
+    val phaseCurrent: Float = Float.NaN,
     /** Raw Extra-column event ("wheel.name=KS-16SZ", "wheel.disconnected=1", ...). Empty on normal rows. */
     val extra: String = ""
 )
@@ -709,7 +713,7 @@ class RecordingViewModel @Inject constructor(
         id["firmware"]?.let { pairs.add("wheel.firmware=$it") }
 
         val sb = StringBuilder(text.length)
-        sb.append("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Extra\n")
+        sb.append("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra\n")
         var out = 0
         for (i in 1 until lines.size) {
             val line = lines[i].trim('\r')
@@ -729,7 +733,7 @@ class RecordingViewModel @Inject constructor(
                 .append(cell(iMil)).append(',')
                 .append(cell(iGps)).append(',')
                 .append(cell(iCur))
-                .append(",,,,,") // empty PWM, G-Force, G-Force X, G-Force Y, then Extra
+                .append(",,,,,,,") // empty PWM, G-Forces, Torque, Phase current, then Extra
                 .append(if (out < pairs.size) pairs[out] else "")
                 .append('\n')
             out++
@@ -1028,6 +1032,8 @@ class RecordingViewModel @Inject constructor(
             // recorder's "Extra" wheel-identity column (from multi-wheel-record).
             val iCurrent = TripCsv.Columns.current(headers)
             val iPwm = TripCsv.Columns.pwm(headers)
+            val iTorque = TripCsv.Columns.torque(headers)
+            val iPhase = TripCsv.Columns.phaseCurrent(headers)
             val iExtra = headers.indexOfFirst { it == "extra" }
 
             var line = reader.readLine()
@@ -1048,6 +1054,12 @@ class RecordingViewModel @Inject constructor(
                         val pwm = if (iPwm >= 0)
                             parts.getOrNull(iPwm)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
                         else Float.NaN
+                        val torque = if (iTorque >= 0)
+                            parts.getOrNull(iTorque)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
+                        else Float.NaN
+                        val phase = if (iPhase >= 0)
+                            parts.getOrNull(iPhase)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
+                        else Float.NaN
                         points.add(
                             TripDataPoint(
                                 date = parts[0],
@@ -1063,6 +1075,8 @@ class RecordingViewModel @Inject constructor(
                                 extGpsSpeed = extSpeed,
                                 current = current,
                                 pwm = pwm,
+                                torque = torque,
+                                phaseCurrent = phase,
                                 extra = if (iExtra >= 0) parts.getOrNull(iExtra)?.trim() ?: "" else ""
                             )
                         )

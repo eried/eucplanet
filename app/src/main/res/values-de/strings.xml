@@ -836,6 +836,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spannung</string>
     <string name="alarm_metric_current">Strom</string>
+    <string name="alarm_metric_torque">Drehmoment</string>
+    <string name="alarm_metric_phase_current">Phasenstrom</string>
+    <string name="alarm_metric_phase_current_voice">Phasenampere</string>
     <string name="alarm_metric_wh_consumed">Energie</string>
     <string name="alarm_metric_wh_per_km">Verbrauch</string>
     <string name="alarm_metric_range">Reichweite</string>
@@ -937,6 +940,8 @@
     <string name="recording_summary_max_pwm">Max. PWM</string>
     <string name="recording_summary_max_current">Max. Strom</string>
     <string name="recording_summary_max_power">Max. Leistung</string>
+    <string name="recording_summary_max_torque">Max. Moment</string>
+    <string name="recording_summary_max_phase_current">Max Phasen-A</string>
     <string name="recording_summary_max_temp">Max. Temp.</string>
     <string name="recording_summary_energy">Energie</string>
     <string name="recording_summary_consumption">Verbrauch</string>
@@ -946,6 +951,8 @@
     <string name="recording_chart_voltage">Spannung (V)</string>
     <string name="recording_chart_current">Strom (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Drehmoment (Nm)</string>
+    <string name="recording_chart_phase_current">Phasenstrom (A)</string>
     <string name="recording_chart_battery_smooth">Akku, Mittelwert (%)</string>
     <string name="recording_chart_speed_smooth">Geschwindigkeit, Mittelwert (%1$s)</string>
     <string name="recording_chart_current_smooth">Strom, Mittelwert (A)</string>
@@ -1459,6 +1466,7 @@
     <string name="studio_metric_voltage">Spannung</string>
     <string name="studio_metric_current">Strom</string>
     <string name="studio_metric_phase_current">Phasenstrom</string>
+    <string name="studio_metric_torque">Drehmoment</string>
     <string name="studio_metric_power">Leistung</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Fahrtstrecke</string>
@@ -2182,6 +2190,8 @@
     <string name="widget_metric_wh_per_km">Verbrauch</string>
     <string name="widget_metric_range">Reichweite</string>
     <string name="widget_metric_phone_battery">Handy-Akku</string>
+    <string name="widget_metric_torque">Drehmoment</string>
+    <string name="widget_metric_phase_current">Phasenstrom</string>
     <string name="widget_action_voice">Sprache</string>
     <string name="widget_button_unset">Taste in den Einstellungen waehlen</string>
     <string name="trip_tools_extend">Fahrt verlaengern</string>

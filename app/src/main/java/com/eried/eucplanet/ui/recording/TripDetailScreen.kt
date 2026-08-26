@@ -800,6 +800,20 @@ fun TripDetailScreen(
                         Modifier.weight(1f)
                     )
                 },
+                "maxTorque" to {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_max_torque),
+                        if (batteryStats.maxTorque.isNaN()) "--" else "%.1f Nm".format(batteryStats.maxTorque),
+                        MaterialTheme.appColors.metricPosition,
+                    )
+                },
+                "maxPhaseCurrent" to {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_max_phase_current),
+                        if (batteryStats.maxPhaseCurrent.isNaN()) "--" else "%.0f A".format(batteryStats.maxPhaseCurrent),
+                        MaterialTheme.appColors.metricPosition,
+                    )
+                },
             )
 
             // Effective tile order via the shared helper (see applyOrder): the
@@ -936,6 +950,28 @@ fun TripDetailScreen(
                             scrubIndex = scrubIndex, onScrub = onScrub)
                     })
                 }
+                // Torque and phase amps: only wheels that report them record
+                // the columns with real values, so the gate also skips the
+                // all-zero columns other families write. Bipolar like Current:
+                // positive drive, negative regen/brake.
+                if (dataPoints.any { !it.torque.isNaN() && it.torque != 0f }) {
+                    add("torque" to {
+                        ChartCard(stringResource(R.string.recording_chart_torque),
+                            dataPoints.map { it.torque },
+                            MaterialTheme.appColors.metricPosition, unitLabel = "Nm", minSpan = GraphScale.SPAN_TORQUE,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
+                if (dataPoints.any { !it.phaseCurrent.isNaN() && it.phaseCurrent != 0f }) {
+                    add("phaseCurrent" to {
+                        ChartCard(stringResource(R.string.recording_chart_phase_current),
+                            dataPoints.map { it.phaseCurrent },
+                            MaterialTheme.appColors.metricPosition, unitLabel = "A", minSpan = GraphScale.SPAN_PHASE_CURRENT,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
                 // Opt-in extras. Each renders only when the rider switched it on
                 // in the customizer AND the trip actually carries the data, so
                 // enabling one never produces an empty card.
@@ -1047,6 +1083,8 @@ fun TripDetailScreen(
                 "consumption" to stringResource(R.string.recording_summary_consumption),
                 "maxCurrent" to stringResource(R.string.recording_summary_max_current),
                 "maxPower" to stringResource(R.string.recording_summary_max_power),
+                "maxTorque" to stringResource(R.string.recording_summary_max_torque),
+                "maxPhaseCurrent" to stringResource(R.string.recording_summary_max_phase_current),
             )
             val chartLabels: Map<String, String> = mapOf(
                 "speed" to stringResource(R.string.recording_chart_speed, speedUnitLabel),
@@ -1055,6 +1093,8 @@ fun TripDetailScreen(
                 "voltage" to stringResource(R.string.recording_chart_voltage),
                 "current" to stringResource(R.string.recording_chart_current),
                 "pwm" to stringResource(R.string.recording_chart_pwm),
+                "torque" to stringResource(R.string.recording_chart_torque),
+                "phaseCurrent" to stringResource(R.string.recording_chart_phase_current),
                 "batterySmooth" to stringResource(R.string.recording_chart_battery_smooth),
                 "speedSmooth" to stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
                 "currentSmooth" to stringResource(R.string.recording_chart_current_smooth),
@@ -1635,6 +1675,7 @@ private val CHART_KEYS_DEFAULT = listOf(
     "voltage",
     "current", "currentSmooth",
     "pwm", "pwmSmooth",
+    "torque", "phaseCurrent",
     "power",
     "altitude",
 )
@@ -1668,6 +1709,7 @@ private val TILE_KEYS_DEFAULT = listOf(
     "distance", "duration", "points", "topSpeed", "avgSpeed", "avgMoving",
     "battery", "batteryRange", "voltage", "maxTemp", "maxPwm",
     "energy", "consumption", "maxCurrent", "maxPower",
+    "maxTorque", "maxPhaseCurrent",
 )
 
 /**
@@ -1679,7 +1721,7 @@ private val TILE_KEYS_DEFAULT = listOf(
  * wired into the default order, so this also makes them reachable at last.
  */
 private val EXTRA_TILE_KEYS = setOf(
-    "batteryRange", "energy", "consumption",
+    "batteryRange", "energy", "consumption", "maxTorque", "maxPhaseCurrent",
 )
 
 private val EXTRA_CHART_KEYS = setOf(
@@ -2622,7 +2664,11 @@ data class TripBatteryStats(
     /** Peak signed current (A) over valid non-NaN points. NaN when the trip has no current data. */
     val maxCurrent: Float,
     /** Peak instantaneous power (W = voltage * current) over valid points with non-NaN current. NaN when no current data. */
-    val maxPower: Float
+    val maxPower: Float,
+    /** Peak torque (Nm) over valid samples; NaN when the trip has none. */
+    val maxTorque: Float,
+    /** Peak phase current (A) over valid samples; NaN when the trip has none. */
+    val maxPhaseCurrent: Float
 )
 
 /**
@@ -2659,7 +2705,7 @@ data class TripBatteryStats(
  */
 private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     if (points.isEmpty()) {
-        return TripBatteryStats(0, 0, 0, 0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN)
+        return TripBatteryStats(0, 0, 0, 0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN)
     }
 
     val endIdx = trimEndIndex(points)
@@ -2678,6 +2724,8 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     var maxPwm = Float.NaN
     var maxCurrent = Float.NaN
     var maxPower = Float.NaN
+    var maxTorque = Float.NaN
+    var maxPhaseCurrent = Float.NaN
 
     for (p in ridePoints) {
         val valid = p.battery > 0 &&
@@ -2696,6 +2744,14 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
                 maxCurrent = if (maxCurrent.isNaN()) p.current else maxOf(maxCurrent, p.current)
                 val power = p.voltage * p.current
                 maxPower = if (maxPower.isNaN()) power else maxOf(maxPower, power)
+            }
+            // != 0f: families that never report these write zero columns,
+            // and "max 0.0 Nm" would read as data where there is none.
+            if (!p.torque.isNaN() && p.torque != 0f) {
+                maxTorque = if (maxTorque.isNaN()) p.torque else maxOf(maxTorque, p.torque)
+            }
+            if (!p.phaseCurrent.isNaN() && p.phaseCurrent != 0f) {
+                maxPhaseCurrent = if (maxPhaseCurrent.isNaN()) p.phaseCurrent else maxOf(maxPhaseCurrent, p.phaseCurrent)
             }
         }
     }
@@ -2717,7 +2773,9 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
             voltageMin = rawVoltMin,
             maxPwm = maxPwm,
             maxCurrent = maxCurrent,
-            maxPower = maxPower
+            maxPower = maxPower,
+            maxTorque = maxTorque,
+            maxPhaseCurrent = maxPhaseCurrent
         )
     }
 
@@ -2734,7 +2792,9 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
         voltageMin = validVoltages.min(),
         maxPwm = maxPwm,
         maxCurrent = maxCurrent,
-        maxPower = maxPower
+        maxPower = maxPower,
+        maxTorque = maxTorque,
+        maxPhaseCurrent = maxPhaseCurrent
     )
 }
 

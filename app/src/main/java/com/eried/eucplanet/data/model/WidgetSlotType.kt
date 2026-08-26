@@ -22,6 +22,8 @@ enum class WidgetMetricType(val key: String, @StringRes val pickerLabel: Int) {
     TEMP("TEMP", R.string.widget_metric_temp),
     PWM("PWM", R.string.widget_metric_pwm),
     CURRENT("CURRENT", R.string.widget_metric_current),
+    TORQUE("TORQUE", R.string.widget_metric_torque),
+    PHASE_CURRENT("PHASE_CURRENT", R.string.widget_metric_phase_current),
     POWER("POWER", R.string.widget_metric_power),
     WH_CONSUMED("WH_CONSUMED", R.string.widget_metric_wh_consumed),
     WH_PER_KM("WH_PER_KM", R.string.widget_metric_wh_per_km),

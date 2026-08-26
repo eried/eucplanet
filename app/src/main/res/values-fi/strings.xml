@@ -1001,6 +1001,9 @@
     <string name="alarm_metric_pwm">Kuormitus (PWM)</string>
     <string name="alarm_metric_voltage">Jännite</string>
     <string name="alarm_metric_current">Virta</string>
+    <string name="alarm_metric_torque">Vääntö</string>
+    <string name="alarm_metric_phase_current">Vaihevirta</string>
+    <string name="alarm_metric_phase_current_voice">vaiheampeerit</string>
     <string name="alarm_metric_wh_consumed">Energia</string>
     <string name="alarm_metric_wh_per_km">Kulutus</string>
     <string name="alarm_metric_range">Toimintamatka</string>
@@ -1108,12 +1111,16 @@
     <string name="recording_summary_max_pwm">Maks PWM</string>
     <string name="recording_summary_max_current">Maks virta</string>
     <string name="recording_summary_max_power">Maks teho</string>
+    <string name="recording_summary_max_torque">Max vääntö</string>
+    <string name="recording_summary_max_phase_current">Max vaihe-A</string>
     <string name="recording_chart_speed">Nopeus (%1$s)</string>
     <string name="recording_chart_battery">Akku (%)</string>
     <string name="recording_chart_temp">Lämpötila (%1$s)</string>
     <string name="recording_chart_voltage">Jännite (V)</string>
     <string name="recording_chart_current">Virta (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Vääntö (Nm)</string>
+    <string name="recording_chart_phase_current">Vaihevirta (A)</string>
     <string name="recording_chart_battery_smooth">Akku, keskiarvo (%)</string>
     <string name="recording_chart_speed_smooth">Nopeus, keskiarvo (%1$s)</string>
     <string name="recording_chart_current_smooth">Virta, keskiarvo (A)</string>
@@ -1152,6 +1159,8 @@
     <string name="widget_metric_wh_per_km">Kulutus</string>
     <string name="widget_metric_range">Toimintamatka</string>
     <string name="widget_metric_phone_battery">Puhelimen akku</string>
+    <string name="widget_metric_torque">Vääntö</string>
+    <string name="widget_metric_phase_current">Vaihevirta</string>
     <string name="widget_action_voice">Ääni</string>
     <string name="widget_standalone_desc">Toiminnot pelkkien painikkeiden widgeteille, erillään yllä olevasta rivistä.</string>
     <string name="widget_standalone_slot">Erillinen painike %1$d</string>
@@ -1690,6 +1699,7 @@
     <string name="studio_metric_voltage">Jännite</string>
     <string name="studio_metric_current">Virta</string>
     <string name="studio_metric_phase_current">Vaihevirta</string>
+    <string name="studio_metric_torque">Vääntö</string>
     <string name="studio_metric_power">Teho</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Matkan pituus</string>

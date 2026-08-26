@@ -840,6 +840,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напруга</string>
     <string name="alarm_metric_current">Струм</string>
+    <string name="alarm_metric_torque">Момент</string>
+    <string name="alarm_metric_phase_current">Фазний струм</string>
+    <string name="alarm_metric_phase_current_voice">фазні ампери</string>
     <string name="alarm_metric_wh_consumed">Енергія</string>
     <string name="alarm_metric_wh_per_km">Витрата</string>
     <string name="alarm_metric_range">Запас ходу</string>
@@ -944,12 +947,16 @@
     <string name="recording_summary_max_pwm">Макс. PWM</string>
     <string name="recording_summary_max_current">Макс. струм</string>
     <string name="recording_summary_max_power">Макс. потужність</string>
+    <string name="recording_summary_max_torque">Макс. момент</string>
+    <string name="recording_summary_max_phase_current">Макс. фаз. A</string>
     <string name="recording_chart_speed">Швидкість (%1$s)</string>
     <string name="recording_chart_battery">Заряд (%)</string>
     <string name="recording_chart_temp">Температура (%1$s)</string>
     <string name="recording_chart_voltage">Напруга (В)</string>
     <string name="recording_chart_current">Струм (А)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Момент (Н·м)</string>
+    <string name="recording_chart_phase_current">Фазний струм (A)</string>
     <string name="recording_chart_battery_smooth">Батарея, середнє (%)</string>
     <string name="recording_chart_speed_smooth">Швидкість, середнє (%1$s)</string>
     <string name="recording_chart_current_smooth">Струм, середнє (A)</string>
@@ -1471,6 +1478,7 @@
     <string name="studio_metric_voltage">Напруга</string>
     <string name="studio_metric_current">Струм</string>
     <string name="studio_metric_phase_current">Фазний струм</string>
+    <string name="studio_metric_torque">Момент</string>
     <string name="studio_metric_power">Потужність</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Відстань поїздки</string>
@@ -2159,6 +2167,8 @@
     <string name="widget_metric_wh_per_km">Витрата</string>
     <string name="widget_metric_range">Запас ходу</string>
     <string name="widget_metric_phone_battery">Батарея телефона</string>
+    <string name="widget_metric_torque">Момент</string>
+    <string name="widget_metric_phase_current">Фазний струм</string>
     <string name="widget_action_voice">Голос</string>
     <string name="widget_button_unset">Виберіть кнопку в налаштуваннях</string>
     <string name="trip_tools_extend">Продовжити поїздку</string>

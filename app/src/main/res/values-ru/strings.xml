@@ -840,6 +840,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напряжение</string>
     <string name="alarm_metric_current">Ток</string>
+    <string name="alarm_metric_torque">Момент</string>
+    <string name="alarm_metric_phase_current">Фазный ток</string>
+    <string name="alarm_metric_phase_current_voice">фазные амперы</string>
     <string name="alarm_metric_wh_consumed">Энергия</string>
     <string name="alarm_metric_wh_per_km">Расход</string>
     <string name="alarm_metric_range">Запас хода</string>
@@ -944,12 +947,16 @@
     <string name="recording_summary_max_pwm">Макс. PWM</string>
     <string name="recording_summary_max_current">Макс. ток</string>
     <string name="recording_summary_max_power">Макс. мощность</string>
+    <string name="recording_summary_max_torque">Макс. момент</string>
+    <string name="recording_summary_max_phase_current">Макс. фаз. A</string>
     <string name="recording_chart_speed">Скорость (%1$s)</string>
     <string name="recording_chart_battery">Заряд (%)</string>
     <string name="recording_chart_temp">Температура (%1$s)</string>
     <string name="recording_chart_voltage">Напряжение (В)</string>
     <string name="recording_chart_current">Ток (А)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Момент (Н·м)</string>
+    <string name="recording_chart_phase_current">Фазный ток (A)</string>
     <string name="recording_chart_battery_smooth">Батарея, среднее (%)</string>
     <string name="recording_chart_speed_smooth">Скорость, среднее (%1$s)</string>
     <string name="recording_chart_current_smooth">Ток, среднее (A)</string>
@@ -1439,6 +1446,7 @@
     <string name="studio_metric_voltage">Напряжение</string>
     <string name="studio_metric_current">Ток</string>
     <string name="studio_metric_phase_current">Фазный ток</string>
+    <string name="studio_metric_torque">Момент</string>
     <string name="studio_metric_power">Мощность</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Пробег за поездку</string>
@@ -2162,6 +2170,8 @@
     <string name="widget_metric_wh_per_km">Расход</string>
     <string name="widget_metric_range">Запас хода</string>
     <string name="widget_metric_phone_battery">Батарея телефона</string>
+    <string name="widget_metric_torque">Момент</string>
+    <string name="widget_metric_phase_current">Фазный ток</string>
     <string name="widget_action_voice">Голос</string>
     <string name="widget_button_unset">Выберите кнопку в настройках</string>
     <string name="trip_tools_extend">Продлить поездку</string>

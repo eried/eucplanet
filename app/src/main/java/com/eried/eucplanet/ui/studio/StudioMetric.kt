@@ -38,6 +38,7 @@ enum class StudioMetric(
     TEMPERATURE("TEMP", "Temperature", StudioMetricKind.TEMPERATURE, "", 0, 100f, { it.maxTemperature }),
     VOLTAGE("VOLTAGE", "Voltage", StudioMetricKind.PLAIN, "V", 1, 100f, { it.voltage }),
     CURRENT("CURRENT", "Current", StudioMetricKind.PLAIN, "A", 1, 80f, { it.current }),
+    TORQUE("TORQUE", "Torque", StudioMetricKind.PLAIN, "Nm", 1, 150f, { it.torque }),
     PHASE_CURRENT("PHASE_CURRENT", "Phase current", StudioMetricKind.PLAIN, "A", 1, 200f, { it.phaseCurrent }),
     POWER("POWER", "Power", StudioMetricKind.PLAIN, "W", 0, 3000f, { it.motorPower.toFloat() }),
     PWM("PWM", "PWM", StudioMetricKind.PLAIN, "%", 0, 100f, { it.pwm.absoluteValue }),
@@ -131,6 +132,7 @@ fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.VOLTAGE -> stringResource(R.string.studio_metric_voltage)
     StudioMetric.CURRENT -> stringResource(R.string.studio_metric_current)
     StudioMetric.PHASE_CURRENT -> stringResource(R.string.studio_metric_phase_current)
+    StudioMetric.TORQUE -> stringResource(R.string.studio_metric_torque)
     StudioMetric.POWER -> stringResource(R.string.studio_metric_power)
     StudioMetric.PWM -> stringResource(R.string.studio_metric_pwm)
     StudioMetric.TRIP -> stringResource(R.string.studio_metric_trip_distance)

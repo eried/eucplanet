@@ -129,6 +129,8 @@ enum class AlarmMetric(
     PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
     VOLTAGE(R.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
     CURRENT(R.string.alarm_metric_current, "A"),
+    TORQUE(R.string.alarm_metric_torque, "Nm"),
+    PHASE_CURRENT(R.string.alarm_metric_phase_current, "A", R.string.alarm_metric_phase_current_voice),
     /** Energy spent this ride, for a rider who plans by Wh rather than percent. */
     WH_CONSUMED(R.string.alarm_metric_wh_consumed, "Wh"),
     /**

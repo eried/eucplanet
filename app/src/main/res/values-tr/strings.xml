@@ -837,6 +837,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Gerilim</string>
     <string name="alarm_metric_current">Akım</string>
+    <string name="alarm_metric_torque">Tork</string>
+    <string name="alarm_metric_phase_current">Faz akımı</string>
+    <string name="alarm_metric_phase_current_voice">faz amperi</string>
     <string name="alarm_metric_wh_consumed">Enerji</string>
     <string name="alarm_metric_wh_per_km">Tüketim</string>
     <string name="alarm_metric_range">Menzil</string>
@@ -941,12 +944,16 @@
     <string name="recording_summary_max_pwm">Maks. PWM</string>
     <string name="recording_summary_max_current">Maks. Akım</string>
     <string name="recording_summary_max_power">Maks. Güç</string>
+    <string name="recording_summary_max_torque">Maks tork</string>
+    <string name="recording_summary_max_phase_current">Maks faz A</string>
     <string name="recording_chart_speed">Hız (%1$s)</string>
     <string name="recording_chart_battery">Akü (%)</string>
     <string name="recording_chart_temp">Sıcaklık (%1$s)</string>
     <string name="recording_chart_voltage">Gerilim (V)</string>
     <string name="recording_chart_current">Akım (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Tork (Nm)</string>
+    <string name="recording_chart_phase_current">Faz akımı (A)</string>
     <string name="recording_chart_battery_smooth">Batarya, ortalama (%)</string>
     <string name="recording_chart_speed_smooth">Hız, ortalama (%1$s)</string>
     <string name="recording_chart_current_smooth">Akım, ortalama (A)</string>
@@ -1436,6 +1443,7 @@
     <string name="studio_metric_voltage">Gerilim</string>
     <string name="studio_metric_current">Akım</string>
     <string name="studio_metric_phase_current">Faz akımı</string>
+    <string name="studio_metric_torque">Tork</string>
     <string name="studio_metric_power">Güç</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Sefer mesafesi</string>
@@ -2159,6 +2167,8 @@
     <string name="widget_metric_wh_per_km">Tüketim</string>
     <string name="widget_metric_range">Menzil</string>
     <string name="widget_metric_phone_battery">Telefon pili</string>
+    <string name="widget_metric_torque">Tork</string>
+    <string name="widget_metric_phase_current">Faz akımı</string>
     <string name="widget_action_voice">Ses</string>
     <string name="widget_button_unset">Ayarlar da bir dugme secin</string>
     <string name="trip_tools_extend">Surusu uzat</string>

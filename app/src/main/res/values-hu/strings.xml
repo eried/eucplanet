@@ -1001,6 +1001,9 @@
     <string name="alarm_metric_pwm">Terhelés (PWM)</string>
     <string name="alarm_metric_voltage">Feszültség</string>
     <string name="alarm_metric_current">Áram</string>
+    <string name="alarm_metric_torque">Nyomaték</string>
+    <string name="alarm_metric_phase_current">Fázisáram</string>
+    <string name="alarm_metric_phase_current_voice">fázisamper</string>
     <string name="alarm_metric_wh_consumed">Energia</string>
     <string name="alarm_metric_wh_per_km">Fogyasztás</string>
     <string name="alarm_metric_range">Hatótáv</string>
@@ -1108,12 +1111,16 @@
     <string name="recording_summary_max_pwm">Max PWM</string>
     <string name="recording_summary_max_current">Max áram</string>
     <string name="recording_summary_max_power">Max teljesítmény</string>
+    <string name="recording_summary_max_torque">Max nyomaték</string>
+    <string name="recording_summary_max_phase_current">Max fázis A</string>
     <string name="recording_chart_speed">Sebesség (%1$s)</string>
     <string name="recording_chart_battery">Akkumulátor (%)</string>
     <string name="recording_chart_temp">Hőmérséklet (%1$s)</string>
     <string name="recording_chart_voltage">Feszültség (V)</string>
     <string name="recording_chart_current">Áram (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Nyomaték (Nm)</string>
+    <string name="recording_chart_phase_current">Fázisáram (A)</string>
     <string name="recording_chart_battery_smooth">Akkumulátor, átlag (%)</string>
     <string name="recording_chart_speed_smooth">Sebesség, átlag (%1$s)</string>
     <string name="recording_chart_current_smooth">Áram, átlag (A)</string>
@@ -1152,6 +1159,8 @@
     <string name="widget_metric_wh_per_km">Fogyasztás</string>
     <string name="widget_metric_range">Hatótáv</string>
     <string name="widget_metric_phone_battery">Telefon akkumulátora</string>
+    <string name="widget_metric_torque">Nyomaték</string>
+    <string name="widget_metric_phase_current">Fázisáram</string>
     <string name="widget_action_voice">Hang</string>
     <string name="widget_standalone_desc">Műveletek a csak gombokat tartalmazó widgetekhez, a fenti sortól függetlenül.</string>
     <string name="widget_standalone_slot">%1$d. önálló gomb</string>
@@ -1690,6 +1699,7 @@
     <string name="studio_metric_voltage">Feszültség</string>
     <string name="studio_metric_current">Áram</string>
     <string name="studio_metric_phase_current">Fázisáram</string>
+    <string name="studio_metric_torque">Nyomaték</string>
     <string name="studio_metric_power">Teljesítmény</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Menet távolsága</string>

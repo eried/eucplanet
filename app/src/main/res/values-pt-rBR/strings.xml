@@ -840,6 +840,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Tensão</string>
     <string name="alarm_metric_current">Corrente</string>
+    <string name="alarm_metric_torque">Torque</string>
+    <string name="alarm_metric_phase_current">Corrente de fase</string>
+    <string name="alarm_metric_phase_current_voice">amperes de fase</string>
     <string name="alarm_metric_wh_consumed">Energia</string>
     <string name="alarm_metric_wh_per_km">Consumo</string>
     <string name="alarm_metric_range">Autonomia</string>
@@ -944,12 +947,16 @@
     <string name="recording_summary_max_pwm">PWM máx.</string>
     <string name="recording_summary_max_current">Corrente máx.</string>
     <string name="recording_summary_max_power">Potência máx.</string>
+    <string name="recording_summary_max_torque">Torque máx.</string>
+    <string name="recording_summary_max_phase_current">A fase máx.</string>
     <string name="recording_chart_speed">Velocidade (%1$s)</string>
     <string name="recording_chart_battery">Bateria (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
     <string name="recording_chart_voltage">Tensão (V)</string>
     <string name="recording_chart_current">Corrente (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Torque (Nm)</string>
+    <string name="recording_chart_phase_current">Corrente de fase (A)</string>
     <string name="recording_chart_battery_smooth">Bateria, média (%)</string>
     <string name="recording_chart_speed_smooth">Velocidade, média (%1$s)</string>
     <string name="recording_chart_current_smooth">Corrente, média (A)</string>
@@ -1439,6 +1446,7 @@
     <string name="studio_metric_voltage">Tensão</string>
     <string name="studio_metric_current">Corrente</string>
     <string name="studio_metric_phase_current">Corrente de fase</string>
+    <string name="studio_metric_torque">Torque</string>
     <string name="studio_metric_power">Potência</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Distância da trip</string>
@@ -2164,6 +2172,8 @@
     <string name="widget_metric_wh_per_km">Consumo</string>
     <string name="widget_metric_range">Autonomia</string>
     <string name="widget_metric_phone_battery">Bateria do telefone</string>
+    <string name="widget_metric_torque">Torque</string>
+    <string name="widget_metric_phase_current">Corrente de fase</string>
     <string name="widget_action_voice">Voz</string>
     <string name="widget_button_unset">Escolha um botao em Configuracoes</string>
     <string name="trip_tools_extend">Estender trajeto</string>

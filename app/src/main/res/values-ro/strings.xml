@@ -1001,6 +1001,9 @@
     <string name="alarm_metric_pwm">Sarcină (PWM)</string>
     <string name="alarm_metric_voltage">Tensiune</string>
     <string name="alarm_metric_current">Curent</string>
+    <string name="alarm_metric_torque">Cuplu</string>
+    <string name="alarm_metric_phase_current">Curent de fază</string>
+    <string name="alarm_metric_phase_current_voice">amperi de fază</string>
     <string name="alarm_metric_wh_consumed">Energie</string>
     <string name="alarm_metric_wh_per_km">Consum</string>
     <string name="alarm_metric_range">Autonomie</string>
@@ -1108,12 +1111,16 @@
     <string name="recording_summary_max_pwm">PWM maxim</string>
     <string name="recording_summary_max_current">Curent maxim</string>
     <string name="recording_summary_max_power">Putere maximă</string>
+    <string name="recording_summary_max_torque">Cuplu max</string>
+    <string name="recording_summary_max_phase_current">A fază max</string>
     <string name="recording_chart_speed">Viteză (%1$s)</string>
     <string name="recording_chart_battery">Baterie (%)</string>
     <string name="recording_chart_temp">Temperatură (%1$s)</string>
     <string name="recording_chart_voltage">Tensiune (V)</string>
     <string name="recording_chart_current">Curent (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Cuplu (Nm)</string>
+    <string name="recording_chart_phase_current">Curent de fază (A)</string>
     <string name="recording_chart_battery_smooth">Baterie, medie (%)</string>
     <string name="recording_chart_speed_smooth">Viteză, medie (%1$s)</string>
     <string name="recording_chart_current_smooth">Curent, medie (A)</string>
@@ -1152,6 +1159,8 @@
     <string name="widget_metric_wh_per_km">Consum</string>
     <string name="widget_metric_range">Autonomie</string>
     <string name="widget_metric_phone_battery">Bateria telefonului</string>
+    <string name="widget_metric_torque">Cuplu</string>
+    <string name="widget_metric_phase_current">Curent de fază</string>
     <string name="widget_action_voice">Voce</string>
     <string name="widget_standalone_desc">Acțiuni pentru widgeturile doar cu butoane, separate de rândul de mai sus.</string>
     <string name="widget_standalone_slot">Buton independent %1$d</string>
@@ -1690,6 +1699,7 @@
     <string name="studio_metric_voltage">Tensiune</string>
     <string name="studio_metric_current">Curent</string>
     <string name="studio_metric_phase_current">Curent de fază</string>
+    <string name="studio_metric_torque">Cuplu</string>
     <string name="studio_metric_power">Putere</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Distanța cursei</string>

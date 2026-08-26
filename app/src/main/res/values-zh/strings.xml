@@ -323,6 +323,9 @@
     <string name="alarm_metric_pwm">负载 (PWM)</string>
     <string name="alarm_metric_voltage">电压</string>
     <string name="alarm_metric_current">电流</string>
+    <string name="alarm_metric_torque">扭矩</string>
+    <string name="alarm_metric_phase_current">相电流</string>
+    <string name="alarm_metric_phase_current_voice">相电流</string>
     <string name="alarm_metric_wh_consumed">能耗</string>
     <string name="alarm_metric_wh_per_km">电耗</string>
     <string name="alarm_metric_range">续航</string>
@@ -409,6 +412,8 @@
     <string name="recording_summary_max_pwm">最高 PWM</string>
     <string name="recording_summary_max_current">最大电流</string>
     <string name="recording_summary_max_power">最大功率</string>
+    <string name="recording_summary_max_torque">最大扭矩</string>
+    <string name="recording_summary_max_phase_current">最大相电流</string>
     <string name="recording_summary_max_temp">最高温度</string>
     <string name="recording_summary_energy">能耗</string>
     <string name="recording_summary_consumption">电耗</string>
@@ -418,6 +423,8 @@
     <string name="recording_chart_voltage">电压 (V)</string>
     <string name="recording_chart_current">电流 (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">扭矩 (Nm)</string>
+    <string name="recording_chart_phase_current">相电流 (A)</string>
     <string name="recording_chart_battery_smooth">电量，平均 (%)</string>
     <string name="recording_chart_speed_smooth">速度，平均 (%1$s)</string>
     <string name="recording_chart_current_smooth">电流，平均 (A)</string>
@@ -961,6 +968,7 @@
     <string name="studio_metric_battery">电量</string>
     <string name="studio_metric_current">电流</string>
     <string name="studio_metric_phase_current">相电流</string>
+    <string name="studio_metric_torque">扭矩</string>
     <string name="studio_metric_g_force">G-Force</string>
     <string name="studio_metric_external_gps_battery">外接 GPS 电量</string>
     <string name="studio_metric_external_gps_speed">外部GPS速度</string>
@@ -2029,6 +2037,8 @@
     <string name="widget_metric_wh_per_km">电耗</string>
     <string name="widget_metric_range">续航</string>
     <string name="widget_metric_phone_battery">手机电量</string>
+    <string name="widget_metric_torque">扭矩</string>
+    <string name="widget_metric_phase_current">相电流</string>
     <string name="widget_action_voice">语音</string>
     <string name="widget_button_unset">在设置中选择一个按钮</string>
     <string name="trip_tools_extend">延长行程</string>

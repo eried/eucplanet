@@ -235,6 +235,9 @@ class VeteranParser {
                 speed = speedKmh,
                 voltage = voltage,
                 current = current,
+                // The offset carries PHASE current (see the note above), so the
+                // dedicated field mirrors it for surfaces that ask for phase.
+                phaseCurrent = current,
                 batteryPercent = percent,
                 pwm = pwm,
                 temperatures = listOf(tempC),

@@ -179,6 +179,8 @@ class AlarmEngine @Inject constructor(
                 AlarmMetric.PWM -> data.pwm.absoluteValue
                 AlarmMetric.VOLTAGE -> data.voltage
                 AlarmMetric.CURRENT -> data.current.absoluteValue
+                AlarmMetric.TORQUE -> data.torque.absoluteValue
+                AlarmMetric.PHASE_CURRENT -> data.phaseCurrent.absoluteValue
                 AlarmMetric.WH_CONSUMED -> data.whConsumed
                 // NaN until the window has enough distance. Null skips the rule
                 // rather than comparing against a number that isn't one, which

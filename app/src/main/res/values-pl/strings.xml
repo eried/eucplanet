@@ -840,6 +840,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Napięcie</string>
     <string name="alarm_metric_current">Prąd</string>
+    <string name="alarm_metric_torque">Moment</string>
+    <string name="alarm_metric_phase_current">Prąd fazowy</string>
+    <string name="alarm_metric_phase_current_voice">ampery fazowe</string>
     <string name="alarm_metric_wh_consumed">Energia</string>
     <string name="alarm_metric_wh_per_km">Zużycie</string>
     <string name="alarm_metric_range">Zasięg</string>
@@ -944,12 +947,16 @@
     <string name="recording_summary_max_pwm">Maks. PWM</string>
     <string name="recording_summary_max_current">Maks. prąd</string>
     <string name="recording_summary_max_power">Maks. moc</string>
+    <string name="recording_summary_max_torque">Maks. moment</string>
+    <string name="recording_summary_max_phase_current">Maks. A faz.</string>
     <string name="recording_chart_speed">Prędkość (%1$s)</string>
     <string name="recording_chart_battery">Bateria (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
     <string name="recording_chart_voltage">Napięcie (V)</string>
     <string name="recording_chart_current">Prąd (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Moment (Nm)</string>
+    <string name="recording_chart_phase_current">Prąd fazowy (A)</string>
     <string name="recording_chart_battery_smooth">Bateria, średnia (%)</string>
     <string name="recording_chart_speed_smooth">Prędkość, średnia (%1$s)</string>
     <string name="recording_chart_current_smooth">Prąd, średnia (A)</string>
@@ -1452,6 +1459,7 @@
     <string name="studio_metric_voltage">Napięcie</string>
     <string name="studio_metric_current">Prąd</string>
     <string name="studio_metric_phase_current">Prąd fazowy</string>
+    <string name="studio_metric_torque">Moment</string>
     <string name="studio_metric_power">Moc</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Długość trasy</string>
@@ -2162,6 +2170,8 @@
     <string name="widget_metric_wh_per_km">Zużycie</string>
     <string name="widget_metric_range">Zasięg</string>
     <string name="widget_metric_phone_battery">Bateria telefonu</string>
+    <string name="widget_metric_torque">Moment</string>
+    <string name="widget_metric_phase_current">Prąd fazowy</string>
     <string name="widget_action_voice">Glos</string>
     <string name="widget_button_unset">Wybierz przycisk w Ustawieniach</string>
     <string name="trip_tools_extend">Wydluz przejazd</string>

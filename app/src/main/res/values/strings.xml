@@ -1108,6 +1108,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
+    <string name="alarm_metric_torque">Torque</string>
+    <string name="alarm_metric_phase_current">Phase current</string>
+    <string name="alarm_metric_phase_current_voice">phase amps</string>
     <string name="alarm_metric_wh_consumed">Energy</string>
     <string name="alarm_metric_wh_per_km">Consumption</string>
     <string name="alarm_metric_range">Range</string>
@@ -1244,12 +1247,16 @@
     <string name="recording_summary_max_pwm">Max PWM</string>
     <string name="recording_summary_max_current">Max Current</string>
     <string name="recording_summary_max_power">Max Power</string>
+    <string name="recording_summary_max_torque">Max Torque</string>
+    <string name="recording_summary_max_phase_current">Max Phase A</string>
     <string name="recording_chart_speed">Speed (%1$s)</string>
     <string name="recording_chart_battery">Battery (%)</string>
     <string name="recording_chart_temp">Temperature (%1$s)</string>
     <string name="recording_chart_voltage">Voltage (V)</string>
     <string name="recording_chart_current">Current (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Torque (Nm)</string>
+    <string name="recording_chart_phase_current">Phase current (A)</string>
     <string name="recording_chart_battery_smooth">Battery, average (%)</string>
     <string name="recording_chart_speed_smooth">Speed, average (%1$s)</string>
     <string name="recording_chart_current_smooth">Current, average (A)</string>
@@ -1288,6 +1295,8 @@
     <string name="widget_metric_wh_per_km">Consumption</string>
     <string name="widget_metric_range">Range</string>
     <string name="widget_metric_phone_battery">Phone battery</string>
+    <string name="widget_metric_torque">Torque</string>
+    <string name="widget_metric_phase_current">Phase current</string>
     <string name="widget_action_voice">Voice</string>
     <string name="widget_standalone_desc">Actions for the button-only widgets, separate from the row above.</string>
     <string name="widget_standalone_slot">Standalone button %1$d</string>
@@ -1909,6 +1918,7 @@
     <string name="studio_metric_voltage">Voltage</string>
     <string name="studio_metric_current">Current</string>
     <string name="studio_metric_phase_current">Phase current</string>
+    <string name="studio_metric_torque">Torque</string>
     <string name="studio_metric_power">Power</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Trip distance</string>

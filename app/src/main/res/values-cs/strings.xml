@@ -1001,6 +1001,9 @@
     <string name="alarm_metric_pwm">Zatížení (PWM)</string>
     <string name="alarm_metric_voltage">Napětí</string>
     <string name="alarm_metric_current">Proud</string>
+    <string name="alarm_metric_torque">Moment</string>
+    <string name="alarm_metric_phase_current">Fázový proud</string>
+    <string name="alarm_metric_phase_current_voice">fázové ampéry</string>
     <string name="alarm_metric_wh_consumed">Energie</string>
     <string name="alarm_metric_wh_per_km">Spotřeba</string>
     <string name="alarm_metric_range">Dojezd</string>
@@ -1108,12 +1111,16 @@
     <string name="recording_summary_max_pwm">Max PWM</string>
     <string name="recording_summary_max_current">Max proud</string>
     <string name="recording_summary_max_power">Max výkon</string>
+    <string name="recording_summary_max_torque">Max. moment</string>
+    <string name="recording_summary_max_phase_current">Max fáz. A</string>
     <string name="recording_chart_speed">Rychlost (%1$s)</string>
     <string name="recording_chart_battery">Baterie (%)</string>
     <string name="recording_chart_temp">Teplota (%1$s)</string>
     <string name="recording_chart_voltage">Napětí (V)</string>
     <string name="recording_chart_current">Proud (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">Moment (Nm)</string>
+    <string name="recording_chart_phase_current">Fázový proud (A)</string>
     <string name="recording_chart_battery_smooth">Baterie, průměr (%)</string>
     <string name="recording_chart_speed_smooth">Rychlost, průměr (%1$s)</string>
     <string name="recording_chart_current_smooth">Proud, průměr (A)</string>
@@ -1152,6 +1159,8 @@
     <string name="widget_metric_wh_per_km">Spotřeba</string>
     <string name="widget_metric_range">Dojezd</string>
     <string name="widget_metric_phone_battery">Baterie telefonu</string>
+    <string name="widget_metric_torque">Moment</string>
+    <string name="widget_metric_phase_current">Fázový proud</string>
     <string name="widget_action_voice">Hlas</string>
     <string name="widget_standalone_desc">Akce pro widgety jen s tlačítky, nezávisle na řadě výše.</string>
     <string name="widget_standalone_slot">Samostatné tlačítko %1$d</string>
@@ -1690,6 +1699,7 @@
     <string name="studio_metric_voltage">Napětí</string>
     <string name="studio_metric_current">Proud</string>
     <string name="studio_metric_phase_current">Fázový proud</string>
+    <string name="studio_metric_torque">Moment</string>
     <string name="studio_metric_power">Výkon</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Vzdálenost jízdy</string>

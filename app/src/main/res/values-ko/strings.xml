@@ -837,6 +837,9 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">전압</string>
     <string name="alarm_metric_current">전류</string>
+    <string name="alarm_metric_torque">토크</string>
+    <string name="alarm_metric_phase_current">상전류</string>
+    <string name="alarm_metric_phase_current_voice">상전류</string>
     <string name="alarm_metric_wh_consumed">사용 전력량</string>
     <string name="alarm_metric_wh_per_km">전비</string>
     <string name="alarm_metric_range">주행 가능 거리</string>
@@ -941,12 +944,16 @@
     <string name="recording_summary_max_pwm">최대 PWM</string>
     <string name="recording_summary_max_current">최대 전류</string>
     <string name="recording_summary_max_power">최대 출력</string>
+    <string name="recording_summary_max_torque">최대 토크</string>
+    <string name="recording_summary_max_phase_current">최대 상전류</string>
     <string name="recording_chart_speed">속도 (%1$s)</string>
     <string name="recording_chart_battery">배터리 (%)</string>
     <string name="recording_chart_temp">온도 (%1$s)</string>
     <string name="recording_chart_voltage">전압 (V)</string>
     <string name="recording_chart_current">전류 (A)</string>
     <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_torque">토크 (Nm)</string>
+    <string name="recording_chart_phase_current">상전류 (A)</string>
     <string name="recording_chart_battery_smooth">배터리, 평균 (%)</string>
     <string name="recording_chart_speed_smooth">속도, 평균 (%1$s)</string>
     <string name="recording_chart_current_smooth">전류, 평균 (A)</string>
@@ -1436,6 +1443,7 @@
     <string name="studio_metric_voltage">전압</string>
     <string name="studio_metric_current">전류</string>
     <string name="studio_metric_phase_current">상전류</string>
+    <string name="studio_metric_torque">토크</string>
     <string name="studio_metric_power">파워</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">트립 거리</string>
@@ -2161,6 +2169,8 @@
     <string name="widget_metric_wh_per_km">전비</string>
     <string name="widget_metric_range">주행 가능 거리</string>
     <string name="widget_metric_phone_battery">휴대폰 배터리</string>
+    <string name="widget_metric_torque">토크</string>
+    <string name="widget_metric_phase_current">상전류</string>
     <string name="widget_action_voice">음성</string>
     <string name="widget_button_unset">설정에서 버튼을 고르세요</string>
     <string name="trip_tools_extend">주행 확장</string>
