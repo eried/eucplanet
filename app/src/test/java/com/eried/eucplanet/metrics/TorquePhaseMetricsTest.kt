@@ -64,6 +64,13 @@ class TorquePhaseMetricsTest {
     @Test fun `trip details charts and tiles exist and gate on real data`() {
         val td = src("ui/recording/TripDetailScreen.kt")
         assertTrue(td.contains("\"torque\", \"phaseCurrent\","))
+        // Both graphs ship OFF: they are opt-in extras like the smoothed
+        // variants, so the default chart list does not grow.
+        val extras = td.substringAfter("EXTRA_CHART_KEYS = setOf(").substringBefore(")")
+        assertTrue("torque chart is on by default", extras.contains("\"torque\""))
+        assertTrue("phase chart is on by default", extras.contains("\"phaseCurrent\""))
+        assertTrue(td.contains("\"torque\" in extraCharts &&"))
+        assertTrue(td.contains("\"phaseCurrent\" in extraCharts &&"))
         // All-zero columns (families that never report) must not draw charts.
         assertTrue(td.contains("!it.torque.isNaN() && it.torque != 0f"))
         assertTrue(td.contains("!it.phaseCurrent.isNaN() && it.phaseCurrent != 0f"))

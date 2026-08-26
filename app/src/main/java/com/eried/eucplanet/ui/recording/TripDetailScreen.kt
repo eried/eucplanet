@@ -952,11 +952,12 @@ fun TripDetailScreen(
                             scrubIndex = scrubIndex, onScrub = onScrub)
                     })
                 }
-                // Torque and phase amps: only wheels that report them record
-                // the columns with real values, so the gate also skips the
-                // all-zero columns other families write. Bipolar like Current:
-                // positive drive, negative regen/brake.
-                if (dataPoints.any { !it.torque.isNaN() && it.torque != 0f }) {
+                // Torque and phase amps ship OFF, opt-in via the customizer
+                // like every other extra graph. The data gate also skips the
+                // all-zero columns from families that never report them, so
+                // switching one on can never produce an empty card. Bipolar
+                // like Current: positive drive, negative regen/brake.
+                if ("torque" in extraCharts && dataPoints.any { !it.torque.isNaN() && it.torque != 0f }) {
                     add("torque" to {
                         ChartCard(stringResource(R.string.recording_chart_torque),
                             dataPoints.map { it.torque },
@@ -965,7 +966,7 @@ fun TripDetailScreen(
                             scrubIndex = scrubIndex, onScrub = onScrub)
                     })
                 }
-                if (dataPoints.any { !it.phaseCurrent.isNaN() && it.phaseCurrent != 0f }) {
+                if ("phaseCurrent" in extraCharts && dataPoints.any { !it.phaseCurrent.isNaN() && it.phaseCurrent != 0f }) {
                     add("phaseCurrent" to {
                         ChartCard(stringResource(R.string.recording_chart_phase_current),
                             dataPoints.map { it.phaseCurrent },
@@ -1728,6 +1729,7 @@ private val EXTRA_TILE_KEYS = setOf(
 
 private val EXTRA_CHART_KEYS = setOf(
     "speedSmooth", "batterySmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
+    "torque", "phaseCurrent",
 )
 
 // The rider's Trip-details map-style pick (LIGHT / DARK / SAT). Process-scoped so it
