@@ -1281,9 +1281,18 @@ class SyncManager @Inject constructor(
         val phoneSettingsHash = settingsHash(settings)
         val remoteSettingsBytes = dropboxRepository.downloadFile("/settings.json")
         val remoteSettingsHash = remoteSettingsBytes?.let { sha256Hex(it) }
-        var settingsAction = SettingsSyncPolicy.decide(
-            phoneSettingsHash, remoteSettingsHash, settings.dropboxSettingsBaseHash
-        )
+        var settingsAction = if (remoteSettingsBytes == null && settings.dropboxSettingsBaseHash.isNotEmpty()) {
+            // downloadFile() returns null for BOTH a missing file and a transient
+            // network/auth failure. We have a non-empty baseline, so we HAVE synced
+            // settings before and a remote /settings.json should exist. Treat a null
+            // now as a blip and skip settings this pass rather than upload over a
+            // possibly-real remote copy (which would silently discard Dropbox's changes).
+            SettingsSyncAction.NONE
+        } else {
+            SettingsSyncPolicy.decide(
+                phoneSettingsHash, remoteSettingsHash, settings.dropboxSettingsBaseHash
+            )
+        }
         val settingsConflict = settingsAction == SettingsSyncAction.CONFLICT
 
         val subdirConflicts = 0
