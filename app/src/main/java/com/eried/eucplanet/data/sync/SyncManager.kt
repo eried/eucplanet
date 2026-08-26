@@ -1559,7 +1559,16 @@ class SyncManager @Inject constructor(
                     val bytes = dropboxRepository.downloadFile("/$sub/$name") ?: continue
                     subDir.findFile(name)?.delete()
                     val file = subDir.createFile("application/json", name) ?: continue
-                    context.contentResolver.openOutputStream(file.uri)?.use { it.write(bytes) } ?: continue
+                    val ok = try {
+                        context.contentResolver.openOutputStream(file.uri)?.use { it.write(bytes); true } ?: false
+                    } catch (e: Exception) { false }
+                    if (!ok) {
+                        // A half-created empty file would look like a conflict next pass and could
+                        // overwrite the real Dropbox copy on an APP choice. Remove it so a failed
+                        // download simply retries next time.
+                        file.delete()
+                        continue
+                    }
                     count++
                 }
             } catch (e: Exception) {
