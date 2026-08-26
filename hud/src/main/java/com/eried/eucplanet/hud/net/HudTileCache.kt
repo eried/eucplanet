@@ -119,13 +119,13 @@ class HudTileCache {
     /**
      * Tile URL for a style code.
      *
-     * Anything not recognised is treated as a Carto raster slug, which is what
-     * every style used to be - so a phone sending "voyager" or "dark_all"
-     * keeps working exactly as before, and a HUD that predates the other
-     * providers simply never receives their codes.
+     * The legacy Carto slugs ("voyager", "dark_all", ...) now resolve to
+     * Esri's Canvas basemaps: CARTO's keyless endpoints are being
+     * key-gated, and the canvas cache draws a single layer, so it uses the
+     * label-light base tiles. Anything unrecognised falls back to the light
+     * base rather than a dead Carto URL.
      */
     private fun tileUrl(style: String, z: Int, x: Int, y: Int): String {
-        val shard = SHARDS[(x + y) % SHARDS.size]
         return when (style) {
             "osm" -> "https://tile.openstreetmap.org/$z/$x/$y.png"
             "cyclosm" ->
@@ -135,7 +135,12 @@ class HudTileCache {
             "satellite" ->
                 "https://server.arcgisonline.com/ArcGIS/rest/services/" +
                     "World_Imagery/MapServer/tile/$z/$y/$x"
-            else -> "https://$shard.basemaps.cartocdn.com/$style/$z/$x/$y.png"
+            "dark_all", "dark_matter", "dark_matter_nolabels" ->
+                "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+                    "Canvas/World_Dark_Gray_Base/MapServer/tile/$z/$y/$x"
+            else ->
+                "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+                    "Canvas/World_Light_Gray_Base/MapServer/tile/$z/$y/$x"
         }
     }
 

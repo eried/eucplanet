@@ -735,7 +735,7 @@ data class AppSettings(
      */
     val hudScreensOrder: String = "",
     /**
-     * Which CartoCDN raster style the HUD should use for its Map screen
+     * Which raster map style the HUD should use for its Map screen
      * and the MAP element inside a Custom overlay. Empty = the HUD picks
      * its compiled-in default (currently "voyager", neutral parchment
      * background). Other supported codes: "dark_matter",

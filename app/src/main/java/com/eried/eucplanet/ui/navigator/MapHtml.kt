@@ -31,7 +31,7 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
 internal fun mapLayersJson(): String =
     com.eried.eucplanet.hud.protocol.MapLayers.ALL.joinToString(",", "{", "}") { l ->
         val esc = l.attribution.replace("\\", "\\\\").replace("'", "\'")
-        "'${l.id}':{url:'${l.urlTemplate}',attr:'$esc'," +
+        "'${l.id}':{url:'${l.urlTemplate}',ref:'${l.refUrlTemplate}',attr:'$esc'," +
             "maxNative:${l.maxNativeZoom},subs:'${l.subdomains}',retina:${l.detectRetina}}"
     }
 
@@ -271,6 +271,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     markerZoomAnimation: false
   });
   var MAP_LAYERS = __LAYERS_JSON__;
+  var refLayer = null;
   // "Leaflet" is an advert; the provider credit beside it is a licence term.
   map.attributionControl.setPrefix('');
   var tileLayer = null;
@@ -682,7 +683,11 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (layer.subs) opts.subdomains = layer.subs;
     if (layer.retina) opts.detectRetina = true;
     if (tileLayer){ map.removeLayer(tileLayer); }
+    if (refLayer){ map.removeLayer(refLayer); refLayer = null; }
     tileLayer = L.tileLayer(url, opts).addTo(map);
+    // Esri Canvas labels ride on a separate reference layer. Same options,
+    // and Leaflet collapses the duplicate attribution string.
+    if (layer.ref){ refLayer = L.tileLayer(layer.ref, opts).addTo(map); }
     // Tell the screen as soon as the first ring of tiles has actually
     // rendered, so the locating cover can fade out only once the map
     // looks like a map. We pass through to the native bridge only on

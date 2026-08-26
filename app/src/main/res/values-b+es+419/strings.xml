@@ -1556,8 +1556,8 @@
     <string name="nav_map_style">Estilo de mapa</string>
     <string name="nav_overlays">Capas encima</string>
     <string name="nav_reset_north">Orientar al norte</string>
-    <string name="nav_layer_dark">Carto Dark</string>
-    <string name="nav_layer_light">Carto Voyager</string>
+    <string name="nav_layer_dark">Esri Dark</string>
+    <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satélite</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
