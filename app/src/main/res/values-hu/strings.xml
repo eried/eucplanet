@@ -1115,6 +1115,7 @@
     <string name="recording_summary_max_phase_current">Max fázis A</string>
     <string name="recording_chart_speed">Sebesség (%1$s)</string>
     <string name="recording_chart_battery">Akkumulátor (%)</string>
+    <string name="recording_chart_battery_envelope">Akku burkológörbe (%)</string>
     <string name="recording_chart_temp">Hőmérséklet (%1$s)</string>
     <string name="recording_chart_voltage">Feszültség (V)</string>
     <string name="recording_chart_current">Áram (A)</string>

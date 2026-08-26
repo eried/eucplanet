@@ -951,6 +951,7 @@
     <string name="recording_summary_max_phase_current">A fase máx.</string>
     <string name="recording_chart_speed">Velocidad (%1$s)</string>
     <string name="recording_chart_battery">Batería (%)</string>
+    <string name="recording_chart_battery_envelope">Envolvente de batería (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
     <string name="recording_chart_voltage">Voltaje (V)</string>
     <string name="recording_chart_current">Corriente (A)</string>

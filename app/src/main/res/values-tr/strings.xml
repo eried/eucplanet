@@ -948,6 +948,7 @@
     <string name="recording_summary_max_phase_current">Maks faz A</string>
     <string name="recording_chart_speed">Hız (%1$s)</string>
     <string name="recording_chart_battery">Akü (%)</string>
+    <string name="recording_chart_battery_envelope">Batarya zarfı (%)</string>
     <string name="recording_chart_temp">Sıcaklık (%1$s)</string>
     <string name="recording_chart_voltage">Gerilim (V)</string>
     <string name="recording_chart_current">Akım (A)</string>

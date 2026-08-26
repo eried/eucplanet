@@ -511,6 +511,7 @@
     <string name="recording_summary_consumption">Consumo</string>
     <string name="recording_chart_speed">Velocità (%1$s)</string>
     <string name="recording_chart_battery">Batteria (%)</string>
+    <string name="recording_chart_battery_envelope">Inviluppo batteria (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
     <string name="recording_chart_voltage">Tensione (V)</string>
     <string name="recording_chart_current">Corrente (A)</string>

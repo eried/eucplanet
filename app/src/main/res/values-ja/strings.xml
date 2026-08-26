@@ -948,6 +948,7 @@
     <string name="recording_summary_max_phase_current">最大相電流</string>
     <string name="recording_chart_speed">速度 (%1$s)</string>
     <string name="recording_chart_battery">バッテリー (%)</string>
+    <string name="recording_chart_battery_envelope">バッテリー包絡線 (%)</string>
     <string name="recording_chart_temp">温度 (%1$s)</string>
     <string name="recording_chart_voltage">電圧 (V)</string>
     <string name="recording_chart_current">電流 (A)</string>

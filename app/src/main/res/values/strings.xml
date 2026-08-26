@@ -1251,6 +1251,7 @@
     <string name="recording_summary_max_phase_current">Max Phase A</string>
     <string name="recording_chart_speed">Speed (%1$s)</string>
     <string name="recording_chart_battery">Battery (%)</string>
+    <string name="recording_chart_battery_envelope">Battery envelope (%)</string>
     <string name="recording_chart_temp">Temperature (%1$s)</string>
     <string name="recording_chart_voltage">Voltage (V)</string>
     <string name="recording_chart_current">Current (A)</string>

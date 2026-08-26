@@ -419,6 +419,7 @@
     <string name="recording_summary_consumption">电耗</string>
     <string name="recording_chart_speed">速度 (%1$s)</string>
     <string name="recording_chart_battery">电量 (%)</string>
+    <string name="recording_chart_battery_envelope">电池包络线 (%)</string>
     <string name="recording_chart_temp">温度 (%1$s)</string>
     <string name="recording_chart_voltage">电压 (V)</string>
     <string name="recording_chart_current">电流 (A)</string>

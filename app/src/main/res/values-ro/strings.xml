@@ -1115,6 +1115,7 @@
     <string name="recording_summary_max_phase_current">A fază max</string>
     <string name="recording_chart_speed">Viteză (%1$s)</string>
     <string name="recording_chart_battery">Baterie (%)</string>
+    <string name="recording_chart_battery_envelope">Înfășurătoare baterie (%)</string>
     <string name="recording_chart_temp">Temperatură (%1$s)</string>
     <string name="recording_chart_voltage">Tensiune (V)</string>
     <string name="recording_chart_current">Curent (A)</string>

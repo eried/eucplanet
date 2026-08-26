@@ -951,6 +951,7 @@
     <string name="recording_summary_consumption">Consommation</string>
     <string name="recording_chart_speed">Vitesse (%1$s)</string>
     <string name="recording_chart_battery">Batterie (%)</string>
+    <string name="recording_chart_battery_envelope">Enveloppe batterie (%)</string>
     <string name="recording_chart_temp">Température (%1$s)</string>
     <string name="recording_chart_voltage">Tension (V)</string>
     <string name="recording_chart_current">Courant (A)</string>

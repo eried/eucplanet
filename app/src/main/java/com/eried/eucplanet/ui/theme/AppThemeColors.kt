@@ -90,6 +90,8 @@ data class AppThemeColors(
     val sectionHeader: Color = Color.Unspecified,
     val link: Color = Color.Unspecified,
     val hint: Color = Color.Unspecified,
+    /** Battery envelope trip graph: distinct from the raw battery line. */
+    val chartEnvelope: Color = Color.Unspecified,
     val tileLabel: Color = Color.Unspecified,
     // Small MIN/MAX/AVG stat caption on metric tiles. Its own token so it can be
     // recolored (e.g. pure black) without dragging every other piece of
@@ -153,6 +155,7 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     sectionHeader = sectionHeader.takeOrElse { textSecondary },
     link = link.takeOrElse { primary },
     hint = hint.takeOrElse { textSecondary },
+    chartEnvelope = chartEnvelope.takeOrElse { Color(0xFF40C4FF) },
     tileLabel = tileLabel.takeOrElse { textSecondary },
     cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
     dashIcon = dashIcon.takeOrElse { statusGood },
@@ -312,6 +315,7 @@ object ThemeTokens {
         ThemeTokenSpec("metricTemp", "Temp / power", GROUP_METRIC, { it.metricTemp }, { c, v -> c.copy(metricTemp = v) }),
         ThemeTokenSpec("metricPosition", "Position", GROUP_METRIC, { it.metricPosition }, { c, v -> c.copy(metricPosition = v) }),
         ThemeTokenSpec("metricAccel", "Acceleration", GROUP_METRIC, { it.metricAccel }, { c, v -> c.copy(metricAccel = v) }),
+        ThemeTokenSpec("chartEnvelope", "Battery envelope", GROUP_METRIC, { it.chartEnvelope }, { c, v -> c.copy(chartEnvelope = v) }),
 
         ThemeTokenSpec("gaugeTrack", "Gauge track", GROUP_GAUGE, { it.gaugeTrack }, { c, v -> c.copy(gaugeTrack = v) }),
         ThemeTokenSpec("gaugeFill", "Gauge fill", GROUP_GAUGE, { it.gaugeFill }, { c, v -> c.copy(gaugeFill = v) }),

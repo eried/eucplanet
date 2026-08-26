@@ -1115,6 +1115,7 @@
     <string name="recording_summary_max_phase_current">Max fáz. A</string>
     <string name="recording_chart_speed">Rychlost (%1$s)</string>
     <string name="recording_chart_battery">Baterie (%)</string>
+    <string name="recording_chart_battery_envelope">Obálka baterie (%)</string>
     <string name="recording_chart_temp">Teplota (%1$s)</string>
     <string name="recording_chart_voltage">Napětí (V)</string>
     <string name="recording_chart_current">Proud (A)</string>

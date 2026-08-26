@@ -380,6 +380,7 @@
     <string name="recording_summary_consumption">Forbruk</string>
     <string name="recording_chart_speed">Fart (%1$s)</string>
     <string name="recording_chart_battery">Batteri (%)</string>
+    <string name="recording_chart_battery_envelope">Batteri-envelope (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
     <string name="recording_chart_voltage">Spenning (V)</string>
     <string name="recording_chart_current">Strøm (A)</string>

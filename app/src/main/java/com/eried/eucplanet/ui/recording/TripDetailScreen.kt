@@ -986,6 +986,28 @@ fun TripDetailScreen(
                             scrubIndex = scrubIndex, onScrub = onScrub)
                     })
                 }
+                if ("batteryEnvelope" in extraCharts && dataPoints.any { it.battery > 0 }) {
+                    add("batteryEnvelope" to {
+                        // Derived and deliberately stepped: one latched value
+                        // per 30 s, following charge actually spent (coulomb-
+                        // warped between the trip's real start and end
+                        // battery) instead of load sag. Down riding, flat
+                        // stopped, up on a sustained regen descent. Do not
+                        // smooth it into a curve - the steps are the point.
+                        val env = remember(dataPoints) {
+                            val tMs = TripTrim.elapsedOffsets(dataPoints)
+                            com.eried.eucplanet.util.BatteryEnvelope.compute(
+                                FloatArray(tMs.size) { tMs[it] / 1000f },
+                                FloatArray(dataPoints.size) { dataPoints[it].battery.toFloat() },
+                                FloatArray(dataPoints.size) { dataPoints[it].current },
+                            ).toList()
+                        }
+                        ChartCard(stringResource(R.string.recording_chart_battery_envelope),
+                            env,
+                            MaterialTheme.appColors.chartEnvelope, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                            scrubIndex = scrubIndex, onScrub = onScrub)
+                    })
+                }
                 if ("speedSmooth" in extraCharts) {
                     add("speedSmooth" to {
                         ChartCard(stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
@@ -1092,6 +1114,7 @@ fun TripDetailScreen(
             val chartLabels: Map<String, String> = mapOf(
                 "speed" to stringResource(R.string.recording_chart_speed, speedUnitLabel),
                 "battery" to stringResource(R.string.recording_chart_battery),
+                "batteryEnvelope" to stringResource(R.string.recording_chart_battery_envelope),
                 "temp" to stringResource(R.string.recording_chart_temp, tempUnitLabel),
                 "voltage" to stringResource(R.string.recording_chart_voltage),
                 "current" to stringResource(R.string.recording_chart_current),
@@ -1673,7 +1696,7 @@ private fun timePartOf(date: String): String {
  */
 private val CHART_KEYS_DEFAULT = listOf(
     "speed", "speedSmooth",
-    "battery", "batterySmooth",
+    "battery", "batterySmooth", "batteryEnvelope",
     "temp",
     "voltage",
     "current", "currentSmooth",
@@ -1729,7 +1752,7 @@ private val EXTRA_TILE_KEYS = setOf(
 
 private val EXTRA_CHART_KEYS = setOf(
     "speedSmooth", "batterySmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
-    "torque", "phaseCurrent",
+    "torque", "phaseCurrent", "batteryEnvelope",
 )
 
 // The rider's Trip-details map-style pick (LIGHT / DARK / SAT). Process-scoped so it

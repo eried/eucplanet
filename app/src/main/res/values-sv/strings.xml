@@ -947,6 +947,7 @@
     <string name="recording_summary_max_phase_current">Max fas-A</string>
     <string name="recording_chart_speed">Hastighet (%1$s)</string>
     <string name="recording_chart_battery">Batteri (%)</string>
+    <string name="recording_chart_battery_envelope">Batterienvelopp (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
     <string name="recording_chart_voltage">Spänning (V)</string>
     <string name="recording_chart_current">Ström (A)</string>

@@ -947,6 +947,7 @@
     <string name="recording_summary_consumption">Verbrauch</string>
     <string name="recording_chart_speed">Geschwindigkeit (%1$s)</string>
     <string name="recording_chart_battery">Akku (%)</string>
+    <string name="recording_chart_battery_envelope">Batterie-Hüllkurve (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
     <string name="recording_chart_voltage">Spannung (V)</string>
     <string name="recording_chart_current">Strom (A)</string>

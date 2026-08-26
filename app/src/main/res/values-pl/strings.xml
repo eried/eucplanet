@@ -951,6 +951,7 @@
     <string name="recording_summary_max_phase_current">Maks. A faz.</string>
     <string name="recording_chart_speed">Prędkość (%1$s)</string>
     <string name="recording_chart_battery">Bateria (%)</string>
+    <string name="recording_chart_battery_envelope">Obwiednia baterii (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
     <string name="recording_chart_voltage">Napięcie (V)</string>
     <string name="recording_chart_current">Prąd (A)</string>

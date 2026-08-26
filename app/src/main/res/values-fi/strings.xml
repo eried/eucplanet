@@ -1115,6 +1115,7 @@
     <string name="recording_summary_max_phase_current">Max vaihe-A</string>
     <string name="recording_chart_speed">Nopeus (%1$s)</string>
     <string name="recording_chart_battery">Akku (%)</string>
+    <string name="recording_chart_battery_envelope">Akun verhokäyrä (%)</string>
     <string name="recording_chart_temp">Lämpötila (%1$s)</string>
     <string name="recording_chart_voltage">Jännite (V)</string>
     <string name="recording_chart_current">Virta (A)</string>

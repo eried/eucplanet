@@ -951,6 +951,7 @@
     <string name="recording_summary_consumption">Verbruik</string>
     <string name="recording_chart_speed">Snelheid (%1$s)</string>
     <string name="recording_chart_battery">Accu (%)</string>
+    <string name="recording_chart_battery_envelope">Accu-omhullende (%)</string>
     <string name="recording_chart_temp">Temperatuur (%1$s)</string>
     <string name="recording_chart_voltage">Spanning (V)</string>
     <string name="recording_chart_current">Stroom (A)</string>
