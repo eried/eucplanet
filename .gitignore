@@ -91,3 +91,6 @@ test-out/
 play-*.png
 open-testing-state.md
 .superpowers/
+
+# Kotlin compiler daemon session scratch
+.kotlin/
