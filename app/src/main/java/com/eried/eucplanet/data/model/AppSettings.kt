@@ -125,6 +125,9 @@ data class AppSettings(
     val mediaControl: MediaControlSettings = MediaControlSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
+    /** Weather / ridability module (dashboard icon + forecast flyout). Nested
+     *  so the whole feature costs one constructor slot; see rule 8. */
+    val weather: WeatherSettings = WeatherSettings(),
     val batteryPercent: BatteryPercentSettings = BatteryPercentSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
@@ -1236,6 +1239,28 @@ data class ProximityLockSettings(
  * momentary peak tells a rider nothing useful about how hard the wheel is
  * working.
  */
+/**
+ * The weather module's own knobs. Disabled by default: enabling it adds the
+ * weather icon above the dashboard's map button. Comfort thresholds are the
+ * rider's, stored metric (°C and tenths of m/s so the shared NumberUpDown
+ * stepper can drive them as Ints); display follows the unit settings.
+ */
+data class WeatherSettings(
+    val enabled: Boolean = false,
+    /** Default forecast window: 6, 24, 72 or 168 hours. */
+    val windowHours: Int = 6,
+    /** [com.eried.eucplanet.weather.WeatherSource] id. */
+    val source: String = "OPEN_METEO",
+    /** Below this °C the hour reads too cold. */
+    val coldC: Int = 14,
+    /** Above this °C the hour reads too hot. */
+    val hotC: Int = 31,
+    /** Tenths of m/s where wind starts to bite (default 2.0 m/s). */
+    val breezyTenthsMs: Int = 20,
+    /** Tenths of m/s where riding gets genuinely harder (default 4.5 m/s). */
+    val windyTenthsMs: Int = 45,
+)
+
 data class VoiceReportSettings(
     // Periodic report.
     val periodicSpeed: Boolean = true,

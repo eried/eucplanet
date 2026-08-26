@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -71,6 +72,7 @@ class DashboardViewModel @Inject constructor(
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     @ApplicationContext private val context: Context
@@ -81,6 +83,67 @@ class DashboardViewModel @Inject constructor(
      *  non-empty and the dialog renders each entry as a Fix-able card. */
     val warnings: StateFlow<List<com.eried.eucplanet.data.repository.AppWarning>> =
         appHealthRepository.warnings
+
+    // ---- Weather / ridability ----------------------------------------------
+
+    val weatherSettings: StateFlow<com.eried.eucplanet.data.model.WeatherSettings> =
+        settingsRepository.settings
+            .map { it.weather }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, com.eried.eucplanet.data.model.WeatherSettings())
+
+    val weatherRefreshing: StateFlow<Boolean> = weatherRepository.refreshing
+    val weatherError: StateFlow<String?> = weatherRepository.error
+    val weatherFetchedAt: StateFlow<Long?> = weatherRepository.forecast
+        .map { it?.fetchedAtMs }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** The cached forecast week, scored with the rider's comfort thresholds.
+     *  The flyout slices this per window, so switching windows never fetches. */
+    val weatherHours: StateFlow<List<ScoredHour>> =
+        kotlinx.coroutines.flow.combine(weatherRepository.forecast, weatherSettings) { f, w ->
+            f?.hours.orEmpty().map { h ->
+                ScoredHour(
+                    h.timeMs,
+                    com.eried.eucplanet.weather.RidabilityScore.score(
+                        h,
+                        coldC = w.coldC.toFloat(),
+                        hotC = w.hotC.toFloat(),
+                        breezyMs = w.breezyTenthsMs / 10f,
+                        windyMs = w.windyTenthsMs / 10f,
+                    )
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Fetch if stale (or [force]); needs a location fix of any age - the
+     *  forecast cell is kilometres wide, so a stale fix is still the right
+     *  weather. No fix at all leaves the flyout to say so. */
+    fun refreshWeather(force: Boolean = false) {
+        val loc = tripRepository.currentLocation.value
+            ?: tripRepository.lastKnownLocation.value ?: return
+        val w = weatherSettings.value
+        viewModelScope.launch {
+            weatherRepository.ensureFresh(
+                loc.latitude, loc.longitude,
+                com.eried.eucplanet.weather.WeatherSource.byId(w.source), force
+            )
+        }
+    }
+
+    init {
+        // Prefetch on a 30-minute cadence while the module is enabled, so the
+        // flyout opens with the curve already drawn.
+        viewModelScope.launch {
+            weatherSettings.map { it.enabled }.distinctUntilChanged()
+                .collectLatest { on ->
+                    if (!on) return@collectLatest
+                    while (true) {
+                        refreshWeather()
+                        kotlinx.coroutines.delay(30 * 60_000L)
+                    }
+                }
+        }
+    }
 
     companion object {
         private const val SPARKLINE_SIZE = 300  // 5 minutes at 1 sample/sec

@@ -52,6 +52,15 @@ class SettingsRepository @Inject constructor(
 
     private fun AppSettings.sanitized(): AppSettings = copy(
         autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
+        // Weather comfort thresholds from a synced or hand-edited file: keep
+        // the window one of the offered four, the bands ordered and sane.
+        weather = weather.copy(
+            windowHours = if (weather.windowHours in setOf(6, 24, 72, 168)) weather.windowHours else 6,
+            coldC = weather.coldC.coerceIn(-30, 25),
+            hotC = weather.hotC.coerceIn(weather.coldC.coerceIn(-30, 25) + 1, 55),
+            breezyTenthsMs = weather.breezyTenthsMs.coerceIn(0, 200),
+            windyTenthsMs = weather.windyTenthsMs.coerceIn(weather.breezyTenthsMs.coerceIn(0, 200) + 5, 400),
+        ),
         // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
         // value (from an imported or Dropbox-synced settings file, not just the
         // steppers) can never busy-loop a delay(), divide by zero, or starve the

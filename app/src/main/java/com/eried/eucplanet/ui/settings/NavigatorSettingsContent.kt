@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -253,6 +254,139 @@ fun NavigatorSettingsContent(
                 checked = settings.navAvoidUnpaved,
                 onChange = { viewModel.updateNavAvoidUnpaved(it) }
             )
+        }
+
+        // --- Weather / ridability ---------------------------------------
+        // The dashboard weather icon and its forecast flyout. Ships off;
+        // enabling adds the icon above the map button.
+        Text(
+            stringResource(R.string.weather_section).uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.weather_enable),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Switch(
+                checked = settings.weather.enabled,
+                onCheckedChange = { viewModel.updateWeatherEnabled(it) },
+                colors = themedSwitchColors(),
+            )
+        }
+        HintText(stringResource(R.string.weather_enable_desc), small = true)
+        if (settings.weather.enabled) {
+            Text(
+                stringResource(R.string.weather_window_label),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            val windowEntries = listOf(
+                6 to stringResource(R.string.weather_win_6),
+                24 to stringResource(R.string.weather_win_24),
+                72 to stringResource(R.string.weather_win_3d),
+                168 to stringResource(R.string.weather_win_1w),
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                windowEntries.forEachIndexed { index, (h, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = settings.weather.windowHours == h,
+                        onClick = { viewModel.updateWeatherWindow(h) },
+                        shape = SegmentedButtonDefaults.itemShape(index, windowEntries.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                        colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                    ) { Text(label) }
+                }
+            }
+            Text(
+                stringResource(R.string.weather_source_label),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            val sources = com.eried.eucplanet.weather.WeatherSource.entries
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                sources.forEachIndexed { index, src ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = settings.weather.source == src.id,
+                        onClick = { viewModel.updateWeatherSource(src.id) },
+                        shape = SegmentedButtonDefaults.itemShape(index, sources.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                        colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                    ) { Text(src.label) }
+                }
+            }
+            HintText(stringResource(R.string.weather_source_credit), small = true)
+            HintText(stringResource(R.string.weather_comfort_desc), small = true)
+            val imperialTemp = settings.unitTemp == "F"
+            fun cToDisplay(c: Int): String = if (imperialTemp) ((c * 9 / 5) + 32).toString() else c.toString()
+            fun displayToC(t: String): Int? = t.toIntOrNull()?.let { if (imperialTemp) ((it - 32) * 5 / 9) else it }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NumberUpDown(
+                    value = settings.weather.coldC,
+                    onValueChange = { viewModel.updateWeatherCold(it) },
+                    range = -30..25,
+                    label = stringResource(R.string.weather_cold),
+                    suffix = if (imperialTemp) "\u00b0F" else "\u00b0C",
+                    modifier = Modifier.weight(1f),
+                    format = { cToDisplay(it) },
+                    parse = { displayToC(it) },
+                    allowSign = true,
+                )
+                NumberUpDown(
+                    value = settings.weather.hotC,
+                    onValueChange = { viewModel.updateWeatherHot(it) },
+                    range = -29..55,
+                    label = stringResource(R.string.weather_hot),
+                    suffix = if (imperialTemp) "\u00b0F" else "\u00b0C",
+                    modifier = Modifier.weight(1f),
+                    format = { cToDisplay(it) },
+                    parse = { displayToC(it) },
+                    allowSign = true,
+                )
+            }
+            val imperialWind = settings.unitSpeed == "mph"
+            fun windDisplay(tenths: Int): String =
+                if (imperialWind) "%.1f".format(tenths / 10f * 2.23694f) else "%.1f".format(tenths / 10f)
+            fun windParse(t: String): Int? = t.replace(',', '.').toFloatOrNull()?.let {
+                if (imperialWind) (it / 2.23694f * 10f).toInt() else (it * 10f).toInt()
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NumberUpDown(
+                    value = settings.weather.breezyTenthsMs,
+                    onValueChange = { viewModel.updateWeatherBreezy(it) },
+                    range = 0..200,
+                    step = 5,
+                    label = stringResource(R.string.weather_breezy),
+                    suffix = if (imperialWind) "mph" else "m/s",
+                    modifier = Modifier.weight(1f),
+                    format = { windDisplay(it) },
+                    parse = { windParse(it) },
+                )
+                NumberUpDown(
+                    value = settings.weather.windyTenthsMs,
+                    onValueChange = { viewModel.updateWeatherWindy(it) },
+                    range = 5..400,
+                    step = 5,
+                    label = stringResource(R.string.weather_windy),
+                    suffix = if (imperialWind) "mph" else "m/s",
+                    modifier = Modifier.weight(1f),
+                    format = { windDisplay(it) },
+                    parse = { windParse(it) },
+                )
+            }
         }
 
         Spacer(Modifier.height(8.dp))

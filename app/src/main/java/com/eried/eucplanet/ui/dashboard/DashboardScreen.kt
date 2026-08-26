@@ -78,7 +78,9 @@ import androidx.compose.material.icons.filled.GpsNotFixed
 import androidx.compose.material.icons.filled.GpsOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
@@ -432,6 +434,14 @@ fun DashboardScreen(
     var showTextForTile by remember { mutableStateOf<com.eried.eucplanet.ui.settings.CustomTile?>(null) }
     var showDiagnosticsConfirm by remember { mutableStateOf(false) }
     var showMapMenu by remember { mutableStateOf(false) }
+    var showWeatherMenu by remember { mutableStateOf(false) }
+    var showWeatherFlyout by remember { mutableStateOf(false) }
+    var weatherWindowOverride by remember { mutableStateOf<Int?>(null) }
+    val weatherSettings by viewModel.weatherSettings.collectAsState()
+    val weatherHours by viewModel.weatherHours.collectAsState()
+    val weatherRefreshing by viewModel.weatherRefreshing.collectAsState()
+    val weatherError by viewModel.weatherError.collectAsState()
+    val weatherFetchedAt by viewModel.weatherFetchedAt.collectAsState()
     var showStudioMenu by remember { mutableStateOf(false) }
     var showGpsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
@@ -1251,6 +1261,62 @@ fun DashboardScreen(
                         .align(Alignment.BottomStart)
                         .coachmarkTarget(coachmark, TutorialTarget.MAP_BUTTON)
                 ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Weather / ridability entry, stacked over the map button
+                    // and only present when the module is enabled in
+                    // Navigation & weather. Tap toggles the forecast flyout;
+                    // hold offers the other windows and the settings.
+                    if (weatherSettings.enabled) {
+                        Box {
+                            Icon(
+                                imageVector = Icons.Default.Cloud,
+                                contentDescription = stringResource(R.string.weather_icon_desc),
+                                tint = MaterialTheme.appColors.dashIcon,
+                                modifier = Modifier
+                                    .padding(start = 4.dp, bottom = 6.dp)
+                                    .size(28.dp)
+                                    .combinedClickable(
+                                        onClick = {
+                                            weatherWindowOverride = null
+                                            showWeatherFlyout = !showWeatherFlyout
+                                            if (showWeatherFlyout) viewModel.refreshWeather()
+                                        },
+                                        onLongClick = { showWeatherMenu = true }
+                                    )
+                            )
+                            DropdownMenu(
+                                expanded = showWeatherMenu,
+                                onDismissRequest = { showWeatherMenu = false },
+                                shape = RoundedCornerShape(12.dp),
+                                containerColor = MaterialTheme.appColors.menuBackground
+                            ) {
+                                listOf(
+                                    6 to R.string.weather_window_6h,
+                                    24 to R.string.weather_window_24h,
+                                    72 to R.string.weather_window_3d,
+                                    168 to R.string.weather_window_1w,
+                                ).forEach { (h, res) ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(res)) },
+                                        onClick = {
+                                            showWeatherMenu = false
+                                            weatherWindowOverride = h
+                                            showWeatherFlyout = true
+                                            viewModel.refreshWeather()
+                                        }
+                                    )
+                                }
+                                androidx.compose.material3.HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.weather_settings_entry)) },
+                                    onClick = {
+                                        showWeatherMenu = false
+                                        onNavigateToSettings(8)
+                                    }
+                                )
+                            }
+                        }
+                    }
                     Icon(
                         imageVector = if (navActive) Icons.Default.Navigation
                         else Icons.Default.Map,
@@ -1268,6 +1334,7 @@ fun DashboardScreen(
                             )
                             .rotate(if (navActive) navBtnAngle else 0f)
                     )
+                    }
                     DropdownMenu(
                         expanded = showMapMenu,
                         onDismissRequest = { showMapMenu = false },
@@ -3397,6 +3464,25 @@ fun DashboardScreen(
         val wizardPickFolder = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree()
         ) { uri -> if (uri != null) viewModel.setBackupFolder(uri) }
+        if (showWeatherFlyout && weatherSettings.enabled) {
+            val winH = weatherWindowOverride ?: weatherSettings.windowHours
+            val nowMs = System.currentTimeMillis()
+            val sliced = weatherHours.filter {
+                it.timeMs >= nowMs - 3_600_000L && it.timeMs <= nowMs + winH * 3_600_000L
+            }
+            Box(Modifier.fillMaxSize().statusBarsPadding()) {
+                WeatherFlyout(
+                    hours = sliced,
+                    windowLabel = weatherWindowLabel(winH),
+                    refreshing = weatherRefreshing,
+                    error = weatherError,
+                    updatedAgoMin = weatherFetchedAt?.let { ((nowMs - it) / 60_000L).toInt() },
+                    onRefresh = { viewModel.refreshWeather(force = true) },
+                    onClose = { showWeatherFlyout = false },
+                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
+                )
+            }
+        }
         if (showWelcomeTour) {
             WelcomeTutorialOverlay(
                 state = coachmark,
@@ -4213,3 +4299,12 @@ private fun openUrl(context: Context, url: String) {
     }
 }
 
+
+/** The flyout's title per forecast window. */
+@Composable
+private fun weatherWindowLabel(hours: Int): String = when (hours) {
+    24 -> stringResource(R.string.weather_window_24h)
+    72 -> stringResource(R.string.weather_window_3d)
+    168 -> stringResource(R.string.weather_window_1w)
+    else -> stringResource(R.string.weather_window_6h)
+}

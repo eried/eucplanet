@@ -205,6 +205,13 @@ object SettingsJson {
         put("widgetStandaloneActions", s.widget.standaloneActions)
         // Nested voice extras, written as flat keys so the file stays readable
         // and a future move back to top level would not break existing saves.
+        put("weatherEnabled", s.weather.enabled)
+        put("weatherWindowHours", s.weather.windowHours)
+        put("weatherSource", s.weather.source)
+        put("weatherColdC", s.weather.coldC)
+        put("weatherHotC", s.weather.hotC)
+        put("weatherBreezyTenthsMs", s.weather.breezyTenthsMs)
+        put("weatherWindyTenthsMs", s.weather.windyTenthsMs)
         put("voiceReportCurrent", s.voiceReports.periodicCurrent)
         put("voiceReportPower", s.voiceReports.periodicPower)
         put("triggerReportCurrent", s.voiceReports.triggerCurrent)
@@ -402,6 +409,15 @@ object SettingsJson {
         voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
         voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
         // Flat JSON keys preserved for back-compat; the fields now live nested.
+        weather = com.eried.eucplanet.data.model.WeatherSettings(
+            enabled = j.optBoolean("weatherEnabled", base.weather.enabled),
+            windowHours = j.optInt("weatherWindowHours", base.weather.windowHours),
+            source = j.optString("weatherSource", base.weather.source),
+            coldC = j.optInt("weatherColdC", base.weather.coldC),
+            hotC = j.optInt("weatherHotC", base.weather.hotC),
+            breezyTenthsMs = j.optInt("weatherBreezyTenthsMs", base.weather.breezyTenthsMs),
+            windyTenthsMs = j.optInt("weatherWindyTenthsMs", base.weather.windyTenthsMs),
+        ),
         voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(
             periodicSpeed = j.optBoolean("voiceReportSpeed", base.voiceReports.periodicSpeed),
             periodicBattery = j.optBoolean("voiceReportBattery", base.voiceReports.periodicBattery),
