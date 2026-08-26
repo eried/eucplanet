@@ -30,5 +30,5 @@ data class PairedSurface(
      */
     val updateRateHz: Double = 0.0
 ) {
-    enum class Kind { WEAR_OS, GARMIN }
+    enum class Kind { WEAR_OS, GARMIN, AMAZFIT }
 }

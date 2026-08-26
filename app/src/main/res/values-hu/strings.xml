@@ -303,9 +303,10 @@
     <string name="action_unsupported_on_wheel">Ezen az egykerekűn nem támogatott</string>
     <string name="section_watch_device">Eszközök</string>
     <string name="watch_paired_none">Nincs párosított óra</string>
-    <string name="watch_paired_none_desc">Telepítsd az EUC Planet társalkalmazást egy Wear OS vagy Garmin órára, és megkapod ide a számlapot</string>
+    <string name="watch_paired_none_desc">Telepítsd az EUC Planet kísérőalkalmazást egy Wear OS, Garmin vagy Amazfit órára, hogy itt megjelenjen a számlap</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">Élő</string>
     <string name="watch_paired_idle">Tétlen</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
@@ -552,9 +553,9 @@
     <string name="watch_hardware_button_1">1. gomb</string>
     <string name="watch_hardware_button_2">2. gomb</string>
     <string name="watch_hardware_button_3">3. gomb</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: narancssárga Action gomb</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Fel · Galaxy Watch Ultra: alsó oldalsó gomb</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin: Le · Wear OS órákon nem elérhető</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: narancssárga Action gomb · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Fel · Galaxy Watch Ultra: alsó oldalsó gomb · Amazfit: Fel</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Le · Amazfit: Le · Wear OS órákon nem elérhető</string>
     <string name="watch_screen_button_1">1. gomb</string>
     <string name="watch_screen_button_2">2. gomb</string>
     <string name="watch_haptic_on_action">Rezgés műveletnél</string>

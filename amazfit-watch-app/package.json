@@ -1,0 +1,17 @@
+{
+  "name": "eucplanet-amazfit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EUC Planet wrist dial for Amazfit (Zepp OS) watches",
+  "scripts": {
+    "dev": "zeus dev",
+    "build": "zeus build",
+    "preview": "zeus preview"
+  },
+  "dependencies": {
+    "@zeppos/zml": "0.0.43"
+  },
+  "devDependencies": {
+    "@zeppos/device-types": "^3.0.0"
+  }
+}

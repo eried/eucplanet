@@ -134,6 +134,11 @@ Garmin watches (135+ devices). Get it on the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
 or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 
+**Amazfit (Zepp OS) watches.** The same wrist dial on Amazfit watches: speed
+gauge, PWM, three batteries, horn/light remotes, navigation mirror, physical
+buttons. Tested on the T-Rex 3, built for the Balance too. Setup and sideload
+steps in [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
+
 **Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and see
 approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or
 vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists
@@ -165,6 +170,7 @@ free and sideload it. Same app either way.
 
 On a Garmin watch or Edge, install the EUC Planet data field straight from the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71).
+On an Amazfit watch, follow [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
 
 Build from source:
 

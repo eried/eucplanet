@@ -18,6 +18,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var wearBridge: WearBridge
     @Inject lateinit var garminBridge: GarminBridge
+    @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     /**
      * Constructed eagerly at app start so HudServer's `init` block runs
      * and starts watching `settings.hudServerEnabled`. Without this, the
@@ -66,6 +67,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
         flicManager.initialize()
         wearBridge.start()
         garminBridge.start()
+        amazfitBridge.start()
         // Touch hudServer so its init{} runs even on a cold app start.
         // The reference assignment alone is enough; HudServer's settings
         // collector takes over from there.

@@ -342,9 +342,10 @@
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Enheder</string>
     <string name="watch_paired_none">Ingen ure parret</string>
-    <string name="watch_paired_none_desc">Installer EUC Planet-følgeappen på et Wear OS- eller Garmin-ur for at begynde at modtage urskiven her</string>
+    <string name="watch_paired_none_desc">Installer EUC Planet-følgeappen på et Wear OS-, Garmin- eller Amazfit-ur for at begynde at modtage urskiven her</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inaktiv</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
@@ -440,9 +441,9 @@
     <string name="watch_hardware_button_1">Knap 1</string>
     <string name="watch_hardware_button_2">Knap 2</string>
     <string name="watch_hardware_button_3">Knap 3</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: orange Action-knap</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Op · Galaxy Watch Ultra: nederste sideknap</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin: Ned · findes ikke på Wear OS-ure</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: orange Action-knap · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Op · Galaxy Watch Ultra: nederste sideknap · Amazfit: Op</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Ned · Amazfit: Ned · findes ikke på Wear OS-ure</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not

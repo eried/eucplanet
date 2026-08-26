@@ -13,6 +13,7 @@ name: Branch builds
 #   hud-<branch>-<short_sha>.apk
 #   garmin-<branch>-<short_sha>.iq         (multi-device Connect IQ bundle)
 #   garmin-<branch>-<short_sha>-prgs.zip   (per-device .prg files bundled)
+#   amazfit-<branch>-<short_sha>.zab       (Zepp OS mini program bundle)
 #
 # Garmin CI is opt-in: set the GARMIN_SDK_BUNDLE_URL repo secret to a stable
 # download URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1.
@@ -267,10 +268,51 @@ jobs:
           path: /tmp/out/*
           retention-days: 1
 
+  amazfit:
+    runs-on: ubuntu-latest
+    needs: meta
+    # The Zepp OS mini program builds with the zeus CLI from npm; no SDK
+    # download, no secrets. Produces the .zab store-submission bundle.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build .zab
+        run: |
+          npm i -g @zeppos/zeus-cli
+          cd amazfit-watch-app
+          npm ci --no-audit --no-fund
+          zeus build
+          mkdir -p /tmp/out
+          zab=$(ls dist/*.zab | head -1)
+          test -n "$zab"
+          cp "$zab" "/tmp/out/amazfit-${{ needs.meta.outputs.suffix }}.zab"
+          ls -la /tmp/out
+
+      - name: Upload as workflow artifacts (always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: amazfit-${{ needs.meta.outputs.short_sha }}
+          path: /tmp/out/*
+          retention-days: 90
+
+      - name: Stage for release
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-amazfit-${{ needs.meta.outputs.short_sha }}
+          path: /tmp/out/*
+          retention-days: 1
+
   publish:
     runs-on: ubuntu-latest
-    needs: [meta, android, garmin]
-    # Run even if garmin was skipped, but not for PRs.
+    needs: [meta, android, garmin, amazfit]
+    # Run even if garmin or amazfit was skipped or failed, but not for PRs.
     if: always() && github.event_name != 'pull_request' && needs.android.result == 'success'
     steps:
       - name: Checkout (for release body)
@@ -330,7 +372,7 @@ jobs:
           tag="${{ needs.meta.outputs.tag }}"
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release view "$tag" --json assets \
-              --jq '.assets[] | select(.name | test("\\.(apk|aab|iq|prg|zip)$")) | .name' \
+              --jq '.assets[] | select(.name | test("\\.(apk|aab|iq|prg|zip|zab)$")) | .name' \
             | while read -r asset; do
                 [ -n "$asset" ] && gh release delete-asset "$tag" "$asset" --yes || true
               done
@@ -371,7 +413,7 @@ jobs:
           text="🔨 <b>Build</b> on <code>$(esc "$BRANCH")</code> @ <code>$(esc "$SHORT_SHA")</code>
           $(esc "$subject")
 
-          ⬇️ Latest build (phone, Wear OS, HUD, Garmin):
+          ⬇️ Latest build (phone, Wear OS, HUD, Garmin, Amazfit):
           ${url}"
           curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${CHAT_ID}" \

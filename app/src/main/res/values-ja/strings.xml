@@ -342,9 +342,10 @@
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">デバイス</string>
     <string name="watch_paired_none">ウォッチが未接続</string>
-    <string name="watch_paired_none_desc">Wear OS または Garmin ウォッチに EUC Planet コンパニオンアプリをインストールするとここでダイヤルを受信できます</string>
+    <string name="watch_paired_none_desc">Wear OS、Garmin、または Amazfit のウォッチに EUC Planet コンパニオンアプリをインストールすると、ここでダイヤルを受信できます</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">ライブ</string>
     <string name="watch_paired_idle">アイドル</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
@@ -440,9 +441,9 @@
     <string name="watch_hardware_button_1">ボタン 1</string>
     <string name="watch_hardware_button_2">ボタン 2</string>
     <string name="watch_hardware_button_3">ボタン 3</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: オレンジの Action ボタン</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: 下側サイドボタン</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Wear OSウォッチには非対応</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: オレンジの Action ボタン · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: 下側サイドボタン · Amazfit: 上</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: 下 · Wear OSウォッチには非対応</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not

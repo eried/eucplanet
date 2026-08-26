@@ -342,9 +342,10 @@
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">裝置</string>
     <string name="watch_paired_none">尚無已配對的手錶</string>
-    <string name="watch_paired_none_desc">在 Wear OS 或 Garmin 手錶上安裝 EUC Planet 配件應用程式，即可在此接收錶盤資料</string>
+    <string name="watch_paired_none_desc">在 Wear OS、Garmin 或 Amazfit 手錶上安裝 EUC Planet 夥伴應用程式，即可在此接收錶盤</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">即時</string>
     <string name="watch_paired_idle">閒置</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
@@ -440,9 +441,9 @@
     <string name="watch_hardware_button_1">按鈕 1</string>
     <string name="watch_hardware_button_2">按鈕 2</string>
     <string name="watch_hardware_button_3">按鈕 3</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin：開始鍵 · Galaxy Watch Ultra：橙色 Action 按鈕</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin：上鍵 · Galaxy Watch Ultra：下側邊按鈕</string>
-    <string name="watch_hardware_button_3_subtitle">Garmin：下鍵 · Wear OS 手錶不適用</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin：開始鍵 · Galaxy Watch Ultra：橙色 Action 按鈕 · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin：上鍵 · Galaxy Watch Ultra：下側邊按鈕 · Amazfit: 上鍵</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin：下鍵 · Amazfit: 下鍵 · Wear OS 手錶不適用</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not

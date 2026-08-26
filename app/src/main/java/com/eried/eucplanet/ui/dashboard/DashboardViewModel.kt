@@ -69,6 +69,7 @@ class DashboardViewModel @Inject constructor(
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
+    private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
@@ -768,6 +769,8 @@ class DashboardViewModel @Inject constructor(
                     // finish before we SIGKILL. sendCloseToWatchBlocking now
                     // actually blocks until the SDK reports the send.
                     garminBridge.sendCloseToWatchBlocking()
+                    // Amazfit polls, so the QUIT waits (briefly) to be fetched.
+                    amazfitBridge.sendCloseToWatchBlocking()
                 }
             } catch (_: Exception) { /* best effort */ }
             // Send ACTION_STOP_ALL_AND_KILL via startService so the service's

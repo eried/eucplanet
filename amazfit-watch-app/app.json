@@ -1,0 +1,115 @@
+{
+  "configVersion": "v3",
+  "app": {
+    "appId": 1045871,
+    "appName": "EUC Planet",
+    "appType": "app",
+    "version": {
+      "code": 1,
+      "name": "0.1.0"
+    },
+    "icon": "icon.png",
+    "vender": "eried",
+    "description": "Live wheel telemetry from EUC Planet on your wrist"
+  },
+  "permissions": [
+    "data:os.device.info",
+    "device:os.local_storage"
+  ],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "3.6",
+      "target": "3.6",
+      "minVersion": "3.6"
+    }
+  },
+  "debug": false,
+  "targets": {
+    "t-rex-3": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/index"
+          ]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "secondary-widget": {
+          "widgets": [
+            {
+              "path": "secondary-widget/index",
+              "icon": "icon.png",
+              "name": "EUC Planet",
+              "runtime": {
+                "type": "js"
+              },
+              "preview": "preview.png"
+            }
+          ]
+        }
+      },
+      "platforms": [
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716544
+        },
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716545
+        },
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716547
+        }
+      ],
+      "designWidth": 480
+    },
+    "balance": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/index"
+          ]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "secondary-widget": {
+          "widgets": [
+            {
+              "path": "secondary-widget/index",
+              "icon": "icon.png",
+              "name": "EUC Planet",
+              "runtime": {
+                "type": "js"
+              },
+              "preview": "preview.png"
+            }
+          ]
+        }
+      },
+      "platforms": [
+        {
+          "name": "balance",
+          "deviceSource": 8519936
+        },
+        {
+          "name": "balance",
+          "deviceSource": 8519937
+        },
+        {
+          "name": "balance",
+          "deviceSource": 8519939
+        }
+      ],
+      "designWidth": 480
+    }
+  },
+  "i18n": {
+    "en-US": {
+      "appName": "EUC Planet"
+    }
+  },
+  "defaultLanguage": "en-US"
+}
