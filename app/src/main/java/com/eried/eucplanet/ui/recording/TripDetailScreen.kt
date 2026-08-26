@@ -2371,11 +2371,11 @@ private fun ChartCard(
                 Text(title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium)
                 // When a spike was clipped by [axisMax], show the true peak too so
-                // the rider still sees it (e.g. "0.0 – 35.0 (peak 80)").
+                // the rider still sees it (e.g. "0.0 - 35.0 (peak 80)").
                 val rangeLabel = if (peak != null && peak > dataMax + 0.5f)
-                    "%.1f – %.1f (peak %.0f)".format(dataMin, dataMax, peak)
+                    "%.1f - %.1f (peak %.0f)".format(dataMin, dataMax, peak)
                 else
-                    "%.1f – %.1f".format(dataMin, dataMax)
+                    "%.1f - %.1f".format(dataMin, dataMax)
                 Text(rangeLabel, fontSize = 11.sp,
                     color = color, fontWeight = FontWeight.Medium)
             }

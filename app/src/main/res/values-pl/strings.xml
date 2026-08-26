@@ -1724,7 +1724,7 @@
     <string name="studio_cfg_radar_lane">Pas</string>
     <string name="studio_cfg_radar_minimal">Minimalny</string>
     <string name="studio_cfg_radar_mirror">Lustro</string>
-    <string name="studio_cfg_radar_mirror_hint">Radar widzi za Tobą, ale nie po której stronie — oba znaczniki zapalają się według zagrożenia.</string>
+    <string name="studio_cfg_radar_mirror_hint">Radar widzi za Tobą, ale nie po której stronie - oba znaczniki zapalają się według zagrożenia.</string>
     <string name="studio_cfg_radar_mode">Widok radaru</string>
     <string name="studio_cfg_radar_range">Zasięg</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>

@@ -7633,13 +7633,13 @@ private fun WatchTab(
             // Button 1 click | hold on one row; Button 2 click | hold on the next.
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 WatchActionPicker(
-                    label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
+                    label = "${stringResource(R.string.watch_screen_button_1)} - ${stringResource(R.string.watch_button_click_label)}",
                     currentKey = settings.watchScreen1Click,
                     onSelect = { viewModel.updateWatchScreen1Click(it) },
                     modifier = Modifier.weight(1f),
                 )
                 WatchActionPicker(
-                    label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
+                    label = "${stringResource(R.string.watch_screen_button_1)} - ${stringResource(R.string.watch_button_hold_label)}",
                     currentKey = settings.watchScreen1Hold,
                     onSelect = { viewModel.updateWatchScreen1Hold(it) },
                     modifier = Modifier.weight(1f),
@@ -7647,13 +7647,13 @@ private fun WatchTab(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 WatchActionPicker(
-                    label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
+                    label = "${stringResource(R.string.watch_screen_button_2)} - ${stringResource(R.string.watch_button_click_label)}",
                     currentKey = settings.watchScreen2Click,
                     onSelect = { viewModel.updateWatchScreen2Click(it) },
                     modifier = Modifier.weight(1f),
                 )
                 WatchActionPicker(
-                    label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
+                    label = "${stringResource(R.string.watch_screen_button_2)} - ${stringResource(R.string.watch_button_hold_label)}",
                     currentKey = settings.watchScreen2Hold,
                     onSelect = { viewModel.updateWatchScreen2Hold(it) },
                     modifier = Modifier.weight(1f),

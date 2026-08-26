@@ -1746,7 +1746,7 @@
     <string name="studio_cfg_radar_lane">Spur</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Spiegel</string>
-    <string name="studio_cfg_radar_mirror_hint">Das Radar sieht nach hinten, aber nicht welche Seite — beide Marker leuchten je nach Bedrohung.</string>
+    <string name="studio_cfg_radar_mirror_hint">Das Radar sieht nach hinten, aber nicht welche Seite - beide Marker leuchten je nach Bedrohung.</string>
     <string name="studio_cfg_radar_mode">Radaransicht</string>
     <string name="studio_cfg_radar_range">Reichweite</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
