@@ -1295,8 +1295,7 @@ class SyncManager @Inject constructor(
         }
         val settingsConflict = settingsAction == SettingsSyncAction.CONFLICT
 
-        val subdirConflicts = 0
-        // subdirConflicts is added by Task 6 Step 2; until then it is 0.
+        val subdirConflicts = countBackupSubdirConflicts(settings)
         val totalConflicts = conflictKeys.size + (if (settingsConflict) 1 else 0) + subdirConflicts
         var choice = SyncChoice.IGNORE
         if (totalConflicts > 0) {
@@ -1464,7 +1463,7 @@ class SyncManager @Inject constructor(
             }
             SettingsSyncAction.CONFLICT -> { /* resolved into UPLOAD/APPLY/NONE above */ }
         }
-        extra += mirrorBackupSubdirsToDropbox(settings)
+        extra += syncBackupSubdirs(settings, choice)
 
         if (failed == 0) {
             // Only stamp the sync time on a clean pass, so a partial run stays
@@ -1518,33 +1517,71 @@ class SyncManager @Inject constructor(
         }
     }
 
-    /** Upload the backup folder's themes/ and overlays/ files to Dropbox
-     *  (missing or newer only). Returns how many were uploaded. */
-    private suspend fun mirrorBackupSubdirsToDropbox(settings: AppSettings): Int {
+    /**
+     * Sync the backup folder's themes/ and overlays/ both ways with Dropbox.
+     * Per-file like trips: on one side only -> transfer; same name different size
+     * -> conflict, resolved with the shared [choice]. Downloads write straight
+     * into the SAF subfolder, where ThemeStore/OverlayPresetStore read them.
+     * @return number of files transferred (not counted as trips).
+     */
+    private suspend fun syncBackupSubdirs(settings: AppSettings, choice: SyncChoice): Int {
         val folder = getSyncFolder(settings) ?: return 0
         var count = 0
         for (sub in listOf("themes", "overlays")) {
-            // Wrap each subfolder: if the folder URI is revoked mid-sync (the UI
-            // disables Change/Remove folder while syncing, but be defensive) the
-            // SAF reads throw -- swallow rather than crash the whole sync.
             try {
-                val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
+                val subDir = folder.findFile(sub)?.takeIf { it.isDirectory }
+                    ?: folder.createDirectory(sub) ?: continue
+                val localDocs = subDir.listFiles().filter { it.isFile && it.name != null }
+                val localSizes = localDocs.associate { it.name!! to it.length() }
                 val remote = dropboxRepository.listFolder("/$sub") ?: emptyMap()
-                for (doc in subDir.listFiles()) {
-                    if (!doc.isFile) continue
-                    val name = doc.name ?: continue
-                    val localMod = doc.lastModified() / 1000L
-                    if (remote[name]?.let { it.serverModifiedSec >= localMod } == true) continue
-                    val bytes = try {
-                        context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
-                    } catch (e: Exception) { null } ?: continue
+                val remoteSizes = remote.mapValues { it.value.size }
+                val plan = FileSyncPolicy.decide(localSizes, remoteSizes)
+
+                // Non-conflicting transfers both ways.
+                for (name in plan.upload) {
+                    val doc = localDocs.first { it.name == name }
+                    val bytes = context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() } ?: continue
                     if (dropboxRepository.uploadFile("/$sub/$name", bytes)) count++
                 }
+                var toDownload = plan.download.toMutableList()
+                // Conflicts follow the shared choice: APP keeps phone (upload),
+                // FOLDER uses Dropbox (download), IGNORE/CANCEL skip.
+                when (choice) {
+                    SyncChoice.APP -> for (name in plan.conflicts) {
+                        val doc = localDocs.first { it.name == name }
+                        val bytes = context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() } ?: continue
+                        if (dropboxRepository.uploadFile("/$sub/$name", bytes)) count++
+                    }
+                    SyncChoice.FOLDER -> toDownload.addAll(plan.conflicts)
+                    else -> {}
+                }
+                for (name in toDownload) {
+                    val bytes = dropboxRepository.downloadFile("/$sub/$name") ?: continue
+                    subDir.findFile(name)?.delete()
+                    val file = subDir.createFile("application/json", name) ?: continue
+                    context.contentResolver.openOutputStream(file.uri)?.use { it.write(bytes) } ?: continue
+                    count++
+                }
             } catch (e: Exception) {
-                android.util.Log.w(TAG, "mirror /$sub failed: ${e.message}")
+                android.util.Log.w(TAG, "sync /$sub failed: ${e.message}")
             }
         }
         return count
+    }
+
+    /** List both subfolders and count conflicts only (no transfers), so the
+     *  ONE prompt can include themes/overlays conflicts before it shows. */
+    private suspend fun countBackupSubdirConflicts(settings: AppSettings): Int {
+        val folder = getSyncFolder(settings) ?: return 0
+        var n = 0
+        for (sub in listOf("themes", "overlays")) {
+            val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
+            val localSizes = subDir.listFiles().filter { it.isFile && it.name != null }
+                .associate { it.name!! to it.length() }
+            val remoteSizes = (dropboxRepository.listFolder("/$sub") ?: emptyMap()).mapValues { it.value.size }
+            n += FileSyncPolicy.decide(localSizes, remoteSizes).conflicts.size
+        }
+        return n
     }
 
     /**
