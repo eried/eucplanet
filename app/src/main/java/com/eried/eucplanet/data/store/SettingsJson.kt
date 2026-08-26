@@ -922,13 +922,31 @@ object SettingsJson {
 
     /**
      * Merge a portable settings JSON onto [current], keeping THIS device's own
-     * bindings: BLE/GPS/radar/folder fields fall back to [current] via
-     * [fromJson] (a stripped payload omits them), and the Dropbox link + sync
-     * baseline are re-copied here (stripDeviceBindings blanks them to non-null
-     * empties, which fromJson would otherwise take). Pure; SyncManager does the IO.
+     * bindings. Does not rely on the payload being stripped: every field
+     * [stripDeviceBindings] nulls (BLE/Flic/GPS/radar addresses, the sync
+     * folder URI, last-backup bookkeeping) and the Dropbox link + sync
+     * baseline are force-copied from [current] here, so even a legacy RAW
+     * settings.json (uploaded by pre-two-way-sync code, still carrying
+     * another phone's device bindings) cannot repoint this phone's pairings
+     * or sync folder. Pure; SyncManager does the IO.
      */
     fun applyPortable(json: JSONObject, current: AppSettings): AppSettings =
         fromJson(json, current).copy(
+            lastDeviceAddress = current.lastDeviceAddress,
+            lastDeviceName = current.lastDeviceName,
+            flic1Address = current.flic1Address,
+            flic2Address = current.flic2Address,
+            flic3Address = current.flic3Address,
+            flic4Address = current.flic4Address,
+            externalGpsAddress = current.externalGpsAddress,
+            externalGpsName = current.externalGpsName,
+            externalGpsSource = current.externalGpsSource,
+            radarAddress = current.radarAddress,
+            radarName = current.radarName,
+            radarVendor = current.radarVendor,
+            syncFolderUri = current.syncFolderUri,
+            lastSettingsBackupAt = current.lastSettingsBackupAt,
+            lastSettingsBackupName = current.lastSettingsBackupName,
             dropboxAccessToken = current.dropboxAccessToken,
             dropboxRefreshToken = current.dropboxRefreshToken,
             dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,

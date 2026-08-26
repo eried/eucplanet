@@ -72,4 +72,34 @@ class SettingsJsonDropboxTest {
         assertEquals("content://x", merged.syncFolderUri)     // backup folder kept
         assertEquals("base", merged.dropboxSettingsBaseHash)  // sync baseline kept
     }
+
+    /** Legacy Dropbox users' first post-upgrade download is a RAW settings.json
+     *  (pre-two-way-sync code uploaded unstripped), so it can carry another
+     *  phone's device bindings with real, populated values -- not absent keys.
+     *  applyPortable must force THIS phone's own bindings regardless, not
+     *  merely rely on fromJson's base-fallback for absent keys. */
+    @Test
+    fun applyPortable_keepsDeviceFields_evenFromARawUnstrippedPayload() {
+        val current = AppSettings().copy(
+            lastDeviceAddress = "AA:BB", radarAddress = "CC:DD", syncFolderUri = "content://mine",
+            flic1Address = "EE:FF", externalGpsAddress = "GG:HH", dropboxAccessToken = "tok",
+            dropboxSettingsBaseHash = "base", alarmSpeedKmh = 40f,
+        )
+        // A legacy RAW remote: device fields POPULATED with another phone's values, plus a changed preference.
+        val raw = current.copy(
+            lastDeviceAddress = "OTHER-1", radarAddress = "OTHER-2", syncFolderUri = "content://theirs",
+            flic1Address = "OTHER-3", externalGpsAddress = "OTHER-4", dropboxAccessToken = "OTHER-TOK",
+            alarmSpeedKmh = 55f,
+        )
+        val json = JSONObject(SettingsJson.toJson(raw).toString()) // NOT stripped
+        val merged = SettingsJson.applyPortable(json, current)
+        assertEquals(55f, merged.alarmSpeedKmh)                 // preference taken
+        assertEquals("AA:BB", merged.lastDeviceAddress)         // device fields kept from current, not the raw file
+        assertEquals("CC:DD", merged.radarAddress)
+        assertEquals("content://mine", merged.syncFolderUri)
+        assertEquals("EE:FF", merged.flic1Address)
+        assertEquals("GG:HH", merged.externalGpsAddress)
+        assertEquals("tok", merged.dropboxAccessToken)
+        assertEquals("base", merged.dropboxSettingsBaseHash)
+    }
 }
