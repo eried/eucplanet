@@ -610,11 +610,11 @@
     <string name="sync_rate_limited">Dropbox está limitando esta cuenta. %1$d de %2$d viajes sincronizados, el resto se reintentará.</string>
     <string name="sync_finished">%1$d viajes sincronizados</string>
     <string name="sync_conflict_title">Conflicto de sincronización</string>
-    <string name="sync_conflict_body">Hay %1$d viajes en ambos lados.</string>
+    <string name="sync_conflict_body">%1$d elementos están en ambos lados.</string>
     <string name="sync_conflict_app">Copiar app al respaldo</string>
     <string name="sync_conflict_folder">Copiar respaldo a la app</string>
     <string name="sync_conflict_ignore">Omitir todos los conflictos</string>
-    <string name="sync_conflict_body_dropbox">%1$d viajes están en Dropbox y en este teléfono.</string>
+    <string name="sync_conflict_body_dropbox">%1$d elementos existen en Dropbox y en este teléfono.</string>
     <string name="sync_conflict_app_dropbox">Copiar app a Dropbox</string>
     <string name="sync_conflict_dropbox">Copiar Dropbox a app</string>
     <string name="cloud_uploaded_on">Respaldado el %1$s</string>

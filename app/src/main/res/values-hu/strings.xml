@@ -737,8 +737,8 @@
     <string name="sync_finished">%1$d menet szinkronizálva</string>
     <string name="sync_up_to_date">Már naprakész</string>
     <string name="sync_conflict_title">Szinkronizálási ütközés</string>
-    <string name="sync_conflict_body">%1$d menet mindkét oldalon megvan.</string>
-    <string name="sync_conflict_body_dropbox">%1$d menet létezik a Dropboxon és ezen a telefonon is.</string>
+    <string name="sync_conflict_body">%1$d elem mindkét oldalon megtalálható.</string>
+    <string name="sync_conflict_body_dropbox">%1$d elem megtalálható a Dropboxban és ezen a telefonon is.</string>
     <string name="sync_conflict_app">Alkalmazás másolása a mentésbe</string>
     <string name="sync_conflict_app_dropbox">Alkalmazás másolása a Dropboxra</string>
     <string name="sync_conflict_folder">Mentés másolása az alkalmazásba</string>

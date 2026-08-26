@@ -610,11 +610,11 @@
     <string name="sync_rate_limited">Dropbox ogranicza to konto. Zsynchronizowano %1$d z %2$d tras, reszta zostanie ponowiona.</string>
     <string name="sync_finished">Zsynchronizowano %1$d tras</string>
     <string name="sync_conflict_title">Konflikt synchronizacji</string>
-    <string name="sync_conflict_body">%1$d tras znajduje się po obu stronach.</string>
+    <string name="sync_conflict_body">%1$d elementów jest po obu stronach.</string>
     <string name="sync_conflict_app">Skopiuj z aplikacji do kopii</string>
     <string name="sync_conflict_folder">Skopiuj z kopii do aplikacji</string>
     <string name="sync_conflict_ignore">Pomiń wszystkie konflikty</string>
-    <string name="sync_conflict_body_dropbox">%1$d przejazdów znajduje się jednocześnie w Dropbox i na tym telefonie.</string>
+    <string name="sync_conflict_body_dropbox">%1$d elementów istnieje w Dropboksie i w tym telefonie.</string>
     <string name="sync_conflict_app_dropbox">Kopiuj aplikację do Dropbox</string>
     <string name="sync_conflict_dropbox">Kopiuj Dropbox do aplikacji</string>
     <string name="cloud_uploaded_on">Kopia z %1$s</string>

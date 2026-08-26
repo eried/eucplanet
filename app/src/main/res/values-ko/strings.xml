@@ -610,11 +610,11 @@
     <string name="sync_rate_limited">Dropbox가 이 계정을 제한하고 있습니다. 트립 %2$d개 중 %1$d개 동기화, 나머지는 다시 시도합니다.</string>
     <string name="sync_finished">트립 %1$d개 동기화 완료</string>
     <string name="sync_conflict_title">동기화 충돌</string>
-    <string name="sync_conflict_body">%1$d개 트립이 양쪽에 모두 있습니다.</string>
+    <string name="sync_conflict_body">%1$d개 항목이 양쪽에 있습니다.</string>
     <string name="sync_conflict_app">앱 → 백업으로 복사</string>
     <string name="sync_conflict_folder">백업 → 앱으로 복사</string>
     <string name="sync_conflict_ignore">충돌 전체 건너뛰기</string>
-    <string name="sync_conflict_body_dropbox">%1$d 개의 주행이 Dropbox와 이 휴대전화 모두에 있습니다.</string>
+    <string name="sync_conflict_body_dropbox">%1$d개 항목이 Dropbox와 이 휴대폰 모두에 있습니다.</string>
     <string name="sync_conflict_app_dropbox">앱을 Dropbox로 복사</string>
     <string name="sync_conflict_dropbox">Dropbox를 앱으로 복사</string>
     <string name="cloud_uploaded_on">%1$s에 백업됨</string>

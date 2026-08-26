@@ -610,11 +610,11 @@
     <string name="sync_rate_limited">Dropbox обмежує цей обліковий запис. Синхронізовано %1$d з %2$d поїздок, решта повториться.</string>
     <string name="sync_finished">Синхронізовано поїздок: %1$d</string>
     <string name="sync_conflict_title">Конфлікт синхронізації</string>
-    <string name="sync_conflict_body">%1$d поїздок є з обох сторін.</string>
+    <string name="sync_conflict_body">%1$d елементів є з обох боків.</string>
     <string name="sync_conflict_app">Скопіювати з додатка в копію</string>
     <string name="sync_conflict_folder">Скопіювати з копії в додаток</string>
     <string name="sync_conflict_ignore">Пропустити всі конфлікти</string>
-    <string name="sync_conflict_body_dropbox">%1$d поїздок є і в Dropbox, і на цьому телефоні.</string>
+    <string name="sync_conflict_body_dropbox">%1$d елементів є і в Dropbox, і на цьому телефоні.</string>
     <string name="sync_conflict_app_dropbox">Скопіювати застосунок у Dropbox</string>
     <string name="sync_conflict_dropbox">Скопіювати Dropbox у застосунок</string>
     <string name="cloud_uploaded_on">Збережено %1$s</string>

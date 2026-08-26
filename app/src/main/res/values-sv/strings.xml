@@ -610,11 +610,11 @@
     <string name="sync_rate_limited">Dropbox begränsar det här kontot. %1$d av %2$d turer synkroniserade, resten försöker igen.</string>
     <string name="sync_finished">Synkroniserade %1$d turer</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
-    <string name="sync_conflict_body">%1$d turer finns på båda sidor.</string>
+    <string name="sync_conflict_body">%1$d objekt finns på båda sidor.</string>
     <string name="sync_conflict_app">Kopiera app till backup</string>
     <string name="sync_conflict_folder">Kopiera backup till app</string>
     <string name="sync_conflict_ignore">Hoppa över alla konflikter</string>
-    <string name="sync_conflict_body_dropbox">%1$d turer finns både i Dropbox och på denna telefon.</string>
+    <string name="sync_conflict_body_dropbox">%1$d objekt finns både i Dropbox och på den här telefonen.</string>
     <string name="sync_conflict_app_dropbox">Kopiera appen till Dropbox</string>
     <string name="sync_conflict_dropbox">Kopiera Dropbox till appen</string>
     <string name="cloud_uploaded_on">Säkerhetskopierad %1$s</string>

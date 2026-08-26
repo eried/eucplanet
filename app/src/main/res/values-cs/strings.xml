@@ -737,8 +737,8 @@
     <string name="sync_finished">Synchronizováno %1$d jízd</string>
     <string name="sync_up_to_date">Vše je aktuální</string>
     <string name="sync_conflict_title">Konflikt synchronizace</string>
-    <string name="sync_conflict_body">%1$d jízd je na obou stranách.</string>
-    <string name="sync_conflict_body_dropbox">%1$d jízd existuje na Dropboxu i v tomto telefonu.</string>
+    <string name="sync_conflict_body">%1$d položek je na obou stranách.</string>
+    <string name="sync_conflict_body_dropbox">%1$d položek existuje v Dropboxu i v tomto telefonu.</string>
     <string name="sync_conflict_app">Kopírovat aplikaci do zálohy</string>
     <string name="sync_conflict_app_dropbox">Kopírovat aplikaci na Dropbox</string>
     <string name="sync_conflict_folder">Kopírovat zálohu do aplikace</string>

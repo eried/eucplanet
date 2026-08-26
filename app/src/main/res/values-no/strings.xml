@@ -141,11 +141,11 @@
     <string name="sync_rate_limited">Dropbox begrenser denne kontoen. %1$d av %2$d turer synkronisert, resten prøves på nytt.</string>
     <string name="sync_finished">%1$d turer synkronisert</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
-    <string name="sync_conflict_body">%1$d turer finnes på begge sider.</string>
+    <string name="sync_conflict_body">%1$d elementer finnes på begge sider.</string>
     <string name="sync_conflict_app">Kopier app til backup</string>
     <string name="sync_conflict_folder">Kopier backup til app</string>
     <string name="sync_conflict_ignore">Hopp over alle konflikter</string>
-    <string name="sync_conflict_body_dropbox">%1$d turer finnes både i Dropbox og på denne telefonen.</string>
+    <string name="sync_conflict_body_dropbox">%1$d elementer finnes både i Dropbox og på denne telefonen.</string>
     <string name="sync_conflict_app_dropbox">Kopier app til Dropbox</string>
     <string name="sync_conflict_dropbox">Kopier Dropbox til app</string>
     <string name="cloud_uploaded_on">Sikkerhetskopiert %1$s</string>

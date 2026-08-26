@@ -737,8 +737,8 @@
     <string name="sync_finished">%1$d curse sincronizate</string>
     <string name="sync_up_to_date">Deja la zi</string>
     <string name="sync_conflict_title">Conflict de sincronizare</string>
-    <string name="sync_conflict_body">%1$d curse există de ambele părți.</string>
-    <string name="sync_conflict_body_dropbox">%1$d curse există și pe Dropbox, și pe acest telefon.</string>
+    <string name="sync_conflict_body">%1$d elemente sunt de ambele părți.</string>
+    <string name="sync_conflict_body_dropbox">%1$d elemente există atât în Dropbox, cât și pe acest telefon.</string>
     <string name="sync_conflict_app">Copiază aplicația în copia de rezervă</string>
     <string name="sync_conflict_app_dropbox">Copiază aplicația pe Dropbox</string>
     <string name="sync_conflict_folder">Copiază copia de rezervă în aplicație</string>
