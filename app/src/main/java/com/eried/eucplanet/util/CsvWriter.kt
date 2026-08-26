@@ -69,7 +69,13 @@ class CsvWriter(private val file: File) {
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f,%.2f,%.1f,%s",
+                // Column precision follows what the source actually
+                // resolves, so the file never rounds real data away: the
+                // wheel reports speed / voltage / temperature / current /
+                // PWM / phase in hundredths and the odometer in thousandths
+                // of a km. GPS-derived columns (altitude, GPS speed) stay at
+                // one decimal - beyond that is receiver noise, not data.
+                "%s,%.2f,%.2f,%.2f,%d,%.1f,%.6f,%.6f,%.3f,%.1f,%.2f,%.2f,%.3f,%.3f,%.3f,%.2f,%.2f,%s",
                 date,
                 speed,
                 data.voltage,

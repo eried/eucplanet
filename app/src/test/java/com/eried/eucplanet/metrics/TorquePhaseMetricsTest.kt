@@ -34,6 +34,15 @@ class TorquePhaseMetricsTest {
         assertTrue(header.endsWith("Torque,Phase current,Extra"))
     }
 
+    @Test fun `the recorder keeps the source resolution`() {
+        // A tester noticed the odometer column rounded to 0.1 km when the
+        // wheel resolves 0.001, which put up to ~0.1 km of error into the
+        // derived trip distance (metricsFrom sums that column's deltas).
+        // Wheel-sourced columns write hundredths, the odometer thousandths.
+        assertTrue(src("util/CsvWriter.kt")
+            .contains("\"%s,%.2f,%.2f,%.2f,%d,%.1f,%.6f,%.6f,%.3f,%.1f,%.2f,%.2f,%.3f,%.3f,%.3f,%.2f,%.2f,%s\""))
+    }
+
     @Test fun `the euc-world import emits the same canonical header`() {
         val vm = src("ui/recording/RecordingViewModel.kt")
         assertTrue(vm.contains(header))
