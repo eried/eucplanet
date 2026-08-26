@@ -11429,10 +11429,11 @@ private fun HudMapStylePicker(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel
 ) {
-    // Carto raster basemap slugs, all 10 publicly served styles. Labels
-    // are the raw slugs on purpose: the rider asked to see the internal
-    // names, not localised friendly text. Order: voyager family,
-    // positron (light_*) family, dark matter (dark_*) family.
+    // Raw internal codes on purpose: the rider asked to see them, not
+    // localised friendly text. The ten Carto slugs collapsed into "light"
+    // and "dark" when Light/Dark moved to Esri Canvas (the keyless Carto
+    // endpoints are being key-gated); a saved legacy slug still resolves
+    // to the matching Esri style in the HUD's tile cache.
     val options = listOf(
         // The same providers the app's own maps offer, first because they are
         // the ones riders asked for: plain OSM and the two that actually draw
@@ -11443,18 +11444,10 @@ private fun HudMapStylePicker(
         "topo",
         "hot",
         "satellite",
-        "voyager",
-        "voyager_nolabels",
-        "voyager_labels_under",
-        "voyager_only_labels",
-        "light_all",
-        "light_nolabels",
-        "light_only_labels",
-        "dark_all",
-        "dark_nolabels",
-        "dark_only_labels",
+        "light",
+        "dark",
     )
-    val currentCode = settings.hudMapStyle.ifBlank { "voyager" }
+    val currentCode = settings.hudMapStyle.ifBlank { "light" }
     val currentLabel = currentCode
     var expanded by remember { mutableStateOf(false) }
 

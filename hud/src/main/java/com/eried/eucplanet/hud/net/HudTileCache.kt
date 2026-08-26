@@ -135,12 +135,17 @@ class HudTileCache {
             "satellite" ->
                 "https://server.arcgisonline.com/ArcGIS/rest/services/" +
                     "World_Imagery/MapServer/tile/$z/$y/$x"
-            "dark_all", "dark_matter", "dark_matter_nolabels" ->
-                "https://server.arcgisonline.com/ArcGIS/rest/services/" +
-                    "Canvas/World_Dark_Gray_Base/MapServer/tile/$z/$y/$x"
             else ->
-                "https://server.arcgisonline.com/ArcGIS/rest/services/" +
-                    "Canvas/World_Light_Gray_Base/MapServer/tile/$z/$y/$x"
+                // "dark" and every legacy dark_* Carto slug (dark_all,
+                // dark_matter, dark_nolabels, ...) mean the dark canvas;
+                // "light" and everything else (voyager, positron, light_*)
+                // mean the light one.
+                if (style == "dark" || style.startsWith("dark_") || style.startsWith("dark"))
+                    "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+                        "Canvas/World_Dark_Gray_Base/MapServer/tile/$z/$y/$x"
+                else
+                    "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+                        "Canvas/World_Light_Gray_Base/MapServer/tile/$z/$y/$x"
         }
     }
 
@@ -163,7 +168,30 @@ class HudTileCache {
                 client.newCall(req).execute().use { resp ->
                     if (!resp.isSuccessful) return@launch
                     val bytes = resp.body?.bytes() ?: return@launch
-                    val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@launch
+                    var bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@launch
+                    // Esri Canvas keeps its labels on a separate reference
+                    // layer named by the base URL; composite it on top. A
+                    // failed label fetch still shows the base tile.
+                    val refUrl = url.replace("_Gray_Base/", "_Gray_Reference/")
+                    if (refUrl != url) {
+                        runCatching {
+                            val refReq = Request.Builder()
+                                .url(refUrl)
+                                .header("User-Agent", USER_AGENT)
+                                .build()
+                            client.newCall(refReq).execute().use { refResp ->
+                                if (refResp.isSuccessful) {
+                                    refResp.body?.bytes()?.let { rb ->
+                                        BitmapFactory.decodeByteArray(rb, 0, rb.size)?.let { ref ->
+                                            val out = bmp.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+                                            android.graphics.Canvas(out).drawBitmap(ref, 0f, 0f, null)
+                                            bmp = out
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // If the rider switched styles while we were
                     // mid-fetch, drop the late tile on the floor instead
                     // of poisoning the new-style cache.

@@ -737,11 +737,11 @@ data class AppSettings(
     /**
      * Which raster map style the HUD should use for its Map screen
      * and the MAP element inside a Custom overlay. Empty = the HUD picks
-     * its compiled-in default (currently "voyager", neutral parchment
-     * background). Other supported codes: "dark_matter",
-     * "dark_matter_nolabels", "voyager", "light_all", "positron".
-     * Anything else falls back to the HUD's compiled default so the
-     * rider doesn't get a blank map if they pick something we removed.
+     * its compiled-in default (a light basemap). Supported codes: "osm",
+     * "cyclosm", "topo", "hot", "satellite", "light", "dark"; legacy Carto
+     * slugs riders have saved ("voyager", "dark_all", ...) still resolve
+     * to the matching Esri style, and anything else falls back to light so
+     * the rider never gets a blank map.
      */
     val hudMapStyle: String = "",
     /**
