@@ -54,4 +54,22 @@ class SettingsJsonDropboxTest {
         // stripped for the portable/upload copy
         assertEquals("", SettingsJson.stripDeviceBindings(s).dropboxSettingsBaseHash)
     }
+
+    @Test
+    fun applyPortable_keepsThisPhonesDeviceFields_takesPreferences() {
+        val current = AppSettings().copy(
+            lastDeviceAddress = "AA:BB", dropboxAccessToken = "tok",
+            syncFolderUri = "content://x", dropboxSettingsBaseHash = "base",
+            alarmSpeedKmh = 40f,
+        )
+        // A portable payload from another phone: device fields stripped, a different preference.
+        val portable = SettingsJson.stripDeviceBindings(current.copy(alarmSpeedKmh = 55f))
+        val json = JSONObject(SettingsJson.toJson(portable).toString())
+        val merged = SettingsJson.applyPortable(json, current)
+        assertEquals(55f, merged.alarmSpeedKmh)               // preference taken from payload
+        assertEquals("AA:BB", merged.lastDeviceAddress)       // device field kept (fromJson base fallback)
+        assertEquals("tok", merged.dropboxAccessToken)        // Dropbox token kept
+        assertEquals("content://x", merged.syncFolderUri)     // backup folder kept
+        assertEquals("base", merged.dropboxSettingsBaseHash)  // sync baseline kept
+    }
 }

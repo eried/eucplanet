@@ -920,6 +920,23 @@ object SettingsJson {
         dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )
 
+    /**
+     * Merge a portable settings JSON onto [current], keeping THIS device's own
+     * bindings: BLE/GPS/radar/folder fields fall back to [current] via
+     * [fromJson] (a stripped payload omits them), and the Dropbox link + sync
+     * baseline are re-copied here (stripDeviceBindings blanks them to non-null
+     * empties, which fromJson would otherwise take). Pure; SyncManager does the IO.
+     */
+    fun applyPortable(json: JSONObject, current: AppSettings): AppSettings =
+        fromJson(json, current).copy(
+            dropboxAccessToken = current.dropboxAccessToken,
+            dropboxRefreshToken = current.dropboxRefreshToken,
+            dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+            dropboxAccountLabel = current.dropboxAccountLabel,
+            dropboxLastSyncAt = current.dropboxLastSyncAt,
+            dropboxSettingsBaseHash = current.dropboxSettingsBaseHash,
+        )
+
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps
      *  null vs explicit value vs absent semantics intact for nullable fields. */

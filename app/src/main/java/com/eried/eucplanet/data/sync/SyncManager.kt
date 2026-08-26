@@ -801,25 +801,22 @@ class SyncManager @Inject constructor(
         val current = settingsRepository.get()
         val folder = getSyncFolder(current) ?: return false
         val file = folder.findFile(fileName) ?: return false
+        val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
+            ?: return false
+        return applySettingsFromJson(bytes)
+    }
+
+    /**
+     * Apply a settings JSON (from a backup file or a Dropbox download) to this
+     * phone via [SettingsJson.applyPortable], so the phone keeps its own device +
+     * sync bindings. Re-applies language and, if the JSON carries an "alarms"
+     * array, replaces the alarm rules. Caller takes any snapshot first.
+     */
+    suspend fun applySettingsFromJson(bytes: ByteArray): Boolean {
+        val current = settingsRepository.get()
         return try {
-            val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
-                ?: return false
             val json = JSONObject(String(bytes, Charsets.UTF_8))
-            // Keep the device's live Dropbox link/sync state -- a backup must
-            // never swap in a (possibly stale or blank) token. fromJson now
-            // reads these from the JSON like any other field, so re-apply the
-            // current values here.
-            val parsed = SettingsJson.fromJson(json, current)
-            val restored = parsed.copy(
-                dropboxAccessToken = current.dropboxAccessToken,
-                dropboxRefreshToken = current.dropboxRefreshToken,
-                dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
-                dropboxAccountLabel = current.dropboxAccountLabel,
-                dropboxLastSyncAt = current.dropboxLastSyncAt,
-                // The share secret is this phone's identity in a group: never
-                // taken from a backup, or two phones would ride as one rider.
-                share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
-            )
+            val restored = SettingsJson.applyPortable(json, current)
             settingsRepository.update(restored)
             applyRestoredLanguage(restored.language)
             // Replace alarm rules wholesale only if the backup contains an
@@ -832,7 +829,7 @@ class SyncManager @Inject constructor(
             }
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Settings restore failed", e)
+            Log.e(TAG, "Settings apply failed", e)
             false
         }
     }
