@@ -1232,6 +1232,15 @@ class SyncManager @Inject constructor(
         }
     }
 
+    private fun sha256Hex(bytes: ByteArray): String =
+        java.security.MessageDigest.getInstance("SHA-256").digest(bytes)
+            .joinToString("") { "%02x".format(it) }
+
+    /** Stable hash of the device-stripped settings, for the 3-way settings sync. */
+    private fun settingsHash(s: AppSettings): String =
+        sha256Hex(SettingsJson.toJson(SettingsJson.stripDeviceBindings(s)).toString()
+            .toByteArray(Charsets.UTF_8))
+
     private suspend fun runDropboxSync() {
         val settings = settingsRepository.get()
         if (settings.dropboxAccessToken.isBlank()) {
@@ -1266,19 +1275,32 @@ class SyncManager @Inject constructor(
         val remoteOnly = remoteByLower.keys - localByLower.keys
         val localOnly = localByLower.keys - remoteByLower.keys
 
+        // --- Settings (whole-blob, 3-way vs the stored baseline) ---
+        // Dropbox's /settings.json is device-stripped (see Step 4), and
+        // phoneSettingsHash is over stripped settings, so the hashes compare directly.
+        val phoneSettingsHash = settingsHash(settings)
+        val remoteSettingsBytes = dropboxRepository.downloadFile("/settings.json")
+        val remoteSettingsHash = remoteSettingsBytes?.let { sha256Hex(it) }
+        var settingsAction = SettingsSyncPolicy.decide(
+            phoneSettingsHash, remoteSettingsHash, settings.dropboxSettingsBaseHash
+        )
+        val settingsConflict = settingsAction == SettingsSyncAction.CONFLICT
+
+        val subdirConflicts = 0
+        // subdirConflicts is added by Task 6 Step 2; until then it is 0.
+        val totalConflicts = conflictKeys.size + (if (settingsConflict) 1 else 0) + subdirConflicts
         var choice = SyncChoice.IGNORE
-        if (conflictKeys.isNotEmpty()) {
+        if (totalConflicts > 0) {
             val deferred = CompletableDeferred<SyncChoice>()
             conflictChoice = deferred
             _syncConflictKind.value = SyncConflictKind.DROPBOX
-            _syncConflictPrompt.value = conflictKeys.size
+            _syncConflictPrompt.value = totalConflicts
             choice = deferred.await()
             _syncConflictPrompt.value = null
             conflictChoice = null
             if (choice == SyncChoice.CANCEL) {
                 // Rider aborted at the conflict prompt: clear the pending flag +
-                // count so the persistent indicator disappears instead of popping
-                // back up as if the sync were still going.
+                // count so the persistent indicator disappears.
                 settingsRepository.update {
                     it.copy(dropboxSyncPending = false, dropboxPendingCount = 0, dropboxSyncTotal = 0)
                 }
@@ -1294,6 +1316,13 @@ class SyncManager @Inject constructor(
             SyncChoice.APP -> conflictKeys.forEach { key -> localByLower[key]?.let { toUpload += it } }
             SyncChoice.FOLDER -> conflictKeys.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
             SyncChoice.IGNORE, SyncChoice.CANCEL -> {}
+        }
+
+        // The shared choice resolves the settings conflict too.
+        if (settingsConflict) settingsAction = when (choice) {
+            SyncChoice.APP -> SettingsSyncAction.UPLOAD
+            SyncChoice.FOLDER -> SettingsSyncAction.APPLY
+            else -> SettingsSyncAction.NONE // IGNORE / skip
         }
 
         val total = toUpload.size + toDownload.size
@@ -1398,11 +1427,34 @@ class SyncManager @Inject constructor(
         // not just trips. Missing/newer only -- same per-file rule as trips, no
         // extra conflict prompt.
         var extra = 0
-        if (dropboxRepository.uploadFile(
-                "/settings.json",
-                SettingsJson.toJson(settings).toString().toByteArray(Charsets.UTF_8)
-            )
-        ) extra++
+        when (settingsAction) {
+            SettingsSyncAction.UPLOAD -> {
+                val stripped = SettingsJson.toJson(SettingsJson.stripDeviceBindings(settings))
+                    .toString().toByteArray(Charsets.UTF_8)
+                if (dropboxRepository.uploadFile("/settings.json", stripped)) {
+                    extra++
+                    settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneSettingsHash) }
+                }
+            }
+            SettingsSyncAction.APPLY -> {
+                if (remoteSettingsBytes != null) {
+                    snapshotBeforeRestore() // best-effort undo point (needs a SAF folder)
+                    if (applySettingsFromJson(remoteSettingsBytes)) {
+                        extra++
+                        settingsRepository.update {
+                            it.copy(dropboxSettingsBaseHash = remoteSettingsHash ?: it.dropboxSettingsBaseHash)
+                        }
+                    }
+                }
+            }
+            SettingsSyncAction.NONE -> {
+                // Already in sync (or skipped). Advance the baseline so we do not
+                // re-flag the same state next pass.
+                if (remoteSettingsHash == phoneSettingsHash)
+                    settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneSettingsHash) }
+            }
+            SettingsSyncAction.CONFLICT -> { /* resolved into UPLOAD/APPLY/NONE above */ }
+        }
         extra += mirrorBackupSubdirsToDropbox(settings)
 
         if (failed == 0) {
