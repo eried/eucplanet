@@ -255,11 +255,23 @@ jobs:
           mkdir -p "$HOME/.Garmin/ConnectIQ"
           ln -sfn /tmp/ciq/ciq-bundle/devices "$HOME/.Garmin/ConnectIQ/Devices"
 
-      - name: Generate one-off developer key
+      - name: Install the permanent CIQ signing key
         if: steps.precheck.outputs.skip == 'false'
+        # THE ONLY key allowed to sign .iq/.prg output, ever - see the
+        # matching step in branch-apk.yml and the signing vault README.
+        env:
+          GARMIN_DEV_KEY_B64: ${{ secrets.GARMIN_DEV_KEY_B64 }}
         run: |
-          openssl genrsa -out /tmp/ciq/dev_key.pem 4096
-          openssl pkcs8 -topk8 -inform PEM -outform DER -in /tmp/ciq/dev_key.pem -out /tmp/ciq/dev_key.der -nocrypt
+          if [ -z "$GARMIN_DEV_KEY_B64" ]; then
+            echo "::error::GARMIN_DEV_KEY_B64 secret missing - refusing to sign with any other key"
+            exit 1
+          fi
+          echo "$GARMIN_DEV_KEY_B64" | base64 -d > /tmp/ciq/dev_key.der
+          HASH=$(sha256sum /tmp/ciq/dev_key.der | cut -d' ' -f1)
+          if [ "$HASH" != "afcae9eca4bf8fc332df61cb789daf7fc38987a7da84c77dba3aa9f08252720e" ]; then
+            echo "::error::dev key hash mismatch ($HASH) - not the permanent key"
+            exit 1
+          fi
 
       - name: Build .iq + per-device .prg files
         if: steps.precheck.outputs.skip == 'false'

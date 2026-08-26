@@ -73,17 +73,20 @@ real Garmin device.
    `garmin-watch-app/manifest.xml` must have a matching device installed in
    the SDK Manager or `monkeyc` skips it at build time.
 
-### 3. Generate a developer key
+### 3. Restore THE developer key (never generate one)
 
-```bash
-openssl genrsa -out developer_key.pem 4096
-openssl pkcs8 -topk8 -inform PEM -outform DER \
-    -in developer_key.pem -out developer_key.der -nocrypt
-```
+Do NOT generate a key. EUC Planet has exactly one Connect IQ signing key,
+forever: restore it from the signing vault
+(`OneDrive\Projects\EUC\signing\garmin\garmin_developer_key.der`) to
+`garmin-watch-app/developer_key.der`. Its sha256 is
+`afcae9eca4bf8fc332df61cb789daf7fc38987a7da84c77dba3aa9f08252720e` -
+verify after restoring. The file is in `.gitignore` and never commits.
 
-Point the Garmin tools at `developer_key.der`. The same key signs every
-build until you publish; treat it like any other signing key. The file is
-in `.gitignore` and never commits.
+The Connect IQ store binds a listing to the key that signed its first
+version, with no reset and no recovery - two listings have already been
+lost to builds signed with generated one-off keys. CI signs with this same
+key via the `GARMIN_DEV_KEY_B64` repo secret and fails the build on any
+other key, so every `.iq` that exists is store-valid.
 
 ### 4. Build the watch app
 

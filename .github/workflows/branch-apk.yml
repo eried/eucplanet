@@ -177,16 +177,29 @@ jobs:
           ln -sfn /tmp/ciq/ciq-bundle/devices "$HOME/.Garmin/ConnectIQ/Devices"
           ls /tmp/ciq/ciq-bundle/devices | head -5
 
-      - name: Generate one-off developer key
+      - name: Install the permanent CIQ signing key
         if: steps.precheck.outputs.skip == 'false'
-        # The developer key only identifies the build to the CIQ Store; for
-        # sideloads (which is all CI produces) a fresh per-run key works fine
-        # and avoids checking the real key into secrets. The store-submission
-        # build still happens locally with the user's persistent key.
+        # THE ONLY key allowed to sign .iq/.prg output, ever. The Connect IQ
+        # store binds a listing to its first key forever, and two listings
+        # were already burned by throwaway-signed uploads (2026-07-06 and
+        # 2026-08-26 incidents in the signing vault README). The secret is
+        # the base64 of signing/garmin/garmin_developer_key.der; the hash
+        # check makes a wrong or missing secret fail LOUDLY instead of
+        # shipping a file that can never reach the store.
+        env:
+          GARMIN_DEV_KEY_B64: ${{ secrets.GARMIN_DEV_KEY_B64 }}
         run: |
           /tmp/ciq/ciq-bundle/sdk/bin/monkeybrains.jar 2>/dev/null || true
-          openssl genrsa -out /tmp/ciq/dev_key.pem 4096
-          openssl pkcs8 -topk8 -inform PEM -outform DER -in /tmp/ciq/dev_key.pem -out /tmp/ciq/dev_key.der -nocrypt
+          if [ -z "$GARMIN_DEV_KEY_B64" ]; then
+            echo "::error::GARMIN_DEV_KEY_B64 secret missing - refusing to sign with any other key"
+            exit 1
+          fi
+          echo "$GARMIN_DEV_KEY_B64" | base64 -d > /tmp/ciq/dev_key.der
+          HASH=$(sha256sum /tmp/ciq/dev_key.der | cut -d' ' -f1)
+          if [ "$HASH" != "afcae9eca4bf8fc332df61cb789daf7fc38987a7da84c77dba3aa9f08252720e" ]; then
+            echo "::error::dev key hash mismatch ($HASH) - not the permanent key"
+            exit 1
+          fi
 
       - name: Build .iq (multi-device bundle)
         if: steps.precheck.outputs.skip == 'false'
