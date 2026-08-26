@@ -805,6 +805,7 @@ fun TripDetailScreen(
                         stringResource(R.string.recording_summary_max_torque),
                         if (batteryStats.maxTorque.isNaN()) "--" else "%.1f Nm".format(batteryStats.maxTorque),
                         MaterialTheme.appColors.metricPosition,
+                        Modifier.weight(1f)
                     )
                 },
                 "maxPhaseCurrent" to {
@@ -812,6 +813,7 @@ fun TripDetailScreen(
                         stringResource(R.string.recording_summary_max_phase_current),
                         if (batteryStats.maxPhaseCurrent.isNaN()) "--" else "%.0f A".format(batteryStats.maxPhaseCurrent),
                         MaterialTheme.appColors.metricPosition,
+                        Modifier.weight(1f)
                     )
                 },
             )
