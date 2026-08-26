@@ -2,6 +2,7 @@ package com.eried.eucplanet.data
 
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.store.SettingsJson
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -42,5 +43,15 @@ class SettingsJsonDropboxTest {
         val loaded = SettingsJson.fromJson(backup, AppSettings())
         assertEquals("", loaded.dropboxAccessToken)
         assertEquals("", loaded.dropboxAccountLabel)
+    }
+
+    @Test
+    fun dropboxSettingsBaseHash_roundTrips_and_is_stripped() {
+        val s = AppSettings().copy(dropboxSettingsBaseHash = "abc123")
+        // round-trips through JSON
+        val back = SettingsJson.fromJson(JSONObject(SettingsJson.toJson(s).toString()))
+        assertEquals("abc123", back.dropboxSettingsBaseHash)
+        // stripped for the portable/upload copy
+        assertEquals("", SettingsJson.stripDeviceBindings(s).dropboxSettingsBaseHash)
     }
 }

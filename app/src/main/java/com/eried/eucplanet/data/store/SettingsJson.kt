@@ -56,7 +56,8 @@ object SettingsJson {
         dropboxRefreshToken = "",
         dropboxAccessTokenExpiresAt = 0L,
         dropboxAccountLabel = "",
-        dropboxLastSyncAt = 0L
+        dropboxLastSyncAt = 0L,
+        dropboxSettingsBaseHash = "",
     )
 
     fun toJson(s: AppSettings): JSONObject = JSONObject().apply {
@@ -422,6 +423,7 @@ object SettingsJson {
         put("dropboxAccessTokenExpiresAt", s.dropboxAccessTokenExpiresAt)
         put("dropboxAccountLabel", s.dropboxAccountLabel)
         put("dropboxLastSyncAt", s.dropboxLastSyncAt)
+        put("dropboxSettingsBaseHash", s.dropboxSettingsBaseHash)
         put("dropboxSyncPending", s.dropboxSyncPending)
         put("dropboxPullRequested", s.dropboxPullRequested)
         put("dropboxPendingCount", s.dropboxPendingCount)
@@ -910,6 +912,7 @@ object SettingsJson {
         dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
         dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
         dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt),
+        dropboxSettingsBaseHash = j.optString("dropboxSettingsBaseHash", base.dropboxSettingsBaseHash),
         dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
         dropboxPullRequested = j.optBoolean("dropboxPullRequested", base.dropboxPullRequested),
         dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
