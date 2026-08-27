@@ -175,19 +175,17 @@ fun TripDetailScreen(
     // wants to find a stretch of ride; typing MM:SS is the fallback for when
     // they already know the moment they want.
     var showTrimBar by remember(trip.id) { mutableStateOf(false) }
-    // Deferred: parsing every row's timestamp is the single most expensive thing
-    // this screen can do on a long ride, and most trips are never trimmed. It is
-    // computed the moment the rider opens the dialog or a trim is live, and not
-    // before.
-    val needElapsed = showTrim || showTrimBar || trimRange != null ||
-        chartWindow.start > 0f || chartWindow.endInclusive < 1f
-    // Sticky once computed: hiding the bar used to flip needElapsed off,
-    // which dropped this table while the bar was still animating away - its
-    // numbers visibly snapped to 0:00 mid-exit. Once the rider has paid for
-    // the parse, keep it for the life of the screen.
+
+    // Parsed once per trip, off the main thread, as soon as the points load.
+    // This used to be deferred until a trim was touched, which put the
+    // 20k-row timestamp parse inside the FIRST pinch frame - a visible hitch.
     val elapsedHolder = remember(allPoints) { mutableStateOf<LongArray?>(null) }
-    if (needElapsed && elapsedHolder.value == null) {
-        elapsedHolder.value = TripTrim.elapsedOffsets(allPoints)
+    LaunchedEffect(allPoints) {
+        if (allPoints.isNotEmpty() && elapsedHolder.value == null) {
+            elapsedHolder.value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                TripTrim.elapsedOffsets(allPoints)
+            }
+        }
     }
     val elapsedMs = elapsedHolder.value ?: LongArray(0)
     // Everything else on this screen reads dataPoints, so filtering here trims
@@ -2516,6 +2514,8 @@ private fun ChartCard(
     // The y-axis re-fits the slice, which is what makes zooming useful.
     // Indices crossing the boundary are mapped back to the full-ride domain,
     // so the map marker and the other charts keep meaning the same moment.
+    val fullValues = values
+    val fullOverlays = overlays
     val n0 = values.size
     val fullView = (window.start <= 0f && window.endInclusive >= 1f) || n0 < 3
     val winA = if (fullView) 0 else (window.start * (n0 - 1)).roundToInt().coerceIn(0, n0 - 2)
@@ -2544,8 +2544,10 @@ private fun ChartCard(
     // Y-axis bounds include any overlay min/max so secondary lines stay on-scale.
     // Filter NaN out of all reductions because NaN means "no data this row" , 
     // those rows shouldn't push the bounds.
-    val finiteValues = values.filter { !it.isNaN() }
-    val allFinite = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
+    // The y-axis is scaled to the FULL trip even while zoomed: the window
+    // narrows time only, so the vertical scale never jumps under a pinch.
+    val finiteValues = fullValues.filter { !it.isNaN() }
+    val allFinite = (fullOverlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
     val dataMin = allFinite.minOrNull() ?: 0f
     val dataMaxRaw = allFinite.maxOrNull() ?: 0f
     // Axis upper bound: a caller-supplied realistic cap when given (never below
