@@ -1,108 +1,57 @@
-# Amazfit watches
+# Weather / ridability forecast
 
-EUC Planet now talks to Amazfit watches. The same dial that runs on Wear OS and
-Garmin: speed gauge, PWM, three batteries, horn and light, navigation arrow,
-plus the two side buttons. Built and tested against the T-Rex 3; the Balance
-has the same screen and is in the build as well.
+This branch adds an opt-in weather module to the dashboard: a small
+sun-behind-cloud icon above the map button that answers one question, is it a
+good moment to ride.
 
-![The dial on a T-Rex 3](https://raw.githubusercontent.com/eried/eucplanet/feature/amazfit-watch/docs/screenshots/amazfit-dash.png)
+Everything ships OFF. Enable it in Settings, Navigation & weather, "Weather on
+the dashboard".
 
-## How it works, in one paragraph
+## What it does
 
-Zepp OS does not let a phone app talk to a watch app directly, so the watch
-asks instead. Its little helper inside the Zepp phone app fetches the dial data
-from EUC Planet about once a second over the phone's own loopback address and
-sends it up to the wrist. Nothing leaves the phone. It means the Zepp app has
-to be running (it normally is, it handles your notifications), and it means
-the watch cannot be launched from the phone: you open it from the app list.
+- The icon tints GPS-style: lit while the forecast is inside its half-hour
+  validity, dim otherwise.
+- Tap it for the forecast panel: a ridability score from +5 (drop everything
+  and ride) through 0 (fine with the right gear) to -5 (leave the wheel home),
+  drawn light blue to magenta across the chosen window, with faces at the
+  moments the ride character changes. Tap or drag on the curve for the exact
+  score; tap a face for the read in rider terms.
+- Hold the icon for the other windows (6 h / 24 h / 3 d / 1 week) and the
+  settings shortcut.
+- The chevron expands details: temperature, humidity and precipitation in one
+  chart, wind and gusts in another, one finger-followed cursor across both,
+  plus generated one-liners (rain or snow and when, strong gusts, near
+  freezing, heat, golden hour).
+- With an active navigator route the location chip swaps to the final stop:
+  its forecast becomes the curve and the "here" curve rides along dashed, so
+  you see whether the score improves toward the destination.
+- Six keyless forecast sources: Open-Meteo (default), MET Norway (the yr.no
+  backend), ECMWF, NOAA GFS, DWD ICON and Meteo-France.
 
-## Installing
+## The score
 
-You need two things: the phone APK from this release, and the watch app.
-
-**Phone.** Download `phone-amazfit-watch-<sha>.apk` below and install it. If
-you have the Play Store version, uninstall that first, a debug build cannot
-update over it.
-
-**Watch.** Zepp OS only installs unsigned apps through the Zepp app's
-developer mode, and only from a QR code:
-
-1. In the Zepp app on your phone, go to Profile and tap the Zepp logo at the
-   top seven times. A toast confirms "Developer mode".
-2. Profile, Developer mode, Scan, and point the phone at this code. The watch
-   picks the app up in a few seconds.
-
-![Install QR](https://raw.githubusercontent.com/eried/eucplanet/feature/amazfit-watch/docs/screenshots/amazfit-preview-qr.png)
-
-The code is valid until the 1st of September 2026. If it has expired, ask in
-the testing channel for a fresh one, or build it yourself: install Node.js,
-`npm i -g @zeppos/zeus-cli`, `zeus login` with a free Zepp account, then
-`npx zeus preview` inside `amazfit-watch-app/` prints a new code. Details in
-`docs/AMAZFIT_SETUP.md`.
-
-## Using it
-
-Open EUC Planet on the phone and connect the wheel, then open "EUC Planet" on
-the watch. The dial says "Open EUC Planet on your phone" until the first data
-arrives, and "Disconnected" if the phone goes quiet for ten seconds.
-
-- Tap the horn circle for the horn, the light circle for the light. Hold
-  either for the hold action.
-- The side buttons follow the same layout as on Garmin: Select is button 1,
-  Up is button 2 (both click and hold), Down is button 3 (click only). Assign
-  what they do in Settings, Watch, Buttons.
-- Swipe left on the dial for a details page (voltage, current, power, PWM,
-  temp, torque, trip), the same second screen Wear OS has. Swipe right to
-  return; the two dots at the bottom show which page you are on.
-- Settings, Watch shows the watch as "Amazfit (Zepp OS)" with a Live badge and
-  the real update rate. Keep display on, the battery toggles, PWM display,
-  Prioritize PWM and the speed unit label all apply on the next update.
-- Auto-stop closes the watch app when you stop the ride; alarm rules set to
-  vibrate on the watch buzz the wrist.
-
-There is also a glanceable widget: add "EUC Planet" to the watch's card
-carousel to see the latest speed, battery and PWM without opening the app.
-It reads the last frame the dial cached on the watch, so it needs the app
-to have run on that ride.
-
-What it does not do: auto-start (Zepp OS has no way to launch an app from the
-phone) and dial rotation. Both rows show an AMAZFIT badge in Settings so it is
-clear where they stop.
+Every hour starts at +5 and loses points only for real discomforts - wind
+(gusts included), rain, snow, ice, cold, heat, dark - so a genuinely nice
+local day tops out anywhere on Earth, not only at one perfect temperature.
+Comfort preferences (Dislike / Neutral / Like per condition, including golden
+hour) tune it to you; rain, snow and wind ship disliked. Real hazards are
+preference-proof: wet pavement caps the score, freezing rain and near-gale
+gusts pin it to the bottom. The comfort thresholds behind it live in Advanced
+settings, Weather score.
 
 ## What to look for
 
-- Does the dial follow the wheel without noticeable lag? The card in
-  Settings, Watch should read about 2 Hz on Normal and 4 Hz on Fast.
-- Leave it running for a long ride: it should keep updating for the whole
-  trip (an earlier build stopped after about 25 minutes; that is fixed).
-- Do the horn/light circles and the three side buttons reach the wheel?
-- Add the EUC Planet widget to the watch's card carousel (long-press the
-  watchface, add widget). Does it show recent speed / battery / PWM at a
-  glance without opening the app?
-- Swipe left to the details page (wheel name, speed, then the rows) and back:
-  do the values look right and live, and do the dots track the page?
-- While Service Mode is recording, every key and tap the watch sees is
-  written to the diagnostics log, so a log tells which side lost a press.
-- Leave the phone in your pocket for a ride: does the watch keep updating, or
-  does Android put the Zepp app to sleep? If it stops, check the battery
-  settings for the Zepp app and tell us which phone you have.
-- Stop the ride from the phone: does the watch app close?
-- Anything odd in the layout on your watch model.
+- Does the icon appear immediately at app start (no pop-in), dim until the
+  first fetch, then lit?
+- Does the score match your gut for your local weather, with your preferences
+  set honestly? Which hours does it get wrong, and which way?
+- Switch sources: do the curves differ sensibly, and does every source fetch?
+- Set a route with stops and swap the chip to the destination: is the
+  comparison readable?
+- Non-metric riders: are the detail readouts in your units?
 
 ## Reporting
 
-https://github.com/eried/eucplanet/issues or the testing channel. Include the
-watch model and its Zepp OS version, the Zepp app version, the phone and its
-Android version, and the diagnostics log from Settings, Diagnostics, Share. The
-log has a line starting with `amazfit: model=` when the watch reached the
-phone; if that line is missing, the problem is on the phone side.
-
-## For developers
-
-New code lives in `app/src/main/java/com/eried/eucplanet/amazfit/` (phone
-side: a tiny loopback HTTP responder serving the same snapshot the Garmin
-bridge builds) and `amazfit-watch-app/` (the Zepp OS mini program, a port of
-the Garmin dial). CI attaches `amazfit-<branch>-<sha>.zab` to this release; that
-is the store submission bundle, not something you can sideload. 845 unit
-tests pass, 21 of them new. The simulator recipe, wire contract and the
-Zepp simulator quirks are in `docs/AMAZFIT_SETUP.md`.
+https://github.com/eried/eucplanet/issues or the testing channel. Include
+your rough location or climate, the source selected, and a screenshot of the
+panel next to what the sky actually did.
