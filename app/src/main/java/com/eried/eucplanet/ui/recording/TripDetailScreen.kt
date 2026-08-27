@@ -200,10 +200,23 @@ fun TripDetailScreen(
     // The pinch-to-trim bridge. During the gesture the charts slice their
     // drawing only (cheap, smooth); when the fingers lift, the slice becomes
     // the real trim, so the tiles, map, header and trim bar all follow, once.
-    val onWindow: (ClosedFloatingPointRange<Float>) -> Unit = { chartWindow = it }
+    val onWindow: (ClosedFloatingPointRange<Float>) -> Unit = { w ->
+        chartWindow = w
+        // Live link to the trim bar: while the pinch is in flight, the
+        // handles and span label already sit where the trim WILL land.
+        val fullDur = if (elapsedMs.isEmpty()) 0L else elapsedMs.last()
+        if (fullDur > 0L) {
+            val cur0 = trimRange?.first ?: 0L
+            val cur1 = trimRange?.last ?: fullDur
+            val span = (cur1 - cur0).coerceAtLeast(1L)
+            pendingTrim = if (w.start <= 0.001f && w.endInclusive >= 0.999f) null
+            else (cur0 + (w.start * span).toLong())..(cur0 + (w.endInclusive * span).toLong())
+        }
+    }
     val onWindowCommit: (Float) -> Unit = commit@ { netZoom ->
         val w = chartWindow
         chartWindow = 0f..1f
+        pendingTrim = null
         val fullDur = if (elapsedMs.isEmpty()) 0L else elapsedMs.last()
         if (fullDur <= 0L) return@commit
         val cur0 = trimRange?.first ?: 0L
@@ -231,6 +244,7 @@ fun TripDetailScreen(
     }
     val onResetView: () -> Unit = {
         chartWindow = 0f..1f
+        pendingTrim = null
         trimRange = null
     }
     var showShareDialog by remember { mutableStateOf(false) }
@@ -2518,6 +2532,13 @@ private fun ChartCard(
     @Suppress("NAME_SHADOWING") val onScrub: ((Int?) -> Unit)? =
         if (onScrubRaw == null) null else { i -> onScrubRaw(i?.plus(winA)) }
     val curWindow = rememberUpdatedState(window)
+    // The gesture pointerInputs below are keyed on Unit and never restart, so
+    // they must read the callbacks through updated state: the plain params
+    // would freeze at the FIRST composition, when the screen's elapsed-time
+    // table was still empty, and every commit would silently bail.
+    val curOnWindow = rememberUpdatedState(onWindow)
+    val curOnCommit = rememberUpdatedState(onWindowCommit)
+    val curOnReset = rememberUpdatedState(onResetView)
 
     // Y-axis bounds include any overlay min/max so secondary lines stay on-scale.
     // Filter NaN out of all reductions because NaN means "no data this row" , 
@@ -2604,7 +2625,7 @@ private fun ChartCard(
                     .pointerInput(Unit) {
                         // Double-tap zooms back out to the full ride.
                         detectTapGestures(onDoubleTap = {
-                            onResetView?.invoke() ?: onWindow?.invoke(0f..1f)
+                            curOnReset.value?.invoke() ?: curOnWindow.value?.invoke(0f..1f)
                         })
                     }
                     .pointerInput(Unit) {
@@ -2618,14 +2639,14 @@ private fun ChartCard(
                             while (true) {
                                 val event = awaitPointerEvent()
                                 val pressed = event.changes.count { it.pressed }
-                                if (pressed >= 2 && onWindow != null) {
+                                if (pressed >= 2 && curOnWindow.value != null) {
                                     sawMulti = true
                                     val zoom = event.calculateZoom()
                                     netZoom *= zoom
                                     val pan = event.calculatePan()
                                     val centroid = event.calculateCentroid()
                                     if (zoom != 1f || pan.x != 0f) {
-                                        onWindow.invoke(
+                                        curOnWindow.value?.invoke(
                                             ChartWindow.zoomPan(
                                                 curWindow.value,
                                                 zoom,
@@ -2644,7 +2665,7 @@ private fun ChartCard(
                                     event.changes.forEach { it.consume() }
                                 }
                             }
-                            if (sawMulti) onWindowCommit?.invoke(netZoom)
+                            if (sawMulti) curOnCommit.value?.invoke(netZoom)
                         }
                     }
             ) {
