@@ -238,9 +238,10 @@ fun TripDetailScreen(
         // Never commit a slice too thin to chart; the pinch just snaps back.
         if (TripTrim.countInRange(elapsedMs, newS..newE) < TripTrim.MIN_POINTS) return@commit
         trimRange = newS..newE
-        // The pinch just made a trim: open the bar so the funnel reflects it
-        // and the handles sit where the fingers put them.
-        showTrimBar = true
+        // Deliberately does NOT open or close the trim bar: the funnel icon
+        // tints from the trimmed state on its own, and the bar stays however
+        // the rider left it. If it happens to be open, its handles already
+        // tracked the pinch live.
     }
     val onResetView: () -> Unit = {
         chartWindow = 0f..1f
