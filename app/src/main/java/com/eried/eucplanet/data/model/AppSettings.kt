@@ -1259,6 +1259,16 @@ data class WeatherSettings(
     val breezyTenthsMs: Int = 20,
     /** Tenths of m/s where riding gets genuinely harder (default 4.5 m/s). */
     val windyTenthsMs: Int = 45,
+    // Riding preferences: how each condition should count for this rider.
+    // "DISLIKE" | "NEUTRAL" | "LIKE"; the thresholds above say when a
+    // condition applies, these say how it scores. Rain, snow and wind ship
+    // disliked; the rest neutral.
+    val prefHot: String = "NEUTRAL",
+    val prefCold: String = "NEUTRAL",
+    val prefRain: String = "DISLIKE",
+    val prefSnow: String = "DISLIKE",
+    val prefWind: String = "DISLIKE",
+    val prefNight: String = "NEUTRAL",
 )
 
 data class VoiceReportSettings(

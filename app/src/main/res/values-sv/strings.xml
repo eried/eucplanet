@@ -1626,6 +1626,7 @@
     <string name="weather_now">Nu</string>
     <string name="weather_fetching">Hämtar prognos…</string>
     <string name="weather_updated_ago">Uppdaterad för %1$d min sedan</string>
+    <string name="weather_updated_now">Uppdaterad nyss</string>
     <string name="weather_refresh">Uppdatera prognos</string>
     <string name="weather_error">Prognos misslyckades: %1$s</string>
     <string name="weather_window_6h">Kommande 6 timmar</string>
@@ -1681,6 +1682,18 @@
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Nuvarande</string>
     <string name="weather_src_destination">Destination</string>
+    <string name="weather_swap_src">Byt plats</string>
+    <string name="weather_pref_label">Åkpreferenser</string>
+    <string name="weather_pref_desc">Hur varje förhållande räknas för dig, poängen följer.</string>
+    <string name="weather_pref_dislike">Ogärna</string>
+    <string name="weather_pref_neutral">Neutral</string>
+    <string name="weather_pref_like">Gärna</string>
+    <string name="weather_cond_hot">Värme</string>
+    <string name="weather_cond_cold">Kyla</string>
+    <string name="weather_cond_rain">Regn</string>
+    <string name="weather_cond_snow">Snö och is</string>
+    <string name="weather_cond_wind">Vind</string>
+    <string name="weather_cond_night">Natt</string>
     <string name="weather_face_clear">Klart - kör.</string>
     <string name="weather_face_meh">Körbart, men var skärpt.</string>
     <string name="weather_face_rain">Våt asfalt - luta mjukt, bromsa tidigt.</string>

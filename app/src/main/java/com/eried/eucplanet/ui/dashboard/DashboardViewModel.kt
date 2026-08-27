@@ -85,12 +85,17 @@ class DashboardViewModel @Inject constructor(
     val warnings: StateFlow<List<com.eried.eucplanet.data.repository.AppWarning>> =
         appHealthRepository.warnings
 
+    // Synchronous initial settings read so StateFlows start with the user's persisted values
+    // instead of hardcoded defaults (prevents a visible flash on app open).
+    private val initialSettings: com.eried.eucplanet.data.model.AppSettings =
+        runBlocking(Dispatchers.IO) { settingsRepository.get() }
+
     // ---- Weather / ridability ----------------------------------------------
 
     val weatherSettings: StateFlow<com.eried.eucplanet.data.model.WeatherSettings> =
         settingsRepository.settings
             .map { it.weather }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, com.eried.eucplanet.data.model.WeatherSettings())
+            .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.weather)
 
     val weatherRefreshing: StateFlow<Boolean> = weatherRepository.refreshing
     val weatherError: StateFlow<String?> = weatherRepository.error
@@ -129,6 +134,9 @@ class DashboardViewModel @Inject constructor(
                         hotC = w.hotC.toFloat(),
                         breezyMs = w.breezyTenthsMs / 10f,
                         windyMs = w.windyTenthsMs / 10f,
+                        prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
+                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight,
+                        ),
                     ),
                     h,
                 )
@@ -172,6 +180,9 @@ class DashboardViewModel @Inject constructor(
                         hotC = w.hotC.toFloat(),
                         breezyMs = w.breezyTenthsMs / 10f,
                         windyMs = w.windyTenthsMs / 10f,
+                        prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
+                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight,
+                        ),
                     ),
                     h,
                 )
@@ -221,11 +232,6 @@ class DashboardViewModel @Inject constructor(
     companion object {
         private const val SPARKLINE_SIZE = 300  // 5 minutes at 1 sample/sec
     }
-
-    // Synchronous initial settings read so StateFlows start with the user's persisted values
-    // instead of hardcoded defaults (prevents a visible flash on app open).
-    private val initialSettings: com.eried.eucplanet.data.model.AppSettings =
-        runBlocking(Dispatchers.IO) { settingsRepository.get() }
 
     val wheelData: StateFlow<com.eried.eucplanet.data.model.WheelData> = wheelRepository.wheelData
 

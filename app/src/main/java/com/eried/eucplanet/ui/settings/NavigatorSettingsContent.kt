@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -340,6 +341,57 @@ fun NavigatorSettingsContent(
                 }
             }
             HintText(stringResource(R.string.weather_source_credit), small = true)
+
+            // Riding preferences: a triple selector per condition. The
+            // thresholds below say WHEN a condition applies; these say HOW it
+            // should count for this rider. Rain, snow and wind ship disliked.
+            Text(
+                stringResource(R.string.weather_pref_label).uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.appColors.primary,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            HintText(stringResource(R.string.weather_pref_desc), small = true)
+            val prefEntries = listOf(
+                "hot" to (R.string.weather_cond_hot to settings.weather.prefHot),
+                "cold" to (R.string.weather_cond_cold to settings.weather.prefCold),
+                "rain" to (R.string.weather_cond_rain to settings.weather.prefRain),
+                "snow" to (R.string.weather_cond_snow to settings.weather.prefSnow),
+                "wind" to (R.string.weather_cond_wind to settings.weather.prefWind),
+                "night" to (R.string.weather_cond_night to settings.weather.prefNight),
+            )
+            val prefOptions = listOf(
+                "DISLIKE" to stringResource(R.string.weather_pref_dislike),
+                "NEUTRAL" to stringResource(R.string.weather_pref_neutral),
+                "LIKE" to stringResource(R.string.weather_pref_like),
+            )
+            prefEntries.forEach { (key, entry) ->
+                val (labelRes, current) = entry
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(labelRes),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.weight(1.5f).height(40.dp)
+                    ) {
+                        prefOptions.forEachIndexed { index, (id, label) ->
+                            SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = current == id,
+                                onClick = { viewModel.updateWeatherPref(key, id) },
+                                shape = SegmentedButtonDefaults.itemShape(index, prefOptions.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                                colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                            ) { Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1) }
+                        }
+                    }
+                }
+            }
+
             HintText(stringResource(R.string.weather_comfort_desc), small = true)
             val imperialTemp = settings.unitTemp == "F"
             fun cToDisplay(c: Int): String = if (imperialTemp) ((c * 9 / 5) + 32).toString() else c.toString()

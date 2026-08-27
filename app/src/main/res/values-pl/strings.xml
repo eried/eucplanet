@@ -1643,6 +1643,7 @@
     <string name="weather_now">Teraz</string>
     <string name="weather_fetching">Pobieranie prognozy…</string>
     <string name="weather_updated_ago">Zaktualizowano %1$d min temu</string>
+    <string name="weather_updated_now">Zaktualizowano przed chwilą</string>
     <string name="weather_refresh">Odśwież prognozę</string>
     <string name="weather_error">Prognoza nieudana: %1$s</string>
     <string name="weather_window_6h">Następne 6 godzin</string>
@@ -1698,6 +1699,18 @@
     <string name="weather_in_h">%1$d godz.</string>
     <string name="weather_src_current">Bieżąca</string>
     <string name="weather_src_destination">Cel</string>
+    <string name="weather_swap_src">Zmień lokalizację</string>
+    <string name="weather_pref_label">Preferencje jazdy</string>
+    <string name="weather_pref_desc">Jak liczy się każdy warunek, wynik za tym podąża.</string>
+    <string name="weather_pref_dislike">Unikam</string>
+    <string name="weather_pref_neutral">Obojętne</string>
+    <string name="weather_pref_like">Lubię</string>
+    <string name="weather_cond_hot">Upał</string>
+    <string name="weather_cond_cold">Zimno</string>
+    <string name="weather_cond_rain">Deszcz</string>
+    <string name="weather_cond_snow">Śnieg i lód</string>
+    <string name="weather_cond_wind">Wiatr</string>
+    <string name="weather_cond_night">Noc</string>
     <string name="weather_face_clear">Czysto - jedź.</string>
     <string name="weather_face_meh">Da się jechać, ale uważaj.</string>
     <string name="weather_face_rain">Mokry asfalt - pochylaj delikatnie, hamuj wcześniej.</string>

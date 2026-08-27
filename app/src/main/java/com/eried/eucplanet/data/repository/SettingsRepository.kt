@@ -60,6 +60,12 @@ class SettingsRepository @Inject constructor(
             hotC = weather.hotC.coerceIn(weather.coldC.coerceIn(-30, 25) + 1, 55),
             breezyTenthsMs = weather.breezyTenthsMs.coerceIn(0, 200),
             windyTenthsMs = weather.windyTenthsMs.coerceIn(weather.breezyTenthsMs.coerceIn(0, 200) + 5, 400),
+            prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+            prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+            prefRain = weather.prefRain.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+            prefSnow = weather.prefSnow.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+            prefWind = weather.prefWind.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+            prefNight = weather.prefNight.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
         ),
         // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
         // value (from an imported or Dropbox-synced settings file, not just the
@@ -99,3 +105,5 @@ class SettingsRepository @Inject constructor(
             ?: HudDiscoveryMode.AUTO,
     )
 }
+
+private val PREF_VALUES = setOf("DISLIKE", "NEUTRAL", "LIKE")

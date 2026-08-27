@@ -1627,6 +1627,7 @@
     <string name="weather_now">지금</string>
     <string name="weather_fetching">예보 가져오는 중…</string>
     <string name="weather_updated_ago">%1$d분 전 업데이트</string>
+    <string name="weather_updated_now">방금 업데이트됨</string>
     <string name="weather_refresh">예보 새로고침</string>
     <string name="weather_error">예보 실패: %1$s</string>
     <string name="weather_window_6h">다음 6시간</string>
@@ -1682,6 +1683,18 @@
     <string name="weather_in_h">%1$d시간</string>
     <string name="weather_src_current">현재</string>
     <string name="weather_src_destination">목적지</string>
+    <string name="weather_swap_src">위치 전환</string>
+    <string name="weather_pref_label">라이딩 선호</string>
+    <string name="weather_pref_desc">각 조건을 어떻게 볼지, 점수에 반영됩니다.</string>
+    <string name="weather_pref_dislike">싫음</string>
+    <string name="weather_pref_neutral">보통</string>
+    <string name="weather_pref_like">좋음</string>
+    <string name="weather_cond_hot">더위</string>
+    <string name="weather_cond_cold">추위</string>
+    <string name="weather_cond_rain">비</string>
+    <string name="weather_cond_snow">눈과 빙판</string>
+    <string name="weather_cond_wind">바람</string>
+    <string name="weather_cond_night">야간</string>
     <string name="weather_face_clear">맑음 - 달리자.</string>
     <string name="weather_face_meh">탈 만하지만 방심 금지.</string>
     <string name="weather_face_rain">노면 젖음 - 기울임은 부드럽게, 제동은 일찍.</string>

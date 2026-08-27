@@ -1881,6 +1881,7 @@
     <string name="weather_now">Most</string>
     <string name="weather_fetching">Előrejelzés letöltése…</string>
     <string name="weather_updated_ago">Frissítve %1$d perce</string>
+    <string name="weather_updated_now">Épp most frissítve</string>
     <string name="weather_refresh">Előrejelzés frissítése</string>
     <string name="weather_error">Előrejelzés sikertelen: %1$s</string>
     <string name="weather_window_6h">Következő 6 óra</string>
@@ -1936,6 +1937,18 @@
     <string name="weather_in_h">%1$d óra</string>
     <string name="weather_src_current">Jelenlegi</string>
     <string name="weather_src_destination">Úti cél</string>
+    <string name="weather_swap_src">Hely váltása</string>
+    <string name="weather_pref_label">Vezetési preferenciák</string>
+    <string name="weather_pref_desc">Hogyan számítson neked az egyes körülmény, a pontszám követi.</string>
+    <string name="weather_pref_dislike">Kerülöm</string>
+    <string name="weather_pref_neutral">Semleges</string>
+    <string name="weather_pref_like">Szeretem</string>
+    <string name="weather_cond_hot">Hőség</string>
+    <string name="weather_cond_cold">Hideg</string>
+    <string name="weather_cond_rain">Eső</string>
+    <string name="weather_cond_snow">Hó és jég</string>
+    <string name="weather_cond_wind">Szél</string>
+    <string name="weather_cond_night">Éjszaka</string>
     <string name="weather_face_clear">Tiszta - mehet.</string>
     <string name="weather_face_meh">Tekerhető, de figyelj.</string>
     <string name="weather_face_rain">Vizes aszfalt - finom dőlés, fékezz korábban.</string>

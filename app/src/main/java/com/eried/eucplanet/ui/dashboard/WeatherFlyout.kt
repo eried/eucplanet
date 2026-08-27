@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ui.dashboard
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -219,15 +222,43 @@ fun WeatherFlyout(
                         .clickable(enabled = destName != null) { onToggleSource() }
                         .padding(horizontal = 6.dp, vertical = 1.dp),
                 )
+                // Explicit swap between here and the destination, only when
+                // a route offers one.
+                if (destName != null) {
+                    IconButton(onClick = onToggleSource, modifier = Modifier.size(24.dp)) {
+                        Icon(
+                            Icons.Default.SwapHoriz,
+                            contentDescription = stringResource(R.string.weather_swap_src),
+                            tint = ink.copy(alpha = 0.7f),
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
                 Spacer(Modifier.width(8.dp))
+                // A fresh fetch reads "just now", then quietly fades out;
+                // older stamps stay as minutes.
+                var justNowShown by remember { mutableStateOf(true) }
+                LaunchedEffect(refreshing, updatedAgoMin) {
+                    justNowShown = true
+                    if (!refreshing && updatedAgoMin == 0) {
+                        delay(2500)
+                        justNowShown = false
+                    }
+                }
+                val statusAlpha by animateFloatAsState(
+                    targetValue = if (refreshing || (updatedAgoMin ?: 1) > 0 || justNowShown) 0.6f else 0f,
+                    animationSpec = tween(900),
+                    label = "updatedFade",
+                )
                 Text(
                     when {
                         refreshing -> stringResource(R.string.weather_fetching)
+                        updatedAgoMin == 0 -> stringResource(R.string.weather_updated_now)
                         updatedAgoMin != null -> stringResource(R.string.weather_updated_ago, updatedAgoMin)
                         else -> ""
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = ink.copy(alpha = 0.6f),
+                    color = ink.copy(alpha = statusAlpha),
                 )
                 Spacer(Modifier.weight(1f))
                 if (refreshing) {
@@ -541,7 +572,9 @@ private fun ScoreGraph(
     val good = MaterialTheme.appColors.weatherGood
     val bad = MaterialTheme.appColors.weatherBad
     val gridColor = ink.copy(alpha = 0.15f)
-    val axisColor = ink.copy(alpha = 0.45f)
+    // Super faint and dotted, so the neutral axis can never be confused
+    // with the long-dashed comparison curve.
+    val axisColor = ink.copy(alpha = 0.22f)
     val rainBand = MaterialTheme.appColors.chartEnvelope.copy(alpha = 0.20f)
     // The same diagonal texture as the charging pack tiles, inked so it reads
     // on the inverse panel in both themes.
@@ -666,6 +699,29 @@ private fun ScoreGraph(
                     } else i++
                 }
 
+                // Ghost fill for the comparison location, drawn first so the
+                // selected location's fill sits over it.
+                if (alt.size > 1) {
+                    val m = alt.size
+                    fun axf(i: Int) = i * w / (m - 1)
+                    val altArea = Path().apply {
+                        moveTo(axf(0), y(alt[0].b.score))
+                        for (p in 1 until m) lineTo(axf(p), y(alt[p].b.score))
+                        lineTo(w, h)
+                        lineTo(0f, h)
+                        close()
+                    }
+                    val altStride = (m / 32).coerceAtLeast(1)
+                    val altStops = ArrayList<Pair<Float, Color>>()
+                    var ak = 0
+                    while (ak < m) {
+                        altStops.add((if (m <= 1) 0f else ak / (m - 1f)) to colorFor(alt[ak].b.score).copy(alpha = 0.12f))
+                        ak += altStride
+                    }
+                    if (altStops.last().first < 1f) altStops.add(1f to colorFor(alt[m - 1].b.score).copy(alpha = 0.12f))
+                    drawPath(altArea, brush = Brush.horizontalGradient(*altStops.toTypedArray()))
+                }
+
                 // Gradient fill under the curve: the score's own colour at
                 // every stop, light blue where it is good riding, magenta
                 // where it is not, blending smoothly between.
@@ -712,8 +768,8 @@ private fun ScoreGraph(
                     axisColor,
                     Offset(0f, y(0f)),
                     Offset(w, y(0f)),
-                    strokeWidth = 2f,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f)),
+                    strokeWidth = 1.5f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 7f)),
                 )
 
                 // Segment-coloured line on top.

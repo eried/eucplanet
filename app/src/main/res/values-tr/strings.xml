@@ -1627,6 +1627,7 @@
     <string name="weather_now">Şimdi</string>
     <string name="weather_fetching">Tahmin alınıyor…</string>
     <string name="weather_updated_ago">%1$d dk önce güncellendi</string>
+    <string name="weather_updated_now">Az önce güncellendi</string>
     <string name="weather_refresh">Tahmini yenile</string>
     <string name="weather_error">Tahmin başarısız: %1$s</string>
     <string name="weather_window_6h">Sonraki 6 saat</string>
@@ -1682,6 +1683,18 @@
     <string name="weather_in_h">%1$d sa</string>
     <string name="weather_src_current">Mevcut</string>
     <string name="weather_src_destination">Hedef</string>
+    <string name="weather_swap_src">Konum değiştir</string>
+    <string name="weather_pref_label">Sürüş tercihleri</string>
+    <string name="weather_pref_desc">Her koşul senin için nasıl sayılsın, puan buna uyar.</string>
+    <string name="weather_pref_dislike">Sevmem</string>
+    <string name="weather_pref_neutral">Nötr</string>
+    <string name="weather_pref_like">Severim</string>
+    <string name="weather_cond_hot">Sıcak</string>
+    <string name="weather_cond_cold">Soğuk</string>
+    <string name="weather_cond_rain">Yağmur</string>
+    <string name="weather_cond_snow">Kar ve buz</string>
+    <string name="weather_cond_wind">Rüzgar</string>
+    <string name="weather_cond_night">Gece</string>
     <string name="weather_face_clear">Açık - bas gitsin.</string>
     <string name="weather_face_meh">Sürülür ama dikkatli ol.</string>
     <string name="weather_face_rain">Islak asfalt - yumuşak yat, erken frenle.</string>

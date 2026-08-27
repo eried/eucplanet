@@ -1275,7 +1275,12 @@ fun DashboardScreen(
                             Icon(
                                 imageVector = PartlyCloudyDayIcon,
                                 contentDescription = stringResource(R.string.weather_icon_desc),
-                                tint = MaterialTheme.appColors.dashIcon,
+                                // GPS-style freshness tint: lit while the
+                                // forecast sits inside its half-hour validity,
+                                // neutral once it goes stale.
+                                tint = if (weatherFetchedAt?.let { System.currentTimeMillis() - it < 30 * 60_000L } == true)
+                                    (if (useAccent) primary else MaterialTheme.appColors.statusGood)
+                                else MaterialTheme.appColors.dashIcon.copy(alpha = 0.45f),
                                 modifier = Modifier
                                     .padding(start = 4.dp, bottom = 12.dp)
                                     .size(28.dp)

@@ -1639,6 +1639,7 @@
     <string name="weather_now">Nu</string>
     <string name="weather_fetching">Henter udsigt…</string>
     <string name="weather_updated_ago">Opdateret for %1$d min siden</string>
+    <string name="weather_updated_now">Opdateret lige nu</string>
     <string name="weather_refresh">Opdater udsigt</string>
     <string name="weather_error">Udsigt fejlede: %1$s</string>
     <string name="weather_window_6h">Næste 6 timer</string>
@@ -1694,6 +1695,18 @@
     <string name="weather_in_h">%1$d t</string>
     <string name="weather_src_current">Nuværende</string>
     <string name="weather_src_destination">Destination</string>
+    <string name="weather_swap_src">Skift sted</string>
+    <string name="weather_pref_label">Kørepræferencer</string>
+    <string name="weather_pref_desc">Hvordan hver betingelse skal tælle for dig, scoren følger med.</string>
+    <string name="weather_pref_dislike">Ugerne</string>
+    <string name="weather_pref_neutral">Neutral</string>
+    <string name="weather_pref_like">Gerne</string>
+    <string name="weather_cond_hot">Varme</string>
+    <string name="weather_cond_cold">Kulde</string>
+    <string name="weather_cond_rain">Regn</string>
+    <string name="weather_cond_snow">Sne og is</string>
+    <string name="weather_cond_wind">Vind</string>
+    <string name="weather_cond_night">Nat</string>
     <string name="weather_face_clear">Klart - kør.</string>
     <string name="weather_face_meh">Kan køres, men vær skarp.</string>
     <string name="weather_face_rain">Våd asfalt - læn blidt, brems tidligt.</string>

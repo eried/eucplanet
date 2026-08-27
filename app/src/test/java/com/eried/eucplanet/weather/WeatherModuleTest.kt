@@ -61,7 +61,8 @@ class WeatherModuleTest {
     @Test fun `night is a nudge, not a verdict`() {
         val d = s(hour(tempC = 22.5f))
         val n = s(hour(tempC = 22.5f, day = false))
-        assertEquals(0.5f, d.score - n.score, 0.001f)
+        // Night is NEUTRAL by default: 0.6 base at 0.45 weight.
+        assertEquals(0.27f, d.score - n.score, 0.02f)
         assertTrue(n.night)
     }
 
@@ -89,6 +90,38 @@ class WeatherModuleTest {
         val awful = s(hour(tempC = -20f, snow = 4f, wind = 12f, day = false))
         assertEquals(-5f, awful.score, 0.001f)
         assertTrue(s(hour(tempC = 22.5f)).score <= 5f)
+    }
+
+    @Test fun `preferences reweight the penalties`() {
+        val base = RidabilityScore.Prefs()
+        // A rain lover turns drizzle from a penalty into a small bonus.
+        val hater = RidabilityScore.score(hour(rain = 1f), 14f, 31f, 2f, 4.5f)
+        val lover = RidabilityScore.score(
+            hour(rain = 1f), 14f, 31f, 2f, 4.5f,
+            base.copy(rain = RidabilityScore.Pref.LIKE),
+        )
+        assertTrue(lover.score > hater.score)
+        assertTrue(lover.score > 0f)
+        // Disliking cold makes a cold day genuinely worse than neutral.
+        val coldNeutral = s(hour(tempC = -5f))
+        val coldHater = RidabilityScore.score(
+            hour(tempC = -5f), 14f, 31f, 2f, 4.5f,
+            base.copy(cold = RidabilityScore.Pref.DISLIKE),
+        )
+        assertTrue(coldHater.score < coldNeutral.score)
+    }
+
+    @Test fun `liking wind and rain never makes a storm read great`() {
+        val stormLover = RidabilityScore.Prefs(
+            rain = RidabilityScore.Pref.LIKE,
+            wind = RidabilityScore.Pref.LIKE,
+        )
+        val storm = RidabilityScore.score(hour(rain = 2f, wind = 8f), 14f, 31f, 2f, 4.5f, stormLover)
+        // Mild-only bonuses plus the combination floor keep it out of the
+        // good half of the scale.
+        assertTrue("was ${storm.score}", storm.score < 1f)
+        // And with the shipped defaults the same storm is the -5 floor.
+        assertEquals(-5f, s(hour(rain = 2f, wind = 8f)).score, 0.001f)
     }
 
     // --- Providers ----------------------------------------------------------
@@ -158,6 +191,13 @@ class WeatherModuleTest {
         assertEquals(31, w.hotC)
         assertEquals(20, w.breezyTenthsMs)   // 2.0 m/s
         assertEquals(45, w.windyTenthsMs)    // 4.5 m/s
+        // Rain, snow and wind ship disliked; the rest neutral.
+        assertEquals("DISLIKE", w.prefRain)
+        assertEquals("DISLIKE", w.prefSnow)
+        assertEquals("DISLIKE", w.prefWind)
+        assertEquals("NEUTRAL", w.prefHot)
+        assertEquals("NEUTRAL", w.prefCold)
+        assertEquals("NEUTRAL", w.prefNight)
     }
 
     @Test fun `unknown source ids fall back to open-meteo`() {
@@ -237,6 +277,11 @@ class WeatherModuleTest {
             "weather_adv_gusts", "weather_adv_freeze", "weather_adv_clear",
             "weather_in_min", "weather_in_h",
             "weather_src_current", "weather_src_destination",
+            "weather_updated_now", "weather_swap_src",
+            "weather_pref_label", "weather_pref_desc",
+            "weather_pref_dislike", "weather_pref_neutral", "weather_pref_like",
+            "weather_cond_hot", "weather_cond_cold", "weather_cond_rain",
+            "weather_cond_snow", "weather_cond_wind", "weather_cond_night",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }

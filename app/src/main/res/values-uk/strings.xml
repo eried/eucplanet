@@ -1662,6 +1662,7 @@
     <string name="weather_now">Зараз</string>
     <string name="weather_fetching">Отримання прогнозу…</string>
     <string name="weather_updated_ago">Оновлено %1$d хв тому</string>
+    <string name="weather_updated_now">Щойно оновлено</string>
     <string name="weather_refresh">Оновити прогноз</string>
     <string name="weather_error">Збій прогнозу: %1$s</string>
     <string name="weather_window_6h">Наступні 6 годин</string>
@@ -1717,6 +1718,18 @@
     <string name="weather_in_h">%1$d год</string>
     <string name="weather_src_current">Поточне</string>
     <string name="weather_src_destination">Ціль</string>
+    <string name="weather_swap_src">Змінити місце</string>
+    <string name="weather_pref_label">Уподобання їзди</string>
+    <string name="weather_pref_desc">Як враховувати кожну умову, рахунок підлаштується.</string>
+    <string name="weather_pref_dislike">Не люблю</string>
+    <string name="weather_pref_neutral">Байдуже</string>
+    <string name="weather_pref_like">Люблю</string>
+    <string name="weather_cond_hot">Спека</string>
+    <string name="weather_cond_cold">Холод</string>
+    <string name="weather_cond_rain">Дощ</string>
+    <string name="weather_cond_snow">Сніг і лід</string>
+    <string name="weather_cond_wind">Вітер</string>
+    <string name="weather_cond_night">Ніч</string>
     <string name="weather_face_clear">Ясно - вперед.</string>
     <string name="weather_face_meh">Їхати можна, але пильнуй.</string>
     <string name="weather_face_rain">Мокрий асфальт - нахиляйся м’яко, гальмуй раніше.</string>

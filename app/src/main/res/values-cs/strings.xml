@@ -1881,6 +1881,7 @@
     <string name="weather_now">Teď</string>
     <string name="weather_fetching">Načítání předpovědi…</string>
     <string name="weather_updated_ago">Aktualizováno před %1$d min</string>
+    <string name="weather_updated_now">Aktualizováno právě teď</string>
     <string name="weather_refresh">Obnovit předpověď</string>
     <string name="weather_error">Předpověď selhala: %1$s</string>
     <string name="weather_window_6h">Dalších 6 hodin</string>
@@ -1936,6 +1937,18 @@
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Aktuální</string>
     <string name="weather_src_destination">Cíl</string>
+    <string name="weather_swap_src">Prohodit místo</string>
+    <string name="weather_pref_label">Preference ježdění</string>
+    <string name="weather_pref_desc">Jak se má každá podmínka počítat, skóre se přizpůsobí.</string>
+    <string name="weather_pref_dislike">Nerad</string>
+    <string name="weather_pref_neutral">Neutrál</string>
+    <string name="weather_pref_like">Rád</string>
+    <string name="weather_cond_hot">Horko</string>
+    <string name="weather_cond_cold">Zima</string>
+    <string name="weather_cond_rain">Déšť</string>
+    <string name="weather_cond_snow">Sníh a led</string>
+    <string name="weather_cond_wind">Vítr</string>
+    <string name="weather_cond_night">Noc</string>
     <string name="weather_face_clear">Jasno - jeď.</string>
     <string name="weather_face_meh">Dá se jet, ale pozor.</string>
     <string name="weather_face_rain">Mokrý asfalt - naklánět jemně, brzdit dřív.</string>

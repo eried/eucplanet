@@ -1881,6 +1881,7 @@
     <string name="weather_now">Nyt</string>
     <string name="weather_fetching">Haetaan ennustetta…</string>
     <string name="weather_updated_ago">Päivitetty %1$d min sitten</string>
+    <string name="weather_updated_now">Päivitetty juuri nyt</string>
     <string name="weather_refresh">Päivitä ennuste</string>
     <string name="weather_error">Ennuste epäonnistui: %1$s</string>
     <string name="weather_window_6h">Seuraavat 6 tuntia</string>
@@ -1936,6 +1937,18 @@
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Nykyinen</string>
     <string name="weather_src_destination">Määränpää</string>
+    <string name="weather_swap_src">Vaihda sijaintia</string>
+    <string name="weather_pref_label">Ajomieltymykset</string>
+    <string name="weather_pref_desc">Miten kukin olosuhde lasketaan, pisteet seuraavat.</string>
+    <string name="weather_pref_dislike">Inhoan</string>
+    <string name="weather_pref_neutral">Neutraali</string>
+    <string name="weather_pref_like">Pidän</string>
+    <string name="weather_cond_hot">Helle</string>
+    <string name="weather_cond_cold">Kylmyys</string>
+    <string name="weather_cond_rain">Sade</string>
+    <string name="weather_cond_snow">Lumi ja jää</string>
+    <string name="weather_cond_wind">Tuuli</string>
+    <string name="weather_cond_night">Yö</string>
     <string name="weather_face_clear">Selkeää - aja.</string>
     <string name="weather_face_meh">Ajettavissa, mutta tarkkana.</string>
     <string name="weather_face_rain">Märkä asfaltti - kallista pehmeästi, jarruta ajoissa.</string>

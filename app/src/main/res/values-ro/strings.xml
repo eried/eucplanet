@@ -1881,6 +1881,7 @@
     <string name="weather_now">Acum</string>
     <string name="weather_fetching">Se preia prognoza…</string>
     <string name="weather_updated_ago">Actualizat acum %1$d min</string>
+    <string name="weather_updated_now">Actualizat chiar acum</string>
     <string name="weather_refresh">Reîmprospătează prognoza</string>
     <string name="weather_error">Prognoza a eșuat: %1$s</string>
     <string name="weather_window_6h">Următoarele 6 ore</string>
@@ -1936,6 +1937,18 @@
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Curentă</string>
     <string name="weather_src_destination">Destinație</string>
+    <string name="weather_swap_src">Schimbă locul</string>
+    <string name="weather_pref_label">Preferințe de rulare</string>
+    <string name="weather_pref_desc">Cât contează fiecare condiție pentru tine, scorul urmează.</string>
+    <string name="weather_pref_dislike">Evit</string>
+    <string name="weather_pref_neutral">Neutru</string>
+    <string name="weather_pref_like">Îmi place</string>
+    <string name="weather_cond_hot">Căldură</string>
+    <string name="weather_cond_cold">Frig</string>
+    <string name="weather_cond_rain">Ploaie</string>
+    <string name="weather_cond_snow">Zăpadă și gheață</string>
+    <string name="weather_cond_wind">Vânt</string>
+    <string name="weather_cond_night">Noapte</string>
     <string name="weather_face_clear">Senin - dă-i.</string>
     <string name="weather_face_meh">Se poate rula, dar fii atent.</string>
     <string name="weather_face_rain">Asfalt ud - înclină ușor, frânează devreme.</string>

@@ -1627,6 +1627,7 @@
     <string name="weather_now">現在</string>
     <string name="weather_fetching">予報を取得中…</string>
     <string name="weather_updated_ago">%1$d分前に更新</string>
+    <string name="weather_updated_now">たった今更新</string>
     <string name="weather_refresh">予報を更新</string>
     <string name="weather_error">予報の取得に失敗: %1$s</string>
     <string name="weather_window_6h">今後6時間</string>
@@ -1682,6 +1683,18 @@
     <string name="weather_in_h">%1$d時間</string>
     <string name="weather_src_current">現在地</string>
     <string name="weather_src_destination">目的地</string>
+    <string name="weather_swap_src">場所を切替</string>
+    <string name="weather_pref_label">ライドの好み</string>
+    <string name="weather_pref_desc">各条件の扱い方。スコアに反映されます。</string>
+    <string name="weather_pref_dislike">苦手</string>
+    <string name="weather_pref_neutral">普通</string>
+    <string name="weather_pref_like">好き</string>
+    <string name="weather_cond_hot">暑さ</string>
+    <string name="weather_cond_cold">寒さ</string>
+    <string name="weather_cond_rain">雨</string>
+    <string name="weather_cond_snow">雪・凍結</string>
+    <string name="weather_cond_wind">風</string>
+    <string name="weather_cond_night">夜</string>
     <string name="weather_face_clear">快晴 - 行こう。</string>
     <string name="weather_face_meh">走れるが油断禁物。</string>
     <string name="weather_face_rain">路面ウェット - 倒し込みは優しく、早めのブレーキ。</string>

@@ -1685,6 +1685,7 @@
     <string name="weather_now">Nu</string>
     <string name="weather_fetching">Voorspelling ophalen…</string>
     <string name="weather_updated_ago">Bijgewerkt %1$d min geleden</string>
+    <string name="weather_updated_now">Zojuist bijgewerkt</string>
     <string name="weather_refresh">Voorspelling verversen</string>
     <string name="weather_error">Voorspelling mislukt: %1$s</string>
     <string name="weather_window_6h">Komende 6 uur</string>
@@ -1740,6 +1741,18 @@
     <string name="weather_in_h">%1$d u</string>
     <string name="weather_src_current">Huidig</string>
     <string name="weather_src_destination">Bestemming</string>
+    <string name="weather_swap_src">Wissel locatie</string>
+    <string name="weather_pref_label">Rijvoorkeuren</string>
+    <string name="weather_pref_desc">Hoe elke conditie voor jou telt, de score volgt.</string>
+    <string name="weather_pref_dislike">Vermijd</string>
+    <string name="weather_pref_neutral">Neutraal</string>
+    <string name="weather_pref_like">Graag</string>
+    <string name="weather_cond_hot">Hitte</string>
+    <string name="weather_cond_cold">Kou</string>
+    <string name="weather_cond_rain">Regen</string>
+    <string name="weather_cond_snow">Sneeuw en ijs</string>
+    <string name="weather_cond_wind">Wind</string>
+    <string name="weather_cond_night">Nacht</string>
     <string name="weather_face_clear">Helder - gassen.</string>
     <string name="weather_face_meh">Rijdbaar, maar blijf scherp.</string>
     <string name="weather_face_rain">Nat wegdek - zacht leunen, eerder remmen.</string>

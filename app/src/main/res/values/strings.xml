@@ -2112,6 +2112,7 @@
     <string name="weather_now">Now</string>
     <string name="weather_fetching">Fetching forecast…</string>
     <string name="weather_updated_ago">Updated %1$d min ago</string>
+    <string name="weather_updated_now">Updated just now</string>
     <string name="weather_refresh">Refresh forecast</string>
     <string name="weather_error">Forecast failed: %1$s</string>
     <string name="weather_window_6h">Next 6 hours</string>
@@ -2167,6 +2168,18 @@
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Current</string>
     <string name="weather_src_destination">Destination</string>
+    <string name="weather_swap_src">Swap location</string>
+    <string name="weather_pref_label">Riding preferences</string>
+    <string name="weather_pref_desc">How each condition should count for you - the score follows.</string>
+    <string name="weather_pref_dislike">Dislike</string>
+    <string name="weather_pref_neutral">Neutral</string>
+    <string name="weather_pref_like">Like</string>
+    <string name="weather_cond_hot">Heat</string>
+    <string name="weather_cond_cold">Cold</string>
+    <string name="weather_cond_rain">Rain</string>
+    <string name="weather_cond_snow">Snow &amp; ice</string>
+    <string name="weather_cond_wind">Wind</string>
+    <string name="weather_cond_night">Night</string>
     <string name="weather_face_clear">All clear - send it.</string>
     <string name="weather_face_meh">Rideable, not prime - stay sharp.</string>
     <string name="weather_face_rain">Wet tarmac - easy on the lean, brake early.</string>

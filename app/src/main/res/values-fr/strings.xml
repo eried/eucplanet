@@ -1689,6 +1689,7 @@
     <string name="weather_now">Maintenant</string>
     <string name="weather_fetching">Récupération des prévisions…</string>
     <string name="weather_updated_ago">Mis à jour il y a %1$d min</string>
+    <string name="weather_updated_now">Mis à jour maintenant</string>
     <string name="weather_refresh">Actualiser les prévisions</string>
     <string name="weather_error">Échec des prévisions : %1$s</string>
     <string name="weather_window_6h">6 prochaines heures</string>
@@ -1744,6 +1745,18 @@
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Actuel</string>
     <string name="weather_src_destination">Destination</string>
+    <string name="weather_swap_src">Changer de lieu</string>
+    <string name="weather_pref_label">Préférences de conduite</string>
+    <string name="weather_pref_desc">Comment chaque condition compte pour toi, le score suit.</string>
+    <string name="weather_pref_dislike">Évite</string>
+    <string name="weather_pref_neutral">Neutre</string>
+    <string name="weather_pref_like">Aime</string>
+    <string name="weather_cond_hot">Chaleur</string>
+    <string name="weather_cond_cold">Froid</string>
+    <string name="weather_cond_rain">Pluie</string>
+    <string name="weather_cond_snow">Neige et verglas</string>
+    <string name="weather_cond_wind">Vent</string>
+    <string name="weather_cond_night">Nuit</string>
     <string name="weather_face_clear">Dégagé : envoie.</string>
     <string name="weather_face_meh">Roulable, mais reste vif.</string>
     <string name="weather_face_rain">Bitume mouillé : incline doux, freine tôt.</string>

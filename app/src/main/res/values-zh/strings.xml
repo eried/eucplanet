@@ -807,6 +807,7 @@
     <string name="weather_now">现在</string>
     <string name="weather_fetching">正在获取预报…</string>
     <string name="weather_updated_ago">%1$d 分钟前更新</string>
+    <string name="weather_updated_now">刚刚更新</string>
     <string name="weather_refresh">刷新预报</string>
     <string name="weather_error">预报失败：%1$s</string>
     <string name="weather_window_6h">未来6小时</string>
@@ -862,6 +863,18 @@
     <string name="weather_in_h">%1$d小时</string>
     <string name="weather_src_current">当前</string>
     <string name="weather_src_destination">目的地</string>
+    <string name="weather_swap_src">切换位置</string>
+    <string name="weather_pref_label">骑行偏好</string>
+    <string name="weather_pref_desc">每种条件如何计入，评分随之变化。</string>
+    <string name="weather_pref_dislike">不喜欢</string>
+    <string name="weather_pref_neutral">中立</string>
+    <string name="weather_pref_like">喜欢</string>
+    <string name="weather_cond_hot">炎热</string>
+    <string name="weather_cond_cold">寒冷</string>
+    <string name="weather_cond_rain">雨</string>
+    <string name="weather_cond_snow">雪与冰</string>
+    <string name="weather_cond_wind">风</string>
+    <string name="weather_cond_night">夜间</string>
     <string name="weather_face_clear">晴朗 - 冲。</string>
     <string name="weather_face_meh">能骑，但保持警惕。</string>
     <string name="weather_face_rain">路面湿滑 - 缓慢倾斜，提前刹车。</string>
