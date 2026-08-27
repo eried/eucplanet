@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import com.eried.eucplanet.ui.theme.appColors
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -304,22 +305,38 @@ fun NavigatorSettingsContent(
                     ) { Text(label) }
                 }
             }
-            Text(
-                stringResource(R.string.weather_source_label),
-                style = MaterialTheme.typography.bodyLarge
-            )
             val sources = com.eried.eucplanet.weather.WeatherSource.entries
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier.fillMaxWidth().height(56.dp)
+            var sourceExpanded by remember { mutableStateOf(false) }
+            androidx.compose.material3.ExposedDropdownMenuBox(
+                expanded = sourceExpanded,
+                onExpandedChange = { sourceExpanded = it },
             ) {
-                sources.forEachIndexed { index, src ->
-                    SegmentedButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        selected = settings.weather.source == src.id,
-                        onClick = { viewModel.updateWeatherSource(src.id) },
-                        shape = SegmentedButtonDefaults.itemShape(index, sources.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
-                        colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
-                    ) { Text(src.label) }
+                OutlinedTextField(
+                    value = com.eried.eucplanet.weather.WeatherSource.byId(settings.weather.source).label,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.weather_source_label)) },
+                    trailingIcon = { androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable),
+                    colors = themedFieldColors(),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                )
+                ExposedDropdownMenu(
+                    expanded = sourceExpanded,
+                    onDismissRequest = { sourceExpanded = false },
+                    containerColor = MaterialTheme.appColors.menuBackground
+                ) {
+                    sources.forEach { src ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(src.label) },
+                            onClick = {
+                                viewModel.updateWeatherSource(src.id)
+                                sourceExpanded = false
+                            }
+                        )
+                    }
                 }
             }
             HintText(stringResource(R.string.weather_source_credit), small = true)

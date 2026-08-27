@@ -1710,6 +1710,14 @@
     <string name="weather_breezy">Brise au-dessus de</string>
     <string name="weather_windy">Trop de vent au-dessus de</string>
     <string name="weather_source_credit">Données Open-Meteo.com ou MET Norway, récupérées seulement si activé.</string>
+    <string name="weather_face_clear">Dégagé : envoie.</string>
+    <string name="weather_face_meh">Roulable, mais reste vif.</string>
+    <string name="weather_face_rain">Bitume mouillé : incline doux, freine tôt.</string>
+    <string name="weather_face_snow">Neige ou verglas : plus d’adhérence, mieux vaut marcher.</string>
+    <string name="weather_face_wind">Rafales : reste souple, attends-toi à des poussées.</string>
+    <string name="weather_face_night">Nuit : feux allumés, lève le pied.</string>
+    <string name="weather_face_cold">Froid : pneu raide, batterie qui chute, couvre-toi.</string>
+    <string name="weather_face_hot">Chaud : surveille le contrôleur en montée.</string>
     <string name="nav_setting_full_path">Toujours calculer l\'itinéraire complet</string>
     <string name="nav_setting_full_path_desc">Désactivé : calcule seulement l\'arrêt suivant et affiche le reste en pointillés</string>
     <string name="nav_setting_endpoints">Services de calcul d\'itinéraire</string>

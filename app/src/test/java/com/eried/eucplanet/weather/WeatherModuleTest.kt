@@ -135,6 +135,14 @@ class WeatherModuleTest {
 
     // --- Surfaces -----------------------------------------------------------
 
+    @Test fun `the source picker is a combo and the faces have their lingo`() {
+        val nav = File("src/main/java/com/eried/eucplanet/ui/settings/NavigatorSettingsContent.kt").readText()
+        assertTrue(nav.contains("ExposedDropdownMenuBox"))
+        val flyout = File("src/main/java/com/eried/eucplanet/ui/dashboard/WeatherFlyout.kt").readText()
+        assertTrue(flyout.contains("weather_face_snow"))
+        assertTrue(flyout.contains("Brush.horizontalGradient"))
+    }
+
     @Test fun `the icon and flyout only exist when the module is enabled`() {
         val dash = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
         assertTrue(dash.contains("if (weatherSettings.enabled)"))
@@ -151,6 +159,9 @@ class WeatherModuleTest {
             "weather_window_label", "weather_source_label", "weather_comfort_desc",
             "weather_cold", "weather_hot", "weather_breezy", "weather_windy",
             "weather_source_credit",
+            "weather_face_clear", "weather_face_meh", "weather_face_rain",
+            "weather_face_snow", "weather_face_wind", "weather_face_night",
+            "weather_face_cold", "weather_face_hot",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }

@@ -1647,6 +1647,14 @@
     <string name="weather_breezy">Blåsigt över</string>
     <string name="weather_windy">För blåsigt över</string>
     <string name="weather_source_credit">Data från Open-Meteo.com eller MET Norway, endast när aktiverat.</string>
+    <string name="weather_face_clear">Klart - kör.</string>
+    <string name="weather_face_meh">Körbart, men var skärpt.</string>
+    <string name="weather_face_rain">Våt asfalt - luta mjukt, bromsa tidigt.</string>
+    <string name="weather_face_snow">Snö eller snöblandat - inget grepp, gå hellre.</string>
+    <string name="weather_face_wind">Byig vind - var lös, vänta knuffar.</string>
+    <string name="weather_face_night">Mörkt - lampor på, sakta ner.</string>
+    <string name="weather_face_cold">Kallt - styvt däck, svagt batteri, klä dig varmt.</string>
+    <string name="weather_face_hot">Varmt - håll koll på controllern i backar.</string>
     <string name="nav_setting_full_path">Beräkna alltid hela rutten</string>
     <string name="nav_setting_full_path_desc">Av: beräknar bara nästa stopp och visar resten som streckad förhandsvisning</string>
     <string name="nav_setting_endpoints">Ruttjänster</string>

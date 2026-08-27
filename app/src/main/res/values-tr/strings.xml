@@ -1648,6 +1648,14 @@
     <string name="weather_breezy">Üstünde esintili</string>
     <string name="weather_windy">Üstünde çok rüzgarlı</string>
     <string name="weather_source_credit">Veriler Open-Meteo.com veya MET Norway, yalnızca etkinken.</string>
+    <string name="weather_face_clear">Açık - bas gitsin.</string>
+    <string name="weather_face_meh">Sürülür ama dikkatli ol.</string>
+    <string name="weather_face_rain">Islak asfalt - yumuşak yat, erken frenle.</string>
+    <string name="weather_face_snow">Kar veya sulu kar - tutuş yok, yürümek daha iyi.</string>
+    <string name="weather_face_wind">Rüzgar sert - gevşek dur, itmelere hazır ol.</string>
+    <string name="weather_face_night">Karanlık - ışıkları aç, yavaşla.</string>
+    <string name="weather_face_cold">Soğuk - sert lastik, düşen batarya, kalın giyin.</string>
+    <string name="weather_face_hot">Sıcak - yokuşta kontrolcü sıcaklığına bak.</string>
     <string name="nav_setting_full_path">Her zaman tam yolu çöz</string>
     <string name="nav_setting_full_path_desc">Kapalıyken yalnızca sonraki durağı çözer, geri kalanı kesik çizgili önizleme olarak gösterilir</string>
     <string name="nav_setting_endpoints">Yönlendirme servisleri</string>

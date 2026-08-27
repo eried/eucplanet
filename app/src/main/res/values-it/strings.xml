@@ -864,6 +864,14 @@
     <string name="weather_breezy">Ventilato oltre</string>
     <string name="weather_windy">Troppo vento oltre</string>
     <string name="weather_source_credit">Dati di Open-Meteo.com o MET Norway, scaricati solo se attivo.</string>
+    <string name="weather_face_clear">Sereno: vai.</string>
+    <string name="weather_face_meh">Si può girare, ma occhio.</string>
+    <string name="weather_face_rain">Asfalto bagnato: piega dolce, frena prima.</string>
+    <string name="weather_face_snow">Neve o nevischio: zero grip, meglio a piedi.</string>
+    <string name="weather_face_wind">Raffiche: stai morbido, aspettati spinte.</string>
+    <string name="weather_face_night">Notte: luci accese, rallenta.</string>
+    <string name="weather_face_cold">Freddo: gomma rigida, batteria giù, copriti.</string>
+    <string name="weather_face_hot">Caldo: occhio al controller in salita.</string>
     <string name="nav_setting_router_url">URL di routing</string>
     <string name="nav_setting_voice">Guida vocale</string>
     <string name="nav_start_riding">Inizia a guidare</string>

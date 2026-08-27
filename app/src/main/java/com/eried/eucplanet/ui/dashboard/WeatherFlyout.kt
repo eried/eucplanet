@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.dashboard
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -55,11 +58,11 @@ import java.util.Locale
 data class ScoredHour(val timeMs: Long, val b: RidabilityScore.Breakdown)
 
 /**
- * The thin forecast strip that pops over the dashboard when the rider taps
- * the weather icon: the ridability score 0-10 across the chosen window, a
- * "now" edge, sparse time ticks, and a glyph strip naming which factor bites
- * when (rain, snow, wind, night). The score line is the headline; the glyphs
- * answer "why".
+ * The thin forecast strip over the dashboard: the ridability score 0-10
+ * across the chosen window as a gradient-filled curve, rain and snow bands
+ * behind it, transition faces the rider can tap for a one-line read in EUC
+ * lingo, a glyph strip naming which factor bites when, and sparse time
+ * ticks. Built as a quick "is it good to go ride" glance.
  */
 @Composable
 fun WeatherFlyout(
@@ -139,12 +142,38 @@ fun WeatherFlyout(
     }
 }
 
+/** A face pinned to the curve: where, which emoji, and the lingo line a tap
+ *  reveals. Faces sit at the start plus the moments the ride character
+ *  changes - a band crossing or a hazard beginning. */
+private data class FaceSpot(val index: Int, val emoji: String, val infoRes: Int)
+
+/** The tap-line and face for an hour, by what dominates it. Priority mirrors
+ *  danger: snow, rain, wind, cold, hot, night, then just the score band. */
+private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> = when {
+    b.snow -> "🥶" to R.string.weather_face_snow          // cold face
+    b.rain -> "😬" to R.string.weather_face_rain          // grimace
+    b.wind && b.score < 7f -> "😖" to R.string.weather_face_wind
+    b.cold -> "🥶" to R.string.weather_face_cold
+    b.hot -> "🥵" to R.string.weather_face_hot            // hot face
+    b.night && b.score < 9f -> "😴" to R.string.weather_face_night
+    b.score >= 7f -> "😄" to R.string.weather_face_clear  // happy
+    b.score >= 4f -> "😐" to R.string.weather_face_meh    // neutral
+    else -> "🙁" to R.string.weather_face_meh             // frown
+}
+
+private fun band(score: Float): Int = when {
+    score >= 7f -> 2
+    score >= 4f -> 1
+    else -> 0
+}
+
 @Composable
 private fun ScoreGraph(hours: List<ScoredHour>) {
     val good = MaterialTheme.appColors.statusGood
     val warn = MaterialTheme.appColors.statusWarn
     val danger = MaterialTheme.appColors.statusDanger
     val gridColor = MaterialTheme.appColors.divider.copy(alpha = 0.6f)
+    val rainBand = MaterialTheme.appColors.chartEnvelope.copy(alpha = 0.20f)
 
     fun colorFor(score: Float): Color = when {
         score >= 7f -> good
@@ -152,52 +181,156 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
         else -> danger
     }
 
+    // Start, end, and the moments the ride character changes: a score-band
+    // crossing, or rain/snow starting. Capped so a volatile week stays
+    // readable; first and last always survive.
+    val faces = remember(hours) {
+        val idx = LinkedHashSet<Int>()
+        idx.add(0)
+        for (i in 1 until hours.size) {
+            val a = hours[i - 1].b
+            val c = hours[i].b
+            if (band(c.score) != band(a.score) ||
+                (c.rain && !a.rain) || (c.snow && !a.snow)
+            ) idx.add(i)
+        }
+        idx.add(hours.size - 1)
+        val list = idx.toMutableList()
+        while (list.size > 5) {
+            // Drop the least dramatic interior transition.
+            val interior = list.subList(1, list.size - 1)
+            val drop = interior.minByOrNull { i ->
+                kotlin.math.abs(hours[i].b.score - hours[(i - 1).coerceAtLeast(0)].b.score)
+            } ?: break
+            list.remove(drop)
+        }
+        list.map { i -> FaceSpot(i, faceFor(hours[i].b).first, faceFor(hours[i].b).second) }
+    }
+    var tappedInfo by remember(hours) { mutableStateOf<Int?>(null) }
+
     Column {
-        // Score curve. Left edge is "now"; each sample is one forecast hour.
-        Box(Modifier.fillMaxWidth().height(64.dp)) {
-            Canvas(Modifier.fillMaxWidth().height(64.dp)) {
+        val density = LocalDensity.current
+        var graphW by remember { mutableStateOf(0) }
+        val graphH = 64.dp
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(graphH)
+                .onSizeChanged { graphW = it.width }
+        ) {
+            Canvas(Modifier.fillMaxWidth().height(graphH)) {
                 val w = size.width
                 val h = size.height
-                fun x(i: Int) = if (hours.size <= 1) 0f else i * w / (hours.size - 1)
+                val n = hours.size
+                fun x(i: Int) = if (n <= 1) 0f else i * w / (n - 1)
                 fun y(score: Float) = h - (score / 10f) * (h - 6f) - 3f
+
+                // Hazard bands first, behind everything: blue for the rainy
+                // stretch, white for snow. White is deliberate - snow-colored
+                // by nature, and it reads on both themes because it sits over
+                // the tinted score fill drawn next.
+                var i = 0
+                while (i < n) {
+                    val b = hours[i].b
+                    if (b.rain || b.snow) {
+                        var j = i
+                        while (j + 1 < n && ((b.rain && hours[j + 1].b.rain) || (b.snow && hours[j + 1].b.snow))) j++
+                        drawRect(
+                            color = if (b.snow) Color.White.copy(alpha = 0.45f) else rainBand,
+                            topLeft = Offset(x(i), 0f),
+                            size = Size(x(j) - x(i) + (w / n).coerceAtLeast(2f), h),
+                        )
+                        i = j + 1
+                    } else i++
+                }
+
+                // Gradient fill under the curve: the score's own colour at
+                // every stop, so good stretches glow green and the bad hour
+                // shades red, blending smoothly between.
+                val stride = (n / 32).coerceAtLeast(1)
+                val stops = ArrayList<Pair<Float, Color>>()
+                var k = 0
+                while (k < n) {
+                    stops.add((if (n <= 1) 0f else k / (n - 1f)) to colorFor(hours[k].b.score).copy(alpha = 0.30f))
+                    k += stride
+                }
+                if (stops.last().first < 1f) stops.add(1f to colorFor(hours[n - 1].b.score).copy(alpha = 0.30f))
+                val area = Path().apply {
+                    moveTo(x(0), y(hours[0].b.score))
+                    for (p in 1 until n) lineTo(x(p), y(hours[p].b.score))
+                    lineTo(w, h)
+                    lineTo(0f, h)
+                    close()
+                }
+                drawPath(area, brush = Brush.horizontalGradient(*stops.toTypedArray()))
+
                 // Faint guides at 0 / 5 / 10.
                 for (s in listOf(0f, 5f, 10f)) {
                     drawLine(gridColor, Offset(0f, y(s)), Offset(w, y(s)), strokeWidth = 1f)
                 }
-                // Segment-coloured line: each hop tinted by its own score, so
-                // the bad stretch is visibly the bad stretch.
-                for (i in 1 until hours.size) {
-                    val path = Path().apply {
-                        moveTo(x(i - 1), y(hours[i - 1].b.score))
-                        lineTo(x(i), y(hours[i].b.score))
+                // Segment-coloured line on top.
+                for (p in 1 until n) {
+                    val seg = Path().apply {
+                        moveTo(x(p - 1), y(hours[p - 1].b.score))
+                        lineTo(x(p), y(hours[p].b.score))
                     }
                     drawPath(
-                        path,
-                        color = colorFor((hours[i - 1].b.score + hours[i].b.score) / 2f),
+                        seg,
+                        color = colorFor((hours[p - 1].b.score + hours[p].b.score) / 2f),
                         style = Stroke(width = 5f, cap = StrokeCap.Round),
                     )
                 }
-                // "Now" edge marker.
                 drawLine(gridColor, Offset(1.5f, 0f), Offset(1.5f, h), strokeWidth = 3f)
             }
-            // Score numbers at the edges of the curve.
+
+            // Transition faces riding the curve; tap for the lingo line.
+            if (graphW > 0) {
+                val n = hours.size
+                faces.forEach { spot ->
+                    val frac = if (n <= 1) 0f else spot.index.toFloat() / (n - 1)
+                    val score = hours[spot.index].b.score
+                    val xDp = with(density) { (graphW * frac).toInt().toDp() } - 9.dp
+                    val yFrac = 1f - (score / 10f)
+                    val yDp = (graphH - 18.dp) * yFrac
+                    Text(
+                        spot.emoji,
+                        fontSize = 13.sp,
+                        modifier = Modifier
+                            .offset(x = xDp.coerceIn(0.dp, 10000.dp), y = yDp)
+                            .size(18.dp)
+                            .clickable {
+                                tappedInfo = if (tappedInfo == spot.infoRes) null else spot.infoRes
+                            },
+                    )
+                }
+            }
             Text(
                 "%.0f".format(hours.first().b.score),
                 fontSize = 10.sp,
                 color = colorFor(hours.first().b.score),
-                modifier = Modifier.align(Alignment.TopStart),
+                modifier = Modifier.align(Alignment.BottomStart),
             )
             Text(
                 "%.0f".format(hours.last().b.score),
                 fontSize = 10.sp,
                 color = colorFor(hours.last().b.score),
-                modifier = Modifier.align(Alignment.TopEnd),
+                modifier = Modifier.align(Alignment.BottomEnd),
+            )
+        }
+
+        // The tapped face's one-liner, rider to rider.
+        tappedInfo?.let { res ->
+            Text(
+                stringResource(res),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textPrimary,
+                modifier = Modifier.padding(top = 2.dp),
             )
         }
 
         // Glyph strip: which factor bites, where along the timeline. Strided
         // so a rainy week doesn't render a hundred droplets.
-        val density = LocalDensity.current
         var stripWidthPx by remember { mutableStateOf(0) }
         Box(
             Modifier

@@ -1651,6 +1651,14 @@
     <string name="weather_breezy">Brisa acima de</string>
     <string name="weather_windy">Vento demais acima de</string>
     <string name="weather_source_credit">Dados de Open-Meteo.com ou MET Norway, buscados só quando ativado.</string>
+    <string name="weather_face_clear">Céu limpo: manda ver.</string>
+    <string name="weather_face_meh">Dá pra rodar, mas fica esperto.</string>
+    <string name="weather_face_rain">Asfalto molhado: inclina suave, freia antes.</string>
+    <string name="weather_face_snow">Neve ou granizo: sem aderência, melhor empurrar.</string>
+    <string name="weather_face_wind">Rajadas: corpo solto, espere empurrões.</string>
+    <string name="weather_face_night">Noite: luzes acesas, pega leve.</string>
+    <string name="weather_face_cold">Frio: pneu duro, bateria cai, agasalhe-se.</string>
+    <string name="weather_face_hot">Calor: de olho no controlador nas subidas.</string>
     <string name="nav_setting_full_path">Sempre calcular a rota completa</string>
     <string name="nav_setting_full_path_desc">Desligado calcula só a próxima parada e mostra o resto como prévia tracejada</string>
     <string name="nav_setting_endpoints">Serviços de roteamento</string>
