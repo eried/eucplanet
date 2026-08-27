@@ -1707,6 +1707,7 @@
     <string name="weather_cond_snow">Sne og is</string>
     <string name="weather_cond_wind">Vind</string>
     <string name="weather_cond_night">Nat</string>
+    <string name="weather_cond_golden">Gyldne time</string>
     <string name="weather_face_clear">Klart - kør.</string>
     <string name="weather_face_meh">Kan køres, men vær skarp.</string>
     <string name="weather_face_rain">Våd asfalt - læn blidt, brems tidligt.</string>
@@ -1715,6 +1716,7 @@
     <string name="weather_face_night">Mørkt - lys på, sæt farten ned.</string>
     <string name="weather_face_cold">Koldt - stift dæk, svagt batteri, klæd dig på.</string>
     <string name="weather_face_hot">Varmt - hold øje med controlleren på stigninger.</string>
+    <string name="weather_face_golden">Gylden time, smuk tur, snart lys på.</string>
     <string name="nav_setting_full_path">Beregn altid hele ruten</string>
     <string name="nav_setting_full_path_desc">Fra beregner kun næste stop og viser resten som stiplet forhåndsvisning</string>
     <string name="nav_setting_endpoints">Rutetjenester</string>

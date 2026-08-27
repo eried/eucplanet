@@ -1698,6 +1698,7 @@
     <string name="weather_cond_snow">Nieve y hielo</string>
     <string name="weather_cond_wind">Viento</string>
     <string name="weather_cond_night">Noche</string>
+    <string name="weather_cond_golden">Hora dorada</string>
     <string name="weather_face_clear">Despejado: dale.</string>
     <string name="weather_face_meh">Se puede rodar, pero atento.</string>
     <string name="weather_face_rain">Asfalto mojado: suave al inclinar, frena antes.</string>
@@ -1706,6 +1707,7 @@
     <string name="weather_face_night">De noche: luces y baja el ritmo.</string>
     <string name="weather_face_cold">Frío: rueda dura, batería corta, abrígate.</string>
     <string name="weather_face_hot">Calor: vigila el controlador en subidas.</string>
+    <string name="weather_face_golden">Hora dorada, paseo con brillo, pronto luces.</string>
     <string name="nav_setting_full_path">Calcular siempre la ruta completa</string>
     <string name="nav_setting_full_path_desc">Desactivado calcula solo la siguiente parada y muestra el resto como vista previa punteada</string>
     <string name="nav_setting_endpoints">Servicios de rutas</string>

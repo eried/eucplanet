@@ -554,6 +554,7 @@ private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> = when {
     b.wind && b.score < 0f -> "😖" to R.string.weather_face_wind
     b.cold -> "🥶" to R.string.weather_face_cold
     b.hot -> "🥵" to R.string.weather_face_hot            // hot face
+    b.golden -> "🌇" to R.string.weather_face_golden      // sunset glow
     b.night && b.score < 2f -> "😴" to R.string.weather_face_night
     b.score >= 2f -> "😄" to R.string.weather_face_clear  // happy
     b.score >= -1f -> "😐" to R.string.weather_face_meh   // neutral
@@ -626,7 +627,8 @@ private fun ScoreGraph(
             val a = hours[i - 1].b
             val c = hours[i].b
             if (band(c.score) != band(a.score) ||
-                (c.rain && !a.rain) || (c.snow && !a.snow)
+                (c.rain && !a.rain) || (c.snow && !a.snow) ||
+                (c.golden && !a.golden)
             ) idx.add(i)
         }
         idx.add(hours.size - 1)

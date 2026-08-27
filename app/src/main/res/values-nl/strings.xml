@@ -1753,6 +1753,7 @@
     <string name="weather_cond_snow">Sneeuw en ijs</string>
     <string name="weather_cond_wind">Wind</string>
     <string name="weather_cond_night">Nacht</string>
+    <string name="weather_cond_golden">Gouden uur</string>
     <string name="weather_face_clear">Helder - gassen.</string>
     <string name="weather_face_meh">Rijdbaar, maar blijf scherp.</string>
     <string name="weather_face_rain">Nat wegdek - zacht leunen, eerder remmen.</string>
@@ -1761,6 +1762,7 @@
     <string name="weather_face_night">Donker - licht aan, rustiger aan.</string>
     <string name="weather_face_cold">Koud - stugge band, zwakke accu, kleed je warm.</string>
     <string name="weather_face_hot">Heet - let op de controller bij klimmen.</string>
+    <string name="weather_face_golden">Gouden uur, mooi licht, straks lampen aan.</string>
     <string name="nav_setting_full_path">Altijd de hele route berekenen</string>
     <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview</string>
     <string name="nav_setting_endpoints">Routeringsservices</string>

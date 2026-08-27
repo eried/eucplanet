@@ -875,6 +875,7 @@
     <string name="weather_cond_snow">雪与冰</string>
     <string name="weather_cond_wind">风</string>
     <string name="weather_cond_night">夜间</string>
+    <string name="weather_cond_golden">黄金时刻</string>
     <string name="weather_face_clear">晴朗 - 冲。</string>
     <string name="weather_face_meh">能骑，但保持警惕。</string>
     <string name="weather_face_rain">路面湿滑 - 缓慢倾斜，提前刹车。</string>
@@ -883,6 +884,7 @@
     <string name="weather_face_night">夜间 - 开灯减速。</string>
     <string name="weather_face_cold">冷 - 轮胎变硬、电池缩水，注意保暖。</string>
     <string name="weather_face_hot">热 - 爬坡注意控制器温度。</string>
+    <string name="weather_face_golden">黄金时刻，美光，快开灯。</string>
     <string name="nav_setting_router_url">路线规划 URL</string>
     <string name="nav_setting_voice">语音引导</string>
     <string name="nav_start_riding">开始骑行</string>

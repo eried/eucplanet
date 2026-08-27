@@ -137,7 +137,7 @@ class DashboardViewModel @Inject constructor(
                         breezyMs = a.weatherBreezyTenthsMs / 10f,
                         windyMs = a.weatherWindyTenthsMs / 10f,
                         prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
-                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight,
+                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight, w.prefGolden,
                         ),
                     ),
                     h,
@@ -185,7 +185,7 @@ class DashboardViewModel @Inject constructor(
                         breezyMs = a.weatherBreezyTenthsMs / 10f,
                         windyMs = a.weatherWindyTenthsMs / 10f,
                         prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
-                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight,
+                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight, w.prefGolden,
                         ),
                     ),
                     h,

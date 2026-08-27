@@ -62,6 +62,7 @@ class SettingsRepository @Inject constructor(
             prefSnow = weather.prefSnow.takeIf { it in PREF_VALUES } ?: "DISLIKE",
             prefWind = weather.prefWind.takeIf { it in PREF_VALUES } ?: "DISLIKE",
             prefNight = weather.prefNight.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+            prefGolden = weather.prefGolden.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
         ),
         // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
         // value (from an imported or Dropbox-synced settings file, not just the

@@ -1698,6 +1698,7 @@
     <string name="weather_cond_snow">Снег и лёд</string>
     <string name="weather_cond_wind">Ветер</string>
     <string name="weather_cond_night">Ночь</string>
+    <string name="weather_cond_golden">Золотой час</string>
     <string name="weather_face_clear">Ясно - вперёд.</string>
     <string name="weather_face_meh">Ехать можно, но будь внимателен.</string>
     <string name="weather_face_rain">Мокрый асфальт - наклоняйся мягко, тормози раньше.</string>
@@ -1706,6 +1707,7 @@
     <string name="weather_face_night">Темно - свет и потише.</string>
     <string name="weather_face_cold">Холод - жёсткая шина, батарея проседает, утепляйся.</string>
     <string name="weather_face_hot">Жара - следи за контроллером на подъёмах.</string>
+    <string name="weather_face_golden">Золотой час, красивый свет, скоро фары.</string>
     <string name="nav_setting_full_path">Всегда строить полный маршрут</string>
     <string name="nav_setting_full_path_desc">Выкл, строит только следующую остановку, остальное показывает пунктирным предпросмотром</string>
     <string name="nav_setting_endpoints">Сервисы маршрутизации</string>

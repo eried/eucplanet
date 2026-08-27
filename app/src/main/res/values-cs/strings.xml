@@ -1954,6 +1954,7 @@
     <string name="weather_cond_snow">Sníh a led</string>
     <string name="weather_cond_wind">Vítr</string>
     <string name="weather_cond_night">Noc</string>
+    <string name="weather_cond_golden">Zlatá hodina</string>
     <string name="weather_face_clear">Jasno - jeď.</string>
     <string name="weather_face_meh">Dá se jet, ale pozor.</string>
     <string name="weather_face_rain">Mokrý asfalt - naklánět jemně, brzdit dřív.</string>
@@ -1962,6 +1963,7 @@
     <string name="weather_face_night">Tma - světla a zpomal.</string>
     <string name="weather_face_cold">Zima - tvrdá pneumatika, slabší baterie, obleč se.</string>
     <string name="weather_face_hot">Horko - hlídej controller do kopce.</string>
+    <string name="weather_face_golden">Zlatá hodina, jízda v záři, brzy světla.</string>
     <string name="nav_setting_advanced_map">Pokročilé funkce mapy</string>
     <string name="nav_setting_advanced_map_desc">Zobrazí nabíječky a místa podél trasy</string>
     <string name="nav_setting_full_path">Vždy řešit celou trasu</string>

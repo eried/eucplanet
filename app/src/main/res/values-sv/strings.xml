@@ -1694,6 +1694,7 @@
     <string name="weather_cond_snow">Snö och is</string>
     <string name="weather_cond_wind">Vind</string>
     <string name="weather_cond_night">Natt</string>
+    <string name="weather_cond_golden">Gyllene timmen</string>
     <string name="weather_face_clear">Klart - kör.</string>
     <string name="weather_face_meh">Körbart, men var skärpt.</string>
     <string name="weather_face_rain">Våt asfalt - luta mjukt, bromsa tidigt.</string>
@@ -1702,6 +1703,7 @@
     <string name="weather_face_night">Mörkt - lampor på, sakta ner.</string>
     <string name="weather_face_cold">Kallt - styvt däck, svagt batteri, klä dig varmt.</string>
     <string name="weather_face_hot">Varmt - håll koll på controllern i backar.</string>
+    <string name="weather_face_golden">Gyllene timmen, fint ljus, snart lampor.</string>
     <string name="nav_setting_full_path">Beräkna alltid hela rutten</string>
     <string name="nav_setting_full_path_desc">Av: beräknar bara nästa stopp och visar resten som streckad förhandsvisning</string>
     <string name="nav_setting_endpoints">Ruttjänster</string>

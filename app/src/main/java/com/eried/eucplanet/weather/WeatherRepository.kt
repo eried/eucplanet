@@ -147,7 +147,9 @@ class WeatherRepository @Inject constructor() {
             "&hourly=temperature_2m,precipitation,snowfall,wind_speed_10m,is_day" +
             ",relative_humidity_2m,wind_gusts_10m" +
             "&wind_speed_unit=ms&timeformat=unixtime&forecast_days=8"
-        return parseOpenMeteo(get(url))
+        return parseOpenMeteo(get(url)).map {
+            it.copy(isGolden = SunCalc.isGolden(it.timeMs, lat, lon))
+        }
     }
 
     fun parseOpenMeteo(body: String): List<HourForecast> {
@@ -186,7 +188,9 @@ class WeatherRepository @Inject constructor() {
     private fun fetchMetNo(lat: Double, lon: Double): List<HourForecast> {
         val url = "https://api.met.no/weatherapi/locationforecast/2.0/compact" +
             "?lat=%.4f&lon=%.4f".format(Locale.US, lat, lon)
-        return parseMetNo(get(url))
+        return parseMetNo(get(url)).map {
+            it.copy(isGolden = SunCalc.isGolden(it.timeMs, lat, lon))
+        }
     }
 
     fun parseMetNo(body: String): List<HourForecast> {

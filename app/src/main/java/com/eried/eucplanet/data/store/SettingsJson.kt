@@ -214,6 +214,7 @@ object SettingsJson {
         put("weatherPrefSnow", s.weather.prefSnow)
         put("weatherPrefWind", s.weather.prefWind)
         put("weatherPrefNight", s.weather.prefNight)
+        put("weatherPrefGolden", s.weather.prefGolden)
         put("voiceReportCurrent", s.voiceReports.periodicCurrent)
         put("voiceReportPower", s.voiceReports.periodicPower)
         put("triggerReportCurrent", s.voiceReports.triggerCurrent)
@@ -421,6 +422,7 @@ object SettingsJson {
             prefSnow = j.optString("weatherPrefSnow", base.weather.prefSnow),
             prefWind = j.optString("weatherPrefWind", base.weather.prefWind),
             prefNight = j.optString("weatherPrefNight", base.weather.prefNight),
+            prefGolden = j.optString("weatherPrefGolden", base.weather.prefGolden),
         ),
         voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(
             periodicSpeed = j.optBoolean("voiceReportSpeed", base.voiceReports.periodicSpeed),

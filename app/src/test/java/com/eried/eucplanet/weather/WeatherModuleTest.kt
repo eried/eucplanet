@@ -111,6 +111,25 @@ class WeatherModuleTest {
         assertTrue(coldHater.score < coldNeutral.score)
     }
 
+    @Test fun `golden hour is opposite polarity, neutral means nothing`() {
+        val golden = hour(tempC = 22.5f).copy(isGolden = true)
+        val plain = hour(tempC = 22.5f)
+        // Neutral: golden hour changes nothing.
+        assertEquals(s(plain).score, s(golden).score, 0.001f)
+        // Liking it is a straight bonus, disliking a straight penalty.
+        val lover = RidabilityScore.score(
+            golden, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(golden = RidabilityScore.Pref.LIKE),
+        )
+        val hater = RidabilityScore.score(
+            golden, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(golden = RidabilityScore.Pref.DISLIKE),
+        )
+        assertTrue(lover.score > s(golden).score || s(golden).score >= 5f)
+        assertTrue(hater.score < s(golden).score)
+        assertTrue(s(golden).golden)
+    }
+
     @Test fun `liking wind and rain never makes a storm read great`() {
         val stormLover = RidabilityScore.Prefs(
             rain = RidabilityScore.Pref.LIKE,
@@ -200,6 +219,7 @@ class WeatherModuleTest {
         assertEquals("NEUTRAL", w.prefHot)
         assertEquals("NEUTRAL", w.prefCold)
         assertEquals("NEUTRAL", w.prefNight)
+        assertEquals("NEUTRAL", w.prefGolden)
     }
 
     @Test fun `unknown source ids fall back to open-meteo`() {
@@ -286,6 +306,7 @@ class WeatherModuleTest {
             "weather_pref_dislike", "weather_pref_neutral", "weather_pref_like",
             "weather_cond_hot", "weather_cond_cold", "weather_cond_rain",
             "weather_cond_snow", "weather_cond_wind", "weather_cond_night",
+            "weather_cond_golden", "weather_face_golden",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }

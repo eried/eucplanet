@@ -55,6 +55,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.ui.common.HintText
 import kotlin.math.roundToInt
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
@@ -364,24 +365,27 @@ fun NavigatorSettingsContent(
                 Triple("rain", R.string.weather_cond_rain, settings.weather.prefRain),
                 Triple("snow", R.string.weather_cond_snow, settings.weather.prefSnow),
                 Triple("wind", R.string.weather_cond_wind, settings.weather.prefWind),
+                Triple("golden", R.string.weather_cond_golden, settings.weather.prefGolden),
                 Triple("night", R.string.weather_cond_night, settings.weather.prefNight),
             ).forEach { (key, labelRes, current) ->
-                Text(
-                    stringResource(labelRes),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier.fillMaxWidth().height(56.dp)
-                ) {
-                    prefOptions.forEachIndexed { index, (id, label) ->
-                        SegmentedButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = current == id,
-                            onClick = { viewModel.updateWeatherPref(key, id) },
-                            shape = SegmentedButtonDefaults.itemShape(index, prefOptions.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
-                            colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
-                        ) { Text(label) }
+                // The house triple selector: full-width segmented row with the
+                // condition name notched into its frame, like the alarm
+                // editor's vibrate-target selector.
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth().height(56.dp)
+                    ) {
+                        prefOptions.forEachIndexed { index, (id, label) ->
+                            SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = current == id,
+                                onClick = { viewModel.updateWeatherPref(key, id) },
+                                shape = SegmentedButtonDefaults.itemShape(index, prefOptions.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                                colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                            ) { Text(label) }
+                        }
                     }
+                    FieldNotchLabel(stringResource(labelRes))
                 }
             }
 

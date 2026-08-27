@@ -1954,6 +1954,7 @@
     <string name="weather_cond_snow">Lumi ja jää</string>
     <string name="weather_cond_wind">Tuuli</string>
     <string name="weather_cond_night">Yö</string>
+    <string name="weather_cond_golden">Kultainen hetki</string>
     <string name="weather_face_clear">Selkeää - aja.</string>
     <string name="weather_face_meh">Ajettavissa, mutta tarkkana.</string>
     <string name="weather_face_rain">Märkä asfaltti - kallista pehmeästi, jarruta ajoissa.</string>
@@ -1962,6 +1963,7 @@
     <string name="weather_face_night">Pimeää - valot päälle, hidasta.</string>
     <string name="weather_face_cold">Kylmää - jäykkä rengas, akku laskee, pukeudu.</string>
     <string name="weather_face_hot">Kuumaa - tarkkaile ohjainta nousuissa.</string>
+    <string name="weather_face_golden">Kultainen hetki, upea valo, kohta valot.</string>
     <string name="nav_setting_advanced_map">Kartan lisäominaisuudet</string>
     <string name="nav_setting_advanced_map_desc">Näytä laturit ja paikat reitin varrella</string>
     <string name="nav_setting_full_path">Ratkaise aina koko reitti</string>

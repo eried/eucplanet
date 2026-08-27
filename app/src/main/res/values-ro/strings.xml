@@ -1954,6 +1954,7 @@
     <string name="weather_cond_snow">Zăpadă și gheață</string>
     <string name="weather_cond_wind">Vânt</string>
     <string name="weather_cond_night">Noapte</string>
+    <string name="weather_cond_golden">Ora de aur</string>
     <string name="weather_face_clear">Senin - dă-i.</string>
     <string name="weather_face_meh">Se poate rula, dar fii atent.</string>
     <string name="weather_face_rain">Asfalt ud - înclină ușor, frânează devreme.</string>
@@ -1962,6 +1963,7 @@
     <string name="weather_face_night">Noapte - lumini aprinse, încetinește.</string>
     <string name="weather_face_cold">Frig - cauciuc rigid, baterie slabă, îmbracă-te.</string>
     <string name="weather_face_hot">Cald - urmărește controllerul la urcări.</string>
+    <string name="weather_face_golden">Ora de aur, lumină superbă, în curând faruri.</string>
     <string name="nav_setting_advanced_map">Funcții avansate de hartă</string>
     <string name="nav_setting_advanced_map_desc">Arată stații de încărcare și locuri de-a lungul traseului</string>
     <string name="nav_setting_full_path">Calculează întotdeauna traseul complet</string>

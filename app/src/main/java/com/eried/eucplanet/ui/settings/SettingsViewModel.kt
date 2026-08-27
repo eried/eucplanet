@@ -1042,6 +1042,7 @@ class SettingsViewModel @Inject constructor(
             "rain" -> weather.copy(prefRain = v)
             "snow" -> weather.copy(prefSnow = v)
             "wind" -> weather.copy(prefWind = v)
+            "golden" -> weather.copy(prefGolden = v)
             else -> weather.copy(prefNight = v)
         })
     }

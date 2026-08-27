@@ -1261,6 +1261,7 @@ data class WeatherSettings(
     val prefSnow: String = "DISLIKE",
     val prefWind: String = "DISLIKE",
     val prefNight: String = "NEUTRAL",
+    val prefGolden: String = "NEUTRAL",
 )
 
 data class VoiceReportSettings(

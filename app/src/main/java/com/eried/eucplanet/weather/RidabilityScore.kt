@@ -21,6 +21,8 @@ data class HourForecast(
     val humidityPct: Float = 0f,
     /** Wind gust speed, m/s. 0 when the provider omits it. */
     val gustMs: Float = 0f,
+    /** Inside the golden window around sunrise or sunset. See [SunCalc]. */
+    val isGolden: Boolean = false,
 )
 
 /**
@@ -66,6 +68,7 @@ object RidabilityScore {
         val snow: Pref = Pref.DISLIKE,
         val wind: Pref = Pref.DISLIKE,
         val night: Pref = Pref.NEUTRAL,
+        val golden: Pref = Pref.NEUTRAL,
     )
 
     fun prefOf(id: String): Pref = when (id) {
@@ -74,9 +77,14 @@ object RidabilityScore {
         else -> Pref.NEUTRAL
     }
 
-    /** Settings-string convenience for the six stored ids. */
-    fun prefsOf(hot: String, cold: String, rain: String, snow: String, wind: String, night: String) =
-        Prefs(prefOf(hot), prefOf(cold), prefOf(rain), prefOf(snow), prefOf(wind), prefOf(night))
+    /** Settings-string convenience for the stored ids. */
+    fun prefsOf(
+        hot: String, cold: String, rain: String, snow: String,
+        wind: String, night: String, golden: String,
+    ) = Prefs(
+        prefOf(hot), prefOf(cold), prefOf(rain), prefOf(snow),
+        prefOf(wind), prefOf(night), prefOf(golden),
+    )
 
     /** A raw penalty signed by the rider's preference for its condition.
      *  LIKE turns 35% of a MILD severity (up to 2) into a bonus, so drizzle
@@ -104,6 +112,7 @@ object RidabilityScore {
         val snow: Boolean,
         val wind: Boolean,
         val night: Boolean,
+        val golden: Boolean = false,
     )
 
     fun score(
@@ -166,6 +175,18 @@ object RidabilityScore {
 
         if (!h.isDay) s += weighted(0.6f, prefs.night)
 
+        // Golden hour is opposite polarity to the hazards: neutral means
+        // NOTHING, liking the low light is a straight bonus, disliking the
+        // glare a straight penalty. A sunset lover who dislikes night sees
+        // the score crest at golden hour and drop when dark settles.
+        if (h.isGolden) {
+            s += when (prefs.golden) {
+                Pref.LIKE -> 1.5f
+                Pref.NEUTRAL -> 0f
+                Pref.DISLIKE -> -1f
+            }
+        }
+
         return Breakdown(
             score = s.coerceIn(-5f, 5f),
             cold = cold,
@@ -174,6 +195,7 @@ object RidabilityScore {
             snow = snow,
             wind = windy,
             night = !h.isDay,
+            golden = h.isGolden,
         )
     }
 }

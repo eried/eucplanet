@@ -1711,6 +1711,7 @@
     <string name="weather_cond_snow">Śnieg i lód</string>
     <string name="weather_cond_wind">Wiatr</string>
     <string name="weather_cond_night">Noc</string>
+    <string name="weather_cond_golden">Złota godzina</string>
     <string name="weather_face_clear">Czysto - jedź.</string>
     <string name="weather_face_meh">Da się jechać, ale uważaj.</string>
     <string name="weather_face_rain">Mokry asfalt - pochylaj delikatnie, hamuj wcześniej.</string>
@@ -1719,6 +1720,7 @@
     <string name="weather_face_night">Noc - światła i wolniej.</string>
     <string name="weather_face_cold">Zimno - twarda opona, słabsza bateria, ubierz się.</string>
     <string name="weather_face_hot">Gorąco - pilnuj kontrolera na podjazdach.</string>
+    <string name="weather_face_golden">Złota godzina, piękne światło, zaraz lampy.</string>
     <string name="nav_setting_full_path">Zawsze wyznaczaj całą trasę</string>
     <string name="nav_setting_full_path_desc">Wyłączone, wyznacza tylko następny przystanek, resztę pokazuje jako przerywany podgląd</string>
     <string name="nav_setting_endpoints">Usługi wyznaczania trasy</string>

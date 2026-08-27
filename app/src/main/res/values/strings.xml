@@ -2185,6 +2185,7 @@
     <string name="weather_cond_snow">Snow &amp; ice</string>
     <string name="weather_cond_wind">Wind</string>
     <string name="weather_cond_night">Night</string>
+    <string name="weather_cond_golden">Golden hour</string>
     <string name="weather_face_clear">All clear - send it.</string>
     <string name="weather_face_meh">Rideable, not prime - stay sharp.</string>
     <string name="weather_face_rain">Wet tarmac - easy on the lean, brake early.</string>
@@ -2193,6 +2194,7 @@
     <string name="weather_face_night">Dark - lights on, back off the top end.</string>
     <string name="weather_face_cold">Cold - stiff tire, sagging pack, dress up.</string>
     <string name="weather_face_hot">Hot - watch controller temps on long climbs.</string>
+    <string name="weather_face_golden">Golden hour - glow ride, lights soon.</string>
     <string name="nav_setting_advanced_map">Advanced map features</string>
     <string name="nav_setting_advanced_map_desc">Show chargers and places along the route</string>
     <string name="nav_setting_full_path">Always solve the full path</string>

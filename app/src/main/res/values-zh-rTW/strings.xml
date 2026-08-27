@@ -1695,6 +1695,7 @@
     <string name="weather_cond_snow">雪與冰</string>
     <string name="weather_cond_wind">風</string>
     <string name="weather_cond_night">夜間</string>
+    <string name="weather_cond_golden">黃金時刻</string>
     <string name="weather_face_clear">晴朗 - 衝。</string>
     <string name="weather_face_meh">能騎，但保持警覺。</string>
     <string name="weather_face_rain">路面濕滑 - 緩慢傾斜，提前煞車。</string>
@@ -1703,6 +1704,7 @@
     <string name="weather_face_night">夜間 - 開燈減速。</string>
     <string name="weather_face_cold">冷 - 輪胎變硬、電池縮水，注意保暖。</string>
     <string name="weather_face_hot">熱 - 爬坡注意控制器溫度。</string>
+    <string name="weather_face_golden">黃金時刻，美光，快開燈。</string>
     <string name="nav_setting_full_path">始終計算完整路徑</string>
     <string name="nav_setting_full_path_desc">關閉時僅計算下一站，其餘路段以虛線預覽</string>
     <string name="nav_setting_endpoints">路線服務</string>

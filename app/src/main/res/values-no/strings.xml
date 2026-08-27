@@ -892,6 +892,7 @@
     <string name="weather_cond_snow">Snø og is</string>
     <string name="weather_cond_wind">Vind</string>
     <string name="weather_cond_night">Natt</string>
+    <string name="weather_cond_golden">Gylden time</string>
     <string name="weather_face_clear">Klart - kjør.</string>
     <string name="weather_face_meh">Kjørbart, men vær skjerpet.</string>
     <string name="weather_face_rain">Våt asfalt - len deg mykt, brems tidlig.</string>
@@ -900,6 +901,7 @@
     <string name="weather_face_night">Mørkt - lys på, ro ned.</string>
     <string name="weather_face_cold">Kaldt - stivt dekk, svakt batteri, kle deg godt.</string>
     <string name="weather_face_hot">Varmt - følg med på kontrolleren i bakker.</string>
+    <string name="weather_face_golden">Gylden time, nydelig lys, snart lykter.</string>
     <string name="nav_setting_router_url">Rute-URL</string>
     <string name="nav_setting_voice">Stemmeveiledning</string>
     <string name="nav_start_riding">Begynn å kjøre</string>
