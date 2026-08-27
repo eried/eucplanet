@@ -1,6 +1,8 @@
 package com.eried.eucplanet.ui.dashboard
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,17 +28,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -45,12 +51,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.weather.RidabilityScore
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,19 +67,41 @@ import kotlin.math.roundToInt
 /** One scored forecast hour, ready for the flyout graph. */
 data class ScoredHour(val timeMs: Long, val b: RidabilityScore.Breakdown)
 
+/** The rotating "should I ride" titles, one picked at random per opening. */
+private val TITLE_POOL = listOf(
+    R.string.weather_title_1,
+    R.string.weather_title_2,
+    R.string.weather_title_3,
+    R.string.weather_title_4,
+    R.string.weather_title_5,
+)
+
+/** The compact window tag shown beside the title: "6h", "24h", "3d", "1w". */
+private fun windowShortRes(windowHours: Int): Int = when {
+    windowHours <= 6 -> R.string.weather_win_6
+    windowHours <= 24 -> R.string.weather_win_24
+    windowHours <= 72 -> R.string.weather_win_3d
+    else -> R.string.weather_win_1w
+}
+
+/** Vertical segments the window divides into: hourly for 6h, 4h blocks for a
+ *  day, half-days for 3 days, whole days for the week. */
+private fun windowDivisions(windowHours: Int): Int = if (windowHours > 72) 7 else 6
+
 /**
  * The thin forecast strip over the dashboard, styled like the navigation
  * popup: an inverse rounded panel that stands out from the app background.
- * The ridability score runs -5 to +5 around a neutral centre line, drawn as
- * a curve blending light blue (good) to magenta (bad), with rain and snow
- * bands behind it, transition faces on the curve, a glyph strip naming which
- * factor bites when, and sparse time ticks. A quick "is it good to go ride"
- * glance.
+ * The ridability score runs -5 to +5 around a dashed zero axis, drawn as a
+ * curve blending light blue (good) to magenta (bad), with rain and snow
+ * bands behind it, vertical window segments, transition faces the rider can
+ * tap for a one-line read in EUC lingo (a compact dark tip, like the trip
+ * map's scrub tooltip), a glyph strip naming which factor bites when, and
+ * sparse time ticks. A quick "is it good to go ride" glance.
  */
 @Composable
 fun WeatherFlyout(
     hours: List<ScoredHour>,
-    windowLabel: String,
+    windowHours: Int,
     refreshing: Boolean,
     error: String?,
     updatedAgoMin: Int?,
@@ -83,6 +113,7 @@ fun WeatherFlyout(
     // so it stands out, rounded, with a real shadow.
     val panel = MaterialTheme.appColors.navPopupPanel
     val ink = MaterialTheme.appColors.navPopupInk
+    val titleRes = remember { TITLE_POOL.random() }
     Surface(
         modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp),
         shape = RoundedCornerShape(12.dp),
@@ -94,9 +125,19 @@ fun WeatherFlyout(
         Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    windowLabel,
+                    stringResource(titleRes),
                     style = MaterialTheme.typography.titleSmall,
                     color = ink,
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    stringResource(windowShortRes(windowHours)),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = ink.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .background(ink.copy(alpha = 0.12f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 1.dp),
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
@@ -148,29 +189,29 @@ fun WeatherFlyout(
                     color = ink.copy(alpha = 0.6f),
                     modifier = Modifier.padding(vertical = 10.dp),
                 )
-                else -> ScoreGraph(hours, ink)
+                else -> ScoreGraph(hours, windowHours, ink, panel)
             }
         }
     }
 }
 
-/** A face pinned to the curve: where and which emoji. Faces sit at the start
- *  plus the moments the ride character changes - a band crossing or a hazard
- *  beginning. Pure indicators, no tap behaviour. */
-private data class FaceSpot(val index: Int, val emoji: String)
+/** A face pinned to the curve: where, which emoji, and the lingo line its
+ *  tap tooltip shows. Faces sit at the start plus the moments the ride
+ *  character changes - a band crossing or a hazard beginning. */
+private data class FaceSpot(val index: Int, val emoji: String, val infoRes: Int)
 
-/** The face for an hour, by what dominates it. Priority mirrors danger:
- *  snow, rain, wind, cold, hot, night, then just the score band. */
-private fun faceFor(b: RidabilityScore.Breakdown): String = when {
-    b.snow -> "🥶"                       // cold face
-    b.rain -> "😬"                       // grimace
-    b.wind && b.score < 0f -> "😖"       // struggling
-    b.cold -> "🥶"
-    b.hot -> "🥵"                        // hot face
-    b.night && b.score < 2f -> "😴"      // sleepy
-    b.score >= 2f -> "😄"                // happy
-    b.score >= -1f -> "😐"               // neutral
-    else -> "🙁"                         // frown
+/** The face and tip line for an hour, by what dominates it. Priority mirrors
+ *  danger: snow, rain, wind, cold, hot, night, then just the score band. */
+private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> = when {
+    b.snow -> "🥶" to R.string.weather_face_snow          // cold face
+    b.rain -> "😬" to R.string.weather_face_rain          // grimace
+    b.wind && b.score < 0f -> "😖" to R.string.weather_face_wind
+    b.cold -> "🥶" to R.string.weather_face_cold
+    b.hot -> "🥵" to R.string.weather_face_hot            // hot face
+    b.night && b.score < 2f -> "😴" to R.string.weather_face_night
+    b.score >= 2f -> "😄" to R.string.weather_face_clear  // happy
+    b.score >= -1f -> "😐" to R.string.weather_face_meh   // neutral
+    else -> "🙁" to R.string.weather_face_meh             // frown
 }
 
 private fun band(score: Float): Int = when {
@@ -186,11 +227,11 @@ private fun signedLabel(score: Float): String {
 }
 
 @Composable
-private fun ScoreGraph(hours: List<ScoredHour>, ink: Color) {
+private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, panel: Color) {
     val good = MaterialTheme.appColors.weatherGood
     val bad = MaterialTheme.appColors.weatherBad
     val gridColor = ink.copy(alpha = 0.15f)
-    val centerColor = ink.copy(alpha = 0.35f)
+    val axisColor = ink.copy(alpha = 0.45f)
     val rainBand = MaterialTheme.appColors.chartEnvelope.copy(alpha = 0.20f)
     // The same diagonal texture as the charging pack tiles, inked so it reads
     // on the inverse panel in both themes.
@@ -222,7 +263,18 @@ private fun ScoreGraph(hours: List<ScoredHour>, ink: Color) {
             } ?: break
             list.remove(drop)
         }
-        list.map { i -> FaceSpot(i, faceFor(hours[i].b)) }
+        list.map { i ->
+            val (emoji, res) = faceFor(hours[i].b)
+            FaceSpot(i, emoji, res)
+        }
+    }
+    // The tapped face's tooltip, auto-hiding like a toast.
+    var tipSpot by remember(hours) { mutableStateOf<FaceSpot?>(null) }
+    LaunchedEffect(tipSpot) {
+        if (tipSpot != null) {
+            delay(4000)
+            tipSpot = null
+        }
     }
 
     Column {
@@ -291,11 +343,26 @@ private fun ScoreGraph(hours: List<ScoredHour>, ink: Color) {
                     }
                 }
 
-                // The neutral centre line at 0, stronger than the faint
-                // -5 / +5 guides at the edges.
+                // Vertical window segments: hourly for 6h, coarser blocks for
+                // the longer windows, so the timeline has visible structure.
+                val div = windowDivisions(windowHours)
+                for (d in 1 until div) {
+                    val vx = w * d / div
+                    drawLine(gridColor, Offset(vx, 0f), Offset(vx, h), strokeWidth = 1f)
+                }
+
+                // Faint -5 / +5 guides at the edges; the zero line is a
+                // dashed axis so it reads as the neutral reference, not as
+                // part of the measurement.
                 drawLine(gridColor, Offset(0f, y(5f)), Offset(w, y(5f)), strokeWidth = 1f)
                 drawLine(gridColor, Offset(0f, y(-5f)), Offset(w, y(-5f)), strokeWidth = 1f)
-                drawLine(centerColor, Offset(0f, y(0f)), Offset(w, y(0f)), strokeWidth = 2f)
+                drawLine(
+                    axisColor,
+                    Offset(0f, y(0f)),
+                    Offset(w, y(0f)),
+                    strokeWidth = 2f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f)),
+                )
 
                 // Segment-coloured line on top.
                 for (p in 1 until n) {
@@ -309,10 +376,9 @@ private fun ScoreGraph(hours: List<ScoredHour>, ink: Color) {
                         style = Stroke(width = 5f, cap = StrokeCap.Round),
                     )
                 }
-                drawLine(gridColor, Offset(1.5f, 0f), Offset(1.5f, h), strokeWidth = 3f)
             }
 
-            // Transition faces riding the curve.
+            // Transition faces riding the curve; tap for the lingo tip.
             if (graphW > 0) {
                 val n = hours.size
                 faces.forEach { spot ->
@@ -330,8 +396,36 @@ private fun ScoreGraph(hours: List<ScoredHour>, ink: Color) {
                         fontSize = 13.sp,
                         modifier = Modifier
                             .offset(x = xDp, y = yDp)
-                            .size(18.dp),
+                            .size(18.dp)
+                            .clickable {
+                                tipSpot = if (tipSpot?.index == spot.index) null else spot
+                            },
                     )
+                }
+
+                // The lingo tip: a compact dark bubble like the trip map's
+                // scrub tooltip, floated near its face and clamped to the
+                // graph, inverse-inked so it pops on the panel.
+                tipSpot?.let { spot ->
+                    val frac = if (n <= 1) 0f else spot.index.toFloat() / (n - 1)
+                    val score = hours[spot.index].b.score
+                    val yFrac = 1f - (score + 5f) / 10f
+                    val tipY = ((graphH - 18.dp) * yFrac - 24.dp).coerceAtLeast(0.dp)
+                    Box(Modifier.fillMaxWidth().offset(y = tipY)) {
+                        Text(
+                            stringResource(spot.infoRes),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = panel,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .align(BiasAlignment(frac * 2f - 1f, 0f))
+                                .shadow(4.dp, RoundedCornerShape(5.dp))
+                                .background(ink.copy(alpha = 0.92f), RoundedCornerShape(5.dp))
+                                .padding(horizontal = 7.dp, vertical = 2.dp)
+                                .clickable { tipSpot = null },
+                        )
+                    }
                 }
             }
             // The scale, signed around the neutral centre.

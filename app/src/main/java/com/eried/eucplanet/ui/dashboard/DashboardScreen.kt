@@ -3472,7 +3472,7 @@ fun DashboardScreen(
             Box(Modifier.fillMaxSize().statusBarsPadding()) {
                 WeatherFlyout(
                     hours = sliced,
-                    windowLabel = weatherWindowLabel(winH),
+                    windowHours = winH,
                     refreshing = weatherRefreshing,
                     error = weatherError,
                     updatedAgoMin = weatherFetchedAt?.let { ((nowMs - it) / 60_000L).toInt() },
@@ -4298,12 +4298,3 @@ private fun openUrl(context: Context, url: String) {
     }
 }
 
-
-/** The flyout's title per forecast window. */
-@Composable
-private fun weatherWindowLabel(hours: Int): String = when (hours) {
-    24 -> stringResource(R.string.weather_window_24h)
-    72 -> stringResource(R.string.weather_window_3d)
-    168 -> stringResource(R.string.weather_window_1w)
-    else -> stringResource(R.string.weather_window_6h)
-}

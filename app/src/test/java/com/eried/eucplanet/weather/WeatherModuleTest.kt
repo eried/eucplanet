@@ -164,12 +164,18 @@ class WeatherModuleTest {
         // Nav-popup family: inverse panel, rounded, shadowed.
         assertTrue(flyout.contains("navPopupPanel"))
         assertTrue(flyout.contains("RoundedCornerShape(12.dp)"))
-        // The signed blue-to-magenta scale, no tap tooltips.
+        // The signed blue-to-magenta scale with its dashed zero axis and
+        // vertical window segments.
         assertTrue(flyout.contains("weatherGood"))
         assertTrue(flyout.contains("weatherBad"))
         assertTrue(flyout.contains("Brush.horizontalGradient"))
-        assertTrue(!flyout.contains("weather_face_"))
-        assertTrue(!flyout.contains("clickable"))
+        assertTrue(flyout.contains("dashPathEffect"))
+        assertTrue(flyout.contains("windowDivisions"))
+        // Rotating rider-lingo titles and the face tips as floating bubbles,
+        // not an inline label.
+        assertTrue(flyout.contains("TITLE_POOL.random()"))
+        assertTrue(flyout.contains("weather_face_snow"))
+        assertTrue(flyout.contains("BiasAlignment"))
     }
 
     @Test fun `the icon and flyout only exist when the module is enabled`() {
@@ -196,6 +202,11 @@ class WeatherModuleTest {
             "weather_window_label", "weather_source_label", "weather_comfort_desc",
             "weather_cold", "weather_hot", "weather_breezy", "weather_windy",
             "weather_source_credit",
+            "weather_title_1", "weather_title_2", "weather_title_3",
+            "weather_title_4", "weather_title_5",
+            "weather_face_clear", "weather_face_meh", "weather_face_rain",
+            "weather_face_snow", "weather_face_wind", "weather_face_night",
+            "weather_face_cold", "weather_face_hot",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }
@@ -204,13 +215,6 @@ class WeatherModuleTest {
                 keys.filter { !t.contains("name=\"$it\"") }.map { "${dir.name}/$it" }
             }
         assertTrue("missing: $missing", missing.isEmpty())
-        // The face tooltip strings are gone from every locale, not just used
-        // nowhere.
-        val leftovers = File("src/main/res").listFiles()!!
-            .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }
-            .filter { File(it, "strings.xml").readText().contains("weather_face_") }
-            .map { it.name }
-        assertTrue("face strings left in: $leftovers", leftovers.isEmpty())
         // The renamed section title, in English at least, names both halves.
         val en = File("src/main/res/values/strings.xml").readText()
         assertTrue(en.contains("<string name=\"nav_setting_params\">Navigation &amp; weather</string>"))
