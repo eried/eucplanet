@@ -743,6 +743,22 @@ fun TripDetailScreen(
                 if (extSpeedSeries.any { !it.isNaN() })
                     add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
             }
+            // The same two overlays over the whole ride, for the y-axis only:
+            // scaling the speed chart to a trimmed section would defeat the
+            // point of holding the main series' scale (see rememberChartSeries).
+            val fullSpeedOverlays = remember(allPoints, dataPoints, speedUnit, speedOverlays.size) {
+                if (dataPoints === allPoints) speedOverlays.map { it.values }
+                else buildList {
+                    if (gpsSpeedSeries.any { !it.isNaN() }) add(allPoints.map {
+                        if (it.gpsSpeed <= 0f) Float.NaN
+                        else com.eried.eucplanet.util.Units.speed(it.gpsSpeed, speedUnit)
+                    })
+                    if (extSpeedSeries.any { !it.isNaN() }) add(allPoints.map {
+                        if (it.extGpsSpeed.isNaN()) Float.NaN
+                        else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, speedUnit)
+                    })
+                }
+            }
             val speedMinSpan = when (speedUnit) {
                 "mph" -> GraphScale.SPAN_SPEED_MPH
                 "ms" -> GraphScale.SPAN_SPEED_MS
@@ -750,6 +766,29 @@ fun TripDetailScreen(
             }
             val speedPeakRaw = dataPoints.map { it.speed }.maxOrNull() ?: 0f
             val speedPeak = com.eried.eucplanet.util.Units.speed(speedPeakRaw, speedUnit)
+            // The speed chart's axis cap and peak badge, over the WHOLE ride.
+            // The Top Speed tile follows the trim, which is the point of
+            // trimming; the chart's vertical scale does not, or zooming into a
+            // slow stretch would blow it up to full height (see
+            // rememberChartSeries). Duration comes from the ride's own first
+            // and last timestamps rather than from the elapsed table, which is
+            // still being parsed off-thread during the first frames.
+            val fullSpeedAxis = remember(allPoints, speedUnit) {
+                val parse = allPoints.firstNotNullOfOrNull {
+                    com.eried.eucplanet.util.TripCsv.parserFor(it.date)
+                }
+                val t0 = parse?.let { p -> allPoints.firstNotNullOfOrNull { p(it.date) } } ?: 0L
+                val t1 = parse?.let { p -> allPoints.lastOrNull()?.let { p(it.date) } } ?: 0L
+                val secs = ((t1 - t0) / 1000).coerceAtLeast(0L)
+                val n = allPoints.size
+                val window = if (n >= 2 && secs > 0)
+                    kotlin.math.ceil(SUSTAINED_TOP_SPEED_MS / (secs * 1000.0 / (n - 1)))
+                        .toInt().coerceIn(2, n)
+                else 1
+                val speeds = allPoints.map { it.speed }
+                com.eried.eucplanet.util.Units.speed(sustainedTopSpeed(speeds, window), speedUnit) to
+                    com.eried.eucplanet.util.Units.speed(speeds.maxOrNull() ?: 0f, speedUnit)
+            }
             val tempMinSpan = if (tempUnit == "F") GraphScale.SPAN_TEMPERATURE_F
                 else GraphScale.SPAN_TEMPERATURE_C
 
@@ -1000,42 +1039,67 @@ fun TripDetailScreen(
             // regardless of the saved order.
             val allCharts: List<Pair<String, @Composable ColumnScope.() -> Unit>> = buildList {
                 add("speed" to {
+                    val (speedShown, speedScale) = rememberChartSeries(dataPoints, allPoints, speedUnit) { pts ->
+                        pts.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) }
+                    }
                     ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
-                        dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                        speedShown,
                         MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                        overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
+                        overlays = speedOverlays,
+                        axisMax = fullSpeedAxis.first, peak = fullSpeedAxis.second,
+                        scaleValues = speedScale, scaleOverlays = fullSpeedOverlays,
                         scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("battery" to {
-                    ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
+                    val (batShown, batScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                        pts.map { it.battery.toFloat() }
+                    }
+                    ChartCard(stringResource(R.string.recording_chart_battery), batShown,
                         MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                        scaleValues = batScale,
                         scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("temp" to {
+                    val (tempShown, tempScale) = rememberChartSeries(dataPoints, allPoints, tempUnit) { pts ->
+                        pts.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) }
+                    }
                     ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
-                        dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
+                        tempShown,
                         MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
+                        scaleValues = tempScale,
                         scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("voltage" to {
-                    ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
+                    val (voltShown, voltScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                        pts.map { it.voltage }
+                    }
+                    ChartCard(stringResource(R.string.recording_chart_voltage), voltShown,
                         MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
+                        scaleValues = voltScale,
                         scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 if (dataPoints.any { !it.current.isNaN() }) {
                     add("current" to {
+                        val (curShown, curScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.current }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_current),
-                            dataPoints.map { it.current },
+                            curShown,
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                            scaleValues = curScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if (dataPoints.any { !it.pwm.isNaN() }) {
                     add("pwm" to {
+                        val (pwmShown, pwmScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.pwm }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_pwm),
-                            dataPoints.map { it.pwm },
+                            pwmShown,
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
+                            scaleValues = pwmScale,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
@@ -1046,18 +1110,26 @@ fun TripDetailScreen(
                 // like Current: positive drive, negative regen/brake.
                 if ("torque" in extraCharts && dataPoints.any { !it.torque.isNaN() && it.torque != 0f }) {
                     add("torque" to {
+                        val (torqueShown, torqueScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.torque }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_torque),
-                            dataPoints.map { it.torque },
+                            torqueShown,
                             MaterialTheme.appColors.metricPosition, unitLabel = "Nm", minSpan = GraphScale.SPAN_TORQUE,
+                            scaleValues = torqueScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("phaseCurrent" in extraCharts && dataPoints.any { !it.phaseCurrent.isNaN() && it.phaseCurrent != 0f }) {
                     add("phaseCurrent" to {
+                        val (phaseShown, phaseScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.phaseCurrent }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_phase_current),
-                            dataPoints.map { it.phaseCurrent },
+                            phaseShown,
                             MaterialTheme.appColors.metricPosition, unitLabel = "A", minSpan = GraphScale.SPAN_PHASE_CURRENT,
+                            scaleValues = phaseScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
@@ -1067,9 +1139,13 @@ fun TripDetailScreen(
                 // enabling one never produces an empty card.
                 if ("batterySmooth" in extraCharts) {
                     add("batterySmooth" to {
+                        val (batSmShown, batSmScale) = rememberChartSeries(dataPoints, allPoints, smoothWindow) { pts ->
+                            Smoothing.movingAverage(pts.map { it.battery.toFloat() }, smoothWindow)
+                        }
                         ChartCard(stringResource(R.string.recording_chart_battery_smooth),
-                            Smoothing.movingAverage(dataPoints.map { it.battery.toFloat() }, smoothWindow),
+                            batSmShown,
                             MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                            scaleValues = batSmScale,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
@@ -1081,64 +1157,87 @@ fun TripDetailScreen(
                         // battery) instead of load sag. Down riding, flat
                         // stopped, up on a sustained regen descent. Do not
                         // smooth it into a curve - the steps are the point.
-                        val env = remember(dataPoints) {
-                            val tMs = TripTrim.elapsedOffsets(dataPoints)
+                        val (envShown, envScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            val tMs = TripTrim.elapsedOffsets(pts)
                             com.eried.eucplanet.util.BatteryEnvelope.compute(
                                 FloatArray(tMs.size) { tMs[it] / 1000f },
-                                FloatArray(dataPoints.size) { dataPoints[it].battery.toFloat() },
-                                FloatArray(dataPoints.size) { dataPoints[it].current },
+                                FloatArray(pts.size) { pts[it].battery.toFloat() },
+                                FloatArray(pts.size) { pts[it].current },
                             ).toList()
                         }
                         ChartCard(stringResource(R.string.recording_chart_battery_envelope),
-                            env,
+                            envShown,
                             MaterialTheme.appColors.chartEnvelope, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                            scaleValues = envScale,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("speedSmooth" in extraCharts) {
                     add("speedSmooth" to {
-                        ChartCard(stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
+                        val (spSmShown, spSmScale) = rememberChartSeries(
+                            dataPoints, allPoints, speedUnit, smoothWindow,
+                        ) { pts ->
                             Smoothing.movingAverage(
-                                dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                                pts.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
                                 smoothWindow
-                            ),
+                            )
+                        }
+                        ChartCard(stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
+                            spSmShown,
                             MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
+                            scaleValues = spSmScale,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("currentSmooth" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
                     add("currentSmooth" to {
+                        val (curSmShown, curSmScale) = rememberChartSeries(dataPoints, allPoints, smoothWindow) { pts ->
+                            Smoothing.movingAverage(pts.map { it.current }, smoothWindow)
+                        }
                         ChartCard(stringResource(R.string.recording_chart_current_smooth),
-                            Smoothing.movingAverage(dataPoints.map { it.current }, smoothWindow),
+                            curSmShown,
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                            scaleValues = curSmScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("pwmSmooth" in extraCharts && dataPoints.any { !it.pwm.isNaN() }) {
                     add("pwmSmooth" to {
+                        val (pwmSmShown, pwmSmScale) = rememberChartSeries(dataPoints, allPoints, smoothWindow) { pts ->
+                            Smoothing.movingAverage(pts.map { it.pwm }, smoothWindow)
+                        }
                         ChartCard(stringResource(R.string.recording_chart_pwm_smooth),
-                            Smoothing.movingAverage(dataPoints.map { it.pwm }, smoothWindow),
+                            pwmSmShown,
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
+                            scaleValues = pwmSmScale,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("power" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
                     add("power" to {
+                        // Derived, the CSV has no power column. NaN current
+                        // stays NaN so the line breaks rather than reading 0 W.
+                        val (powShown, powScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { if (it.current.isNaN()) Float.NaN else it.voltage * it.current }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_power),
-                            // Derived, the CSV has no power column. NaN current
-                            // stays NaN so the line breaks rather than reading 0 W.
-                            dataPoints.map { if (it.current.isNaN()) Float.NaN else it.voltage * it.current },
+                            powShown,
                             MaterialTheme.appColors.statusDanger, unitLabel = "W", minSpan = 100f,
+                            scaleValues = powScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("altitude" in extraCharts && dataPoints.any { it.altitude != 0f }) {
                     add("altitude" to {
+                        val (altShown, altScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.altitude }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_altitude),
-                            dataPoints.map { it.altitude },
+                            altShown,
                             MaterialTheme.appColors.metricPosition, unitLabel = "m", minSpan = 20f,
+                            scaleValues = altScale,
                             scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
@@ -2507,6 +2606,19 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
 </script></body></html>
 """.trimIndent()
 
+/** Plot area of a chart card. Shared with the loading skeleton. */
+private val CHART_PLOT_HEIGHT = 80.dp
+
+/** Chart card inner padding. Shared with the loading skeleton. */
+private val CHART_CARD_PADDING = 12.dp
+
+/** Gap between a chart's title row and its plot. Shared with the skeleton. */
+private val CHART_TITLE_GAP = 8.dp
+
+/** Chart title text size. Shared with the skeleton, which sizes its title
+ *  placeholder from it so the block matches at any font scale. */
+private val CHART_TITLE_SIZE = 12.sp
+
 /**
  * Optional secondary series drawn behind the main chart line. Used by the
  * speed chart to overlay external GPS speed (RaceBox) when available, with
@@ -2543,6 +2655,13 @@ private fun ChartCard(
     // squash the whole ride into the floor. The spike then clips at the top and
     // [peak], the true maximum, is shown in the corner label instead.
     axisMax: Float? = null,
+    // The series the y-axis is measured from, when it differs from what is
+    // drawn: the WHOLE ride's values, so trimming or zooming to a quiet
+    // stretch does not restretch the chart around it. Null = measure what is
+    // drawn, which is the same thing on an untrimmed trip.
+    scaleValues: List<Float>? = null,
+    /** Whole-ride overlay series, for the same reason as [scaleValues]. */
+    scaleOverlays: List<List<Float>> = emptyList(),
     peak: Float? = null,
     // Shared scrub cursor: [scrubIndex] is the sample index highlighted across
     // every chart and the map; [onScrub] reports this chart's own scrub position
@@ -2593,14 +2712,30 @@ private fun ChartCard(
     val curOnReset = rememberUpdatedState(onResetView)
 
     // Y-axis bounds include any overlay min/max so secondary lines stay on-scale.
-    // Filter NaN out of all reductions because NaN means "no data this row" , 
-    // those rows shouldn't push the bounds.
-    // The y-axis is scaled to the FULL trip even while zoomed: the window
-    // narrows time only, so the vertical scale never jumps under a pinch.
-    val finiteValues = fullValues.filter { !it.isNaN() }
-    val allFinite = (fullOverlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
-    val dataMin = allFinite.minOrNull() ?: 0f
-    val dataMaxRaw = allFinite.maxOrNull() ?: 0f
+    // NaN means "no data this row", so those rows never push the bounds.
+    //
+    // Measured from the whole ride ([scaleValues]) rather than from what is on
+    // screen: the window narrows TIME only. Zooming into a slow stretch used
+    // to blow it up to full height, which made a pinch feel like it changed
+    // the data rather than the view.
+    //
+    // Scanned rather than filtered: this runs for every chart on every pinch
+    // frame, and the two filtered copies it used to allocate were tens of
+    // thousands of floats each, per chart, per frame.
+    var scanLo = Float.POSITIVE_INFINITY
+    var scanHi = Float.NEGATIVE_INFINITY
+    fun scan(vs: List<Float>) {
+        for (v in vs) {
+            if (v.isNaN()) continue
+            if (v < scanLo) scanLo = v
+            if (v > scanHi) scanHi = v
+        }
+    }
+    scan(scaleValues ?: fullValues)
+    if (scaleValues != null) scaleOverlays.forEach { scan(it) }
+    else fullOverlays.forEach { scan(it.values) }
+    val dataMin = if (scanLo.isFinite()) scanLo else 0f
+    val dataMaxRaw = if (scanHi.isFinite()) scanHi else 0f
     // Axis upper bound: a caller-supplied realistic cap when given (never below
     // the data floor), otherwise the raw maximum as before.
     val dataMax = axisMax?.coerceAtLeast(dataMin) ?: dataMaxRaw
@@ -2616,12 +2751,12 @@ private fun ChartCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(10.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(CHART_CARD_PADDING)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                Text(title, fontSize = CHART_TITLE_SIZE, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium)
                 // When a spike was clipped by [axisMax], show the true peak too so
                 // the rider still sees it (e.g. "0.0 - 35.0 (peak 80)").
@@ -2637,12 +2772,12 @@ private fun ChartCard(
                     color = color, fontWeight = FontWeight.Medium)
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(CHART_TITLE_GAP))
 
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
+                    .height(CHART_PLOT_HEIGHT)
                     .pointerInput(values) {
                         // Long-press to scrub. A simple down-and-drag does NOT
                         // activate the cursor, that gesture is reserved for the
@@ -3151,6 +3286,32 @@ internal fun sustainedTopSpeed(speeds: List<Float>, windowSamples: Int): Float {
 }
 
 /**
+ * A chart's series, computed twice from one rule: over the visible (trimmed)
+ * points for the line, and over the whole ride for the y-axis.
+ *
+ * The vertical scale belongs to the trip, not to the section being looked at,
+ * so a trim or a zoom slides a window over the data instead of restretching
+ * the chart around whatever is left. On an untrimmed trip both are the same
+ * list ([TripTrim.apply] hands back the original instance), so it costs one
+ * pass, not two.
+ *
+ * Both are remembered because the enclosing chart lambda re-runs on every
+ * window change: re-mapping twenty thousand rows per pinch frame, fifteen
+ * charts over, is exactly what this screen cannot afford.
+ */
+@Composable
+private fun rememberChartSeries(
+    visible: List<TripDataPoint>,
+    full: List<TripDataPoint>,
+    vararg keys: Any?,
+    build: (List<TripDataPoint>) -> List<Float>,
+): Pair<List<Float>, List<Float>> {
+    val shown = remember(visible, *keys) { build(visible) }
+    val scale = if (visible === full) shown else remember(full, *keys) { build(full) }
+    return shown to scale
+}
+
+/**
  * Placeholder shown while a trip's CSV is being read.
  *
  * Mirrors the real layout, a map above stat tiles above chart cards, so the
@@ -3230,15 +3391,21 @@ private fun TripDetailSkeleton(
             }
         }
 
-        Spacer(Modifier.height(12.dp))
-        Block(14.dp, Modifier.fillMaxWidth(0.22f), corner = 6.dp)   // "Route" caption
+        Spacer(Modifier.height(8.dp))
+        Block(16.dp, Modifier.fillMaxWidth(0.22f), corner = 6.dp)   // "Route" caption
         Spacer(Modifier.height(4.dp))
         Block(250.dp, Modifier.fillMaxWidth())                      // map
 
         Spacer(Modifier.height(16.dp))
+        // The real card's height, built from the card's own metrics: padding
+        // top and bottom, the one-line title, the gap, and the plot. It was a
+        // flat 150dp, which drew every graph slot taller than the graph that
+        // replaced it, so the whole column shifted up as the data landed.
+        val chartHeight = CHART_CARD_PADDING * 2 + CHART_TITLE_GAP + CHART_PLOT_HEIGHT +
+            with(LocalDensity.current) { (CHART_TITLE_SIZE.value * 1.2f).sp.toDp() }
         repeat(chartCount) { i ->
             if (i > 0) Spacer(Modifier.height(12.dp))
-            Block(150.dp, Modifier.fillMaxWidth())
+            Block(chartHeight, Modifier.fillMaxWidth(), corner = 10.dp)
         }
         Spacer(Modifier.height(16.dp))
     }
