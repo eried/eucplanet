@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -174,6 +175,9 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
     val danger = MaterialTheme.appColors.statusDanger
     val gridColor = MaterialTheme.appColors.divider.copy(alpha = 0.6f)
     val rainBand = MaterialTheme.appColors.chartEnvelope.copy(alpha = 0.20f)
+    // Same hatch ink as the charging pack tiles, so the fills read as one
+    // family of surfaces across the app.
+    val hatch = MaterialTheme.appColors.hint.copy(alpha = 0.30f)
 
     fun colorFor(score: Float): Color = when {
         score >= 7f -> good
@@ -264,6 +268,15 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                     close()
                 }
                 drawPath(area, brush = Brush.horizontalGradient(*stops.toTypedArray()))
+                // Diagonal hatch clipped to the score area - the same texture
+                // the battery pack tiles carry, spacing and stroke included.
+                clipPath(area) {
+                    var hx = 0f
+                    while (hx < w + h) {
+                        drawLine(hatch, Offset(hx, 0f), Offset(hx - h, h), strokeWidth = 1f)
+                        hx += 26f
+                    }
+                }
 
                 // Faint guides at 0 / 5 / 10.
                 for (s in listOf(0f, 5f, 10f)) {
@@ -290,14 +303,18 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                 faces.forEach { spot ->
                     val frac = if (n <= 1) 0f else spot.index.toFloat() / (n - 1)
                     val score = hours[spot.index].b.score
-                    val xDp = with(density) { (graphW * frac).toInt().toDp() } - 9.dp
+                    // Inset from both edges so the end faces sit fully inside
+                    // the card instead of kissing its sides.
+                    val maxX = with(density) { graphW.toDp() } - 26.dp
+                    val xDp = (with(density) { (graphW * frac).toInt().toDp() } - 9.dp)
+                        .coerceIn(8.dp, maxX.coerceAtLeast(8.dp))
                     val yFrac = 1f - (score / 10f)
                     val yDp = (graphH - 18.dp) * yFrac
                     Text(
                         spot.emoji,
                         fontSize = 13.sp,
                         modifier = Modifier
-                            .offset(x = xDp.coerceIn(0.dp, 10000.dp), y = yDp)
+                            .offset(x = xDp, y = yDp)
                             .size(18.dp)
                             .clickable {
                                 tappedInfo = if (tappedInfo == spot.infoRes) null else spot.infoRes
