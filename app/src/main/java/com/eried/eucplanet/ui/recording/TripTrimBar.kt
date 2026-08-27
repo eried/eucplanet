@@ -89,6 +89,9 @@ fun TripTrimBar(
     startMs: Long,
     endMs: Long,
     onRange: (Long, Long) -> Unit,
+    /** Fired when a drag or tap gesture finishes, so the caller can run the
+     *  heavy recompute once instead of per frame. */
+    onRangeEnd: () -> Unit = {},
     onReset: () -> Unit,
     onEditExact: () -> Unit,
     modifier: Modifier = Modifier,
@@ -169,7 +172,10 @@ fun TripTrimBar(
                     .fillMaxSize()
                     .onSizeChanged { wPx = it.width.toFloat().coerceAtLeast(1f) }
                     .pointerInput(dur) {
-                        detectTapGestures { o -> apply(nearer(o.x), o.x) }
+                        detectTapGestures { o ->
+                            apply(nearer(o.x), o.x)
+                            onRangeEnd()
+                        }
                     }
                     .pointerInput(dur) {
                         detectDragGestures(
@@ -186,8 +192,14 @@ fun TripTrimBar(
                                     apply(dragHandle, o.x)
                                 }
                             },
-                            onDragEnd = { dragHandle = -1 },
-                            onDragCancel = { dragHandle = -1 },
+                            onDragEnd = {
+                                dragHandle = -1
+                                onRangeEnd()
+                            },
+                            onDragCancel = {
+                                dragHandle = -1
+                                onRangeEnd()
+                            },
                         ) { change, _ ->
                             change.consume()
                             if (dragHandle == DRAG_PAN) {

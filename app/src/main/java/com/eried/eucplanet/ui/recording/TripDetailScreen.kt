@@ -164,6 +164,10 @@ fun TripDetailScreen(
     // ever non-full while two fingers are down: releasing them commits the
     // slice into trimRange below, because the trim IS this screen's zoom.
     var chartWindow by remember(trip.id) { mutableStateOf(0f..1f) }
+    // Handle-drag preview: where the trim WILL be when the finger lifts. The
+    // bar's handles and the chart window track this per frame; the heavy
+    // recompute waits for the release, same as the pinch.
+    var pendingTrim by remember(trip.id) { mutableStateOf<LongRange?>(null) }
     // The exact-times dialog, now reached from the span in the trim bar rather
     // than straight off the funnel.
     var showTrim by remember { mutableStateOf(false) }
@@ -221,6 +225,9 @@ fun TripDetailScreen(
         // Never commit a slice too thin to chart; the pinch just snaps back.
         if (TripTrim.countInRange(elapsedMs, newS..newE) < TripTrim.MIN_POINTS) return@commit
         trimRange = newS..newE
+        // The pinch just made a trim: open the bar so the funnel reflects it
+        // and the handles sit where the fingers put them.
+        showTrimBar = true
     }
     val onResetView: () -> Unit = {
         chartWindow = 0f..1f
@@ -917,14 +924,35 @@ fun TripDetailScreen(
                     TripTrimBar(
                         modifier = Modifier.bringIntoViewRequester(trimRequester),
                         durationMs = full,
-                        startMs = trimRange?.first ?: 0L,
-                        endMs = trimRange?.last ?: full,
+                        startMs = (pendingTrim ?: trimRange)?.first ?: 0L,
+                        endMs = (pendingTrim ?: trimRange)?.last ?: full,
                         onRange = { s, e ->
-                            // Dragging back to the full span is "no trim", so the
-                            // rest of the screen returns to the untrimmed path.
-                            trimRange = if (s <= 0L && e >= full) null else s..e
+                            // Per-frame PREVIEW only: the handles and the chart
+                            // window follow the finger; the heavy recompute
+                            // (dataPoints, tiles, map) waits for the release.
+                            pendingTrim = s..e
+                            val cur0 = trimRange?.first ?: 0L
+                            val cur1 = trimRange?.last ?: full
+                            val span = (cur1 - cur0).coerceAtLeast(1L).toFloat()
+                            val ws = ((s - cur0) / span).coerceIn(0f, 1f)
+                            val we = ((e - cur0) / span).coerceIn(0f, 1f)
+                            chartWindow = if (we > ws + 0.005f) ws..we else 0f..1f
                         },
-                        onReset = { trimRange = null },
+                        onRangeEnd = {
+                            val p = pendingTrim
+                            pendingTrim = null
+                            chartWindow = 0f..1f
+                            if (p != null) {
+                                // Back to the full span is "no trim", so the rest
+                                // of the screen returns to the untrimmed path.
+                                trimRange = if (p.first <= 0L && p.last >= full) null else p
+                            }
+                        },
+                        onReset = {
+                            pendingTrim = null
+                            chartWindow = 0f..1f
+                            trimRange = null
+                        },
                         onEditExact = { showTrim = true },
                     )
                 }
@@ -2625,6 +2653,12 @@ private fun ChartCard(
                 val h = size.height
                 val range = bounds.range
                 val stepX = w / (values.size - 1).toFloat()
+                // Drawing is STRIDED past ~1200 points: the chart is ~1000 px
+                // wide, so beyond two samples per pixel there is nothing to
+                // see, and building 20k-point Paths per frame is what made
+                // pinching at full view stutter. Scrub and tooltips still
+                // read the full-resolution data.
+                val drawStride = (values.size / 1200).coerceAtLeast(1)
 
                 // Overlay series first so the main line draws on top. NaN values
                 // break the line so empty CSV cells don't pull the curve to zero.
@@ -2632,10 +2666,11 @@ private fun ChartCard(
                     if (overlay.values.size < 2) return@forEach
                     val overlayPath = Path()
                     var penDown = false
-                    overlay.values.forEachIndexed { idx, value ->
+                    fun plotOverlay(idx: Int) {
+                        val value = overlay.values[idx]
                         if (value.isNaN()) {
                             penDown = false
-                            return@forEachIndexed
+                            return
                         }
                         val x = idx * stepX
                         // Clamp to the chart box so a value above the (capped) axis
@@ -2648,6 +2683,8 @@ private fun ChartCard(
                             overlayPath.lineTo(x, y)
                         }
                     }
+                    for (idx in overlay.values.indices step drawStride) plotOverlay(idx)
+                    if ((overlay.values.size - 1) % drawStride != 0) plotOverlay(overlay.values.size - 1)
                     drawPath(
                         overlayPath,
                         color = overlay.color,
@@ -2659,10 +2696,11 @@ private fun ChartCard(
                 // CSV cells don't draw spurious connectors through the chart.
                 val segments = mutableListOf<Path>()
                 var segment: Path? = null
-                values.forEachIndexed { idx, value ->
+                fun plotMain(idx: Int) {
+                    val value = values[idx]
                     if (value.isNaN()) {
                         segment = null
-                        return@forEachIndexed
+                        return
                     }
                     val x = idx * stepX
                     // Clamp to the chart box so a value above the (capped) axis
@@ -2678,6 +2716,8 @@ private fun ChartCard(
                         seg.lineTo(x, y)
                     }
                 }
+                for (idx in values.indices step drawStride) plotMain(idx)
+                if ((values.size - 1) % drawStride != 0) plotMain(values.size - 1)
 
                 val regen = regenColor
                 val zeroCrosses = bounds.min < 0f && bounds.max > 0f
