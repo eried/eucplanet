@@ -2038,20 +2038,19 @@ private fun MapSurface(
     // Straight from the registry: this list once said SAT while the tile table
     // said SATELLITE, so picking satellite silently fell back to plain OSM.
     val mapTypes = com.eried.eucplanet.hud.protocol.MapLayers.ALL.map { it.id }
-    // The HTML actually showing in the WebView.
-    //
-    // A plain holder rather than Compose state on purpose: it is written from
-    // inside AndroidView's update block, and making it state would schedule a
-    // recomposition from within one.
-    val loadedHtml = remember { arrayOfNulls<String>(1) }
+    // The JS hooks only exist once the document has finished loading, so trace
+    // pushes wait for this rather than being silently dropped.
+    var pageReady by remember { mutableStateOf(false) }
     // Rebuilt whenever the trace changes (a trim, for instance) or we enter or
     // leave live mode. Bake the CURRENT style into the initial HTML so a
     // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
     // than flashing light first; style cycles afterwards go through JS.
-    val html = remember(
-        coordsJson, fadedCoordsJson, isLive, switchesJson, fadedSwitchesJson,
-        startIncluded, endIncluded, startLabelJs, endLabelJs
-    ) {
+    // Built ONCE, from whatever the trace was when this surface first composed:
+    // it is only ever handed to the factory below, and every later change goes
+    // through setTrace(). Keying it on the trace re-serialised twenty thousand
+    // coordinates into a fresh string on every trim, for a document nothing
+    // loaded.
+    val html = remember {
         buildMapHtml(
             coordsJson, fadedCoordsJson, switchesJson, fadedSwitchesJson,
             startIncluded, endIncluded, startLabelJs, endLabelJs, isLive, mapType
@@ -2068,7 +2067,11 @@ private fun MapSurface(
                     )
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
-                    webViewClient = WebViewClient()
+                    webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) {
+                            pageReady = true
+                        }
+                    }
                     setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
                     // Own drag gestures on the map: ask the Compose scroll
                     // container (which honours requestDisallowInterceptTouchEvent)
@@ -2085,22 +2088,15 @@ private fun MapSurface(
                         false
                     }
                     loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-                    loadedHtml[0] = html
                     webView = this
                 }
             },
-            // factory runs once, so loading the page only there left the map
-            // frozen on whatever trace it was first built with. Applying a trim
-            // rebuilt the HTML and then threw it away. Reload whenever the
-            // document actually changed, which also refits the view to the new
-            // trace.
-            update = { wv ->
-                webView = wv
-                if (loadedHtml[0] != html) {
-                    loadedHtml[0] = html
-                    wv.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-                }
-            },
+            // Deliberately does NOT reload on a content change. Reloading refits
+            // the camera and flashes the tiles, so every trim yanked the map
+            // away from wherever the rider had panned and zoomed it. Trace
+            // changes go through setTrace() below instead; the document is
+            // loaded once, by the factory.
+            update = { wv -> webView = wv },
             modifier = Modifier.fillMaxSize()
         )
         // Controls: fullscreen toggle over the map-style cycler.
@@ -2141,6 +2137,22 @@ private fun MapSurface(
                 }
             }
         }
+    }
+
+    // Redraw the trace in place whenever a trim changes what is highlighted.
+    // The camera is untouched: what the rider is looking at, and how far in,
+    // is theirs to set.
+    LaunchedEffect(
+        coordsJson, fadedCoordsJson, switchesJson, fadedSwitchesJson,
+        startIncluded, endIncluded, webView, pageReady,
+    ) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript(
+            "if(window.setTrace)setTrace([$coordsJson],[$fadedCoordsJson]," +
+                "$switchesJson,$fadedSwitchesJson,$startIncluded,$endIncluded);",
+            null,
+        )
     }
 
     // Apply the shared style to this WebView whenever it changes (the initial
@@ -2294,8 +2306,20 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
 
   var hasRoute = coords.length >= 2;
   var start=null, end=null, overlap=null;
+  // Every layer the trace owns, so it can be redrawn in place. Trims used to
+  // reload the whole document, which threw away the rider's pan and zoom and
+  // flashed the tiles; now only these layers change.
+  var traceLayers=[];
+  // Set the first time a real route is framed. Guards the case where the trace
+  // arrives after the page loaded: that draw still gets its one framing.
+  var everFit=false;
+  function clearTrace(){
+    for (var i=0;i<traceLayers.length;i++) map.removeLayer(traceLayers[i]);
+    traceLayers=[];
+  }
 
-  function render(){
+  function render(fit){
+    clearTrace();
     if (hasRoute){
       // The rest of the ride, drawn very faint underneath so a trimmed view
       // still shows where the section sits in the whole trip. Empty when
@@ -2303,8 +2327,8 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       // Everything here is non-interactive: the solid layer owns every popup,
       // so a tap near a ghost never opens the wrong thing.
       if (fadedCoords.length >= 2){
-        L.polyline(fadedCoords,
-          {color:'#4FC3F7',weight:4,opacity:0.38,interactive:false}).addTo(map);
+        traceLayers.push(L.polyline(fadedCoords,
+          {color:'#4FC3F7',weight:4,opacity:0.38,interactive:false}).addTo(map));
       }
       // Split the trace ONLY at genuine wheel changes (s.change): the first
       // wheel keeps the blue trace and a different wheel's stretch is drawn
@@ -2317,16 +2341,21 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       var prev = 0;
       for (var k=0;k<=cuts.length;k++){
         var stop = (k<cuts.length)?cuts[k]:coords.length-1;
-        if (stop>prev) L.polyline(coords.slice(prev,stop+1),
-          {color:k===0?'#4FC3F7':'#AB47BC',weight:4,interactive:false}).addTo(map);
+        if (stop>prev) traceLayers.push(L.polyline(coords.slice(prev,stop+1),
+          {color:k===0?'#4FC3F7':'#AB47BC',weight:4,interactive:false}).addTo(map));
         prev = stop;
       }
-      map.fitBounds(L.latLngBounds(coords).pad(0.2));
+      // Only the FIRST draw frames the ride. After that the camera belongs to
+      // the rider: trimming changes what is highlighted, never where the map
+      // is looking or how far in.
+      if (fit || !everFit){
+        map.fitBounds(L.latLngBounds(coords).pad(0.2));
+        everFit = true;
+      }
       placeEndpoints();
-      map.on('zoomend moveend', placeEndpoints);
-    } else if (coords.length === 1) {
+    } else if (fit && coords.length === 1) {
       map.setView(coords[0], 17);
-    } else {
+    } else if (fit) {
       map.setView([0,0], 2);
     }
   }
@@ -2423,7 +2452,10 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     if (scrub){ map.removeLayer(scrub); scrub=null; }
   };
 
-  render();
+  var badgeLayers=[];
+  function drawBadges(){
+  for (var i=0;i<badgeLayers.length;i++) map.removeLayer(badgeLayers[i]);
+  badgeLayers=[];
   // Wheel-identity badges from the stretches the trim cut away. Same shapes as
   // the live ones so they read as the same thing, just ghosted, and with no
   // popup: they are context, and the trimmed section owns the interaction.
@@ -2435,7 +2467,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       className:'faded-badge', html:'<div class="'+cls+'"></div>',
       iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
     });
-    L.marker([s.lat,s.lon],{icon:icon,interactive:false}).addTo(map);
+    badgeLayers.push(L.marker([s.lat,s.lon],{icon:icon,interactive:false}).addTo(map));
   });
   // A small square for each identity block after the ride start, each with its
   // own popup (time + wheel). A genuine wheel change is a purple square where
@@ -2451,8 +2483,26 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       className:'', html:'<div class="'+cls+'"></div>',
       iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
     });
-    L.marker([s.lat,s.lon],{icon:icon}).addTo(map).bindPopup(s.label);
+    badgeLayers.push(L.marker([s.lat,s.lon],{icon:icon}).addTo(map).bindPopup(s.label));
   });
+  }
+
+  // Trace API (called from Kotlin via evaluateJavascript). Everything a trim
+  // changes - the solid stretch, the ghost behind it, which badges are faded,
+  // which endpoints are dimmed - is applied here WITHOUT touching the camera.
+  window.setTrace = function(c, fc, sw, fsw, sIn, eIn){
+    coords=c; fadedCoords=fc; switches=sw; fadedSwitches=fsw;
+    startIncluded=sIn; endIncluded=eIn;
+    hasRoute = coords.length >= 2;
+    render(false);
+    drawBadges();
+  };
+
+  render(true);
+  drawBadges();
+  // Bound once, not per draw: rebinding on every redraw stacked a fresh
+  // listener each time and re-placed the endpoints N times per pan.
+  map.on('zoomend moveend', placeEndpoints);
   ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}
 </script></body></html>
 """.trimIndent()
