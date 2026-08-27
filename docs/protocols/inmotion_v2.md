@@ -559,8 +559,8 @@ echo and reads (offsets into the stripped buffer):
 
 An earlier build read tiltback at d\[12..13\]; that only worked when
 the user's tiltback equalled their alarm (the value at d\[8..9\]
-happened to mirror d\[10..11\] in the test set). The labelled capture
-in `docs/P6_CAPTURE_LABELS.md` pinned it to d\[8..9\].
+happened to mirror d\[10..11\] in the test set). A labelled BLE capture
+from user-led testing pinned it to d\[8..9\].
 
 ### 7.4 P6 control sub-commands
 
@@ -702,7 +702,7 @@ against the upstream reference and Electric Unicycle Forum threads.
 
 The P6 layout is original work: every P6 offset, sub-command and
 formula in section 7 was derived from labelled BLE captures recorded
-during user-led testing (`docs/P6_CAPTURE_LABELS.md`). The P6 is not
+during user-led testing. The P6 is not
 covered by any public open-source reference we could find.
 
 This document is original prose and tables; no third-party GPL source
