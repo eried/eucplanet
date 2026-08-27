@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
@@ -46,8 +47,12 @@ private const val HANDLE_HALF_WIDTH_PX = 16f
  * Wider than the handle is drawn, because a finger is wider than a pentagon.
  * On a span narrower than twice this, the handles simply own the whole
  * selection, which is the right outcome: there is nothing meaningful to pan.
+ *
+ * In dp, not px: the old raw 30 px was barely 11 dp on a modern phone, which
+ * is why the handles felt ungrabbable at the sides. 24 dp each way makes the
+ * platform-minimum 48 dp touch target.
  */
-private const val HANDLE_GRAB_PX = 30f
+private val HANDLE_GRAB = 24.dp
 
 private const val DRAG_START = 0
 private const val DRAG_END = 1
@@ -98,10 +103,11 @@ fun TripTrimBar(
     // which is already inset, and padding twice would leave it narrower than
     // the tiles and charts it controls.
     Column(modifier.fillMaxWidth()) {
-        BoxWithConstraints(Modifier.fillMaxWidth().height(44.dp)) {
+        BoxWithConstraints(Modifier.fillMaxWidth().height(48.dp)) {
             var wPx by remember {
                 mutableStateOf(constraints.maxWidth.toFloat().coerceAtLeast(1f))
             }
+            val grabPx = with(LocalDensity.current) { HANDLE_GRAB.toPx() }
             // The track is inset by the handle's half width. Without it a handle
             // parked at either end is drawn centred on the edge and loses half
             // of itself off-screen, which reads as a rendering fault rather than
@@ -152,7 +158,7 @@ fun TripTrimBar(
             fun modeAt(x: Float): Int {
                 val sx = xOf(curStart)
                 val ex = xOf(curEnd)
-                if (abs(x - sx) <= HANDLE_GRAB_PX || abs(x - ex) <= HANDLE_GRAB_PX) {
+                if (abs(x - sx) <= grabPx || abs(x - ex) <= grabPx) {
                     return nearer(x)
                 }
                 return if (x > sx && x < ex) DRAG_PAN else nearer(x)
