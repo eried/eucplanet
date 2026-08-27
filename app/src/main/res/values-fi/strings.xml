@@ -485,6 +485,11 @@
     <string name="adv_group_charging">Latauksen arvio</string>
     <string name="adv_group_geometry">Näytön geometrian muuttujat</string>
     <string name="adv_group_controls">Yksipyöräisen hallinta</string>
+    <string name="adv_group_weather">Sääpisteet</string>
+    <string name="adv_weather_cold_desc">Tämän alle tunti on liian kylmä.</string>
+    <string name="adv_weather_hot_desc">Tämän yli tunti on liian kuuma.</string>
+    <string name="adv_weather_breezy_desc">Tästä tuuli alkaa haitata.</string>
+    <string name="adv_weather_windy_desc">Tämän yli ajaminen on aidosti vaikeampaa.</string>
     <string name="adv_lock_max_speed">Lukituksen enimmäisnopeus</string>
     <string name="adv_lock_max_speed_desc">Vaikuttaa nopeuteen, jonka yli yksipyöräisen lukitus estetään. Vaara: liian suuri sallii lukituksen vielä liikkeessä.</string>
     <string name="adv_compact_max_screen">Kompaktin näytön raja</string>

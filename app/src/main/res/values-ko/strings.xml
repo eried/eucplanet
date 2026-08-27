@@ -1948,6 +1948,11 @@
     <string name="adv_group_radar_class">레이더 분류</string>
     <string name="adv_group_rates">데이터 및 보고 속도</string>
     <string name="adv_group_controls">휠 조작</string>
+    <string name="adv_group_weather">날씨 점수</string>
+    <string name="adv_weather_cold_desc">이 아래면 너무 추운 시간.</string>
+    <string name="adv_weather_hot_desc">이 위면 너무 더운 시간.</string>
+    <string name="adv_weather_breezy_desc">여기부터 바람이 거슬립니다.</string>
+    <string name="adv_weather_windy_desc">이 이상이면 주행이 확실히 어렵습니다.</string>
     <string name="adv_lock_max_speed">잠금 최고 속도</string>
     <string name="adv_lock_max_speed_desc">휠 잠금이 거부되는 속도에 영향을 줍니다. 주의: 너무 높으면 아직 주행 중에 잠금이 작동할 수 있습니다.</string>
     <string name="adv_hud_backoff_max">재연결 백오프 (최대)</string>

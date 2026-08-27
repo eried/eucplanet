@@ -1955,6 +1955,11 @@
     <string name="adv_group_radar_class">Classification radar</string>
     <string name="adv_group_rates">Cadences de données et de rapport</string>
     <string name="adv_group_controls">Commandes de la roue</string>
+    <string name="adv_group_weather">Score météo</string>
+    <string name="adv_weather_cold_desc">En dessous, le créneau compte comme froid.</string>
+    <string name="adv_weather_hot_desc">Au-dessus, le créneau compte comme chaud.</string>
+    <string name="adv_weather_breezy_desc">Le vent commence à gêner ici.</string>
+    <string name="adv_weather_windy_desc">Au-delà, rouler devient vraiment dur.</string>
     <string name="adv_lock_max_speed">Vitesse max de verrouillage</string>
     <string name="adv_lock_max_speed_desc">Détermine la vitesse au-dessus de laquelle le verrouillage de la roue est refusé. Danger : trop haut laisse un verrouillage se déclencher en roulant encore.</string>
     <string name="adv_hud_backoff_max">Délai de reconnexion (max)</string>

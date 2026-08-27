@@ -485,6 +485,11 @@
     <string name="adv_group_charging">Estimarea încărcării</string>
     <string name="adv_group_geometry">Variabilele geometriei ecranului</string>
     <string name="adv_group_controls">Comenzile monociclului</string>
+    <string name="adv_group_weather">Scor meteo</string>
+    <string name="adv_weather_cold_desc">Sub acest prag ora e prea rece.</string>
+    <string name="adv_weather_hot_desc">Peste acest prag ora e prea caldă.</string>
+    <string name="adv_weather_breezy_desc">De aici vântul începe să deranjeze.</string>
+    <string name="adv_weather_windy_desc">Dincolo de asta, mersul devine greu.</string>
     <string name="adv_lock_max_speed">Viteza maximă pentru blocare</string>
     <string name="adv_lock_max_speed_desc">Influențează viteza peste care blocarea monociclului este refuzată. Pericol: o valoare prea mare permite blocarea în timp ce încă rulează.</string>
     <string name="adv_compact_max_screen">Limita ecranului compact</string>

@@ -1951,6 +1951,11 @@
     <string name="adv_group_radar_class">Radarclassificatie</string>
     <string name="adv_group_rates">Data- en rapportagesnelheden</string>
     <string name="adv_group_controls">Wielbediening</string>
+    <string name="adv_group_weather">Weerscore</string>
+    <string name="adv_weather_cold_desc">Hieronder telt het uur als te koud.</string>
+    <string name="adv_weather_hot_desc">Hierboven telt het uur als te heet.</string>
+    <string name="adv_weather_breezy_desc">Hier begint de wind te storen.</string>
+    <string name="adv_weather_windy_desc">Voorbij dit wordt rijden echt lastig.</string>
     <string name="adv_lock_max_speed">Max. vergrendelsnelheid</string>
     <string name="adv_lock_max_speed_desc">Bepaalt de snelheid waarboven het vergrendelen van het wiel wordt geweigerd. Let op: te hoog laat een vergrendeling activeren terwijl je nog rijdt.</string>
     <string name="adv_hud_backoff_max">Herverbind-backoff (max)</string>

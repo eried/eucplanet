@@ -1818,6 +1818,11 @@
     <string name="adv_group_radar_class">雷达分类</string>
     <string name="adv_group_rates">数据与上报频率</string>
     <string name="adv_group_controls">独轮车控制</string>
+    <string name="adv_group_weather">天气评分</string>
+    <string name="adv_weather_cold_desc">低于此视为过冷。</string>
+    <string name="adv_weather_hot_desc">高于此视为过热。</string>
+    <string name="adv_weather_breezy_desc">从这里开始风有影响。</string>
+    <string name="adv_weather_windy_desc">超过后骑行明显更难。</string>
     <string name="adv_lock_max_speed">锁定最高速度</string>
     <string name="adv_lock_max_speed_desc">影响高于该速度时拒绝锁定独轮车。危险:过高会让锁定在仍在行驶时触发。</string>
     <string name="adv_hud_backoff_max">重连退避(最大)</string>

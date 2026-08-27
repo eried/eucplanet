@@ -1948,6 +1948,11 @@
     <string name="adv_group_radar_class">Класифікація радара</string>
     <string name="adv_group_rates">Частоти даних і звітів</string>
     <string name="adv_group_controls">Керування колесом</string>
+    <string name="adv_group_weather">Оцінка погоди</string>
+    <string name="adv_weather_cold_desc">Нижче цього година вважається холодною.</string>
+    <string name="adv_weather_hot_desc">Вище цього година вважається спекотною.</string>
+    <string name="adv_weather_breezy_desc">Звідси вітер починає заважати.</string>
+    <string name="adv_weather_windy_desc">Далі їхати справді важко.</string>
     <string name="adv_lock_max_speed">Макс. швидкість блокування</string>
     <string name="adv_lock_max_speed_desc">Впливає на швидкість, вище якої блокування колеса відхиляється. Небезпека: зависоке значення дозволяє блокуванню спрацювати на ходу.</string>
     <string name="adv_hud_backoff_max">Затримка перепідключення (макс)</string>

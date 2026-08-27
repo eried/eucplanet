@@ -1971,6 +1971,11 @@
     <string name="adv_group_radar_class">Radar-Klassifizierung</string>
     <string name="adv_group_rates">Daten- und Melderaten</string>
     <string name="adv_group_controls">Wheel-Steuerung</string>
+    <string name="adv_group_weather">Wetter-Score</string>
+    <string name="adv_weather_cold_desc">Darunter gilt die Stunde als zu kalt.</string>
+    <string name="adv_weather_hot_desc">Darüber gilt die Stunde als zu heiß.</string>
+    <string name="adv_weather_breezy_desc">Ab hier stört der Wind.</string>
+    <string name="adv_weather_windy_desc">Darüber wird das Fahren richtig schwer.</string>
     <string name="adv_lock_max_speed">Max. Sperrgeschwindigkeit</string>
     <string name="adv_lock_max_speed_desc">Beeinflusst die Geschwindigkeit, oberhalb der das Sperren des Wheels verweigert wird. Achtung: zu hoch lässt eine Sperre auslösen, während du noch rollst.</string>
     <string name="adv_hud_backoff_max">Reconnect-Wartezeit (max.)</string>

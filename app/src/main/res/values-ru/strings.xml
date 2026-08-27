@@ -1951,6 +1951,11 @@
     <string name="adv_group_radar_class">Классификация радара</string>
     <string name="adv_group_rates">Частота данных и отчётов</string>
     <string name="adv_group_controls">Управление колесом</string>
+    <string name="adv_group_weather">Оценка погоды</string>
+    <string name="adv_weather_cold_desc">Ниже этого час считается холодным.</string>
+    <string name="adv_weather_hot_desc">Выше этого час считается жарким.</string>
+    <string name="adv_weather_breezy_desc">Отсюда ветер начинает мешать.</string>
+    <string name="adv_weather_windy_desc">Дальше ехать по-настоящему тяжело.</string>
     <string name="adv_lock_max_speed">Макс. скорость блокировки</string>
     <string name="adv_lock_max_speed_desc">Влияет на скорость, выше которой блокировка колеса запрещается. Опасно: слишком большое позволяет блокировке сработать на ходу.</string>
     <string name="adv_hud_backoff_max">Задержка переподключения (макс.)</string>

@@ -1251,18 +1251,10 @@ data class WeatherSettings(
     val windowHours: Int = 6,
     /** [com.eried.eucplanet.weather.WeatherSource] id. */
     val source: String = "OPEN_METEO",
-    /** Below this °C the hour reads too cold. */
-    val coldC: Int = 14,
-    /** Above this °C the hour reads too hot. */
-    val hotC: Int = 31,
-    /** Tenths of m/s where wind starts to bite (default 2.0 m/s). */
-    val breezyTenthsMs: Int = 20,
-    /** Tenths of m/s where riding gets genuinely harder (default 4.5 m/s). */
-    val windyTenthsMs: Int = 45,
     // Riding preferences: how each condition should count for this rider.
-    // "DISLIKE" | "NEUTRAL" | "LIKE"; the thresholds above say when a
-    // condition applies, these say how it scores. Rain, snow and wind ship
-    // disliked; the rest neutral.
+    // "DISLIKE" | "NEUTRAL" | "LIKE"; the comfort thresholds (Advanced
+    // settings, Weather score group) say when a condition applies, these say
+    // how it scores. Rain, snow and wind ship disliked; the rest neutral.
     val prefHot: String = "NEUTRAL",
     val prefCold: String = "NEUTRAL",
     val prefRain: String = "DISLIKE",
@@ -1306,6 +1298,13 @@ data class VoiceReportSettings(
  * JVM/dex 255-argument limit. All clamped in SettingsRepository.sanitized().
  */
 data class AdvancedSettings(
+    // Weather score thresholds (see the WEATHER spec group): when an hour
+    // reads too cold / too hot (°C) and where wind starts to bite / gets
+    // genuinely hard (tenths of m/s).
+    val weatherColdC: Int = 14,
+    val weatherHotC: Int = 31,
+    val weatherBreezyTenthsMs: Int = 20,
+    val weatherWindyTenthsMs: Int = 45,
     val wheelPollIntervalMs: Int = 250,
     val graphSampleIntervalMs: Int = 1000,
     // Window, in samples, for the smoothed Trip Details graphs and the smoothed

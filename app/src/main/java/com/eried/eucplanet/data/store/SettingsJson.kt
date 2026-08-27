@@ -208,10 +208,6 @@ object SettingsJson {
         put("weatherEnabled", s.weather.enabled)
         put("weatherWindowHours", s.weather.windowHours)
         put("weatherSource", s.weather.source)
-        put("weatherColdC", s.weather.coldC)
-        put("weatherHotC", s.weather.hotC)
-        put("weatherBreezyTenthsMs", s.weather.breezyTenthsMs)
-        put("weatherWindyTenthsMs", s.weather.windyTenthsMs)
         put("weatherPrefHot", s.weather.prefHot)
         put("weatherPrefCold", s.weather.prefCold)
         put("weatherPrefRain", s.weather.prefRain)
@@ -419,10 +415,6 @@ object SettingsJson {
             enabled = j.optBoolean("weatherEnabled", base.weather.enabled),
             windowHours = j.optInt("weatherWindowHours", base.weather.windowHours),
             source = j.optString("weatherSource", base.weather.source),
-            coldC = j.optInt("weatherColdC", base.weather.coldC),
-            hotC = j.optInt("weatherHotC", base.weather.hotC),
-            breezyTenthsMs = j.optInt("weatherBreezyTenthsMs", base.weather.breezyTenthsMs),
-            windyTenthsMs = j.optInt("weatherWindyTenthsMs", base.weather.windyTenthsMs),
             prefHot = j.optString("weatherPrefHot", base.weather.prefHot),
             prefCold = j.optString("weatherPrefCold", base.weather.prefCold),
             prefRain = j.optString("weatherPrefRain", base.weather.prefRain),

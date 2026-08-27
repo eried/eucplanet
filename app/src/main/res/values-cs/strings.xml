@@ -485,6 +485,11 @@
     <string name="adv_group_charging">Odhad nabíjení</string>
     <string name="adv_group_geometry">Proměnné geometrie obrazovky</string>
     <string name="adv_group_controls">Ovládání monokola</string>
+    <string name="adv_group_weather">Skóre počasí</string>
+    <string name="adv_weather_cold_desc">Pod tímto je hodina příliš studená.</string>
+    <string name="adv_weather_hot_desc">Nad tímto je hodina příliš horká.</string>
+    <string name="adv_weather_breezy_desc">Tady začíná vítr vadit.</string>
+    <string name="adv_weather_windy_desc">Za tímto je ježdění opravdu těžší.</string>
     <string name="adv_lock_max_speed">Maximální rychlost pro zámek</string>
     <string name="adv_lock_max_speed_desc">Ovlivňuje rychlost, nad kterou je zamknutí monokola odmítnuto. Nebezpečí: příliš vysoká hodnota umožní zamknutí za jízdy.</string>
     <string name="adv_compact_max_screen">Limit kompaktní obrazovky</string>

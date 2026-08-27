@@ -187,10 +187,12 @@ class WeatherModuleTest {
         assertTrue(!w.enabled)
         assertEquals(6, w.windowHours)
         assertEquals("OPEN_METEO", w.source)
-        assertEquals(14, w.coldC)
-        assertEquals(31, w.hotC)
-        assertEquals(20, w.breezyTenthsMs)   // 2.0 m/s
-        assertEquals(45, w.windyTenthsMs)    // 4.5 m/s
+        // Thresholds live in Advanced settings (Weather score group).
+        val a = com.eried.eucplanet.data.model.AdvancedSettings()
+        assertEquals(14, a.weatherColdC)
+        assertEquals(31, a.weatherHotC)
+        assertEquals(20, a.weatherBreezyTenthsMs)   // 2.0 m/s
+        assertEquals(45, a.weatherWindyTenthsMs)    // 4.5 m/s
         // Rain, snow and wind ship disliked; the rest neutral.
         assertEquals("DISLIKE", w.prefRain)
         assertEquals("DISLIKE", w.prefSnow)
@@ -278,6 +280,8 @@ class WeatherModuleTest {
             "weather_in_min", "weather_in_h",
             "weather_src_current", "weather_src_destination",
             "weather_updated_now", "weather_swap_src",
+            "adv_group_weather", "adv_weather_cold_desc", "adv_weather_hot_desc",
+            "adv_weather_breezy_desc", "adv_weather_windy_desc",
             "weather_pref_label", "weather_pref_desc",
             "weather_pref_dislike", "weather_pref_neutral", "weather_pref_like",
             "weather_cond_hot", "weather_cond_cold", "weather_cond_rain",

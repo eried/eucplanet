@@ -35,6 +35,7 @@ enum class AdvGroup(
     CHARGING(R.string.adv_group_charging, warningRes = R.string.adv_charging_warning),
     GEOMETRY(R.string.adv_group_geometry),
     CONTROLS(R.string.adv_group_controls),
+    WEATHER(R.string.adv_group_weather),
 }
 
 data class AdvancedSpec(
@@ -236,4 +237,26 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("inmotionV1Pin", AdvGroup.CONTROLS, R.string.adv_inmotion_v1_pin, R.string.adv_inmotion_v1_pin_desc,
         0..999999, 1, unit = "", get = { it.inmotionV1Pin }, set = { s, v -> s.copy(inmotionV1Pin = v) },
         format = pinFormat, parse = pinParse),
+
+    // --- Weather score thresholds ---
+    // The comfort numbers behind the ridability score; the riding
+    // preferences in Navigation & weather say HOW each condition counts,
+    // these say WHEN it applies. Ids double as the JSON keys the values used
+    // to live under inside WeatherSettings, so tuned setups carry over.
+    AdvancedSpec("weatherColdC", AdvGroup.WEATHER, R.string.weather_cold, R.string.adv_weather_cold_desc,
+        -30..25, 1, unit = "°C", allowSign = true,
+        get = { it.weatherColdC }, set = { s, v -> s.copy(weatherColdC = v) }),
+    AdvancedSpec("weatherHotC", AdvGroup.WEATHER, R.string.weather_hot, R.string.adv_weather_hot_desc,
+        -29..55, 1, unit = "°C", allowSign = true,
+        get = { it.weatherHotC }, set = { s, v -> s.copy(weatherHotC = v) }),
+    AdvancedSpec("weatherBreezyTenthsMs", AdvGroup.WEATHER, R.string.weather_breezy, R.string.adv_weather_breezy_desc,
+        0..200, 5, unit = "m/s", allowSign = true,
+        get = { it.weatherBreezyTenthsMs }, set = { s, v -> s.copy(weatherBreezyTenthsMs = v) },
+        format = { String.format(java.util.Locale.US, "%.1f", it / 10f) },
+        parse = { it.replace(',', '.').toFloatOrNull()?.let { f -> Math.round(f * 10f) } }),
+    AdvancedSpec("weatherWindyTenthsMs", AdvGroup.WEATHER, R.string.weather_windy, R.string.adv_weather_windy_desc,
+        5..400, 5, unit = "m/s", allowSign = true,
+        get = { it.weatherWindyTenthsMs }, set = { s, v -> s.copy(weatherWindyTenthsMs = v) },
+        format = { String.format(java.util.Locale.US, "%.1f", it / 10f) },
+        parse = { it.replace(',', '.').toFloatOrNull()?.let { f -> Math.round(f * 10f) } }),
 )

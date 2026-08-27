@@ -124,16 +124,18 @@ class DashboardViewModel @Inject constructor(
     val weatherPlace = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
 
     val weatherDestHours: StateFlow<List<ScoredHour>> =
-        kotlinx.coroutines.flow.combine(weatherRepository.destForecast, weatherSettings) { f, w ->
+        kotlinx.coroutines.flow.combine(weatherRepository.destForecast, settingsRepository.settings) { f, st ->
+            val w = st.weather
+            val a = st.advanced
             f?.hours.orEmpty().map { h ->
                 ScoredHour(
                     h.timeMs,
                     com.eried.eucplanet.weather.RidabilityScore.score(
                         h,
-                        coldC = w.coldC.toFloat(),
-                        hotC = w.hotC.toFloat(),
-                        breezyMs = w.breezyTenthsMs / 10f,
-                        windyMs = w.windyTenthsMs / 10f,
+                        coldC = a.weatherColdC.toFloat(),
+                        hotC = a.weatherHotC.toFloat(),
+                        breezyMs = a.weatherBreezyTenthsMs / 10f,
+                        windyMs = a.weatherWindyTenthsMs / 10f,
                         prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
                             w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight,
                         ),
@@ -170,16 +172,18 @@ class DashboardViewModel @Inject constructor(
     /** The cached forecast week, scored with the rider's comfort thresholds.
      *  The flyout slices this per window, so switching windows never fetches. */
     val weatherHours: StateFlow<List<ScoredHour>> =
-        kotlinx.coroutines.flow.combine(weatherRepository.forecast, weatherSettings) { f, w ->
+        kotlinx.coroutines.flow.combine(weatherRepository.forecast, settingsRepository.settings) { f, st ->
+            val w = st.weather
+            val a = st.advanced
             f?.hours.orEmpty().map { h ->
                 ScoredHour(
                     h.timeMs,
                     com.eried.eucplanet.weather.RidabilityScore.score(
                         h,
-                        coldC = w.coldC.toFloat(),
-                        hotC = w.hotC.toFloat(),
-                        breezyMs = w.breezyTenthsMs / 10f,
-                        windyMs = w.windyTenthsMs / 10f,
+                        coldC = a.weatherColdC.toFloat(),
+                        hotC = a.weatherHotC.toFloat(),
+                        breezyMs = a.weatherBreezyTenthsMs / 10f,
+                        windyMs = a.weatherWindyTenthsMs / 10f,
                         prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
                             w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight,
                         ),

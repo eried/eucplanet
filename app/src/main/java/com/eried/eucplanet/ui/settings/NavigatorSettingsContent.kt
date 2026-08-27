@@ -342,9 +342,10 @@ fun NavigatorSettingsContent(
             }
             HintText(stringResource(R.string.weather_source_credit), small = true)
 
-            // Riding preferences: a triple selector per condition. The
-            // thresholds below say WHEN a condition applies; these say HOW it
-            // should count for this rider. Rain, snow and wind ship disliked.
+            // Riding preferences: a triple selector per condition, in the same
+            // full-width segmented style as the window selector above. The
+            // comfort thresholds behind them live in Advanced settings under
+            // Weather score. Rain, snow and wind ship disliked.
             Text(
                 stringResource(R.string.weather_pref_label).uppercase(),
                 style = MaterialTheme.typography.labelSmall,
@@ -352,110 +353,38 @@ fun NavigatorSettingsContent(
                 modifier = Modifier.padding(top = 8.dp),
             )
             HintText(stringResource(R.string.weather_pref_desc), small = true)
-            val prefEntries = listOf(
-                "hot" to (R.string.weather_cond_hot to settings.weather.prefHot),
-                "cold" to (R.string.weather_cond_cold to settings.weather.prefCold),
-                "rain" to (R.string.weather_cond_rain to settings.weather.prefRain),
-                "snow" to (R.string.weather_cond_snow to settings.weather.prefSnow),
-                "wind" to (R.string.weather_cond_wind to settings.weather.prefWind),
-                "night" to (R.string.weather_cond_night to settings.weather.prefNight),
-            )
             val prefOptions = listOf(
                 "DISLIKE" to stringResource(R.string.weather_pref_dislike),
                 "NEUTRAL" to stringResource(R.string.weather_pref_neutral),
                 "LIKE" to stringResource(R.string.weather_pref_like),
             )
-            prefEntries.forEach { (key, entry) ->
-                val (labelRes, current) = entry
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+            listOf(
+                Triple("hot", R.string.weather_cond_hot, settings.weather.prefHot),
+                Triple("cold", R.string.weather_cond_cold, settings.weather.prefCold),
+                Triple("rain", R.string.weather_cond_rain, settings.weather.prefRain),
+                Triple("snow", R.string.weather_cond_snow, settings.weather.prefSnow),
+                Triple("wind", R.string.weather_cond_wind, settings.weather.prefWind),
+                Triple("night", R.string.weather_cond_night, settings.weather.prefNight),
+            ).forEach { (key, labelRes, current) ->
+                Text(
+                    stringResource(labelRes),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
                 ) {
-                    Text(
-                        stringResource(labelRes),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f),
-                    )
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.weight(1.5f).height(40.dp)
-                    ) {
-                        prefOptions.forEachIndexed { index, (id, label) ->
-                            SegmentedButton(
-                                modifier = Modifier.fillMaxHeight(),
-                                selected = current == id,
-                                onClick = { viewModel.updateWeatherPref(key, id) },
-                                shape = SegmentedButtonDefaults.itemShape(index, prefOptions.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
-                                colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
-                            ) { Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1) }
-                        }
+                    prefOptions.forEachIndexed { index, (id, label) ->
+                        SegmentedButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            selected = current == id,
+                            onClick = { viewModel.updateWeatherPref(key, id) },
+                            shape = SegmentedButtonDefaults.itemShape(index, prefOptions.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                            colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                        ) { Text(label) }
                     }
                 }
             }
 
-            HintText(stringResource(R.string.weather_comfort_desc), small = true)
-            val imperialTemp = settings.unitTemp == "F"
-            fun cToDisplay(c: Int): String = if (imperialTemp) ((c * 9 / 5) + 32).toString() else c.toString()
-            fun displayToC(t: String): Int? = t.toIntOrNull()?.let { if (imperialTemp) ((it - 32) * 5 / 9) else it }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                NumberUpDown(
-                    value = settings.weather.coldC,
-                    onValueChange = { viewModel.updateWeatherCold(it) },
-                    range = -30..25,
-                    label = stringResource(R.string.weather_cold),
-                    suffix = if (imperialTemp) "\u00b0F" else "\u00b0C",
-                    modifier = Modifier.weight(1f),
-                    format = { cToDisplay(it) },
-                    parse = { displayToC(it) },
-                    allowSign = true,
-                )
-                NumberUpDown(
-                    value = settings.weather.hotC,
-                    onValueChange = { viewModel.updateWeatherHot(it) },
-                    range = -29..55,
-                    label = stringResource(R.string.weather_hot),
-                    suffix = if (imperialTemp) "\u00b0F" else "\u00b0C",
-                    modifier = Modifier.weight(1f),
-                    format = { cToDisplay(it) },
-                    parse = { displayToC(it) },
-                    allowSign = true,
-                )
-            }
-            val imperialWind = settings.unitSpeed == "mph"
-            fun windDisplay(tenths: Int): String =
-                if (imperialWind) "%.1f".format(tenths / 10f * 2.23694f) else "%.1f".format(tenths / 10f)
-            fun windParse(t: String): Int? = t.replace(',', '.').toFloatOrNull()?.let {
-                if (imperialWind) (it / 2.23694f * 10f).toInt() else (it * 10f).toInt()
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                NumberUpDown(
-                    value = settings.weather.breezyTenthsMs,
-                    onValueChange = { viewModel.updateWeatherBreezy(it) },
-                    range = 0..200,
-                    step = 5,
-                    label = stringResource(R.string.weather_breezy),
-                    suffix = if (imperialWind) "mph" else "m/s",
-                    modifier = Modifier.weight(1f),
-                    format = { windDisplay(it) },
-                    parse = { windParse(it) },
-                )
-                NumberUpDown(
-                    value = settings.weather.windyTenthsMs,
-                    onValueChange = { viewModel.updateWeatherWindy(it) },
-                    range = 5..400,
-                    step = 5,
-                    label = stringResource(R.string.weather_windy),
-                    suffix = if (imperialWind) "mph" else "m/s",
-                    modifier = Modifier.weight(1f),
-                    format = { windDisplay(it) },
-                    parse = { windParse(it) },
-                )
-            }
         }
 
         Spacer(Modifier.height(8.dp))

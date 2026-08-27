@@ -1948,6 +1948,11 @@
     <string name="adv_group_radar_class">Radar sınıflandırması</string>
     <string name="adv_group_rates">Veri ve bildirim hızları</string>
     <string name="adv_group_controls">Teker denetimleri</string>
+    <string name="adv_group_weather">Hava puanı</string>
+    <string name="adv_weather_cold_desc">Bunun altı çok soğuk sayılır.</string>
+    <string name="adv_weather_hot_desc">Bunun üstü çok sıcak sayılır.</string>
+    <string name="adv_weather_breezy_desc">Rüzgar burada rahatsız etmeye başlar.</string>
+    <string name="adv_weather_windy_desc">Bunu aşınca sürüş cidden zorlaşır.</string>
     <string name="adv_lock_max_speed">Maks. kilitleme hızı</string>
     <string name="adv_lock_max_speed_desc">Üzerinde tekeri kilitlemenin reddedildiği hızı etkiler. Dikkat: çok yüksek olursa hâlâ hareket hâlindeyken bir kilidin devreye girmesine izin verir.</string>
     <string name="adv_hud_backoff_max">Yeniden bağlanma beklemesi (maks)</string>

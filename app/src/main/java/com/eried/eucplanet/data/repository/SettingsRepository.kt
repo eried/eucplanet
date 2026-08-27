@@ -56,10 +56,6 @@ class SettingsRepository @Inject constructor(
         // the window one of the offered four, the bands ordered and sane.
         weather = weather.copy(
             windowHours = if (weather.windowHours in setOf(6, 24, 72, 168)) weather.windowHours else 6,
-            coldC = weather.coldC.coerceIn(-30, 25),
-            hotC = weather.hotC.coerceIn(weather.coldC.coerceIn(-30, 25) + 1, 55),
-            breezyTenthsMs = weather.breezyTenthsMs.coerceIn(0, 200),
-            windyTenthsMs = weather.windyTenthsMs.coerceIn(weather.breezyTenthsMs.coerceIn(0, 200) + 5, 400),
             prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
             prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
             prefRain = weather.prefRain.takeIf { it in PREF_VALUES } ?: "DISLIKE",

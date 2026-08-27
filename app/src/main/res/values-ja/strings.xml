@@ -1950,6 +1950,11 @@
     <string name="adv_group_radar_class">レーダー分類</string>
     <string name="adv_group_rates">データと報告レート</string>
     <string name="adv_group_controls">ホイール操作</string>
+    <string name="adv_group_weather">天気スコア</string>
+    <string name="adv_weather_cold_desc">これ未満は寒すぎる扱い。</string>
+    <string name="adv_weather_hot_desc">これ以上は暑すぎる扱い。</string>
+    <string name="adv_weather_breezy_desc">ここから風が影響し始める。</string>
+    <string name="adv_weather_windy_desc">これを超えると走行が本当に難しくなる。</string>
     <string name="adv_lock_max_speed">ロック最高速度</string>
     <string name="adv_lock_max_speed_desc">ホイールのロックを拒否する速度に影響します。危険: 高すぎると走行中でもロックが作動します。</string>
     <string name="adv_hud_backoff_max">再接続バックオフ（最大）</string>

@@ -1949,6 +1949,11 @@
     <string name="adv_group_radar_class">Klasyfikacja radaru</string>
     <string name="adv_group_rates">Częstotliwości danych i raportów</string>
     <string name="adv_group_controls">Sterowanie kołem</string>
+    <string name="adv_group_weather">Wynik pogody</string>
+    <string name="adv_weather_cold_desc">Poniżej godzina liczy się jako zimna.</string>
+    <string name="adv_weather_hot_desc">Powyżej godzina liczy się jako upalna.</string>
+    <string name="adv_weather_breezy_desc">Tu wiatr zaczyna przeszkadzać.</string>
+    <string name="adv_weather_windy_desc">Powyżej jazda robi się naprawdę trudna.</string>
     <string name="adv_lock_max_speed">Maks. prędkość blokady</string>
     <string name="adv_lock_max_speed_desc">Wpływa na prędkość, powyżej której blokada koła jest odrzucana. Uwaga: zbyt duża wartość pozwala blokadzie zadziałać, gdy wciąż jedziesz.</string>
     <string name="adv_hud_backoff_max">Odczekanie ponownego łączenia (maks.)</string>

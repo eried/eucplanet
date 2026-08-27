@@ -1856,6 +1856,11 @@
     <string name="adv_group_radar_class">Classificazione radar</string>
     <string name="adv_group_rates">Frequenze di dati e report</string>
     <string name="adv_group_controls">Comandi della ruota</string>
+    <string name="adv_group_weather">Punteggio meteo</string>
+    <string name="adv_weather_cold_desc">Sotto questa soglia conta come freddo.</string>
+    <string name="adv_weather_hot_desc">Sopra questa soglia conta come caldo.</string>
+    <string name="adv_weather_breezy_desc">Qui il vento inizia a farsi sentire.</string>
+    <string name="adv_weather_windy_desc">Oltre, guidare diventa davvero difficile.</string>
     <string name="adv_lock_max_speed">Velocità max di blocco</string>
     <string name="adv_lock_max_speed_desc">Influisce sulla velocità oltre la quale bloccare la ruota viene rifiutato. Pericolo: troppo alto lascia scattare un blocco mentre sei ancora in movimento.</string>
     <string name="adv_hud_backoff_max">Attesa riconnessione (max)</string>

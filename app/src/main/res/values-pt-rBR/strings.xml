@@ -1951,6 +1951,11 @@
     <string name="adv_group_radar_class">Classificação do radar</string>
     <string name="adv_group_rates">Taxas de dados e relatório</string>
     <string name="adv_group_controls">Controles da roda</string>
+    <string name="adv_group_weather">Pontuação do clima</string>
+    <string name="adv_weather_cold_desc">Abaixo disso a hora conta como fria.</string>
+    <string name="adv_weather_hot_desc">Acima disso a hora conta como quente.</string>
+    <string name="adv_weather_breezy_desc">Aqui o vento começa a incomodar.</string>
+    <string name="adv_weather_windy_desc">Além disso, pilotar fica bem difícil.</string>
     <string name="adv_lock_max_speed">Velocidade máx. de travamento</string>
     <string name="adv_lock_max_speed_desc">Afeta a velocidade acima da qual travar a roda é recusado. Perigo: alto demais deixa um travamento disparar ainda em movimento.</string>
     <string name="adv_hud_backoff_max">Espera de reconexão (máx)</string>

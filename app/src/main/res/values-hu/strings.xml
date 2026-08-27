@@ -485,6 +485,11 @@
     <string name="adv_group_charging">Töltési becslés</string>
     <string name="adv_group_geometry">Képernyőgeometria változói</string>
     <string name="adv_group_controls">Egykerekű vezérlése</string>
+    <string name="adv_group_weather">Időjárás-pontszám</string>
+    <string name="adv_weather_cold_desc">Ez alatt az óra túl hidegnek számít.</string>
+    <string name="adv_weather_hot_desc">E fölött az óra túl forrónak számít.</string>
+    <string name="adv_weather_breezy_desc">Itt kezd a szél zavarni.</string>
+    <string name="adv_weather_windy_desc">Ezen túl a haladás tényleg nehezebb.</string>
     <string name="adv_lock_max_speed">Zárolás maximális sebessége</string>
     <string name="adv_lock_max_speed_desc">Befolyásolja azt a sebességet, amely felett az egykerekű zárolása megtagadásra kerül. Veszély: a túl magas érték engedi a zárolást gurulás közben.</string>
     <string name="adv_compact_max_screen">Kompakt képernyő határa</string>

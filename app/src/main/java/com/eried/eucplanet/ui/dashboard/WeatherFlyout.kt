@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
@@ -61,6 +62,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -213,8 +215,12 @@ fun WeatherFlyout(
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     color = if (usingDest) panel else ink.copy(alpha = 0.7f),
                     modifier = Modifier
+                        // Long place names ellipsize instead of squeezing the
+                        // refresh and expand buttons off the row.
+                        .widthIn(max = 110.dp)
                         .background(
                             if (usingDest) ink.copy(alpha = 0.75f) else ink.copy(alpha = 0.12f),
                             RoundedCornerShape(6.dp)
@@ -259,8 +265,12 @@ fun WeatherFlyout(
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = ink.copy(alpha = statusAlpha),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    // The flexible middle: this shrinks first, so the trailing
+                    // icon buttons always keep their full size.
+                    modifier = Modifier.weight(1f),
                 )
-                Spacer(Modifier.weight(1f))
                 if (refreshing) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
@@ -485,12 +495,13 @@ private fun DetailChart(
             val minV = s.values.min()
             val span = (s.values.max() - minV).coerceAtLeast(0.1f)
             val n = s.values.size
-            val p = Path()
-            for (i in 0 until n) {
-                val x = if (n <= 1) 0f else i * w / (n - 1)
-                val y = hgt - 3f - (s.values[i] - minV) / span * (hgt - 6f)
-                if (i == 0) p.moveTo(x, y) else p.lineTo(x, y)
+            val pts = List(n) { i ->
+                Offset(
+                    if (n <= 1) 0f else i * w / (n - 1),
+                    hgt - 3f - (s.values[i] - minV) / span * (hgt - 6f),
+                )
             }
+            val p = smoothPathOf(pts)
             drawPath(
                 p,
                 color = s.color,
@@ -559,6 +570,28 @@ private fun band(score: Float): Int = when {
 private fun signedLabel(score: Float): String {
     val v = score.roundToInt()
     return if (v > 0) "+$v" else "$v"
+}
+
+/** Catmull-Rom cubic for the segment i -> i+1 of [pts]. Display smoothing
+ *  only - the numeric data and every hit test stay on the exact points. */
+private fun Path.smoothSegmentTo(pts: List<Offset>, i: Int) {
+    val p0 = pts[(i - 1).coerceAtLeast(0)]
+    val p1 = pts[i]
+    val p2 = pts[i + 1]
+    val p3 = pts[(i + 2).coerceAtMost(pts.lastIndex)]
+    cubicTo(
+        p1.x + (p2.x - p0.x) / 6f, p1.y + (p2.y - p0.y) / 6f,
+        p2.x - (p3.x - p1.x) / 6f, p2.y - (p3.y - p1.y) / 6f,
+        p2.x, p2.y,
+    )
+}
+
+/** The whole polyline as one smooth path. */
+private fun smoothPathOf(pts: List<Offset>): Path = Path().apply {
+    if (pts.isNotEmpty()) {
+        moveTo(pts[0].x, pts[0].y)
+        for (i in 0 until pts.lastIndex) smoothSegmentTo(pts, i)
+    }
 }
 
 @Composable
@@ -704,9 +737,8 @@ private fun ScoreGraph(
                 if (alt.size > 1) {
                     val m = alt.size
                     fun axf(i: Int) = i * w / (m - 1)
-                    val altArea = Path().apply {
-                        moveTo(axf(0), y(alt[0].b.score))
-                        for (p in 1 until m) lineTo(axf(p), y(alt[p].b.score))
+                    val altPts = List(m) { Offset(axf(it), y(alt[it].b.score)) }
+                    val altArea = smoothPathOf(altPts).apply {
                         lineTo(w, h)
                         lineTo(0f, h)
                         close()
@@ -733,9 +765,8 @@ private fun ScoreGraph(
                     k += stride
                 }
                 if (stops.last().first < 1f) stops.add(1f to colorFor(hours[n - 1].b.score).copy(alpha = 0.30f))
-                val area = Path().apply {
-                    moveTo(x(0), y(hours[0].b.score))
-                    for (p in 1 until n) lineTo(x(p), y(hours[p].b.score))
+                val pts = List(n) { Offset(x(it), y(hours[it].b.score)) }
+                val area = smoothPathOf(pts).apply {
                     lineTo(w, h)
                     lineTo(0f, h)
                     close()
@@ -775,8 +806,8 @@ private fun ScoreGraph(
                 // Segment-coloured line on top.
                 for (p in 1 until n) {
                     val seg = Path().apply {
-                        moveTo(x(p - 1), y(hours[p - 1].b.score))
-                        lineTo(x(p), y(hours[p].b.score))
+                        moveTo(pts[p - 1].x, pts[p - 1].y)
+                        smoothSegmentTo(pts, p - 1)
                     }
                     drawPath(
                         seg,
@@ -790,10 +821,11 @@ private fun ScoreGraph(
                 if (alt.size > 1) {
                     val m = alt.size
                     fun ax(i: Int) = i * w / (m - 1)
+                    val altSegPts = List(m) { Offset(ax(it), y(alt[it].b.score)) }
                     for (p in 1 until m) {
                         val seg = Path().apply {
-                            moveTo(ax(p - 1), y(alt[p - 1].b.score))
-                            lineTo(ax(p), y(alt[p].b.score))
+                            moveTo(altSegPts[p - 1].x, altSegPts[p - 1].y)
+                            smoothSegmentTo(altSegPts, p - 1)
                         }
                         drawPath(
                             seg,

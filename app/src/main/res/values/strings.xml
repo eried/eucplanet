@@ -556,6 +556,11 @@
     <string name="adv_group_charging">Charging ETA</string>
     <string name="adv_group_geometry">Screen geometry variables</string>
     <string name="adv_group_controls">Wheel controls</string>
+    <string name="adv_group_weather">Weather score</string>
+    <string name="adv_weather_cold_desc">Below this the hour reads too cold.</string>
+    <string name="adv_weather_hot_desc">Above this the hour reads too hot.</string>
+    <string name="adv_weather_breezy_desc">Wind starts to bite here.</string>
+    <string name="adv_weather_windy_desc">Riding gets genuinely harder past this.</string>
     <string name="adv_lock_max_speed">Lock max speed</string>
     <string name="adv_lock_max_speed_desc">Affects the speed above which locking the wheel is refused. Danger: too high lets a lock fire while still rolling.</string>
     <string name="adv_compact_max_screen">Compact screen limit</string>

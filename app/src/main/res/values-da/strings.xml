@@ -1966,6 +1966,11 @@
     <string name="adv_group_radar_class">Radarklassificering</string>
     <string name="adv_group_rates">Data- og rapporteringshastigheder</string>
     <string name="adv_group_controls">Hjulstyring</string>
+    <string name="adv_group_weather">Vejrscore</string>
+    <string name="adv_weather_cold_desc">Under dette er timen for kold.</string>
+    <string name="adv_weather_hot_desc">Over dette er timen for varm.</string>
+    <string name="adv_weather_breezy_desc">Her begynder vinden at bide.</string>
+    <string name="adv_weather_windy_desc">Forbi dette bliver kørslen svær.</string>
     <string name="adv_lock_max_speed">Maks. låsehastighed</string>
     <string name="adv_lock_max_speed_desc">Påvirker den hastighed, over hvilken låsning af hjulet afvises. Fare: for højt lader en låsning udløse, mens du stadig ruller.</string>
     <string name="adv_hud_backoff_max">Genforbindelsespause (maks)</string>

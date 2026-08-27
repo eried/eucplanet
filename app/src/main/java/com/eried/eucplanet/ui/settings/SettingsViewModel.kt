@@ -1035,10 +1035,6 @@ class SettingsViewModel @Inject constructor(
     fun updateWeatherEnabled(v: Boolean) = update { copy(weather = weather.copy(enabled = v)) }
     fun updateWeatherWindow(v: Int) = update { copy(weather = weather.copy(windowHours = v)) }
     fun updateWeatherSource(v: String) = update { copy(weather = weather.copy(source = v)) }
-    fun updateWeatherCold(v: Int) = update { copy(weather = weather.copy(coldC = v.coerceIn(-30, 25))) }
-    fun updateWeatherHot(v: Int) = update { copy(weather = weather.copy(hotC = v.coerceIn(-29, 55))) }
-    fun updateWeatherBreezy(v: Int) = update { copy(weather = weather.copy(breezyTenthsMs = v.coerceIn(0, 200))) }
-    fun updateWeatherWindy(v: Int) = update { copy(weather = weather.copy(windyTenthsMs = v.coerceIn(5, 400))) }
     fun updateWeatherPref(which: String, v: String) = update {
         copy(weather = when (which) {
             "hot" -> weather.copy(prefHot = v)

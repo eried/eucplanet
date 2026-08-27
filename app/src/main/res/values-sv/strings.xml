@@ -1951,6 +1951,11 @@
     <string name="adv_group_radar_class">Radarklassificering</string>
     <string name="adv_group_rates">Data- och rapportfrekvenser</string>
     <string name="adv_group_controls">Hjulkontroller</string>
+    <string name="adv_group_weather">Väderpoäng</string>
+    <string name="adv_weather_cold_desc">Under detta räknas timmen som för kall.</string>
+    <string name="adv_weather_hot_desc">Över detta räknas timmen som för varm.</string>
+    <string name="adv_weather_breezy_desc">Här börjar vinden störa.</string>
+    <string name="adv_weather_windy_desc">Förbi detta blir åkningen riktigt svår.</string>
     <string name="adv_lock_max_speed">Max låshastighet</string>
     <string name="adv_lock_max_speed_desc">Påverkar hastigheten över vilken låsning av hjulet nekas. Fara: för högt låter ett lås utlösas medan du fortfarande rullar.</string>
     <string name="adv_hud_backoff_max">Återanslutningsfördröjning (max)</string>
