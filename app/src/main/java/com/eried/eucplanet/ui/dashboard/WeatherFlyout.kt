@@ -400,6 +400,8 @@ private fun DetailSection(
         val rainIdx = hours.indexOfFirst { it.h.snowCmH <= 0f && it.h.precipMmH > 0f }
         val strongGusts = hours.any { it.h.gustMs >= 9f }
         val nearFreeze = hours.any { it.h.tempC <= 1f }
+        val hotStretch = hours.any { it.b.hot }
+        val goldenIdx = hours.indexOfFirst { it.b.golden }
 
         @Composable
         fun lead(i: Int): String {
@@ -419,10 +421,12 @@ private fun DetailSection(
         }
         if (strongGusts) lines += stringResource(R.string.weather_adv_gusts)
         if (nearFreeze) lines += stringResource(R.string.weather_adv_freeze)
+        if (hotStretch) lines += stringResource(R.string.weather_adv_heat)
+        if (goldenIdx > 0) lines += stringResource(R.string.weather_adv_golden, lead(goldenIdx))
         if (lines.isEmpty()) lines += stringResource(R.string.weather_adv_clear)
 
         Column(Modifier.padding(top = 6.dp)) {
-            lines.take(3).forEach {
+            lines.take(4).forEach {
                 Text(it, style = MaterialTheme.typography.bodySmall, color = ink.copy(alpha = 0.8f))
             }
         }

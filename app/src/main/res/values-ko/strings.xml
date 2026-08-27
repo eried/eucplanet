@@ -1669,7 +1669,7 @@
     <string name="weather_lvl_prime_1">완벽, 달리자!</string>
     <string name="weather_lvl_prime_2">최고의 플로트 타임!</string>
     <string name="weather_expand">상세</string>
-    <string name="weather_chart_temp">기온과 습도</string>
+    <string name="weather_chart_temp">기온·습도·강수</string>
     <string name="weather_chart_precip">강수</string>
     <string name="weather_chart_wind">바람과 돌풍</string>
     <string name="weather_adv_snow_now">지금 눈, 접지력 없음.</string>
@@ -1679,6 +1679,8 @@
     <string name="weather_adv_gusts">돌풍 강함, 다리와 개활 도로 주의.</string>
     <string name="weather_adv_freeze">빙점 부근, 미끄럼 주의.</string>
     <string name="weather_adv_clear">이 구간엔 위험 없음.</string>
+    <string name="weather_adv_heat">더운 구간, 오르막에서 컨트롤러 온도 주의.</string>
+    <string name="weather_adv_golden">약 %1$s 후 골든아워.</string>
     <string name="weather_in_min">%1$d분</string>
     <string name="weather_in_h">%1$d시간</string>
     <string name="weather_src_current">현재</string>

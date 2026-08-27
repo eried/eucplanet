@@ -1731,7 +1731,7 @@
     <string name="weather_lvl_prime_1">Parfait, fonce !</string>
     <string name="weather_lvl_prime_2">Conditions de rêve !</string>
     <string name="weather_expand">Détails</string>
-    <string name="weather_chart_temp">Temp. et humidité</string>
+    <string name="weather_chart_temp">Temp., humidité et précip.</string>
     <string name="weather_chart_precip">Précipitations</string>
     <string name="weather_chart_wind">Vent et rafales</string>
     <string name="weather_adv_snow_now">Il neige, plus aucune adhérence.</string>
@@ -1741,6 +1741,8 @@
     <string name="weather_adv_gusts">Rafales fortes, prudence sur les ponts et zones exposées.</string>
     <string name="weather_adv_freeze">Proche du gel, gare aux plaques glissantes.</string>
     <string name="weather_adv_clear">Aucun danger sur cette fenêtre.</string>
+    <string name="weather_adv_heat">Période chaude, surveille la température du contrôleur en montée.</string>
+    <string name="weather_adv_golden">Heure dorée dans %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Actuel</string>

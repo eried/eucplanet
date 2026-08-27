@@ -1704,7 +1704,7 @@
     <string name="weather_lvl_prime_1">Ідеально, вперед!</string>
     <string name="weather_lvl_prime_2">Найкращий час ширяти!</string>
     <string name="weather_expand">Деталі</string>
-    <string name="weather_chart_temp">Температура і вологість</string>
+    <string name="weather_chart_temp">Темп., вологість і опади</string>
     <string name="weather_chart_precip">Опади</string>
     <string name="weather_chart_wind">Вітер і пориви</string>
     <string name="weather_adv_snow_now">Іде сніг, зчеплення немає.</string>
@@ -1714,6 +1714,8 @@
     <string name="weather_adv_gusts">Сильні пориви, обережно на мостах і відкритих дорогах.</string>
     <string name="weather_adv_freeze">Близько нуля, стережись слизьких ділянок.</string>
     <string name="weather_adv_clear">У цьому вікні небезпек немає.</string>
+    <string name="weather_adv_heat">Спекотний відрізок, стеж за температурою контролера на підйомах.</string>
+    <string name="weather_adv_golden">Золота година за %1$s.</string>
     <string name="weather_in_min">%1$d хв</string>
     <string name="weather_in_h">%1$d год</string>
     <string name="weather_src_current">Поточне</string>

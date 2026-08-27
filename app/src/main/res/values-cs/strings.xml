@@ -1928,7 +1928,7 @@
     <string name="weather_lvl_prime_1">Perfektní, do toho!</string>
     <string name="weather_lvl_prime_2">Ideální den na jízdu!</string>
     <string name="weather_expand">Podrobnosti</string>
-    <string name="weather_chart_temp">Teplota a vlhkost</string>
+    <string name="weather_chart_temp">Teplota, vlhkost a srážky</string>
     <string name="weather_chart_precip">Srážky</string>
     <string name="weather_chart_wind">Vítr a nárazy</string>
     <string name="weather_adv_snow_now">Sněží, přilnavost je pryč.</string>
@@ -1938,6 +1938,8 @@
     <string name="weather_adv_gusts">Silné nárazy větru, pozor na mostech a otevřených úsecích.</string>
     <string name="weather_adv_freeze">Kolem nuly, pozor na náledí.</string>
     <string name="weather_adv_clear">V tomto okně žádná rizika.</string>
+    <string name="weather_adv_heat">Horký úsek, hlídej teplotu kontroléru do kopce.</string>
+    <string name="weather_adv_golden">Zlatá hodina za %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Aktuální</string>

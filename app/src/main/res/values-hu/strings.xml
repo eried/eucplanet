@@ -1928,7 +1928,7 @@
     <string name="weather_lvl_prime_1">Tökéletes, hajrá!</string>
     <string name="weather_lvl_prime_2">Álomidő a lebegéshez!</string>
     <string name="weather_expand">Részletek</string>
-    <string name="weather_chart_temp">Hő és pára</string>
+    <string name="weather_chart_temp">Hő, pára és csapadék</string>
     <string name="weather_chart_precip">Csapadék</string>
     <string name="weather_chart_wind">Szél és lökések</string>
     <string name="weather_adv_snow_now">Havazik, nincs tapadás.</string>
@@ -1938,6 +1938,8 @@
     <string name="weather_adv_gusts">Erős széllökések, vigyázz hidakon és nyílt utakon.</string>
     <string name="weather_adv_freeze">Fagypont körül, csúszós foltokra számíts.</string>
     <string name="weather_adv_clear">Nincs veszély ebben az ablakban.</string>
+    <string name="weather_adv_heat">Forró szakasz, figyeld a vezérlő hőjét emelkedőn.</string>
+    <string name="weather_adv_golden">Aranyóra %1$s múlva.</string>
     <string name="weather_in_min">%1$d perc</string>
     <string name="weather_in_h">%1$d óra</string>
     <string name="weather_src_current">Jelenlegi</string>

@@ -1672,7 +1672,7 @@
     <string name="weather_lvl_prime_1">Идеально, вперёд!</string>
     <string name="weather_lvl_prime_2">Лучшее время парить!</string>
     <string name="weather_expand">Подробности</string>
-    <string name="weather_chart_temp">Температура и влажность</string>
+    <string name="weather_chart_temp">Темп., влажность и осадки</string>
     <string name="weather_chart_precip">Осадки</string>
     <string name="weather_chart_wind">Ветер и порывы</string>
     <string name="weather_adv_snow_now">Идёт снег, сцепления нет.</string>
@@ -1682,6 +1682,8 @@
     <string name="weather_adv_gusts">Сильные порывы, осторожнее на мостах и открытых дорогах.</string>
     <string name="weather_adv_freeze">Около нуля, берегись скользких участков.</string>
     <string name="weather_adv_clear">В этом окне опасностей нет.</string>
+    <string name="weather_adv_heat">Жаркий отрезок, следи за температурой контроллера на подъёмах.</string>
+    <string name="weather_adv_golden">Золотой час через %1$s.</string>
     <string name="weather_in_min">%1$d мин</string>
     <string name="weather_in_h">%1$d ч</string>
     <string name="weather_src_current">Текущее</string>

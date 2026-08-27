@@ -1727,7 +1727,7 @@
     <string name="weather_lvl_prime_1">Perfect, gaan!</string>
     <string name="weather_lvl_prime_2">Topdag om te zweven!</string>
     <string name="weather_expand">Details</string>
-    <string name="weather_chart_temp">Temp. en vocht</string>
+    <string name="weather_chart_temp">Temp., vocht en neerslag</string>
     <string name="weather_chart_precip">Neerslag</string>
     <string name="weather_chart_wind">Wind en stoten</string>
     <string name="weather_adv_snow_now">Het sneeuwt, grip is weg.</string>
@@ -1737,6 +1737,8 @@
     <string name="weather_adv_gusts">Sterke windstoten, let op bruggen en open wegen.</string>
     <string name="weather_adv_freeze">Rond het vriespunt, pas op gladde plekken.</string>
     <string name="weather_adv_clear">Geen gevaren in dit venster.</string>
+    <string name="weather_adv_heat">Hete periode, let op de controllertemperatuur bij klimmen.</string>
+    <string name="weather_adv_golden">Gouden uur over %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d u</string>
     <string name="weather_src_current">Huidig</string>

@@ -1669,7 +1669,7 @@
     <string name="weather_lvl_prime_1">完美，衝！</string>
     <string name="weather_lvl_prime_2">絕佳漂浮日！</string>
     <string name="weather_expand">詳情</string>
-    <string name="weather_chart_temp">氣溫與濕度</string>
+    <string name="weather_chart_temp">氣溫、濕度與降水</string>
     <string name="weather_chart_precip">降水</string>
     <string name="weather_chart_wind">風與陣風</string>
     <string name="weather_adv_snow_now">正在下雪，抓地力全無。</string>
@@ -1679,6 +1679,8 @@
     <string name="weather_adv_gusts">陣風較強，橋上和空曠路段小心。</string>
     <string name="weather_adv_freeze">接近冰點，小心濕滑路段。</string>
     <string name="weather_adv_clear">此時段無危險。</string>
+    <string name="weather_adv_heat">炎熱時段，爬坡時注意控制器溫度。</string>
+    <string name="weather_adv_golden">約%1$s後進入黃金時刻。</string>
     <string name="weather_in_min">%1$d分鐘</string>
     <string name="weather_in_h">%1$d小時</string>
     <string name="weather_src_current">當前</string>

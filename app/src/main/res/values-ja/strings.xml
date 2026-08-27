@@ -1669,7 +1669,7 @@
     <string name="weather_lvl_prime_1">完璧。行くしかない！</string>
     <string name="weather_lvl_prime_2">最高のフロート日和！</string>
     <string name="weather_expand">詳細</string>
-    <string name="weather_chart_temp">気温と湿度</string>
+    <string name="weather_chart_temp">気温・湿度・降水</string>
     <string name="weather_chart_precip">降水</string>
     <string name="weather_chart_wind">風と突風</string>
     <string name="weather_adv_snow_now">降雪中。グリップなし。</string>
@@ -1679,6 +1679,8 @@
     <string name="weather_adv_gusts">突風注意。橋や開けた道路で特に。</string>
     <string name="weather_adv_freeze">氷点近く。凍結箇所に注意。</string>
     <string name="weather_adv_clear">この時間帯に危険なし。</string>
+    <string name="weather_adv_heat">暑い時間帯。登りではコントローラー温度に注意。</string>
+    <string name="weather_adv_golden">約%1$sでゴールデンアワー。</string>
     <string name="weather_in_min">%1$d分</string>
     <string name="weather_in_h">%1$d時間</string>
     <string name="weather_src_current">現在地</string>

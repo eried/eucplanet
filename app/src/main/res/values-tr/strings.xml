@@ -1669,7 +1669,7 @@
     <string name="weather_lvl_prime_1">Mükemmel, bas gaza!</string>
     <string name="weather_lvl_prime_2">Süzülmek için harika gün!</string>
     <string name="weather_expand">Ayrıntılar</string>
-    <string name="weather_chart_temp">Sıcaklık ve nem</string>
+    <string name="weather_chart_temp">Sıcaklık, nem ve yağış</string>
     <string name="weather_chart_precip">Yağış</string>
     <string name="weather_chart_wind">Rüzgar ve hamleler</string>
     <string name="weather_adv_snow_now">Kar yağıyor, tutuş yok.</string>
@@ -1679,6 +1679,8 @@
     <string name="weather_adv_gusts">Güçlü hamleler olabilir, köprülerde ve açık yollarda dikkat.</string>
     <string name="weather_adv_freeze">Donma noktasına yakın, kaygan yerlere dikkat.</string>
     <string name="weather_adv_clear">Bu aralıkta tehlike yok.</string>
+    <string name="weather_adv_heat">Sıcak dönem, yokuşlarda kontrolcü sıcaklığına dikkat.</string>
+    <string name="weather_adv_golden">Yaklaşık %1$s içinde altın saat.</string>
     <string name="weather_in_min">%1$d dk</string>
     <string name="weather_in_h">%1$d sa</string>
     <string name="weather_src_current">Mevcut</string>

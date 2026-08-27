@@ -1928,7 +1928,7 @@
     <string name="weather_lvl_prime_1">Täydellinen, anna mennä!</string>
     <string name="weather_lvl_prime_2">Priima leijuntakeli!</string>
     <string name="weather_expand">Tiedot</string>
-    <string name="weather_chart_temp">Lämpö ja kosteus</string>
+    <string name="weather_chart_temp">Lämpö, kosteus ja sade</string>
     <string name="weather_chart_precip">Sade</string>
     <string name="weather_chart_wind">Tuuli ja puuskat</string>
     <string name="weather_adv_snow_now">Sataa lunta, pito on poissa.</string>
@@ -1938,6 +1938,8 @@
     <string name="weather_adv_gusts">Kovia puuskia, varo siltoja ja avoimia teitä.</string>
     <string name="weather_adv_freeze">Lähellä pakkasta, varo liukkaita kohtia.</string>
     <string name="weather_adv_clear">Ei vaaroja tässä ikkunassa.</string>
+    <string name="weather_adv_heat">Kuuma jakso, tarkkaile ohjaimen lämpöä nousuissa.</string>
+    <string name="weather_adv_golden">Kultainen hetki %1$s kuluttua.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Nykyinen</string>

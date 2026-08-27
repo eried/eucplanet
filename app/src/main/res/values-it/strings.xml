@@ -885,7 +885,7 @@
     <string name="weather_lvl_prime_1">Perfetto, vai!</string>
     <string name="weather_lvl_prime_2">Giornata da sogno!</string>
     <string name="weather_expand">Dettagli</string>
-    <string name="weather_chart_temp">Temp. e umidità</string>
+    <string name="weather_chart_temp">Temp., umidità e precip.</string>
     <string name="weather_chart_precip">Precipitazioni</string>
     <string name="weather_chart_wind">Vento e raffiche</string>
     <string name="weather_adv_snow_now">Nevica, aderenza azzerata.</string>
@@ -895,6 +895,8 @@
     <string name="weather_adv_gusts">Raffiche forti, attento su ponti e tratti esposti.</string>
     <string name="weather_adv_freeze">Vicino al gelo, occhio alle chiazze scivolose.</string>
     <string name="weather_adv_clear">Nessun pericolo in questa finestra.</string>
+    <string name="weather_adv_heat">Tratto caldo, occhio alla temperatura del controller in salita.</string>
+    <string name="weather_adv_golden">Ora dorata tra %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Attuale</string>

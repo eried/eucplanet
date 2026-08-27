@@ -1668,7 +1668,7 @@
     <string name="weather_lvl_prime_1">Perfekt, kör hårt!</string>
     <string name="weather_lvl_prime_2">Toppendag att sväva!</string>
     <string name="weather_expand">Detaljer</string>
-    <string name="weather_chart_temp">Temp. och fukt</string>
+    <string name="weather_chart_temp">Temp., fukt och nederbörd</string>
     <string name="weather_chart_precip">Nederbörd</string>
     <string name="weather_chart_wind">Vind och byar</string>
     <string name="weather_adv_snow_now">Det snöar, greppet är borta.</string>
@@ -1678,6 +1678,8 @@
     <string name="weather_adv_gusts">Kraftiga vindbyar, se upp på broar och öppna vägar.</string>
     <string name="weather_adv_freeze">Nära nollan, se upp för hala partier.</string>
     <string name="weather_adv_clear">Inga faror i det här fönstret.</string>
+    <string name="weather_adv_heat">Het period, håll koll på styrenhetens temperatur i backar.</string>
+    <string name="weather_adv_golden">Gyllene timmen om %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Nuvarande</string>

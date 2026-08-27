@@ -340,6 +340,7 @@ class WeatherModuleTest {
             "weather_expand", "weather_chart_temp", "weather_chart_precip", "weather_chart_wind",
             "weather_adv_snow_now", "weather_adv_snow_in", "weather_adv_rain_now", "weather_adv_rain_in",
             "weather_adv_gusts", "weather_adv_freeze", "weather_adv_clear",
+            "weather_adv_heat", "weather_adv_golden",
             "weather_in_min", "weather_in_h",
             "weather_src_current", "weather_src_destination",
             "weather_updated_now", "weather_swap_src",

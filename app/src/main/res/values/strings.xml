@@ -2159,7 +2159,7 @@
     <string name="weather_lvl_prime_1">Perfect - send it!</string>
     <string name="weather_lvl_prime_2">Prime float time!</string>
     <string name="weather_expand">Details</string>
-    <string name="weather_chart_temp">Temp &amp; humidity</string>
+    <string name="weather_chart_temp">Temp, humidity &amp; precip</string>
     <string name="weather_chart_precip">Precipitation</string>
     <string name="weather_chart_wind">Wind &amp; gusts</string>
     <string name="weather_adv_snow_now">Snowing now - grip is gone.</string>
@@ -2169,6 +2169,8 @@
     <string name="weather_adv_gusts">Gusts can be strong - careful on bridges and open roads.</string>
     <string name="weather_adv_freeze">Near freezing - watch for slippery patches.</string>
     <string name="weather_adv_clear">No hazards in this window.</string>
+    <string name="weather_adv_heat">Hot stretch - watch controller temps on climbs.</string>
+    <string name="weather_adv_golden">Golden hour in %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Current</string>

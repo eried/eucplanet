@@ -1928,7 +1928,7 @@
     <string name="weather_lvl_prime_1">Perfect, dă-i drumul!</string>
     <string name="weather_lvl_prime_2">Zi ideală de plutit!</string>
     <string name="weather_expand">Detalii</string>
-    <string name="weather_chart_temp">Temp. și umiditate</string>
+    <string name="weather_chart_temp">Temp., umiditate și precip.</string>
     <string name="weather_chart_precip">Precipitații</string>
     <string name="weather_chart_wind">Vânt și rafale</string>
     <string name="weather_adv_snow_now">Ninge, aderența e zero.</string>
@@ -1938,6 +1938,8 @@
     <string name="weather_adv_gusts">Rafale puternice, atenție pe poduri și drumuri deschise.</string>
     <string name="weather_adv_freeze">Aproape de îngheț, atenție la porțiuni alunecoase.</string>
     <string name="weather_adv_clear">Niciun pericol în această fereastră.</string>
+    <string name="weather_adv_heat">Interval fierbinte, urmărește temperatura controlerului la urcări.</string>
+    <string name="weather_adv_golden">Ora de aur în %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Curentă</string>

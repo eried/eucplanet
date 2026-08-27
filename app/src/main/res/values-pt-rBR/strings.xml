@@ -1672,7 +1672,7 @@
     <string name="weather_lvl_prime_1">Perfeito, manda ver!</string>
     <string name="weather_lvl_prime_2">Dia perfeito de flutuar!</string>
     <string name="weather_expand">Detalhes</string>
-    <string name="weather_chart_temp">Temp. e umidade</string>
+    <string name="weather_chart_temp">Temp., umidade e precip.</string>
     <string name="weather_chart_precip">Precipitação</string>
     <string name="weather_chart_wind">Vento e rajadas</string>
     <string name="weather_adv_snow_now">Nevando agora, sem aderência.</string>
@@ -1682,6 +1682,8 @@
     <string name="weather_adv_gusts">Rajadas fortes, cuidado em pontes e vias abertas.</string>
     <string name="weather_adv_freeze">Perto de congelar, cuidado com trechos escorregadios.</string>
     <string name="weather_adv_clear">Sem perigos nesta janela.</string>
+    <string name="weather_adv_heat">Trecho quente, fique de olho na temperatura do controlador nas subidas.</string>
+    <string name="weather_adv_golden">Hora dourada em %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
     <string name="weather_src_current">Atual</string>

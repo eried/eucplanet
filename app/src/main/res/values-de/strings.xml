@@ -1702,7 +1702,7 @@
     <string name="weather_lvl_prime_1">Perfekt, volle Fahrt!</string>
     <string name="weather_lvl_prime_2">Bestes Gleitwetter!</string>
     <string name="weather_expand">Details</string>
-    <string name="weather_chart_temp">Temp. und Feuchte</string>
+    <string name="weather_chart_temp">Temp., Feuchte und Niederschlag</string>
     <string name="weather_chart_precip">Niederschlag</string>
     <string name="weather_chart_wind">Wind und Böen</string>
     <string name="weather_adv_snow_now">Es schneit, kein Grip mehr.</string>
@@ -1712,6 +1712,8 @@
     <string name="weather_adv_gusts">Kräftige Böen, Vorsicht auf Brücken und freien Strecken.</string>
     <string name="weather_adv_freeze">Nahe Frost, Vorsicht Glätte.</string>
     <string name="weather_adv_clear">Keine Gefahren in diesem Fenster.</string>
+    <string name="weather_adv_heat">Heiße Phase, Controller-Temperatur an Steigungen im Blick.</string>
+    <string name="weather_adv_golden">Goldene Stunde in %1$s.</string>
     <string name="weather_in_min">%1$d Min.</string>
     <string name="weather_in_h">%1$d Std.</string>
     <string name="weather_src_current">Aktuell</string>
