@@ -1672,7 +1672,7 @@
     <string name="weather_win_1w">1 W</string>
     <string name="weather_settings_entry">Wetter-Einstellungen</string>
     <string name="weather_enable">Wetter im Dashboard</string>
-    <string name="weather_enable_desc">Fügt über der Kartentaste ein Wettersymbol hinzu: Antippen zeigt die Fahrbarkeits-Vorhersage. 10 ist eine perfekte Stunde, 0 heißt Rad zu Hause lassen.</string>
+    <string name="weather_enable_desc">Fügt über der Kartentaste ein Wettersymbol hinzu: Antippen zeigt die Fahrbarkeits-Vorhersage. +5 ist eine perfekte Stunde, -5 heißt Rad zu Hause lassen.</string>
     <string name="weather_window_label">Vorhersagefenster</string>
     <string name="weather_source_label">Vorhersagequelle</string>
     <string name="weather_comfort_desc">Komfortschwellen für die Bewertung. Temperatur folgt deinen Einheiten, Wind der Tempo-Einheit.</string>

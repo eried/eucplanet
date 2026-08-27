@@ -1674,7 +1674,7 @@
     <string name="weather_win_1w">1 тиж</string>
     <string name="weather_settings_entry">Налаштування погоди</string>
     <string name="weather_enable">Погода на панелі</string>
-    <string name="weather_enable_desc">Додає значок погоди над кнопкою мапи: торкніться для прогнозу придатності до їзди. 10 - ідеальна година, 0 - залиште колесо вдома.</string>
+    <string name="weather_enable_desc">Додає значок погоди над кнопкою мапи: торкніться для прогнозу придатності до їзди. +5 - ідеальна година, -5 - залиште колесо вдома.</string>
     <string name="weather_window_label">Вікно прогнозу</string>
     <string name="weather_source_label">Джерело прогнозу</string>
     <string name="weather_comfort_desc">Пороги комфорту для оцінки. Температура у ваших одиницях; вітер - в одиницях швидкості.</string>

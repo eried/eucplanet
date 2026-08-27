@@ -1893,7 +1893,7 @@
     <string name="weather_win_1w">1 vk</string>
     <string name="weather_settings_entry">Sääasetukset</string>
     <string name="weather_enable">Sää kojelaudalla</string>
-    <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen ylle: napauta ajettavuusennustetta varten. 10 on täydellinen tunti, 0 sanoo jätä pyörä kotiin.</string>
+    <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen ylle: napauta ajettavuusennustetta varten. +5 on täydellinen tunti, -5 sanoo jätä pyörä kotiin.</string>
     <string name="weather_window_label">Ennusteikkuna</string>
     <string name="weather_source_label">Ennusteen lähde</string>
     <string name="weather_comfort_desc">Mukavuusrajat pisteille. Lämpötila seuraa yksiköitäsi; tuuli nopeusyksikköä.</string>

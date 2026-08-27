@@ -836,7 +836,7 @@
     <string name="weather_win_1w">1 u</string>
     <string name="weather_settings_entry">Værinnstillinger</string>
     <string name="weather_enable">Vær på dashbordet</string>
-    <string name="weather_enable_desc">Legger til et værikon over kartknappen: trykk for et kjørbarhetsvarsel. 10 er en perfekt time, 0 sier la hjulet stå hjemme.</string>
+    <string name="weather_enable_desc">Legger til et værikon over kartknappen: trykk for et kjørbarhetsvarsel. +5 er en perfekt time, -5 sier la hjulet stå hjemme.</string>
     <string name="weather_window_label">Varselvindu</string>
     <string name="weather_source_label">Varselkilde</string>
     <string name="weather_comfort_desc">Komfortterskler for poengsummen. Temperatur følger enhetene dine; vind følger fartsenheten.</string>

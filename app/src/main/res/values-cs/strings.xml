@@ -1893,7 +1893,7 @@
     <string name="weather_win_1w">1 t</string>
     <string name="weather_settings_entry">Nastavení počasí</string>
     <string name="weather_enable">Počasí na palubní desce</string>
-    <string name="weather_enable_desc">Přidá ikonu počasí nad tlačítko mapy: klepnutím zobrazíte předpověď sjízdnosti. 10 je perfektní hodina, 0 říká nech kolo doma.</string>
+    <string name="weather_enable_desc">Přidá ikonu počasí nad tlačítko mapy: klepnutím zobrazíte předpověď sjízdnosti. +5 je perfektní hodina, -5 říká nech kolo doma.</string>
     <string name="weather_window_label">Okno předpovědi</string>
     <string name="weather_source_label">Zdroj předpovědi</string>
     <string name="weather_comfort_desc">Prahy komfortu pro skóre. Teplota dle vašich jednotek; vítr dle jednotky rychlosti.</string>

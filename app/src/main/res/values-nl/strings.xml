@@ -1697,7 +1697,7 @@
     <string name="weather_win_1w">1 w</string>
     <string name="weather_settings_entry">Weerinstellingen</string>
     <string name="weather_enable">Weer op het dashboard</string>
-    <string name="weather_enable_desc">Voegt een weericoon toe boven de kaartknop: tik voor een rijdbaarheidsvoorspelling. 10 is een perfect uur, 0 zegt laat het wiel thuis.</string>
+    <string name="weather_enable_desc">Voegt een weericoon toe boven de kaartknop: tik voor een rijdbaarheidsvoorspelling. +5 is een perfect uur, -5 zegt laat het wiel thuis.</string>
     <string name="weather_window_label">Voorspellingsvenster</string>
     <string name="weather_source_label">Voorspellingsbron</string>
     <string name="weather_comfort_desc">Comfortdrempels voor de score. Temperatuur volgt je eenheden; wind volgt je snelheidseenheid.</string>

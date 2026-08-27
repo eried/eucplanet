@@ -819,7 +819,7 @@
     <string name="weather_win_1w">1周</string>
     <string name="weather_settings_entry">天气设置</string>
     <string name="weather_enable">仪表盘天气</string>
-    <string name="weather_enable_desc">在地图按钮上方添加天气图标：点按查看骑行适宜度预报。10 是完美的骑行时段，0 表示把车留在家里。</string>
+    <string name="weather_enable_desc">在地图按钮上方添加天气图标：点按查看骑行适宜度预报。+5 是完美的骑行时段，-5 表示把车留在家里。</string>
     <string name="weather_window_label">预报窗口</string>
     <string name="weather_source_label">预报来源</string>
     <string name="weather_comfort_desc">评分的舒适阈值。温度与风速跟随单位设置。</string>

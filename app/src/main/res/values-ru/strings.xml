@@ -1642,7 +1642,7 @@
     <string name="weather_win_1w">1 нед</string>
     <string name="weather_settings_entry">Настройки погоды</string>
     <string name="weather_enable">Погода на панели</string>
-    <string name="weather_enable_desc">Добавляет значок погоды над кнопкой карты: нажмите для прогноза катаемости. 10 - идеальный час, 0 - оставьте колесо дома.</string>
+    <string name="weather_enable_desc">Добавляет значок погоды над кнопкой карты: нажмите для прогноза катаемости. +5 - идеальный час, -5 - оставьте колесо дома.</string>
     <string name="weather_window_label">Окно прогноза</string>
     <string name="weather_source_label">Источник прогноза</string>
     <string name="weather_comfort_desc">Пороги комфорта для оценки. Температура в ваших единицах; ветер - в единицах скорости.</string>

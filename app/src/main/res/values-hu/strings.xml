@@ -1893,7 +1893,7 @@
     <string name="weather_win_1w">1 hét</string>
     <string name="weather_settings_entry">Időjárás-beállítások</string>
     <string name="weather_enable">Időjárás a műszerfalon</string>
-    <string name="weather_enable_desc">Időjárás-ikont ad a térkép gomb fölé: koppintva mutatja a tekerhetőségi előrejelzést. A 10 tökéletes óra, a 0 azt mondja, hagyd otthon a kereket.</string>
+    <string name="weather_enable_desc">Időjárás-ikont ad a térkép gomb fölé: koppintva mutatja a tekerhetőségi előrejelzést. A +5 tökéletes óra, a -5 azt mondja, hagyd otthon a kereket.</string>
     <string name="weather_window_label">Előrejelzési ablak</string>
     <string name="weather_source_label">Előrejelzés forrása</string>
     <string name="weather_comfort_desc">Komfortküszöbök a pontszámhoz. A hőmérséklet a te egységeidet követi; a szél a sebességét.</string>

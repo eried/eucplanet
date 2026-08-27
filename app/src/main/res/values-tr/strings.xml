@@ -1639,7 +1639,7 @@
     <string name="weather_win_1w">1 hf</string>
     <string name="weather_settings_entry">Hava ayarları</string>
     <string name="weather_enable">Panelde hava durumu</string>
-    <string name="weather_enable_desc">Harita düğmesinin üzerine bir hava simgesi ekler: sürülebilirlik tahmini için dokunun. 10 mükemmel bir saat, 0 tekeri evde bırak demektir.</string>
+    <string name="weather_enable_desc">Harita düğmesinin üzerine bir hava simgesi ekler: sürülebilirlik tahmini için dokunun. +5 mükemmel bir saat, -5 tekeri evde bırak demektir.</string>
     <string name="weather_window_label">Tahmin penceresi</string>
     <string name="weather_source_label">Tahmin kaynağı</string>
     <string name="weather_comfort_desc">Puan için konfor eşikleri. Sıcaklık birimlerini, rüzgar hız birimini izler.</string>

@@ -2124,7 +2124,7 @@
     <string name="weather_win_1w">1 w</string>
     <string name="weather_settings_entry">Weather settings</string>
     <string name="weather_enable">Weather on the dashboard</string>
-    <string name="weather_enable_desc">Adds a weather icon above the map button: tap it for a ridability forecast. 10 is a perfect hour to ride, 0 says leave the wheel home.</string>
+    <string name="weather_enable_desc">Adds a weather icon above the map button: tap it for a ridability forecast. +5 is a perfect hour to ride, -5 says leave the wheel home.</string>
     <string name="weather_window_label">Forecast window</string>
     <string name="weather_source_label">Forecast source</string>
     <string name="weather_comfort_desc">Comfort thresholds feeding the score. Temperatures follow your unit setting; wind follows your speed unit.</string>

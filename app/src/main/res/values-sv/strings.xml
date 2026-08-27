@@ -1638,7 +1638,7 @@
     <string name="weather_win_1w">1 v</string>
     <string name="weather_settings_entry">Väderinställningar</string>
     <string name="weather_enable">Väder på instrumentpanelen</string>
-    <string name="weather_enable_desc">Lägger till en väderikon över kartknappen: tryck för en åkbarhetsprognos. 10 är en perfekt timme, 0 säger lämna hjulet hemma.</string>
+    <string name="weather_enable_desc">Lägger till en väderikon över kartknappen: tryck för en åkbarhetsprognos. +5 är en perfekt timme, -5 säger lämna hjulet hemma.</string>
     <string name="weather_window_label">Prognosfönster</string>
     <string name="weather_source_label">Prognoskälla</string>
     <string name="weather_comfort_desc">Komforttrösklar för poängen. Temperatur följer dina enheter; vind följer hastighetsenheten.</string>

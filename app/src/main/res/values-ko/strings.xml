@@ -1639,7 +1639,7 @@
     <string name="weather_win_1w">1주</string>
     <string name="weather_settings_entry">날씨 설정</string>
     <string name="weather_enable">대시보드 날씨</string>
-    <string name="weather_enable_desc">지도 버튼 위에 날씨 아이콘을 추가합니다. 탭하면 주행 적합도 예보가 표시됩니다. 10은 완벽한 시간, 0은 타지 말라는 뜻입니다.</string>
+    <string name="weather_enable_desc">지도 버튼 위에 날씨 아이콘을 추가합니다. 탭하면 주행 적합도 예보가 표시됩니다. +5는 완벽한 시간, -5는 타지 말라는 뜻입니다.</string>
     <string name="weather_window_label">예보 기간</string>
     <string name="weather_source_label">예보 소스</string>
     <string name="weather_comfort_desc">점수의 쾌적 임계값. 온도와 바람은 단위 설정을 따릅니다.</string>

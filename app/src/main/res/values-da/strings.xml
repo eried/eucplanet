@@ -1651,7 +1651,7 @@
     <string name="weather_win_1w">1 u</string>
     <string name="weather_settings_entry">Vejrindstillinger</string>
     <string name="weather_enable">Vejr på instrumentbrættet</string>
-    <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsudsigt. 10 er en perfekt time, 0 siger lad hjulet blive hjemme.</string>
+    <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsudsigt. +5 er en perfekt time, -5 siger lad hjulet blive hjemme.</string>
     <string name="weather_window_label">Udsigtsvindue</string>
     <string name="weather_source_label">Udsigtskilde</string>
     <string name="weather_comfort_desc">Komforttærskler for scoren. Temperatur følger dine enheder; vind følger fartenheden.</string>

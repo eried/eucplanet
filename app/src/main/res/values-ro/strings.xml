@@ -1893,7 +1893,7 @@
     <string name="weather_win_1w">1 săpt</string>
     <string name="weather_settings_entry">Setări vreme</string>
     <string name="weather_enable">Vremea pe bord</string>
-    <string name="weather_enable_desc">Adaugă o pictogramă meteo peste butonul hărții: atinge pentru o prognoză de rulabilitate. 10 e o oră perfectă, 0 spune lasă roata acasă.</string>
+    <string name="weather_enable_desc">Adaugă o pictogramă meteo peste butonul hărții: atinge pentru o prognoză de rulabilitate. +5 e o oră perfectă, -5 spune lasă roata acasă.</string>
     <string name="weather_window_label">Fereastra prognozei</string>
     <string name="weather_source_label">Sursa prognozei</string>
     <string name="weather_comfort_desc">Praguri de confort pentru scor. Temperatura urmează unitățile tale; vântul, unitatea de viteză.</string>

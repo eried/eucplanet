@@ -1642,7 +1642,7 @@
     <string name="weather_win_1w">1 sem</string>
     <string name="weather_settings_entry">Ajustes de clima</string>
     <string name="weather_enable">Clima no painel</string>
-    <string name="weather_enable_desc">Adiciona um ícone de clima sobre o botão do mapa: toque para uma previsão de pilotabilidade. 10 é uma hora perfeita, 0 diz para deixar a roda em casa.</string>
+    <string name="weather_enable_desc">Adiciona um ícone de clima sobre o botão do mapa: toque para uma previsão de pilotabilidade. +5 é uma hora perfeita, -5 diz para deixar a roda em casa.</string>
     <string name="weather_window_label">Janela de previsão</string>
     <string name="weather_source_label">Fonte da previsão</string>
     <string name="weather_comfort_desc">Limiares de conforto para a pontuação. Temperatura segue suas unidades; vento segue a unidade de velocidade.</string>

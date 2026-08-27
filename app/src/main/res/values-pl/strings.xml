@@ -1655,7 +1655,7 @@
     <string name="weather_win_1w">1 tydz</string>
     <string name="weather_settings_entry">Ustawienia pogody</string>
     <string name="weather_enable">Pogoda na pulpicie</string>
-    <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: dotknij, by zobaczyć prognozę jezdności. 10 to idealna godzina, 0 mówi zostaw koło w domu.</string>
+    <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: dotknij, by zobaczyć prognozę jezdności. +5 to idealna godzina, -5 mówi zostaw koło w domu.</string>
     <string name="weather_window_label">Okno prognozy</string>
     <string name="weather_source_label">Źródło prognozy</string>
     <string name="weather_comfort_desc">Progi komfortu dla oceny. Temperatura wg twoich jednostek; wiatr wg jednostki prędkości.</string>

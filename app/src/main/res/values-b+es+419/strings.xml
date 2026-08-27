@@ -1674,7 +1674,7 @@
     <string name="weather_win_1w">1 sem</string>
     <string name="weather_settings_entry">Ajustes de clima</string>
     <string name="weather_enable">Clima en el panel</string>
-    <string name="weather_enable_desc">Añade un icono de clima sobre el botón del mapa: tócalo para un pronóstico de conducibilidad. 10 es una hora perfecta para rodar, 0 dice deja la rueda en casa.</string>
+    <string name="weather_enable_desc">Añade un icono de clima sobre el botón del mapa: tócalo para un pronóstico de conducibilidad. +5 es una hora perfecta para rodar, -5 dice deja la rueda en casa.</string>
     <string name="weather_window_label">Ventana de pronóstico</string>
     <string name="weather_source_label">Fuente del pronóstico</string>
     <string name="weather_comfort_desc">Umbrales de confort para la puntuación. La temperatura sigue tus unidades; el viento, tu unidad de velocidad.</string>

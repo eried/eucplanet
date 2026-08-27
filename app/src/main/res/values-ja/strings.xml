@@ -1639,7 +1639,7 @@
     <string name="weather_win_1w">1週</string>
     <string name="weather_settings_entry">天気設定</string>
     <string name="weather_enable">ダッシュボードに天気</string>
-    <string name="weather_enable_desc">マップボタンの上に天気アイコンを追加します。タップで走行快適度予報を表示。10は最高の1時間、0は乗らない方がよい状態です。</string>
+    <string name="weather_enable_desc">マップボタンの上に天気アイコンを追加します。タップで走行快適度予報を表示。+5は最高の1時間、-5は乗らない方がよい状態です。</string>
     <string name="weather_window_label">予報ウィンドウ</string>
     <string name="weather_source_label">予報ソース</string>
     <string name="weather_comfort_desc">スコアの快適しきい値。温度と風速は単位設定に従います。</string>
