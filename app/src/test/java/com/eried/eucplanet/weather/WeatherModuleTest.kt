@@ -23,20 +23,26 @@ class WeatherModuleTest {
 
     private fun s(h: HourForecast) = RidabilityScore.score(h, 14f, 31f, 2f, 4.5f)
 
-    // --- The score, centred on zero -----------------------------------------
+    // --- The deficit score ---------------------------------------------
+    // Every hour starts at +5 and loses points only for real discomforts,
+    // so a genuinely nice local day tops out in any climate. Anchors from
+    // the rider's own calibration, plus the safety floors no preference
+    // can buy back.
 
-    @Test fun `mid-band calm dry daylight is the full +5`() {
+    @Test fun `a comfortable dry hour is the full +5, plateau not a point`() {
         assertEquals(5f, s(hour(tempC = 22.5f)).score, 0.001f)
+        assertEquals(5f, s(hour(tempC = 18f, wind = 1f)).score, 0.001f)
+        assertEquals(5f, s(hour(tempC = 26f, wind = 2f)).score, 0.001f)
     }
 
-    @Test fun `band-edge temperature with low wind is a mild plus, about +1`() {
+    @Test fun `a cool light-wind day is genuinely good now`() {
         val v = s(hour(tempC = 15f, wind = 1f)).score
-        assertTrue("was $v", v in 0.5f..2f)
+        assertTrue("was $v", v in 4f..5f)
     }
 
-    @Test fun `slightly cold and gusty lands around -1`() {
-        val v = s(hour(tempC = 12f, wind = 3f)).score
-        assertTrue("was $v", v in -1.6f..-0.4f)
+    @Test fun `cold and gusty lands around -1`() {
+        val v = s(hour(tempC = 8f, wind = 7f)).score
+        assertTrue("was $v", v in -2.2f..-0.6f)
     }
 
     @Test fun `strong wind plus rain is the -5 floor`() {
@@ -44,29 +50,36 @@ class WeatherModuleTest {
     }
 
     @Test fun `snow with cold but no wind is only about -1, not a disaster`() {
-        val v = s(hour(tempC = 5f, snow = 0.5f)).score
-        assertTrue("was $v", v in -2f..-1f)
+        val v = s(hour(tempC = -3f, snow = 0.5f)).score
+        assertTrue("was $v", v in -2f..-0.5f)
     }
 
     @Test fun `very cold alone stays near neutral, dressing is the fix`() {
         val v = s(hour(tempC = -10f)).score
-        assertTrue("was $v", v in -1f..0f)
+        assertTrue("was $v", v in -1.2f..0f)
     }
 
-    @Test fun `precipitation cancels the comfort bonuses`() {
-        // A warm calm hour with rain must not read positive.
-        assertTrue(s(hour(tempC = 22.5f, rain = 0.5f)).score < 0f)
+    @Test fun `measurable rain caps the score at +1, snow at 0`() {
+        val drizzle = s(hour(tempC = 22.5f, rain = 1f))
+        assertTrue("was ${drizzle.score}", drizzle.score <= 1.001f)
+        assertTrue(drizzle.score < s(hour(tempC = 22.5f)).score)
+        val flurry = s(hour(tempC = 22.5f, snow = 0.5f))
+        assertTrue("was ${flurry.score}", flurry.score <= 0.001f)
+    }
+
+    @Test fun `trace precipitation counts as dry, provider noise never flips the score`() {
+        assertEquals(s(hour(tempC = 22.5f)).score, s(hour(tempC = 22.5f, rain = 0.1f)).score, 0.001f)
+        assertTrue(!s(hour(tempC = 22.5f, rain = 0.1f)).rain)
     }
 
     @Test fun `night is a nudge, not a verdict`() {
         val d = s(hour(tempC = 22.5f))
         val n = s(hour(tempC = 22.5f, day = false))
-        // Night is NEUTRAL by default: 0.6 base at 0.45 weight.
-        assertEquals(0.27f, d.score - n.score, 0.02f)
+        assertEquals(0.6f, d.score - n.score, 0.02f)
         assertTrue(n.night)
     }
 
-    @Test fun `wind ramps between breezy and windy, then keeps climbing`() {
+    @Test fun `wind deficit accelerates from breezy toward the cap`() {
         val calm = s(hour(tempC = 22.5f, wind = 0f))
         val breeze = s(hour(tempC = 22.5f, wind = 3f))
         val windy = s(hour(tempC = 22.5f, wind = 4.5f))
@@ -74,16 +87,49 @@ class WeatherModuleTest {
         assertTrue(breeze.score < calm.score)
         assertTrue(windy.score < breeze.score)
         assertTrue(gale.score < windy.score)
-        // Full -2 ramp at the windy line: +3 temp bonus, no calm bonus.
-        assertEquals(1f, windy.score, 0.05f)
+        assertEquals(3.8f, windy.score, 0.1f)
+        assertTrue("was ${gale.score}", gale.score < 0f)
     }
 
-    @Test fun `snow supersedes rain in the flags and bites no harder`() {
+    @Test fun `gusts harden the hour, squalls read worse than steady wind`() {
+        val steady = s(hour(tempC = 22.5f, wind = 3f))
+        val squally = RidabilityScore.score(
+            hour(tempC = 22.5f, wind = 3f).copy(gustMs = 12f), 14f, 31f, 2f, 4.5f,
+        )
+        assertTrue(squally.score < steady.score - 1.5f)
+    }
+
+    @Test fun `humid heat reads worse than dry heat`() {
+        val humid = RidabilityScore.score(
+            hour(tempC = 30f).copy(humidityPct = 85f), 14f, 31f, 2f, 4.5f,
+        )
+        val dry = s(hour(tempC = 30f))
+        assertTrue(humid.score < dry.score)
+    }
+
+    @Test fun `freezing rain pins to the hazard floor no matter the preferences`() {
+        val glaze = hour(tempC = 0.5f, rain = 1f, wind = 1f)
+        assertTrue(s(glaze).score <= -4f)
+        val lover = RidabilityScore.score(
+            glaze, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(rain = RidabilityScore.Pref.LIKE),
+        )
+        assertTrue("was ${lover.score}", lover.score <= -4f)
+    }
+
+    @Test fun `near-gale gusts pin to the hazard floor even when dry`() {
+        val v = RidabilityScore.score(
+            hour(tempC = 22.5f, wind = 12f).copy(gustMs = 24f), 14f, 31f, 2f, 4.5f,
+        )
+        assertTrue("was ${v.score}", v.score <= -4f)
+    }
+
+    @Test fun `snow supersedes rain in the flags and never reads better`() {
         val rain = s(hour(rain = 1f))
         val snow = s(hour(rain = 1f, snow = 1f))
         assertTrue(rain.rain && !rain.snow)
         assertTrue(snow.snow && !snow.rain)
-        assertEquals(rain.score, snow.score, 0.5f)
+        assertTrue(snow.score <= rain.score)
     }
 
     @Test fun `the scale clamps at -5 and +5`() {
@@ -92,16 +138,18 @@ class WeatherModuleTest {
         assertTrue(s(hour(tempC = 22.5f)).score <= 5f)
     }
 
-    @Test fun `preferences reweight the penalties`() {
+    @Test fun `preferences reweight the deficits`() {
         val base = RidabilityScore.Prefs()
-        // A rain lover turns drizzle from a penalty into a small bonus.
-        val hater = RidabilityScore.score(hour(rain = 1f), 14f, 31f, 2f, 4.5f)
+        // A rain lover keeps riding through a wet windy evening the default
+        // rider skips.
+        val wetHour = hour(rain = 2f, wind = 6f)
+        val hater = s(wetHour)
         val lover = RidabilityScore.score(
-            hour(rain = 1f), 14f, 31f, 2f, 4.5f,
+            wetHour, 14f, 31f, 2f, 4.5f,
             base.copy(rain = RidabilityScore.Pref.LIKE),
         )
         assertTrue(lover.score > hater.score)
-        assertTrue(lover.score > 0f)
+        assertTrue("was ${lover.score}", lover.score > 0f)
         // Disliking cold makes a cold day genuinely worse than neutral.
         val coldNeutral = s(hour(tempC = -5f))
         val coldHater = RidabilityScore.score(
@@ -114,9 +162,7 @@ class WeatherModuleTest {
     @Test fun `golden hour is opposite polarity, neutral means nothing`() {
         val golden = hour(tempC = 22.5f).copy(isGolden = true)
         val plain = hour(tempC = 22.5f)
-        // Neutral: golden hour changes nothing.
         assertEquals(s(plain).score, s(golden).score, 0.001f)
-        // Liking it is a straight bonus, disliking a straight penalty.
         val lover = RidabilityScore.score(
             golden, 14f, 31f, 2f, 4.5f,
             RidabilityScore.Prefs(golden = RidabilityScore.Pref.LIKE),
@@ -136,11 +182,8 @@ class WeatherModuleTest {
             wind = RidabilityScore.Pref.LIKE,
         )
         val storm = RidabilityScore.score(hour(rain = 2f, wind = 8f), 14f, 31f, 2f, 4.5f, stormLover)
-        // Mild-only bonuses plus the combination floor keep it out of the
-        // good half of the scale.
-        assertTrue("was ${storm.score}", storm.score < 1f)
-        // And with the shipped defaults the same storm is the -5 floor.
-        assertEquals(-5f, s(hour(rain = 2f, wind = 8f)).score, 0.001f)
+        // The wet near-gale floor is preference-proof.
+        assertTrue("was ${storm.score}", storm.score <= -4f)
     }
 
     // --- Providers ----------------------------------------------------------

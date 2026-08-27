@@ -1673,7 +1673,7 @@
     <string name="weather_win_1w">1 W</string>
     <string name="weather_settings_entry">Wetter-Einstellungen</string>
     <string name="weather_enable">Wetter im Dashboard</string>
-    <string name="weather_enable_desc">Fügt über der Kartentaste ein Wettersymbol hinzu: Antippen zeigt die Fahrbarkeits-Vorhersage. +5 ist eine perfekte Stunde, -5 heißt Rad zu Hause lassen.</string>
+    <string name="weather_enable_desc">Fügt ein Wetter-Icon über dem Kartenbutton hinzu: Antippen zeigt die Fahrbarkeits-Vorhersage. +5 heißt alles stehen lassen und fahren, 0 passt mit der richtigen Ausrüstung, -5 heißt Rad zu Hause lassen.</string>
     <string name="weather_window_label">Vorhersagefenster</string>
     <string name="weather_source_label">Vorhersagequelle</string>
     <string name="weather_comfort_desc">Komfortschwellen für die Bewertung. Temperatur folgt deinen Einheiten, Wind der Tempo-Einheit.</string>
@@ -1717,8 +1717,8 @@
     <string name="weather_src_current">Aktuell</string>
     <string name="weather_src_destination">Ziel</string>
     <string name="weather_swap_src">Ort wechseln</string>
-    <string name="weather_pref_label">Fahrvorlieben</string>
-    <string name="weather_pref_desc">Wie jede Bedingung für dich zählt, der Score folgt.</string>
+    <string name="weather_pref_label">Komfort-Vorlieben</string>
+    <string name="weather_pref_desc">Deine Vorlieben stimmen den Score auf dich ab. Echte Gefahren ziehen ihn trotzdem nach unten.</string>
     <string name="weather_pref_dislike">Ungern</string>
     <string name="weather_pref_neutral">Neutral</string>
     <string name="weather_pref_like">Gern</string>

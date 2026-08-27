@@ -1643,7 +1643,7 @@
     <string name="weather_win_1w">1 sem</string>
     <string name="weather_settings_entry">Ajustes de clima</string>
     <string name="weather_enable">Clima no painel</string>
-    <string name="weather_enable_desc">Adiciona um ícone de clima sobre o botão do mapa: toque para uma previsão de pilotabilidade. +5 é uma hora perfeita, -5 diz para deixar a roda em casa.</string>
+    <string name="weather_enable_desc">Adiciona um ícone de clima acima do botão do mapa: toque para a previsão de pilotabilidade. +5 significa largue tudo e vá rodar, 0 está bom com o equipamento certo, -5 diz deixe a roda em casa.</string>
     <string name="weather_window_label">Janela de previsão</string>
     <string name="weather_source_label">Fonte da previsão</string>
     <string name="weather_comfort_desc">Limiares de conforto para a pontuação. Temperatura segue suas unidades; vento segue a unidade de velocidade.</string>
@@ -1687,8 +1687,8 @@
     <string name="weather_src_current">Atual</string>
     <string name="weather_src_destination">Destino</string>
     <string name="weather_swap_src">Trocar local</string>
-    <string name="weather_pref_label">Preferências de pilotagem</string>
-    <string name="weather_pref_desc">Como cada condição conta para você, a pontuação acompanha.</string>
+    <string name="weather_pref_label">Preferências de conforto</string>
+    <string name="weather_pref_desc">Suas preferências ajustam a pontuação a você. Perigos reais ainda a puxam para baixo.</string>
     <string name="weather_pref_dislike">Evito</string>
     <string name="weather_pref_neutral">Neutro</string>
     <string name="weather_pref_like">Gosto</string>

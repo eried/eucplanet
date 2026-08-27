@@ -1675,7 +1675,7 @@
     <string name="weather_win_1w">1 тиж</string>
     <string name="weather_settings_entry">Налаштування погоди</string>
     <string name="weather_enable">Погода на панелі</string>
-    <string name="weather_enable_desc">Додає значок погоди над кнопкою мапи: торкніться для прогнозу придатності до їзди. +5 - ідеальна година, -5 - залиште колесо вдома.</string>
+    <string name="weather_enable_desc">Додає значок погоди над кнопкою карти: торкнись для прогнозу катання. +5 означає кидай усе й катайся, 0 нормально з правильним спорядженням, -5 каже залиш колесо вдома.</string>
     <string name="weather_window_label">Вікно прогнозу</string>
     <string name="weather_source_label">Джерело прогнозу</string>
     <string name="weather_comfort_desc">Пороги комфорту для оцінки. Температура у ваших одиницях; вітер - в одиницях швидкості.</string>
@@ -1719,8 +1719,8 @@
     <string name="weather_src_current">Поточне</string>
     <string name="weather_src_destination">Ціль</string>
     <string name="weather_swap_src">Змінити місце</string>
-    <string name="weather_pref_label">Уподобання їзди</string>
-    <string name="weather_pref_desc">Як враховувати кожну умову, рахунок підлаштується.</string>
+    <string name="weather_pref_label">Уподобання комфорту</string>
+    <string name="weather_pref_desc">Твої вподобання підлаштовують рахунок під тебе. Реальні небезпеки все одно тягнуть його вниз.</string>
     <string name="weather_pref_dislike">Не люблю</string>
     <string name="weather_pref_neutral">Байдуже</string>
     <string name="weather_pref_like">Люблю</string>

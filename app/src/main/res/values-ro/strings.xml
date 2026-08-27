@@ -1899,7 +1899,7 @@
     <string name="weather_win_1w">1 săpt</string>
     <string name="weather_settings_entry">Setări vreme</string>
     <string name="weather_enable">Vremea pe bord</string>
-    <string name="weather_enable_desc">Adaugă o pictogramă meteo peste butonul hărții: atinge pentru o prognoză de rulabilitate. +5 e o oră perfectă, -5 spune lasă roata acasă.</string>
+    <string name="weather_enable_desc">Adaugă o pictogramă meteo deasupra butonului hărții: atinge pentru prognoza de rulare. +5 înseamnă lasă tot și mergi, 0 e în regulă cu echipamentul potrivit, -5 spune lasă roata acasă.</string>
     <string name="weather_window_label">Fereastra prognozei</string>
     <string name="weather_source_label">Sursa prognozei</string>
     <string name="weather_comfort_desc">Praguri de confort pentru scor. Temperatura urmează unitățile tale; vântul, unitatea de viteză.</string>
@@ -1943,8 +1943,8 @@
     <string name="weather_src_current">Curentă</string>
     <string name="weather_src_destination">Destinație</string>
     <string name="weather_swap_src">Schimbă locul</string>
-    <string name="weather_pref_label">Preferințe de rulare</string>
-    <string name="weather_pref_desc">Cât contează fiecare condiție pentru tine, scorul urmează.</string>
+    <string name="weather_pref_label">Preferințe de confort</string>
+    <string name="weather_pref_desc">Preferințele tale ajustează scorul pentru tine. Pericolele reale tot îl trag în jos.</string>
     <string name="weather_pref_dislike">Evit</string>
     <string name="weather_pref_neutral">Neutru</string>
     <string name="weather_pref_like">Îmi place</string>

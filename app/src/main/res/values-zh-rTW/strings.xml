@@ -1640,7 +1640,7 @@
     <string name="weather_win_1w">1週</string>
     <string name="weather_settings_entry">天氣設定</string>
     <string name="weather_enable">儀表板天氣</string>
-    <string name="weather_enable_desc">在地圖按鈕上方新增天氣圖示：點按查看騎行適宜度預報。+5 是完美的騎行時段，-5 表示把車留在家裡。</string>
+    <string name="weather_enable_desc">在地圖按鈕上方添加天氣圖示：點按查看騎行適宜度預報。+5 表示放下一切去騎行，0 表示裝備得當即可，-5 表示把車輪留在家裡。</string>
     <string name="weather_window_label">預報視窗</string>
     <string name="weather_source_label">預報來源</string>
     <string name="weather_comfort_desc">評分的舒適閾值。溫度與風速跟隨單位設定。</string>
@@ -1684,8 +1684,8 @@
     <string name="weather_src_current">當前</string>
     <string name="weather_src_destination">目的地</string>
     <string name="weather_swap_src">切換位置</string>
-    <string name="weather_pref_label">騎行偏好</string>
-    <string name="weather_pref_desc">每種條件如何計入，評分隨之變化。</string>
+    <string name="weather_pref_label">舒適偏好</string>
+    <string name="weather_pref_desc">你的偏好會調整評分。真正的危險仍會拉低它。</string>
     <string name="weather_pref_dislike">不喜歡</string>
     <string name="weather_pref_neutral">中立</string>
     <string name="weather_pref_like">喜歡</string>

@@ -1639,7 +1639,7 @@
     <string name="weather_win_1w">1 v</string>
     <string name="weather_settings_entry">Väderinställningar</string>
     <string name="weather_enable">Väder på instrumentpanelen</string>
-    <string name="weather_enable_desc">Lägger till en väderikon över kartknappen: tryck för en åkbarhetsprognos. +5 är en perfekt timme, -5 säger lämna hjulet hemma.</string>
+    <string name="weather_enable_desc">Lägger en väderikon ovanför kartknappen: tryck för åkbarhetsprognos. +5 betyder släpp allt och åk, 0 funkar med rätt utrustning, -5 säger låt hjulet stå hemma.</string>
     <string name="weather_window_label">Prognosfönster</string>
     <string name="weather_source_label">Prognoskälla</string>
     <string name="weather_comfort_desc">Komforttrösklar för poängen. Temperatur följer dina enheter; vind följer hastighetsenheten.</string>
@@ -1683,8 +1683,8 @@
     <string name="weather_src_current">Nuvarande</string>
     <string name="weather_src_destination">Destination</string>
     <string name="weather_swap_src">Byt plats</string>
-    <string name="weather_pref_label">Åkpreferenser</string>
-    <string name="weather_pref_desc">Hur varje förhållande räknas för dig, poängen följer.</string>
+    <string name="weather_pref_label">Komfortpreferenser</string>
+    <string name="weather_pref_desc">Dina preferenser anpassar poängen till dig. Verkliga faror drar den ändå i botten.</string>
     <string name="weather_pref_dislike">Ogärna</string>
     <string name="weather_pref_neutral">Neutral</string>
     <string name="weather_pref_like">Gärna</string>

@@ -1656,7 +1656,7 @@
     <string name="weather_win_1w">1 tydz</string>
     <string name="weather_settings_entry">Ustawienia pogody</string>
     <string name="weather_enable">Pogoda na pulpicie</string>
-    <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: dotknij, by zobaczyć prognozę jezdności. +5 to idealna godzina, -5 mówi zostaw koło w domu.</string>
+    <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: stuknij, by zobaczyć prognozę jezdności. +5 znaczy rzuć wszystko i jedź, 0 jest w porządku z właściwym strojem, -5 mówi zostaw koło w domu.</string>
     <string name="weather_window_label">Okno prognozy</string>
     <string name="weather_source_label">Źródło prognozy</string>
     <string name="weather_comfort_desc">Progi komfortu dla oceny. Temperatura wg twoich jednostek; wiatr wg jednostki prędkości.</string>
@@ -1700,8 +1700,8 @@
     <string name="weather_src_current">Bieżąca</string>
     <string name="weather_src_destination">Cel</string>
     <string name="weather_swap_src">Zmień lokalizację</string>
-    <string name="weather_pref_label">Preferencje jazdy</string>
-    <string name="weather_pref_desc">Jak liczy się każdy warunek, wynik za tym podąża.</string>
+    <string name="weather_pref_label">Preferencje komfortu</string>
+    <string name="weather_pref_desc">Twoje preferencje dostrajają wynik do ciebie. Realne zagrożenia i tak go obniżą.</string>
     <string name="weather_pref_dislike">Unikam</string>
     <string name="weather_pref_neutral">Obojętne</string>
     <string name="weather_pref_like">Lubię</string>

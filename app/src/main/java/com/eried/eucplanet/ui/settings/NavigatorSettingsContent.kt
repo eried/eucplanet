@@ -347,11 +347,12 @@ fun NavigatorSettingsContent(
             // full-width segmented style as the window selector above. The
             // comfort thresholds behind them live in Advanced settings under
             // Weather score. Rain, snow and wind ship disliked.
+            // In-section subtitle, same style as the nav section's Charger
+            // community block: this is part of WEATHER, not a sibling section.
             Text(
-                stringResource(R.string.weather_pref_label).uppercase(),
-                style = MaterialTheme.typography.labelSmall,
+                stringResource(R.string.weather_pref_label),
+                style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.appColors.primary,
-                modifier = Modifier.padding(top = 8.dp),
             )
             HintText(stringResource(R.string.weather_pref_desc), small = true)
             val prefOptions = listOf(

@@ -1652,7 +1652,7 @@
     <string name="weather_win_1w">1 u</string>
     <string name="weather_settings_entry">Vejrindstillinger</string>
     <string name="weather_enable">Vejr på instrumentbrættet</string>
-    <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsudsigt. +5 er en perfekt time, -5 siger lad hjulet blive hjemme.</string>
+    <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsprognose. +5 betyder slip alt og kør, 0 er fint med det rette udstyr, -5 siger lad hjulet blive hjemme.</string>
     <string name="weather_window_label">Udsigtsvindue</string>
     <string name="weather_source_label">Udsigtskilde</string>
     <string name="weather_comfort_desc">Komforttærskler for scoren. Temperatur følger dine enheder; vind følger fartenheden.</string>
@@ -1696,8 +1696,8 @@
     <string name="weather_src_current">Nuværende</string>
     <string name="weather_src_destination">Destination</string>
     <string name="weather_swap_src">Skift sted</string>
-    <string name="weather_pref_label">Kørepræferencer</string>
-    <string name="weather_pref_desc">Hvordan hver betingelse skal tælle for dig, scoren følger med.</string>
+    <string name="weather_pref_label">Komfortpræferencer</string>
+    <string name="weather_pref_desc">Dine præferencer tilpasser scoren til dig. Reelle farer trækker den stadig i bund.</string>
     <string name="weather_pref_dislike">Ugerne</string>
     <string name="weather_pref_neutral">Neutral</string>
     <string name="weather_pref_like">Gerne</string>

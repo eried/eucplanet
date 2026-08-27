@@ -1702,7 +1702,7 @@
     <string name="weather_win_1w">1 sem</string>
     <string name="weather_settings_entry">Réglages météo</string>
     <string name="weather_enable">Météo sur le tableau de bord</string>
-    <string name="weather_enable_desc">Ajoute une icône météo au-dessus du bouton carte : touchez-la pour une prévision de roulabilité. +5 est une heure parfaite, -5 dit de laisser la roue à la maison.</string>
+    <string name="weather_enable_desc">Ajoute une icône météo au-dessus du bouton carte : touche-la pour la prévision de roulabilité. +5 veut dire lâche tout et roule, 0 passe avec le bon équipement, -5 dit laisse la roue à la maison.</string>
     <string name="weather_window_label">Fenêtre de prévision</string>
     <string name="weather_source_label">Source des prévisions</string>
     <string name="weather_comfort_desc">Seuils de confort du score. La température suit vos unités ; le vent suit l’unité de vitesse.</string>
@@ -1746,8 +1746,8 @@
     <string name="weather_src_current">Actuel</string>
     <string name="weather_src_destination">Destination</string>
     <string name="weather_swap_src">Changer de lieu</string>
-    <string name="weather_pref_label">Préférences de conduite</string>
-    <string name="weather_pref_desc">Comment chaque condition compte pour toi, le score suit.</string>
+    <string name="weather_pref_label">Préférences de confort</string>
+    <string name="weather_pref_desc">Tes préférences ajustent le score pour toi. Les vrais dangers le tirent quand même vers le bas.</string>
     <string name="weather_pref_dislike">Évite</string>
     <string name="weather_pref_neutral">Neutre</string>
     <string name="weather_pref_like">Aime</string>

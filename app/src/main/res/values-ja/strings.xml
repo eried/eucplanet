@@ -1640,7 +1640,7 @@
     <string name="weather_win_1w">1週</string>
     <string name="weather_settings_entry">天気設定</string>
     <string name="weather_enable">ダッシュボードに天気</string>
-    <string name="weather_enable_desc">マップボタンの上に天気アイコンを追加します。タップで走行快適度予報を表示。+5は最高の1時間、-5は乗らない方がよい状態です。</string>
+    <string name="weather_enable_desc">地図ボタンの上に天気アイコンを追加。タップで走行快適度予報。+5は全部置いて乗りに行く、0は装備次第で問題なし、-5は乗らないが吉。</string>
     <string name="weather_window_label">予報ウィンドウ</string>
     <string name="weather_source_label">予報ソース</string>
     <string name="weather_comfort_desc">スコアの快適しきい値。温度と風速は単位設定に従います。</string>
@@ -1684,8 +1684,8 @@
     <string name="weather_src_current">現在地</string>
     <string name="weather_src_destination">目的地</string>
     <string name="weather_swap_src">場所を切替</string>
-    <string name="weather_pref_label">ライドの好み</string>
-    <string name="weather_pref_desc">各条件の扱い方。スコアに反映されます。</string>
+    <string name="weather_pref_label">快適さの好み</string>
+    <string name="weather_pref_desc">好みに合わせてスコアを調整。ただし本当の危険は必ず下げます。</string>
     <string name="weather_pref_dislike">苦手</string>
     <string name="weather_pref_neutral">普通</string>
     <string name="weather_pref_like">好き</string>

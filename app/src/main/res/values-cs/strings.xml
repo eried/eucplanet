@@ -1899,7 +1899,7 @@
     <string name="weather_win_1w">1 t</string>
     <string name="weather_settings_entry">Nastavení počasí</string>
     <string name="weather_enable">Počasí na palubní desce</string>
-    <string name="weather_enable_desc">Přidá ikonu počasí nad tlačítko mapy: klepnutím zobrazíte předpověď sjízdnosti. +5 je perfektní hodina, -5 říká nech kolo doma.</string>
+    <string name="weather_enable_desc">Přidá ikonu počasí nad tlačítko mapy: klepnutím zobrazíš předpověď sjízdnosti. +5 znamená všeho nech a jeď, 0 je v pohodě se správným oblečením, -5 říká nech kolo doma.</string>
     <string name="weather_window_label">Okno předpovědi</string>
     <string name="weather_source_label">Zdroj předpovědi</string>
     <string name="weather_comfort_desc">Prahy komfortu pro skóre. Teplota dle vašich jednotek; vítr dle jednotky rychlosti.</string>
@@ -1943,8 +1943,8 @@
     <string name="weather_src_current">Aktuální</string>
     <string name="weather_src_destination">Cíl</string>
     <string name="weather_swap_src">Prohodit místo</string>
-    <string name="weather_pref_label">Preference ježdění</string>
-    <string name="weather_pref_desc">Jak se má každá podmínka počítat, skóre se přizpůsobí.</string>
+    <string name="weather_pref_label">Preference pohodlí</string>
+    <string name="weather_pref_desc">Tvé preference ladí skóre podle tebe. Skutečná rizika ho stejně stáhnou dolů.</string>
     <string name="weather_pref_dislike">Nerad</string>
     <string name="weather_pref_neutral">Neutrál</string>
     <string name="weather_pref_like">Rád</string>

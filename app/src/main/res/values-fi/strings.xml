@@ -1899,7 +1899,7 @@
     <string name="weather_win_1w">1 vk</string>
     <string name="weather_settings_entry">Sääasetukset</string>
     <string name="weather_enable">Sää kojelaudalla</string>
-    <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen ylle: napauta ajettavuusennustetta varten. +5 on täydellinen tunti, -5 sanoo jätä pyörä kotiin.</string>
+    <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen ylle: napauta ajokelpoisuusennustetta. +5 tarkoittaa jätä kaikki ja aja, 0 on ok oikeilla varusteilla, -5 sanoo jätä ratas kotiin.</string>
     <string name="weather_window_label">Ennusteikkuna</string>
     <string name="weather_source_label">Ennusteen lähde</string>
     <string name="weather_comfort_desc">Mukavuusrajat pisteille. Lämpötila seuraa yksiköitäsi; tuuli nopeusyksikköä.</string>
@@ -1943,8 +1943,8 @@
     <string name="weather_src_current">Nykyinen</string>
     <string name="weather_src_destination">Määränpää</string>
     <string name="weather_swap_src">Vaihda sijaintia</string>
-    <string name="weather_pref_label">Ajomieltymykset</string>
-    <string name="weather_pref_desc">Miten kukin olosuhde lasketaan, pisteet seuraavat.</string>
+    <string name="weather_pref_label">Mukavuusmieltymykset</string>
+    <string name="weather_pref_desc">Mieltymyksesi virittävät pisteet sinulle. Todelliset vaarat painavat ne silti pohjaan.</string>
     <string name="weather_pref_dislike">Inhoan</string>
     <string name="weather_pref_neutral">Neutraali</string>
     <string name="weather_pref_like">Pidän</string>

@@ -1899,7 +1899,7 @@
     <string name="weather_win_1w">1 hét</string>
     <string name="weather_settings_entry">Időjárás-beállítások</string>
     <string name="weather_enable">Időjárás a műszerfalon</string>
-    <string name="weather_enable_desc">Időjárás-ikont ad a térkép gomb fölé: koppintva mutatja a tekerhetőségi előrejelzést. A +5 tökéletes óra, a -5 azt mondja, hagyd otthon a kereket.</string>
+    <string name="weather_enable_desc">Időjárás-ikont ad a térképgomb fölé: koppints a gurulhatósági előrejelzésért. A +5 azt jelenti, hagyj mindent és tekerj, a 0 megfelelő felszereléssel rendben van, a -5 szerint hagyd otthon a kereket.</string>
     <string name="weather_window_label">Előrejelzési ablak</string>
     <string name="weather_source_label">Előrejelzés forrása</string>
     <string name="weather_comfort_desc">Komfortküszöbök a pontszámhoz. A hőmérséklet a te egységeidet követi; a szél a sebességét.</string>
@@ -1943,8 +1943,8 @@
     <string name="weather_src_current">Jelenlegi</string>
     <string name="weather_src_destination">Úti cél</string>
     <string name="weather_swap_src">Hely váltása</string>
-    <string name="weather_pref_label">Vezetési preferenciák</string>
-    <string name="weather_pref_desc">Hogyan számítson neked az egyes körülmény, a pontszám követi.</string>
+    <string name="weather_pref_label">Kényelmi preferenciák</string>
+    <string name="weather_pref_desc">A preferenciáid hozzád igazítják a pontszámot. A valódi veszélyek így is lehúzzák.</string>
     <string name="weather_pref_dislike">Kerülöm</string>
     <string name="weather_pref_neutral">Semleges</string>
     <string name="weather_pref_like">Szeretem</string>

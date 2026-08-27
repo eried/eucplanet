@@ -856,7 +856,7 @@
     <string name="weather_win_1w">1 sett</string>
     <string name="weather_settings_entry">Impostazioni meteo</string>
     <string name="weather_enable">Meteo sul cruscotto</string>
-    <string name="weather_enable_desc">Aggiunge un’icona meteo sopra il pulsante mappa: toccala per una previsione di guidabilità. +5 è un’ora perfetta, -5 dice di lasciare la ruota a casa.</string>
+    <string name="weather_enable_desc">Aggiunge una icona meteo sopra il pulsante mappa: toccala per la previsione di guidabilità. +5 significa molla tutto e vai, 0 va bene con la giusta attrezzatura, -5 dice lascia la ruota a casa.</string>
     <string name="weather_window_label">Finestra di previsione</string>
     <string name="weather_source_label">Fonte delle previsioni</string>
     <string name="weather_comfort_desc">Soglie di comfort per il punteggio. La temperatura segue le tue unità; il vento, l’unità di velocità.</string>
@@ -900,8 +900,8 @@
     <string name="weather_src_current">Attuale</string>
     <string name="weather_src_destination">Destinazione</string>
     <string name="weather_swap_src">Cambia luogo</string>
-    <string name="weather_pref_label">Preferenze di guida</string>
-    <string name="weather_pref_desc">Quanto conta ogni condizione per te, il punteggio segue.</string>
+    <string name="weather_pref_label">Preferenze di comfort</string>
+    <string name="weather_pref_desc">Le tue preferenze adattano il punteggio a te. I pericoli veri lo tirano comunque giù.</string>
     <string name="weather_pref_dislike">Evito</string>
     <string name="weather_pref_neutral">Neutro</string>
     <string name="weather_pref_like">Mi piace</string>

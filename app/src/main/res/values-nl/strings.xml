@@ -1698,7 +1698,7 @@
     <string name="weather_win_1w">1 w</string>
     <string name="weather_settings_entry">Weerinstellingen</string>
     <string name="weather_enable">Weer op het dashboard</string>
-    <string name="weather_enable_desc">Voegt een weericoon toe boven de kaartknop: tik voor een rijdbaarheidsvoorspelling. +5 is een perfect uur, -5 zegt laat het wiel thuis.</string>
+    <string name="weather_enable_desc">Voegt een weericoon toe boven de kaartknop: tik voor de rijbaarheidsvoorspelling. +5 betekent laat alles vallen en rijd, 0 is prima met de juiste uitrusting, -5 zegt laat het wiel thuis.</string>
     <string name="weather_window_label">Voorspellingsvenster</string>
     <string name="weather_source_label">Voorspellingsbron</string>
     <string name="weather_comfort_desc">Comfortdrempels voor de score. Temperatuur volgt je eenheden; wind volgt je snelheidseenheid.</string>
@@ -1742,8 +1742,8 @@
     <string name="weather_src_current">Huidig</string>
     <string name="weather_src_destination">Bestemming</string>
     <string name="weather_swap_src">Wissel locatie</string>
-    <string name="weather_pref_label">Rijvoorkeuren</string>
-    <string name="weather_pref_desc">Hoe elke conditie voor jou telt, de score volgt.</string>
+    <string name="weather_pref_label">Comfortvoorkeuren</string>
+    <string name="weather_pref_desc">Je voorkeuren stemmen de score op jou af. Echte gevaren trekken hem alsnog omlaag.</string>
     <string name="weather_pref_dislike">Vermijd</string>
     <string name="weather_pref_neutral">Neutraal</string>
     <string name="weather_pref_like">Graag</string>

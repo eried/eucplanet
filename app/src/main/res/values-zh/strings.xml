@@ -820,7 +820,7 @@
     <string name="weather_win_1w">1周</string>
     <string name="weather_settings_entry">天气设置</string>
     <string name="weather_enable">仪表盘天气</string>
-    <string name="weather_enable_desc">在地图按钮上方添加天气图标：点按查看骑行适宜度预报。+5 是完美的骑行时段，-5 表示把车留在家里。</string>
+    <string name="weather_enable_desc">在地图按钮上方添加天气图标：点按查看骑行适宜度预报。+5 表示放下一切去骑行，0 表示装备得当即可，-5 表示把车轮留在家里。</string>
     <string name="weather_window_label">预报窗口</string>
     <string name="weather_source_label">预报来源</string>
     <string name="weather_comfort_desc">评分的舒适阈值。温度与风速跟随单位设置。</string>
@@ -864,8 +864,8 @@
     <string name="weather_src_current">当前</string>
     <string name="weather_src_destination">目的地</string>
     <string name="weather_swap_src">切换位置</string>
-    <string name="weather_pref_label">骑行偏好</string>
-    <string name="weather_pref_desc">每种条件如何计入，评分随之变化。</string>
+    <string name="weather_pref_label">舒适偏好</string>
+    <string name="weather_pref_desc">你的偏好会调整评分。真正的危险仍会拉低它。</string>
     <string name="weather_pref_dislike">不喜欢</string>
     <string name="weather_pref_neutral">中立</string>
     <string name="weather_pref_like">喜欢</string>

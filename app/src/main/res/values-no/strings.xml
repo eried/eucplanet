@@ -837,7 +837,7 @@
     <string name="weather_win_1w">1 u</string>
     <string name="weather_settings_entry">Værinnstillinger</string>
     <string name="weather_enable">Vær på dashbordet</string>
-    <string name="weather_enable_desc">Legger til et værikon over kartknappen: trykk for et kjørbarhetsvarsel. +5 er en perfekt time, -5 sier la hjulet stå hjemme.</string>
+    <string name="weather_enable_desc">Legger et værikon over kartknappen: trykk for kjørbarhetsvarsel. +5 betyr slipp alt og kjør, 0 er greit med riktig utstyr, -5 sier la hjulet stå hjemme.</string>
     <string name="weather_window_label">Varselvindu</string>
     <string name="weather_source_label">Varselkilde</string>
     <string name="weather_comfort_desc">Komfortterskler for poengsummen. Temperatur følger enhetene dine; vind følger fartsenheten.</string>
@@ -881,8 +881,8 @@
     <string name="weather_src_current">Nåværende</string>
     <string name="weather_src_destination">Destinasjon</string>
     <string name="weather_swap_src">Bytt sted</string>
-    <string name="weather_pref_label">Kjørepreferanser</string>
-    <string name="weather_pref_desc">Hvordan hver betingelse teller for deg, poengsummen følger.</string>
+    <string name="weather_pref_label">Komfortpreferanser</string>
+    <string name="weather_pref_desc">Preferansene dine tilpasser poengsummen til deg. Reelle farer trekker den likevel ned.</string>
     <string name="weather_pref_dislike">Ugjerne</string>
     <string name="weather_pref_neutral">Nøytral</string>
     <string name="weather_pref_like">Gjerne</string>
