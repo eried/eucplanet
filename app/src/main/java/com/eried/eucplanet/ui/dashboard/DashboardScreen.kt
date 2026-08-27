@@ -3463,13 +3463,34 @@ fun DashboardScreen(
         val wizardPickFolder = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree()
         ) { uri -> if (uri != null) viewModel.setBackupFolder(uri) }
-        if (showWeatherFlyout && weatherSettings.enabled) {
+        androidx.compose.animation.AnimatedVisibility(
+            visible = showWeatherFlyout && weatherSettings.enabled,
+            enter = androidx.compose.animation.scaleIn(
+                initialScale = 0.92f,
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0f)
+            ) + androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.scaleOut(
+                targetScale = 0.92f,
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0f)
+            ) + androidx.compose.animation.fadeOut(),
+        ) {
             val winH = weatherWindowOverride ?: weatherSettings.windowHours
             val nowMs = System.currentTimeMillis()
             val sliced = weatherHours.filter {
                 it.timeMs >= nowMs - 3_600_000L && it.timeMs <= nowMs + winH * 3_600_000L
             }
-            Box(Modifier.fillMaxSize().statusBarsPadding()) {
+            // Light modal: the app darkens a touch behind the panel and a tap
+            // anywhere outside dismisses it, so the panel needs no X.
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.appColors.scrim.copy(alpha = 0.30f))
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null
+                    ) { showWeatherFlyout = false }
+                    .statusBarsPadding()
+            ) {
                 WeatherFlyout(
                     hours = sliced,
                     windowHours = winH,
@@ -3477,7 +3498,6 @@ fun DashboardScreen(
                     error = weatherError,
                     updatedAgoMin = weatherFetchedAt?.let { ((nowMs - it) / 60_000L).toInt() },
                     onRefresh = { viewModel.refreshWeather(force = true) },
-                    onClose = { showWeatherFlyout = false },
                     modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                 )
             }

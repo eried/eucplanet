@@ -173,9 +173,12 @@ class WeatherModuleTest {
         assertTrue(flyout.contains("windowDivisions"))
         // Rotating rider-lingo titles and the face tips as floating bubbles,
         // not an inline label.
-        assertTrue(flyout.contains("TITLE_POOL.random()"))
+        assertTrue(flyout.contains("WeatherPhrases.titleRes()"))
         assertTrue(flyout.contains("weather_face_snow"))
         assertTrue(flyout.contains("BiasAlignment"))
+        // Graph taps read out the signed score with an hour-stable phrase.
+        assertTrue(flyout.contains("detectTapGestures"))
+        assertTrue(flyout.contains("levelRes(levelBucket"))
     }
 
     @Test fun `the icon and flyout only exist when the module is enabled`() {
@@ -207,6 +210,13 @@ class WeatherModuleTest {
             "weather_face_clear", "weather_face_meh", "weather_face_rain",
             "weather_face_snow", "weather_face_wind", "weather_face_night",
             "weather_face_cold", "weather_face_hot",
+            "weather_lvl_awful_1", "weather_lvl_awful_2",
+            "weather_lvl_bad_1", "weather_lvl_bad_2",
+            "weather_lvl_notworst_1", "weather_lvl_notworst_2",
+            "weather_lvl_meh_1", "weather_lvl_meh_2",
+            "weather_lvl_ok_1", "weather_lvl_ok_2",
+            "weather_lvl_good_1", "weather_lvl_good_2",
+            "weather_lvl_prime_1", "weather_lvl_prime_2",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }

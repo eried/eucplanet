@@ -3,6 +3,8 @@ package com.eried.eucplanet.ui.dashboard
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Bedtime
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -67,14 +69,45 @@ import kotlin.math.roundToInt
 /** One scored forecast hour, ready for the flyout graph. */
 data class ScoredHour(val timeMs: Long, val b: RidabilityScore.Breakdown)
 
-/** The rotating "should I ride" titles, one picked at random per opening. */
-private val TITLE_POOL = listOf(
-    R.string.weather_title_1,
-    R.string.weather_title_2,
-    R.string.weather_title_3,
-    R.string.weather_title_4,
-    R.string.weather_title_5,
-)
+/**
+ * The rotating phrases: a "should I ride" title and one flavour line per
+ * score level. Picks are random but cached in-process for an hour, so the
+ * app keeps one voice for a while instead of rerolling every open. Plain
+ * app state, deliberately not a setting.
+ */
+private object WeatherPhrases {
+    private const val TTL_MS = 3_600_000L
+    private val titlePool = listOf(
+        R.string.weather_title_1,
+        R.string.weather_title_2,
+        R.string.weather_title_3,
+        R.string.weather_title_4,
+        R.string.weather_title_5,
+    )
+    private val levelPools = listOf(
+        listOf(R.string.weather_lvl_awful_1, R.string.weather_lvl_awful_2),
+        listOf(R.string.weather_lvl_bad_1, R.string.weather_lvl_bad_2),
+        listOf(R.string.weather_lvl_notworst_1, R.string.weather_lvl_notworst_2),
+        listOf(R.string.weather_lvl_meh_1, R.string.weather_lvl_meh_2),
+        listOf(R.string.weather_lvl_ok_1, R.string.weather_lvl_ok_2),
+        listOf(R.string.weather_lvl_good_1, R.string.weather_lvl_good_2),
+        listOf(R.string.weather_lvl_prime_1, R.string.weather_lvl_prime_2),
+    )
+    private var title: Pair<Int, Long>? = null
+    private val levels = HashMap<Int, Pair<Int, Long>>()
+
+    fun titleRes(): Int {
+        val now = System.currentTimeMillis()
+        title?.let { if (now - it.second < TTL_MS) return it.first }
+        return titlePool.random().also { title = it to now }
+    }
+
+    fun levelRes(bucket: Int): Int {
+        val now = System.currentTimeMillis()
+        levels[bucket]?.let { if (now - it.second < TTL_MS) return it.first }
+        return levelPools[bucket].random().also { levels[bucket] = it to now }
+    }
+}
 
 /** The compact window tag shown beside the title: "6h", "24h", "3d", "1w". */
 private fun windowShortRes(windowHours: Int): Int = when {
@@ -106,16 +139,23 @@ fun WeatherFlyout(
     error: String?,
     updatedAgoMin: Int?,
     onRefresh: () -> Unit,
-    onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Same family as the navigation popup: the inverse of the app background
     // so it stands out, rounded, with a real shadow.
     val panel = MaterialTheme.appColors.navPopupPanel
     val ink = MaterialTheme.appColors.navPopupInk
-    val titleRes = remember { TITLE_POOL.random() }
+    val titleRes = remember { WeatherPhrases.titleRes() }
     Surface(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            // Absorb taps so they don't fall through to the dismiss scrim
+            // behind the panel, same trick as the nav popup.
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {},
         shape = RoundedCornerShape(12.dp),
         color = panel,
         contentColor = ink,
@@ -166,14 +206,6 @@ fun WeatherFlyout(
                         )
                     }
                 }
-                IconButton(onClick = onClose, modifier = Modifier.size(28.dp)) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = stringResource(R.string.action_close),
-                        tint = ink.copy(alpha = 0.6f),
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
             }
 
             when {
@@ -199,6 +231,28 @@ fun WeatherFlyout(
  *  tap tooltip shows. Faces sit at the start plus the moments the ride
  *  character changes - a band crossing or a hazard beginning. */
 private data class FaceSpot(val index: Int, val emoji: String, val infoRes: Int)
+
+/** A visible tooltip on the graph: where, an optional numeric prefix, and
+ *  the phrase resource. srcKey identifies the anchor so a second tap on the
+ *  same spot closes it. */
+private data class GraphTip(
+    val srcKey: Int,
+    val frac: Float,
+    val yFrac: Float,
+    val prefix: String?,
+    val textRes: Int,
+)
+
+/** Score level buckets for the graph-tap read, -5 horrible up to +5 prime. */
+private fun levelBucket(score: Float): Int = when {
+    score <= -3.5f -> 0
+    score <= -1.5f -> 1
+    score <= -0.5f -> 2
+    score < 0.5f -> 3
+    score < 2.5f -> 4
+    score < 4.5f -> 5
+    else -> 6
+}
 
 /** The face and tip line for an hour, by what dominates it. Priority mirrors
  *  danger: snow, rain, wind, cold, hot, night, then just the score band. */
@@ -268,19 +322,22 @@ private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, pa
             FaceSpot(i, emoji, res)
         }
     }
-    // The tapped face's tooltip, auto-hiding like a toast.
-    var tipSpot by remember(hours) { mutableStateOf<FaceSpot?>(null) }
-    LaunchedEffect(tipSpot) {
-        if (tipSpot != null) {
+    // The visible tooltip (face lingo, or a graph-tap level read),
+    // auto-hiding like a toast. The random phrase behind it is what
+    // WeatherPhrases keeps stable for an hour.
+    var tip by remember(hours) { mutableStateOf<GraphTip?>(null) }
+    LaunchedEffect(tip) {
+        if (tip != null) {
             delay(4000)
-            tipSpot = null
+            tip = null
         }
     }
 
     Column {
         val density = LocalDensity.current
         var graphW by remember { mutableStateOf(0) }
-        val graphH = 64.dp
+        // The modal presentation buys room: about 25% taller than the first cut.
+        val graphH = 80.dp
 
         Box(
             Modifier
@@ -288,7 +345,29 @@ private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, pa
                 .height(graphH)
                 .onSizeChanged { graphW = it.width }
         ) {
-            Canvas(Modifier.fillMaxWidth().height(graphH)) {
+            Canvas(
+                Modifier
+                    .fillMaxWidth()
+                    .height(graphH)
+                    // Tap anywhere on the graph for the numeric read of that
+                    // moment plus its level line.
+                    .pointerInput(hours) {
+                        detectTapGestures { off ->
+                            val n = hours.size
+                            val i = if (n <= 1) 0
+                            else ((off.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
+                            val score = hours[i].b.score
+                            val key = -(i + 1)
+                            tip = if (tip?.srcKey == key) null else GraphTip(
+                                srcKey = key,
+                                frac = if (n <= 1) 0f else i / (n - 1f),
+                                yFrac = 1f - (score + 5f) / 10f,
+                                prefix = signedLabel(score),
+                                textRes = WeatherPhrases.levelRes(levelBucket(score)),
+                            )
+                        }
+                    }
+            ) {
                 val w = size.width
                 val h = size.height
                 val n = hours.size
@@ -398,32 +477,32 @@ private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, pa
                             .offset(x = xDp, y = yDp)
                             .size(18.dp)
                             .clickable {
-                                tipSpot = if (tipSpot?.index == spot.index) null else spot
+                                tip = if (tip?.srcKey == spot.index) null
+                                else GraphTip(spot.index, frac, yFrac, null, spot.infoRes)
                             },
                     )
                 }
 
-                // The lingo tip: a compact dark bubble like the trip map's
-                // scrub tooltip, floated near its face and clamped to the
-                // graph, inverse-inked so it pops on the panel.
-                tipSpot?.let { spot ->
-                    val frac = if (n <= 1) 0f else spot.index.toFloat() / (n - 1)
-                    val score = hours[spot.index].b.score
-                    val yFrac = 1f - (score + 5f) / 10f
-                    val tipY = ((graphH - 18.dp) * yFrac - 24.dp).coerceAtLeast(0.dp)
+                // The tip: a compact dark bubble like the trip map's scrub
+                // tooltip, floated near its anchor and clamped to the graph,
+                // inverse-inked so it pops on the panel. Face taps show the
+                // lingo line; graph taps prefix the signed score.
+                tip?.let { t ->
+                    val tipY = ((graphH - 18.dp) * t.yFrac - 24.dp).coerceAtLeast(0.dp)
+                    val prefix = t.prefix?.let { "$it · " } ?: ""
                     Box(Modifier.fillMaxWidth().offset(y = tipY)) {
                         Text(
-                            stringResource(spot.infoRes),
+                            prefix + stringResource(t.textRes),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = panel,
                             maxLines = 1,
                             modifier = Modifier
-                                .align(BiasAlignment(frac * 2f - 1f, 0f))
+                                .align(BiasAlignment(t.frac * 2f - 1f, 0f))
                                 .shadow(4.dp, RoundedCornerShape(5.dp))
                                 .background(ink.copy(alpha = 0.92f), RoundedCornerShape(5.dp))
                                 .padding(horizontal = 7.dp, vertical = 2.dp)
-                                .clickable { tipSpot = null },
+                                .clickable { tip = null },
                         )
                     }
                 }
