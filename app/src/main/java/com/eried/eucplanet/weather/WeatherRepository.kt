@@ -24,9 +24,18 @@ import kotlin.math.abs
  * Adding a provider is one entry here plus its parser in [WeatherRepository];
  * the settings dropdown and the drift guard read this registry.
  */
-enum class WeatherSource(val id: String, val label: String) {
+enum class WeatherSource(
+    val id: String,
+    val label: String,
+    /** Non-null: the national model requested through the Open-Meteo API. */
+    val openMeteoModel: String? = null,
+) {
     OPEN_METEO("OPEN_METEO", "Open-Meteo"),
-    MET_NO("MET_NO", "MET Norway");
+    MET_NO("MET_NO", "MET Norway"),
+    ECMWF("ECMWF", "ECMWF (via Open-Meteo)", "ecmwf_ifs025"),
+    NOAA_GFS("NOAA_GFS", "NOAA GFS (via Open-Meteo)", "gfs_seamless"),
+    DWD_ICON("DWD_ICON", "DWD ICON (via Open-Meteo)", "icon_seamless"),
+    METEO_FRANCE("METEO_FRANCE", "Météo-France (via Open-Meteo)", "meteofrance_seamless");
 
     companion object {
         fun byId(id: String): WeatherSource = entries.firstOrNull { it.id == id } ?: OPEN_METEO
@@ -88,10 +97,8 @@ class WeatherRepository @Inject constructor() {
             _refreshing.value = true
             try {
                 val hours = withContext(Dispatchers.IO) {
-                    when (source) {
-                        WeatherSource.OPEN_METEO -> fetchOpenMeteo(lat, lon)
-                        WeatherSource.MET_NO -> fetchMetNo(lat, lon)
-                    }
+                    if (source == WeatherSource.MET_NO) fetchMetNo(lat, lon)
+                    else fetchOpenMeteo(lat, lon, source.openMeteoModel)
                 }
                 _forecast.value = WeatherForecast(hours, System.currentTimeMillis(), lat, lon, source)
                 _error.value = null
@@ -115,10 +122,8 @@ class WeatherRepository @Inject constructor() {
             _refreshing.value = true
             try {
                 val hours = withContext(Dispatchers.IO) {
-                    when (source) {
-                        WeatherSource.OPEN_METEO -> fetchOpenMeteo(lat, lon)
-                        WeatherSource.MET_NO -> fetchMetNo(lat, lon)
-                    }
+                    if (source == WeatherSource.MET_NO) fetchMetNo(lat, lon)
+                    else fetchOpenMeteo(lat, lon, source.openMeteoModel)
                 }
                 _destForecast.value = WeatherForecast(hours, System.currentTimeMillis(), lat, lon, source)
             } catch (t: Throwable) {
@@ -140,13 +145,16 @@ class WeatherRepository @Inject constructor() {
         }
     }
 
-    /** Open-Meteo: unix timestamps, metric fields, up to 8 days hourly. */
-    private fun fetchOpenMeteo(lat: Double, lon: Double): List<HourForecast> {
+    /** Open-Meteo: unix timestamps, metric fields, up to 8 days hourly.
+     *  [model] picks a national model (ECMWF, GFS, ICON, Météo-France);
+     *  null lets Open-Meteo blend its best match. */
+    private fun fetchOpenMeteo(lat: Double, lon: Double, model: String? = null): List<HourForecast> {
         val url = "https://api.open-meteo.com/v1/forecast" +
             "?latitude=%.4f&longitude=%.4f".format(Locale.US, lat, lon) +
             "&hourly=temperature_2m,precipitation,snowfall,wind_speed_10m,is_day" +
             ",relative_humidity_2m,wind_gusts_10m" +
-            "&wind_speed_unit=ms&timeformat=unixtime&forecast_days=8"
+            "&wind_speed_unit=ms&timeformat=unixtime&forecast_days=8" +
+            (model?.let { "&models=$it" } ?: "")
         return parseOpenMeteo(get(url)).map {
             it.copy(isGolden = SunCalc.isGolden(it.timeMs, lat, lon))
         }
@@ -163,7 +171,11 @@ class WeatherRepository @Inject constructor() {
         // Optional in older canned payloads; the detail charts read them.
         val hum = hourly.optJSONArray("relative_humidity_2m")
         val gust = hourly.optJSONArray("wind_gusts_10m")
-        return (0 until time.length()).map { i ->
+        return (0 until time.length()).mapNotNull { i ->
+            // National models publish fewer hourly days than the 8 requested
+            // (Météo-France ~4, ICON ~7.5) and pad the tail with nulls. Skip
+            // those rows instead of fabricating calm 0-degree hours.
+            if (temp.isNull(i)) return@mapNotNull null
             // Snowfall arrives in cm and is also counted inside "precipitation"
             // as melted water; subtract so rain is liquid rain alone.
             val snowCm = snow.optDouble(i, 0.0).toFloat()

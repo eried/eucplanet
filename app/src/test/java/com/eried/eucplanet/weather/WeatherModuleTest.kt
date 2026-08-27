@@ -270,6 +270,29 @@ class WeatherModuleTest {
         assertEquals(WeatherSource.MET_NO, WeatherSource.byId("MET_NO"))
     }
 
+    @Test fun `national models ride the open-meteo api keylessly`() {
+        assertEquals(6, WeatherSource.entries.size)
+        assertEquals("ecmwf_ifs025", WeatherSource.byId("ECMWF").openMeteoModel)
+        assertEquals("gfs_seamless", WeatherSource.byId("NOAA_GFS").openMeteoModel)
+        assertEquals("icon_seamless", WeatherSource.byId("DWD_ICON").openMeteoModel)
+        assertEquals("meteofrance_seamless", WeatherSource.byId("METEO_FRANCE").openMeteoModel)
+        assertEquals(null, WeatherSource.OPEN_METEO.openMeteoModel)
+        assertEquals(null, WeatherSource.MET_NO.openMeteoModel)
+    }
+
+    @Test fun `null forecast tail is skipped, never fabricated as zeros`() {
+        val body = """
+            {"hourly":{
+              "time":[1756200000,1756203600,1756207200],
+              "temperature_2m":[21.5,12.0,null],
+              "precipitation":[0.0,1.2,null],
+              "snowfall":[0.0,0.0,null],
+              "wind_speed_10m":[1.2,5.0,null],
+              "is_day":[1,0,1]}}
+        """.trimIndent()
+        assertEquals(2, WeatherRepository().parseOpenMeteo(body).size)
+    }
+
     // --- Surfaces -----------------------------------------------------------
 
     @Test fun `the source picker is a combo and the flyout wears the nav popup style`() {
