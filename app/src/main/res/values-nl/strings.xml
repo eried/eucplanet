@@ -1736,7 +1736,7 @@
     <string name="weather_adv_rain_in">Regen verwacht over %1$s.</string>
     <string name="weather_adv_gusts">Sterke windstoten, let op bruggen en open wegen.</string>
     <string name="weather_adv_freeze">Rond het vriespunt, pas op gladde plekken.</string>
-    <string name="weather_adv_clear">Geen gevaren in dit venster.</string>
+    <string name="weather_adv_clear">Alles vrij, gewoon rijden.</string>
     <string name="weather_adv_heat">Hete periode, let op de controllertemperatuur bij klimmen.</string>
     <string name="weather_adv_golden">Gouden uur over %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

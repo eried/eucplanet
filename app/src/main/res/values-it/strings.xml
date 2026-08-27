@@ -894,7 +894,7 @@
     <string name="weather_adv_rain_in">Pioggia attesa tra %1$s.</string>
     <string name="weather_adv_gusts">Raffiche forti, attento su ponti e tratti esposti.</string>
     <string name="weather_adv_freeze">Vicino al gelo, occhio alle chiazze scivolose.</string>
-    <string name="weather_adv_clear">Nessun pericolo in questa finestra.</string>
+    <string name="weather_adv_clear">Tutto libero, vai e basta.</string>
     <string name="weather_adv_heat">Tratto caldo, occhio alla temperatura del controller in salita.</string>
     <string name="weather_adv_golden">Ora dorata tra %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

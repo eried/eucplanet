@@ -1937,7 +1937,7 @@
     <string name="weather_adv_rain_in">Sadetta odotettavissa %1$s kuluttua.</string>
     <string name="weather_adv_gusts">Kovia puuskia, varo siltoja ja avoimia teitä.</string>
     <string name="weather_adv_freeze">Lähellä pakkasta, varo liukkaita kohtia.</string>
-    <string name="weather_adv_clear">Ei vaaroja tässä ikkunassa.</string>
+    <string name="weather_adv_clear">Kaikki selvää, aja vain.</string>
     <string name="weather_adv_heat">Kuuma jakso, tarkkaile ohjaimen lämpöä nousuissa.</string>
     <string name="weather_adv_golden">Kultainen hetki %1$s kuluttua.</string>
     <string name="weather_in_min">%1$d min</string>

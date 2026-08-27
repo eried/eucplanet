@@ -1694,7 +1694,7 @@
     <string name="weather_adv_rain_in">Deszcz za około %1$s.</string>
     <string name="weather_adv_gusts">Silne porywy, uwaga na mostach i otwartych drogach.</string>
     <string name="weather_adv_freeze">Blisko zera, uważaj na śliskie miejsca.</string>
-    <string name="weather_adv_clear">Brak zagrożeń w tym oknie.</string>
+    <string name="weather_adv_clear">Czysto, po prostu jedź.</string>
     <string name="weather_adv_heat">Upalny odcinek, pilnuj temperatury sterownika na podjazdach.</string>
     <string name="weather_adv_golden">Złota godzina za %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

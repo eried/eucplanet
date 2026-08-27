@@ -1937,7 +1937,7 @@
     <string name="weather_adv_rain_in">Eső várható %1$s múlva.</string>
     <string name="weather_adv_gusts">Erős széllökések, vigyázz hidakon és nyílt utakon.</string>
     <string name="weather_adv_freeze">Fagypont körül, csúszós foltokra számíts.</string>
-    <string name="weather_adv_clear">Nincs veszély ebben az ablakban.</string>
+    <string name="weather_adv_clear">Minden tiszta, csak gurulj.</string>
     <string name="weather_adv_heat">Forró szakasz, figyeld a vezérlő hőjét emelkedőn.</string>
     <string name="weather_adv_golden">Aranyóra %1$s múlva.</string>
     <string name="weather_in_min">%1$d perc</string>

@@ -1681,7 +1681,7 @@
     <string name="weather_adv_rain_in">Lluvia prevista en %1$s.</string>
     <string name="weather_adv_gusts">Rachas fuertes, cuidado en puentes y zonas abiertas.</string>
     <string name="weather_adv_freeze">Cerca de helada, ojo con placas resbaladizas.</string>
-    <string name="weather_adv_clear">Sin peligros en esta ventana.</string>
+    <string name="weather_adv_clear">Todo despejado, solo sal a rodar.</string>
     <string name="weather_adv_heat">Tramo caluroso, vigila la temperatura del controlador en subidas.</string>
     <string name="weather_adv_golden">Hora dorada en %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

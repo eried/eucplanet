@@ -1681,7 +1681,7 @@
     <string name="weather_adv_rain_in">Дождь примерно через %1$s.</string>
     <string name="weather_adv_gusts">Сильные порывы, осторожнее на мостах и открытых дорогах.</string>
     <string name="weather_adv_freeze">Около нуля, берегись скользких участков.</string>
-    <string name="weather_adv_clear">В этом окне опасностей нет.</string>
+    <string name="weather_adv_clear">Всё чисто, просто катайся.</string>
     <string name="weather_adv_heat">Жаркий отрезок, следи за температурой контроллера на подъёмах.</string>
     <string name="weather_adv_golden">Золотой час через %1$s.</string>
     <string name="weather_in_min">%1$d мин</string>

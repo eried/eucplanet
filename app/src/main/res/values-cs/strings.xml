@@ -1937,7 +1937,7 @@
     <string name="weather_adv_rain_in">Déšť se čeká za %1$s.</string>
     <string name="weather_adv_gusts">Silné nárazy větru, pozor na mostech a otevřených úsecích.</string>
     <string name="weather_adv_freeze">Kolem nuly, pozor na náledí.</string>
-    <string name="weather_adv_clear">V tomto okně žádná rizika.</string>
+    <string name="weather_adv_clear">Vše čisté, prostě vyjeď.</string>
     <string name="weather_adv_heat">Horký úsek, hlídej teplotu kontroléru do kopce.</string>
     <string name="weather_adv_golden">Zlatá hodina za %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

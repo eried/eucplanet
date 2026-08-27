@@ -1711,7 +1711,7 @@
     <string name="weather_adv_rain_in">Regen in etwa %1$s erwartet.</string>
     <string name="weather_adv_gusts">Kräftige Böen, Vorsicht auf Brücken und freien Strecken.</string>
     <string name="weather_adv_freeze">Nahe Frost, Vorsicht Glätte.</string>
-    <string name="weather_adv_clear">Keine Gefahren in diesem Fenster.</string>
+    <string name="weather_adv_clear">Alles frei, einfach fahren.</string>
     <string name="weather_adv_heat">Heiße Phase, Controller-Temperatur an Steigungen im Blick.</string>
     <string name="weather_adv_golden">Goldene Stunde in %1$s.</string>
     <string name="weather_in_min">%1$d Min.</string>

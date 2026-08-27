@@ -1713,7 +1713,7 @@
     <string name="weather_adv_rain_in">Дощ приблизно за %1$s.</string>
     <string name="weather_adv_gusts">Сильні пориви, обережно на мостах і відкритих дорогах.</string>
     <string name="weather_adv_freeze">Близько нуля, стережись слизьких ділянок.</string>
-    <string name="weather_adv_clear">У цьому вікні небезпек немає.</string>
+    <string name="weather_adv_clear">Усе чисто, просто катайся.</string>
     <string name="weather_adv_heat">Спекотний відрізок, стеж за температурою контролера на підйомах.</string>
     <string name="weather_adv_golden">Золота година за %1$s.</string>
     <string name="weather_in_min">%1$d хв</string>

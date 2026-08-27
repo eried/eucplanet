@@ -1678,7 +1678,7 @@
     <string name="weather_adv_rain_in">Yaklaşık %1$s içinde yağmur.</string>
     <string name="weather_adv_gusts">Güçlü hamleler olabilir, köprülerde ve açık yollarda dikkat.</string>
     <string name="weather_adv_freeze">Donma noktasına yakın, kaygan yerlere dikkat.</string>
-    <string name="weather_adv_clear">Bu aralıkta tehlike yok.</string>
+    <string name="weather_adv_clear">Her şey temiz, sür gitsin.</string>
     <string name="weather_adv_heat">Sıcak dönem, yokuşlarda kontrolcü sıcaklığına dikkat.</string>
     <string name="weather_adv_golden">Yaklaşık %1$s içinde altın saat.</string>
     <string name="weather_in_min">%1$d dk</string>

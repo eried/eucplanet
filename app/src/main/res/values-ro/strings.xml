@@ -1937,7 +1937,7 @@
     <string name="weather_adv_rain_in">Ploaie în circa %1$s.</string>
     <string name="weather_adv_gusts">Rafale puternice, atenție pe poduri și drumuri deschise.</string>
     <string name="weather_adv_freeze">Aproape de îngheț, atenție la porțiuni alunecoase.</string>
-    <string name="weather_adv_clear">Niciun pericol în această fereastră.</string>
+    <string name="weather_adv_clear">Totul liber, doar mergi.</string>
     <string name="weather_adv_heat">Interval fierbinte, urmărește temperatura controlerului la urcări.</string>
     <string name="weather_adv_golden">Ora de aur în %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

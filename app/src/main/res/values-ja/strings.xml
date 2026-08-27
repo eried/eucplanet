@@ -1678,7 +1678,7 @@
     <string name="weather_adv_rain_in">約%1$sで雨。</string>
     <string name="weather_adv_gusts">突風注意。橋や開けた道路で特に。</string>
     <string name="weather_adv_freeze">氷点近く。凍結箇所に注意。</string>
-    <string name="weather_adv_clear">この時間帯に危険なし。</string>
+    <string name="weather_adv_clear">問題なし。気持ちよく乗ろう。</string>
     <string name="weather_adv_heat">暑い時間帯。登りではコントローラー温度に注意。</string>
     <string name="weather_adv_golden">約%1$sでゴールデンアワー。</string>
     <string name="weather_in_min">%1$d分</string>

@@ -1690,7 +1690,7 @@
     <string name="weather_adv_rain_in">Regn ventes om %1$s.</string>
     <string name="weather_adv_gusts">Kraftige vindstød, pas på broer og åbne veje.</string>
     <string name="weather_adv_freeze">Nær frysepunktet, pas på glatte pletter.</string>
-    <string name="weather_adv_clear">Ingen farer i dette vindue.</string>
+    <string name="weather_adv_clear">Helt klart, bare kør.</string>
     <string name="weather_adv_heat">Varm periode, hold øje med controllerens temperatur på stigninger.</string>
     <string name="weather_adv_golden">Gylden time om %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

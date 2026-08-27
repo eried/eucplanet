@@ -858,7 +858,7 @@
     <string name="weather_adv_rain_in">约%1$s后有雨。</string>
     <string name="weather_adv_gusts">阵风较强，桥上和空旷路段小心。</string>
     <string name="weather_adv_freeze">接近冰点，小心湿滑路段。</string>
-    <string name="weather_adv_clear">此时段无危险。</string>
+    <string name="weather_adv_clear">一切晴好，放心骑行。</string>
     <string name="weather_adv_heat">炎热时段，爬坡时注意控制器温度。</string>
     <string name="weather_adv_golden">约%1$s后进入黄金时刻。</string>
     <string name="weather_in_min">%1$d分钟</string>

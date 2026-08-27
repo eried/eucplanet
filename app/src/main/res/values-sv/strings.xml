@@ -1677,7 +1677,7 @@
     <string name="weather_adv_rain_in">Regn väntas om %1$s.</string>
     <string name="weather_adv_gusts">Kraftiga vindbyar, se upp på broar och öppna vägar.</string>
     <string name="weather_adv_freeze">Nära nollan, se upp för hala partier.</string>
-    <string name="weather_adv_clear">Inga faror i det här fönstret.</string>
+    <string name="weather_adv_clear">Helt klart, bara åk.</string>
     <string name="weather_adv_heat">Het period, håll koll på styrenhetens temperatur i backar.</string>
     <string name="weather_adv_golden">Gyllene timmen om %1$s.</string>
     <string name="weather_in_min">%1$d min</string>

@@ -2168,7 +2168,7 @@
     <string name="weather_adv_rain_in">Rain expected in %1$s.</string>
     <string name="weather_adv_gusts">Gusts can be strong - careful on bridges and open roads.</string>
     <string name="weather_adv_freeze">Near freezing - watch for slippery patches.</string>
-    <string name="weather_adv_clear">No hazards in this window.</string>
+    <string name="weather_adv_clear">All clear, just go ride.</string>
     <string name="weather_adv_heat">Hot stretch - watch controller temps on climbs.</string>
     <string name="weather_adv_golden">Golden hour in %1$s.</string>
     <string name="weather_in_min">%1$d min</string>
