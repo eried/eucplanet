@@ -75,6 +75,7 @@ class DashboardViewModel @Inject constructor(
     private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -103,6 +104,61 @@ class DashboardViewModel @Inject constructor(
             .map { (it.unitTemp == "F") to (it.unitSpeed == "mph") }
             .stateIn(viewModelScope, SharingStarted.Eagerly, false to false)
 
+    /** The navigator's final stop while a route is active: the destination
+     *  the flyout can forecast instead of here. */
+    val weatherDest: StateFlow<com.eried.eucplanet.data.model.Waypoint?> =
+        navigationEngine.activeLeg
+            .map { it?.waypoints?.lastOrNull() }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Which location the flyout forecasts: false = here, true = destination.
+     *  Plain app state, resets with the process. */
+    val weatherUseDest = kotlinx.coroutines.flow.MutableStateFlow(false)
+
+    /** Reverse-geocoded name of the current forecast cell, chip-sized. */
+    val weatherPlace = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+
+    val weatherDestHours: StateFlow<List<ScoredHour>> =
+        kotlinx.coroutines.flow.combine(weatherRepository.destForecast, weatherSettings) { f, w ->
+            f?.hours.orEmpty().map { h ->
+                ScoredHour(
+                    h.timeMs,
+                    com.eried.eucplanet.weather.RidabilityScore.score(
+                        h,
+                        coldC = w.coldC.toFloat(),
+                        hotC = w.hotC.toFloat(),
+                        breezyMs = w.breezyTenthsMs / 10f,
+                        windyMs = w.windyTenthsMs / 10f,
+                    ),
+                    h,
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    fun toggleWeatherSource() {
+        val turningOn = !weatherUseDest.value
+        if (turningOn && weatherDest.value == null) return
+        weatherUseDest.value = turningOn
+        refreshWeather()
+    }
+
+    private var placeCacheKey: String? = null
+    private fun updateWeatherPlace(lat: Double, lon: Double) {
+        val key = "%.2f,%.2f".format(java.util.Locale.US, lat, lon)
+        if (key == placeCacheKey) return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                @Suppress("DEPRECATION")
+                val a = android.location.Geocoder(context, java.util.Locale.getDefault())
+                    .getFromLocation(lat, lon, 1)?.firstOrNull()
+                val name = a?.subLocality ?: a?.locality ?: a?.featureName
+                placeCacheKey = key
+                if (!name.isNullOrBlank()) weatherPlace.value = name
+            } catch (_: Exception) {
+            }
+        }
+    }
+
     /** The cached forecast week, scored with the rider's comfort thresholds.
      *  The flyout slices this per window, so switching windows never fetches. */
     val weatherHours: StateFlow<List<ScoredHour>> =
@@ -129,6 +185,16 @@ class DashboardViewModel @Inject constructor(
         val loc = tripRepository.currentLocation.value
             ?: tripRepository.lastKnownLocation.value ?: return
         val w = weatherSettings.value
+        val dest = weatherDest.value
+        if (dest != null && weatherUseDest.value) {
+            viewModelScope.launch {
+                weatherRepository.ensureFreshDest(
+                    dest.lat, dest.lng,
+                    com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
+                )
+            }
+        }
+        updateWeatherPlace(loc.latitude, loc.longitude)
         viewModelScope.launch {
             weatherRepository.ensureFresh(
                 loc.latitude, loc.longitude,

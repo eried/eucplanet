@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
@@ -143,12 +144,17 @@ private fun windowDivisions(windowHours: Int): Int = if (windowHours > 72) 7 els
 @Composable
 fun WeatherFlyout(
     hours: List<ScoredHour>,
+    altHours: List<ScoredHour>,
     windowHours: Int,
     tempF: Boolean,
     windMph: Boolean,
     refreshing: Boolean,
     error: String?,
     updatedAgoMin: Int?,
+    place: String?,
+    destName: String?,
+    usingDest: Boolean,
+    onToggleSource: () -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -189,6 +195,28 @@ fun WeatherFlyout(
                     color = ink.copy(alpha = 0.7f),
                     modifier = Modifier
                         .background(ink.copy(alpha = 0.12f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 1.dp),
+                )
+                Spacer(Modifier.width(4.dp))
+                // Where this forecast is for: here (place name when known),
+                // or the navigator's final stop. Tap swaps when a route is
+                // set; filled style marks destination mode.
+                Text(
+                    when {
+                        usingDest -> destName?.takeIf { it.isNotBlank() }
+                            ?: stringResource(R.string.weather_src_destination)
+                        else -> place ?: stringResource(R.string.weather_src_current)
+                    },
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    color = if (usingDest) panel else ink.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .background(
+                            if (usingDest) ink.copy(alpha = 0.75f) else ink.copy(alpha = 0.12f),
+                            RoundedCornerShape(6.dp)
+                        )
+                        .clickable(enabled = destName != null) { onToggleSource() }
                         .padding(horizontal = 6.dp, vertical = 1.dp),
                 )
                 Spacer(Modifier.width(8.dp))
@@ -241,7 +269,7 @@ fun WeatherFlyout(
                     color = ink.copy(alpha = 0.6f),
                     modifier = Modifier.padding(vertical = 10.dp),
                 )
-                else -> ScoreGraph(hours, windowHours, ink, panel)
+                else -> ScoreGraph(hours, altHours, windowHours, ink, panel)
             }
 
             // The expanded condition charts plus the generated advisories,
@@ -295,23 +323,24 @@ private fun DetailSection(
             fontWeight = FontWeight.SemiBold,
             color = ink.copy(alpha = 0.75f),
         )
+        // Temp, humidity and precipitation share one double-height chart,
+        // weather-app style: lines over rain/snow bars.
         DetailChart(
             label = stringResource(R.string.weather_chart_temp),
-            value = "%.1f%s · %.0f%%".format(t(h.tempC), tUnit, h.humidityPct),
+            value = "%.1f%s · %.0f%% · %s".format(
+                t(h.tempC), tUnit, h.humidityPct,
+                if (h.snowCmH > 0f) "%.1f cm/h".format(h.snowCmH)
+                else "%.1f mm/h".format(h.precipMmH),
+            ),
             series = listOf(
                 ChartSeries(hours.map { it.h.tempC }, MaterialTheme.appColors.metricTemp),
                 ChartSeries(hours.map { it.h.humidityPct }, MaterialTheme.appColors.chartEnvelope, dashed = true),
             ),
-            ink = ink, scrub = scrub, onScrub = onScrub,
-        )
-        DetailChart(
-            label = stringResource(R.string.weather_chart_precip),
-            value = if (h.snowCmH > 0f) "%.1f cm/h".format(h.snowCmH)
-            else "%.1f mm/h".format(h.precipMmH),
-            series = listOf(
+            bars = listOf(
                 ChartSeries(hours.map { it.h.precipMmH }, MaterialTheme.appColors.chartEnvelope),
-                ChartSeries(hours.map { it.h.snowCmH }, ink.copy(alpha = 0.8f), dashed = true),
+                ChartSeries(hours.map { it.h.snowCmH }, ink.copy(alpha = 0.45f)),
             ),
+            chartHeight = 88.dp,
             ink = ink, scrub = scrub, onScrub = onScrub,
         )
         DetailChart(
@@ -367,6 +396,8 @@ private fun DetailChart(
     ink: Color,
     scrub: Float?,
     onScrub: (Float) -> Unit,
+    bars: List<ChartSeries> = emptyList(),
+    chartHeight: Dp = 44.dp,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -384,7 +415,7 @@ private fun DetailChart(
     Canvas(
         Modifier
             .fillMaxWidth()
-            .height(44.dp)
+            .height(chartHeight)
             // Finger-follow scrub, plus tap-to-place; the cursor is shared by
             // all three charts so one drag reads the whole moment.
             .pointerInput(series) {
@@ -398,6 +429,26 @@ private fun DetailChart(
     ) {
         val w = size.width
         val hgt = size.height
+        // Precipitation-style bars first, behind the lines. All bar series
+        // share one scale so rain and snow compare honestly.
+        if (bars.isNotEmpty()) {
+            val barMax = bars.maxOf { b -> b.values.maxOrNull() ?: 0f }.coerceAtLeast(1f)
+            val n = bars.first().values.size
+            val slot = if (n > 0) w / n else w
+            bars.forEachIndexed { bi, b ->
+                val bw = (slot * 0.6f / bars.size).coerceAtLeast(2f)
+                for (i in b.values.indices) {
+                    val v = b.values.getOrElse(i) { 0f }
+                    if (v <= 0f) continue
+                    val bh = (v / barMax) * (hgt * 0.6f)
+                    drawRect(
+                        color = b.color.copy(alpha = 0.55f),
+                        topLeft = Offset(slot * i + slot * 0.2f + bi * bw, hgt - 1f - bh),
+                        size = Size(bw, bh),
+                    )
+                }
+            }
+        }
         series.forEach { s ->
             if (s.values.isEmpty()) return@forEach
             val minV = s.values.min()
@@ -480,7 +531,13 @@ private fun signedLabel(score: Float): String {
 }
 
 @Composable
-private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, panel: Color) {
+private fun ScoreGraph(
+    hours: List<ScoredHour>,
+    alt: List<ScoredHour>,
+    windowHours: Int,
+    ink: Color,
+    panel: Color,
+) {
     val good = MaterialTheme.appColors.weatherGood
     val bad = MaterialTheme.appColors.weatherBad
     val gridColor = ink.copy(alpha = 0.15f)
@@ -559,6 +616,23 @@ private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, pa
                             val key = -(i + 1)
                             tip = if (tip?.srcKey == key) null else GraphTip(
                                 srcKey = key,
+                                frac = if (n <= 1) 0f else i / (n - 1f),
+                                yFrac = 1f - (score + 5f) / 10f,
+                                prefix = signedLabel(score),
+                                textRes = WeatherPhrases.levelRes(levelBucket(score)),
+                            )
+                        }
+                    }
+                    // And the finger-follow version: drag along the curve and
+                    // the read moves with the finger.
+                    .pointerInput(hours) {
+                        detectHorizontalDragGestures { change, _ ->
+                            val n = hours.size
+                            val i = if (n <= 1) 0
+                            else ((change.position.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
+                            val score = hours[i].b.score
+                            tip = GraphTip(
+                                srcKey = -(i + 1),
                                 frac = if (n <= 1) 0f else i / (n - 1f),
                                 yFrac = 1f - (score + 5f) / 10f,
                                 prefix = signedLabel(score),
@@ -654,6 +728,29 @@ private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, pa
                         style = Stroke(width = 5f, cap = StrokeCap.Round),
                     )
                 }
+                // Comparison overlay: the other location's curve, dashed and
+                // dimmer, so the rider sees at a glance whether the score
+                // improves or decays over there.
+                if (alt.size > 1) {
+                    val m = alt.size
+                    fun ax(i: Int) = i * w / (m - 1)
+                    for (p in 1 until m) {
+                        val seg = Path().apply {
+                            moveTo(ax(p - 1), y(alt[p - 1].b.score))
+                            lineTo(ax(p), y(alt[p].b.score))
+                        }
+                        drawPath(
+                            seg,
+                            color = colorFor((alt[p - 1].b.score + alt[p].b.score) / 2f)
+                                .copy(alpha = 0.55f),
+                            style = Stroke(
+                                width = 2.5f,
+                                cap = StrokeCap.Round,
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 9f)),
+                            ),
+                        )
+                    }
+                }
             }
 
             // Transition faces riding the curve; tap for the lingo tip.
@@ -725,6 +822,15 @@ private fun ScoreGraph(hours: List<ScoredHour>, windowHours: Int, ink: Color, pa
                 color = colorFor(hours.last().b.score),
                 modifier = Modifier.align(Alignment.BottomEnd),
             )
+            // The comparison curve's end score, dimmer, top-right.
+            if (alt.isNotEmpty()) {
+                Text(
+                    signedLabel(alt.last().b.score),
+                    fontSize = 9.sp,
+                    color = colorFor(alt.last().b.score).copy(alpha = 0.6f),
+                    modifier = Modifier.align(Alignment.TopEnd),
+                )
+            }
         }
 
         // Glyph strip: which factor bites, where along the timeline. Strided

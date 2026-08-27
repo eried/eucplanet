@@ -1683,6 +1683,8 @@
     <string name="weather_adv_clear">В этом окне опасностей нет.</string>
     <string name="weather_in_min">%1$d мин</string>
     <string name="weather_in_h">%1$d ч</string>
+    <string name="weather_src_current">Текущее</string>
+    <string name="weather_src_destination">Цель</string>
     <string name="weather_face_clear">Ясно - вперёд.</string>
     <string name="weather_face_meh">Ехать можно, но будь внимателен.</string>
     <string name="weather_face_rain">Мокрый асфальт - наклоняйся мягко, тормози раньше.</string>

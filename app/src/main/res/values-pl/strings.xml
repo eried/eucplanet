@@ -1696,6 +1696,8 @@
     <string name="weather_adv_clear">Brak zagrożeń w tym oknie.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d godz.</string>
+    <string name="weather_src_current">Bieżąca</string>
+    <string name="weather_src_destination">Cel</string>
     <string name="weather_face_clear">Czysto - jedź.</string>
     <string name="weather_face_meh">Da się jechać, ale uważaj.</string>
     <string name="weather_face_rain">Mokry asfalt - pochylaj delikatnie, hamuj wcześniej.</string>

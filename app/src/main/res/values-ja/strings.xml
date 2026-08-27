@@ -1680,6 +1680,8 @@
     <string name="weather_adv_clear">この時間帯に危険なし。</string>
     <string name="weather_in_min">%1$d分</string>
     <string name="weather_in_h">%1$d時間</string>
+    <string name="weather_src_current">現在地</string>
+    <string name="weather_src_destination">目的地</string>
     <string name="weather_face_clear">快晴 - 行こう。</string>
     <string name="weather_face_meh">走れるが油断禁物。</string>
     <string name="weather_face_rain">路面ウェット - 倒し込みは優しく、早めのブレーキ。</string>

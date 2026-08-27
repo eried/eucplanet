@@ -1683,6 +1683,8 @@
     <string name="weather_adv_clear">Sem perigos nesta janela.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Atual</string>
+    <string name="weather_src_destination">Destino</string>
     <string name="weather_face_clear">Céu limpo: manda ver.</string>
     <string name="weather_face_meh">Dá pra rodar, mas fica esperto.</string>
     <string name="weather_face_rain">Asfalto molhado: inclina suave, freia antes.</string>

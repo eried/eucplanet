@@ -2165,6 +2165,8 @@
     <string name="weather_adv_clear">No hazards in this window.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Current</string>
+    <string name="weather_src_destination">Destination</string>
     <string name="weather_face_clear">All clear - send it.</string>
     <string name="weather_face_meh">Rideable, not prime - stay sharp.</string>
     <string name="weather_face_rain">Wet tarmac - easy on the lean, brake early.</string>

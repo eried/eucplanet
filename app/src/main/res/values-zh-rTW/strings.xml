@@ -1680,6 +1680,8 @@
     <string name="weather_adv_clear">此時段無危險。</string>
     <string name="weather_in_min">%1$d分鐘</string>
     <string name="weather_in_h">%1$d小時</string>
+    <string name="weather_src_current">當前</string>
+    <string name="weather_src_destination">目的地</string>
     <string name="weather_face_clear">晴朗 - 衝。</string>
     <string name="weather_face_meh">能騎，但保持警覺。</string>
     <string name="weather_face_rain">路面濕滑 - 緩慢傾斜，提前煞車。</string>

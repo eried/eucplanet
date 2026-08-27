@@ -442,6 +442,10 @@ fun DashboardScreen(
     val weatherError by viewModel.weatherError.collectAsState()
     val weatherFetchedAt by viewModel.weatherFetchedAt.collectAsState()
     val weatherUnits by viewModel.weatherUnits.collectAsState()
+    val weatherUseDest by viewModel.weatherUseDest.collectAsState()
+    val weatherDestHours by viewModel.weatherDestHours.collectAsState()
+    val weatherDest by viewModel.weatherDest.collectAsState()
+    val weatherPlace by viewModel.weatherPlace.collectAsState()
     var showStudioMenu by remember { mutableStateOf(false) }
     var showGpsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
@@ -1303,6 +1307,23 @@ fun DashboardScreen(
                                             weatherWindowOverride = h
                                             showWeatherFlyout = true
                                             viewModel.refreshWeather()
+                                        }
+                                    )
+                                }
+                                if (weatherDest != null) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                stringResource(
+                                                    if (weatherUseDest) R.string.weather_src_current
+                                                    else R.string.weather_src_destination
+                                                )
+                                            )
+                                        },
+                                        onClick = {
+                                            showWeatherMenu = false
+                                            viewModel.toggleWeatherSource()
+                                            showWeatherFlyout = true
                                         }
                                     )
                                 }
@@ -3477,7 +3498,12 @@ fun DashboardScreen(
         ) {
             val winH = weatherWindowOverride ?: weatherSettings.windowHours
             val nowMs = System.currentTimeMillis()
-            val sliced = weatherHours.filter {
+            val baseHours = if (weatherUseDest) weatherDestHours else weatherHours
+            val altBase = if (weatherUseDest) weatherHours else emptyList()
+            val sliced = baseHours.filter {
+                it.timeMs >= nowMs - 3_600_000L && it.timeMs <= nowMs + winH * 3_600_000L
+            }
+            val slicedAlt = altBase.filter {
                 it.timeMs >= nowMs - 3_600_000L && it.timeMs <= nowMs + winH * 3_600_000L
             }
             // Light modal: the app darkens a touch behind the panel and a tap
@@ -3494,12 +3520,17 @@ fun DashboardScreen(
             ) {
                 WeatherFlyout(
                     hours = sliced,
+                    altHours = slicedAlt,
                     windowHours = winH,
                     tempF = weatherUnits.first,
                     windMph = weatherUnits.second,
                     refreshing = weatherRefreshing,
                     error = weatherError,
                     updatedAgoMin = weatherFetchedAt?.let { ((nowMs - it) / 60_000L).toInt() },
+                    place = weatherPlace,
+                    destName = weatherDest?.name,
+                    usingDest = weatherUseDest,
+                    onToggleSource = { viewModel.toggleWeatherSource() },
                     onRefresh = { viewModel.refreshWeather(force = true) },
                     modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                 )

@@ -1934,6 +1934,8 @@
     <string name="weather_adv_clear">Ei vaaroja tässä ikkunassa.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Nykyinen</string>
+    <string name="weather_src_destination">Määränpää</string>
     <string name="weather_face_clear">Selkeää - aja.</string>
     <string name="weather_face_meh">Ajettavissa, mutta tarkkana.</string>
     <string name="weather_face_rain">Märkä asfaltti - kallista pehmeästi, jarruta ajoissa.</string>

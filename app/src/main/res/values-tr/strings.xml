@@ -1680,6 +1680,8 @@
     <string name="weather_adv_clear">Bu aralıkta tehlike yok.</string>
     <string name="weather_in_min">%1$d dk</string>
     <string name="weather_in_h">%1$d sa</string>
+    <string name="weather_src_current">Mevcut</string>
+    <string name="weather_src_destination">Hedef</string>
     <string name="weather_face_clear">Açık - bas gitsin.</string>
     <string name="weather_face_meh">Sürülür ama dikkatli ol.</string>
     <string name="weather_face_rain">Islak asfalt - yumuşak yat, erken frenle.</string>

@@ -1679,6 +1679,8 @@
     <string name="weather_adv_clear">Inga faror i det här fönstret.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Nuvarande</string>
+    <string name="weather_src_destination">Destination</string>
     <string name="weather_face_clear">Klart - kör.</string>
     <string name="weather_face_meh">Körbart, men var skärpt.</string>
     <string name="weather_face_rain">Våt asfalt - luta mjukt, bromsa tidigt.</string>

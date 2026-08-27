@@ -877,6 +877,8 @@
     <string name="weather_adv_clear">Ingen farer i dette vinduet.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d t</string>
+    <string name="weather_src_current">Nåværende</string>
+    <string name="weather_src_destination">Destinasjon</string>
     <string name="weather_face_clear">Klart - kjør.</string>
     <string name="weather_face_meh">Kjørbart, men vær skjerpet.</string>
     <string name="weather_face_rain">Våt asfalt - len deg mykt, brems tidlig.</string>

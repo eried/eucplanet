@@ -1713,6 +1713,8 @@
     <string name="weather_adv_clear">Keine Gefahren in diesem Fenster.</string>
     <string name="weather_in_min">%1$d Min.</string>
     <string name="weather_in_h">%1$d Std.</string>
+    <string name="weather_src_current">Aktuell</string>
+    <string name="weather_src_destination">Ziel</string>
     <string name="weather_face_clear">Alles klar - gib ihm.</string>
     <string name="weather_face_meh">Fahrbar, aber wachsam bleiben.</string>
     <string name="weather_face_rain">Nasser Asphalt - sanft lehnen, früher bremsen.</string>

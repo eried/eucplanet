@@ -1715,6 +1715,8 @@
     <string name="weather_adv_clear">У цьому вікні небезпек немає.</string>
     <string name="weather_in_min">%1$d хв</string>
     <string name="weather_in_h">%1$d год</string>
+    <string name="weather_src_current">Поточне</string>
+    <string name="weather_src_destination">Ціль</string>
     <string name="weather_face_clear">Ясно - вперед.</string>
     <string name="weather_face_meh">Їхати можна, але пильнуй.</string>
     <string name="weather_face_rain">Мокрий асфальт - нахиляйся м’яко, гальмуй раніше.</string>

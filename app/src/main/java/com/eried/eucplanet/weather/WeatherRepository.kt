@@ -72,6 +72,11 @@ class WeatherRepository @Inject constructor() {
 
     private val mutex = Mutex()
 
+    /** Forecast at the navigator's destination, fetched on demand when the
+     *  rider flips the flyout's location chip. Same freshness rules. */
+    private val _destForecast = MutableStateFlow<WeatherForecast?>(null)
+    val destForecast: StateFlow<WeatherForecast?> = _destForecast.asStateFlow()
+
     suspend fun ensureFresh(lat: Double, lon: Double, source: WeatherSource, force: Boolean = false) {
         mutex.withLock {
             val cur = _forecast.value
@@ -90,6 +95,32 @@ class WeatherRepository @Inject constructor() {
                 }
                 _forecast.value = WeatherForecast(hours, System.currentTimeMillis(), lat, lon, source)
                 _error.value = null
+            } catch (t: Throwable) {
+                _error.value = t.message ?: t.javaClass.simpleName
+            } finally {
+                _refreshing.value = false
+            }
+        }
+    }
+
+    /** Like [ensureFresh], for the destination slot. */
+    suspend fun ensureFreshDest(lat: Double, lon: Double, source: WeatherSource, force: Boolean = false) {
+        mutex.withLock {
+            val cur = _destForecast.value
+            val fresh = cur != null &&
+                cur.source == source &&
+                System.currentTimeMillis() - cur.fetchedAtMs < FRESH_MS &&
+                abs(cur.lat - lat) < MOVE_DEG && abs(cur.lon - lon) < MOVE_DEG
+            if (fresh && !force) return
+            _refreshing.value = true
+            try {
+                val hours = withContext(Dispatchers.IO) {
+                    when (source) {
+                        WeatherSource.OPEN_METEO -> fetchOpenMeteo(lat, lon)
+                        WeatherSource.MET_NO -> fetchMetNo(lat, lon)
+                    }
+                }
+                _destForecast.value = WeatherForecast(hours, System.currentTimeMillis(), lat, lon, source)
             } catch (t: Throwable) {
                 _error.value = t.message ?: t.javaClass.simpleName
             } finally {

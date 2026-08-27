@@ -1680,6 +1680,8 @@
     <string name="weather_adv_clear">이 구간엔 위험 없음.</string>
     <string name="weather_in_min">%1$d분</string>
     <string name="weather_in_h">%1$d시간</string>
+    <string name="weather_src_current">현재</string>
+    <string name="weather_src_destination">목적지</string>
     <string name="weather_face_clear">맑음 - 달리자.</string>
     <string name="weather_face_meh">탈 만하지만 방심 금지.</string>
     <string name="weather_face_rain">노면 젖음 - 기울임은 부드럽게, 제동은 일찍.</string>

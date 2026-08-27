@@ -1934,6 +1934,8 @@
     <string name="weather_adv_clear">Niciun pericol în această fereastră.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Curentă</string>
+    <string name="weather_src_destination">Destinație</string>
     <string name="weather_face_clear">Senin - dă-i.</string>
     <string name="weather_face_meh">Se poate rula, dar fii atent.</string>
     <string name="weather_face_rain">Asfalt ud - înclină ușor, frânează devreme.</string>

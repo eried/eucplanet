@@ -186,9 +186,14 @@ class WeatherModuleTest {
         assertTrue(flyout.contains("WeatherPhrases.titleRes()"))
         assertTrue(flyout.contains("weather_face_snow"))
         assertTrue(flyout.contains("BiasAlignment"))
-        // Graph taps read out the signed score with an hour-stable phrase.
+        // Graph taps read out the signed score with an hour-stable phrase,
+        // and dragging follows the finger.
         assertTrue(flyout.contains("detectTapGestures"))
+        assertTrue(flyout.contains("detectHorizontalDragGestures"))
         assertTrue(flyout.contains("levelRes(levelBucket"))
+        // Destination comparison: the other location rides along dashed.
+        assertTrue(flyout.contains("altHours"))
+        assertTrue(flyout.contains("onToggleSource"))
     }
 
     @Test fun `the icon and flyout only exist when the module is enabled`() {
@@ -231,6 +236,7 @@ class WeatherModuleTest {
             "weather_adv_snow_now", "weather_adv_snow_in", "weather_adv_rain_now", "weather_adv_rain_in",
             "weather_adv_gusts", "weather_adv_freeze", "weather_adv_clear",
             "weather_in_min", "weather_in_h",
+            "weather_src_current", "weather_src_destination",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }

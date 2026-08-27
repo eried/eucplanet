@@ -1742,6 +1742,8 @@
     <string name="weather_adv_clear">Aucun danger sur cette fenêtre.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Actuel</string>
+    <string name="weather_src_destination">Destination</string>
     <string name="weather_face_clear">Dégagé : envoie.</string>
     <string name="weather_face_meh">Roulable, mais reste vif.</string>
     <string name="weather_face_rain">Bitume mouillé : incline doux, freine tôt.</string>

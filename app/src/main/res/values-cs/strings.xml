@@ -1934,6 +1934,8 @@
     <string name="weather_adv_clear">V tomto okně žádná rizika.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Aktuální</string>
+    <string name="weather_src_destination">Cíl</string>
     <string name="weather_face_clear">Jasno - jeď.</string>
     <string name="weather_face_meh">Dá se jet, ale pozor.</string>
     <string name="weather_face_rain">Mokrý asfalt - naklánět jemně, brzdit dřív.</string>

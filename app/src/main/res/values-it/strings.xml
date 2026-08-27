@@ -896,6 +896,8 @@
     <string name="weather_adv_clear">Nessun pericolo in questa finestra.</string>
     <string name="weather_in_min">%1$d min</string>
     <string name="weather_in_h">%1$d h</string>
+    <string name="weather_src_current">Attuale</string>
+    <string name="weather_src_destination">Destinazione</string>
     <string name="weather_face_clear">Sereno: vai.</string>
     <string name="weather_face_meh">Si può girare, ma occhio.</string>
     <string name="weather_face_rain">Asfalto bagnato: piega dolce, frena prima.</string>
