@@ -222,8 +222,9 @@ fun TripDetailScreen(
         val atFull = w.start <= 0.001f && w.endInclusive >= 0.999f
         if (atFull) {
             // Pinching outward while already showing the whole selection
-            // lifts the trim: zooming past full IS un-trimming.
-            if (netZoom < 0.97f) trimRange = null
+            // lifts the trim: zooming past full IS un-trimming. Deliberate
+            // only: a real outward pinch, not a wiggle that ends at full.
+            if (netZoom < 0.9f) trimRange = null
             return@commit
         }
         val span = (cur1 - cur0).coerceAtLeast(1L)
@@ -2639,6 +2640,10 @@ private fun ChartCard(
                             awaitFirstDown(requireUnconsumed = false)
                             var sawMulti = false
                             var netZoom = 1f
+                            // True once the window actually left the full view
+                            // during this gesture. A pinch that dips in and
+                            // comes back must never read as an un-trim.
+                            var leftFull = false
                             while (true) {
                                 val event = awaitPointerEvent()
                                 val pressed = event.changes.count { it.pressed }
@@ -2649,14 +2654,14 @@ private fun ChartCard(
                                     val pan = event.calculatePan()
                                     val centroid = event.calculateCentroid()
                                     if (zoom != 1f || pan.x != 0f) {
-                                        curOnWindow.value?.invoke(
-                                            ChartWindow.zoomPan(
-                                                curWindow.value,
-                                                zoom,
-                                                (centroid.x / size.width).coerceIn(0f, 1f),
-                                                pan.x / size.width,
-                                            )
+                                        val nw = ChartWindow.zoomPan(
+                                            curWindow.value,
+                                            zoom,
+                                            (centroid.x / size.width).coerceIn(0f, 1f),
+                                            pan.x / size.width,
                                         )
+                                        if (nw.start > 0.001f || nw.endInclusive < 0.999f) leftFull = true
+                                        curOnWindow.value?.invoke(nw)
                                     }
                                     event.changes.forEach { it.consume() }
                                 } else if (pressed == 0) {
@@ -2668,7 +2673,11 @@ private fun ChartCard(
                                     event.changes.forEach { it.consume() }
                                 }
                             }
-                            if (sawMulti) curOnCommit.value?.invoke(netZoom)
+                            // A gesture that zoomed in at any point can only
+                            // commit or cancel, never lift the trim: the lift
+                            // signal (netZoom) is passed only for a pure
+                            // outward pinch that stayed pinned at full.
+                            if (sawMulti) curOnCommit.value?.invoke(if (leftFull) 1f else netZoom)
                         }
                     }
             ) {
