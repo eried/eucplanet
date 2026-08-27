@@ -160,6 +160,10 @@ fun TripDetailScreen(
     var allPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     // Elapsed-ms window into the ride, null when the full trip is shown.
     var trimRange by remember { mutableStateOf<LongRange?>(null) }
+    // Live pinch window on the charts, fractions of the CURRENT trim. Only
+    // ever non-full while two fingers are down: releasing them commits the
+    // slice into trimRange below, because the trim IS this screen's zoom.
+    var chartWindow by remember(trip.id) { mutableStateOf(0f..1f) }
     // The exact-times dialog, now reached from the span in the trim bar rather
     // than straight off the funnel.
     var showTrim by remember { mutableStateOf(false) }
@@ -171,7 +175,8 @@ fun TripDetailScreen(
     // this screen can do on a long ride, and most trips are never trimmed. It is
     // computed the moment the rider opens the dialog or a trim is live, and not
     // before.
-    val needElapsed = showTrim || showTrimBar || trimRange != null
+    val needElapsed = showTrim || showTrimBar || trimRange != null ||
+        chartWindow.start > 0f || chartWindow.endInclusive < 1f
     // Sticky once computed: hiding the bar used to flip needElapsed off,
     // which dropped this table while the bar was still animating away - its
     // numbers visibly snapped to 0:00 mid-exit. Once the rider has paid for
@@ -187,6 +192,40 @@ fun TripDetailScreen(
         TripTrim.apply(allPoints, elapsedMs, trimRange)
     }
     val trimmed = trimRange != null
+
+    // The pinch-to-trim bridge. During the gesture the charts slice their
+    // drawing only (cheap, smooth); when the fingers lift, the slice becomes
+    // the real trim, so the tiles, map, header and trim bar all follow, once.
+    val onWindow: (ClosedFloatingPointRange<Float>) -> Unit = { chartWindow = it }
+    val onWindowCommit: (Float) -> Unit = commit@ { netZoom ->
+        val w = chartWindow
+        chartWindow = 0f..1f
+        val fullDur = if (elapsedMs.isEmpty()) 0L else elapsedMs.last()
+        if (fullDur <= 0L) return@commit
+        val cur0 = trimRange?.first ?: 0L
+        val cur1 = trimRange?.last ?: fullDur
+        val atFull = w.start <= 0.001f && w.endInclusive >= 0.999f
+        if (atFull) {
+            // Pinching outward while already showing the whole selection
+            // lifts the trim: zooming past full IS un-trimming.
+            if (netZoom < 0.97f) trimRange = null
+            return@commit
+        }
+        val span = (cur1 - cur0).coerceAtLeast(1L)
+        val newS = cur0 + (w.start * span).toLong()
+        val newE = cur0 + (w.endInclusive * span).toLong()
+        if (newS <= 0L && newE >= fullDur) {
+            trimRange = null
+            return@commit
+        }
+        // Never commit a slice too thin to chart; the pinch just snaps back.
+        if (TripTrim.countInRange(elapsedMs, newS..newE) < TripTrim.MIN_POINTS) return@commit
+        trimRange = newS..newE
+    }
+    val onResetView: () -> Unit = {
+        chartWindow = 0f..1f
+        trimRange = null
+    }
     var showShareDialog by remember { mutableStateOf(false) }
     // Trip Details customizer sheet (pencil in the top bar). Hoisted here so the
     // top bar action and the sheet body (rendered in the content) share it.
@@ -529,12 +568,6 @@ fun TripDetailScreen(
             // cursor on every other chart to the same sample.
             var scrubIndex by remember { mutableStateOf<Int?>(null) }
             val onScrub: (Int?) -> Unit = { scrubIndex = it }
-            // Shared zoom window across every chart: fractions of the (already
-            // trimmed) ride. Two fingers pinch or drag it on any chart,
-            // double-tap resets to the full ride. Keyed on the data so a new
-            // trim or trip starts zoomed out.
-            var chartWindow by remember(dataPoints) { mutableStateOf(0f..1f) }
-            val onWindow: (ClosedFloatingPointRange<Float>) -> Unit = { chartWindow = it }
 
             val gpsPoints = remember(dataPoints) {
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
@@ -929,23 +962,23 @@ fun TripDetailScreen(
                         dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
                         MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
                         overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("battery" to {
                     ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
                         MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("temp" to {
                     ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
                         dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
                         MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("voltage" to {
                     ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
                         MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 if (dataPoints.any { !it.current.isNaN() }) {
                     add("current" to {
@@ -953,7 +986,7 @@ fun TripDetailScreen(
                             dataPoints.map { it.current },
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if (dataPoints.any { !it.pwm.isNaN() }) {
@@ -961,7 +994,7 @@ fun TripDetailScreen(
                         ChartCard(stringResource(R.string.recording_chart_pwm),
                             dataPoints.map { it.pwm },
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 // Torque and phase amps ship OFF, opt-in via the customizer
@@ -975,7 +1008,7 @@ fun TripDetailScreen(
                             dataPoints.map { it.torque },
                             MaterialTheme.appColors.metricPosition, unitLabel = "Nm", minSpan = GraphScale.SPAN_TORQUE,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("phaseCurrent" in extraCharts && dataPoints.any { !it.phaseCurrent.isNaN() && it.phaseCurrent != 0f }) {
@@ -984,7 +1017,7 @@ fun TripDetailScreen(
                             dataPoints.map { it.phaseCurrent },
                             MaterialTheme.appColors.metricPosition, unitLabel = "A", minSpan = GraphScale.SPAN_PHASE_CURRENT,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 // Opt-in extras. Each renders only when the rider switched it on
@@ -995,7 +1028,7 @@ fun TripDetailScreen(
                         ChartCard(stringResource(R.string.recording_chart_battery_smooth),
                             Smoothing.movingAverage(dataPoints.map { it.battery.toFloat() }, smoothWindow),
                             MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("batteryEnvelope" in extraCharts && dataPoints.any { it.battery > 0 }) {
@@ -1017,7 +1050,7 @@ fun TripDetailScreen(
                         ChartCard(stringResource(R.string.recording_chart_battery_envelope),
                             env,
                             MaterialTheme.appColors.chartEnvelope, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("speedSmooth" in extraCharts) {
@@ -1028,7 +1061,7 @@ fun TripDetailScreen(
                                 smoothWindow
                             ),
                             MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("currentSmooth" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
@@ -1037,7 +1070,7 @@ fun TripDetailScreen(
                             Smoothing.movingAverage(dataPoints.map { it.current }, smoothWindow),
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("pwmSmooth" in extraCharts && dataPoints.any { !it.pwm.isNaN() }) {
@@ -1045,7 +1078,7 @@ fun TripDetailScreen(
                         ChartCard(stringResource(R.string.recording_chart_pwm_smooth),
                             Smoothing.movingAverage(dataPoints.map { it.pwm }, smoothWindow),
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("power" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
@@ -1056,7 +1089,7 @@ fun TripDetailScreen(
                             dataPoints.map { if (it.current.isNaN()) Float.NaN else it.voltage * it.current },
                             MaterialTheme.appColors.statusDanger, unitLabel = "W", minSpan = 100f,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("altitude" in extraCharts && dataPoints.any { it.altitude != 0f }) {
@@ -1064,7 +1097,7 @@ fun TripDetailScreen(
                         ChartCard(stringResource(R.string.recording_chart_altitude),
                             dataPoints.map { it.altitude },
                             MaterialTheme.appColors.metricPosition, unitLabel = "m", minSpan = 20f,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
             }
@@ -2428,6 +2461,10 @@ private fun ChartCard(
     // pinch/pan reports through [onWindow]; the default renders the full ride.
     window: ClosedFloatingPointRange<Float> = 0f..1f,
     onWindow: ((ClosedFloatingPointRange<Float>) -> Unit)? = null,
+    // Fired when the two-finger gesture ends, with the net zoom factor, so
+    // the screen can commit the slice into the real trim.
+    onWindowCommit: ((Float) -> Unit)? = null,
+    onResetView: (() -> Unit)? = null,
 ) {
     if (values.isEmpty()) return
 
@@ -2538,7 +2575,9 @@ private fun ChartCard(
                     }
                     .pointerInput(Unit) {
                         // Double-tap zooms back out to the full ride.
-                        detectTapGestures(onDoubleTap = { onWindow?.invoke(0f..1f) })
+                        detectTapGestures(onDoubleTap = {
+                            onResetView?.invoke() ?: onWindow?.invoke(0f..1f)
+                        })
                     }
                     .pointerInput(Unit) {
                         // Two fingers zoom and pan the shared window. One finger
@@ -2547,12 +2586,14 @@ private fun ChartCard(
                         awaitEachGesture {
                             awaitFirstDown(requireUnconsumed = false)
                             var sawMulti = false
+                            var netZoom = 1f
                             while (true) {
                                 val event = awaitPointerEvent()
                                 val pressed = event.changes.count { it.pressed }
                                 if (pressed >= 2 && onWindow != null) {
                                     sawMulti = true
                                     val zoom = event.calculateZoom()
+                                    netZoom *= zoom
                                     val pan = event.calculatePan()
                                     val centroid = event.calculateCentroid()
                                     if (zoom != 1f || pan.x != 0f) {
@@ -2575,6 +2616,7 @@ private fun ChartCard(
                                     event.changes.forEach { it.consume() }
                                 }
                             }
+                            if (sawMulti) onWindowCommit?.invoke(netZoom)
                         }
                     }
             ) {
