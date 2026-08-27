@@ -114,6 +114,7 @@ class WeatherRepository @Inject constructor() {
         val url = "https://api.open-meteo.com/v1/forecast" +
             "?latitude=%.4f&longitude=%.4f".format(Locale.US, lat, lon) +
             "&hourly=temperature_2m,precipitation,snowfall,wind_speed_10m,is_day" +
+            ",relative_humidity_2m,wind_gusts_10m" +
             "&wind_speed_unit=ms&timeformat=unixtime&forecast_days=8"
         return parseOpenMeteo(get(url))
     }
@@ -126,6 +127,9 @@ class WeatherRepository @Inject constructor() {
         val snow = hourly.getJSONArray("snowfall")
         val wind = hourly.getJSONArray("wind_speed_10m")
         val isDay = hourly.getJSONArray("is_day")
+        // Optional in older canned payloads; the detail charts read them.
+        val hum = hourly.optJSONArray("relative_humidity_2m")
+        val gust = hourly.optJSONArray("wind_gusts_10m")
         return (0 until time.length()).map { i ->
             // Snowfall arrives in cm and is also counted inside "precipitation"
             // as melted water; subtract so rain is liquid rain alone.
@@ -139,6 +143,9 @@ class WeatherRepository @Inject constructor() {
                 snowCmH = snowCm,
                 windMs = wind.optDouble(i, 0.0).toFloat(),
                 isDay = isDay.optInt(i, 1) == 1,
+                humidityPct = hum?.optDouble(i, 0.0)?.toFloat() ?: 0f,
+                gustMs = (gust?.optDouble(i, 0.0)?.toFloat() ?: 0f)
+                    .coerceAtLeast(wind.optDouble(i, 0.0).toFloat()),
             )
         }
     }
@@ -176,6 +183,9 @@ class WeatherRepository @Inject constructor() {
                     snowCmH = if (isSnow) amount.toFloat() else 0f,
                     windMs = details.optDouble("wind_speed", 0.0).toFloat(),
                     isDay = !symbol.contains("_night"),
+                    humidityPct = details.optDouble("relative_humidity", 0.0).toFloat(),
+                    gustMs = details.optDouble("wind_speed_of_gust", 0.0).toFloat()
+                        .coerceAtLeast(details.optDouble("wind_speed", 0.0).toFloat()),
                 )
             )
         }

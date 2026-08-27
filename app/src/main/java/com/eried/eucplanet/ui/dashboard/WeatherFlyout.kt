@@ -3,6 +3,7 @@ package com.eried.eucplanet.ui.dashboard
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.CircularProgressIndicator
@@ -59,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.weather.HourForecast
 import com.eried.eucplanet.weather.RidabilityScore
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -66,8 +70,13 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-/** One scored forecast hour, ready for the flyout graph. */
-data class ScoredHour(val timeMs: Long, val b: RidabilityScore.Breakdown)
+/** One scored forecast hour, ready for the flyout graph. [h] carries the raw
+ *  forecast values the expanded detail charts draw. */
+data class ScoredHour(
+    val timeMs: Long,
+    val b: RidabilityScore.Breakdown,
+    val h: HourForecast = HourForecast(timeMs, 0f, 0f, 0f, 0f, true),
+)
 
 /**
  * The rotating phrases: a "should I ride" title and one flavour line per
@@ -135,6 +144,8 @@ private fun windowDivisions(windowHours: Int): Int = if (windowHours > 72) 7 els
 fun WeatherFlyout(
     hours: List<ScoredHour>,
     windowHours: Int,
+    tempF: Boolean,
+    windMph: Boolean,
     refreshing: Boolean,
     error: String?,
     updatedAgoMin: Int?,
@@ -146,6 +157,7 @@ fun WeatherFlyout(
     val panel = MaterialTheme.appColors.navPopupPanel
     val ink = MaterialTheme.appColors.navPopupInk
     val titleRes = remember { WeatherPhrases.titleRes() }
+    var expanded by remember { mutableStateOf(false) }
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -206,6 +218,14 @@ fun WeatherFlyout(
                         )
                     }
                 }
+                IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = stringResource(R.string.weather_expand),
+                        tint = ink.copy(alpha = 0.6f),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
 
             when {
@@ -223,6 +243,185 @@ fun WeatherFlyout(
                 )
                 else -> ScoreGraph(hours, windowHours, ink, panel)
             }
+
+            // The expanded condition charts plus the generated advisories,
+            // growing the panel downward.
+            androidx.compose.animation.AnimatedVisibility(
+                visible = expanded && hours.isNotEmpty(),
+                enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut(),
+            ) {
+                DetailSection(hours, tempF, windMph, ink)
+            }
+        }
+    }
+}
+
+/** One line series inside a detail chart, self-normalized to its own range. */
+private data class ChartSeries(
+    val values: List<Float>,
+    val color: Color,
+    val dashed: Boolean = false,
+)
+
+/**
+ * The expanded weather-app view: temp+humidity, precipitation, and
+ * wind+gusts as small scrubbable charts sharing one finger-followed cursor
+ * (numbers update live, like the trip detail charts), plus a few generated
+ * advisory lines for the window.
+ */
+@Composable
+private fun DetailSection(
+    hours: List<ScoredHour>,
+    tempF: Boolean,
+    windMph: Boolean,
+    ink: Color,
+) {
+    var scrub by remember(hours) { mutableStateOf<Float?>(null) }
+    val idx = ((hours.size - 1) * (scrub ?: 0f)).roundToInt().coerceIn(0, hours.size - 1)
+    val h = hours[idx].h
+    fun t(c: Float) = if (tempF) c * 9f / 5f + 32f else c
+    fun w(ms: Float) = if (windMph) ms * 2.23694f else ms
+    val tUnit = if (tempF) "°F" else "°C"
+    val wUnit = if (windMph) "mph" else "m/s"
+    val fmtTime = remember { SimpleDateFormat("EEE HH:mm", Locale.getDefault()) }
+    val onScrub: (Float) -> Unit = { scrub = it }
+
+    Column(Modifier.padding(top = 6.dp)) {
+        // The scrubbed moment, once for all three charts.
+        Text(
+            fmtTime.format(Date(hours[idx].timeMs)),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = ink.copy(alpha = 0.75f),
+        )
+        DetailChart(
+            label = stringResource(R.string.weather_chart_temp),
+            value = "%.1f%s · %.0f%%".format(t(h.tempC), tUnit, h.humidityPct),
+            series = listOf(
+                ChartSeries(hours.map { it.h.tempC }, MaterialTheme.appColors.metricTemp),
+                ChartSeries(hours.map { it.h.humidityPct }, MaterialTheme.appColors.chartEnvelope, dashed = true),
+            ),
+            ink = ink, scrub = scrub, onScrub = onScrub,
+        )
+        DetailChart(
+            label = stringResource(R.string.weather_chart_precip),
+            value = if (h.snowCmH > 0f) "%.1f cm/h".format(h.snowCmH)
+            else "%.1f mm/h".format(h.precipMmH),
+            series = listOf(
+                ChartSeries(hours.map { it.h.precipMmH }, MaterialTheme.appColors.chartEnvelope),
+                ChartSeries(hours.map { it.h.snowCmH }, ink.copy(alpha = 0.8f), dashed = true),
+            ),
+            ink = ink, scrub = scrub, onScrub = onScrub,
+        )
+        DetailChart(
+            label = stringResource(R.string.weather_chart_wind),
+            value = "%.1f / %.1f %s".format(w(h.windMs), w(h.gustMs), wUnit),
+            series = listOf(
+                ChartSeries(hours.map { it.h.windMs }, MaterialTheme.appColors.metricPosition),
+                ChartSeries(hours.map { it.h.gustMs }, MaterialTheme.appColors.metricPosition, dashed = true),
+            ),
+            ink = ink, scrub = scrub, onScrub = onScrub,
+        )
+
+        // Simple generated advisories: what starts when, what to watch for.
+        val nowRef = hours.first().timeMs
+        val snowIdx = hours.indexOfFirst { it.h.snowCmH > 0f }
+        val rainIdx = hours.indexOfFirst { it.h.snowCmH <= 0f && it.h.precipMmH > 0f }
+        val strongGusts = hours.any { it.h.gustMs >= 9f }
+        val nearFreeze = hours.any { it.h.tempC <= 1f }
+
+        @Composable
+        fun lead(i: Int): String {
+            val min = ((hours[i].timeMs - nowRef) / 60_000L).toInt().coerceAtLeast(1)
+            return if (min < 90) stringResource(R.string.weather_in_min, min)
+            else stringResource(R.string.weather_in_h, (min + 30) / 60)
+        }
+
+        val lines = mutableListOf<String>()
+        when {
+            snowIdx == 0 -> lines += stringResource(R.string.weather_adv_snow_now)
+            snowIdx > 0 -> lines += stringResource(R.string.weather_adv_snow_in, lead(snowIdx))
+        }
+        when {
+            rainIdx == 0 -> lines += stringResource(R.string.weather_adv_rain_now)
+            rainIdx > 0 -> lines += stringResource(R.string.weather_adv_rain_in, lead(rainIdx))
+        }
+        if (strongGusts) lines += stringResource(R.string.weather_adv_gusts)
+        if (nearFreeze) lines += stringResource(R.string.weather_adv_freeze)
+        if (lines.isEmpty()) lines += stringResource(R.string.weather_adv_clear)
+
+        Column(Modifier.padding(top = 6.dp)) {
+            lines.take(3).forEach {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = ink.copy(alpha = 0.8f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailChart(
+    label: String,
+    value: String,
+    series: List<ChartSeries>,
+    ink: Color,
+    scrub: Float?,
+    onScrub: (Float) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+    ) {
+        Text(label, fontSize = 10.sp, color = ink.copy(alpha = 0.6f))
+        Spacer(Modifier.weight(1f))
+        Text(
+            value,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = ink.copy(alpha = 0.85f),
+        )
+    }
+    Canvas(
+        Modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            // Finger-follow scrub, plus tap-to-place; the cursor is shared by
+            // all three charts so one drag reads the whole moment.
+            .pointerInput(series) {
+                detectHorizontalDragGestures { change, _ ->
+                    onScrub((change.position.x / size.width).coerceIn(0f, 1f))
+                }
+            }
+            .pointerInput(series) {
+                detectTapGestures { off -> onScrub((off.x / size.width).coerceIn(0f, 1f)) }
+            }
+    ) {
+        val w = size.width
+        val hgt = size.height
+        series.forEach { s ->
+            if (s.values.isEmpty()) return@forEach
+            val minV = s.values.min()
+            val span = (s.values.max() - minV).coerceAtLeast(0.1f)
+            val n = s.values.size
+            val p = Path()
+            for (i in 0 until n) {
+                val x = if (n <= 1) 0f else i * w / (n - 1)
+                val y = hgt - 3f - (s.values[i] - minV) / span * (hgt - 6f)
+                if (i == 0) p.moveTo(x, y) else p.lineTo(x, y)
+            }
+            drawPath(
+                p,
+                color = s.color,
+                style = Stroke(
+                    width = 3f,
+                    cap = StrokeCap.Round,
+                    pathEffect = if (s.dashed) PathEffect.dashPathEffect(floatArrayOf(8f, 6f)) else null,
+                ),
+            )
+        }
+        drawLine(ink.copy(alpha = 0.12f), Offset(0f, hgt - 1f), Offset(w, hgt - 1f), strokeWidth = 1f)
+        scrub?.let { f ->
+            drawLine(ink.copy(alpha = 0.5f), Offset(w * f, 0f), Offset(w * f, hgt), strokeWidth = 2f)
         }
     }
 }

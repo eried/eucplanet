@@ -17,6 +17,10 @@ data class HourForecast(
     /** Wind speed, m/s. */
     val windMs: Float,
     val isDay: Boolean,
+    /** Relative humidity, percent. 0 when the provider omits it. */
+    val humidityPct: Float = 0f,
+    /** Wind gust speed, m/s. 0 when the provider omits it. */
+    val gustMs: Float = 0f,
 )
 
 /**

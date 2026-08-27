@@ -101,6 +101,8 @@ class WeatherModuleTest {
               "precipitation":[0.0,1.2],
               "snowfall":[0.0,0.0],
               "wind_speed_10m":[1.2,5.0],
+              "relative_humidity_2m":[55,80],
+              "wind_gusts_10m":[2.0,9.5],
               "is_day":[1,0]}}
         """.trimIndent()
         val hours = WeatherRepository().parseOpenMeteo(body)
@@ -110,13 +112,17 @@ class WeatherModuleTest {
         assertTrue(hours[0].isDay)
         assertEquals(1.2f, hours[1].precipMmH, 0.001f)
         assertTrue(!hours[1].isDay)
+        // The detail-chart fields ride along.
+        assertEquals(55f, hours[0].humidityPct, 0.001f)
+        assertEquals(9.5f, hours[1].gustMs, 0.001f)
     }
 
     @Test fun `met norway parses its hourly entries and flags snow and night`() {
         val body = """
             {"properties":{"timeseries":[
               {"time":"2026-08-27T10:00:00Z","data":{
-                "instant":{"details":{"air_temperature":18.0,"wind_speed":3.0}},
+                "instant":{"details":{"air_temperature":18.0,"wind_speed":3.0,
+                                      "relative_humidity":71.0,"wind_speed_of_gust":6.2}},
                 "next_1_hours":{"summary":{"symbol_code":"lightrain"},
                                 "details":{"precipitation_amount":0.4}}}},
               {"time":"2026-08-27T22:00:00Z","data":{
@@ -135,6 +141,10 @@ class WeatherModuleTest {
         assertEquals(1.5f, hours[1].snowCmH, 0.001f)
         assertEquals(0f, hours[1].precipMmH, 0.001f)
         assertTrue(!hours[1].isDay)
+        assertEquals(71f, hours[0].humidityPct, 0.001f)
+        assertEquals(6.2f, hours[0].gustMs, 0.001f)
+        // No gust field on the second entry: falls back to the wind speed.
+        assertEquals(1f, hours[1].gustMs, 0.001f)
     }
 
     // --- Settings & registry ------------------------------------------------
@@ -217,6 +227,10 @@ class WeatherModuleTest {
             "weather_lvl_ok_1", "weather_lvl_ok_2",
             "weather_lvl_good_1", "weather_lvl_good_2",
             "weather_lvl_prime_1", "weather_lvl_prime_2",
+            "weather_expand", "weather_chart_temp", "weather_chart_precip", "weather_chart_wind",
+            "weather_adv_snow_now", "weather_adv_snow_in", "weather_adv_rain_now", "weather_adv_rain_in",
+            "weather_adv_gusts", "weather_adv_freeze", "weather_adv_clear",
+            "weather_in_min", "weather_in_h",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }

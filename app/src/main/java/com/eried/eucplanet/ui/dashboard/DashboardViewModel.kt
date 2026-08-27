@@ -97,6 +97,12 @@ class DashboardViewModel @Inject constructor(
         .map { it?.fetchedAtMs }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** Display units for the flyout detail charts: Fahrenheit?, mph? */
+    val weatherUnits: StateFlow<Pair<Boolean, Boolean>> =
+        settingsRepository.settings
+            .map { (it.unitTemp == "F") to (it.unitSpeed == "mph") }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false to false)
+
     /** The cached forecast week, scored with the rider's comfort thresholds.
      *  The flyout slices this per window, so switching windows never fetches. */
     val weatherHours: StateFlow<List<ScoredHour>> =
@@ -110,7 +116,8 @@ class DashboardViewModel @Inject constructor(
                         hotC = w.hotC.toFloat(),
                         breezyMs = w.breezyTenthsMs / 10f,
                         windyMs = w.windyTenthsMs / 10f,
-                    )
+                    ),
+                    h,
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

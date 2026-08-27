@@ -441,6 +441,7 @@ fun DashboardScreen(
     val weatherRefreshing by viewModel.weatherRefreshing.collectAsState()
     val weatherError by viewModel.weatherError.collectAsState()
     val weatherFetchedAt by viewModel.weatherFetchedAt.collectAsState()
+    val weatherUnits by viewModel.weatherUnits.collectAsState()
     var showStudioMenu by remember { mutableStateOf(false) }
     var showGpsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
@@ -3494,6 +3495,8 @@ fun DashboardScreen(
                 WeatherFlyout(
                     hours = sliced,
                     windowHours = winH,
+                    tempF = weatherUnits.first,
+                    windMph = weatherUnits.second,
                     refreshing = weatherRefreshing,
                     error = weatherError,
                     updatedAgoMin = weatherFetchedAt?.let { ((nowMs - it) / 60_000L).toInt() },
