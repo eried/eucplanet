@@ -1664,14 +1664,6 @@
     <string name="weather_breezy">Wietrznie powyżej</string>
     <string name="weather_windy">Zbyt wietrznie powyżej</string>
     <string name="weather_source_credit">Dane z Open-Meteo.com lub MET Norway, pobierane tylko gdy włączone.</string>
-    <string name="weather_face_clear">Czysto - jedź.</string>
-    <string name="weather_face_meh">Da się jechać, ale uważaj.</string>
-    <string name="weather_face_rain">Mokry asfalt - pochylaj delikatnie, hamuj wcześniej.</string>
-    <string name="weather_face_snow">Śnieg lub plucha - brak przyczepności, lepiej prowadzić.</string>
-    <string name="weather_face_wind">Porywy - luźne ciało, spodziewaj się szarpnięć.</string>
-    <string name="weather_face_night">Noc - światła i wolniej.</string>
-    <string name="weather_face_cold">Zimno - twarda opona, słabsza bateria, ubierz się.</string>
-    <string name="weather_face_hot">Gorąco - pilnuj kontrolera na podjazdach.</string>
     <string name="nav_setting_full_path">Zawsze wyznaczaj całą trasę</string>
     <string name="nav_setting_full_path_desc">Wyłączone, wyznacza tylko następny przystanek, resztę pokazuje jako przerywany podgląd</string>
     <string name="nav_setting_endpoints">Usługi wyznaczania trasy</string>

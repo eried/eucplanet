@@ -2133,14 +2133,6 @@
     <string name="weather_breezy">Breezy above</string>
     <string name="weather_windy">Too windy above</string>
     <string name="weather_source_credit">Forecast data by Open-Meteo.com or MET Norway, fetched only while enabled.</string>
-    <string name="weather_face_clear">All clear - send it.</string>
-    <string name="weather_face_meh">Rideable, not prime - stay sharp.</string>
-    <string name="weather_face_rain">Wet tarmac - easy on the lean, brake early.</string>
-    <string name="weather_face_snow">Snow or sleet - grip is gone, better walk it.</string>
-    <string name="weather_face_wind">Gusty - loosen up, expect shoves.</string>
-    <string name="weather_face_night">Dark - lights on, back off the top end.</string>
-    <string name="weather_face_cold">Cold - stiff tire, sagging pack, dress up.</string>
-    <string name="weather_face_hot">Hot - watch controller temps on long climbs.</string>
     <string name="nav_setting_advanced_map">Advanced map features</string>
     <string name="nav_setting_advanced_map_desc">Show chargers and places along the route</string>
     <string name="nav_setting_full_path">Always solve the full path</string>

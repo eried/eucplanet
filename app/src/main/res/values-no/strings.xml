@@ -845,14 +845,6 @@
     <string name="weather_breezy">Vind over</string>
     <string name="weather_windy">For mye vind over</string>
     <string name="weather_source_credit">Data fra Open-Meteo.com eller MET Norway, kun mens aktivert.</string>
-    <string name="weather_face_clear">Klart - kjør.</string>
-    <string name="weather_face_meh">Kjørbart, men vær skjerpet.</string>
-    <string name="weather_face_rain">Våt asfalt - len deg mykt, brems tidlig.</string>
-    <string name="weather_face_snow">Snø eller sludd - null grep, gå heller.</string>
-    <string name="weather_face_wind">Vindkast - vær løs, vent dytt.</string>
-    <string name="weather_face_night">Mørkt - lys på, ro ned.</string>
-    <string name="weather_face_cold">Kaldt - stivt dekk, svakt batteri, kle deg godt.</string>
-    <string name="weather_face_hot">Varmt - følg med på kontrolleren i bakker.</string>
     <string name="nav_setting_router_url">Rute-URL</string>
     <string name="nav_setting_voice">Stemmeveiledning</string>
     <string name="nav_start_riding">Begynn å kjøre</string>

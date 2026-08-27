@@ -92,6 +92,10 @@ data class AppThemeColors(
     val hint: Color = Color.Unspecified,
     /** Battery envelope trip graph: distinct from the raw battery line. */
     val chartEnvelope: Color = Color.Unspecified,
+    /** Ridability forecast: the good end of the score scale (light blue). */
+    val weatherGood: Color = Color.Unspecified,
+    /** Ridability forecast: the bad end of the score scale (magenta). */
+    val weatherBad: Color = Color.Unspecified,
     val tileLabel: Color = Color.Unspecified,
     // Small MIN/MAX/AVG stat caption on metric tiles. Its own token so it can be
     // recolored (e.g. pure black) without dragging every other piece of
@@ -156,6 +160,8 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     link = link.takeOrElse { primary },
     hint = hint.takeOrElse { textSecondary },
     chartEnvelope = chartEnvelope.takeOrElse { Color(0xFF40C4FF) },
+    weatherGood = weatherGood.takeOrElse { Color(0xFF40C4FF) },
+    weatherBad = weatherBad.takeOrElse { Color(0xFFE040FB) },
     tileLabel = tileLabel.takeOrElse { textSecondary },
     cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
     dashIcon = dashIcon.takeOrElse { statusGood },
@@ -316,6 +322,8 @@ object ThemeTokens {
         ThemeTokenSpec("metricPosition", "Position", GROUP_METRIC, { it.metricPosition }, { c, v -> c.copy(metricPosition = v) }),
         ThemeTokenSpec("metricAccel", "Acceleration", GROUP_METRIC, { it.metricAccel }, { c, v -> c.copy(metricAccel = v) }),
         ThemeTokenSpec("chartEnvelope", "Battery envelope", GROUP_METRIC, { it.chartEnvelope }, { c, v -> c.copy(chartEnvelope = v) }),
+        ThemeTokenSpec("weatherGood", "Ridability good", GROUP_METRIC, { it.weatherGood }, { c, v -> c.copy(weatherGood = v) }),
+        ThemeTokenSpec("weatherBad", "Ridability bad", GROUP_METRIC, { it.weatherBad }, { c, v -> c.copy(weatherBad = v) }),
 
         ThemeTokenSpec("gaugeTrack", "Gauge track", GROUP_GAUGE, { it.gaugeTrack }, { c, v -> c.copy(gaugeTrack = v) }),
         ThemeTokenSpec("gaugeFill", "Gauge fill", GROUP_GAUGE, { it.gaugeFill }, { c, v -> c.copy(gaugeFill = v) }),

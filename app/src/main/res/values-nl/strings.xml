@@ -1706,14 +1706,6 @@
     <string name="weather_breezy">Winderig boven</string>
     <string name="weather_windy">Te winderig boven</string>
     <string name="weather_source_credit">Data van Open-Meteo.com of MET Norway, alleen opgehaald indien actief.</string>
-    <string name="weather_face_clear">Helder - gassen.</string>
-    <string name="weather_face_meh">Rijdbaar, maar blijf scherp.</string>
-    <string name="weather_face_rain">Nat wegdek - zacht leunen, eerder remmen.</string>
-    <string name="weather_face_snow">Sneeuw of ijzel - geen grip, beter lopen.</string>
-    <string name="weather_face_wind">Vlagerig - blijf los, verwacht duwen.</string>
-    <string name="weather_face_night">Donker - licht aan, rustiger aan.</string>
-    <string name="weather_face_cold">Koud - stugge band, zwakke accu, kleed je warm.</string>
-    <string name="weather_face_hot">Heet - let op de controller bij klimmen.</string>
     <string name="nav_setting_full_path">Altijd de hele route berekenen</string>
     <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview</string>
     <string name="nav_setting_endpoints">Routeringsservices</string>

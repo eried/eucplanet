@@ -1902,14 +1902,6 @@
     <string name="weather_breezy">Tuulista yli</string>
     <string name="weather_windy">Liian tuulista yli</string>
     <string name="weather_source_credit">Tiedot Open-Meteo.com tai MET Norway, haetaan vain kun käytössä.</string>
-    <string name="weather_face_clear">Selkeää - aja.</string>
-    <string name="weather_face_meh">Ajettavissa, mutta tarkkana.</string>
-    <string name="weather_face_rain">Märkä asfaltti - kallista pehmeästi, jarruta ajoissa.</string>
-    <string name="weather_face_snow">Lunta tai räntää - ei pitoa, parempi taluttaa.</string>
-    <string name="weather_face_wind">Puuskaista - pysy rentona, odota tönäisyjä.</string>
-    <string name="weather_face_night">Pimeää - valot päälle, hidasta.</string>
-    <string name="weather_face_cold">Kylmää - jäykkä rengas, akku laskee, pukeudu.</string>
-    <string name="weather_face_hot">Kuumaa - tarkkaile ohjainta nousuissa.</string>
     <string name="nav_setting_advanced_map">Kartan lisäominaisuudet</string>
     <string name="nav_setting_advanced_map_desc">Näytä laturit ja paikat reitin varrella</string>
     <string name="nav_setting_full_path">Ratkaise aina koko reitti</string>

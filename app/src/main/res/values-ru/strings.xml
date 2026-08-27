@@ -1651,14 +1651,6 @@
     <string name="weather_breezy">Ветрено выше</string>
     <string name="weather_windy">Слишком ветрено выше</string>
     <string name="weather_source_credit">Данные Open-Meteo.com или MET Norway, только пока включено.</string>
-    <string name="weather_face_clear">Ясно - вперёд.</string>
-    <string name="weather_face_meh">Ехать можно, но будь внимателен.</string>
-    <string name="weather_face_rain">Мокрый асфальт - наклоняйся мягко, тормози раньше.</string>
-    <string name="weather_face_snow">Снег или слякоть - сцепления нет, лучше пешком.</string>
-    <string name="weather_face_wind">Порывы - расслабься, жди толчков.</string>
-    <string name="weather_face_night">Темно - свет и потише.</string>
-    <string name="weather_face_cold">Холод - жёсткая шина, батарея проседает, утепляйся.</string>
-    <string name="weather_face_hot">Жара - следи за контроллером на подъёмах.</string>
     <string name="nav_setting_full_path">Всегда строить полный маршрут</string>
     <string name="nav_setting_full_path_desc">Выкл, строит только следующую остановку, остальное показывает пунктирным предпросмотром</string>
     <string name="nav_setting_endpoints">Сервисы маршрутизации</string>

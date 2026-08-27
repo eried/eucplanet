@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.AcUnit
@@ -19,12 +19,11 @@ import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +40,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -54,16 +54,19 @@ import com.eried.eucplanet.weather.RidabilityScore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 /** One scored forecast hour, ready for the flyout graph. */
 data class ScoredHour(val timeMs: Long, val b: RidabilityScore.Breakdown)
 
 /**
- * The thin forecast strip over the dashboard: the ridability score 0-10
- * across the chosen window as a gradient-filled curve, rain and snow bands
- * behind it, transition faces the rider can tap for a one-line read in EUC
- * lingo, a glyph strip naming which factor bites when, and sparse time
- * ticks. Built as a quick "is it good to go ride" glance.
+ * The thin forecast strip over the dashboard, styled like the navigation
+ * popup: an inverse rounded panel that stands out from the app background.
+ * The ridability score runs -5 to +5 around a neutral centre line, drawn as
+ * a curve blending light blue (good) to magenta (bad), with rain and snow
+ * bands behind it, transition faces on the curve, a glyph strip naming which
+ * factor bites when, and sparse time ticks. A quick "is it good to go ride"
+ * glance.
  */
 @Composable
 fun WeatherFlyout(
@@ -76,16 +79,24 @@ fun WeatherFlyout(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
+    // Same family as the navigation popup: the inverse of the app background
+    // so it stands out, rounded, with a real shadow.
+    val panel = MaterialTheme.appColors.navPopupPanel
+    val ink = MaterialTheme.appColors.navPopupInk
+    Surface(
         modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.appColors.sheetBackground),
+        shape = RoundedCornerShape(12.dp),
+        color = panel,
+        contentColor = ink,
+        tonalElevation = 0.dp,
+        shadowElevation = 10.dp,
     ) {
-        Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     windowLabel,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.appColors.textPrimary,
+                    color = ink,
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
@@ -95,21 +106,21 @@ fun WeatherFlyout(
                         else -> ""
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
+                    color = ink.copy(alpha = 0.6f),
                 )
                 Spacer(Modifier.weight(1f))
                 if (refreshing) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
                         strokeWidth = 2.dp,
-                        color = MaterialTheme.appColors.primary,
+                        color = ink,
                     )
                 } else {
                     IconButton(onClick = onRefresh, modifier = Modifier.size(28.dp)) {
                         Icon(
                             Icons.Default.Refresh,
                             contentDescription = stringResource(R.string.weather_refresh),
-                            tint = MaterialTheme.appColors.textSecondary,
+                            tint = ink.copy(alpha = 0.6f),
                             modifier = Modifier.size(18.dp),
                         )
                     }
@@ -118,7 +129,7 @@ fun WeatherFlyout(
                     Icon(
                         Icons.Default.Close,
                         contentDescription = stringResource(R.string.action_close),
-                        tint = MaterialTheme.appColors.textSecondary,
+                        tint = ink.copy(alpha = 0.6f),
                         modifier = Modifier.size(18.dp),
                     )
                 }
@@ -134,56 +145,59 @@ fun WeatherFlyout(
                 hours.isEmpty() -> Text(
                     stringResource(R.string.weather_fetching),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
+                    color = ink.copy(alpha = 0.6f),
                     modifier = Modifier.padding(vertical = 10.dp),
                 )
-                else -> ScoreGraph(hours)
+                else -> ScoreGraph(hours, ink)
             }
         }
     }
 }
 
-/** A face pinned to the curve: where, which emoji, and the lingo line a tap
- *  reveals. Faces sit at the start plus the moments the ride character
- *  changes - a band crossing or a hazard beginning. */
-private data class FaceSpot(val index: Int, val emoji: String, val infoRes: Int)
+/** A face pinned to the curve: where and which emoji. Faces sit at the start
+ *  plus the moments the ride character changes - a band crossing or a hazard
+ *  beginning. Pure indicators, no tap behaviour. */
+private data class FaceSpot(val index: Int, val emoji: String)
 
-/** The tap-line and face for an hour, by what dominates it. Priority mirrors
- *  danger: snow, rain, wind, cold, hot, night, then just the score band. */
-private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> = when {
-    b.snow -> "🥶" to R.string.weather_face_snow          // cold face
-    b.rain -> "😬" to R.string.weather_face_rain          // grimace
-    b.wind && b.score < 7f -> "😖" to R.string.weather_face_wind
-    b.cold -> "🥶" to R.string.weather_face_cold
-    b.hot -> "🥵" to R.string.weather_face_hot            // hot face
-    b.night && b.score < 9f -> "😴" to R.string.weather_face_night
-    b.score >= 7f -> "😄" to R.string.weather_face_clear  // happy
-    b.score >= 4f -> "😐" to R.string.weather_face_meh    // neutral
-    else -> "🙁" to R.string.weather_face_meh             // frown
+/** The face for an hour, by what dominates it. Priority mirrors danger:
+ *  snow, rain, wind, cold, hot, night, then just the score band. */
+private fun faceFor(b: RidabilityScore.Breakdown): String = when {
+    b.snow -> "🥶"                       // cold face
+    b.rain -> "😬"                       // grimace
+    b.wind && b.score < 0f -> "😖"       // struggling
+    b.cold -> "🥶"
+    b.hot -> "🥵"                        // hot face
+    b.night && b.score < 2f -> "😴"      // sleepy
+    b.score >= 2f -> "😄"                // happy
+    b.score >= -1f -> "😐"               // neutral
+    else -> "🙁"                         // frown
 }
 
 private fun band(score: Float): Int = when {
-    score >= 7f -> 2
-    score >= 4f -> 1
+    score >= 2f -> 2
+    score >= -1f -> 1
     else -> 0
 }
 
-@Composable
-private fun ScoreGraph(hours: List<ScoredHour>) {
-    val good = MaterialTheme.appColors.statusGood
-    val warn = MaterialTheme.appColors.statusWarn
-    val danger = MaterialTheme.appColors.statusDanger
-    val gridColor = MaterialTheme.appColors.divider.copy(alpha = 0.6f)
-    val rainBand = MaterialTheme.appColors.chartEnvelope.copy(alpha = 0.20f)
-    // Same hatch ink as the charging pack tiles, so the fills read as one
-    // family of surfaces across the app.
-    val hatch = MaterialTheme.appColors.hint.copy(alpha = 0.30f)
+/** "-3", "0", "+4": the signed edge labels around the neutral centre. */
+private fun signedLabel(score: Float): String {
+    val v = score.roundToInt()
+    return if (v > 0) "+$v" else "$v"
+}
 
-    fun colorFor(score: Float): Color = when {
-        score >= 7f -> good
-        score >= 4f -> warn
-        else -> danger
-    }
+@Composable
+private fun ScoreGraph(hours: List<ScoredHour>, ink: Color) {
+    val good = MaterialTheme.appColors.weatherGood
+    val bad = MaterialTheme.appColors.weatherBad
+    val gridColor = ink.copy(alpha = 0.15f)
+    val centerColor = ink.copy(alpha = 0.35f)
+    val rainBand = MaterialTheme.appColors.chartEnvelope.copy(alpha = 0.20f)
+    // The same diagonal texture as the charging pack tiles, inked so it reads
+    // on the inverse panel in both themes.
+    val hatch = ink.copy(alpha = 0.15f)
+
+    // Light blue at +5, magenta at -5, blended through the middle.
+    fun colorFor(score: Float): Color = lerp(bad, good, (score + 5f) / 10f)
 
     // Start, end, and the moments the ride character changes: a score-band
     // crossing, or rain/snow starting. Capped so a volatile week stays
@@ -208,9 +222,8 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
             } ?: break
             list.remove(drop)
         }
-        list.map { i -> FaceSpot(i, faceFor(hours[i].b).first, faceFor(hours[i].b).second) }
+        list.map { i -> FaceSpot(i, faceFor(hours[i].b)) }
     }
-    var tappedInfo by remember(hours) { mutableStateOf<Int?>(null) }
 
     Column {
         val density = LocalDensity.current
@@ -228,7 +241,7 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                 val h = size.height
                 val n = hours.size
                 fun x(i: Int) = if (n <= 1) 0f else i * w / (n - 1)
-                fun y(score: Float) = h - (score / 10f) * (h - 6f) - 3f
+                fun y(score: Float) = h - ((score + 5f) / 10f) * (h - 6f) - 3f
 
                 // Hazard bands first, behind everything: blue for the rainy
                 // stretch, white for snow. White is deliberate - snow-colored
@@ -250,8 +263,8 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                 }
 
                 // Gradient fill under the curve: the score's own colour at
-                // every stop, so good stretches glow green and the bad hour
-                // shades red, blending smoothly between.
+                // every stop, light blue where it is good riding, magenta
+                // where it is not, blending smoothly between.
                 val stride = (n / 32).coerceAtLeast(1)
                 val stops = ArrayList<Pair<Float, Color>>()
                 var k = 0
@@ -278,10 +291,12 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                     }
                 }
 
-                // Faint guides at 0 / 5 / 10.
-                for (s in listOf(0f, 5f, 10f)) {
-                    drawLine(gridColor, Offset(0f, y(s)), Offset(w, y(s)), strokeWidth = 1f)
-                }
+                // The neutral centre line at 0, stronger than the faint
+                // -5 / +5 guides at the edges.
+                drawLine(gridColor, Offset(0f, y(5f)), Offset(w, y(5f)), strokeWidth = 1f)
+                drawLine(gridColor, Offset(0f, y(-5f)), Offset(w, y(-5f)), strokeWidth = 1f)
+                drawLine(centerColor, Offset(0f, y(0f)), Offset(w, y(0f)), strokeWidth = 2f)
+
                 // Segment-coloured line on top.
                 for (p in 1 until n) {
                     val seg = Path().apply {
@@ -297,7 +312,7 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                 drawLine(gridColor, Offset(1.5f, 0f), Offset(1.5f, h), strokeWidth = 3f)
             }
 
-            // Transition faces riding the curve; tap for the lingo line.
+            // Transition faces riding the curve.
             if (graphW > 0) {
                 val n = hours.size
                 faces.forEach { spot ->
@@ -308,41 +323,35 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                     val maxX = with(density) { graphW.toDp() } - 26.dp
                     val xDp = (with(density) { (graphW * frac).toInt().toDp() } - 9.dp)
                         .coerceIn(8.dp, maxX.coerceAtLeast(8.dp))
-                    val yFrac = 1f - (score / 10f)
+                    val yFrac = 1f - (score + 5f) / 10f
                     val yDp = (graphH - 18.dp) * yFrac
                     Text(
                         spot.emoji,
                         fontSize = 13.sp,
                         modifier = Modifier
                             .offset(x = xDp, y = yDp)
-                            .size(18.dp)
-                            .clickable {
-                                tappedInfo = if (tappedInfo == spot.infoRes) null else spot.infoRes
-                            },
+                            .size(18.dp),
                     )
                 }
             }
+            // The scale, signed around the neutral centre.
             Text(
-                "%.0f".format(hours.first().b.score),
-                fontSize = 10.sp,
-                color = colorFor(hours.first().b.score),
-                modifier = Modifier.align(Alignment.BottomStart),
+                "+5",
+                fontSize = 9.sp,
+                color = ink.copy(alpha = 0.45f),
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 2.dp),
             )
             Text(
-                "%.0f".format(hours.last().b.score),
+                "-5",
+                fontSize = 9.sp,
+                color = ink.copy(alpha = 0.45f),
+                modifier = Modifier.align(Alignment.BottomStart).padding(start = 2.dp),
+            )
+            Text(
+                signedLabel(hours.last().b.score),
                 fontSize = 10.sp,
                 color = colorFor(hours.last().b.score),
                 modifier = Modifier.align(Alignment.BottomEnd),
-            )
-        }
-
-        // The tapped face's one-liner, rider to rider.
-        tappedInfo?.let { res ->
-            Text(
-                stringResource(res),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textPrimary,
-                modifier = Modifier.padding(top = 2.dp),
             )
         }
 
@@ -360,10 +369,10 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                 for (i in hours.indices step stride) {
                     val b = hours[i].b
                     val glyph: Pair<ImageVector, Color>? = when {
-                        b.snow -> Icons.Default.AcUnit to MaterialTheme.appColors.statusDanger
-                        b.rain -> Icons.Default.WaterDrop to MaterialTheme.appColors.statusWarn
-                        b.wind -> Icons.Default.Air to MaterialTheme.appColors.textSecondary
-                        b.night -> Icons.Default.Bedtime to MaterialTheme.appColors.textSecondary
+                        b.snow -> Icons.Default.AcUnit to ink.copy(alpha = 0.7f)
+                        b.rain -> Icons.Default.WaterDrop to MaterialTheme.appColors.chartEnvelope
+                        b.wind -> Icons.Default.Air to ink.copy(alpha = 0.6f)
+                        b.night -> Icons.Default.Bedtime to ink.copy(alpha = 0.6f)
                         else -> null
                     }
                     if (glyph != null) {
@@ -372,7 +381,7 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                         Icon(
                             glyph.first,
                             contentDescription = null,
-                            tint = glyph.second.copy(alpha = 0.8f),
+                            tint = glyph.second.copy(alpha = glyph.second.alpha * 0.9f),
                             modifier = Modifier.offset(x = xDp.coerceAtLeast(0.dp)).size(12.dp),
                         )
                     }
@@ -392,7 +401,7 @@ private fun ScoreGraph(hours: List<ScoredHour>) {
                     if (idx == 0) stringResource(R.string.weather_now)
                     else fmt.format(Date(hours[i].timeMs)),
                     fontSize = 9.sp,
-                    color = MaterialTheme.appColors.textSecondary,
+                    color = ink.copy(alpha = 0.6f),
                     textAlign = when (idx) {
                         0 -> TextAlign.Start
                         4 -> TextAlign.End

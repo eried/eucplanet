@@ -1681,14 +1681,6 @@
     <string name="weather_breezy">Böig über</string>
     <string name="weather_windy">Zu windig über</string>
     <string name="weather_source_credit">Daten von Open-Meteo.com oder MET Norway, nur solange aktiviert.</string>
-    <string name="weather_face_clear">Alles klar - gib ihm.</string>
-    <string name="weather_face_meh">Fahrbar, aber wachsam bleiben.</string>
-    <string name="weather_face_rain">Nasser Asphalt - sanft lehnen, früher bremsen.</string>
-    <string name="weather_face_snow">Schnee oder Matsch - kein Grip, besser schieben.</string>
-    <string name="weather_face_wind">Böig - locker bleiben, Schübe einplanen.</string>
-    <string name="weather_face_night">Dunkel - Licht an, Tempo raus.</string>
-    <string name="weather_face_cold">Kalt - harter Reifen, schwacher Akku, warm anziehen.</string>
-    <string name="weather_face_hot">Heiß - Controller-Temperatur am Anstieg beachten.</string>
     <string name="nav_setting_full_path">Immer die ganze Route berechnen</string>
     <string name="nav_setting_full_path_desc">Aus: nur den nächsten Halt berechnen, Rest als gestrichelte Vorschau</string>
     <string name="nav_setting_endpoints">Routing-Dienste</string>

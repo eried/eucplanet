@@ -78,7 +78,7 @@ import androidx.compose.material.icons.filled.GpsNotFixed
 import androidx.compose.material.icons.filled.GpsOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.filled.Navigation
@@ -1269,11 +1269,11 @@ fun DashboardScreen(
                     if (weatherSettings.enabled) {
                         Box {
                             Icon(
-                                imageVector = Icons.Default.Cloud,
+                                imageVector = Icons.Default.WbSunny,
                                 contentDescription = stringResource(R.string.weather_icon_desc),
                                 tint = MaterialTheme.appColors.dashIcon,
                                 modifier = Modifier
-                                    .padding(start = 4.dp, bottom = 6.dp)
+                                    .padding(start = 4.dp, bottom = 12.dp)
                                     .size(28.dp)
                                     .combinedClickable(
                                         onClick = {

@@ -7,9 +7,9 @@ import org.junit.Test
 import java.io.File
 
 /**
- * The weather / ridability module: the score behaves like the spec reads,
- * the providers parse, the defaults are the rider's stated comfort, and the
- * module ships disabled with its strings in every locale.
+ * The weather / ridability module: the signed score behaves like the rider's
+ * own calibration reads, the providers parse, the defaults are the stated
+ * comfort, and the module ships disabled with its strings in every locale.
  */
 class WeatherModuleTest {
 
@@ -23,50 +23,72 @@ class WeatherModuleTest {
 
     private fun s(h: HourForecast) = RidabilityScore.score(h, 14f, 31f, 2f, 4.5f)
 
-    // --- The score ----------------------------------------------------------
+    // --- The score, centred on zero -----------------------------------------
 
-    @Test fun `a mild dry calm daylight hour is a 10`() {
-        assertEquals(10f, s(hour()).score, 0.001f)
+    @Test fun `mid-band calm dry daylight is the full +5`() {
+        assertEquals(5f, s(hour(tempC = 22.5f)).score, 0.001f)
     }
 
-    @Test fun `cold and heat pull the score down past their thresholds`() {
-        assertTrue(s(hour(tempC = 13f)).score < 10f)
-        assertTrue(s(hour(tempC = 4f)).score < s(hour(tempC = 10f)).score)
-        assertTrue(s(hour(tempC = 35f)).score < 10f)
-        // Inside the band there is no temperature penalty at all.
-        assertEquals(10f, s(hour(tempC = 14f)).score, 0.001f)
-        assertEquals(10f, s(hour(tempC = 31f)).score, 0.001f)
+    @Test fun `band-edge temperature with low wind is a mild plus, about +1`() {
+        val v = s(hour(tempC = 15f, wind = 1f)).score
+        assertTrue("was $v", v in 0.5f..2f)
     }
 
-    @Test fun `rain bites, snow bites much harder, and snow supersedes rain`() {
-        val rain = s(hour(rain = 1f))
-        val snow = s(hour(rain = 1f, snow = 1f))
-        assertTrue(rain.rain && !rain.snow)
-        assertTrue(snow.snow && !snow.rain)
-        assertTrue(snow.score < rain.score - 2f)
+    @Test fun `slightly cold and gusty lands around -1`() {
+        val v = s(hour(tempC = 12f, wind = 3f)).score
+        assertTrue("was $v", v in -1.6f..-0.4f)
+    }
+
+    @Test fun `strong wind plus rain is the -5 floor`() {
+        assertEquals(-5f, s(hour(wind = 8f, rain = 2f)).score, 0.001f)
+    }
+
+    @Test fun `snow with cold but no wind is only about -1, not a disaster`() {
+        val v = s(hour(tempC = 5f, snow = 0.5f)).score
+        assertTrue("was $v", v in -2f..-1f)
+    }
+
+    @Test fun `very cold alone stays near neutral, dressing is the fix`() {
+        val v = s(hour(tempC = -10f)).score
+        assertTrue("was $v", v in -1f..0f)
+    }
+
+    @Test fun `precipitation cancels the comfort bonuses`() {
+        // A warm calm hour with rain must not read positive.
+        assertTrue(s(hour(tempC = 22.5f, rain = 0.5f)).score < 0f)
     }
 
     @Test fun `night is a nudge, not a verdict`() {
-        val d = s(hour())
-        val n = s(hour(day = false))
-        assertEquals(1f, d.score - n.score, 0.001f)
+        val d = s(hour(tempC = 22.5f))
+        val n = s(hour(tempC = 22.5f, day = false))
+        assertEquals(0.5f, d.score - n.score, 0.001f)
         assertTrue(n.night)
     }
 
     @Test fun `wind ramps between breezy and windy, then keeps climbing`() {
-        assertEquals(10f, s(hour(wind = 1.9f)).score, 0.001f)
-        val breeze = s(hour(wind = 3f))
-        val windy = s(hour(wind = 4.5f))
-        val gale = s(hour(wind = 8f))
-        assertTrue(breeze.score < 10f)
+        val calm = s(hour(tempC = 22.5f, wind = 0f))
+        val breeze = s(hour(tempC = 22.5f, wind = 3f))
+        val windy = s(hour(tempC = 22.5f, wind = 4.5f))
+        val gale = s(hour(tempC = 22.5f, wind = 8f))
+        assertTrue(breeze.score < calm.score)
         assertTrue(windy.score < breeze.score)
         assertTrue(gale.score < windy.score)
-        assertEquals(7.5f, windy.score, 0.05f)  // full 2.5 ramp at the windy line
+        // Full -2 ramp at the windy line: +3 temp bonus, no calm bonus.
+        assertEquals(1f, windy.score, 0.05f)
     }
 
-    @Test fun `the floor is zero, never negative`() {
+    @Test fun `snow supersedes rain in the flags and bites no harder`() {
+        val rain = s(hour(rain = 1f))
+        val snow = s(hour(rain = 1f, snow = 1f))
+        assertTrue(rain.rain && !rain.snow)
+        assertTrue(snow.snow && !snow.rain)
+        assertEquals(rain.score, snow.score, 0.5f)
+    }
+
+    @Test fun `the scale clamps at -5 and +5`() {
         val awful = s(hour(tempC = -20f, snow = 4f, wind = 12f, day = false))
-        assertEquals(0f, awful.score, 0.001f)
+        assertEquals(-5f, awful.score, 0.001f)
+        assertTrue(s(hour(tempC = 22.5f)).score <= 5f)
     }
 
     // --- Providers ----------------------------------------------------------
@@ -135,18 +157,33 @@ class WeatherModuleTest {
 
     // --- Surfaces -----------------------------------------------------------
 
-    @Test fun `the source picker is a combo and the faces have their lingo`() {
+    @Test fun `the source picker is a combo and the flyout wears the nav popup style`() {
         val nav = File("src/main/java/com/eried/eucplanet/ui/settings/NavigatorSettingsContent.kt").readText()
         assertTrue(nav.contains("ExposedDropdownMenuBox"))
         val flyout = File("src/main/java/com/eried/eucplanet/ui/dashboard/WeatherFlyout.kt").readText()
-        assertTrue(flyout.contains("weather_face_snow"))
+        // Nav-popup family: inverse panel, rounded, shadowed.
+        assertTrue(flyout.contains("navPopupPanel"))
+        assertTrue(flyout.contains("RoundedCornerShape(12.dp)"))
+        // The signed blue-to-magenta scale, no tap tooltips.
+        assertTrue(flyout.contains("weatherGood"))
+        assertTrue(flyout.contains("weatherBad"))
         assertTrue(flyout.contains("Brush.horizontalGradient"))
+        assertTrue(!flyout.contains("weather_face_"))
+        assertTrue(!flyout.contains("clickable"))
     }
 
     @Test fun `the icon and flyout only exist when the module is enabled`() {
         val dash = File("src/main/java/com/eried/eucplanet/ui/dashboard/DashboardScreen.kt").readText()
         assertTrue(dash.contains("if (weatherSettings.enabled)"))
         assertTrue(dash.contains("showWeatherFlyout && weatherSettings.enabled"))
+    }
+
+    @Test fun `the score scale tokens are registered for the theme editor`() {
+        val theme = File("src/main/java/com/eried/eucplanet/ui/theme/AppThemeColors.kt").readText()
+        assertTrue(theme.contains("ThemeTokenSpec(\"weatherGood\""))
+        assertTrue(theme.contains("ThemeTokenSpec(\"weatherBad\""))
+        assertTrue(theme.contains("weatherGood = weatherGood.takeOrElse"))
+        assertTrue(theme.contains("weatherBad = weatherBad.takeOrElse"))
     }
 
     @Test fun `the section is Navigation & weather and every locale has the strings`() {
@@ -159,9 +196,6 @@ class WeatherModuleTest {
             "weather_window_label", "weather_source_label", "weather_comfort_desc",
             "weather_cold", "weather_hot", "weather_breezy", "weather_windy",
             "weather_source_credit",
-            "weather_face_clear", "weather_face_meh", "weather_face_rain",
-            "weather_face_snow", "weather_face_wind", "weather_face_night",
-            "weather_face_cold", "weather_face_hot",
         )
         val missing = File("src/main/res").listFiles()!!
             .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }
@@ -170,6 +204,13 @@ class WeatherModuleTest {
                 keys.filter { !t.contains("name=\"$it\"") }.map { "${dir.name}/$it" }
             }
         assertTrue("missing: $missing", missing.isEmpty())
+        // The face tooltip strings are gone from every locale, not just used
+        // nowhere.
+        val leftovers = File("src/main/res").listFiles()!!
+            .filter { it.isDirectory && it.name.startsWith("values") && File(it, "strings.xml").exists() }
+            .filter { File(it, "strings.xml").readText().contains("weather_face_") }
+            .map { it.name }
+        assertTrue("face strings left in: $leftovers", leftovers.isEmpty())
         // The renamed section title, in English at least, names both halves.
         val en = File("src/main/res/values/strings.xml").readText()
         assertTrue(en.contains("<string name=\"nav_setting_params\">Navigation &amp; weather</string>"))
