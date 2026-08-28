@@ -1373,7 +1373,10 @@
     <string name="trip_customize_graphs">Graphs</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Lights</string>
+    <string name="auto_lights_title">Headlight control</string>
+    <string name="auto_lights_when">Follow sunset and sunrise when</string>
+    <string name="auto_lights_off_slow">Turn the light off when slowing down</string>
+    <string name="auto_lights_off_below">Off below</string>
     <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise</string>
     <string name="auto_lights_on_before_sunset">Lights ON before sunset</string>
     <string name="auto_lights_off_after_sunrise">Lights OFF after sunrise</string>

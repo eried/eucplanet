@@ -526,7 +526,10 @@
     <string name="recording_chart_altitude">Altitudine (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Luci</string>
+    <string name="auto_lights_title">Controllo del faro</string>
+    <string name="auto_lights_when">Segui il sole quando</string>
+    <string name="auto_lights_off_slow">Spegni il faro quando rallenti</string>
+    <string name="auto_lights_off_below">Spento sotto</string>
     <string name="auto_lights_desc">Accende o spegne il faro in base al tramonto e all\'alba</string>
     <string name="auto_lights_on_before_sunset">Luci ON prima del tramonto</string>
     <string name="auto_lights_off_after_sunrise">Luci OFF dopo l\'alba</string>

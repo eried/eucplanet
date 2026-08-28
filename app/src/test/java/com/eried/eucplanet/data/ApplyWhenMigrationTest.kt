@@ -61,6 +61,41 @@ class ApplyWhenMigrationTest {
         assertEquals("0:1.0,25:1.20", back.mediaControl.rateCurve)
     }
 
+    @Test fun `the lights group migrates off its three flat keys`() {
+        // Three top-level keys became one nested group. A backup written
+        // before that must still land on the same behaviour, minutes and all.
+        val json = JSONObject()
+            .put("autoLightsEnabled", true)
+            .put("autoLightsOnMinutesBefore", 45)
+            .put("autoLightsOffMinutesAfter", 15)
+            .toString()
+        val back = load(json)
+        assertEquals(ApplyWhenIds.CONNECTED, back.lights.applyWhen)
+        assertEquals(45, back.lights.onMinutesBefore)
+        assertEquals(15, back.lights.offMinutesAfter)
+        // The new option is off, so nobody's light starts cutting out.
+        assertEquals(false, back.lights.offWhenSlow)
+
+        val wasOff = load(JSONObject().put("autoLightsEnabled", false).toString())
+        assertEquals(ApplyWhenIds.NEVER, wasOff.lights.applyWhen)
+    }
+
+    @Test fun `the lights group round-trips`() {
+        val saved = AppSettings(
+            lights = AppSettings().lights.copy(
+                applyWhen = ApplyWhenIds.RIDING,
+                onMinutesBefore = 20,
+                offWhenSlow = true,
+                offBelowKmh = 6f,
+            ),
+        )
+        val back = load(SettingsJson.toJson(saved).toString())
+        assertEquals(ApplyWhenIds.RIDING, back.lights.applyWhen)
+        assertEquals(20, back.lights.onMinutesBefore)
+        assertEquals(true, back.lights.offWhenSlow)
+        assertEquals(6f, back.lights.offBelowKmh, 0.001f)
+    }
+
     @Test fun `riding is what a rider picks, not what they inherit`() {
         // Riding is the recommended condition, but it never arrives by
         // migration: an update must not start altering anyone's playback.

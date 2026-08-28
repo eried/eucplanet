@@ -90,24 +90,17 @@ fun AutomationsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // --- Lights Section ---
-        BringIntoViewSection(expanded = settings.autoLightsEnabled) {
+        BringIntoViewSection(expanded = settings.lights.applyWhen != ApplyWhenIds.NEVER) {
         Text(stringResource(R.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.auto_lights_desc),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = settings.autoLightsEnabled,
-                onCheckedChange = { viewModel.updateAutoLightsEnabled(it) },
-                colors = themedSwitchColors(),)
-        }
+        ApplyWhenSelector(
+            label = stringResource(R.string.auto_lights_when),
+            current = settings.lights.applyWhen,
+            onPick = { viewModel.updateAutoLightsApplyWhen(it) },
+        )
 
-        if (settings.autoLightsEnabled) {
+        if (settings.lights.applyWhen != ApplyWhenIds.NEVER) {
             if (autoLightsSuspended) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.appColors.statusWarn.copy(alpha = 0.15f))) {
                     Row(
@@ -134,7 +127,7 @@ fun AutomationsContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 NumberUpDown(
-                    value = settings.autoLightsOnMinutesBefore,
+                    value = settings.lights.onMinutesBefore,
                     onValueChange = { viewModel.updateAutoLightsOnMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -143,7 +136,7 @@ fun AutomationsContent(
                     modifier = Modifier.weight(1f),
                 )
                 NumberUpDown(
-                    value = settings.autoLightsOffMinutesAfter,
+                    value = settings.lights.offMinutesAfter,
                     onValueChange = { viewModel.updateAutoLightsOffMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -163,8 +156,8 @@ fun AutomationsContent(
                     is SunCalculator.SunResult.Normal -> SunScheduleGraph(
                         sunriseMillis = sunResult.sunriseMillis,
                         sunsetMillis = sunResult.sunsetMillis,
-                        lightsOnMinutesBefore = settings.autoLightsOnMinutesBefore,
-                        lightsOffMinutesAfter = settings.autoLightsOffMinutesAfter,
+                        lightsOnMinutesBefore = settings.lights.onMinutesBefore,
+                        lightsOffMinutesAfter = settings.lights.offMinutesAfter,
                         latitude = loc.latitude,
                         longitude = loc.longitude
                     )
@@ -185,6 +178,32 @@ fun AutomationsContent(
                 }
             } else {
                 HintText(stringResource(R.string.auto_waiting_gps), small = true)
+            }
+
+            // Independent of the schedule above: it decides whether a light is
+            // wanted, this decides whether the rider is still riding.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.auto_lights_off_slow),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.lights.offWhenSlow,
+                    onCheckedChange = { viewModel.updateAutoLightsOffWhenSlow(it) },
+                    colors = themedSwitchColors(),)
+            }
+            if (settings.lights.offWhenSlow) {
+                // Stored metric, shown in the rider's unit by the shared
+                // control, so "4 km/h" reads as walking pace either way.
+                SpeedNumberSetting(
+                    label = stringResource(R.string.auto_lights_off_below),
+                    valueKmh = settings.lights.offBelowKmh,
+                    rangeKmh = 1f..15f,
+                    speedUnit = Units.effectiveSpeedUnit(settings),
+                    onValueChangeKmh = { viewModel.updateAutoLightsOffBelowKmh(it) },
+                )
             }
         }
         }   // end Lights BringIntoViewSection

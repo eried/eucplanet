@@ -966,7 +966,10 @@
     <string name="recording_chart_altitude">Altitude (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Phare</string>
+    <string name="auto_lights_title">Contrôle du phare</string>
+    <string name="auto_lights_when">Suivre le soleil quand</string>
+    <string name="auto_lights_off_slow">Éteindre le phare au ralentissement</string>
+    <string name="auto_lights_off_below">Éteint sous</string>
     <string name="auto_lights_desc">Allume ou éteint le phare selon le lever et le coucher du soleil</string>
     <string name="auto_lights_on_before_sunset">Allumer avant le coucher du soleil</string>
     <string name="auto_lights_off_after_sunrise">Éteindre après le lever du soleil</string>

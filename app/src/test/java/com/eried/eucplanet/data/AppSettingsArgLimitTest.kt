@@ -86,7 +86,11 @@ class AppSettingsArgLimitTest {
         // connected-only flag became a single applyWhen gate shared with the
         // playback rate (whose own state lives nested in MediaControlSettings).
         // Two booleans that could disagree replaced by one value that cannot.
-        val expectedSlots = 250
+        // 248: down two more. The three flat autoLights* fields became one
+        // nested LightsSettings holding five - the gate, the two sun offsets,
+        // and the walking-pace cut-off with its speed. Adding a feature and
+        // spending fewer slots is the shape this tripwire is asking for.
+        val expectedSlots = 248
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

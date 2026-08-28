@@ -175,9 +175,13 @@ object SettingsJson {
         put("flic4DoubleClick", s.flic4DoubleClick)
         put("flic4Hold", s.flic4Hold)
         put("flicShowOnDashboard", s.flicShowOnDashboard)
-        put("autoLightsEnabled", s.autoLightsEnabled)
-        put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
-        put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
+        put("lights", JSONObject().apply {
+            put("applyWhen", s.lights.applyWhen)
+            put("onMinutesBefore", s.lights.onMinutesBefore)
+            put("offMinutesAfter", s.lights.offMinutesAfter)
+            put("offWhenSlow", s.lights.offWhenSlow)
+            put("offBelowKmh", s.lights.offBelowKmh.toDouble())
+        })
         put("autoVolumeApplyWhen", s.autoVolumeApplyWhen)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
@@ -551,9 +555,26 @@ object SettingsJson {
         flic4DoubleClick = j.optString("flic4DoubleClick", base.flic4DoubleClick),
         flic4Hold = j.optString("flic4Hold", base.flic4Hold),
         flicShowOnDashboard = j.optBoolean("flicShowOnDashboard", base.flicShowOnDashboard),
-        autoLightsEnabled = j.optBoolean("autoLightsEnabled", base.autoLightsEnabled),
-        autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
-        autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
+        // Nested now, but a backup written before that is three flat keys.
+        // Read the group when it is there, else fold the old keys in: the
+        // enable switch decides off or on, and on means Connected, which is
+        // what it always was (the light lives on the wheel).
+        lights = j.optJSONObject("lights")?.let { l ->
+            base.lights.copy(
+                applyWhen = l.optString("applyWhen", base.lights.applyWhen),
+                onMinutesBefore = l.optInt("onMinutesBefore", base.lights.onMinutesBefore),
+                offMinutesAfter = l.optInt("offMinutesAfter", base.lights.offMinutesAfter),
+                offWhenSlow = l.optBoolean("offWhenSlow", base.lights.offWhenSlow),
+                offBelowKmh = l.optDouble("offBelowKmh", base.lights.offBelowKmh.toDouble()).toFloat(),
+            )
+        } ?: base.lights.copy(
+            applyWhen = if (j.has("autoLightsEnabled")) {
+                if (j.optBoolean("autoLightsEnabled", false)) ApplyWhenIds.CONNECTED
+                else ApplyWhenIds.NEVER
+            } else base.lights.applyWhen,
+            onMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.lights.onMinutesBefore),
+            offMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.lights.offMinutesAfter),
+        ),
         // Migrated, not defaulted. Two old keys fold into one: the feature
         // switch decides off or on, and the connected-only boolean decided
         // the condition. A rider who had it on keeps it on, gated the way it

@@ -966,7 +966,10 @@
     <string name="recording_chart_altitude">Hoogte (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Licht</string>
+    <string name="auto_lights_title">Koplampbediening</string>
+    <string name="auto_lights_when">Zon volgen wanneer</string>
+    <string name="auto_lights_off_slow">Licht uit bij vertragen</string>
+    <string name="auto_lights_off_below">Uit onder</string>
     <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang</string>
     <string name="auto_lights_on_before_sunset">Licht AAN voor zonsondergang</string>
     <string name="auto_lights_off_after_sunrise">Licht UIT na zonsopkomst</string>

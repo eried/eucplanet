@@ -966,7 +966,10 @@
     <string name="recording_chart_altitude">Højde (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Lys</string>
+    <string name="auto_lights_title">Lygtestyring</string>
+    <string name="auto_lights_when">Følg solen når</string>
+    <string name="auto_lights_off_slow">Sluk lygten ved opbremsning</string>
+    <string name="auto_lights_off_below">Sluk under</string>
     <string name="auto_lights_desc">Tænd og sluk forlygten efter solopgang og solnedgang</string>
     <string name="auto_lights_on_before_sunset">Tænd lys før solnedgang</string>
     <string name="auto_lights_off_after_sunrise">Sluk lys efter solopgang</string>

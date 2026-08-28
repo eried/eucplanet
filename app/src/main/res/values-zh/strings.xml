@@ -433,7 +433,10 @@
     <string name="recording_chart_power">功率 (W)</string>
     <string name="recording_chart_altitude">海拔 (m)</string>
 
-    <string name="auto_lights_title">大灯</string>
+    <string name="auto_lights_title">大灯控制</string>
+    <string name="auto_lights_when">按日出日落调整的时机</string>
+    <string name="auto_lights_off_slow">减速时关闭大灯</string>
+    <string name="auto_lights_off_below">低于此速度关闭</string>
     <string name="auto_lights_desc">根据日出日落自动开关大灯。</string>
     <string name="auto_lights_on_before_sunset">日落前开灯</string>
     <string name="auto_lights_off_after_sunrise">日出后关灯</string>

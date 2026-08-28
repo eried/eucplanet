@@ -395,7 +395,10 @@
     <string name="recording_chart_altitude">Høyde (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Lys</string>
+    <string name="auto_lights_title">Lyktestyring</string>
+    <string name="auto_lights_when">Følg sola når</string>
+    <string name="auto_lights_off_slow">Slå av lykta når du senker farten</string>
+    <string name="auto_lights_off_below">Av under</string>
     <string name="auto_lights_desc">Slå lys av eller på basert på soloppgang og solnedgang</string>
     <string name="auto_lights_on_before_sunset">Lys PÅ før solnedgang</string>
     <string name="auto_lights_off_after_sunrise">Lys AV etter soloppgang</string>

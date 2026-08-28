@@ -963,7 +963,10 @@
     <string name="recording_chart_altitude">高度 (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">ライト</string>
+    <string name="auto_lights_title">ライト制御</string>
+    <string name="auto_lights_when">日の出入りに合わせるとき</string>
+    <string name="auto_lights_off_slow">減速時にライトを消す</string>
+    <string name="auto_lights_off_below">この速度未満で消灯</string>
     <string name="auto_lights_desc">日の入りと日の出に基づいてヘッドライトをオン / オフにします</string>
     <string name="auto_lights_on_before_sunset">日没前にライト ON</string>
     <string name="auto_lights_off_after_sunrise">日の出後にライト OFF</string>

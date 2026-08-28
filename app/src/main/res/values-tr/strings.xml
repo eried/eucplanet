@@ -963,7 +963,10 @@
     <string name="recording_chart_altitude">Yükseklik (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Işıklar</string>
+    <string name="auto_lights_title">Far denetimi</string>
+    <string name="auto_lights_when">Güneşi izle</string>
+    <string name="auto_lights_off_slow">Yavaşlarken farı kapat</string>
+    <string name="auto_lights_off_below">Şu hızın altında kapat</string>
     <string name="auto_lights_desc">Gün batımı ve doğumuna göre farları açıp kapatır</string>
     <string name="auto_lights_on_before_sunset">Gün batımından önce ışıklar AÇIK</string>
     <string name="auto_lights_off_after_sunrise">Gün doğumundan sonra ışıklar KAPALI</string>

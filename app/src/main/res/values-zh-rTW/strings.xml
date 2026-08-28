@@ -963,7 +963,10 @@
     <string name="recording_chart_altitude">海拔 (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">燈光</string>
+    <string name="auto_lights_title">大燈控制</string>
+    <string name="auto_lights_when">依日出日落調整的時機</string>
+    <string name="auto_lights_off_slow">減速時關閉大燈</string>
+    <string name="auto_lights_off_below">低於此速度關閉</string>
     <string name="auto_lights_desc">依日落日出自動開關車頭燈</string>
     <string name="auto_lights_on_before_sunset">日落前開燈</string>
     <string name="auto_lights_off_after_sunrise">日出後關燈</string>

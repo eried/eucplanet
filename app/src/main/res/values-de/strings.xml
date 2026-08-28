@@ -962,7 +962,10 @@
     <string name="recording_chart_altitude">Höhe (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Licht</string>
+    <string name="auto_lights_title">Scheinwerfersteuerung</string>
+    <string name="auto_lights_when">Sonnenstand folgen wenn</string>
+    <string name="auto_lights_off_slow">Licht beim Langsamerwerden ausschalten</string>
+    <string name="auto_lights_off_below">Aus unter</string>
     <string name="auto_lights_desc">Licht automatisch bei Sonnenuntergang und -aufgang schalten</string>
     <string name="auto_lights_on_before_sunset">Licht AN vor Sonnenuntergang</string>
     <string name="auto_lights_off_after_sunrise">Licht AUS nach Sonnenaufgang</string>

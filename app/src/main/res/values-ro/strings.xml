@@ -1225,7 +1225,10 @@
     <string name="trip_trim_title">Decupează vizualizarea cursei</string>
     <string name="trip_customize_tiles">Plăcuțe</string>
     <string name="trip_customize_graphs">Grafice</string>
-    <string name="auto_lights_title">Lumini</string>
+    <string name="auto_lights_title">Control far</string>
+    <string name="auto_lights_when">Urmează soarele când</string>
+    <string name="auto_lights_off_slow">Stinge farul la încetinire</string>
+    <string name="auto_lights_off_below">Stins sub</string>
     <string name="auto_lights_desc">Pornește sau oprește farurile în funcție de apus și răsărit</string>
     <string name="auto_lights_on_before_sunset">Lumini PORNITE înainte de apus</string>
     <string name="auto_lights_off_after_sunrise">Lumini OPRITE după răsărit</string>

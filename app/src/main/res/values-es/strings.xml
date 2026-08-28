@@ -966,7 +966,10 @@
     <string name="recording_chart_altitude">Altitud (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Luces</string>
+    <string name="auto_lights_title">Control de luces</string>
+    <string name="auto_lights_when">Seguir el sol cuando</string>
+    <string name="auto_lights_off_slow">Apagar la luz al frenar</string>
+    <string name="auto_lights_off_below">Apagar bajo</string>
     <string name="auto_lights_desc">Enciende o apaga las luces según el amanecer y el atardecer</string>
     <string name="auto_lights_on_before_sunset">Encender antes del atardecer</string>
     <string name="auto_lights_off_after_sunrise">Apagar después del amanecer</string>

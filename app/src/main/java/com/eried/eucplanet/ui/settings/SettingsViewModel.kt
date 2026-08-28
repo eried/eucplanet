@@ -697,15 +697,21 @@ class SettingsViewModel @Inject constructor(
         update { copy(raceboxMapX = mapX, raceboxMapY = mapY, raceboxMapZ = mapZ) }
 
     // Automations
-    fun updateAutoLightsEnabled(v: Boolean) {
-        update { copy(autoLightsEnabled = v) }
-        // Toggling the setting itself clears any session-level suspension
+    fun updateAutoLightsApplyWhen(v: String) {
+        update { copy(lights = lights.copy(applyWhen = v)) }
+        // Touching the setting clears any session-level suspension
         automationManager.clearLightsSuspension()
         // Apply the correct state immediately instead of waiting for the next 60s tick
-        if (v) automationManager.triggerImmediateLightEvaluation()
+        if (v != ApplyWhenIds.NEVER) automationManager.triggerImmediateLightEvaluation()
     }
-    fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
-    fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
+    fun updateAutoLightsOnMinutes(v: Int) = update { copy(lights = lights.copy(onMinutesBefore = v)) }
+    fun updateAutoLightsOffMinutes(v: Int) = update { copy(lights = lights.copy(offMinutesAfter = v)) }
+    fun updateAutoLightsOffWhenSlow(v: Boolean) =
+        update { copy(lights = lights.copy(offWhenSlow = v)) }
+            // Switching it off hands the beam straight back to the schedule.
+            .also { automationManager.triggerImmediateLightEvaluation() }
+    fun updateAutoLightsOffBelowKmh(v: Float) =
+        update { copy(lights = lights.copy(offBelowKmh = v)) }
 
     fun updateAutoVolumeApplyWhen(v: String) =
         update { copy(autoVolumeApplyWhen = v) }

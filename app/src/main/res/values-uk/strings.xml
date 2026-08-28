@@ -966,7 +966,10 @@
     <string name="recording_chart_altitude">Висота (м)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Світло</string>
+    <string name="auto_lights_title">Керування фарою</string>
+    <string name="auto_lights_when">Слідувати за сонцем коли</string>
+    <string name="auto_lights_off_slow">Гасити фару при уповільненні</string>
+    <string name="auto_lights_off_below">Гасити нижче</string>
     <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця</string>
     <string name="auto_lights_on_before_sunset">Вмикати фари перед заходом</string>
     <string name="auto_lights_off_after_sunrise">Вимикати фари після сходу</string>

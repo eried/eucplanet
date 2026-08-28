@@ -61,6 +61,7 @@ class AutomationManager @Inject constructor(
     // The rules themselves live in MediaControlPolicy, where they are tested.
     private var mediaState = MediaControlPolicy.State()
     private var rateState = PlaybackRatePolicy.State()
+    private var lightSlowState = HeadlightSlowPolicy.State()
 
     /** Above this the wheel counts as moving rather than rolling on its own
      *  under a rider who is standing over it. Low on purpose: walking pace
@@ -127,7 +128,7 @@ class AutomationManager @Inject constructor(
         // behaviour and the light button is on the locked screen anyway.
         val lockedDown = legalLockdown.isEngaged()
         detectManualLightChange(settings)
-        if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
+        if (!_autoLightsSuspended.value) evaluateLights(settings)
         evaluateVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
@@ -157,6 +158,7 @@ class AutomationManager @Inject constructor(
     }
 
     private fun evaluateLights(settings: AppSettings) {
+        if (!applyWhenAllows(settings.lights.applyWhen)) return
         val now = System.currentTimeMillis()
         val location = tripRepository.currentLocation.value
         val interval = if (location == null) settings.autoLightNoGpsRetryMs.toLong()
@@ -169,15 +171,28 @@ class AutomationManager @Inject constructor(
         val lat = location.latitude
         val lon = location.longitude
 
-        val shouldBeOn = when (val r = SunCalculator.calculateState(lat, lon, TimeZone.getDefault())) {
+        val darkEnough = when (val r = SunCalculator.calculateState(lat, lon, TimeZone.getDefault())) {
             is SunCalculator.SunResult.Normal -> {
-                val lightsOnTime = r.sunsetMillis - settings.autoLightsOnMinutesBefore * 60_000L
-                val lightsOffTime = r.sunriseMillis + settings.autoLightsOffMinutesAfter * 60_000L
+                val lightsOnTime = r.sunsetMillis - settings.lights.onMinutesBefore * 60_000L
+                val lightsOffTime = r.sunriseMillis + settings.lights.offMinutesAfter * 60_000L
                 now >= lightsOnTime || now <= lightsOffTime
             }
             SunCalculator.SunResult.PolarNight -> true
             SunCalculator.SunResult.MidnightSun -> false
         }
+
+        // Walking pace kills the beam even when the sun says it is wanted:
+        // rolling to a stop at a crossing with the light in someone's face is
+        // what this is for. The schedule still decides whether a light is
+        // wanted at all, so riding on restores it without any further rule.
+        lightSlowState = HeadlightSlowPolicy.step(
+            state = lightSlowState,
+            speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+            thresholdKmh = settings.lights.offBelowKmh,
+            nowMs = now,
+            enabled = settings.lights.offWhenSlow,
+        )
+        val shouldBeOn = darkEnough && !lightSlowState.forcedOff
 
         val currentLightOn = wheelRepository.wheelData.value.lightOn
         if (shouldBeOn != currentLightOn) {

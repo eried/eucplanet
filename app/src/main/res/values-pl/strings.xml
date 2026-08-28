@@ -966,7 +966,10 @@
     <string name="recording_chart_altitude">Wysokość (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Światła</string>
+    <string name="auto_lights_title">Sterowanie światłem</string>
+    <string name="auto_lights_when">Podążaj za słońcem gdy</string>
+    <string name="auto_lights_off_slow">Gaś światło przy zwalnianiu</string>
+    <string name="auto_lights_off_below">Gaś poniżej</string>
     <string name="auto_lights_desc">Włącza lub wyłącza światła w zależności od zachodu i wschodu słońca</string>
     <string name="auto_lights_on_before_sunset">Światła WŁ. przed zachodem</string>
     <string name="auto_lights_off_after_sunrise">Światła WYŁ. po wschodzie</string>
