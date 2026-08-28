@@ -1632,15 +1632,13 @@
     <string name="weather_win_hours_fmt">%1$d時間</string>
     <string name="weather_win_days_fmt">%1$d日</string>
     <string name="weather_window_hours_suffix">時間</string>
-    <string name="weather_window_desc">パネルが先を見る時間。短い窓では、提供元にあれば15分刻みになります。</string>
-    <string name="weather_open_expanded">詳細を開いた状態で表示</string>
-    <string name="weather_open_expanded_desc">気温・湿度・降水・風のグラフが最初から開いた状態になります。</string>
+    <string name="weather_open_expanded">詳細をすべて開いて表示</string>
     <string name="weather_window_24h">今後24時間</string>
     <string name="weather_window_3d">今後3日</string>
     <string name="weather_window_1w">今後7日</string>
     <string name="weather_settings_entry">天気設定</string>
     <string name="weather_enable">ダッシュボードに天気</string>
-    <string name="weather_enable_desc">地図ボタンの上に天気アイコンを追加。タップで走行快適度予報。+5は全部置いて乗りに行く、0は装備次第で問題なし、-5は乗らないが吉。</string>
+    <string name="weather_enable_desc">地図ボタンの上に天気アイコンを追加。タップで走行しやすさの予報を表示します。</string>
     <string name="weather_window_label">予報ウィンドウ</string>
     <string name="weather_source_label">予報ソース</string>
     <string name="weather_comfort_desc">スコアの快適しきい値。温度と風速は単位設定に従います。</string>
@@ -1648,7 +1646,7 @@
     <string name="weather_hot">これ超は暑すぎ</string>
     <string name="weather_breezy">これ超は風あり</string>
     <string name="weather_windy">これ超は強風</string>
-    <string name="weather_source_credit">データ: Open-Meteo.com / MET Norway（有効時のみ取得）</string>
+    <string name="weather_source_credit">無料の6ソース: Open-Meteo、MET Norway (yr.no)、ECMWF、NOAA GFS、DWD ICON、Meteo-France。有効な間だけ取得します。詳細表示で気温・湿度・降水・風のグラフが加わり、短い窓は15分刻みで描画されます。</string>
     <string name="weather_title_1">ウィール日和？</string>
     <string name="weather_title_2">EUCの時間？</string>
     <string name="weather_title_3">ライドの時間？</string>

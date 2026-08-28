@@ -1690,15 +1690,13 @@
     <string name="weather_win_hours_fmt">%1$d u</string>
     <string name="weather_win_days_fmt">%1$d d</string>
     <string name="weather_window_hours_suffix">u</string>
-    <string name="weather_window_desc">Hoe ver het paneel vooruitkijkt. Korte vensters krijgen detail van 15 minuten als de bron dat heeft.</string>
-    <string name="weather_open_expanded">Openen met details zichtbaar</string>
-    <string name="weather_open_expanded_desc">De grafieken voor temperatuur, luchtvochtigheid, neerslag en wind staan meteen open.</string>
+    <string name="weather_open_expanded">Openen met alle details</string>
     <string name="weather_window_24h">Komende 24 uur</string>
     <string name="weather_window_3d">Komende 3 dagen</string>
     <string name="weather_window_1w">Komende 7 dagen</string>
     <string name="weather_settings_entry">Weerinstellingen</string>
     <string name="weather_enable">Weer op het dashboard</string>
-    <string name="weather_enable_desc">Voegt een weericoon toe boven de kaartknop: tik voor de rijbaarheidsvoorspelling. +5 betekent laat alles vallen en rijd, 0 is prima met de juiste uitrusting, -5 zegt laat het wiel thuis.</string>
+    <string name="weather_enable_desc">Zet een weericoon boven de kaartknop: tik erop voor een rijdbaarheidsverwachting.</string>
     <string name="weather_window_label">Voorspellingsvenster</string>
     <string name="weather_source_label">Voorspellingsbron</string>
     <string name="weather_comfort_desc">Comfortdrempels voor de score. Temperatuur volgt je eenheden; wind volgt je snelheidseenheid.</string>
@@ -1706,7 +1704,7 @@
     <string name="weather_hot">Te warm boven</string>
     <string name="weather_breezy">Winderig boven</string>
     <string name="weather_windy">Te winderig boven</string>
-    <string name="weather_source_credit">Data van Open-Meteo.com of MET Norway, alleen opgehaald indien actief.</string>
+    <string name="weather_source_credit">Zes gratis bronnen: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON en Meteo-France, alleen opgehaald als het aanstaat. Volledige details voegen de grafieken voor temperatuur, luchtvochtigheid, neerslag en wind toe, en een kort venster wordt in stappen van 15 minuten getekend.</string>
     <string name="weather_title_1">Wielweer?</string>
     <string name="weather_title_2">EUC-tijd?</string>
     <string name="weather_title_3">Tijd voor een rit?</string>

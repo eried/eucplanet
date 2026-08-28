@@ -2122,15 +2122,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d d</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">How far ahead the panel looks. Short windows get 15-minute detail where the source has it.</string>
-    <string name="weather_open_expanded">Open with details showing</string>
-    <string name="weather_open_expanded_desc">The temperature, humidity, precipitation and wind charts are already unfolded when the panel opens.</string>
+    <string name="weather_open_expanded">Open with full details</string>
     <string name="weather_window_24h">Next 24 hours</string>
     <string name="weather_window_3d">Next 3 days</string>
     <string name="weather_window_1w">Next 7 days</string>
     <string name="weather_settings_entry">Weather settings</string>
     <string name="weather_enable">Weather on the dashboard</string>
-    <string name="weather_enable_desc">Adds a weather icon above the map button: tap it for a ridability forecast. +5 means drop everything and ride, 0 is fine with the right gear, -5 says leave the wheel home.</string>
+    <string name="weather_enable_desc">Adds a weather icon above the map button: tap it for a ridability forecast.</string>
     <string name="weather_window_label">Forecast window</string>
     <string name="weather_source_label">Forecast source</string>
     <string name="weather_comfort_desc">Comfort thresholds feeding the score. Temperatures follow your unit setting; wind follows your speed unit.</string>
@@ -2138,7 +2136,7 @@
     <string name="weather_hot">Too hot above</string>
     <string name="weather_breezy">Breezy above</string>
     <string name="weather_windy">Too windy above</string>
-    <string name="weather_source_credit">Forecast data by Open-Meteo.com or MET Norway, fetched only while enabled.</string>
+    <string name="weather_source_credit">Six free sources: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON and Meteo-France, fetched only while enabled. Full details adds the temperature, humidity, precipitation and wind charts, and a short window is drawn in 15-minute steps.</string>
     <string name="weather_title_1">Is it wheel weather?</string>
     <string name="weather_title_2">Is it EUC time?</string>
     <string name="weather_title_3">Time to go ride?</string>

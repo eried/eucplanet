@@ -1665,15 +1665,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d T</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">Wie weit das Panel vorausschaut. Kurze Fenster bekommen 15-Minuten-Details, wenn die Quelle sie liefert.</string>
-    <string name="weather_open_expanded">Mit Details geöffnet starten</string>
-    <string name="weather_open_expanded_desc">Die Diagramme für Temperatur, Luftfeuchte, Niederschlag und Wind sind beim Öffnen schon ausgeklappt.</string>
+    <string name="weather_open_expanded">Mit vollen Details öffnen</string>
     <string name="weather_window_24h">Nächste 24 Stunden</string>
     <string name="weather_window_3d">Nächste 3 Tage</string>
     <string name="weather_window_1w">Nächste 7 Tage</string>
     <string name="weather_settings_entry">Wetter-Einstellungen</string>
     <string name="weather_enable">Wetter im Dashboard</string>
-    <string name="weather_enable_desc">Fügt ein Wetter-Icon über dem Kartenbutton hinzu: Antippen zeigt die Fahrbarkeits-Vorhersage. +5 heißt alles stehen lassen und fahren, 0 passt mit der richtigen Ausrüstung, -5 heißt Rad zu Hause lassen.</string>
+    <string name="weather_enable_desc">Fügt über dem Kartenknopf ein Wettersymbol ein: antippen für die Fahrbarkeits-Prognose.</string>
     <string name="weather_window_label">Vorhersagefenster</string>
     <string name="weather_source_label">Vorhersagequelle</string>
     <string name="weather_comfort_desc">Komfortschwellen für die Bewertung. Temperatur folgt deinen Einheiten, Wind der Tempo-Einheit.</string>
@@ -1681,7 +1679,7 @@
     <string name="weather_hot">Zu heiß über</string>
     <string name="weather_breezy">Böig über</string>
     <string name="weather_windy">Zu windig über</string>
-    <string name="weather_source_credit">Daten von Open-Meteo.com oder MET Norway, nur solange aktiviert.</string>
+    <string name="weather_source_credit">Sechs kostenlose Quellen: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON und Meteo-France, nur bei aktivem Modul abgerufen. Volle Details ergänzen die Diagramme für Temperatur, Luftfeuchte, Niederschlag und Wind, und ein kurzes Fenster wird in 15-Minuten-Schritten gezeichnet.</string>
     <string name="weather_title_1">Einradwetter?</string>
     <string name="weather_title_2">EUC-Zeit?</string>
     <string name="weather_title_3">Zeit für eine Fahrt?</string>

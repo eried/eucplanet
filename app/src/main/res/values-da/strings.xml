@@ -1644,15 +1644,13 @@
     <string name="weather_win_hours_fmt">%1$d t</string>
     <string name="weather_win_days_fmt">%1$d d</string>
     <string name="weather_window_hours_suffix">t</string>
-    <string name="weather_window_desc">Hvor langt frem panelet ser. Korte vinduer får 15-minutters detaljer, hvis kilden har dem.</string>
-    <string name="weather_open_expanded">Åbn med detaljerne fremme</string>
-    <string name="weather_open_expanded_desc">Graferne for temperatur, luftfugtighed, nedbør og vind er foldet ud med det samme.</string>
+    <string name="weather_open_expanded">Åbn med alle detaljer</string>
     <string name="weather_window_24h">Næste 24 timer</string>
     <string name="weather_window_3d">Næste 3 dage</string>
     <string name="weather_window_1w">Næste 7 dage</string>
     <string name="weather_settings_entry">Vejrindstillinger</string>
     <string name="weather_enable">Vejr på instrumentbrættet</string>
-    <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsprognose. +5 betyder slip alt og kør, 0 er fint med det rette udstyr, -5 siger lad hjulet blive hjemme.</string>
+    <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsprognose.</string>
     <string name="weather_window_label">Udsigtsvindue</string>
     <string name="weather_source_label">Udsigtskilde</string>
     <string name="weather_comfort_desc">Komforttærskler for scoren. Temperatur følger dine enheder; vind følger fartenheden.</string>
@@ -1660,7 +1658,7 @@
     <string name="weather_hot">For varmt over</string>
     <string name="weather_breezy">Blæsende over</string>
     <string name="weather_windy">For blæsende over</string>
-    <string name="weather_source_credit">Data fra Open-Meteo.com eller MET Norway, kun mens aktiveret.</string>
+    <string name="weather_source_credit">Seks gratis kilder: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON og Meteo-France, hentes kun mens det er slået til. Fulde detaljer tilføjer graferne for temperatur, luftfugtighed, nedbør og vind, og et kort vindue tegnes i 15-minutters trin.</string>
     <string name="weather_title_1">Hjulvejr i dag?</string>
     <string name="weather_title_2">EUC-tid?</string>
     <string name="weather_title_3">Tid til en tur?</string>

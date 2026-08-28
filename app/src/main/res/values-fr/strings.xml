@@ -1694,15 +1694,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d j</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">Jusqu\'où le panneau regarde. Les fenêtres courtes passent au détail de 15 minutes si la source le fournit.</string>
-    <string name="weather_open_expanded">Ouvrir avec les détails affichés</string>
-    <string name="weather_open_expanded_desc">Les courbes de température, d\'humidité, de précipitations et de vent sont déjà dépliées.</string>
+    <string name="weather_open_expanded">Ouvrir avec tous les détails</string>
     <string name="weather_window_24h">24 prochaines heures</string>
     <string name="weather_window_3d">3 prochains jours</string>
     <string name="weather_window_1w">7 prochains jours</string>
     <string name="weather_settings_entry">Réglages météo</string>
     <string name="weather_enable">Météo sur le tableau de bord</string>
-    <string name="weather_enable_desc">Ajoute une icône météo au-dessus du bouton carte : touche-la pour la prévision de roulabilité. +5 veut dire lâche tout et roule, 0 passe avec le bon équipement, -5 dit laisse la roue à la maison.</string>
+    <string name="weather_enable_desc">Ajoute une icône météo au-dessus du bouton carte : touchez-la pour la prévision de roulabilité.</string>
     <string name="weather_window_label">Fenêtre de prévision</string>
     <string name="weather_source_label">Source des prévisions</string>
     <string name="weather_comfort_desc">Seuils de confort du score. La température suit vos unités ; le vent suit l’unité de vitesse.</string>
@@ -1710,7 +1708,7 @@
     <string name="weather_hot">Trop chaud au-dessus de</string>
     <string name="weather_breezy">Brise au-dessus de</string>
     <string name="weather_windy">Trop de vent au-dessus de</string>
-    <string name="weather_source_credit">Données Open-Meteo.com ou MET Norway, récupérées seulement si activé.</string>
+    <string name="weather_source_credit">Six sources gratuites : Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON et Meteo-France, interrogées seulement quand c\'est activé. Les détails complets ajoutent les courbes de température, d\'humidité, de précipitations et de vent, et une fenêtre courte est tracée par pas de 15 minutes.</string>
     <string name="weather_title_1">Un temps à rouler ?</string>
     <string name="weather_title_2">L\'heure de l\'EUC ?</string>
     <string name="weather_title_3">C\'est l\'heure de rouler ?</string>

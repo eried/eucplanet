@@ -1632,15 +1632,13 @@
     <string name="weather_win_hours_fmt">%1$d時</string>
     <string name="weather_win_days_fmt">%1$d天</string>
     <string name="weather_window_hours_suffix">時</string>
-    <string name="weather_window_desc">面板往前看多久。短區間在來源支援時會用 15 分鐘間隔。</string>
-    <string name="weather_open_expanded">開啟時直接展開詳細</string>
-    <string name="weather_open_expanded_desc">開啟時就展開氣溫、濕度、降水與風的圖表。</string>
+    <string name="weather_open_expanded">開啟時顯示完整詳細</string>
     <string name="weather_window_24h">未來24小時</string>
     <string name="weather_window_3d">未來3天</string>
     <string name="weather_window_1w">未來7天</string>
     <string name="weather_settings_entry">天氣設定</string>
     <string name="weather_enable">儀表板天氣</string>
-    <string name="weather_enable_desc">在地圖按鈕上方添加天氣圖示：點按查看騎行適宜度預報。+5 表示放下一切去騎行，0 表示裝備得當即可，-5 表示把車輪留在家裡。</string>
+    <string name="weather_enable_desc">在地圖按鈕上方加一個天氣圖示，點一下看騎乘預報。</string>
     <string name="weather_window_label">預報視窗</string>
     <string name="weather_source_label">預報來源</string>
     <string name="weather_comfort_desc">評分的舒適閾值。溫度與風速跟隨單位設定。</string>
@@ -1648,7 +1646,7 @@
     <string name="weather_hot">高於此過熱</string>
     <string name="weather_breezy">高於此有風</string>
     <string name="weather_windy">高於此風太大</string>
-    <string name="weather_source_credit">資料來自 Open-Meteo.com 或 MET Norway，僅在啟用時取得。</string>
+    <string name="weather_source_credit">六個免費來源：Open-Meteo、MET Norway (yr.no)、ECMWF、NOAA GFS、DWD ICON 與 Meteo-France，只在啟用時抓取。完整詳細會加上氣溫、濕度、降水與風的圖表，短區間以 15 分鐘為間隔繪製。</string>
     <string name="weather_title_1">獨輪車好天氣？</string>
     <string name="weather_title_2">EUC時間到了？</string>
     <string name="weather_title_3">該去騎行了嗎？</string>

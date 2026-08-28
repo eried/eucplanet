@@ -1631,15 +1631,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d d</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">Hur långt fram panelen tittar. Korta fönster får 15-minutersdetaljer när källan har dem.</string>
-    <string name="weather_open_expanded">Öppna med detaljerna framme</string>
-    <string name="weather_open_expanded_desc">Diagrammen för temperatur, luftfuktighet, nederbörd och vind är redan utfällda.</string>
+    <string name="weather_open_expanded">Öppna med alla detaljer</string>
     <string name="weather_window_24h">Kommande 24 timmar</string>
     <string name="weather_window_3d">Kommande 3 dagar</string>
     <string name="weather_window_1w">Kommande 7 dagar</string>
     <string name="weather_settings_entry">Väderinställningar</string>
     <string name="weather_enable">Väder på instrumentpanelen</string>
-    <string name="weather_enable_desc">Lägger en väderikon ovanför kartknappen: tryck för åkbarhetsprognos. +5 betyder släpp allt och åk, 0 funkar med rätt utrustning, -5 säger låt hjulet stå hemma.</string>
+    <string name="weather_enable_desc">Lägger ett väderikon ovanför kartknappen: tryck för en körbarhetsprognos.</string>
     <string name="weather_window_label">Prognosfönster</string>
     <string name="weather_source_label">Prognoskälla</string>
     <string name="weather_comfort_desc">Komforttrösklar för poängen. Temperatur följer dina enheter; vind följer hastighetsenheten.</string>
@@ -1647,7 +1645,7 @@
     <string name="weather_hot">För varmt över</string>
     <string name="weather_breezy">Blåsigt över</string>
     <string name="weather_windy">För blåsigt över</string>
-    <string name="weather_source_credit">Data från Open-Meteo.com eller MET Norway, endast när aktiverat.</string>
+    <string name="weather_source_credit">Sex gratis källor: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON och Meteo-France, hämtas bara när det är på. Fulla detaljer lägger till diagrammen för temperatur, luftfuktighet, nederbörd och vind, och ett kort fönster ritas i 15-minuterssteg.</string>
     <string name="weather_title_1">Hjulväder?</string>
     <string name="weather_title_2">EUC-dags?</string>
     <string name="weather_title_3">Dags för en tur?</string>

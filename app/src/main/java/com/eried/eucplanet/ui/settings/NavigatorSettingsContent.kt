@@ -297,18 +297,6 @@ fun NavigatorSettingsContent(
         }
         HintText(stringResource(R.string.weather_enable_desc), small = true)
         if (settings.weather.enabled) {
-            // Hours, not four presets: "the rest of my afternoon" fell between
-            // 6 and 24 every time. The dashboard menu still offers the old
-            // presets as a temporary view.
-            NumberUpDown(
-                value = settings.weather.windowHours,
-                onValueChange = { viewModel.updateWeatherWindow(it) },
-                range = 2..168,
-                suffix = stringResource(R.string.weather_window_hours_suffix),
-                label = stringResource(R.string.weather_window_label),
-                modifier = Modifier.fillMaxWidth(),
-            )
-            HintText(stringResource(R.string.weather_window_desc), small = true)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -324,7 +312,10 @@ fun NavigatorSettingsContent(
                     colors = themedSwitchColors(),
                 )
             }
-            HintText(stringResource(R.string.weather_open_expanded_desc), small = true)
+            // The source line sits ABOVE its selector, so the block reads as
+            // one thought: here is where the numbers come from, here is the
+            // picker, here is how far ahead to look.
+            HintText(stringResource(R.string.weather_source_credit), small = true)
             val sources = com.eried.eucplanet.weather.WeatherSource.entries
             var sourceExpanded by remember { mutableStateOf(false) }
             androidx.compose.material3.ExposedDropdownMenuBox(
@@ -359,7 +350,22 @@ fun NavigatorSettingsContent(
                     }
                 }
             }
-            HintText(stringResource(R.string.weather_source_credit), small = true)
+            // Hours, not four presets: "the rest of my afternoon" fell between
+            // 6 and 24 every time. The dashboard menu still offers the old
+            // presets as a temporary view. Half width, like the paired
+            // numeric fields further up this page, rather than a lone box
+            // spanning the screen for a two-digit number.
+            Row(modifier = Modifier.fillMaxWidth()) {
+                NumberUpDown(
+                    value = settings.weather.windowHours,
+                    onValueChange = { viewModel.updateWeatherWindow(it) },
+                    range = 2..168,
+                    suffix = stringResource(R.string.weather_window_hours_suffix),
+                    label = stringResource(R.string.weather_window_label),
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.weight(1f))
+            }
 
             // Riding preferences: a triple selector per condition, in the same
             // full-width segmented style as the window selector above. The

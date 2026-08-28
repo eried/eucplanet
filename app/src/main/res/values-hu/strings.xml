@@ -1891,15 +1891,13 @@
     <string name="weather_win_hours_fmt">%1$d ó</string>
     <string name="weather_win_days_fmt">%1$d n</string>
     <string name="weather_window_hours_suffix">ó</string>
-    <string name="weather_window_desc">Meddig néz előre a panel. A rövid ablakok 15 perces bontást kapnak, ha a forrásnak van.</string>
-    <string name="weather_open_expanded">Nyitás a részletekkel</string>
-    <string name="weather_open_expanded_desc">A hőmérséklet, páratartalom, csapadék és szél grafikonja nyitáskor már ki van bontva.</string>
+    <string name="weather_open_expanded">Nyitás teljes részletekkel</string>
     <string name="weather_window_24h">Következő 24 óra</string>
     <string name="weather_window_3d">Következő 3 nap</string>
     <string name="weather_window_1w">Következő 7 nap</string>
     <string name="weather_settings_entry">Időjárás-beállítások</string>
     <string name="weather_enable">Időjárás a műszerfalon</string>
-    <string name="weather_enable_desc">Időjárás-ikont ad a térképgomb fölé: koppints a gurulhatósági előrejelzésért. A +5 azt jelenti, hagyj mindent és tekerj, a 0 megfelelő felszereléssel rendben van, a -5 szerint hagyd otthon a kereket.</string>
+    <string name="weather_enable_desc">Időjárás ikont tesz a térkép gomb fölé: koppints rá a gurulhatósági előrejelzésért.</string>
     <string name="weather_window_label">Előrejelzési ablak</string>
     <string name="weather_source_label">Előrejelzés forrása</string>
     <string name="weather_comfort_desc">Komfortküszöbök a pontszámhoz. A hőmérséklet a te egységeidet követi; a szél a sebességét.</string>
@@ -1907,7 +1905,7 @@
     <string name="weather_hot">Túl meleg e felett</string>
     <string name="weather_breezy">Szeles e felett</string>
     <string name="weather_windy">Túl szeles e felett</string>
-    <string name="weather_source_credit">Adatok: Open-Meteo.com vagy MET Norway, csak bekapcsolva.</string>
+    <string name="weather_source_credit">Hat ingyenes forrás: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON és Meteo-France, csak bekapcsolt állapotban tölt le. A teljes részletek hozzáadják a hőmérséklet, páratartalom, csapadék és szél grafikonját, a rövid ablak pedig 15 perces léptékben rajzolódik.</string>
     <string name="weather_title_1">Kereklezős idő?</string>
     <string name="weather_title_2">EUC-idő?</string>
     <string name="weather_title_3">Ideje gurulni?</string>

@@ -1891,15 +1891,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d pv</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">Kuinka pitkälle paneeli katsoo. Lyhyet ikkunat saavat 15 minuutin tarkkuuden, jos lähde tarjoaa sen.</string>
-    <string name="weather_open_expanded">Avaa tiedot näkyvissä</string>
-    <string name="weather_open_expanded_desc">Lämpötilan, kosteuden, sateen ja tuulen kaaviot ovat heti auki.</string>
+    <string name="weather_open_expanded">Avaa kaikki tiedot näkyviin</string>
     <string name="weather_window_24h">Seuraavat 24 tuntia</string>
     <string name="weather_window_3d">Seuraavat 3 päivää</string>
     <string name="weather_window_1w">Seuraavat 7 päivää</string>
     <string name="weather_settings_entry">Sääasetukset</string>
     <string name="weather_enable">Sää kojelaudalla</string>
-    <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen ylle: napauta ajokelpoisuusennustetta. +5 tarkoittaa jätä kaikki ja aja, 0 on ok oikeilla varusteilla, -5 sanoo jätä ratas kotiin.</string>
+    <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen yläpuolelle: napauta nähdäksesi ajettavuusennusteen.</string>
     <string name="weather_window_label">Ennusteikkuna</string>
     <string name="weather_source_label">Ennusteen lähde</string>
     <string name="weather_comfort_desc">Mukavuusrajat pisteille. Lämpötila seuraa yksiköitäsi; tuuli nopeusyksikköä.</string>
@@ -1907,7 +1905,7 @@
     <string name="weather_hot">Liian kuuma yli</string>
     <string name="weather_breezy">Tuulista yli</string>
     <string name="weather_windy">Liian tuulista yli</string>
-    <string name="weather_source_credit">Tiedot Open-Meteo.com tai MET Norway, haetaan vain kun käytössä.</string>
+    <string name="weather_source_credit">Kuusi ilmaista lähdettä: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON ja Meteo-France, haetaan vain kun toiminto on päällä. Täydet tiedot lisäävät lämpötilan, kosteuden, sateen ja tuulen kaaviot, ja lyhyt ikkuna piirretään 15 minuutin välein.</string>
     <string name="weather_title_1">Onko ajokeli?</string>
     <string name="weather_title_2">EUC-aika?</string>
     <string name="weather_title_3">Aika lähteä ajelulle?</string>

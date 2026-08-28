@@ -1891,15 +1891,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d z</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">Cât de departe se uită panoul. Ferestrele scurte au detaliu la 15 minute, dacă sursa îl oferă.</string>
-    <string name="weather_open_expanded">Deschide cu detaliile la vedere</string>
-    <string name="weather_open_expanded_desc">Graficele de temperatură, umiditate, precipitații și vânt sunt deja desfășurate.</string>
+    <string name="weather_open_expanded">Deschide cu toate detaliile</string>
     <string name="weather_window_24h">Următoarele 24 de ore</string>
     <string name="weather_window_3d">Următoarele 3 zile</string>
     <string name="weather_window_1w">Următoarele 7 zile</string>
     <string name="weather_settings_entry">Setări vreme</string>
     <string name="weather_enable">Vremea pe bord</string>
-    <string name="weather_enable_desc">Adaugă o pictogramă meteo deasupra butonului hărții: atinge pentru prognoza de rulare. +5 înseamnă lasă tot și mergi, 0 e în regulă cu echipamentul potrivit, -5 spune lasă roata acasă.</string>
+    <string name="weather_enable_desc">Adaugă o pictogramă meteo deasupra butonului hărții: atinge-o pentru prognoza de rulare.</string>
     <string name="weather_window_label">Fereastra prognozei</string>
     <string name="weather_source_label">Sursa prognozei</string>
     <string name="weather_comfort_desc">Praguri de confort pentru scor. Temperatura urmează unitățile tale; vântul, unitatea de viteză.</string>
@@ -1907,7 +1905,7 @@
     <string name="weather_hot">Prea cald peste</string>
     <string name="weather_breezy">Vânt peste</string>
     <string name="weather_windy">Prea vântos peste</string>
-    <string name="weather_source_credit">Date de la Open-Meteo.com sau MET Norway, doar cât e activat.</string>
+    <string name="weather_source_credit">Șase surse gratuite: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON și Meteo-France, descărcate doar cât este activ. Detaliile complete adaugă graficele de temperatură, umiditate, precipitații și vânt, iar o fereastră scurtă este desenată în pași de 15 minute.</string>
     <string name="weather_title_1">Vreme de roată?</string>
     <string name="weather_title_2">E ora de EUC?</string>
     <string name="weather_title_3">E timpul de o tură?</string>

@@ -1667,15 +1667,13 @@
     <string name="weather_win_hours_fmt">%1$d год</string>
     <string name="weather_win_days_fmt">%1$d д</string>
     <string name="weather_window_hours_suffix">год</string>
-    <string name="weather_window_desc">Наскільки вперед дивиться панель. Короткі вікна отримують крок 15 хвилин, якщо джерело його дає.</string>
-    <string name="weather_open_expanded">Відкривати одразу з деталями</string>
-    <string name="weather_open_expanded_desc">Графіки температури, вологості, опадів і вітру одразу розгорнуті.</string>
+    <string name="weather_open_expanded">Відкривати з усіма деталями</string>
     <string name="weather_window_24h">Наступні 24 години</string>
     <string name="weather_window_3d">Наступні 3 дні</string>
     <string name="weather_window_1w">Наступні 7 днів</string>
     <string name="weather_settings_entry">Налаштування погоди</string>
     <string name="weather_enable">Погода на панелі</string>
-    <string name="weather_enable_desc">Додає значок погоди над кнопкою карти: торкнись для прогнозу катання. +5 означає кидай усе й катайся, 0 нормально з правильним спорядженням, -5 каже залиш колесо вдома.</string>
+    <string name="weather_enable_desc">Додає значок погоди над кнопкою карти: торкніться для прогнозу їзди.</string>
     <string name="weather_window_label">Вікно прогнозу</string>
     <string name="weather_source_label">Джерело прогнозу</string>
     <string name="weather_comfort_desc">Пороги комфорту для оцінки. Температура у ваших одиницях; вітер - в одиницях швидкості.</string>
@@ -1683,7 +1681,7 @@
     <string name="weather_hot">Надто спекотно вище</string>
     <string name="weather_breezy">Вітряно вище</string>
     <string name="weather_windy">Надто вітряно вище</string>
-    <string name="weather_source_credit">Дані Open-Meteo.com або MET Norway, лише коли увімкнено.</string>
+    <string name="weather_source_credit">Шість безкоштовних джерел: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON і Meteo-France, завантажуються лише коли увімкнено. Повні деталі додають графіки температури, вологості, опадів і вітру, а коротке вікно малюється з кроком 15 хвилин.</string>
     <string name="weather_title_1">Погода для колеса?</string>
     <string name="weather_title_2">Час EUC?</string>
     <string name="weather_title_3">Час покататися?</string>

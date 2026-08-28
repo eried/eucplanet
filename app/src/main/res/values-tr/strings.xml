@@ -1632,15 +1632,13 @@
     <string name="weather_win_hours_fmt">%1$d s</string>
     <string name="weather_win_days_fmt">%1$d g</string>
     <string name="weather_window_hours_suffix">s</string>
-    <string name="weather_window_desc">Panelin ne kadar ileriye baktığı. Kısa aralıklar, kaynak sunuyorsa 15 dakikalık ayrıntı alır.</string>
-    <string name="weather_open_expanded">Ayrıntılar açıkken başlat</string>
-    <string name="weather_open_expanded_desc">Sıcaklık, nem, yağış ve rüzgar grafikleri açılışta zaten açıktır.</string>
+    <string name="weather_open_expanded">Tüm ayrıntılarla aç</string>
     <string name="weather_window_24h">Sonraki 24 saat</string>
     <string name="weather_window_3d">Sonraki 3 gün</string>
     <string name="weather_window_1w">Sonraki 7 gün</string>
     <string name="weather_settings_entry">Hava ayarları</string>
     <string name="weather_enable">Panelde hava durumu</string>
-    <string name="weather_enable_desc">Harita düğmesinin üstüne hava simgesi ekler: sürülebilirlik tahmini için dokun. +5 her şeyi bırak sür demek, 0 doğru ekipmanla idare eder, -5 tekeri evde bırak der.</string>
+    <string name="weather_enable_desc">Harita düğmesinin üstüne hava simgesi ekler: dokunarak sürülebilirlik tahminini aç.</string>
     <string name="weather_window_label">Tahmin penceresi</string>
     <string name="weather_source_label">Tahmin kaynağı</string>
     <string name="weather_comfort_desc">Puan için konfor eşikleri. Sıcaklık birimlerini, rüzgar hız birimini izler.</string>
@@ -1648,7 +1646,7 @@
     <string name="weather_hot">Üstünde çok sıcak</string>
     <string name="weather_breezy">Üstünde esintili</string>
     <string name="weather_windy">Üstünde çok rüzgarlı</string>
-    <string name="weather_source_credit">Veriler Open-Meteo.com veya MET Norway, yalnızca etkinken.</string>
+    <string name="weather_source_credit">Altı ücretsiz kaynak: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON ve Meteo-France, yalnızca açıkken çekilir. Tüm ayrıntılar sıcaklık, nem, yağış ve rüzgar grafiklerini ekler; kısa aralık 15 dakikalık adımlarla çizilir.</string>
     <string name="weather_title_1">Teker havası mı?</string>
     <string name="weather_title_2">EUC zamanı mı?</string>
     <string name="weather_title_3">Sürüş zamanı mı?</string>

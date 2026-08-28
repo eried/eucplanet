@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -1033,25 +1034,65 @@ private fun ScoreGraph(
             }
         }
 
-        // Sparse time ticks: start / quarter / half / three-quarter / end.
+        // Time ticks at ROUND clock times, placed where those times actually
+        // fall.
+        //
+        // They used to be the quarter, half and three-quarter points of the
+        // data, printing whatever timestamp sat there: an eight-hour window
+        // starting at 09:00 read 11:15, 13:30, 15:45. Positions, not times.
+        // Nobody reads a forecast in quarter-of-the-window units.
         val fmtHour = SimpleDateFormat("HH:mm", Locale.getDefault())
         val fmtDay = SimpleDateFormat("EEE", Locale.getDefault())
-        val spanMs = hours.last().timeMs - hours.first().timeMs
+        val startMs = hours.first().timeMs
+        val spanMs = hours.last().timeMs - startMs
         val fmt = if (spanMs > 36L * 3600_000L) fmtDay else fmtHour
-        Row(Modifier.fillMaxWidth()) {
-            listOf(0f, 0.25f, 0.5f, 0.75f, 1f).forEachIndexed { idx, f ->
-                val i = ((hours.size - 1) * f).toInt()
+        val nowLabel = stringResource(R.string.weather_now)
+        // The smallest step that still leaves the labels far enough apart to
+        // read; a day once the window is long enough to be about days.
+        val stepMs = listOf(
+            1L, 2L, 3L, 6L, 12L, 24L, 48L, 72L,
+        ).map { it * 3600_000L }.firstOrNull { spanMs / it <= 4L } ?: (7L * 24 * 3600_000L)
+        val ticks = remember(startMs, spanMs, stepMs) {
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = startMs
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            // Walk whole hours from the top of the starting hour: the first
+            // round time on the step lands inside the window.
+            val stepH = (stepMs / 3600_000L).toInt().coerceAtLeast(1)
+            while (cal.timeInMillis < startMs ||
+                (cal.get(java.util.Calendar.HOUR_OF_DAY) % stepH) != 0
+            ) {
+                cal.add(java.util.Calendar.HOUR_OF_DAY, 1)
+            }
+            val out = ArrayList<Pair<Float, Long>>()
+            while (cal.timeInMillis <= startMs + spanMs && out.size < 8) {
+                val f = if (spanMs <= 0L) 0f else (cal.timeInMillis - startMs).toFloat() / spanMs
+                // Leave the left end to "Now" and keep the last label on-panel.
+                if (f > 0.12f && f < 0.97f) out.add(f to cal.timeInMillis)
+                cal.add(java.util.Calendar.HOUR_OF_DAY, stepH)
+            }
+            out
+        }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val full = maxWidth
+            val slot = 44.dp
+            Text(
+                nowLabel,
+                fontSize = 9.sp,
+                color = ink.copy(alpha = 0.6f),
+                modifier = Modifier.align(Alignment.CenterStart),
+            )
+            ticks.forEach { (f, t) ->
                 Text(
-                    if (idx == 0) stringResource(R.string.weather_now)
-                    else fmt.format(Date(hours[i].timeMs)),
+                    fmt.format(Date(t)),
                     fontSize = 9.sp,
                     color = ink.copy(alpha = 0.6f),
-                    textAlign = when (idx) {
-                        0 -> TextAlign.Start
-                        4 -> TextAlign.End
-                        else -> TextAlign.Center
-                    },
-                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .width(slot)
+                        .offset(x = (full - slot) * f),
                 )
             }
         }

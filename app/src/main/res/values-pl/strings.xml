@@ -1648,15 +1648,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d d</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">Jak daleko patrzy panel. Krótkie okna mają szczegóły co 15 minut, jeśli źródło je udostępnia.</string>
-    <string name="weather_open_expanded">Otwieraj ze szczegółami</string>
-    <string name="weather_open_expanded_desc">Wykresy temperatury, wilgotności, opadów i wiatru są od razu rozwinięte.</string>
+    <string name="weather_open_expanded">Otwieraj z pełnymi szczegółami</string>
     <string name="weather_window_24h">Następne 24 godziny</string>
     <string name="weather_window_3d">Następne 3 dni</string>
     <string name="weather_window_1w">Następne 7 dni</string>
     <string name="weather_settings_entry">Ustawienia pogody</string>
     <string name="weather_enable">Pogoda na pulpicie</string>
-    <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: stuknij, by zobaczyć prognozę jezdności. +5 znaczy rzuć wszystko i jedź, 0 jest w porządku z właściwym strojem, -5 mówi zostaw koło w domu.</string>
+    <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: dotknij, by zobaczyć prognozę jezdności.</string>
     <string name="weather_window_label">Okno prognozy</string>
     <string name="weather_source_label">Źródło prognozy</string>
     <string name="weather_comfort_desc">Progi komfortu dla oceny. Temperatura wg twoich jednostek; wiatr wg jednostki prędkości.</string>
@@ -1664,7 +1662,7 @@
     <string name="weather_hot">Za gorąco powyżej</string>
     <string name="weather_breezy">Wietrznie powyżej</string>
     <string name="weather_windy">Zbyt wietrznie powyżej</string>
-    <string name="weather_source_credit">Dane z Open-Meteo.com lub MET Norway, pobierane tylko gdy włączone.</string>
+    <string name="weather_source_credit">Sześć darmowych źródeł: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON i Meteo-France, pobierane tylko przy włączonej funkcji. Pełne szczegóły dodają wykresy temperatury, wilgotności, opadów i wiatru, a krótkie okno rysowane jest co 15 minut.</string>
     <string name="weather_title_1">Pogoda na koło?</string>
     <string name="weather_title_2">Czas na EUC?</string>
     <string name="weather_title_3">Czas na przejażdżkę?</string>

@@ -1667,15 +1667,13 @@
     <string name="weather_win_hours_fmt">%1$d h</string>
     <string name="weather_win_days_fmt">%1$d d</string>
     <string name="weather_window_hours_suffix">h</string>
-    <string name="weather_window_desc">Cuánto adelanta el panel. Las ventanas cortas usan detalle de 15 minutos si la fuente lo tiene.</string>
-    <string name="weather_open_expanded">Abrir con los detalles a la vista</string>
-    <string name="weather_open_expanded_desc">Los gráficos de temperatura, humedad, precipitación y viento ya están desplegados al abrir.</string>
+    <string name="weather_open_expanded">Abrir con todos los detalles</string>
     <string name="weather_window_24h">Próximas 24 horas</string>
     <string name="weather_window_3d">Próximos 3 días</string>
     <string name="weather_window_1w">Próximos 7 días</string>
     <string name="weather_settings_entry">Ajustes de clima</string>
     <string name="weather_enable">Clima en el panel</string>
-    <string name="weather_enable_desc">Añade un icono de clima sobre el botón del mapa: tócalo para el pronóstico de conducibilidad. +5 es dejarlo todo y salir a rodar, 0 va bien con el equipo adecuado, -5 dice deja la rueda en casa.</string>
+    <string name="weather_enable_desc">Añade un icono del tiempo sobre el botón del mapa: tócalo para ver la previsión de rodabilidad.</string>
     <string name="weather_window_label">Ventana de pronóstico</string>
     <string name="weather_source_label">Fuente del pronóstico</string>
     <string name="weather_comfort_desc">Umbrales de confort para la puntuación. La temperatura sigue tus unidades; el viento, tu unidad de velocidad.</string>
@@ -1683,7 +1681,7 @@
     <string name="weather_hot">Calor por encima de</string>
     <string name="weather_breezy">Brisa sobre</string>
     <string name="weather_windy">Mucho viento sobre</string>
-    <string name="weather_source_credit">Datos de Open-Meteo.com o MET Norway, solo mientras está activado.</string>
+    <string name="weather_source_credit">Seis fuentes gratuitas: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON y Meteo-France, consultadas solo mientras esté activo. Los detalles completos añaden los gráficos de temperatura, humedad, lluvia y viento, y una ventana corta se dibuja en pasos de 15 minutos.</string>
     <string name="weather_title_1">¿Clima para rodar?</string>
     <string name="weather_title_2">¿Hora de EUC?</string>
     <string name="weather_title_3">¿Hora de rodar?</string>
