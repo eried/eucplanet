@@ -380,16 +380,16 @@ private fun DetailSection(
                 else "%.1f mm/h".format(h.precipMmH),
             ),
             series = listOf(
-                ChartSeries(hours.map { it.h.tempC }, MaterialTheme.appColors.metricTemp),
+                ChartSeries(hours.map { it.h.tempC }, MaterialTheme.appColors.weatherTemp),
                 ChartSeries(
                     hours.map { it.h.humidityPct },
-                    MaterialTheme.appColors.chartEnvelope,
+                    MaterialTheme.appColors.weatherHumidity,
                     dashed = true,
                     fill = true,
                 ),
             ),
             bars = listOf(
-                ChartSeries(hours.map { it.h.precipMmH }, MaterialTheme.appColors.chartEnvelope),
+                ChartSeries(hours.map { it.h.precipMmH }, MaterialTheme.appColors.weatherPrecip),
                 ChartSeries(hours.map { it.h.snowCmH }, ink.copy(alpha = 0.45f)),
             ),
             chartHeight = 88.dp,
@@ -401,10 +401,10 @@ private fun DetailSection(
             series = listOf(
                 ChartSeries(
                     hours.map { it.h.windMs },
-                    MaterialTheme.appColors.metricPosition,
+                    MaterialTheme.appColors.weatherWind,
                     fill = true,
                 ),
-                ChartSeries(hours.map { it.h.gustMs }, MaterialTheme.appColors.metricPosition, dashed = true),
+                ChartSeries(hours.map { it.h.gustMs }, MaterialTheme.appColors.weatherWind, dashed = true),
             ),
             // Wind and gusts are the same quantity, so they share one scale:
             // a gust is never weaker than the wind under it, and the dashed
