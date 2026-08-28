@@ -297,29 +297,34 @@ fun NavigatorSettingsContent(
         }
         HintText(stringResource(R.string.weather_enable_desc), small = true)
         if (settings.weather.enabled) {
-            Text(
-                stringResource(R.string.weather_window_label),
-                style = MaterialTheme.typography.bodyLarge
+            // Hours, not four presets: "the rest of my afternoon" fell between
+            // 6 and 24 every time. The dashboard menu still offers the old
+            // presets as a temporary view.
+            NumberUpDown(
+                value = settings.weather.windowHours,
+                onValueChange = { viewModel.updateWeatherWindow(it) },
+                range = 2..168,
+                suffix = stringResource(R.string.weather_window_hours_suffix),
+                label = stringResource(R.string.weather_window_label),
+                modifier = Modifier.fillMaxWidth(),
             )
-            val windowEntries = listOf(
-                6 to stringResource(R.string.weather_win_6),
-                24 to stringResource(R.string.weather_win_24),
-                72 to stringResource(R.string.weather_win_3d),
-                168 to stringResource(R.string.weather_win_1w),
-            )
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier.fillMaxWidth().height(56.dp)
+            HintText(stringResource(R.string.weather_window_desc), small = true)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                windowEntries.forEachIndexed { index, (h, label) ->
-                    SegmentedButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        selected = settings.weather.windowHours == h,
-                        onClick = { viewModel.updateWeatherWindow(h) },
-                        shape = SegmentedButtonDefaults.itemShape(index, windowEntries.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
-                        colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
-                    ) { Text(label) }
-                }
+                Text(
+                    stringResource(R.string.weather_open_expanded),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Switch(
+                    checked = settings.weather.openExpanded,
+                    onCheckedChange = { viewModel.updateWeatherOpenExpanded(it) },
+                    colors = themedSwitchColors(),
+                )
             }
+            HintText(stringResource(R.string.weather_open_expanded_desc), small = true)
             val sources = com.eried.eucplanet.weather.WeatherSource.entries
             var sourceExpanded by remember { mutableStateOf(false) }
             androidx.compose.material3.ExposedDropdownMenuBox(

@@ -2764,11 +2764,30 @@ private fun ChartCard(
                     "%.1f - %.1f (peak %.0f)".format(dataMin, dataMax, peak)
                 else
                     "%.1f - %.1f".format(dataMin, dataMax)
-                // A zoom badge on the range label while a slice is shown.
-                val zoomedLabel = if (fullView) rangeLabel
-                else rangeLabel + "  \u00d7" + "%.1f".format(
-                    1f / (window.endInclusive - window.start).coerceAtLeast(ChartWindow.MIN_SPAN))
-                Text(zoomedLabel, fontSize = 11.sp,
+                // What the SECTION on screen spans, when that is not simply
+                // the whole ride. The y-axis belongs to the ride now, so
+                // without this a zoomed stretch carries no numbers of its
+                // own; the zoom factor that used to sit here told the rider
+                // nothing they could act on, and the funnel already answers
+                // "how much am I looking at". Measured from what is drawn,
+                // so it survives the pinch committing into a trim.
+                var viewLo = Float.POSITIVE_INFINITY
+                var viewHi = Float.NEGATIVE_INFINITY
+                fun scanView(vs: List<Float>) {
+                    for (v in vs) {
+                        if (v.isNaN()) continue
+                        if (v < viewLo) viewLo = v
+                        if (v > viewHi) viewHi = v
+                    }
+                }
+                scanView(values)
+                overlays.forEach { scanView(it.values) }
+                val sectionDiffers = viewLo.isFinite() && viewHi.isFinite() &&
+                    (viewLo > dataMin + 0.05f || viewHi < dataMax - 0.05f)
+                val label = if (sectionDiffers)
+                    rangeLabel + "  \u00b7  " + "%.1f - %.1f".format(viewLo, viewHi)
+                else rangeLabel
+                Text(label, fontSize = 11.sp,
                     color = color, fontWeight = FontWeight.Medium)
             }
 

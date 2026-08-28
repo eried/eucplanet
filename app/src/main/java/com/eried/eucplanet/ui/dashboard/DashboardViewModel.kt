@@ -206,6 +206,11 @@ class DashboardViewModel @Inject constructor(
     /** Fetch if stale (or [force]); needs a location fix of any age - the
      *  forecast cell is kilometres wide, so a stale fix is still the right
      *  weather. No fix at all leaves the flyout to say so. */
+    /** Whether to ask for 15-minute steps: only worth it on a short window,
+     *  where hourly dots leave the curve looking blocky, and only out to
+     *  where the providers publish them. */
+    private fun fineDetail(windowHours: Int): Boolean = windowHours <= 12
+
     fun refreshWeather(force: Boolean = false) {
         val loc = tripRepository.currentLocation.value
             ?: tripRepository.lastKnownLocation.value ?: return
@@ -216,6 +221,7 @@ class DashboardViewModel @Inject constructor(
                 weatherRepository.ensureFreshDest(
                     dest.lat, dest.lng,
                     com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
+                    fine = fineDetail(w.windowHours),
                 )
             }
         }
@@ -223,7 +229,8 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             weatherRepository.ensureFresh(
                 loc.latitude, loc.longitude,
-                com.eried.eucplanet.weather.WeatherSource.byId(w.source), force
+                com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
+                fine = fineDetail(w.windowHours),
             )
         }
     }

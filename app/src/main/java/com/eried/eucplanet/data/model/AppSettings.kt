@@ -1247,8 +1247,13 @@ data class ProximityLockSettings(
  */
 data class WeatherSettings(
     val enabled: Boolean = false,
-    /** Default forecast window: 6, 24, 72 or 168 hours. */
-    val windowHours: Int = 6,
+    /** How many hours ahead the panel shows, 2..168. Free-form rather than
+     *  four presets: a rider who wants "the rest of my afternoon" was
+     *  choosing between 6 and 24. The dashboard menu still offers presets,
+     *  but those are a temporary view, not this. */
+    val windowHours: Int = 8,
+    /** Open the panel with its detail charts already unfolded. */
+    val openExpanded: Boolean = false,
     /** [com.eried.eucplanet.weather.WeatherSource] id. */
     val source: String = "OPEN_METEO",
     // Riding preferences: how each condition should count for this rider.

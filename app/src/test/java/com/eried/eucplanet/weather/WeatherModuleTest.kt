@@ -311,7 +311,10 @@ class WeatherModuleTest {
     @Test fun `ships disabled, with the rider's stated comfort defaults`() {
         val w = WeatherSettings()
         assertTrue(!w.enabled)
-        assertEquals(6, w.windowHours)
+        // Eight hours: an afternoon and the evening after it, which is the
+        // question the panel is usually asked. Free-form now, not a preset.
+        assertEquals(8, w.windowHours)
+        assertTrue(!w.openExpanded)
         assertEquals("OPEN_METEO", w.source)
         // Thresholds live in Advanced settings (Weather score group).
         val a = com.eried.eucplanet.data.model.AdvancedSettings()
@@ -406,8 +409,10 @@ class WeatherModuleTest {
         val keys = listOf(
             "weather_section", "weather_icon_desc", "weather_now", "weather_fetching",
             "weather_refresh", "weather_error",
-            "weather_window_6h", "weather_window_24h", "weather_window_3d", "weather_window_1w",
-            "weather_win_6", "weather_win_24", "weather_win_3d", "weather_win_1w",
+            "weather_window_8h", "weather_window_24h", "weather_window_3d", "weather_window_1w",
+            "weather_win_hours_fmt", "weather_win_days_fmt",
+            "weather_window_hours_suffix", "weather_window_desc",
+            "weather_open_expanded", "weather_open_expanded_desc",
             "weather_settings_entry", "weather_enable", "weather_enable_desc",
             "weather_window_label", "weather_source_label", "weather_comfort_desc",
             "weather_cold", "weather_hot", "weather_breezy", "weather_windy",

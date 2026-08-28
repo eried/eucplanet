@@ -124,13 +124,16 @@ private object WeatherPhrases {
     }
 }
 
-/** The compact window tag shown beside the title: "6h", "24h", "3d", "1w". */
-private fun windowShortRes(windowHours: Int): Int = when {
-    windowHours <= 6 -> R.string.weather_win_6
-    windowHours <= 24 -> R.string.weather_win_24
-    windowHours <= 72 -> R.string.weather_win_3d
-    else -> R.string.weather_win_1w
-}
+/** The compact window tag beside the title: "8 h", "36 h", "3 d".
+ *
+ *  Formatted rather than picked from four fixed strings, because the window
+ *  is any number of hours now. Days once past a day and a half, where the
+ *  hour count stops being something a rider reads at a glance; rounded to
+ *  the nearest day, so 72 h is "3 d" and 80 h still is. */
+@Composable
+private fun windowShortLabel(windowHours: Int): String =
+    if (windowHours <= 36) stringResource(R.string.weather_win_hours_fmt, windowHours)
+    else stringResource(R.string.weather_win_days_fmt, (windowHours + 12) / 24)
 
 /** Vertical segments the window divides into: hourly for 6h, 4h blocks for a
  *  day, half-days for 3 days, whole days for the week. */
@@ -162,13 +165,15 @@ fun WeatherFlyout(
     onToggleSource: () -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Open with the detail charts already unfolded, per the rider's setting. */
+    startExpanded: Boolean = false,
 ) {
     // Same family as the navigation popup: the inverse of the app background
     // so it stands out, rounded, with a real shadow.
     val panel = MaterialTheme.appColors.navPopupPanel
     val ink = MaterialTheme.appColors.navPopupInk
     val titleRes = remember { WeatherPhrases.titleRes() }
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(startExpanded) }
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -194,7 +199,7 @@ fun WeatherFlyout(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    stringResource(windowShortRes(windowHours)),
+                    windowShortLabel(windowHours),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ink.copy(alpha = 0.7f),

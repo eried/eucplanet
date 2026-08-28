@@ -207,6 +207,7 @@ object SettingsJson {
         // and a future move back to top level would not break existing saves.
         put("weatherEnabled", s.weather.enabled)
         put("weatherWindowHours", s.weather.windowHours)
+        put("weatherOpenExpanded", s.weather.openExpanded)
         put("weatherSource", s.weather.source)
         put("weatherPrefHot", s.weather.prefHot)
         put("weatherPrefCold", s.weather.prefCold)
@@ -415,6 +416,7 @@ object SettingsJson {
         weather = com.eried.eucplanet.data.model.WeatherSettings(
             enabled = j.optBoolean("weatherEnabled", base.weather.enabled),
             windowHours = j.optInt("weatherWindowHours", base.weather.windowHours),
+            openExpanded = j.optBoolean("weatherOpenExpanded", base.weather.openExpanded),
             source = j.optString("weatherSource", base.weather.source),
             prefHot = j.optString("weatherPrefHot", base.weather.prefHot),
             prefCold = j.optString("weatherPrefCold", base.weather.prefCold),

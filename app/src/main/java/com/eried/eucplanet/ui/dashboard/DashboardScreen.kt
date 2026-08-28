@@ -1300,7 +1300,10 @@ fun DashboardScreen(
                                 containerColor = MaterialTheme.appColors.menuBackground
                             ) {
                                 listOf(
-                                    6 to R.string.weather_window_6h,
+                                    // A temporary view, not the setting: these
+                                    // set the override only. The first one
+                                    // matches the shipped default window.
+                                    8 to R.string.weather_window_8h,
                                     24 to R.string.weather_window_24h,
                                     72 to R.string.weather_window_3d,
                                     168 to R.string.weather_window_1w,
@@ -3538,6 +3541,7 @@ fun DashboardScreen(
                     destName = weatherDest?.name,
                     usingDest = weatherUseDest,
                     onToggleSource = { viewModel.toggleWeatherSource() },
+                    startExpanded = weatherSettings.openExpanded,
                     onRefresh = { viewModel.refreshWeather(force = true) },
                     modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                 )
