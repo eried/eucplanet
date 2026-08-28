@@ -170,7 +170,7 @@ class WeatherModuleTest {
             RidabilityScore.Prefs(cold = RidabilityScore.Pref.DISLIKE),
         )
         assertTrue("neutral was ${neutral.score}", neutral.score > 3f)
-        assertTrue("cold-hater was ${hater.score}", hater.score < 2f)
+        assertTrue("cold-hater was ${hater.score}", hater.score < 1.2f)
         // ...and still not a hazard reading: 7 C is unpleasant, not dangerous.
         assertTrue("cold-hater was ${hater.score}", hater.score > 0f)
         // Someone who likes the cold keeps their perfect day.
@@ -178,7 +178,33 @@ class WeatherModuleTest {
             chilly, 14f, 31f, 2f, 4.5f,
             RidabilityScore.Prefs(cold = RidabilityScore.Pref.LIKE),
         )
-        assertTrue("cold-lover was ${lover.score}", lover.score >= 4.5f)
+        // A like is "does not bother me", not "free": still excellent, not a
+        // guaranteed +5 at any temperature.
+        assertTrue("cold-lover was ${lover.score}", lover.score in 4.3f..5f)
+    }
+
+    @Test fun `the preference spread is wide, and defaults never move`() {
+        // Default prefs are the calibration baseline: hazards ship disliked
+        // and temperatures neutral, so widening the spread must not shift
+        // them. These are the same numbers the anchors above assert.
+        assertEquals(5f, s(hour(tempC = 22.5f)).score, 0.001f)
+        assertEquals(-5f, s(hour(wind = 8f, rain = 2f)).score, 0.001f)
+
+        // Wind, where dislike is the shipped default: neutral and like are
+        // what move, and they are now further from it.
+        val gusty = hour(tempC = 22.5f, wind = 7f)
+        val disliked = s(gusty).score
+        val neutral = RidabilityScore.score(
+            gusty, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(wind = RidabilityScore.Pref.NEUTRAL),
+        ).score
+        val liked = RidabilityScore.score(
+            gusty, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(wind = RidabilityScore.Pref.LIKE),
+        ).score
+        assertTrue("$disliked < $neutral < $liked", disliked < neutral && neutral < liked)
+        // Liking wind does not make a gale pleasant.
+        assertTrue("wind lover was $liked", liked < 5f)
     }
 
     @Test fun `golden shoulders count, at a fraction`() {

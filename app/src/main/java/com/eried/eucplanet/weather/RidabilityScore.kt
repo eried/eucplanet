@@ -58,13 +58,16 @@ data class HourForecast(
  * Preferences scale each condition RELATIVE TO ITS SHIPPED DEFAULT (rain,
  * snow and wind ship disliked; heat, cold and night neutral), so the
  * rider's calibration anchors hold exactly at defaults:
- *  - hazard conditions (rain/snow/wind): dislike x1.0, neutral x0.6,
- *    like softens to 30% and adds a small mild-severity bonus (capped 0.7).
- *  - comfort conditions (heat/cold/night): neutral x1.0, dislike x1.8,
- *    like as above. A temperature dislike ALSO moves the comfort band 3 C
- *    toward it (and a like widens it 3 C), so a cold-hater's cold starts
+ *  - hazard conditions (rain/snow/wind): dislike x1.0, neutral x0.5,
+ *    like softens to 45% and adds a small mild-severity bonus (capped 0.45).
+ *    Dislike stays the baseline here because these SHIP disliked: the
+ *    spread widens from the neutral and like side so default scores, and
+ *    the calibration anchors on them, do not move.
+ *  - comfort conditions (heat/cold/night): neutral x1.0, dislike x2.1,
+ *    like as above. A temperature dislike ALSO moves the comfort band 3.5 C
+ *    toward it (a like widens it 2 C), so a cold-hater's cold starts
  *    earlier rather than merely costing more once it has begun.
- *  - golden hour stays opposite polarity: like +1.5, neutral 0, dislike -1,
+ *  - golden hour stays opposite polarity: like +1.2, neutral 0, dislike -1.3,
  *    scaled by how golden the light is so the shoulders still count.
  *
  * SAFETY, preference-proof and applied last (no Like can buy them back):
@@ -105,21 +108,27 @@ object RidabilityScore {
         prefOf(wind), prefOf(night), prefOf(golden),
     )
 
-    /** Liking a condition keeps only 30% of its deficit and earns a small
-     *  bonus while it stays mild; severity ordering stays monotone. */
+    /** Liking a condition keeps 45% of its deficit and earns a small bonus
+     *  while it stays mild; severity ordering stays monotone.
+     *
+     *  Deliberately less generous than it was (30% and a 0.7 bonus): a like
+     *  is "this does not bother me", not "this is free". */
     private fun likedDeficit(pen: Float): Float =
-        0.3f * pen - min(0.7f, 0.35f * min(pen, 2f))
+        0.45f * pen - min(0.45f, 0.25f * min(pen, 2f))
 
-    /** Hazard conditions ship DISLIKED: dislike is the calibrated baseline. */
+    /** Hazard conditions ship DISLIKED: dislike is the calibrated baseline,
+     *  so it stays at 1.0 and the spread is widened from the other side.
+     *  Raising it instead would move every default score, and the defaults
+     *  are what the calibration anchors pin. */
     private fun hazardDeficit(pen: Float, p: Pref): Float = when (p) {
         Pref.DISLIKE -> pen
-        Pref.NEUTRAL -> 0.6f * pen
+        Pref.NEUTRAL -> 0.5f * pen
         Pref.LIKE -> likedDeficit(pen)
     }
 
     /** Comfort conditions ship NEUTRAL: neutral is the calibrated baseline. */
     private fun comfortDeficit(pen: Float, p: Pref): Float = when (p) {
-        Pref.DISLIKE -> 1.8f * pen
+        Pref.DISLIKE -> 2.1f * pen
         Pref.NEUTRAL -> pen
         Pref.LIKE -> likedDeficit(pen)
     }
@@ -132,9 +141,11 @@ object RidabilityScore {
      *  had barely begun scales almost nothing. Liking it widens the band the
      *  same amount the other way. */
     private fun bandShift(p: Pref): Float = when (p) {
-        Pref.DISLIKE -> 3f
+        Pref.DISLIKE -> 3.5f
         Pref.NEUTRAL -> 0f
-        Pref.LIKE -> -3f
+        // Weaker than the dislike side on purpose: liking the cold widens
+        // your comfort band, it does not make freezing pleasant.
+        Pref.LIKE -> -2f
     }
 
     /** Score plus which factors bit, for the graph's faces and glyph strip. */
@@ -214,9 +225,9 @@ object RidabilityScore {
         // still counts for a rider who rides for it, just less.
         if (h.goldenWeight > 0f) {
             s += h.goldenWeight * when (prefs.golden) {
-                Pref.LIKE -> 1.5f
+                Pref.LIKE -> 1.2f
                 Pref.NEUTRAL -> 0f
-                Pref.DISLIKE -> -1f
+                Pref.DISLIKE -> -1.3f
             }
         }
 
