@@ -1705,7 +1705,7 @@
     <string name="weather_face_snow">Снег или слякоть - сцепления нет, лучше пешком.</string>
     <string name="weather_face_wind">Порывы - расслабься, жди толчков.</string>
     <string name="weather_face_night">Темно - свет и потише.</string>
-    <string name="weather_face_cold">Холод - жёсткая шина, батарея проседает, утепляйся.</string>
+    <string name="weather_face_cold">Холод - меньше сцепления, батарея проседает, утепляйся.</string>
     <string name="weather_face_hot">Жара - следи за контроллером на подъёмах.</string>
     <string name="weather_face_golden">Золотой час, красивый свет, скоро фары.</string>
     <string name="nav_setting_full_path">Всегда строить полный маршрут</string>

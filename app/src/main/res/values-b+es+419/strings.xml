@@ -1737,9 +1737,9 @@
     <string name="weather_face_snow">Nieve o aguanieve: sin agarre, mejor caminar.</string>
     <string name="weather_face_wind">Rachas: cuerpo suelto, espera empujones.</string>
     <string name="weather_face_night">De noche: luces y baja el ritmo.</string>
-    <string name="weather_face_cold">Frío: rueda dura, batería corta, abrígate.</string>
+    <string name="weather_face_cold">Frío: menos agarre, batería corta, abrígate.</string>
     <string name="weather_face_hot">Calor: vigila el controlador en subidas.</string>
-    <string name="weather_face_golden">Hora dorada, paseo con brillo, pronto luces.</string>
+    <string name="weather_face_golden">Hora dorada, mejor luz, pronto luces.</string>
     <string name="nav_setting_full_path">Calcular siempre la ruta completa</string>
     <string name="nav_setting_full_path_desc">Desactivado calcula solo la próxima parada y muestra el resto como vista previa punteada</string>
     <string name="nav_setting_endpoints">Servicios de rutas</string>

@@ -899,7 +899,7 @@
     <string name="weather_face_snow">Snø eller sludd - null grep, gå heller.</string>
     <string name="weather_face_wind">Vindkast - vær løs, vent dytt.</string>
     <string name="weather_face_night">Mørkt - lys på, ro ned.</string>
-    <string name="weather_face_cold">Kaldt - stivt dekk, svakt batteri, kle deg godt.</string>
+    <string name="weather_face_cold">Kaldt - dårligere grep, svakt batteri, kle deg godt.</string>
     <string name="weather_face_hot">Varmt - følg med på kontrolleren i bakker.</string>
     <string name="weather_face_golden">Gylden time, nydelig lys, snart lykter.</string>
     <string name="nav_setting_router_url">Rute-URL</string>

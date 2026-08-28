@@ -1961,7 +1961,7 @@
     <string name="weather_face_snow">Lunta tai räntää - ei pitoa, parempi taluttaa.</string>
     <string name="weather_face_wind">Puuskaista - pysy rentona, odota tönäisyjä.</string>
     <string name="weather_face_night">Pimeää - valot päälle, hidasta.</string>
-    <string name="weather_face_cold">Kylmää - jäykkä rengas, akku laskee, pukeudu.</string>
+    <string name="weather_face_cold">Kylmää - pito heikkenee, akku laskee, pukeudu.</string>
     <string name="weather_face_hot">Kuumaa - tarkkaile ohjainta nousuissa.</string>
     <string name="weather_face_golden">Kultainen hetki, upea valo, kohta valot.</string>
     <string name="nav_setting_advanced_map">Kartan lisäominaisuudet</string>

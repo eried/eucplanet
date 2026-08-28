@@ -1764,7 +1764,7 @@
     <string name="weather_face_snow">Neige ou verglas : plus d’adhérence, mieux vaut marcher.</string>
     <string name="weather_face_wind">Rafales : reste souple, attends-toi à des poussées.</string>
     <string name="weather_face_night">Nuit : feux allumés, lève le pied.</string>
-    <string name="weather_face_cold">Froid : pneu raide, batterie qui chute, couvre-toi.</string>
+    <string name="weather_face_cold">Froid : moins de grip, batterie qui chute, couvre-toi.</string>
     <string name="weather_face_hot">Chaud : surveille le contrôleur en montée.</string>
     <string name="weather_face_golden">Heure dorée, belle lumière, phares bientôt.</string>
     <string name="nav_setting_full_path">Toujours calculer l\'itinéraire complet</string>

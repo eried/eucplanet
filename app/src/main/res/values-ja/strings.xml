@@ -1702,7 +1702,7 @@
     <string name="weather_face_snow">雪やみぞれ - グリップ皆無、押して歩くのが無難。</string>
     <string name="weather_face_wind">突風 - 力を抜いて、あおられに注意。</string>
     <string name="weather_face_night">夜間 - ライト点灯、スピード控えめ。</string>
-    <string name="weather_face_cold">寒い - タイヤ硬化・電池低下、防寒を。</string>
+    <string name="weather_face_cold">寒い - グリップ低下・電池低下、防寒を。</string>
     <string name="weather_face_hot">暑い - 登りはコントローラー温度に注意。</string>
     <string name="weather_face_golden">ゴールデンアワー。まもなくライトを。</string>
     <string name="nav_setting_full_path">常に全ルートを計算</string>

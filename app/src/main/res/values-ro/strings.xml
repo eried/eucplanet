@@ -1961,7 +1961,7 @@
     <string name="weather_face_snow">Zăpadă sau lapoviță - fără aderență, mai bine pe jos.</string>
     <string name="weather_face_wind">Rafale - stai relaxat, așteaptă împingeri.</string>
     <string name="weather_face_night">Noapte - lumini aprinse, încetinește.</string>
-    <string name="weather_face_cold">Frig - cauciuc rigid, baterie slabă, îmbracă-te.</string>
+    <string name="weather_face_cold">Frig - aderență redusă, baterie slabă, îmbracă-te.</string>
     <string name="weather_face_hot">Cald - urmărește controllerul la urcări.</string>
     <string name="weather_face_golden">Ora de aur, lumină superbă, în curând faruri.</string>
     <string name="nav_setting_advanced_map">Funcții avansate de hartă</string>

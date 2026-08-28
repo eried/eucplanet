@@ -1718,7 +1718,7 @@
     <string name="weather_face_snow">Śnieg lub plucha - brak przyczepności, lepiej prowadzić.</string>
     <string name="weather_face_wind">Porywy - luźne ciało, spodziewaj się szarpnięć.</string>
     <string name="weather_face_night">Noc - światła i wolniej.</string>
-    <string name="weather_face_cold">Zimno - twarda opona, słabsza bateria, ubierz się.</string>
+    <string name="weather_face_cold">Zimno - mniejsza przyczepność, słabsza bateria, ubierz się.</string>
     <string name="weather_face_hot">Gorąco - pilnuj kontrolera na podjazdach.</string>
     <string name="weather_face_golden">Złota godzina, piękne światło, zaraz lampy.</string>
     <string name="nav_setting_full_path">Zawsze wyznaczaj całą trasę</string>

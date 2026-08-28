@@ -1702,7 +1702,7 @@
     <string name="weather_face_snow">Kar veya sulu kar - tutuş yok, yürümek daha iyi.</string>
     <string name="weather_face_wind">Rüzgar sert - gevşek dur, itmelere hazır ol.</string>
     <string name="weather_face_night">Karanlık - ışıkları aç, yavaşla.</string>
-    <string name="weather_face_cold">Soğuk - sert lastik, düşen batarya, kalın giyin.</string>
+    <string name="weather_face_cold">Soğuk - tutuş azalır, düşen batarya, kalın giyin.</string>
     <string name="weather_face_hot">Sıcak - yokuşta kontrolcü sıcaklığına bak.</string>
     <string name="weather_face_golden">Altın saat, güzel ışık, birazdan farlar.</string>
     <string name="nav_setting_full_path">Her zaman tam yolu çöz</string>

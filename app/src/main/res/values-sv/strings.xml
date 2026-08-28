@@ -1701,7 +1701,7 @@
     <string name="weather_face_snow">Snö eller snöblandat - inget grepp, gå hellre.</string>
     <string name="weather_face_wind">Byig vind - var lös, vänta knuffar.</string>
     <string name="weather_face_night">Mörkt - lampor på, sakta ner.</string>
-    <string name="weather_face_cold">Kallt - styvt däck, svagt batteri, klä dig varmt.</string>
+    <string name="weather_face_cold">Kallt - sämre grepp, svagt batteri, klä dig varmt.</string>
     <string name="weather_face_hot">Varmt - håll koll på controllern i backar.</string>
     <string name="weather_face_golden">Gyllene timmen, fint ljus, snart lampor.</string>
     <string name="nav_setting_full_path">Beräkna alltid hela rutten</string>

@@ -1702,7 +1702,7 @@
     <string name="weather_face_snow">눈/진눈깨비 - 접지력 없음, 끌고 가는 게 낫다.</string>
     <string name="weather_face_wind">돌풍 - 힘 빼고, 밀림에 대비.</string>
     <string name="weather_face_night">야간 - 라이트 켜고 속도 줄이기.</string>
-    <string name="weather_face_cold">추움 - 타이어 경화, 배터리 저하, 따뜻하게.</string>
+    <string name="weather_face_cold">추움 - 접지력 저하, 배터리 저하, 따뜻하게.</string>
     <string name="weather_face_hot">더움 - 오르막에서 컨트롤러 온도 주의.</string>
     <string name="weather_face_golden">골든아워, 곧 라이트 켜세요.</string>
     <string name="nav_setting_full_path">전체 경로 항상 계산</string>

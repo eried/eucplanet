@@ -882,7 +882,7 @@
     <string name="weather_face_snow">雪或雨夹雪 - 没抓地力，最好推行。</string>
     <string name="weather_face_wind">阵风 - 放松身体，防被吹偏。</string>
     <string name="weather_face_night">夜间 - 开灯减速。</string>
-    <string name="weather_face_cold">冷 - 轮胎变硬、电池缩水，注意保暖。</string>
+    <string name="weather_face_cold">冷 - 抓地变差、电池缩水，注意保暖。</string>
     <string name="weather_face_hot">热 - 爬坡注意控制器温度。</string>
     <string name="weather_face_golden">黄金时刻，美光，快开灯。</string>
     <string name="nav_setting_router_url">路线规划 URL</string>

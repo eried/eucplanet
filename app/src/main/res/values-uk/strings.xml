@@ -1737,7 +1737,7 @@
     <string name="weather_face_snow">Сніг чи мокрий сніг - зчеплення немає, краще пішки.</string>
     <string name="weather_face_wind">Пориви - розслабся, чекай поштовхів.</string>
     <string name="weather_face_night">Темно - світло і повільніше.</string>
-    <string name="weather_face_cold">Холод - жорстка шина, батарея сідає, вдягайся.</string>
+    <string name="weather_face_cold">Холод - менше зчеплення, батарея сідає, вдягайся.</string>
     <string name="weather_face_hot">Спека - стеж за контролером на підйомах.</string>
     <string name="weather_face_golden">Золота година, гарне світло, скоро фари.</string>
     <string name="nav_setting_full_path">Завжди прокладати весь маршрут</string>

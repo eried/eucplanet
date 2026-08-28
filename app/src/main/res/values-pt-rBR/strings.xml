@@ -1705,7 +1705,7 @@
     <string name="weather_face_snow">Neve ou granizo: sem aderência, melhor empurrar.</string>
     <string name="weather_face_wind">Rajadas: corpo solto, espere empurrões.</string>
     <string name="weather_face_night">Noite: luzes acesas, pega leve.</string>
-    <string name="weather_face_cold">Frio: pneu duro, bateria cai, agasalhe-se.</string>
+    <string name="weather_face_cold">Frio: menos aderência, bateria cai, agasalhe-se.</string>
     <string name="weather_face_hot">Calor: de olho no controlador nas subidas.</string>
     <string name="weather_face_golden">Hora dourada, luz linda, faróis em breve.</string>
     <string name="nav_setting_full_path">Sempre calcular a rota completa</string>

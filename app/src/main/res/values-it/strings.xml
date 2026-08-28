@@ -918,7 +918,7 @@
     <string name="weather_face_snow">Neve o nevischio: zero grip, meglio a piedi.</string>
     <string name="weather_face_wind">Raffiche: stai morbido, aspettati spinte.</string>
     <string name="weather_face_night">Notte: luci accese, rallenta.</string>
-    <string name="weather_face_cold">Freddo: gomma rigida, batteria giù, copriti.</string>
+    <string name="weather_face_cold">Freddo: meno grip, batteria giù, copriti.</string>
     <string name="weather_face_hot">Caldo: occhio al controller in salita.</string>
     <string name="weather_face_golden">Ora dorata, luce splendida, presto le luci.</string>
     <string name="nav_setting_router_url">URL di routing</string>

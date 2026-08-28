@@ -1760,7 +1760,7 @@
     <string name="weather_face_snow">Sneeuw of ijzel - geen grip, beter lopen.</string>
     <string name="weather_face_wind">Vlagerig - blijf los, verwacht duwen.</string>
     <string name="weather_face_night">Donker - licht aan, rustiger aan.</string>
-    <string name="weather_face_cold">Koud - stugge band, zwakke accu, kleed je warm.</string>
+    <string name="weather_face_cold">Koud - minder grip, zwakke accu, kleed je warm.</string>
     <string name="weather_face_hot">Heet - let op de controller bij klimmen.</string>
     <string name="weather_face_golden">Gouden uur, mooi licht, straks lampen aan.</string>
     <string name="nav_setting_full_path">Altijd de hele route berekenen</string>

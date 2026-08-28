@@ -1961,7 +1961,7 @@
     <string name="weather_face_snow">Sníh nebo plískanice - žádný grip, radši pěšky.</string>
     <string name="weather_face_wind">Nárazový vítr - uvolni se, čekej strky.</string>
     <string name="weather_face_night">Tma - světla a zpomal.</string>
-    <string name="weather_face_cold">Zima - tvrdá pneumatika, slabší baterie, obleč se.</string>
+    <string name="weather_face_cold">Zima - menší přilnavost, slabší baterie, obleč se.</string>
     <string name="weather_face_hot">Horko - hlídej controller do kopce.</string>
     <string name="weather_face_golden">Zlatá hodina, jízda v záři, brzy světla.</string>
     <string name="nav_setting_advanced_map">Pokročilé funkce mapy</string>

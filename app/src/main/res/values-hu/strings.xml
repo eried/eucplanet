@@ -1961,7 +1961,7 @@
     <string name="weather_face_snow">Hó vagy havas eső - nincs tapadás, inkább told.</string>
     <string name="weather_face_wind">Széllökések - lazán, számíts lökésekre.</string>
     <string name="weather_face_night">Sötét - lámpa fel, lassíts.</string>
-    <string name="weather_face_cold">Hideg - merev gumi, gyenge akku, öltözz fel.</string>
+    <string name="weather_face_cold">Hideg - kevesebb tapadás, gyenge akku, öltözz fel.</string>
     <string name="weather_face_hot">Hőség - figyeld a vezérlőt emelkedőn.</string>
     <string name="weather_face_golden">Aranyóra, gyönyörű fény, mindjárt lámpa.</string>
     <string name="nav_setting_advanced_map">Speciális térképfunkciók</string>

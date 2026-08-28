@@ -1702,7 +1702,7 @@
     <string name="weather_face_snow">雪或雨夾雪 - 沒抓地力，最好用牽的。</string>
     <string name="weather_face_wind">陣風 - 放鬆身體，防被吹偏。</string>
     <string name="weather_face_night">夜間 - 開燈減速。</string>
-    <string name="weather_face_cold">冷 - 輪胎變硬、電池縮水，注意保暖。</string>
+    <string name="weather_face_cold">冷 - 抓地變差、電池縮水，注意保暖。</string>
     <string name="weather_face_hot">熱 - 爬坡注意控制器溫度。</string>
     <string name="weather_face_golden">黃金時刻，美光，快開燈。</string>
     <string name="nav_setting_full_path">始終計算完整路徑</string>

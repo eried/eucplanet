@@ -258,7 +258,11 @@ fun WeatherFlyout(
                 )
                 Text(
                     when {
-                        refreshing -> stringResource(R.string.weather_fetching)
+                        // Nothing: the spinner sitting right beside this
+                        // says "fetching" on its own, and the words next to
+                        // it were the same sentence the panel body already
+                        // shows where the graph will appear.
+                        refreshing -> ""
                         // Just the age. "Updated" said nothing the clock
                         // did not, and it was the half that got truncated.
                         updatedAgoMin == 0 -> stringResource(R.string.sources_fresh_just_now)

@@ -1714,7 +1714,7 @@
     <string name="weather_face_snow">Sne eller slud - intet greb, gå hellere.</string>
     <string name="weather_face_wind">Stødvis vind - vær løs, forvent skub.</string>
     <string name="weather_face_night">Mørkt - lys på, sæt farten ned.</string>
-    <string name="weather_face_cold">Koldt - stift dæk, svagt batteri, klæd dig på.</string>
+    <string name="weather_face_cold">Koldt - mindre greb, svagt batteri, klæd dig på.</string>
     <string name="weather_face_hot">Varmt - hold øje med controlleren på stigninger.</string>
     <string name="weather_face_golden">Gylden time, smuk tur, snart lys på.</string>
     <string name="nav_setting_full_path">Beregn altid hele ruten</string>
