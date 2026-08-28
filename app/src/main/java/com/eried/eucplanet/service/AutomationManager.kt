@@ -343,9 +343,7 @@ class AutomationManager @Inject constructor(
         val step = PlaybackRatePolicy.step(rateState, target, System.currentTimeMillis())
         val rate = step.rate ?: return
         rateState = step.state
-        if (applyPlaybackRate(rate) > 0) {
-            Log.i(TAG, "Media speed: ${"%.2f".format(java.util.Locale.US, rate)}x at ${speed.roundToInt()} km/h")
-        }
+        applyPlaybackRate(rate)
     }
 
     /** Sends [rate] to every playing session that accepts one; returns how many. */
@@ -364,12 +362,26 @@ class AutomationManager @Inject constructor(
         for (c in sessions) {
             val st = c.playbackState ?: continue
             if (st.state != android.media.session.PlaybackState.STATE_PLAYING) continue
-            val accepts = (st.actions and
+            // Advertising ACTION_SET_PLAYBACK_SPEED is a manual step the app
+            // has to remember, and some that implement the callback never do
+            // it. Sending anyway costs nothing - a session that does not
+            // handle it simply ignores the call - so the flag is used to
+            // explain what happened, not to decide whether to try.
+            val advertises = (st.actions and
                 android.media.session.PlaybackState.ACTION_SET_PLAYBACK_SPEED) != 0L
-            if (!accepts) continue
             runCatching { c.transportControls.setPlaybackSpeed(rate) }
-                .onSuccess { sent++ }
+                .onSuccess {
+                    sent++
+                    Log.i(
+                        TAG,
+                        "Media speed: sent ${"%.2f".format(java.util.Locale.US, rate)}x to " +
+                            "${c.packageName} (advertised=$advertises, reported=${st.playbackSpeed})",
+                    )
+                }
                 .onFailure { Log.w(TAG, "setPlaybackSpeed failed for ${c.packageName}", it) }
+        }
+        if (sessions.isNotEmpty() && sent == 0) {
+            Log.i(TAG, "Media speed: nothing playing among ${sessions.map { it.packageName }}")
         }
         return sent
     }
