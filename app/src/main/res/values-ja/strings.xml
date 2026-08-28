@@ -1631,11 +1631,11 @@
     <string name="weather_window_6h">今後6時間</string>
     <string name="weather_window_24h">今後24時間</string>
     <string name="weather_window_3d">今後3日</string>
-    <string name="weather_window_1w">今後1週間</string>
+    <string name="weather_window_1w">今後7日</string>
     <string name="weather_win_6">6時間</string>
     <string name="weather_win_24">24時間</string>
     <string name="weather_win_3d">3日</string>
-    <string name="weather_win_1w">1週</string>
+    <string name="weather_win_1w">7日</string>
     <string name="weather_settings_entry">天気設定</string>
     <string name="weather_enable">ダッシュボードに天気</string>
     <string name="weather_enable_desc">地図ボタンの上に天気アイコンを追加。タップで走行快適度予報。+5は全部置いて乗りに行く、0は装備次第で問題なし、-5は乗らないが吉。</string>

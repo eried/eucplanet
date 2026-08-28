@@ -1664,11 +1664,11 @@
     <string name="weather_window_6h">Nächste 6 Stunden</string>
     <string name="weather_window_24h">Nächste 24 Stunden</string>
     <string name="weather_window_3d">Nächste 3 Tage</string>
-    <string name="weather_window_1w">Nächste Woche</string>
+    <string name="weather_window_1w">Nächste 7 Tage</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 T</string>
-    <string name="weather_win_1w">1 W</string>
+    <string name="weather_win_1w">7 T</string>
     <string name="weather_settings_entry">Wetter-Einstellungen</string>
     <string name="weather_enable">Wetter im Dashboard</string>
     <string name="weather_enable_desc">Fügt ein Wetter-Icon über dem Kartenbutton hinzu: Antippen zeigt die Fahrbarkeits-Vorhersage. +5 heißt alles stehen lassen und fahren, 0 passt mit der richtigen Ausrüstung, -5 heißt Rad zu Hause lassen.</string>

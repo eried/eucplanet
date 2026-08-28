@@ -1647,11 +1647,11 @@
     <string name="weather_window_6h">Następne 6 godzin</string>
     <string name="weather_window_24h">Następne 24 godziny</string>
     <string name="weather_window_3d">Następne 3 dni</string>
-    <string name="weather_window_1w">Następny tydzień</string>
+    <string name="weather_window_1w">Następne 7 dni</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 d</string>
-    <string name="weather_win_1w">1 tydz</string>
+    <string name="weather_win_1w">7 d</string>
     <string name="weather_settings_entry">Ustawienia pogody</string>
     <string name="weather_enable">Pogoda na pulpicie</string>
     <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: stuknij, by zobaczyć prognozę jezdności. +5 znaczy rzuć wszystko i jedź, 0 jest w porządku z właściwym strojem, -5 mówi zostaw koło w domu.</string>

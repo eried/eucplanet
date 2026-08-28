@@ -1666,11 +1666,11 @@
     <string name="weather_window_6h">Наступні 6 годин</string>
     <string name="weather_window_24h">Наступні 24 години</string>
     <string name="weather_window_3d">Наступні 3 дні</string>
-    <string name="weather_window_1w">Наступний тиждень</string>
+    <string name="weather_window_1w">Наступні 7 днів</string>
     <string name="weather_win_6">6 год</string>
     <string name="weather_win_24">24 год</string>
     <string name="weather_win_3d">3 д</string>
-    <string name="weather_win_1w">1 тиж</string>
+    <string name="weather_win_1w">7 д</string>
     <string name="weather_settings_entry">Налаштування погоди</string>
     <string name="weather_enable">Погода на панелі</string>
     <string name="weather_enable_desc">Додає значок погоди над кнопкою карти: торкнись для прогнозу катання. +5 означає кидай усе й катайся, 0 нормально з правильним спорядженням, -5 каже залиш колесо вдома.</string>

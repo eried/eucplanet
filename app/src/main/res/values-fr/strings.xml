@@ -1693,11 +1693,11 @@
     <string name="weather_window_6h">6 prochaines heures</string>
     <string name="weather_window_24h">24 prochaines heures</string>
     <string name="weather_window_3d">3 prochains jours</string>
-    <string name="weather_window_1w">Semaine à venir</string>
+    <string name="weather_window_1w">7 prochains jours</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 j</string>
-    <string name="weather_win_1w">1 sem</string>
+    <string name="weather_win_1w">7 j</string>
     <string name="weather_settings_entry">Réglages météo</string>
     <string name="weather_enable">Météo sur le tableau de bord</string>
     <string name="weather_enable_desc">Ajoute une icône météo au-dessus du bouton carte : touche-la pour la prévision de roulabilité. +5 veut dire lâche tout et roule, 0 passe avec le bon équipement, -5 dit laisse la roue à la maison.</string>

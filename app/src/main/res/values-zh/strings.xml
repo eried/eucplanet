@@ -811,11 +811,11 @@
     <string name="weather_window_6h">未来6小时</string>
     <string name="weather_window_24h">未来24小时</string>
     <string name="weather_window_3d">未来3天</string>
-    <string name="weather_window_1w">未来一周</string>
+    <string name="weather_window_1w">未来7天</string>
     <string name="weather_win_6">6时</string>
     <string name="weather_win_24">24时</string>
     <string name="weather_win_3d">3天</string>
-    <string name="weather_win_1w">1周</string>
+    <string name="weather_win_1w">7天</string>
     <string name="weather_settings_entry">天气设置</string>
     <string name="weather_enable">仪表盘天气</string>
     <string name="weather_enable_desc">在地图按钮上方添加天气图标：点按查看骑行适宜度预报。+5 表示放下一切去骑行，0 表示装备得当即可，-5 表示把车轮留在家里。</string>

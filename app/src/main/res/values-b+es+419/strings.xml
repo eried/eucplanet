@@ -1666,11 +1666,11 @@
     <string name="weather_window_6h">Próximas 6 horas</string>
     <string name="weather_window_24h">Próximas 24 horas</string>
     <string name="weather_window_3d">Próximos 3 días</string>
-    <string name="weather_window_1w">Próxima semana</string>
+    <string name="weather_window_1w">Próximos 7 días</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 d</string>
-    <string name="weather_win_1w">1 sem</string>
+    <string name="weather_win_1w">7 d</string>
     <string name="weather_settings_entry">Ajustes de clima</string>
     <string name="weather_enable">Clima en el panel</string>
     <string name="weather_enable_desc">Añade un icono de clima sobre el botón del mapa: tócalo para el pronóstico de conducibilidad. +5 es dejarlo todo y salir a rodar, 0 va bien con el equipo adecuado, -5 dice deja la rueda en casa.</string>

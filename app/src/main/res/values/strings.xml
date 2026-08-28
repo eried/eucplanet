@@ -2121,11 +2121,11 @@
     <string name="weather_window_6h">Next 6 hours</string>
     <string name="weather_window_24h">Next 24 hours</string>
     <string name="weather_window_3d">Next 3 days</string>
-    <string name="weather_window_1w">Next week</string>
+    <string name="weather_window_1w">Next 7 days</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 d</string>
-    <string name="weather_win_1w">1 w</string>
+    <string name="weather_win_1w">7 d</string>
     <string name="weather_settings_entry">Weather settings</string>
     <string name="weather_enable">Weather on the dashboard</string>
     <string name="weather_enable_desc">Adds a weather icon above the map button: tap it for a ridability forecast. +5 means drop everything and ride, 0 is fine with the right gear, -5 says leave the wheel home.</string>

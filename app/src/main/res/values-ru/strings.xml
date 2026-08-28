@@ -1634,11 +1634,11 @@
     <string name="weather_window_6h">Ближайшие 6 часов</string>
     <string name="weather_window_24h">Ближайшие 24 часа</string>
     <string name="weather_window_3d">Ближайшие 3 дня</string>
-    <string name="weather_window_1w">Неделя вперёд</string>
+    <string name="weather_window_1w">Ближайшие 7 дней</string>
     <string name="weather_win_6">6 ч</string>
     <string name="weather_win_24">24 ч</string>
     <string name="weather_win_3d">3 д</string>
-    <string name="weather_win_1w">1 нед</string>
+    <string name="weather_win_1w">7 д</string>
     <string name="weather_settings_entry">Настройки погоды</string>
     <string name="weather_enable">Погода на панели</string>
     <string name="weather_enable_desc">Добавляет значок погоды над кнопкой карты: нажми для прогноза катаемости. +5 значит бросай всё и катайся, 0 нормально с правильной экипировкой, -5 говорит оставь колесо дома.</string>

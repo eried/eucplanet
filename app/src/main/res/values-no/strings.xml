@@ -828,11 +828,11 @@
     <string name="weather_window_6h">Neste 6 timer</string>
     <string name="weather_window_24h">Neste 24 timer</string>
     <string name="weather_window_3d">Neste 3 dager</string>
-    <string name="weather_window_1w">Neste uke</string>
+    <string name="weather_window_1w">Neste 7 dager</string>
     <string name="weather_win_6">6 t</string>
     <string name="weather_win_24">24 t</string>
     <string name="weather_win_3d">3 d</string>
-    <string name="weather_win_1w">1 u</string>
+    <string name="weather_win_1w">7 d</string>
     <string name="weather_settings_entry">Værinnstillinger</string>
     <string name="weather_enable">Vær på dashbordet</string>
     <string name="weather_enable_desc">Legger et værikon over kartknappen: trykk for kjørbarhetsvarsel. +5 betyr slipp alt og kjør, 0 er greit med riktig utstyr, -5 sier la hjulet stå hjemme.</string>

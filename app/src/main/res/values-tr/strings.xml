@@ -1631,11 +1631,11 @@
     <string name="weather_window_6h">Sonraki 6 saat</string>
     <string name="weather_window_24h">Sonraki 24 saat</string>
     <string name="weather_window_3d">Sonraki 3 gün</string>
-    <string name="weather_window_1w">Gelecek hafta</string>
+    <string name="weather_window_1w">Sonraki 7 gün</string>
     <string name="weather_win_6">6 s</string>
     <string name="weather_win_24">24 s</string>
     <string name="weather_win_3d">3 g</string>
-    <string name="weather_win_1w">1 hf</string>
+    <string name="weather_win_1w">7 g</string>
     <string name="weather_settings_entry">Hava ayarları</string>
     <string name="weather_enable">Panelde hava durumu</string>
     <string name="weather_enable_desc">Harita düğmesinin üstüne hava simgesi ekler: sürülebilirlik tahmini için dokun. +5 her şeyi bırak sür demek, 0 doğru ekipmanla idare eder, -5 tekeri evde bırak der.</string>

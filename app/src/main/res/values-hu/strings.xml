@@ -1890,11 +1890,11 @@
     <string name="weather_window_6h">Következő 6 óra</string>
     <string name="weather_window_24h">Következő 24 óra</string>
     <string name="weather_window_3d">Következő 3 nap</string>
-    <string name="weather_window_1w">Következő hét</string>
+    <string name="weather_window_1w">Következő 7 nap</string>
     <string name="weather_win_6">6 ó</string>
     <string name="weather_win_24">24 ó</string>
     <string name="weather_win_3d">3 n</string>
-    <string name="weather_win_1w">1 hét</string>
+    <string name="weather_win_1w">7 n</string>
     <string name="weather_settings_entry">Időjárás-beállítások</string>
     <string name="weather_enable">Időjárás a műszerfalon</string>
     <string name="weather_enable_desc">Időjárás-ikont ad a térképgomb fölé: koppints a gurulhatósági előrejelzésért. A +5 azt jelenti, hagyj mindent és tekerj, a 0 megfelelő felszereléssel rendben van, a -5 szerint hagyd otthon a kereket.</string>

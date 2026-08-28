@@ -1890,11 +1890,11 @@
     <string name="weather_window_6h">Seuraavat 6 tuntia</string>
     <string name="weather_window_24h">Seuraavat 24 tuntia</string>
     <string name="weather_window_3d">Seuraavat 3 päivää</string>
-    <string name="weather_window_1w">Seuraava viikko</string>
+    <string name="weather_window_1w">Seuraavat 7 päivää</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 pv</string>
-    <string name="weather_win_1w">1 vk</string>
+    <string name="weather_win_1w">7 pv</string>
     <string name="weather_settings_entry">Sääasetukset</string>
     <string name="weather_enable">Sää kojelaudalla</string>
     <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen ylle: napauta ajokelpoisuusennustetta. +5 tarkoittaa jätä kaikki ja aja, 0 on ok oikeilla varusteilla, -5 sanoo jätä ratas kotiin.</string>

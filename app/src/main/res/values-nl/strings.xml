@@ -1689,11 +1689,11 @@
     <string name="weather_window_6h">Komende 6 uur</string>
     <string name="weather_window_24h">Komende 24 uur</string>
     <string name="weather_window_3d">Komende 3 dagen</string>
-    <string name="weather_window_1w">Komende week</string>
+    <string name="weather_window_1w">Komende 7 dagen</string>
     <string name="weather_win_6">6 u</string>
     <string name="weather_win_24">24 u</string>
     <string name="weather_win_3d">3 d</string>
-    <string name="weather_win_1w">1 w</string>
+    <string name="weather_win_1w">7 d</string>
     <string name="weather_settings_entry">Weerinstellingen</string>
     <string name="weather_enable">Weer op het dashboard</string>
     <string name="weather_enable_desc">Voegt een weericoon toe boven de kaartknop: tik voor de rijbaarheidsvoorspelling. +5 betekent laat alles vallen en rijd, 0 is prima met de juiste uitrusting, -5 zegt laat het wiel thuis.</string>

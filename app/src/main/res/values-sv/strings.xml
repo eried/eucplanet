@@ -1630,11 +1630,11 @@
     <string name="weather_window_6h">Kommande 6 timmar</string>
     <string name="weather_window_24h">Kommande 24 timmar</string>
     <string name="weather_window_3d">Kommande 3 dagar</string>
-    <string name="weather_window_1w">Kommande vecka</string>
+    <string name="weather_window_1w">Kommande 7 dagar</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 d</string>
-    <string name="weather_win_1w">1 v</string>
+    <string name="weather_win_1w">7 d</string>
     <string name="weather_settings_entry">Väderinställningar</string>
     <string name="weather_enable">Väder på instrumentpanelen</string>
     <string name="weather_enable_desc">Lägger en väderikon ovanför kartknappen: tryck för åkbarhetsprognos. +5 betyder släpp allt och åk, 0 funkar med rätt utrustning, -5 säger låt hjulet stå hemma.</string>

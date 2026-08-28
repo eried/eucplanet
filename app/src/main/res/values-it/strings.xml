@@ -847,11 +847,11 @@
     <string name="weather_window_6h">Prossime 6 ore</string>
     <string name="weather_window_24h">Prossime 24 ore</string>
     <string name="weather_window_3d">Prossimi 3 giorni</string>
-    <string name="weather_window_1w">Prossima settimana</string>
+    <string name="weather_window_1w">Prossimi 7 giorni</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 g</string>
-    <string name="weather_win_1w">1 sett</string>
+    <string name="weather_win_1w">7 g</string>
     <string name="weather_settings_entry">Impostazioni meteo</string>
     <string name="weather_enable">Meteo sul cruscotto</string>
     <string name="weather_enable_desc">Aggiunge una icona meteo sopra il pulsante mappa: toccala per la previsione di guidabilità. +5 significa molla tutto e vai, 0 va bene con la giusta attrezzatura, -5 dice lascia la ruota a casa.</string>

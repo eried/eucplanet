@@ -1643,11 +1643,11 @@
     <string name="weather_window_6h">Næste 6 timer</string>
     <string name="weather_window_24h">Næste 24 timer</string>
     <string name="weather_window_3d">Næste 3 dage</string>
-    <string name="weather_window_1w">Næste uge</string>
+    <string name="weather_window_1w">Næste 7 dage</string>
     <string name="weather_win_6">6 t</string>
     <string name="weather_win_24">24 t</string>
     <string name="weather_win_3d">3 d</string>
-    <string name="weather_win_1w">1 u</string>
+    <string name="weather_win_1w">7 d</string>
     <string name="weather_settings_entry">Vejrindstillinger</string>
     <string name="weather_enable">Vejr på instrumentbrættet</string>
     <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsprognose. +5 betyder slip alt og kør, 0 er fint med det rette udstyr, -5 siger lad hjulet blive hjemme.</string>

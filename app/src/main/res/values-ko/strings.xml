@@ -1631,11 +1631,11 @@
     <string name="weather_window_6h">다음 6시간</string>
     <string name="weather_window_24h">다음 24시간</string>
     <string name="weather_window_3d">다음 3일</string>
-    <string name="weather_window_1w">다음 1주</string>
+    <string name="weather_window_1w">다음 7일</string>
     <string name="weather_win_6">6시간</string>
     <string name="weather_win_24">24시간</string>
     <string name="weather_win_3d">3일</string>
-    <string name="weather_win_1w">1주</string>
+    <string name="weather_win_1w">7일</string>
     <string name="weather_settings_entry">날씨 설정</string>
     <string name="weather_enable">대시보드 날씨</string>
     <string name="weather_enable_desc">지도 버튼 위에 날씨 아이콘을 추가합니다. 탭하면 주행 적합도 예보가 표시됩니다. +5는 만사 제치고 라이딩, 0은 장비만 갖추면 괜찮음, -5는 휠을 두고 가라는 뜻입니다.</string>

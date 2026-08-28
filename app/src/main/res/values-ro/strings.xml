@@ -1890,11 +1890,11 @@
     <string name="weather_window_6h">Următoarele 6 ore</string>
     <string name="weather_window_24h">Următoarele 24 de ore</string>
     <string name="weather_window_3d">Următoarele 3 zile</string>
-    <string name="weather_window_1w">Săptămâna următoare</string>
+    <string name="weather_window_1w">Următoarele 7 zile</string>
     <string name="weather_win_6">6 h</string>
     <string name="weather_win_24">24 h</string>
     <string name="weather_win_3d">3 z</string>
-    <string name="weather_win_1w">1 săpt</string>
+    <string name="weather_win_1w">7 z</string>
     <string name="weather_settings_entry">Setări vreme</string>
     <string name="weather_enable">Vremea pe bord</string>
     <string name="weather_enable_desc">Adaugă o pictogramă meteo deasupra butonului hărții: atinge pentru prognoza de rulare. +5 înseamnă lasă tot și mergi, 0 e în regulă cu echipamentul potrivit, -5 spune lasă roata acasă.</string>
