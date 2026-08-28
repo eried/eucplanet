@@ -402,6 +402,10 @@ fun AutomationsContent(
                 minMultiplier = PlaybackRatePolicy.MIN_RATE,
                 maxMultiplier = PlaybackRatePolicy.MAX_RATE,
                 tickStep = 0.5f,
+                // A rate curve may fall as well as rise, and it lands on the
+                // same grid the policy sends.
+                monotonic = false,
+                valueStep = PlaybackRatePolicy.STEP,
             )
             // Not every player accepts a rate from outside itself, and there
             // is nothing the app can do about the ones that do not.
@@ -715,6 +719,15 @@ private fun SplineCurveEditor(
     // Half steps once the range is small enough that whole ones would leave
     // two labels on the axis.
     tickStep: Float = 1f,
+    // Auto-volume's curve may only rise with speed, so each point is pinned
+    // between its neighbours. A playback rate has no such shape: faster at a
+    // crawl and slower at speed is a legitimate thing to want, and so is a
+    // dip in the middle.
+    monotonic: Boolean = true,
+    // Round dragged values onto this grid, so the number the rider sets is
+    // the number that gets sent. The rate is applied on a 0.05 grid; without
+    // this the editor would show 1.23 and the player would get 1.25.
+    valueStep: Float = 0f,
 ) {
     val maxSpeed = 75f
     val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
@@ -782,10 +795,16 @@ private fun SplineCurveEditor(
                             if (dragIndex > 0 && dragIndex < pointsRef.value.size) {
                                 var newM = (minMultiplier + (h - change.position.y) / h * multiplierRange)
                                     .coerceIn(minMultiplier, maxMultiplier)
-                                // Monotonic ascending: never below previous, never above next.
-                                val prevM = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: minMultiplier
-                                val nextM = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxMultiplier
-                                newM = newM.coerceIn(prevM, nextM)
+                                if (monotonic) {
+                                    // Ascending: never below previous, never above next.
+                                    val prevM = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: minMultiplier
+                                    val nextM = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxMultiplier
+                                    newM = newM.coerceIn(prevM, nextM)
+                                }
+                                if (valueStep > 0f) {
+                                    newM = (Math.round(newM / valueStep) * valueStep)
+                                        .coerceIn(minMultiplier, maxMultiplier)
+                                }
                                 val (oldS, _) = pointsRef.value[dragIndex]
                                 val mutable = pointsRef.value.toMutableList()
                                 mutable[dragIndex] = oldS to newM
