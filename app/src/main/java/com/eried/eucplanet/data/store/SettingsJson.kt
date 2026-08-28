@@ -2,6 +2,7 @@ package com.eried.eucplanet.data.store
 
 import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import org.json.JSONObject
@@ -130,6 +131,9 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
+            put("rateEnabled", s.mediaControl.rateEnabled)
+            put("rateApplyWhen", s.mediaControl.rateApplyWhen)
+            put("rateCurve", s.mediaControl.rateCurve)
         })
         put("batteryPercent", JSONObject().apply {
             put("mode", s.batteryPercent.mode)
@@ -176,7 +180,7 @@ object SettingsJson {
         put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
         put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
         put("autoVolumeEnabled", s.autoVolumeEnabled)
-        put("autoVolumeOnlyWhenConnected", s.autoVolumeOnlyWhenConnected)
+        put("autoVolumeApplyWhen", s.autoVolumeApplyWhen)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("alarmsMuted", s.alarmsMuted)
@@ -475,6 +479,9 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
+                rateEnabled = m.optBoolean("rateEnabled", base.mediaControl.rateEnabled),
+                rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
+                rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
         batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
@@ -551,7 +558,17 @@ object SettingsJson {
         autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
         autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
         autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
-        autoVolumeOnlyWhenConnected = j.optBoolean("autoVolumeOnlyWhenConnected", base.autoVolumeOnlyWhenConnected),
+        // Migrated, not defaulted: a rider who had the old boolean keeps its
+        // meaning (on = connected, off = no condition) rather than being moved
+        // to Riding behind their back. Only installs with neither key get the
+        // new default.
+        autoVolumeApplyWhen = j.optString(
+            "autoVolumeApplyWhen",
+            if (j.has("autoVolumeOnlyWhenConnected")) {
+                if (j.optBoolean("autoVolumeOnlyWhenConnected", true)) ApplyWhenIds.CONNECTED
+                else ApplyWhenIds.NEVER
+            } else base.autoVolumeApplyWhen
+        ),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         alarmsMuted = j.optBoolean("alarmsMuted", base.alarmsMuted),

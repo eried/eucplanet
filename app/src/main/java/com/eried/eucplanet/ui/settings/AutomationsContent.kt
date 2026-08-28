@@ -28,6 +28,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.service.AUTO_VOLUME_MAX_MULTIPLIER
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
@@ -207,18 +209,13 @@ fun AutomationsContent(
         }
 
         if (settings.autoVolumeEnabled) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(R.string.auto_volume_only_connected),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f))
-                Switch(checked = settings.autoVolumeOnlyWhenConnected,
-                    onCheckedChange = { viewModel.updateAutoVolumeOnlyWhenConnected(it) },
-                    colors = themedSwitchColors(),)
-            }
+            // The house triple selector, same as the weather preferences and
+            // the alarm editor's vibrate target: the condition notched into
+            // the frame of a full-width segmented row.
+            ApplyWhenSelector(
+                current = settings.autoVolumeApplyWhen,
+                onPick = { viewModel.updateAutoVolumeApplyWhen(it) },
+            )
 
             var points by remember(settings.autoVolumeCurve) {
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
@@ -325,6 +322,68 @@ fun AutomationsContent(
             }
         }
         }   // end Media control BringIntoViewSection
+
+        Spacer(Modifier.height(8.dp))
+
+        // --- Media speed control Section ---
+        // One switch and, once it is on, the same spline editor auto-volume
+        // uses: the curve is the identical "speed:value" shape, so a rider who
+        // has shaped one already knows this one.
+        BringIntoViewSection(expanded = settings.mediaControl.rateEnabled) {
+        Text(stringResource(R.string.media_rate_title), style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary)
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.media_rate_enable),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f))
+            Switch(checked = settings.mediaControl.rateEnabled,
+                onCheckedChange = { viewModel.updateMediaRateEnabled(it) },
+                colors = themedSwitchColors(),)
+        }
+        if (settings.mediaControl.rateEnabled) {
+            // Asked in place, the way the rest of this screen asks: the button
+            // only appears while the grant is missing, and it disappears on
+            // its own once given (the health check re-runs on resume, which is
+            // also what clears the dashboard warning).
+            if (!viewModel.notificationAccessAllowed()) {
+                TextButton(onClick = { viewModel.openNotificationAccessSettings() }) {
+                    Text(stringResource(R.string.media_rate_grant))
+                }
+            }
+            // The house triple selector, same as the weather preferences and
+            // the alarm editor's vibrate target: the condition notched into
+            // the frame of a full-width segmented row.
+            ApplyWhenSelector(
+                current = settings.mediaControl.rateApplyWhen,
+                onPick = { viewModel.updateMediaRateApplyWhen(it) },
+            )
+            var ratePoints by remember(settings.mediaControl.rateCurve) {
+                mutableStateOf(parseVolumeCurve(settings.mediaControl.rateCurve))
+            }
+            // Four points on the same speeds as the volume curve, so the two
+            // editors line up; 0 km/h is pinned at normal speed.
+            val rateNormalized = remember(ratePoints) {
+                val p = ratePoints.toMutableList()
+                listOf(
+                    0f to 1f,
+                    25f to (p.getOrNull(1)?.second ?: 1.15f),
+                    50f to (p.getOrNull(2)?.second ?: 1.30f),
+                    75f to (p.getOrNull(3)?.second ?: 1.45f),
+                )
+            }
+            SplineCurveEditor(
+                points = rateNormalized,
+                speedUnit = Units.effectiveSpeedUnit(settings),
+                onPointsChanged = { ratePoints = it },
+                onPointsCommitted = { viewModel.updateMediaRateCurve(encodeVolumeCurve(it)) },
+            )
+        }
+        }   // end Media speed control BringIntoViewSection
 
         Spacer(Modifier.height(8.dp))
 
@@ -811,3 +870,35 @@ private fun SplineCurveEditor(
     }
 }
 
+/**
+ * When a speed-driven automation may act: never conditioned, only with a
+ * wheel connected, or only while actually riding.
+ *
+ * Shared by auto-volume and the playback rate because the question is the
+ * same one, and a rider who has answered it once should recognise it.
+ */
+@Composable
+private fun ApplyWhenSelector(current: String, onPick: (String) -> Unit) {
+    val options = listOf(
+        ApplyWhenIds.NEVER to stringResource(R.string.apply_when_never),
+        ApplyWhenIds.CONNECTED to stringResource(R.string.apply_when_connected),
+        ApplyWhenIds.RIDING to stringResource(R.string.apply_when_riding),
+    )
+    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
+            options.forEachIndexed { index, (id, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = current == id,
+                    onClick = { onPick(id) },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index, options.size,
+                        baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                    ),
+                    colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                ) { Text(label) }
+            }
+        }
+        FieldNotchLabel(stringResource(R.string.apply_when_label))
+    }
+}

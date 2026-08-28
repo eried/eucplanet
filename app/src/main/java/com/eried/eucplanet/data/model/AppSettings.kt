@@ -202,7 +202,10 @@ data class AppSettings(
     // Only adjust the media volume while a wheel is connected (i.e. actually
     // riding). On by default so auto-volume never touches the phone's volume
     // when the app is used without a wheel.
-    val autoVolumeOnlyWhenConnected: Boolean = true,
+    /** When the speed-driven automations may act: "NEVER" (no condition),
+     *  "CONNECTED" (a wheel is linked) or "RIDING" (linked and moving). See
+     *  [com.eried.eucplanet.service.ApplyWhen]. */
+    val autoVolumeApplyWhen: String = ApplyWhenIds.RIDING,
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
 
@@ -1082,6 +1085,14 @@ data class AccelSplitSettings(
  * this feature itself paused, so speeding up never blasts music the rider had
  * deliberately stopped.
  */
+/** Values for the "apply when" gate shared by the speed-driven automations. */
+object ApplyWhenIds {
+    const val NEVER = "NEVER"
+    const val CONNECTED = "CONNECTED"
+    const val RIDING = "RIDING"
+    val ALL = listOf(NEVER, CONNECTED, RIDING)
+}
+
 data class MediaControlSettings(
     val pauseEnabled: Boolean = false,
     // Pause when speed is at or below this (km/h).
@@ -1093,6 +1104,13 @@ data class MediaControlSettings(
     // (headphones / Bluetooth / wired / USB), never the phone speaker. Pausing is
     // never gated on the route. Only meaningful with resume on. On by default.
     val requireExternalOutput: Boolean = true,
+    // --- Media speed control ---
+    // Playback rate follows speed, on the same "speed:value" curve shape
+    // auto-volume uses, so the same editor drives it. Needs notification
+    // access (see MediaAccessService) and a player that accepts a rate.
+    val rateEnabled: Boolean = false,
+    val rateApplyWhen: String = ApplyWhenIds.RIDING,
+    val rateCurve: String = "0:1.0,25:1.15,50:1.30,75:1.45",
 )
 
 /**

@@ -973,7 +973,16 @@
     <string name="auto_waiting_gps">Venter på GPS-position…</string>
     <string name="auto_volume_title">Lydstyrke</string>
     <string name="auto_volume_desc">Øg musikkens lydstyrke efter farten</string>
-    <string name="media_control_title">Mediestyring</string>
+    <string name="apply_when_label">Anvend</string>
+    <string name="apply_when_never">Altid</string>
+    <string name="apply_when_connected">Forbundet</string>
+    <string name="apply_when_riding">Under kørsel</string>
+    <string name="media_control_title">Afspilningsstyring</string>
+    <string name="media_rate_title">Afspilningshastighed</string>
+    <string name="media_rate_enable">Afspilningshastighed efter kørehastighed</string>
+    <string name="media_rate_grant">Tillad notifikationsadgang</string>
+    <string name="warnings_media_access_title">Notifikationsadgang er slået fra</string>
+    <string name="warnings_media_access_body">Uden den kan afspilningshastigheden ikke følge din fart. Tryk for at tillade.</string>
     <string name="media_control_desc">Sætter musikken på pause, når du sætter farten ned, og genoptager den, når du sætter farten op.</string>
     <string name="media_control_pause">Pause når jeg sætter farten ned</string>
     <string name="media_control_pause_below">Pause ved eller under</string>
@@ -2333,7 +2342,6 @@
     <string name="trip_map_ride_end">Tur slut</string>
     <string name="adv_smoothing_window">Udjævningsvindue</string>
     <string name="adv_smoothing_window_desc">Antal målinger, der midles af \"gennemsnits\"-turgraferne og de udjævnede stemmerapporter. Ture logges cirka én gang i sekundet, så det læses som sekunder. Fare: høje værdier skjuler korte udsving.</string>
-    <string name="auto_volume_only_connected">Kun når et hjul er forbundet</string>
     <string name="hud_discovery_auto">Auto</string>
     <string name="hud_discovery_both">Begge</string>
     <string name="hud_discovery_desc">Auto finder HUD\'en selv. Fast bruger kun adressen nedenfor.</string>

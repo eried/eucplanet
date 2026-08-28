@@ -151,6 +151,11 @@ class MainActivity : AppCompatActivity() {
         appHealthRepository.refreshPermissionWarnings(
             pipRequested = pipWanted,
             phoneHudRequested = hudWanted,
+            // Same shape: the rider asked for a feature whose permission is
+            // granted outside the app. Unlike PIP and the overlay this one is
+            // NOT switched back off, because notification access is a trip to
+            // system settings the rider may well be making right now.
+            mediaRateRequested = s?.mediaControl?.rateEnabled == true,
         )
         if (pipBlocked || hudBlocked) {
             lifecycleScope.launch {

@@ -122,6 +122,20 @@
             </intent-filter>
         </activity>
 
+        <!-- Notification access, granted by the rider, purely so
+             MediaSessionManager.getActiveSessions() will answer: it is the
+             only route to another app's playback rate. Nothing is read from
+             notifications; see MediaAccessService. -->
+        <service
+            android:name=".service.MediaAccessService"
+            android:exported="false"
+            android:label="@string/media_rate_title"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <service
             android:name=".service.WheelService"
             android:foregroundServiceType="connectedDevice|location"
