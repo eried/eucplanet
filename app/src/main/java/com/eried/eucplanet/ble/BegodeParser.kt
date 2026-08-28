@@ -256,6 +256,9 @@ class BegodeParser {
             speed = speed,
             voltage = voltage,
             current = phaseCurrent,
+            // The same value on both fields on purpose: Begode transmits phase
+            // current, and `current` has always shown it on this family.
+            phaseCurrent = phaseCurrent,
             batteryPercent = battPct,
             pwm = lastPwmPct,
             temperatures = listOf(tempC),
@@ -362,6 +365,7 @@ class BegodeParser {
             speed = lastSpeedKmh,
             voltage = lastVoltage,
             current = battCurrent,
+            phaseCurrent = battCurrent,
             batteryPercent = lastBatteryPct,
             pwm = truePwm,
             temperatures = temps,

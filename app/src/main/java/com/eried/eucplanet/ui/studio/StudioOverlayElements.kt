@@ -1961,8 +1961,8 @@ private object MapTileCache {
         if (!inFlight.add(url)) return false
         return try {
             val bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                runCatching {
-                    val conn = (java.net.URL(url).openConnection()
+                fun fetch(u: String): android.graphics.Bitmap? = runCatching {
+                    val conn = (java.net.URL(u).openConnection()
                         as java.net.HttpURLConnection).apply {
                         // Tile servers (OSM in particular) reject blank UAs.
                         setRequestProperty("User-Agent", "EUC Planet")
@@ -1971,6 +1971,19 @@ private object MapTileCache {
                     }
                     conn.inputStream.use { android.graphics.BitmapFactory.decodeStream(it) }
                 }.getOrNull()
+                val base = fetch(url)
+                // Esri Canvas keeps its labels on a separate reference layer;
+                // the base URL names it, so composite when it exists. A failed
+                // label fetch still shows the base rather than nothing.
+                val refUrl = url.replace("_Gray_Base/", "_Gray_Reference/")
+                if (base != null && refUrl != url) {
+                    fetch(refUrl)?.let { ref ->
+                        val out = base.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+                        android.graphics.Canvas(out).drawBitmap(ref, 0f, 0f, null)
+                        return@withContext out
+                    }
+                }
+                base
             }
             if (bmp != null) {
                 cache.put(url, bmp.asImageBitmap())

@@ -2,10 +2,12 @@ package com.eried.eucplanet.service
 
 import android.content.Context
 import android.media.AudioManager
+import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import com.eried.eucplanet.audio.AudioOutput
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -58,6 +60,12 @@ class AutomationManager @Inject constructor(
     @Volatile private var mediaAutoPaused: Boolean = false
     // The rules themselves live in MediaControlPolicy, where they are tested.
     private var mediaState = MediaControlPolicy.State()
+    private var rateState = PlaybackRatePolicy.State()
+
+    /** Above this the wheel counts as moving rather than rolling on its own
+     *  under a rider who is standing over it. Low on purpose: walking pace
+     *  already means the ride has started. */
+    private val RIDING_KMH = 3f
 
     /** Proximity lock / unlock decisions. See [ProximityLockEvaluator]. */
     private val proximityLock = ProximityLockEvaluator()
@@ -120,9 +128,10 @@ class AutomationManager @Inject constructor(
         val lockedDown = legalLockdown.isEngaged()
         detectManualLightChange(settings)
         if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
-        if (settings.autoVolumeEnabled) evaluateVolume(settings)
+        evaluateVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
+        if (!lockedDown) evaluatePlaybackRate(settings)
         // lockEnabled is the whole feature's switch; unlockEnabled is a
         // sub-option of it, and the settings screen only draws the unlock
         // switch while this one is on. Gating on either used to keep the
@@ -187,13 +196,7 @@ class AutomationManager @Inject constructor(
      * movements rebase the baseline so what they set is always the floor.
      */
     private suspend fun evaluateVolume(settings: AppSettings) {
-        // Gated by default: only touch the media volume while a wheel is
-        // connected, so auto-volume never moves the phone's volume with no
-        // wheel to ride.
-        if (settings.autoVolumeOnlyWhenConnected &&
-            wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
-            return
-        }
+        if (!applyWhenAllows(settings.autoVolumeApplyWhen)) return
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         if (maxVol <= 0) return
 
@@ -301,6 +304,90 @@ class AutomationManager @Inject constructor(
      * Dispatch a media-button key (down+up) to whatever app owns the active media
      * session - the same mechanism the Flic / notification action buttons use.
      */
+    /**
+     * Playback rate follows speed, for players that accept one.
+     *
+     * Two things can silently make this a no-op and neither is our doing: the
+     * rider may not have granted notification access (without it the session
+     * list is empty), and the player may not implement a rate at all. Spotify
+     * does not; most Media3 apps do. A session that does advertises
+     * ACTION_SET_PLAYBACK_SPEED, so only those are touched, and only while
+     * they are actually playing - setting a rate on a paused session changes
+     * nothing the rider can hear and wakes its UI for no reason.
+     */
+    /**
+     * The shared gate: whether a speed-driven automation may act right now.
+     *
+     * Riding is the useful one and the default. Standing still is exactly
+     * when a rider reaches for their own player, and an automation that
+     * overrides them there feels broken rather than clever; it is also when
+     * the volume has no ride to be loud over.
+     */
+    private fun applyWhenAllows(mode: String): Boolean = when (mode) {
+        // Never is the off state, not "no condition": one control says both
+        // whether the automation runs and what it waits for.
+        ApplyWhenIds.NEVER -> false
+        ApplyWhenIds.CONNECTED ->
+            wheelRepository.connectionState.value == ConnectionState.CONNECTED
+        else ->
+            wheelRepository.connectionState.value == ConnectionState.CONNECTED &&
+                wheelRepository.wheelData.value.speed.absoluteValue >= RIDING_KMH
+    }
+
+    private fun evaluatePlaybackRate(settings: AppSettings) {
+        if (!applyWhenAllows(settings.mediaControl.rateApplyWhen)) return
+        val curve = parseVolumeCurve(settings.mediaControl.rateCurve)
+        if (curve.isEmpty()) return
+        val speed = wheelRepository.wheelData.value.speed.absoluteValue
+        val target = pchipInterpolate(curve, speed)
+        val step = PlaybackRatePolicy.step(rateState, target, System.currentTimeMillis())
+        val rate = step.rate ?: return
+        rateState = step.state
+        if (applyPlaybackRate(rate) > 0) {
+            Log.i(TAG, "Media speed: ${"%.2f".format(java.util.Locale.US, rate)}x at ${speed.roundToInt()} km/h")
+        }
+    }
+
+    /** Sends [rate] to every playing session that accepts one; returns how many. */
+    private fun applyPlaybackRate(rate: Float): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
+        val mgr = runCatching {
+            context.getSystemService(android.media.session.MediaSessionManager::class.java)
+        }.getOrNull() ?: return 0
+        val listener = android.content.ComponentName(
+            context, com.eried.eucplanet.service.MediaAccessService::class.java
+        )
+        // Throws SecurityException when notification access is not granted,
+        // which is the normal state until the rider grants it.
+        val sessions = runCatching { mgr.getActiveSessions(listener) }.getOrNull() ?: return 0
+        var sent = 0
+        for (c in sessions) {
+            val st = c.playbackState ?: continue
+            if (st.state != android.media.session.PlaybackState.STATE_PLAYING) continue
+            val accepts = (st.actions and
+                android.media.session.PlaybackState.ACTION_SET_PLAYBACK_SPEED) != 0L
+            if (!accepts) continue
+            runCatching { c.transportControls.setPlaybackSpeed(rate) }
+                .onSuccess { sent++ }
+                .onFailure { Log.w(TAG, "setPlaybackSpeed failed for ${c.packageName}", it) }
+        }
+        return sent
+    }
+
+    /**
+     * Back to normal speed, once.
+     *
+     * Without this a rider who ends a ride at 1.3x keeps listening at 1.3x
+     * for the rest of the day and has to hunt for the control in their
+     * player. Called wherever media state is reset.
+     */
+    fun resetPlaybackRate() {
+        if (rateState.lastSent > 0f && rateState.lastSent != PlaybackRatePolicy.NORMAL) {
+            applyPlaybackRate(PlaybackRatePolicy.NORMAL)
+        }
+        rateState = PlaybackRatePolicy.State()
+    }
+
     private fun sendMediaKey(keyCode: Int) {
         runCatching {
             audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
@@ -316,6 +403,7 @@ class AutomationManager @Inject constructor(
     fun resetMediaControl() {
         mediaAutoPaused = false
         mediaState = MediaControlPolicy.State()
+        resetPlaybackRate()
     }
 
     /**

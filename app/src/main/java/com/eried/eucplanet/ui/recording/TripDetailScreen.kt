@@ -87,6 +87,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import android.content.res.Configuration
@@ -101,6 +102,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -114,6 +119,7 @@ import com.eried.eucplanet.util.GraphScale
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import kotlin.math.roundToInt
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.TrimTimeDialog
@@ -154,6 +160,14 @@ fun TripDetailScreen(
     var allPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     // Elapsed-ms window into the ride, null when the full trip is shown.
     var trimRange by remember { mutableStateOf<LongRange?>(null) }
+    // Live pinch window on the charts, fractions of the CURRENT trim. Only
+    // ever non-full while two fingers are down: releasing them commits the
+    // slice into trimRange below, because the trim IS this screen's zoom.
+    var chartWindow by remember(trip.id) { mutableStateOf(0f..1f) }
+    // Handle-drag preview: where the trim WILL be when the finger lifts. The
+    // bar's handles and the chart window track this per frame; the heavy
+    // recompute waits for the release, same as the pinch.
+    var pendingTrim by remember(trip.id) { mutableStateOf<LongRange?>(null) }
     // The exact-times dialog, now reached from the span in the trim bar rather
     // than straight off the funnel.
     var showTrim by remember { mutableStateOf(false) }
@@ -161,18 +175,17 @@ fun TripDetailScreen(
     // wants to find a stretch of ride; typing MM:SS is the fallback for when
     // they already know the moment they want.
     var showTrimBar by remember(trip.id) { mutableStateOf(false) }
-    // Deferred: parsing every row's timestamp is the single most expensive thing
-    // this screen can do on a long ride, and most trips are never trimmed. It is
-    // computed the moment the rider opens the dialog or a trim is live, and not
-    // before.
-    val needElapsed = showTrim || showTrimBar || trimRange != null
-    // Sticky once computed: hiding the bar used to flip needElapsed off,
-    // which dropped this table while the bar was still animating away - its
-    // numbers visibly snapped to 0:00 mid-exit. Once the rider has paid for
-    // the parse, keep it for the life of the screen.
+
+    // Parsed once per trip, off the main thread, as soon as the points load.
+    // This used to be deferred until a trim was touched, which put the
+    // 20k-row timestamp parse inside the FIRST pinch frame - a visible hitch.
     val elapsedHolder = remember(allPoints) { mutableStateOf<LongArray?>(null) }
-    if (needElapsed && elapsedHolder.value == null) {
-        elapsedHolder.value = TripTrim.elapsedOffsets(allPoints)
+    LaunchedEffect(allPoints) {
+        if (allPoints.isNotEmpty() && elapsedHolder.value == null) {
+            elapsedHolder.value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                TripTrim.elapsedOffsets(allPoints)
+            }
+        }
     }
     val elapsedMs = elapsedHolder.value ?: LongArray(0)
     // Everything else on this screen reads dataPoints, so filtering here trims
@@ -181,6 +194,59 @@ fun TripDetailScreen(
         TripTrim.apply(allPoints, elapsedMs, trimRange)
     }
     val trimmed = trimRange != null
+
+    // The pinch-to-trim bridge. During the gesture the charts slice their
+    // drawing only (cheap, smooth); when the fingers lift, the slice becomes
+    // the real trim, so the tiles, map, header and trim bar all follow, once.
+    val onWindow: (ClosedFloatingPointRange<Float>) -> Unit = { w ->
+        chartWindow = w
+        // Live link to the trim bar: while the pinch is in flight, the
+        // handles and span label already sit where the trim WILL land.
+        val fullDur = if (elapsedMs.isEmpty()) 0L else elapsedMs.last()
+        if (fullDur > 0L) {
+            val cur0 = trimRange?.first ?: 0L
+            val cur1 = trimRange?.last ?: fullDur
+            val span = (cur1 - cur0).coerceAtLeast(1L)
+            pendingTrim = if (w.start <= 0.001f && w.endInclusive >= 0.999f) null
+            else (cur0 + (w.start * span).toLong())..(cur0 + (w.endInclusive * span).toLong())
+        }
+    }
+    val onWindowCommit: (Float) -> Unit = commit@ { netZoom ->
+        val w = chartWindow
+        chartWindow = 0f..1f
+        pendingTrim = null
+        val fullDur = if (elapsedMs.isEmpty()) 0L else elapsedMs.last()
+        if (fullDur <= 0L) return@commit
+        val cur0 = trimRange?.first ?: 0L
+        val cur1 = trimRange?.last ?: fullDur
+        val atFull = w.start <= 0.001f && w.endInclusive >= 0.999f
+        if (atFull) {
+            // Pinching outward while already showing the whole selection
+            // lifts the trim: zooming past full IS un-trimming. Deliberate
+            // only: a real outward pinch, not a wiggle that ends at full.
+            if (netZoom < 0.9f) trimRange = null
+            return@commit
+        }
+        val span = (cur1 - cur0).coerceAtLeast(1L)
+        val newS = cur0 + (w.start * span).toLong()
+        val newE = cur0 + (w.endInclusive * span).toLong()
+        if (newS <= 0L && newE >= fullDur) {
+            trimRange = null
+            return@commit
+        }
+        // Never commit a slice too thin to chart; the pinch just snaps back.
+        if (TripTrim.countInRange(elapsedMs, newS..newE) < TripTrim.MIN_POINTS) return@commit
+        trimRange = newS..newE
+        // Deliberately does NOT open or close the trim bar: the funnel icon
+        // tints from the trimmed state on its own, and the bar stays however
+        // the rider left it. If it happens to be open, its handles already
+        // tracked the pinch live.
+    }
+    val onResetView: () -> Unit = {
+        chartWindow = 0f..1f
+        pendingTrim = null
+        trimRange = null
+    }
     var showShareDialog by remember { mutableStateOf(false) }
     // Trip Details customizer sheet (pencil in the top bar). Hoisted here so the
     // top bar action and the sheet body (rendered in the content) share it.
@@ -677,6 +743,22 @@ fun TripDetailScreen(
                 if (extSpeedSeries.any { !it.isNaN() })
                     add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
             }
+            // The same two overlays over the whole ride, for the y-axis only:
+            // scaling the speed chart to a trimmed section would defeat the
+            // point of holding the main series' scale (see rememberChartSeries).
+            val fullSpeedOverlays = remember(allPoints, dataPoints, speedUnit, speedOverlays.size) {
+                if (dataPoints === allPoints) speedOverlays.map { it.values }
+                else buildList {
+                    if (gpsSpeedSeries.any { !it.isNaN() }) add(allPoints.map {
+                        if (it.gpsSpeed <= 0f) Float.NaN
+                        else com.eried.eucplanet.util.Units.speed(it.gpsSpeed, speedUnit)
+                    })
+                    if (extSpeedSeries.any { !it.isNaN() }) add(allPoints.map {
+                        if (it.extGpsSpeed.isNaN()) Float.NaN
+                        else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, speedUnit)
+                    })
+                }
+            }
             val speedMinSpan = when (speedUnit) {
                 "mph" -> GraphScale.SPAN_SPEED_MPH
                 "ms" -> GraphScale.SPAN_SPEED_MS
@@ -684,6 +766,29 @@ fun TripDetailScreen(
             }
             val speedPeakRaw = dataPoints.map { it.speed }.maxOrNull() ?: 0f
             val speedPeak = com.eried.eucplanet.util.Units.speed(speedPeakRaw, speedUnit)
+            // The speed chart's axis cap and peak badge, over the WHOLE ride.
+            // The Top Speed tile follows the trim, which is the point of
+            // trimming; the chart's vertical scale does not, or zooming into a
+            // slow stretch would blow it up to full height (see
+            // rememberChartSeries). Duration comes from the ride's own first
+            // and last timestamps rather than from the elapsed table, which is
+            // still being parsed off-thread during the first frames.
+            val fullSpeedAxis = remember(allPoints, speedUnit) {
+                val parse = allPoints.firstNotNullOfOrNull {
+                    com.eried.eucplanet.util.TripCsv.parserFor(it.date)
+                }
+                val t0 = parse?.let { p -> allPoints.firstNotNullOfOrNull { p(it.date) } } ?: 0L
+                val t1 = parse?.let { p -> allPoints.lastOrNull()?.let { p(it.date) } } ?: 0L
+                val secs = ((t1 - t0) / 1000).coerceAtLeast(0L)
+                val n = allPoints.size
+                val window = if (n >= 2 && secs > 0)
+                    kotlin.math.ceil(SUSTAINED_TOP_SPEED_MS / (secs * 1000.0 / (n - 1)))
+                        .toInt().coerceIn(2, n)
+                else 1
+                val speeds = allPoints.map { it.speed }
+                com.eried.eucplanet.util.Units.speed(sustainedTopSpeed(speeds, window), speedUnit) to
+                    com.eried.eucplanet.util.Units.speed(speeds.maxOrNull() ?: 0f, speedUnit)
+            }
             val tempMinSpan = if (tempUnit == "F") GraphScale.SPAN_TEMPERATURE_F
                 else GraphScale.SPAN_TEMPERATURE_C
 
@@ -800,6 +905,22 @@ fun TripDetailScreen(
                         Modifier.weight(1f)
                     )
                 },
+                "maxTorque" to {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_max_torque),
+                        if (batteryStats.maxTorque.isNaN()) "--" else "%.1f Nm".format(batteryStats.maxTorque),
+                        MaterialTheme.appColors.metricPosition,
+                        Modifier.weight(1f)
+                    )
+                },
+                "maxPhaseCurrent" to {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_max_phase_current),
+                        if (batteryStats.maxPhaseCurrent.isNaN()) "--" else "%.0f A".format(batteryStats.maxPhaseCurrent),
+                        MaterialTheme.appColors.metricPosition,
+                        Modifier.weight(1f)
+                    )
+                },
             )
 
             // Effective tile order via the shared helper (see applyOrder): the
@@ -856,14 +977,35 @@ fun TripDetailScreen(
                     TripTrimBar(
                         modifier = Modifier.bringIntoViewRequester(trimRequester),
                         durationMs = full,
-                        startMs = trimRange?.first ?: 0L,
-                        endMs = trimRange?.last ?: full,
+                        startMs = (pendingTrim ?: trimRange)?.first ?: 0L,
+                        endMs = (pendingTrim ?: trimRange)?.last ?: full,
                         onRange = { s, e ->
-                            // Dragging back to the full span is "no trim", so the
-                            // rest of the screen returns to the untrimmed path.
-                            trimRange = if (s <= 0L && e >= full) null else s..e
+                            // Per-frame PREVIEW only: the handles and the chart
+                            // window follow the finger; the heavy recompute
+                            // (dataPoints, tiles, map) waits for the release.
+                            pendingTrim = s..e
+                            val cur0 = trimRange?.first ?: 0L
+                            val cur1 = trimRange?.last ?: full
+                            val span = (cur1 - cur0).coerceAtLeast(1L).toFloat()
+                            val ws = ((s - cur0) / span).coerceIn(0f, 1f)
+                            val we = ((e - cur0) / span).coerceIn(0f, 1f)
+                            chartWindow = if (we > ws + 0.005f) ws..we else 0f..1f
                         },
-                        onReset = { trimRange = null },
+                        onRangeEnd = {
+                            val p = pendingTrim
+                            pendingTrim = null
+                            chartWindow = 0f..1f
+                            if (p != null) {
+                                // Back to the full span is "no trim", so the rest
+                                // of the screen returns to the untrimmed path.
+                                trimRange = if (p.first <= 0L && p.last >= full) null else p
+                            }
+                        },
+                        onReset = {
+                            pendingTrim = null
+                            chartWindow = 0f..1f
+                            trimRange = null
+                        },
                         onEditExact = { showTrim = true },
                     )
                 }
@@ -897,43 +1039,99 @@ fun TripDetailScreen(
             // regardless of the saved order.
             val allCharts: List<Pair<String, @Composable ColumnScope.() -> Unit>> = buildList {
                 add("speed" to {
+                    val (speedShown, speedScale) = rememberChartSeries(dataPoints, allPoints, speedUnit) { pts ->
+                        pts.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) }
+                    }
                     ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
-                        dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                        speedShown,
                         MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                        overlays = speedOverlays, axisMax = maxSpeed, peak = speedPeak,
-                        scrubIndex = scrubIndex, onScrub = onScrub)
+                        overlays = speedOverlays,
+                        axisMax = fullSpeedAxis.first, peak = fullSpeedAxis.second,
+                        scaleValues = speedScale, scaleOverlays = fullSpeedOverlays,
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("battery" to {
-                    ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
+                    val (batShown, batScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                        pts.map { it.battery.toFloat() }
+                    }
+                    ChartCard(stringResource(R.string.recording_chart_battery), batShown,
                         MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
-                        scrubIndex = scrubIndex, onScrub = onScrub)
+                        scaleValues = batScale,
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("temp" to {
+                    val (tempShown, tempScale) = rememberChartSeries(dataPoints, allPoints, tempUnit) { pts ->
+                        pts.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) }
+                    }
                     ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
-                        dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
+                        tempShown,
                         MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
-                        scrubIndex = scrubIndex, onScrub = onScrub)
+                        scaleValues = tempScale,
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 add("voltage" to {
-                    ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
+                    val (voltShown, voltScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                        pts.map { it.voltage }
+                    }
+                    ChartCard(stringResource(R.string.recording_chart_voltage), voltShown,
                         MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
-                        scrubIndex = scrubIndex, onScrub = onScrub)
+                        scaleValues = voltScale,
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                 })
                 if (dataPoints.any { !it.current.isNaN() }) {
                     add("current" to {
+                        val (curShown, curScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.current }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_current),
-                            dataPoints.map { it.current },
+                            curShown,
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                            scaleValues = curScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if (dataPoints.any { !it.pwm.isNaN() }) {
                     add("pwm" to {
+                        val (pwmShown, pwmScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.pwm }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_pwm),
-                            dataPoints.map { it.pwm },
+                            pwmShown,
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scaleValues = pwmScale,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                    })
+                }
+                // Torque and phase amps ship OFF, opt-in via the customizer
+                // like every other extra graph. The data gate also skips the
+                // all-zero columns from families that never report them, so
+                // switching one on can never produce an empty card. Bipolar
+                // like Current: positive drive, negative regen/brake.
+                if ("torque" in extraCharts && dataPoints.any { !it.torque.isNaN() && it.torque != 0f }) {
+                    add("torque" to {
+                        val (torqueShown, torqueScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.torque }
+                        }
+                        ChartCard(stringResource(R.string.recording_chart_torque),
+                            torqueShown,
+                            MaterialTheme.appColors.metricPosition, unitLabel = "Nm", minSpan = GraphScale.SPAN_TORQUE,
+                            scaleValues = torqueScale,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                    })
+                }
+                if ("phaseCurrent" in extraCharts && dataPoints.any { !it.phaseCurrent.isNaN() && it.phaseCurrent != 0f }) {
+                    add("phaseCurrent" to {
+                        val (phaseShown, phaseScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.phaseCurrent }
+                        }
+                        ChartCard(stringResource(R.string.recording_chart_phase_current),
+                            phaseShown,
+                            MaterialTheme.appColors.metricPosition, unitLabel = "A", minSpan = GraphScale.SPAN_PHASE_CURRENT,
+                            scaleValues = phaseScale,
+                            regenColor = MaterialTheme.appColors.metricBattery,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 // Opt-in extras. Each renders only when the rider switched it on
@@ -941,57 +1139,106 @@ fun TripDetailScreen(
                 // enabling one never produces an empty card.
                 if ("batterySmooth" in extraCharts) {
                     add("batterySmooth" to {
+                        val (batSmShown, batSmScale) = rememberChartSeries(dataPoints, allPoints, smoothWindow) { pts ->
+                            Smoothing.movingAverage(pts.map { it.battery.toFloat() }, smoothWindow)
+                        }
                         ChartCard(stringResource(R.string.recording_chart_battery_smooth),
-                            Smoothing.movingAverage(dataPoints.map { it.battery.toFloat() }, smoothWindow),
+                            batSmShown,
                             MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scaleValues = batSmScale,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                    })
+                }
+                if ("batteryEnvelope" in extraCharts && dataPoints.any { it.battery > 0 }) {
+                    add("batteryEnvelope" to {
+                        // Derived and deliberately stepped: one latched value
+                        // per 30 s, following charge actually spent (coulomb-
+                        // warped between the trip's real start and end
+                        // battery) instead of load sag. Down riding, flat
+                        // stopped, up on a sustained regen descent. Do not
+                        // smooth it into a curve - the steps are the point.
+                        val (envShown, envScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            val tMs = TripTrim.elapsedOffsets(pts)
+                            com.eried.eucplanet.util.BatteryEnvelope.compute(
+                                FloatArray(tMs.size) { tMs[it] / 1000f },
+                                FloatArray(pts.size) { pts[it].battery.toFloat() },
+                                FloatArray(pts.size) { pts[it].current },
+                            ).toList()
+                        }
+                        ChartCard(stringResource(R.string.recording_chart_battery_envelope),
+                            envShown,
+                            MaterialTheme.appColors.chartEnvelope, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
+                            scaleValues = envScale,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("speedSmooth" in extraCharts) {
                     add("speedSmooth" to {
-                        ChartCard(stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
+                        val (spSmShown, spSmScale) = rememberChartSeries(
+                            dataPoints, allPoints, speedUnit, smoothWindow,
+                        ) { pts ->
                             Smoothing.movingAverage(
-                                dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                                pts.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
                                 smoothWindow
-                            ),
+                            )
+                        }
+                        ChartCard(stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
+                            spSmShown,
                             MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scaleValues = spSmScale,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("currentSmooth" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
                     add("currentSmooth" to {
+                        val (curSmShown, curSmScale) = rememberChartSeries(dataPoints, allPoints, smoothWindow) { pts ->
+                            Smoothing.movingAverage(pts.map { it.current }, smoothWindow)
+                        }
                         ChartCard(stringResource(R.string.recording_chart_current_smooth),
-                            Smoothing.movingAverage(dataPoints.map { it.current }, smoothWindow),
+                            curSmShown,
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                            scaleValues = curSmScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("pwmSmooth" in extraCharts && dataPoints.any { !it.pwm.isNaN() }) {
                     add("pwmSmooth" to {
+                        val (pwmSmShown, pwmSmScale) = rememberChartSeries(dataPoints, allPoints, smoothWindow) { pts ->
+                            Smoothing.movingAverage(pts.map { it.pwm }, smoothWindow)
+                        }
                         ChartCard(stringResource(R.string.recording_chart_pwm_smooth),
-                            Smoothing.movingAverage(dataPoints.map { it.pwm }, smoothWindow),
+                            pwmSmShown,
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scaleValues = pwmSmScale,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("power" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
                     add("power" to {
+                        // Derived, the CSV has no power column. NaN current
+                        // stays NaN so the line breaks rather than reading 0 W.
+                        val (powShown, powScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { if (it.current.isNaN()) Float.NaN else it.voltage * it.current }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_power),
-                            // Derived, the CSV has no power column. NaN current
-                            // stays NaN so the line breaks rather than reading 0 W.
-                            dataPoints.map { if (it.current.isNaN()) Float.NaN else it.voltage * it.current },
+                            powShown,
                             MaterialTheme.appColors.statusDanger, unitLabel = "W", minSpan = 100f,
+                            scaleValues = powScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
                 if ("altitude" in extraCharts && dataPoints.any { it.altitude != 0f }) {
                     add("altitude" to {
+                        val (altShown, altScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
+                            pts.map { it.altitude }
+                        }
                         ChartCard(stringResource(R.string.recording_chart_altitude),
-                            dataPoints.map { it.altitude },
+                            altShown,
                             MaterialTheme.appColors.metricPosition, unitLabel = "m", minSpan = 20f,
-                            scrubIndex = scrubIndex, onScrub = onScrub)
+                            scaleValues = altScale,
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
                     })
                 }
             }
@@ -1047,14 +1294,19 @@ fun TripDetailScreen(
                 "consumption" to stringResource(R.string.recording_summary_consumption),
                 "maxCurrent" to stringResource(R.string.recording_summary_max_current),
                 "maxPower" to stringResource(R.string.recording_summary_max_power),
+                "maxTorque" to stringResource(R.string.recording_summary_max_torque),
+                "maxPhaseCurrent" to stringResource(R.string.recording_summary_max_phase_current),
             )
             val chartLabels: Map<String, String> = mapOf(
                 "speed" to stringResource(R.string.recording_chart_speed, speedUnitLabel),
                 "battery" to stringResource(R.string.recording_chart_battery),
+                "batteryEnvelope" to stringResource(R.string.recording_chart_battery_envelope),
                 "temp" to stringResource(R.string.recording_chart_temp, tempUnitLabel),
                 "voltage" to stringResource(R.string.recording_chart_voltage),
                 "current" to stringResource(R.string.recording_chart_current),
                 "pwm" to stringResource(R.string.recording_chart_pwm),
+                "torque" to stringResource(R.string.recording_chart_torque),
+                "phaseCurrent" to stringResource(R.string.recording_chart_phase_current),
                 "batterySmooth" to stringResource(R.string.recording_chart_battery_smooth),
                 "speedSmooth" to stringResource(R.string.recording_chart_speed_smooth, speedUnitLabel),
                 "currentSmooth" to stringResource(R.string.recording_chart_current_smooth),
@@ -1630,11 +1882,12 @@ private fun timePartOf(date: String): String {
  */
 private val CHART_KEYS_DEFAULT = listOf(
     "speed", "speedSmooth",
-    "battery", "batterySmooth",
+    "battery", "batterySmooth", "batteryEnvelope",
     "temp",
     "voltage",
     "current", "currentSmooth",
     "pwm", "pwmSmooth",
+    "torque", "phaseCurrent",
     "power",
     "altitude",
 )
@@ -1668,6 +1921,7 @@ private val TILE_KEYS_DEFAULT = listOf(
     "distance", "duration", "points", "topSpeed", "avgSpeed", "avgMoving",
     "battery", "batteryRange", "voltage", "maxTemp", "maxPwm",
     "energy", "consumption", "maxCurrent", "maxPower",
+    "maxTorque", "maxPhaseCurrent",
 )
 
 /**
@@ -1679,11 +1933,12 @@ private val TILE_KEYS_DEFAULT = listOf(
  * wired into the default order, so this also makes them reachable at last.
  */
 private val EXTRA_TILE_KEYS = setOf(
-    "batteryRange", "energy", "consumption",
+    "batteryRange", "energy", "consumption", "maxTorque", "maxPhaseCurrent",
 )
 
 private val EXTRA_CHART_KEYS = setOf(
     "speedSmooth", "batterySmooth", "currentSmooth", "pwmSmooth", "power", "altitude",
+    "torque", "phaseCurrent", "batteryEnvelope",
 )
 
 // The rider's Trip-details map-style pick (LIGHT / DARK / SAT). Process-scoped so it
@@ -1882,20 +2137,19 @@ private fun MapSurface(
     // Straight from the registry: this list once said SAT while the tile table
     // said SATELLITE, so picking satellite silently fell back to plain OSM.
     val mapTypes = com.eried.eucplanet.hud.protocol.MapLayers.ALL.map { it.id }
-    // The HTML actually showing in the WebView.
-    //
-    // A plain holder rather than Compose state on purpose: it is written from
-    // inside AndroidView's update block, and making it state would schedule a
-    // recomposition from within one.
-    val loadedHtml = remember { arrayOfNulls<String>(1) }
+    // The JS hooks only exist once the document has finished loading, so trace
+    // pushes wait for this rather than being silently dropped.
+    var pageReady by remember { mutableStateOf(false) }
     // Rebuilt whenever the trace changes (a trim, for instance) or we enter or
     // leave live mode. Bake the CURRENT style into the initial HTML so a
     // freshly-opened surface (e.g. fullscreen) starts on the shared style rather
     // than flashing light first; style cycles afterwards go through JS.
-    val html = remember(
-        coordsJson, fadedCoordsJson, isLive, switchesJson, fadedSwitchesJson,
-        startIncluded, endIncluded, startLabelJs, endLabelJs
-    ) {
+    // Built ONCE, from whatever the trace was when this surface first composed:
+    // it is only ever handed to the factory below, and every later change goes
+    // through setTrace(). Keying it on the trace re-serialised twenty thousand
+    // coordinates into a fresh string on every trim, for a document nothing
+    // loaded.
+    val html = remember {
         buildMapHtml(
             coordsJson, fadedCoordsJson, switchesJson, fadedSwitchesJson,
             startIncluded, endIncluded, startLabelJs, endLabelJs, isLive, mapType
@@ -1912,7 +2166,11 @@ private fun MapSurface(
                     )
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
-                    webViewClient = WebViewClient()
+                    webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) {
+                            pageReady = true
+                        }
+                    }
                     setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
                     // Own drag gestures on the map: ask the Compose scroll
                     // container (which honours requestDisallowInterceptTouchEvent)
@@ -1929,22 +2187,15 @@ private fun MapSurface(
                         false
                     }
                     loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-                    loadedHtml[0] = html
                     webView = this
                 }
             },
-            // factory runs once, so loading the page only there left the map
-            // frozen on whatever trace it was first built with. Applying a trim
-            // rebuilt the HTML and then threw it away. Reload whenever the
-            // document actually changed, which also refits the view to the new
-            // trace.
-            update = { wv ->
-                webView = wv
-                if (loadedHtml[0] != html) {
-                    loadedHtml[0] = html
-                    wv.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-                }
-            },
+            // Deliberately does NOT reload on a content change. Reloading refits
+            // the camera and flashes the tiles, so every trim yanked the map
+            // away from wherever the rider had panned and zoomed it. Trace
+            // changes go through setTrace() below instead; the document is
+            // loaded once, by the factory.
+            update = { wv -> webView = wv },
             modifier = Modifier.fillMaxSize()
         )
         // Controls: fullscreen toggle over the map-style cycler.
@@ -1985,6 +2236,22 @@ private fun MapSurface(
                 }
             }
         }
+    }
+
+    // Redraw the trace in place whenever a trim changes what is highlighted.
+    // The camera is untouched: what the rider is looking at, and how far in,
+    // is theirs to set.
+    LaunchedEffect(
+        coordsJson, fadedCoordsJson, switchesJson, fadedSwitchesJson,
+        startIncluded, endIncluded, webView, pageReady,
+    ) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript(
+            "if(window.setTrace)setTrace([$coordsJson],[$fadedCoordsJson]," +
+                "$switchesJson,$fadedSwitchesJson,$startIncluded,$endIncluded);",
+            null,
+        )
     }
 
     // Apply the shared style to this WebView whenever it changes (the initial
@@ -2109,6 +2376,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   map.attributionControl.setPrefix('');
   map.attributionControl.setPosition('bottomleft');
   var baseLayer=null;
+  var refLayer=null;
   // {r} asks the provider for its @2x tile on a high-density screen. Without it
   // a phone upscales a 256 px tile threefold or more, which is most of why the
   // map read as soft and short on detail. Esri's tiles carry no {r}, so it
@@ -2121,20 +2389,36 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   var MAP_LAYERS = ${com.eried.eucplanet.ui.navigator.mapLayersJson()};
   window.setMapType=function(t){
     if(baseLayer) map.removeLayer(baseLayer);
+    if(refLayer){ map.removeLayer(refLayer); refLayer=null; }
     // One table for every map in the app, credits included: see MapLayers.
     var layer = MAP_LAYERS[t] || MAP_LAYERS['OSM'];
     var opts = {maxZoom:21, maxNativeZoom:layer.maxNative, attribution:layer.attr};
     if (layer.subs) opts.subdomains = layer.subs;
     if (layer.retina) opts.detectRetina = true;
     baseLayer=L.tileLayer(layer.url, opts).addTo(map);
+    // Esri Canvas labels ride on a separate reference layer; keep it under
+    // the route but over the base. Leaflet collapses the duplicate credit.
+    if (layer.ref){ refLayer=L.tileLayer(layer.ref, opts).addTo(map); refLayer.bringToBack(); }
     baseLayer.bringToBack();
   };
   window.setMapType('$initialType');
 
   var hasRoute = coords.length >= 2;
   var start=null, end=null, overlap=null;
+  // Every layer the trace owns, so it can be redrawn in place. Trims used to
+  // reload the whole document, which threw away the rider's pan and zoom and
+  // flashed the tiles; now only these layers change.
+  var traceLayers=[];
+  // Set the first time a real route is framed. Guards the case where the trace
+  // arrives after the page loaded: that draw still gets its one framing.
+  var everFit=false;
+  function clearTrace(){
+    for (var i=0;i<traceLayers.length;i++) map.removeLayer(traceLayers[i]);
+    traceLayers=[];
+  }
 
-  function render(){
+  function render(fit){
+    clearTrace();
     if (hasRoute){
       // The rest of the ride, drawn very faint underneath so a trimmed view
       // still shows where the section sits in the whole trip. Empty when
@@ -2142,8 +2426,8 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       // Everything here is non-interactive: the solid layer owns every popup,
       // so a tap near a ghost never opens the wrong thing.
       if (fadedCoords.length >= 2){
-        L.polyline(fadedCoords,
-          {color:'#4FC3F7',weight:4,opacity:0.38,interactive:false}).addTo(map);
+        traceLayers.push(L.polyline(fadedCoords,
+          {color:'#4FC3F7',weight:4,opacity:0.38,interactive:false}).addTo(map));
       }
       // Split the trace ONLY at genuine wheel changes (s.change): the first
       // wheel keeps the blue trace and a different wheel's stretch is drawn
@@ -2156,16 +2440,21 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       var prev = 0;
       for (var k=0;k<=cuts.length;k++){
         var stop = (k<cuts.length)?cuts[k]:coords.length-1;
-        if (stop>prev) L.polyline(coords.slice(prev,stop+1),
-          {color:k===0?'#4FC3F7':'#AB47BC',weight:4,interactive:false}).addTo(map);
+        if (stop>prev) traceLayers.push(L.polyline(coords.slice(prev,stop+1),
+          {color:k===0?'#4FC3F7':'#AB47BC',weight:4,interactive:false}).addTo(map));
         prev = stop;
       }
-      map.fitBounds(L.latLngBounds(coords).pad(0.2));
+      // Only the FIRST draw frames the ride. After that the camera belongs to
+      // the rider: trimming changes what is highlighted, never where the map
+      // is looking or how far in.
+      if (fit || !everFit){
+        map.fitBounds(L.latLngBounds(coords).pad(0.2));
+        everFit = true;
+      }
       placeEndpoints();
-      map.on('zoomend moveend', placeEndpoints);
-    } else if (coords.length === 1) {
+    } else if (fit && coords.length === 1) {
       map.setView(coords[0], 17);
-    } else {
+    } else if (fit) {
       map.setView([0,0], 2);
     }
   }
@@ -2262,7 +2551,10 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     if (scrub){ map.removeLayer(scrub); scrub=null; }
   };
 
-  render();
+  var badgeLayers=[];
+  function drawBadges(){
+  for (var i=0;i<badgeLayers.length;i++) map.removeLayer(badgeLayers[i]);
+  badgeLayers=[];
   // Wheel-identity badges from the stretches the trim cut away. Same shapes as
   // the live ones so they read as the same thing, just ghosted, and with no
   // popup: they are context, and the trimmed section owns the interaction.
@@ -2274,7 +2566,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       className:'faded-badge', html:'<div class="'+cls+'"></div>',
       iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
     });
-    L.marker([s.lat,s.lon],{icon:icon,interactive:false}).addTo(map);
+    badgeLayers.push(L.marker([s.lat,s.lon],{icon:icon,interactive:false}).addTo(map));
   });
   // A small square for each identity block after the ride start, each with its
   // own popup (time + wheel). A genuine wheel change is a purple square where
@@ -2290,11 +2582,42 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
       className:'', html:'<div class="'+cls+'"></div>',
       iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
     });
-    L.marker([s.lat,s.lon],{icon:icon}).addTo(map).bindPopup(s.label);
+    badgeLayers.push(L.marker([s.lat,s.lon],{icon:icon}).addTo(map).bindPopup(s.label));
   });
+  }
+
+  // Trace API (called from Kotlin via evaluateJavascript). Everything a trim
+  // changes - the solid stretch, the ghost behind it, which badges are faded,
+  // which endpoints are dimmed - is applied here WITHOUT touching the camera.
+  window.setTrace = function(c, fc, sw, fsw, sIn, eIn){
+    coords=c; fadedCoords=fc; switches=sw; fadedSwitches=fsw;
+    startIncluded=sIn; endIncluded=eIn;
+    hasRoute = coords.length >= 2;
+    render(false);
+    drawBadges();
+  };
+
+  render(true);
+  drawBadges();
+  // Bound once, not per draw: rebinding on every redraw stacked a fresh
+  // listener each time and re-placed the endpoints N times per pan.
+  map.on('zoomend moveend', placeEndpoints);
   ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}
 </script></body></html>
 """.trimIndent()
+
+/** Plot area of a chart card. Shared with the loading skeleton. */
+private val CHART_PLOT_HEIGHT = 80.dp
+
+/** Chart card inner padding. Shared with the loading skeleton. */
+private val CHART_CARD_PADDING = 12.dp
+
+/** Gap between a chart's title row and its plot. Shared with the skeleton. */
+private val CHART_TITLE_GAP = 8.dp
+
+/** Chart title text size. Shared with the skeleton, which sizes its title
+ *  placeholder from it so the block matches at any font scale. */
+private val CHART_TITLE_SIZE = 12.sp
 
 /**
  * Optional secondary series drawn behind the main chart line. Used by the
@@ -2332,22 +2655,87 @@ private fun ChartCard(
     // squash the whole ride into the floor. The spike then clips at the top and
     // [peak], the true maximum, is shown in the corner label instead.
     axisMax: Float? = null,
+    // The series the y-axis is measured from, when it differs from what is
+    // drawn: the WHOLE ride's values, so trimming or zooming to a quiet
+    // stretch does not restretch the chart around it. Null = measure what is
+    // drawn, which is the same thing on an untrimmed trip.
+    scaleValues: List<Float>? = null,
+    /** Whole-ride overlay series, for the same reason as [scaleValues]. */
+    scaleOverlays: List<List<Float>> = emptyList(),
     peak: Float? = null,
     // Shared scrub cursor: [scrubIndex] is the sample index highlighted across
     // every chart and the map; [onScrub] reports this chart's own scrub position
     // (or null on release) so the other charts and the map marker follow along.
     scrubIndex: Int? = null,
     onScrub: ((Int?) -> Unit)? = null,
+    // Shared zoom window (fractions of the ride) and its updater. Two-finger
+    // pinch/pan reports through [onWindow]; the default renders the full ride.
+    window: ClosedFloatingPointRange<Float> = 0f..1f,
+    onWindow: ((ClosedFloatingPointRange<Float>) -> Unit)? = null,
+    // Fired when the two-finger gesture ends, with the net zoom factor, so
+    // the screen can commit the slice into the real trim.
+    onWindowCommit: ((Float) -> Unit)? = null,
+    onResetView: (() -> Unit)? = null,
 ) {
     if (values.isEmpty()) return
 
+    // Zoom windowing: shadow the inputs with the visible slice, so the whole
+    // body below (bounds, drawing, scrub) simply works on what is on screen.
+    // The y-axis re-fits the slice, which is what makes zooming useful.
+    // Indices crossing the boundary are mapped back to the full-ride domain,
+    // so the map marker and the other charts keep meaning the same moment.
+    val fullValues = values
+    val fullOverlays = overlays
+    val n0 = values.size
+    val fullView = (window.start <= 0f && window.endInclusive >= 1f) || n0 < 3
+    val winA = if (fullView) 0 else (window.start * (n0 - 1)).roundToInt().coerceIn(0, n0 - 2)
+    val winB = if (fullView) n0 - 1 else (window.endInclusive * (n0 - 1)).roundToInt().coerceIn(winA + 1, n0 - 1)
+    @Suppress("NAME_SHADOWING") val values =
+        if (fullView) values else values.subList(winA, winB + 1)
+    @Suppress("NAME_SHADOWING") val overlays =
+        if (fullView) overlays
+        else overlays.map {
+            if (it.values.size == n0) it.copy(values = it.values.subList(winA, winB + 1)) else it
+        }
+    @Suppress("NAME_SHADOWING") val scrubIndex =
+        scrubIndex?.minus(winA)?.takeIf { it in 0..(winB - winA) }
+    val onScrubRaw = onScrub
+    @Suppress("NAME_SHADOWING") val onScrub: ((Int?) -> Unit)? =
+        if (onScrubRaw == null) null else { i -> onScrubRaw(i?.plus(winA)) }
+    val curWindow = rememberUpdatedState(window)
+    // The gesture pointerInputs below are keyed on Unit and never restart, so
+    // they must read the callbacks through updated state: the plain params
+    // would freeze at the FIRST composition, when the screen's elapsed-time
+    // table was still empty, and every commit would silently bail.
+    val curOnWindow = rememberUpdatedState(onWindow)
+    val curOnCommit = rememberUpdatedState(onWindowCommit)
+    val curOnReset = rememberUpdatedState(onResetView)
+
     // Y-axis bounds include any overlay min/max so secondary lines stay on-scale.
-    // Filter NaN out of all reductions because NaN means "no data this row" , 
-    // those rows shouldn't push the bounds.
-    val finiteValues = values.filter { !it.isNaN() }
-    val allFinite = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
-    val dataMin = allFinite.minOrNull() ?: 0f
-    val dataMaxRaw = allFinite.maxOrNull() ?: 0f
+    // NaN means "no data this row", so those rows never push the bounds.
+    //
+    // Measured from the whole ride ([scaleValues]) rather than from what is on
+    // screen: the window narrows TIME only. Zooming into a slow stretch used
+    // to blow it up to full height, which made a pinch feel like it changed
+    // the data rather than the view.
+    //
+    // Scanned rather than filtered: this runs for every chart on every pinch
+    // frame, and the two filtered copies it used to allocate were tens of
+    // thousands of floats each, per chart, per frame.
+    var scanLo = Float.POSITIVE_INFINITY
+    var scanHi = Float.NEGATIVE_INFINITY
+    fun scan(vs: List<Float>) {
+        for (v in vs) {
+            if (v.isNaN()) continue
+            if (v < scanLo) scanLo = v
+            if (v > scanHi) scanHi = v
+        }
+    }
+    scan(scaleValues ?: fullValues)
+    if (scaleValues != null) scaleOverlays.forEach { scan(it) }
+    else fullOverlays.forEach { scan(it.values) }
+    val dataMin = if (scanLo.isFinite()) scanLo else 0f
+    val dataMaxRaw = if (scanHi.isFinite()) scanHi else 0f
     // Axis upper bound: a caller-supplied realistic cap when given (never below
     // the data floor), otherwise the raw maximum as before.
     val dataMax = axisMax?.coerceAtLeast(dataMin) ?: dataMaxRaw
@@ -2363,12 +2751,12 @@ private fun ChartCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(10.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(CHART_CARD_PADDING)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                Text(title, fontSize = CHART_TITLE_SIZE, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium)
                 // When a spike was clipped by [axisMax], show the true peak too so
                 // the rider still sees it (e.g. "0.0 - 35.0 (peak 80)").
@@ -2376,16 +2764,39 @@ private fun ChartCard(
                     "%.1f - %.1f (peak %.0f)".format(dataMin, dataMax, peak)
                 else
                     "%.1f - %.1f".format(dataMin, dataMax)
-                Text(rangeLabel, fontSize = 11.sp,
+                // What the SECTION on screen spans, when that is not simply
+                // the whole ride. The y-axis belongs to the ride now, so
+                // without this a zoomed stretch carries no numbers of its
+                // own; the zoom factor that used to sit here told the rider
+                // nothing they could act on, and the funnel already answers
+                // "how much am I looking at". Measured from what is drawn,
+                // so it survives the pinch committing into a trim.
+                var viewLo = Float.POSITIVE_INFINITY
+                var viewHi = Float.NEGATIVE_INFINITY
+                fun scanView(vs: List<Float>) {
+                    for (v in vs) {
+                        if (v.isNaN()) continue
+                        if (v < viewLo) viewLo = v
+                        if (v > viewHi) viewHi = v
+                    }
+                }
+                scanView(values)
+                overlays.forEach { scanView(it.values) }
+                val sectionDiffers = viewLo.isFinite() && viewHi.isFinite() &&
+                    (viewLo > dataMin + 0.05f || viewHi < dataMax - 0.05f)
+                val label = if (sectionDiffers)
+                    rangeLabel + "  \u00b7  " + "%.1f - %.1f".format(viewLo, viewHi)
+                else rangeLabel
+                Text(label, fontSize = 11.sp,
                     color = color, fontWeight = FontWeight.Medium)
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(CHART_TITLE_GAP))
 
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
+                    .height(CHART_PLOT_HEIGHT)
                     .pointerInput(values) {
                         // Long-press to scrub. A simple down-and-drag does NOT
                         // activate the cursor, that gesture is reserved for the
@@ -2419,12 +2830,72 @@ private fun ChartCard(
                             onScrub?.invoke(null)
                         }
                     }
+                    .pointerInput(Unit) {
+                        // Double-tap zooms back out to the full ride.
+                        detectTapGestures(onDoubleTap = {
+                            curOnReset.value?.invoke() ?: curOnWindow.value?.invoke(0f..1f)
+                        })
+                    }
+                    .pointerInput(Unit) {
+                        // Two fingers zoom and pan the shared window. One finger
+                        // stays reserved for the page scroll and the long-press
+                        // scrub above, so the three gestures never collide.
+                        awaitEachGesture {
+                            awaitFirstDown(requireUnconsumed = false)
+                            var sawMulti = false
+                            var netZoom = 1f
+                            // True once the window actually left the full view
+                            // during this gesture. A pinch that dips in and
+                            // comes back must never read as an un-trim.
+                            var leftFull = false
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val pressed = event.changes.count { it.pressed }
+                                if (pressed >= 2 && curOnWindow.value != null) {
+                                    sawMulti = true
+                                    val zoom = event.calculateZoom()
+                                    netZoom *= zoom
+                                    val pan = event.calculatePan()
+                                    val centroid = event.calculateCentroid()
+                                    if (zoom != 1f || pan.x != 0f) {
+                                        val nw = ChartWindow.zoomPan(
+                                            curWindow.value,
+                                            zoom,
+                                            (centroid.x / size.width).coerceIn(0f, 1f),
+                                            pan.x / size.width,
+                                        )
+                                        if (nw.start > 0.001f || nw.endInclusive < 0.999f) leftFull = true
+                                        curOnWindow.value?.invoke(nw)
+                                    }
+                                    event.changes.forEach { it.consume() }
+                                } else if (pressed == 0) {
+                                    break
+                                } else if (sawMulti) {
+                                    // Down to one finger after a pinch: end the
+                                    // gesture instead of letting the leftover
+                                    // finger scroll the page.
+                                    event.changes.forEach { it.consume() }
+                                }
+                            }
+                            // A gesture that zoomed in at any point can only
+                            // commit or cancel, never lift the trim: the lift
+                            // signal (netZoom) is passed only for a pure
+                            // outward pinch that stayed pinned at full.
+                            if (sawMulti) curOnCommit.value?.invoke(if (leftFull) 1f else netZoom)
+                        }
+                    }
             ) {
                 if (values.size < 2) return@Canvas
                 val w = size.width
                 val h = size.height
                 val range = bounds.range
                 val stepX = w / (values.size - 1).toFloat()
+                // Drawing is STRIDED past ~1200 points: the chart is ~1000 px
+                // wide, so beyond two samples per pixel there is nothing to
+                // see, and building 20k-point Paths per frame is what made
+                // pinching at full view stutter. Scrub and tooltips still
+                // read the full-resolution data.
+                val drawStride = (values.size / 1200).coerceAtLeast(1)
 
                 // Overlay series first so the main line draws on top. NaN values
                 // break the line so empty CSV cells don't pull the curve to zero.
@@ -2432,10 +2903,11 @@ private fun ChartCard(
                     if (overlay.values.size < 2) return@forEach
                     val overlayPath = Path()
                     var penDown = false
-                    overlay.values.forEachIndexed { idx, value ->
+                    fun plotOverlay(idx: Int) {
+                        val value = overlay.values[idx]
                         if (value.isNaN()) {
                             penDown = false
-                            return@forEachIndexed
+                            return
                         }
                         val x = idx * stepX
                         // Clamp to the chart box so a value above the (capped) axis
@@ -2448,6 +2920,8 @@ private fun ChartCard(
                             overlayPath.lineTo(x, y)
                         }
                     }
+                    for (idx in overlay.values.indices step drawStride) plotOverlay(idx)
+                    if ((overlay.values.size - 1) % drawStride != 0) plotOverlay(overlay.values.size - 1)
                     drawPath(
                         overlayPath,
                         color = overlay.color,
@@ -2459,10 +2933,11 @@ private fun ChartCard(
                 // CSV cells don't draw spurious connectors through the chart.
                 val segments = mutableListOf<Path>()
                 var segment: Path? = null
-                values.forEachIndexed { idx, value ->
+                fun plotMain(idx: Int) {
+                    val value = values[idx]
                     if (value.isNaN()) {
                         segment = null
-                        return@forEachIndexed
+                        return
                     }
                     val x = idx * stepX
                     // Clamp to the chart box so a value above the (capped) axis
@@ -2478,6 +2953,8 @@ private fun ChartCard(
                         seg.lineTo(x, y)
                     }
                 }
+                for (idx in values.indices step drawStride) plotMain(idx)
+                if ((values.size - 1) % drawStride != 0) plotMain(values.size - 1)
 
                 val regen = regenColor
                 val zeroCrosses = bounds.min < 0f && bounds.max > 0f
@@ -2622,7 +3099,11 @@ data class TripBatteryStats(
     /** Peak signed current (A) over valid non-NaN points. NaN when the trip has no current data. */
     val maxCurrent: Float,
     /** Peak instantaneous power (W = voltage * current) over valid points with non-NaN current. NaN when no current data. */
-    val maxPower: Float
+    val maxPower: Float,
+    /** Peak torque (Nm) over valid samples; NaN when the trip has none. */
+    val maxTorque: Float,
+    /** Peak phase current (A) over valid samples; NaN when the trip has none. */
+    val maxPhaseCurrent: Float
 )
 
 /**
@@ -2659,7 +3140,7 @@ data class TripBatteryStats(
  */
 private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     if (points.isEmpty()) {
-        return TripBatteryStats(0, 0, 0, 0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN)
+        return TripBatteryStats(0, 0, 0, 0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN, Float.NaN, Float.NaN)
     }
 
     val endIdx = trimEndIndex(points)
@@ -2678,6 +3159,8 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
     var maxPwm = Float.NaN
     var maxCurrent = Float.NaN
     var maxPower = Float.NaN
+    var maxTorque = Float.NaN
+    var maxPhaseCurrent = Float.NaN
 
     for (p in ridePoints) {
         val valid = p.battery > 0 &&
@@ -2696,6 +3179,14 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
                 maxCurrent = if (maxCurrent.isNaN()) p.current else maxOf(maxCurrent, p.current)
                 val power = p.voltage * p.current
                 maxPower = if (maxPower.isNaN()) power else maxOf(maxPower, power)
+            }
+            // != 0f: families that never report these write zero columns,
+            // and "max 0.0 Nm" would read as data where there is none.
+            if (!p.torque.isNaN() && p.torque != 0f) {
+                maxTorque = if (maxTorque.isNaN()) p.torque else maxOf(maxTorque, p.torque)
+            }
+            if (!p.phaseCurrent.isNaN() && p.phaseCurrent != 0f) {
+                maxPhaseCurrent = if (maxPhaseCurrent.isNaN()) p.phaseCurrent else maxOf(maxPhaseCurrent, p.phaseCurrent)
             }
         }
     }
@@ -2717,7 +3208,9 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
             voltageMin = rawVoltMin,
             maxPwm = maxPwm,
             maxCurrent = maxCurrent,
-            maxPower = maxPower
+            maxPower = maxPower,
+            maxTorque = maxTorque,
+            maxPhaseCurrent = maxPhaseCurrent
         )
     }
 
@@ -2734,7 +3227,9 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
         voltageMin = validVoltages.min(),
         maxPwm = maxPwm,
         maxCurrent = maxCurrent,
-        maxPower = maxPower
+        maxPower = maxPower,
+        maxTorque = maxTorque,
+        maxPhaseCurrent = maxPhaseCurrent
     )
 }
 
@@ -2807,6 +3302,32 @@ internal fun sustainedTopSpeed(speeds: List<Float>, windowSamples: Int): Float {
         if (i >= w - 1) best = maxOf(best, speeds[dq.first()])
     }
     return best
+}
+
+/**
+ * A chart's series, computed twice from one rule: over the visible (trimmed)
+ * points for the line, and over the whole ride for the y-axis.
+ *
+ * The vertical scale belongs to the trip, not to the section being looked at,
+ * so a trim or a zoom slides a window over the data instead of restretching
+ * the chart around whatever is left. On an untrimmed trip both are the same
+ * list ([TripTrim.apply] hands back the original instance), so it costs one
+ * pass, not two.
+ *
+ * Both are remembered because the enclosing chart lambda re-runs on every
+ * window change: re-mapping twenty thousand rows per pinch frame, fifteen
+ * charts over, is exactly what this screen cannot afford.
+ */
+@Composable
+private fun rememberChartSeries(
+    visible: List<TripDataPoint>,
+    full: List<TripDataPoint>,
+    vararg keys: Any?,
+    build: (List<TripDataPoint>) -> List<Float>,
+): Pair<List<Float>, List<Float>> {
+    val shown = remember(visible, *keys) { build(visible) }
+    val scale = if (visible === full) shown else remember(full, *keys) { build(full) }
+    return shown to scale
 }
 
 /**
@@ -2889,15 +3410,21 @@ private fun TripDetailSkeleton(
             }
         }
 
-        Spacer(Modifier.height(12.dp))
-        Block(14.dp, Modifier.fillMaxWidth(0.22f), corner = 6.dp)   // "Route" caption
+        Spacer(Modifier.height(8.dp))
+        Block(16.dp, Modifier.fillMaxWidth(0.22f), corner = 6.dp)   // "Route" caption
         Spacer(Modifier.height(4.dp))
         Block(250.dp, Modifier.fillMaxWidth())                      // map
 
         Spacer(Modifier.height(16.dp))
+        // The real card's height, built from the card's own metrics: padding
+        // top and bottom, the one-line title, the gap, and the plot. It was a
+        // flat 150dp, which drew every graph slot taller than the graph that
+        // replaced it, so the whole column shifted up as the data landed.
+        val chartHeight = CHART_CARD_PADDING * 2 + CHART_TITLE_GAP + CHART_PLOT_HEIGHT +
+            with(LocalDensity.current) { (CHART_TITLE_SIZE.value * 1.2f).sp.toDp() }
         repeat(chartCount) { i ->
             if (i > 0) Spacer(Modifier.height(12.dp))
-            Block(150.dp, Modifier.fillMaxWidth())
+            Block(chartHeight, Modifier.fillMaxWidth(), corner = 10.dp)
         }
         Spacer(Modifier.height(16.dp))
     }

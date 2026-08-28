@@ -390,6 +390,7 @@ fun SettingsScreen(
     // tab 9 opens General but scrolls to the "Battery monitor" sub-header (not the
     // General section top), so the monitor's Settings link lands right on it.
     val scrollToBattery = initialTab == 9
+    val scrollToWeather = initialTab == 11
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
     // expandedSections is rememberSaveable above and only seeds on first ever
     // composition; on subsequent visits the user's saved expansion state can hide
@@ -740,7 +741,10 @@ fun SettingsScreen(
             AutomationsContent()
         },
         SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpusNavigator) {
-            NavigatorSettingsContent()
+            NavigatorSettingsContent(
+                scrollToWeather = scrollToWeather,
+                onWeatherTop = { y -> targetSectionTop = y },
+            )
         },
         SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
             ExternalGpsSection()
@@ -906,7 +910,9 @@ fun SettingsScreen(
                     if (searching && !sec.searchCorpus.contains(query, ignoreCase = true)) return
                     val explicitlyExpanded = expandedSections.contains(sec.key)
                     val isExpanded = explicitlyExpanded || searching
-                    var sectionModifier = if (sec.key == targetSectionKey && !scrollToBattery) {
+                    var sectionModifier = if (
+                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather
+                    ) {
                         Modifier.onGloballyPositioned {
                             targetSectionTop = it.positionInWindow().y
                         }
@@ -973,6 +979,9 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     8 -> "navigator"
     9 -> "general"
     10 -> "location"
+    // The weather block lives inside Navigation, so the section is the same
+    // as tab 8; scrollToWeather below is what separates the two.
+    11 -> "navigator"
     else -> null
 }
 
@@ -9971,7 +9980,7 @@ private fun AutoRecordModeSelector(
 }
 
 @Composable
-private fun SegmentedChoice(
+internal fun SegmentedChoice(
     label: String,
     options: List<Pair<String, String>>,
     current: String,
@@ -11429,10 +11438,11 @@ private fun HudMapStylePicker(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel
 ) {
-    // Carto raster basemap slugs, all 10 publicly served styles. Labels
-    // are the raw slugs on purpose: the rider asked to see the internal
-    // names, not localised friendly text. Order: voyager family,
-    // positron (light_*) family, dark matter (dark_*) family.
+    // Raw internal codes on purpose: the rider asked to see them, not
+    // localised friendly text. The ten Carto slugs collapsed into "light"
+    // and "dark" when Light/Dark moved to Esri Canvas (the keyless Carto
+    // endpoints are being key-gated); a saved legacy slug still resolves
+    // to the matching Esri style in the HUD's tile cache.
     val options = listOf(
         // The same providers the app's own maps offer, first because they are
         // the ones riders asked for: plain OSM and the two that actually draw
@@ -11443,18 +11453,10 @@ private fun HudMapStylePicker(
         "topo",
         "hot",
         "satellite",
-        "voyager",
-        "voyager_nolabels",
-        "voyager_labels_under",
-        "voyager_only_labels",
-        "light_all",
-        "light_nolabels",
-        "light_only_labels",
-        "dark_all",
-        "dark_nolabels",
-        "dark_only_labels",
+        "light",
+        "dark",
     )
-    val currentCode = settings.hudMapStyle.ifBlank { "voyager" }
+    val currentCode = settings.hudMapStyle.ifBlank { "light" }
     val currentLabel = currentCode
     var expanded by remember { mutableStateOf(false) }
 

@@ -15,6 +15,8 @@ object GraphScale {
     const val SPAN_SPEED_MS = 3f
     const val SPAN_CURRENT = 10f
     const val SPAN_LOAD = 20f
+    const val SPAN_TORQUE = 10f
+    const val SPAN_PHASE_CURRENT = 20f
 
     fun pad(dataMin: Float, dataMax: Float, minSpan: Float, relPadding: Float = 0.10f): GraphBounds {
         val rawRange = dataMax - dataMin

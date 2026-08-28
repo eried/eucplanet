@@ -26,6 +26,11 @@ object MapLayers {
     data class Layer(
         val id: String,
         val urlTemplate: String,
+        /** Esri splits its Canvas basemaps into a base layer and a separate
+         *  reference (labels) layer. When set, the Leaflet surfaces draw this
+         *  on top of the base; the canvas renderers (Studio, HUD cache) keep
+         *  base-only, which just means fewer place labels there. */
+        val refUrlTemplate: String = "",
         val attribution: String,
         /** Same credit for a small canvas. A Studio map element can be a
          *  thumbnail on a phone screen, where the full string would be clipped
@@ -49,6 +54,8 @@ object MapLayers {
     const val LIGHT = "LIGHT"
     const val DARK = "DARK"
     const val SATELLITE = "SATELLITE"
+
+    private const val ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/"
 
     /** Order matches eucviewer's picker, so the two read the same. */
     val ALL: List<Layer> = listOf(
@@ -89,26 +96,30 @@ object MapLayers {
             detectRetina = true,
             communityHosted = true,
         ),
+        // Light and Dark moved from CARTO to Esri's Canvas basemaps: the
+        // keyless CARTO basemap endpoints are being key-gated (the
+        // eucviewer dark style already hit "API key required"), while these
+        // classic ArcGIS raster services are the same keyless host the
+        // Satellite layer has used all along.
         Layer(
             id = LIGHT,
-            urlTemplate = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-            attribution = "© CARTO · © OpenStreetMap contributors",
-            attributionShort = "© CARTO, OSM",
-            maxNativeZoom = 20,
-            subdomains = "abcd",
+            urlTemplate = ESRI + "Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+            refUrlTemplate = ESRI + "Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+            attribution = "Esri · © OpenStreetMap contributors",
+            attributionShort = "© Esri, OSM",
+            maxNativeZoom = 16,
         ),
         Layer(
             id = DARK,
-            urlTemplate = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-            attribution = "© CARTO · © OpenStreetMap contributors",
-            attributionShort = "© CARTO, OSM",
-            maxNativeZoom = 20,
-            subdomains = "abcd",
+            urlTemplate = ESRI + "Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+            refUrlTemplate = ESRI + "Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+            attribution = "Esri · © OpenStreetMap contributors",
+            attributionShort = "© Esri, OSM",
+            maxNativeZoom = 16,
         ),
         Layer(
             id = SATELLITE,
-            urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/" +
-                "World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            urlTemplate = ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}",
             attribution = "Esri · Maxar · Earthstar Geographics",
             attributionShort = "© Esri",
             maxNativeZoom = 19,

@@ -52,6 +52,21 @@ class SettingsRepository @Inject constructor(
 
     private fun AppSettings.sanitized(): AppSettings = copy(
         autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
+        // Weather comfort thresholds from a synced or hand-edited file: keep
+        // the window one of the offered four, the bands ordered and sane.
+        weather = weather.copy(
+            // Any number of hours now, clamped rather than snapped to a preset.
+            // Two is the shortest that draws a curve; a week is where every
+            // source runs out.
+            windowHours = weather.windowHours.coerceIn(2, 168),
+            prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+            prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+            prefRain = weather.prefRain.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+            prefSnow = weather.prefSnow.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+            prefWind = weather.prefWind.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+            prefNight = weather.prefNight.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+            prefGolden = weather.prefGolden.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+        ),
         // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
         // value (from an imported or Dropbox-synced settings file, not just the
         // steppers) can never busy-loop a delay(), divide by zero, or starve the
@@ -90,3 +105,5 @@ class SettingsRepository @Inject constructor(
             ?: HudDiscoveryMode.AUTO,
     )
 }
+
+private val PREF_VALUES = setOf("DISLIKE", "NEUTRAL", "LIKE")

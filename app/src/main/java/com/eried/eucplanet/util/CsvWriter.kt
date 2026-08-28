@@ -11,7 +11,7 @@ import java.util.Locale
 
 /**
  * Writes DarknessBot-compatible CSV files.
- * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Extra`
+ * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra`
  * The trailing GPS-speed, Current, PWM, G-Force and Extra columns are EUC
  * Planet extensions; DarknessBot viewers ignore trailing columns. `GPS speed`
  * carries the external BLE GPS box's reading when the rider prioritises
@@ -35,7 +35,7 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Extra")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
         writer?.newLine()
     }
 
@@ -69,7 +69,13 @@ class CsvWriter(private val file: File) {
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f,%s",
+                // Column precision follows what the source actually
+                // resolves, so the file never rounds real data away: the
+                // wheel reports speed / voltage / temperature / current /
+                // PWM / phase in hundredths and the odometer in thousandths
+                // of a km. GPS-derived columns (altitude, GPS speed) stay at
+                // one decimal - beyond that is receiver noise, not data.
+                "%s,%.2f,%.2f,%.2f,%d,%.1f,%.6f,%.6f,%.3f,%.1f,%.2f,%.2f,%.3f,%.3f,%.3f,%.2f,%.2f,%s",
                 date,
                 speed,
                 data.voltage,
@@ -85,6 +91,11 @@ class CsvWriter(private val file: File) {
                 data.gForce,
                 data.accelX,
                 data.accelY,
+                // Torque (Nm) and phase current (A), both signed. Families
+                // that never report them write zeros; the trip screens treat
+                // an all-zero column as "not recorded".
+                data.torque,
+                data.phaseCurrent,
                 extraCell
             )
         )

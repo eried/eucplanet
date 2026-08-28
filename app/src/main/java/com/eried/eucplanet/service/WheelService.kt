@@ -1156,7 +1156,9 @@ class WheelService : LifecycleService() {
             com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY -> "%"
             com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE -> "V"
             com.eried.eucplanet.data.model.WidgetMetricType.TEMP -> u.tempUnit(tempUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.CURRENT -> "A"
+            com.eried.eucplanet.data.model.WidgetMetricType.CURRENT,
+            com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT -> "A"
+            com.eried.eucplanet.data.model.WidgetMetricType.TORQUE -> "Nm"
             com.eried.eucplanet.data.model.WidgetMetricType.POWER -> "W"
             com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED -> "Wh"
             com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
@@ -1196,6 +1198,10 @@ class WheelService : LifecycleService() {
                     if (data.pwm.isNaN()) "--" else "%.0f".format(data.pwm)
                 com.eried.eucplanet.data.model.WidgetMetricType.CURRENT ->
                     "%.0f".format(kotlin.math.abs(data.current))
+                com.eried.eucplanet.data.model.WidgetMetricType.TORQUE ->
+                    "%.1f".format(kotlin.math.abs(data.torque))
+                com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT ->
+                    "%.0f".format(kotlin.math.abs(data.phaseCurrent))
                 com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
                     "%.0f".format(kotlin.math.abs(data.voltage * data.current))
                 com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED ->
