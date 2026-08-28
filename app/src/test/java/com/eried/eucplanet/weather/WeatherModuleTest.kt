@@ -159,8 +159,46 @@ class WeatherModuleTest {
         assertTrue(coldHater.score < coldNeutral.score)
     }
 
+    @Test fun `disliking cold bites early, not just hard`() {
+        // Erwin's report: +7 C with cold disliked was still reading +3, which
+        // is not what the setting promises. A dislike now moves the comfort
+        // band as well as scaling the deficit.
+        val chilly = hour(tempC = 7f)
+        val neutral = s(chilly)
+        val hater = RidabilityScore.score(
+            chilly, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(cold = RidabilityScore.Pref.DISLIKE),
+        )
+        assertTrue("neutral was ${neutral.score}", neutral.score > 3f)
+        assertTrue("cold-hater was ${hater.score}", hater.score < 2f)
+        // ...and still not a hazard reading: 7 C is unpleasant, not dangerous.
+        assertTrue("cold-hater was ${hater.score}", hater.score > 0f)
+        // Someone who likes the cold keeps their perfect day.
+        val lover = RidabilityScore.score(
+            chilly, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(cold = RidabilityScore.Pref.LIKE),
+        )
+        assertTrue("cold-lover was ${lover.score}", lover.score >= 4.5f)
+    }
+
+    @Test fun `golden shoulders count, at a fraction`() {
+        // A brisk hour, so the bonus has somewhere to go: at a perfect
+        // temperature every variant simply clamps at +5 and the ordering is
+        // unobservable.
+        val core = hour(tempC = 5f).copy(goldenWeight = 1f)
+        val shoulder = hour(tempC = 5f).copy(goldenWeight = 0.5f)
+        val plain = hour(tempC = 5f)
+        val likes = RidabilityScore.Prefs(golden = RidabilityScore.Pref.LIKE)
+        fun sc(h: com.eried.eucplanet.weather.HourForecast) =
+            RidabilityScore.score(h, 14f, 31f, 2f, 4.5f, likes).score
+        assertTrue(sc(core) > sc(shoulder))
+        assertTrue(sc(shoulder) > sc(plain))
+        assertTrue(shoulder.isGolden)
+        assertTrue(!plain.isGolden)
+    }
+
     @Test fun `golden hour is opposite polarity, neutral means nothing`() {
-        val golden = hour(tempC = 22.5f).copy(isGolden = true)
+        val golden = hour(tempC = 22.5f).copy(goldenWeight = 1f)
         val plain = hour(tempC = 22.5f)
         assertEquals(s(plain).score, s(golden).score, 0.001f)
         val lover = RidabilityScore.score(
@@ -341,7 +379,7 @@ class WeatherModuleTest {
     @Test fun `the section is Navigation & weather and every locale has the strings`() {
         val keys = listOf(
             "weather_section", "weather_icon_desc", "weather_now", "weather_fetching",
-            "weather_updated_ago", "weather_refresh", "weather_error",
+            "weather_refresh", "weather_error",
             "weather_window_6h", "weather_window_24h", "weather_window_3d", "weather_window_1w",
             "weather_win_6", "weather_win_24", "weather_win_3d", "weather_win_1w",
             "weather_settings_entry", "weather_enable", "weather_enable_desc",
@@ -366,7 +404,7 @@ class WeatherModuleTest {
             "weather_adv_heat", "weather_adv_golden",
             "weather_in_min", "weather_in_h",
             "weather_src_current", "weather_src_destination",
-            "weather_updated_now", "weather_swap_src",
+            "weather_swap_src",
             "adv_group_weather", "adv_weather_cold_desc", "adv_weather_hot_desc",
             "adv_weather_breezy_desc", "adv_weather_windy_desc",
             "weather_pref_label", "weather_pref_desc",

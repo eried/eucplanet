@@ -1629,8 +1629,6 @@
     <string name="weather_icon_desc">Прогноз погоды</string>
     <string name="weather_now">Сейчас</string>
     <string name="weather_fetching">Загрузка прогноза…</string>
-    <string name="weather_updated_ago">Обновлено %1$d мин назад</string>
-    <string name="weather_updated_now">Обновлено только что</string>
     <string name="weather_refresh">Обновить прогноз</string>
     <string name="weather_error">Сбой прогноза: %1$s</string>
     <string name="weather_window_6h">Ближайшие 6 часов</string>

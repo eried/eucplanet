@@ -1885,8 +1885,6 @@
     <string name="weather_icon_desc">Sääennuste</string>
     <string name="weather_now">Nyt</string>
     <string name="weather_fetching">Haetaan ennustetta…</string>
-    <string name="weather_updated_ago">Päivitetty %1$d min sitten</string>
-    <string name="weather_updated_now">Päivitetty juuri nyt</string>
     <string name="weather_refresh">Päivitä ennuste</string>
     <string name="weather_error">Ennuste epäonnistui: %1$s</string>
     <string name="weather_window_6h">Seuraavat 6 tuntia</string>

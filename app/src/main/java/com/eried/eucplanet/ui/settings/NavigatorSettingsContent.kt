@@ -270,19 +270,15 @@ fun NavigatorSettingsContent(
         // --- Weather / ridability ---------------------------------------
         // The dashboard weather icon and its forecast flyout. Ships off;
         // enabling adds the icon above the map button.
-        // Same weight as the other sub-headings on this page (endpoints,
-        // avoidances). It was labelSmall and uppercased, which read as a
-        // caption rather than as the heading of everything below it.
+        // The house section heading, same as "Charging monitor" and friends
+        // elsewhere in Settings. Weather is its own topic that happens to
+        // live under Navigation, not a footnote to routing.
         Box(
             modifier = if (scrollToWeather) {
                 Modifier.onGloballyPositioned { onWeatherTop(it.positionInWindow().y) }
             } else Modifier,
         ) {
-            Text(
-                stringResource(R.string.weather_section),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            SectionHeader(stringResource(R.string.weather_section))
         }
         Row(
             modifier = Modifier.fillMaxWidth(),

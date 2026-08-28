@@ -1885,8 +1885,6 @@
     <string name="weather_icon_desc">Prognoza meteo</string>
     <string name="weather_now">Acum</string>
     <string name="weather_fetching">Se preia prognoza…</string>
-    <string name="weather_updated_ago">Actualizat acum %1$d min</string>
-    <string name="weather_updated_now">Actualizat chiar acum</string>
     <string name="weather_refresh">Reîmprospătează prognoza</string>
     <string name="weather_error">Prognoza a eșuat: %1$s</string>
     <string name="weather_window_6h">Următoarele 6 ore</string>

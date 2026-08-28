@@ -161,7 +161,17 @@ class DashboardViewModel @Inject constructor(
                 @Suppress("DEPRECATION")
                 val a = android.location.Geocoder(context, java.util.Locale.getDefault())
                     .getFromLocation(lat, lon, 1)?.firstOrNull()
-                val name = a?.subLocality ?: a?.locality ?: a?.featureName
+                // A PLACE, never a house number. featureName and even
+                // subLocality come back as the street number from some
+                // providers, which is how a rider on number 168 ended up with
+                // a chip that just said "168". Anything without a letter in it
+                // is not a place name, so it is skipped, and the city is
+                // preferred over the street: this labels a forecast, which is
+                // a city-scale thing.
+                val name = listOfNotNull(
+                    a?.locality, a?.subLocality, a?.subAdminArea,
+                    a?.thoroughfare, a?.adminArea, a?.featureName,
+                ).firstOrNull { it.isNotBlank() && it.any { c -> c.isLetter() } }
                 placeCacheKey = key
                 if (!name.isNullOrBlank()) weatherPlace.value = name
             } catch (_: Exception) {

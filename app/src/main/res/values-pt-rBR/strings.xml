@@ -1629,8 +1629,6 @@
     <string name="weather_icon_desc">Previsão do tempo</string>
     <string name="weather_now">Agora</string>
     <string name="weather_fetching">Buscando previsão…</string>
-    <string name="weather_updated_ago">Atualizado há %1$d min</string>
-    <string name="weather_updated_now">Atualizado agora mesmo</string>
     <string name="weather_refresh">Atualizar previsão</string>
     <string name="weather_error">Falha na previsão: %1$s</string>
     <string name="weather_window_6h">Próximas 6 horas</string>

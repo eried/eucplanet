@@ -259,8 +259,11 @@ fun WeatherFlyout(
                 Text(
                     when {
                         refreshing -> stringResource(R.string.weather_fetching)
-                        updatedAgoMin == 0 -> stringResource(R.string.weather_updated_now)
-                        updatedAgoMin != null -> stringResource(R.string.weather_updated_ago, updatedAgoMin)
+                        // Just the age. "Updated" said nothing the clock
+                        // did not, and it was the half that got truncated.
+                        updatedAgoMin == 0 -> stringResource(R.string.sources_fresh_just_now)
+                        updatedAgoMin != null ->
+                            stringResource(R.string.sources_fresh_minutes_fmt, updatedAgoMin)
                         else -> ""
                     },
                     style = MaterialTheme.typography.bodySmall,
@@ -378,7 +381,12 @@ private fun DetailSection(
             ),
             series = listOf(
                 ChartSeries(hours.map { it.h.tempC }, MaterialTheme.appColors.metricTemp),
-                ChartSeries(hours.map { it.h.humidityPct }, MaterialTheme.appColors.chartEnvelope, dashed = true),
+                ChartSeries(
+                    hours.map { it.h.humidityPct },
+                    MaterialTheme.appColors.chartEnvelope,
+                    dashed = true,
+                    fill = true,
+                ),
             ),
             bars = listOf(
                 ChartSeries(hours.map { it.h.precipMmH }, MaterialTheme.appColors.chartEnvelope),
@@ -402,8 +410,9 @@ private fun DetailSection(
             // a gust is never weaker than the wind under it, and the dashed
             // line riding above the filled band is what says so.
             sharedScale = true,
-            // A filled band needs a little more room than a bare line did.
-            chartHeight = 56.dp,
+            // Same height as the chart above it: two panels of one size read
+            // as a set, and the fill needs the room anyway.
+            chartHeight = 88.dp,
             ink = ink, scrub = scrub, onScrub = onScrub,
         )
 
@@ -438,11 +447,15 @@ private fun DetailSection(
         if (goldenIdx > 0) lines += stringResource(R.string.weather_adv_golden, lead(goldenIdx))
         if (lines.isEmpty()) lines += stringResource(R.string.weather_adv_clear)
 
-        Column(Modifier.padding(top = 6.dp)) {
-            lines.take(4).forEach {
-                Text(it, style = MaterialTheme.typography.bodySmall, color = ink.copy(alpha = 0.8f))
-            }
-        }
+        // One flowing paragraph rather than a line per advisory: they are
+        // short sentences about the same window, and stacked they read as a
+        // warning list for a ride that is usually fine.
+        Text(
+            lines.take(4).joinToString(" "),
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = ink.copy(alpha = 0.8f),
+        )
     }
 }
 
@@ -491,7 +504,49 @@ private fun DetailChart(
     ) {
         val w = size.width
         val hgt = size.height
-        // Precipitation-style bars first, behind the lines. All bar series
+        // A shared scale spans every series at once; otherwise each line gets
+        // its own, as before.
+        val sharedMin = if (sharedScale) series.minOf { it.values.minOrNull() ?: 0f } else 0f
+        val sharedMax = if (sharedScale) series.maxOf { it.values.maxOrNull() ?: 0f } else 0f
+        fun scaledPoints(s: ChartSeries): List<Offset> {
+            val minV = if (sharedScale) sharedMin else s.values.min()
+            val span = ((if (sharedScale) sharedMax else s.values.max()) - minV)
+                .coerceAtLeast(0.1f)
+            val n = s.values.size
+            return List(n) { i ->
+                Offset(
+                    if (n <= 1) 0f else i * w / (n - 1),
+                    hgt - 3f - (s.values[i] - minV) / span * (hgt - 6f),
+                )
+            }
+        }
+
+        // Bands first, then the bars, then the lines: a fill painted over the
+        // precipitation bars would grey them out, and they are the reading
+        // that matters most on that chart.
+        series.forEach { s ->
+            if (s.values.isEmpty() || !s.fill) return@forEach
+            val pts = scaledPoints(s)
+            val area = smoothPathOf(pts).apply {
+                lineTo(w, hgt)
+                lineTo(0f, hgt)
+                close()
+            }
+            // Anchored to the LINE, not to the canvas: a gradient measured
+            // from the top of the chart lands almost entirely in its own
+            // transparent half whenever the value is low, and the band
+            // vanishes exactly when it is most worth seeing.
+            drawPath(
+                area,
+                brush = Brush.verticalGradient(
+                    listOf(s.color.copy(alpha = 0.30f), s.color.copy(alpha = 0.04f)),
+                    startY = pts.minOf { it.y },
+                    endY = hgt,
+                ),
+            )
+        }
+
+        // Precipitation-style bars, behind the lines. All bar series
         // share one scale so rain and snow compare honestly.
         if (bars.isNotEmpty()) {
             val barMax = bars.maxOf { b -> b.values.maxOrNull() ?: 0f }.coerceAtLeast(1f)
@@ -511,45 +566,9 @@ private fun DetailChart(
                 }
             }
         }
-        // A shared scale spans every series at once; otherwise each line gets
-        // its own, as before.
-        val sharedMin = if (sharedScale) series.minOf { it.values.minOrNull() ?: 0f } else 0f
-        val sharedMax = if (sharedScale) series.maxOf { it.values.maxOrNull() ?: 0f } else 0f
         series.forEach { s ->
             if (s.values.isEmpty()) return@forEach
-            val minV = if (sharedScale) sharedMin else s.values.min()
-            val span = ((if (sharedScale) sharedMax else s.values.max()) - minV)
-                .coerceAtLeast(0.1f)
-            val n = s.values.size
-            val pts = List(n) { i ->
-                Offset(
-                    if (n <= 1) 0f else i * w / (n - 1),
-                    hgt - 3f - (s.values[i] - minV) / span * (hgt - 6f),
-                )
-            }
-            val p = smoothPathOf(pts)
-            // Faint band under the line, fading out downward: it reads as a
-            // quantity rather than a reading, and stays quiet enough that the
-            // gust line and the cursor still own the chart.
-            if (s.fill) {
-                val area = smoothPathOf(pts).apply {
-                    lineTo(w, hgt)
-                    lineTo(0f, hgt)
-                    close()
-                }
-                // Anchored to the LINE, not to the canvas: a gradient measured
-                // from the top of the chart lands almost entirely in its own
-                // transparent half whenever the wind is light, which is most
-                // of the time, and the band vanishes.
-                drawPath(
-                    area,
-                    brush = Brush.verticalGradient(
-                        listOf(s.color.copy(alpha = 0.30f), s.color.copy(alpha = 0.04f)),
-                        startY = pts.minOf { it.y },
-                        endY = hgt,
-                    ),
-                )
-            }
+            val p = smoothPathOf(scaledPoints(s))
             drawPath(
                 p,
                 color = s.color,

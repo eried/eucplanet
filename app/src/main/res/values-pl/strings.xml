@@ -1642,8 +1642,6 @@
     <string name="weather_icon_desc">Prognoza pogody</string>
     <string name="weather_now">Teraz</string>
     <string name="weather_fetching">Pobieranie prognozy…</string>
-    <string name="weather_updated_ago">Zaktualizowano %1$d min temu</string>
-    <string name="weather_updated_now">Zaktualizowano przed chwilą</string>
     <string name="weather_refresh">Odśwież prognozę</string>
     <string name="weather_error">Prognoza nieudana: %1$s</string>
     <string name="weather_window_6h">Następne 6 godzin</string>

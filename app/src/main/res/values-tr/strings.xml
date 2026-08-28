@@ -1626,8 +1626,6 @@
     <string name="weather_icon_desc">Hava tahmini</string>
     <string name="weather_now">Şimdi</string>
     <string name="weather_fetching">Tahmin alınıyor…</string>
-    <string name="weather_updated_ago">%1$d dk önce güncellendi</string>
-    <string name="weather_updated_now">Az önce güncellendi</string>
     <string name="weather_refresh">Tahmini yenile</string>
     <string name="weather_error">Tahmin başarısız: %1$s</string>
     <string name="weather_window_6h">Sonraki 6 saat</string>

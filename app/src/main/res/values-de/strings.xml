@@ -1659,8 +1659,6 @@
     <string name="weather_icon_desc">Wettervorhersage</string>
     <string name="weather_now">Jetzt</string>
     <string name="weather_fetching">Vorhersage wird geladen…</string>
-    <string name="weather_updated_ago">Aktualisiert vor %1$d min</string>
-    <string name="weather_updated_now">Gerade aktualisiert</string>
     <string name="weather_refresh">Vorhersage aktualisieren</string>
     <string name="weather_error">Vorhersage fehlgeschlagen: %1$s</string>
     <string name="weather_window_6h">Nächste 6 Stunden</string>

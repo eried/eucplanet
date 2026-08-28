@@ -1684,8 +1684,6 @@
     <string name="weather_icon_desc">Weersvoorspelling</string>
     <string name="weather_now">Nu</string>
     <string name="weather_fetching">Voorspelling ophalen…</string>
-    <string name="weather_updated_ago">Bijgewerkt %1$d min geleden</string>
-    <string name="weather_updated_now">Zojuist bijgewerkt</string>
     <string name="weather_refresh">Voorspelling verversen</string>
     <string name="weather_error">Voorspelling mislukt: %1$s</string>
     <string name="weather_window_6h">Komende 6 uur</string>

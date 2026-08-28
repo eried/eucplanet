@@ -156,7 +156,7 @@ class WeatherRepository @Inject constructor() {
             "&wind_speed_unit=ms&timeformat=unixtime&forecast_days=8" +
             (model?.let { "&models=$it" } ?: "")
         return parseOpenMeteo(get(url)).map {
-            it.copy(isGolden = SunCalc.isGolden(it.timeMs, lat, lon))
+            it.copy(goldenWeight = SunCalc.goldenWeight(it.timeMs, lat, lon))
         }
     }
 
@@ -201,7 +201,7 @@ class WeatherRepository @Inject constructor() {
         val url = "https://api.met.no/weatherapi/locationforecast/2.0/compact" +
             "?lat=%.4f&lon=%.4f".format(Locale.US, lat, lon)
         return parseMetNo(get(url)).map {
-            it.copy(isGolden = SunCalc.isGolden(it.timeMs, lat, lon))
+            it.copy(goldenWeight = SunCalc.goldenWeight(it.timeMs, lat, lon))
         }
     }
 

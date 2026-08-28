@@ -1638,8 +1638,6 @@
     <string name="weather_icon_desc">Vejrudsigt</string>
     <string name="weather_now">Nu</string>
     <string name="weather_fetching">Henter udsigt…</string>
-    <string name="weather_updated_ago">Opdateret for %1$d min siden</string>
-    <string name="weather_updated_now">Opdateret lige nu</string>
     <string name="weather_refresh">Opdater udsigt</string>
     <string name="weather_error">Udsigt fejlede: %1$s</string>
     <string name="weather_window_6h">Næste 6 timer</string>

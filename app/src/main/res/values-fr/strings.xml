@@ -1688,8 +1688,6 @@
     <string name="weather_icon_desc">Prévisions météo</string>
     <string name="weather_now">Maintenant</string>
     <string name="weather_fetching">Récupération des prévisions…</string>
-    <string name="weather_updated_ago">Mis à jour il y a %1$d min</string>
-    <string name="weather_updated_now">Mis à jour maintenant</string>
     <string name="weather_refresh">Actualiser les prévisions</string>
     <string name="weather_error">Échec des prévisions : %1$s</string>
     <string name="weather_window_6h">6 prochaines heures</string>

@@ -1626,8 +1626,6 @@
     <string name="weather_icon_desc">天氣預報</string>
     <string name="weather_now">現在</string>
     <string name="weather_fetching">正在取得預報…</string>
-    <string name="weather_updated_ago">%1$d 分鐘前更新</string>
-    <string name="weather_updated_now">剛剛更新</string>
     <string name="weather_refresh">重新整理預報</string>
     <string name="weather_error">預報失敗：%1$s</string>
     <string name="weather_window_6h">未來6小時</string>

@@ -1661,8 +1661,6 @@
     <string name="weather_icon_desc">Прогноз погоди</string>
     <string name="weather_now">Зараз</string>
     <string name="weather_fetching">Отримання прогнозу…</string>
-    <string name="weather_updated_ago">Оновлено %1$d хв тому</string>
-    <string name="weather_updated_now">Щойно оновлено</string>
     <string name="weather_refresh">Оновити прогноз</string>
     <string name="weather_error">Збій прогнозу: %1$s</string>
     <string name="weather_window_6h">Наступні 6 годин</string>

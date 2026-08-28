@@ -842,8 +842,6 @@
     <string name="weather_icon_desc">Previsioni meteo</string>
     <string name="weather_now">Adesso</string>
     <string name="weather_fetching">Recupero previsioni…</string>
-    <string name="weather_updated_ago">Aggiornato %1$d min fa</string>
-    <string name="weather_updated_now">Aggiornato adesso</string>
     <string name="weather_refresh">Aggiorna previsioni</string>
     <string name="weather_error">Previsioni non riuscite: %1$s</string>
     <string name="weather_window_6h">Prossime 6 ore</string>

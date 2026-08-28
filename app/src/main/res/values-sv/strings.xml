@@ -1625,8 +1625,6 @@
     <string name="weather_icon_desc">Väderprognos</string>
     <string name="weather_now">Nu</string>
     <string name="weather_fetching">Hämtar prognos…</string>
-    <string name="weather_updated_ago">Uppdaterad för %1$d min sedan</string>
-    <string name="weather_updated_now">Uppdaterad nyss</string>
     <string name="weather_refresh">Uppdatera prognos</string>
     <string name="weather_error">Prognos misslyckades: %1$s</string>
     <string name="weather_window_6h">Kommande 6 timmar</string>

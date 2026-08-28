@@ -30,8 +30,26 @@ object SunCalc {
 
     /** The golden window: sun between -4 and +8 degrees - sunrise and sunset
      *  light, hourly samples catch one or two hours at each transition. */
-    fun isGolden(timeMs: Long, lat: Double, lon: Double): Boolean {
+    fun isGolden(timeMs: Long, lat: Double, lon: Double): Boolean =
+        goldenWeight(timeMs, lat, lon) > 0f
+
+    /**
+     * How golden the light is, 0..1.
+     *
+     * Full through the core window, then tapering across the shoulders (down
+     * to -8 degrees, up to +16) rather than switching off at its edge: a
+     * rider who rides FOR that light wants the hour around it to count too,
+     * and an hourly forecast lands on the window's edge as often as inside
+     * it. The core is roughly 50 minutes per transition at mid latitudes and
+     * far longer toward the poles; the shoulders roughly double it.
+     */
+    fun goldenWeight(timeMs: Long, lat: Double, lon: Double): Float {
         val el = elevationDeg(timeMs, lat, lon)
-        return el > -4.0 && el < 8.0
+        return when {
+            el > -4.0 && el < 8.0 -> 1f
+            el <= -4.0 && el > -8.0 -> ((el + 8.0) / 4.0).toFloat()
+            el >= 8.0 && el < 16.0 -> ((16.0 - el) / 8.0).toFloat()
+            else -> 0f
+        }
     }
 }

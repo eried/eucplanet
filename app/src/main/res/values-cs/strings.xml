@@ -1885,8 +1885,6 @@
     <string name="weather_icon_desc">Předpověď počasí</string>
     <string name="weather_now">Teď</string>
     <string name="weather_fetching">Načítání předpovědi…</string>
-    <string name="weather_updated_ago">Aktualizováno před %1$d min</string>
-    <string name="weather_updated_now">Aktualizováno právě teď</string>
     <string name="weather_refresh">Obnovit předpověď</string>
     <string name="weather_error">Předpověď selhala: %1$s</string>
     <string name="weather_window_6h">Dalších 6 hodin</string>

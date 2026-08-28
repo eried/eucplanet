@@ -2116,8 +2116,6 @@
     <string name="weather_icon_desc">Weather forecast</string>
     <string name="weather_now">Now</string>
     <string name="weather_fetching">Fetching forecast…</string>
-    <string name="weather_updated_ago">Updated %1$d min ago</string>
-    <string name="weather_updated_now">Updated just now</string>
     <string name="weather_refresh">Refresh forecast</string>
     <string name="weather_error">Forecast failed: %1$s</string>
     <string name="weather_window_6h">Next 6 hours</string>

@@ -21,9 +21,13 @@ data class HourForecast(
     val humidityPct: Float = 0f,
     /** Wind gust speed, m/s. 0 when the provider omits it. */
     val gustMs: Float = 0f,
-    /** Inside the golden window around sunrise or sunset. See [SunCalc]. */
-    val isGolden: Boolean = false,
-)
+    /** How golden the light is, 0..1: full inside the window around sunrise
+     *  or sunset, tapering across its shoulders. See [SunCalc]. */
+    val goldenWeight: Float = 0f,
+) {
+    /** Any golden light at all, for the faces and the glyph strip. */
+    val isGolden: Boolean get() = goldenWeight > 0f
+}
 
 /**
  * The ridability score, -5..+5: +5 a drop-everything riding hour, 0 fine
@@ -56,9 +60,12 @@ data class HourForecast(
  * rider's calibration anchors hold exactly at defaults:
  *  - hazard conditions (rain/snow/wind): dislike x1.0, neutral x0.6,
  *    like softens to 30% and adds a small mild-severity bonus (capped 0.7).
- *  - comfort conditions (heat/cold/night): neutral x1.0, dislike x1.5,
- *    like as above.
- *  - golden hour stays opposite polarity: like +1.5, neutral 0, dislike -1.
+ *  - comfort conditions (heat/cold/night): neutral x1.0, dislike x1.8,
+ *    like as above. A temperature dislike ALSO moves the comfort band 3 C
+ *    toward it (and a like widens it 3 C), so a cold-hater's cold starts
+ *    earlier rather than merely costing more once it has begun.
+ *  - golden hour stays opposite polarity: like +1.5, neutral 0, dislike -1,
+ *    scaled by how golden the light is so the shoulders still count.
  *
  * SAFETY, preference-proof and applied last (no Like can buy them back):
  *  - measurable rain caps the score at +1, snow at 0 (wet pavement is wet);
@@ -112,9 +119,22 @@ object RidabilityScore {
 
     /** Comfort conditions ship NEUTRAL: neutral is the calibrated baseline. */
     private fun comfortDeficit(pen: Float, p: Pref): Float = when (p) {
-        Pref.DISLIKE -> 1.5f * pen
+        Pref.DISLIKE -> 1.8f * pen
         Pref.NEUTRAL -> pen
         Pref.LIKE -> likedDeficit(pen)
+    }
+
+    /** How far a temperature preference moves the comfort band, in degrees.
+     *
+     *  Disliking cold does not only make a cold hour cost more, it makes the
+     *  cold START three degrees earlier: at +7 C a rider who had said they
+     *  dislike cold was still being told +3, because scaling a deficit that
+     *  had barely begun scales almost nothing. Liking it widens the band the
+     *  same amount the other way. */
+    private fun bandShift(p: Pref): Float = when (p) {
+        Pref.DISLIKE -> 3f
+        Pref.NEUTRAL -> 0f
+        Pref.LIKE -> -3f
     }
 
     /** Score plus which factors bit, for the graph's faces and glyph strip. */
@@ -151,8 +171,8 @@ object RidabilityScore {
             h.tempC + 0.05f * max(0f, h.humidityPct - 55f)
         } else h.tempC
 
-        val plateauLo = coldC + 3f
-        val plateauHi = hotC - 4f
+        val plateauLo = coldC + 3f + bandShift(prefs.cold)
+        val plateauHi = hotC - 4f - bandShift(prefs.hot)
 
         // --- Raw deficits -------------------------------------------------
         var coldPen = 0f
@@ -189,9 +209,11 @@ object RidabilityScore {
         s -= hazardDeficit(wetPen, if (snow) prefs.snow else prefs.rain)
         s -= comfortDeficit(nightPen, prefs.night)
 
-        // Golden hour: opposite polarity, neutral counts nothing.
-        if (h.isGolden) {
-            s += when (prefs.golden) {
+        // Golden hour: opposite polarity, neutral counts nothing. Scaled by
+        // how golden the light is, so the hour either side of the window
+        // still counts for a rider who rides for it, just less.
+        if (h.goldenWeight > 0f) {
+            s += h.goldenWeight * when (prefs.golden) {
                 Pref.LIKE -> 1.5f
                 Pref.NEUTRAL -> 0f
                 Pref.DISLIKE -> -1f

@@ -1626,8 +1626,6 @@
     <string name="weather_icon_desc">일기 예보</string>
     <string name="weather_now">지금</string>
     <string name="weather_fetching">예보 가져오는 중…</string>
-    <string name="weather_updated_ago">%1$d분 전 업데이트</string>
-    <string name="weather_updated_now">방금 업데이트됨</string>
     <string name="weather_refresh">예보 새로고침</string>
     <string name="weather_error">예보 실패: %1$s</string>
     <string name="weather_window_6h">다음 6시간</string>

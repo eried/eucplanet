@@ -806,8 +806,6 @@
     <string name="weather_icon_desc">天气预报</string>
     <string name="weather_now">现在</string>
     <string name="weather_fetching">正在获取预报…</string>
-    <string name="weather_updated_ago">%1$d 分钟前更新</string>
-    <string name="weather_updated_now">刚刚更新</string>
     <string name="weather_refresh">刷新预报</string>
     <string name="weather_error">预报失败：%1$s</string>
     <string name="weather_window_6h">未来6小时</string>

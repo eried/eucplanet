@@ -823,8 +823,6 @@
     <string name="weather_icon_desc">Værvarsel</string>
     <string name="weather_now">Nå</string>
     <string name="weather_fetching">Henter varsel…</string>
-    <string name="weather_updated_ago">Oppdatert for %1$d min siden</string>
-    <string name="weather_updated_now">Nettopp oppdatert</string>
     <string name="weather_refresh">Oppdater varsel</string>
     <string name="weather_error">Varsel feilet: %1$s</string>
     <string name="weather_window_6h">Neste 6 timer</string>
