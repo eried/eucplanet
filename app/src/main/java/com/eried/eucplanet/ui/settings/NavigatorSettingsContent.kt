@@ -39,6 +39,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import com.eried.eucplanet.ui.theme.appColors
@@ -67,7 +69,13 @@ import com.eried.eucplanet.ui.theme.themedSliderColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigatorSettingsContent(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    // Set when the rider came from the weather icon's settings shortcut: the
+    // weather block sits at the bottom of a long section, so the shortcut
+    // reports where it is and the screen scrolls there instead of dropping
+    // the rider at the top of Navigation.
+    scrollToWeather: Boolean = false,
+    onWeatherTop: (Float) -> Unit = {},
 ) {
     val settingsState by viewModel.settings.collectAsState()
     val settings = settingsState ?: return
@@ -262,11 +270,20 @@ fun NavigatorSettingsContent(
         // --- Weather / ridability ---------------------------------------
         // The dashboard weather icon and its forecast flyout. Ships off;
         // enabling adds the icon above the map button.
-        Text(
-            stringResource(R.string.weather_section).uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-        )
+        // Same weight as the other sub-headings on this page (endpoints,
+        // avoidances). It was labelSmall and uppercased, which read as a
+        // caption rather than as the heading of everything below it.
+        Box(
+            modifier = if (scrollToWeather) {
+                Modifier.onGloballyPositioned { onWeatherTop(it.positionInWindow().y) }
+            } else Modifier,
+        ) {
+            Text(
+                stringResource(R.string.weather_section),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,

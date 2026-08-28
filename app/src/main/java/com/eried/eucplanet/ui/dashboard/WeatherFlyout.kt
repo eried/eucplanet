@@ -326,11 +326,14 @@ fun WeatherFlyout(
     }
 }
 
-/** One line series inside a detail chart, self-normalized to its own range. */
+/** One line series inside a detail chart, self-normalized to its own range
+ *  unless the chart shares one. [fill] paints a faint band under the line,
+ *  which suits a quantity that is really "how much", like wind. */
 private data class ChartSeries(
     val values: List<Float>,
     val color: Color,
     val dashed: Boolean = false,
+    val fill: Boolean = false,
 )
 
 /**
@@ -388,9 +391,19 @@ private fun DetailSection(
             label = stringResource(R.string.weather_chart_wind),
             value = "%.1f / %.1f %s".format(w(h.windMs), w(h.gustMs), wUnit),
             series = listOf(
-                ChartSeries(hours.map { it.h.windMs }, MaterialTheme.appColors.metricPosition),
+                ChartSeries(
+                    hours.map { it.h.windMs },
+                    MaterialTheme.appColors.metricPosition,
+                    fill = true,
+                ),
                 ChartSeries(hours.map { it.h.gustMs }, MaterialTheme.appColors.metricPosition, dashed = true),
             ),
+            // Wind and gusts are the same quantity, so they share one scale:
+            // a gust is never weaker than the wind under it, and the dashed
+            // line riding above the filled band is what says so.
+            sharedScale = true,
+            // A filled band needs a little more room than a bare line did.
+            chartHeight = 56.dp,
             ink = ink, scrub = scrub, onScrub = onScrub,
         )
 
@@ -443,6 +456,10 @@ private fun DetailChart(
     onScrub: (Float) -> Unit,
     bars: List<ChartSeries> = emptyList(),
     chartHeight: Dp = 44.dp,
+    // One scale across every series, for charts whose lines are the same
+    // quantity (wind and its gusts). Off for mixed units, where each line
+    // has to normalize to its own range to be readable at all.
+    sharedScale: Boolean = false,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -494,10 +511,15 @@ private fun DetailChart(
                 }
             }
         }
+        // A shared scale spans every series at once; otherwise each line gets
+        // its own, as before.
+        val sharedMin = if (sharedScale) series.minOf { it.values.minOrNull() ?: 0f } else 0f
+        val sharedMax = if (sharedScale) series.maxOf { it.values.maxOrNull() ?: 0f } else 0f
         series.forEach { s ->
             if (s.values.isEmpty()) return@forEach
-            val minV = s.values.min()
-            val span = (s.values.max() - minV).coerceAtLeast(0.1f)
+            val minV = if (sharedScale) sharedMin else s.values.min()
+            val span = ((if (sharedScale) sharedMax else s.values.max()) - minV)
+                .coerceAtLeast(0.1f)
             val n = s.values.size
             val pts = List(n) { i ->
                 Offset(
@@ -506,6 +528,28 @@ private fun DetailChart(
                 )
             }
             val p = smoothPathOf(pts)
+            // Faint band under the line, fading out downward: it reads as a
+            // quantity rather than a reading, and stays quiet enough that the
+            // gust line and the cursor still own the chart.
+            if (s.fill) {
+                val area = smoothPathOf(pts).apply {
+                    lineTo(w, hgt)
+                    lineTo(0f, hgt)
+                    close()
+                }
+                // Anchored to the LINE, not to the canvas: a gradient measured
+                // from the top of the chart lands almost entirely in its own
+                // transparent half whenever the wind is light, which is most
+                // of the time, and the band vanishes.
+                drawPath(
+                    area,
+                    brush = Brush.verticalGradient(
+                        listOf(s.color.copy(alpha = 0.30f), s.color.copy(alpha = 0.04f)),
+                        startY = pts.minOf { it.y },
+                        endY = hgt,
+                    ),
+                )
+            }
             drawPath(
                 p,
                 color = s.color,

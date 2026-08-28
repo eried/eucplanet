@@ -1337,7 +1337,9 @@ fun DashboardScreen(
                                     text = { Text(stringResource(R.string.weather_settings_entry)) },
                                     onClick = {
                                         showWeatherMenu = false
-                                        onNavigateToSettings(8)
+                                        // 11, not 8: the weather block, not
+                                        // the top of Navigation.
+                                        onNavigateToSettings(11)
                                     }
                                 )
                             }
