@@ -9980,7 +9980,7 @@ private fun AutoRecordModeSelector(
 }
 
 @Composable
-private fun SegmentedChoice(
+internal fun SegmentedChoice(
     label: String,
     options: List<Pair<String, String>>,
     current: String,

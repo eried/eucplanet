@@ -1232,15 +1232,13 @@
     <string name="auto_waiting_gps">Várakozás GPS-helyre…</string>
     <string name="auto_volume_title">Hangerő-szabályzás</string>
     <string name="auto_volume_desc">A zene hangerejét a sebesség alapján növeli</string>
-    <string name="apply_when_never">Mindig</string>
-    <string name="apply_when_connected">Csatlakozva</string>
-    <string name="apply_when_riding">Menet közben</string>
     <string name="auto_volume_when">Hangerő emelése amikor</string>
     <string name="media_rate_when">Lejátszási sebesség módosítása amikor</string>
+    <string name="media_rate_permission_desc">Az Android külön kéri. Enélkül a lejátszási sebesség nem módosítható.</string>
     <string name="media_rate_note">A lejátszó dönti el, elfogad-e kívülről sebességet. A podcast-alkalmazások általában igen, néhány zenei nem.</string>
     <string name="media_control_title">Lejátszásvezérlés</string>
     <string name="media_rate_title">Lejátszási sebesség</string>
-    <string name="media_rate_grant">Értesítés-hozzáférés engedélyezése</string>
+    <string name="media_rate_grant">Megadás</string>
     <string name="warnings_media_access_title">Az értesítés-hozzáférés ki van kapcsolva</string>
     <string name="warnings_media_access_body">Enélkül a lejátszási sebesség nem követheti a tempódat. Koppints az engedélyezéshez.</string>
     <string name="media_control_desc">Szünetelteti a zenét, ha lassítasz, és folytatja, ha gyorsítasz.</string>

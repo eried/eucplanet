@@ -533,15 +533,13 @@
     <string name="auto_waiting_gps">In attesa della posizione GPS…</string>
     <string name="auto_volume_title">Controllo volume</string>
     <string name="auto_volume_desc">Aumenta il volume della musica in base alla velocità</string>
-    <string name="apply_when_never">Sempre</string>
-    <string name="apply_when_connected">Connesso</string>
-    <string name="apply_when_riding">In marcia</string>
     <string name="auto_volume_when">Alza il volume quando</string>
     <string name="media_rate_when">Cambia la velocità quando</string>
+    <string name="media_rate_permission_desc">Android la chiede a parte. Senza, la velocità di riproduzione non può essere cambiata.</string>
     <string name="media_rate_note">Il player decide se accettare una velocità dall\'esterno. Le app di podcast di solito sì, alcune app musicali no.</string>
     <string name="media_control_title">Controllo riproduzione</string>
     <string name="media_rate_title">Controllo velocità</string>
-    <string name="media_rate_grant">Consenti accesso alle notifiche</string>
+    <string name="media_rate_grant">Consenti</string>
     <string name="warnings_media_access_title">Accesso alle notifiche disattivato</string>
     <string name="warnings_media_access_body">Senza, la velocità di riproduzione non può seguire la tua andatura. Tocca per consentire.</string>
     <string name="media_control_desc">Mette in pausa la musica quando rallenti e la riprende quando acceleri.</string>

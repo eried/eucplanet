@@ -969,15 +969,13 @@
     <string name="auto_waiting_gps">Väntar på GPS-position…</string>
     <string name="auto_volume_title">Volymkontroll</string>
     <string name="auto_volume_desc">Höj musikvolymen efter farten</string>
-    <string name="apply_when_never">Alltid</string>
-    <string name="apply_when_connected">Ansluten</string>
-    <string name="apply_when_riding">Under färd</string>
     <string name="auto_volume_when">Höj volymen när</string>
     <string name="media_rate_when">Ändra uppspelningshastighet när</string>
+    <string name="media_rate_permission_desc">Android frågar om detta separat. Utan det går uppspelningshastigheten inte att ändra.</string>
     <string name="media_rate_note">Spelaren avgör själv om den tar emot en hastighet utifrån. Poddappar gör det oftast, vissa musikappar inte.</string>
     <string name="media_control_title">Uppspelningskontroll</string>
     <string name="media_rate_title">Uppspelningshastighet</string>
-    <string name="media_rate_grant">Tillåt aviseringsåtkomst</string>
+    <string name="media_rate_grant">Tillåt</string>
     <string name="warnings_media_access_title">Aviseringsåtkomst är av</string>
     <string name="warnings_media_access_body">Utan den kan uppspelningshastigheten inte följa din fart. Tryck för att tillåta.</string>
     <string name="media_control_desc">Pausar musiken när du saktar in och återupptar den när du ökar farten.</string>

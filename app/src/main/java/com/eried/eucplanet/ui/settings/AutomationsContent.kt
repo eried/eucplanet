@@ -348,9 +348,10 @@ fun AutomationsContent(
                 onDispose { rateLifecycleOwner.lifecycle.removeObserver(obs) }
             }
             if (!accessAllowed) {
-                HintText(stringResource(R.string.warnings_media_access_body), small = true)
+                HintText(stringResource(R.string.media_rate_permission_desc), small = true)
                 com.eried.eucplanet.ui.common.FixButton(
-                    onClick = { viewModel.openNotificationAccessSettings() }
+                    text = stringResource(R.string.media_rate_grant),
+                    onClick = { viewModel.openNotificationAccessSettings() },
                 )
             }
             var ratePoints by remember(settings.mediaControl.rateCurve) {
@@ -378,7 +379,9 @@ fun AutomationsContent(
             )
             // Not every player accepts a rate from outside itself, and there
             // is nothing the app can do about the ones that do not.
-            HintText(stringResource(R.string.media_rate_note), small = true)
+            com.eried.eucplanet.ui.common.InfoHint(
+                text = stringResource(R.string.media_rate_note),
+            )
         }
         }   // end Media speed control BringIntoViewSection
 
@@ -878,34 +881,21 @@ private fun SplineCurveEditor(
 }
 
 /**
- * When a speed-driven automation may act: never conditioned, only with a
- * wheel connected, or only while actually riding.
- *
- * Shared by auto-volume and the playback rate because the question is the
- * same one, and a rider who has answered it once should recognise it.
+ * When a speed-driven automation may act, on exactly the selector trip
+ * recording already uses: the same three ids, the same three words, through
+ * the same [SegmentedChoice]. A rider who has answered "Auto-start trip
+ * recording" has answered this shape of question before.
  */
 @Composable
 private fun ApplyWhenSelector(label: String, current: String, onPick: (String) -> Unit) {
-    val options = listOf(
-        ApplyWhenIds.NEVER to stringResource(R.string.apply_when_never),
-        ApplyWhenIds.CONNECTED to stringResource(R.string.apply_when_connected),
-        ApplyWhenIds.RIDING to stringResource(R.string.apply_when_riding),
+    SegmentedChoice(
+        label = label,
+        options = listOf(
+            ApplyWhenIds.NEVER to stringResource(R.string.auto_record_mode_never),
+            ApplyWhenIds.CONNECTED to stringResource(R.string.auto_record_mode_connected),
+            ApplyWhenIds.RIDING to stringResource(R.string.auto_record_mode_riding),
+        ),
+        current = current,
+        onChange = onPick,
     )
-    Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
-            options.forEachIndexed { index, (id, label) ->
-                SegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = current == id,
-                    onClick = { onPick(id) },
-                    shape = SegmentedButtonDefaults.itemShape(
-                        index, options.size,
-                        baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                    ),
-                    colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
-                ) { Text(label) }
-            }
-        }
-        FieldNotchLabel(label)
-    }
 }

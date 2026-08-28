@@ -973,15 +973,13 @@
     <string name="auto_waiting_gps">Ждём GPS…</string>
     <string name="auto_volume_title">Управление громкостью</string>
     <string name="auto_volume_desc">Громкость подстраивается под скорость</string>
-    <string name="apply_when_never">Всегда</string>
-    <string name="apply_when_connected">Подключено</string>
-    <string name="apply_when_riding">В движении</string>
     <string name="auto_volume_when">Повышать громкость когда</string>
     <string name="media_rate_when">Менять скорость воспроизведения когда</string>
+    <string name="media_rate_permission_desc">Android запрашивает это отдельно. Без него скорость воспроизведения изменить нельзя.</string>
     <string name="media_rate_note">Плеер сам решает, принять ли скорость извне. Подкаст-приложения обычно принимают, некоторые музыкальные нет.</string>
     <string name="media_control_title">Управление воспроизведением</string>
     <string name="media_rate_title">Управление скоростью воспроизведения</string>
-    <string name="media_rate_grant">Разрешить доступ к уведомлениям</string>
+    <string name="media_rate_grant">Разрешить</string>
     <string name="warnings_media_access_title">Доступ к уведомлениям выключен</string>
     <string name="warnings_media_access_body">Без него скорость воспроизведения не сможет следовать за скоростью езды. Нажмите, чтобы разрешить.</string>
     <string name="media_control_desc">Ставит музыку на паузу при снижении скорости и возобновляет при разгоне.</string>

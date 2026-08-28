@@ -970,15 +970,13 @@
     <string name="auto_waiting_gps">GPS 위치 대기 중…</string>
     <string name="auto_volume_title">볼륨 제어</string>
     <string name="auto_volume_desc">속도에 따라 음악 볼륨을 높입니다</string>
-    <string name="apply_when_never">항상</string>
-    <string name="apply_when_connected">연결됨</string>
-    <string name="apply_when_riding">주행 중</string>
     <string name="auto_volume_when">볼륨을 올릴 때</string>
     <string name="media_rate_when">재생 속도를 바꿀 때</string>
+    <string name="media_rate_permission_desc">안드로이드가 따로 요청합니다. 이것이 없으면 재생 속도를 바꿀 수 없습니다.</string>
     <string name="media_rate_note">외부에서 지정한 속도를 받아들일지는 재생 앱이 정합니다. 팟캐스트 앱은 대개 지원하고, 일부 음악 앱은 지원하지 않습니다.</string>
     <string name="media_control_title">재생 제어</string>
     <string name="media_rate_title">재생 속도 제어</string>
-    <string name="media_rate_grant">알림 접근 허용</string>
+    <string name="media_rate_grant">허용</string>
     <string name="warnings_media_access_title">알림 접근이 꺼져 있습니다</string>
     <string name="warnings_media_access_body">이것이 없으면 재생 속도가 주행 속도를 따라갈 수 없습니다. 탭하여 허용하세요.</string>
     <string name="media_control_desc">속도를 줄이면 음악을 일시정지하고, 속도를 높이면 다시 재생합니다.</string>

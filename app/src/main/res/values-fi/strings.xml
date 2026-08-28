@@ -1232,15 +1232,13 @@
     <string name="auto_waiting_gps">Odotetaan GPS-sijaintia…</string>
     <string name="auto_volume_title">Äänenvoimakkuus</string>
     <string name="auto_volume_desc">Nostaa musiikin voimakkuutta nopeuden mukaan</string>
-    <string name="apply_when_never">Aina</string>
-    <string name="apply_when_connected">Yhdistetty</string>
-    <string name="apply_when_riding">Ajossa</string>
     <string name="auto_volume_when">Nosta äänenvoimakkuutta kun</string>
     <string name="media_rate_when">Muuta toistonopeutta kun</string>
+    <string name="media_rate_permission_desc">Android kysyy tämän erikseen. Ilman sitä toistonopeutta ei voi muuttaa.</string>
     <string name="media_rate_note">Soitin päättää itse, ottaako se nopeuden ulkopuolelta. Podcast-sovellukset yleensä ottavat, jotkin musiikkisovellukset eivät.</string>
     <string name="media_control_title">Toiston ohjaus</string>
     <string name="media_rate_title">Toistonopeuden ohjaus</string>
-    <string name="media_rate_grant">Salli ilmoitusten käyttöoikeus</string>
+    <string name="media_rate_grant">Myönnä</string>
     <string name="warnings_media_access_title">Ilmoitusten käyttöoikeus on pois</string>
     <string name="warnings_media_access_body">Ilman sitä toistonopeus ei voi seurata vauhtiasi. Napauta salliaksesi.</string>
     <string name="media_control_desc">Keskeyttää musiikin kun hidastat ja jatkaa kun kiihdytät.</string>

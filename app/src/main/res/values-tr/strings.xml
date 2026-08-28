@@ -970,15 +970,13 @@
     <string name="auto_waiting_gps">GPS konumu bekleniyor…</string>
     <string name="auto_volume_title">Ses denetimi</string>
     <string name="auto_volume_desc">Müzik sesini hıza göre artır</string>
-    <string name="apply_when_never">Her zaman</string>
-    <string name="apply_when_connected">Bağlı</string>
-    <string name="apply_when_riding">Sürerken</string>
     <string name="auto_volume_when">Sesi yükselt</string>
     <string name="media_rate_when">Oynatma hızını değiştir</string>
+    <string name="media_rate_permission_desc">Android bunu ayrıca ister. Bu olmadan oynatma hızı değiştirilemez.</string>
     <string name="media_rate_note">Hızı dışarıdan kabul edip etmeyeceğine oynatıcı karar verir. Podcast uygulamaları genelde eder, bazı müzik uygulamaları etmez.</string>
     <string name="media_control_title">Oynatma denetimi</string>
     <string name="media_rate_title">Oynatma hızı denetimi</string>
-    <string name="media_rate_grant">Bildirim erişimine izin ver</string>
+    <string name="media_rate_grant">İzin ver</string>
     <string name="warnings_media_access_title">Bildirim erişimi kapalı</string>
     <string name="warnings_media_access_body">Bu olmadan oynatma hızı sürüş hızını izleyemez. İzin vermek için dokun.</string>
     <string name="media_control_desc">Yavaşladığında müziği duraklatır, hızlandığında devam ettirir.</string>

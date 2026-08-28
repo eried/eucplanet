@@ -973,15 +973,13 @@
     <string name="auto_waiting_gps">Venter på GPS-position…</string>
     <string name="auto_volume_title">Lydstyrke</string>
     <string name="auto_volume_desc">Øg musikkens lydstyrke efter farten</string>
-    <string name="apply_when_never">Altid</string>
-    <string name="apply_when_connected">Forbundet</string>
-    <string name="apply_when_riding">Under kørsel</string>
     <string name="auto_volume_when">Hæv lydstyrken når</string>
     <string name="media_rate_when">Ændr afspilningshastighed når</string>
+    <string name="media_rate_permission_desc">Android beder om det separat. Uden det kan afspilningshastigheden ikke ændres.</string>
     <string name="media_rate_note">Afspilleren bestemmer selv, om den tager imod en hastighed udefra. Podcast-apps gør det som regel, nogle musik-apps ikke.</string>
     <string name="media_control_title">Afspilningsstyring</string>
     <string name="media_rate_title">Afspilningshastighed</string>
-    <string name="media_rate_grant">Tillad notifikationsadgang</string>
+    <string name="media_rate_grant">Tillad</string>
     <string name="warnings_media_access_title">Notifikationsadgang er slået fra</string>
     <string name="warnings_media_access_body">Uden den kan afspilningshastigheden ikke følge din fart. Tryk for at tillade.</string>
     <string name="media_control_desc">Sætter musikken på pause, når du sætter farten ned, og genoptager den, når du sætter farten op.</string>

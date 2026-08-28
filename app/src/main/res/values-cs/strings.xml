@@ -1232,15 +1232,13 @@
     <string name="auto_waiting_gps">Čekám na polohu GPS…</string>
     <string name="auto_volume_title">Ovládání hlasitosti</string>
     <string name="auto_volume_desc">Zesílí hudbu podle rychlosti</string>
-    <string name="apply_when_never">Vždy</string>
-    <string name="apply_when_connected">Připojeno</string>
-    <string name="apply_when_riding">Za jízdy</string>
     <string name="auto_volume_when">Zvýšit hlasitost když</string>
     <string name="media_rate_when">Měnit rychlost přehrávání když</string>
+    <string name="media_rate_permission_desc">Android o to žádá zvlášť. Bez toho nelze měnit rychlost přehrávání.</string>
     <string name="media_rate_note">Přehrávač si sám rozhoduje, zda rychlost zvenčí přijme. Podcastové aplikace obvykle ano, některé hudební ne.</string>
     <string name="media_control_title">Ovládání přehrávání</string>
     <string name="media_rate_title">Ovládání rychlosti přehrávání</string>
-    <string name="media_rate_grant">Povolit přístup k oznámením</string>
+    <string name="media_rate_grant">Udělit</string>
     <string name="warnings_media_access_title">Přístup k oznámením je vypnutý</string>
     <string name="warnings_media_access_body">Bez něj nemůže rychlost přehrávání sledovat vaši rychlost. Klepnutím povolíte.</string>
     <string name="media_control_desc">Pozastaví hudbu, když zpomalíte, a obnoví ji, když zrychlíte.</string>
