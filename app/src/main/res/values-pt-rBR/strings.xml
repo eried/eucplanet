@@ -1640,7 +1640,7 @@
     <string name="weather_window_3d">Próximos 3 dias</string>
     <string name="weather_window_1w">Próximos 7 dias</string>
     <string name="weather_settings_entry">Ajustes de clima</string>
-    <string name="weather_enable">Clima no painel</string>
+    <string name="weather_enable">Acesso rápido no painel</string>
     <string name="weather_enable_desc">Adiciona um ícone de tempo acima do botão do mapa: toque para a previsão de pilotagem.</string>
     <string name="weather_window_label">Janela de previsão</string>
     <string name="weather_source_label">Fonte da previsão</string>
@@ -1649,7 +1649,7 @@
     <string name="weather_hot">Quente demais acima de</string>
     <string name="weather_breezy">Brisa acima de</string>
     <string name="weather_windy">Vento demais acima de</string>
-    <string name="weather_source_credit">Seis fontes gratuitas: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON e Meteo-France, buscadas só enquanto estiver ativo. Os detalhes completos acrescentam os gráficos de temperatura, umidade, chuva e vento, e uma janela curta é desenhada em passos de 15 minutos.</string>
+    <string name="weather_source_credit">Só a fonte escolhida é buscada, e só enquanto isto estiver ligado. Uma janela mais curta pode vir em passos mais finos, se a fonte oferecer.</string>
     <string name="weather_title_1">Clima de roda?</string>
     <string name="weather_title_2">Hora de EUC?</string>
     <string name="weather_title_3">Hora de rodar?</string>

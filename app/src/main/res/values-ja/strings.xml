@@ -1637,7 +1637,7 @@
     <string name="weather_window_3d">今後3日</string>
     <string name="weather_window_1w">今後7日</string>
     <string name="weather_settings_entry">天気設定</string>
-    <string name="weather_enable">ダッシュボードに天気</string>
+    <string name="weather_enable">ダッシュボードにクイックアクセスアイコン</string>
     <string name="weather_enable_desc">地図ボタンの上に天気アイコンを追加。タップで走行しやすさの予報を表示します。</string>
     <string name="weather_window_label">予報ウィンドウ</string>
     <string name="weather_source_label">予報ソース</string>
@@ -1646,7 +1646,7 @@
     <string name="weather_hot">これ超は暑すぎ</string>
     <string name="weather_breezy">これ超は風あり</string>
     <string name="weather_windy">これ超は強風</string>
-    <string name="weather_source_credit">無料の6ソース: Open-Meteo、MET Norway (yr.no)、ECMWF、NOAA GFS、DWD ICON、Meteo-France。有効な間だけ取得します。詳細表示で気温・湿度・降水・風のグラフが加わり、短い窓は15分刻みで描画されます。</string>
+    <string name="weather_source_credit">取得するのは選んだ提供元だけで、これがオンの間だけです。短い窓は、提供元が対応していればより細かい刻みで届きます。</string>
     <string name="weather_title_1">ウィール日和？</string>
     <string name="weather_title_2">EUCの時間？</string>
     <string name="weather_title_3">ライドの時間？</string>

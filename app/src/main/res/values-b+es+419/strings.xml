@@ -1672,7 +1672,7 @@
     <string name="weather_window_3d">Próximos 3 días</string>
     <string name="weather_window_1w">Próximos 7 días</string>
     <string name="weather_settings_entry">Ajustes de clima</string>
-    <string name="weather_enable">Clima en el panel</string>
+    <string name="weather_enable">Acceso rápido en el panel</string>
     <string name="weather_enable_desc">Añade un icono del tiempo sobre el botón del mapa: tócalo para ver la previsión de rodabilidad.</string>
     <string name="weather_window_label">Ventana de pronóstico</string>
     <string name="weather_source_label">Fuente del pronóstico</string>
@@ -1681,7 +1681,7 @@
     <string name="weather_hot">Calor por encima de</string>
     <string name="weather_breezy">Brisa sobre</string>
     <string name="weather_windy">Mucho viento sobre</string>
-    <string name="weather_source_credit">Seis fuentes gratuitas: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON y Meteo-France, consultadas solo mientras esté activo. Los detalles completos añaden los gráficos de temperatura, humedad, lluvia y viento, y una ventana corta se dibuja en pasos de 15 minutos.</string>
+    <string name="weather_source_credit">Solo se consulta la fuente elegida, y solo mientras esto esté activo. Una ventana más corta puede venir con pasos más finos, si la fuente los ofrece.</string>
     <string name="weather_title_1">¿Clima para rodar?</string>
     <string name="weather_title_2">¿Hora de EUC?</string>
     <string name="weather_title_3">¿Hora de rodar?</string>

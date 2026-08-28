@@ -834,7 +834,7 @@
     <string name="weather_window_3d">Neste 3 dager</string>
     <string name="weather_window_1w">Neste 7 dager</string>
     <string name="weather_settings_entry">Værinnstillinger</string>
-    <string name="weather_enable">Vær på dashbordet</string>
+    <string name="weather_enable">Hurtigtilgang i dashbord</string>
     <string name="weather_enable_desc">Legger et værikon over kartknappen: trykk for en kjørbarhetsvarsel.</string>
     <string name="weather_window_label">Varselvindu</string>
     <string name="weather_source_label">Varselkilde</string>
@@ -843,7 +843,7 @@
     <string name="weather_hot">For varmt over</string>
     <string name="weather_breezy">Vind over</string>
     <string name="weather_windy">For mye vind over</string>
-    <string name="weather_source_credit">Seks gratis kilder: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON og Meteo-France, hentes bare mens det er på. Fulle detaljer legger til grafene for temperatur, luftfuktighet, nedbør og vind, og et kort vindu tegnes i 15-minutters steg.</string>
+    <string name="weather_source_credit">Bare den valgte kilden hentes, og bare mens dette er på. Et kortere vindu kan komme i finere steg, hvis kilden tilbyr dem.</string>
     <string name="weather_title_1">Hjulvær?</string>
     <string name="weather_title_2">EUC-tid?</string>
     <string name="weather_title_3">Tid for en tur?</string>

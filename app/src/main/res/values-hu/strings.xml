@@ -1896,7 +1896,7 @@
     <string name="weather_window_3d">Következő 3 nap</string>
     <string name="weather_window_1w">Következő 7 nap</string>
     <string name="weather_settings_entry">Időjárás-beállítások</string>
-    <string name="weather_enable">Időjárás a műszerfalon</string>
+    <string name="weather_enable">Gyorselérési ikon a műszerfalon</string>
     <string name="weather_enable_desc">Időjárás ikont tesz a térkép gomb fölé: koppints rá a gurulhatósági előrejelzésért.</string>
     <string name="weather_window_label">Előrejelzési ablak</string>
     <string name="weather_source_label">Előrejelzés forrása</string>
@@ -1905,7 +1905,7 @@
     <string name="weather_hot">Túl meleg e felett</string>
     <string name="weather_breezy">Szeles e felett</string>
     <string name="weather_windy">Túl szeles e felett</string>
-    <string name="weather_source_credit">Hat ingyenes forrás: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON és Meteo-France, csak bekapcsolt állapotban tölt le. A teljes részletek hozzáadják a hőmérséklet, páratartalom, csapadék és szél grafikonját, a rövid ablak pedig 15 perces léptékben rajzolódik.</string>
+    <string name="weather_source_credit">Csak a kiválasztott forrás töltődik le, és csak amíg ez be van kapcsolva. Rövidebb ablak finomabb léptékben is jöhet, ha a forrás kínálja.</string>
     <string name="weather_title_1">Kereklezős idő?</string>
     <string name="weather_title_2">EUC-idő?</string>
     <string name="weather_title_3">Ideje gurulni?</string>

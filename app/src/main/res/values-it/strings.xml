@@ -853,7 +853,7 @@
     <string name="weather_window_3d">Prossimi 3 giorni</string>
     <string name="weather_window_1w">Prossimi 7 giorni</string>
     <string name="weather_settings_entry">Impostazioni meteo</string>
-    <string name="weather_enable">Meteo sul cruscotto</string>
+    <string name="weather_enable">Accesso rapido nella dashboard</string>
     <string name="weather_enable_desc">Aggiunge un\'icona meteo sopra il pulsante mappa: toccala per la previsione di guidabilità.</string>
     <string name="weather_window_label">Finestra di previsione</string>
     <string name="weather_source_label">Fonte delle previsioni</string>
@@ -862,7 +862,7 @@
     <string name="weather_hot">Troppo caldo sopra</string>
     <string name="weather_breezy">Ventilato oltre</string>
     <string name="weather_windy">Troppo vento oltre</string>
-    <string name="weather_source_credit">Sei fonti gratuite: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON e Meteo-France, scaricate solo quando è attivo. I dettagli completi aggiungono i grafici di temperatura, umidità, precipitazioni e vento, e una finestra breve è disegnata a passi di 15 minuti.</string>
+    <string name="weather_source_credit">Viene interrogata solo la fonte scelta, e solo mentre questo è attivo. Una finestra più breve può arrivare a passi più fini, se la fonte li offre.</string>
     <string name="weather_title_1">Tempo da monoruota?</string>
     <string name="weather_title_2">Ora di EUC?</string>
     <string name="weather_title_3">Ora di un giro?</string>

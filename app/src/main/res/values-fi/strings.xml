@@ -1896,7 +1896,7 @@
     <string name="weather_window_3d">Seuraavat 3 päivää</string>
     <string name="weather_window_1w">Seuraavat 7 päivää</string>
     <string name="weather_settings_entry">Sääasetukset</string>
-    <string name="weather_enable">Sää kojelaudalla</string>
+    <string name="weather_enable">Pikakuvake mittaristossa</string>
     <string name="weather_enable_desc">Lisää sääkuvakkeen karttapainikkeen yläpuolelle: napauta nähdäksesi ajettavuusennusteen.</string>
     <string name="weather_window_label">Ennusteikkuna</string>
     <string name="weather_source_label">Ennusteen lähde</string>
@@ -1905,7 +1905,7 @@
     <string name="weather_hot">Liian kuuma yli</string>
     <string name="weather_breezy">Tuulista yli</string>
     <string name="weather_windy">Liian tuulista yli</string>
-    <string name="weather_source_credit">Kuusi ilmaista lähdettä: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON ja Meteo-France, haetaan vain kun toiminto on päällä. Täydet tiedot lisäävät lämpötilan, kosteuden, sateen ja tuulen kaaviot, ja lyhyt ikkuna piirretään 15 minuutin välein.</string>
+    <string name="weather_source_credit">Haetaan vain valittu lähde, ja vain kun tämä on päällä. Lyhyempi ikkuna voi tulla tarkemmin askelin, jos lähde tarjoaa ne.</string>
     <string name="weather_title_1">Onko ajokeli?</string>
     <string name="weather_title_2">EUC-aika?</string>
     <string name="weather_title_3">Aika lähteä ajelulle?</string>

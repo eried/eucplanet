@@ -1699,7 +1699,7 @@
     <string name="weather_window_3d">3 prochains jours</string>
     <string name="weather_window_1w">7 prochains jours</string>
     <string name="weather_settings_entry">Réglages météo</string>
-    <string name="weather_enable">Météo sur le tableau de bord</string>
+    <string name="weather_enable">Accès rapide dans le tableau de bord</string>
     <string name="weather_enable_desc">Ajoute une icône météo au-dessus du bouton carte : touchez-la pour la prévision de roulabilité.</string>
     <string name="weather_window_label">Fenêtre de prévision</string>
     <string name="weather_source_label">Source des prévisions</string>
@@ -1708,7 +1708,7 @@
     <string name="weather_hot">Trop chaud au-dessus de</string>
     <string name="weather_breezy">Brise au-dessus de</string>
     <string name="weather_windy">Trop de vent au-dessus de</string>
-    <string name="weather_source_credit">Six sources gratuites : Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON et Meteo-France, interrogées seulement quand c\'est activé. Les détails complets ajoutent les courbes de température, d\'humidité, de précipitations et de vent, et une fenêtre courte est tracée par pas de 15 minutes.</string>
+    <string name="weather_source_credit">Seule la source choisie est interrogée, et seulement tant que ceci est activé. Une fenêtre plus courte peut arriver en pas plus fins, si la source les propose.</string>
     <string name="weather_title_1">Un temps à rouler ?</string>
     <string name="weather_title_2">L\'heure de l\'EUC ?</string>
     <string name="weather_title_3">C\'est l\'heure de rouler ?</string>

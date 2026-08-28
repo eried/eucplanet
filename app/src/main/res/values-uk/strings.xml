@@ -1672,7 +1672,7 @@
     <string name="weather_window_3d">Наступні 3 дні</string>
     <string name="weather_window_1w">Наступні 7 днів</string>
     <string name="weather_settings_entry">Налаштування погоди</string>
-    <string name="weather_enable">Погода на панелі</string>
+    <string name="weather_enable">Швидкий доступ на панелі</string>
     <string name="weather_enable_desc">Додає значок погоди над кнопкою карти: торкніться для прогнозу їзди.</string>
     <string name="weather_window_label">Вікно прогнозу</string>
     <string name="weather_source_label">Джерело прогнозу</string>
@@ -1681,7 +1681,7 @@
     <string name="weather_hot">Надто спекотно вище</string>
     <string name="weather_breezy">Вітряно вище</string>
     <string name="weather_windy">Надто вітряно вище</string>
-    <string name="weather_source_credit">Шість безкоштовних джерел: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON і Meteo-France, завантажуються лише коли увімкнено. Повні деталі додають графіки температури, вологості, опадів і вітру, а коротке вікно малюється з кроком 15 хвилин.</string>
+    <string name="weather_source_credit">Завантажується лише вибране джерело і лише поки це увімкнено. Коротше вікно може прийти з дрібнішим кроком, якщо джерело його дає.</string>
     <string name="weather_title_1">Погода для колеса?</string>
     <string name="weather_title_2">Час EUC?</string>
     <string name="weather_title_3">Час покататися?</string>

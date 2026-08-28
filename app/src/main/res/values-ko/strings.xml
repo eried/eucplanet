@@ -1637,7 +1637,7 @@
     <string name="weather_window_3d">다음 3일</string>
     <string name="weather_window_1w">다음 7일</string>
     <string name="weather_settings_entry">날씨 설정</string>
-    <string name="weather_enable">대시보드 날씨</string>
+    <string name="weather_enable">대시보드에 빠른 접근 아이콘 표시</string>
     <string name="weather_enable_desc">지도 버튼 위에 날씨 아이콘을 추가합니다. 탭하면 주행 적합도 예보가 열립니다.</string>
     <string name="weather_window_label">예보 기간</string>
     <string name="weather_source_label">예보 소스</string>
@@ -1646,7 +1646,7 @@
     <string name="weather_hot">이보다 높으면 너무 더움</string>
     <string name="weather_breezy">이보다 높으면 바람</string>
     <string name="weather_windy">이보다 높으면 강풍</string>
-    <string name="weather_source_credit">무료 6개 소스: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON, Meteo-France. 켜져 있을 때만 받아옵니다. 전체 세부 정보는 기온, 습도, 강수, 바람 차트를 더하고, 짧은 구간은 15분 간격으로 그려집니다.</string>
+    <string name="weather_source_credit">선택한 제공처만, 이 설정이 켜져 있는 동안에만 받아옵니다. 짧은 구간은 제공처가 지원하면 더 촘촘한 간격으로 표시됩니다.</string>
     <string name="weather_title_1">휠 타기 좋은 날씨?</string>
     <string name="weather_title_2">EUC 탈 시간?</string>
     <string name="weather_title_3">라이딩 갈 시간?</string>

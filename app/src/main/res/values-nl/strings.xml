@@ -1695,7 +1695,7 @@
     <string name="weather_window_3d">Komende 3 dagen</string>
     <string name="weather_window_1w">Komende 7 dagen</string>
     <string name="weather_settings_entry">Weerinstellingen</string>
-    <string name="weather_enable">Weer op het dashboard</string>
+    <string name="weather_enable">Snelle toegang op dashboard</string>
     <string name="weather_enable_desc">Zet een weericoon boven de kaartknop: tik erop voor een rijdbaarheidsverwachting.</string>
     <string name="weather_window_label">Voorspellingsvenster</string>
     <string name="weather_source_label">Voorspellingsbron</string>
@@ -1704,7 +1704,7 @@
     <string name="weather_hot">Te warm boven</string>
     <string name="weather_breezy">Winderig boven</string>
     <string name="weather_windy">Te winderig boven</string>
-    <string name="weather_source_credit">Zes gratis bronnen: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON en Meteo-France, alleen opgehaald als het aanstaat. Volledige details voegen de grafieken voor temperatuur, luchtvochtigheid, neerslag en wind toe, en een kort venster wordt in stappen van 15 minuten getekend.</string>
+    <string name="weather_source_credit">Alleen de gekozen bron wordt opgehaald, en alleen zolang dit aanstaat. Een korter venster kan in fijnere stappen komen, als de bron die heeft.</string>
     <string name="weather_title_1">Wielweer?</string>
     <string name="weather_title_2">EUC-tijd?</string>
     <string name="weather_title_3">Tijd voor een rit?</string>

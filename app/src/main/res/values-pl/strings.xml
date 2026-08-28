@@ -1653,7 +1653,7 @@
     <string name="weather_window_3d">Następne 3 dni</string>
     <string name="weather_window_1w">Następne 7 dni</string>
     <string name="weather_settings_entry">Ustawienia pogody</string>
-    <string name="weather_enable">Pogoda na pulpicie</string>
+    <string name="weather_enable">Szybki dostęp na pulpicie</string>
     <string name="weather_enable_desc">Dodaje ikonę pogody nad przyciskiem mapy: dotknij, by zobaczyć prognozę jezdności.</string>
     <string name="weather_window_label">Okno prognozy</string>
     <string name="weather_source_label">Źródło prognozy</string>
@@ -1662,7 +1662,7 @@
     <string name="weather_hot">Za gorąco powyżej</string>
     <string name="weather_breezy">Wietrznie powyżej</string>
     <string name="weather_windy">Zbyt wietrznie powyżej</string>
-    <string name="weather_source_credit">Sześć darmowych źródeł: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON i Meteo-France, pobierane tylko przy włączonej funkcji. Pełne szczegóły dodają wykresy temperatury, wilgotności, opadów i wiatru, a krótkie okno rysowane jest co 15 minut.</string>
+    <string name="weather_source_credit">Pobierane jest tylko wybrane źródło i tylko gdy to jest włączone. Krótsze okno może przyjść w drobniejszych krokach, jeśli źródło je udostępnia.</string>
     <string name="weather_title_1">Pogoda na koło?</string>
     <string name="weather_title_2">Czas na EUC?</string>
     <string name="weather_title_3">Czas na przejażdżkę?</string>

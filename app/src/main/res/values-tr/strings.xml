@@ -1637,7 +1637,7 @@
     <string name="weather_window_3d">Sonraki 3 gün</string>
     <string name="weather_window_1w">Sonraki 7 gün</string>
     <string name="weather_settings_entry">Hava ayarları</string>
-    <string name="weather_enable">Panelde hava durumu</string>
+    <string name="weather_enable">Gösterge panelinde hızlı erişim simgesi</string>
     <string name="weather_enable_desc">Harita düğmesinin üstüne hava simgesi ekler: dokunarak sürülebilirlik tahminini aç.</string>
     <string name="weather_window_label">Tahmin penceresi</string>
     <string name="weather_source_label">Tahmin kaynağı</string>
@@ -1646,7 +1646,7 @@
     <string name="weather_hot">Üstünde çok sıcak</string>
     <string name="weather_breezy">Üstünde esintili</string>
     <string name="weather_windy">Üstünde çok rüzgarlı</string>
-    <string name="weather_source_credit">Altı ücretsiz kaynak: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON ve Meteo-France, yalnızca açıkken çekilir. Tüm ayrıntılar sıcaklık, nem, yağış ve rüzgar grafiklerini ekler; kısa aralık 15 dakikalık adımlarla çizilir.</string>
+    <string name="weather_source_credit">Yalnızca seçili kaynak çekilir ve yalnızca bu açıkken. Daha kısa bir aralık, kaynak sunuyorsa daha ince adımlarla gelebilir.</string>
     <string name="weather_title_1">Teker havası mı?</string>
     <string name="weather_title_2">EUC zamanı mı?</string>
     <string name="weather_title_3">Sürüş zamanı mı?</string>

@@ -1896,7 +1896,7 @@
     <string name="weather_window_3d">Další 3 dny</string>
     <string name="weather_window_1w">Další 7 dnů</string>
     <string name="weather_settings_entry">Nastavení počasí</string>
-    <string name="weather_enable">Počasí na palubní desce</string>
+    <string name="weather_enable">Ikona rychlého přístupu na palubní desce</string>
     <string name="weather_enable_desc">Přidá ikonu počasí nad tlačítko mapy: klepnutím zobrazíš předpověď jízdnosti.</string>
     <string name="weather_window_label">Okno předpovědi</string>
     <string name="weather_source_label">Zdroj předpovědi</string>
@@ -1905,7 +1905,7 @@
     <string name="weather_hot">Příliš horko nad</string>
     <string name="weather_breezy">Větrno nad</string>
     <string name="weather_windy">Příliš větrno nad</string>
-    <string name="weather_source_credit">Šest bezplatných zdrojů: Open-Meteo, MET Norway (yr.no), ECMWF, NOAA GFS, DWD ICON a Meteo-France, stahují se jen když je zapnuto. Plné detaily přidají grafy teploty, vlhkosti, srážek a větru a krátké okno se kreslí po 15 minutách.</string>
+    <string name="weather_source_credit">Stahuje se jen zvolený zdroj, a jen když je tohle zapnuté. Kratší okno může přijít v jemnějších krocích, pokud je zdroj nabízí.</string>
     <string name="weather_title_1">Počasí na jízdu?</string>
     <string name="weather_title_2">Čas na EUC?</string>
     <string name="weather_title_3">Čas vyrazit?</string>
