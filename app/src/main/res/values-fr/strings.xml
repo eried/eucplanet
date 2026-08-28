@@ -971,8 +971,8 @@
     <string name="auto_lights_off_slow">Éteindre le phare au ralentissement</string>
     <string name="auto_lights_off_below">Éteint sous</string>
     <string name="auto_lights_desc">Allume ou éteint le phare selon le lever et le coucher du soleil</string>
-    <string name="auto_lights_on_before_sunset">Allumer avant le coucher du soleil</string>
-    <string name="auto_lights_off_after_sunrise">Éteindre après le lever du soleil</string>
+    <string name="auto_lights_on_before_sunset">Allumer avant</string>
+    <string name="auto_lights_off_after_sunrise">Éteindre après</string>
     <string name="auto_waiting_gps">En attente de la position GPS…</string>
     <string name="auto_volume_title">Contrôle du volume</string>
     <string name="auto_volume_desc">Volume adaptatif selon la vitesse</string>

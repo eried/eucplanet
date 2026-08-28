@@ -1230,8 +1230,8 @@
     <string name="auto_lights_off_slow">Sammuta valo hidastaessa</string>
     <string name="auto_lights_off_below">Sammuta alle</string>
     <string name="auto_lights_desc">Sytyttää tai sammuttaa ajovalot auringonlaskun ja -nousun mukaan</string>
-    <string name="auto_lights_on_before_sunset">Valot PÄÄLLE ennen auringonlaskua</string>
-    <string name="auto_lights_off_after_sunrise">Valot POIS auringonnousun jälkeen</string>
+    <string name="auto_lights_on_before_sunset">Valo PÄÄLLE ennen</string>
+    <string name="auto_lights_off_after_sunrise">Valo POIS jälkeen</string>
     <string name="auto_waiting_gps">Odotetaan GPS-sijaintia…</string>
     <string name="auto_volume_title">Äänenvoimakkuus</string>
     <string name="auto_volume_desc">Nostaa musiikin voimakkuutta nopeuden mukaan</string>

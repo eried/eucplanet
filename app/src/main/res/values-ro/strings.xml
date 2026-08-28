@@ -1230,8 +1230,8 @@
     <string name="auto_lights_off_slow">Stinge farul la încetinire</string>
     <string name="auto_lights_off_below">Stins sub</string>
     <string name="auto_lights_desc">Pornește sau oprește farurile în funcție de apus și răsărit</string>
-    <string name="auto_lights_on_before_sunset">Lumini PORNITE înainte de apus</string>
-    <string name="auto_lights_off_after_sunrise">Lumini OPRITE după răsărit</string>
+    <string name="auto_lights_on_before_sunset">Aprinde înainte</string>
+    <string name="auto_lights_off_after_sunrise">Stinge după</string>
     <string name="auto_waiting_gps">Se așteaptă poziția GPS…</string>
     <string name="auto_volume_title">Control volum</string>
     <string name="auto_volume_desc">Crește volumul muzicii în funcție de viteză</string>

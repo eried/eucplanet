@@ -968,8 +968,8 @@
     <string name="auto_lights_off_slow">감속하면 전조등 끄기</string>
     <string name="auto_lights_off_below">이 속도 미만에서 끄기</string>
     <string name="auto_lights_desc">일몰과 일출에 따라 헤드라이트를 자동으로 켜고 끕니다</string>
-    <string name="auto_lights_on_before_sunset">일몰 전 라이트 켜기</string>
-    <string name="auto_lights_off_after_sunrise">일출 후 라이트 끄기</string>
+    <string name="auto_lights_on_before_sunset">켜기 (전)</string>
+    <string name="auto_lights_off_after_sunrise">끄기 (후)</string>
     <string name="auto_waiting_gps">GPS 위치 대기 중…</string>
     <string name="auto_volume_title">볼륨 제어</string>
     <string name="auto_volume_desc">속도에 따라 음악 볼륨을 높입니다</string>

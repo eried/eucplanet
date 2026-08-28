@@ -197,13 +197,20 @@ fun AutomationsContent(
             if (settings.lights.offWhenSlow) {
                 // Stored metric, shown in the rider's unit by the shared
                 // control, so "4 km/h" reads as walking pace either way.
-                SpeedNumberSetting(
-                    label = stringResource(R.string.auto_lights_off_below),
-                    valueKmh = settings.lights.offBelowKmh,
-                    rangeKmh = 1f..15f,
-                    speedUnit = Units.effectiveSpeedUnit(settings),
-                    onValueChangeKmh = { viewModel.updateAutoLightsOffBelowKmh(it) },
-                )
+                // Half width, like the pair of minute fields above it: a
+                // lone numeric box spanning the page reads as a different
+                // kind of control than the ones it sits with.
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    SpeedNumberSetting(
+                        label = stringResource(R.string.auto_lights_off_below),
+                        valueKmh = settings.lights.offBelowKmh,
+                        rangeKmh = 1f..15f,
+                        speedUnit = Units.effectiveSpeedUnit(settings),
+                        modifier = Modifier.weight(1f),
+                        onValueChangeKmh = { viewModel.updateAutoLightsOffBelowKmh(it) },
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
             }
         }
         }   // end Lights BringIntoViewSection

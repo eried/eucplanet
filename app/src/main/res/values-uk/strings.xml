@@ -971,8 +971,8 @@
     <string name="auto_lights_off_slow">Гасити фару при уповільненні</string>
     <string name="auto_lights_off_below">Гасити нижче</string>
     <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця</string>
-    <string name="auto_lights_on_before_sunset">Вмикати фари перед заходом</string>
-    <string name="auto_lights_off_after_sunrise">Вимикати фари після сходу</string>
+    <string name="auto_lights_on_before_sunset">Увімкнути за</string>
+    <string name="auto_lights_off_after_sunrise">Вимкнути через</string>
     <string name="auto_waiting_gps">Чекаємо на координати GPS…</string>
     <string name="auto_volume_title">Керування гучністю</string>
     <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості</string>

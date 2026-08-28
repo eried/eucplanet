@@ -1230,8 +1230,8 @@
     <string name="auto_lights_off_slow">Zhasnout světlo při zpomalení</string>
     <string name="auto_lights_off_below">Zhasnout pod</string>
     <string name="auto_lights_desc">Zapne nebo vypne světlomety podle západu a východu slunce</string>
-    <string name="auto_lights_on_before_sunset">Světla ZAP před západem slunce</string>
-    <string name="auto_lights_off_after_sunrise">Světla VYP po východu slunce</string>
+    <string name="auto_lights_on_before_sunset">Rozsvítit před</string>
+    <string name="auto_lights_off_after_sunrise">Zhasnout po</string>
     <string name="auto_waiting_gps">Čekám na polohu GPS…</string>
     <string name="auto_volume_title">Ovládání hlasitosti</string>
     <string name="auto_volume_desc">Zesílí hudbu podle rychlosti</string>

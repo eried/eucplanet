@@ -971,8 +971,8 @@
     <string name="auto_lights_off_slow">Apagar o farol ao desacelerar</string>
     <string name="auto_lights_off_below">Apagar abaixo de</string>
     <string name="auto_lights_desc">Liga ou desliga os faróis com base no nascer e pôr do sol</string>
-    <string name="auto_lights_on_before_sunset">Luzes LIGADAS antes do pôr do sol</string>
-    <string name="auto_lights_off_after_sunrise">Luzes DESLIGADAS após o nascer do sol</string>
+    <string name="auto_lights_on_before_sunset">Acender antes</string>
+    <string name="auto_lights_off_after_sunrise">Apagar depois</string>
     <string name="auto_waiting_gps">Aguardando localização GPS…</string>
     <string name="auto_volume_title">Controle de volume</string>
     <string name="auto_volume_desc">Aumenta o volume da música conforme a velocidade</string>
