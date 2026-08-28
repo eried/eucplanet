@@ -2136,7 +2136,7 @@
     <string name="weather_hot">Too hot above</string>
     <string name="weather_breezy">Breezy above</string>
     <string name="weather_windy">Too windy above</string>
-    <string name="weather_source_credit">Nothing is fetched but the selected source, and only while this is on. A shorter window may arrive in finer steps, where the source offers them.</string>
+    <string name="weather_source_credit">The forecast comes from the source you pick, fetched only while this is on. A shorter window may come in finer steps, where the source offers them.</string>
     <string name="weather_title_1">Is it wheel weather?</string>
     <string name="weather_title_2">Is it EUC time?</string>
     <string name="weather_title_3">Time to go ride?</string>

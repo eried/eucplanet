@@ -1646,7 +1646,7 @@
     <string name="weather_hot">이보다 높으면 너무 더움</string>
     <string name="weather_breezy">이보다 높으면 바람</string>
     <string name="weather_windy">이보다 높으면 강풍</string>
-    <string name="weather_source_credit">선택한 제공처만, 이 설정이 켜져 있는 동안에만 받아옵니다. 짧은 구간은 제공처가 지원하면 더 촘촘한 간격으로 표시됩니다.</string>
+    <string name="weather_source_credit">예보는 선택한 제공처에서 가져오며, 이 설정이 켜져 있는 동안에만 받아옵니다. 짧은 구간은 제공처가 지원하면 더 촘촘한 간격으로 표시됩니다.</string>
     <string name="weather_title_1">휠 타기 좋은 날씨?</string>
     <string name="weather_title_2">EUC 탈 시간?</string>
     <string name="weather_title_3">라이딩 갈 시간?</string>

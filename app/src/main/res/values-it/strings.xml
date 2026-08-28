@@ -862,7 +862,7 @@
     <string name="weather_hot">Troppo caldo sopra</string>
     <string name="weather_breezy">Ventilato oltre</string>
     <string name="weather_windy">Troppo vento oltre</string>
-    <string name="weather_source_credit">Viene interrogata solo la fonte scelta, e solo mentre questo è attivo. Una finestra più breve può arrivare a passi più fini, se la fonte li offre.</string>
+    <string name="weather_source_credit">La previsione arriva dalla fonte scelta e viene scaricata solo mentre questo è attivo. Una finestra più breve può arrivare a passi più fini, se la fonte li offre.</string>
     <string name="weather_title_1">Tempo da monoruota?</string>
     <string name="weather_title_2">Ora di EUC?</string>
     <string name="weather_title_3">Ora di un giro?</string>

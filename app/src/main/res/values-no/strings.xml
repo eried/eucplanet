@@ -843,7 +843,7 @@
     <string name="weather_hot">For varmt over</string>
     <string name="weather_breezy">Vind over</string>
     <string name="weather_windy">For mye vind over</string>
-    <string name="weather_source_credit">Bare den valgte kilden hentes, og bare mens dette er på. Et kortere vindu kan komme i finere steg, hvis kilden tilbyr dem.</string>
+    <string name="weather_source_credit">Varselet kommer fra den valgte kilden og hentes bare mens dette er på. Et kortere vindu kan komme i finere steg, hvis kilden tilbyr dem.</string>
     <string name="weather_title_1">Hjulvær?</string>
     <string name="weather_title_2">EUC-tid?</string>
     <string name="weather_title_3">Tid for en tur?</string>

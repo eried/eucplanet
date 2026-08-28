@@ -1708,7 +1708,7 @@
     <string name="weather_hot">Trop chaud au-dessus de</string>
     <string name="weather_breezy">Brise au-dessus de</string>
     <string name="weather_windy">Trop de vent au-dessus de</string>
-    <string name="weather_source_credit">Seule la source choisie est interrogée, et seulement tant que ceci est activé. Une fenêtre plus courte peut arriver en pas plus fins, si la source les propose.</string>
+    <string name="weather_source_credit">La prévision vient de la source choisie et n\'est récupérée que lorsque ceci est activé. Une fenêtre plus courte peut arriver en pas plus fins, si la source les propose.</string>
     <string name="weather_title_1">Un temps à rouler ?</string>
     <string name="weather_title_2">L\'heure de l\'EUC ?</string>
     <string name="weather_title_3">C\'est l\'heure de rouler ?</string>

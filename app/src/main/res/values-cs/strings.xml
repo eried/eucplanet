@@ -1905,7 +1905,7 @@
     <string name="weather_hot">Příliš horko nad</string>
     <string name="weather_breezy">Větrno nad</string>
     <string name="weather_windy">Příliš větrno nad</string>
-    <string name="weather_source_credit">Stahuje se jen zvolený zdroj, a jen když je tohle zapnuté. Kratší okno může přijít v jemnějších krocích, pokud je zdroj nabízí.</string>
+    <string name="weather_source_credit">Předpověď je z vybraného zdroje a stahuje se jen když je tohle zapnuté. Kratší okno může přijít v jemnějších krocích, pokud je zdroj nabízí.</string>
     <string name="weather_title_1">Počasí na jízdu?</string>
     <string name="weather_title_2">Čas na EUC?</string>
     <string name="weather_title_3">Čas vyrazit?</string>

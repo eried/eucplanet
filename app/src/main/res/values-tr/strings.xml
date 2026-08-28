@@ -1646,7 +1646,7 @@
     <string name="weather_hot">Üstünde çok sıcak</string>
     <string name="weather_breezy">Üstünde esintili</string>
     <string name="weather_windy">Üstünde çok rüzgarlı</string>
-    <string name="weather_source_credit">Yalnızca seçili kaynak çekilir ve yalnızca bu açıkken. Daha kısa bir aralık, kaynak sunuyorsa daha ince adımlarla gelebilir.</string>
+    <string name="weather_source_credit">Tahmin, seçtiğin kaynaktan gelir ve yalnızca bu açıkken çekilir. Daha kısa bir aralık, kaynak sunuyorsa daha ince adımlarla gelebilir.</string>
     <string name="weather_title_1">Teker havası mı?</string>
     <string name="weather_title_2">EUC zamanı mı?</string>
     <string name="weather_title_3">Sürüş zamanı mı?</string>

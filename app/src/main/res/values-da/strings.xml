@@ -1658,7 +1658,7 @@
     <string name="weather_hot">For varmt over</string>
     <string name="weather_breezy">Blæsende over</string>
     <string name="weather_windy">For blæsende over</string>
-    <string name="weather_source_credit">Kun den valgte kilde hentes, og kun mens dette er slået til. Et kortere vindue kan komme i finere trin, hvis kilden har dem.</string>
+    <string name="weather_source_credit">Prognosen kommer fra den valgte kilde og hentes kun, mens dette er slået til. Et kortere vindue kan komme i finere trin, hvis kilden har dem.</string>
     <string name="weather_title_1">Hjulvejr i dag?</string>
     <string name="weather_title_2">EUC-tid?</string>
     <string name="weather_title_3">Tid til en tur?</string>

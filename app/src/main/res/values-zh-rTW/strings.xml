@@ -1646,7 +1646,7 @@
     <string name="weather_hot">高於此過熱</string>
     <string name="weather_breezy">高於此有風</string>
     <string name="weather_windy">高於此風太大</string>
-    <string name="weather_source_credit">只會抓取所選來源，而且只在啟用時。較短的區間若來源支援，會以更細的間隔呈現。</string>
+    <string name="weather_source_credit">預報來自你選的來源，只在啟用時抓取。較短的區間若來源支援，會以更細的間隔呈現。</string>
     <string name="weather_title_1">獨輪車好天氣？</string>
     <string name="weather_title_2">EUC時間到了？</string>
     <string name="weather_title_3">該去騎行了嗎？</string>

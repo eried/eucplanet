@@ -1905,7 +1905,7 @@
     <string name="weather_hot">Prea cald peste</string>
     <string name="weather_breezy">Vânt peste</string>
     <string name="weather_windy">Prea vântos peste</string>
-    <string name="weather_source_credit">Se descarcă doar sursa aleasă, și doar cât timp este pornit. O fereastră mai scurtă poate veni în pași mai fini, dacă sursa îi oferă.</string>
+    <string name="weather_source_credit">Prognoza vine de la sursa aleasă și se descarcă doar cât timp este pornit. O fereastră mai scurtă poate veni în pași mai fini, dacă sursa îi oferă.</string>
     <string name="weather_title_1">Vreme de roată?</string>
     <string name="weather_title_2">E ora de EUC?</string>
     <string name="weather_title_3">E timpul de o tură?</string>

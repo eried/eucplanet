@@ -1649,7 +1649,7 @@
     <string name="weather_hot">Quente demais acima de</string>
     <string name="weather_breezy">Brisa acima de</string>
     <string name="weather_windy">Vento demais acima de</string>
-    <string name="weather_source_credit">Só a fonte escolhida é buscada, e só enquanto isto estiver ligado. Uma janela mais curta pode vir em passos mais finos, se a fonte oferecer.</string>
+    <string name="weather_source_credit">A previsão vem da fonte escolhida e só é buscada enquanto isto estiver ligado. Uma janela mais curta pode vir em passos mais finos, se a fonte oferecer.</string>
     <string name="weather_title_1">Clima de roda?</string>
     <string name="weather_title_2">Hora de EUC?</string>
     <string name="weather_title_3">Hora de rodar?</string>

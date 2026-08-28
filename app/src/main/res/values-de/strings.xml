@@ -1679,7 +1679,7 @@
     <string name="weather_hot">Zu heiß über</string>
     <string name="weather_breezy">Böig über</string>
     <string name="weather_windy">Zu windig über</string>
-    <string name="weather_source_credit">Abgerufen wird nur die gewählte Quelle, und nur solange dies an ist. Ein kürzeres Fenster kann in feineren Schritten kommen, wenn die Quelle sie anbietet.</string>
+    <string name="weather_source_credit">Die Vorhersage kommt aus der gewählten Quelle und wird nur abgerufen, solange dies an ist. Ein kürzeres Fenster kann in feineren Schritten kommen, wenn die Quelle sie anbietet.</string>
     <string name="weather_title_1">Einradwetter?</string>
     <string name="weather_title_2">EUC-Zeit?</string>
     <string name="weather_title_3">Zeit für eine Fahrt?</string>

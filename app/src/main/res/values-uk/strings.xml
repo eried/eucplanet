@@ -1681,7 +1681,7 @@
     <string name="weather_hot">Надто спекотно вище</string>
     <string name="weather_breezy">Вітряно вище</string>
     <string name="weather_windy">Надто вітряно вище</string>
-    <string name="weather_source_credit">Завантажується лише вибране джерело і лише поки це увімкнено. Коротше вікно може прийти з дрібнішим кроком, якщо джерело його дає.</string>
+    <string name="weather_source_credit">Прогноз береться з вибраного джерела і завантажується лише поки це увімкнено. Коротше вікно може прийти з дрібнішим кроком, якщо джерело його дає.</string>
     <string name="weather_title_1">Погода для колеса?</string>
     <string name="weather_title_2">Час EUC?</string>
     <string name="weather_title_3">Час покататися?</string>

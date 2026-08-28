@@ -1646,7 +1646,7 @@
     <string name="weather_hot">これ超は暑すぎ</string>
     <string name="weather_breezy">これ超は風あり</string>
     <string name="weather_windy">これ超は強風</string>
-    <string name="weather_source_credit">取得するのは選んだ提供元だけで、これがオンの間だけです。短い窓は、提供元が対応していればより細かい刻みで届きます。</string>
+    <string name="weather_source_credit">予報は選んだ提供元から取得し、これがオンの間だけ取りに行きます。短い窓は、提供元が対応していればより細かい刻みで届きます。</string>
     <string name="weather_title_1">ウィール日和？</string>
     <string name="weather_title_2">EUCの時間？</string>
     <string name="weather_title_3">ライドの時間？</string>

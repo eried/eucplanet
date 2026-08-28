@@ -1704,7 +1704,7 @@
     <string name="weather_hot">Te warm boven</string>
     <string name="weather_breezy">Winderig boven</string>
     <string name="weather_windy">Te winderig boven</string>
-    <string name="weather_source_credit">Alleen de gekozen bron wordt opgehaald, en alleen zolang dit aanstaat. Een korter venster kan in fijnere stappen komen, als de bron die heeft.</string>
+    <string name="weather_source_credit">De verwachting komt van de gekozen bron en wordt alleen opgehaald zolang dit aanstaat. Een korter venster kan in fijnere stappen komen, als de bron die heeft.</string>
     <string name="weather_title_1">Wielweer?</string>
     <string name="weather_title_2">EUC-tijd?</string>
     <string name="weather_title_3">Tijd voor een rit?</string>

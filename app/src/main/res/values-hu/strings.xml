@@ -1905,7 +1905,7 @@
     <string name="weather_hot">Túl meleg e felett</string>
     <string name="weather_breezy">Szeles e felett</string>
     <string name="weather_windy">Túl szeles e felett</string>
-    <string name="weather_source_credit">Csak a kiválasztott forrás töltődik le, és csak amíg ez be van kapcsolva. Rövidebb ablak finomabb léptékben is jöhet, ha a forrás kínálja.</string>
+    <string name="weather_source_credit">Az előrejelzés a kiválasztott forrásból jön, és csak akkor tölt le, amíg ez be van kapcsolva. Rövidebb ablak finomabb léptékben is jöhet, ha a forrás kínálja.</string>
     <string name="weather_title_1">Kereklezős idő?</string>
     <string name="weather_title_2">EUC-idő?</string>
     <string name="weather_title_3">Ideje gurulni?</string>
