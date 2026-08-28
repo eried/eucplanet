@@ -544,8 +544,16 @@ class TripRepository @Inject constructor(
                     endTime = if (m.valid) m.endMs else null,
                     distanceKm = m.distanceKm,
                     sampleCount = rows,
-                    tripUuid = if (TripDerive.isDerived(f.name)) null
-                               else java.util.UUID.randomUUID().toString(),
+                    // ALWAYS null. A uuid is this device's claim that it
+                    // recorded the ride itself, and it is what makes a trip
+                    // eligible for an eucstats upload; adoption is finding a
+                    // file, which is not a recording. Minting one here handed
+                    // that claim to imported CSVs, files restored from a
+                    // backup, and anything a rider dropped in the folder, and
+                    // the upload sweep has no age limit, so a whole back
+                    // catalogue went to the leaderboard at once. Live
+                    // recording mints its own at save time (see startTrip).
+                    tripUuid = null,
                     // The file's own name, the way every other road in reads
                     // it. Ten real files adopted on the emulator showed "test
                     // 3" to eucviewer and a date to the phone.
