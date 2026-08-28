@@ -402,13 +402,14 @@
     <string name="auto_waiting_gps">Venter på GPS-posisjon\u2026</string>
     <string name="auto_volume_title">Volumkontroll</string>
     <string name="auto_volume_desc">Adaptivt systemvolum basert på fart</string>
-    <string name="apply_when_label">Bruk</string>
     <string name="apply_when_never">Alltid</string>
     <string name="apply_when_connected">Tilkoblet</string>
     <string name="apply_when_riding">Under kjøring</string>
+    <string name="auto_volume_when">Øk volumet når</string>
+    <string name="media_rate_when">Endre avspillingshastighet når</string>
+    <string name="media_rate_note">Spilleren avgjør selv om den tar imot en hastighet utenfra. Podkast-apper gjør det som regel, noen musikkapper ikke.</string>
     <string name="media_control_title">Avspillingskontroll</string>
     <string name="media_rate_title">Avspillingshastighet</string>
-    <string name="media_rate_enable">Avspillingshastighet etter kjørefart</string>
     <string name="media_rate_grant">Tillat varseltilgang</string>
     <string name="warnings_media_access_title">Varseltilgang er av</string>
     <string name="warnings_media_access_body">Uten den kan ikke avspillingshastigheten følge farten din. Trykk for å tillate.</string>

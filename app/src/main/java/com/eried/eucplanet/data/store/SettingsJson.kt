@@ -131,7 +131,6 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
-            put("rateEnabled", s.mediaControl.rateEnabled)
             put("rateApplyWhen", s.mediaControl.rateApplyWhen)
             put("rateCurve", s.mediaControl.rateCurve)
         })
@@ -179,7 +178,6 @@ object SettingsJson {
         put("autoLightsEnabled", s.autoLightsEnabled)
         put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
         put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
-        put("autoVolumeEnabled", s.autoVolumeEnabled)
         put("autoVolumeApplyWhen", s.autoVolumeApplyWhen)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
@@ -479,7 +477,6 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
-                rateEnabled = m.optBoolean("rateEnabled", base.mediaControl.rateEnabled),
                 rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
                 rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
@@ -557,16 +554,16 @@ object SettingsJson {
         autoLightsEnabled = j.optBoolean("autoLightsEnabled", base.autoLightsEnabled),
         autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
         autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
-        autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
-        // Migrated, not defaulted: a rider who had the old boolean keeps its
-        // meaning (on = connected, off = no condition) rather than being moved
-        // to Riding behind their back. Only installs with neither key get the
-        // new default.
+        // Migrated, not defaulted. Two old keys fold into one: the feature
+        // switch decides off or on, and the connected-only boolean decided
+        // the condition. A rider who had it on keeps it on, gated the way it
+        // was; a rider who had it off stays off. Nobody is moved to Riding
+        // behind their back, and nobody's volume starts moving on its own.
         autoVolumeApplyWhen = j.optString(
             "autoVolumeApplyWhen",
-            if (j.has("autoVolumeOnlyWhenConnected")) {
-                if (j.optBoolean("autoVolumeOnlyWhenConnected", true)) ApplyWhenIds.CONNECTED
-                else ApplyWhenIds.NEVER
+            if (j.has("autoVolumeEnabled")) {
+                if (!j.optBoolean("autoVolumeEnabled", false)) ApplyWhenIds.NEVER
+                else ApplyWhenIds.CONNECTED
             } else base.autoVolumeApplyWhen
         ),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),

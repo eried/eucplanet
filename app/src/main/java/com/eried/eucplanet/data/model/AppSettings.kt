@@ -198,14 +198,14 @@ data class AppSettings(
     // 4 control points at 0/25/50/75 km/h. 0 km/h is locked at 1× (no boost at standstill).
     // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
     // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
-    val autoVolumeEnabled: Boolean = false,
+
     // Only adjust the media volume while a wheel is connected (i.e. actually
     // riding). On by default so auto-volume never touches the phone's volume
     // when the app is used without a wheel.
     /** When the speed-driven automations may act: "NEVER" (no condition),
      *  "CONNECTED" (a wheel is linked) or "RIDING" (linked and moving). See
      *  [com.eried.eucplanet.service.ApplyWhen]. */
-    val autoVolumeApplyWhen: String = ApplyWhenIds.RIDING,
+    val autoVolumeApplyWhen: String = ApplyWhenIds.NEVER,
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
 
@@ -1108,8 +1108,8 @@ data class MediaControlSettings(
     // Playback rate follows speed, on the same "speed:value" curve shape
     // auto-volume uses, so the same editor drives it. Needs notification
     // access (see MediaAccessService) and a player that accepts a rate.
-    val rateEnabled: Boolean = false,
-    val rateApplyWhen: String = ApplyWhenIds.RIDING,
+    /** NEVER is off; the other two are on, with the condition they name. */
+    val rateApplyWhen: String = ApplyWhenIds.NEVER,
     val rateCurve: String = "0:1.0,25:1.15,50:1.30,75:1.45",
 )
 

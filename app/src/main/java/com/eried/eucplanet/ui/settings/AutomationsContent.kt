@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.ApplyWhenIds
+import com.eried.eucplanet.service.PlaybackRatePolicy
 import com.eried.eucplanet.service.AUTO_VOLUME_MAX_MULTIPLIER
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
@@ -191,31 +192,19 @@ fun AutomationsContent(
         Spacer(Modifier.height(8.dp))
 
         // --- Volume Section ---
-        BringIntoViewSection(expanded = settings.autoVolumeEnabled) {
+        BringIntoViewSection(expanded = settings.autoVolumeApplyWhen != ApplyWhenIds.NEVER) {
         Text(stringResource(R.string.auto_volume_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.auto_volume_desc),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = settings.autoVolumeEnabled,
-                onCheckedChange = { viewModel.updateAutoVolumeEnabled(it) },
-                colors = themedSwitchColors(),)
-        }
+        // One control, not two: the selector says whether this runs at all
+        // and what it waits for. Never hides everything under it.
+        ApplyWhenSelector(
+            label = stringResource(R.string.auto_volume_when),
+            current = settings.autoVolumeApplyWhen,
+            onPick = { viewModel.updateAutoVolumeApplyWhen(it) },
+        )
 
-        if (settings.autoVolumeEnabled) {
-            // The house triple selector, same as the weather preferences and
-            // the alarm editor's vibrate target: the condition notched into
-            // the frame of a full-width segmented row.
-            ApplyWhenSelector(
-                current = settings.autoVolumeApplyWhen,
-                onPick = { viewModel.updateAutoVolumeApplyWhen(it) },
-            )
+        if (settings.autoVolumeApplyWhen != ApplyWhenIds.NEVER) {
 
             var points by remember(settings.autoVolumeCurve) {
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
@@ -329,39 +318,41 @@ fun AutomationsContent(
         // One switch and, once it is on, the same spline editor auto-volume
         // uses: the curve is the identical "speed:value" shape, so a rider who
         // has shaped one already knows this one.
-        BringIntoViewSection(expanded = settings.mediaControl.rateEnabled) {
+        BringIntoViewSection(expanded = settings.mediaControl.rateApplyWhen != ApplyWhenIds.NEVER) {
         Text(stringResource(R.string.media_rate_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.media_rate_enable),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = settings.mediaControl.rateEnabled,
-                onCheckedChange = { viewModel.updateMediaRateEnabled(it) },
-                colors = themedSwitchColors(),)
-        }
-        if (settings.mediaControl.rateEnabled) {
+        ApplyWhenSelector(
+            label = stringResource(R.string.media_rate_when),
+            current = settings.mediaControl.rateApplyWhen,
+            onPick = { viewModel.updateMediaRateApplyWhenPicked(it) },
+        )
+        if (settings.mediaControl.rateApplyWhen != ApplyWhenIds.NEVER) {
             // Asked in place, the way the rest of this screen asks: the button
             // only appears while the grant is missing, and it disappears on
             // its own once given (the health check re-runs on resume, which is
             // also what clears the dashboard warning).
-            if (!viewModel.notificationAccessAllowed()) {
-                TextButton(onClick = { viewModel.openNotificationAccessSettings() }) {
-                    Text(stringResource(R.string.media_rate_grant))
+            // Re-read on every resume, like the PIP and overlay asks above:
+            // the rider grants this in system settings, and returning is the
+            // only moment we can notice. Without it the ask stayed on screen
+            // after being granted.
+            var accessAllowed by remember { mutableStateOf(viewModel.notificationAccessAllowed()) }
+            val rateLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            androidx.compose.runtime.DisposableEffect(rateLifecycleOwner) {
+                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                        accessAllowed = viewModel.notificationAccessAllowed()
+                    }
                 }
+                rateLifecycleOwner.lifecycle.addObserver(obs)
+                onDispose { rateLifecycleOwner.lifecycle.removeObserver(obs) }
             }
-            // The house triple selector, same as the weather preferences and
-            // the alarm editor's vibrate target: the condition notched into
-            // the frame of a full-width segmented row.
-            ApplyWhenSelector(
-                current = settings.mediaControl.rateApplyWhen,
-                onPick = { viewModel.updateMediaRateApplyWhen(it) },
-            )
+            if (!accessAllowed) {
+                HintText(stringResource(R.string.warnings_media_access_body), small = true)
+                com.eried.eucplanet.ui.common.FixButton(
+                    onClick = { viewModel.openNotificationAccessSettings() }
+                )
+            }
             var ratePoints by remember(settings.mediaControl.rateCurve) {
                 mutableStateOf(parseVolumeCurve(settings.mediaControl.rateCurve))
             }
@@ -381,7 +372,13 @@ fun AutomationsContent(
                 speedUnit = Units.effectiveSpeedUnit(settings),
                 onPointsChanged = { ratePoints = it },
                 onPointsCommitted = { viewModel.updateMediaRateCurve(encodeVolumeCurve(it)) },
+                minMultiplier = PlaybackRatePolicy.MIN_RATE,
+                maxMultiplier = PlaybackRatePolicy.MAX_RATE,
+                tickStep = 0.5f,
             )
+            // Not every player accepts a rate from outside itself, and there
+            // is nothing the app can do about the ones that do not.
+            HintText(stringResource(R.string.media_rate_note), small = true)
         }
         }   // end Media speed control BringIntoViewSection
 
@@ -680,12 +677,18 @@ private fun SplineCurveEditor(
     points: List<Pair<Float, Float>>,
     speedUnit: String,
     onPointsChanged: (List<Pair<Float, Float>>) -> Unit,
-    onPointsCommitted: (List<Pair<Float, Float>>) -> Unit
+    onPointsCommitted: (List<Pair<Float, Float>>) -> Unit,
+    // Auto-volume only ever boosts, so its floor is 1x and always was. A
+    // playback rate has a reason to go under it: slowing speech down as the
+    // ride speeds up is the safety-minded way to use this.
+    minMultiplier: Float = 1f,
+    maxMultiplier: Float = AUTO_VOLUME_MAX_MULTIPLIER,
+    // Half steps once the range is small enough that whole ones would leave
+    // two labels on the axis.
+    tickStep: Float = 1f,
 ) {
     val maxSpeed = 75f
     val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
-    val minMultiplier = 1f
-    val maxMultiplier = AUTO_VOLUME_MAX_MULTIPLIER
     val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -790,14 +793,18 @@ private fun SplineCurveEditor(
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }
-            // Y-axis ticks at each integer multiplier (1x .. maxMultiplier) for clean labels.
-            for (i in minMultiplier.toInt()..maxMultiplier.toInt()) {
-                val mult = i.toFloat()
+            // Y-axis ticks on the step, so a 0.5x..2x rate range labels every
+            // half rather than showing two lines.
+            var tick = minMultiplier
+            while (tick <= maxMultiplier + 1e-3f) {
+                val mult = tick
                 val y = h - (mult - minMultiplier) / multiplierRange * h
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
-                val label = "${i}x"
+                val label = if (tickStep >= 1f) "${mult.toInt()}x"
+                            else "%.1fx".format(java.util.Locale.US, mult)
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
+                tick += tickStep
             }
 
             // Axis label, centered between the "25" and "50" ticks so it doesn't overlap "75"
@@ -878,7 +885,7 @@ private fun SplineCurveEditor(
  * same one, and a rider who has answered it once should recognise it.
  */
 @Composable
-private fun ApplyWhenSelector(current: String, onPick: (String) -> Unit) {
+private fun ApplyWhenSelector(label: String, current: String, onPick: (String) -> Unit) {
     val options = listOf(
         ApplyWhenIds.NEVER to stringResource(R.string.apply_when_never),
         ApplyWhenIds.CONNECTED to stringResource(R.string.apply_when_connected),
@@ -899,6 +906,6 @@ private fun ApplyWhenSelector(current: String, onPick: (String) -> Unit) {
                 ) { Text(label) }
             }
         }
-        FieldNotchLabel(stringResource(R.string.apply_when_label))
+        FieldNotchLabel(label)
     }
 }

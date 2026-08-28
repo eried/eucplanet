@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.ActionUi
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.dispatchAction
@@ -155,7 +156,9 @@ class MainActivity : AppCompatActivity() {
             // granted outside the app. Unlike PIP and the overlay this one is
             // NOT switched back off, because notification access is a trip to
             // system settings the rider may well be making right now.
-            mediaRateRequested = s?.mediaControl?.rateEnabled == true,
+            mediaRateRequested =
+                s?.mediaControl?.rateApplyWhen.orEmpty()
+                    .let { it.isNotEmpty() && it != ApplyWhenIds.NEVER },
         )
         if (pipBlocked || hudBlocked) {
             lifecycleScope.launch {

@@ -973,13 +973,14 @@
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
     <string name="auto_volume_title">Volumeregeling</string>
     <string name="auto_volume_desc">Muziekvolume verhogen op basis van snelheid</string>
-    <string name="apply_when_label">Toepassen</string>
     <string name="apply_when_never">Altijd</string>
     <string name="apply_when_connected">Verbonden</string>
     <string name="apply_when_riding">Tijdens het rijden</string>
+    <string name="auto_volume_when">Volume verhogen wanneer</string>
+    <string name="media_rate_when">Afspeelsnelheid aanpassen wanneer</string>
+    <string name="media_rate_note">De speler bepaalt zelf of hij een snelheid van buitenaf aanneemt. Podcast-apps meestal wel, sommige muziek-apps niet.</string>
     <string name="media_control_title">Afspeelbediening</string>
     <string name="media_rate_title">Afspeelsnelheid</string>
-    <string name="media_rate_enable">Afspeelsnelheid op basis van rijsnelheid</string>
     <string name="media_rate_grant">Meldingstoegang toestaan</string>
     <string name="warnings_media_access_title">Meldingstoegang staat uit</string>
     <string name="warnings_media_access_body">Zonder dit kan de afspeelsnelheid je snelheid niet volgen. Tik om toe te staan.</string>

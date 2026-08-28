@@ -973,13 +973,14 @@
     <string name="auto_waiting_gps">En attente de la position GPS…</string>
     <string name="auto_volume_title">Contrôle du volume</string>
     <string name="auto_volume_desc">Volume adaptatif selon la vitesse</string>
-    <string name="apply_when_label">Appliquer</string>
     <string name="apply_when_never">Toujours</string>
     <string name="apply_when_connected">Connecté</string>
     <string name="apply_when_riding">En roulant</string>
+    <string name="auto_volume_when">Monter le volume quand</string>
+    <string name="media_rate_when">Modifier la vitesse quand</string>
+    <string name="media_rate_note">Le lecteur décide s\'il accepte une vitesse venue d\'ailleurs. Les applis de podcast le font en général, certaines applis musicales non.</string>
     <string name="media_control_title">Contrôle de la lecture</string>
     <string name="media_rate_title">Contrôle de la vitesse</string>
-    <string name="media_rate_enable">Vitesse de lecture selon l\'allure</string>
     <string name="media_rate_grant">Autoriser l\'accès aux notifications</string>
     <string name="warnings_media_access_title">Accès aux notifications désactivé</string>
     <string name="warnings_media_access_body">Sans cela, la vitesse de lecture ne peut pas suivre votre allure. Touchez pour autoriser.</string>

@@ -128,10 +128,10 @@ class AutomationManager @Inject constructor(
         val lockedDown = legalLockdown.isEngaged()
         detectManualLightChange(settings)
         if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
-        if (settings.autoVolumeEnabled) evaluateVolume(settings)
+        evaluateVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
-        if (!lockedDown && mc.rateEnabled) evaluatePlaybackRate(settings)
+        if (!lockedDown) evaluatePlaybackRate(settings)
         // lockEnabled is the whole feature's switch; unlockEnabled is a
         // sub-option of it, and the settings screen only draws the unlock
         // switch while this one is on. Gating on either used to keep the
@@ -324,7 +324,9 @@ class AutomationManager @Inject constructor(
      * the volume has no ride to be loud over.
      */
     private fun applyWhenAllows(mode: String): Boolean = when (mode) {
-        ApplyWhenIds.NEVER -> true
+        // Never is the off state, not "no condition": one control says both
+        // whether the automation runs and what it waits for.
+        ApplyWhenIds.NEVER -> false
         ApplyWhenIds.CONNECTED ->
             wheelRepository.connectionState.value == ConnectionState.CONNECTED
         else ->

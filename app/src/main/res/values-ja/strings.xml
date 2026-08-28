@@ -970,13 +970,14 @@
     <string name="auto_waiting_gps">GPS 位置情報を待機中…</string>
     <string name="auto_volume_title">音量コントロール</string>
     <string name="auto_volume_desc">速度に応じて音楽の音量を上げます</string>
-    <string name="apply_when_label">適用</string>
     <string name="apply_when_never">常に</string>
     <string name="apply_when_connected">接続中</string>
     <string name="apply_when_riding">走行中</string>
+    <string name="auto_volume_when">音量を上げるとき</string>
+    <string name="media_rate_when">再生速度を変えるとき</string>
+    <string name="media_rate_note">外部からの速度を受け入れるかは再生アプリ次第です。ポッドキャスト系はたいてい対応し、一部の音楽アプリは対応しません。</string>
     <string name="media_control_title">再生コントロール</string>
     <string name="media_rate_title">再生速度コントロール</string>
-    <string name="media_rate_enable">走行速度に応じた再生速度</string>
     <string name="media_rate_grant">通知へのアクセスを許可</string>
     <string name="warnings_media_access_title">通知へのアクセスがオフです</string>
     <string name="warnings_media_access_body">これがないと再生速度が走行速度に追従できません。タップして許可してください。</string>

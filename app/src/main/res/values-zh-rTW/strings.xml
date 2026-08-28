@@ -970,13 +970,14 @@
     <string name="auto_waiting_gps">等待 GPS 定位…</string>
     <string name="auto_volume_title">音量控制</string>
     <string name="auto_volume_desc">依速度自動提升音樂音量</string>
-    <string name="apply_when_label">套用</string>
     <string name="apply_when_never">一律</string>
     <string name="apply_when_connected">已連線</string>
     <string name="apply_when_riding">騎乘中</string>
+    <string name="auto_volume_when">提高音量的時機</string>
+    <string name="media_rate_when">調整播放速度的時機</string>
+    <string name="media_rate_note">是否接受外部指定的速度由播放器決定。Podcast 應用通常支援，部分音樂應用不支援。</string>
     <string name="media_control_title">播放控制</string>
     <string name="media_rate_title">播放速度控制</string>
-    <string name="media_rate_enable">依騎乘速度調整播放速度</string>
     <string name="media_rate_grant">允許通知存取</string>
     <string name="warnings_media_access_title">通知存取已關閉</string>
     <string name="warnings_media_access_body">沒有它，播放速度無法跟隨騎乘速度。點一下允許。</string>

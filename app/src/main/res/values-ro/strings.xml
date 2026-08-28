@@ -1232,13 +1232,14 @@
     <string name="auto_waiting_gps">Se așteaptă poziția GPS…</string>
     <string name="auto_volume_title">Control volum</string>
     <string name="auto_volume_desc">Crește volumul muzicii în funcție de viteză</string>
-    <string name="apply_when_label">Aplică</string>
     <string name="apply_when_never">Mereu</string>
     <string name="apply_when_connected">Conectat</string>
     <string name="apply_when_riding">În mers</string>
+    <string name="auto_volume_when">Crește volumul când</string>
+    <string name="media_rate_when">Schimbă viteza de redare când</string>
+    <string name="media_rate_note">Playerul decide dacă acceptă o viteză din exterior. Aplicațiile de podcast de obicei da, unele de muzică nu.</string>
     <string name="media_control_title">Control redare</string>
     <string name="media_rate_title">Control viteză redare</string>
-    <string name="media_rate_enable">Viteza de redare în funcție de mers</string>
     <string name="media_rate_grant">Permite accesul la notificări</string>
     <string name="warnings_media_access_title">Accesul la notificări este oprit</string>
     <string name="warnings_media_access_body">Fără el viteza de redare nu poate urma mersul. Atinge pentru a permite.</string>

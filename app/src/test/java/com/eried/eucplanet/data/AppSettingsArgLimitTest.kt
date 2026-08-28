@@ -82,7 +82,11 @@ class AppSettingsArgLimitTest {
         // 251: the weather module. Nested WeatherSettings holds its seven
         // knobs in ONE slot - the same move that keeps every feature from
         // spending seven.
-        val expectedSlots = 251
+        // 250: DOWN one, for once. Auto-volume's enable flag and its
+        // connected-only flag became a single applyWhen gate shared with the
+        // playback rate (whose own state lives nested in MediaControlSettings).
+        // Two booleans that could disagree replaced by one value that cannot.
+        val expectedSlots = 250
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

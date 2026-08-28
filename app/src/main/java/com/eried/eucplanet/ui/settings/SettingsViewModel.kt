@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.model.SettingsLayout
@@ -705,8 +706,7 @@ class SettingsViewModel @Inject constructor(
     }
     fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
     fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
-    fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
-        .also { if (!v) automationManager.restoreBaselineVolume() }
+
     fun updateAutoVolumeApplyWhen(v: String) =
         update { copy(autoVolumeApplyWhen = v) }
             // Any narrowing can leave the volume raised with nothing to lower
@@ -714,21 +714,21 @@ class SettingsViewModel @Inject constructor(
             .also { automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
 
-    fun updateMediaRateEnabled(v: Boolean) = update {
-        copy(mediaControl = mediaControl.copy(rateEnabled = v))
+    fun updateMediaRateApplyWhenPicked(v: String) = update {
+        copy(mediaControl = mediaControl.copy(rateApplyWhen = v))
     }.also {
         // Raise (or clear) the dashboard warning now rather than at the next
         // activity resume: moving between settings screens is not a resume,
         // so a rider who switches this on and never leaves the app would see
         // no sign that the grant it needs is missing.
-        appHealthRepository.refreshPermissionWarnings(mediaRateRequested = v)
+        appHealthRepository.refreshPermissionWarnings(
+            mediaRateRequested = v != ApplyWhenIds.NEVER
+        )
     }
     fun updateMediaRateCurve(curve: String) = update {
         copy(mediaControl = mediaControl.copy(rateCurve = curve))
     }
-    fun updateMediaRateApplyWhen(v: String) = update {
-        copy(mediaControl = mediaControl.copy(rateApplyWhen = v))
-    }
+
 
     /** Notification access, which the rate feature needs and nothing else does. */
     fun notificationAccessAllowed(): Boolean = appHealthRepository.notificationAccessAllowed()

@@ -973,13 +973,14 @@
     <string name="auto_waiting_gps">Esperando ubicación GPS…</string>
     <string name="auto_volume_title">Control de volumen</string>
     <string name="auto_volume_desc">Sube el volumen de la música según la velocidad</string>
-    <string name="apply_when_label">Aplicar</string>
     <string name="apply_when_never">Siempre</string>
     <string name="apply_when_connected">Conectado</string>
     <string name="apply_when_riding">Rodando</string>
+    <string name="auto_volume_when">Subir volumen cuando</string>
+    <string name="media_rate_when">Cambiar velocidad cuando</string>
+    <string name="media_rate_note">Cada reproductor decide si acepta una velocidad externa. Las apps de pódcast suelen hacerlo; algunas de música no.</string>
     <string name="media_control_title">Control de reproducción</string>
     <string name="media_rate_title">Control de velocidad</string>
-    <string name="media_rate_enable">Velocidad de reproducción según la marcha</string>
     <string name="media_rate_grant">Permitir acceso a notificaciones</string>
     <string name="warnings_media_access_title">Sin acceso a notificaciones</string>
     <string name="warnings_media_access_body">Sin eso la velocidad de reproducción no puede seguir tu marcha. Toca para permitir.</string>

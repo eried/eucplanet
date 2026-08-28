@@ -18,26 +18,30 @@ class ApplyWhenMigrationTest {
 
     private fun load(json: String) = SettingsJson.fromJson(JSONObject(json), AppSettings())
 
-    @Test fun `a new install rides`() {
-        assertEquals(ApplyWhenIds.RIDING, AppSettings().autoVolumeApplyWhen)
-        assertEquals(ApplyWhenIds.RIDING, AppSettings().mediaControl.rateApplyWhen)
+    @Test fun `both automations ship off`() {
+        // Never is the off state: one control, and neither feature starts
+        // touching the rider's audio until they choose a condition.
+        assertEquals(ApplyWhenIds.NEVER, AppSettings().autoVolumeApplyWhen)
+        assertEquals(ApplyWhenIds.NEVER, AppSettings().mediaControl.rateApplyWhen)
     }
 
-    @Test fun `the old boolean keeps its meaning`() {
-        val gated = load(JSONObject().put("autoVolumeOnlyWhenConnected", true).toString())
-        assertEquals(ApplyWhenIds.CONNECTED, gated.autoVolumeApplyWhen)
-
-        val ungated = load(JSONObject().put("autoVolumeOnlyWhenConnected", false).toString())
-        assertEquals(ApplyWhenIds.NEVER, ungated.autoVolumeApplyWhen)
+    @Test fun `the old switch keeps its meaning`() {
+        // On stays on, gated the way the old boolean gated it...
+        val wasOn = load(JSONObject().put("autoVolumeEnabled", true).toString())
+        assertEquals(ApplyWhenIds.CONNECTED, wasOn.autoVolumeApplyWhen)
+        // ...and off stays off, which is the half that matters: nobody's
+        // volume starts moving on its own after an update.
+        val wasOff = load(JSONObject().put("autoVolumeEnabled", false).toString())
+        assertEquals(ApplyWhenIds.NEVER, wasOff.autoVolumeApplyWhen)
     }
 
-    @Test fun `a backup with neither key gets the new default`() {
-        assertEquals(ApplyWhenIds.RIDING, load("{}").autoVolumeApplyWhen)
+    @Test fun `a backup with neither key stays off`() {
+        assertEquals(ApplyWhenIds.NEVER, load("{}").autoVolumeApplyWhen)
     }
 
     @Test fun `the new key wins when both are present`() {
         val json = JSONObject()
-            .put("autoVolumeOnlyWhenConnected", true)
+            .put("autoVolumeEnabled", true)
             .put("autoVolumeApplyWhen", ApplyWhenIds.RIDING)
             .toString()
         assertEquals(ApplyWhenIds.RIDING, load(json).autoVolumeApplyWhen)
@@ -47,19 +51,21 @@ class ApplyWhenMigrationTest {
         val saved = AppSettings(
             autoVolumeApplyWhen = ApplyWhenIds.CONNECTED,
             mediaControl = AppSettings().mediaControl.copy(
-                rateEnabled = true,
-                rateApplyWhen = ApplyWhenIds.NEVER,
+                rateApplyWhen = ApplyWhenIds.CONNECTED,
                 rateCurve = "0:1.0,25:1.20",
             ),
         )
         val back = load(SettingsJson.toJson(saved).toString())
         assertEquals(ApplyWhenIds.CONNECTED, back.autoVolumeApplyWhen)
-        assertEquals(ApplyWhenIds.NEVER, back.mediaControl.rateApplyWhen)
+        assertEquals(ApplyWhenIds.CONNECTED, back.mediaControl.rateApplyWhen)
         assertEquals("0:1.0,25:1.20", back.mediaControl.rateCurve)
-        assertEquals(true, back.mediaControl.rateEnabled)
     }
 
-    @Test fun `the rate ships off`() {
-        assertEquals(false, AppSettings().mediaControl.rateEnabled)
+    @Test fun `riding is what a rider picks, not what they inherit`() {
+        // Riding is the recommended condition, but it never arrives by
+        // migration: an update must not start altering anyone's playback.
+        val migrated = load(JSONObject().put("autoVolumeEnabled", true).toString())
+        assertEquals(ApplyWhenIds.CONNECTED, migrated.autoVolumeApplyWhen)
+        assertEquals(ApplyWhenIds.NEVER, migrated.mediaControl.rateApplyWhen)
     }
 }

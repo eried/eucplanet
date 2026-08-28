@@ -973,13 +973,14 @@
     <string name="auto_waiting_gps">Czekam na lokalizację GPS…</string>
     <string name="auto_volume_title">Sterowanie głośnością</string>
     <string name="auto_volume_desc">Zwiększa głośność muzyki w zależności od prędkości</string>
-    <string name="apply_when_label">Stosuj</string>
     <string name="apply_when_never">Zawsze</string>
     <string name="apply_when_connected">Połączono</string>
     <string name="apply_when_riding">Podczas jazdy</string>
+    <string name="auto_volume_when">Zwiększaj głośność gdy</string>
+    <string name="media_rate_when">Zmieniaj prędkość odtwarzania gdy</string>
+    <string name="media_rate_note">To odtwarzacz decyduje, czy przyjmie prędkość z zewnątrz. Aplikacje podcastowe zwykle tak, część muzycznych nie.</string>
     <string name="media_control_title">Sterowanie odtwarzaniem</string>
     <string name="media_rate_title">Sterowanie prędkością odtwarzania</string>
-    <string name="media_rate_enable">Prędkość odtwarzania zależna od jazdy</string>
     <string name="media_rate_grant">Zezwól na dostęp do powiadomień</string>
     <string name="warnings_media_access_title">Dostęp do powiadomień jest wyłączony</string>
     <string name="warnings_media_access_body">Bez tego prędkość odtwarzania nie może podążać za jazdą. Dotknij, aby zezwolić.</string>
