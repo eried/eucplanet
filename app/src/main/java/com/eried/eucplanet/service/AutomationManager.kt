@@ -63,10 +63,6 @@ class AutomationManager @Inject constructor(
     private var rateState = PlaybackRatePolicy.State()
     private var lightSlowState = HeadlightSlowPolicy.State()
 
-    /** Above this the wheel counts as moving rather than rolling on its own
-     *  under a rider who is standing over it. Low on purpose: walking pace
-     *  already means the ride has started. */
-    private val RIDING_KMH = 3f
 
     /** Proximity lock / unlock decisions. See [ProximityLockEvaluator]. */
     private val proximityLock = ProximityLockEvaluator()
@@ -330,24 +326,13 @@ class AutomationManager @Inject constructor(
      * they are actually playing - setting a rate on a paused session changes
      * nothing the rider can hear and wakes its UI for no reason.
      */
-    /**
-     * The shared gate: whether a speed-driven automation may act right now.
-     *
-     * Riding is the useful one and the default. Standing still is exactly
-     * when a rider reaches for their own player, and an automation that
-     * overrides them there feels broken rather than clever; it is also when
-     * the volume has no ride to be loud over.
-     */
-    private fun applyWhenAllows(mode: String): Boolean = when (mode) {
-        // Never is the off state, not "no condition": one control says both
-        // whether the automation runs and what it waits for.
-        ApplyWhenIds.NEVER -> false
-        ApplyWhenIds.CONNECTED ->
-            wheelRepository.connectionState.value == ConnectionState.CONNECTED
-        else ->
-            wheelRepository.connectionState.value == ConnectionState.CONNECTED &&
-                wheelRepository.wheelData.value.speed.absoluteValue >= RIDING_KMH
-    }
+    /** The shared gate, reading this manager's live wheel state. The decision
+     *  itself lives in [ApplyWhenGate] so it can be tested without a wheel. */
+    private fun applyWhenAllows(mode: String): Boolean = ApplyWhenGate.allows(
+        mode = mode,
+        connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+        speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+    )
 
     private fun evaluatePlaybackRate(settings: AppSettings) {
         if (!applyWhenAllows(settings.mediaControl.rateApplyWhen)) return
