@@ -1032,6 +1032,20 @@ class SettingsViewModel @Inject constructor(
 
     // Navigator
     fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }
+    fun updateWeatherEnabled(v: Boolean) = update { copy(weather = weather.copy(enabled = v)) }
+    fun updateWeatherWindow(v: Int) = update { copy(weather = weather.copy(windowHours = v)) }
+    fun updateWeatherSource(v: String) = update { copy(weather = weather.copy(source = v)) }
+    fun updateWeatherPref(which: String, v: String) = update {
+        copy(weather = when (which) {
+            "hot" -> weather.copy(prefHot = v)
+            "cold" -> weather.copy(prefCold = v)
+            "rain" -> weather.copy(prefRain = v)
+            "snow" -> weather.copy(prefSnow = v)
+            "wind" -> weather.copy(prefWind = v)
+            "golden" -> weather.copy(prefGolden = v)
+            else -> weather.copy(prefNight = v)
+        })
+    }
     fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }
     fun updateNavOffRouteTolerance(v: Int) = update { copy(navOffRouteToleranceM = v.coerceIn(15, 150)) }
     fun updateNavSolveFullPath(v: Boolean) = update { copy(navSolveFullPath = v) }

@@ -205,6 +205,16 @@ object SettingsJson {
         put("widgetStandaloneActions", s.widget.standaloneActions)
         // Nested voice extras, written as flat keys so the file stays readable
         // and a future move back to top level would not break existing saves.
+        put("weatherEnabled", s.weather.enabled)
+        put("weatherWindowHours", s.weather.windowHours)
+        put("weatherSource", s.weather.source)
+        put("weatherPrefHot", s.weather.prefHot)
+        put("weatherPrefCold", s.weather.prefCold)
+        put("weatherPrefRain", s.weather.prefRain)
+        put("weatherPrefSnow", s.weather.prefSnow)
+        put("weatherPrefWind", s.weather.prefWind)
+        put("weatherPrefNight", s.weather.prefNight)
+        put("weatherPrefGolden", s.weather.prefGolden)
         put("voiceReportCurrent", s.voiceReports.periodicCurrent)
         put("voiceReportPower", s.voiceReports.periodicPower)
         put("triggerReportCurrent", s.voiceReports.triggerCurrent)
@@ -402,6 +412,18 @@ object SettingsJson {
         voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
         voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
         // Flat JSON keys preserved for back-compat; the fields now live nested.
+        weather = com.eried.eucplanet.data.model.WeatherSettings(
+            enabled = j.optBoolean("weatherEnabled", base.weather.enabled),
+            windowHours = j.optInt("weatherWindowHours", base.weather.windowHours),
+            source = j.optString("weatherSource", base.weather.source),
+            prefHot = j.optString("weatherPrefHot", base.weather.prefHot),
+            prefCold = j.optString("weatherPrefCold", base.weather.prefCold),
+            prefRain = j.optString("weatherPrefRain", base.weather.prefRain),
+            prefSnow = j.optString("weatherPrefSnow", base.weather.prefSnow),
+            prefWind = j.optString("weatherPrefWind", base.weather.prefWind),
+            prefNight = j.optString("weatherPrefNight", base.weather.prefNight),
+            prefGolden = j.optString("weatherPrefGolden", base.weather.prefGolden),
+        ),
         voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(
             periodicSpeed = j.optBoolean("voiceReportSpeed", base.voiceReports.periodicSpeed),
             periodicBattery = j.optBoolean("voiceReportBattery", base.voiceReports.periodicBattery),

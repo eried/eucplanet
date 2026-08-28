@@ -79,7 +79,10 @@ class AppSettingsArgLimitTest {
         // 250: watchStem3Click - the Garmin three-button model's Down key.
         // A single string like its stem siblings; nesting the watch button
         // fields is the move if another one ever appears.
-        val expectedSlots = 250
+        // 251: the weather module. Nested WeatherSettings holds its seven
+        // knobs in ONE slot - the same move that keeps every feature from
+        // spending seven.
+        val expectedSlots = 251
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

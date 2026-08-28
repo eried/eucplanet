@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import com.eried.eucplanet.ui.theme.appColors
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -52,6 +55,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.ui.common.HintText
 import kotlin.math.roundToInt
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.ui.theme.themedSliderColors
@@ -253,6 +257,139 @@ fun NavigatorSettingsContent(
                 checked = settings.navAvoidUnpaved,
                 onChange = { viewModel.updateNavAvoidUnpaved(it) }
             )
+        }
+
+        // --- Weather / ridability ---------------------------------------
+        // The dashboard weather icon and its forecast flyout. Ships off;
+        // enabling adds the icon above the map button.
+        Text(
+            stringResource(R.string.weather_section).uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.weather_enable),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Switch(
+                checked = settings.weather.enabled,
+                onCheckedChange = { viewModel.updateWeatherEnabled(it) },
+                colors = themedSwitchColors(),
+            )
+        }
+        HintText(stringResource(R.string.weather_enable_desc), small = true)
+        if (settings.weather.enabled) {
+            Text(
+                stringResource(R.string.weather_window_label),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            val windowEntries = listOf(
+                6 to stringResource(R.string.weather_win_6),
+                24 to stringResource(R.string.weather_win_24),
+                72 to stringResource(R.string.weather_win_3d),
+                168 to stringResource(R.string.weather_win_1w),
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                windowEntries.forEachIndexed { index, (h, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = settings.weather.windowHours == h,
+                        onClick = { viewModel.updateWeatherWindow(h) },
+                        shape = SegmentedButtonDefaults.itemShape(index, windowEntries.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                        colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                    ) { Text(label) }
+                }
+            }
+            val sources = com.eried.eucplanet.weather.WeatherSource.entries
+            var sourceExpanded by remember { mutableStateOf(false) }
+            androidx.compose.material3.ExposedDropdownMenuBox(
+                expanded = sourceExpanded,
+                onExpandedChange = { sourceExpanded = it },
+            ) {
+                OutlinedTextField(
+                    value = com.eried.eucplanet.weather.WeatherSource.byId(settings.weather.source).label,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.weather_source_label)) },
+                    trailingIcon = { androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable),
+                    colors = themedFieldColors(),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                )
+                ExposedDropdownMenu(
+                    expanded = sourceExpanded,
+                    onDismissRequest = { sourceExpanded = false },
+                    containerColor = MaterialTheme.appColors.menuBackground
+                ) {
+                    sources.forEach { src ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(src.label) },
+                            onClick = {
+                                viewModel.updateWeatherSource(src.id)
+                                sourceExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            HintText(stringResource(R.string.weather_source_credit), small = true)
+
+            // Riding preferences: a triple selector per condition, in the same
+            // full-width segmented style as the window selector above. The
+            // comfort thresholds behind them live in Advanced settings under
+            // Weather score. Rain, snow and wind ship disliked.
+            // In-section subtitle, same style as the nav section's Charger
+            // community block: this is part of WEATHER, not a sibling section.
+            Text(
+                stringResource(R.string.weather_pref_label),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.appColors.primary,
+            )
+            HintText(stringResource(R.string.weather_pref_desc), small = true)
+            val prefOptions = listOf(
+                "DISLIKE" to stringResource(R.string.weather_pref_dislike),
+                "NEUTRAL" to stringResource(R.string.weather_pref_neutral),
+                "LIKE" to stringResource(R.string.weather_pref_like),
+            )
+            listOf(
+                Triple("hot", R.string.weather_cond_hot, settings.weather.prefHot),
+                Triple("cold", R.string.weather_cond_cold, settings.weather.prefCold),
+                Triple("rain", R.string.weather_cond_rain, settings.weather.prefRain),
+                Triple("snow", R.string.weather_cond_snow, settings.weather.prefSnow),
+                Triple("wind", R.string.weather_cond_wind, settings.weather.prefWind),
+                Triple("golden", R.string.weather_cond_golden, settings.weather.prefGolden),
+                Triple("night", R.string.weather_cond_night, settings.weather.prefNight),
+            ).forEach { (key, labelRes, current) ->
+                // The house triple selector: full-width segmented row with the
+                // condition name notched into its frame, like the alarm
+                // editor's vibrate-target selector.
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier.fillMaxWidth().height(56.dp)
+                    ) {
+                        prefOptions.forEachIndexed { index, (id, label) ->
+                            SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                selected = current == id,
+                                onClick = { viewModel.updateWeatherPref(key, id) },
+                                shape = SegmentedButtonDefaults.itemShape(index, prefOptions.size, baseShape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+                                colors = com.eried.eucplanet.ui.theme.themedSegmentedColors(),
+                            ) { Text(label) }
+                        }
+                    }
+                    FieldNotchLabel(stringResource(labelRes))
+                }
+            }
+
         }
 
         Spacer(Modifier.height(8.dp))

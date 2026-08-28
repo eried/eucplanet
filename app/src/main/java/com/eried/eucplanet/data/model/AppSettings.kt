@@ -125,6 +125,9 @@ data class AppSettings(
     val mediaControl: MediaControlSettings = MediaControlSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
+    /** Weather / ridability module (dashboard icon + forecast flyout). Nested
+     *  so the whole feature costs one constructor slot; see rule 8. */
+    val weather: WeatherSettings = WeatherSettings(),
     val batteryPercent: BatteryPercentSettings = BatteryPercentSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
@@ -1236,6 +1239,31 @@ data class ProximityLockSettings(
  * momentary peak tells a rider nothing useful about how hard the wheel is
  * working.
  */
+/**
+ * The weather module's own knobs. Disabled by default: enabling it adds the
+ * weather icon above the dashboard's map button. Comfort thresholds are the
+ * rider's, stored metric (°C and tenths of m/s so the shared NumberUpDown
+ * stepper can drive them as Ints); display follows the unit settings.
+ */
+data class WeatherSettings(
+    val enabled: Boolean = false,
+    /** Default forecast window: 6, 24, 72 or 168 hours. */
+    val windowHours: Int = 6,
+    /** [com.eried.eucplanet.weather.WeatherSource] id. */
+    val source: String = "OPEN_METEO",
+    // Riding preferences: how each condition should count for this rider.
+    // "DISLIKE" | "NEUTRAL" | "LIKE"; the comfort thresholds (Advanced
+    // settings, Weather score group) say when a condition applies, these say
+    // how it scores. Rain, snow and wind ship disliked; the rest neutral.
+    val prefHot: String = "NEUTRAL",
+    val prefCold: String = "NEUTRAL",
+    val prefRain: String = "DISLIKE",
+    val prefSnow: String = "DISLIKE",
+    val prefWind: String = "DISLIKE",
+    val prefNight: String = "NEUTRAL",
+    val prefGolden: String = "NEUTRAL",
+)
+
 data class VoiceReportSettings(
     // Periodic report.
     val periodicSpeed: Boolean = true,
@@ -1271,6 +1299,13 @@ data class VoiceReportSettings(
  * JVM/dex 255-argument limit. All clamped in SettingsRepository.sanitized().
  */
 data class AdvancedSettings(
+    // Weather score thresholds (see the WEATHER spec group): when an hour
+    // reads too cold / too hot (°C) and where wind starts to bite / gets
+    // genuinely hard (tenths of m/s).
+    val weatherColdC: Int = 14,
+    val weatherHotC: Int = 31,
+    val weatherBreezyTenthsMs: Int = 20,
+    val weatherWindyTenthsMs: Int = 45,
     val wheelPollIntervalMs: Int = 250,
     val graphSampleIntervalMs: Int = 1000,
     // Window, in samples, for the smoothed Trip Details graphs and the smoothed
