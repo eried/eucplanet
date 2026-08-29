@@ -40,7 +40,15 @@ data class SharePayload(
     }
 }
 
-/** Fixed, shared with the web viewer byte for byte. Assigned by join order. */
+/**
+ * Fixed, shared with the web viewer byte for byte. Assigned by relay-observed
+ * arrival order, index 0 first, on BOTH clients, so "follow the blue one"
+ * means the same rider on every screen. A client's own rider is never a peer
+ * and must not consume an index from this sequence: the local rider instead
+ * uses the last entry, [COLORS].size - 1 (#FDD835 yellow), which peers 0..10
+ * never reach first, so "me" cannot collide with the first peer on any
+ * screen.
+ */
 object PeerPalette {
     val COLORS = listOf("#E53935", "#1E88E5", "#43A047", "#FB8C00", "#8E24AA", "#00ACC1",
         "#F4511E", "#3949AB", "#7CB342", "#D81B60", "#00897B", "#FDD835")

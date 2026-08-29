@@ -1577,6 +1577,7 @@
     <string name="share_name_label">Namn</string>
     <string name="share_stats_toggle">Dela min statistik</string>
     <string name="share_start">Börja dela</string>
+    <string name="share_join">Gå med</string>
     <string name="share_copy_link">Kopiera länk</string>
     <string name="share_send_link">Skicka länk</string>
     <string name="share_connected">Ansluten</string>

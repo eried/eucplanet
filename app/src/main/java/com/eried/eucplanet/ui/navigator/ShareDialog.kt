@@ -111,6 +111,10 @@ fun ShareStartDialog(
     resolveIdentity: suspend (IdentityMode, String, Boolean) -> Identity,
     onStart: (Identity) -> Unit,
     onDismiss: () -> Unit,
+    // Starting a new group and joining an existing one share this dialog, so
+    // the confirm label is passed in rather than hardcoded, and defaults to
+    // the "start a group" label since that is the more common entry point.
+    confirmLabelRes: Int = R.string.share_start,
 ) {
     val scope = rememberCoroutineScope()
     var mode by remember(default) {
@@ -206,7 +210,7 @@ fun ShareStartDialog(
                                 color = MaterialTheme.appColors.onPrimary
                             )
                         } else {
-                            Text(stringResource(R.string.share_start))
+                            Text(stringResource(confirmLabelRes))
                         }
                     }
                 }

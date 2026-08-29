@@ -1843,6 +1843,7 @@
     <string name="share_name_label">Nimi</string>
     <string name="share_stats_toggle">Jaa tilastoni</string>
     <string name="share_start">Aloita jakaminen</string>
+    <string name="share_join">Liity</string>
     <string name="share_copy_link">Kopioi linkki</string>
     <string name="share_send_link">Lähetä linkki</string>
     <string name="share_connected">Yhdistetty</string>

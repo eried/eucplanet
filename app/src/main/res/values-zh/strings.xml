@@ -766,6 +766,7 @@
     <string name="share_name_label">名称</string>
     <string name="share_stats_toggle">分享我的统计数据</string>
     <string name="share_start">开始分享</string>
+    <string name="share_join">加入</string>
     <string name="share_copy_link">复制链接</string>
     <string name="share_send_link">发送链接</string>
     <string name="share_connected">已连接</string>

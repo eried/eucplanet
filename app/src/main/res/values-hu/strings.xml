@@ -1843,6 +1843,7 @@
     <string name="share_name_label">Név</string>
     <string name="share_stats_toggle">Statisztikáim megosztása</string>
     <string name="share_start">Megosztás indítása</string>
+    <string name="share_join">Csatlakozás</string>
     <string name="share_copy_link">Link másolása</string>
     <string name="share_send_link">Link küldése</string>
     <string name="share_connected">Csatlakozva</string>

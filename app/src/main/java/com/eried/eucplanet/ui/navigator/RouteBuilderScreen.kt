@@ -755,8 +755,12 @@ fun RouteBuilderScreen(
                 },
                 actions = {
                     // Live location share. Green while a group is running,
-                    // with a badge counting the friends currently in it.
-                    val sharePeers = (shareState as? ShareState.Joined)?.peers?.size ?: 0
+                    // with a badge counting the friends currently in it. A
+                    // peer who left or aged out to LOST is still in the map
+                    // (the group list keeps showing them, greyed, by design)
+                    // but is not "currently in it", so the badge excludes them.
+                    val sharePeers = (shareState as? ShareState.Joined)?.peers?.values
+                        ?.count { !it.left && it.freshness != Freshness.LOST } ?: 0
                     BadgedBox(
                         badge = {
                             if (sharePeers > 0) {
@@ -1726,7 +1730,8 @@ fun RouteBuilderScreen(
                         onDismiss = {
                             shareSwitchConfirmed = false
                             viewModel.dismissJoin()
-                        }
+                        },
+                        confirmLabelRes = R.string.share_join
                     )
                 }
 

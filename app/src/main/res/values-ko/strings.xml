@@ -1578,6 +1578,7 @@
     <string name="share_name_label">이름</string>
     <string name="share_stats_toggle">내 통계 공유</string>
     <string name="share_start">공유 시작</string>
+    <string name="share_join">참여</string>
     <string name="share_copy_link">링크 복사</string>
     <string name="share_send_link">링크 보내기</string>
     <string name="share_connected">연결됨</string>

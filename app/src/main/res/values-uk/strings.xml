@@ -1613,6 +1613,7 @@
     <string name="share_name_label">Ім\'я</string>
     <string name="share_stats_toggle">Ділитися своєю статистикою</string>
     <string name="share_start">Почати трансляцію</string>
+    <string name="share_join">Приєднатися</string>
     <string name="share_copy_link">Копіювати посилання</string>
     <string name="share_send_link">Надіслати посилання</string>
     <string name="share_connected">Підключено</string>

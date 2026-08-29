@@ -802,6 +802,7 @@
     <string name="share_name_label">Nome</string>
     <string name="share_stats_toggle">Condividi le mie statistiche</string>
     <string name="share_start">Avvia condivisione</string>
+    <string name="share_join">Unisciti</string>
     <string name="share_copy_link">Copia link</string>
     <string name="share_send_link">Invia link</string>
     <string name="share_connected">Connesso</string>

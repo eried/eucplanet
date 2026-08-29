@@ -1590,6 +1590,7 @@
     <string name="share_name_label">Navn</string>
     <string name="share_stats_toggle">Del mine statistikker</string>
     <string name="share_start">Start deling</string>
+    <string name="share_join">Deltag</string>
     <string name="share_copy_link">Kopiér link</string>
     <string name="share_send_link">Send link</string>
     <string name="share_connected">Forbundet</string>

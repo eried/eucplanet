@@ -1636,6 +1636,7 @@
     <string name="share_name_label">Naam</string>
     <string name="share_stats_toggle">Mijn statistieken delen</string>
     <string name="share_start">Delen starten</string>
+    <string name="share_join">Deelnemen</string>
     <string name="share_copy_link">Link kopiëren</string>
     <string name="share_send_link">Link verzenden</string>
     <string name="share_connected">Verbonden</string>

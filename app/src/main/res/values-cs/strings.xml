@@ -1843,6 +1843,7 @@
     <string name="share_name_label">Jméno</string>
     <string name="share_stats_toggle">Sdílet mé statistiky</string>
     <string name="share_start">Zahájit sdílení</string>
+    <string name="share_join">Připojit se</string>
     <string name="share_copy_link">Kopírovat odkaz</string>
     <string name="share_send_link">Odeslat odkaz</string>
     <string name="share_connected">Připojeno</string>

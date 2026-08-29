@@ -58,7 +58,6 @@ class ShareSession @Inject constructor(
     private val myId = ShareCrypto.b64u(ShareCrypto.randomBytes(8))
     private var lastPubMs = 0L
     private var lastLat = Double.NaN; private var lastLng = Double.NaN
-    private var joinOrder = 0
     private val colorByPeer = HashMap<String, String>()
     private var closing = false
     /** Bumped on every connect and on leave. A socket whose generation is no
@@ -76,14 +75,19 @@ class ShareSession @Inject constructor(
     }
 
     suspend fun identityFor(mode: IdentityMode, sessionName: String, shareStats: Boolean): Identity {
+        // The local rider is never a peer and must not consume an index from
+        // the arrival-order sequence peers are colored from (see PeerPalette).
+        // It always takes the last palette entry, yellow, so peer index 0
+        // never collides with "me" on this screen.
+        val myColor = PeerPalette.colorFor(PeerPalette.COLORS.size - 1)
         return when (mode) {
-            IdentityMode.ANON -> Identity(mode, "Rider #${(1000..9999).random()}", PeerPalette.colorFor(0), null, null, null, shareStats)
-            IdentityMode.SESSION -> Identity(mode, sessionName.ifBlank { "Rider" }, PeerPalette.colorFor(0), null, null, null, shareStats)
+            IdentityMode.ANON -> Identity(mode, "Rider #${(1000..9999).random()}", myColor, null, null, null, shareStats)
+            IdentityMode.SESSION -> Identity(mode, sessionName.ifBlank { "Rider" }, myColor, null, null, null, shareStats)
             IdentityMode.PROFILE -> {
                 val storeId = syncManager.readRiderIdFile()
                 val p = storeId?.let { runCatching { eucStatsApi.getProfile(it) }.getOrNull() }
                 if (p == null) identityFor(IdentityMode.SESSION, sessionName, shareStats)
-                else Identity(mode, p.displayName ?: "Rider", PeerPalette.colorFor(0), null, p.avatarUrl, p.flag, shareStats)
+                else Identity(mode, p.displayName ?: "Rider", myColor, null, p.avatarUrl, p.flag, shareStats)
             }
         }
     }
@@ -160,7 +164,10 @@ class ShareSession @Inject constructor(
                 val prev = (_state.value as? ShareState.Joined)?.peers?.get(from)
                 val trail = prev?.trail ?: Trail(trailMaxAgeMs())
                 trail.add(p.lat, p.lng, p.t)
-                val color = colorByPeer.getOrPut(from) { PeerPalette.colorFor(++joinOrder) }
+                // First foreign peer observed gets index 0 (matches the web
+                // viewer), second gets 1, and so on; colorByPeer.size at the
+                // moment a new "from" is inserted IS that arrival index.
+                val color = colorByPeer.getOrPut(from) { PeerPalette.colorFor(colorByPeer.size) }
                 // The relay hands a client that just connected each rider's last
                 // payload, which can be minutes old. A rider's FIRST frame is
                 // therefore dated by their own stamp, so someone who stopped
@@ -236,7 +243,7 @@ class ShareSession @Inject constructor(
         heartbeat?.cancel(); heartbeat = null
         ws?.send(JSONObject().put("type", "leave").put("from", myId).toString())
         ws?.close(1000, "leave"); ws = null; key = null
-        colorByPeer.clear(); joinOrder = 0; lastLat = Double.NaN
+        colorByPeer.clear(); lastLat = Double.NaN
         _state.value = ShareState.Idle
     }
 

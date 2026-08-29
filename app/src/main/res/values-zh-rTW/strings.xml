@@ -1578,6 +1578,7 @@
     <string name="share_name_label">名稱</string>
     <string name="share_stats_toggle">分享我的統計資料</string>
     <string name="share_start">開始分享</string>
+    <string name="share_join">加入</string>
     <string name="share_copy_link">複製連結</string>
     <string name="share_send_link">傳送連結</string>
     <string name="share_connected">已連線</string>

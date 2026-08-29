@@ -1611,6 +1611,7 @@
     <string name="share_name_label">Name</string>
     <string name="share_stats_toggle">Meine Statistiken teilen</string>
     <string name="share_start">Teilen starten</string>
+    <string name="share_join">Beitreten</string>
     <string name="share_copy_link">Link kopieren</string>
     <string name="share_send_link">Link senden</string>
     <string name="share_connected">Verbunden</string>

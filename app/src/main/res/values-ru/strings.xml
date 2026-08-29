@@ -1581,6 +1581,7 @@
     <string name="share_name_label">Имя</string>
     <string name="share_stats_toggle">Делиться своей статистикой</string>
     <string name="share_start">Начать трансляцию</string>
+    <string name="share_join">Присоединиться</string>
     <string name="share_copy_link">Скопировать ссылку</string>
     <string name="share_send_link">Отправить ссылку</string>
     <string name="share_connected">Подключено</string>

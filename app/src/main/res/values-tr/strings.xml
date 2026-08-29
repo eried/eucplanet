@@ -1578,6 +1578,7 @@
     <string name="share_name_label">Ad</string>
     <string name="share_stats_toggle">İstatistiklerimi paylaş</string>
     <string name="share_start">Paylaşmayı başlat</string>
+    <string name="share_join">Katıl</string>
     <string name="share_copy_link">Bağlantıyı kopyala</string>
     <string name="share_send_link">Bağlantıyı gönder</string>
     <string name="share_connected">Bağlandı</string>

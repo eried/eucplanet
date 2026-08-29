@@ -1578,6 +1578,7 @@
     <string name="share_name_label">名前</string>
     <string name="share_stats_toggle">自分の統計を共有</string>
     <string name="share_start">共有を開始</string>
+    <string name="share_join">参加</string>
     <string name="share_copy_link">リンクをコピー</string>
     <string name="share_send_link">リンクを送信</string>
     <string name="share_connected">接続済み</string>

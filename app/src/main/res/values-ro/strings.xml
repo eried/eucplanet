@@ -1843,6 +1843,7 @@
     <string name="share_name_label">Nume</string>
     <string name="share_stats_toggle">Distribuie statisticile mele</string>
     <string name="share_start">Începe distribuirea</string>
+    <string name="share_join">Alătură-te</string>
     <string name="share_copy_link">Copiază linkul</string>
     <string name="share_send_link">Trimite linkul</string>
     <string name="share_connected">Conectat</string>

@@ -1640,6 +1640,7 @@
     <string name="share_name_label">Nom</string>
     <string name="share_stats_toggle">Partager mes statistiques</string>
     <string name="share_start">Démarrer le partage</string>
+    <string name="share_join">Rejoindre</string>
     <string name="share_copy_link">Copier le lien</string>
     <string name="share_send_link">Envoyer le lien</string>
     <string name="share_connected">Connecté</string>
