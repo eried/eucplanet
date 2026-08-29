@@ -54,6 +54,13 @@
     background: none !important; box-shadow: none !important; font-size: 9.5px; opacity: .6;
   }
   .maplibregl-ctrl-attrib a { color: #7a86ad; text-shadow: 0 1px 2px #000; }
+  /* Buttons and credits both keep out of the notch and the rounded corners. */
+  .maplibregl-ctrl-top-right {
+    top: env(safe-area-inset-top, 0px); right: env(safe-area-inset-right, 0px);
+  }
+  .maplibregl-ctrl-bottom-right {
+    bottom: env(safe-area-inset-bottom, 0px); right: env(safe-area-inset-right, 0px);
+  }
   .maplibregl-ctrl-group {
     background: var(--glass) !important; border: 1px solid var(--line) !important;
     border-radius: 9px !important; overflow: hidden; box-shadow: var(--shadow);
@@ -91,66 +98,88 @@
   .stylemenu button.on { color: var(--acc); }
   .stylemenu button.on::before { background: var(--acc); border-color: var(--acc); box-shadow: 0 0 8px var(--acc); }
 
-  /* === Title pill === */
-  #status {
-    position: fixed; z-index: 6; top: 14px; left: 14px;
-    display: flex; align-items: center; gap: 9px; white-space: nowrap;
-    padding: 8px 13px; border-radius: 10px;
-    background: var(--surf); backdrop-filter: blur(14px);
-    border: 1px solid var(--line); box-shadow: var(--shadow);
-  }
-  #status .brand {
-    font-family: var(--num); font-size: 12px; font-weight: 700; letter-spacing: 1.1px;
-    color: var(--ink); text-decoration: none;
-  }
-  #status .brand:hover { color: var(--acc); }
-  #status .sub {
-    font-family: var(--num); font-size: 11px; font-weight: 600; letter-spacing: 1.6px; color: var(--acc);
-  }
-  #status .sep { width: 1px; height: 13px; background: var(--line); }
-  .led { width: 8px; height: 8px; border-radius: 50%; background: var(--mut); flex: none; }
-  @keyframes ledpulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
-  #status.live .led, #dock[data-state="live"] .led {
-    background: var(--ok); box-shadow: 0 0 9px var(--ok); animation: ledpulse 2.2s ease-in-out infinite;
-  }
-  #status.warn .led, #dock[data-state="warn"] .led { background: var(--gold); }
-  #status.err  .led, #dock[data-state="err"]  .led { background: var(--bad); }
-
-  /* === Rider panel: side panel on a PC, bottom sheet on a phone === */
+  /* === One floating panel: the title bar IS the rider list header === */
   #dock {
-    position: fixed; z-index: 5; left: 16px; top: 64px; width: 300px;
-    max-height: calc(100dvh - 132px); display: flex; flex-direction: column; overflow: hidden;
+    position: fixed; z-index: 6;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    left: calc(env(safe-area-inset-left, 0px) + 12px);
+    width: 320px; max-width: calc(100vw - 24px);
+    display: flex; flex-direction: column; overflow: hidden;
     background: var(--surf); backdrop-filter: blur(14px);
     border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
   }
   #dock.hide { display: none; }
   #dockHead {
-    display: flex; align-items: center; gap: 9px; width: 100%; padding: 11px 13px;
-    background: rgba(11, 15, 28, .5); border: 0; border-bottom: 1px solid var(--line);
-    font: inherit; color: var(--mut); text-align: left; cursor: default;
+    display: flex; align-items: center; gap: 7px; padding: 10px 12px;
+    background: rgba(11, 15, 28, .5); border-bottom: 1px solid var(--line);
+    color: var(--mut); cursor: pointer; user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
+  #dock.shut #dockHead { border-bottom: 0; }
+  #dockHead .brand {
+    flex: none; font-family: var(--num); font-size: 12px; font-weight: 700;
+    letter-spacing: 1.1px; color: var(--ink); text-decoration: none; white-space: nowrap;
+  }
+  #dockHead .brand:hover { color: var(--acc); }
+  #dockHead .sep { flex: none; width: 1px; height: 13px; background: var(--line); }
+  #dockHead .sub {
+    flex: none; font-family: var(--num); font-size: 11px; font-weight: 600;
+    letter-spacing: 1.6px; color: var(--acc); white-space: nowrap;
+  }
+  /* The rider summary sits on the right of the same row, so the panel reads as
+     one thing: who is here, and whether the feed is still live. */
+  #headMeta { flex: 0 1 auto; min-width: 0; margin-left: auto; display: flex; align-items: center; gap: 7px; }
   #count {
-    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
-    font-family: var(--num); font-size: 11px; font-weight: 700; letter-spacing: .8px;
-    text-transform: uppercase; color: var(--ink);
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 11.5px; font-weight: 600; color: var(--ink);
   }
-  #statusText { font-size: 10.5px; letter-spacing: .7px; text-transform: uppercase; color: var(--mut); }
-  #dockHead .chev { display: none; width: 15px; height: 15px; flex: none; color: var(--mut); }
-  #panel { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(130, 170, 255, .3) transparent; }
+  #statusText {
+    flex: none; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+    background: rgba(0, 0, 0, .25); border: 1px solid var(--line);
+    font-size: 9.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+    color: var(--mut);
+  }
+  #dock[data-state="live"] #statusText { color: var(--ok); border-color: rgba(57, 217, 138, .5); }
+  #dock[data-state="warn"] #statusText { color: var(--gold); border-color: rgba(255, 210, 74, .5); }
+  #dock[data-state="err"]  #statusText { color: var(--bad); border-color: rgba(255, 91, 110, .5); }
+  #dockHead .chev {
+    flex: none; width: 15px; height: 15px; color: var(--mut); transition: transform .25s;
+  }
+  #dock.shut #dockHead .chev { transform: rotate(180deg); }
+  .led { width: 8px; height: 8px; border-radius: 50%; background: var(--mut); flex: none; }
+  @keyframes ledpulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  #dock[data-state="live"] .led {
+    background: var(--ok); box-shadow: 0 0 9px var(--ok); animation: ledpulse 2.2s ease-in-out infinite;
+  }
+  #dock[data-state="warn"] .led { background: var(--gold); }
+  #dock[data-state="err"]  .led { background: var(--bad); }
+
+  /* The list is capped so the panel never swallows the map, and scrolls itself. */
+  #panel {
+    max-height: 40dvh; overflow-y: auto; transition: max-height .26s ease;
+    scrollbar-width: thin; scrollbar-color: rgba(130, 170, 255, .3) transparent;
+  }
+  #dock.shut #panel { max-height: 0; overflow: hidden; }
   #panel::-webkit-scrollbar { width: 6px; }
   #panel::-webkit-scrollbar-thumb { background: rgba(130, 170, 255, .3); border-radius: 3px; }
 
   .row {
-    display: flex; align-items: center; gap: 10px; padding: 9px 13px;
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
     cursor: pointer; border-bottom: 1px solid rgba(51, 69, 122, .5);
   }
   .row:last-child { border-bottom: none; }
   .row:hover { background: rgba(46, 168, 255, .10); }
-  .row .swatch {
-    width: 28px; height: 28px; border-radius: 50%; flex: none;
-    border: 2px solid #fff; background-size: cover; background-position: center;
+  /* Avatar: a round window with the picture inside it, one rule for the list
+     row and the map marker alike (see setAvatar). The picture is an <img> that
+     fills the circle and is centred. It used to be a background image, and an
+     inline "background: colour" shorthand reset background-size back to auto,
+     which is what left the list avatars showing a zoomed corner of the photo. */
+  .avatar {
+    width: 28px; height: 28px; flex: none; border-radius: 50%; overflow: hidden;
+    border: 2px solid #fff; background: var(--c, #1E88E5);
     box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
   }
+  .avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
   .row .who { min-width: 0; flex: 1; }
   .row .nm {
     font-size: 13px; font-weight: 600; color: var(--ink);
@@ -161,18 +190,20 @@
     letter-spacing: .3px; color: var(--acc); font-variant-numeric: tabular-nums;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+  /* Age of the last position, in plain words and the body font: an Orbitron
+     "31s" next to a name reads like a code or a ping, which it is not. */
   .row .age {
-    flex: none; font-family: var(--num); font-size: 10.5px; font-weight: 600;
-    letter-spacing: .5px; text-transform: uppercase; font-variant-numeric: tabular-nums;
-    color: var(--mut);
+    flex: none; font-size: 11px; font-weight: 500; color: var(--mut);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
   }
-  .row .age.live { color: var(--ok); }
   .row .age.stale { color: var(--gold); }
+  .row .age.lost { color: var(--bad); }
   .row.dim { opacity: .55; }
 
   /* === Fit all riders === */
   #recenter {
-    position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); bottom: 18px; display: none;
+    position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); display: none;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
     padding: 9px 15px; border-radius: 10px; cursor: pointer;
     background: var(--surf); backdrop-filter: blur(14px);
     border: 1px solid var(--line); box-shadow: var(--shadow);
@@ -182,11 +213,14 @@
   #recenter svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 6px; }
 
   /* === Map marker (mirrors the in-app look, readable over satellite too) === */
-  .pin { position: relative; width: 30px; height: 30px; cursor: pointer; }
+  /* MapLibre gives everything inside the map its own Helvetica stack, and a
+     marker is inside the map, so the label states the page font itself. */
+  .pin {
+    position: relative; width: 30px; height: 30px; cursor: pointer;
+    font-family: "Chakra Petch", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  }
   .pin .dot {
-    width: 30px; height: 30px; border-radius: 50%;
-    border: 2px solid #fff; background-color: var(--c, #1E88E5);
-    background-size: cover; background-position: center;
+    width: 30px; height: 30px;
     box-shadow: 0 2px 9px rgba(0, 0, 0, .7), 0 0 0 1px rgba(0, 0, 0, .45);
   }
   .pin .arrow {
@@ -204,10 +238,9 @@
     border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0, 0, 0, .55);
     color: var(--ink); font-size: 11px; font-weight: 600; letter-spacing: .2px;
   }
-  .pin .tag .age {
-    font-family: var(--num); font-size: 9.5px; font-weight: 600;
-    letter-spacing: .4px; text-transform: uppercase; color: var(--mut);
-  }
+  .pin .tag .age { font-size: 10px; font-weight: 500; color: var(--mut); }
+  .pin .tag .age.stale { color: var(--gold); }
+  .pin .tag .age.lost { color: var(--bad); }
   .pin.stale { opacity: .55; }
 
   /* === Full page message (invalid link, self test, join a ride) === */
@@ -283,31 +316,24 @@
   }
   #scanCancel:hover { color: var(--bad); border-color: var(--bad); }
 
-  /* === Phone: the panel becomes a bottom sheet that opens on tap === */
+  /* === Phone: the panel spans the top, the map controls move out of its way === */
   @media (max-width: 640px) {
-    #status { padding: 7px 11px; gap: 8px; }
     #dock {
-      left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: none;
-      border-radius: 14px 14px 0 0; border-left: 0; border-right: 0; border-bottom: 0;
-      padding-bottom: env(safe-area-inset-bottom);
+      left: calc(env(safe-area-inset-left, 0px) + 12px);
+      right: calc(env(safe-area-inset-right, 0px) + 12px);
+      width: auto; max-width: none;
     }
-    #dockHead { cursor: pointer; padding: 13px 15px; }
-    #dockHead .chev { display: block; transition: transform .25s; }
-    #dock.open #dockHead .chev { transform: rotate(180deg); }
-    #panel { flex: none; max-height: 0; overflow: hidden; transition: max-height .28s ease; }
-    #dock.open #panel { max-height: 44dvh; overflow-y: auto; }
-    #recenter { bottom: 62px; }
-    #dock.open ~ #recenter { display: none !important; }
-    /* The attribution rides on top of the sheet in BOTH states. Every basemap
-       here (CARTO, OpenStreetMap, Esri) requires its credit to stay visible,
-       and the open sheet grows to 44dvh, which a fixed 50px offset left it
-       buried under. --sheet-h is the sheet's measured height, kept current by
-       the ResizeObserver in boot(), so the credits sit just clear of it rather
-       than floating over the map at a guessed 44dvh the short list never
-       reaches. The fallback is the collapsed header's height. */
-    .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right {
-      bottom: calc(var(--sheet-h, 42px) + 8px) !important;
+    #dockHead { padding: 11px 12px; }
+    /* Zoom and layers ride in the bottom right corner here. The panel owns the
+       full width at the top and grows when it is opened, so there is no room
+       for them up there, and the credits (a licence term of CARTO, OpenStreetMap
+       and Esri alike) keep the corner below them, always visible. */
+    .maplibregl-ctrl-top-right {
+      top: auto;
+      right: calc(env(safe-area-inset-right, 0px) + 2px);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 44px);
     }
+    .maplibregl-ctrl-top-right .stylemenu { top: auto; bottom: 0; }
   }
 </style>
 </head>
@@ -315,20 +341,21 @@
 
 <div id="map"></div>
 
-<div id="status">
-  <span class="led"></span>
-  <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener">EUC PLANET</a>
-  <span class="sep"></span>
-  <span class="sub">Share</span>
-</div>
-
-<div id="dock">
-  <button id="dockHead" type="button">
+<!-- One panel: the EUC PLANET title bar doubles as the rider list header, so a
+     phone shows a single floating card instead of a title up top and a sheet at
+     the bottom fighting the rounded corners of the screen. -->
+<div id="dock" data-state="">
+  <div id="dockHead" role="button" tabindex="0" aria-expanded="true" aria-controls="panel">
     <span class="led"></span>
-    <span id="count">Waiting for riders</span>
-    <span id="statusText">Connecting</span>
+    <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener">EUC PLANET</a>
+    <span class="sep"></span>
+    <span class="sub">Share</span>
+    <span id="headMeta">
+      <span id="count">No riders yet</span>
+      <span id="statusText">Connecting</span>
+    </span>
     <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-  </button>
+  </div>
   <div id="panel"></div>
 </div>
 
@@ -492,10 +519,57 @@ function showJoinCard(title, body) {
   $("dock").classList.add("hide");
 }
 
+/*
+ * The header pill and the LED beside the title show one thing: is what you
+ * are looking at current. That is the socket state, downgraded to "Stale"
+ * while the socket is up but no rider in the room has reported a fresh
+ * position, which is the case a plain "Live" would misreport.
+ */
+var statusBase = "Connecting";
+var statusCls = "";
+var ridersStale = false;
+
 function setStatus(text, cls) {
-  $("statusText").textContent = text;
-  $("status").className = cls || "";
-  $("dock").dataset.state = cls || "";        // the panel LED tracks the same state
+  statusBase = text;
+  statusCls = cls || "";
+  paintStatus();
+}
+
+function paintStatus() {
+  var stale = ridersStale && statusCls === "live";
+  $("statusText").textContent = stale ? "Stale" : statusBase;
+  $("dock").dataset.state = stale ? "warn" : statusCls;
+}
+
+/*
+ * The rider list folds away under the title bar. A phone starts folded, so
+ * the map is not covered before anyone has joined; a wider screen has the
+ * room and starts open. Either way the viewer's own choice is what sticks.
+ */
+var PANEL_KEY = "eucshare_panel";
+var PHONE_MAX = 640;
+
+function initialPanelOpen() {
+  try {
+    var saved = localStorage.getItem(PANEL_KEY);
+    if (saved === "open") return true;
+    if (saved === "closed") return false;
+  } catch (e) {
+    // Private modes can refuse storage, the size default still works.
+  }
+  return window.innerWidth > PHONE_MAX;
+}
+
+function setPanelOpen(open, remember) {
+  $("dock").classList.toggle("shut", !open);
+  $("dockHead").setAttribute("aria-expanded", open ? "true" : "false");
+  if (remember) {
+    try { localStorage.setItem(PANEL_KEY, open ? "open" : "closed"); } catch (e) {}
+  }
+}
+
+function togglePanel() {
+  setPanelOpen($("dock").classList.contains("shut"), true);
 }
 
 /* ------------------------------------------------------------------ *
@@ -705,6 +779,8 @@ function runSelfTest() {
     return false;
   }).then(function (ok) {
     document.title = ok ? "SELFTEST_OK" : "SELFTEST_FAIL";
+    // Printed as well as shown, so a headless run can read the verdict.
+    console.log(document.title);
     showMessage(document.title, null, "<code>" + lines.join("<br>") + "</code>");
   });
 }
@@ -1025,11 +1101,24 @@ function emptyFc() { return { type: "FeatureCollection", features: [] }; }
 /* ------------------------------------------------------------------ *
  * 7. Render
  * ------------------------------------------------------------------ */
+/*
+ * How old the last position is, in words. A fresh rider says nothing at all:
+ * the row is simply current, and a number there only invites the question of
+ * what it counts. Past that it is "31 s ago" then "2 min ago", written out in
+ * the body font, because an Orbitron "31s" beside a name reads like a code.
+ */
 function ageText(p, ageMs, fresh) {
   if (p.left) return "left";
   if (fresh === LOST) return "lost";
-  if (fresh === STALE) return Math.round(ageMs / 1000) + "s";
-  return "live";
+  if (fresh === FRESH) return "";
+  // Word for word what the app prints (ShareDialog.kt), down to the cut at
+  // a minute and the rounding, so the same rider reads the same on both.
+  if (ageMs < 60000) return Math.floor(ageMs / 1000) + " s ago";
+  return Math.floor(ageMs / 60000) + " min ago";
+}
+
+function ageClass(grey, fresh) {
+  return grey ? "lost" : (fresh === STALE ? "stale" : "live");
 }
 
 function statsText(s) {
@@ -1041,10 +1130,33 @@ function statsText(s) {
   return parts.join(" · ");
 }
 
+/*
+ * The rider picture, drawn the same way in the list and on the map: an <img>
+ * that fills the round window and is centred, so both show the same face.
+ * A picture that fails to load is dropped back to the plain colour circle.
+ */
+function setAvatar(el, url) {
+  var img = el.querySelector("img");
+  if (!url) {
+    if (img) el.removeChild(img);
+    return;
+  }
+  if (!img) {
+    img = document.createElement("img");
+    img.alt = "";
+    img.decoding = "async";
+    img.addEventListener("error", function () {
+      if (img.parentNode) img.parentNode.removeChild(img);
+    });
+    el.appendChild(img);
+  }
+  if (img.getAttribute("src") !== url) img.setAttribute("src", url);
+}
+
 function makeMarkerEl(p) {
   var el = document.createElement("div");
   el.className = "pin";
-  el.innerHTML = '<div class="arrow"></div><div class="dot"></div><div class="tag"></div>';
+  el.innerHTML = '<div class="arrow"></div><div class="dot avatar"></div><div class="tag"></div>';
   el.addEventListener("click", function () { flyTo(p); });
   return el;
 }
@@ -1061,6 +1173,7 @@ function render() {
   var rows = [];
   var features = [];
   var positioned = [];
+  var anyFresh = false;
 
   if (map && !mapReady) mapReady = ensureTrailLayers();
 
@@ -1071,6 +1184,7 @@ function render() {
     var grey = p.left || fresh === LOST;
     var color = grey ? LOST_COLOR : p.color;
     var label = ageText(p, age, fresh);
+    if (!p.left && fresh === FRESH) anyFresh = true;
 
     if (p.lat !== null && map) {
       if (!p.marker) {
@@ -1082,20 +1196,21 @@ function render() {
       var dot = p.el.querySelector(".dot");
       var tag = p.el.querySelector(".tag");
       p.el.style.setProperty("--c", color);
-      var avatar = grey ? null : safeAvatarUrl(p.avatarUrl);
-      dot.style.backgroundImage = avatar ? 'url("' + avatar + '")' : "none";
+      setAvatar(dot, grey ? null : safeAvatarUrl(p.avatarUrl));
       p.el.classList.toggle("stale", fresh === STALE && !grey);
       p.el.classList.toggle("has-heading", p.heading !== null && !grey);
       if (p.heading !== null) {
         p.el.querySelector(".arrow").style.transform =
           "rotate(" + p.heading + "deg) translateY(-21px)";
       }
-      tag.textContent = (p.flag ? flagEmoji(p.flag) + " " : "") + p.name + " ";
+      tag.textContent = (p.flag ? flagEmoji(p.flag) + " " : "") + p.name + (label ? " " : "");
       if (p.flag) tag.title = p.flag;
-      var ageSpan = document.createElement("span");
-      ageSpan.className = "age";
-      ageSpan.textContent = label;
-      tag.appendChild(ageSpan);
+      if (label) {
+        var ageSpan = document.createElement("span");
+        ageSpan.className = "age " + ageClass(grey, fresh);
+        ageSpan.textContent = label;
+        tag.appendChild(ageSpan);
+      }
       positioned.push(p);
     }
 
@@ -1125,6 +1240,8 @@ function render() {
   }
 
   renderPanel(rows);
+  ridersStale = rows.length > 0 && !anyFresh;
+  paintStatus();
 
   if (!everFitted && !userMoved && mapReady && positioned.length) {
     fitAll(positioned);
@@ -1150,17 +1267,16 @@ function renderPanel(rows) {
   rows.sort(function (a, b) { return a.p.joinIndex - b.p.joinIndex; });
   $("count").textContent = rows.length
     ? (rows.length + (rows.length === 1 ? " rider" : " riders"))
-    : "Waiting for riders";
+    : "No riders yet";
   rows.forEach(function (r) {
     var row = document.createElement("div");
     row.className = "row" + (r.grey ? " dim" : "");
     row.addEventListener("click", function () { flyTo(r.p); });
 
     var sw = document.createElement("div");
-    sw.className = "swatch";
-    sw.style.background = r.color;
-    var rowAvatar = r.grey ? null : safeAvatarUrl(r.p.avatarUrl);
-    sw.style.backgroundImage = rowAvatar ? 'url("' + rowAvatar + '")' : "none";
+    sw.className = "avatar";
+    sw.style.setProperty("--c", r.color);
+    setAvatar(sw, r.grey ? null : safeAvatarUrl(r.p.avatarUrl));
 
     var who = document.createElement("div");
     who.className = "who";
@@ -1177,13 +1293,14 @@ function renderPanel(rows) {
       who.appendChild(stEl);
     }
 
-    var age = document.createElement("div");
-    age.className = "age " + (r.grey ? "lost" : (r.fresh === STALE ? "stale" : "live"));
-    age.textContent = r.label;
-
     row.appendChild(sw);
     row.appendChild(who);
-    row.appendChild(age);
+    if (r.label) {
+      var age = document.createElement("div");
+      age.className = "age " + ageClass(r.grey, r.fresh);
+      age.textContent = r.label;
+      row.appendChild(age);
+    }
     panel.appendChild(row);
   });
 }
@@ -1208,23 +1325,19 @@ function boot() {
     if (document.hidden) stopScan();
   });
   window.addEventListener("pagehide", stopScan);
-  // On a phone the panel is a bottom sheet: the header row opens and closes it.
-  $("dockHead").addEventListener("click", function () {
-    $("dock").classList.toggle("open");
+  // The title bar is the list header: tapping it folds the riders away. The
+  // brand link inside it still goes to the site rather than toggling.
+  setPanelOpen(initialPanelOpen(), false);
+  $("dockHead").addEventListener("click", function (ev) {
+    if (ev.target && ev.target.closest && ev.target.closest("a")) return;
+    togglePanel();
   });
-  // The map attribution lives inside #map, which comes BEFORE #dock in the
-  // document, so no CSS combinator can lift it off the sheet. Publishing the
-  // sheet's measured height as --sheet-h does it instead, and keeps the CARTO
-  // / OpenStreetMap / Esri credits (a licence term of all three) clear whether
-  // the sheet is collapsed, opening, or full. Watching the element rather than
-  // the click also covers the open animation, a rider joining or leaving the
-  // list, and rotating the phone.
-  if (window.ResizeObserver) {
-    new ResizeObserver(function (entries) {
-      document.documentElement.style.setProperty(
-        "--sheet-h", Math.round(entries[0].target.getBoundingClientRect().height) + "px");
-    }).observe($("dock"));
-  }
+  $("dockHead").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter" || ev.key === " ") {
+      ev.preventDefault();
+      togglePanel();
+    }
+  });
 
   if (location.hash === "#selftest") {
     setStatus("Self test", "");
