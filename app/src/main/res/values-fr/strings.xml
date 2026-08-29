@@ -2407,7 +2407,7 @@
     <string name="backup_conflict_warning">Certaines sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
     <string name="backup_conflict_title">Conflits de sauvegarde</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">Sortie EUC ?</string>
+    <string name="widget_weather_question">Rouler ?</string>
     <string name="widget_weather_score_desc">À quel point la météo est bonne pour rouler maintenant, en une case.</string>
     <string name="widget_weather_compact_desc">À quel point la météo est bonne pour rouler, maintenant et dans les heures à venir. Agrandis pour les heures, la température et le vent.</string>
     <string name="widget_weather_graph_desc">À quel point la météo est bonne pour rouler, sur la période prévue</string>

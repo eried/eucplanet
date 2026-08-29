@@ -2404,7 +2404,7 @@
     <string name="backup_conflict_warning">一部のトリップバックアップは手動同期が必要です。コピーが異なります。同期を押して残す側を選んでください。</string>
     <string name="backup_conflict_title">バックアップの競合</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC日和？</string>
+    <string name="widget_weather_question">走る？</string>
     <string name="widget_weather_score_desc">今の天気が走行にどれくらい向いているか、1マスで。</string>
     <string name="widget_weather_compact_desc">今と数時間先の天気が走行にどれくらい向いているか。大きくすると時刻、気温、風も表示。</string>
     <string name="widget_weather_graph_desc">予報期間中、天気が走行にどれくらい向いているか</string>

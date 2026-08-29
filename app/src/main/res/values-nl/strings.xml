@@ -2405,7 +2405,7 @@
     <string name="backup_conflict_warning">Sommige ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
     <string name="backup_conflict_title">Back-upconflicten</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC-tijd?</string>
+    <string name="widget_weather_question">Rijden?</string>
     <string name="widget_weather_score_desc">Hoe goed het weer nu is om te rijden, in één cel.</string>
     <string name="widget_weather_compact_desc">Hoe goed het weer is om te rijden, nu en de komende uren. Vergroot voor uren, temperatuur en wind.</string>
     <string name="widget_weather_graph_desc">Hoe goed het weer is om te rijden, over de voorspelde periode</string>

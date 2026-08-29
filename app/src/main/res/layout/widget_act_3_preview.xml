@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Picker preview for the third button widget.
+
+  A separate file from the real layout on purpose: the picker inflates a
+  preview as static XML and never runs the render path, so the real layout
+  showed its hardcoded default, the horn, for every one of the five providers.
+  They were indistinguishable, and they implied an action the rider had not
+  chosen. Neutral icon, and the button's own number as the label.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/widget_bg"
+    android:padding="8dp">
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="6dp"
+        android:src="@drawable/ic_widget_configure"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFFFF"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:text="@string/widget_act_3_desc" />
+</LinearLayout>

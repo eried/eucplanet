@@ -2206,7 +2206,7 @@
     <string name="backup_conflict_warning">Unele copii de siguranță ale călătoriilor cer o sincronizare manuală: copiile diferă. Apăsați Sincronizare și alegeți partea valabilă.</string>
     <string name="backup_conflict_title">Conflicte de backup</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">Timp de EUC?</string>
+    <string name="widget_weather_question">Mergem?</string>
     <string name="widget_weather_score_desc">Cât de bună e vremea pentru mers acum, într-o celulă.</string>
     <string name="widget_weather_compact_desc">Cât de bună e vremea pentru mers, acum și în orele următoare. Mărește pentru ore, temperatură și vânt.</string>
     <string name="widget_weather_graph_desc">Cât de bună e vremea pentru mers, pe perioada prognozată</string>

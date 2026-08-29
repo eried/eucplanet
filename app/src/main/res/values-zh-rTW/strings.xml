@@ -2402,7 +2402,7 @@
     <string name="backup_conflict_warning">部分行程備份需要手動同步：兩側副本不同。點擊同步並選擇以哪側為準。</string>
     <string name="backup_conflict_title">備份衝突</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">適合騎乘嗎？</string>
+    <string name="widget_weather_question">騎嗎？</string>
     <string name="widget_weather_score_desc">現在的天氣有多適合騎乘，只佔一格。</string>
     <string name="widget_weather_compact_desc">現在與接下來幾小時的天氣有多適合騎乘。放大可顯示時刻、氣溫與風。</string>
     <string name="widget_weather_graph_desc">預報時段內天氣有多適合騎乘</string>

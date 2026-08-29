@@ -2308,7 +2308,7 @@
     <string name="backup_conflict_warning">Alcuni backup di viaggi richiedono una sincronizzazione manuale: le copie differiscono. Premi Sincronizza e scegli quale vale.</string>
     <string name="backup_conflict_title">Conflitti di backup</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">Ora di EUC?</string>
+    <string name="widget_weather_question">Si gira?</string>
     <string name="widget_weather_score_desc">Quanto è buono il meteo per girare adesso, in una cella.</string>
     <string name="widget_weather_compact_desc">Quanto è buono il meteo per girare, adesso e nelle prossime ore. Ingrandisci per ore, temperatura e vento.</string>
     <string name="widget_weather_graph_desc">Quanto è buono il meteo per girare, nel periodo previsto</string>

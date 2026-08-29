@@ -2403,7 +2403,7 @@
     <string name="backup_conflict_warning">Vissa tursäkerhetskopior behöver manuell synkronisering: kopiorna skiljer sig. Tryck Synkronisera och välj vilken sida som gäller.</string>
     <string name="backup_conflict_title">Konflikter i säkerhetskopior</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC-dags?</string>
+    <string name="widget_weather_question">Åka?</string>
     <string name="widget_weather_score_desc">Hur bra vädret är att åka i just nu, i en ruta.</string>
     <string name="widget_weather_compact_desc">Hur bra vädret är att åka i, nu och timmarna framåt. Gör större för timmar, temperatur och vind.</string>
     <string name="widget_weather_graph_desc">Hur bra vädret är att åka i, över prognosperioden</string>

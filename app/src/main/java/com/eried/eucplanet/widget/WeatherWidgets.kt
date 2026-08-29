@@ -298,7 +298,10 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
             if (age >= STALE_MS) {
                 return context.getString(R.string.widget_weather_hour_fmt, (age / 3_600_000L).toInt())
             }
-            return s.tempLabel
+            // Degrees only. One cell is too narrow to spend a character on
+            // the unit letter, and a rider knows which one their own phone is
+            // set to.
+            return s.tempLabel.trimEnd('C', 'F')
         }
 
         private fun stampOf(context: Context, s: WeatherSnapshot, refreshing: Boolean): String {

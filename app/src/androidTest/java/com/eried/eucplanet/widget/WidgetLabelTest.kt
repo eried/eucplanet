@@ -1,9 +1,12 @@
 package com.eried.eucplanet.widget
 
 import android.appwidget.AppWidgetManager
+import android.widget.FrameLayout
+import android.widget.RemoteViews
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +42,31 @@ class WidgetLabelTest {
             assertTrue("a widget is still listed as the app itself: $it", it != appName)
             assertTrue("a widget has no name", it.isNotBlank())
         }
+    }
+
+    @Test fun everyWidgetShowsSomethingInThePicker() {
+        // A provider with no preview is an empty box in the gallery, which is
+        // what the weather widgets shipped as. Data-driven from the providers
+        // themselves, so a widget added later is covered without being listed.
+        val pm = ctx.packageManager
+        AppWidgetManager.getInstance(ctx)
+            .getInstalledProvidersForPackage(ctx.packageName, null)
+            .forEach { info ->
+                val name = info.provider.shortClassName
+                assertTrue(
+                    "$name has neither a preview layout nor a preview image",
+                    info.previewLayout != 0 || info.previewImage != 0,
+                )
+                if (info.previewLayout != 0) {
+                    // Inflate it the way the launcher does: a preview layout
+                    // using a view RemoteViews does not allow fails here rather
+                    // than as "Problem loading widget" in the gallery.
+                    val view = RemoteViews(ctx.packageName, info.previewLayout)
+                        .apply(ctx, FrameLayout(ctx))
+                    assertNotNull("$name has a preview that will not inflate", view)
+                }
+                assertNotNull(info.loadLabel(pm))
+            }
     }
 
     @Test fun noTwoWidgetsShareAName() {

@@ -2206,7 +2206,7 @@
     <string name="backup_conflict_warning">Néhány út mentése kézi szinkronizálást igényel: a másolatok eltérnek. Nyomja meg a Szinkronizálást, és válassza ki a helyeset.</string>
     <string name="backup_conflict_title">Mentési ütközések</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC-idő?</string>
+    <string name="widget_weather_question">Megyünk?</string>
     <string name="widget_weather_score_desc">Mennyire jó most az idő a menethez, egy cellában.</string>
     <string name="widget_weather_compact_desc">Mennyire jó az idő a menethez, most és a következő órákban. Húzd nagyobbra órákért, hőmérsékletért és szélért.</string>
     <string name="widget_weather_graph_desc">Mennyire jó az idő a menethez az előrejelzett időszakban</string>

@@ -2400,7 +2400,7 @@
     <string name="backup_conflict_warning">Bazı sürüş yedekleri manuel eşitleme istiyor: kopyalar farklı. Eşitle’ye basıp geçerli tarafı seçin.</string>
     <string name="backup_conflict_title">Yedek çakışmaları</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC zamanı mı?</string>
+    <string name="widget_weather_question">Sürelim mi?</string>
     <string name="widget_weather_score_desc">Şu an havanın sürüşe ne kadar uygun olduğu, tek hücrede.</string>
     <string name="widget_weather_compact_desc">Havanın sürüşe ne kadar uygun olduğu, şimdi ve önümüzdeki saatlerde. Saatler, sıcaklık ve rüzgâr için büyüt.</string>
     <string name="widget_weather_graph_desc">Havanın sürüşe ne kadar uygun olduğu, tahmin süresi boyunca</string>

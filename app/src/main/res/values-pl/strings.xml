@@ -2403,7 +2403,7 @@
     <string name="backup_conflict_warning">Niektóre kopie zapasowe przejazdów wymagają ręcznej synchronizacji: kopie się różnią. Naciśnij Synchronizuj i wybierz właściwą stronę.</string>
     <string name="backup_conflict_title">Konflikty kopii zapasowych</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">Czas na EUC?</string>
+    <string name="widget_weather_question">Jedziemy?</string>
     <string name="widget_weather_score_desc">Jak dobra jest teraz pogoda na jazdę, w jednej komórce.</string>
     <string name="widget_weather_compact_desc">Jak dobra jest pogoda na jazdę, teraz i w najbliższych godzinach. Powiększ, aby zobaczyć godziny, temperaturę i wiatr.</string>
     <string name="widget_weather_graph_desc">Jak dobra jest pogoda na jazdę w prognozowanym okresie</string>

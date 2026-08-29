@@ -2403,7 +2403,7 @@
     <string name="backup_conflict_warning">Некоторые резервные копии поездок требуют ручной синхронизации: копии различаются. Нажмите «Синхронизация» и выберите верную сторону.</string>
     <string name="backup_conflict_title">Конфликты резервных копий</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">Время для EUC?</string>
+    <string name="widget_weather_question">Кататься?</string>
     <string name="widget_weather_score_desc">Насколько сейчас погода хороша для катания, в одной ячейке.</string>
     <string name="widget_weather_compact_desc">Насколько погода хороша для катания сейчас и в ближайшие часы. Увеличьте, чтобы видеть часы, температуру и ветер.</string>
     <string name="widget_weather_graph_desc">Насколько погода хороша для катания на период прогноза</string>

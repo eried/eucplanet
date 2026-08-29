@@ -2206,7 +2206,7 @@
     <string name="backup_conflict_warning">Některé zálohy jízd vyžadují ruční synchronizaci: kopie se liší. Stiskněte Synchronizovat a vyberte platnou stranu.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">Čas na EUC?</string>
+    <string name="widget_weather_question">Jedeme?</string>
     <string name="widget_weather_score_desc">Jak dobré je teď počasí na ježdění, v jedné buňce.</string>
     <string name="widget_weather_compact_desc">Jak dobré je počasí na ježdění, teď i v dalších hodinách. Zvětši pro hodiny, teplotu a vítr.</string>
     <string name="widget_weather_graph_desc">Jak dobré je počasí na ježdění v předpovídaném období</string>

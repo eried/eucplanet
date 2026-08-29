@@ -1318,7 +1318,7 @@
     <string name="widget_standalone_desc">Actions for the button-only widgets, separate from the row above.</string>
     <string name="widget_standalone_slot">Standalone button %1$d</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC time?</string>
+    <string name="widget_weather_question">Ride?</string>
     <string name="widget_weather_score_desc">How good the weather is for riding right now, in one cell.</string>
     <string name="widget_weather_compact_desc">How good the weather is for riding, now and in the hours ahead. Resize for hours, temperature and wind.</string>
     <string name="widget_weather_graph_desc">How good the weather is for riding, over the forecast window</string>

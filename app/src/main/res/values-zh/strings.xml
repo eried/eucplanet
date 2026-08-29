@@ -2270,7 +2270,7 @@
     <string name="backup_conflict_warning">部分行程备份需要手动同步：两侧副本不同。点击同步并选择以哪侧为准。</string>
     <string name="backup_conflict_title">备份冲突</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">适合骑行吗？</string>
+    <string name="widget_weather_question">骑吗？</string>
     <string name="widget_weather_score_desc">现在的天气有多适合骑行，只占一格。</string>
     <string name="widget_weather_compact_desc">现在和接下来几小时的天气有多适合骑行。放大可显示小时、气温和风。</string>
     <string name="widget_weather_graph_desc">预报时段内天气有多适合骑行</string>

@@ -2400,7 +2400,7 @@
     <string name="backup_conflict_warning">Algunos respaldos de viajes necesitan una sincronización manual: las copias difieren. Pulsa Sincronizar y elige cuál vale.</string>
     <string name="backup_conflict_title">Conflictos de respaldo</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">¿Hora de EUC?</string>
+    <string name="widget_weather_question">¿Rodar?</string>
     <string name="widget_weather_score_desc">Qué tan bueno está el tiempo para rodar ahora, en una celda.</string>
     <string name="widget_weather_compact_desc">Qué tan bueno está el tiempo para rodar, ahora y en las próximas horas. Amplía para horas, temperatura y viento.</string>
     <string name="widget_weather_graph_desc">Qué tan bueno está el tiempo para rodar, durante el pronóstico</string>

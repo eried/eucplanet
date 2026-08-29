@@ -2206,7 +2206,7 @@
     <string name="backup_conflict_warning">Jotkin matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
     <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC-aika?</string>
+    <string name="widget_weather_question">Ajellaan?</string>
     <string name="widget_weather_score_desc">Kuinka hyvä sää nyt on ajamiseen, yhdessä ruudussa.</string>
     <string name="widget_weather_compact_desc">Kuinka hyvä sää on ajamiseen nyt ja tulevina tunteina. Suurenna nähdäksesi tunnit, lämpötilan ja tuulen.</string>
     <string name="widget_weather_graph_desc">Kuinka hyvä sää on ajamiseen ennustejaksolla</string>

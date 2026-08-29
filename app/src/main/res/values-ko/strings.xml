@@ -2402,7 +2402,7 @@
     <string name="backup_conflict_warning">일부 트립 백업에 수동 동기화가 필요합니다. 사본이 서로 다릅니다. 동기화를 누르고 남길 쪽을 선택하세요.</string>
     <string name="backup_conflict_title">백업 충돌</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC 타기 좋을까?</string>
+    <string name="widget_weather_question">탈까?</string>
     <string name="widget_weather_score_desc">지금 날씨가 주행에 얼마나 좋은지, 한 칸으로.</string>
     <string name="widget_weather_compact_desc">지금과 앞으로 몇 시간 동안 날씨가 주행에 얼마나 좋은지. 크게 늘리면 시간, 기온, 바람도 표시.</string>
     <string name="widget_weather_graph_desc">예보 기간의 날씨가 주행에 얼마나 좋은지</string>

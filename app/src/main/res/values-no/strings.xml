@@ -2291,7 +2291,7 @@
     <string name="backup_conflict_warning">Noen tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
     <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
     <!-- Weather widgets -->
-    <string name="widget_weather_question">EUC-tid?</string>
+    <string name="widget_weather_question">Kjøre?</string>
     <string name="widget_weather_score_desc">Hvor bra været er å kjøre i akkurat nå, i én celle.</string>
     <string name="widget_weather_compact_desc">Hvor bra været er å kjøre i, nå og i timene framover. Gjør større for timer, temperatur og vind.</string>
     <string name="widget_weather_graph_desc">Hvor bra været er å kjøre i, over varselperioden</string>
