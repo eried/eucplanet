@@ -28,12 +28,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="12sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#FFFFFFFF"
             android:maxLines="2"
             android:ellipsize="end"
-            android:text="@string/widget_act_2_desc" />
+            android:text="@string/widget_act_2_short" />
     </LinearLayout>
 
     <LinearLayout
@@ -55,11 +55,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="12sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#FFFFFFFF"
             android:maxLines="2"
             android:ellipsize="end"
-            android:text="@string/widget_act_3_desc" />
+            android:text="@string/widget_act_3_short" />
     </LinearLayout>
 </LinearLayout>

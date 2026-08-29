@@ -2280,11 +2280,11 @@
     <string name="trip_tools_extend_to">終點</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">選擇要延伸到的較早或較晚行程。</string>
-    <string name="widget_act_1_desc">按鈕 1</string>
-    <string name="widget_act_2_desc">按鈕 2</string>
-    <string name="widget_act_3_desc">按鈕 3</string>
-    <string name="widget_act_12_desc">按鈕 1 和 2</string>
-    <string name="widget_act_23_desc">按鈕 2 和 3</string>
+    <string name="widget_act_1_desc">按鈕 1（在應用程式中設定）</string>
+    <string name="widget_act_2_desc">按鈕 2（在應用程式中設定）</string>
+    <string name="widget_act_3_desc">按鈕 3（在應用程式中設定）</string>
+    <string name="widget_act_12_desc">按鈕 1 和 2（在應用程式中設定）</string>
+    <string name="widget_act_23_desc">按鈕 2 和 3（在應用程式中設定）</string>
     <string name="widget_standalone_desc">僅按鈕小工具的動作，與上方一列相互獨立。</string>
     <string name="widget_standalone_slot">單獨按鈕 %1$d</string>
         <string name="widget_customize">自訂</string>
@@ -2403,7 +2403,7 @@
     <string name="backup_conflict_title">備份衝突</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">騎嗎？</string>
-    <string name="widget_weather_score_desc">現在的天氣有多適合騎乘，只佔一格。</string>
+    <string name="widget_weather_score_desc">目前的騎乘天氣。</string>
     <string name="widget_weather_compact_desc">現在與接下來幾小時的天氣有多適合騎乘。放大可顯示時刻、氣溫與風。</string>
     <string name="widget_weather_graph_desc">預報時段內天氣有多適合騎乘</string>
     <string name="widget_weather_refresh_desc">重新整理預報</string>
@@ -2432,4 +2432,7 @@
     <string name="widget_act_23_label">獨輪車按鈕 2 和 3</string>
     <string name="widget_weather_score_label">能騎嗎？</string>
     <string name="widget_weather_compact_label">騎乘天氣</string>
+    <string name="widget_act_1_short">1</string>
+    <string name="widget_act_2_short">2</string>
+    <string name="widget_act_3_short">3</string>
 </resources>

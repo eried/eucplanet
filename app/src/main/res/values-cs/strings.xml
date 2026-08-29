@@ -1170,11 +1170,11 @@
     <string name="widget_action_voice">Hlas</string>
     <string name="widget_standalone_desc">Akce pro widgety jen s tlačítky, nezávisle na řadě výše.</string>
     <string name="widget_standalone_slot">Samostatné tlačítko %1$d</string>
-    <string name="widget_act_1_desc">Tlačítko 1</string>
-    <string name="widget_act_2_desc">Tlačítko 2</string>
-    <string name="widget_act_3_desc">Tlačítko 3</string>
-    <string name="widget_act_12_desc">Tlačítka 1 a 2</string>
-    <string name="widget_act_23_desc">Tlačítka 2 a 3</string>
+    <string name="widget_act_1_desc">Tlačítko 1, nastav v aplikaci</string>
+    <string name="widget_act_2_desc">Tlačítko 2, nastav v aplikaci</string>
+    <string name="widget_act_3_desc">Tlačítko 3, nastav v aplikaci</string>
+    <string name="widget_act_12_desc">Tlačítka 1 a 2, nastav v aplikaci</string>
+    <string name="widget_act_23_desc">Tlačítka 2 a 3, nastav v aplikaci</string>
     <string name="widget_button_unset">Nastavte tlačítko v Nastavení</string>
     <string name="widget_speed">Rychlost</string>
     <string name="widget_distance">Jízda</string>
@@ -2207,7 +2207,7 @@
     <string name="backup_conflict_title">Konflikty záloh</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Jedeme?</string>
-    <string name="widget_weather_score_desc">Jak dobré je teď počasí na ježdění, v jedné buňce.</string>
+    <string name="widget_weather_score_desc">Počasí na ježdění, právě teď.</string>
     <string name="widget_weather_compact_desc">Jak dobré je počasí na ježdění, teď i v dalších hodinách. Zvětši pro hodiny, teplotu a vítr.</string>
     <string name="widget_weather_graph_desc">Jak dobré je počasí na ježdění v předpovídaném období</string>
     <string name="widget_weather_refresh_desc">Obnovit předpověď</string>
@@ -2236,4 +2236,7 @@
     <string name="widget_act_23_label">Tlačítka kola 2 a 3</string>
     <string name="widget_weather_score_label">Dá se jet?</string>
     <string name="widget_weather_compact_label">Počasí na ježdění</string>
+    <string name="widget_act_1_short">1</string>
+    <string name="widget_act_2_short">2</string>
+    <string name="widget_act_3_short">3</string>
 </resources>

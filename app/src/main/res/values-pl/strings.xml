@@ -2281,11 +2281,11 @@
     <string name="trip_tools_extend_to">Zakoncz na</string>
     <string name="trip_tools_extend_none">Ten przejazd</string>
     <string name="trip_tools_extend_pick_one">Wybierz wczesniejszy lub pozniejszy przejazd do wydluzenia.</string>
-    <string name="widget_act_1_desc">Przycisk 1</string>
-    <string name="widget_act_2_desc">Przycisk 2</string>
-    <string name="widget_act_3_desc">Przycisk 3</string>
-    <string name="widget_act_12_desc">Przyciski 1 i 2</string>
-    <string name="widget_act_23_desc">Przyciski 2 i 3</string>
+    <string name="widget_act_1_desc">Przycisk 1, ustaw w aplikacji</string>
+    <string name="widget_act_2_desc">Przycisk 2, ustaw w aplikacji</string>
+    <string name="widget_act_3_desc">Przycisk 3, ustaw w aplikacji</string>
+    <string name="widget_act_12_desc">Przyciski 1 i 2, ustaw w aplikacji</string>
+    <string name="widget_act_23_desc">Przyciski 2 i 3, ustaw w aplikacji</string>
     <string name="widget_standalone_desc">Akcje widgetów z samym przyciskiem, niezależne od rzędu powyżej.</string>
     <string name="widget_standalone_slot">Osobny przycisk %1$d</string>
         <string name="widget_customize">Dostosuj</string>
@@ -2404,7 +2404,7 @@
     <string name="backup_conflict_title">Konflikty kopii zapasowych</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Jedziemy?</string>
-    <string name="widget_weather_score_desc">Jak dobra jest teraz pogoda na jazdę, w jednej komórce.</string>
+    <string name="widget_weather_score_desc">Pogoda na jazdę, teraz.</string>
     <string name="widget_weather_compact_desc">Jak dobra jest pogoda na jazdę, teraz i w najbliższych godzinach. Powiększ, aby zobaczyć godziny, temperaturę i wiatr.</string>
     <string name="widget_weather_graph_desc">Jak dobra jest pogoda na jazdę w prognozowanym okresie</string>
     <string name="widget_weather_refresh_desc">Odśwież prognozę</string>
@@ -2433,4 +2433,7 @@
     <string name="widget_act_23_label">Przyciski koła 2 i 3</string>
     <string name="widget_weather_score_label">Da się jechać?</string>
     <string name="widget_weather_compact_label">Pogoda na jazdę</string>
+    <string name="widget_act_1_short">1</string>
+    <string name="widget_act_2_short">2</string>
+    <string name="widget_act_3_short">3</string>
 </resources>
