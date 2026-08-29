@@ -2409,8 +2409,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Sortie EUC ?</string>
     <string name="widget_weather_score_desc">Note de roulage maintenant, une case.</string>
-    <string name="widget_weather_compact_desc">Note et courbe des prévisions.</string>
-    <string name="widget_weather_panel_desc">Note, courbe des prévisions, température et vent.</string>
+    <string name="widget_weather_compact_desc">Note de roulage et courbe des prévisions. Agrandis pour les heures, la température et le vent.</string>
     <string name="widget_weather_graph_desc">Note de roulage sur la période prévue</string>
     <string name="widget_weather_refresh_desc">Actualiser les prévisions</string>
     <string name="widget_weather_never">Pas encore de prévisions. Ouvre l’app une fois, ou appuie sur actualiser.</string>

@@ -2293,8 +2293,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-tid?</string>
     <string name="widget_weather_score_desc">Kjørescore nå, én celle.</string>
-    <string name="widget_weather_compact_desc">Kjørescore og værkurven.</string>
-    <string name="widget_weather_panel_desc">Kjørescore, værkurve, temperatur og vind.</string>
+    <string name="widget_weather_compact_desc">Kjørescore og værkurven. Gjør større for timer, temperatur og vind.</string>
     <string name="widget_weather_graph_desc">Kjørescore over varselperioden</string>
     <string name="widget_weather_refresh_desc">Oppdater varselet</string>
     <string name="widget_weather_never">Ingen varsel ennå. Åpne appen én gang, eller trykk oppdater.</string>

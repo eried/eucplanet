@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import com.eried.eucplanet.MainActivity
@@ -35,7 +36,7 @@ import kotlin.math.roundToInt
 abstract class WeatherWidgetBase(private val layout: Int, private val size: Size) :
     AppWidgetProvider() {
 
-    enum class Size { TINY, COMPACT, PANEL }
+    enum class Size { TINY, FORECAST }
 
     override fun onUpdate(
         context: Context,
@@ -98,7 +99,6 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
         private val PROVIDERS = listOf(
             WeatherScoreWidget::class.java,
             WeatherCompactWidget::class.java,
-            WeatherPanelWidget::class.java,
         )
 
         /** Repaint every placed weather widget from the stored snapshot. */
@@ -131,9 +131,21 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
 
         private fun specOf(cls: Class<*>): Pair<Int, Size> = when (cls) {
             WeatherScoreWidget::class.java -> R.layout.widget_weather_score to Size.TINY
-            WeatherCompactWidget::class.java -> R.layout.widget_weather_compact to Size.COMPACT
-            else -> R.layout.widget_weather_panel to Size.PANEL
+            else -> R.layout.widget_weather_compact to Size.FORECAST
         }
+
+        /**
+         * Whether this instance has the height to carry the extra readouts and
+         * the hour labels under the curve.
+         *
+         * There is no second, larger provider any more: dragging the widget
+         * taller is how a rider asks for those, which is one fewer choice to
+         * make in the picker for a decision they can change afterwards. Two
+         * cells tall on a normal launcher is around 100dp, three around 170dp,
+         * so the line sits between them.
+         */
+        private fun detailFor(size: Size, hDp: Int): Boolean =
+            size == Size.FORECAST && hDp >= 140
 
         /**
          * The render path, reachable from an instrumented test.
@@ -152,11 +164,8 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
             WeatherSnapshot.load(context), wDp to hDp, refreshing = false,
         )
 
-        private fun sizeForLayout(layout: Int): Size = when (layout) {
-            R.layout.widget_weather_score -> Size.TINY
-            R.layout.widget_weather_compact -> Size.COMPACT
-            else -> Size.PANEL
-        }
+        private fun sizeForLayout(layout: Int): Size =
+            if (layout == R.layout.widget_weather_score) Size.TINY else Size.FORECAST
 
         /** "+4", "0", "-3": signed because the neutral point is the question. */
         fun signedScore(score: Float): String {
@@ -194,6 +203,26 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
                 views.setTextViewText(R.id.ww_tiny, tinyLineOf(context, s))
             }
 
+            val (wDp, hDp) = cellsDp
+            val detail = detailFor(size, hDp)
+            // Squeezed narrow, the verdict line wraps to two lines and pushes
+            // the curve out of the widget entirely, which loses the one thing
+            // this widget is for. Below this the words go and the graph stays.
+            val narrow = size == Size.FORECAST && wDp in 1 until 170
+            // Two cells tall is about 80dp, and at the layout's normal padding
+            // and type the header and footer eat all of it, leaving the curve
+            // nothing. The chrome shrinks with the widget so there is always a
+            // graph in the forecast widget.
+            val short = size == Size.FORECAST && hDp in 1 until 105
+            if (short) {
+                val p = (6 * context.resources.displayMetrics.density).toInt()
+                views.setViewPadding(R.id.ww_root, p, p, p, p)
+                views.setTextViewTextSize(R.id.ww_face, TypedValue.COMPLEX_UNIT_SP, 14f)
+                views.setTextViewTextSize(R.id.ww_score, TypedValue.COMPLEX_UNIT_SP, 15f)
+                views.setTextViewTextSize(R.id.ww_stamp, TypedValue.COMPLEX_UNIT_SP, 9f)
+                views.setTextViewTextSize(R.id.ww_place, TypedValue.COMPLEX_UNIT_SP, 9f)
+            }
+
             if (size != Size.TINY) {
                 // The verdict in words, which is what the panel leads with.
                 views.setTextViewText(
@@ -201,15 +230,31 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
                     if (known) context.getString(face.textRes)
                     else context.getString(R.string.widget_weather_never),
                 )
+                // ...unless there is no forecast at all, in which case the
+                // sentence explaining that IS the widget, however narrow.
+                views.setViewVisibility(
+                    R.id.ww_message,
+                    if (narrow && known) View.GONE else View.VISIBLE,
+                )
                 views.setTextViewText(R.id.ww_place, s.place)
                 views.setViewVisibility(
-                    R.id.ww_place, if (s.place.isBlank()) View.GONE else View.VISIBLE,
+                    R.id.ww_place,
+                    if (narrow || s.place.isBlank()) View.GONE else View.VISIBLE,
                 )
                 views.setTextViewText(R.id.ww_stamp, stampOf(context, s, refreshing))
                 views.setOnClickPendingIntent(R.id.ww_refresh, refreshIntent(context))
 
+                views.setViewVisibility(R.id.ww_detail, if (detail) View.VISIBLE else View.GONE)
+                if (detail) {
+                    views.setTextViewText(R.id.ww_temp, s.tempLabel)
+                    views.setTextViewText(R.id.ww_wind, s.windLabel)
+                    views.setTextViewText(
+                        R.id.ww_window,
+                        context.getString(R.string.widget_weather_window_fmt, s.windowHours),
+                    )
+                }
+
                 val bmp = if (known) {
-                    val (wDp, hDp) = cellsDp
                     val d = context.resources.displayMetrics.density
                     // The graph gets the widget's own width and the share of
                     // its height the layout gives it, so a resized widget
@@ -218,7 +263,7 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
                     val hPx = ((if (hDp > 0) hDp else 110) * d * graphShare(size)).roundToInt()
                     WeatherGraph.render(
                         s.series, s.seriesStartMs, s.seriesStepMs,
-                        wPx, hPx, withHours = size == Size.PANEL,
+                        wPx, hPx, withHours = detail,
                     )
                 } else null
                 if (bmp != null) {
@@ -227,15 +272,6 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
                 } else {
                     views.setViewVisibility(R.id.ww_graph, View.GONE)
                 }
-            }
-
-            if (size == Size.PANEL) {
-                views.setTextViewText(R.id.ww_temp, s.tempLabel)
-                views.setTextViewText(R.id.ww_wind, s.windLabel)
-                views.setTextViewText(
-                    R.id.ww_window,
-                    context.getString(R.string.widget_weather_window_fmt, s.windowHours),
-                )
             }
 
             views.setOnClickPendingIntent(R.id.ww_root, openPanelIntent(context))
@@ -247,8 +283,7 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
          *  its readouts. */
         private fun graphShare(size: Size): Float = when (size) {
             Size.TINY -> 0f
-            Size.COMPACT -> 0.55f
-            Size.PANEL -> 0.45f
+            Size.FORECAST -> 0.55f
         }
 
         /** Anything older than this and the 1x1 admits its age rather than
@@ -302,10 +337,10 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
 class WeatherScoreWidget :
     WeatherWidgetBase(R.layout.widget_weather_score, Size.TINY)
 
-/** The collapsed panel: verdict, freshness, and the curve for the window. */
+/**
+ * The forecast, at whatever size the rider drags it to: verdict, freshness and
+ * the curve for their window, gaining the hour labels and the temperature and
+ * wind readouts once it is tall enough to carry them.
+ */
 class WeatherCompactWidget :
-    WeatherWidgetBase(R.layout.widget_weather_compact, Size.COMPACT)
-
-/** The expanded panel: the curve with hours, plus temperature and wind. */
-class WeatherPanelWidget :
-    WeatherWidgetBase(R.layout.widget_weather_panel, Size.PANEL)
+    WeatherWidgetBase(R.layout.widget_weather_compact, Size.FORECAST)

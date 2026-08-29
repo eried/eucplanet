@@ -2406,8 +2406,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC日和？</string>
     <string name="widget_weather_score_desc">今の走行スコア、1マス。</string>
-    <string name="widget_weather_compact_desc">走行スコアと予報カーブ。</string>
-    <string name="widget_weather_panel_desc">走行スコア、予報カーブ、気温、風。</string>
+    <string name="widget_weather_compact_desc">走行スコアと予報カーブ。大きくすると時刻、気温、風も表示。</string>
     <string name="widget_weather_graph_desc">予報期間の走行スコア</string>
     <string name="widget_weather_refresh_desc">予報を更新</string>
     <string name="widget_weather_never">まだ予報がありません。アプリを一度開くか、更新をタップしてください。</string>

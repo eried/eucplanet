@@ -2208,8 +2208,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Timp de EUC?</string>
     <string name="widget_weather_score_desc">Scorul de mers acum, o celulă.</string>
-    <string name="widget_weather_compact_desc">Scorul de mers și curba prognozei.</string>
-    <string name="widget_weather_panel_desc">Scorul de mers, curba prognozei, temperatura și vântul.</string>
+    <string name="widget_weather_compact_desc">Scorul de mers și curba prognozei. Mărește pentru ore, temperatură și vânt.</string>
     <string name="widget_weather_graph_desc">Scorul de mers pe perioada prognozată</string>
     <string name="widget_weather_refresh_desc">Actualizează prognoza</string>
     <string name="widget_weather_never">Încă nicio prognoză. Deschide aplicația o dată sau atinge actualizarea.</string>

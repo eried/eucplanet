@@ -2402,8 +2402,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Час для EUC?</string>
     <string name="widget_weather_score_desc">Оцінка поїздки зараз, одна комірка.</string>
-    <string name="widget_weather_compact_desc">Оцінка та крива прогнозу.</string>
-    <string name="widget_weather_panel_desc">Оцінка, крива прогнозу, температура і вітер.</string>
+    <string name="widget_weather_compact_desc">Оцінка та крива прогнозу. Збільште, щоб бачити години, температуру і вітер.</string>
     <string name="widget_weather_graph_desc">Оцінка поїздки на період прогнозу</string>
     <string name="widget_weather_refresh_desc">Оновити прогноз</string>
     <string name="widget_weather_never">Прогнозу ще немає. Відкрийте застосунок або натисніть оновити.</string>

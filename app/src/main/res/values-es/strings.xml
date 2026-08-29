@@ -2402,8 +2402,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">¿Hora de EUC?</string>
     <string name="widget_weather_score_desc">Puntuación de conducción ahora, una celda.</string>
-    <string name="widget_weather_compact_desc">Puntuación y curva del pronóstico.</string>
-    <string name="widget_weather_panel_desc">Puntuación, curva del pronóstico, temperatura y viento.</string>
+    <string name="widget_weather_compact_desc">Puntuación de conducción y curva del pronóstico. Amplía para horas, temperatura y viento.</string>
     <string name="widget_weather_graph_desc">Puntuación de conducción durante el pronóstico</string>
     <string name="widget_weather_refresh_desc">Actualizar el pronóstico</string>
     <string name="widget_weather_never">Aún no hay pronóstico. Abre la app una vez o toca actualizar.</string>

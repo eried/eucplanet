@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The collapsed panel, roughly 4x2: the verdict on one line, the forecast curve
-  under it, and how old the reading is.
+  The forecast widget, one layout for every size it can be dragged to.
 
-  The curve is an ImageView because a widget cannot draw. WeatherGraph paints it
+  There used to be a second, larger provider for the same thing. Two providers
+  for one widget made the rider choose a size in the picker that they can just
+  as easily drag to afterwards, so this one carries the extra readouts and hides
+  them when it is too short to earn them (see WeatherWidgetBase.detailFor). The
+  hour labels under the curve appear on the same rule.
+
+  The curve is an ImageView because a widget cannot draw: WeatherGraph paints it
   in the app's process, sized from the cells this instance actually occupies,
   and it arrives here as pixels. The refresh button is a real tap target, which
   is the one kind of interaction RemoteViews allow.
@@ -41,17 +46,57 @@
             android:includeFontPadding="false"
             android:textColor="#5AB55A" />
 
-        <TextView
-            android:id="@+id/ww_message"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:text="@string/weather_face_clear"
-            android:textSize="11sp"
-            android:textColor="#E8EAED" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/ww_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="@string/weather_face_clear"
+                android:textSize="11sp"
+                android:textColor="#E8EAED" />
+
+            <!-- Shown only when the widget is tall enough to spare the line. -->
+            <LinearLayout
+                android:id="@+id/ww_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/ww_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="11sp"
+                    android:textColor="#9AA0A6" />
+
+                <TextView
+                    android:id="@+id/ww_wind"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textSize="11sp"
+                    android:textColor="#9AA0A6" />
+
+                <TextView
+                    android:id="@+id/ww_window"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:maxLines="1"
+                    android:textSize="11sp"
+                    android:textColor="#9AA0A6" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <ImageView

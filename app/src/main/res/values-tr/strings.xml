@@ -2402,8 +2402,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC zamanı mı?</string>
     <string name="widget_weather_score_desc">Şu anki sürüş puanı, tek hücre.</string>
-    <string name="widget_weather_compact_desc">Sürüş puanı ve tahmin eğrisi.</string>
-    <string name="widget_weather_panel_desc">Sürüş puanı, tahmin eğrisi, sıcaklık ve rüzgâr.</string>
+    <string name="widget_weather_compact_desc">Sürüş puanı ve tahmin eğrisi. Saatler, sıcaklık ve rüzgâr için büyüt.</string>
     <string name="widget_weather_graph_desc">Tahmin süresi boyunca sürüş puanı</string>
     <string name="widget_weather_refresh_desc">Tahmini yenile</string>
     <string name="widget_weather_never">Henüz tahmin yok. Uygulamayı bir kez aç veya yenileye dokun.</string>

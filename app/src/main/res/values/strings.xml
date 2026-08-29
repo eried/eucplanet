@@ -1309,8 +1309,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC time?</string>
     <string name="widget_weather_score_desc">Ride score right now, one cell.</string>
-    <string name="widget_weather_compact_desc">Ride score and the forecast curve.</string>
-    <string name="widget_weather_panel_desc">Ride score, forecast curve, temperature and wind.</string>
+    <string name="widget_weather_compact_desc">Ride score and the forecast curve. Resize for hours, temperature and wind.</string>
     <string name="widget_weather_graph_desc">Ride score over the forecast window</string>
     <string name="widget_weather_refresh_desc">Refresh the forecast</string>
     <string name="widget_weather_dash">--</string>

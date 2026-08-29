@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Resizable in both directions: the curve is repainted from the widget's actual
-  cells in onAppWidgetOptionsChanged, so stretching it gives more graph rather
-  than a scaled-up bitmap.
+  One provider for the forecast at every size. minResize is deliberately far
+  below the target: squeezed to two cells it is still a face, a score and a
+  curve, and dragged to three tall it grows the hour labels and the temperature
+  and wind line, which is what the second, larger provider used to be for.
+
+  The curve is repainted from the widget's actual cells in
+  onAppWidgetOptionsChanged, so resizing gives more graph rather than a
+  stretched bitmap.
 -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="180dp"
     android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="70dp"
+    android:maxResizeWidth="500dp"
+    android:maxResizeHeight="300dp"
     android:targetCellWidth="4"
     android:targetCellHeight="2"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_weather_compact"
-    android:previewLayout="@layout/widget_weather_compact"
+    android:previewLayout="@layout/widget_weather_compact_preview"
     android:description="@string/widget_weather_compact_desc"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen" />

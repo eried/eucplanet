@@ -2405,8 +2405,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Время для EUC?</string>
     <string name="widget_weather_score_desc">Оценка поездки сейчас, одна ячейка.</string>
-    <string name="widget_weather_compact_desc">Оценка и кривая прогноза.</string>
-    <string name="widget_weather_panel_desc">Оценка, кривая прогноза, температура и ветер.</string>
+    <string name="widget_weather_compact_desc">Оценка и кривая прогноза. Увеличьте, чтобы видеть часы, температуру и ветер.</string>
     <string name="widget_weather_graph_desc">Оценка поездки на период прогноза</string>
     <string name="widget_weather_refresh_desc">Обновить прогноз</string>
     <string name="widget_weather_never">Прогноза пока нет. Откройте приложение или нажмите обновить.</string>

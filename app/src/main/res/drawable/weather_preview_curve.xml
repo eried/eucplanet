@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A stand-in forecast curve, for the widget picker only.
+
+  The real curve is a bitmap painted at runtime from the rider's own forecast,
+  which means the picker, which inflates the preview layout as static XML and
+  never runs our code, showed an empty box where the graph goes. This is the
+  same shape the real one draws: good now, a wet stretch in the middle, coming
+  back by evening, with the segment colours the score ramp would give it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="64dp"
+    android:viewportWidth="100"
+    android:viewportHeight="40">
+
+    <!-- The fill under the line, as faint as the real one. -->
+    <path
+        android:fillColor="#5AB55A"
+        android:fillAlpha="0.20"
+        android:pathData="M0,9 C15,11 25,17 38,26 C50,32 60,33 70,28 C80,23 90,15 100,11 L100,40 L0,40 Z" />
+
+    <!-- The neutral line the score is read against. -->
+    <path
+        android:strokeColor="#9AA0A6"
+        android:strokeAlpha="0.35"
+        android:strokeWidth="0.6"
+        android:pathData="M0,22 L100,22" />
+
+    <path
+        android:strokeColor="#5AB55A"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M0,9 C15,11 25,17 38,26" />
+    <path
+        android:strokeColor="#D98A3C"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M38,26 C50,32 60,33 70,28" />
+    <path
+        android:strokeColor="#5AB55A"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M70,28 C80,23 90,15 100,11" />
+</vector>

@@ -2404,8 +2404,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC 타기 좋을까?</string>
     <string name="widget_weather_score_desc">지금 주행 점수, 한 칸.</string>
-    <string name="widget_weather_compact_desc">주행 점수와 예보 곡선.</string>
-    <string name="widget_weather_panel_desc">주행 점수, 예보 곡선, 기온, 바람.</string>
+    <string name="widget_weather_compact_desc">주행 점수와 예보 곡선. 크게 늘리면 시간, 기온, 바람도 표시.</string>
     <string name="widget_weather_graph_desc">예보 기간의 주행 점수</string>
     <string name="widget_weather_refresh_desc">예보 새로 고침</string>
     <string name="widget_weather_never">아직 예보가 없습니다. 앱을 한 번 열거나 새로 고침을 누르세요.</string>

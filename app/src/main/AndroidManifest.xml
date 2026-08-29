@@ -163,7 +163,8 @@
 
         <!-- Home screen widget. Not exported: only the system needs to reach it. -->
         <!--
-          Weather on the home screen, in three sizes, all painting the same
+          Weather on the home screen: one cell for the answer, and the
+          forecast at whatever size it is dragged to. Both paint the same
           snapshot. Not exported: the only broadcast they answer is our own
           refresh action, sent from the widgets themselves.
         -->
@@ -181,14 +182,6 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_weather_compact_info" />
-        </receiver>
-        <receiver android:name=".widget.WeatherPanelWidget" android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.eried.eucplanet.widget.WEATHER_REFRESH" />
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/widget_weather_panel_info" />
         </receiver>
 
         <receiver

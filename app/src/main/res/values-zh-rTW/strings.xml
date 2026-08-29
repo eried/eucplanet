@@ -2404,8 +2404,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">適合騎乘嗎？</string>
     <string name="widget_weather_score_desc">目前騎乘評分，一格。</string>
-    <string name="widget_weather_compact_desc">騎乘評分與預報曲線。</string>
-    <string name="widget_weather_panel_desc">騎乘評分、預報曲線、氣溫與風。</string>
+    <string name="widget_weather_compact_desc">騎乘評分與預報曲線。放大可顯示時刻、氣溫與風。</string>
     <string name="widget_weather_graph_desc">預報時段內的騎乘評分</string>
     <string name="widget_weather_refresh_desc">重新整理預報</string>
     <string name="widget_weather_never">還沒有預報。開啟一次應用程式，或輕觸重新整理。</string>

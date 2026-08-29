@@ -2425,8 +2425,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-Zeit?</string>
     <string name="widget_weather_score_desc">Fahrwertung jetzt, eine Zelle.</string>
-    <string name="widget_weather_compact_desc">Fahrwertung und Vorhersagekurve.</string>
-    <string name="widget_weather_panel_desc">Fahrwertung, Vorhersagekurve, Temperatur und Wind.</string>
+    <string name="widget_weather_compact_desc">Fahrwertung und Vorhersagekurve. Größer ziehen für Stunden, Temperatur und Wind.</string>
     <string name="widget_weather_graph_desc">Fahrwertung im Vorhersagezeitraum</string>
     <string name="widget_weather_refresh_desc">Vorhersage aktualisieren</string>
     <string name="widget_weather_never">Noch keine Vorhersage. App einmal öffnen oder auf Aktualisieren tippen.</string>

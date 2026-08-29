@@ -2208,8 +2208,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Čas na EUC?</string>
     <string name="widget_weather_score_desc">Skóre jízdy teď, jedna buňka.</string>
-    <string name="widget_weather_compact_desc">Skóre jízdy a křivka předpovědi.</string>
-    <string name="widget_weather_panel_desc">Skóre jízdy, křivka předpovědi, teplota a vítr.</string>
+    <string name="widget_weather_compact_desc">Skóre jízdy a křivka předpovědi. Zvětši pro hodiny, teplotu a vítr.</string>
     <string name="widget_weather_graph_desc">Skóre jízdy v předpovídaném období</string>
     <string name="widget_weather_refresh_desc">Obnovit předpověď</string>
     <string name="widget_weather_never">Zatím žádná předpověď. Otevři aplikaci nebo klepni na obnovit.</string>

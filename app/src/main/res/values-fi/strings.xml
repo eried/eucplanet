@@ -2208,8 +2208,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-aika?</string>
     <string name="widget_weather_score_desc">Ajopisteet nyt, yksi ruutu.</string>
-    <string name="widget_weather_compact_desc">Ajopisteet ja ennustekäyrä.</string>
-    <string name="widget_weather_panel_desc">Ajopisteet, ennustekäyrä, lämpötila ja tuuli.</string>
+    <string name="widget_weather_compact_desc">Ajopisteet ja ennustekäyrä. Suurenna nähdäksesi tunnit, lämpötilan ja tuulen.</string>
     <string name="widget_weather_graph_desc">Ajopisteet ennustejaksolla</string>
     <string name="widget_weather_refresh_desc">Päivitä ennuste</string>
     <string name="widget_weather_never">Ei vielä ennustetta. Avaa sovellus kerran tai napauta päivitä.</string>

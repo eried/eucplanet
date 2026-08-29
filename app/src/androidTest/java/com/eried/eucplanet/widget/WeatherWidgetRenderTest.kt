@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -112,9 +113,60 @@ class WeatherWidgetRenderTest {
         assertTrue("nothing drawn", bmp.countColoured() > 500)
     }
 
-    @Test fun thePanelWidgetInflatesWithItsGraph() {
-        val bmp = shoot("panel", com.eried.eucplanet.R.layout.widget_weather_panel, 320, 200)
-        assertTrue("nothing drawn", bmp.countColoured() > 800)
+    @Test fun theForecastWidgetGrowsItsDetailWhenDraggedTaller() {
+        // Dragging it taller is how a rider asks for the hour labels and the
+        // temperature and wind line; there is no separate larger provider to
+        // pick any more, so the size has to be what decides.
+        val tall = shoot("panel", com.eried.eucplanet.R.layout.widget_weather_compact, 320, 200)
+        assertTrue("nothing drawn", tall.countColoured() > 800)
+        assertEquals(
+            "the detail row should show on a tall widget",
+            View.VISIBLE, detailVisibility(320, 200),
+        )
+        assertEquals(
+            "the detail row should stay hidden on a short one",
+            View.GONE, detailVisibility(250, 110),
+        )
+    }
+
+    @Test fun theForecastWidgetKeepsItsCurveWhenSqueezedThin() {
+        // 110x80dp is the smallest the provider lets a rider drag it to. At the
+        // layout's normal padding and type the header and footer ate all of it
+        // and the curve got zero height, which leaves a forecast widget with no
+        // forecast in it, so the height it actually gets is what is asserted.
+        val bmp = shoot("thin", com.eried.eucplanet.R.layout.widget_weather_compact, 110, 80)
+        assertTrue("nothing drawn when thin", bmp.countColoured() > 100)
+        val d = ctx.resources.displayMetrics.density
+        assertTrue(
+            "the curve was squeezed out of the widget",
+            graphHeightAt(110, 80) > 12 * d,
+        )
+    }
+
+    private fun graphHeightAt(wDp: Int, hDp: Int): Int {
+        WeatherSnapshot.save(ctx, sample())
+        val built = WeatherWidgetBase.renderForTest(
+            ctx, com.eried.eucplanet.R.layout.widget_weather_compact, wDp, hDp,
+        )
+        val view = built.apply(ctx, FrameLayout(ctx))
+        val d = ctx.resources.displayMetrics.density
+        val w = (wDp * d).toInt()
+        val h = (hDp * d).toInt()
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY),
+        )
+        view.layout(0, 0, w, h)
+        return view.findViewById<View>(com.eried.eucplanet.R.id.ww_graph).height
+    }
+
+    private fun detailVisibility(wDp: Int, hDp: Int): Int {
+        WeatherSnapshot.save(ctx, sample())
+        val built = WeatherWidgetBase.renderForTest(
+            ctx, com.eried.eucplanet.R.layout.widget_weather_compact, wDp, hDp,
+        )
+        val view = built.apply(ctx, FrameLayout(ctx))
+        return view.findViewById<View>(com.eried.eucplanet.R.id.ww_detail).visibility
     }
 
     @Test fun aWidgetWithNoForecastStillInflates() {

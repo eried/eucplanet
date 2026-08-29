@@ -2423,8 +2423,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">¿Hora de EUC?</string>
     <string name="widget_weather_score_desc">Puntuación de manejo ahora, una celda.</string>
-    <string name="widget_weather_compact_desc">Puntuación y curva del pronóstico.</string>
-    <string name="widget_weather_panel_desc">Puntuación, curva del pronóstico, temperatura y viento.</string>
+    <string name="widget_weather_compact_desc">Puntuación de manejo y curva del pronóstico. Agrandá para horas, temperatura y viento.</string>
     <string name="widget_weather_graph_desc">Puntuación de manejo durante el pronóstico</string>
     <string name="widget_weather_refresh_desc">Actualizar el pronóstico</string>
     <string name="widget_weather_never">Todavía no hay pronóstico. Abrí la app una vez o tocá actualizar.</string>

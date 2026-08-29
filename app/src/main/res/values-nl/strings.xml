@@ -2407,8 +2407,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-tijd?</string>
     <string name="widget_weather_score_desc">Rijscore nu, één cel.</string>
-    <string name="widget_weather_compact_desc">Rijscore en de voorspellingscurve.</string>
-    <string name="widget_weather_panel_desc">Rijscore, voorspellingscurve, temperatuur en wind.</string>
+    <string name="widget_weather_compact_desc">Rijscore en de voorspellingscurve. Vergroot voor uren, temperatuur en wind.</string>
     <string name="widget_weather_graph_desc">Rijscore over de voorspelde periode</string>
     <string name="widget_weather_refresh_desc">Voorspelling verversen</string>
     <string name="widget_weather_never">Nog geen voorspelling. Open de app één keer of tik op verversen.</string>

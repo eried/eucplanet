@@ -2405,8 +2405,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-dags?</string>
     <string name="widget_weather_score_desc">Åkbetyg just nu, en ruta.</string>
-    <string name="widget_weather_compact_desc">Åkbetyg och prognoskurvan.</string>
-    <string name="widget_weather_panel_desc">Åkbetyg, prognoskurva, temperatur och vind.</string>
+    <string name="widget_weather_compact_desc">Åkbetyg och prognoskurvan. Gör större för timmar, temperatur och vind.</string>
     <string name="widget_weather_graph_desc">Åkbetyg över prognosperioden</string>
     <string name="widget_weather_refresh_desc">Uppdatera prognosen</string>
     <string name="widget_weather_never">Ingen prognos än. Öppna appen en gång eller tryck på uppdatera.</string>

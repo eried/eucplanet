@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Picker preview for the 1x1. The launcher inflates a preview as static XML and
+  never runs our render code, so the real layout showed a blank score and an
+  empty foot. Same structure, sample values baked in.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/widget_bg"
+    android:padding="2dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_weather_question"
+        android:lines="1"
+        android:textSize="9sp"
+        android:includeFontPadding="false"
+        android:textColor="#9AA0A6" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="😄"
+            android:textSize="21sp"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="+4"
+            android:textSize="23sp"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="#5AB55A" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="18°"
+        android:lines="1"
+        android:textSize="9sp"
+        android:includeFontPadding="false"
+        android:textColor="#9AA0A6" />
+</LinearLayout>

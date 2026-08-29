@@ -2272,8 +2272,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">适合骑行吗？</string>
     <string name="widget_weather_score_desc">当前骑行评分，一格。</string>
-    <string name="widget_weather_compact_desc">骑行评分和预报曲线。</string>
-    <string name="widget_weather_panel_desc">骑行评分、预报曲线、气温和风。</string>
+    <string name="widget_weather_compact_desc">骑行评分和预报曲线。放大可显示小时、气温和风。</string>
     <string name="widget_weather_graph_desc">预报时段内的骑行评分</string>
     <string name="widget_weather_refresh_desc">刷新预报</string>
     <string name="widget_weather_never">还没有预报。打开一次应用，或点按刷新。</string>

@@ -2310,8 +2310,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ora di EUC?</string>
     <string name="widget_weather_score_desc">Punteggio di guida adesso, una cella.</string>
-    <string name="widget_weather_compact_desc">Punteggio e curva delle previsioni.</string>
-    <string name="widget_weather_panel_desc">Punteggio, curva delle previsioni, temperatura e vento.</string>
+    <string name="widget_weather_compact_desc">Punteggio di guida e curva delle previsioni. Ingrandisci per ore, temperatura e vento.</string>
     <string name="widget_weather_graph_desc">Punteggio di guida nel periodo previsto</string>
     <string name="widget_weather_refresh_desc">Aggiorna le previsioni</string>
     <string name="widget_weather_never">Nessuna previsione. Apri l’app una volta o tocca aggiorna.</string>

@@ -2208,8 +2208,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-idő?</string>
     <string name="widget_weather_score_desc">Menetpontszám most, egy cella.</string>
-    <string name="widget_weather_compact_desc">Menetpontszám és az előrejelzés görbéje.</string>
-    <string name="widget_weather_panel_desc">Menetpontszám, előrejelzési görbe, hőmérséklet és szél.</string>
+    <string name="widget_weather_compact_desc">Menetpontszám és az előrejelzés görbéje. Húzd nagyobbra órákért, hőmérsékletért és szélért.</string>
     <string name="widget_weather_graph_desc">Menetpontszám az előrejelzett időszakban</string>
     <string name="widget_weather_refresh_desc">Előrejelzés frissítése</string>
     <string name="widget_weather_never">Még nincs előrejelzés. Nyisd meg az appot, vagy koppints a frissítésre.</string>

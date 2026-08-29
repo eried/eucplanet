@@ -2405,8 +2405,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Czas na EUC?</string>
     <string name="widget_weather_score_desc">Ocena jazdy teraz, jedna komórka.</string>
-    <string name="widget_weather_compact_desc">Ocena jazdy i krzywa prognozy.</string>
-    <string name="widget_weather_panel_desc">Ocena jazdy, krzywa prognozy, temperatura i wiatr.</string>
+    <string name="widget_weather_compact_desc">Ocena jazdy i krzywa prognozy. Powiększ, aby zobaczyć godziny, temperaturę i wiatr.</string>
     <string name="widget_weather_graph_desc">Ocena jazdy w prognozowanym okresie</string>
     <string name="widget_weather_refresh_desc">Odśwież prognozę</string>
     <string name="widget_weather_never">Brak prognozy. Otwórz aplikację raz lub dotknij odświeżania.</string>

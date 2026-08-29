@@ -2407,8 +2407,7 @@
     <!-- Weather widgets -->
     <string name="widget_weather_question">Hora de EUC?</string>
     <string name="widget_weather_score_desc">Nota de pilotagem agora, uma célula.</string>
-    <string name="widget_weather_compact_desc">Nota e curva da previsão.</string>
-    <string name="widget_weather_panel_desc">Nota, curva da previsão, temperatura e vento.</string>
+    <string name="widget_weather_compact_desc">Nota de pilotagem e curva da previsão. Aumente para horas, temperatura e vento.</string>
     <string name="widget_weather_graph_desc">Nota de pilotagem no período previsto</string>
     <string name="widget_weather_refresh_desc">Atualizar a previsão</string>
     <string name="widget_weather_never">Ainda sem previsão. Abra o app uma vez ou toque em atualizar.</string>
