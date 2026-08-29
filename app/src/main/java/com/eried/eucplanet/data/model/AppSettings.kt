@@ -1107,8 +1107,11 @@ data class LightsSettings(
      *  ride on. Independent of the sun schedule, which stays in charge of
      *  whether a light is wanted at all. */
     val offWhenSlow: Boolean = false,
-    /** Walking pace, stored metric like every other speed. */
-    val offBelowKmh: Float = 4f,
+    /** Walking pace, stored metric like every other speed. Five is the figure
+     *  walking speed is normally quoted at; four was low enough that a rider
+     *  rolling gently up to a crossing stayed above it and kept the beam on,
+     *  which is the case the whole cutoff exists for. */
+    val offBelowKmh: Float = 5f,
 )
 
 /** Values for the "apply when" gate shared by the speed-driven automations. */
