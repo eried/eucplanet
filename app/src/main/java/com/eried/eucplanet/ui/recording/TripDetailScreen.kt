@@ -195,11 +195,44 @@ fun TripDetailScreen(
     }
     val trimmed = trimRange != null
 
+    // The shared scrub cursor, and the clock that eventually takes it away.
+    //
+    // It used to vanish the instant the finger lifted, so reading the numbers
+    // meant holding still on the glass. It now stays for a few seconds and
+    // fades, and ANY touch that means "still reading" - scrubbing, pinching,
+    // dragging a trim handle - restarts the clock, because lining a zoom up
+    // around the cursor should not be what removes it.
+    var scrubIndex by remember { mutableStateOf<Int?>(null) }
+    var scrubActivity by remember { mutableStateOf(0) }
+    var scrubFading by remember { mutableStateOf(false) }
+    val scrubAlpha by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (scrubFading) 0f else 1f,
+        animationSpec = androidx.compose.animation.core.tween(SCRUB_FADE_MS),
+        label = "tripScrubFade",
+    )
+    val keepScrubAlive: () -> Unit = { if (scrubIndex != null) scrubActivity++ }
+    val onScrub: (Int?) -> Unit = { scrubIndex = it; scrubActivity++ }
+    LaunchedEffect(scrubActivity, scrubIndex) {
+        if (scrubIndex == null) {
+            scrubFading = false
+            return@LaunchedEffect
+        }
+        scrubFading = false
+        kotlinx.coroutines.delay(SCRUB_HOLD_MS)
+        scrubFading = true
+        // Cleared only once it has gone, so the map dot and the other charts
+        // do not blink out from under a still-visible cursor.
+        kotlinx.coroutines.delay(SCRUB_FADE_MS.toLong())
+        scrubIndex = null
+        scrubFading = false
+    }
+
     // The pinch-to-trim bridge. During the gesture the charts slice their
     // drawing only (cheap, smooth); when the fingers lift, the slice becomes
     // the real trim, so the tiles, map, header and trim bar all follow, once.
     val onWindow: (ClosedFloatingPointRange<Float>) -> Unit = { w ->
         chartWindow = w
+        keepScrubAlive()
         // Live link to the trim bar: while the pinch is in flight, the
         // handles and span label already sit where the trim WILL land.
         val fullDur = if (elapsedMs.isEmpty()) 0L else elapsedMs.last()
@@ -587,8 +620,6 @@ fun TripDetailScreen(
 
             // Shared scrub index: scrubbing any chart moves the map marker and the
             // cursor on every other chart to the same sample.
-            var scrubIndex by remember { mutableStateOf<Int?>(null) }
-            val onScrub: (Int?) -> Unit = { scrubIndex = it }
 
             val gpsPoints = remember(dataPoints) {
                 dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
@@ -980,6 +1011,7 @@ fun TripDetailScreen(
                         startMs = (pendingTrim ?: trimRange)?.first ?: 0L,
                         endMs = (pendingTrim ?: trimRange)?.last ?: full,
                         onRange = { s, e ->
+                            keepScrubAlive()
                             // Per-frame PREVIEW only: the handles and the chart
                             // window follow the finger; the heavy recompute
                             // (dataPoints, tiles, map) waits for the release.
@@ -1048,7 +1080,7 @@ fun TripDetailScreen(
                         overlays = speedOverlays,
                         axisMax = fullSpeedAxis.first, peak = fullSpeedAxis.second,
                         scaleValues = speedScale, scaleOverlays = fullSpeedOverlays,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                 })
                 add("battery" to {
                     val (batShown, batScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
@@ -1057,7 +1089,7 @@ fun TripDetailScreen(
                     ChartCard(stringResource(R.string.recording_chart_battery), batShown,
                         MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
                         scaleValues = batScale,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                 })
                 add("temp" to {
                     val (tempShown, tempScale) = rememberChartSeries(dataPoints, allPoints, tempUnit) { pts ->
@@ -1067,7 +1099,7 @@ fun TripDetailScreen(
                         tempShown,
                         MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = tempMinSpan,
                         scaleValues = tempScale,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                 })
                 add("voltage" to {
                     val (voltShown, voltScale) = rememberChartSeries(dataPoints, allPoints) { pts ->
@@ -1076,7 +1108,7 @@ fun TripDetailScreen(
                     ChartCard(stringResource(R.string.recording_chart_voltage), voltShown,
                         MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE,
                         scaleValues = voltScale,
-                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                        scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                 })
                 if (dataPoints.any { !it.current.isNaN() }) {
                     add("current" to {
@@ -1088,7 +1120,7 @@ fun TripDetailScreen(
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
                             scaleValues = curScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if (dataPoints.any { !it.pwm.isNaN() }) {
@@ -1100,7 +1132,7 @@ fun TripDetailScreen(
                             pwmShown,
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
                             scaleValues = pwmScale,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 // Torque and phase amps ship OFF, opt-in via the customizer
@@ -1118,7 +1150,7 @@ fun TripDetailScreen(
                             MaterialTheme.appColors.metricPosition, unitLabel = "Nm", minSpan = GraphScale.SPAN_TORQUE,
                             scaleValues = torqueScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if ("phaseCurrent" in extraCharts && dataPoints.any { !it.phaseCurrent.isNaN() && it.phaseCurrent != 0f }) {
@@ -1131,7 +1163,7 @@ fun TripDetailScreen(
                             MaterialTheme.appColors.metricPosition, unitLabel = "A", minSpan = GraphScale.SPAN_PHASE_CURRENT,
                             scaleValues = phaseScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 // Opt-in extras. Each renders only when the rider switched it on
@@ -1146,7 +1178,7 @@ fun TripDetailScreen(
                             batSmShown,
                             MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
                             scaleValues = batSmScale,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if ("batteryEnvelope" in extraCharts && dataPoints.any { it.battery > 0 }) {
@@ -1169,7 +1201,7 @@ fun TripDetailScreen(
                             envShown,
                             MaterialTheme.appColors.chartEnvelope, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY,
                             scaleValues = envScale,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if ("speedSmooth" in extraCharts) {
@@ -1186,7 +1218,7 @@ fun TripDetailScreen(
                             spSmShown,
                             MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
                             scaleValues = spSmScale,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if ("currentSmooth" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
@@ -1199,7 +1231,7 @@ fun TripDetailScreen(
                             MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
                             scaleValues = curSmScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if ("pwmSmooth" in extraCharts && dataPoints.any { !it.pwm.isNaN() }) {
@@ -1211,7 +1243,7 @@ fun TripDetailScreen(
                             pwmSmShown,
                             MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD,
                             scaleValues = pwmSmScale,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if ("power" in extraCharts && dataPoints.any { !it.current.isNaN() }) {
@@ -1226,7 +1258,7 @@ fun TripDetailScreen(
                             MaterialTheme.appColors.statusDanger, unitLabel = "W", minSpan = 100f,
                             scaleValues = powScale,
                             regenColor = MaterialTheme.appColors.metricBattery,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
                 if ("altitude" in extraCharts && dataPoints.any { it.altitude != 0f }) {
@@ -1238,7 +1270,7 @@ fun TripDetailScreen(
                             altShown,
                             MaterialTheme.appColors.metricPosition, unitLabel = "m", minSpan = 20f,
                             scaleValues = altScale,
-                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView)
+                            scrubIndex = scrubIndex, onScrub = onScrub, window = chartWindow, onWindow = onWindow, onWindowCommit = onWindowCommit, onResetView = onResetView, scrubAlpha = scrubAlpha)
                     })
                 }
             }
@@ -2606,6 +2638,13 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
 </script></body></html>
 """.trimIndent()
 
+/** How long the scrub read stays after the finger stops. Same as the weather
+ *  panel's, because it is the same gesture answering the same question. */
+private const val SCRUB_HOLD_MS = 5000L
+
+/** And how long it takes to go, so it fades rather than blinking out. */
+private const val SCRUB_FADE_MS = 600
+
 /** Plot area of a chart card. Shared with the loading skeleton. */
 private val CHART_PLOT_HEIGHT = 80.dp
 
@@ -2662,6 +2701,9 @@ private fun ChartCard(
     scaleValues: List<Float>? = null,
     /** Whole-ride overlay series, for the same reason as [scaleValues]. */
     scaleOverlays: List<List<Float>> = emptyList(),
+    /** Fades the scrub cursor and its tooltip out once the read is stale. A
+     *  finger still on the glass always draws at full strength. */
+    scrubAlpha: Float = 1f,
     peak: Float? = null,
     // Shared scrub cursor: [scrubIndex] is the sample index highlighted across
     // every chart and the map; [onScrub] reports this chart's own scrub position
@@ -2826,8 +2868,11 @@ private fun ChartCard(
                                 report(change.position.x)
                                 change.consume()
                             }
+                            // Deliberately NOT cleared: the read is left
+                            // standing so the rider can look at the numbers
+                            // with their finger off the glass. The screen's
+                            // timer takes it away.
                             touchX = null
-                            onScrub?.invoke(null)
                         }
                     }
                     .pointerInput(Unit) {
@@ -3009,9 +3054,12 @@ private fun ChartCard(
                     }
                     val cursorY = (h - ((interpValue - bounds.min) / range) * h).coerceIn(0f, h)
 
-                    drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
-                    drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
-                    drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
+                    // Full strength while the finger is down, fading once
+                    // the read is only a memory of where it was.
+                    val ca = if (touchX != null) 1f else scrubAlpha
+                    drawLine(color.copy(alpha = 0.5f * ca), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
+                    drawCircle(color.copy(alpha = ca), radius = 4f, center = Offset(cursorX, cursorY))
+                    drawCircle(Color.White.copy(alpha = ca), radius = 2f, center = Offset(cursorX, cursorY))
 
                     // Sample each labelled overlay at the cursor too. NaN
                     // values are treated as "no sample here" and skipped,
@@ -3054,14 +3102,14 @@ private fun ChartCard(
                     val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
                     val boxY = (cursorY - boxH - 6f).coerceAtLeast(0f)
                     drawRoundRect(
-                        color = tooltipBg,
+                        color = tooltipBg.copy(alpha = tooltipBg.alpha * ca),
                         topLeft = Offset(boxX, boxY),
                         size = Size(boxW, boxH.toFloat()),
                         cornerRadius = CornerRadius(5f, 5f)
                     )
                     var rowY = boxY + padY
                     measuredLines.forEach { (_, layout) ->
-                        drawText(layout, topLeft = Offset(boxX + padX, rowY))
+                        drawText(layout, topLeft = Offset(boxX + padX, rowY), alpha = ca)
                         rowY += layout.size.height + lineGap
                     }
                 }
