@@ -2985,9 +2985,9 @@ private fun sharePeersJson(peers: Map<String, PeerState>, now: Long): String {
     val arr = JSONArray()
     peers.values.forEach { p ->
         val trail = JSONArray()
-        // The ring is filled from the relay's reader thread, so reading it
-        // here can race an append. One frame without a rider's trail beats
-        // taking the map down with a concurrent-modification crash.
+        // Trail itself serialises add / points, so the race is handled at
+        // the source. This stays as a last-resort net: one frame without a
+        // rider's trail beats taking the map down.
         runCatching { p.trail.points(now) }.getOrDefault(emptyList()).forEach { pt ->
             trail.put(JSONArray().put(pt.lat).put(pt.lng).put(pt.alpha.toDouble()))
         }

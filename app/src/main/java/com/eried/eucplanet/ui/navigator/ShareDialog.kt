@@ -81,6 +81,17 @@ import java.util.Locale
  * cannot drop a half-typed name or a room link the rider is still reading.
  */
 
+/** An avatar URL is another rider's string off the relay, so it is checked
+ *  before it is handed to the image loader: https only, and no whitespace or
+ *  quoting that could matter to whatever consumes it downstream. The map's JS
+ *  applies the same rule; the two must not disagree about what is loadable. */
+private const val AVATAR_UNSAFE_CHARS = "\"'<>"
+
+private fun safeAvatar(url: String?): String? = url?.takeIf { u ->
+    u.startsWith("https://") &&
+        u.none { it.isWhitespace() || it in AVATAR_UNSAFE_CHARS }
+}
+
 /** Peer palette colours arrive as "#RRGGBB" strings, shared byte for byte with
  *  the web viewer, so they are data rather than theme tokens. Anything
  *  unparseable falls back to a muted theme colour instead of crashing the row. */
@@ -421,7 +432,7 @@ private fun PeerRow(
             .alpha(if (faded) 0.45f else 1f),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val avatar = peer.last.avatarUrl
+        val avatar = safeAvatar(peer.last.avatarUrl)
         if (avatar != null) {
             AsyncImage(
                 model = avatar,

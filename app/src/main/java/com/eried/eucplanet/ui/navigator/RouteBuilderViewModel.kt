@@ -1908,23 +1908,56 @@ class RouteBuilderViewModel @Inject constructor(
     fun dismissJoin() = pendingShareJoin.clear()
 
     /**
-     * Resolving the PROFILE identity reads a file and may hit the network, so
-     * the answer is cached for the life of the screen. Everything below hops to
-     * IO for the same reason: these are called straight from the dialog.
+     * The rider's profile identity, resolved at most once per ViewModel: it
+     * costs a rider-id file read plus a network round trip, and opening the
+     * identity dialog asks for it twice over (once to decide whether the
+     * Profile option is even selectable, once to build the default identity).
+     * [profileResolved] is what separates "no profile linked" from "not looked
+     * yet", since both leave [profileIdentity] null.
+     *
+     * Deliberately not invalidated mid-session: linking a profile while the
+     * navigator is open is rare enough to leave to the next screen open.
      */
-    private var hasProfileCache: Boolean? = null
+    private var profileResolved = false
+    private var profileIdentity: Identity? = null
 
-    suspend fun defaultIdentity(): Identity =
-        withContext(Dispatchers.IO) { shareSession.resolveDefaultIdentity() }
+    private suspend fun resolveProfile(): Identity? {
+        if (!profileResolved) {
+            // identityFor falls back to a SESSION identity when nothing is
+            // linked, so the mode that comes back is the answer.
+            val resolved = withContext(Dispatchers.IO) {
+                shareSession.identityFor(IdentityMode.PROFILE, "", true)
+            }
+            profileIdentity = resolved.takeIf { it.mode == IdentityMode.PROFILE }
+            profileResolved = true
+        }
+        return profileIdentity
+    }
 
-    suspend fun identityFor(mode: IdentityMode, name: String, stats: Boolean): Identity =
-        withContext(Dispatchers.IO) { shareSession.identityFor(mode, name, stats) }
+    /** True when a linked profile exists, so the dialog can offer that option. */
+    suspend fun hasProfile(): Boolean = resolveProfile() != null
 
-    /** True when a linked profile exists. identityFor(PROFILE) falls back to
-     *  SESSION when there is none, so the mode it returns is the answer. */
-    suspend fun hasProfile(): Boolean = hasProfileCache ?: withContext(Dispatchers.IO) {
-        shareSession.identityFor(IdentityMode.PROFILE, "", true).mode == IdentityMode.PROFILE
-    }.also { hasProfileCache = it }
+    /**
+     * Mirrors [ShareSession.resolveDefaultIdentity] but routes the PROFILE case
+     * through [resolveProfile], so re-opening the dialog does not re-fetch a
+     * profile this screen already has.
+     */
+    suspend fun defaultIdentity(): Identity {
+        val s = withContext(Dispatchers.IO) { settingsRepository.get() }
+        val mode = runCatching { IdentityMode.valueOf(s.share.lastIdentityMode) }
+            .getOrDefault(IdentityMode.ANON)
+        return identityFor(mode, s.share.lastSessionName, s.share.shareStatsDefault)
+    }
+
+    suspend fun identityFor(mode: IdentityMode, name: String, stats: Boolean): Identity {
+        if (mode == IdentityMode.PROFILE) {
+            resolveProfile()?.let { return it.copy(shareStats = stats) }
+            // Nothing linked: the same fallback ShareSession would have made,
+            // without going back to disk for an answer we already have.
+            return identityFor(IdentityMode.SESSION, name, stats)
+        }
+        return withContext(Dispatchers.IO) { shareSession.identityFor(mode, name, stats) }
+    }
 
     fun startShare(identity: Identity) = viewModelScope.launch { shareSession.start(identity) }
 

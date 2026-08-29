@@ -62,14 +62,27 @@ object Staleness {
 
 data class TrailPoint(val lat: Double, val lng: Double, val t: Long, val alpha: Float)
 
-/** Ring of recent positions; alpha fades 1.0 (newest) to 0.15 (oldest kept). */
+/**
+ * Ring of recent positions; alpha fades 1.0 (newest) to 0.15 (oldest kept).
+ *
+ * Threading contract: add() and points() may both be called from ANY thread,
+ * and in practice are called from two at once - the relay's WebSocket reader
+ * appends as frames land, while the map redraw prunes and reads once a second.
+ * ArrayDeque is not thread-safe, and an interleaved addLast / removeFirst does
+ * not merely throw: it can leave the internal indices inconsistent for every
+ * later call. Both operations therefore hold the same lock, and points()
+ * returns a fresh list so no caller ever iterates the deque itself.
+ */
 class Trail(private val maxAgeMs: Long) {
     private val pts = ArrayDeque<Triple<Double, Double, Long>>()
-    fun add(lat: Double, lng: Double, t: Long) { pts.addLast(Triple(lat, lng, t)) }
-    fun points(now: Long): List<TrailPoint> {
+    private val lock = Any()
+    fun add(lat: Double, lng: Double, t: Long) {
+        synchronized(lock) { pts.addLast(Triple(lat, lng, t)) }
+    }
+    fun points(now: Long): List<TrailPoint> = synchronized(lock) {
         while (pts.isNotEmpty() && now - pts.first().third > maxAgeMs) pts.removeFirst()
         val n = pts.size
-        return pts.mapIndexed { i, (lat, lng, t) ->
+        pts.mapIndexed { i, (lat, lng, t) ->
             val frac = if (n <= 1) 1f else i.toFloat() / (n - 1)      // 0 oldest .. 1 newest
             TrailPoint(lat, lng, t, 0.15f + 0.85f * frac)
         }
