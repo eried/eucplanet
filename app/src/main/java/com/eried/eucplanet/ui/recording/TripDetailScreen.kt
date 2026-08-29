@@ -2758,6 +2758,17 @@ private fun ChartCard(
     @Suppress("NAME_SHADOWING") val onScrub: ((Int?) -> Unit)? =
         if (onScrubRaw == null) null else { i -> onScrubRaw(i?.plus(winA)) }
     val curWindow = rememberUpdatedState(window)
+    // Where the read sits across the visible chart, 0..1. A pinch zooms around
+    // THIS instead of the fingers' centroid, so the moment being read stays
+    // pinned to its spot on screen and the ride opens out around it, which is
+    // what a rider is asking for when they zoom in on a cursor they placed.
+    // Null once nothing is being read, or once the read has left the window,
+    // and the fingers take the anchor back. Zooming out cannot honour it
+    // forever either: the window clamps at the ends of the ride, and from
+    // there the line slides as it must.
+    val curScrubFrac = rememberUpdatedState(
+        scrubIndex?.takeIf { values.size > 1 }?.let { it.toFloat() / (values.size - 1) }
+    )
     // The gesture pointerInputs below are keyed on Unit and never restart, so
     // they must read the callbacks through updated state: the plain params
     // would freeze at the FIRST composition, when the screen's elapsed-time
@@ -2934,7 +2945,8 @@ private fun ChartCard(
                                         val nw = ChartWindow.zoomPan(
                                             curWindow.value,
                                             zoom,
-                                            (centroid.x / size.width).coerceIn(0f, 1f),
+                                            curScrubFrac.value
+                                                ?: (centroid.x / size.width).coerceIn(0f, 1f),
                                             pan.x / size.width,
                                         )
                                         if (nw.start > 0.001f || nw.endInclusive < 0.999f) leftFull = true

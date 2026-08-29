@@ -29,6 +29,34 @@ class ChartWindowTest {
     }
 
     @Test
+    fun `a cursor anchor holds its place until the ride's edge takes it`() {
+        // Zooming is anchored on the scrub cursor rather than the fingers, so
+        // the moment being read stays where it is on screen. Near the end of
+        // the ride that can only last until the window hits the edge.
+        var w = 0.80f..0.90f
+        val anchor = 0.8f                     // the read sits 80% across the view
+        val moment = w.start + span(w) * anchor
+        repeat(3) { w = ChartWindow.zoomPan(w, 0.5f, anchor, 0f) }
+        assertEquals("clamped at the end of the ride", 1f, w.endInclusive, 1e-4f)
+        // Held for as long as it could: the moment is still inside the view,
+        // just no longer at the same fraction across it.
+        assertTrue(moment in w.start..w.endInclusive)
+        assertTrue(
+            "the anchor has slid once the window ran out of room",
+            (w.start + span(w) * anchor) < moment - 1e-3f,
+        )
+    }
+
+    @Test
+    fun `zooming in on a cursor mid-ride keeps it exactly under the line`() {
+        var w = 0f..1f
+        val anchor = 0.35f
+        val moment = w.start + span(w) * anchor
+        repeat(4) { w = ChartWindow.zoomPan(w, 1.5f, anchor, 0f) }
+        assertEquals(moment, w.start + span(w) * anchor, 1e-4f)
+    }
+
+    @Test
     fun `zooming out from a slice returns to the full ride and clamps there`() {
         val out = ChartWindow.zoomPan(0.4f..0.6f, 0.1f, 0.5f, 0f)
         assertEquals(0f, out.start, 1e-4f)
