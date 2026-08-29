@@ -2414,7 +2414,7 @@
     <string name="widget_weather_window_fmt">sonraki %1$d sa</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">%80’de bildir</string>
-    <string name="charging_notify_full">Tam dolunca bildir</string>
+    <string name="charging_notify_full">%100’de bildir</string>
     <string name="charge_alert_channel_name">Şarj uyarıları</string>
     <string name="charge_alert_channel_description">Batarya %80’i geçtiğinde veya şarj bittiğinde.</string>
     <string name="charge_alert_80_title">Batarya %80</string>

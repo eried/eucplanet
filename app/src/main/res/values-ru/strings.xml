@@ -2417,7 +2417,7 @@
     <string name="widget_weather_window_fmt">ближайшие %1$d ч</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Сообщить на 80 %</string>
-    <string name="charging_notify_full">Сообщить о полной зарядке</string>
+    <string name="charging_notify_full">Сообщить на 100 %</string>
     <string name="charge_alert_channel_name">Оповещения о зарядке</string>
     <string name="charge_alert_channel_description">Когда батарея проходит 80 % или заряд завершён.</string>
     <string name="charge_alert_80_title">Батарея на 80 %</string>

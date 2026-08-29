@@ -2220,7 +2220,7 @@
     <string name="widget_weather_window_fmt">következő %1$d óra</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Szólj 80 %-nál</string>
-    <string name="charging_notify_full">Szólj, ha feltöltött</string>
+    <string name="charging_notify_full">Szólj 100 %-nál</string>
     <string name="charge_alert_channel_name">Töltési értesítések</string>
     <string name="charge_alert_channel_description">Amikor az akku túllépi a 80 %-ot, vagy befejezte a töltést.</string>
     <string name="charge_alert_80_title">Akku 80 %-on</string>

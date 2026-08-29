@@ -2416,7 +2416,7 @@
     <string name="widget_weather_window_fmt">다음 %1$d시간</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">80 %에서 알림</string>
-    <string name="charging_notify_full">완충되면 알림</string>
+    <string name="charging_notify_full">100 %에서 알림</string>
     <string name="charge_alert_channel_name">충전 알림</string>
     <string name="charge_alert_channel_description">배터리가 80 %를 넘거나 충전이 끝났을 때.</string>
     <string name="charge_alert_80_title">배터리 80 %</string>

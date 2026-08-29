@@ -2305,7 +2305,7 @@
     <string name="widget_weather_window_fmt">neste %1$d t</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Varsle ved 80 %</string>
-    <string name="charging_notify_full">Varsle ved fulladet</string>
+    <string name="charging_notify_full">Varsle ved 100 %</string>
     <string name="charge_alert_channel_name">Ladevarsler</string>
     <string name="charge_alert_channel_description">Når batteriet passerer 80 % eller er ferdig ladet.</string>
     <string name="charge_alert_80_title">Batteri på 80 %</string>

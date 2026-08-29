@@ -2419,7 +2419,7 @@
     <string name="widget_weather_window_fmt">komende %1$d u</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Waarschuw me bij 80 %</string>
-    <string name="charging_notify_full">Waarschuw me bij vol</string>
+    <string name="charging_notify_full">Waarschuw me bij 100 %</string>
     <string name="charge_alert_channel_name">Laadmeldingen</string>
     <string name="charge_alert_channel_description">Wanneer het pakket boven 80 % komt of klaar is met laden.</string>
     <string name="charge_alert_80_title">Accu op 80 %</string>

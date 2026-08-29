@@ -2419,7 +2419,7 @@
     <string name="widget_weather_window_fmt">próximas %1$d h</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Avisar aos 80 %</string>
-    <string name="charging_notify_full">Avisar quando carregar tudo</string>
+    <string name="charging_notify_full">Avisar aos 100 %</string>
     <string name="charge_alert_channel_name">Avisos de carga</string>
     <string name="charge_alert_channel_description">Quando a bateria passa de 80 % ou termina de carregar.</string>
     <string name="charge_alert_80_title">Bateria em 80 %</string>

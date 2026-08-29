@@ -2417,7 +2417,7 @@
     <string name="widget_weather_window_fmt">najbliższe %1$d godz.</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Powiadom przy 80 %</string>
-    <string name="charging_notify_full">Powiadom po pełnym naładowaniu</string>
+    <string name="charging_notify_full">Powiadom przy 100 %</string>
     <string name="charge_alert_channel_name">Alerty ładowania</string>
     <string name="charge_alert_channel_description">Gdy akumulator przekroczy 80 % albo skończy się ładować.</string>
     <string name="charge_alert_80_title">Akumulator na 80 %</string>

@@ -2343,7 +2343,7 @@
     <string name="charging_tab_packs">Packs</string>
     <string name="charging_estimate_to_full">Always estimate to 100%</string>
     <string name="charging_notify_80">Notify me at 80%</string>
-    <string name="charging_notify_full">Notify me when fully charged</string>
+    <string name="charging_notify_full">Notify me at 100%</string>
     <string name="charge_alert_channel_name">Charge alerts</string>
     <string name="charge_alert_channel_description">When the pack passes 80% or finishes charging.</string>
     <string name="charge_alert_80_title">Battery at 80%</string>

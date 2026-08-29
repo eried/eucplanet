@@ -2220,7 +2220,7 @@
     <string name="widget_weather_window_fmt">dalších %1$d h</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Upozornit na 80 %</string>
-    <string name="charging_notify_full">Upozornit na plné nabití</string>
+    <string name="charging_notify_full">Upozornit na 100 %</string>
     <string name="charge_alert_channel_name">Upozornění na nabíjení</string>
     <string name="charge_alert_channel_description">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
     <string name="charge_alert_80_title">Baterie na 80 %</string>

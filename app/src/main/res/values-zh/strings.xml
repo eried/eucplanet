@@ -2284,7 +2284,7 @@
     <string name="widget_weather_window_fmt">未来 %1$d 小时</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">到 80 % 时通知我</string>
-    <string name="charging_notify_full">充满时通知我</string>
+    <string name="charging_notify_full">到 100 % 时通知我</string>
     <string name="charge_alert_channel_name">充电提醒</string>
     <string name="charge_alert_channel_description">电量超过 80 % 或充电完成时。</string>
     <string name="charge_alert_80_title">电量 80 %</string>

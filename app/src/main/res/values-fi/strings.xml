@@ -2220,7 +2220,7 @@
     <string name="widget_weather_window_fmt">seuraavat %1$d t</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Ilmoita 80 %:ssa</string>
-    <string name="charging_notify_full">Ilmoita täyteen ladattaessa</string>
+    <string name="charging_notify_full">Ilmoita 100 %:ssa</string>
     <string name="charge_alert_channel_name">Latausilmoitukset</string>
     <string name="charge_alert_channel_description">Kun akku ohittaa 80 % tai lataus valmistuu.</string>
     <string name="charge_alert_80_title">Akku 80 %:ssa</string>

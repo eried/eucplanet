@@ -2437,7 +2437,7 @@
     <string name="widget_weather_window_fmt">nächste %1$d Std.</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Bei 80 % benachrichtigen</string>
-    <string name="charging_notify_full">Bei voller Ladung benachrichtigen</string>
+    <string name="charging_notify_full">Bei 100 % benachrichtigen</string>
     <string name="charge_alert_channel_name">Ladehinweise</string>
     <string name="charge_alert_channel_description">Wenn der Akku 80 % überschreitet oder fertig geladen ist.</string>
     <string name="charge_alert_80_title">Akku bei 80 %</string>

@@ -2432,7 +2432,7 @@
     <string name="widget_weather_window_fmt">næste %1$d t</string>
     <!-- Charge alerts -->
     <string name="charging_notify_80">Giv besked ved 80 %</string>
-    <string name="charging_notify_full">Giv besked ved fuld opladning</string>
+    <string name="charging_notify_full">Giv besked ved 100 %</string>
     <string name="charge_alert_channel_name">Opladningsbeskeder</string>
     <string name="charge_alert_channel_description">Når batteriet passerer 80 % eller er færdigt.</string>
     <string name="charge_alert_80_title">Batteri på 80 %</string>
