@@ -2285,6 +2285,10 @@
     <string name="share_room_full">This group is full.</string>
     <string name="share_switch_group">Leave current group and join this one?</string>
     <string name="share_cannot_reach">Cannot reach the share service</string>
+    <string name="share_show_me_as">Show me as</string>
+    <string name="share_stats_desc">Speed, battery and temperature, shown to riders in this group.</string>
+    <string name="share_profile_missing">No leaderboard profile yet.</string>
+    <string name="share_profile_loading">Loading profile…</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
     <!-- ==== Trip share / actions ==== -->

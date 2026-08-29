@@ -4,11 +4,13 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,20 +23,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,10 +66,11 @@ import com.eried.eucplanet.share.ShareLinks
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.ui.dashboard.QrCodeImage
+import com.eried.eucplanet.ui.settings.SegmentedChoice
+import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
+import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
-import com.eried.eucplanet.ui.theme.themedSegmentedColors
-import com.eried.eucplanet.ui.theme.themedSwitchColors
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -80,6 +84,12 @@ import java.util.Locale
  *
  * Both keep dismissOnClickOutside off, so a stray tap on the map behind them
  * cannot drop a half-typed name or a room link the rider is still reading.
+ *
+ * Controls are the app's canonical ones, not local copies: the identity picker
+ * is [SegmentedChoice] (the 56 dp row with the notched label every settings
+ * combo uses) and the stats toggle is [SwitchSettingWithDesc]. An earlier
+ * hand-rolled segmented row wrapped "Anonymous" mid-word because it lacked the
+ * fixed row height, which is exactly what reusing the shared control prevents.
  */
 
 /** An avatar URL is another rider's string off the relay, so it is checked
@@ -104,12 +114,98 @@ private fun peerColorOf(hex: String): Color {
     }
 }
 
+/**
+ * The shared dialog shell: a bordered card with a surfaceVariant title strip,
+ * the same look the floating theme editor and the studio replay panel use.
+ */
+@Composable
+private fun ShareDialogCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.appColors.dialog,
+            contentColor = MaterialTheme.appColors.textPrimary,
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
+    ) {
+        Column(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.appColors.surfaceVariant)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    Icons.Default.Share,
+                    contentDescription = null,
+                    tint = MaterialTheme.appColors.primary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+            }
+            Column(Modifier.fillMaxWidth().padding(16.dp), content = content)
+        }
+    }
+}
+
+/**
+ * A block of controls on the section surface, like one open settings section.
+ *
+ * Not cosmetic: [FieldNotchLabel] fills its notch with `surfaceVariant` so the
+ * label blends into the surface the control sits on. On the dialog's own fill
+ * the notch would read as a patch, so every notched control in these dialogs
+ * lives inside one of these.
+ */
+@Composable
+private fun ShareSection(title: String? = null, content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.appColors.surfaceVariant,
+            contentColor = MaterialTheme.appColors.textPrimary,
+        ),
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp)
+        ) {
+            if (title != null) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.appColors.sectionHeader,
+                )
+            }
+            content()
+        }
+    }
+}
+
+/** What the Profile option can show while the dialog is open. */
+private sealed class ProfilePreview {
+    object Loading : ProfilePreview()
+    object Missing : ProfilePreview()
+    data class Ready(val identity: Identity) : ProfilePreview()
+}
+
 @Composable
 fun ShareStartDialog(
     titleRes: Int,
     default: Identity,
     hasProfile: Boolean,
     resolveIdentity: suspend (IdentityMode, String, Boolean) -> Identity,
+    /** The rider's leaderboard identity, or null when nothing is linked. Cached
+     *  by the ViewModel, so re-selecting Profile does not re-fetch it. */
+    resolveProfile: suspend () -> Identity?,
     onStart: (Identity) -> Unit,
     onDismiss: () -> Unit,
     // Starting a new group and joining an existing one share this dialog, so
@@ -125,94 +221,118 @@ fun ShareStartDialog(
             else default.mode
         )
     }
-    var name by remember(default) { mutableStateOf(default.name) }
+    // Only a remembered SESSION identity carries a name the rider typed; the
+    // ANON one is a generated "Rider #1234" that must not pre-fill the field,
+    // or the required-name rule would be satisfied by a number nobody chose.
+    var name by remember(default) {
+        mutableStateOf(if (default.mode == IdentityMode.SESSION) default.name else "")
+    }
     var shareStats by remember(default) { mutableStateOf(default.shareStats) }
     var starting by remember { mutableStateOf(false) }
+    var profile by remember { mutableStateOf<ProfilePreview>(ProfilePreview.Loading) }
+
+    // Resolved when the rider first looks at the Profile option, not on every
+    // open: it reads the rider-id file and can hit the network.
+    LaunchedEffect(mode) {
+        if (mode != IdentityMode.PROFILE || profile is ProfilePreview.Ready) return@LaunchedEffect
+        profile = ProfilePreview.Loading
+        val p = resolveProfile()
+        profile = if (p == null) ProfilePreview.Missing else ProfilePreview.Ready(p)
+    }
+
+    // A blank session name would publish as "Rider", and a Profile identity
+    // that does not exist would silently fall back to a session one. Both are
+    // refused at the button instead of being quietly substituted.
+    val nameMissing = mode == IdentityMode.SESSION && name.isBlank()
+    val profileMissing = mode == IdentityMode.PROFILE && profile is ProfilePreview.Missing
+    val canConfirm = !starting && !nameMissing && !profileMissing
 
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false)
     ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.appColors.dialog,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(Modifier.padding(20.dp)) {
-                Text(
-                    stringResource(titleRes),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.appColors.textPrimary
-                )
-                Spacer(Modifier.height(14.dp))
-                IdentityPicker(
-                    current = mode,
-                    hasProfile = hasProfile,
-                    onChange = { mode = it }
+        ShareDialogCard(stringResource(titleRes)) {
+            ShareSection {
+                SegmentedChoice(
+                    label = stringResource(R.string.share_show_me_as),
+                    options = listOf(
+                        IdentityMode.ANON.name to stringResource(R.string.share_identity_anon),
+                        IdentityMode.SESSION.name to stringResource(R.string.share_identity_session),
+                        IdentityMode.PROFILE.name to stringResource(R.string.share_identity_profile),
+                    ),
+                    current = mode.name,
+                    // The row carries one enabled flag for all three segments, so
+                    // Profile stays selectable with nothing linked: picking it
+                    // explains why it cannot be used instead of looking broken.
+                    onChange = { key ->
+                        mode = runCatching { IdentityMode.valueOf(key) }.getOrDefault(IdentityMode.ANON)
+                    },
                 )
                 if (mode == IdentityMode.SESSION) {
-                    Spacer(Modifier.height(12.dp))
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text(stringResource(R.string.share_name_label)) },
-                        singleLine = true,
-                        colors = themedFieldColors(),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Spacer(Modifier.height(10.dp))
+                    Box(Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            singleLine = true,
+                            colors = themedFieldColors(),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                        )
+                        FieldNotchLabel(stringResource(R.string.share_name_label))
+                    }
+                }
+                if (mode == IdentityMode.PROFILE) {
+                    Spacer(Modifier.height(10.dp))
+                    ProfilePreviewRow(profile)
                 }
                 Spacer(Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        stringResource(R.string.share_stats_toggle),
-                        color = MaterialTheme.appColors.textPrimary,
-                        modifier = Modifier.weight(1f)
+                SwitchSettingWithDesc(
+                    label = stringResource(R.string.share_stats_toggle),
+                    description = stringResource(R.string.share_stats_desc),
+                    checked = shareStats,
+                    onCheckedChange = { shareStats = it },
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.appColors.textButton
                     )
-                    Switch(
-                        checked = shareStats,
-                        onCheckedChange = { shareStats = it },
-                        colors = themedSwitchColors()
+                ) { Text(stringResource(R.string.action_cancel)) }
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    enabled = canConfirm,
+                    onClick = {
+                        // Resolving a PROFILE identity reads a file and may
+                        // hit the network, so the button waits on it rather
+                        // than handing back a half-built identity.
+                        starting = true
+                        scope.launch { onStart(resolveIdentity(mode, name, shareStats)) }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.primary,
+                        contentColor = MaterialTheme.appColors.onPrimary,
+                        disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
+                        disabledContentColor = MaterialTheme.appColors.textSecondary,
                     )
-                }
-                Spacer(Modifier.height(18.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(
-                        onClick = onDismiss,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.appColors.textButton
+                    if (starting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.appColors.onPrimary
                         )
-                    ) { Text(stringResource(R.string.action_cancel)) }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        enabled = !starting,
-                        onClick = {
-                            // Resolving a PROFILE identity reads a file and may
-                            // hit the network, so the button waits on it rather
-                            // than handing back a half-built identity.
-                            starting = true
-                            scope.launch { onStart(resolveIdentity(mode, name, shareStats)) }
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.appColors.primary,
-                            contentColor = MaterialTheme.appColors.onPrimary
-                        )
-                    ) {
-                        if (starting) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.appColors.onPrimary
-                            )
-                        } else {
-                            Text(stringResource(confirmLabelRes))
-                        }
+                    } else {
+                        Text(stringResource(confirmLabelRes))
                     }
                 }
             }
@@ -220,37 +340,59 @@ fun ShareStartDialog(
     }
 }
 
-/** Anonymous / This session / Profile. Profile is disabled rather than hidden
- *  when no profile is linked, so the rider can see the option exists. */
+/** Avatar, display name and flag exactly as the group will see them, so the
+ *  rider can tell at a glance which account they are about to ride under. */
 @Composable
-private fun IdentityPicker(
-    current: IdentityMode,
-    hasProfile: Boolean,
-    onChange: (IdentityMode) -> Unit,
-) {
-    val options = listOf(
-        IdentityMode.ANON to R.string.share_identity_anon,
-        IdentityMode.SESSION to R.string.share_identity_session,
-        IdentityMode.PROFILE to R.string.share_identity_profile,
-    )
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        options.forEachIndexed { index, (optMode, labelRes) ->
-            SegmentedButton(
-                selected = current == optMode,
-                onClick = { onChange(optMode) },
-                enabled = optMode != IdentityMode.PROFILE || hasProfile,
-                shape = SegmentedButtonDefaults.itemShape(
-                    index = index, count = options.size, baseShape = RoundedCornerShape(12.dp)
-                ),
-                colors = themedSegmentedColors(),
-                icon = {},
-            ) {
-                Text(
-                    stringResource(labelRes),
-                    maxLines = 2,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis
+private fun ProfilePreviewRow(profile: ProfilePreview) {
+    when (profile) {
+        is ProfilePreview.Loading -> Row(verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.appColors.primary
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                stringResource(R.string.share_profile_loading),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary
+            )
+        }
+
+        is ProfilePreview.Missing -> Text(
+            stringResource(R.string.share_profile_missing),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.appColors.textSecondary
+        )
+
+        is ProfilePreview.Ready -> Row(verticalAlignment = Alignment.CenterVertically) {
+            val avatar = safeAvatar(profile.identity.avatarUrl)
+            if (avatar != null) {
+                AsyncImage(
+                    model = avatar,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp).clip(CircleShape)
                 )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(peerColorOf(profile.identity.color))
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(
+                profile.identity.name,
+                color = MaterialTheme.appColors.textPrimary,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false)
+            )
+            profile.identity.flag?.let {
+                Spacer(Modifier.width(8.dp))
+                Text(it, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
@@ -274,146 +416,134 @@ fun ShareGroupDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false)
     ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.appColors.dialog,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(Modifier.padding(20.dp)) {
-                Text(
-                    stringResource(R.string.share_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.appColors.textPrimary
-                )
-                Spacer(Modifier.height(12.dp))
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    QrCodeImage(content = url, sizeDp = 180)
-                }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    url,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.link,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(Modifier.fillMaxWidth()) {
-                    OutlinedButton(
-                        onClick = {
-                            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
-                                as ClipboardManager
-                            cm.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
-                            onNotify(url)
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.appColors.textButton
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            stringResource(R.string.share_copy_link),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            val send = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, url)
-                            }
-                            context.startActivity(
-                                Intent.createChooser(
-                                    send, context.getString(R.string.share_send_link)
-                                )
-                            )
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.appColors.primary,
-                            contentColor = MaterialTheme.appColors.onPrimary
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            stringResource(R.string.share_send_link),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-                Spacer(Modifier.height(12.dp))
-                // The relay reports a full room by closing with 1013, which the
-                // session turns into one typed marker; every other error means
-                // the service is simply out of reach.
-                val roomFull = state.error == ShareSession.ERR_ROOM_FULL
-                Text(
-                    text = when {
-                        roomFull -> stringResource(R.string.share_room_full)
-                        state.connected -> stringResource(R.string.share_connected)
-                        state.error != null -> stringResource(R.string.share_cannot_reach)
-                        else -> stringResource(R.string.share_reconnecting)
+        ShareDialogCard(stringResource(R.string.share_title)) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                QrCodeImage(content = url, sizeDp = 180)
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                url,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.link,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(10.dp))
+            Row(Modifier.fillMaxWidth()) {
+                OutlinedButton(
+                    onClick = {
+                        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                            as ClipboardManager
+                        cm.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
+                        onNotify(url)
                     },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = when {
-                        roomFull || state.error != null -> MaterialTheme.appColors.statusDanger
-                        state.connected -> MaterialTheme.appColors.statusGood
-                        else -> MaterialTheme.appColors.statusWarn
-                    }
-                )
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    "${stringResource(R.string.share_riders)} (${peers.size})",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.appColors.sectionHeader
-                )
-                Spacer(Modifier.height(4.dp))
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 200.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.appColors.textButton
+                    ),
+                    modifier = Modifier.weight(1f)
                 ) {
-                    items(peers, key = { it.last.id }) { peer ->
-                        PeerRow(
-                            peer = peer,
-                            nowMs = state.nowMs,
-                            speedUnit = speedUnit,
-                            tempUnit = tempUnit,
-                            onClick = {
-                                onFlyTo(peer.last.lat, peer.last.lng)
-                                onDismiss()
-                            }
-                        )
-                    }
+                    Text(
+                        stringResource(R.string.share_copy_link),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-                Spacer(Modifier.height(14.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, url)
+                        }
+                        context.startActivity(
+                            Intent.createChooser(
+                                send, context.getString(R.string.share_send_link)
+                            )
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.primary,
+                        contentColor = MaterialTheme.appColors.onPrimary
+                    ),
+                    modifier = Modifier.weight(1f)
                 ) {
-                    TextButton(
-                        onClick = onDismiss,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.appColors.textButton
-                        )
-                    ) { Text(stringResource(R.string.action_close)) }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = onLeave,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.appColors.statusDanger,
-                            contentColor = MaterialTheme.appColors.onPrimary
-                        )
-                    ) { Text(stringResource(R.string.share_leave)) }
+                    Text(
+                        stringResource(R.string.share_send_link),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
+            }
+            Spacer(Modifier.height(12.dp))
+            // The relay reports a full room by closing with 1013, which the
+            // session turns into one typed marker; every other error means
+            // the service is simply out of reach.
+            val roomFull = state.error == ShareSession.ERR_ROOM_FULL
+            Text(
+                text = when {
+                    roomFull -> stringResource(R.string.share_room_full)
+                    state.connected -> stringResource(R.string.share_connected)
+                    state.error != null -> stringResource(R.string.share_cannot_reach)
+                    else -> stringResource(R.string.share_reconnecting)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = when {
+                    roomFull || state.error != null -> MaterialTheme.appColors.statusDanger
+                    state.connected -> MaterialTheme.appColors.statusGood
+                    else -> MaterialTheme.appColors.statusWarn
+                }
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                "${stringResource(R.string.share_riders)} (${peers.size})",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.appColors.sectionHeader
+            )
+            Spacer(Modifier.height(4.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp)
+            ) {
+                items(peers, key = { it.last.id }) { peer ->
+                    PeerRow(
+                        peer = peer,
+                        nowMs = state.nowMs,
+                        speedUnit = speedUnit,
+                        tempUnit = tempUnit,
+                        onClick = {
+                            onFlyTo(peer.last.lat, peer.last.lng)
+                            onDismiss()
+                        }
+                    )
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.appColors.textButton
+                    )
+                ) { Text(stringResource(R.string.action_close)) }
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    onClick = onLeave,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger,
+                        contentColor = MaterialTheme.appColors.onPrimary
+                    )
+                ) { Text(stringResource(R.string.share_leave)) }
             }
         }
     }

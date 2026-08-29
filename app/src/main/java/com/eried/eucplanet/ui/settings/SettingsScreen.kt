@@ -7791,8 +7791,11 @@ private fun HardwareButtonGroup(
     }
 }
 
+/** Label + caption + switch. Internal rather than private: the live-location
+ *  share dialog needs the exact same row, and a second copy of the layout is
+ *  how the two drift apart. */
 @Composable
-private fun SwitchSettingWithDesc(
+internal fun SwitchSettingWithDesc(
     label: String,
     description: String,
     checked: Boolean,

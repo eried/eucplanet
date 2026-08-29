@@ -1937,6 +1937,11 @@ class RouteBuilderViewModel @Inject constructor(
     /** True when a linked profile exists, so the dialog can offer that option. */
     suspend fun hasProfile(): Boolean = resolveProfile() != null
 
+    /** The linked profile itself, for the share dialog's preview row (avatar,
+     *  display name, flag), or null when nothing is linked. Same cache as
+     *  [hasProfile], so showing the preview costs no extra round trip. */
+    suspend fun profileIdentity(): Identity? = resolveProfile()
+
     /**
      * Mirrors [ShareSession.resolveDefaultIdentity] but routes the PROFILE case
      * through [resolveProfile], so re-opening the dialog does not re-fetch a

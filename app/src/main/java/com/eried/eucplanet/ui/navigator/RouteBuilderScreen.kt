@@ -1722,6 +1722,7 @@ fun RouteBuilderScreen(
                         default = def,
                         hasProfile = shareHasProfile,
                         resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
+                        resolveProfile = { viewModel.profileIdentity() },
                         onStart = { identity ->
                             shareSwitchConfirmed = false
                             // Land in the group view so the rider sees who
@@ -1743,6 +1744,7 @@ fun RouteBuilderScreen(
                         default = def,
                         hasProfile = shareHasProfile,
                         resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
+                        resolveProfile = { viewModel.profileIdentity() },
                         // Left open on purpose: the moment the room exists
                         // this becomes the group view with the QR to share.
                         onStart = { identity -> viewModel.startShare(identity) },
