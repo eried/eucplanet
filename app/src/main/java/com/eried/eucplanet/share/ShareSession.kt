@@ -8,6 +8,7 @@ import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.eucstats.EucStatsApiContract
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,6 +61,8 @@ class ShareSession @Inject constructor(
     private var joinOrder = 0
     private val colorByPeer = HashMap<String, String>()
     private var closing = false
+    /** Heartbeat that keeps publishing while joined. See [startHeartbeat]. */
+    private var heartbeat: Job? = null
 
     suspend fun resolveDefaultIdentity(): Identity {
         val s = settingsRepository.get()
@@ -96,6 +99,7 @@ class ShareSession @Inject constructor(
             lastSessionName = if (identity.mode == IdentityMode.SESSION) identity.name else it.share.lastSessionName)) }
         _state.value = ShareState.Joined(link, identity, emptyMap(), connected = false, error = null)
         connect(link)
+        startHeartbeat()
     }
 
     private suspend fun connect(link: ShareLink) {
@@ -146,7 +150,29 @@ class ShareSession @Inject constructor(
     fun ageTick() { val now = System.currentTimeMillis()
         update { st -> st.copy(peers = st.peers.mapValues { (_, ps) -> ps.copy(freshness = Staleness.of(now - ps.lastSeenMs)) }) } }
 
-    /** Called every telemetry tick by WheelService. Publishes at most every 3 s or on >10 m. */
+    /**
+     * Keeps the rider on the map while they are joined.
+     *
+     * Publishing used to ride only on WheelService's telemetry, so a rider
+     * sharing without a wheel connected (or after that service stopped) froze
+     * on everyone else's map and aged out to "lost", while their own app
+     * still said Connected. Location sharing is about the phone's position,
+     * so it gets its own beat and telemetry only makes a publish sooner.
+     */
+    private fun startHeartbeat() {
+        heartbeat?.cancel()
+        heartbeat = scope.launch {
+            while (true) {
+                delay(PUBLISH_INTERVAL_MS)
+                publishTick()
+            }
+        }
+    }
+
+    /** Called on every telemetry tick and by the heartbeat. Publishes at
+     *  most every 3 s or on >10 m. Synchronized: the wheel thread, the
+     *  socket thread and the heartbeat all reach it. */
+    @Synchronized
     fun publishTick() {
         val st = _state.value as? ShareState.Joined ?: return
         val sock = ws ?: return; if (!st.connected) return
@@ -166,6 +192,7 @@ class ShareSession @Inject constructor(
 
     fun leave() {
         closing = true
+        heartbeat?.cancel(); heartbeat = null
         ws?.send(JSONObject().put("type", "leave").put("from", myId).toString())
         ws?.close(1000, "leave"); ws = null; key = null
         colorByPeer.clear(); joinOrder = 0; lastLat = Double.NaN
