@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsClient
@@ -182,6 +183,31 @@ private fun peerColorOf(hex: String): Color {
 private data class BrowserTabColors(val toolbar: Int, val navigationBar: Int)
 
 /**
+ * The package that owns "open a web page" on this phone.
+ *
+ * Asked the way a launcher asks: who answers MAIN / APP_BROWSER. A neutral
+ * https URL is the second question, for a phone whose browser does not declare
+ * that category. The system resolver ("android") and this app itself are never
+ * the answer, so a device with no default picked cannot turn Open into a
+ * no-op that hands the link straight back here.
+ */
+private fun defaultBrowserPackage(context: Context): String? {
+    val pm = context.packageManager
+    val probes = listOf(
+        Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER),
+        Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"))
+            .addCategory(Intent.CATEGORY_BROWSABLE),
+    )
+    for (probe in probes) {
+        val pkg = runCatching {
+            pm.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName
+        }.getOrNull() ?: continue
+        if (pkg != context.packageName && pkg != "android") return pkg
+    }
+    return null
+}
+
+/**
  * Hands the share link to the phone's real browser, so Open shows the web
  * viewer as an ordinary tab the rider leaves the app for and comes back from.
  *
@@ -190,27 +216,35 @@ private data class BrowserTabColors(val toolbar: Int, val navigationBar: Int)
  * routes it back into MainActivity, which parses it, sees the room the rider is
  * already in, and dismisses. Nothing appears to happen.
  *
- * A main-selector intent for CATEGORY_APP_BROWSER is addressed to the default
- * browser as an app rather than to whatever claims the URL, so App Link routing
- * never sees it, and in its own task it is a real Chrome tab: the task switcher
- * lists Chrome, and coming back lands on the map where the rider left it. A
- * Custom Tab renders the page inside this app's own task instead, which is
- * exactly what the rider asked not to happen.
+ * So the browser is named: [defaultBrowserPackage] asks who owns "open a web
+ * page" on this phone, and the link goes to that package as an explicit
+ * ACTION_VIEW. An explicit intent is not App Link traffic, and it lands in the
+ * browser's own task, which is what makes it a real Chrome tab: the task
+ * switcher lists Chrome, and coming back lands on the map where the rider left
+ * it. A Custom Tab renders the page inside this app's own task instead, which
+ * is exactly what the rider asked not to happen.
  *
- * A device with no default browser (a bare emulator image) falls back to the
+ * Addressing the browser with ACTION_MAIN instead (makeMainSelectorActivity)
+ * does raise Chrome, but Chrome answers a MAIN launch with its own home page
+ * and drops the data URI, so the rider lands on a blank tab. Verified on the
+ * emulator, which is why the link travels as a VIEW.
+ *
+ * A device where no browser package can be read at all falls back to the
  * Custom Tab, then to a browsable view inside a chooser, so Open still does
  * something rather than silently handing the link back to this app.
  */
 private fun openInBrowser(context: Context, url: String, colors: BrowserTabColors) {
     val uri = Uri.parse(url)
-    val toBrowser = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
-        .apply {
-            data = uri
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-    // ActivityNotFoundException is the expected miss (no default browser at
-    // all); any other launch failure is treated the same way, as "next path".
-    if (runCatching { context.startActivity(toBrowser) }.isSuccess) return
+    val browserPackage = defaultBrowserPackage(context)
+    if (browserPackage != null) {
+        val view = Intent(Intent.ACTION_VIEW, uri)
+            .setPackage(browserPackage)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // ActivityNotFoundException is the expected miss (the package answers
+        // the browser question but not this URL); any other launch failure is
+        // treated the same way, as "try the next path".
+        if (runCatching { context.startActivity(view) }.isSuccess) return
+    }
     val browser = runCatching { CustomTabsClient.getPackageName(context, null) }.getOrNull()
     if (browser != null) {
         val opened = runCatching {
