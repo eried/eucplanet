@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EUC Planet live share</title>
+<meta name="description" content="Watch riders share their live position. Positions are decrypted in your browser, the relay never sees them.">
+<meta name="theme-color" content="#07090d">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090d;
+    --panel: rgba(22, 27, 34, 0.88);
+    --border: rgba(255, 255, 255, 0.10);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --text: #e6edf3;
+    --muted: #9aa4b2;
+    --accent: #58a6ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* === Map === */
+  #map { position: absolute; inset: 0; }
+  .maplibregl-ctrl-attrib { font-size: 10px; }
+
+  /* === Status pill === */
+  #status {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 5; display: flex; align-items: center; gap: 8px;
+    padding: 7px 14px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--border);
+    backdrop-filter: blur(10px); font-size: 13px; font-weight: 600;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45); white-space: nowrap;
+  }
+  #status .led { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  #status.live .led { background: #2ea043; box-shadow: 0 0 8px #2ea043; }
+  #status.warn .led { background: #d29922; }
+  #status.err  .led { background: #f85149; }
+
+  /* === Peer list panel === */
+  #panel {
+    position: absolute; z-index: 5; left: 12px; bottom: 12px; width: 280px;
+    max-height: 46vh; overflow-y: auto;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    backdrop-filter: blur(10px); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  }
+  #panel:empty { display: none; }
+  .row {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+    cursor: pointer; border-bottom: 1px solid var(--border);
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: rgba(255, 255, 255, 0.06); }
+  .row .swatch {
+    width: 26px; height: 26px; border-radius: 50%; flex: none;
+    border: 2px solid #fff; background-size: cover; background-position: center;
+  }
+  .row .who { min-width: 0; flex: 1; }
+  .row .nm {
+    font-size: 13px; font-weight: 600; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .row .st { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .row .age { font-size: 11px; color: var(--muted); flex: none; font-variant-numeric: tabular-nums; }
+  .row.dim { opacity: 0.55; }
+
+  /* === Recenter button === */
+  #recenter {
+    position: absolute; z-index: 5; right: 12px; bottom: 12px;
+    padding: 9px 14px; border-radius: 999px; cursor: pointer;
+    background: var(--panel); border: 1px solid var(--border-strong);
+    color: var(--text); font-size: 13px; font-weight: 600;
+    backdrop-filter: blur(10px); display: none;
+  }
+  #recenter:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* === Map marker (mirrors the in-app look) === */
+  .pin { position: relative; width: 30px; height: 30px; cursor: pointer; }
+  .pin .dot {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid #fff; background-color: var(--c, #1E88E5);
+    background-size: cover; background-position: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  }
+  .pin .arrow {
+    position: absolute; inset: 0; margin: auto; width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-bottom: 9px solid var(--c, #1E88E5);
+    transform-origin: 50% 50%; display: none;
+  }
+  .pin.has-heading .arrow { display: block; }
+  .pin .tag {
+    position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+    padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+    background: rgba(13, 17, 23, 0.85); border: 1px solid var(--border);
+    color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 0.2px;
+  }
+  .pin .tag .age { color: var(--muted); font-weight: 500; }
+  .pin.stale { opacity: 0.5; }
+
+  /* === Full page message (invalid link, self test) === */
+  #msg {
+    position: absolute; inset: 0; z-index: 20; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 28px; text-align: center; background: var(--bg);
+  }
+  #msg.show { display: flex; }
+  #msg h1 { margin: 0; font-size: 20px; font-weight: 700; }
+  #msg p { margin: 0; color: var(--muted); font-size: 14px; max-width: 30rem; line-height: 1.6; }
+  #msg code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; color: var(--accent); word-break: break-all;
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="status"><span class="led"></span><span id="statusText">Connecting</span></div>
+<div id="panel"></div>
+<button id="recenter" type="button">Fit all riders</button>
+
+<div id="msg">
+  <h1 id="msgTitle"></h1>
+  <p id="msgBody"></p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+<script>
+"use strict";
+/*
+ * EUC Planet live share, watch only web viewer.
+ *
+ * The relay is a blind pipe: it forwards opaque blobs and never holds the key.
+ * The key lives only in the URL fragment, which browsers never send to a server,
+ * so decryption happens here. This page NEVER writes to the socket.
+ *
+ * Contract shared byte for byte with the Android app (see ShareCrypto.kt):
+ *   key  = HKDF-SHA256(rawKey, salt "eucshare-v1", info "aes-256-gcm", 32 bytes)
+ *   blob = nonce(12) || AES-256-GCM(plaintext, aad = roomId)
+ */
+
+/* ------------------------------------------------------------------ *
+ * Constants (must match the app)
+ * ------------------------------------------------------------------ */
+var RELAY_BASE   = "wss://eucshare.ried.no/ws/";
+var HKDF_SALT    = "eucshare-v1";
+var HKDF_INFO    = "aes-256-gcm";
+var RECONNECT_MS = 3000;
+var FRESH_MS     = 15000;
+var STALE_MS     = 120000;
+var TRAIL_MS     = 5 * 60 * 1000;
+var TICK_MS      = 1000;
+var LOST_COLOR   = "#9E9E9E";
+var LOST_TRAIL_FACTOR = 0.35;
+var PALETTE = ["#E53935", "#1E88E5", "#43A047", "#FB8C00", "#8E24AA", "#00ACC1",
+               "#F4511E", "#3949AB", "#7CB342", "#D81B60", "#00897B", "#FDD835"];
+
+var FRESH = "FRESH", STALE = "STALE", LOST = "LOST";
+
+/* ------------------------------------------------------------------ *
+ * Small helpers
+ * ------------------------------------------------------------------ */
+function $(id) { return document.getElementById(id); }
+function utf8(s) { return new TextEncoder().encode(s); }
+
+function b64uToBytes(s) {
+  var pad = (4 - (s.length % 4)) % 4;
+  var bin = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat(pad));
+  var out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function hex(bytes) {
+  return Array.prototype.map.call(bytes, function (b) {
+    return b.toString(16).padStart(2, "0");
+  }).join("");
+}
+
+function showMessage(title, body, html) {
+  $("msgTitle").textContent = title;
+  if (html) $("msgBody").innerHTML = html; else $("msgBody").textContent = body || "";
+  $("msg").classList.add("show");
+}
+
+function setStatus(text, cls) {
+  $("statusText").textContent = text;
+  $("status").className = cls || "";
+}
+
+/* ------------------------------------------------------------------ *
+ * 1. Hash parsing: #<roomId>.<key>, both 22 char base64url of 16 bytes
+ * ------------------------------------------------------------------ */
+var ID_RE = /^[A-Za-z0-9_-]{22}$/;
+
+function parseShareHash(hash) {
+  var frag = hash.charAt(0) === "#" ? hash.slice(1) : hash;
+  var parts = frag.split(".");
+  if (parts.length !== 2 || !ID_RE.test(parts[0]) || !ID_RE.test(parts[1])) return null;
+  try {
+    var rawKey = b64uToBytes(parts[1]);
+    if (rawKey.length !== 16) return null;
+    return { roomId: parts[0], rawKey: rawKey };
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * 2. Crypto: HKDF-SHA256 then AES-256-GCM, aad = roomId
+ * ------------------------------------------------------------------ */
+function deriveAesKey(rawKey) {
+  return crypto.subtle.importKey("raw", rawKey, "HKDF", false, ["deriveKey"]).then(function (base) {
+    return crypto.subtle.deriveKey(
+      { name: "HKDF", hash: "SHA-256", salt: utf8(HKDF_SALT), info: utf8(HKDF_INFO) },
+      base,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["decrypt"]
+    );
+  });
+}
+
+/** The same derivation exposed as raw bytes, used only by the self test. */
+function deriveAesKeyBytes(rawKey) {
+  return crypto.subtle.importKey("raw", rawKey, "HKDF", false, ["deriveBits"]).then(function (base) {
+    return crypto.subtle.deriveBits(
+      { name: "HKDF", hash: "SHA-256", salt: utf8(HKDF_SALT), info: utf8(HKDF_INFO) }, base, 256);
+  }).then(function (bits) { return new Uint8Array(bits); });
+}
+
+function decryptBlob(key, roomId, blob) {
+  return crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: blob.slice(0, 12), additionalData: utf8(roomId), tagLength: 128 },
+    key,
+    blob.slice(12)
+  ).then(function (plain) { return new TextDecoder().decode(plain); });
+}
+
+/* ------------------------------------------------------------------ *
+ * 3. Self test (#selftest): the Kotlin interop vector, no socket, no map
+ * ------------------------------------------------------------------ */
+var SELFTEST = {
+  roomId: "AAAAAAAAAAAAAAAAAAAAAA",
+  rawKey: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
+  blob: "AAAAAAAAAAAAAAAA3XcJbTvCEWy-_Cezzo2ZLA6C",
+  keyHex: "127d30588b8b9efd214c54b706d030b524b76f2fb63617e1113f3571212bc582",
+  plain: "hi"
+};
+
+function runSelfTest() {
+  var lines = [];
+  var gotHex = "";
+  return deriveAesKeyBytes(SELFTEST.rawKey).then(function (bytes) {
+    gotHex = hex(bytes);
+    lines.push("derived key: " + gotHex);
+    lines.push("expected:    " + SELFTEST.keyHex);
+    return deriveAesKey(SELFTEST.rawKey);
+  }).then(function (key) {
+    return decryptBlob(key, SELFTEST.roomId, b64uToBytes(SELFTEST.blob));
+  }).then(function (text) {
+    lines.push("plaintext:   " + JSON.stringify(text));
+    return gotHex === SELFTEST.keyHex && text === SELFTEST.plain;
+  }).catch(function (e) {
+    lines.push("error: " + (e && e.message ? e.message : String(e)));
+    return false;
+  }).then(function (ok) {
+    document.title = ok ? "SELFTEST_OK" : "SELFTEST_FAIL";
+    showMessage(document.title, null, "<code>" + lines.join("<br>") + "</code>");
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ * 4. Peer state
+ * ------------------------------------------------------------------ */
+/*
+ * Keyed by the relay sender id, because the peers and left control frames
+ * address peers that way. Display fields come from the decrypted payload.
+ */
+var peers = new Map();
+var joinCount = 0;
+var map = null;
+var mapReady = false;
+var userMoved = false;
+var everFitted = false;
+
+function peerFor(senderId) {
+  var p = peers.get(senderId);
+  if (!p) {
+    p = {
+      senderId: senderId,
+      joinIndex: joinCount,
+      color: PALETTE[joinCount % PALETTE.length],
+      name: senderId.slice(0, 6),
+      flag: null, avatarUrl: null, icon: null, mode: null,
+      lat: null, lng: null, heading: null,
+      stats: null,
+      lastSeenMs: Date.now(),
+      relayAgeMs: null, relayStampMs: 0,
+      left: false,
+      trail: [],
+      marker: null, el: null
+    };
+    joinCount++;
+    peers.set(senderId, p);
+  }
+  return p;
+}
+
+/*
+ * Age in ms: the local clock since the last decrypted frame, cross checked with
+ * the relay reported age (the larger wins, so a stale peer cannot look fresh).
+ */
+function ageMsOf(p, now) {
+  var local = now - p.lastSeenMs;
+  if (p.relayAgeMs === null) return local;
+  var relay = p.relayAgeMs + (now - p.relayStampMs);
+  return Math.max(local, relay);
+}
+
+function freshnessOf(ageMs) {
+  if (ageMs < FRESH_MS) return FRESH;
+  if (ageMs < STALE_MS) return STALE;
+  return LOST;
+}
+
+function applyPayload(senderId, payload) {
+  if (!payload || payload.v !== 1) return;      // unknown schema, ignore
+  var p = peerFor(senderId);
+  p.name = payload.name || p.name;
+  p.mode = payload.mode || null;
+  p.icon = payload.icon || null;
+  p.avatarUrl = payload.avatarUrl || null;
+  p.flag = payload.flag || null;
+  p.lat = payload.lat;
+  p.lng = payload.lng;
+  p.heading = (typeof payload.heading === "number") ? payload.heading : null;
+  p.stats = payload.stats || null;
+  p.left = false;
+  p.lastSeenMs = Date.now();
+  p.relayAgeMs = 0;
+  p.relayStampMs = p.lastSeenMs;
+  // Never interpolate or dead reckon: the trail only grows on a real position.
+  var t = (typeof payload.t === "number") ? payload.t : Date.now();
+  p.trail.push({ lat: payload.lat, lng: payload.lng, t: t });
+  trimTrail(p, Date.now());
+}
+
+function trimTrail(p, now) {
+  while (p.trail.length && now - p.trail[0].t > TRAIL_MS) p.trail.shift();
+}
+
+/* ------------------------------------------------------------------ *
+ * 5. Socket: read only, reconnect every 3 s
+ * ------------------------------------------------------------------ */
+function connect(roomId, key) {
+  var ws;
+  try {
+    ws = new WebSocket(RELAY_BASE + roomId);
+  } catch (e) {
+    setStatus("Reconnecting", "warn");
+    setTimeout(function () { connect(roomId, key); }, RECONNECT_MS);
+    return;
+  }
+
+  ws.onopen = function () { setStatus("Live", "live"); };
+
+  ws.onmessage = function (ev) {
+    var frame;
+    try { frame = JSON.parse(ev.data); } catch (e) { return; }
+    if (!frame) return;
+
+    if (frame.type === "peers" && frame.seen) {
+      var now = Date.now();
+      Object.keys(frame.seen).forEach(function (id) {
+        var p = peers.get(id);      // ids we never decrypted carry no position
+        if (!p) return;
+        p.relayAgeMs = Math.max(0, Number(frame.seen[id]) * 1000);
+        p.relayStampMs = now;
+      });
+      render();
+      return;
+    }
+
+    if (frame.type === "left" && frame.from) {
+      var gone = peers.get(frame.from);
+      if (gone) { gone.left = true; render(); }
+      return;
+    }
+
+    if (frame.from && frame.ct) {
+      decryptBlob(key, roomId, b64uToBytes(frame.ct)).then(function (json) {
+        applyPayload(frame.from, JSON.parse(json));
+        render();
+      }).catch(function () {
+        // Wrong key, tampered blob or a foreign schema: drop it silently.
+      });
+    }
+  };
+
+  ws.onclose = function () {
+    setStatus("Reconnecting", "warn");
+    setTimeout(function () { connect(roomId, key); }, RECONNECT_MS);
+  };
+
+  ws.onerror = function () { try { ws.close(); } catch (e) {} };
+  // Watch only: there is deliberately no ws.send anywhere in this page.
+}
+
+/* ------------------------------------------------------------------ *
+ * 6. Map
+ * ------------------------------------------------------------------ */
+function initMap() {
+  map = new maplibregl.Map({
+    container: "map",
+    style: {
+      version: 8,
+      sources: {
+        osm: {
+          type: "raster",
+          tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+          tileSize: 256,
+          maxzoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }
+      },
+      layers: [
+        { id: "bg", type: "background", paint: { "background-color": "#07090d" } },
+        { id: "osm", type: "raster", source: "osm" }
+      ]
+    },
+    center: [0, 20],
+    zoom: 1.4
+  });
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+
+  map.on("load", function () {
+    map.addSource("trails", { type: "geojson", data: emptyFc() });
+    map.addLayer({
+      id: "trails",
+      type: "line",
+      source: "trails",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": ["get", "color"],
+        "line-width": 4,
+        "line-opacity": ["get", "opacity"]
+      }
+    });
+    mapReady = true;
+    render();
+  });
+
+  // Once the viewer pans or zooms, stop stealing the viewport.
+  map.on("movestart", function (e) {
+    if (e && e.originalEvent) { userMoved = true; $("recenter").style.display = "block"; }
+  });
+}
+
+function emptyFc() { return { type: "FeatureCollection", features: [] }; }
+
+/* ------------------------------------------------------------------ *
+ * 7. Render
+ * ------------------------------------------------------------------ */
+function ageText(p, ageMs, fresh) {
+  if (p.left) return "left";
+  if (fresh === LOST) return "lost";
+  if (fresh === STALE) return Math.round(ageMs / 1000) + "s";
+  return "live";
+}
+
+function statsText(s) {
+  if (!s) return "";
+  var parts = [];
+  if (typeof s.speedKmh === "number") parts.push(s.speedKmh.toFixed(1) + " km/h");
+  if (typeof s.batteryPct === "number") parts.push(Math.round(s.batteryPct) + "%");
+  if (typeof s.tempC === "number") parts.push(Math.round(s.tempC) + "°C");
+  return parts.join(" · ");
+}
+
+function makeMarkerEl(p) {
+  var el = document.createElement("div");
+  el.className = "pin";
+  el.innerHTML = '<div class="arrow"></div><div class="dot"></div><div class="tag"></div>';
+  el.addEventListener("click", function () { flyTo(p); });
+  return el;
+}
+
+function flyTo(p) {
+  if (!map || p.lat === null) return;
+  userMoved = true;
+  $("recenter").style.display = "block";
+  map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 15), speed: 1.2 });
+}
+
+function render() {
+  var now = Date.now();
+  var rows = [];
+  var features = [];
+  var positioned = [];
+
+  peers.forEach(function (p) {
+    trimTrail(p, now);
+    var age = ageMsOf(p, now);
+    var fresh = p.left ? LOST : freshnessOf(age);
+    var grey = p.left || fresh === LOST;
+    var color = grey ? LOST_COLOR : p.color;
+    var label = ageText(p, age, fresh);
+
+    if (p.lat !== null && map) {
+      if (!p.marker) {
+        p.el = makeMarkerEl(p);
+        p.marker = new maplibregl.Marker({ element: p.el }).setLngLat([p.lng, p.lat]).addTo(map);
+      } else {
+        p.marker.setLngLat([p.lng, p.lat]);
+      }
+      var dot = p.el.querySelector(".dot");
+      var tag = p.el.querySelector(".tag");
+      p.el.style.setProperty("--c", color);
+      dot.style.backgroundImage = (p.avatarUrl && !grey) ? 'url("' + p.avatarUrl + '")' : "none";
+      p.el.classList.toggle("stale", fresh === STALE && !grey);
+      p.el.classList.toggle("has-heading", p.heading !== null && !grey);
+      if (p.heading !== null) {
+        p.el.querySelector(".arrow").style.transform =
+          "rotate(" + p.heading + "deg) translateY(-21px)";
+      }
+      tag.textContent = (p.flag ? p.flag + " " : "") + p.name + " ";
+      var ageSpan = document.createElement("span");
+      ageSpan.className = "age";
+      ageSpan.textContent = label;
+      tag.appendChild(ageSpan);
+      positioned.push(p);
+    }
+
+    // Trail: one feature per hop, so every segment carries its own opacity.
+    var pts = p.trail;
+    var n = pts.length;
+    for (var i = 0; i < n - 1; i++) {
+      var frac = (i + 1) / (n - 1);                 // 0 oldest hop .. 1 newest hop
+      var opacity = 0.15 + 0.85 * frac;
+      if (grey) opacity *= LOST_TRAIL_FACTOR;
+      features.push({
+        type: "Feature",
+        properties: { color: color, opacity: Math.round(opacity * 1000) / 1000 },
+        geometry: {
+          type: "LineString",
+          coordinates: [[pts[i].lng, pts[i].lat], [pts[i + 1].lng, pts[i + 1].lat]]
+        }
+      });
+    }
+
+    rows.push({ p: p, color: color, label: label, grey: grey });
+  });
+
+  if (mapReady) map.getSource("trails").setData({ type: "FeatureCollection", features: features });
+
+  renderPanel(rows);
+
+  if (!everFitted && !userMoved && mapReady && positioned.length) {
+    fitAll(positioned);
+    everFitted = true;
+  }
+}
+
+function fitAll(list) {
+  var withPos = list;
+  if (!withPos) {
+    withPos = [];
+    peers.forEach(function (p) { if (p.lat !== null) withPos.push(p); });
+  }
+  if (!withPos.length || !map) return;
+  var b = new maplibregl.LngLatBounds();
+  withPos.forEach(function (p) { b.extend([p.lng, p.lat]); });
+  map.fitBounds(b, { padding: 90, maxZoom: 15, duration: 600 });
+}
+
+function renderPanel(rows) {
+  var panel = $("panel");
+  panel.textContent = "";
+  rows.sort(function (a, b) { return a.p.joinIndex - b.p.joinIndex; });
+  rows.forEach(function (r) {
+    var row = document.createElement("div");
+    row.className = "row" + (r.grey ? " dim" : "");
+    row.addEventListener("click", function () { flyTo(r.p); });
+
+    var sw = document.createElement("div");
+    sw.className = "swatch";
+    sw.style.background = r.color;
+    if (r.p.avatarUrl && !r.grey) sw.style.backgroundImage = 'url("' + r.p.avatarUrl + '")';
+
+    var who = document.createElement("div");
+    who.className = "who";
+    var nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = (r.p.flag ? r.p.flag + " " : "") + r.p.name;
+    who.appendChild(nm);
+    var st = statsText(r.p.stats);
+    if (st) {
+      var stEl = document.createElement("div");
+      stEl.className = "st";
+      stEl.textContent = st;
+      who.appendChild(stEl);
+    }
+
+    var age = document.createElement("div");
+    age.className = "age";
+    age.textContent = r.label;
+
+    row.appendChild(sw);
+    row.appendChild(who);
+    row.appendChild(age);
+    panel.appendChild(row);
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ * 8. Boot
+ * ------------------------------------------------------------------ */
+function boot() {
+  $("recenter").addEventListener("click", function () {
+    userMoved = false;
+    fitAll(null);
+  });
+
+  if (location.hash === "#selftest") {
+    setStatus("Self test", "");
+    runSelfTest();
+    return;
+  }
+
+  var link = parseShareHash(location.hash || "");
+  if (!link) {
+    setStatus("Invalid link", "err");
+    showMessage("This share link has expired or is invalid.",
+      "Ask the rider for a fresh link. The key lives in the part of the address after the #, so a link loses it when it is retyped or trimmed.");
+    return;
+  }
+
+  if (!window.crypto || !crypto.subtle) {
+    setStatus("Not secure", "err");
+    showMessage("This browser cannot decrypt the ride.",
+      "Open the link over https, the page needs the browser crypto API.");
+    return;
+  }
+
+  if (typeof maplibregl === "undefined") {
+    setStatus("Map unavailable", "err");
+    showMessage("The map could not load.", "Check your connection and reload the page.");
+    return;
+  }
+
+  initMap();
+  setStatus("Connecting", "");
+
+  deriveAesKey(link.rawKey).then(function (key) {
+    connect(link.roomId, key);
+    setInterval(render, TICK_MS);       // reclassify freshness once a second
+  }).catch(function () {
+    setStatus("Invalid link", "err");
+    showMessage("This share link has expired or is invalid.",
+      "The key in the link could not be used.");
+  });
+}
+
+// A new link pasted into the same tab only changes the fragment, which does not
+// reload the document. Start over so the new room is the one being watched.
+window.addEventListener("hashchange", function () { location.reload(); });
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>
