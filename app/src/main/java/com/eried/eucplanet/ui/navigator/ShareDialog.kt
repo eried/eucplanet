@@ -60,6 +60,7 @@ import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.IdentityMode
 import com.eried.eucplanet.share.PeerState
 import com.eried.eucplanet.share.ShareLinks
+import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.ui.dashboard.QrCodeImage
 import com.eried.eucplanet.ui.theme.appColors
@@ -347,9 +348,10 @@ fun ShareGroupDialog(
                     }
                 }
                 Spacer(Modifier.height(12.dp))
-                // The relay reports a full room through the session error; every
-                // other error means the service is simply out of reach.
-                val roomFull = state.error?.contains("full", ignoreCase = true) == true
+                // The relay reports a full room by closing with 1013, which the
+                // session turns into one typed marker; every other error means
+                // the service is simply out of reach.
+                val roomFull = state.error == ShareSession.ERR_ROOM_FULL
                 Text(
                     text = when {
                         roomFull -> stringResource(R.string.share_room_full)

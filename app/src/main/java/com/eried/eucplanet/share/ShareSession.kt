@@ -47,6 +47,14 @@ class ShareSession @Inject constructor(
         private const val TAG = "ShareSession"
         const val PUBLISH_INTERVAL_MS = 3_000L
         const val PUBLISH_MOVE_M = 10.0
+        /** The relay closes with 1013 when a room already holds its maximum
+         *  number of riders. Carried as a typed marker in [ShareState.Joined.error]
+         *  so the UI can say "this group is full" without matching on words
+         *  that a relay could reword or localize. */
+        const val ERR_ROOM_FULL = "room_full"
+        /** WebSocket close code the relay uses for "try again later": here it
+         *  only ever means the room is at capacity. */
+        const val CLOSE_ROOM_FULL = 1013
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val client = OkHttpClient()
@@ -127,9 +135,27 @@ class ShareSession @Inject constructor(
                 if (gen != connectGen) return
                 update { it.copy(connected = false, error = t.message) }; scheduleReconnect(link)
             }
+            /**
+             * The peer sent a Close frame: a relay redeploy, an nginx reload, or
+             * a 1013 for a room that is already full. OkHttp only calls
+             * [onClosed] once THIS side has enqueued its own close, so without
+             * this the session sat at connected = true publishing into a dead
+             * socket and never reconnecting. Answering the close hands control
+             * to onClosed, which owns the reconnect decision.
+             */
+            override fun onClosing(w: WebSocket, code: Int, reason: String) {
+                if (gen != connectGen) { w.close(1000, null); return }
+                if (code == CLOSE_ROOM_FULL) update { it.copy(connected = false, error = ERR_ROOM_FULL) }
+                w.close(1000, null)
+            }
             override fun onClosed(w: WebSocket, code: Int, reason: String) {
                 if (gen != connectGen) return
-                update { it.copy(connected = false) }; if (!closing) scheduleReconnect(link)
+                // A full room is not a transient fault: retrying every 3 s would
+                // hammer the relay for a seat that is not coming free on its own.
+                // The rider is told, and reconnecting is left to them.
+                val roomFull = (_state.value as? ShareState.Joined)?.error == ERR_ROOM_FULL
+                update { it.copy(connected = false) }
+                if (!closing && !roomFull) scheduleReconnect(link)
             }
         })
     }

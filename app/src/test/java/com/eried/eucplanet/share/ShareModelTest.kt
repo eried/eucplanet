@@ -20,6 +20,14 @@ class ShareModelTest {
     @Test fun payloadRejectsWrongVersionOrGarbage() {
         assertNull(SharePayload.fromJson("{\"v\":2}")); assertNull(SharePayload.fromJson("nope"))
     }
+    /** The relay closes a room at capacity with 1013, and the group dialog
+     *  decides "this group is full" by comparing against the typed error the
+     *  session raises for exactly that code. Both halves are a contract with
+     *  the relay, so they are pinned here rather than left to be reworded. */
+    @Test fun roomFullCloseCodeAndErrorArePinned() {
+        assertEquals(1013, ShareSession.CLOSE_ROOM_FULL)
+        assertEquals("room_full", ShareSession.ERR_ROOM_FULL)
+    }
     @Test fun paletteIsFixedAndWraps() {
         assertEquals(12, PeerPalette.COLORS.size)
         assertEquals("#E53935", PeerPalette.colorFor(0)); assertEquals("#1E88E5", PeerPalette.colorFor(1))
