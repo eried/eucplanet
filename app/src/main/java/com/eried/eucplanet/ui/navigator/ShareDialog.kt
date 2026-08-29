@@ -459,10 +459,11 @@ fun ShareStartDialog(
                     selected = tab,
                     onSelect = { picked ->
                         tab = picked
-                        // Walking over to Create drops the scanned ride:
-                        // coming back to Join has to mean the camera again,
-                        // not a link the rider left behind.
-                        if (picked == ShareTab.CREATE) joinLink = null
+                        // Any tap on the row drops the scanned ride. Walking
+                        // over to Create leaves it behind, and tapping Join
+                        // is the rider asking for the camera again, not for
+                        // the link they already read.
+                        joinLink = null
                     }
                 )
             })
