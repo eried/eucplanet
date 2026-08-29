@@ -128,7 +128,10 @@ class AutomationManager @Inject constructor(
         evaluateVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
-        if (!lockedDown) evaluatePlaybackRate(settings)
+        // Media speed control is parked: it needs notification access the app
+        // no longer asks for, and most players ignored the rate anyway. The
+        // evaluation below is left intact for whoever revives it.
+        // if (!lockedDown) evaluatePlaybackRate(settings)
         // lockEnabled is the whole feature's switch; unlockEnabled is a
         // sub-option of it, and the settings screen only draws the unlock
         // switch while this one is on. Gating on either used to keep the

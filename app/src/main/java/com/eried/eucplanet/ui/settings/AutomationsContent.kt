@@ -340,6 +340,24 @@ fun AutomationsContent(
 
         Spacer(Modifier.height(8.dp))
 
+        // --- Media speed control Section: PARKED ---
+        //
+        // Commented out rather than deleted, and the code behind it left
+        // intact, because it is worth another attempt one day.
+        //
+        // It never worked reliably. Setting another app's playback rate needs
+        // MediaController.TransportControls.setPlaybackSpeed, which needs
+        // notification access, and even with that granted most players ignore
+        // it: YouTube Music's session never implemented onSetPlaybackSpeed
+        // (ExoPlayer #8229) and its own speed dial is UI-side only. So the
+        // rider granted an alarming permission and got nothing for it.
+        //
+        // To bring it back: uncomment this section, the MediaAccessService
+        // entry in AndroidManifest.xml, the warning in AppHealthRepository,
+        // and the call in AutomationManager.evaluate. The settings, the curve,
+        // the policy and their tests were all left in place, so anything a
+        // rider had configured is still there.
+        /*
         // --- Media speed control Section ---
         // One switch and, once it is on, the same spline editor auto-volume
         // uses: the curve is the identical "speed:value" shape, so a rider who
@@ -414,6 +432,7 @@ fun AutomationsContent(
             )
         }
         }   // end Media speed control BringIntoViewSection
+        */
 
         Spacer(Modifier.height(8.dp))
 
