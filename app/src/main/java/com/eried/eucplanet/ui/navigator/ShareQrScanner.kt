@@ -40,7 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -71,6 +70,7 @@ import com.google.zxing.common.HybridBinarizer
 import kotlinx.coroutines.delay
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * The Join tab's camera area: a square live preview that reads a friend's
@@ -134,16 +134,23 @@ fun ShareQrScannerArea(
     // state asks, so the button always does something.
     val permanentlyDenied = refused && !canAsk && activity != null
 
-    /** When the camera last read a QR that is not a share link. Held as a
-     *  clock rather than a flag so the note clears itself: a code from another
-     *  app stays in frame for as long as the rider holds it there, and a line
-     *  that only cleared on the next decoded frame would sit under the preview
-     *  until they moved the phone. */
-    var invalidAtMs by remember { mutableLongStateOf(0L) }
-    LaunchedEffect(invalidAtMs) {
-        if (invalidAtMs == 0L) return@LaunchedEffect
-        delay(INVALID_NOTE_MS)
-        invalidAtMs = 0L
+    /** When the camera last read a QR that is not a share link, and whether
+     *  the note is up. The clock is deliberately not state: a foreign code
+     *  held in frame decodes several times a second, and a timestamp in state
+     *  would recompose this area just as often. Writing the same true is a
+     *  no-op, so the note goes up once and the loop below holds it there
+     *  while the frames keep coming, then clears it.
+     */
+    val lastInvalidMs = remember { AtomicLong(0L) }
+    var invalidShown by remember { mutableStateOf(false) }
+    LaunchedEffect(invalidShown) {
+        if (!invalidShown) return@LaunchedEffect
+        while (true) {
+            val left = lastInvalidMs.get() + INVALID_NOTE_MS - System.currentTimeMillis()
+            if (left <= 0L) break
+            delay(left)
+        }
+        invalidShown = false
     }
 
     Column(modifier) {
@@ -161,7 +168,10 @@ fun ShareQrScannerArea(
                 QrCameraPreview(
                     lifecycleOwner = lifecycleOwner,
                     onLink = onLink,
-                    onUnreadable = { invalidAtMs = System.currentTimeMillis() },
+                    onUnreadable = {
+                        lastInvalidMs.set(System.currentTimeMillis())
+                        invalidShown = true
+                    },
                 )
             } else {
                 CameraPermissionPrompt(
@@ -172,7 +182,7 @@ fun ShareQrScannerArea(
                 )
             }
         }
-        if (invalidAtMs != 0L) {
+        if (invalidShown) {
             Spacer(Modifier.height(8.dp))
             Text(
                 stringResource(R.string.share_link_invalid),
@@ -185,7 +195,8 @@ fun ShareQrScannerArea(
     }
 }
 
-/** How long a "that is not a share link" note stays under the preview. */
+/** How long a "that is not a share link" note stays under the preview after
+ *  the last unreadable frame. */
 private const val INVALID_NOTE_MS = 2_500L
 
 /** The camera square before the rider has said yes: the subject of the ask,
