@@ -51,9 +51,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -71,7 +73,6 @@ import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.ui.dashboard.QrCodeImage
 import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
-import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.util.Units
@@ -90,9 +91,11 @@ import java.util.Locale
  *
  * Controls are the app's canonical ones, not local copies: the identity picker
  * is [SegmentedChoice] (the 56 dp row with the notched label every settings
- * combo uses) and the stats toggle is [SwitchSettingWithDesc]. An earlier
- * hand-rolled segmented row wrapped "Anonymous" mid-word because it lacked the
- * fixed row height, which is exactly what reusing the shared control prevents.
+ * combo uses), the stats toggle is [SwitchSettingWithDesc] and the session-name
+ * field is the plain labelled [OutlinedTextField] every settings screen uses.
+ * An earlier hand-rolled segmented row wrapped "Anonymous" mid-word because it
+ * lacked the fixed row height, which is exactly what reusing the shared control
+ * prevents.
  *
  * There is no in-app "paste link" box: the app claims
  * https://eucplanet.ried.no/share#... as an Android App Link, so a link that is
@@ -189,10 +192,10 @@ internal fun ShareDialogCard(title: String, content: @Composable ColumnScope.() 
 /**
  * A block of controls on the section surface, like one open settings section.
  *
- * Not cosmetic: [FieldNotchLabel] fills its notch with `surfaceVariant` so the
- * label blends into the surface the control sits on. On the dialog's own fill
- * the notch would read as a patch, so every notched control in these dialogs
- * lives inside one of these.
+ * Not cosmetic: a notched field label fills its notch with `surfaceVariant` so
+ * the label blends into the surface the control sits on. On the dialog's own
+ * fill the notch would read as a patch, so every notched control in these
+ * dialogs lives inside one of these.
  */
 @Composable
 private fun ShareSection(title: String? = null, content: @Composable ColumnScope.() -> Unit) {
@@ -375,21 +378,22 @@ fun ShareStartDialog(
                 )
                 if (mode == IdentityMode.SESSION) {
                     Spacer(Modifier.height(10.dp))
-                    Box(Modifier.fillMaxWidth()) {
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            singleLine = true,
-                            colors = themedFieldColors(),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                        )
-                        FieldNotchLabel(stringResource(R.string.share_name_label))
-                    }
+                    // The app's standard settings field: the label lives in the
+                    // control's own notch, so there is no overlay to keep in
+                    // sync with the field's padding.
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text(stringResource(R.string.share_name_label)) },
+                        singleLine = true,
+                        colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
                 if (mode == IdentityMode.PROFILE) {
                     Spacer(Modifier.height(10.dp))
-                    ProfilePreviewRow(profile)
+                    ProfilePreviewCard(profile)
                 }
                 Spacer(Modifier.height(12.dp))
                 SwitchSettingWithDesc(
@@ -479,12 +483,22 @@ fun ShareStartDialog(
     }
 }
 
-/** Avatar, display name and flag exactly as the group will see them, so the
- *  rider can tell at a glance which account they are about to ride under. */
+/**
+ * The account the rider is about to ride under, at the size a picture is worth
+ * looking at: avatar, display name and flag, centred.
+ *
+ * A thumbnail the size of a list bullet cannot answer the one question this
+ * preview exists for, which is "is this the right account", so the avatar is
+ * shown full size rather than as a 28 dp dot.
+ */
 @Composable
-private fun ProfilePreviewRow(profile: ProfilePreview) {
+private fun ProfilePreviewCard(profile: ProfilePreview) {
     when (profile) {
-        is ProfilePreview.Loading -> Row(verticalAlignment = Alignment.CenterVertically) {
+        is ProfilePreview.Loading -> Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             CircularProgressIndicator(
                 modifier = Modifier.size(16.dp),
                 strokeWidth = 2.dp,
@@ -501,37 +515,47 @@ private fun ProfilePreviewRow(profile: ProfilePreview) {
         is ProfilePreview.Missing -> Text(
             stringResource(R.string.share_profile_missing),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.appColors.textSecondary
+            color = MaterialTheme.appColors.textSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
 
-        is ProfilePreview.Ready -> Row(verticalAlignment = Alignment.CenterVertically) {
+        is ProfilePreview.Ready -> Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             val avatar = safeAvatar(profile.identity.avatarUrl)
             if (avatar != null) {
                 AsyncImage(
                     model = avatar,
                     contentDescription = null,
-                    modifier = Modifier.size(28.dp).clip(CircleShape)
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(96.dp).clip(CircleShape)
                 )
             } else {
+                // No picture on the account, so the peer colour stands in: it
+                // is the same colour the group will see on the map.
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(96.dp)
                         .clip(CircleShape)
                         .background(peerColorOf(profile.identity.color))
                 )
             }
-            Spacer(Modifier.width(10.dp))
-            Text(
-                profile.identity.name,
-                color = MaterialTheme.appColors.textPrimary,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false)
-            )
-            profile.identity.flag?.let {
-                Spacer(Modifier.width(8.dp))
-                Text(it, style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    profile.identity.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.appColors.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                profile.identity.flag?.let {
+                    Spacer(Modifier.width(8.dp))
+                    Text(it, style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     }
