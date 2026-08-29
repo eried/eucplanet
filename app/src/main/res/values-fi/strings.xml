@@ -1873,7 +1873,6 @@
         <item quantity="one">%1$d ajaja</item>
         <item quantity="other">%1$d ajajaa</item>
     </plurals>
-    <string name="share_scan_to_join">Skannaa liittyäksesi</string>
     <string name="nav_end_body">Pysäytetäänkö aktiivisen reitin opastus?</string>
     <string name="nav_end_confirm">Lopeta</string>
     <string name="nav_minimize">Pienennä</string>

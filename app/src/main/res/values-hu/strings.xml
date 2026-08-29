@@ -1873,7 +1873,6 @@
         <item quantity="one">%1$d vezető</item>
         <item quantity="other">%1$d vezető</item>
     </plurals>
-    <string name="share_scan_to_join">Olvasd be a csatlakozáshoz</string>
     <string name="nav_end_body">Leállítod az útmutatást az aktív útvonalon?</string>
     <string name="nav_end_confirm">Befejezés</string>
     <string name="nav_minimize">Kicsinyítés</string>

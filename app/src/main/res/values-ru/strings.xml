@@ -1613,7 +1613,6 @@
         <item quantity="many">%1$d райдеров</item>
         <item quantity="other">%1$d райдера</item>
     </plurals>
-    <string name="share_scan_to_join">Отсканируйте, чтобы присоединиться</string>
     <string name="nav_end_body">Прекратить ведение по активному маршруту?</string>
     <string name="nav_end_confirm">Завершить</string>
     <string name="nav_minimize">Свернуть</string>

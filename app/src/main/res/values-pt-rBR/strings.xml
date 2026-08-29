@@ -1611,7 +1611,6 @@
         <item quantity="one">%1$d piloto</item>
         <item quantity="other">%1$d pilotos</item>
     </plurals>
-    <string name="share_scan_to_join">Escaneie para entrar</string>
     <string name="nav_end_body">Parar a orientação da rota ativa?</string>
     <string name="nav_end_confirm">Encerrar</string>
     <string name="nav_minimize">Minimizar</string>

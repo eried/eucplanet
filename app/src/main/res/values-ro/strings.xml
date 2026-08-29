@@ -1874,7 +1874,6 @@
         <item quantity="few">%1$d conducători</item>
         <item quantity="other">%1$d de conducători</item>
     </plurals>
-    <string name="share_scan_to_join">Scanează pentru a te alătura</string>
     <string name="nav_end_body">Oprești ghidarea pentru traseul activ?</string>
     <string name="nav_end_confirm">Încheie</string>
     <string name="nav_minimize">Minimizează</string>

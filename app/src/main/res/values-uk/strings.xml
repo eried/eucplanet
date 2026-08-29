@@ -1645,7 +1645,6 @@
         <item quantity="many">%1$d райдерів</item>
         <item quantity="other">%1$d райдера</item>
     </plurals>
-    <string name="share_scan_to_join">Скануйте, щоб приєднатися</string>
     <string name="nav_end_body">Зупинити супровід активного маршруту?</string>
     <string name="nav_end_confirm">Завершити</string>
     <string name="nav_minimize">Згорнути</string>

@@ -1607,7 +1607,6 @@
     <plurals name="share_rider_count">
         <item quantity="other">%1$d명</item>
     </plurals>
-    <string name="share_scan_to_join">스캔하여 참가</string>
     <string name="nav_end_body">현재 경로의 안내를 중지하시겠습니까?</string>
     <string name="nav_end_confirm">종료</string>
     <string name="nav_minimize">최소화</string>

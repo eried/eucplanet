@@ -832,7 +832,6 @@
         <item quantity="one">%1$d rider</item>
         <item quantity="other">%1$d rider</item>
     </plurals>
-    <string name="share_scan_to_join">Scansiona per unirti</string>
     <string name="nav_expand">Espandi</string>
     <string name="nav_label_destination">Destinazione</string>
     <string name="nav_label_next_stop">Prossima fermata</string>

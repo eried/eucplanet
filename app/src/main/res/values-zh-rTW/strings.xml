@@ -1607,7 +1607,6 @@
     <plurals name="share_rider_count">
         <item quantity="other">%1$d 人</item>
     </plurals>
-    <string name="share_scan_to_join">掃碼加入</string>
     <string name="nav_end_body">停止目前路線的導航？</string>
     <string name="nav_end_confirm">結束</string>
     <string name="nav_minimize">最小化</string>

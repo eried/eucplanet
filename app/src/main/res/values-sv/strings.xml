@@ -1607,7 +1607,6 @@
         <item quantity="one">%1$d åkare</item>
         <item quantity="other">%1$d åkare</item>
     </plurals>
-    <string name="share_scan_to_join">Skanna för att gå med</string>
     <string name="nav_end_body">Stoppa vägledningen för den aktiva rutten?</string>
     <string name="nav_end_confirm">Avsluta</string>
     <string name="nav_minimize">Minimera</string>

@@ -1626,7 +1626,6 @@
         <item quantity="many">%1$d riderów</item>
         <item quantity="other">%1$d ridera</item>
     </plurals>
-    <string name="share_scan_to_join">Zeskanuj, aby dołączyć</string>
     <string name="nav_end_body">Zatrzymać prowadzenie po aktywnej trasie?</string>
     <string name="nav_end_confirm">Zakończ</string>
     <string name="nav_minimize">Zminimalizuj</string>

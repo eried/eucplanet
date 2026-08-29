@@ -2320,7 +2320,6 @@
     <string name="share_tab_create">Create</string>
     <string name="share_camera_allow">Allow camera</string>
     <string name="share_alone">No one else here yet.</string>
-    <string name="share_scan_to_join">Scan to join</string>
     <plurals name="share_rider_count">
         <item quantity="one">%1$d rider</item>
         <item quantity="other">%1$d riders</item>

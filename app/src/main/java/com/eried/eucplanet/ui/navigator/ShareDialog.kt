@@ -68,7 +68,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -81,8 +80,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import coil.compose.AsyncImage
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.share.Freshness
 import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.IdentityMode
@@ -96,6 +95,10 @@ import com.eried.eucplanet.ui.dashboard.QR_MAX_PX
 import com.eried.eucplanet.ui.dashboard.QrCodeImage
 import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
+import com.eried.eucplanet.ui.settings.eucstats.LeaderboardProfileCard
+import com.eried.eucplanet.ui.settings.eucstats.RemoteAvatar
+import com.eried.eucplanet.ui.settings.eucstats.countryName
+import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.util.Units
@@ -239,19 +242,19 @@ internal fun parseShareText(raw: String): ShareLink? {
 }
 
 /**
- * The shared dialog shell: a bordered card with a surfaceVariant title strip,
- * the same look the floating theme editor and the studio replay panel use.
+ * The shared dialog shell: a bordered card with a surfaceVariant header, the
+ * same look the floating theme editor and the studio replay panel use.
  */
 @Composable
 internal fun ShareDialogCard(
     title: String,
-    /** Lets the body scroll under a pinned title strip. The group view needs
-     *  it: its QR is as wide as the dialog, so a long enough rider list would
-     *  otherwise push Close and Leave off the bottom of the screen. */
+    /** Lets the body scroll under a pinned header. The group view needs it: its
+     *  QR is as wide as the dialog, so a long enough rider list would otherwise
+     *  push Close and Leave off the bottom of the screen. */
     scrollable: Boolean = false,
-    /** Drawn full width directly under the title strip, outside the body's
-     *  padding and outside its scroll. The tab row belongs to the card's
-     *  chrome, not to the body it switches between. */
+    /** Drawn inside the header, directly under the title, on the header's own
+     *  surface. The tab row is part of the card's chrome rather than a second
+     *  strip stacked on it, so the two read as one block with one bottom edge. */
     header: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -278,27 +281,36 @@ internal fun ShareDialogCard(
         border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
     ) {
         Column(Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
+            // Title and tabs share one surface and one bottom edge: the tabs
+            // switch what the card shows, so they belong to its header rather
+            // than to a second strip under it.
+            Column(
+                Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.appColors.surfaceVariant)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    Icons.Default.Share,
-                    contentDescription = null,
-                    tint = MaterialTheme.appColors.primary,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.appColors.textPrimary,
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        Icons.Default.Share,
+                        contentDescription = null,
+                        tint = MaterialTheme.appColors.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.appColors.textPrimary,
+                    )
+                }
+                header?.invoke()
             }
-            header?.invoke()
+            HorizontalDivider(color = MaterialTheme.appColors.divider)
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -309,41 +321,6 @@ internal fun ShareDialogCard(
                     .padding(16.dp),
                 content = content,
             )
-        }
-    }
-}
-
-/**
- * A block of controls on the section surface, like one open settings section.
- *
- * Not cosmetic: a notched field label fills its notch with `surfaceVariant` so
- * the label blends into the surface the control sits on. On the dialog's own
- * fill the notch would read as a patch, so every notched control in these
- * dialogs lives inside one of these.
- */
-@Composable
-private fun ShareSection(title: String? = null, content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.appColors.surfaceVariant,
-            contentColor = MaterialTheme.appColors.textPrimary,
-        ),
-    ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp)
-        ) {
-            if (title != null) {
-                Text(
-                    title,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.appColors.sectionHeader,
-                )
-            }
-            content()
         }
     }
 }
@@ -550,9 +527,10 @@ fun ShareStartDialog(
 /**
  * Join | Create, the app's tab row with every colour named.
  *
- * The Material default would paint itself from the Material slots; these
- * dialogs sit on the theme's dialog surface, so the row is told which surface
- * it is on and which accent marks the selected tab.
+ * The Material default would paint itself from the Material slots; this row is
+ * the bottom half of the card's header, so it is told the header's surface and
+ * which accent marks the selected tab. It draws no divider of its own: the
+ * header carries one edge, under the tabs, for the whole block.
  */
 // The tab row's own indicator slot is still experimental in Material 3; it is
 // opted into rather than skipped, because the default indicator paints itself
@@ -563,7 +541,7 @@ private fun ShareTabRow(selected: ShareTab, onSelect: (ShareTab) -> Unit) {
     val appColors = MaterialTheme.appColors
     PrimaryTabRow(
         selectedTabIndex = selected.ordinal,
-        containerColor = appColors.dialog,
+        containerColor = appColors.surfaceVariant,
         contentColor = appColors.textPrimary,
         indicator = {
             TabRowDefaults.PrimaryIndicator(
@@ -571,7 +549,7 @@ private fun ShareTabRow(selected: ShareTab, onSelect: (ShareTab) -> Unit) {
                 color = appColors.primary,
             )
         },
-        divider = { HorizontalDivider(color = appColors.divider) },
+        divider = {},
     ) {
         ShareTab.values().forEach { entry ->
             Tab(
@@ -612,6 +590,11 @@ private fun ShareTabRow(selected: ShareTab, onSelect: (ShareTab) -> Unit) {
  * identity row is the same 56 dp segmented control every settings combo uses
  * and the name field is the same notched one. An earlier hand-rolled segmented
  * row wrapped "Anonymous" mid-word because it lacked the fixed row height.
+ *
+ * The form sits straight on the dialog surface. It used to be wrapped in a
+ * tinted card, which read as a box inside a box; the only reason it needed one
+ * was the notched label, and the control is told which surface it is on
+ * instead.
  */
 @Composable
 private fun ShareIdentityForm(
@@ -623,7 +606,7 @@ private fun ShareIdentityForm(
     onShareStatsChange: (Boolean) -> Unit,
     profile: ProfilePreview,
 ) {
-    ShareSection {
+    Column(Modifier.fillMaxWidth()) {
         SegmentedChoice(
             label = stringResource(R.string.share_show_me_as),
             options = listOf(
@@ -638,6 +621,9 @@ private fun ShareIdentityForm(
             onChange = { key ->
                 onModeChange(runCatching { IdentityMode.valueOf(key) }.getOrDefault(IdentityMode.ANON))
             },
+            // The row is on the dialog's own fill, so the notched label fills
+            // its notch with that colour rather than the settings section one.
+            notchFill = MaterialTheme.appColors.dialog,
         )
         if (mode == IdentityMode.SESSION) {
             Spacer(Modifier.height(10.dp))
@@ -669,12 +655,16 @@ private fun ShareIdentityForm(
 }
 
 /**
- * The account the rider is about to ride under, at the size a picture is worth
- * looking at: avatar, display name and flag, centred.
+ * The account the rider is about to ride under.
  *
- * A thumbnail the size of a list bullet cannot answer the one question this
- * preview exists for, which is "is this the right account", so the avatar is
- * shown full size rather than as a 28 dp dot.
+ * Ready, it is [LeaderboardProfileCard], the very composable the settings
+ * screen draws for the same account: same 48 dp avatar, same name and flag,
+ * same country under it. There is one leaderboard profile, so it looks the
+ * same everywhere it is shown; an earlier 96 dp portrait here made the dialog
+ * and the settings screen look like two different accounts.
+ *
+ * Loading and "nothing linked" stay one muted line: neither is a profile to
+ * look at, and a placeholder the size of the card would make the form jump.
  */
 @Composable
 private fun ProfilePreviewCard(profile: ProfilePreview) {
@@ -705,46 +695,32 @@ private fun ProfilePreviewCard(profile: ProfilePreview) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        is ProfilePreview.Ready -> Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            val avatar = safeAvatar(profile.identity.avatarUrl)
-            if (avatar != null) {
-                AsyncImage(
-                    model = avatar,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(96.dp).clip(CircleShape)
-                )
-            } else {
-                // No picture on the account, so the peer colour stands in: it
-                // is the same colour the group will see on the map.
-                Box(
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .background(peerColorOf(profile.identity.color))
-                )
-            }
-            Spacer(Modifier.height(10.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    profile.identity.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.appColors.textPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false)
-                )
-                profile.identity.flag?.let {
-                    Spacer(Modifier.width(8.dp))
-                    Text(it, style = MaterialTheme.typography.titleMedium)
-                }
-            }
-        }
+        is ProfilePreview.Ready ->
+            LeaderboardProfileCard(profile.identity.asLeaderboardCard())
     }
 }
+
+/**
+ * The share identity read as the leaderboard card the settings screen draws.
+ *
+ * Both come from the same rider on the same server, so the card's identity
+ * fields map straight across; the stats it also carries are the settings
+ * screen's own business and are not shown here, so they are left at zero
+ * rather than invented. The country is the name of the flag's country, which
+ * is what the settings card shows under the name.
+ */
+private fun Identity.asLeaderboardCard(): RiderCard = RiderCard(
+    displayName = name,
+    flag = flag,
+    hasAvatar = !avatarUrl.isNullOrBlank(),
+    avatarUrl = safeAvatar(avatarUrl),
+    totalKm = 0.0,
+    trips = 0,
+    topSpeedKmh = 0.0,
+    maxGforce = 0.0,
+    mileageRank = null,
+    country = flag?.takeIf { it.length == 2 }?.let { countryName(it) },
+)
 
 @Composable
 fun ShareGroupDialog(
@@ -789,8 +765,9 @@ fun ShareGroupDialog(
                 state.connected -> MaterialTheme.appColors.statusGood
                 else -> MaterialTheme.appColors.statusWarn
             }
-            // One status line, read the way the rest of the app reads them:
-            // a coloured dot, the state, and the count on the far right.
+            // One status line, read the way the rest of the app reads them: a
+            // coloured dot and the state. The rider count is not repeated here
+            // - it is the rider section's own header, one line further down.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -815,22 +792,14 @@ fun ShareGroupDialog(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    pluralStringResource(
-                        R.plurals.share_rider_count, activeCount, activeCount
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.appColors.textSecondary,
-                    maxLines = 1
-                )
             }
             Spacer(Modifier.height(14.dp))
-            // The QR, its caption and the three link actions are one block:
-            // the code is sized from the row's own width so its edges land on
-            // the outer edges of the buttons under it. The block is capped and
-            // centred, because a square that fills a landscape dialog is
-            // taller than the screen and buries Leave under a scroll.
+            // The QR and the three link actions are one block: the code is
+            // sized from the row's own width so its edges land on the outer
+            // edges of the buttons under it. The block is capped and centred,
+            // because a square that fills a landscape dialog is taller than
+            // the screen and buries Leave under a scroll. It carries no caption
+            // - a QR over a Share row needs no line telling a rider to scan it.
             BoxWithConstraints(
                 Modifier
                     .widthIn(max = shareBlockMaxWidth())
@@ -850,14 +819,6 @@ fun ShareGroupDialog(
                         content = url,
                         sizePx = qrPx,
                         modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        stringResource(R.string.share_scan_to_join),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.textSecondary,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(12.dp))
                     // Three ways to hand the link to a friend who is not
@@ -913,33 +874,64 @@ fun ShareGroupDialog(
                 }
             }
             Spacer(Modifier.height(16.dp))
-            ShareSection(stringResource(R.string.share_riders)) {
+            // Riders, as one of the app's list sections rather than a card: a
+            // header with the count on the right, then rows separated by a
+            // divider, straight on the dialog surface. A rounded box here sat
+            // inside the dialog's own rounded bottom corner, which is two
+            // corners inside each other and reads as unfinished.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.share_riders),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.appColors.sectionHeader,
+                    modifier = Modifier.weight(1f)
+                )
+                // The one place the count is shown, so the status line above
+                // and this header can never disagree about who is here.
+                Text(
+                    pluralStringResource(
+                        R.plurals.share_rider_count, activeCount, activeCount
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                    maxLines = 1
+                )
+            }
+            // Nobody else is in the room right now, either because no one has
+            // joined yet or every other rider has left or aged out. Tied to the
+            // same count the header shows, so the two cannot disagree. It also
+            // covers a link into a room the relay already dropped (it clears a
+            // room a couple of minutes after its last socket closes): there is
+            // no way to tell that apart from "not here yet", so it is not
+            // reported as anything more alarming.
+            if (activeCount == 0) {
                 Spacer(Modifier.height(6.dp))
-                // Nobody else is in the room right now, either because no one
-                // has joined yet or every other rider has left or aged out.
-                // Tied to the same count the badge shows, so the two cannot
-                // disagree. It also covers a link into a room the relay
-                // already dropped (it clears a room a couple of minutes after
-                // its last socket closes): there is no way to tell that apart
-                // from "not here yet", so it is not reported as anything more
-                // alarming. The line sits inside the section, so the header is
-                // never left standing over nothing.
-                if (activeCount == 0) {
-                    Text(
-                        stringResource(R.string.share_alone),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.textSecondary
-                    )
-                }
-                // Riders who left or went LOST keep their row, greyed, the way
-                // the map keeps their marker: the rider wants to see who was
-                // along. So the rows are drawn whenever the room has ever held
-                // anyone, independently of the empty line above.
-                if (peers.isNotEmpty()) {
-                    if (activeCount == 0) Spacer(Modifier.height(6.dp))
-                    // A plain Column, not a LazyColumn: the dialog body is the
-                    // scrolling container now, and a lazy list inside it would
-                    // be measured with an unbounded height.
+                Text(
+                    stringResource(R.string.share_alone),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary
+                )
+            }
+            // Riders who left or went LOST keep their row, greyed, the way the
+            // map keeps their marker: the rider wants to see who was along. So
+            // the rows are drawn whenever the room has ever held anyone,
+            // independently of the empty line above.
+            if (peers.isNotEmpty()) {
+                if (activeCount == 0) Spacer(Modifier.height(6.dp))
+                // A plain Column, not a LazyColumn: a lazy list inside the
+                // scrolling body would be measured with an unbounded height.
+                // Its own height is capped at six rows and it scrolls past
+                // that, so a full room cannot push Close and Leave off the
+                // bottom of the dialog.
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = PEER_LIST_MAX_HEIGHT)
+                        .verticalScroll(rememberScrollState())
+                ) {
                     peers.forEachIndexed { index, peer ->
                         if (index > 0) {
                             HorizontalDivider(color = MaterialTheme.appColors.divider)
@@ -1035,9 +1027,15 @@ private fun RowScope.ShareLinkAction(
     }
 }
 
-/** One friend, laid out like the app's other list rows: a 40 dp dot or avatar,
- *  the name with their flag inline, their stats under it, and how fresh the fix
- *  is on the right. Tapping the row flies the map to them. */
+/** How much of the rider list is on screen before it scrolls on its own: six
+ *  rows of 56 dp and the hairlines between them. The dialog body scrolls too,
+ *  but a full room would otherwise push Close and Leave under the fold every
+ *  time the group view is opened. */
+private val PEER_LIST_MAX_HEIGHT = 56.dp * 6 + 5.dp
+
+/** One friend, laid out like the app's other list rows: a 40 dp avatar or
+ *  coloured initial, the name with their flag inline, their stats under it, and
+ *  how fresh the fix is on the right. Tapping the row flies the map to them. */
 @Composable
 private fun PeerRow(
     peer: PeerState,
@@ -1057,23 +1055,29 @@ private fun PeerRow(
             .alpha(if (faded) 0.45f else 1f),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val avatar = safeAvatar(peer.last.avatarUrl)
-        if (avatar != null) {
-            AsyncImage(
-                model = avatar,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-            )
-        } else {
+        // The same avatar the profile card uses, one size down: the real
+        // picture when the account has one, the rider's initial on their map
+        // colour otherwise, so the row is the same height either way and the
+        // dot still says which marker on the map is theirs.
+        RemoteAvatar(
+            url = safeAvatar(peer.last.avatarUrl),
+            modifier = Modifier.size(40.dp).clip(CircleShape),
+        ) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(dot)
-            )
+                    .background(dot),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    // The palette colours are bright, so the theme's ink for a
+                    // filled control is what reads on them.
+                    text = peer.last.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.appColors.onPrimary,
+                )
+            }
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
@@ -1089,7 +1093,12 @@ private fun PeerRow(
                 )
                 peer.last.flag?.let {
                     Spacer(Modifier.width(6.dp))
-                    Text(it, style = MaterialTheme.typography.bodyMedium)
+                    // The flag as the flag, not as its two-letter code, the
+                    // way the profile card shows it.
+                    Text(
+                        flagEmoji(it).ifEmpty { it },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
             peer.last.stats?.let { s ->

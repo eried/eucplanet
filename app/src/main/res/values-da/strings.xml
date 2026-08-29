@@ -1620,7 +1620,6 @@
         <item quantity="one">%1$d rytter</item>
         <item quantity="other">%1$d ryttere</item>
     </plurals>
-    <string name="share_scan_to_join">Scan for at deltage</string>
     <string name="nav_end_body">Stop vejledningen for den aktive rute?</string>
     <string name="nav_end_confirm">Afslut</string>
     <string name="nav_minimize">Minimér</string>

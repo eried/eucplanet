@@ -1608,7 +1608,6 @@
         <item quantity="one">%1$d sürücü</item>
         <item quantity="other">%1$d sürücü</item>
     </plurals>
-    <string name="share_scan_to_join">Katılmak için tarayın</string>
     <string name="nav_end_body">Aktif rota rehberliği durdurulsun mu?</string>
     <string name="nav_end_confirm">Bitir</string>
     <string name="nav_minimize">Küçült</string>

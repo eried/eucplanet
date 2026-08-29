@@ -1666,7 +1666,6 @@
         <item quantity="one">%1$d rijder</item>
         <item quantity="other">%1$d rijders</item>
     </plurals>
-    <string name="share_scan_to_join">Scan om deel te nemen</string>
     <string name="nav_end_body">De begeleiding voor de actieve route stoppen?</string>
     <string name="nav_end_confirm">Beëindigen</string>
     <string name="nav_minimize">Minimaliseren</string>

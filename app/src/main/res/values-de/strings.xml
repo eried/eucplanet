@@ -1641,7 +1641,6 @@
         <item quantity="one">%1$d Rider</item>
         <item quantity="other">%1$d Rider</item>
     </plurals>
-    <string name="share_scan_to_join">Zum Beitreten scannen</string>
     <string name="nav_end_body">Die Führung für die aktive Route stoppen?</string>
     <string name="nav_end_confirm">Beenden</string>
     <string name="nav_minimize">Minimieren</string>

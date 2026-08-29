@@ -1670,7 +1670,6 @@
         <item quantity="one">%1$d rider</item>
         <item quantity="other">%1$d riders</item>
     </plurals>
-    <string name="share_scan_to_join">Scannez pour rejoindre</string>
     <string name="nav_end_body">Arrêter le guidage de l\'itinéraire actif ?</string>
     <string name="nav_end_confirm">Terminer</string>
     <string name="nav_minimize">Réduire</string>

@@ -795,7 +795,6 @@
     <plurals name="share_rider_count">
         <item quantity="other">%1$d 人</item>
     </plurals>
-    <string name="share_scan_to_join">扫码加入</string>
     <string name="nav_expand">展开</string>
     <string name="nav_label_destination">目的地</string>
     <string name="nav_label_next_stop">下一站</string>

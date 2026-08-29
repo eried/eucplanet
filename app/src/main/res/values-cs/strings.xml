@@ -1875,7 +1875,6 @@
         <item quantity="many">%1$d jezdce</item>
         <item quantity="other">%1$d jezdců</item>
     </plurals>
-    <string name="share_scan_to_join">Naskenujte pro připojení</string>
     <string name="nav_end_body">Zastavit navádění po aktivní trase?</string>
     <string name="nav_end_confirm">Ukončit</string>
     <string name="nav_minimize">Minimalizovat</string>

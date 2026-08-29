@@ -813,7 +813,6 @@
         <item quantity="one">%1$d rytter</item>
         <item quantity="other">%1$d ryttere</item>
     </plurals>
-    <string name="share_scan_to_join">Skann for å bli med</string>
     <string name="nav_expand">Utvid</string>
     <string name="nav_label_destination">Bestemmelsessted</string>
     <string name="nav_label_next_stop">Neste stopp</string>
