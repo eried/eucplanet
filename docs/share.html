@@ -270,6 +270,7 @@
     font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px;
   }
   #scanBtn:hover { color: var(--acc); border-color: var(--acc); }
+  #scanBtn:disabled { opacity: .5; cursor: default; }
   #scanView video {
     display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
     border-radius: 10px; border: 1px solid var(--line); background: #000;
@@ -523,6 +524,11 @@ function parseShareHash(hash) {
 var scanStream = null;
 var scanRAF = null;
 var scanCanvas = null, scanCtx = null;
+// Set synchronously at the top of startScan(), before getUserMedia is even
+// called: getUserMedia is async, so a second tap that lands before the first
+// call resolves would otherwise pass the scanStream check (still null) and
+// open a second camera stream, orphaning the first one's tracks.
+var scanStarting = false;
 
 // A pasted value may be the bare "roomId.key" or a full share URL; either
 // way the part that matters is whatever follows the last '#', same as what
@@ -606,14 +612,24 @@ function scanTick() {
 }
 
 function startScan() {
+  // Checked and set before anything async runs, so a rapid second click
+  // during the getUserMedia round-trip is a no-op instead of a second
+  // camera request.
+  if (scanStream || scanStarting) return;
+  scanStarting = true;
+  var btn = $("scanBtn");
+  if (btn) btn.disabled = true;
   $("camErr").textContent = "";
-  if (scanStream) return;
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    scanStarting = false;
+    if (btn) btn.disabled = false;
     $("camErr").textContent = "Camera access is needed to scan a QR code.";
     return;
   }
   navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } })
     .then(function (stream) {
+      scanStarting = false;
+      if (btn) btn.disabled = false;
       scanStream = stream;
       var video = $("scanVideo");
       video.srcObject = stream;
@@ -623,6 +639,8 @@ function startScan() {
       scanRAF = requestAnimationFrame(scanTick);
     })
     .catch(function () {
+      scanStarting = false;
+      if (btn) btn.disabled = false;
       $("camErr").textContent = "Camera access is needed to scan a QR code.";
     });
 }
