@@ -2300,6 +2300,7 @@
     <string name="share_rejoin_last">Rejoin last ride</string>
     <string name="share_start_new">Start a new ride</string>
     <string name="share_ride_ended">This ride has ended.</string>
+    <string name="share_alone">No one else here yet.</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
     <!-- ==== Trip share / actions ==== -->

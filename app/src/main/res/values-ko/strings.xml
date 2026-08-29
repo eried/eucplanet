@@ -1607,6 +1607,7 @@
     <string name="share_rejoin_last">지난 라이드로 돌아가기</string>
     <string name="share_start_new">새 라이드 시작</string>
     <string name="share_ride_ended">이 라이드는 종료되었습니다.</string>
+    <string name="share_alone">아직 여기 아무도 없어요.</string>
     <string name="nav_end_body">현재 경로의 안내를 중지하시겠습니까?</string>
     <string name="nav_end_confirm">종료</string>
     <string name="nav_minimize">최소화</string>

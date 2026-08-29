@@ -1987,10 +1987,10 @@ class RouteBuilderViewModel @Inject constructor(
         }.onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
     }
 
-    /** Go back to the ride this rider left. Told apart from a plain join so
-     *  the session can notice a room that has since been dropped. */
+    /** Go back to the ride this rider left. Plain reconnect to the remembered
+     *  room: an empty group just means no one else is here yet. */
     fun rejoinShare(link: ShareLink, identity: Identity) = viewModelScope.launch {
-        runCatching { shareSession.join(link, identity, rejoin = true) }
+        runCatching { shareSession.join(link, identity) }
             .onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
     }
 

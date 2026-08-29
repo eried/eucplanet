@@ -1640,6 +1640,7 @@
     <string name="share_rejoin_last">Zurück zur letzten Fahrt</string>
     <string name="share_start_new">Neue Fahrt starten</string>
     <string name="share_ride_ended">Diese Fahrt ist beendet.</string>
+    <string name="share_alone">Noch ist niemand sonst hier.</string>
     <string name="nav_end_body">Die Führung für die aktive Route stoppen?</string>
     <string name="nav_end_confirm">Beenden</string>
     <string name="nav_minimize">Minimieren</string>

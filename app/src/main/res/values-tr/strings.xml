@@ -1607,6 +1607,7 @@
     <string name="share_rejoin_last">Son sürüşe dön</string>
     <string name="share_start_new">Yeni sürüş başlat</string>
     <string name="share_ride_ended">Bu sürüş sona erdi.</string>
+    <string name="share_alone">Henüz burada başka kimse yok.</string>
     <string name="nav_end_body">Aktif rota rehberliği durdurulsun mu?</string>
     <string name="nav_end_confirm">Bitir</string>
     <string name="nav_minimize">Küçült</string>

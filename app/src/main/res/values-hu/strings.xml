@@ -1872,6 +1872,7 @@
     <string name="share_rejoin_last">Vissza az előző túrához</string>
     <string name="share_start_new">Új túra indítása</string>
     <string name="share_ride_ended">Ez a túra véget ért.</string>
+    <string name="share_alone">Egyelőre senki más nincs itt.</string>
     <string name="nav_end_body">Leállítod az útmutatást az aktív útvonalon?</string>
     <string name="nav_end_confirm">Befejezés</string>
     <string name="nav_minimize">Kicsinyítés</string>

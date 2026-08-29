@@ -812,6 +812,7 @@
     <string name="share_rejoin_last">Tilbake til forrige tur</string>
     <string name="share_start_new">Start en ny tur</string>
     <string name="share_ride_ended">Denne turen er over.</string>
+    <string name="share_alone">Ingen andre her ennå.</string>
     <string name="nav_expand">Utvid</string>
     <string name="nav_label_destination">Bestemmelsessted</string>
     <string name="nav_label_next_stop">Neste stopp</string>

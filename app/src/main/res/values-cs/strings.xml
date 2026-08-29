@@ -1872,6 +1872,7 @@
     <string name="share_rejoin_last">Zpět k poslední jízdě</string>
     <string name="share_start_new">Začít novou jízdu</string>
     <string name="share_ride_ended">Tato jízda skončila.</string>
+    <string name="share_alone">Zatím tu není nikdo jiný.</string>
     <string name="nav_end_body">Zastavit navádění po aktivní trase?</string>
     <string name="nav_end_confirm">Ukončit</string>
     <string name="nav_minimize">Minimalizovat</string>

@@ -1642,6 +1642,7 @@
     <string name="share_rejoin_last">Повернутися до минулої поїздки</string>
     <string name="share_start_new">Почати нову поїздку</string>
     <string name="share_ride_ended">Ця поїздка завершена.</string>
+    <string name="share_alone">Тут поки що нікого більше немає.</string>
     <string name="nav_end_body">Зупинити супровід активного маршруту?</string>
     <string name="nav_end_confirm">Завершити</string>
     <string name="nav_minimize">Згорнути</string>

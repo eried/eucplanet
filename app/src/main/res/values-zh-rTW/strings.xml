@@ -1607,6 +1607,7 @@
     <string name="share_rejoin_last">回到上次行程</string>
     <string name="share_start_new">開始新行程</string>
     <string name="share_ride_ended">此行程已結束。</string>
+    <string name="share_alone">這裡還沒有其他人。</string>
     <string name="nav_end_body">停止目前路線的導航？</string>
     <string name="nav_end_confirm">結束</string>
     <string name="nav_minimize">最小化</string>

@@ -681,13 +681,9 @@ fun ShareGroupDialog(
             // session turns into one typed marker; every other error means
             // the service is simply out of reach.
             val roomFull = state.error == ShareSession.ERR_ROOM_FULL
-            // A rejoin that found nobody home. Checked before "connected",
-            // because the socket IS up: the room behind it is just empty.
-            val rideEnded = state.error == ShareSession.ERR_RIDE_ENDED
             Text(
                 text = when {
                     roomFull -> stringResource(R.string.share_room_full)
-                    rideEnded -> stringResource(R.string.share_ride_ended)
                     state.connected -> stringResource(R.string.share_connected)
                     state.error != null -> stringResource(R.string.share_cannot_reach)
                     else -> stringResource(R.string.share_reconnecting)
@@ -706,6 +702,19 @@ fun ShareGroupDialog(
                 color = MaterialTheme.appColors.sectionHeader
             )
             Spacer(Modifier.height(4.dp))
+            // Nobody else is in the room, either because no one has joined yet
+            // or every other rider has left. This also covers a rejoin into a
+            // room the relay quietly recycled after its 1 h idle expiry: there
+            // is no way to tell that apart from "not here yet", so it is not
+            // reported as anything more alarming than that.
+            val alone = peers.isEmpty() || peers.all { it.left }
+            if (alone) {
+                Text(
+                    stringResource(R.string.share_alone),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary
+                )
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
