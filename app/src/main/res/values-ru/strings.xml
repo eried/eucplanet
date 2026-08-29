@@ -2281,11 +2281,11 @@
     <string name="trip_tools_extend_to">Закончить на</string>
     <string name="trip_tools_extend_none">Эта поездка</string>
     <string name="trip_tools_extend_pick_one">Выберите более раннюю или позднюю поездку для продления.</string>
-    <string name="widget_act_1_desc">Кнопка 1</string>
-    <string name="widget_act_2_desc">Кнопка 2</string>
-    <string name="widget_act_3_desc">Кнопка 3</string>
-    <string name="widget_act_12_desc">Кнопки 1 и 2</string>
-    <string name="widget_act_23_desc">Кнопки 2 и 3</string>
+    <string name="widget_act_1_desc">Действие настраивается в приложении</string>
+    <string name="widget_act_2_desc">Действие настраивается в приложении</string>
+    <string name="widget_act_3_desc">Действие настраивается в приложении</string>
+    <string name="widget_act_12_desc">Действия настраиваются в приложении</string>
+    <string name="widget_act_23_desc">Действия настраиваются в приложении</string>
     <string name="widget_standalone_desc">Действия виджетов-кнопок, независимо от ряда выше.</string>
     <string name="widget_standalone_slot">Отдельная кнопка %1$d</string>
         <string name="widget_customize">Настроить</string>
@@ -2402,4 +2402,38 @@
     <string name="trip_tools_wheel_none">Для этой поездки колесо еще не записано.</string>
     <string name="backup_conflict_warning">Некоторые резервные копии поездок требуют ручной синхронизации: копии различаются. Нажмите «Синхронизация» и выберите верную сторону.</string>
     <string name="backup_conflict_title">Конфликты резервных копий</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Кататься?</string>
+    <string name="widget_weather_score_desc">Погода для катания, прямо сейчас.</string>
+    <string name="widget_weather_compact_desc">Насколько погода хороша для катания сейчас и в ближайшие часы. Увеличьте, чтобы видеть часы, температуру и ветер.</string>
+    <string name="widget_weather_graph_desc">Насколько погода хороша для катания на период прогноза</string>
+    <string name="widget_weather_refresh_desc">Обновить прогноз</string>
+    <string name="widget_weather_never">Прогноза пока нет. Откройте приложение или нажмите обновить.</string>
+    <string name="widget_weather_never_short">Никогда</string>
+    <string name="widget_weather_refreshing">Обновление…</string>
+    <string name="widget_weather_now">Только что</string>
+    <string name="widget_weather_min_fmt">%1$d мин назад</string>
+    <string name="widget_weather_hour_fmt">%1$d ч назад</string>
+    <string name="widget_weather_window_fmt">ближайшие %1$d ч</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Сообщить на 80 %</string>
+    <string name="charging_notify_full">Сообщить на 100 %</string>
+    <string name="charge_alert_channel_name">Оповещения о зарядке</string>
+    <string name="charge_alert_channel_description">Когда батарея проходит 80 % или заряд завершён.</string>
+    <string name="charge_alert_80_title">Батарея на 80 %</string>
+    <string name="charge_alert_80_text">Отключите сейчас, если заряжаете до 80 % ради ресурса.</string>
+    <string name="charge_alert_full_title">Зарядка завершена</string>
+    <string name="charge_alert_full_text">Ваше колесо заряжено полностью.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Панель колеса</string>
+    <string name="widget_act_1_label">Кнопка колеса 1</string>
+    <string name="widget_act_2_label">Кнопка колеса 2</string>
+    <string name="widget_act_3_label">Кнопка колеса 3</string>
+    <string name="widget_act_12_label">Кнопки колеса 1 и 2</string>
+    <string name="widget_act_23_label">Кнопки колеса 2 и 3</string>
+    <string name="widget_weather_score_label">Кататься можно?</string>
+    <string name="widget_weather_compact_label">Погода для катания</string>
+    <string name="widget_act_1_short">Действие 1</string>
+    <string name="widget_act_2_short">Действие 2</string>
+    <string name="widget_act_3_short">Действие 3</string>
 </resources>

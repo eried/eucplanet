@@ -189,6 +189,29 @@ fun ChargingMonitorScreen(
                             },
                         )
                         HorizontalDivider()
+                        // The two charge alerts. Both off unless asked for: a
+                        // notification nobody wanted is worse than no feature.
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.charging_notify_80)) },
+                            onClick = {
+                                viewModel.setNotify80(!state.notify80)
+                                menuOpen = false
+                            },
+                            trailingIcon = {
+                                if (state.notify80) Icon(Icons.Filled.Check, contentDescription = null)
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.charging_notify_full)) },
+                            onClick = {
+                                viewModel.setNotifyFull(!state.notifyFull)
+                                menuOpen = false
+                            },
+                            trailingIcon = {
+                                if (state.notifyFull) Icon(Icons.Filled.Check, contentDescription = null)
+                            },
+                        )
+                        HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.battery_history)) },
                             onClick = {

@@ -2186,11 +2186,11 @@
     <string name="trip_tools_extend_to">Termina a</string>
     <string name="trip_tools_extend_none">Questo viaggio</string>
     <string name="trip_tools_extend_pick_one">Scegli un viaggio precedente o successivo verso cui estendere.</string>
-    <string name="widget_act_1_desc">Pulsante 1</string>
-    <string name="widget_act_2_desc">Pulsante 2</string>
-    <string name="widget_act_3_desc">Pulsante 3</string>
-    <string name="widget_act_12_desc">Pulsanti 1 e 2</string>
-    <string name="widget_act_23_desc">Pulsanti 2 e 3</string>
+    <string name="widget_act_1_desc">Scegli l’azione nell’app</string>
+    <string name="widget_act_2_desc">Scegli l’azione nell’app</string>
+    <string name="widget_act_3_desc">Scegli l’azione nell’app</string>
+    <string name="widget_act_12_desc">Scegli le azioni nell’app</string>
+    <string name="widget_act_23_desc">Scegli le azioni nell’app</string>
     <string name="widget_standalone_desc">Azioni dei widget di solo pulsante, indipendenti dalla riga sopra.</string>
     <string name="widget_standalone_slot">Pulsante singolo %1$d</string>
         <string name="widget_customize">Personalizza</string>
@@ -2307,4 +2307,38 @@
     <string name="trip_tools_wheel_none">Nessuna ruota registrata per questo viaggio.</string>
     <string name="backup_conflict_warning">Alcuni backup di viaggi richiedono una sincronizzazione manuale: le copie differiscono. Premi Sincronizza e scegli quale vale.</string>
     <string name="backup_conflict_title">Conflitti di backup</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Si gira?</string>
+    <string name="widget_weather_score_desc">Il meteo per girare, adesso.</string>
+    <string name="widget_weather_compact_desc">Quanto è buono il meteo per girare, adesso e nelle prossime ore. Ingrandisci per ore, temperatura e vento.</string>
+    <string name="widget_weather_graph_desc">Quanto è buono il meteo per girare, nel periodo previsto</string>
+    <string name="widget_weather_refresh_desc">Aggiorna le previsioni</string>
+    <string name="widget_weather_never">Nessuna previsione. Apri l’app una volta o tocca aggiorna.</string>
+    <string name="widget_weather_never_short">Mai</string>
+    <string name="widget_weather_refreshing">Aggiornamento…</string>
+    <string name="widget_weather_now">Adesso</string>
+    <string name="widget_weather_min_fmt">%1$d min fa</string>
+    <string name="widget_weather_hour_fmt">%1$d h fa</string>
+    <string name="widget_weather_window_fmt">prossime %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Avvisami all’80 %</string>
+    <string name="charging_notify_full">Avvisami al 100 %</string>
+    <string name="charge_alert_channel_name">Avvisi di carica</string>
+    <string name="charge_alert_channel_description">Quando la batteria supera l’80 % o finisce di caricare.</string>
+    <string name="charge_alert_80_title">Batteria all’80 %</string>
+    <string name="charge_alert_80_text">Stacca ora se carichi all’80 % per la durata del pacco.</string>
+    <string name="charge_alert_full_title">Carica completata</string>
+    <string name="charge_alert_full_text">Il tuo monoruota è carico.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Cruscotto monoruota</string>
+    <string name="widget_act_1_label">Tasto monoruota 1</string>
+    <string name="widget_act_2_label">Tasto monoruota 2</string>
+    <string name="widget_act_3_label">Tasto monoruota 3</string>
+    <string name="widget_act_12_label">Tasti monoruota 1 e 2</string>
+    <string name="widget_act_23_label">Tasti monoruota 2 e 3</string>
+    <string name="widget_weather_score_label">Si gira?</string>
+    <string name="widget_weather_compact_label">Meteo per girare</string>
+    <string name="widget_act_1_short">Azione 1</string>
+    <string name="widget_act_2_short">Azione 2</string>
+    <string name="widget_act_3_short">Azione 3</string>
 </resources>

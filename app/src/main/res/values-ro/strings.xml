@@ -1170,11 +1170,11 @@
     <string name="widget_action_voice">Voce</string>
     <string name="widget_standalone_desc">Acțiuni pentru widgeturile doar cu butoane, separate de rândul de mai sus.</string>
     <string name="widget_standalone_slot">Buton independent %1$d</string>
-    <string name="widget_act_1_desc">Butonul 1</string>
-    <string name="widget_act_2_desc">Butonul 2</string>
-    <string name="widget_act_3_desc">Butonul 3</string>
-    <string name="widget_act_12_desc">Butoanele 1 și 2</string>
-    <string name="widget_act_23_desc">Butoanele 2 și 3</string>
+    <string name="widget_act_1_desc">Alege acțiunea în aplicație</string>
+    <string name="widget_act_2_desc">Alege acțiunea în aplicație</string>
+    <string name="widget_act_3_desc">Alege acțiunea în aplicație</string>
+    <string name="widget_act_12_desc">Alege acțiunile în aplicație</string>
+    <string name="widget_act_23_desc">Alege acțiunile în aplicație</string>
     <string name="widget_button_unset">Setează un buton în Setări</string>
     <string name="widget_speed">Viteză</string>
     <string name="widget_distance">Cursă</string>
@@ -2205,4 +2205,38 @@
     <string name="trip_tools_wheel_none">Această călătorie nu are încă o roată înregistrată.</string>
     <string name="backup_conflict_warning">Unele copii de siguranță ale călătoriilor cer o sincronizare manuală: copiile diferă. Apăsați Sincronizare și alegeți partea valabilă.</string>
     <string name="backup_conflict_title">Conflicte de backup</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Mergem?</string>
+    <string name="widget_weather_score_desc">Vremea de mers, chiar acum.</string>
+    <string name="widget_weather_compact_desc">Cât de bună e vremea pentru mers, acum și în orele următoare. Mărește pentru ore, temperatură și vânt.</string>
+    <string name="widget_weather_graph_desc">Cât de bună e vremea pentru mers, pe perioada prognozată</string>
+    <string name="widget_weather_refresh_desc">Actualizează prognoza</string>
+    <string name="widget_weather_never">Încă nicio prognoză. Deschide aplicația o dată sau atinge actualizarea.</string>
+    <string name="widget_weather_never_short">Niciodată</string>
+    <string name="widget_weather_refreshing">Se actualizează…</string>
+    <string name="widget_weather_now">Chiar acum</string>
+    <string name="widget_weather_min_fmt">acum %1$d min</string>
+    <string name="widget_weather_hour_fmt">acum %1$d h</string>
+    <string name="widget_weather_window_fmt">următoarele %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Anunță-mă la 80 %</string>
+    <string name="charging_notify_full">Anunță-mă la 100 %</string>
+    <string name="charge_alert_channel_name">Alerte de încărcare</string>
+    <string name="charge_alert_channel_description">Când bateria trece de 80 % sau termină de încărcat.</string>
+    <string name="charge_alert_80_title">Baterie la 80 %</string>
+    <string name="charge_alert_80_text">Scoate din priză acum dacă încarci la 80 % pentru durata bateriei.</string>
+    <string name="charge_alert_full_title">Încărcare completă</string>
+    <string name="charge_alert_full_text">Roata ta este încărcată complet.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Bord roată</string>
+    <string name="widget_act_1_label">Buton roată 1</string>
+    <string name="widget_act_2_label">Buton roată 2</string>
+    <string name="widget_act_3_label">Buton roată 3</string>
+    <string name="widget_act_12_label">Butoane roată 1 și 2</string>
+    <string name="widget_act_23_label">Butoane roată 2 și 3</string>
+    <string name="widget_weather_score_label">Se poate merge?</string>
+    <string name="widget_weather_compact_label">Vreme de mers</string>
+    <string name="widget_act_1_short">Acțiune 1</string>
+    <string name="widget_act_2_short">Acțiune 2</string>
+    <string name="widget_act_3_short">Acțiune 3</string>
 </resources>

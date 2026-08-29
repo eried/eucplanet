@@ -2278,11 +2278,11 @@
     <string name="trip_tools_extend_to">Bitis</string>
     <string name="trip_tools_extend_none">Bu surus</string>
     <string name="trip_tools_extend_pick_one">Uzatilacak onceki veya sonraki bir surus secin.</string>
-    <string name="widget_act_1_desc">Düğme 1</string>
-    <string name="widget_act_2_desc">Düğme 2</string>
-    <string name="widget_act_3_desc">Düğme 3</string>
-    <string name="widget_act_12_desc">Düğme 1 ve 2</string>
-    <string name="widget_act_23_desc">Düğme 2 ve 3</string>
+    <string name="widget_act_1_desc">Eylemi uygulamadan seç</string>
+    <string name="widget_act_2_desc">Eylemi uygulamadan seç</string>
+    <string name="widget_act_3_desc">Eylemi uygulamadan seç</string>
+    <string name="widget_act_12_desc">Eylemleri uygulamadan seç</string>
+    <string name="widget_act_23_desc">Eylemleri uygulamadan seç</string>
     <string name="widget_standalone_desc">Yalnızca düğme widget\'larının eylemleri, üstteki sıradan bağımsız.</string>
     <string name="widget_standalone_slot">Tek düğme %1$d</string>
         <string name="widget_customize">Özelleştir</string>
@@ -2399,4 +2399,38 @@
     <string name="trip_tools_wheel_none">Bu sürüş için henüz bir teker kaydedilmedi.</string>
     <string name="backup_conflict_warning">Bazı sürüş yedekleri manuel eşitleme istiyor: kopyalar farklı. Eşitle’ye basıp geçerli tarafı seçin.</string>
     <string name="backup_conflict_title">Yedek çakışmaları</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Sürelim mi?</string>
+    <string name="widget_weather_score_desc">Şu anki sürüş havası.</string>
+    <string name="widget_weather_compact_desc">Havanın sürüşe ne kadar uygun olduğu, şimdi ve önümüzdeki saatlerde. Saatler, sıcaklık ve rüzgâr için büyüt.</string>
+    <string name="widget_weather_graph_desc">Havanın sürüşe ne kadar uygun olduğu, tahmin süresi boyunca</string>
+    <string name="widget_weather_refresh_desc">Tahmini yenile</string>
+    <string name="widget_weather_never">Henüz tahmin yok. Uygulamayı bir kez aç veya yenileye dokun.</string>
+    <string name="widget_weather_never_short">Hiç</string>
+    <string name="widget_weather_refreshing">Yenileniyor…</string>
+    <string name="widget_weather_now">Az önce</string>
+    <string name="widget_weather_min_fmt">%1$d dk önce</string>
+    <string name="widget_weather_hour_fmt">%1$d sa önce</string>
+    <string name="widget_weather_window_fmt">sonraki %1$d sa</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">%80’de bildir</string>
+    <string name="charging_notify_full">%100’de bildir</string>
+    <string name="charge_alert_channel_name">Şarj uyarıları</string>
+    <string name="charge_alert_channel_description">Batarya %80’i geçtiğinde veya şarj bittiğinde.</string>
+    <string name="charge_alert_80_title">Batarya %80</string>
+    <string name="charge_alert_80_text">Batarya ömrü için %80’e şarj ediyorsan şimdi çıkar.</string>
+    <string name="charge_alert_full_title">Şarj tamamlandı</string>
+    <string name="charge_alert_full_text">Tekerleğin tam dolu.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Teker paneli</string>
+    <string name="widget_act_1_label">Teker düğmesi 1</string>
+    <string name="widget_act_2_label">Teker düğmesi 2</string>
+    <string name="widget_act_3_label">Teker düğmesi 3</string>
+    <string name="widget_act_12_label">Teker düğmeleri 1 ve 2</string>
+    <string name="widget_act_23_label">Teker düğmeleri 2 ve 3</string>
+    <string name="widget_weather_score_label">Sürülür mü?</string>
+    <string name="widget_weather_compact_label">Sürüş havası</string>
+    <string name="widget_act_1_short">Eylem 1</string>
+    <string name="widget_act_2_short">Eylem 2</string>
+    <string name="widget_act_3_short">Eylem 3</string>
 </resources>

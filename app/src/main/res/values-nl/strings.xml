@@ -2283,11 +2283,11 @@
     <string name="trip_tools_extend_to">Eindigen bij</string>
     <string name="trip_tools_extend_none">Deze rit</string>
     <string name="trip_tools_extend_pick_one">Kies een eerdere of latere rit om naartoe uit te breiden.</string>
-    <string name="widget_act_1_desc">Knop 1</string>
-    <string name="widget_act_2_desc">Knop 2</string>
-    <string name="widget_act_3_desc">Knop 3</string>
-    <string name="widget_act_12_desc">Knoppen 1 en 2</string>
-    <string name="widget_act_23_desc">Knoppen 2 en 3</string>
+    <string name="widget_act_1_desc">Stel de actie in de app in</string>
+    <string name="widget_act_2_desc">Stel de actie in de app in</string>
+    <string name="widget_act_3_desc">Stel de actie in de app in</string>
+    <string name="widget_act_12_desc">Stel de acties in de app in</string>
+    <string name="widget_act_23_desc">Stel de acties in de app in</string>
     <string name="widget_standalone_desc">Acties voor de knop-widgets, los van de rij hierboven.</string>
     <string name="widget_standalone_slot">Losse knop %1$d</string>
         <string name="widget_customize">Aanpassen</string>
@@ -2404,4 +2404,38 @@
     <string name="trip_tools_wheel_none">Voor deze rit is nog geen wiel vastgelegd.</string>
     <string name="backup_conflict_warning">Sommige ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
     <string name="backup_conflict_title">Back-upconflicten</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Rijden?</string>
+    <string name="widget_weather_score_desc">Het rijweer, op dit moment.</string>
+    <string name="widget_weather_compact_desc">Hoe goed het weer is om te rijden, nu en de komende uren. Vergroot voor uren, temperatuur en wind.</string>
+    <string name="widget_weather_graph_desc">Hoe goed het weer is om te rijden, over de voorspelde periode</string>
+    <string name="widget_weather_refresh_desc">Voorspelling verversen</string>
+    <string name="widget_weather_never">Nog geen voorspelling. Open de app één keer of tik op verversen.</string>
+    <string name="widget_weather_never_short">Nooit</string>
+    <string name="widget_weather_refreshing">Verversen…</string>
+    <string name="widget_weather_now">Zojuist</string>
+    <string name="widget_weather_min_fmt">%1$d min geleden</string>
+    <string name="widget_weather_hour_fmt">%1$d u geleden</string>
+    <string name="widget_weather_window_fmt">komende %1$d u</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Waarschuw me bij 80 %</string>
+    <string name="charging_notify_full">Waarschuw me bij 100 %</string>
+    <string name="charge_alert_channel_name">Laadmeldingen</string>
+    <string name="charge_alert_channel_description">Wanneer het pakket boven 80 % komt of klaar is met laden.</string>
+    <string name="charge_alert_80_title">Accu op 80 %</string>
+    <string name="charge_alert_80_text">Haal hem er nu af als je tot 80 % laadt voor de levensduur.</string>
+    <string name="charge_alert_full_title">Opladen klaar</string>
+    <string name="charge_alert_full_text">Je wiel is helemaal opgeladen.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Wieldashboard</string>
+    <string name="widget_act_1_label">Wielknop 1</string>
+    <string name="widget_act_2_label">Wielknop 2</string>
+    <string name="widget_act_3_label">Wielknop 3</string>
+    <string name="widget_act_12_label">Wielknoppen 1 en 2</string>
+    <string name="widget_act_23_label">Wielknoppen 2 en 3</string>
+    <string name="widget_weather_score_label">Rijden vandaag?</string>
+    <string name="widget_weather_compact_label">Rijweer</string>
+    <string name="widget_act_1_short">Actie 1</string>
+    <string name="widget_act_2_short">Actie 2</string>
+    <string name="widget_act_3_short">Actie 3</string>
 </resources>

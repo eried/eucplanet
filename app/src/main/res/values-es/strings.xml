@@ -2278,11 +2278,11 @@
     <string name="trip_tools_extend_to">Terminar en</string>
     <string name="trip_tools_extend_none">Este viaje</string>
     <string name="trip_tools_extend_pick_one">Elige un viaje anterior o posterior al que extender.</string>
-    <string name="widget_act_1_desc">Botón 1</string>
-    <string name="widget_act_2_desc">Botón 2</string>
-    <string name="widget_act_3_desc">Botón 3</string>
-    <string name="widget_act_12_desc">Botones 1 y 2</string>
-    <string name="widget_act_23_desc">Botones 2 y 3</string>
+    <string name="widget_act_1_desc">Elige su acción en la app</string>
+    <string name="widget_act_2_desc">Elige su acción en la app</string>
+    <string name="widget_act_3_desc">Elige su acción en la app</string>
+    <string name="widget_act_12_desc">Elige sus acciones en la app</string>
+    <string name="widget_act_23_desc">Elige sus acciones en la app</string>
     <string name="widget_standalone_desc">Acciones de los widgets de solo botón, independientes de la fila de arriba.</string>
     <string name="widget_standalone_slot">Botón suelto %1$d</string>
         <string name="widget_customize">Personalizar</string>
@@ -2399,4 +2399,38 @@
     <string name="trip_tools_wheel_none">Este viaje aún no tiene rueda registrada.</string>
     <string name="backup_conflict_warning">Algunos respaldos de viajes necesitan una sincronización manual: las copias difieren. Pulsa Sincronizar y elige cuál vale.</string>
     <string name="backup_conflict_title">Conflictos de respaldo</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">¿Rodar?</string>
+    <string name="widget_weather_score_desc">El tiempo para rodar, ahora mismo.</string>
+    <string name="widget_weather_compact_desc">Qué tan bueno está el tiempo para rodar, ahora y en las próximas horas. Amplía para horas, temperatura y viento.</string>
+    <string name="widget_weather_graph_desc">Qué tan bueno está el tiempo para rodar, durante el pronóstico</string>
+    <string name="widget_weather_refresh_desc">Actualizar el pronóstico</string>
+    <string name="widget_weather_never">Aún no hay pronóstico. Abre la app una vez o toca actualizar.</string>
+    <string name="widget_weather_never_short">Nunca</string>
+    <string name="widget_weather_refreshing">Actualizando…</string>
+    <string name="widget_weather_now">Ahora mismo</string>
+    <string name="widget_weather_min_fmt">hace %1$d min</string>
+    <string name="widget_weather_hour_fmt">hace %1$d h</string>
+    <string name="widget_weather_window_fmt">próximas %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Avisarme al 80 %</string>
+    <string name="charging_notify_full">Avisarme al 100 %</string>
+    <string name="charge_alert_channel_name">Avisos de carga</string>
+    <string name="charge_alert_channel_description">Cuando la batería pasa del 80 % o termina de cargar.</string>
+    <string name="charge_alert_80_title">Batería al 80 %</string>
+    <string name="charge_alert_80_text">Desenchufa ahora si cargas al 80 % para cuidar la batería.</string>
+    <string name="charge_alert_full_title">Carga completa</string>
+    <string name="charge_alert_full_text">Tu rueda está cargada del todo.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Panel de la rueda</string>
+    <string name="widget_act_1_label">Botón de rueda 1</string>
+    <string name="widget_act_2_label">Botón de rueda 2</string>
+    <string name="widget_act_3_label">Botón de rueda 3</string>
+    <string name="widget_act_12_label">Botones de rueda 1 y 2</string>
+    <string name="widget_act_23_label">Botones de rueda 2 y 3</string>
+    <string name="widget_weather_score_label">¿Se puede rodar?</string>
+    <string name="widget_weather_compact_label">Tiempo para rodar</string>
+    <string name="widget_act_1_short">Acción 1</string>
+    <string name="widget_act_2_short">Acción 2</string>
+    <string name="widget_act_3_short">Acción 3</string>
 </resources>

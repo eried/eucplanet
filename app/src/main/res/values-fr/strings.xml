@@ -2285,11 +2285,11 @@
     <string name="trip_tools_extend_to">Terminer a</string>
     <string name="trip_tools_extend_none">Ce trajet</string>
     <string name="trip_tools_extend_pick_one">Choisis un trajet anterieur ou posterieur vers lequel etendre.</string>
-    <string name="widget_act_1_desc">Bouton 1</string>
-    <string name="widget_act_2_desc">Bouton 2</string>
-    <string name="widget_act_3_desc">Bouton 3</string>
-    <string name="widget_act_12_desc">Boutons 1 et 2</string>
-    <string name="widget_act_23_desc">Boutons 2 et 3</string>
+    <string name="widget_act_1_desc">Choisis son action dans l’app</string>
+    <string name="widget_act_2_desc">Choisis son action dans l’app</string>
+    <string name="widget_act_3_desc">Choisis son action dans l’app</string>
+    <string name="widget_act_12_desc">Choisis leurs actions dans l’app</string>
+    <string name="widget_act_23_desc">Choisis leurs actions dans l’app</string>
     <string name="widget_standalone_desc">Actions des widgets à bouton seul, indépendantes de la rangée ci-dessus.</string>
     <string name="widget_standalone_slot">Bouton seul %1$d</string>
         <string name="widget_customize">Personnaliser</string>
@@ -2406,4 +2406,38 @@
     <string name="trip_tools_wheel_none">Aucune roue enregistrée pour ce trajet pour le moment.</string>
     <string name="backup_conflict_warning">Certaines sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
     <string name="backup_conflict_title">Conflits de sauvegarde</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Rouler ?</string>
+    <string name="widget_weather_score_desc">La météo pour rouler, maintenant.</string>
+    <string name="widget_weather_compact_desc">À quel point la météo est bonne pour rouler, maintenant et dans les heures à venir. Agrandis pour les heures, la température et le vent.</string>
+    <string name="widget_weather_graph_desc">À quel point la météo est bonne pour rouler, sur la période prévue</string>
+    <string name="widget_weather_refresh_desc">Actualiser les prévisions</string>
+    <string name="widget_weather_never">Pas encore de prévisions. Ouvre l’app une fois, ou appuie sur actualiser.</string>
+    <string name="widget_weather_never_short">Jamais</string>
+    <string name="widget_weather_refreshing">Actualisation…</string>
+    <string name="widget_weather_now">À l’instant</string>
+    <string name="widget_weather_min_fmt">il y a %1$d min</string>
+    <string name="widget_weather_hour_fmt">il y a %1$d h</string>
+    <string name="widget_weather_window_fmt">%1$d h à venir</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Me prévenir à 80 %</string>
+    <string name="charging_notify_full">Me prévenir à 100 %</string>
+    <string name="charge_alert_channel_name">Alertes de charge</string>
+    <string name="charge_alert_channel_description">Quand la batterie dépasse 80 % ou finit de charger.</string>
+    <string name="charge_alert_80_title">Batterie à 80 %</string>
+    <string name="charge_alert_80_text">Débranche maintenant si tu charges à 80 % pour ménager la batterie.</string>
+    <string name="charge_alert_full_title">Charge terminée</string>
+    <string name="charge_alert_full_text">Ta roue est chargée à fond.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Tableau de bord roue</string>
+    <string name="widget_act_1_label">Bouton roue 1</string>
+    <string name="widget_act_2_label">Bouton roue 2</string>
+    <string name="widget_act_3_label">Bouton roue 3</string>
+    <string name="widget_act_12_label">Boutons roue 1 et 2</string>
+    <string name="widget_act_23_label">Boutons roue 2 et 3</string>
+    <string name="widget_weather_score_label">On roule ?</string>
+    <string name="widget_weather_compact_label">Météo pour rouler</string>
+    <string name="widget_act_1_short">Action 1</string>
+    <string name="widget_act_2_short">Action 2</string>
+    <string name="widget_act_3_short">Action 3</string>
 </resources>

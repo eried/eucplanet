@@ -2148,11 +2148,11 @@
     <string name="trip_tools_extend_to">终点</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">选择要延伸到的较早或较晚行程。</string>
-    <string name="widget_act_1_desc">按钮 1</string>
-    <string name="widget_act_2_desc">按钮 2</string>
-    <string name="widget_act_3_desc">按钮 3</string>
-    <string name="widget_act_12_desc">按钮 1 和 2</string>
-    <string name="widget_act_23_desc">按钮 2 和 3</string>
+    <string name="widget_act_1_desc">在应用中设置操作</string>
+    <string name="widget_act_2_desc">在应用中设置操作</string>
+    <string name="widget_act_3_desc">在应用中设置操作</string>
+    <string name="widget_act_12_desc">在应用中设置操作</string>
+    <string name="widget_act_23_desc">在应用中设置操作</string>
     <string name="widget_standalone_desc">仅按钮小部件的操作，与上面一行相互独立。</string>
     <string name="widget_standalone_slot">单独按钮 %1$d</string>
         <string name="widget_customize">自定义</string>
@@ -2269,4 +2269,38 @@
     <string name="trip_tools_wheel_none">此行程尚未记录独轮车。</string>
     <string name="backup_conflict_warning">部分行程备份需要手动同步：两侧副本不同。点击同步并选择以哪侧为准。</string>
     <string name="backup_conflict_title">备份冲突</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">骑吗？</string>
+    <string name="widget_weather_score_desc">当前的骑行天气。</string>
+    <string name="widget_weather_compact_desc">现在和接下来几小时的天气有多适合骑行。放大可显示小时、气温和风。</string>
+    <string name="widget_weather_graph_desc">预报时段内天气有多适合骑行</string>
+    <string name="widget_weather_refresh_desc">刷新预报</string>
+    <string name="widget_weather_never">还没有预报。打开一次应用，或点按刷新。</string>
+    <string name="widget_weather_never_short">从未</string>
+    <string name="widget_weather_refreshing">正在刷新…</string>
+    <string name="widget_weather_now">刚刚</string>
+    <string name="widget_weather_min_fmt">%1$d 分钟前</string>
+    <string name="widget_weather_hour_fmt">%1$d 小时前</string>
+    <string name="widget_weather_window_fmt">未来 %1$d 小时</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">到 80 % 时通知我</string>
+    <string name="charging_notify_full">到 100 % 时通知我</string>
+    <string name="charge_alert_channel_name">充电提醒</string>
+    <string name="charge_alert_channel_description">电量超过 80 % 或充电完成时。</string>
+    <string name="charge_alert_80_title">电量 80 %</string>
+    <string name="charge_alert_80_text">若为延长电池寿命只充到 80 %，现在拔掉。</string>
+    <string name="charge_alert_full_title">充电完成</string>
+    <string name="charge_alert_full_text">你的独轮车已充满。</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">独轮车面板</string>
+    <string name="widget_act_1_label">独轮车按钮 1</string>
+    <string name="widget_act_2_label">独轮车按钮 2</string>
+    <string name="widget_act_3_label">独轮车按钮 3</string>
+    <string name="widget_act_12_label">独轮车按钮 1 和 2</string>
+    <string name="widget_act_23_label">独轮车按钮 2 和 3</string>
+    <string name="widget_weather_score_label">能骑吗？</string>
+    <string name="widget_weather_compact_label">骑行天气</string>
+    <string name="widget_act_1_short">操作 1</string>
+    <string name="widget_act_2_short">操作 2</string>
+    <string name="widget_act_3_short">操作 3</string>
 </resources>

@@ -670,20 +670,11 @@ private fun levelBucket(score: Float): Int = when {
     else -> 6
 }
 
-/** The face and tip line for an hour, by what dominates it. Priority mirrors
- *  danger: snow, rain, wind, cold, hot, night, then just the score band. */
-private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> = when {
-    b.snow -> "🥶" to R.string.weather_face_snow          // cold face
-    b.rain -> "😬" to R.string.weather_face_rain          // grimace
-    b.wind && b.score < 0f -> "😖" to R.string.weather_face_wind
-    b.cold -> "🥶" to R.string.weather_face_cold
-    b.hot -> "🥵" to R.string.weather_face_hot            // hot face
-    b.golden -> "🌇" to R.string.weather_face_golden      // sunset glow
-    b.night && b.score < 2f -> "😴" to R.string.weather_face_night
-    b.score >= 2f -> "😄" to R.string.weather_face_clear  // happy
-    b.score >= -1f -> "😐" to R.string.weather_face_meh   // neutral
-    else -> "🙁" to R.string.weather_face_meh             // frown
-}
+/** The face and tip line for an hour, by what dominates it. The choice itself
+ *  lives in [com.eried.eucplanet.weather.WeatherFace] so the home screen
+ *  widgets reach the same verdict from a snapshot. */
+private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> =
+    com.eried.eucplanet.weather.WeatherFace.of(b).let { it.emoji to it.textRes }
 
 private fun band(score: Float): Int = when {
     score >= 2f -> 2

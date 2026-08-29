@@ -2281,11 +2281,11 @@
     <string name="trip_tools_extend_to">Sluta vid</string>
     <string name="trip_tools_extend_none">Den har turen</string>
     <string name="trip_tools_extend_pick_one">Valj en tidigare eller senare tur att forlanga in i.</string>
-    <string name="widget_act_1_desc">Knapp 1</string>
-    <string name="widget_act_2_desc">Knapp 2</string>
-    <string name="widget_act_3_desc">Knapp 3</string>
-    <string name="widget_act_12_desc">Knappar 1 och 2</string>
-    <string name="widget_act_23_desc">Knappar 2 och 3</string>
+    <string name="widget_act_1_desc">Välj åtgärden i appen</string>
+    <string name="widget_act_2_desc">Välj åtgärden i appen</string>
+    <string name="widget_act_3_desc">Välj åtgärden i appen</string>
+    <string name="widget_act_12_desc">Välj åtgärderna i appen</string>
+    <string name="widget_act_23_desc">Välj åtgärderna i appen</string>
     <string name="widget_standalone_desc">Åtgärder för knappwidgetarna, fristående från raden ovan.</string>
     <string name="widget_standalone_slot">Ensam knapp %1$d</string>
         <string name="widget_customize">Anpassa</string>
@@ -2402,4 +2402,38 @@
     <string name="trip_tools_wheel_none">Inget hjul har registrerats för den här turen ännu.</string>
     <string name="backup_conflict_warning">Vissa tursäkerhetskopior behöver manuell synkronisering: kopiorna skiljer sig. Tryck Synkronisera och välj vilken sida som gäller.</string>
     <string name="backup_conflict_title">Konflikter i säkerhetskopior</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Åka?</string>
+    <string name="widget_weather_score_desc">Åkvädret, just nu.</string>
+    <string name="widget_weather_compact_desc">Hur bra vädret är att åka i, nu och timmarna framåt. Gör större för timmar, temperatur och vind.</string>
+    <string name="widget_weather_graph_desc">Hur bra vädret är att åka i, över prognosperioden</string>
+    <string name="widget_weather_refresh_desc">Uppdatera prognosen</string>
+    <string name="widget_weather_never">Ingen prognos än. Öppna appen en gång eller tryck på uppdatera.</string>
+    <string name="widget_weather_never_short">Aldrig</string>
+    <string name="widget_weather_refreshing">Uppdaterar…</string>
+    <string name="widget_weather_now">Just nu</string>
+    <string name="widget_weather_min_fmt">för %1$d min sedan</string>
+    <string name="widget_weather_hour_fmt">för %1$d h sedan</string>
+    <string name="widget_weather_window_fmt">närmaste %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Meddela vid 80 %</string>
+    <string name="charging_notify_full">Meddela vid 100 %</string>
+    <string name="charge_alert_channel_name">Laddningsaviseringar</string>
+    <string name="charge_alert_channel_description">När batteriet passerar 80 % eller är färdigladdat.</string>
+    <string name="charge_alert_80_title">Batteri på 80 %</string>
+    <string name="charge_alert_80_text">Koppla ur nu om du laddar till 80 % för batteriets livslängd.</string>
+    <string name="charge_alert_full_title">Laddningen klar</string>
+    <string name="charge_alert_full_text">Ditt hjul är fulladdat.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Hjulöversikt</string>
+    <string name="widget_act_1_label">Hjulknapp 1</string>
+    <string name="widget_act_2_label">Hjulknapp 2</string>
+    <string name="widget_act_3_label">Hjulknapp 3</string>
+    <string name="widget_act_12_label">Hjulknappar 1 och 2</string>
+    <string name="widget_act_23_label">Hjulknappar 2 och 3</string>
+    <string name="widget_weather_score_label">Åkväder?</string>
+    <string name="widget_weather_compact_label">Åkväder framåt</string>
+    <string name="widget_act_1_short">Åtgärd 1</string>
+    <string name="widget_act_2_short">Åtgärd 2</string>
+    <string name="widget_act_3_short">Åtgärd 3</string>
 </resources>
