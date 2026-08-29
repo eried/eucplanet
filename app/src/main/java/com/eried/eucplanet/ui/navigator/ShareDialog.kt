@@ -70,12 +70,14 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -126,12 +128,22 @@ import java.util.Locale
  * because a browser has no such interception.
  */
 
-/** Cap on the width of the two square blocks in these dialogs: the group
- *  view's QR and the Join tab's camera. Both fill the dialog in portrait,
- *  which is about this wide anyway. Without the cap a landscape phone or a
- *  tablet hands a square block the full dialog width and it comes out taller
- *  than the screen. */
-internal val SHARE_BLOCK_MAX_WIDTH = 360.dp
+/**
+ * How wide the two square blocks in these dialogs are allowed to get: the
+ * group view's QR and the Join tab's camera.
+ *
+ * Both are laid out edge to edge and are as tall as they are wide, so without
+ * a cap a landscape phone or a tablet hands a square the full dialog width and
+ * it comes out taller than the window, burying the buttons under it. The cap
+ * is the smaller of a portrait phone's dialog width (where nothing changes)
+ * and a little over half the window's height, so what sits under the square
+ * stays reachable in landscape too.
+ */
+@Composable
+internal fun shareBlockMaxWidth(): Dp {
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    return minOf(360.dp, (screenHeight * 0.55f).dp)
+}
 
 /** An avatar URL is another rider's string off the relay, so it is checked
  *  before it is handed to the image loader: https only, and no whitespace or
@@ -810,7 +822,7 @@ fun ShareGroupDialog(
             // taller than the screen and buries Leave under a scroll.
             BoxWithConstraints(
                 Modifier
-                    .widthIn(max = SHARE_BLOCK_MAX_WIDTH)
+                    .widthIn(max = shareBlockMaxWidth())
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
             ) {

@@ -134,7 +134,7 @@ fun ShareQrScannerArea(
     Column(modifier) {
         Box(
             modifier = Modifier
-                .widthIn(max = SHARE_BLOCK_MAX_WIDTH)
+                .widthIn(max = shareBlockMaxWidth())
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(12.dp))
