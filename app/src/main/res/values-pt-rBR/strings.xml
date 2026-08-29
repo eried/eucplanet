@@ -2423,9 +2423,9 @@
     <string name="charge_alert_channel_name">Avisos de carga</string>
     <string name="charge_alert_channel_description">Quando a bateria passa de 80 % ou termina de carregar.</string>
     <string name="charge_alert_80_title">Bateria em 80 %</string>
-    <string name="charge_alert_80_text">Tire da tomada agora se você carrega a 80 % para poupar a bateria.</string>
+    <string name="charge_alert_80_text">Tire da tomada agora, poupa a bateria.</string>
     <string name="charge_alert_full_title">Carga concluída</string>
-    <string name="charge_alert_full_text">Sua roda está totalmente carregada.</string>
+    <string name="charge_alert_full_text">Pronto para rodar.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Painel da roda</string>
     <string name="widget_act_1_label">Botão da roda 1</string>

@@ -2288,9 +2288,9 @@
     <string name="charge_alert_channel_name">充电提醒</string>
     <string name="charge_alert_channel_description">电量超过 80 % 或充电完成时。</string>
     <string name="charge_alert_80_title">电量 80 %</string>
-    <string name="charge_alert_80_text">若为延长电池寿命只充到 80 %，现在拔掉。</string>
+    <string name="charge_alert_80_text">现在拔掉，延长电池寿命。</string>
     <string name="charge_alert_full_title">充电完成</string>
-    <string name="charge_alert_full_text">你的独轮车已充满。</string>
+    <string name="charge_alert_full_text">可以出发了。</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">独轮车面板</string>
     <string name="widget_act_1_label">独轮车按钮 1</string>

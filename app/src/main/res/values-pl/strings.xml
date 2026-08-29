@@ -2421,9 +2421,9 @@
     <string name="charge_alert_channel_name">Alerty ładowania</string>
     <string name="charge_alert_channel_description">Gdy akumulator przekroczy 80 % albo skończy się ładować.</string>
     <string name="charge_alert_80_title">Akumulator na 80 %</string>
-    <string name="charge_alert_80_text">Odłącz teraz, jeśli ładujesz do 80 % dla żywotności ogniw.</string>
+    <string name="charge_alert_80_text">Odłącz teraz, dla żywotności ogniw.</string>
     <string name="charge_alert_full_title">Ładowanie zakończone</string>
-    <string name="charge_alert_full_text">Twoje koło jest w pełni naładowane.</string>
+    <string name="charge_alert_full_text">Gotowe do jazdy.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Pulpit koła</string>
     <string name="widget_act_1_label">Przycisk koła 1</string>

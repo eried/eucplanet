@@ -2309,9 +2309,9 @@
     <string name="charge_alert_channel_name">Ladevarsler</string>
     <string name="charge_alert_channel_description">Når batteriet passerer 80 % eller er ferdig ladet.</string>
     <string name="charge_alert_80_title">Batteri på 80 %</string>
-    <string name="charge_alert_80_text">Koble fra nå hvis du lader til 80 % for batterilevetiden.</string>
+    <string name="charge_alert_80_text">Koble fra nå, det sparer batteriet.</string>
     <string name="charge_alert_full_title">Ladingen er ferdig</string>
-    <string name="charge_alert_full_text">Hjulet ditt er fulladet.</string>
+    <string name="charge_alert_full_text">Klar til å kjøre.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Hjul-dashbord</string>
     <string name="widget_act_1_label">Hjulknapp 1</string>

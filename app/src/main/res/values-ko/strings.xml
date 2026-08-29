@@ -2420,9 +2420,9 @@
     <string name="charge_alert_channel_name">충전 알림</string>
     <string name="charge_alert_channel_description">배터리가 80 %를 넘거나 충전이 끝났을 때.</string>
     <string name="charge_alert_80_title">배터리 80 %</string>
-    <string name="charge_alert_80_text">수명을 위해 80 %까지 충전한다면 지금 뽑으세요.</string>
+    <string name="charge_alert_80_text">지금 뽑으면 배터리 수명에 좋습니다.</string>
     <string name="charge_alert_full_title">충전 완료</string>
-    <string name="charge_alert_full_text">휠이 완전히 충전되었습니다.</string>
+    <string name="charge_alert_full_text">탈 준비 완료.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">휠 대시보드</string>
     <string name="widget_act_1_label">휠 버튼 1</string>

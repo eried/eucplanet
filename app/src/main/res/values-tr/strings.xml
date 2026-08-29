@@ -2418,9 +2418,9 @@
     <string name="charge_alert_channel_name">Şarj uyarıları</string>
     <string name="charge_alert_channel_description">Batarya %80’i geçtiğinde veya şarj bittiğinde.</string>
     <string name="charge_alert_80_title">Batarya %80</string>
-    <string name="charge_alert_80_text">Batarya ömrü için %80’e şarj ediyorsan şimdi çıkar.</string>
+    <string name="charge_alert_80_text">Şimdi çıkar, batarya ömrü için.</string>
     <string name="charge_alert_full_title">Şarj tamamlandı</string>
-    <string name="charge_alert_full_text">Tekerleğin tam dolu.</string>
+    <string name="charge_alert_full_text">Sürüşe hazır.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Teker paneli</string>
     <string name="widget_act_1_label">Teker düğmesi 1</string>

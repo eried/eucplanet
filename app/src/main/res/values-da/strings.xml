@@ -2436,9 +2436,9 @@
     <string name="charge_alert_channel_name">Opladningsbeskeder</string>
     <string name="charge_alert_channel_description">Når batteriet passerer 80 % eller er færdigt.</string>
     <string name="charge_alert_80_title">Batteri på 80 %</string>
-    <string name="charge_alert_80_text">Tag den ud nu, hvis du lader til 80 % for batteriets levetid.</string>
+    <string name="charge_alert_80_text">Tag den ud nu, det skåner batteriet.</string>
     <string name="charge_alert_full_title">Opladning færdig</string>
-    <string name="charge_alert_full_text">Dit hjul er fuldt opladet.</string>
+    <string name="charge_alert_full_text">Klar til at køre.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Hjul-dashboard</string>
     <string name="widget_act_1_label">Hjulknap 1</string>

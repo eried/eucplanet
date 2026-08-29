@@ -2224,9 +2224,9 @@
     <string name="charge_alert_channel_name">Töltési értesítések</string>
     <string name="charge_alert_channel_description">Amikor az akku túllépi a 80 %-ot, vagy befejezte a töltést.</string>
     <string name="charge_alert_80_title">Akku 80 %-on</string>
-    <string name="charge_alert_80_text">Húzd ki most, ha az élettartam miatt 80 %-ig töltesz.</string>
+    <string name="charge_alert_80_text">Húzd ki most, az akku hálás lesz.</string>
     <string name="charge_alert_full_title">Töltés kész</string>
-    <string name="charge_alert_full_text">A kerekedet feltöltötted.</string>
+    <string name="charge_alert_full_text">Mehet a menet.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Kerék műszerfal</string>
     <string name="widget_act_1_label">Kerék gomb 1</string>
