@@ -8,7 +8,16 @@
 <meta name="theme-color" content="#070a16">
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet">
+<!-- MapLibre is pinned to an exact version with Subresource Integrity, not a
+     floating "@4" range. This page holds the decryption key from the URL
+     fragment and every rider's plaintext position, so a third party silently
+     shipping a new build into it is a change nobody would notice. The hashes
+     are of maplibre-gl 4.7.1 (the version eucstats runs); a mismatched file is
+     refused by the browser. Regenerate with:
+       curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A -->
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"
+      integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V"
+      crossorigin="anonymous">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
@@ -240,7 +249,16 @@
     #dock.open #panel { max-height: 44dvh; overflow-y: auto; }
     #recenter { bottom: 62px; }
     #dock.open ~ #recenter { display: none !important; }
-    .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right { bottom: 50px !important; }
+    /* The attribution rides on top of the sheet in BOTH states. Every basemap
+       here (CARTO, OpenStreetMap, Esri) requires its credit to stay visible,
+       and the open sheet grows to 44dvh, which a fixed 50px offset left it
+       buried under. --sheet-h is the sheet's measured height, kept current by
+       the ResizeObserver in boot(), so the credits sit just clear of it rather
+       than floating over the map at a guessed 44dvh the short list never
+       reaches. The fallback is the collapsed header's height. */
+    .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right {
+      bottom: calc(var(--sheet-h, 42px) + 8px) !important;
+    }
   }
 </style>
 </head>
@@ -275,7 +293,9 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"
+        integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj"
+        crossorigin="anonymous"></script>
 <script>
 "use strict";
 /*
@@ -941,6 +961,19 @@ function boot() {
   $("dockHead").addEventListener("click", function () {
     $("dock").classList.toggle("open");
   });
+  // The map attribution lives inside #map, which comes BEFORE #dock in the
+  // document, so no CSS combinator can lift it off the sheet. Publishing the
+  // sheet's measured height as --sheet-h does it instead, and keeps the CARTO
+  // / OpenStreetMap / Esri credits (a licence term of all three) clear whether
+  // the sheet is collapsed, opening, or full. Watching the element rather than
+  // the click also covers the open animation, a rider joining or leaving the
+  // list, and rotating the phone.
+  if (window.ResizeObserver) {
+    new ResizeObserver(function (entries) {
+      document.documentElement.style.setProperty(
+        "--sheet-h", Math.round(entries[0].target.getBoundingClientRect().height) + "px");
+    }).observe($("dock"));
+  }
 
   if (location.hash === "#selftest") {
     setStatus("Self test", "");
