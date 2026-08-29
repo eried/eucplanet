@@ -126,6 +126,18 @@ class ShareSession @Inject constructor(
         return identityFor(mode, s.share.lastSessionName, s.share.shareStatsDefault)
     }
 
+    /**
+     * Build the identity the group sees.
+     *
+     * The payload's `icon` stays null for every mode, the navigator's
+     * customized rider marker included. That marker is a base64 PNG data URL
+     * held on this phone (NavMarkerStore), tens of kilobytes of it, and the
+     * payload is re-sent every three seconds: putting it on the wire would
+     * multiply each rider's traffic by orders of magnitude to redraw a dot.
+     * The custom marker therefore stays what it already is, the LOCAL rider's
+     * own marker on their own map, drawn by nativeSetUserPhoto; friends see
+     * the palette dot (or the profile avatar, which is a real https URL).
+     */
     suspend fun identityFor(mode: IdentityMode, sessionName: String, shareStats: Boolean): Identity {
         // The local rider is never a peer and must not consume an index from
         // the arrival-order sequence peers are colored from (see PeerPalette).
