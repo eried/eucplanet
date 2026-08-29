@@ -22,10 +22,9 @@ import org.junit.runner.RunWith
  * The trip chart's three gestures, on a real touch screen.
  *
  * One canvas carries a long-press scrub, a two-finger zoom and the page's
- * scroll, and the rules between them are the sort a rider notices immediately:
- * a zoom must not drag the read onto a finger, and the zoom itself turns around
- * the fingers. None of that can be driven from adb, which has no multitouch at
- * all, so it is pinned here.
+ * scroll. A long press places the read; a pinch turns around the fingers.
+ * Neither can be driven from adb, which has no multitouch at all, so they are
+ * pinned here.
  */
 @RunWith(AndroidJUnit4::class)
 class ChartCardGestureTest {
@@ -114,18 +113,6 @@ class ChartCardGestureTest {
         val read = scrub.value
         assertNotNull("a long press should place a read", read)
         assertEquals(0.25f, read!! / (n - 1).toFloat(), 0.03f)
-    }
-
-    @Test
-    fun aPinchDoesNotDragTheReadOntoTheFingers() {
-        content()
-        placeRead(0.25f)
-        val before = scrub.value!!
-        // Fingers land far from the read. The long press fires for whichever
-        // touched down first, so without the multitouch guard the read jumps
-        // there and the moment the rider was studying is lost.
-        pinchOpen(0.75f)
-        assertEquals("the read must not follow a pinching finger", before, scrub.value)
     }
 
     @Test

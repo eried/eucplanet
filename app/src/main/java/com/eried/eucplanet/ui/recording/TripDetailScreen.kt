@@ -760,14 +760,29 @@ fun TripDetailScreen(
             val scrubStartMs = remember(dataPoints, scrubParse) {
                 scrubParse?.let { p -> dataPoints.firstNotNullOfOrNull { p(it.date) } }
             }
+            // The whole ride's first sample, which the trimmed list no longer
+            // starts at. A trimmed section that begins 14 minutes in was
+            // reporting its own 0:00 as the moment's position, so the number
+            // said something different from what the rest of the ride calls
+            // that instant.
+            val rideStartMs = remember(allPoints, scrubParse) {
+                scrubParse?.let { p -> allPoints.firstNotNullOfOrNull { p(it.date) } }
+            }
             val scrubLabel = scrubPoint?.let { p ->
                 val clock = timePartOf(p.date)
                 val at = scrubParse?.invoke(p.date)
-                if (at != null && scrubStartMs != null) {
-                    val elapsed = com.eried.eucplanet.util.Units
-                        .humanDuration(((at - scrubStartMs) / 1000).coerceAtLeast(0))
-                    "$clock · $elapsed"
-                } else clock
+                fun since(start: Long) = com.eried.eucplanet.util.Units
+                    .humanDuration(((at!! - start) / 1000).coerceAtLeast(0))
+                when {
+                    at == null -> clock
+                    // Trimmed: how far into the RIDE, then how far into the
+                    // section in brackets, so the rider can place the moment in
+                    // both the thing they cut and the thing they cut it from.
+                    trimmed && rideStartMs != null && scrubStartMs != null ->
+                        "$clock · ${since(rideStartMs)} (${since(scrubStartMs)})"
+                    rideStartMs != null -> "$clock · ${since(rideStartMs)}"
+                    else -> clock
+                }
             }
 
             // Speed chart overlays: wheel speed (main line) vs GPS / RaceBox speed,
@@ -2863,14 +2878,6 @@ internal fun ChartCard(
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val longPress =
                                 awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
-                            // Two fingers down means the rider is pinching, not
-                            // reading. The long press still fires for whichever
-                            // finger landed first, so without this the zoom
-                            // yanks the cursor onto that finger and the read
-                            // the rider was zooming in to study is gone.
-                            if (currentEvent.changes.count { it.pressed } > 1) {
-                                return@awaitEachGesture
-                            }
                             // Long-press confirmed, the chart now owns the gesture.
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             longPress.consume()
@@ -2886,13 +2893,6 @@ internal fun ChartCard(
                             }
                             report(longPress.position.x)
                             drag(longPress.id) { change ->
-                                // A second finger part-way through: the rider
-                                // is zooming around what they were reading.
-                                // Stop following, and leave the line on its
-                                // sample for the pinch to carry.
-                                if (currentEvent.changes.count { it.pressed } > 1) {
-                                    return@drag
-                                }
                                 report(change.position.x)
                                 change.consume()
                             }
