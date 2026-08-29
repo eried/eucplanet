@@ -1306,6 +1306,21 @@
     <string name="widget_action_voice">Voice</string>
     <string name="widget_standalone_desc">Actions for the button-only widgets, separate from the row above.</string>
     <string name="widget_standalone_slot">Standalone button %1$d</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC time?</string>
+    <string name="widget_weather_score_desc">Ride score right now, one cell.</string>
+    <string name="widget_weather_compact_desc">Ride score and the forecast curve.</string>
+    <string name="widget_weather_panel_desc">Ride score, forecast curve, temperature and wind.</string>
+    <string name="widget_weather_graph_desc">Ride score over the forecast window</string>
+    <string name="widget_weather_refresh_desc">Refresh the forecast</string>
+    <string name="widget_weather_dash">--</string>
+    <string name="widget_weather_never">No forecast yet. Open the app once, or tap refresh.</string>
+    <string name="widget_weather_never_short">Never</string>
+    <string name="widget_weather_refreshing">Refreshing…</string>
+    <string name="widget_weather_now">Just now</string>
+    <string name="widget_weather_min_fmt">%1$d min ago</string>
+    <string name="widget_weather_hour_fmt">%1$d h ago</string>
+    <string name="widget_weather_window_fmt">next %1$d h</string>
     <string name="widget_act_1_desc">Button 1</string>
     <string name="widget_act_2_desc">Button 2</string>
     <string name="widget_act_3_desc">Button 3</string>

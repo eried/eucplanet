@@ -435,6 +435,15 @@ fun DashboardScreen(
     var showMapMenu by remember { mutableStateOf(false) }
     var showWeatherMenu by remember { mutableStateOf(false) }
     var showWeatherFlyout by remember { mutableStateOf(false) }
+    // Tapping a home screen weather widget lands here: open the panel and
+    // refresh it, the same as tapping the dashboard's own weather icon.
+    val weatherLaunchPending by WeatherPanelLaunch.pending.collectAsState()
+    LaunchedEffect(weatherLaunchPending) {
+        if (WeatherPanelLaunch.consume()) {
+            showWeatherFlyout = true
+            viewModel.refreshWeather()
+        }
+    }
     var weatherWindowOverride by remember { mutableStateOf<Int?>(null) }
     val weatherSettings by viewModel.weatherSettings.collectAsState()
     val weatherHours by viewModel.weatherHours.collectAsState()

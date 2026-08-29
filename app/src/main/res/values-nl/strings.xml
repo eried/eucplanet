@@ -2404,4 +2404,18 @@
     <string name="trip_tools_wheel_none">Voor deze rit is nog geen wiel vastgelegd.</string>
     <string name="backup_conflict_warning">Sommige ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
     <string name="backup_conflict_title">Back-upconflicten</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC-tijd?</string>
+    <string name="widget_weather_score_desc">Rijscore nu, één cel.</string>
+    <string name="widget_weather_compact_desc">Rijscore en de voorspellingscurve.</string>
+    <string name="widget_weather_panel_desc">Rijscore, voorspellingscurve, temperatuur en wind.</string>
+    <string name="widget_weather_graph_desc">Rijscore over de voorspelde periode</string>
+    <string name="widget_weather_refresh_desc">Voorspelling verversen</string>
+    <string name="widget_weather_never">Nog geen voorspelling. Open de app één keer of tik op verversen.</string>
+    <string name="widget_weather_never_short">Nooit</string>
+    <string name="widget_weather_refreshing">Verversen…</string>
+    <string name="widget_weather_now">Zojuist</string>
+    <string name="widget_weather_min_fmt">%1$d min geleden</string>
+    <string name="widget_weather_hour_fmt">%1$d u geleden</string>
+    <string name="widget_weather_window_fmt">komende %1$d u</string>
 </resources>

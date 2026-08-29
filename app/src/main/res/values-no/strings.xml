@@ -2290,4 +2290,18 @@
     <string name="trip_tools_wheel_none">Ingen hjul er registrert for denne turen ennå.</string>
     <string name="backup_conflict_warning">Noen tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
     <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC-tid?</string>
+    <string name="widget_weather_score_desc">Kjørescore nå, én celle.</string>
+    <string name="widget_weather_compact_desc">Kjørescore og værkurven.</string>
+    <string name="widget_weather_panel_desc">Kjørescore, værkurve, temperatur og vind.</string>
+    <string name="widget_weather_graph_desc">Kjørescore over varselperioden</string>
+    <string name="widget_weather_refresh_desc">Oppdater varselet</string>
+    <string name="widget_weather_never">Ingen varsel ennå. Åpne appen én gang, eller trykk oppdater.</string>
+    <string name="widget_weather_never_short">Aldri</string>
+    <string name="widget_weather_refreshing">Oppdaterer…</string>
+    <string name="widget_weather_now">Akkurat nå</string>
+    <string name="widget_weather_min_fmt">for %1$d min siden</string>
+    <string name="widget_weather_hour_fmt">for %1$d t siden</string>
+    <string name="widget_weather_window_fmt">neste %1$d t</string>
 </resources>

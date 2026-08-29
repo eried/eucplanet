@@ -2422,4 +2422,18 @@
     <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Einrad hinterlegt.</string>
     <string name="backup_conflict_warning">Einige Fahrt-Sicherungen brauchen einen manuellen Abgleich: die Kopien unterscheiden sich. Auf Synchronisieren tippen und die gültige Seite wählen.</string>
     <string name="backup_conflict_title">Backup-Konflikte</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC-Zeit?</string>
+    <string name="widget_weather_score_desc">Fahrwertung jetzt, eine Zelle.</string>
+    <string name="widget_weather_compact_desc">Fahrwertung und Vorhersagekurve.</string>
+    <string name="widget_weather_panel_desc">Fahrwertung, Vorhersagekurve, Temperatur und Wind.</string>
+    <string name="widget_weather_graph_desc">Fahrwertung im Vorhersagezeitraum</string>
+    <string name="widget_weather_refresh_desc">Vorhersage aktualisieren</string>
+    <string name="widget_weather_never">Noch keine Vorhersage. App einmal öffnen oder auf Aktualisieren tippen.</string>
+    <string name="widget_weather_never_short">Nie</string>
+    <string name="widget_weather_refreshing">Wird aktualisiert…</string>
+    <string name="widget_weather_now">Gerade eben</string>
+    <string name="widget_weather_min_fmt">vor %1$d Min.</string>
+    <string name="widget_weather_hour_fmt">vor %1$d Std.</string>
+    <string name="widget_weather_window_fmt">nächste %1$d Std.</string>
 </resources>

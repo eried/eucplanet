@@ -2205,4 +2205,18 @@
     <string name="trip_tools_wheel_none">K této jízdě zatím není zaznamenané žádné kolo.</string>
     <string name="backup_conflict_warning">Některé zálohy jízd vyžadují ruční synchronizaci: kopie se liší. Stiskněte Synchronizovat a vyberte platnou stranu.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Čas na EUC?</string>
+    <string name="widget_weather_score_desc">Skóre jízdy teď, jedna buňka.</string>
+    <string name="widget_weather_compact_desc">Skóre jízdy a křivka předpovědi.</string>
+    <string name="widget_weather_panel_desc">Skóre jízdy, křivka předpovědi, teplota a vítr.</string>
+    <string name="widget_weather_graph_desc">Skóre jízdy v předpovídaném období</string>
+    <string name="widget_weather_refresh_desc">Obnovit předpověď</string>
+    <string name="widget_weather_never">Zatím žádná předpověď. Otevři aplikaci nebo klepni na obnovit.</string>
+    <string name="widget_weather_never_short">Nikdy</string>
+    <string name="widget_weather_refreshing">Obnovování…</string>
+    <string name="widget_weather_now">Právě teď</string>
+    <string name="widget_weather_min_fmt">před %1$d min</string>
+    <string name="widget_weather_hour_fmt">před %1$d h</string>
+    <string name="widget_weather_window_fmt">dalších %1$d h</string>
 </resources>

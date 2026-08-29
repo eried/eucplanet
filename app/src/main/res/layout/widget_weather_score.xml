@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  1x1: the face, and the number that answers "is it EUC time?".
+
+  No graph and no refresh button at this size. One cell is about 60dp square on
+  most launchers, and a curve drawn that small is a smudge, so the whole cell
+  goes to the two things a rider can read at a glance. Tapping opens the panel,
+  where the forecast is a chart you can actually scrub.
+
+  Colours are literals: RemoteViews are inflated in the launcher's process,
+  outside the app's theme system.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ww_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/widget_bg"
+    android:padding="2dp">
+
+    <TextView
+        android:id="@+id/ww_face"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="😄"
+        android:textSize="19sp"
+        android:includeFontPadding="false" />
+
+    <TextView
+        android:id="@+id/ww_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+4"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        android:textColor="#5AB55A" />
+
+    <TextView
+        android:id="@+id/ww_question"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_weather_question"
+        android:lines="1"
+        android:textSize="8sp"
+        android:maxLines="1"
+        android:includeFontPadding="false"
+        android:textColor="#9AA0A6" />
+</LinearLayout>

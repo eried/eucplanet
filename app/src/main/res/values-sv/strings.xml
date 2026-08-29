@@ -2402,4 +2402,18 @@
     <string name="trip_tools_wheel_none">Inget hjul har registrerats för den här turen ännu.</string>
     <string name="backup_conflict_warning">Vissa tursäkerhetskopior behöver manuell synkronisering: kopiorna skiljer sig. Tryck Synkronisera och välj vilken sida som gäller.</string>
     <string name="backup_conflict_title">Konflikter i säkerhetskopior</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC-dags?</string>
+    <string name="widget_weather_score_desc">Åkbetyg just nu, en ruta.</string>
+    <string name="widget_weather_compact_desc">Åkbetyg och prognoskurvan.</string>
+    <string name="widget_weather_panel_desc">Åkbetyg, prognoskurva, temperatur och vind.</string>
+    <string name="widget_weather_graph_desc">Åkbetyg över prognosperioden</string>
+    <string name="widget_weather_refresh_desc">Uppdatera prognosen</string>
+    <string name="widget_weather_never">Ingen prognos än. Öppna appen en gång eller tryck på uppdatera.</string>
+    <string name="widget_weather_never_short">Aldrig</string>
+    <string name="widget_weather_refreshing">Uppdaterar…</string>
+    <string name="widget_weather_now">Just nu</string>
+    <string name="widget_weather_min_fmt">för %1$d min sedan</string>
+    <string name="widget_weather_hour_fmt">för %1$d h sedan</string>
+    <string name="widget_weather_window_fmt">närmaste %1$d h</string>
 </resources>

@@ -2402,4 +2402,18 @@
     <string name="trip_tools_wheel_none">Для этой поездки колесо еще не записано.</string>
     <string name="backup_conflict_warning">Некоторые резервные копии поездок требуют ручной синхронизации: копии различаются. Нажмите «Синхронизация» и выберите верную сторону.</string>
     <string name="backup_conflict_title">Конфликты резервных копий</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Время для EUC?</string>
+    <string name="widget_weather_score_desc">Оценка поездки сейчас, одна ячейка.</string>
+    <string name="widget_weather_compact_desc">Оценка и кривая прогноза.</string>
+    <string name="widget_weather_panel_desc">Оценка, кривая прогноза, температура и ветер.</string>
+    <string name="widget_weather_graph_desc">Оценка поездки на период прогноза</string>
+    <string name="widget_weather_refresh_desc">Обновить прогноз</string>
+    <string name="widget_weather_never">Прогноза пока нет. Откройте приложение или нажмите обновить.</string>
+    <string name="widget_weather_never_short">Никогда</string>
+    <string name="widget_weather_refreshing">Обновление…</string>
+    <string name="widget_weather_now">Только что</string>
+    <string name="widget_weather_min_fmt">%1$d мин назад</string>
+    <string name="widget_weather_hour_fmt">%1$d ч назад</string>
+    <string name="widget_weather_window_fmt">ближайшие %1$d ч</string>
 </resources>

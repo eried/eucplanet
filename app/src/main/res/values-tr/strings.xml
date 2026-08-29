@@ -2399,4 +2399,18 @@
     <string name="trip_tools_wheel_none">Bu sürüş için henüz bir teker kaydedilmedi.</string>
     <string name="backup_conflict_warning">Bazı sürüş yedekleri manuel eşitleme istiyor: kopyalar farklı. Eşitle’ye basıp geçerli tarafı seçin.</string>
     <string name="backup_conflict_title">Yedek çakışmaları</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC zamanı mı?</string>
+    <string name="widget_weather_score_desc">Şu anki sürüş puanı, tek hücre.</string>
+    <string name="widget_weather_compact_desc">Sürüş puanı ve tahmin eğrisi.</string>
+    <string name="widget_weather_panel_desc">Sürüş puanı, tahmin eğrisi, sıcaklık ve rüzgâr.</string>
+    <string name="widget_weather_graph_desc">Tahmin süresi boyunca sürüş puanı</string>
+    <string name="widget_weather_refresh_desc">Tahmini yenile</string>
+    <string name="widget_weather_never">Henüz tahmin yok. Uygulamayı bir kez aç veya yenileye dokun.</string>
+    <string name="widget_weather_never_short">Hiç</string>
+    <string name="widget_weather_refreshing">Yenileniyor…</string>
+    <string name="widget_weather_now">Az önce</string>
+    <string name="widget_weather_min_fmt">%1$d dk önce</string>
+    <string name="widget_weather_hour_fmt">%1$d sa önce</string>
+    <string name="widget_weather_window_fmt">sonraki %1$d sa</string>
 </resources>

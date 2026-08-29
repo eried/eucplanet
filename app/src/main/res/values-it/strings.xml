@@ -2307,4 +2307,18 @@
     <string name="trip_tools_wheel_none">Nessuna ruota registrata per questo viaggio.</string>
     <string name="backup_conflict_warning">Alcuni backup di viaggi richiedono una sincronizzazione manuale: le copie differiscono. Premi Sincronizza e scegli quale vale.</string>
     <string name="backup_conflict_title">Conflitti di backup</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Ora di EUC?</string>
+    <string name="widget_weather_score_desc">Punteggio di guida adesso, una cella.</string>
+    <string name="widget_weather_compact_desc">Punteggio e curva delle previsioni.</string>
+    <string name="widget_weather_panel_desc">Punteggio, curva delle previsioni, temperatura e vento.</string>
+    <string name="widget_weather_graph_desc">Punteggio di guida nel periodo previsto</string>
+    <string name="widget_weather_refresh_desc">Aggiorna le previsioni</string>
+    <string name="widget_weather_never">Nessuna previsione. Apri l’app una volta o tocca aggiorna.</string>
+    <string name="widget_weather_never_short">Mai</string>
+    <string name="widget_weather_refreshing">Aggiornamento…</string>
+    <string name="widget_weather_now">Adesso</string>
+    <string name="widget_weather_min_fmt">%1$d min fa</string>
+    <string name="widget_weather_hour_fmt">%1$d h fa</string>
+    <string name="widget_weather_window_fmt">prossime %1$d h</string>
 </resources>

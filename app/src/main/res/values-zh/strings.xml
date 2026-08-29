@@ -2269,4 +2269,18 @@
     <string name="trip_tools_wheel_none">此行程尚未记录独轮车。</string>
     <string name="backup_conflict_warning">部分行程备份需要手动同步：两侧副本不同。点击同步并选择以哪侧为准。</string>
     <string name="backup_conflict_title">备份冲突</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">适合骑行吗？</string>
+    <string name="widget_weather_score_desc">当前骑行评分，一格。</string>
+    <string name="widget_weather_compact_desc">骑行评分和预报曲线。</string>
+    <string name="widget_weather_panel_desc">骑行评分、预报曲线、气温和风。</string>
+    <string name="widget_weather_graph_desc">预报时段内的骑行评分</string>
+    <string name="widget_weather_refresh_desc">刷新预报</string>
+    <string name="widget_weather_never">还没有预报。打开一次应用，或点按刷新。</string>
+    <string name="widget_weather_never_short">从未</string>
+    <string name="widget_weather_refreshing">正在刷新…</string>
+    <string name="widget_weather_now">刚刚</string>
+    <string name="widget_weather_min_fmt">%1$d 分钟前</string>
+    <string name="widget_weather_hour_fmt">%1$d 小时前</string>
+    <string name="widget_weather_window_fmt">未来 %1$d 小时</string>
 </resources>

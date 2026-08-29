@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  updatePeriodMillis 0 for the same reason as every other widget here: the
+  launcher's own schedule has a 30 minute floor and wakes the device to keep
+  it. WeatherWidgetWorker refreshes on its own hourly cadence instead, and
+  onUpdate paints the stored snapshot so a freshly placed widget is never blank.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="60dp"
+    android:minHeight="60dp"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_weather_score"
+    android:previewLayout="@layout/widget_weather_score"
+    android:description="@string/widget_weather_score_desc"
+    android:resizeMode="none"
+    android:widgetCategory="home_screen" />

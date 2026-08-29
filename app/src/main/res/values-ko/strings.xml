@@ -2401,4 +2401,18 @@
     <string name="trip_tools_wheel_none">이 주행에는 아직 휠이 기록되지 않았습니다.</string>
     <string name="backup_conflict_warning">일부 트립 백업에 수동 동기화가 필요합니다. 사본이 서로 다릅니다. 동기화를 누르고 남길 쪽을 선택하세요.</string>
     <string name="backup_conflict_title">백업 충돌</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC 타기 좋을까?</string>
+    <string name="widget_weather_score_desc">지금 주행 점수, 한 칸.</string>
+    <string name="widget_weather_compact_desc">주행 점수와 예보 곡선.</string>
+    <string name="widget_weather_panel_desc">주행 점수, 예보 곡선, 기온, 바람.</string>
+    <string name="widget_weather_graph_desc">예보 기간의 주행 점수</string>
+    <string name="widget_weather_refresh_desc">예보 새로 고침</string>
+    <string name="widget_weather_never">아직 예보가 없습니다. 앱을 한 번 열거나 새로 고침을 누르세요.</string>
+    <string name="widget_weather_never_short">없음</string>
+    <string name="widget_weather_refreshing">새로 고치는 중…</string>
+    <string name="widget_weather_now">방금</string>
+    <string name="widget_weather_min_fmt">%1$d분 전</string>
+    <string name="widget_weather_hour_fmt">%1$d시간 전</string>
+    <string name="widget_weather_window_fmt">다음 %1$d시간</string>
 </resources>

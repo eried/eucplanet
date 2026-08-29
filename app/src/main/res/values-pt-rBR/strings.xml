@@ -2404,4 +2404,18 @@
     <string name="trip_tools_wheel_none">Esta viagem ainda não tem roda registrada.</string>
     <string name="backup_conflict_warning">Alguns backups de viagens precisam de sincronização manual: as cópias diferem. Toque em Sincronizar e escolha qual vale.</string>
     <string name="backup_conflict_title">Conflitos de backup</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Hora de EUC?</string>
+    <string name="widget_weather_score_desc">Nota de pilotagem agora, uma célula.</string>
+    <string name="widget_weather_compact_desc">Nota e curva da previsão.</string>
+    <string name="widget_weather_panel_desc">Nota, curva da previsão, temperatura e vento.</string>
+    <string name="widget_weather_graph_desc">Nota de pilotagem no período previsto</string>
+    <string name="widget_weather_refresh_desc">Atualizar a previsão</string>
+    <string name="widget_weather_never">Ainda sem previsão. Abra o app uma vez ou toque em atualizar.</string>
+    <string name="widget_weather_never_short">Nunca</string>
+    <string name="widget_weather_refreshing">Atualizando…</string>
+    <string name="widget_weather_now">Agora mesmo</string>
+    <string name="widget_weather_min_fmt">há %1$d min</string>
+    <string name="widget_weather_hour_fmt">há %1$d h</string>
+    <string name="widget_weather_window_fmt">próximas %1$d h</string>
 </resources>

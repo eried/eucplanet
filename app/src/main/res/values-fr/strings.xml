@@ -2406,4 +2406,18 @@
     <string name="trip_tools_wheel_none">Aucune roue enregistrée pour ce trajet pour le moment.</string>
     <string name="backup_conflict_warning">Certaines sauvegardes de trajets demandent une synchronisation manuelle : les copies diffèrent. Appuyez sur Synchroniser et choisissez la bonne version.</string>
     <string name="backup_conflict_title">Conflits de sauvegarde</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Sortie EUC ?</string>
+    <string name="widget_weather_score_desc">Note de roulage maintenant, une case.</string>
+    <string name="widget_weather_compact_desc">Note et courbe des prévisions.</string>
+    <string name="widget_weather_panel_desc">Note, courbe des prévisions, température et vent.</string>
+    <string name="widget_weather_graph_desc">Note de roulage sur la période prévue</string>
+    <string name="widget_weather_refresh_desc">Actualiser les prévisions</string>
+    <string name="widget_weather_never">Pas encore de prévisions. Ouvre l’app une fois, ou appuie sur actualiser.</string>
+    <string name="widget_weather_never_short">Jamais</string>
+    <string name="widget_weather_refreshing">Actualisation…</string>
+    <string name="widget_weather_now">À l’instant</string>
+    <string name="widget_weather_min_fmt">il y a %1$d min</string>
+    <string name="widget_weather_hour_fmt">il y a %1$d h</string>
+    <string name="widget_weather_window_fmt">%1$d h à venir</string>
 </resources>

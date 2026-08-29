@@ -2205,4 +2205,18 @@
     <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu pyörää.</string>
     <string name="backup_conflict_warning">Jotkin matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
     <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC-aika?</string>
+    <string name="widget_weather_score_desc">Ajopisteet nyt, yksi ruutu.</string>
+    <string name="widget_weather_compact_desc">Ajopisteet ja ennustekäyrä.</string>
+    <string name="widget_weather_panel_desc">Ajopisteet, ennustekäyrä, lämpötila ja tuuli.</string>
+    <string name="widget_weather_graph_desc">Ajopisteet ennustejaksolla</string>
+    <string name="widget_weather_refresh_desc">Päivitä ennuste</string>
+    <string name="widget_weather_never">Ei vielä ennustetta. Avaa sovellus kerran tai napauta päivitä.</string>
+    <string name="widget_weather_never_short">Ei koskaan</string>
+    <string name="widget_weather_refreshing">Päivitetään…</string>
+    <string name="widget_weather_now">Juuri nyt</string>
+    <string name="widget_weather_min_fmt">%1$d min sitten</string>
+    <string name="widget_weather_hour_fmt">%1$d t sitten</string>
+    <string name="widget_weather_window_fmt">seuraavat %1$d t</string>
 </resources>

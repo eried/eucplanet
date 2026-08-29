@@ -2205,4 +2205,18 @@
     <string name="trip_tools_wheel_none">Această călătorie nu are încă o roată înregistrată.</string>
     <string name="backup_conflict_warning">Unele copii de siguranță ale călătoriilor cer o sincronizare manuală: copiile diferă. Apăsați Sincronizare și alegeți partea valabilă.</string>
     <string name="backup_conflict_title">Conflicte de backup</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Timp de EUC?</string>
+    <string name="widget_weather_score_desc">Scorul de mers acum, o celulă.</string>
+    <string name="widget_weather_compact_desc">Scorul de mers și curba prognozei.</string>
+    <string name="widget_weather_panel_desc">Scorul de mers, curba prognozei, temperatura și vântul.</string>
+    <string name="widget_weather_graph_desc">Scorul de mers pe perioada prognozată</string>
+    <string name="widget_weather_refresh_desc">Actualizează prognoza</string>
+    <string name="widget_weather_never">Încă nicio prognoză. Deschide aplicația o dată sau atinge actualizarea.</string>
+    <string name="widget_weather_never_short">Niciodată</string>
+    <string name="widget_weather_refreshing">Se actualizează…</string>
+    <string name="widget_weather_now">Chiar acum</string>
+    <string name="widget_weather_min_fmt">acum %1$d min</string>
+    <string name="widget_weather_hour_fmt">acum %1$d h</string>
+    <string name="widget_weather_window_fmt">următoarele %1$d h</string>
 </resources>

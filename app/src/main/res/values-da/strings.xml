@@ -2417,4 +2417,18 @@
     <string name="trip_tools_wheel_none">Der er endnu ikke registreret et hjul for denne tur.</string>
     <string name="backup_conflict_warning">Nogle tursikkerhedskopier kræver manuel synkronisering: kopierne er forskellige. Tryk Synkroniser og vælg hvilken side der gælder.</string>
     <string name="backup_conflict_title">Backupkonflikter</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">EUC-tid?</string>
+    <string name="widget_weather_score_desc">Kørescore lige nu, én celle.</string>
+    <string name="widget_weather_compact_desc">Kørescore og prognosekurven.</string>
+    <string name="widget_weather_panel_desc">Kørescore, prognosekurve, temperatur og vind.</string>
+    <string name="widget_weather_graph_desc">Kørescore over prognoseperioden</string>
+    <string name="widget_weather_refresh_desc">Opdatér prognosen</string>
+    <string name="widget_weather_never">Ingen prognose endnu. Åbn appen én gang, eller tryk på opdatér.</string>
+    <string name="widget_weather_never_short">Aldrig</string>
+    <string name="widget_weather_refreshing">Opdaterer…</string>
+    <string name="widget_weather_now">Lige nu</string>
+    <string name="widget_weather_min_fmt">for %1$d min siden</string>
+    <string name="widget_weather_hour_fmt">for %1$d t siden</string>
+    <string name="widget_weather_window_fmt">næste %1$d t</string>
 </resources>

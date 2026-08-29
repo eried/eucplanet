@@ -2402,4 +2402,18 @@
     <string name="trip_tools_wheel_none">Ten przejazd nie ma jeszcze zapisanego koła.</string>
     <string name="backup_conflict_warning">Niektóre kopie zapasowe przejazdów wymagają ręcznej synchronizacji: kopie się różnią. Naciśnij Synchronizuj i wybierz właściwą stronę.</string>
     <string name="backup_conflict_title">Konflikty kopii zapasowych</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Czas na EUC?</string>
+    <string name="widget_weather_score_desc">Ocena jazdy teraz, jedna komórka.</string>
+    <string name="widget_weather_compact_desc">Ocena jazdy i krzywa prognozy.</string>
+    <string name="widget_weather_panel_desc">Ocena jazdy, krzywa prognozy, temperatura i wiatr.</string>
+    <string name="widget_weather_graph_desc">Ocena jazdy w prognozowanym okresie</string>
+    <string name="widget_weather_refresh_desc">Odśwież prognozę</string>
+    <string name="widget_weather_never">Brak prognozy. Otwórz aplikację raz lub dotknij odświeżania.</string>
+    <string name="widget_weather_never_short">Nigdy</string>
+    <string name="widget_weather_refreshing">Odświeżanie…</string>
+    <string name="widget_weather_now">Przed chwilą</string>
+    <string name="widget_weather_min_fmt">%1$d min temu</string>
+    <string name="widget_weather_hour_fmt">%1$d godz. temu</string>
+    <string name="widget_weather_window_fmt">najbliższe %1$d godz.</string>
 </resources>

@@ -162,6 +162,35 @@
         </provider>
 
         <!-- Home screen widget. Not exported: only the system needs to reach it. -->
+        <!--
+          Weather on the home screen, in three sizes, all painting the same
+          snapshot. Not exported: the only broadcast they answer is our own
+          refresh action, sent from the widgets themselves.
+        -->
+        <receiver android:name=".widget.WeatherScoreWidget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_score_info" />
+        </receiver>
+        <receiver android:name=".widget.WeatherCompactWidget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.eried.eucplanet.widget.WEATHER_REFRESH" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_compact_info" />
+        </receiver>
+        <receiver android:name=".widget.WeatherPanelWidget" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.eried.eucplanet.widget.WEATHER_REFRESH" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_panel_info" />
+        </receiver>
+
         <receiver
             android:name=".widget.EucWidget"
             android:exported="false">
