@@ -189,6 +189,16 @@ function hex(bytes) {
   }).join("");
 }
 
+// Only ever load avatars over https or as inline images. A peer-supplied URL
+// is untrusted; anything else (http, javascript, file, blob, arbitrary schemes)
+// is dropped so a room member cannot make viewers fetch an arbitrary resource.
+function safeAvatarUrl(u) {
+  if (typeof u !== "string") return null;
+  if (/^https:\/\/[^\s"'()]+$/i.test(u)) return u;
+  if (/^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/i.test(u)) return u;
+  return null;
+}
+
 function showMessage(title, body, html) {
   $("msgTitle").textContent = title;
   if (html) $("msgBody").innerHTML = html; else $("msgBody").textContent = body || "";
@@ -338,6 +348,9 @@ function freshnessOf(ageMs) {
 
 function applyPayload(senderId, payload) {
   if (!payload || payload.v !== 1) return;      // unknown schema, ignore
+  // A peer without a usable position has nothing to place on the map.
+  if (typeof payload.lat !== "number" || typeof payload.lng !== "number" ||
+      !isFinite(payload.lat) || !isFinite(payload.lng)) return;
   var p = peerFor(senderId);
   p.name = payload.name || p.name;
   p.mode = payload.mode || null;
@@ -529,7 +542,8 @@ function render() {
       var dot = p.el.querySelector(".dot");
       var tag = p.el.querySelector(".tag");
       p.el.style.setProperty("--c", color);
-      dot.style.backgroundImage = (p.avatarUrl && !grey) ? 'url("' + p.avatarUrl + '")' : "none";
+      var avatar = grey ? null : safeAvatarUrl(p.avatarUrl);
+      dot.style.backgroundImage = avatar ? 'url("' + avatar + '")' : "none";
       p.el.classList.toggle("stale", fresh === STALE && !grey);
       p.el.classList.toggle("has-heading", p.heading !== null && !grey);
       if (p.heading !== null) {
@@ -598,7 +612,8 @@ function renderPanel(rows) {
     var sw = document.createElement("div");
     sw.className = "swatch";
     sw.style.background = r.color;
-    if (r.p.avatarUrl && !r.grey) sw.style.backgroundImage = 'url("' + r.p.avatarUrl + '")';
+    var rowAvatar = r.grey ? null : safeAvatarUrl(r.p.avatarUrl);
+    sw.style.backgroundImage = rowAvatar ? 'url("' + rowAvatar + '")' : "none";
 
     var who = document.createElement("div");
     who.className = "who";
