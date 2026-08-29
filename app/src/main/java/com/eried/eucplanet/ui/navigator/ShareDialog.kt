@@ -57,6 +57,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -940,19 +941,25 @@ fun ShareGroupDialog(
                         .verticalScroll(rememberScrollState())
                 ) {
                     peers.forEachIndexed { index, peer ->
-                        if (index > 0) {
-                            HorizontalDivider(color = MaterialTheme.appColors.divider)
-                        }
-                        PeerRow(
-                            peer = peer,
-                            nowMs = state.nowMs,
-                            speedUnit = speedUnit,
-                            tempUnit = tempUnit,
-                            onClick = {
-                                onFlyTo(peer.last.lat, peer.last.lng)
-                                onDismiss()
+                        // Keyed by the rider, not by position: the room keeps
+                        // arrival order today, but a row that changed rider
+                        // under a positional identity would keep the old
+                        // rider's remembered state and restart their avatar.
+                        key(peer.last.id) {
+                            if (index > 0) {
+                                HorizontalDivider(color = MaterialTheme.appColors.divider)
                             }
-                        )
+                            PeerRow(
+                                peer = peer,
+                                nowMs = state.nowMs,
+                                speedUnit = speedUnit,
+                                tempUnit = tempUnit,
+                                onClick = {
+                                    onFlyTo(peer.last.lat, peer.last.lng)
+                                    onDismiss()
+                                }
+                            )
+                        }
                     }
                 }
             }
