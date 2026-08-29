@@ -118,6 +118,10 @@ class AutomationManager @Inject constructor(
         }
         _autoLightsSuspended.value = false
         lastKnownLightOn = null
+        // A new session starts with the beam under the schedule's control. A
+        // cutoff left engaged from the last ride would otherwise keep the
+        // light off until this one passed the rearm speed.
+        lightSlowState = HeadlightSlowPolicy.State()
     }
 
     /** Reset the throttle so the next tick re-evaluates immediately. */
@@ -173,34 +177,16 @@ class AutomationManager @Inject constructor(
     }
 
     private fun evaluateLights(settings: AppSettings) {
-        // Sticky, not the plain gate: a rider waiting at a crossing has a
-        // speed of zero, and the plain "when riding" test switched this
-        // automation off at exactly the moment the slow cutoff exists for.
-        if (!ApplyWhenGate.allowsSticky(
-                mode = settings.lights.applyWhen,
-                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
-                rodeThisSession = rodeThisSession,
-            )
-        ) return
         val now = System.currentTimeMillis()
-
-        // Judged on EVERY frame. This used to sit below the check-interval
-        // throttle, which is a minute by default, so the policy saw one sample
-        // a minute and its three second hold could not be satisfied: the light
-        // stayed on all the way to the crossing.
-        lightSlowState = HeadlightSlowPolicy.step(
-            state = lightSlowState,
-            speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
-            thresholdKmh = settings.lights.offBelowKmh,
-            nowMs = now,
-            enabled = settings.lights.offWhenSlow,
-        )
-
         val location = tripRepository.currentLocation.value
+
+        // Only the sun calculation is throttled, and its answer is cached for
+        // the frames in between. The cutoff has to be judged on every frame:
+        // under the throttle, a minute by default, its three second hold could
+        // never be satisfied and the light stayed on all the way to the
+        // crossing. A long cycle is right for the sun and wrong for this.
         val interval = if (location == null) settings.autoLightNoGpsRetryMs.toLong()
                        else settings.automationLightCheckIntervalMs.toLong()
-        // Only the sun calculation is throttled, and its answer is cached for
-        // the frames in between, which is what lets the cutoff act at once.
         if (now - lastLightCheckMs >= interval) {
             lastLightCheckMs = now
             if (location != null) {
@@ -220,17 +206,31 @@ class AutomationManager @Inject constructor(
             }
         }
 
-        // Walking pace kills the beam even when the sun says it is wanted, and
-        // even when no fix has arrived to ask the sun with: the cutoff needs
-        // no schedule. Null is "leave it alone", which only happens when
-        // there is no fix AND the rider is still riding.
-        val shouldBeOn = HeadlightSlowPolicy.beamOn(
-            darkEnough = lastDarkEnough,
-            forcedOff = lightSlowState.forcedOff,
-        ) ?: return
+        val decision = HeadlightRules.decide(
+            slow = lightSlowState,
+            input = HeadlightRules.Input(
+                applyWhen = settings.lights.applyWhen,
+                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+                rodeThisSession = rodeThisSession,
+                offWhenSlow = settings.lights.offWhenSlow,
+                thresholdKmh = settings.lights.offBelowKmh,
+                speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+                darkEnough = lastDarkEnough,
+                nowMs = now,
+            ),
+        )
+        lightSlowState = decision.slow
+        val shouldBeOn = decision.beamOn ?: return
 
         val currentLightOn = wheelRepository.wheelData.value.lightOn
-        if (shouldBeOn != currentLightOn) {
+        // The decision runs on every telemetry frame now, so a wheel that does
+        // not act on the command must not be asked several times a second.
+        // Families with no BLE light command return early inside toggleLight
+        // without changing the reported state or starting its own cooldown, so
+        // this window is ours to hold. It is the same one the manual-change
+        // detector uses, so an automatic toggle is never read as the rider's.
+        val settled = now - lastAutoToggleMs >= settings.autoToggleGraceMs.toLong()
+        if (shouldBeOn != currentLightOn && settled) {
             val what = if (shouldBeOn) "ON" else "OFF"
             Log.i(TAG, "Auto-lights: turning " + what +
                 " (dark=" + lastDarkEnough + ", slowOff=" + lightSlowState.forcedOff + ")")
