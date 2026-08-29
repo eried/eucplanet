@@ -1,6 +1,8 @@
 package com.eried.eucplanet.service
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -58,5 +60,50 @@ class HeadlightSlowPolicyTest {
     @Test fun `a rider who never slows is never touched`() {
         val st = run(20f to 0L, 25f to 10_000L, 18f to 20_000L)
         assertFalse(st.forcedOff)
+    }
+
+    @Test fun `a policy sampled once a minute cannot hold anything`() {
+        // Why the light never went out: the step used to run under the
+        // check-interval throttle, a minute by default, and the hold is three
+        // seconds. Two samples a minute apart do satisfy it, but a rider is
+        // long past the crossing by then. Fed at telemetry rate it fires
+        // within the hold, which is the behaviour the screen promises.
+        val t0 = 100_000L
+        var slow = HeadlightSlowPolicy.State()
+        // Once a minute: the first slow sample only starts the clock.
+        slow = HeadlightSlowPolicy.step(slow, 1f, 4f, t0, enabled = true)
+        assertFalse("nothing can fire on the first sample", slow.forcedOff)
+        slow = HeadlightSlowPolicy.step(slow, 1f, 4f, t0 + 60_000L, enabled = true)
+        assertTrue("a minute later is far too late to be useful", slow.forcedOff)
+
+        // At telemetry rate, it goes out just after the hold.
+        var fast = HeadlightSlowPolicy.State()
+        var t = t0
+        while (t < t0 + HeadlightSlowPolicy.HOLD_MS) {
+            fast = HeadlightSlowPolicy.step(fast, 1f, 4f, t, enabled = true)
+            assertFalse("fired before the hold elapsed at t=" + (t - t0), fast.forcedOff)
+            t += 200L
+        }
+        fast = HeadlightSlowPolicy.step(fast, 1f, 4f, t0 + HeadlightSlowPolicy.HOLD_MS, enabled = true)
+        assertTrue("should have fired once the hold elapsed", fast.forcedOff)
+    }
+
+    @Test fun `the cutoff beats the sunset schedule`() {
+        // The point of the feature: after dark the schedule wants a light, and
+        // slowing to a walk takes it off anyway.
+        assertEquals(false, HeadlightSlowPolicy.beamOn(darkEnough = true, forcedOff = true))
+        // Riding again after dark puts it back, with no extra rule.
+        assertEquals(true, HeadlightSlowPolicy.beamOn(darkEnough = true, forcedOff = false))
+        // Daylight wants no light either way.
+        assertEquals(false, HeadlightSlowPolicy.beamOn(darkEnough = false, forcedOff = false))
+    }
+
+    @Test fun `the cutoff does not wait for a location fix`() {
+        // With no fix the schedule has no answer, and the light was being left
+        // on: the cutoff has nothing to do with the sun and should not be held
+        // up by it.
+        assertEquals(false, HeadlightSlowPolicy.beamOn(darkEnough = null, forcedOff = true))
+        // Without the cutoff there is genuinely nothing to say yet.
+        assertNull(HeadlightSlowPolicy.beamOn(darkEnough = null, forcedOff = false))
     }
 }

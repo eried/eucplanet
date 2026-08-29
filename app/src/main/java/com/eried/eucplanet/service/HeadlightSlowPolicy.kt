@@ -52,4 +52,20 @@ object HeadlightSlowPolicy {
         return if (nowMs - since >= HOLD_MS) State(forcedOff = true, slowSince = since)
         else state.copy(slowSince = since)
     }
+
+    /**
+     * What the beam should do, from the schedule's answer and the cutoff.
+     *
+     * The cutoff wins outright. "It is after sunset" is a reason to want a
+     * light; it is not a reason to keep one pointed at whoever is waiting at
+     * the crossing with you, so slowing to a walk takes it off whatever the
+     * schedule says.
+     *
+     * It also does not need the schedule to have an answer. [darkEnough] is
+     * null until a location fix arrives, and null means "leave the light
+     * alone" for the ON half only: with no fix and no cutoff there is nothing
+     * to say, but with the cutoff engaged there certainly is.
+     */
+    fun beamOn(darkEnough: Boolean?, forcedOff: Boolean): Boolean? =
+        if (forcedOff) false else darkEnough
 }

@@ -27,4 +27,21 @@ object ApplyWhenGate {
         // reading from a wheel that has gone away must not count as riding.
         else -> connected && speedKmh >= RIDING_KMH
     }
+
+    /**
+     * Like [allows], but for an automation that must keep acting while the
+     * rider is momentarily stopped.
+     *
+     * [allows] asks "is the wheel moving right now", which is the wrong
+     * question for the headlight: its whole purpose is what happens when the
+     * rider slows to a walk, and by then the plain gate has already switched
+     * the automation off. So "riding" latches for the connection: once they
+     * have actually ridden, waiting at a crossing still counts.
+     */
+    fun allowsSticky(mode: String, connected: Boolean, rodeThisSession: Boolean): Boolean =
+        when (mode) {
+            ApplyWhenIds.NEVER -> false
+            ApplyWhenIds.CONNECTED -> connected
+            else -> connected && rodeThisSession
+        }
 }
