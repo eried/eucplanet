@@ -96,6 +96,17 @@ class WeatherWidgetRenderTest {
         assertTrue("nothing drawn", bmp.countColoured() > 50)
     }
 
+    @Test fun theTinyWidgetFitsTheSmallestCellItAdvertises() {
+        // The provider says 60dp square. Three tiers in that space clip the
+        // bottom one if any of them grows, and a clipped line looks like a
+        // rendering bug rather than a layout that needs a smaller font.
+        val bmp = shoot("score_min", com.eried.eucplanet.R.layout.widget_weather_score, 60, 60)
+        val foot = Bitmap.createBitmap(
+            bmp, 0, (bmp.height * 0.78f).toInt(), bmp.width, (bmp.height * 0.2f).toInt(),
+        )
+        assertTrue("the bottom line is clipped at the smallest cell", foot.countColoured() > 8)
+    }
+
     @Test fun theCompactWidgetInflatesWithItsGraph() {
         val bmp = shoot("compact", com.eried.eucplanet.R.layout.widget_weather_compact, 250, 120)
         assertTrue("nothing drawn", bmp.countColoured() > 500)

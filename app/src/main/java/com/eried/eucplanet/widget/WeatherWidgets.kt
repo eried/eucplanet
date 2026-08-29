@@ -186,6 +186,14 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
                 if (known) WeatherGraph.colorFor(s.score) else 0xFF9AA0A6.toInt(),
             )
 
+            if (size == Size.TINY) {
+                // One cell has room for one detail. The temperature is the
+                // useful one while the reading is current; once it is old
+                // enough that the number above may be wrong, the widget says
+                // so instead, because a stale "+4" is worse than no answer.
+                views.setTextViewText(R.id.ww_tiny, tinyLineOf(context, s))
+            }
+
             if (size != Size.TINY) {
                 // The verdict in words, which is what the panel leads with.
                 views.setTextViewText(
@@ -241,6 +249,21 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
             Size.TINY -> 0f
             Size.COMPACT -> 0.55f
             Size.PANEL -> 0.45f
+        }
+
+        /** Anything older than this and the 1x1 admits its age rather than
+         *  showing a temperature next to a score from another afternoon. The
+         *  worker refreshes hourly, so reaching three hours means something is
+         *  actually wrong: no network, or nowhere to ask about. */
+        private const val STALE_MS = 3 * 60 * 60 * 1000L
+
+        private fun tinyLineOf(context: Context, s: WeatherSnapshot): String {
+            if (!s.hasData) return context.getString(R.string.widget_weather_never_short)
+            val age = System.currentTimeMillis() - s.fetchedAtMs
+            if (age >= STALE_MS) {
+                return context.getString(R.string.widget_weather_hour_fmt, (age / 3_600_000L).toInt())
+            }
+            return s.tempLabel
         }
 
         private fun stampOf(context: Context, s: WeatherSnapshot, refreshing: Boolean): String {

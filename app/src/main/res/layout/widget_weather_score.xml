@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  1x1: the face, and the number that answers "is it EUC time?".
+  1x1: the question at the top, the answer under it, a detail at the foot.
 
-  No graph and no refresh button at this size. One cell is about 60dp square on
-  most launchers, and a curve drawn that small is a smudge, so the whole cell
-  goes to the two things a rider can read at a glance. Tapping opens the panel,
-  where the forecast is a chart you can actually scrub.
+  Three tiers in one cell only works because the middle one runs horizontally:
+  side by side, the face and the score can each be half as tall again as they
+  were when stacked, which is what a rider reads from across the room. The top
+  line says what the number means, the bottom carries the temperature, or the
+  age of the reading when it has gone stale enough to matter.
+
+  No graph and no refresh button at this size. A curve drawn across 70dp is a
+  smudge, and a tap target that small next to another tap target is a misfire.
+  Tapping anywhere opens the panel, where the forecast can be scrubbed.
 
   Colours are literals: RemoteViews are inflated in the launcher's process,
   outside the app's theme system.
@@ -20,31 +25,49 @@
     android:padding="2dp">
 
     <TextView
-        android:id="@+id/ww_face"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="😄"
-        android:textSize="19sp"
-        android:includeFontPadding="false" />
-
-    <TextView
-        android:id="@+id/ww_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="+4"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:includeFontPadding="false"
-        android:textColor="#5AB55A" />
-
-    <TextView
         android:id="@+id/ww_question"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/widget_weather_question"
         android:lines="1"
-        android:textSize="8sp"
-        android:maxLines="1"
+        android:textSize="9sp"
+        android:includeFontPadding="false"
+        android:textColor="#9AA0A6" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/ww_face"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="😄"
+            android:textSize="21sp"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/ww_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="+4"
+            android:textSize="23sp"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="#5AB55A" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/ww_tiny"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:lines="1"
+        android:textSize="9sp"
         android:includeFontPadding="false"
         android:textColor="#9AA0A6" />
 </LinearLayout>
