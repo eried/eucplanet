@@ -55,7 +55,10 @@ class SettingsRepository @Inject constructor(
         // Weather comfort thresholds from a synced or hand-edited file: keep
         // the window one of the offered four, the bands ordered and sane.
         weather = weather.copy(
-            windowHours = if (weather.windowHours in setOf(6, 24, 72, 168)) weather.windowHours else 6,
+            // Any number of hours now, clamped rather than snapped to a preset.
+            // Two is the shortest that draws a curve; a week is where every
+            // source runs out.
+            windowHours = weather.windowHours.coerceIn(2, 168),
             prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
             prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
             prefRain = weather.prefRain.takeIf { it in PREF_VALUES } ?: "DISLIKE",

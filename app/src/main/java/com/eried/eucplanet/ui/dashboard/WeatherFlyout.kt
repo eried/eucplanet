@@ -9,6 +9,7 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -124,13 +126,16 @@ private object WeatherPhrases {
     }
 }
 
-/** The compact window tag shown beside the title: "6h", "24h", "3d", "1w". */
-private fun windowShortRes(windowHours: Int): Int = when {
-    windowHours <= 6 -> R.string.weather_win_6
-    windowHours <= 24 -> R.string.weather_win_24
-    windowHours <= 72 -> R.string.weather_win_3d
-    else -> R.string.weather_win_1w
-}
+/** The compact window tag beside the title: "8 h", "36 h", "3 d".
+ *
+ *  Formatted rather than picked from four fixed strings, because the window
+ *  is any number of hours now. Days once past a day and a half, where the
+ *  hour count stops being something a rider reads at a glance; rounded to
+ *  the nearest day, so 72 h is "3 d" and 80 h still is. */
+@Composable
+private fun windowShortLabel(windowHours: Int): String =
+    if (windowHours <= 36) stringResource(R.string.weather_win_hours_fmt, windowHours)
+    else stringResource(R.string.weather_win_days_fmt, (windowHours + 12) / 24)
 
 /** Vertical segments the window divides into: hourly for 6h, 4h blocks for a
  *  day, half-days for 3 days, whole days for the week. */
@@ -162,13 +167,41 @@ fun WeatherFlyout(
     onToggleSource: () -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Open with the detail charts already unfolded, per the rider's setting. */
+    startExpanded: Boolean = false,
 ) {
     // Same family as the navigation popup: the inverse of the app background
     // so it stands out, rounded, with a real shadow.
     val panel = MaterialTheme.appColors.navPopupPanel
     val ink = MaterialTheme.appColors.navPopupInk
     val titleRes = remember { WeatherPhrases.titleRes() }
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(startExpanded) }
+    // The one moment the whole panel is pointing at, 0..1 across the window.
+    // Hoisted so the score graph and the detail charts cannot disagree about
+    // where the rider's finger is.
+    var scrubFrac by remember(hours) { mutableStateOf<Float?>(null) }
+    // ...and it does not outstay the finger. Every move restarts the clock,
+    // so it is five seconds after the rider STOPS, not after they start.
+    var scrubFading by remember(hours) { mutableStateOf(false) }
+    val scrubAlpha by animateFloatAsState(
+        targetValue = if (scrubFading) 0f else 1f,
+        animationSpec = tween(SCRUB_FADE_MS),
+        label = "scrubFade",
+    )
+    LaunchedEffect(scrubFrac) {
+        if (scrubFrac == null) {
+            scrubFading = false
+            return@LaunchedEffect
+        }
+        scrubFading = false
+        delay(SCRUB_HOLD_MS)
+        scrubFading = true
+        // Clear only once it has actually faded, so the readouts do not snap
+        // back to "now" while the line is still on screen.
+        delay(SCRUB_FADE_MS.toLong())
+        scrubFrac = null
+        scrubFading = false
+    }
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -194,7 +227,7 @@ fun WeatherFlyout(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    stringResource(windowShortRes(windowHours)),
+                    windowShortLabel(windowHours),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = ink.copy(alpha = 0.7f),
@@ -258,9 +291,16 @@ fun WeatherFlyout(
                 )
                 Text(
                     when {
-                        refreshing -> stringResource(R.string.weather_fetching)
-                        updatedAgoMin == 0 -> stringResource(R.string.weather_updated_now)
-                        updatedAgoMin != null -> stringResource(R.string.weather_updated_ago, updatedAgoMin)
+                        // Nothing: the spinner sitting right beside this
+                        // says "fetching" on its own, and the words next to
+                        // it were the same sentence the panel body already
+                        // shows where the graph will appear.
+                        refreshing -> ""
+                        // Just the age. "Updated" said nothing the clock
+                        // did not, and it was the half that got truncated.
+                        updatedAgoMin == 0 -> stringResource(R.string.sources_fresh_just_now)
+                        updatedAgoMin != null ->
+                            stringResource(R.string.sources_fresh_minutes_fmt, updatedAgoMin)
                         else -> ""
                     },
                     style = MaterialTheme.typography.bodySmall,
@@ -310,7 +350,12 @@ fun WeatherFlyout(
                     color = ink.copy(alpha = 0.6f),
                     modifier = Modifier.padding(vertical = 10.dp),
                 )
-                else -> ScoreGraph(hours, altHours, windowHours, ink, panel)
+                else -> ScoreGraph(
+                    hours, altHours, windowHours, ink, panel,
+                    scrub = scrubFrac,
+                    onScrub = { scrubFrac = it },
+                    scrubAlpha = scrubAlpha,
+                )
             }
 
             // The expanded condition charts plus the generated advisories,
@@ -320,17 +365,31 @@ fun WeatherFlyout(
                 enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
                 exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut(),
             ) {
-                DetailSection(hours, tempF, windMph, ink)
+                DetailSection(
+                    hours, tempF, windMph, ink,
+                    scrub = scrubFrac,
+                    onScrub = { scrubFrac = it },
+                    scrubAlpha = scrubAlpha,
+                )
             }
         }
     }
 }
 
-/** One line series inside a detail chart, self-normalized to its own range. */
+/** How long a scrubbed read stays put after the finger stops. */
+private const val SCRUB_HOLD_MS = 5000L
+
+/** And how long it takes to go, so it fades rather than blinking out. */
+private const val SCRUB_FADE_MS = 600
+
+/** One line series inside a detail chart, self-normalized to its own range
+ *  unless the chart shares one. [fill] paints a faint band under the line,
+ *  which suits a quantity that is really "how much", like wind. */
 private data class ChartSeries(
     val values: List<Float>,
     val color: Color,
     val dashed: Boolean = false,
+    val fill: Boolean = false,
 )
 
 /**
@@ -345,25 +404,22 @@ private fun DetailSection(
     tempF: Boolean,
     windMph: Boolean,
     ink: Color,
+    /** The panel's one scrubbed moment, shared with the score graph above. */
+    scrub: Float?,
+    onScrub: (Float) -> Unit,
+    /** Fades to zero once the read has been sitting there unattended. */
+    scrubAlpha: Float,
 ) {
-    var scrub by remember(hours) { mutableStateOf<Float?>(null) }
     val idx = ((hours.size - 1) * (scrub ?: 0f)).roundToInt().coerceIn(0, hours.size - 1)
     val h = hours[idx].h
     fun t(c: Float) = if (tempF) c * 9f / 5f + 32f else c
     fun w(ms: Float) = if (windMph) ms * 2.23694f else ms
     val tUnit = if (tempF) "°F" else "°C"
     val wUnit = if (windMph) "mph" else "m/s"
-    val fmtTime = remember { SimpleDateFormat("EEE HH:mm", Locale.getDefault()) }
-    val onScrub: (Float) -> Unit = { scrub = it }
-
     Column(Modifier.padding(top = 6.dp)) {
-        // The scrubbed moment, once for all three charts.
-        Text(
-            fmtTime.format(Date(hours[idx].timeMs)),
-            fontSize = 10.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = ink.copy(alpha = 0.75f),
-        )
+        // No time line here any more: the bubble on the score curve says the
+        // moment for the whole panel, and saying it twice put the same words
+        // three centimetres apart.
         // Temp, humidity and precipitation share one double-height chart,
         // weather-app style: lines over rain/snow bars.
         DetailChart(
@@ -374,11 +430,16 @@ private fun DetailSection(
                 else "%.1f mm/h".format(h.precipMmH),
             ),
             series = listOf(
-                ChartSeries(hours.map { it.h.tempC }, MaterialTheme.appColors.metricTemp),
-                ChartSeries(hours.map { it.h.humidityPct }, MaterialTheme.appColors.chartEnvelope, dashed = true),
+                ChartSeries(hours.map { it.h.tempC }, MaterialTheme.appColors.weatherTemp),
+                ChartSeries(
+                    hours.map { it.h.humidityPct },
+                    MaterialTheme.appColors.weatherHumidity,
+                    dashed = true,
+                    fill = true,
+                ),
             ),
             bars = listOf(
-                ChartSeries(hours.map { it.h.precipMmH }, MaterialTheme.appColors.chartEnvelope),
+                ChartSeries(hours.map { it.h.precipMmH }, MaterialTheme.appColors.weatherPrecip),
                 ChartSeries(hours.map { it.h.snowCmH }, ink.copy(alpha = 0.45f)),
             ),
             chartHeight = 88.dp,
@@ -388,9 +449,20 @@ private fun DetailSection(
             label = stringResource(R.string.weather_chart_wind),
             value = "%.1f / %.1f %s".format(w(h.windMs), w(h.gustMs), wUnit),
             series = listOf(
-                ChartSeries(hours.map { it.h.windMs }, MaterialTheme.appColors.metricPosition),
-                ChartSeries(hours.map { it.h.gustMs }, MaterialTheme.appColors.metricPosition, dashed = true),
+                ChartSeries(
+                    hours.map { it.h.windMs },
+                    MaterialTheme.appColors.weatherWind,
+                    fill = true,
+                ),
+                ChartSeries(hours.map { it.h.gustMs }, MaterialTheme.appColors.weatherWind, dashed = true),
             ),
+            // Wind and gusts are the same quantity, so they share one scale:
+            // a gust is never weaker than the wind under it, and the dashed
+            // line riding above the filled band is what says so.
+            sharedScale = true,
+            // Same height as the chart above it: two panels of one size read
+            // as a set, and the fill needs the room anyway.
+            chartHeight = 88.dp,
             ink = ink, scrub = scrub, onScrub = onScrub,
         )
 
@@ -425,11 +497,15 @@ private fun DetailSection(
         if (goldenIdx > 0) lines += stringResource(R.string.weather_adv_golden, lead(goldenIdx))
         if (lines.isEmpty()) lines += stringResource(R.string.weather_adv_clear)
 
-        Column(Modifier.padding(top = 6.dp)) {
-            lines.take(4).forEach {
-                Text(it, style = MaterialTheme.typography.bodySmall, color = ink.copy(alpha = 0.8f))
-            }
-        }
+        // One flowing paragraph rather than a line per advisory: they are
+        // short sentences about the same window, and stacked they read as a
+        // warning list for a ride that is usually fine.
+        Text(
+            lines.take(4).joinToString(" "),
+            modifier = Modifier.padding(top = 6.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = ink.copy(alpha = 0.8f),
+        )
     }
 }
 
@@ -443,6 +519,11 @@ private fun DetailChart(
     onScrub: (Float) -> Unit,
     bars: List<ChartSeries> = emptyList(),
     chartHeight: Dp = 44.dp,
+    scrubAlpha: Float = 1f,
+    // One scale across every series, for charts whose lines are the same
+    // quantity (wind and its gusts). Off for mixed units, where each line
+    // has to normalize to its own range to be readable at all.
+    sharedScale: Boolean = false,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -474,7 +555,49 @@ private fun DetailChart(
     ) {
         val w = size.width
         val hgt = size.height
-        // Precipitation-style bars first, behind the lines. All bar series
+        // A shared scale spans every series at once; otherwise each line gets
+        // its own, as before.
+        val sharedMin = if (sharedScale) series.minOf { it.values.minOrNull() ?: 0f } else 0f
+        val sharedMax = if (sharedScale) series.maxOf { it.values.maxOrNull() ?: 0f } else 0f
+        fun scaledPoints(s: ChartSeries): List<Offset> {
+            val minV = if (sharedScale) sharedMin else s.values.min()
+            val span = ((if (sharedScale) sharedMax else s.values.max()) - minV)
+                .coerceAtLeast(0.1f)
+            val n = s.values.size
+            return List(n) { i ->
+                Offset(
+                    if (n <= 1) 0f else i * w / (n - 1),
+                    hgt - 3f - (s.values[i] - minV) / span * (hgt - 6f),
+                )
+            }
+        }
+
+        // Bands first, then the bars, then the lines: a fill painted over the
+        // precipitation bars would grey them out, and they are the reading
+        // that matters most on that chart.
+        series.forEach { s ->
+            if (s.values.isEmpty() || !s.fill) return@forEach
+            val pts = scaledPoints(s)
+            val area = smoothPathOf(pts).apply {
+                lineTo(w, hgt)
+                lineTo(0f, hgt)
+                close()
+            }
+            // Anchored to the LINE, not to the canvas: a gradient measured
+            // from the top of the chart lands almost entirely in its own
+            // transparent half whenever the value is low, and the band
+            // vanishes exactly when it is most worth seeing.
+            drawPath(
+                area,
+                brush = Brush.verticalGradient(
+                    listOf(s.color.copy(alpha = 0.30f), s.color.copy(alpha = 0.04f)),
+                    startY = pts.minOf { it.y },
+                    endY = hgt,
+                ),
+            )
+        }
+
+        // Precipitation-style bars, behind the lines. All bar series
         // share one scale so rain and snow compare honestly.
         if (bars.isNotEmpty()) {
             val barMax = bars.maxOf { b -> b.values.maxOrNull() ?: 0f }.coerceAtLeast(1f)
@@ -496,16 +619,7 @@ private fun DetailChart(
         }
         series.forEach { s ->
             if (s.values.isEmpty()) return@forEach
-            val minV = s.values.min()
-            val span = (s.values.max() - minV).coerceAtLeast(0.1f)
-            val n = s.values.size
-            val pts = List(n) { i ->
-                Offset(
-                    if (n <= 1) 0f else i * w / (n - 1),
-                    hgt - 3f - (s.values[i] - minV) / span * (hgt - 6f),
-                )
-            }
-            val p = smoothPathOf(pts)
+            val p = smoothPathOf(scaledPoints(s))
             drawPath(
                 p,
                 color = s.color,
@@ -518,7 +632,10 @@ private fun DetailChart(
         }
         drawLine(ink.copy(alpha = 0.12f), Offset(0f, hgt - 1f), Offset(w, hgt - 1f), strokeWidth = 1f)
         scrub?.let { f ->
-            drawLine(ink.copy(alpha = 0.5f), Offset(w * f, 0f), Offset(w * f, hgt), strokeWidth = 2f)
+            drawLine(
+                ink.copy(alpha = 0.5f * scrubAlpha),
+                Offset(w * f, 0f), Offset(w * f, hgt), strokeWidth = 2f,
+            )
         }
     }
 }
@@ -537,6 +654,9 @@ private data class GraphTip(
     val yFrac: Float,
     val prefix: String?,
     val textRes: Int,
+    /** "Sat 08:15", shown above the phrase. Null for the face tips, which
+     *  are about the character of an hour rather than a moment in it. */
+    val timeLabel: String? = null,
 )
 
 /** Score level buckets for the graph-tap read, -5 horrible up to +5 prime. */
@@ -550,20 +670,11 @@ private fun levelBucket(score: Float): Int = when {
     else -> 6
 }
 
-/** The face and tip line for an hour, by what dominates it. Priority mirrors
- *  danger: snow, rain, wind, cold, hot, night, then just the score band. */
-private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> = when {
-    b.snow -> "🥶" to R.string.weather_face_snow          // cold face
-    b.rain -> "😬" to R.string.weather_face_rain          // grimace
-    b.wind && b.score < 0f -> "😖" to R.string.weather_face_wind
-    b.cold -> "🥶" to R.string.weather_face_cold
-    b.hot -> "🥵" to R.string.weather_face_hot            // hot face
-    b.golden -> "🌇" to R.string.weather_face_golden      // sunset glow
-    b.night && b.score < 2f -> "😴" to R.string.weather_face_night
-    b.score >= 2f -> "😄" to R.string.weather_face_clear  // happy
-    b.score >= -1f -> "😐" to R.string.weather_face_meh   // neutral
-    else -> "🙁" to R.string.weather_face_meh             // frown
-}
+/** The face and tip line for an hour, by what dominates it. The choice itself
+ *  lives in [com.eried.eucplanet.weather.WeatherFace] so the home screen
+ *  widgets reach the same verdict from a snapshot. */
+private fun faceFor(b: RidabilityScore.Breakdown): Pair<String, Int> =
+    com.eried.eucplanet.weather.WeatherFace.of(b).let { it.emoji to it.textRes }
 
 private fun band(score: Float): Int = when {
     score >= 2f -> 2
@@ -606,6 +717,9 @@ private fun ScoreGraph(
     windowHours: Int,
     ink: Color,
     panel: Color,
+    scrub: Float?,
+    onScrub: (Float) -> Unit,
+    scrubAlpha: Float,
 ) {
     val good = MaterialTheme.appColors.weatherGood
     val bad = MaterialTheme.appColors.weatherBad
@@ -653,10 +767,27 @@ private fun ScoreGraph(
     // The visible tooltip (face lingo, or a graph-tap level read),
     // auto-hiding like a toast. The random phrase behind it is what
     // WeatherPhrases keeps stable for an hour.
+    // Face tips only. The scrubbed read is derived from the shared moment
+    // below, so dragging ANY chart in the panel updates it - the detail
+    // charts no longer carry a time line of their own.
     var tip by remember(hours) { mutableStateOf<GraphTip?>(null) }
+    val fmtTip = remember { SimpleDateFormat("EEE HH:mm", Locale.getDefault()) }
+    val scrubTip: GraphTip? = scrub?.let { f ->
+        val n = hours.size
+        val i = ((n - 1) * f).roundToInt().coerceIn(0, (n - 1).coerceAtLeast(0))
+        val score = hours[i].b.score
+        GraphTip(
+            srcKey = -(i + 1),
+            frac = if (n <= 1) 0f else i / (n - 1f),
+            yFrac = 1f - (score + 5f) / 10f,
+            prefix = signedLabel(score),
+            textRes = WeatherPhrases.levelRes(levelBucket(score)),
+            timeLabel = fmtTip.format(Date(hours[i].timeMs)),
+        )
+    }
     LaunchedEffect(tip) {
         if (tip != null) {
-            delay(4000)
+            delay(SCRUB_HOLD_MS)
             tip = null
         }
     }
@@ -686,13 +817,9 @@ private fun ScoreGraph(
                             else ((off.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
                             val score = hours[i].b.score
                             val key = -(i + 1)
-                            tip = if (tip?.srcKey == key) null else GraphTip(
-                                srcKey = key,
-                                frac = if (n <= 1) 0f else i / (n - 1f),
-                                yFrac = 1f - (score + 5f) / 10f,
-                                prefix = signedLabel(score),
-                                textRes = WeatherPhrases.levelRes(levelBucket(score)),
-                            )
+                            // The read comes from the moment itself now.
+                            tip = null
+                            onScrub(if (n <= 1) 0f else i / (n - 1f))
                         }
                     }
                     // And the finger-follow version: drag along the curve and
@@ -703,13 +830,8 @@ private fun ScoreGraph(
                             val i = if (n <= 1) 0
                             else ((change.position.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
                             val score = hours[i].b.score
-                            tip = GraphTip(
-                                srcKey = -(i + 1),
-                                frac = if (n <= 1) 0f else i / (n - 1f),
-                                yFrac = 1f - (score + 5f) / 10f,
-                                prefix = signedLabel(score),
-                                textRes = WeatherPhrases.levelRes(levelBucket(score)),
-                            )
+                            tip = null
+                            onScrub(if (n <= 1) 0f else i / (n - 1f))
                         }
                     }
             ) {
@@ -821,6 +943,23 @@ private fun ScoreGraph(
                         style = Stroke(width = 5f, cap = StrokeCap.Round),
                     )
                 }
+                // The scrubbed moment, DASHED and in that moment's own score
+                // colour. Deliberately not the thin solid line the detail
+                // charts use: this graph is the verdict and those are the
+                // evidence, so the two marks should not read alike. Drawn
+                // over the curve, since it is what the rider is pointing at.
+                scrub?.let { f ->
+                    val cx = f.coerceIn(0f, 1f) * w
+                    val ci = ((n - 1) * f).roundToInt().coerceIn(0, n - 1)
+                    drawLine(
+                        color = colorFor(hours[ci].b.score).copy(alpha = 0.85f * scrubAlpha),
+                        start = Offset(cx, 0f),
+                        end = Offset(cx, h),
+                        strokeWidth = 3f,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(9f, 7f)),
+                    )
+                }
+
                 // Comparison overlay: the other location's curve, dashed and
                 // dimmer, so the rider sees at a glance whether the score
                 // improves or decays over there.
@@ -877,23 +1016,41 @@ private fun ScoreGraph(
                 // tooltip, floated near its anchor and clamped to the graph,
                 // inverse-inked so it pops on the panel. Face taps show the
                 // lingo line; graph taps prefix the signed score.
-                tip?.let { t ->
+                (tip ?: scrubTip)?.let { t ->
                     val tipY = ((graphH - 18.dp) * t.yFrac - 24.dp).coerceAtLeast(0.dp)
                     val prefix = t.prefix?.let { "$it · " } ?: ""
                     Box(Modifier.fillMaxWidth().offset(y = tipY)) {
-                        Text(
-                            prefix + stringResource(t.textRes),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = panel,
-                            maxLines = 1,
+                        Column(
                             modifier = Modifier
                                 .align(BiasAlignment(t.frac * 2f - 1f, 0f))
+                                // The bubble goes with its line: one read,
+                                // one fade.
+                                .alpha(if (tip != null) 1f else scrubAlpha)
                                 .shadow(4.dp, RoundedCornerShape(5.dp))
                                 .background(ink.copy(alpha = 0.92f), RoundedCornerShape(5.dp))
-                                .padding(horizontal = 7.dp, vertical = 2.dp)
+                                .padding(horizontal = 7.dp, vertical = 3.dp)
                                 .clickable { tip = null },
-                        )
+                        ) {
+                            // When, then what. The time leads because with the
+                            // panel collapsed there is nothing else on screen
+                            // that says which moment is being read.
+                            t.timeLabel?.let { when_ ->
+                                Text(
+                                    when_,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = panel.copy(alpha = 0.75f),
+                                    maxLines = 1,
+                                )
+                            }
+                            Text(
+                                prefix + stringResource(t.textRes),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = panel,
+                                maxLines = 1,
+                            )
+                        }
                     }
                 }
             }
@@ -961,25 +1118,65 @@ private fun ScoreGraph(
             }
         }
 
-        // Sparse time ticks: start / quarter / half / three-quarter / end.
+        // Time ticks at ROUND clock times, placed where those times actually
+        // fall.
+        //
+        // They used to be the quarter, half and three-quarter points of the
+        // data, printing whatever timestamp sat there: an eight-hour window
+        // starting at 09:00 read 11:15, 13:30, 15:45. Positions, not times.
+        // Nobody reads a forecast in quarter-of-the-window units.
         val fmtHour = SimpleDateFormat("HH:mm", Locale.getDefault())
         val fmtDay = SimpleDateFormat("EEE", Locale.getDefault())
-        val spanMs = hours.last().timeMs - hours.first().timeMs
+        val startMs = hours.first().timeMs
+        val spanMs = hours.last().timeMs - startMs
         val fmt = if (spanMs > 36L * 3600_000L) fmtDay else fmtHour
-        Row(Modifier.fillMaxWidth()) {
-            listOf(0f, 0.25f, 0.5f, 0.75f, 1f).forEachIndexed { idx, f ->
-                val i = ((hours.size - 1) * f).toInt()
+        val nowLabel = stringResource(R.string.weather_now)
+        // The smallest step that still leaves the labels far enough apart to
+        // read; a day once the window is long enough to be about days.
+        val stepMs = listOf(
+            1L, 2L, 3L, 6L, 12L, 24L, 48L, 72L,
+        ).map { it * 3600_000L }.firstOrNull { spanMs / it <= 4L } ?: (7L * 24 * 3600_000L)
+        val ticks = remember(startMs, spanMs, stepMs) {
+            val cal = java.util.Calendar.getInstance()
+            cal.timeInMillis = startMs
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            // Walk whole hours from the top of the starting hour: the first
+            // round time on the step lands inside the window.
+            val stepH = (stepMs / 3600_000L).toInt().coerceAtLeast(1)
+            while (cal.timeInMillis < startMs ||
+                (cal.get(java.util.Calendar.HOUR_OF_DAY) % stepH) != 0
+            ) {
+                cal.add(java.util.Calendar.HOUR_OF_DAY, 1)
+            }
+            val out = ArrayList<Pair<Float, Long>>()
+            while (cal.timeInMillis <= startMs + spanMs && out.size < 8) {
+                val f = if (spanMs <= 0L) 0f else (cal.timeInMillis - startMs).toFloat() / spanMs
+                // Leave the left end to "Now" and keep the last label on-panel.
+                if (f > 0.12f && f < 0.97f) out.add(f to cal.timeInMillis)
+                cal.add(java.util.Calendar.HOUR_OF_DAY, stepH)
+            }
+            out
+        }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val full = maxWidth
+            val slot = 44.dp
+            Text(
+                nowLabel,
+                fontSize = 9.sp,
+                color = ink.copy(alpha = 0.6f),
+                modifier = Modifier.align(Alignment.CenterStart),
+            )
+            ticks.forEach { (f, t) ->
                 Text(
-                    if (idx == 0) stringResource(R.string.weather_now)
-                    else fmt.format(Date(hours[i].timeMs)),
+                    fmt.format(Date(t)),
                     fontSize = 9.sp,
                     color = ink.copy(alpha = 0.6f),
-                    textAlign = when (idx) {
-                        0 -> TextAlign.Start
-                        4 -> TextAlign.End
-                        else -> TextAlign.Center
-                    },
-                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .width(slot)
+                        .offset(x = (full - slot) * f),
                 )
             }
         }

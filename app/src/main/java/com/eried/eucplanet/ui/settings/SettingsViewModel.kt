@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.model.SettingsLayout
@@ -696,21 +697,48 @@ class SettingsViewModel @Inject constructor(
         update { copy(raceboxMapX = mapX, raceboxMapY = mapY, raceboxMapZ = mapZ) }
 
     // Automations
-    fun updateAutoLightsEnabled(v: Boolean) {
-        update { copy(autoLightsEnabled = v) }
-        // Toggling the setting itself clears any session-level suspension
+    fun updateAutoLightsApplyWhen(v: String) {
+        update { copy(lights = lights.copy(applyWhen = v)) }
+        // Touching the setting clears any session-level suspension
         automationManager.clearLightsSuspension()
         // Apply the correct state immediately instead of waiting for the next 60s tick
-        if (v) automationManager.triggerImmediateLightEvaluation()
+        if (v != ApplyWhenIds.NEVER) automationManager.triggerImmediateLightEvaluation()
     }
-    fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
-    fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
-    fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
-        .also { if (!v) automationManager.restoreBaselineVolume() }
-    fun updateAutoVolumeOnlyWhenConnected(v: Boolean) =
-        update { copy(autoVolumeOnlyWhenConnected = v) }
-            .also { if (v) automationManager.restoreBaselineVolume() }
+    fun updateAutoLightsOnMinutes(v: Int) = update { copy(lights = lights.copy(onMinutesBefore = v)) }
+    fun updateAutoLightsOffMinutes(v: Int) = update { copy(lights = lights.copy(offMinutesAfter = v)) }
+    fun updateAutoLightsOffWhenSlow(v: Boolean) =
+        update { copy(lights = lights.copy(offWhenSlow = v)) }
+            // Switching it off hands the beam straight back to the schedule.
+            .also { automationManager.triggerImmediateLightEvaluation() }
+    fun updateAutoLightsOffBelowKmh(v: Float) =
+        update { copy(lights = lights.copy(offBelowKmh = v)) }
+
+    fun updateAutoVolumeApplyWhen(v: String) =
+        update { copy(autoVolumeApplyWhen = v) }
+            // Any narrowing can leave the volume raised with nothing to lower
+            // it again, so hand the rider's baseline back on every change.
+            .also { automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
+
+    fun updateMediaRateApplyWhenPicked(v: String) = update {
+        copy(mediaControl = mediaControl.copy(rateApplyWhen = v))
+    }.also {
+        // Raise (or clear) the dashboard warning now rather than at the next
+        // activity resume: moving between settings screens is not a resume,
+        // so a rider who switches this on and never leaves the app would see
+        // no sign that the grant it needs is missing.
+        appHealthRepository.refreshPermissionWarnings(
+            mediaRateRequested = v != ApplyWhenIds.NEVER
+        )
+    }
+    fun updateMediaRateCurve(curve: String) = update {
+        copy(mediaControl = mediaControl.copy(rateCurve = curve))
+    }
+
+
+    /** Notification access, which the rate feature needs and nothing else does. */
+    fun notificationAccessAllowed(): Boolean = appHealthRepository.notificationAccessAllowed()
+    fun openNotificationAccessSettings() = appHealthRepository.openNotificationAccessSettings()
 
     // Media control (speed-driven music/podcast pause & resume)
     fun updateMediaPauseEnabled(v: Boolean) = update { copy(mediaControl = mediaControl.copy(pauseEnabled = v)) }
@@ -1035,6 +1063,8 @@ class SettingsViewModel @Inject constructor(
     fun updateWeatherEnabled(v: Boolean) = update { copy(weather = weather.copy(enabled = v)) }
     fun updateWeatherWindow(v: Int) = update { copy(weather = weather.copy(windowHours = v)) }
     fun updateWeatherSource(v: String) = update { copy(weather = weather.copy(source = v)) }
+    fun updateWeatherOpenExpanded(v: Boolean) =
+        update { copy(weather = weather.copy(openExpanded = v)) }
     fun updateWeatherPref(which: String, v: String) = update {
         copy(weather = when (which) {
             "hot" -> weather.copy(prefHot = v)

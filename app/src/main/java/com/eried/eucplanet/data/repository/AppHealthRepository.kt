@@ -91,6 +91,7 @@ class AppHealthRepository @Inject constructor(
      */
     @Volatile
     private var pipNoticePending = false
+    private var mediaAccessNoticePending = false
 
     /** The Phone HUD's equivalent of [pipNoticePending]. */
     @Volatile
@@ -104,6 +105,7 @@ class AppHealthRepository @Inject constructor(
     fun refreshPermissionWarnings(
         pipRequested: Boolean = false,
         phoneHudRequested: Boolean = false,
+        mediaRateRequested: Boolean = false,
     ) {
         // POST_NOTIFICATIONS only exists on Android 13+. Below TIRAMISU the
         // notification post is implicit, so the warning never applies.
@@ -124,6 +126,37 @@ class AppHealthRepository @Inject constructor(
                 )
             }
         }
+
+        // Playback rate's notification-access warning, PARKED with the
+        // feature. The app no longer declares a NotificationListenerService,
+        // so it cannot appear in that system list at all and this warning
+        // would send a rider to a screen where nothing of ours is listed.
+        // Any warning a previous version left behind is cleared instead.
+        dismiss(PERM_MEDIA_ACCESS_ID)
+        /*
+        // Playback rate needs notification access, and the same shape as PIP
+        // and the overlay: granted outside the app, invisible from inside it,
+        // and the feature simply does nothing. Latched on the request so
+        // turning the switch on is what raises it, not merely having the
+        // feature configured.
+        if (notificationAccessAllowed()) {
+            mediaAccessNoticePending = false
+            dismiss(PERM_MEDIA_ACCESS_ID)
+        } else {
+            if (mediaRateRequested) mediaAccessNoticePending = true
+            if (mediaAccessNoticePending) {
+                upsert(
+                    AppWarning(
+                        id = PERM_MEDIA_ACCESS_ID,
+                        titleRes = R.string.warnings_media_access_title,
+                        bodyRes = R.string.warnings_media_access_body,
+                        fix = { openNotificationAccessSettings() }
+                    )
+                )
+            }
+        }
+
+        */
 
         // Android keeps its own per-app picture-in-picture switch, and turning
         // it off there is invisible from in here: the window simply never
@@ -282,6 +315,26 @@ class AppHealthRepository @Inject constructor(
      * App info is the guaranteed fallback: the PIP switch lives inside it on
      * stock Android, so the rider still lands somewhere they can fix this.
      */
+    /** Whether the rider has granted notification access, which is what
+     *  MediaSessionManager.getActiveSessions() checks. */
+    fun notificationAccessAllowed(): Boolean {
+        val enabled = runCatching {
+            android.provider.Settings.Secure.getString(
+                context.contentResolver, "enabled_notification_listeners"
+            )
+        }.getOrNull().orEmpty()
+        return enabled.split(":").any { it.startsWith(context.packageName + "/") }
+    }
+
+    /** The system's notification-access list, where that grant lives. */
+    fun openNotificationAccessSettings() {
+        val direct = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (runCatching { context.startActivity(direct) }.isSuccess) return
+        openAppSettings()
+    }
+
     fun openPipSettings() {
         val direct = Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS").apply {
             data = Uri.fromParts("package", context.packageName, null)
@@ -307,6 +360,7 @@ class AppHealthRepository @Inject constructor(
 
     companion object {
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
+        private const val PERM_MEDIA_ACCESS_ID = "perm.media-access"
         private const val PERM_PIP_ID = "perm.pip"
         private const val PERM_OVERLAY_ID = "perm.overlay"
         private const val BATTERY_OPT_ID = "power.battery-optimised"

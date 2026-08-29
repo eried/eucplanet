@@ -435,6 +435,15 @@ fun DashboardScreen(
     var showMapMenu by remember { mutableStateOf(false) }
     var showWeatherMenu by remember { mutableStateOf(false) }
     var showWeatherFlyout by remember { mutableStateOf(false) }
+    // Tapping a home screen weather widget lands here: open the panel and
+    // refresh it, the same as tapping the dashboard's own weather icon.
+    val weatherLaunchPending by WeatherPanelLaunch.pending.collectAsState()
+    LaunchedEffect(weatherLaunchPending) {
+        if (WeatherPanelLaunch.consume()) {
+            showWeatherFlyout = true
+            viewModel.refreshWeather()
+        }
+    }
     var weatherWindowOverride by remember { mutableStateOf<Int?>(null) }
     val weatherSettings by viewModel.weatherSettings.collectAsState()
     val weatherHours by viewModel.weatherHours.collectAsState()
@@ -1300,7 +1309,10 @@ fun DashboardScreen(
                                 containerColor = MaterialTheme.appColors.menuBackground
                             ) {
                                 listOf(
-                                    6 to R.string.weather_window_6h,
+                                    // A temporary view, not the setting: these
+                                    // set the override only. The first one
+                                    // matches the shipped default window.
+                                    8 to R.string.weather_window_8h,
                                     24 to R.string.weather_window_24h,
                                     72 to R.string.weather_window_3d,
                                     168 to R.string.weather_window_1w,
@@ -1337,7 +1349,9 @@ fun DashboardScreen(
                                     text = { Text(stringResource(R.string.weather_settings_entry)) },
                                     onClick = {
                                         showWeatherMenu = false
-                                        onNavigateToSettings(8)
+                                        // 11, not 8: the weather block, not
+                                        // the top of Navigation.
+                                        onNavigateToSettings(11)
                                     }
                                 )
                             }
@@ -3536,6 +3550,7 @@ fun DashboardScreen(
                     destName = weatherDest?.name,
                     usingDest = weatherUseDest,
                     onToggleSource = { viewModel.toggleWeatherSource() },
+                    startExpanded = weatherSettings.openExpanded,
                     onRefresh = { viewModel.refreshWeather(force = true) },
                     modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                 )

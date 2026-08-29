@@ -2,6 +2,7 @@ package com.eried.eucplanet.data.store
 
 import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import org.json.JSONObject
@@ -130,6 +131,8 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
+            put("rateApplyWhen", s.mediaControl.rateApplyWhen)
+            put("rateCurve", s.mediaControl.rateCurve)
         })
         put("batteryPercent", JSONObject().apply {
             put("mode", s.batteryPercent.mode)
@@ -172,11 +175,14 @@ object SettingsJson {
         put("flic4DoubleClick", s.flic4DoubleClick)
         put("flic4Hold", s.flic4Hold)
         put("flicShowOnDashboard", s.flicShowOnDashboard)
-        put("autoLightsEnabled", s.autoLightsEnabled)
-        put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
-        put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
-        put("autoVolumeEnabled", s.autoVolumeEnabled)
-        put("autoVolumeOnlyWhenConnected", s.autoVolumeOnlyWhenConnected)
+        put("lights", JSONObject().apply {
+            put("applyWhen", s.lights.applyWhen)
+            put("onMinutesBefore", s.lights.onMinutesBefore)
+            put("offMinutesAfter", s.lights.offMinutesAfter)
+            put("offWhenSlow", s.lights.offWhenSlow)
+            put("offBelowKmh", s.lights.offBelowKmh.toDouble())
+        })
+        put("autoVolumeApplyWhen", s.autoVolumeApplyWhen)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("alarmsMuted", s.alarmsMuted)
@@ -207,6 +213,7 @@ object SettingsJson {
         // and a future move back to top level would not break existing saves.
         put("weatherEnabled", s.weather.enabled)
         put("weatherWindowHours", s.weather.windowHours)
+        put("weatherOpenExpanded", s.weather.openExpanded)
         put("weatherSource", s.weather.source)
         put("weatherPrefHot", s.weather.prefHot)
         put("weatherPrefCold", s.weather.prefCold)
@@ -348,6 +355,8 @@ object SettingsJson {
         put("settingsSectionOrder", s.settingsLayout.order.joinToString(","))
         put("settingsSectionHidden", s.settingsLayout.hidden.joinToString(","))
         put("chargingEstimateToFull", s.chargingEstimateToFull)
+        put("chargingNotify80", s.chargingNotify80)
+        put("chargingNotifyFull", s.chargingNotifyFull)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
         put("dropboxAccessToken", s.dropboxAccessToken)
@@ -415,6 +424,7 @@ object SettingsJson {
         weather = com.eried.eucplanet.data.model.WeatherSettings(
             enabled = j.optBoolean("weatherEnabled", base.weather.enabled),
             windowHours = j.optInt("weatherWindowHours", base.weather.windowHours),
+            openExpanded = j.optBoolean("weatherOpenExpanded", base.weather.openExpanded),
             source = j.optString("weatherSource", base.weather.source),
             prefHot = j.optString("weatherPrefHot", base.weather.prefHot),
             prefCold = j.optString("weatherPrefCold", base.weather.prefCold),
@@ -473,6 +483,8 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
+                rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
+                rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
         batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
@@ -545,11 +557,38 @@ object SettingsJson {
         flic4DoubleClick = j.optString("flic4DoubleClick", base.flic4DoubleClick),
         flic4Hold = j.optString("flic4Hold", base.flic4Hold),
         flicShowOnDashboard = j.optBoolean("flicShowOnDashboard", base.flicShowOnDashboard),
-        autoLightsEnabled = j.optBoolean("autoLightsEnabled", base.autoLightsEnabled),
-        autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
-        autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
-        autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
-        autoVolumeOnlyWhenConnected = j.optBoolean("autoVolumeOnlyWhenConnected", base.autoVolumeOnlyWhenConnected),
+        // Nested now, but a backup written before that is three flat keys.
+        // Read the group when it is there, else fold the old keys in: the
+        // enable switch decides off or on, and on means Connected, which is
+        // what it always was (the light lives on the wheel).
+        lights = j.optJSONObject("lights")?.let { l ->
+            base.lights.copy(
+                applyWhen = l.optString("applyWhen", base.lights.applyWhen),
+                onMinutesBefore = l.optInt("onMinutesBefore", base.lights.onMinutesBefore),
+                offMinutesAfter = l.optInt("offMinutesAfter", base.lights.offMinutesAfter),
+                offWhenSlow = l.optBoolean("offWhenSlow", base.lights.offWhenSlow),
+                offBelowKmh = l.optDouble("offBelowKmh", base.lights.offBelowKmh.toDouble()).toFloat(),
+            )
+        } ?: base.lights.copy(
+            applyWhen = if (j.has("autoLightsEnabled")) {
+                if (j.optBoolean("autoLightsEnabled", false)) ApplyWhenIds.CONNECTED
+                else ApplyWhenIds.NEVER
+            } else base.lights.applyWhen,
+            onMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.lights.onMinutesBefore),
+            offMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.lights.offMinutesAfter),
+        ),
+        // Migrated, not defaulted. Two old keys fold into one: the feature
+        // switch decides off or on, and the connected-only boolean decided
+        // the condition. A rider who had it on keeps it on, gated the way it
+        // was; a rider who had it off stays off. Nobody is moved to Riding
+        // behind their back, and nobody's volume starts moving on its own.
+        autoVolumeApplyWhen = j.optString(
+            "autoVolumeApplyWhen",
+            if (j.has("autoVolumeEnabled")) {
+                if (!j.optBoolean("autoVolumeEnabled", false)) ApplyWhenIds.NEVER
+                else ApplyWhenIds.CONNECTED
+            } else base.autoVolumeApplyWhen
+        ),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         alarmsMuted = j.optBoolean("alarmsMuted", base.alarmsMuted),
@@ -731,6 +770,8 @@ object SettingsJson {
                 .split(",").filter { it.isNotBlank() },
         ),
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
+        chargingNotify80 = j.optBoolean("chargingNotify80", base.chargingNotify80),
+        chargingNotifyFull = j.optBoolean("chargingNotifyFull", base.chargingNotifyFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
         // Dropbox link + sync state is device-bound, but it still has to round-

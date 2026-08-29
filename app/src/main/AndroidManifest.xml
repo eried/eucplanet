@@ -122,6 +122,28 @@
             </intent-filter>
         </activity>
 
+        <!-- Notification access, PARKED along with media speed control.
+             It existed purely so MediaSessionManager.getActiveSessions() would
+             answer, which is the only route to another app's playback rate.
+             Nothing was ever read from notifications.
+
+             Declaring a NotificationListenerService makes the app appear in
+             the system's notification access list, which is a heavy thing to
+             ask of a rider for a feature most players ignore, so it is gone
+             while the feature is parked. Uncomment this with the section in
+             AutomationsContent to bring both back. -->
+        <!--
+        <service
+            android:name=".service.MediaAccessService"
+            android:exported="false"
+            android:label="@string/media_rate_title"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+        -->
+
         <service
             android:name=".service.WheelService"
             android:foregroundServiceType="connectedDevice|location"
@@ -148,8 +170,33 @@
         </provider>
 
         <!-- Home screen widget. Not exported: only the system needs to reach it. -->
+        <!--
+          Weather on the home screen: one cell for the answer, and the
+          forecast at whatever size it is dragged to. Both paint the same
+          snapshot. Not exported: the only broadcast they answer is our own
+          refresh action, sent from the widgets themselves.
+        -->
+        <receiver android:name=".widget.WeatherScoreWidget"
+            android:label="@string/widget_weather_score_label" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_score_info" />
+        </receiver>
+        <receiver android:name=".widget.WeatherCompactWidget"
+            android:label="@string/widget_weather_compact_label" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.eried.eucplanet.widget.WEATHER_REFRESH" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_compact_info" />
+        </receiver>
+
         <receiver
             android:name=".widget.EucWidget"
+            android:label="@string/widget_euc_label"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -166,35 +213,40 @@
           rider should be able to drop "the horn button" on a home screen
           without answering a dialog first.
         -->
-        <receiver android:name=".widget.EucButtonWidget" android:exported="false">
+        <receiver android:name=".widget.EucButtonWidget"
+            android:label="@string/widget_act_1_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_1_info" />
         </receiver>
-        <receiver android:name=".widget.EucButton2Widget" android:exported="false">
+        <receiver android:name=".widget.EucButton2Widget"
+            android:label="@string/widget_act_2_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_2_info" />
         </receiver>
-        <receiver android:name=".widget.EucButton3Widget" android:exported="false">
+        <receiver android:name=".widget.EucButton3Widget"
+            android:label="@string/widget_act_3_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_3_info" />
         </receiver>
-        <receiver android:name=".widget.EucButtons12Widget" android:exported="false">
+        <receiver android:name=".widget.EucButtons12Widget"
+            android:label="@string/widget_act_12_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_12_info" />
         </receiver>
-        <receiver android:name=".widget.EucButtons23Widget" android:exported="false">
+        <receiver android:name=".widget.EucButtons23Widget"
+            android:label="@string/widget_act_23_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

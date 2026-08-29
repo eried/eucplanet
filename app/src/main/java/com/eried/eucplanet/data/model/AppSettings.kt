@@ -189,20 +189,21 @@ data class AppSettings(
     val flicShowOnDashboard: Boolean = true,
 
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
-    val autoLightsEnabled: Boolean = false,
-    val autoLightsOnMinutesBefore: Int = 30,   // minutes before sunset to turn lights ON
-    val autoLightsOffMinutesAfter: Int = 30,   // minutes after sunrise to turn lights OFF
+    val lights: LightsSettings = LightsSettings(),
 
     // Speed-based volume boost. Multiplier curve maps speed to 1×–2× of the user's baseline volume.
     // 1× = no boost (baseline), 2× = double the baseline (capped at 100% by the system).
     // 4 control points at 0/25/50/75 km/h. 0 km/h is locked at 1× (no boost at standstill).
     // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
     // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
-    val autoVolumeEnabled: Boolean = false,
+
     // Only adjust the media volume while a wheel is connected (i.e. actually
     // riding). On by default so auto-volume never touches the phone's volume
     // when the app is used without a wheel.
-    val autoVolumeOnlyWhenConnected: Boolean = true,
+    /** When the speed-driven automations may act: "NEVER" (no condition),
+     *  "CONNECTED" (a wheel is linked) or "RIDING" (linked and moving). See
+     *  [com.eried.eucplanet.service.ApplyWhen]. */
+    val autoVolumeApplyWhen: String = ApplyWhenIds.NEVER,
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
 
@@ -895,6 +896,12 @@ data class AppSettings(
 
     /** Battery screen: estimate straight to 100 % instead of stopping at 80 %. */
     val chargingEstimateToFull: Boolean = false,
+    /** Tell the rider when the pack passes 80%, the mark riders unplug at for
+     *  pack life, and when it finishes. Both off: a notification nobody asked
+     *  for is worse than no feature. Local to the charging monitor rather than
+     *  Advanced settings, like [chargingEstimateToFull] beside them. */
+    val chargingNotify80: Boolean = false,
+    val chargingNotifyFull: Boolean = false,
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
@@ -1082,6 +1089,39 @@ data class AccelSplitSettings(
  * this feature itself paused, so speeding up never blasts music the rider had
  * deliberately stopped.
  */
+/**
+ * Headlight control: when the automation may act, the sun schedule it follows,
+ * and the walking-pace cut-off.
+ *
+ * Nested rather than flat because it is five fields: AppSettings sits near the
+ * JVM/dex 255-argument limit, and a group like this belongs in one slot.
+ */
+data class LightsSettings(
+    /** NEVER is off; the other two are on, with the condition they name. */
+    val applyWhen: String = ApplyWhenIds.NEVER,
+    /** Minutes before sunset to turn the light on. */
+    val onMinutesBefore: Int = 30,
+    /** Minutes after sunrise to turn it off. */
+    val offMinutesAfter: Int = 30,
+    /** Cut the light when the rider slows to a walk, and restore it when they
+     *  ride on. Independent of the sun schedule, which stays in charge of
+     *  whether a light is wanted at all. */
+    val offWhenSlow: Boolean = false,
+    /** Walking pace, stored metric like every other speed. Five is the figure
+     *  walking speed is normally quoted at; four was low enough that a rider
+     *  rolling gently up to a crossing stayed above it and kept the beam on,
+     *  which is the case the whole cutoff exists for. */
+    val offBelowKmh: Float = 5f,
+)
+
+/** Values for the "apply when" gate shared by the speed-driven automations. */
+object ApplyWhenIds {
+    const val NEVER = "NEVER"
+    const val CONNECTED = "CONNECTED"
+    const val RIDING = "RIDING"
+    val ALL = listOf(NEVER, CONNECTED, RIDING)
+}
+
 data class MediaControlSettings(
     val pauseEnabled: Boolean = false,
     // Pause when speed is at or below this (km/h).
@@ -1093,6 +1133,13 @@ data class MediaControlSettings(
     // (headphones / Bluetooth / wired / USB), never the phone speaker. Pausing is
     // never gated on the route. Only meaningful with resume on. On by default.
     val requireExternalOutput: Boolean = true,
+    // --- Media speed control ---
+    // Playback rate follows speed, on the same "speed:value" curve shape
+    // auto-volume uses, so the same editor drives it. Needs notification
+    // access (see MediaAccessService) and a player that accepts a rate.
+    /** NEVER is off; the other two are on, with the condition they name. */
+    val rateApplyWhen: String = ApplyWhenIds.NEVER,
+    val rateCurve: String = "0:1.0,25:1.15,50:1.30,75:1.45",
 )
 
 /**
@@ -1247,8 +1294,13 @@ data class ProximityLockSettings(
  */
 data class WeatherSettings(
     val enabled: Boolean = false,
-    /** Default forecast window: 6, 24, 72 or 168 hours. */
-    val windowHours: Int = 6,
+    /** How many hours ahead the panel shows, 2..168. Free-form rather than
+     *  four presets: a rider who wants "the rest of my afternoon" was
+     *  choosing between 6 and 24. The dashboard menu still offers presets,
+     *  but those are a temporary view, not this. */
+    val windowHours: Int = 8,
+    /** Open the panel with its detail charts already unfolded. */
+    val openExpanded: Boolean = false,
     /** [com.eried.eucplanet.weather.WeatherSource] id. */
     val source: String = "OPEN_METEO",
     // Riding preferences: how each condition should count for this rider.

@@ -96,6 +96,14 @@ data class AppThemeColors(
     val weatherGood: Color = Color.Unspecified,
     /** Ridability forecast: the bad end of the score scale (magenta). */
     val weatherBad: Color = Color.Unspecified,
+    /** The forecast panel's detail series. Their own tokens rather than
+     *  borrowed metric ones: humidity used to share a token with the
+     *  precipitation bars drawn under it, and its default was the same blue
+     *  the score curve uses for a perfect hour. */
+    val weatherTemp: Color = Color.Unspecified,
+    val weatherHumidity: Color = Color.Unspecified,
+    val weatherPrecip: Color = Color.Unspecified,
+    val weatherWind: Color = Color.Unspecified,
     val tileLabel: Color = Color.Unspecified,
     // Small MIN/MAX/AVG stat caption on metric tiles. Its own token so it can be
     // recolored (e.g. pure black) without dragging every other piece of
@@ -162,6 +170,14 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     chartEnvelope = chartEnvelope.takeOrElse { Color(0xFF40C4FF) },
     weatherGood = weatherGood.takeOrElse { Color(0xFF40C4FF) },
     weatherBad = weatherBad.takeOrElse { Color(0xFFE040FB) },
+    // Temp and wind follow the theme's own metric hues, so a custom theme
+    // stays coherent. Humidity is teal: the palette's remaining cool hue,
+    // clear of the score's sky blue and of the rain bars beneath it. Rain
+    // keeps the blue riders already read as rain.
+    weatherTemp = weatherTemp.takeOrElse { metricTemp },
+    weatherHumidity = weatherHumidity.takeOrElse { Color(0xFF26C6DA) },
+    weatherPrecip = weatherPrecip.takeOrElse { Color(0xFF40C4FF) },
+    weatherWind = weatherWind.takeOrElse { metricPosition },
     tileLabel = tileLabel.takeOrElse { textSecondary },
     cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
     dashIcon = dashIcon.takeOrElse { statusGood },
@@ -324,6 +340,10 @@ object ThemeTokens {
         ThemeTokenSpec("chartEnvelope", "Battery envelope", GROUP_METRIC, { it.chartEnvelope }, { c, v -> c.copy(chartEnvelope = v) }),
         ThemeTokenSpec("weatherGood", "Ridability good", GROUP_METRIC, { it.weatherGood }, { c, v -> c.copy(weatherGood = v) }),
         ThemeTokenSpec("weatherBad", "Ridability bad", GROUP_METRIC, { it.weatherBad }, { c, v -> c.copy(weatherBad = v) }),
+        ThemeTokenSpec("weatherTemp", "Weather temperature", GROUP_METRIC, { it.weatherTemp }, { c, v -> c.copy(weatherTemp = v) }),
+        ThemeTokenSpec("weatherHumidity", "Weather humidity", GROUP_METRIC, { it.weatherHumidity }, { c, v -> c.copy(weatherHumidity = v) }),
+        ThemeTokenSpec("weatherPrecip", "Weather precipitation", GROUP_METRIC, { it.weatherPrecip }, { c, v -> c.copy(weatherPrecip = v) }),
+        ThemeTokenSpec("weatherWind", "Weather wind", GROUP_METRIC, { it.weatherWind }, { c, v -> c.copy(weatherWind = v) }),
 
         ThemeTokenSpec("gaugeTrack", "Gauge track", GROUP_GAUGE, { it.gaugeTrack }, { c, v -> c.copy(gaugeTrack = v) }),
         ThemeTokenSpec("gaugeFill", "Gauge fill", GROUP_GAUGE, { it.gaugeFill }, { c, v -> c.copy(gaugeFill = v) }),

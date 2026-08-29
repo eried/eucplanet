@@ -60,6 +60,9 @@ class WheelService : LifecycleService() {
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
         const val CHANNEL_ID = "wheel_connection_v2"
+        private const val REQ_CHARGE_ALERT = 4201
+        /** Launch extra: open the charging monitor, where the alert came from. */
+        const val EXTRA_OPEN_CHARGING = "open_charging"
         private const val CHANNEL_ID_LEGACY = "wheel_connection"
         const val NOTIFICATION_ID = 1
         const val ACTION_CONNECT = "com.eried.eucplanet.CONNECT"
@@ -265,6 +268,7 @@ class WheelService : LifecycleService() {
                     engineSoundEngine.pushTelemetry(data.speed, data.pwm)
                 }
                 handleAccelSplits(data, settings)
+                checkChargeAlerts(data, settings)
             }
         }
 
@@ -844,6 +848,55 @@ class WheelService : LifecycleService() {
         // duplicate entry don't linger in system settings.
         runCatching { manager.deleteNotificationChannel(CHANNEL_ID_LEGACY) }
         manager.createNotificationChannel(channel)
+
+        ChargeAlertNotification.ensureChannel(this)
+    }
+
+    // --- Charge alerts ---
+
+    private var chargeAlertState = ChargeAlertPolicy.State()
+
+    /**
+     * Tell the rider when the pack passes 80% or finishes, if they asked.
+     *
+     * Runs on every telemetry frame, which is why the deciding is in
+     * [ChargeAlertPolicy] and only the posting is here.
+     */
+    private fun checkChargeAlerts(data: WheelData, settings: AppSettings) {
+        val step = ChargeAlertPolicy.step(
+            chargeAlertState,
+            wheelRepository.chargeStatus.value,
+            data.batteryPercent,
+            want80 = settings.chargingNotify80,
+            wantFull = settings.chargingNotifyFull,
+        )
+        chargeAlertState = step.state
+        when (step.alert) {
+            ChargeAlertPolicy.Alert.AT_80 -> postChargeAlert(
+                R.string.charge_alert_80_title, R.string.charge_alert_80_text,
+            )
+            ChargeAlertPolicy.Alert.FULL -> postChargeAlert(
+                R.string.charge_alert_full_title, R.string.charge_alert_full_text,
+            )
+            ChargeAlertPolicy.Alert.NONE -> Unit
+        }
+    }
+
+    private fun postChargeAlert(titleRes: Int, textRes: Int) {
+        if (shuttingDown) return
+        if (!hasPermission(Manifest.permission.POST_NOTIFICATIONS)) return
+        val open = PendingIntent.getActivity(
+            this, REQ_CHARGE_ALERT,
+            Intent(this, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(EXTRA_OPEN_CHARGING, true),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+        val n = ChargeAlertNotification.build(this, titleRes, textRes, open)
+        runCatching {
+            getSystemService(NotificationManager::class.java)
+                .notify(ChargeAlertNotification.NOTIFICATION_ID, n)
+        }
     }
 
     private fun buildNotification(data: WheelData?): Notification {

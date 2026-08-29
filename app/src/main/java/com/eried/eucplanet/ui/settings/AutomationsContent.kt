@@ -28,6 +28,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -54,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.model.ApplyWhenIds
+import com.eried.eucplanet.service.PlaybackRatePolicy
 import com.eried.eucplanet.service.AUTO_VOLUME_MAX_MULTIPLIER
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
@@ -87,24 +90,17 @@ fun AutomationsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // --- Lights Section ---
-        BringIntoViewSection(expanded = settings.autoLightsEnabled) {
+        BringIntoViewSection(expanded = settings.lights.applyWhen != ApplyWhenIds.NEVER) {
         Text(stringResource(R.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.auto_lights_desc),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = settings.autoLightsEnabled,
-                onCheckedChange = { viewModel.updateAutoLightsEnabled(it) },
-                colors = themedSwitchColors(),)
-        }
+        ApplyWhenSelector(
+            label = stringResource(R.string.auto_lights_when),
+            current = settings.lights.applyWhen,
+            onPick = { viewModel.updateAutoLightsApplyWhen(it) },
+        )
 
-        if (settings.autoLightsEnabled) {
+        if (settings.lights.applyWhen != ApplyWhenIds.NEVER) {
             if (autoLightsSuspended) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.appColors.statusWarn.copy(alpha = 0.15f))) {
                     Row(
@@ -131,7 +127,7 @@ fun AutomationsContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 NumberUpDown(
-                    value = settings.autoLightsOnMinutesBefore,
+                    value = settings.lights.onMinutesBefore,
                     onValueChange = { viewModel.updateAutoLightsOnMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -140,7 +136,7 @@ fun AutomationsContent(
                     modifier = Modifier.weight(1f),
                 )
                 NumberUpDown(
-                    value = settings.autoLightsOffMinutesAfter,
+                    value = settings.lights.offMinutesAfter,
                     onValueChange = { viewModel.updateAutoLightsOffMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -160,8 +156,8 @@ fun AutomationsContent(
                     is SunCalculator.SunResult.Normal -> SunScheduleGraph(
                         sunriseMillis = sunResult.sunriseMillis,
                         sunsetMillis = sunResult.sunsetMillis,
-                        lightsOnMinutesBefore = settings.autoLightsOnMinutesBefore,
-                        lightsOffMinutesAfter = settings.autoLightsOffMinutesAfter,
+                        lightsOnMinutesBefore = settings.lights.onMinutesBefore,
+                        lightsOffMinutesAfter = settings.lights.offMinutesAfter,
                         latitude = loc.latitude,
                         longitude = loc.longitude
                     )
@@ -183,42 +179,58 @@ fun AutomationsContent(
             } else {
                 HintText(stringResource(R.string.auto_waiting_gps), small = true)
             }
+
+            // Independent of the schedule above: it decides whether a light is
+            // wanted, this decides whether the rider is still riding.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.auto_lights_off_slow),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.lights.offWhenSlow,
+                    onCheckedChange = { viewModel.updateAutoLightsOffWhenSlow(it) },
+                    colors = themedSwitchColors(),)
+            }
+            if (settings.lights.offWhenSlow) {
+                // Stored metric, shown in the rider's unit by the shared
+                // control, so "4 km/h" reads as walking pace either way.
+                // Half width, like the pair of minute fields above it: a
+                // lone numeric box spanning the page reads as a different
+                // kind of control than the ones it sits with.
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    SpeedNumberSetting(
+                        label = stringResource(R.string.auto_lights_off_below),
+                        valueKmh = settings.lights.offBelowKmh,
+                        rangeKmh = 1f..15f,
+                        speedUnit = Units.effectiveSpeedUnit(settings),
+                        modifier = Modifier.weight(1f),
+                        onValueChangeKmh = { viewModel.updateAutoLightsOffBelowKmh(it) },
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+            }
         }
         }   // end Lights BringIntoViewSection
 
         Spacer(Modifier.height(8.dp))
 
         // --- Volume Section ---
-        BringIntoViewSection(expanded = settings.autoVolumeEnabled) {
+        BringIntoViewSection(expanded = settings.autoVolumeApplyWhen != ApplyWhenIds.NEVER) {
         Text(stringResource(R.string.auto_volume_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.auto_volume_desc),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = settings.autoVolumeEnabled,
-                onCheckedChange = { viewModel.updateAutoVolumeEnabled(it) },
-                colors = themedSwitchColors(),)
-        }
+        // One control, not two: the selector says whether this runs at all
+        // and what it waits for. Never hides everything under it.
+        ApplyWhenSelector(
+            label = stringResource(R.string.auto_volume_when),
+            current = settings.autoVolumeApplyWhen,
+            onPick = { viewModel.updateAutoVolumeApplyWhen(it) },
+        )
 
-        if (settings.autoVolumeEnabled) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(R.string.auto_volume_only_connected),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f))
-                Switch(checked = settings.autoVolumeOnlyWhenConnected,
-                    onCheckedChange = { viewModel.updateAutoVolumeOnlyWhenConnected(it) },
-                    colors = themedSwitchColors(),)
-            }
+        if (settings.autoVolumeApplyWhen != ApplyWhenIds.NEVER) {
 
             var points by remember(settings.autoVolumeCurve) {
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
@@ -325,6 +337,102 @@ fun AutomationsContent(
             }
         }
         }   // end Media control BringIntoViewSection
+
+        Spacer(Modifier.height(8.dp))
+
+        // --- Media speed control Section: PARKED ---
+        //
+        // Commented out rather than deleted, and the code behind it left
+        // intact, because it is worth another attempt one day.
+        //
+        // It never worked reliably. Setting another app's playback rate needs
+        // MediaController.TransportControls.setPlaybackSpeed, which needs
+        // notification access, and even with that granted most players ignore
+        // it: YouTube Music's session never implemented onSetPlaybackSpeed
+        // (ExoPlayer #8229) and its own speed dial is UI-side only. So the
+        // rider granted an alarming permission and got nothing for it.
+        //
+        // To bring it back: uncomment this section, the MediaAccessService
+        // entry in AndroidManifest.xml, the warning in AppHealthRepository,
+        // and the call in AutomationManager.evaluate. The settings, the curve,
+        // the policy and their tests were all left in place, so anything a
+        // rider had configured is still there.
+        /*
+        // --- Media speed control Section ---
+        // One switch and, once it is on, the same spline editor auto-volume
+        // uses: the curve is the identical "speed:value" shape, so a rider who
+        // has shaped one already knows this one.
+        BringIntoViewSection(expanded = settings.mediaControl.rateApplyWhen != ApplyWhenIds.NEVER) {
+        Text(stringResource(R.string.media_rate_title), style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary)
+
+        ApplyWhenSelector(
+            label = stringResource(R.string.media_rate_when),
+            current = settings.mediaControl.rateApplyWhen,
+            onPick = { viewModel.updateMediaRateApplyWhenPicked(it) },
+        )
+        if (settings.mediaControl.rateApplyWhen != ApplyWhenIds.NEVER) {
+            // Asked in place, the way the rest of this screen asks: the button
+            // only appears while the grant is missing, and it disappears on
+            // its own once given (the health check re-runs on resume, which is
+            // also what clears the dashboard warning).
+            // Re-read on every resume, like the PIP and overlay asks above:
+            // the rider grants this in system settings, and returning is the
+            // only moment we can notice. Without it the ask stayed on screen
+            // after being granted.
+            var accessAllowed by remember { mutableStateOf(viewModel.notificationAccessAllowed()) }
+            val rateLifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+            androidx.compose.runtime.DisposableEffect(rateLifecycleOwner) {
+                val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                        accessAllowed = viewModel.notificationAccessAllowed()
+                    }
+                }
+                rateLifecycleOwner.lifecycle.addObserver(obs)
+                onDispose { rateLifecycleOwner.lifecycle.removeObserver(obs) }
+            }
+            if (!accessAllowed) {
+                HintText(stringResource(R.string.media_rate_permission_desc), small = true)
+                com.eried.eucplanet.ui.common.FixButton(
+                    text = stringResource(R.string.media_rate_grant),
+                    onClick = { viewModel.openNotificationAccessSettings() },
+                )
+            }
+            var ratePoints by remember(settings.mediaControl.rateCurve) {
+                mutableStateOf(parseVolumeCurve(settings.mediaControl.rateCurve))
+            }
+            // Four points on the same speeds as the volume curve, so the two
+            // editors line up; 0 km/h is pinned at normal speed.
+            val rateNormalized = remember(ratePoints) {
+                val p = ratePoints.toMutableList()
+                listOf(
+                    0f to 1f,
+                    25f to (p.getOrNull(1)?.second ?: 1.15f),
+                    50f to (p.getOrNull(2)?.second ?: 1.30f),
+                    75f to (p.getOrNull(3)?.second ?: 1.45f),
+                )
+            }
+            SplineCurveEditor(
+                points = rateNormalized,
+                speedUnit = Units.effectiveSpeedUnit(settings),
+                onPointsChanged = { ratePoints = it },
+                onPointsCommitted = { viewModel.updateMediaRateCurve(encodeVolumeCurve(it)) },
+                minMultiplier = PlaybackRatePolicy.MIN_RATE,
+                maxMultiplier = PlaybackRatePolicy.MAX_RATE,
+                tickStep = 0.5f,
+                // A rate curve may fall as well as rise, and it lands on the
+                // same grid the policy sends.
+                monotonic = false,
+                valueStep = PlaybackRatePolicy.STEP,
+            )
+            // Not every player accepts a rate from outside itself, and there
+            // is nothing the app can do about the ones that do not.
+            com.eried.eucplanet.ui.common.InfoHint(
+                text = stringResource(R.string.media_rate_note),
+            )
+        }
+        }   // end Media speed control BringIntoViewSection
+        */
 
         Spacer(Modifier.height(8.dp))
 
@@ -621,12 +729,27 @@ private fun SplineCurveEditor(
     points: List<Pair<Float, Float>>,
     speedUnit: String,
     onPointsChanged: (List<Pair<Float, Float>>) -> Unit,
-    onPointsCommitted: (List<Pair<Float, Float>>) -> Unit
+    onPointsCommitted: (List<Pair<Float, Float>>) -> Unit,
+    // Auto-volume only ever boosts, so its floor is 1x and always was. A
+    // playback rate has a reason to go under it: slowing speech down as the
+    // ride speeds up is the safety-minded way to use this.
+    minMultiplier: Float = 1f,
+    maxMultiplier: Float = AUTO_VOLUME_MAX_MULTIPLIER,
+    // Half steps once the range is small enough that whole ones would leave
+    // two labels on the axis.
+    tickStep: Float = 1f,
+    // Auto-volume's curve may only rise with speed, so each point is pinned
+    // between its neighbours. A playback rate has no such shape: faster at a
+    // crawl and slower at speed is a legitimate thing to want, and so is a
+    // dip in the middle.
+    monotonic: Boolean = true,
+    // Round dragged values onto this grid, so the number the rider sets is
+    // the number that gets sent. The rate is applied on a 0.05 grid; without
+    // this the editor would show 1.23 and the player would get 1.25.
+    valueStep: Float = 0f,
 ) {
     val maxSpeed = 75f
     val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
-    val minMultiplier = 1f
-    val maxMultiplier = AUTO_VOLUME_MAX_MULTIPLIER
     val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -691,10 +814,16 @@ private fun SplineCurveEditor(
                             if (dragIndex > 0 && dragIndex < pointsRef.value.size) {
                                 var newM = (minMultiplier + (h - change.position.y) / h * multiplierRange)
                                     .coerceIn(minMultiplier, maxMultiplier)
-                                // Monotonic ascending: never below previous, never above next.
-                                val prevM = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: minMultiplier
-                                val nextM = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxMultiplier
-                                newM = newM.coerceIn(prevM, nextM)
+                                if (monotonic) {
+                                    // Ascending: never below previous, never above next.
+                                    val prevM = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: minMultiplier
+                                    val nextM = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxMultiplier
+                                    newM = newM.coerceIn(prevM, nextM)
+                                }
+                                if (valueStep > 0f) {
+                                    newM = (Math.round(newM / valueStep) * valueStep)
+                                        .coerceIn(minMultiplier, maxMultiplier)
+                                }
                                 val (oldS, _) = pointsRef.value[dragIndex]
                                 val mutable = pointsRef.value.toMutableList()
                                 mutable[dragIndex] = oldS to newM
@@ -731,14 +860,18 @@ private fun SplineCurveEditor(
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }
-            // Y-axis ticks at each integer multiplier (1x .. maxMultiplier) for clean labels.
-            for (i in minMultiplier.toInt()..maxMultiplier.toInt()) {
-                val mult = i.toFloat()
+            // Y-axis ticks on the step, so a 0.5x..2x rate range labels every
+            // half rather than showing two lines.
+            var tick = minMultiplier
+            while (tick <= maxMultiplier + 1e-3f) {
+                val mult = tick
                 val y = h - (mult - minMultiplier) / multiplierRange * h
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
-                val label = "${i}x"
+                val label = if (tickStep >= 1f) "${mult.toInt()}x"
+                            else "%.1fx".format(java.util.Locale.US, mult)
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
+                tick += tickStep
             }
 
             // Axis label, centered between the "25" and "50" ticks so it doesn't overlap "75"
@@ -811,3 +944,22 @@ private fun SplineCurveEditor(
     }
 }
 
+/**
+ * When a speed-driven automation may act, on exactly the selector trip
+ * recording already uses: the same three ids, the same three words, through
+ * the same [SegmentedChoice]. A rider who has answered "Auto-start trip
+ * recording" has answered this shape of question before.
+ */
+@Composable
+private fun ApplyWhenSelector(label: String, current: String, onPick: (String) -> Unit) {
+    SegmentedChoice(
+        label = label,
+        options = listOf(
+            ApplyWhenIds.NEVER to stringResource(R.string.auto_record_mode_never),
+            ApplyWhenIds.CONNECTED to stringResource(R.string.auto_record_mode_connected),
+            ApplyWhenIds.RIDING to stringResource(R.string.auto_record_mode_riding),
+        ),
+        current = current,
+        onChange = onPick,
+    )
+}

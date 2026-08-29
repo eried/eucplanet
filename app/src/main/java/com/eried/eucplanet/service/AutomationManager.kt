@@ -2,10 +2,12 @@ package com.eried.eucplanet.service
 
 import android.content.Context
 import android.media.AudioManager
+import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import com.eried.eucplanet.audio.AudioOutput
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -58,6 +60,19 @@ class AutomationManager @Inject constructor(
     @Volatile private var mediaAutoPaused: Boolean = false
     // The rules themselves live in MediaControlPolicy, where they are tested.
     private var mediaState = MediaControlPolicy.State()
+    private var rateState = PlaybackRatePolicy.State()
+    private var lightSlowState = HeadlightSlowPolicy.State()
+
+    /** True once the rider has actually ridden since connecting. Keeps the
+     *  headlight automation alive while they are stopped; see
+     *  [ApplyWhenGate.allowsSticky]. Cleared on disconnect. */
+    private var rodeThisSession = false
+
+    /** Last answer from the sun schedule. Cached because that calculation is
+     *  the expensive part and only changes across minutes, while the slow
+     *  cutoff has to be judged on every telemetry frame. */
+    private var lastDarkEnough: Boolean? = null
+
 
     /** Proximity lock / unlock decisions. See [ProximityLockEvaluator]. */
     private val proximityLock = ProximityLockEvaluator()
@@ -103,11 +118,16 @@ class AutomationManager @Inject constructor(
         }
         _autoLightsSuspended.value = false
         lastKnownLightOn = null
+        // A new session starts with the beam under the schedule's control. A
+        // cutoff left engaged from the last ride would otherwise keep the
+        // light off until this one passed the rearm speed.
+        lightSlowState = HeadlightSlowPolicy.State()
     }
 
     /** Reset the throttle so the next tick re-evaluates immediately. */
     fun triggerImmediateLightEvaluation() {
         lastLightCheckMs = 0L
+        lastDarkEnough = null
     }
 
     /**
@@ -118,11 +138,20 @@ class AutomationManager @Inject constructor(
         // Auto lights and auto volume keep running: lights are a safety
         // behaviour and the light button is on the locked screen anyway.
         val lockedDown = legalLockdown.isEngaged()
+        val connectedNow = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+        if (!connectedNow) rodeThisSession = false
+        else if (wheelRepository.wheelData.value.speed.absoluteValue >= ApplyWhenGate.RIDING_KMH) {
+            rodeThisSession = true
+        }
         detectManualLightChange(settings)
-        if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
-        if (settings.autoVolumeEnabled) evaluateVolume(settings)
+        if (!_autoLightsSuspended.value) evaluateLights(settings)
+        evaluateVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
+        // Media speed control is parked: it needs notification access the app
+        // no longer asks for, and most players ignored the rate anyway. The
+        // evaluation below is left intact for whoever revives it.
+        // if (!lockedDown) evaluatePlaybackRate(settings)
         // lockEnabled is the whole feature's switch; unlockEnabled is a
         // sub-option of it, and the settings screen only draws the unlock
         // switch while this one is on. Gating on either used to keep the
@@ -150,29 +179,61 @@ class AutomationManager @Inject constructor(
     private fun evaluateLights(settings: AppSettings) {
         val now = System.currentTimeMillis()
         val location = tripRepository.currentLocation.value
+
+        // Only the sun calculation is throttled, and its answer is cached for
+        // the frames in between. The cutoff has to be judged on every frame:
+        // under the throttle, a minute by default, its three second hold could
+        // never be satisfied and the light stayed on all the way to the
+        // crossing. A long cycle is right for the sun and wrong for this.
         val interval = if (location == null) settings.autoLightNoGpsRetryMs.toLong()
                        else settings.automationLightCheckIntervalMs.toLong()
-        if (now - lastLightCheckMs < interval) return
-        lastLightCheckMs = now
-
-        if (location == null) return  // will retry in 2s
-
-        val lat = location.latitude
-        val lon = location.longitude
-
-        val shouldBeOn = when (val r = SunCalculator.calculateState(lat, lon, TimeZone.getDefault())) {
-            is SunCalculator.SunResult.Normal -> {
-                val lightsOnTime = r.sunsetMillis - settings.autoLightsOnMinutesBefore * 60_000L
-                val lightsOffTime = r.sunriseMillis + settings.autoLightsOffMinutesAfter * 60_000L
-                now >= lightsOnTime || now <= lightsOffTime
+        if (now - lastLightCheckMs >= interval) {
+            lastLightCheckMs = now
+            if (location != null) {
+                lastDarkEnough = when (
+                    val r = SunCalculator.calculateState(
+                        location.latitude, location.longitude, TimeZone.getDefault(),
+                    )
+                ) {
+                    is SunCalculator.SunResult.Normal -> {
+                        val onAt = r.sunsetMillis - settings.lights.onMinutesBefore * 60_000L
+                        val offAt = r.sunriseMillis + settings.lights.offMinutesAfter * 60_000L
+                        now >= onAt || now <= offAt
+                    }
+                    SunCalculator.SunResult.PolarNight -> true
+                    SunCalculator.SunResult.MidnightSun -> false
+                }
             }
-            SunCalculator.SunResult.PolarNight -> true
-            SunCalculator.SunResult.MidnightSun -> false
         }
 
+        val decision = HeadlightRules.decide(
+            slow = lightSlowState,
+            input = HeadlightRules.Input(
+                applyWhen = settings.lights.applyWhen,
+                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+                rodeThisSession = rodeThisSession,
+                offWhenSlow = settings.lights.offWhenSlow,
+                thresholdKmh = settings.lights.offBelowKmh,
+                speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+                darkEnough = lastDarkEnough,
+                nowMs = now,
+            ),
+        )
+        lightSlowState = decision.slow
+        val shouldBeOn = decision.beamOn ?: return
+
         val currentLightOn = wheelRepository.wheelData.value.lightOn
-        if (shouldBeOn != currentLightOn) {
-            Log.i(TAG, "Auto-lights: turning ${if (shouldBeOn) "ON" else "OFF"} (lat=$lat, lon=$lon)")
+        // The decision runs on every telemetry frame now, so a wheel that does
+        // not act on the command must not be asked several times a second.
+        // Families with no BLE light command return early inside toggleLight
+        // without changing the reported state or starting its own cooldown, so
+        // this window is ours to hold. It is the same one the manual-change
+        // detector uses, so an automatic toggle is never read as the rider's.
+        val settled = now - lastAutoToggleMs >= settings.autoToggleGraceMs.toLong()
+        if (shouldBeOn != currentLightOn && settled) {
+            val what = if (shouldBeOn) "ON" else "OFF"
+            Log.i(TAG, "Auto-lights: turning " + what +
+                " (dark=" + lastDarkEnough + ", slowOff=" + lightSlowState.forcedOff + ")")
             wheelRepository.toggleLight()
             lastAutoToggleMs = now
         }
@@ -187,13 +248,7 @@ class AutomationManager @Inject constructor(
      * movements rebase the baseline so what they set is always the floor.
      */
     private suspend fun evaluateVolume(settings: AppSettings) {
-        // Gated by default: only touch the media volume while a wheel is
-        // connected, so auto-volume never moves the phone's volume with no
-        // wheel to ride.
-        if (settings.autoVolumeOnlyWhenConnected &&
-            wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
-            return
-        }
+        if (!applyWhenAllows(settings.autoVolumeApplyWhen)) return
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         if (maxVol <= 0) return
 
@@ -301,6 +356,91 @@ class AutomationManager @Inject constructor(
      * Dispatch a media-button key (down+up) to whatever app owns the active media
      * session - the same mechanism the Flic / notification action buttons use.
      */
+    /**
+     * Playback rate follows speed, for players that accept one.
+     *
+     * Two things can silently make this a no-op and neither is our doing: the
+     * rider may not have granted notification access (without it the session
+     * list is empty), and the player may not implement a rate at all. Spotify
+     * does not; most Media3 apps do. A session that does advertises
+     * ACTION_SET_PLAYBACK_SPEED, so only those are touched, and only while
+     * they are actually playing - setting a rate on a paused session changes
+     * nothing the rider can hear and wakes its UI for no reason.
+     */
+    /** The shared gate, reading this manager's live wheel state. The decision
+     *  itself lives in [ApplyWhenGate] so it can be tested without a wheel. */
+    private fun applyWhenAllows(mode: String): Boolean = ApplyWhenGate.allows(
+        mode = mode,
+        connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+        speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+    )
+
+    private fun evaluatePlaybackRate(settings: AppSettings) {
+        if (!applyWhenAllows(settings.mediaControl.rateApplyWhen)) return
+        val curve = parseVolumeCurve(settings.mediaControl.rateCurve)
+        if (curve.isEmpty()) return
+        val speed = wheelRepository.wheelData.value.speed.absoluteValue
+        val target = pchipInterpolate(curve, speed)
+        val step = PlaybackRatePolicy.step(rateState, target, System.currentTimeMillis())
+        val rate = step.rate ?: return
+        rateState = step.state
+        applyPlaybackRate(rate)
+    }
+
+    /** Sends [rate] to every playing session that accepts one; returns how many. */
+    private fun applyPlaybackRate(rate: Float): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
+        val mgr = runCatching {
+            context.getSystemService(android.media.session.MediaSessionManager::class.java)
+        }.getOrNull() ?: return 0
+        val listener = android.content.ComponentName(
+            context, com.eried.eucplanet.service.MediaAccessService::class.java
+        )
+        // Throws SecurityException when notification access is not granted,
+        // which is the normal state until the rider grants it.
+        val sessions = runCatching { mgr.getActiveSessions(listener) }.getOrNull() ?: return 0
+        var sent = 0
+        for (c in sessions) {
+            val st = c.playbackState ?: continue
+            if (st.state != android.media.session.PlaybackState.STATE_PLAYING) continue
+            // Advertising ACTION_SET_PLAYBACK_SPEED is a manual step the app
+            // has to remember, and some that implement the callback never do
+            // it. Sending anyway costs nothing - a session that does not
+            // handle it simply ignores the call - so the flag is used to
+            // explain what happened, not to decide whether to try.
+            val advertises = (st.actions and
+                android.media.session.PlaybackState.ACTION_SET_PLAYBACK_SPEED) != 0L
+            runCatching { c.transportControls.setPlaybackSpeed(rate) }
+                .onSuccess {
+                    sent++
+                    Log.i(
+                        TAG,
+                        "Media speed: sent ${"%.2f".format(java.util.Locale.US, rate)}x to " +
+                            "${c.packageName} (advertised=$advertises, reported=${st.playbackSpeed})",
+                    )
+                }
+                .onFailure { Log.w(TAG, "setPlaybackSpeed failed for ${c.packageName}", it) }
+        }
+        if (sessions.isNotEmpty() && sent == 0) {
+            Log.i(TAG, "Media speed: nothing playing among ${sessions.map { it.packageName }}")
+        }
+        return sent
+    }
+
+    /**
+     * Back to normal speed, once.
+     *
+     * Without this a rider who ends a ride at 1.3x keeps listening at 1.3x
+     * for the rest of the day and has to hunt for the control in their
+     * player. Called wherever media state is reset.
+     */
+    fun resetPlaybackRate() {
+        if (rateState.lastSent > 0f && rateState.lastSent != PlaybackRatePolicy.NORMAL) {
+            applyPlaybackRate(PlaybackRatePolicy.NORMAL)
+        }
+        rateState = PlaybackRatePolicy.State()
+    }
+
     private fun sendMediaKey(keyCode: Int) {
         runCatching {
             audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
@@ -316,6 +456,7 @@ class AutomationManager @Inject constructor(
     fun resetMediaControl() {
         mediaAutoPaused = false
         mediaState = MediaControlPolicy.State()
+        resetPlaybackRate()
     }
 
     /**

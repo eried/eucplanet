@@ -159,8 +159,72 @@ class WeatherModuleTest {
         assertTrue(coldHater.score < coldNeutral.score)
     }
 
+    @Test fun `disliking cold bites early, not just hard`() {
+        // Erwin's report: +7 C with cold disliked was still reading +3, which
+        // is not what the setting promises. A dislike now moves the comfort
+        // band as well as scaling the deficit.
+        val chilly = hour(tempC = 7f)
+        val neutral = s(chilly)
+        val hater = RidabilityScore.score(
+            chilly, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(cold = RidabilityScore.Pref.DISLIKE),
+        )
+        assertTrue("neutral was ${neutral.score}", neutral.score > 3f)
+        assertTrue("cold-hater was ${hater.score}", hater.score < 1.2f)
+        // ...and still not a hazard reading: 7 C is unpleasant, not dangerous.
+        assertTrue("cold-hater was ${hater.score}", hater.score > 0f)
+        // Someone who likes the cold keeps their perfect day.
+        val lover = RidabilityScore.score(
+            chilly, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(cold = RidabilityScore.Pref.LIKE),
+        )
+        // A like is "does not bother me", not "free": still excellent, not a
+        // guaranteed +5 at any temperature.
+        assertTrue("cold-lover was ${lover.score}", lover.score in 4.3f..5f)
+    }
+
+    @Test fun `the preference spread is wide, and defaults never move`() {
+        // Default prefs are the calibration baseline: hazards ship disliked
+        // and temperatures neutral, so widening the spread must not shift
+        // them. These are the same numbers the anchors above assert.
+        assertEquals(5f, s(hour(tempC = 22.5f)).score, 0.001f)
+        assertEquals(-5f, s(hour(wind = 8f, rain = 2f)).score, 0.001f)
+
+        // Wind, where dislike is the shipped default: neutral and like are
+        // what move, and they are now further from it.
+        val gusty = hour(tempC = 22.5f, wind = 7f)
+        val disliked = s(gusty).score
+        val neutral = RidabilityScore.score(
+            gusty, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(wind = RidabilityScore.Pref.NEUTRAL),
+        ).score
+        val liked = RidabilityScore.score(
+            gusty, 14f, 31f, 2f, 4.5f,
+            RidabilityScore.Prefs(wind = RidabilityScore.Pref.LIKE),
+        ).score
+        assertTrue("$disliked < $neutral < $liked", disliked < neutral && neutral < liked)
+        // Liking wind does not make a gale pleasant.
+        assertTrue("wind lover was $liked", liked < 5f)
+    }
+
+    @Test fun `golden shoulders count, at a fraction`() {
+        // A brisk hour, so the bonus has somewhere to go: at a perfect
+        // temperature every variant simply clamps at +5 and the ordering is
+        // unobservable.
+        val core = hour(tempC = 5f).copy(goldenWeight = 1f)
+        val shoulder = hour(tempC = 5f).copy(goldenWeight = 0.5f)
+        val plain = hour(tempC = 5f)
+        val likes = RidabilityScore.Prefs(golden = RidabilityScore.Pref.LIKE)
+        fun sc(h: com.eried.eucplanet.weather.HourForecast) =
+            RidabilityScore.score(h, 14f, 31f, 2f, 4.5f, likes).score
+        assertTrue(sc(core) > sc(shoulder))
+        assertTrue(sc(shoulder) > sc(plain))
+        assertTrue(shoulder.isGolden)
+        assertTrue(!plain.isGolden)
+    }
+
     @Test fun `golden hour is opposite polarity, neutral means nothing`() {
-        val golden = hour(tempC = 22.5f).copy(isGolden = true)
+        val golden = hour(tempC = 22.5f).copy(goldenWeight = 1f)
         val plain = hour(tempC = 22.5f)
         assertEquals(s(plain).score, s(golden).score, 0.001f)
         val lover = RidabilityScore.score(
@@ -247,7 +311,10 @@ class WeatherModuleTest {
     @Test fun `ships disabled, with the rider's stated comfort defaults`() {
         val w = WeatherSettings()
         assertTrue(!w.enabled)
-        assertEquals(6, w.windowHours)
+        // Eight hours: an afternoon and the evening after it, which is the
+        // question the panel is usually asked. Free-form now, not a preset.
+        assertEquals(8, w.windowHours)
+        assertTrue(!w.openExpanded)
         assertEquals("OPEN_METEO", w.source)
         // Thresholds live in Advanced settings (Weather score group).
         val a = com.eried.eucplanet.data.model.AdvancedSettings()
@@ -312,7 +379,10 @@ class WeatherModuleTest {
         // Rotating rider-lingo titles and the face tips as floating bubbles,
         // not an inline label.
         assertTrue(flyout.contains("WeatherPhrases.titleRes()"))
-        assertTrue(flyout.contains("weather_face_snow"))
+        // The faces themselves moved to WeatherFace so the home screen widgets
+        // reach the same verdict from a snapshot; the flyout now asks it.
+        // WeatherFaceTest guards the registry's own contents.
+        assertTrue(flyout.contains("WeatherFace.of(b)"))
         assertTrue(flyout.contains("BiasAlignment"))
         // Graph taps read out the signed score with an hour-stable phrase,
         // and dragging follows the finger.
@@ -341,9 +411,11 @@ class WeatherModuleTest {
     @Test fun `the section is Navigation & weather and every locale has the strings`() {
         val keys = listOf(
             "weather_section", "weather_icon_desc", "weather_now", "weather_fetching",
-            "weather_updated_ago", "weather_refresh", "weather_error",
-            "weather_window_6h", "weather_window_24h", "weather_window_3d", "weather_window_1w",
-            "weather_win_6", "weather_win_24", "weather_win_3d", "weather_win_1w",
+            "weather_refresh", "weather_error",
+            "weather_window_8h", "weather_window_24h", "weather_window_3d", "weather_window_1w",
+            "weather_win_hours_fmt", "weather_win_days_fmt",
+            "weather_window_hours_suffix",
+            "weather_open_expanded",
             "weather_settings_entry", "weather_enable", "weather_enable_desc",
             "weather_window_label", "weather_source_label", "weather_comfort_desc",
             "weather_cold", "weather_hot", "weather_breezy", "weather_windy",
@@ -366,7 +438,7 @@ class WeatherModuleTest {
             "weather_adv_heat", "weather_adv_golden",
             "weather_in_min", "weather_in_h",
             "weather_src_current", "weather_src_destination",
-            "weather_updated_now", "weather_swap_src",
+            "weather_swap_src",
             "adv_group_weather", "adv_weather_cold_desc", "adv_weather_hot_desc",
             "adv_weather_breezy_desc", "adv_weather_windy_desc",
             "weather_pref_label", "weather_pref_desc",

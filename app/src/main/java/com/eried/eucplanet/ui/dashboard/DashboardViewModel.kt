@@ -161,7 +161,17 @@ class DashboardViewModel @Inject constructor(
                 @Suppress("DEPRECATION")
                 val a = android.location.Geocoder(context, java.util.Locale.getDefault())
                     .getFromLocation(lat, lon, 1)?.firstOrNull()
-                val name = a?.subLocality ?: a?.locality ?: a?.featureName
+                // A PLACE, never a house number. featureName and even
+                // subLocality come back as the street number from some
+                // providers, which is how a rider on number 168 ended up with
+                // a chip that just said "168". Anything without a letter in it
+                // is not a place name, so it is skipped, and the city is
+                // preferred over the street: this labels a forecast, which is
+                // a city-scale thing.
+                val name = listOfNotNull(
+                    a?.locality, a?.subLocality, a?.subAdminArea,
+                    a?.thoroughfare, a?.adminArea, a?.featureName,
+                ).firstOrNull { it.isNotBlank() && it.any { c -> c.isLetter() } }
                 placeCacheKey = key
                 if (!name.isNullOrBlank()) weatherPlace.value = name
             } catch (_: Exception) {
@@ -196,6 +206,11 @@ class DashboardViewModel @Inject constructor(
     /** Fetch if stale (or [force]); needs a location fix of any age - the
      *  forecast cell is kilometres wide, so a stale fix is still the right
      *  weather. No fix at all leaves the flyout to say so. */
+    /** Whether to ask for 15-minute steps: only worth it on a short window,
+     *  where hourly dots leave the curve looking blocky, and only out to
+     *  where the providers publish them. */
+    private fun fineDetail(windowHours: Int): Boolean = windowHours <= 12
+
     fun refreshWeather(force: Boolean = false) {
         val loc = tripRepository.currentLocation.value
             ?: tripRepository.lastKnownLocation.value ?: return
@@ -206,6 +221,7 @@ class DashboardViewModel @Inject constructor(
                 weatherRepository.ensureFreshDest(
                     dest.lat, dest.lng,
                     com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
+                    fine = fineDetail(w.windowHours),
                 )
             }
         }
@@ -213,8 +229,35 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             weatherRepository.ensureFresh(
                 loc.latitude, loc.longitude,
-                com.eried.eucplanet.weather.WeatherSource.byId(w.source), force
+                com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
+                fine = fineDetail(w.windowHours),
             )
+        }
+    }
+
+    init {
+        // Whatever the panel fetches, the home screen widgets get too. A
+        // background worker refreshes them on its own hourly cadence, but it
+        // can only ask about a place it already knows, so the app opening the
+        // panel is what teaches it where the rider is. Does nothing when no
+        // widget is placed.
+        //
+        // Below weatherPlace, and it has to stay there: init blocks run in
+        // declaration order, so collecting a field declared further down means
+        // collecting null, which took the whole dashboard down on launch.
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                weatherRepository.forecast,
+                settingsRepository.settings,
+                weatherPlace,
+            ) { forecast, settings, place -> Triple(forecast, settings, place) }
+                .collect { (forecast, settings, place) ->
+                    if (forecast != null) {
+                        com.eried.eucplanet.widget.WeatherWidgetPublisher.publish(
+                            context, forecast, settings, place,
+                        )
+                    }
+                }
         }
     }
 
