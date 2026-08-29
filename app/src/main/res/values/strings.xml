@@ -2312,12 +2312,13 @@
     <string name="share_stats_desc">Speed, battery and temperature</string>
     <string name="share_profile_missing">No leaderboard profile yet.</string>
     <string name="share_profile_loading">Loading profile…</string>
-    <string name="share_join_another">Join another ride</string>
-    <string name="share_scan_qr">Scan QR</string>
     <string name="share_camera_needed">Camera access is needed to scan a QR code.</string>
     <string name="share_invite_text">Join my ride on EUC Planet: %1$s</string>
     <string name="share_invite_subject">Join my ride</string>
     <string name="share_copied">Copied</string>
+    <string name="share_tab_join">Join</string>
+    <string name="share_tab_create">Create</string>
+    <string name="share_camera_allow">Allow camera</string>
     <string name="share_alone">No one else here yet.</string>
     <string name="share_scan_to_join">Scan to join</string>
     <plurals name="share_rider_count">

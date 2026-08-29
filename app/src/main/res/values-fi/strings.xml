@@ -1859,12 +1859,13 @@
     <string name="share_stats_desc">Nopeus, akku ja lämpötila</string>
     <string name="share_profile_missing">Ei vielä tulostaulun profiilia.</string>
     <string name="share_profile_loading">Ladataan profiilia…</string>
-    <string name="share_join_another">Liity toiseen ajoon</string>
-    <string name="share_scan_qr">Skannaa QR</string>
     <string name="share_camera_needed">QR-koodin skannaamiseen tarvitaan kameran käyttöoikeus.</string>
     <string name="share_invite_text">Liity ajooni EUC Planetissa: %1$s</string>
     <string name="share_invite_subject">Liity ajooni</string>
     <string name="share_copied">Kopioitu</string>
+    <string name="share_tab_join">Liity</string>
+    <string name="share_tab_create">Luo</string>
+    <string name="share_camera_allow">Salli kamera</string>
     <string name="share_alone">Täällä ei ole vielä ketään muuta.</string>
     <string name="share_open">Avaa</string>
     <string name="share_copy">Kopioi</string>

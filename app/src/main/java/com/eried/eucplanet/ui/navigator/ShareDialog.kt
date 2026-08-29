@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,18 +37,21 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.OpenInBrowser
-import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -117,9 +122,16 @@ import java.util.Locale
  * https://eucplanet.ried.no/share#... as an Android App Link, so a link that is
  * tapped or pasted anywhere on the phone opens the app on the join step
  * already. Scanning a friend's QR is the one thing the phone cannot do for the
- * rider, so it is the one join action here. The web viewer keeps its paste box
+ * rider, so it is the whole Join tab. The web viewer keeps its paste box
  * because a browser has no such interception.
  */
+
+/** Cap on the width of the two square blocks in these dialogs: the group
+ *  view's QR and the Join tab's camera. Both fill the dialog in portrait,
+ *  which is about this wide anyway. Without the cap a landscape phone or a
+ *  tablet hands a square block the full dialog width and it comes out taller
+ *  than the screen. */
+internal val SHARE_BLOCK_MAX_WIDTH = 360.dp
 
 /** An avatar URL is another rider's string off the relay, so it is checked
  *  before it is handed to the image loader: https only, and no whitespace or
@@ -219,6 +231,10 @@ internal fun ShareDialogCard(
      *  it: its QR is as wide as the dialog, so a long enough rider list would
      *  otherwise push Close and Leave off the bottom of the screen. */
     scrollable: Boolean = false,
+    /** Drawn full width directly under the title strip, outside the body's
+     *  padding and outside its scroll. The tab row belongs to the card's
+     *  chrome, not to the body it switches between. */
+    header: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
@@ -264,6 +280,7 @@ internal fun ShareDialogCard(
                     color = MaterialTheme.appColors.textPrimary,
                 )
             }
+            header?.invoke()
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -320,6 +337,25 @@ private sealed class ProfilePreview {
     data class Ready(val identity: Identity) : ProfilePreview()
 }
 
+/** The two ways into a ride, one tab each. Join comes first because a rider
+ *  who was handed a QR is looking for the camera, but Create is what opens
+ *  selected: starting a ride is the entry point riders reach cold, while a
+ *  join usually arrives as a link the app intercepts before this dialog. */
+private enum class ShareTab { JOIN, CREATE }
+
+/**
+ * The dialog before the rider is in a ride: one card, two tabs.
+ *
+ * Join is the camera, live the moment the tab is shown, and it becomes the
+ * identity form as soon as it reads a share link. Create is that same identity
+ * form with a different confirm. Both write the same three answers (how to
+ * appear, under what name, with or without stats), so there is one form and
+ * one set of state behind both tabs rather than two stacked groups.
+ *
+ * Opened for a link that arrived from outside the app there are no tabs at
+ * all: that dialog is the join step for one specific ride, and offering to
+ * open a different one would only be in the way.
+ */
 @Composable
 fun ShareStartDialog(
     titleRes: Int,
@@ -337,11 +373,9 @@ fun ShareStartDialog(
     confirmLabelRes: Int = R.string.share_start,
     /**
      * Joins the ride behind a scanned link. Non-null only on the "not sharing
-     * yet" entry point: when this dialog IS the join step for a link that
-     * arrived from outside the app, offering to join a second ride would only
-     * be confusing.
+     * yet" entry point, which is also what puts the tabs on the card.
      *
-     * The captured link is held here rather than handed straight back, so the
+     * The scanned link is held here rather than handed straight back, so the
      * rider stays in ONE dialog: the identity they are looking at is the one
      * they will join as, and this window is never torn down mid-flow.
      */
@@ -364,11 +398,14 @@ fun ShareStartDialog(
     var shareStats by remember(default) { mutableStateOf(default.shareStats) }
     var starting by remember { mutableStateOf(false) }
     var profile by remember { mutableStateOf<ProfilePreview>(ProfilePreview.Loading) }
-    /** The scanner dialog, the single "join another ride" action. */
-    var scanning by remember { mutableStateOf(false) }
-    /** A link the rider scanned. While it is set the dialog is the join step
-     *  for that ride: same identity controls, different confirm. */
+    /** The link the camera read. While it is set the Join tab is the identity
+     *  form for that ride instead of the scanner. */
     var joinLink by remember { mutableStateOf<ShareLink?>(null) }
+    /** Tabs, or the one join step for a link that came from outside the app. */
+    val tabbed = onJoin != null
+    var tab by remember { mutableStateOf(ShareTab.CREATE) }
+    /** The camera is the whole Join tab until it has read a link. */
+    val scanning = tabbed && tab == ShareTab.JOIN && joinLink == null
 
     // Resolved when the rider first looks at the Profile option, not on every
     // open: it reads the rider-id file and can hit the network.
@@ -392,16 +429,6 @@ fun ShareStartDialog(
         scope.launch { action(resolveIdentity(mode, name, shareStats)) }
     }
 
-    if (scanning && onJoin != null) {
-        ShareQrScanner(
-            onLink = { link ->
-                scanning = false
-                joinLink = link
-            },
-            onDismiss = { scanning = false }
-        )
-    }
-
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -410,79 +437,38 @@ fun ShareStartDialog(
         )
     ) {
         ShareDialogCard(
-            stringResource(if (joinLink != null) R.string.share_join_title else titleRes)
-        ) {
-            if (onJoin != null) {
-                ShareSection(stringResource(R.string.share_join_another)) {
-                    Spacer(Modifier.height(8.dp))
-                    // One action, so one full-width button rather than a
-                    // half-width one with a gap where its pair used to be.
-                    OutlinedButton(
-                        onClick = { scanning = true },
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.appColors.textButton
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.QrCodeScanner,
-                            contentDescription = null,
-                            tint = MaterialTheme.appColors.textButton,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            stringResource(R.string.share_scan_qr),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+            title = stringResource(if (joinLink != null) R.string.share_join_title else titleRes),
+            // The camera square is as tall as the dialog is wide, so in
+            // landscape the body has to be able to scroll to reach the
+            // buttons under it.
+            scrollable = true,
+            header = if (!tabbed) null else ({
+                ShareTabRow(
+                    selected = tab,
+                    onSelect = { picked ->
+                        tab = picked
+                        // Walking over to Create drops the scanned ride:
+                        // coming back to Join has to mean the camera again,
+                        // not a link the rider left behind.
+                        if (picked == ShareTab.CREATE) joinLink = null
                     }
-                }
-                Spacer(Modifier.height(12.dp))
-            }
-            ShareSection {
-                SegmentedChoice(
-                    label = stringResource(R.string.share_show_me_as),
-                    options = listOf(
-                        IdentityMode.ANON.name to stringResource(R.string.share_identity_anon),
-                        IdentityMode.SESSION.name to stringResource(R.string.share_identity_session),
-                        IdentityMode.PROFILE.name to stringResource(R.string.share_identity_profile),
-                    ),
-                    current = mode.name,
-                    // The row carries one enabled flag for all three segments, so
-                    // Profile stays selectable with nothing linked: picking it
-                    // explains why it cannot be used instead of looking broken.
-                    onChange = { key ->
-                        mode = runCatching { IdentityMode.valueOf(key) }.getOrDefault(IdentityMode.ANON)
-                    },
                 )
-                if (mode == IdentityMode.SESSION) {
-                    Spacer(Modifier.height(10.dp))
-                    // The app's standard settings field: the label lives in the
-                    // control's own notch, so there is no overlay to keep in
-                    // sync with the field's padding.
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text(stringResource(R.string.share_name_label)) },
-                        singleLine = true,
-                        colors = themedFieldColors(),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                if (mode == IdentityMode.PROFILE) {
-                    Spacer(Modifier.height(10.dp))
-                    ProfilePreviewCard(profile)
-                }
-                Spacer(Modifier.height(12.dp))
-                SwitchSettingWithDesc(
-                    label = stringResource(R.string.share_stats_toggle),
-                    description = stringResource(R.string.share_stats_desc),
-                    checked = shareStats,
-                    onCheckedChange = { shareStats = it },
+            })
+        ) {
+            if (scanning) {
+                ShareQrScannerArea(
+                    onLink = { link -> joinLink = link },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                ShareIdentityForm(
+                    mode = mode,
+                    onModeChange = { mode = it },
+                    name = name,
+                    onNameChange = { name = it },
+                    shareStats = shareStats,
+                    onShareStatsChange = { shareStats = it },
+                    profile = profile,
                 )
             }
             Spacer(Modifier.height(16.dp))
@@ -492,47 +478,170 @@ fun ShareStartDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(
-                    onClick = onDismiss,
+                    // On the form for a ride the camera just read, Cancel is a
+                    // step back to the camera rather than the way out of the
+                    // dialog: the rider is correcting a scan, not leaving.
+                    onClick = { if (tabbed && joinLink != null) joinLink = null else onDismiss() },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton
                     )
                 ) { Text(stringResource(R.string.action_cancel)) }
-                Spacer(Modifier.width(8.dp))
-                Button(
-                    enabled = canConfirm,
-                    onClick = {
-                        val link = joinLink
-                        val join = onJoin
-                        if (link != null && join != null) confirmWith { join(link, it) }
-                        else confirmWith(onStart)
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.appColors.primary,
-                        contentColor = MaterialTheme.appColors.onPrimary,
-                        disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
-                        disabledContentColor = MaterialTheme.appColors.textSecondary,
-                    )
-                ) {
-                    if (starting) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.appColors.onPrimary
+                // Nothing to confirm while the camera is still looking.
+                if (!scanning) {
+                    Spacer(Modifier.width(8.dp))
+                    Button(
+                        enabled = canConfirm,
+                        onClick = {
+                            val link = joinLink
+                            val join = onJoin
+                            if (link != null && join != null) confirmWith { join(link, it) }
+                            else confirmWith(onStart)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.appColors.primary,
+                            contentColor = MaterialTheme.appColors.onPrimary,
+                            disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
+                            disabledContentColor = MaterialTheme.appColors.textSecondary,
                         )
-                    } else {
-                        Text(
-                            stringResource(
-                                if (joinLink != null) R.string.share_join else confirmLabelRes
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                    ) {
+                        if (starting) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.appColors.onPrimary
+                            )
+                        } else {
+                            Text(
+                                stringResource(
+                                    if (joinLink != null) R.string.share_join else confirmLabelRes
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+/**
+ * Join | Create, the app's tab row with every colour named.
+ *
+ * The Material default would paint itself from the Material slots; these
+ * dialogs sit on the theme's dialog surface, so the row is told which surface
+ * it is on and which accent marks the selected tab.
+ */
+// The tab row's own indicator slot is still experimental in Material 3; it is
+// opted into rather than skipped, because the default indicator paints itself
+// from the Material slots and every colour in these dialogs is named.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShareTabRow(selected: ShareTab, onSelect: (ShareTab) -> Unit) {
+    val appColors = MaterialTheme.appColors
+    PrimaryTabRow(
+        selectedTabIndex = selected.ordinal,
+        containerColor = appColors.dialog,
+        contentColor = appColors.textPrimary,
+        indicator = {
+            TabRowDefaults.PrimaryIndicator(
+                modifier = Modifier.tabIndicatorOffset(selected.ordinal, matchContentSize = true),
+                color = appColors.primary,
+            )
+        },
+        divider = { HorizontalDivider(color = appColors.divider) },
+    ) {
+        ShareTab.values().forEach { entry ->
+            Tab(
+                selected = selected == entry,
+                onClick = { onSelect(entry) },
+                selectedContentColor = appColors.primary,
+                unselectedContentColor = appColors.textSecondary,
+                text = {
+                    // Material 3 Tab pads its text slot, so a label can
+                    // measure narrower than the text it holds and clip on the
+                    // right even when the tab has room. wrapContentWidth with
+                    // unbounded = true lets the Text report its own width.
+                    Text(
+                        stringResource(
+                            when (entry) {
+                                ShareTab.JOIN -> R.string.share_tab_join
+                                ShareTab.CREATE -> R.string.share_tab_create
+                            }
+                        ),
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.wrapContentWidth(unbounded = true)
+                    )
+                }
+            )
+        }
+    }
+}
+
+/**
+ * How the rider will appear to the group: the one form behind both tabs.
+ *
+ * The controls are the app's canonical ones rather than local copies, so the
+ * identity row is the same 56 dp segmented control every settings combo uses
+ * and the name field is the same notched one. An earlier hand-rolled segmented
+ * row wrapped "Anonymous" mid-word because it lacked the fixed row height.
+ */
+@Composable
+private fun ShareIdentityForm(
+    mode: IdentityMode,
+    onModeChange: (IdentityMode) -> Unit,
+    name: String,
+    onNameChange: (String) -> Unit,
+    shareStats: Boolean,
+    onShareStatsChange: (Boolean) -> Unit,
+    profile: ProfilePreview,
+) {
+    ShareSection {
+        SegmentedChoice(
+            label = stringResource(R.string.share_show_me_as),
+            options = listOf(
+                IdentityMode.ANON.name to stringResource(R.string.share_identity_anon),
+                IdentityMode.SESSION.name to stringResource(R.string.share_identity_session),
+                IdentityMode.PROFILE.name to stringResource(R.string.share_identity_profile),
+            ),
+            current = mode.name,
+            // The row carries one enabled flag for all three segments, so
+            // Profile stays selectable with nothing linked: picking it
+            // explains why it cannot be used instead of looking broken.
+            onChange = { key ->
+                onModeChange(runCatching { IdentityMode.valueOf(key) }.getOrDefault(IdentityMode.ANON))
+            },
+        )
+        if (mode == IdentityMode.SESSION) {
+            Spacer(Modifier.height(10.dp))
+            // The app's standard settings field: the label lives in the
+            // control's own notch, so there is no overlay to keep in sync
+            // with the field's padding.
+            OutlinedTextField(
+                value = name,
+                onValueChange = onNameChange,
+                label = { Text(stringResource(R.string.share_name_label)) },
+                singleLine = true,
+                colors = themedFieldColors(),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        if (mode == IdentityMode.PROFILE) {
+            Spacer(Modifier.height(10.dp))
+            ProfilePreviewCard(profile)
+        }
+        Spacer(Modifier.height(12.dp))
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.share_stats_toggle),
+            description = stringResource(R.string.share_stats_desc),
+            checked = shareStats,
+            onCheckedChange = onShareStatsChange,
+        )
     }
 }
 
@@ -696,8 +805,15 @@ fun ShareGroupDialog(
             Spacer(Modifier.height(14.dp))
             // The QR, its caption and the three link actions are one block:
             // the code is sized from the row's own width so its edges land on
-            // the outer edges of the buttons under it.
-            BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // the outer edges of the buttons under it. The block is capped and
+            // centred, because a square that fills a landscape dialog is
+            // taller than the screen and buries Leave under a scroll.
+            BoxWithConstraints(
+                Modifier
+                    .widthIn(max = SHARE_BLOCK_MAX_WIDTH)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+            ) {
                 // Encode once, at the row's own pixel width but never above
                 // QR_MAX_PX: the bitmap is remembered per (link, size) and the
                 // Image scales it to fill the row, so a landscape phone or a

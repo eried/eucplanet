@@ -1593,12 +1593,13 @@
     <string name="share_stats_desc">Hastighet, batteri och temperatur</string>
     <string name="share_profile_missing">Ingen topplisteprofil än.</string>
     <string name="share_profile_loading">Laddar profil…</string>
-    <string name="share_join_another">Gå med i en annan tur</string>
-    <string name="share_scan_qr">Skanna QR</string>
     <string name="share_camera_needed">Kameraåtkomst behövs för att skanna en QR-kod.</string>
     <string name="share_invite_text">Följ med på min tur på EUC Planet: %1$s</string>
     <string name="share_invite_subject">Följ med på min tur</string>
     <string name="share_copied">Kopierat</string>
+    <string name="share_tab_join">Gå med</string>
+    <string name="share_tab_create">Skapa</string>
+    <string name="share_camera_allow">Tillåt kamera</string>
     <string name="share_alone">Ingen annan är här än.</string>
     <string name="share_open">Öppna</string>
     <string name="share_copy">Kopiera</string>

@@ -1610,12 +1610,13 @@
     <string name="share_stats_desc">Prędkość, bateria i temperatura</string>
     <string name="share_profile_missing">Brak profilu w rankingu.</string>
     <string name="share_profile_loading">Wczytywanie profilu…</string>
-    <string name="share_join_another">Dołącz do innej jazdy</string>
-    <string name="share_scan_qr">Skanuj QR</string>
     <string name="share_camera_needed">Do zeskanowania kodu QR potrzebny jest dostęp do aparatu.</string>
     <string name="share_invite_text">Dołącz do mojej jazdy w EUC Planet: %1$s</string>
     <string name="share_invite_subject">Dołącz do mojej jazdy</string>
     <string name="share_copied">Skopiowano</string>
+    <string name="share_tab_join">Dołącz</string>
+    <string name="share_tab_create">Utwórz</string>
+    <string name="share_camera_allow">Zezwól na aparat</string>
     <string name="share_alone">Nikogo innego tu jeszcze nie ma.</string>
     <string name="share_open">Otwórz</string>
     <string name="share_copy">Kopiuj</string>

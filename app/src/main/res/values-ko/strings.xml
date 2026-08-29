@@ -1594,12 +1594,13 @@
     <string name="share_stats_desc">속도, 배터리, 온도</string>
     <string name="share_profile_missing">아직 리더보드 프로필이 없습니다.</string>
     <string name="share_profile_loading">프로필 불러오는 중…</string>
-    <string name="share_join_another">다른 라이드 참여</string>
-    <string name="share_scan_qr">QR 스캔</string>
     <string name="share_camera_needed">QR 코드를 스캔하려면 카메라 권한이 필요합니다.</string>
     <string name="share_invite_text">EUC Planet에서 제 라이드에 참여하세요: %1$s</string>
     <string name="share_invite_subject">제 라이드에 참여하세요</string>
     <string name="share_copied">복사됨</string>
+    <string name="share_tab_join">참여</string>
+    <string name="share_tab_create">만들기</string>
+    <string name="share_camera_allow">카메라 허용</string>
     <string name="share_alone">아직 여기 아무도 없어요.</string>
     <string name="share_open">열기</string>
     <string name="share_copy">복사</string>

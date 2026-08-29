@@ -1859,12 +1859,13 @@
     <string name="share_stats_desc">Rychlost, baterie a teplota</string>
     <string name="share_profile_missing">Zatím žádný profil v žebříčku.</string>
     <string name="share_profile_loading">Načítání profilu…</string>
-    <string name="share_join_another">Připojit se k jiné jízdě</string>
-    <string name="share_scan_qr">Skenovat QR</string>
     <string name="share_camera_needed">Ke skenování QR kódu je potřeba přístup k fotoaparátu.</string>
     <string name="share_invite_text">Přidej se k mé jízdě na EUC Planet: %1$s</string>
     <string name="share_invite_subject">Přidej se k mé jízdě</string>
     <string name="share_copied">Zkopírováno</string>
+    <string name="share_tab_join">Připojit se</string>
+    <string name="share_tab_create">Vytvořit</string>
+    <string name="share_camera_allow">Povolit fotoaparát</string>
     <string name="share_alone">Zatím tu není nikdo jiný.</string>
     <string name="share_open">Otevřít</string>
     <string name="share_copy">Kopírovat</string>

@@ -1,7 +1,13 @@
 package com.eried.eucplanet.ui.navigator
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -10,25 +16,31 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -41,8 +53,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -55,25 +66,28 @@ import com.google.zxing.DecodeHintType
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.PlanarYUVLuminanceSource
 import com.google.zxing.common.HybridBinarizer
+import kotlinx.coroutines.delay
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * In-app QR scanner for a share link, so a rider joining a friend's ride can
- * point the phone at their screen instead of copying a 60 character URL.
+ * The Join tab's camera area: a square live preview that reads a friend's
+ * share QR, so a rider joining a ride can point the phone at their screen
+ * instead of copying a 60 character URL.
  *
  * A CameraX preview plus an ImageAnalysis stream, decoded with ZXing. The
  * analysis keeps only the latest frame: decoding is slower than the camera,
  * and a queue of stale frames would only delay the hit the rider is waiting
- * for. The first frame whose text parses as a share link closes the scanner.
+ * for. The first frame whose text parses as a share link is handed up.
  *
- * Like the other editor dialogs this one does not dismiss on an outside tap,
- * so a stray touch while lining the code up does not drop the rider back out.
+ * It is an area inside the share dialog, not a dialog of its own: the tab IS
+ * the scanner, so there is nothing to open and nothing to explain, and no
+ * caption sits under a live camera saying what to point it at.
  */
 @Composable
-fun ShareQrScanner(
+fun ShareQrScannerArea(
     onLink: (ShareLink) -> Unit,
-    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -87,68 +101,125 @@ fun ShareQrScanner(
                 PackageManager.PERMISSION_GRANTED
         )
     }
-    // Asked once, on open: the rider tapped "Scan QR", so the prompt is
-    // expected rather than a surprise mid-screen.
-    var asked by remember { mutableStateOf(false) }
+    // Nothing is asked on open: the rider picked the Join tab, not a
+    // permission prompt, and the button below is the ask. Set once the system
+    // dialog has come back with a no, which is what separates "not asked yet"
+    // from "answered no" when reading the rationale flag.
+    var refused by remember { mutableStateOf(false) }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted = it }
-    LaunchedEffect(Unit) {
-        if (!granted && !asked) {
-            asked = true
-            permissionLauncher.launch(Manifest.permission.CAMERA)
-        }
+    ) { ok ->
+        granted = ok
+        refused = !ok
+    }
+    // Once the rider has turned the ask off for good, Android answers the
+    // launcher instantly with the same no and shows nothing, so the button
+    // has to lead somewhere the answer can still be changed.
+    val activity = remember(context) { context.findActivity() }
+    val permanentlyDenied = refused && activity != null &&
+        !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)
+
+    /** When the camera last read a QR that is not a share link. Held as a
+     *  clock rather than a flag so the note clears itself: a code from another
+     *  app stays in frame for as long as the rider holds it there, and a line
+     *  that only cleared on the next decoded frame would sit under the preview
+     *  until they moved the phone. */
+    var invalidAtMs by remember { mutableLongStateOf(0L) }
+    LaunchedEffect(invalidAtMs) {
+        if (invalidAtMs == 0L) return@LaunchedEffect
+        delay(INVALID_NOTE_MS)
+        invalidAtMs = 0L
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false,
-        )
-    ) {
-        ShareDialogCard(stringResource(R.string.share_scan_qr)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.appColors.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                if (granted) {
-                    QrCameraPreview(
-                        lifecycleOwner = lifecycleOwner,
-                        onLink = { link -> latestOnLink(link) }
-                    )
-                } else {
-                    Text(
-                        stringResource(R.string.share_camera_needed),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.textSecondary,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(24.dp)
-                    )
-                }
-            }
-            Spacer(Modifier.height(10.dp))
-            // No caption under the preview: a live camera in a dialog called
-            // "Scan QR" needs no sentence explaining what to point it at. The
-            // permission message above stays, because that one is an error.
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.appColors.textButton
-                    )
-                ) { Text(stringResource(R.string.action_cancel)) }
+    Column(modifier) {
+        Box(
+            modifier = Modifier
+                .widthIn(max = SHARE_BLOCK_MAX_WIDTH)
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.appColors.surfaceVariant)
+                .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center
+        ) {
+            if (granted) {
+                QrCameraPreview(
+                    lifecycleOwner = lifecycleOwner,
+                    onLink = { link -> latestOnLink(link) },
+                    onUnreadable = { invalidAtMs = System.currentTimeMillis() },
+                )
+            } else {
+                CameraPermissionPrompt(
+                    onAllow = {
+                        if (permanentlyDenied) context.openAppSettings()
+                        else permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                )
             }
         }
+        if (invalidAtMs != 0L) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(R.string.share_link_invalid),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.statusDanger,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+/** How long a "that is not a share link" note stays under the preview. */
+private const val INVALID_NOTE_MS = 2_500L
+
+/** The camera square before the rider has said yes: the subject of the ask,
+ *  and one button. No paragraph explaining a camera. */
+@Composable
+private fun CameraPermissionPrompt(onAllow: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(24.dp)
+    ) {
+        Icon(
+            Icons.Default.PhotoCamera,
+            contentDescription = stringResource(R.string.share_camera_needed),
+            tint = MaterialTheme.appColors.textSecondary,
+            modifier = Modifier.size(40.dp),
+        )
+        Spacer(Modifier.height(14.dp))
+        OutlinedButton(
+            onClick = onAllow,
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.appColors.textButton
+            )
+        ) { Text(stringResource(R.string.share_camera_allow), maxLines = 1) }
+    }
+}
+
+/** The Activity behind a composable's context, which can be a wrapper. Needed
+ *  for the rationale flag, which only an Activity can be asked about. */
+private fun Context.findActivity(): Activity? {
+    var c: Context? = this
+    while (c is ContextWrapper) {
+        if (c is Activity) return c
+        c = c.baseContext
+    }
+    return null
+}
+
+/** This app's page in system settings, where a permission that was turned off
+ *  for good can be turned back on. */
+private fun Context.openAppSettings() {
+    runCatching {
+        startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", packageName, null)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        )
     }
 }
 
@@ -157,6 +228,9 @@ fun ShareQrScanner(
 private fun QrCameraPreview(
     lifecycleOwner: LifecycleOwner,
     onLink: (ShareLink) -> Unit,
+    /** A frame that decoded to something which is not a share link. Reported
+     *  so the tab can say so once, quietly, and carry on scanning. */
+    onUnreadable: () -> Unit,
 ) {
     // One decode at a time on one thread: MultiFormatReader keeps state
     // between calls and is not safe to share across threads.
@@ -205,8 +279,13 @@ private fun QrCameraPreview(
                     val text = runCatching { proxy.decodeQr(reader) }.getOrNull()
                     proxy.close()
                     val link = text?.let { parseShareText(it) }
-                    if (link != null && handled.compareAndSet(false, true)) {
-                        ContextCompat.getMainExecutor(view.context).execute { onLink(link) }
+                    val main = ContextCompat.getMainExecutor(view.context)
+                    if (link != null) {
+                        if (handled.compareAndSet(false, true)) main.execute { onLink(link) }
+                    } else if (text != null) {
+                        // A QR that is not ours: a wifi code, a product
+                        // barcode. Scanning carries on, the tab notes it.
+                        main.execute { onUnreadable() }
                     }
                 }
                 runCatching {

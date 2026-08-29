@@ -1652,12 +1652,13 @@
     <string name="share_stats_desc">Snelheid, accu en temperatuur</string>
     <string name="share_profile_missing">Nog geen ranglijstprofiel.</string>
     <string name="share_profile_loading">Profiel laden…</string>
-    <string name="share_join_another">Andere rit joinen</string>
-    <string name="share_scan_qr">QR scannen</string>
     <string name="share_camera_needed">Cameratoegang is nodig om een QR-code te scannen.</string>
     <string name="share_invite_text">Doe mee met mijn rit op EUC Planet: %1$s</string>
     <string name="share_invite_subject">Doe mee met mijn rit</string>
     <string name="share_copied">Gekopieerd</string>
+    <string name="share_tab_join">Deelnemen</string>
+    <string name="share_tab_create">Aanmaken</string>
+    <string name="share_camera_allow">Camera toestaan</string>
     <string name="share_alone">Hier is nog niemand anders.</string>
     <string name="share_open">Openen</string>
     <string name="share_copy">Kopiëren</string>

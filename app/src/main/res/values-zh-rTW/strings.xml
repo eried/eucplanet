@@ -1594,12 +1594,13 @@
     <string name="share_stats_desc">速度、電量和溫度</string>
     <string name="share_profile_missing">尚無排行榜資料。</string>
     <string name="share_profile_loading">正在載入資料…</string>
-    <string name="share_join_another">加入其他行程</string>
-    <string name="share_scan_qr">掃描 QR 碼</string>
     <string name="share_camera_needed">掃描 QR 碼需要相機權限。</string>
     <string name="share_invite_text">加入我在 EUC Planet 的行程：%1$s</string>
     <string name="share_invite_subject">加入我的行程</string>
     <string name="share_copied">已複製</string>
+    <string name="share_tab_join">加入</string>
+    <string name="share_tab_create">建立</string>
+    <string name="share_camera_allow">允許相機</string>
     <string name="share_alone">這裡還沒有其他人。</string>
     <string name="share_open">開啟</string>
     <string name="share_copy">複製</string>

@@ -1606,12 +1606,13 @@
     <string name="share_stats_desc">Hastighed, batteri og temperatur</string>
     <string name="share_profile_missing">Ingen profil på ranglisten endnu.</string>
     <string name="share_profile_loading">Indlæser profil…</string>
-    <string name="share_join_another">Deltag i en anden tur</string>
-    <string name="share_scan_qr">Scan QR</string>
     <string name="share_camera_needed">Der skal bruges adgang til kameraet for at scanne en QR-kode.</string>
     <string name="share_invite_text">Vær med på min tur på EUC Planet: %1$s</string>
     <string name="share_invite_subject">Vær med på min tur</string>
     <string name="share_copied">Kopieret</string>
+    <string name="share_tab_join">Deltag</string>
+    <string name="share_tab_create">Opret</string>
+    <string name="share_camera_allow">Tillad kamera</string>
     <string name="share_alone">Der er ingen andre her endnu.</string>
     <string name="share_open">Åbn</string>
     <string name="share_copy">Kopiér</string>

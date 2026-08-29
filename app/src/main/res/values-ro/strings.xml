@@ -1846,7 +1846,7 @@
     <string name="share_join">Alătură-te</string>
     <string name="share_connected">Conectat</string>
     <string name="share_reconnecting">Se reconectează…</string>
-    <string name="share_riders">Rideri</string>
+    <string name="share_riders">Conducători</string>
     <string name="share_leave">Părăsește</string>
     <string name="share_left">a plecat</string>
     <string name="share_lost">semnal pierdut</string>
@@ -1859,19 +1859,20 @@
     <string name="share_stats_desc">Viteză, baterie și temperatură</string>
     <string name="share_profile_missing">Încă nu ai profil în clasament.</string>
     <string name="share_profile_loading">Se încarcă profilul…</string>
-    <string name="share_join_another">Alătură-te altei ture</string>
-    <string name="share_scan_qr">Scanează QR</string>
     <string name="share_camera_needed">Este nevoie de acces la cameră pentru a scana un cod QR.</string>
     <string name="share_invite_text">Alătură-te turei mele pe EUC Planet: %1$s</string>
     <string name="share_invite_subject">Alătură-te turei mele</string>
     <string name="share_copied">Copiat</string>
+    <string name="share_tab_join">Alătură-te</string>
+    <string name="share_tab_create">Creează</string>
+    <string name="share_camera_allow">Permite camera</string>
     <string name="share_alone">Încă nu mai e nimeni altcineva aici.</string>
     <string name="share_open">Deschide</string>
     <string name="share_copy">Copiază</string>
     <plurals name="share_rider_count">
-        <item quantity="one">%1$d rider</item>
-        <item quantity="few">%1$d rideri</item>
-        <item quantity="other">%1$d de rideri</item>
+        <item quantity="one">%1$d conducător</item>
+        <item quantity="few">%1$d conducători</item>
+        <item quantity="other">%1$d de conducători</item>
     </plurals>
     <string name="share_scan_to_join">Scanează pentru a te alătura</string>
     <string name="nav_end_body">Oprești ghidarea pentru traseul activ?</string>

@@ -1597,12 +1597,13 @@
     <string name="share_stats_desc">Скорость, батарея и температура</string>
     <string name="share_profile_missing">Профиля в рейтинге пока нет.</string>
     <string name="share_profile_loading">Загрузка профиля…</string>
-    <string name="share_join_another">Присоединиться к другой поездке</string>
-    <string name="share_scan_qr">Сканировать QR</string>
     <string name="share_camera_needed">Для сканирования QR-кода нужен доступ к камере.</string>
     <string name="share_invite_text">Присоединяйся к моей поездке в EUC Planet: %1$s</string>
     <string name="share_invite_subject">Присоединяйся к моей поездке</string>
     <string name="share_copied">Скопировано</string>
+    <string name="share_tab_join">Присоединиться</string>
+    <string name="share_tab_create">Создать</string>
+    <string name="share_camera_allow">Разрешить камеру</string>
     <string name="share_alone">Здесь пока никого больше нет.</string>
     <string name="share_open">Открыть</string>
     <string name="share_copy">Копировать</string>

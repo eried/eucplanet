@@ -1629,12 +1629,13 @@
     <string name="share_stats_desc">Velocidad, batería y temperatura</string>
     <string name="share_profile_missing">Aún no tienes perfil en la clasificación.</string>
     <string name="share_profile_loading">Cargando perfil…</string>
-    <string name="share_join_another">Unirse a otra ruta</string>
-    <string name="share_scan_qr">Escanear QR</string>
     <string name="share_camera_needed">Se necesita acceso a la cámara para escanear un código QR.</string>
     <string name="share_invite_text">Únete a mi ruta en EUC Planet: %1$s</string>
     <string name="share_invite_subject">Únete a mi ruta</string>
     <string name="share_copied">Copiado</string>
+    <string name="share_tab_join">Unirse</string>
+    <string name="share_tab_create">Crear</string>
+    <string name="share_camera_allow">Permitir cámara</string>
     <string name="share_alone">Todavía no hay nadie más aquí.</string>
     <string name="share_open">Abrir</string>
     <string name="share_copy">Copiar</string>

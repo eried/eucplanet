@@ -1597,12 +1597,13 @@
     <string name="share_stats_desc">Velocidade, bateria e temperatura</string>
     <string name="share_profile_missing">Ainda sem perfil no ranking.</string>
     <string name="share_profile_loading">Carregando perfil…</string>
-    <string name="share_join_another">Entrar em outro passeio</string>
-    <string name="share_scan_qr">Ler QR</string>
     <string name="share_camera_needed">É preciso acesso à câmera para ler um código QR.</string>
     <string name="share_invite_text">Entre no meu passeio no EUC Planet: %1$s</string>
     <string name="share_invite_subject">Entre no meu passeio</string>
     <string name="share_copied">Copiado</string>
+    <string name="share_tab_join">Entrar</string>
+    <string name="share_tab_create">Criar</string>
+    <string name="share_camera_allow">Permitir câmera</string>
     <string name="share_alone">Ainda não há mais ninguém aqui.</string>
     <string name="share_open">Abrir</string>
     <string name="share_copy">Copiar</string>

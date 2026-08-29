@@ -1656,12 +1656,13 @@
     <string name="share_stats_desc">Vitesse, batterie et température</string>
     <string name="share_profile_missing">Pas encore de profil de classement.</string>
     <string name="share_profile_loading">Chargement du profil…</string>
-    <string name="share_join_another">Rejoindre une autre sortie</string>
-    <string name="share_scan_qr">Scanner QR</string>
     <string name="share_camera_needed">L\'accès à la caméra est nécessaire pour scanner un code QR.</string>
     <string name="share_invite_text">Rejoins ma sortie sur EUC Planet : %1$s</string>
     <string name="share_invite_subject">Rejoins ma sortie</string>
     <string name="share_copied">Copié</string>
+    <string name="share_tab_join">Rejoindre</string>
+    <string name="share_tab_create">Créer</string>
+    <string name="share_camera_allow">Autoriser la caméra</string>
     <string name="share_alone">Personne d\'autre ici pour l\'instant.</string>
     <string name="share_open">Ouvrir</string>
     <string name="share_copy">Copier</string>
