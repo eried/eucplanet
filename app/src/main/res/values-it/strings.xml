@@ -810,6 +810,7 @@
     <string name="share_left">uscito</string>
     <string name="share_lost">segnale perso</string>
     <string name="share_age_seconds">%1$d s fa</string>
+    <string name="share_age_minutes">%1$d min fa</string>
     <string name="share_relay_caption">Relay: %1$s</string>
     <string name="share_link_invalid">Questo link di condivisione è scaduto o non è valido.</string>
     <string name="share_room_full">Questo gruppo è al completo.</string>

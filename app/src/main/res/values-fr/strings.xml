@@ -1648,6 +1648,7 @@
     <string name="share_left">a quitté</string>
     <string name="share_lost">signal perdu</string>
     <string name="share_age_seconds">il y a %1$d s</string>
+    <string name="share_age_minutes">il y a %1$d min</string>
     <string name="share_relay_caption">Relais : %1$s</string>
     <string name="share_link_invalid">Ce lien de partage a expiré ou n\'est pas valide.</string>
     <string name="share_room_full">Ce groupe est complet.</string>

@@ -1621,6 +1621,7 @@
     <string name="share_left">se fue</string>
     <string name="share_lost">sin señal</string>
     <string name="share_age_seconds">hace %1$d s</string>
+    <string name="share_age_minutes">hace %1$d min</string>
     <string name="share_relay_caption">Relé: %1$s</string>
     <string name="share_link_invalid">Este enlace para compartir venció o no es válido.</string>
     <string name="share_room_full">Este grupo está lleno.</string>

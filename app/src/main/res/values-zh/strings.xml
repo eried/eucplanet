@@ -774,6 +774,7 @@
     <string name="share_left">已离开</string>
     <string name="share_lost">信号中断</string>
     <string name="share_age_seconds">%1$d 秒前</string>
+    <string name="share_age_minutes">%1$d 分钟前</string>
     <string name="share_relay_caption">中继: %1$s</string>
     <string name="share_link_invalid">此分享链接已过期或无效。</string>
     <string name="share_room_full">此群组已满。</string>

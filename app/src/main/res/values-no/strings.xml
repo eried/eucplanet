@@ -791,6 +791,7 @@
     <string name="share_left">forlot</string>
     <string name="share_lost">mistet signal</string>
     <string name="share_age_seconds">%1$d s siden</string>
+    <string name="share_age_minutes">%1$d min siden</string>
     <string name="share_relay_caption">Relé: %1$s</string>
     <string name="share_link_invalid">Denne delingslenken er utløpt eller ugyldig.</string>
     <string name="share_room_full">Denne gruppen er full.</string>

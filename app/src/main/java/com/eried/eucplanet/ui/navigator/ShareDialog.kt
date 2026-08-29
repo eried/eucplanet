@@ -1140,10 +1140,16 @@ private fun PeerRow(
         // so a clock sampled here would only ever be read on the tick that
         // changed something else and the label would sit still in between.
         val ageMs = nowMs - peer.lastSeenMs
+        // A fresh fix says nothing: every rider in a live group is under 15 s
+        // old nearly all the time, so a counter there was a number that changed
+        // for no reason and read like a ping. It appears only once the fix has
+        // actually started to age, which is the one time it means something.
         val ageText = when {
             peer.left -> stringResource(R.string.share_left)
             peer.freshness == Freshness.LOST -> stringResource(R.string.share_lost)
-            else -> stringResource(R.string.share_age_seconds, (ageMs / 1000L).toInt())
+            peer.freshness == Freshness.FRESH -> ""
+            ageMs < 60_000L -> stringResource(R.string.share_age_seconds, (ageMs / 1000L).toInt())
+            else -> stringResource(R.string.share_age_minutes, (ageMs / 60_000L).toInt())
         }
         // Green while the fix is current, amber once it starts aging, muted
         // once the rider is gone: the same three states the map's markers use.
@@ -1153,12 +1159,14 @@ private fun PeerRow(
             peer.freshness == Freshness.STALE -> MaterialTheme.appColors.statusWarn
             else -> MaterialTheme.appColors.statusGood
         }
-        Spacer(Modifier.width(8.dp))
-        Text(
-            ageText,
-            style = MaterialTheme.typography.labelMedium,
-            color = ageColor,
-            maxLines = 1
-        )
+        if (ageText.isNotEmpty()) {
+            Spacer(Modifier.width(8.dp))
+            Text(
+                ageText,
+                style = MaterialTheme.typography.labelMedium,
+                color = ageColor,
+                maxLines = 1
+            )
+        }
     }
 }

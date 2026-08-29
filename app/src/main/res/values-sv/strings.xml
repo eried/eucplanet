@@ -1585,6 +1585,7 @@
     <string name="share_left">lämnade</string>
     <string name="share_lost">signal förlorad</string>
     <string name="share_age_seconds">för %1$d s sedan</string>
+    <string name="share_age_minutes">för %1$d min sedan</string>
     <string name="share_relay_caption">Relä: %1$s</string>
     <string name="share_link_invalid">Den här delningslänken har gått ut eller är ogiltig.</string>
     <string name="share_room_full">Den här gruppen är full.</string>

@@ -1621,6 +1621,7 @@
     <string name="share_left">покинув(ла) групу</string>
     <string name="share_lost">сигнал втрачено</string>
     <string name="share_age_seconds">%1$d с тому</string>
+    <string name="share_age_minutes">%1$d хв тому</string>
     <string name="share_relay_caption">Реле: %1$s</string>
     <string name="share_link_invalid">Термін дії цього посилання для спільного доступу сплив або воно недійсне.</string>
     <string name="share_room_full">Ця група заповнена.</string>

@@ -1851,6 +1851,7 @@
     <string name="share_left">poistui</string>
     <string name="share_lost">signaali kadonnut</string>
     <string name="share_age_seconds">%1$d s sitten</string>
+    <string name="share_age_minutes">%1$d min sitten</string>
     <string name="share_relay_caption">Välitys: %1$s</string>
     <string name="share_link_invalid">Tämä jakolinkki on vanhentunut tai virheellinen.</string>
     <string name="share_room_full">Tämä ryhmä on täynnä.</string>
