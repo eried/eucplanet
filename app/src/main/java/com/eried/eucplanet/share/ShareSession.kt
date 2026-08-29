@@ -108,6 +108,7 @@ class ShareSession @Inject constructor(
     private var connectGen = 0
     /** Heartbeat that keeps publishing while joined. See [startHeartbeat]. */
     private var heartbeat: Job? = null
+
     suspend fun resolveDefaultIdentity(): Identity {
         val s = settingsRepository.get()
         val mode = runCatching { IdentityMode.valueOf(s.share.lastIdentityMode) }.getOrDefault(IdentityMode.ANON)
