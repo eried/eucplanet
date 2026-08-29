@@ -98,8 +98,8 @@ class ShareSession @Inject constructor(
         connect(link)
     }
 
-    private fun connect(link: ShareLink) {
-        val relay = kotlinx.coroutines.runBlocking { settingsRepository.get().share.relayUrl }.trimEnd('/')
+    private suspend fun connect(link: ShareLink) {
+        val relay = settingsRepository.get().share.relayUrl.trimEnd('/')
         val req = Request.Builder().url("$relay/ws/${link.roomId}").build()
         ws = client.newWebSocket(req, object : WebSocketListener() {
             override fun onOpen(w: WebSocket, r: okhttp3.Response) { update { it.copy(connected = true, error = null) }; lastPubMs = 0L; publishTick() }
@@ -124,13 +124,13 @@ class ShareSession @Inject constructor(
                 val roomId = (state.value as? ShareState.Joined)?.link?.roomId ?: return
                 val plain = runCatching { ShareCrypto.decrypt(k, roomId, ShareCrypto.unb64u(j.getString("ct"))) }.getOrNull() ?: return
                 val p = SharePayload.fromJson(String(plain)) ?: return
-                update { st ->
-                    val prev = st.peers[from]
-                    val trail = prev?.trail ?: Trail(trailMaxAgeMs())
-                    trail.add(p.lat, p.lng, p.t)
-                    val color = colorByPeer.getOrPut(from) { PeerPalette.colorFor(++joinOrder) }
-                    st.copy(peers = st.peers + (from to PeerState(p.copy(color = color), now, trail, Freshness.FRESH, false)))
-                }
+                // Hoisted out of the update{} lambda: a CAS retry re-runs f, and
+                // trail.add / getOrPut are not idempotent, so they must run exactly
+                // once regardless of how many times the CAS loop retries.
+                val trail = (_state.value as? ShareState.Joined)?.peers?.get(from)?.trail ?: Trail(trailMaxAgeMs())
+                trail.add(p.lat, p.lng, p.t)
+                val color = colorByPeer.getOrPut(from) { PeerPalette.colorFor(++joinOrder) }
+                update { st -> st.copy(peers = st.peers + (from to PeerState(p.copy(color = color), now, trail, Freshness.FRESH, false))) }
             }
             j.optString("type") == "left" -> update { st -> st.copy(peers = st.peers.mapValues { (id, ps) -> if (id == j.optString("from")) ps.copy(left = true) else ps }) }
             j.optString("type") == "peers" -> {
@@ -173,7 +173,16 @@ class ShareSession @Inject constructor(
     }
 
     private fun trailMaxAgeMs(): Long = kotlinx.coroutines.runBlocking { settingsRepository.get().share.trailMinutes } * 60_000L
-    private inline fun update(f: (ShareState.Joined) -> ShareState.Joined) { (_state.value as? ShareState.Joined)?.let { _state.value = f(it) } }
+
+    /** Atomic read-modify-write on the Joined state (CAS loop). Safe from the
+     *  OkHttp reader thread and the UI ticker concurrently. No-op when Idle. */
+    private inline fun update(f: (ShareState.Joined) -> ShareState.Joined) {
+        while (true) {
+            val prev = _state.value as? ShareState.Joined ?: return
+            val next = f(prev)
+            if (_state.compareAndSet(prev, next)) return
+        }
+    }
     private fun distanceM(a: Double, b: Double, c: Double, d: Double): Double {
         val r = FloatArray(1); android.location.Location.distanceBetween(a, b, c, d, r); return r[0].toDouble() }
 }
