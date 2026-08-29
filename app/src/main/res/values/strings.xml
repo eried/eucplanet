@@ -2294,6 +2294,9 @@
     <string name="share_paste_link">Paste link</string>
     <string name="share_point_at_qr">Point the camera at the QR code</string>
     <string name="share_camera_needed">Camera access is needed to scan a QR code.</string>
+    <string name="share_invite_text">Join my ride on EUC Planet: %1$s</string>
+    <string name="share_invite_subject">Join my ride</string>
+    <string name="share_copied">Copied</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
     <!-- ==== Trip share / actions ==== -->

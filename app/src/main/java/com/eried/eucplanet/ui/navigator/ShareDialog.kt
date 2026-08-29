@@ -5,8 +5,10 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +34,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,7 +52,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -522,6 +522,7 @@ private fun ProfilePreviewRow(profile: ProfilePreview) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShareGroupDialog(
     state: ShareState.Joined,
@@ -541,66 +542,60 @@ fun ShareGroupDialog(
         properties = DialogProperties(dismissOnClickOutside = false)
     ) {
         ShareDialogCard(stringResource(R.string.share_title)) {
+            val copiedMsg = stringResource(R.string.share_copied)
             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                QrCodeImage(content = url, sizeDp = 180)
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                url,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.link,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(10.dp))
-            Row(Modifier.fillMaxWidth()) {
-                OutlinedButton(
-                    onClick = {
-                        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
-                            as ClipboardManager
-                        cm.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
-                        onNotify(url)
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.appColors.textButton
-                    ),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        stringResource(R.string.share_copy_link),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        val send = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, url)
+                // The QR is what a friend standing next to the rider scans.
+                // Long-pressing it still copies the raw link, for the rare
+                // case of pasting it somewhere the share sheet cannot reach.
+                Box(
+                    modifier = Modifier.combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                                as? ClipboardManager
+                            cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
+                            onNotify(copiedMsg)
                         }
-                        context.startActivity(
-                            Intent.createChooser(
-                                send, context.getString(R.string.share_send_link)
-                            )
-                        )
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.appColors.primary,
-                        contentColor = MaterialTheme.appColors.onPrimary
-                    ),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        stringResource(R.string.share_send_link),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
                     )
+                ) {
+                    QrCodeImage(content = url, sizeDp = 180)
                 }
+            }
+            Spacer(Modifier.height(12.dp))
+            // One way out to friends who are not here: the share sheet, with a
+            // sentence around the link. The link itself is not shown - it is 60
+            // characters of base64 nobody reads, and it filled the dialog.
+            Button(
+                onClick = {
+                    val send = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(
+                            Intent.EXTRA_TEXT,
+                            context.getString(R.string.share_invite_text, url)
+                        )
+                        putExtra(
+                            Intent.EXTRA_SUBJECT,
+                            context.getString(R.string.share_invite_subject)
+                        )
+                    }
+                    context.startActivity(
+                        Intent.createChooser(
+                            send, context.getString(R.string.share_invite_subject)
+                        )
+                    )
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.appColors.primary,
+                    contentColor = MaterialTheme.appColors.onPrimary
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    stringResource(R.string.action_share),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
             Spacer(Modifier.height(12.dp))
             // The relay reports a full room by closing with 1013, which the
