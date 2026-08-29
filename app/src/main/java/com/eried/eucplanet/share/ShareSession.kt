@@ -31,8 +31,19 @@ data class PeerState(val last: SharePayload, val lastSeenMs: Long, val trail: Tr
 
 sealed class ShareState {
     object Idle : ShareState()
+    /**
+     * [nowMs] is the clock the whole group view is rendered against, refreshed
+     * by every [ShareSession.ageTick]. It is part of the state on purpose:
+     * re-classifying freshness alone produces an equal object once a peer has
+     * settled into STALE, the CAS write is then a no-op and nothing emits, so
+     * "15 s ago" used to sit frozen for the whole 105 s until LOST. With the
+     * tick's clock in the state every tick is a real change, and readers show
+     * an age computed from it rather than from a fresh currentTimeMillis()
+     * sampled at composition time (which the recomposition never reached).
+     */
     data class Joined(val link: ShareLink, val me: Identity, val peers: Map<String, PeerState>,
-                      val connected: Boolean, val error: String?) : ShareState()
+                      val connected: Boolean, val error: String?,
+                      val nowMs: Long = System.currentTimeMillis()) : ShareState()
 }
 
 @Singleton
@@ -219,9 +230,18 @@ class ShareSession @Inject constructor(
         }
     }
 
-    /** Re-classify freshness from local clock; call from a UI ticker every second. */
+    /**
+     * Re-classify freshness from the local clock; call from a UI ticker every
+     * second. [ShareState.Joined.nowMs] is always advanced, not just the
+     * freshness: once a peer has settled into STALE the re-classified peer map
+     * is equal to the old one, the CAS write is a no-op, and no collector ever
+     * hears the tick. Carrying the tick's clock in the state makes every
+     * second a real emission, which is what keeps "15 s ago" counting up
+     * instead of freezing until the peer goes LOST.
+     */
     fun ageTick() { val now = System.currentTimeMillis()
-        update { st -> st.copy(peers = st.peers.mapValues { (_, ps) -> ps.copy(freshness = Staleness.of(now - ps.lastSeenMs)) }) } }
+        update { st -> st.copy(nowMs = now,
+            peers = st.peers.mapValues { (_, ps) -> ps.copy(freshness = Staleness.of(now - ps.lastSeenMs)) }) } }
 
     /**
      * Keeps the rider on the map while they are joined.

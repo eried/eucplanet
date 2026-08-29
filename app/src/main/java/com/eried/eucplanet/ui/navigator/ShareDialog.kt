@@ -381,6 +381,7 @@ fun ShareGroupDialog(
                     items(peers, key = { it.last.id }) { peer ->
                         PeerRow(
                             peer = peer,
+                            nowMs = state.nowMs,
                             speedUnit = speedUnit,
                             tempUnit = tempUnit,
                             onClick = {
@@ -423,6 +424,7 @@ fun ShareGroupDialog(
 @Composable
 private fun PeerRow(
     peer: PeerState,
+    nowMs: Long,
     speedUnit: String,
     tempUnit: String,
     onClick: () -> Unit,
@@ -485,7 +487,11 @@ private fun PeerRow(
                 )
             }
         }
-        val ageMs = System.currentTimeMillis() - peer.lastSeenMs
+        // Aged against the session's ticking clock, not a fresh reading taken
+        // during composition: the row only recomposes when the state changes,
+        // so a clock sampled here would only ever be read on the tick that
+        // changed something else and the label would sit still in between.
+        val ageMs = nowMs - peer.lastSeenMs
         val ageText = when {
             peer.left -> stringResource(R.string.share_left)
             peer.freshness == Freshness.LOST -> stringResource(R.string.share_lost)

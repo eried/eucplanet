@@ -1692,37 +1692,87 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     });
   }
   function peerColor(c){ return /^#[0-9A-Fa-f]{6}$/.test(c || '') ? c : '#9E9E9E'; }
+  // One live record per peer, keyed by their id, so a push can update what
+  // changed instead of rebuilding the world. This runs once a SECOND (the age
+  // labels count up even when no new position arrived), while a trail is one
+  // polyline per hop and reaches ~100 of them per rider over five minutes:
+  // tearing every trail down and re-adding it at 1 Hz was hundreds of DOM
+  // nodes a second for a picture that mostly did not change.
+  var peerObjs = {};
+  function peerRemove(rec){
+    if (rec.marker) peerLayer.removeLayer(rec.marker);
+    for (var i = 0; i < rec.lines.length; i++) peerLayer.removeLayer(rec.lines[i]);
+    rec.lines = [];
+  }
   window.nativeSetPeers = function(json){
     var peers;
     try { peers = JSON.parse(json); } catch(e){ peers = []; }
-    peerLayer.clearLayers();
+    var alive = {};
     peers.forEach(function(p){
+      var id = String(p.id === null || p.id === undefined ? '' : p.id);
+      alive[id] = true;
       var col = peerColor(p.color);
       var trail = p.trail || [];
-      // Trail: one polyline segment per hop so each hop gets its own alpha.
-      for (var i = 1; i < trail.length; i++) {
-        L.polyline([[trail[i-1][0], trail[i-1][1]], [trail[i][0], trail[i][1]]],
-          {color: col, weight: 4, interactive: false,
-           opacity: trail[i][2] * (p.freshness === 'LOST' ? 0.35 : 1)}).addTo(peerLayer);
+      var lost = p.freshness === 'LOST';
+      var rec = peerObjs[id];
+      if (!rec) { rec = peerObjs[id] = {marker: null, lines: [], sig: null, html: null}; }
+
+      // Trails only get rebuilt when they actually moved. The signature is the
+      // cheapest thing that changes whenever any drawn segment would: a new
+      // hop (length), the newest hop's position, the colour, and the LOST
+      // dimming that scales every segment's opacity.
+      var last = trail.length ? trail[trail.length - 1] : null;
+      var sig = trail.length + ':' + (last ? last[0] + ',' + last[1] : '') +
+        ':' + col + ':' + (lost ? '1' : '0');
+      if (sig !== rec.sig) {
+        for (var k = 0; k < rec.lines.length; k++) peerLayer.removeLayer(rec.lines[k]);
+        rec.lines = [];
+        // Trail: one polyline segment per hop so each hop gets its own alpha.
+        for (var i = 1; i < trail.length; i++) {
+          rec.lines.push(L.polyline([[trail[i-1][0], trail[i-1][1]], [trail[i][0], trail[i][1]]],
+            {color: col, weight: 4, interactive: false,
+             opacity: trail[i][2] * (lost ? 0.35 : 1)}).addTo(peerLayer));
+        }
+        rec.sig = sig;
       }
+
       var dim = p.freshness === 'FRESH' ? 1 : (p.freshness === 'STALE' ? 0.5 : 0.3);
-      var bg = p.freshness === 'LOST' ? '#9E9E9E' : col;
+      var bg = lost ? '#9E9E9E' : col;
       var avatar = (typeof p.avatarUrl === 'string' &&
         /^https:\/\/[^"'<>\s]+$/.test(p.avatarUrl)) ? p.avatarUrl : null;
       var inner = avatar
         ? '<img src="' + peerEsc(avatar) + '" style="width:26px;height:26px;border-radius:50%;object-fit:cover">'
         : '<span>' + peerEsc(p.flag || '') + '</span>';
       var age = p.freshness === 'FRESH' ? ''
-        : (p.freshness === 'LOST' ? peerLostLabel : (p.ageS | 0) + 's');
+        : (lost ? peerLostLabel : (p.ageS | 0) + 's');
       var html = '<div class="peer" style="opacity:' + dim + '">' +
         '<div class="peer-dot" style="background:' + bg + '">' + inner + '</div>' +
         '<div class="peer-name">' + peerEsc(p.name) +
         (age ? ' <i>' + peerEsc(age) + '</i>' : '') + '</div></div>';
-      L.marker([p.lat, p.lng], {
-        icon: L.divIcon({className: '', html: html, iconSize: [30, 30], iconAnchor: [15, 15]}),
-        interactive: false, keyboard: false, zIndexOffset: 900
-      }).addTo(peerLayer);
+      if (!rec.marker) {
+        rec.marker = L.marker([p.lat, p.lng], {
+          icon: L.divIcon({className: '', html: html, iconSize: [30, 30], iconAnchor: [15, 15]}),
+          interactive: false, keyboard: false, zIndexOffset: 900
+        }).addTo(peerLayer);
+        rec.html = html;
+      } else {
+        var at = rec.marker.getLatLng();
+        if (at.lat !== p.lat || at.lng !== p.lng) rec.marker.setLatLng([p.lat, p.lng]);
+        // Re-building the icon replaces the marker's DOM node, so only the
+        // ticks that changed the label or the dimming pay for it.
+        if (html !== rec.html) {
+          rec.marker.setIcon(L.divIcon({className: '', html: html, iconSize: [30, 30], iconAnchor: [15, 15]}));
+          rec.html = html;
+        }
+      }
     });
+    // Whoever is no longer in the push has left the room or the share ended.
+    for (var gone in peerObjs) {
+      if (Object.prototype.hasOwnProperty.call(peerObjs, gone) && !alive[gone]) {
+        peerRemove(peerObjs[gone]);
+        delete peerObjs[gone];
+      }
+    }
   };
 
   // Centre on a friend the rider tapped in the group list.

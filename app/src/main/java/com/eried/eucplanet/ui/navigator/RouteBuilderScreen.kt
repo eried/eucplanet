@@ -505,7 +505,9 @@ fun RouteBuilderScreen(
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
         val joined = shareState as? ShareState.Joined
-        val now = System.currentTimeMillis()
+        // The session's own tick clock, so the ages the map draws match the
+        // ones the group list shows for the same state.
+        val now = joined?.nowMs ?: System.currentTimeMillis()
         val json = when {
             joined == null -> "[]"
             // A big group means a lot of trail points; keep that off the
