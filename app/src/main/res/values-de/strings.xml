@@ -2341,11 +2341,11 @@
     <string name="trip_tools_extend_to">Enden bei</string>
     <string name="trip_tools_extend_none">Diese Fahrt</string>
     <string name="trip_tools_extend_pick_one">Waehle eine fruehere oder spaetere Fahrt zum Verlaengern.</string>
-    <string name="widget_act_1_desc">Taste 1</string>
-    <string name="widget_act_2_desc">Taste 2</string>
-    <string name="widget_act_3_desc">Taste 3</string>
-    <string name="widget_act_12_desc">Tasten 1 und 2</string>
-    <string name="widget_act_23_desc">Tasten 2 und 3</string>
+    <string name="widget_act_1_desc">Aktion in der App einstellen</string>
+    <string name="widget_act_2_desc">Aktion in der App einstellen</string>
+    <string name="widget_act_3_desc">Aktion in der App einstellen</string>
+    <string name="widget_act_12_desc">Aktionen in der App einstellen</string>
+    <string name="widget_act_23_desc">Aktionen in der App einstellen</string>
     <string name="widget_standalone_desc">Aktionen für die reinen Tasten-Widgets, unabhängig von der Reihe oben.</string>
     <string name="widget_standalone_slot">Einzeltaste %1$d</string>
         <string name="widget_customize">Anpassen</string>
@@ -2462,4 +2462,38 @@
     <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Einrad hinterlegt.</string>
     <string name="backup_conflict_warning">Einige Fahrt-Sicherungen brauchen einen manuellen Abgleich: die Kopien unterscheiden sich. Auf Synchronisieren tippen und die gültige Seite wählen.</string>
     <string name="backup_conflict_title">Backup-Konflikte</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Fahren?</string>
+    <string name="widget_weather_score_desc">Das Fahrwetter, genau jetzt.</string>
+    <string name="widget_weather_compact_desc">Wie gut das Wetter zum Fahren ist, jetzt und in den nächsten Stunden. Größer ziehen für Stunden, Temperatur und Wind.</string>
+    <string name="widget_weather_graph_desc">Wie gut das Wetter zum Fahren ist, über den Vorhersagezeitraum</string>
+    <string name="widget_weather_refresh_desc">Vorhersage aktualisieren</string>
+    <string name="widget_weather_never">Noch keine Vorhersage. App einmal öffnen oder auf Aktualisieren tippen.</string>
+    <string name="widget_weather_never_short">Nie</string>
+    <string name="widget_weather_refreshing">Wird aktualisiert…</string>
+    <string name="widget_weather_now">Gerade eben</string>
+    <string name="widget_weather_min_fmt">vor %1$d Min.</string>
+    <string name="widget_weather_hour_fmt">vor %1$d Std.</string>
+    <string name="widget_weather_window_fmt">nächste %1$d Std.</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Bei 80 % benachrichtigen</string>
+    <string name="charging_notify_full">Bei 100 % benachrichtigen</string>
+    <string name="charge_alert_channel_name">Ladehinweise</string>
+    <string name="charge_alert_channel_description">Wenn der Akku 80 % überschreitet oder fertig geladen ist.</string>
+    <string name="charge_alert_80_title">Akku bei 80 %</string>
+    <string name="charge_alert_80_text">Jetzt abziehen, wenn du für die Akkulebensdauer auf 80 % lädst.</string>
+    <string name="charge_alert_full_title">Ladung abgeschlossen</string>
+    <string name="charge_alert_full_text">Dein Wheel ist voll geladen.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Wheel-Dashboard</string>
+    <string name="widget_act_1_label">Wheel-Taste 1</string>
+    <string name="widget_act_2_label">Wheel-Taste 2</string>
+    <string name="widget_act_3_label">Wheel-Taste 3</string>
+    <string name="widget_act_12_label">Wheel-Tasten 1 und 2</string>
+    <string name="widget_act_23_label">Wheel-Tasten 2 und 3</string>
+    <string name="widget_weather_score_label">Fahren gut?</string>
+    <string name="widget_weather_compact_label">Fahrwetter</string>
+    <string name="widget_act_1_short">Aktion 1</string>
+    <string name="widget_act_2_short">Aktion 2</string>
+    <string name="widget_act_3_short">Aktion 3</string>
 </resources>

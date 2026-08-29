@@ -898,6 +898,12 @@ data class AppSettings(
 
     /** Battery screen: estimate straight to 100 % instead of stopping at 80 %. */
     val chargingEstimateToFull: Boolean = false,
+    /** Tell the rider when the pack passes 80%, the mark riders unplug at for
+     *  pack life, and when it finishes. Both off: a notification nobody asked
+     *  for is worse than no feature. Local to the charging monitor rather than
+     *  Advanced settings, like [chargingEstimateToFull] beside them. */
+    val chargingNotify80: Boolean = false,
+    val chargingNotifyFull: Boolean = false,
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */

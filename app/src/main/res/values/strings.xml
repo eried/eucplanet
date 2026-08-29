@@ -1270,6 +1270,17 @@
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="widget_description">Metrics and quick actions</string>
+    <!-- Widget names, shown in the launcher's widget picker. Without these
+         every widget is listed as the app itself, which is no help at all when
+         eight of them sit under the same heading. -->
+    <string name="widget_euc_label">Wheel dashboard</string>
+    <string name="widget_act_1_label">Wheel button 1</string>
+    <string name="widget_act_2_label">Wheel button 2</string>
+    <string name="widget_act_3_label">Wheel button 3</string>
+    <string name="widget_act_12_label">Wheel buttons 1 and 2</string>
+    <string name="widget_act_23_label">Wheel buttons 2 and 3</string>
+    <string name="widget_weather_score_label">Good to ride?</string>
+    <string name="widget_weather_compact_label">Riding weather</string>
     <string name="section_surfaces">Live views</string>
     <string name="surface_notification">Notification</string>
     <string name="pip_section">Picture-in-picture</string>
@@ -1306,11 +1317,25 @@
     <string name="widget_action_voice">Voice</string>
     <string name="widget_standalone_desc">Actions for the button-only widgets, separate from the row above.</string>
     <string name="widget_standalone_slot">Standalone button %1$d</string>
-    <string name="widget_act_1_desc">Button 1</string>
-    <string name="widget_act_2_desc">Button 2</string>
-    <string name="widget_act_3_desc">Button 3</string>
-    <string name="widget_act_12_desc">Buttons 1 and 2</string>
-    <string name="widget_act_23_desc">Buttons 2 and 3</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Ride?</string>
+    <string name="widget_weather_score_desc">The weather for riding, right now.</string>
+    <string name="widget_weather_compact_desc">How good the weather is for riding, now and in the hours ahead. Resize for hours, temperature and wind.</string>
+    <string name="widget_weather_graph_desc">How good the weather is for riding, over the forecast window</string>
+    <string name="widget_weather_refresh_desc">Refresh the forecast</string>
+    <string name="widget_weather_dash">--</string>
+    <string name="widget_weather_never">No forecast yet. Open the app once, or tap refresh.</string>
+    <string name="widget_weather_never_short">Never</string>
+    <string name="widget_weather_refreshing">Refreshing…</string>
+    <string name="widget_weather_now">Just now</string>
+    <string name="widget_weather_min_fmt">%1$d min ago</string>
+    <string name="widget_weather_hour_fmt">%1$d h ago</string>
+    <string name="widget_weather_window_fmt">next %1$d h</string>
+    <string name="widget_act_1_desc">Set its action in the app</string>
+    <string name="widget_act_2_desc">Set its action in the app</string>
+    <string name="widget_act_3_desc">Set its action in the app</string>
+    <string name="widget_act_12_desc">Set their actions in the app</string>
+    <string name="widget_act_23_desc">Set their actions in the app</string>
     <string name="widget_button_unset">Set a button in Settings</string>
     <string name="widget_speed">Speed</string>
     <string name="widget_distance">Trip</string>
@@ -2368,6 +2393,14 @@
     <string name="charging_tab_charge">Charge</string>
     <string name="charging_tab_packs">Packs</string>
     <string name="charging_estimate_to_full">Always estimate to 100%</string>
+    <string name="charging_notify_80">Notify me at 80%</string>
+    <string name="charging_notify_full">Notify me at 100%</string>
+    <string name="charge_alert_channel_name">Charge alerts</string>
+    <string name="charge_alert_channel_description">When the pack passes 80% or finishes charging.</string>
+    <string name="charge_alert_80_title">Battery at 80%</string>
+    <string name="charge_alert_80_text">Unplug now if you charge to 80% for pack life.</string>
+    <string name="charge_alert_full_title">Charge complete</string>
+    <string name="charge_alert_full_text">Your wheel is fully charged.</string>
     <string name="charging_options">Options</string>
     <string name="charging_tab_power">Power</string>
     <string name="charging_tab_cells">Cells</string>
@@ -2462,4 +2495,7 @@
     <string name="trip_tools_wheel_none">No wheel is recorded on this trip yet.</string>
     <string name="backup_conflict_warning">Some trip backups need a manual sync: the copies differ. Press Sync and pick which side wins.</string>
     <string name="backup_conflict_title">Backup conflicts</string>
+    <string name="widget_act_1_short">Action 1</string>
+    <string name="widget_act_2_short">Action 2</string>
+    <string name="widget_act_3_short">Action 3</string>
 </resources>

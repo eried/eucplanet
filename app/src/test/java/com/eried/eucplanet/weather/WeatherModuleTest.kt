@@ -379,7 +379,10 @@ class WeatherModuleTest {
         // Rotating rider-lingo titles and the face tips as floating bubbles,
         // not an inline label.
         assertTrue(flyout.contains("WeatherPhrases.titleRes()"))
-        assertTrue(flyout.contains("weather_face_snow"))
+        // The faces themselves moved to WeatherFace so the home screen widgets
+        // reach the same verdict from a snapshot; the flyout now asks it.
+        // WeatherFaceTest guards the registry's own contents.
+        assertTrue(flyout.contains("WeatherFace.of(b)"))
         assertTrue(flyout.contains("BiasAlignment"))
         // Graph taps read out the signed score with an hour-stable phrase,
         // and dragging follows the finger.

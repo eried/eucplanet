@@ -2322,11 +2322,11 @@
     <string name="trip_tools_extend_to">終了</string>
     <string name="trip_tools_extend_none">この走行</string>
     <string name="trip_tools_extend_pick_one">延長先となる前後の走行を選んでください。</string>
-    <string name="widget_act_1_desc">ボタン 1</string>
-    <string name="widget_act_2_desc">ボタン 2</string>
-    <string name="widget_act_3_desc">ボタン 3</string>
-    <string name="widget_act_12_desc">ボタン 1 と 2</string>
-    <string name="widget_act_23_desc">ボタン 2 と 3</string>
+    <string name="widget_act_1_desc">操作はアプリで設定</string>
+    <string name="widget_act_2_desc">操作はアプリで設定</string>
+    <string name="widget_act_3_desc">操作はアプリで設定</string>
+    <string name="widget_act_12_desc">操作はアプリで設定</string>
+    <string name="widget_act_23_desc">操作はアプリで設定</string>
     <string name="widget_standalone_desc">ボタンだけのウィジェットの操作です。上の行とは別に設定します。</string>
     <string name="widget_standalone_slot">単独ボタン %1$d</string>
         <string name="widget_customize">カスタマイズ</string>
@@ -2443,4 +2443,38 @@
     <string name="trip_tools_wheel_none">このトリップにはまだホイールが記録されていません。</string>
     <string name="backup_conflict_warning">一部のトリップバックアップは手動同期が必要です。コピーが異なります。同期を押して残す側を選んでください。</string>
     <string name="backup_conflict_title">バックアップの競合</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">走る？</string>
+    <string name="widget_weather_score_desc">今の走行日和。</string>
+    <string name="widget_weather_compact_desc">今と数時間先の天気が走行にどれくらい向いているか。大きくすると時刻、気温、風も表示。</string>
+    <string name="widget_weather_graph_desc">予報期間中、天気が走行にどれくらい向いているか</string>
+    <string name="widget_weather_refresh_desc">予報を更新</string>
+    <string name="widget_weather_never">まだ予報がありません。アプリを一度開くか、更新をタップしてください。</string>
+    <string name="widget_weather_never_short">なし</string>
+    <string name="widget_weather_refreshing">更新中…</string>
+    <string name="widget_weather_now">たった今</string>
+    <string name="widget_weather_min_fmt">%1$d分前</string>
+    <string name="widget_weather_hour_fmt">%1$d時間前</string>
+    <string name="widget_weather_window_fmt">今後%1$d時間</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">80 % で通知</string>
+    <string name="charging_notify_full">100 % で通知</string>
+    <string name="charge_alert_channel_name">充電の通知</string>
+    <string name="charge_alert_channel_description">バッテリーが 80 % を超えたとき、または充電が終わったとき。</string>
+    <string name="charge_alert_80_title">バッテリー 80 %</string>
+    <string name="charge_alert_80_text">バッテリー寿命のため 80 % 充電なら、今抜いてください。</string>
+    <string name="charge_alert_full_title">充電完了</string>
+    <string name="charge_alert_full_text">ホイールは満充電です。</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">ホイールダッシュボード</string>
+    <string name="widget_act_1_label">ホイールボタン 1</string>
+    <string name="widget_act_2_label">ホイールボタン 2</string>
+    <string name="widget_act_3_label">ホイールボタン 3</string>
+    <string name="widget_act_12_label">ホイールボタン 1と2</string>
+    <string name="widget_act_23_label">ホイールボタン 2と3</string>
+    <string name="widget_weather_score_label">走れる？</string>
+    <string name="widget_weather_compact_label">走行日和</string>
+    <string name="widget_act_1_short">操作 1</string>
+    <string name="widget_act_2_short">操作 2</string>
+    <string name="widget_act_3_short">操作 3</string>
 </resources>

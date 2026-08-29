@@ -1170,11 +1170,11 @@
     <string name="widget_action_voice">Ääni</string>
     <string name="widget_standalone_desc">Toiminnot pelkkien painikkeiden widgeteille, erillään yllä olevasta rivistä.</string>
     <string name="widget_standalone_slot">Erillinen painike %1$d</string>
-    <string name="widget_act_1_desc">Painike 1</string>
-    <string name="widget_act_2_desc">Painike 2</string>
-    <string name="widget_act_3_desc">Painike 3</string>
-    <string name="widget_act_12_desc">Painikkeet 1 ja 2</string>
-    <string name="widget_act_23_desc">Painikkeet 2 ja 3</string>
+    <string name="widget_act_1_desc">Valitse toiminto sovelluksessa</string>
+    <string name="widget_act_2_desc">Valitse toiminto sovelluksessa</string>
+    <string name="widget_act_3_desc">Valitse toiminto sovelluksessa</string>
+    <string name="widget_act_12_desc">Valitse toiminnot sovelluksessa</string>
+    <string name="widget_act_23_desc">Valitse toiminnot sovelluksessa</string>
     <string name="widget_button_unset">Aseta painike Asetuksissa</string>
     <string name="widget_speed">Nopeus</string>
     <string name="widget_distance">Matka</string>
@@ -2245,4 +2245,38 @@
     <string name="trip_tools_wheel_none">Tälle matkalle ei ole vielä kirjattu pyörää.</string>
     <string name="backup_conflict_warning">Jotkin matkan varmuuskopiot vaativat manuaalisen synkronoinnin: kopiot eroavat. Paina Synkronoi ja valitse kumpi pätee.</string>
     <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Ajellaan?</string>
+    <string name="widget_weather_score_desc">Ajosää, juuri nyt.</string>
+    <string name="widget_weather_compact_desc">Kuinka hyvä sää on ajamiseen nyt ja tulevina tunteina. Suurenna nähdäksesi tunnit, lämpötilan ja tuulen.</string>
+    <string name="widget_weather_graph_desc">Kuinka hyvä sää on ajamiseen ennustejaksolla</string>
+    <string name="widget_weather_refresh_desc">Päivitä ennuste</string>
+    <string name="widget_weather_never">Ei vielä ennustetta. Avaa sovellus kerran tai napauta päivitä.</string>
+    <string name="widget_weather_never_short">Ei koskaan</string>
+    <string name="widget_weather_refreshing">Päivitetään…</string>
+    <string name="widget_weather_now">Juuri nyt</string>
+    <string name="widget_weather_min_fmt">%1$d min sitten</string>
+    <string name="widget_weather_hour_fmt">%1$d t sitten</string>
+    <string name="widget_weather_window_fmt">seuraavat %1$d t</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Ilmoita 80 %:ssa</string>
+    <string name="charging_notify_full">Ilmoita 100 %:ssa</string>
+    <string name="charge_alert_channel_name">Latausilmoitukset</string>
+    <string name="charge_alert_channel_description">Kun akku ohittaa 80 % tai lataus valmistuu.</string>
+    <string name="charge_alert_80_title">Akku 80 %:ssa</string>
+    <string name="charge_alert_80_text">Irrota nyt, jos lataat 80 %:iin akun keston vuoksi.</string>
+    <string name="charge_alert_full_title">Lataus valmis</string>
+    <string name="charge_alert_full_text">Pyöräsi on täyteen ladattu.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Pyörän kojelauta</string>
+    <string name="widget_act_1_label">Pyörän painike 1</string>
+    <string name="widget_act_2_label">Pyörän painike 2</string>
+    <string name="widget_act_3_label">Pyörän painike 3</string>
+    <string name="widget_act_12_label">Pyörän painikkeet 1 ja 2</string>
+    <string name="widget_act_23_label">Pyörän painikkeet 2 ja 3</string>
+    <string name="widget_weather_score_label">Ajokeli?</string>
+    <string name="widget_weather_compact_label">Ajosää</string>
+    <string name="widget_act_1_short">Toiminto 1</string>
+    <string name="widget_act_2_short">Toiminto 2</string>
+    <string name="widget_act_3_short">Toiminto 3</string>
 </resources>

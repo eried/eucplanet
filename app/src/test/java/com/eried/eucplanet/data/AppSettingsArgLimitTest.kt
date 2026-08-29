@@ -56,6 +56,9 @@ class AppSettingsArgLimitTest {
         // crash report. Moving the voice report flags into VoiceReportSettings
         // bought back 17 slots. Update this when the usage genuinely changes,
         // and prefer nesting over spending the headroom.
+        // 250: the two charge alerts, at 80% and at full. Two flat fields
+        // rather than a nested pair, to sit beside chargingEstimateToFull
+        // where the rest of the charging monitor's own settings already live.
         // 248: dropboxPullRequested, the flag that keeps downloading something
         // the rider asked for rather than something the app decided. It has to
         // outlive the process - a library takes the better part of an hour and
@@ -90,9 +93,11 @@ class AppSettingsArgLimitTest {
         // nested LightsSettings holding five - the gate, the two sun offsets,
         // and the walking-pace cut-off with its speed. Adding a feature and
         // spending fewer slots is the shape this tripwire is asking for.
-        // 249: share - the nested live location share group (one slot). Nest
-        // the next addition too; 6 slots left.
-        val expectedSlots = 249
+        // 251: two additions merged on top of the 248 base. The charge alerts
+        // (at 80% and at full) are two flat fields, and the live location
+        // share group is one nested slot. Four slots left before 255: nest the
+        // next addition rather than spending them.
+        val expectedSlots = 251
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

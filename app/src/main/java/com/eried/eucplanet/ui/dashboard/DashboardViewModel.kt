@@ -236,6 +236,32 @@ class DashboardViewModel @Inject constructor(
     }
 
     init {
+        // Whatever the panel fetches, the home screen widgets get too. A
+        // background worker refreshes them on its own hourly cadence, but it
+        // can only ask about a place it already knows, so the app opening the
+        // panel is what teaches it where the rider is. Does nothing when no
+        // widget is placed.
+        //
+        // Below weatherPlace, and it has to stay there: init blocks run in
+        // declaration order, so collecting a field declared further down means
+        // collecting null, which took the whole dashboard down on launch.
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                weatherRepository.forecast,
+                settingsRepository.settings,
+                weatherPlace,
+            ) { forecast, settings, place -> Triple(forecast, settings, place) }
+                .collect { (forecast, settings, place) ->
+                    if (forecast != null) {
+                        com.eried.eucplanet.widget.WeatherWidgetPublisher.publish(
+                            context, forecast, settings, place,
+                        )
+                    }
+                }
+        }
+    }
+
+    init {
         // Prefetch on a 30-minute cadence while the module is enabled, so the
         // flyout opens with the curve already drawn.
         viewModelScope.launch {
