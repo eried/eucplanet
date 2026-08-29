@@ -90,7 +90,9 @@ class AppSettingsArgLimitTest {
         // nested LightsSettings holding five - the gate, the two sun offsets,
         // and the walking-pace cut-off with its speed. Adding a feature and
         // spending fewer slots is the shape this tripwire is asking for.
-        val expectedSlots = 248
+        // 249: share - the nested live location share group (one slot). Nest
+        // the next addition too; 6 slots left.
+        val expectedSlots = 249
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

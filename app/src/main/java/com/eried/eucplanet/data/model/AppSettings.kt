@@ -123,6 +123,8 @@ data class AppSettings(
     val accelSplit: AccelSplitSettings = AccelSplitSettings(),
     // Speed-driven media (music / podcast) pause & resume - see MediaControlSettings.
     val mediaControl: MediaControlSettings = MediaControlSettings(),
+    // Live location share (navigator Share button) - see ShareSettings. Nested: one arg slot.
+    val share: ShareSettings = ShareSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
     /** Weather / ridability module (dashboard icon + forecast flyout). Nested
@@ -1131,6 +1133,15 @@ data class MediaControlSettings(
     /** NEVER is off; the other two are on, with the condition they name. */
     val rateApplyWhen: String = ApplyWhenIds.NEVER,
     val rateCurve: String = "0:1.0,25:1.15,50:1.30,75:1.45",
+)
+
+/** Live location share. Feature-local, nested so AppSettings.copy() stays under the dex 255-arg limit. */
+data class ShareSettings(
+    val trailMinutes: Int = 5,                // 1..30, how long a friend's fading trail is
+    val shareStatsDefault: Boolean = true,    // default for the "Share my stats" toggle
+    val lastIdentityMode: String = "ANON",    // ANON | SESSION | PROFILE, remembered per rider
+    val lastSessionName: String = "",
+    val relayUrl: String = "wss://eucshare.ried.no",
 )
 
 /**
