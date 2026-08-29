@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -179,6 +180,28 @@ fun WeatherFlyout(
     // Hoisted so the score graph and the detail charts cannot disagree about
     // where the rider's finger is.
     var scrubFrac by remember(hours) { mutableStateOf<Float?>(null) }
+    // ...and it does not outstay the finger. Every move restarts the clock,
+    // so it is five seconds after the rider STOPS, not after they start.
+    var scrubFading by remember(hours) { mutableStateOf(false) }
+    val scrubAlpha by animateFloatAsState(
+        targetValue = if (scrubFading) 0f else 1f,
+        animationSpec = tween(SCRUB_FADE_MS),
+        label = "scrubFade",
+    )
+    LaunchedEffect(scrubFrac) {
+        if (scrubFrac == null) {
+            scrubFading = false
+            return@LaunchedEffect
+        }
+        scrubFading = false
+        delay(SCRUB_HOLD_MS)
+        scrubFading = true
+        // Clear only once it has actually faded, so the readouts do not snap
+        // back to "now" while the line is still on screen.
+        delay(SCRUB_FADE_MS.toLong())
+        scrubFrac = null
+        scrubFading = false
+    }
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -331,6 +354,7 @@ fun WeatherFlyout(
                     hours, altHours, windowHours, ink, panel,
                     scrub = scrubFrac,
                     onScrub = { scrubFrac = it },
+                    scrubAlpha = scrubAlpha,
                 )
             }
 
@@ -345,11 +369,18 @@ fun WeatherFlyout(
                     hours, tempF, windMph, ink,
                     scrub = scrubFrac,
                     onScrub = { scrubFrac = it },
+                    scrubAlpha = scrubAlpha,
                 )
             }
         }
     }
 }
+
+/** How long a scrubbed read stays put after the finger stops. */
+private const val SCRUB_HOLD_MS = 5000L
+
+/** And how long it takes to go, so it fades rather than blinking out. */
+private const val SCRUB_FADE_MS = 600
 
 /** One line series inside a detail chart, self-normalized to its own range
  *  unless the chart shares one. [fill] paints a faint band under the line,
@@ -376,6 +407,8 @@ private fun DetailSection(
     /** The panel's one scrubbed moment, shared with the score graph above. */
     scrub: Float?,
     onScrub: (Float) -> Unit,
+    /** Fades to zero once the read has been sitting there unattended. */
+    scrubAlpha: Float,
 ) {
     val idx = ((hours.size - 1) * (scrub ?: 0f)).roundToInt().coerceIn(0, hours.size - 1)
     val h = hours[idx].h
@@ -486,6 +519,7 @@ private fun DetailChart(
     onScrub: (Float) -> Unit,
     bars: List<ChartSeries> = emptyList(),
     chartHeight: Dp = 44.dp,
+    scrubAlpha: Float = 1f,
     // One scale across every series, for charts whose lines are the same
     // quantity (wind and its gusts). Off for mixed units, where each line
     // has to normalize to its own range to be readable at all.
@@ -598,7 +632,10 @@ private fun DetailChart(
         }
         drawLine(ink.copy(alpha = 0.12f), Offset(0f, hgt - 1f), Offset(w, hgt - 1f), strokeWidth = 1f)
         scrub?.let { f ->
-            drawLine(ink.copy(alpha = 0.5f), Offset(w * f, 0f), Offset(w * f, hgt), strokeWidth = 2f)
+            drawLine(
+                ink.copy(alpha = 0.5f * scrubAlpha),
+                Offset(w * f, 0f), Offset(w * f, hgt), strokeWidth = 2f,
+            )
         }
     }
 }
@@ -691,6 +728,7 @@ private fun ScoreGraph(
     panel: Color,
     scrub: Float?,
     onScrub: (Float) -> Unit,
+    scrubAlpha: Float,
 ) {
     val good = MaterialTheme.appColors.weatherGood
     val bad = MaterialTheme.appColors.weatherBad
@@ -758,7 +796,7 @@ private fun ScoreGraph(
     }
     LaunchedEffect(tip) {
         if (tip != null) {
-            delay(4000)
+            delay(SCRUB_HOLD_MS)
             tip = null
         }
     }
@@ -923,7 +961,7 @@ private fun ScoreGraph(
                     val cx = f.coerceIn(0f, 1f) * w
                     val ci = ((n - 1) * f).roundToInt().coerceIn(0, n - 1)
                     drawLine(
-                        color = colorFor(hours[ci].b.score).copy(alpha = 0.85f),
+                        color = colorFor(hours[ci].b.score).copy(alpha = 0.85f * scrubAlpha),
                         start = Offset(cx, 0f),
                         end = Offset(cx, h),
                         strokeWidth = 3f,
@@ -994,6 +1032,9 @@ private fun ScoreGraph(
                         Column(
                             modifier = Modifier
                                 .align(BiasAlignment(t.frac * 2f - 1f, 0f))
+                                // The bubble goes with its line: one read,
+                                // one fade.
+                                .alpha(if (tip != null) 1f else scrubAlpha)
                                 .shadow(4.dp, RoundedCornerShape(5.dp))
                                 .background(ink.copy(alpha = 0.92f), RoundedCornerShape(5.dp))
                                 .padding(horizontal = 7.dp, vertical = 3.dp)
