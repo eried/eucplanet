@@ -23,9 +23,9 @@ import org.junit.runner.RunWith
  *
  * One canvas carries a long-press scrub, a two-finger zoom and the page's
  * scroll, and the rules between them are the sort a rider notices immediately:
- * a zoom must not drag the read onto a finger, and while a read is up the zoom
- * turns around it. None of that can be driven from adb, which has no multitouch
- * at all, so it is pinned here.
+ * a zoom must not drag the read onto a finger, and the zoom itself turns around
+ * the fingers. None of that can be driven from adb, which has no multitouch at
+ * all, so it is pinned here.
  */
 @RunWith(AndroidJUnit4::class)
 class ChartCardGestureTest {
@@ -126,58 +126,6 @@ class ChartCardGestureTest {
         // there and the moment the rider was studying is lost.
         pinchOpen(0.75f)
         assertEquals("the read must not follow a pinching finger", before, scrub.value)
-    }
-
-    @Test
-    fun aPinchTurnsAroundTheReadNotTheFingers() {
-        content()
-        placeRead(0.25f)
-        val read = scrub.value!!
-        val before = onScreenFracOf(read)
-        pinchOpen(0.75f)
-        val w = window.value
-        assertTrue(
-            "the pinch should have zoomed in, span was ${w.endInclusive - w.start}",
-            (w.endInclusive - w.start) < 0.9f,
-        )
-        // Fingers pinched at 75% and dragged rightwards throughout; the read at
-        // 25% still holds its place on screen.
-        assertEquals("the read holds its spot", before, onScreenFracOf(read), 0.03f)
-    }
-
-    @Test
-    fun aPinchThatDriftsBetweenStepsStillHoldsTheRead() {
-        content()
-        placeRead(0.25f)
-        val read = scrub.value!!
-        val before = onScreenFracOf(read)
-        // What a hand actually does: open a little, drift a little, open a
-        // little. The drift-only frames carry no size change at all, and
-        // deciding per frame let them pan the window and walk the read away.
-        rule.onNodeWithTag("chart").performTouchInput {
-            val y = centerY
-            var a = width * 0.75f - 60f
-            var b = width * 0.75f + 60f
-            down(0, Offset(a, y))
-            down(1, Offset(b, y))
-            advanceEventTime(16)
-            repeat(6) {
-                a -= 25f; b += 25f            // a pinch frame
-                updatePointerTo(0, Offset(a, y))
-                updatePointerTo(1, Offset(b, y))
-                move()
-                advanceEventTime(16)
-                a += 14f; b += 14f            // a pure drift frame
-                updatePointerTo(0, Offset(a, y))
-                updatePointerTo(1, Offset(b, y))
-                move()
-                advanceEventTime(16)
-            }
-            up(0)
-            up(1)
-        }
-        rule.waitForIdle()
-        assertEquals("the read holds through the drift", before, onScreenFracOf(read), 0.03f)
     }
 
     @Test
