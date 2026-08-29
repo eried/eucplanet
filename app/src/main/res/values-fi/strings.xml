@@ -2267,9 +2267,9 @@
     <string name="charge_alert_channel_name">Latausilmoitukset</string>
     <string name="charge_alert_channel_description">Kun akku ohittaa 80 % tai lataus valmistuu.</string>
     <string name="charge_alert_80_title">Akku 80 %:ssa</string>
-    <string name="charge_alert_80_text">Irrota nyt, jos lataat 80 %:iin akun keston vuoksi.</string>
+    <string name="charge_alert_80_text">Irrota nyt, akku kestää pidempään.</string>
     <string name="charge_alert_full_title">Lataus valmis</string>
-    <string name="charge_alert_full_text">Pyöräsi on täyteen ladattu.</string>
+    <string name="charge_alert_full_text">Valmis ajoon.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Pyörän kojelauta</string>
     <string name="widget_act_1_label">Pyörän painike 1</string>

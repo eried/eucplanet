@@ -2466,9 +2466,9 @@
     <string name="charge_alert_channel_name">Laadmeldingen</string>
     <string name="charge_alert_channel_description">Wanneer het pakket boven 80 % komt of klaar is met laden.</string>
     <string name="charge_alert_80_title">Accu op 80 %</string>
-    <string name="charge_alert_80_text">Haal hem er nu af als je tot 80 % laadt voor de levensduur.</string>
+    <string name="charge_alert_80_text">Haal hem er nu af, scheelt levensduur.</string>
     <string name="charge_alert_full_title">Opladen klaar</string>
-    <string name="charge_alert_full_text">Je wiel is helemaal opgeladen.</string>
+    <string name="charge_alert_full_text">Klaar om te rijden.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Wieldashboard</string>
     <string name="widget_act_1_label">Wielknop 1</string>

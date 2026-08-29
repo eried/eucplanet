@@ -2464,9 +2464,9 @@
     <string name="charge_alert_channel_name">Laddningsaviseringar</string>
     <string name="charge_alert_channel_description">När batteriet passerar 80 % eller är färdigladdat.</string>
     <string name="charge_alert_80_title">Batteri på 80 %</string>
-    <string name="charge_alert_80_text">Koppla ur nu om du laddar till 80 % för batteriets livslängd.</string>
+    <string name="charge_alert_80_text">Koppla ur nu, det skonar batteriet.</string>
     <string name="charge_alert_full_title">Laddningen klar</string>
-    <string name="charge_alert_full_text">Ditt hjul är fulladdat.</string>
+    <string name="charge_alert_full_text">Redo att åka.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Hjulöversikt</string>
     <string name="widget_act_1_label">Hjulknapp 1</string>

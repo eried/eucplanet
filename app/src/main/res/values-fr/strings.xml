@@ -2468,9 +2468,9 @@
     <string name="charge_alert_channel_name">Alertes de charge</string>
     <string name="charge_alert_channel_description">Quand la batterie dépasse 80 % ou finit de charger.</string>
     <string name="charge_alert_80_title">Batterie à 80 %</string>
-    <string name="charge_alert_80_text">Débranche maintenant si tu charges à 80 % pour ménager la batterie.</string>
+    <string name="charge_alert_80_text">Débranche maintenant, ménage la batterie.</string>
     <string name="charge_alert_full_title">Charge terminée</string>
-    <string name="charge_alert_full_text">Ta roue est chargée à fond.</string>
+    <string name="charge_alert_full_text">Prêt à rouler.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Tableau de bord roue</string>
     <string name="widget_act_1_label">Bouton roue 1</string>

@@ -2484,9 +2484,9 @@
     <string name="charge_alert_channel_name">Ladehinweise</string>
     <string name="charge_alert_channel_description">Wenn der Akku 80 % überschreitet oder fertig geladen ist.</string>
     <string name="charge_alert_80_title">Akku bei 80 %</string>
-    <string name="charge_alert_80_text">Jetzt abziehen, wenn du für die Akkulebensdauer auf 80 % lädst.</string>
+    <string name="charge_alert_80_text">Jetzt abziehen, schont den Akku.</string>
     <string name="charge_alert_full_title">Ladung abgeschlossen</string>
-    <string name="charge_alert_full_text">Dein Wheel ist voll geladen.</string>
+    <string name="charge_alert_full_text">Bereit zur Fahrt.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Wheel-Dashboard</string>
     <string name="widget_act_1_label">Wheel-Taste 1</string>

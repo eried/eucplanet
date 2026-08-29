@@ -2369,9 +2369,9 @@
     <string name="charge_alert_channel_name">Avvisi di carica</string>
     <string name="charge_alert_channel_description">Quando la batteria supera l’80 % o finisce di caricare.</string>
     <string name="charge_alert_80_title">Batteria all’80 %</string>
-    <string name="charge_alert_80_text">Stacca ora se carichi all’80 % per la durata del pacco.</string>
+    <string name="charge_alert_80_text">Stacca ora, salva il pacco.</string>
     <string name="charge_alert_full_title">Carica completata</string>
-    <string name="charge_alert_full_text">Il tuo monoruota è carico.</string>
+    <string name="charge_alert_full_text">Pronto a girare.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Cruscotto monoruota</string>
     <string name="widget_act_1_label">Tasto monoruota 1</string>
