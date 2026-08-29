@@ -63,6 +63,16 @@ class AutomationManager @Inject constructor(
     private var rateState = PlaybackRatePolicy.State()
     private var lightSlowState = HeadlightSlowPolicy.State()
 
+    /** True once the rider has actually ridden since connecting. Keeps the
+     *  headlight automation alive while they are stopped; see
+     *  [ApplyWhenGate.allowsSticky]. Cleared on disconnect. */
+    private var rodeThisSession = false
+
+    /** Last answer from the sun schedule. Cached because that calculation is
+     *  the expensive part and only changes across minutes, while the slow
+     *  cutoff has to be judged on every telemetry frame. */
+    private var lastDarkEnough: Boolean? = null
+
 
     /** Proximity lock / unlock decisions. See [ProximityLockEvaluator]. */
     private val proximityLock = ProximityLockEvaluator()
@@ -113,6 +123,7 @@ class AutomationManager @Inject constructor(
     /** Reset the throttle so the next tick re-evaluates immediately. */
     fun triggerImmediateLightEvaluation() {
         lastLightCheckMs = 0L
+        lastDarkEnough = null
     }
 
     /**
@@ -123,6 +134,11 @@ class AutomationManager @Inject constructor(
         // Auto lights and auto volume keep running: lights are a safety
         // behaviour and the light button is on the locked screen anyway.
         val lockedDown = legalLockdown.isEngaged()
+        val connectedNow = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+        if (!connectedNow) rodeThisSession = false
+        else if (wheelRepository.wheelData.value.speed.absoluteValue >= ApplyWhenGate.RIDING_KMH) {
+            rodeThisSession = true
+        }
         detectManualLightChange(settings)
         if (!_autoLightsSuspended.value) evaluateLights(settings)
         evaluateVolume(settings)
@@ -157,33 +173,21 @@ class AutomationManager @Inject constructor(
     }
 
     private fun evaluateLights(settings: AppSettings) {
-        if (!applyWhenAllows(settings.lights.applyWhen)) return
+        // Sticky, not the plain gate: a rider waiting at a crossing has a
+        // speed of zero, and the plain "when riding" test switched this
+        // automation off at exactly the moment the slow cutoff exists for.
+        if (!ApplyWhenGate.allowsSticky(
+                mode = settings.lights.applyWhen,
+                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+                rodeThisSession = rodeThisSession,
+            )
+        ) return
         val now = System.currentTimeMillis()
-        val location = tripRepository.currentLocation.value
-        val interval = if (location == null) settings.autoLightNoGpsRetryMs.toLong()
-                       else settings.automationLightCheckIntervalMs.toLong()
-        if (now - lastLightCheckMs < interval) return
-        lastLightCheckMs = now
 
-        if (location == null) return  // will retry in 2s
-
-        val lat = location.latitude
-        val lon = location.longitude
-
-        val darkEnough = when (val r = SunCalculator.calculateState(lat, lon, TimeZone.getDefault())) {
-            is SunCalculator.SunResult.Normal -> {
-                val lightsOnTime = r.sunsetMillis - settings.lights.onMinutesBefore * 60_000L
-                val lightsOffTime = r.sunriseMillis + settings.lights.offMinutesAfter * 60_000L
-                now >= lightsOnTime || now <= lightsOffTime
-            }
-            SunCalculator.SunResult.PolarNight -> true
-            SunCalculator.SunResult.MidnightSun -> false
-        }
-
-        // Walking pace kills the beam even when the sun says it is wanted:
-        // rolling to a stop at a crossing with the light in someone's face is
-        // what this is for. The schedule still decides whether a light is
-        // wanted at all, so riding on restores it without any further rule.
+        // Judged on EVERY frame. This used to sit below the check-interval
+        // throttle, which is a minute by default, so the policy saw one sample
+        // a minute and its three second hold could not be satisfied: the light
+        // stayed on all the way to the crossing.
         lightSlowState = HeadlightSlowPolicy.step(
             state = lightSlowState,
             speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
@@ -191,11 +195,46 @@ class AutomationManager @Inject constructor(
             nowMs = now,
             enabled = settings.lights.offWhenSlow,
         )
+
+        val location = tripRepository.currentLocation.value
+        val interval = if (location == null) settings.autoLightNoGpsRetryMs.toLong()
+                       else settings.automationLightCheckIntervalMs.toLong()
+        // Only the sun calculation is throttled, and its answer is cached for
+        // the frames in between, which is what lets the cutoff act at once.
+        if (now - lastLightCheckMs >= interval) {
+            lastLightCheckMs = now
+            if (location != null) {
+                lastDarkEnough = when (
+                    val r = SunCalculator.calculateState(
+                        location.latitude, location.longitude, TimeZone.getDefault(),
+                    )
+                ) {
+                    is SunCalculator.SunResult.Normal -> {
+                        val onAt = r.sunsetMillis - settings.lights.onMinutesBefore * 60_000L
+                        val offAt = r.sunriseMillis + settings.lights.offMinutesAfter * 60_000L
+                        now >= onAt || now <= offAt
+                    }
+                    SunCalculator.SunResult.PolarNight -> true
+                    SunCalculator.SunResult.MidnightSun -> false
+                }
+            }
+        }
+
+        // Nothing known about the sun yet: no fix has arrived since the app
+        // started, and guessing is worse than waiting.
+        val darkEnough = lastDarkEnough ?: return
+
+        // Walking pace kills the beam even when the sun says it is wanted:
+        // rolling to a stop at a crossing with the light in someone's face is
+        // what this is for. The schedule still decides whether a light is
+        // wanted at all, so riding on restores it without any further rule.
         val shouldBeOn = darkEnough && !lightSlowState.forcedOff
 
         val currentLightOn = wheelRepository.wheelData.value.lightOn
         if (shouldBeOn != currentLightOn) {
-            Log.i(TAG, "Auto-lights: turning ${if (shouldBeOn) "ON" else "OFF"} (lat=$lat, lon=$lon)")
+            val what = if (shouldBeOn) "ON" else "OFF"
+            Log.i(TAG, "Auto-lights: turning " + what +
+                " (dark=" + darkEnough + ", slowOff=" + lightSlowState.forcedOff + ")")
             wheelRepository.toggleLight()
             lastAutoToggleMs = now
         }

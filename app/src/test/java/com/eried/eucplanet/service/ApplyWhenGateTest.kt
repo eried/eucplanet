@@ -40,6 +40,30 @@ class ApplyWhenGateTest {
         assertFalse(allows(ApplyWhenIds.RIDING, connected = false, speed = 30f))
     }
 
+    @Test fun `the sticky gate keeps a stopped rider inside the ride`() {
+        // The bug this exists for: the headlight's whole job is what happens
+        // when the rider slows to a walk, and the plain gate answers "not
+        // riding" at exactly that speed, switching the automation off before
+        // it can act.
+        assertFalse(
+            "plain gate at walking pace",
+            ApplyWhenGate.allows(ApplyWhenIds.RIDING, connected = true, speedKmh = 1f),
+        )
+        assertTrue(
+            "sticky gate, having ridden",
+            ApplyWhenGate.allowsSticky(ApplyWhenIds.RIDING, connected = true, rodeThisSession = true),
+        )
+    }
+
+    @Test fun `sticky still needs the rider to have ridden, and the wheel present`() {
+        // Parked in a garage with the app open is not a ride.
+        assertFalse(ApplyWhenGate.allowsSticky(ApplyWhenIds.RIDING, connected = true, rodeThisSession = false))
+        assertFalse(ApplyWhenGate.allowsSticky(ApplyWhenIds.RIDING, connected = false, rodeThisSession = true))
+        assertFalse(ApplyWhenGate.allowsSticky(ApplyWhenIds.NEVER, connected = true, rodeThisSession = true))
+        // Connected mode never cared about speed in the first place.
+        assertTrue(ApplyWhenGate.allowsSticky(ApplyWhenIds.CONNECTED, connected = true, rodeThisSession = false))
+    }
+
     @Test fun `an unknown value is treated as riding, not as always-on`() {
         // A settings file from a future version, or a typo in a restored
         // backup: the safe reading is the strictest condition, never "run
