@@ -5,6 +5,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsClient
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,9 +58,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -129,6 +135,55 @@ private fun peerColorOf(hex: String): Color {
     val fallback = MaterialTheme.appColors.textSecondary
     return remember(hex, fallback) {
         runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrDefault(fallback)
+    }
+}
+
+/** The chrome of the browser tab the Open button raises. Read from the theme
+ *  while the dialog is composing, because the tab is launched from a click
+ *  handler where MaterialTheme is out of scope. */
+private data class BrowserTabColors(val toolbar: Int, val navigationBar: Int)
+
+/**
+ * Hands the share link to a browser, so Open shows the web viewer.
+ *
+ * A plain ACTION_VIEW never leaves the app: the same URL is claimed as a
+ * verified App Link (see the /share intent filter in the manifest), so Android
+ * routes it back into MainActivity, which parses it, sees the room the rider is
+ * already in, and dismisses. Nothing appears to happen. A Chrome Custom Tab is
+ * addressed to one browser package, so it is not App Link traffic and the page
+ * renders.
+ *
+ * With no custom-tabs browser resolvable the fallback is a browsable view
+ * intent inside a chooser, so the system asks which app to use rather than
+ * silently handing the link straight back to this one.
+ */
+private fun openInBrowser(context: Context, url: String, colors: BrowserTabColors) {
+    val uri = Uri.parse(url)
+    val browser = runCatching { CustomTabsClient.getPackageName(context, null) }.getOrNull()
+    if (browser != null) {
+        val opened = runCatching {
+            CustomTabsIntent.Builder()
+                .setShowTitle(true)
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder()
+                        .setToolbarColor(colors.toolbar)
+                        .setNavigationBarColor(colors.navigationBar)
+                        .build()
+                )
+                .build()
+                .apply { intent.setPackage(browser) }
+                .launchUrl(context, uri)
+        }.isSuccess
+        if (opened) return
+    }
+    runCatching {
+        val view = Intent(Intent.ACTION_VIEW, uri)
+            .addCategory(Intent.CATEGORY_BROWSABLE)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(
+            Intent.createChooser(view, context.getString(R.string.share_open))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 }
 
@@ -605,6 +660,13 @@ fun ShareGroupDialog(
     ) {
         ShareDialogCard(stringResource(R.string.share_title), scrollable = true) {
             val copiedMsg = stringResource(R.string.share_copied)
+            val appColors = MaterialTheme.appColors
+            val tabColors = remember(appColors) {
+                BrowserTabColors(
+                    toolbar = appColors.surfaceVariant.toArgb(),
+                    navigationBar = appColors.dialog.toArgb(),
+                )
+            }
             // The relay reports a full room by closing with 1013, which the
             // session turns into one typed marker; every other error means
             // the service is simply out of reach.
@@ -712,13 +774,7 @@ fun ShareGroupDialog(
                             label = stringResource(R.string.share_open),
                             // The web viewer, so the rider can see the group
                             // the way the friends they invite will see it.
-                            onClick = {
-                                runCatching {
-                                    context.startActivity(
-                                        Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                    )
-                                }
-                            }
+                            onClick = { openInBrowser(context, url, tabColors) }
                         )
                     }
                 }

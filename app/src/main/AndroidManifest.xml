@@ -71,6 +71,22 @@
         android:name="android.hardware.microphone"
         android:required="false" />
 
+    <!-- Package visibility (Android 11+) for handing the live-share link to a
+         browser. The share URL is our own verified App Link, so a plain
+         ACTION_VIEW comes straight back to this app and the rider sees
+         nothing; the Open button addresses a browser package instead, which
+         needs both of these to be visible. -->
+    <queries>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <application
         android:name=".EucPlanetApp"
         android:usesCleartextTraffic="true"
