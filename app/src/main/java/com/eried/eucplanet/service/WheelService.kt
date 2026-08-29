@@ -26,6 +26,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.share.ShareSession
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -157,6 +158,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var radarRepository: com.eried.eucplanet.data.repository.RadarRepository
     @Inject lateinit var phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow
     @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
+    @Inject lateinit var shareSession: ShareSession
 
     // Phone HUD, mirrored so the telemetry loop can read it without suspending.
     @Volatile
@@ -259,6 +261,7 @@ class WheelService : LifecycleService() {
                 pushPhoneHud(data)
                 val settings = settingsRepository.get()
                 automationManager.evaluate(settings)
+                shareSession.publishTick()
                 checkLightTransition(data.lightOn, settings)
                 evaluateAutoRecordOnTelemetry(data, settings)
                 if (settings.engineSoundEnabled) {
@@ -656,6 +659,7 @@ class WheelService : LifecycleService() {
         automationManager.restoreBaselineVolume()
         automationManager.resetMediaControl()
         automationManager.resetProximityLock()
+        shareSession.leave()
         voiceService.shutdown()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
