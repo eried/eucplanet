@@ -764,6 +764,13 @@ function freshnessOf(ageMs) {
   return LOST;
 }
 
+  // Two-letter country code -> regional-indicator flag emoji (the app shows the
+  // same emoji). Anything that is not exactly two ASCII letters comes back as is.
+  function flagEmoji(code) {
+    if (!code || !/^[A-Za-z]{2}$/.test(code)) return code || "";
+    var u = code.toUpperCase();
+    return String.fromCodePoint(0x1F1E6 + u.charCodeAt(0) - 65, 0x1F1E6 + u.charCodeAt(1) - 65);
+  }
 function applyPayload(senderId, payload, first) {
   if (!payload || payload.v !== 1) return;      // unknown schema, ignore
   // A peer without a usable position has nothing to place on the map.
@@ -1082,7 +1089,8 @@ function render() {
         p.el.querySelector(".arrow").style.transform =
           "rotate(" + p.heading + "deg) translateY(-21px)";
       }
-      tag.textContent = (p.flag ? p.flag + " " : "") + p.name + " ";
+      tag.textContent = (p.flag ? flagEmoji(p.flag) + " " : "") + p.name + " ";
+      if (p.flag) tag.title = p.flag;
       var ageSpan = document.createElement("span");
       ageSpan.className = "age";
       ageSpan.textContent = label;
@@ -1157,7 +1165,8 @@ function renderPanel(rows) {
     who.className = "who";
     var nm = document.createElement("div");
     nm.className = "nm";
-    nm.textContent = (r.p.flag ? r.p.flag + " " : "") + r.p.name;
+    nm.textContent = (r.p.flag ? flagEmoji(r.p.flag) + " " : "") + r.p.name;
+    if (r.p.flag) nm.title = r.p.flag;
     who.appendChild(nm);
     var st = statsText(r.p.stats);
     if (st) {
