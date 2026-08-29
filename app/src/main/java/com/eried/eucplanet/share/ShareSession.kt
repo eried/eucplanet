@@ -71,6 +71,13 @@ class ShareSession @Inject constructor(
         /** WebSocket close code the relay uses for "try again later": here it
          *  only ever means the room is at capacity. */
         const val CLOSE_ROOM_FULL = 1013
+        /** A rejoined room that no one else is in: see [startRejoinWatch]. */
+        const val ERR_RIDE_ENDED = "ride_ended"
+        /** How long a rejoin waits for any sign of another rider before it
+         *  calls the ride over. Long enough for the relay's replay of the last
+         *  payloads plus a slow connection, short enough that the rider is not
+         *  left staring at an empty list. */
+        const val REJOIN_EMPTY_MS = 10_000L
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val client = OkHttpClient()
@@ -94,6 +101,24 @@ class ShareSession @Inject constructor(
     private var connectGen = 0
     /** Heartbeat that keeps publishing while joined. See [startHeartbeat]. */
     private var heartbeat: Job? = null
+    /** Watches a rejoined room for signs of life. See [startRejoinWatch]. */
+    private var rejoinWatch: Job? = null
+    /** The ride the rider last walked out of, offered back to them as "Rejoin
+     *  last ride". Held here so the dialog sees it the moment Leave is tapped,
+     *  and mirrored into settings so it also survives a restart. */
+    private val _lastLink = MutableStateFlow<ShareLink?>(null)
+    val lastLink: StateFlow<ShareLink?> = _lastLink.asStateFlow()
+    /** Set when a rejoin found the room empty: there is nothing to go back to,
+     *  so the link must not be remembered again on the way out. */
+    private var lastRideEnded = false
+
+    init {
+        // The remembered ride outlives the process, so it is read back once at
+        // startup rather than only being known to the session that set it.
+        scope.launch {
+            _lastLink.value = ShareLinks.parse(settingsRepository.get().share.lastLinkUrl)
+        }
+    }
 
     suspend fun resolveDefaultIdentity(): Identity {
         val s = settingsRepository.get()
@@ -123,11 +148,21 @@ class ShareSession @Inject constructor(
     suspend fun start(identity: Identity): ShareLink {
         val link = ShareLinks.newLink()
         join(link, identity)
+        // Starting a new ride is the rider saying the old one is over: the
+        // Rejoin offer goes with it.
+        _lastLink.value = null
+        lastRideEnded = false
+        settingsRepository.update { it.copy(share = it.share.copy(lastLinkUrl = "")) }
         return link
     }
 
-    suspend fun join(link: ShareLink, identity: Identity) {
-        leave()
+    /**
+     * Join [link] as [identity]. [rejoin] marks a return to a ride the rider
+     * had left, which is the only case where an empty room means something
+     * (see [startRejoinWatch]).
+     */
+    suspend fun join(link: ShareLink, identity: Identity, rejoin: Boolean = false) {
+        closeSocket()
         closing = false
         key = ShareCrypto.deriveKey(link.key)
         // Before the first suspension point, so this still runs on the tap that
@@ -144,6 +179,30 @@ class ShareSession @Inject constructor(
         _state.value = ShareState.Joined(link, identity, emptyMap(), connected = false, error = null)
         connect(link)
         startHeartbeat()
+        if (rejoin) startRejoinWatch(link) else lastRideEnded = false
+    }
+
+    /**
+     * A rejoined room that stays empty has almost certainly gone: the relay
+     * drops a room an hour after its last rider disconnects, and joining a
+     * dropped room quietly opens a fresh one under the same id. A client cannot
+     * tell those two apart, so this is a heuristic: connected, and not one word
+     * from anybody after [REJOIN_EMPTY_MS], is read as the ride having ended.
+     * A friend who is merely out of signal is misread the same way, which costs
+     * the rider a fresh link rather than anything worse.
+     */
+    private fun startRejoinWatch(link: ShareLink) {
+        rejoinWatch?.cancel()
+        rejoinWatch = scope.launch {
+            delay(REJOIN_EMPTY_MS)
+            val st = _state.value as? ShareState.Joined ?: return@launch
+            if (st.link.roomId != link.roomId) return@launch
+            if (!st.connected || st.peers.isNotEmpty()) return@launch
+            lastRideEnded = true
+            _lastLink.value = null
+            settingsRepository.update { it.copy(share = it.share.copy(lastLinkUrl = "")) }
+            update { it.copy(error = ERR_RIDE_ENDED) }
+        }
     }
 
     /**
@@ -316,10 +375,30 @@ class ShareSession @Inject constructor(
         lastPubMs = now; lastLat = loc.latitude; lastLng = loc.longitude
     }
 
+    /**
+     * The rider walks out, and the ride is remembered so the dialog can offer
+     * it back. A group ride broken off by a phone call is the same ride when
+     * they return, and the alternative is asking a friend to re-send the link.
+     */
     fun leave() {
+        val link = (_state.value as? ShareState.Joined)?.link
+        closeSocket()
+        if (link == null) return
+        val remembered = link.takeIf { !lastRideEnded }
+        _lastLink.value = remembered
+        val url = remembered?.let { ShareLinks.format(it) }.orEmpty()
+        scope.launch {
+            settingsRepository.update { it.copy(share = it.share.copy(lastLinkUrl = url)) }
+        }
+    }
+
+    /** Tear the socket down without touching what is remembered. Switching
+     *  rooms goes through here; only the rider leaving is a leave. */
+    private fun closeSocket() {
         closing = true
         connectGen++
         heartbeat?.cancel(); heartbeat = null
+        rejoinWatch?.cancel(); rejoinWatch = null
         ws?.send(JSONObject().put("type", "leave").put("from", myId).toString())
         ws?.close(1000, "leave"); ws = null; key = null
         colorByPeer.clear(); lastLat = Double.NaN

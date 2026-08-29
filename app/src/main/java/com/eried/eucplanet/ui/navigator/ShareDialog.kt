@@ -241,6 +241,10 @@ fun ShareStartDialog(
      *  step for a link the rider already gave us, where offering to join a
      *  second ride would only be confusing. */
     onJoinLink: ((ShareLink) -> Unit)? = null,
+    /** The ride the rider last left, offered back to them above the confirm
+     *  row. Null when there is nothing to go back to. */
+    lastLink: ShareLink? = null,
+    onRejoin: ((Identity) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -282,6 +286,15 @@ fun ShareStartDialog(
     val nameMissing = mode == IdentityMode.SESSION && name.isBlank()
     val profileMissing = mode == IdentityMode.PROFILE && profile is ProfilePreview.Missing
     val canConfirm = !starting && !nameMissing && !profileMissing
+    // Only the "not sharing yet" entry point can rejoin: on the join step the
+    // rider already said which ride they mean.
+    val canRejoin = lastLink != null && onRejoin != null && onJoinLink != null
+    // The identity applies to whichever button is pressed, so the two share
+    // one resolve. It reads the rider-id file and may hit the network.
+    val confirmWith: (((Identity) -> Unit)) -> Unit = { action ->
+        starting = true
+        scope.launch { action(resolveIdentity(mode, name, shareStats)) }
+    }
 
     if (scanning && onJoinLink != null) {
         ShareQrScanner(
@@ -419,6 +432,29 @@ fun ShareStartDialog(
                 )
             }
             Spacer(Modifier.height(16.dp))
+            if (canRejoin) {
+                // The likelier of the two: a rider who left a group ride for a
+                // phone call is going back to the same ride, not opening one.
+                Button(
+                    enabled = canConfirm,
+                    onClick = { confirmWith { identity -> onRejoin!!(identity) } },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.primary,
+                        contentColor = MaterialTheme.appColors.onPrimary,
+                        disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
+                        disabledContentColor = MaterialTheme.appColors.textSecondary,
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        stringResource(R.string.share_rejoin_last),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
@@ -434,13 +470,7 @@ fun ShareStartDialog(
                 Spacer(Modifier.width(8.dp))
                 Button(
                     enabled = canConfirm,
-                    onClick = {
-                        // Resolving a PROFILE identity reads a file and may
-                        // hit the network, so the button waits on it rather
-                        // than handing back a half-built identity.
-                        starting = true
-                        scope.launch { onStart(resolveIdentity(mode, name, shareStats)) }
-                    },
+                    onClick = { confirmWith(onStart) },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.appColors.primary,
@@ -456,7 +486,15 @@ fun ShareStartDialog(
                             color = MaterialTheme.appColors.onPrimary
                         )
                     } else {
-                        Text(stringResource(confirmLabelRes))
+                        // Next to a Rejoin button, "Start sharing" reads as the
+                        // same thing; it is the other ride that is on offer.
+                        Text(
+                            stringResource(
+                                if (canRejoin) R.string.share_start_new else confirmLabelRes
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 }
             }
@@ -602,9 +640,13 @@ fun ShareGroupDialog(
             // session turns into one typed marker; every other error means
             // the service is simply out of reach.
             val roomFull = state.error == ShareSession.ERR_ROOM_FULL
+            // A rejoin that found nobody home. Checked before "connected",
+            // because the socket IS up: the room behind it is just empty.
+            val rideEnded = state.error == ShareSession.ERR_RIDE_ENDED
             Text(
                 text = when {
                     roomFull -> stringResource(R.string.share_room_full)
+                    rideEnded -> stringResource(R.string.share_ride_ended)
                     state.connected -> stringResource(R.string.share_connected)
                     state.error != null -> stringResource(R.string.share_cannot_reach)
                     else -> stringResource(R.string.share_reconnecting)

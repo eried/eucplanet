@@ -272,6 +272,8 @@ fun RouteBuilderScreen(
     // A share link the rider opened from outside the app, waiting on an
     // answer (see MainActivity's App Link handling).
     val pendingJoin by viewModel.pendingJoin.collectAsState()
+    // The ride the rider last left, if any: the start dialog offers it back.
+    val lastShareLink by viewModel.lastShareLink.collectAsState()
     val shareSpeedUnit by viewModel.speedUnit.collectAsState()
     val shareTempUnit by viewModel.tempUnit.collectAsState()
     // The rider tapped Share; which dialog opens depends on whether a
@@ -1753,6 +1755,12 @@ fun RouteBuilderScreen(
                         // App Link does, so it lands on the join step of this
                         // very dialog with the "Join" label.
                         onJoinLink = { link -> viewModel.offerJoin(link) },
+                        lastLink = lastShareLink,
+                        // Left open like Start: the dialog becomes the group
+                        // view as soon as the room is back.
+                        onRejoin = { identity ->
+                            lastShareLink?.let { viewModel.rejoinShare(it, identity) }
+                        },
                     )
                 }
 

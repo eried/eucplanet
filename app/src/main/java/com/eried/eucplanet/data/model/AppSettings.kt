@@ -1142,6 +1142,11 @@ data class ShareSettings(
     val lastIdentityMode: String = "ANON",    // ANON | SESSION | PROFILE, remembered per rider
     val lastSessionName: String = "",
     val relayUrl: String = DEFAULT_RELAY_URL,
+    /** The last ride the rider left, so the dialog can offer to rejoin it.
+     *  Kept as the full share link (roomId plus the key that never reaches the
+     *  relay) because that is what a rejoin needs. Empty when there is nothing
+     *  to go back to: the rider started a new ride, or the last one ended. */
+    val lastLinkUrl: String = "",
 ) {
     companion object {
         const val DEFAULT_RELAY_URL = "wss://eucshare.ried.no"
