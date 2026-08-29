@@ -764,13 +764,14 @@ function freshnessOf(ageMs) {
   return LOST;
 }
 
-  // Two-letter country code -> regional-indicator flag emoji (the app shows the
-  // same emoji). Anything that is not exactly two ASCII letters comes back as is.
-  function flagEmoji(code) {
-    if (!code || !/^[A-Za-z]{2}$/.test(code)) return code || "";
-    var u = code.toUpperCase();
-    return String.fromCodePoint(0x1F1E6 + u.charCodeAt(0) - 65, 0x1F1E6 + u.charCodeAt(1) - 65);
-  }
+// Two-letter country code -> regional-indicator flag emoji (the app shows the
+// same emoji). Anything that is not exactly two ASCII letters comes back as is.
+function flagEmoji(code) {
+  if (!code || !/^[A-Za-z]{2}$/.test(code)) return code || "";
+  var u = code.toUpperCase();
+  return String.fromCodePoint(0x1F1E6 + u.charCodeAt(0) - 65, 0x1F1E6 + u.charCodeAt(1) - 65);
+}
+
 function applyPayload(senderId, payload, first) {
   if (!payload || payload.v !== 1) return;      // unknown schema, ignore
   // A peer without a usable position has nothing to place on the map.
