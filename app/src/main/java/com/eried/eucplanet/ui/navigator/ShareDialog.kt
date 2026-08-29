@@ -98,6 +98,7 @@ import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
 import com.eried.eucplanet.ui.settings.eucstats.LeaderboardProfileCard
 import com.eried.eucplanet.ui.settings.eucstats.RemoteAvatar
+import com.eried.eucplanet.ui.settings.eucstats.avatarInitial
 import com.eried.eucplanet.ui.settings.eucstats.countryName
 import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.appColors
@@ -1087,7 +1088,7 @@ private fun PeerRow(
                 Text(
                     // The palette colours are bright, so the theme's ink for a
                     // filled control is what reads on them.
-                    text = peer.last.name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                    text = avatarInitial(peer.last.name),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.appColors.onPrimary,
                 )

@@ -39,7 +39,7 @@ fun LeaderboardProfileCard(card: RiderCard, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier.fillMaxWidth(),
     ) {
-        val initial = card.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+        val initial = avatarInitial(card.displayName)
         RemoteAvatar(
             url = card.avatarUrl,
             modifier = Modifier.size(48.dp).clip(CircleShape),
@@ -85,3 +85,14 @@ fun LeaderboardProfileCard(card: RiderCard, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * The letter drawn on the coloured circle when a rider has no picture.
+ *
+ * The first letter or digit, not simply the first character: a name that
+ * starts with an emoji or any other supplementary character would hand a lone
+ * surrogate to Text, which draws a tofu box. A name with no letter or digit in
+ * it at all falls back to a question mark.
+ */
+internal fun avatarInitial(name: String?): String =
+    name?.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?"
