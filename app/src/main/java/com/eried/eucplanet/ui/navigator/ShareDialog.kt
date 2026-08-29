@@ -20,9 +20,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -81,6 +84,8 @@ import com.eried.eucplanet.share.ShareLink
 import com.eried.eucplanet.share.ShareLinks
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.share.activePeers
+import com.eried.eucplanet.ui.dashboard.QR_MAX_PX
 import com.eried.eucplanet.ui.dashboard.QrCodeImage
 import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
@@ -715,9 +720,20 @@ fun ShareGroupDialog(
             // the code is sized from the row's own width so its edges land on
             // the outer edges of the buttons under it.
             BoxWithConstraints(Modifier.fillMaxWidth()) {
-                val qrSizeDp = maxWidth.value.toInt()
+                // Encode once, at the row's own pixel width but never above
+                // QR_MAX_PX: the bitmap is remembered per (link, size) and the
+                // Image scales it to fill the row, so a landscape phone or a
+                // tablet cannot pull a multi-megabyte allocation through here.
+                val density = LocalDensity.current
+                val qrPx = remember(maxWidth, density) {
+                    with(density) { maxWidth.roundToPx() }.coerceAtMost(QR_MAX_PX)
+                }
                 Column(Modifier.fillMaxWidth()) {
-                    QrCodeImage(content = url, sizeDp = qrSizeDp)
+                    QrCodeImage(
+                        content = url,
+                        sizePx = qrPx,
+                        modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                    )
                     Spacer(Modifier.height(8.dp))
                     Text(
                         stringResource(R.string.share_scan_to_join),
