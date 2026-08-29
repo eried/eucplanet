@@ -1,9 +1,29 @@
 package com.eried.eucplanet.share
 
+import com.eried.eucplanet.data.model.WheelData
 import org.junit.Assert.*
 import org.junit.Test
 
 class ShareModelTest {
+    /** A phone sharing its location with no wheel paired reads 0 km/h, 0 %
+     *  and 0 degC out of the empty telemetry, and a peer cannot tell those
+     *  zeros from a parked wheel on a cold morning. So the toggle alone does
+     *  not publish stats; the wheel has to be connected. */
+    @Test fun noWheelConnected_publishesNoStats() {
+        val wheel = WheelData(speed = 0f, batteryPercent = 0, maxTemperature = 0f)
+        assertNull(shareStatsOf(shareStats = true, wheelConnected = false, wheel = wheel))
+    }
+    @Test fun connectedWheel_publishesItsReadings() {
+        val wheel = WheelData(speed = 24.5f, batteryPercent = 71, maxTemperature = 33f)
+        assertEquals(
+            ShareStats(24.5f, 71, 33f),
+            shareStatsOf(shareStats = true, wheelConnected = true, wheel = wheel)
+        )
+    }
+    @Test fun statsToggleOffPublishesNothing() {
+        val wheel = WheelData(speed = 24.5f, batteryPercent = 71, maxTemperature = 33f)
+        assertNull(shareStatsOf(shareStats = false, wheelConnected = true, wheel = wheel))
+    }
     private fun p(t: Long = 1000L, stats: ShareStats? = ShareStats(25.5f, 80, 31f)) = SharePayload(
         id = "abc", name = "Erwin", mode = IdentityMode.SESSION, color = "#E53935", icon = null,
         avatarUrl = null, flag = "NO", lat = 59.91, lng = 10.75, heading = 90f, t = t, stats = stats)

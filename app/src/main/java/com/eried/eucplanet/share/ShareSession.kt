@@ -3,6 +3,7 @@ package com.eried.eucplanet.share
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
+import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -331,8 +332,13 @@ class ShareSession @Inject constructor(
         val now = System.currentTimeMillis()
         val moved = if (lastLat.isNaN()) Double.MAX_VALUE else distanceM(lastLat, lastLng, loc.latitude, loc.longitude)
         if (now - lastPubMs < PUBLISH_INTERVAL_MS && moved < PUBLISH_MOVE_M) return
-        val wd = wheelRepository.wheelData.value
-        val stats = if (st.me.shareStats) ShareStats(wd.speed, wd.batteryPercent, wd.maxTemperature) else null
+        // The same connection the dashboard reads: no wheel, no stats, however
+        // the rider set the toggle.
+        val stats = shareStatsOf(
+            shareStats = st.me.shareStats,
+            wheelConnected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+            wheel = wheelRepository.wheelData.value,
+        )
         val payload = SharePayload(myId, st.me.name, st.me.mode, st.me.color, st.me.icon, st.me.avatarUrl, st.me.flag,
             loc.latitude, loc.longitude, if (loc.hasBearing()) loc.bearing else null, now, stats)
         val k = key ?: return

@@ -1,10 +1,30 @@
 package com.eried.eucplanet.share
 
+import com.eried.eucplanet.data.model.WheelData
 import org.json.JSONObject
 
 enum class IdentityMode { ANON, SESSION, PROFILE }
 
 data class ShareStats(val speedKmh: Float, val batteryPct: Int, val tempC: Float)
+
+/**
+ * The stats block a rider publishes, or null when there is nothing real to
+ * say.
+ *
+ * "Broadcast my stats" is not enough on its own: with no wheel connected the
+ * telemetry is still at its defaults, so the group would be told this rider is
+ * doing 0 km/h on a flat, freezing wheel, and nothing on a peer's screen can
+ * tell those zeros apart from real readings. Sharing a location from a phone
+ * in a pocket is a normal way to use this, so the answer is to publish no
+ * stats at all: the field is optional on the wire, the app's rider rows only
+ * draw a stats line when it is there, and so does the web viewer.
+ */
+fun shareStatsOf(shareStats: Boolean, wheelConnected: Boolean, wheel: WheelData): ShareStats? =
+    if (shareStats && wheelConnected) {
+        ShareStats(wheel.speed, wheel.batteryPercent, wheel.maxTemperature)
+    } else {
+        null
+    }
 
 /** The decrypted per-rider message. v:1. Field names are the wire contract shared with the web viewer. */
 data class SharePayload(
