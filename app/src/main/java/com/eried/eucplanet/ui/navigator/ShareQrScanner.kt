@@ -55,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.eried.eucplanet.R
@@ -92,29 +94,45 @@ fun ShareQrScannerArea(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var granted by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED
-        )
-    }
+    val activity = remember(context) { context.findActivity() }
+    var granted by remember { mutableStateOf(context.hasCameraPermission()) }
     // Nothing is asked on open: the rider picked the Join tab, not a
     // permission prompt, and the button below is the ask. Set once the system
     // dialog has come back with a no, which is what separates "not asked yet"
     // from "answered no" when reading the rationale flag.
     var refused by remember { mutableStateOf(false) }
+    // Android's own "you may explain first" flag. It is false before the very
+    // first ask and false again once the ask is off for good, so it only says
+    // which of the two this is when it is read next to [refused].
+    var canAsk by remember { mutableStateOf(activity.rationaleWanted()) }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { ok ->
         granted = ok
         refused = !ok
+        canAsk = activity.rationaleWanted()
+    }
+    // The system settings page is another activity: the rider leaves, turns
+    // the camera on and comes back to a composition that still remembers the
+    // no. Re-reading the real permission on every resume is what makes that
+    // return trip land on a live camera, instead of on the same button with
+    // no way on but leaving the tab and coming back.
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event != Lifecycle.Event.ON_RESUME) return@LifecycleEventObserver
+            val now = context.hasCameraPermission()
+            granted = now
+            if (now) refused = false
+            canAsk = activity.rationaleWanted()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
     // Once the rider has turned the ask off for good, Android answers the
     // launcher instantly with the same no and shows nothing, so the button
-    // has to lead somewhere the answer can still be changed.
-    val activity = remember(context) { context.findActivity() }
-    val permanentlyDenied = refused && activity != null &&
-        !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)
+    // has to lead somewhere the answer can still be changed. Every other
+    // state asks, so the button always does something.
+    val permanentlyDenied = refused && !canAsk && activity != null
 
     /** When the camera last read a QR that is not a share link. Held as a
      *  clock rather than a flag so the note clears itself: a code from another
@@ -195,6 +213,18 @@ private fun CameraPermissionPrompt(onAllow: () -> Unit) {
         ) { Text(stringResource(R.string.share_camera_allow), maxLines = 1) }
     }
 }
+
+/** Whether the camera is allowed right now, asked of the system rather than
+ *  of whatever this composition last remembered. */
+private fun Context.hasCameraPermission(): Boolean =
+    ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+        PackageManager.PERMISSION_GRANTED
+
+/** Android's rationale flag: true while asking again would still put the
+ *  system dialog on screen. With no Activity there is nothing to ask it about,
+ *  and the caller reads that as "ask anyway" rather than as a dead end. */
+private fun Activity?.rationaleWanted(): Boolean = this != null &&
+    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)
 
 /** The Activity behind a composable's context, which can be a wrapper. Needed
  *  for the rationale flag, which only an Activity can be asked about. */
