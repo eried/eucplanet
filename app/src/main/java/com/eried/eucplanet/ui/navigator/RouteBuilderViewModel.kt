@@ -29,9 +29,17 @@ import com.eried.eucplanet.nav.PointOfInterest
 import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RouteFileName
 import com.eried.eucplanet.nav.RoutingService
+import com.eried.eucplanet.share.Identity
+import com.eried.eucplanet.share.IdentityMode
+import com.eried.eucplanet.share.PendingShareJoin
+import com.eried.eucplanet.share.ShareLink
+import com.eried.eucplanet.share.ShareSession
+import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.util.GpxIO
+import com.eried.eucplanet.util.Units
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,6 +53,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject
@@ -70,6 +79,8 @@ class RouteBuilderViewModel @Inject constructor(
         com.eried.eucplanet.data.repository.IncomingShareRepository,
     private val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore,
     private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore,
+    private val shareSession: ShareSession,
+    private val pendingShareJoin: PendingShareJoin,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -297,6 +308,15 @@ class RouteBuilderViewModel @Inject constructor(
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** Display units for the friend-stats line in the share group view. */
+    val speedUnit: StateFlow<String> = settingsRepository.settings
+        .map { Units.effectiveSpeedUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "kmh")
+
+    val tempUnit: StateFlow<String> = settingsRepository.settings
+        .map { Units.effectiveTempUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "C")
 
     /** Landscape sidebar side for the stops panel: "DEFAULT", "LEFT" or "RIGHT". */
     val navStopsSide: StateFlow<String> = settingsRepository.settings
@@ -1870,6 +1890,55 @@ class RouteBuilderViewModel @Inject constructor(
             )
         }
     }
+
+    // --- Live location share ------------------------------------------------
+
+    /** Idle, or Joined with the group's link, the rider's identity and every
+     *  friend's last position. Drives the Share button, the group dialog and
+     *  the friend markers on the map. */
+    val shareState: StateFlow<ShareState> = shareSession.state
+
+    /** A share link the rider opened from outside the app (App Link / QR) that
+     *  they have not answered yet. Held in a singleton because it crosses from
+     *  MainActivity's intent handling into this nav-scoped ViewModel. */
+    val pendingJoin: StateFlow<ShareLink?> = pendingShareJoin.pending
+
+    fun offerJoin(link: ShareLink) = pendingShareJoin.offer(link)
+
+    fun dismissJoin() = pendingShareJoin.clear()
+
+    /**
+     * Resolving the PROFILE identity reads a file and may hit the network, so
+     * the answer is cached for the life of the screen. Everything below hops to
+     * IO for the same reason: these are called straight from the dialog.
+     */
+    private var hasProfileCache: Boolean? = null
+
+    suspend fun defaultIdentity(): Identity =
+        withContext(Dispatchers.IO) { shareSession.resolveDefaultIdentity() }
+
+    suspend fun identityFor(mode: IdentityMode, name: String, stats: Boolean): Identity =
+        withContext(Dispatchers.IO) { shareSession.identityFor(mode, name, stats) }
+
+    /** True when a linked profile exists. identityFor(PROFILE) falls back to
+     *  SESSION when there is none, so the mode it returns is the answer. */
+    suspend fun hasProfile(): Boolean = hasProfileCache ?: withContext(Dispatchers.IO) {
+        shareSession.identityFor(IdentityMode.PROFILE, "", true).mode == IdentityMode.PROFILE
+    }.also { hasProfileCache = it }
+
+    fun startShare(identity: Identity) = viewModelScope.launch { shareSession.start(identity) }
+
+    fun joinShare(link: ShareLink, identity: Identity) = viewModelScope.launch {
+        shareSession.join(link, identity)
+        pendingShareJoin.clear()
+    }
+
+    fun leaveShare() = shareSession.leave()
+
+    /** Re-classifies every friend's freshness from the local clock. The group
+     *  view ticks this once a second so "12 s ago" and the greying-out keep
+     *  moving even when no new position has arrived. */
+    fun ageTick() = shareSession.ageTick()
 
     override fun onCleared() {
         super.onCleared()

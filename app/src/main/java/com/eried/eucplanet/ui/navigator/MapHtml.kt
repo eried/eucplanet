@@ -227,6 +227,20 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     font:600 13px sans-serif;background:rgba(25,25,25,0.45);
     opacity:0.6;box-shadow:0 1px 3px rgba(0,0,0,0.4);
   }
+  /* Live location share: a friend on the map is a coloured dot (their flag or
+     avatar inside it) with their name on a plate underneath. Fixed colours,
+     these sit over map tiles rather than over a themed app surface. */
+  .peer{display:flex;flex-direction:column;align-items:center}
+  .peer-dot{
+    width:30px;height:30px;border-radius:50%;border:2px solid #fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.5);display:flex;align-items:center;
+    justify-content:center;font-size:14px;overflow:hidden;
+  }
+  .peer-name{
+    font:600 11px sans-serif;color:#fff;background:rgba(0,0,0,.55);
+    padding:1px 5px;border-radius:6px;margin-top:2px;white-space:nowrap;
+  }
+  .peer-name i{font-style:normal;opacity:.8}
 </style>
 </head><body>
 <div id="map"></div>
@@ -1659,6 +1673,61 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   window.nativeSetUserPhoto = function(dataUrl){
     userPhotoDataUrl = (dataUrl && dataUrl.length > 0) ? dataUrl : null;
     if (userMarker) userMarker.setIcon(buildUserIcon());
+  };
+
+  // --- Live location share: friends' markers + fading trails -------------
+  // Everything in a peer record (name, flag, colour, avatar) comes from
+  // ANOTHER rider over the relay, so all of it is escaped / validated before
+  // it goes near innerHTML. This page holds the AndroidNav bridge, and an
+  // unescaped name would be a script-injection route straight into it.
+  var peerLayer = L.layerGroup().addTo(map);
+  // Localized "lost" badge, pushed once from Kotlin (the per-peer JSON shape
+  // is a fixed wire contract shared with the web viewer, so the label rides
+  // alongside it rather than inside it).
+  var peerLostLabel = 'lost';
+  window.nativeSetPeerLabels = function(lost){ peerLostLabel = lost || 'lost'; };
+  function peerEsc(s){
+    return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function peerColor(c){ return /^#[0-9A-Fa-f]{6}$/.test(c || '') ? c : '#9E9E9E'; }
+  window.nativeSetPeers = function(json){
+    var peers;
+    try { peers = JSON.parse(json); } catch(e){ peers = []; }
+    peerLayer.clearLayers();
+    peers.forEach(function(p){
+      var col = peerColor(p.color);
+      var trail = p.trail || [];
+      // Trail: one polyline segment per hop so each hop gets its own alpha.
+      for (var i = 1; i < trail.length; i++) {
+        L.polyline([[trail[i-1][0], trail[i-1][1]], [trail[i][0], trail[i][1]]],
+          {color: col, weight: 4, interactive: false,
+           opacity: trail[i][2] * (p.freshness === 'LOST' ? 0.35 : 1)}).addTo(peerLayer);
+      }
+      var dim = p.freshness === 'FRESH' ? 1 : (p.freshness === 'STALE' ? 0.5 : 0.3);
+      var bg = p.freshness === 'LOST' ? '#9E9E9E' : col;
+      var avatar = (typeof p.avatarUrl === 'string' &&
+        /^https:\/\/[^"'<>\s]+$/.test(p.avatarUrl)) ? p.avatarUrl : null;
+      var inner = avatar
+        ? '<img src="' + peerEsc(avatar) + '" style="width:26px;height:26px;border-radius:50%;object-fit:cover">'
+        : '<span>' + peerEsc(p.flag || '') + '</span>';
+      var age = p.freshness === 'FRESH' ? ''
+        : (p.freshness === 'LOST' ? peerLostLabel : (p.ageS | 0) + 's');
+      var html = '<div class="peer" style="opacity:' + dim + '">' +
+        '<div class="peer-dot" style="background:' + bg + '">' + inner + '</div>' +
+        '<div class="peer-name">' + peerEsc(p.name) +
+        (age ? ' <i>' + peerEsc(age) + '</i>' : '') + '</div></div>';
+      L.marker([p.lat, p.lng], {
+        icon: L.divIcon({className: '', html: html, iconSize: [30, 30], iconAnchor: [15, 15]}),
+        interactive: false, keyboard: false, zIndexOffset: 900
+      }).addTo(peerLayer);
+    });
+  };
+
+  // Centre on a friend the rider tapped in the group list.
+  window.nativeFlyTo = function(lat, lng){
+    map.flyTo([lat, lng], Math.max(map.getZoom(), 15));
   };
 
   // Compute the map-center latlng that puts a TARGET latlng at the centre
