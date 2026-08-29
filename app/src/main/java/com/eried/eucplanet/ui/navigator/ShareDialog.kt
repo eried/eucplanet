@@ -136,13 +136,19 @@ import java.util.Locale
  * a cap a landscape phone or a tablet hands a square the full dialog width and
  * it comes out taller than the window, burying the buttons under it. The cap
  * is the smaller of a portrait phone's dialog width (where nothing changes)
- * and a little over half the window's height, so what sits under the square
- * stays reachable in landscape too.
+ * and a fraction of the window's height.
+ *
+ * A wide window is a short one, and that is the only case where the height
+ * fraction bites: at 0.4 the caption, the Share row and the top of the rider
+ * list come with the square instead of sitting below the fold. A portrait
+ * window is tall enough that the 360 dp cap is what applies, so the fraction
+ * there stays generous rather than shrinking the QR on a small phone.
  */
 @Composable
 internal fun shareBlockMaxWidth(): Dp {
-    val screenHeight = LocalConfiguration.current.screenHeightDp
-    return minOf(360.dp, (screenHeight * 0.55f).dp)
+    val config = LocalConfiguration.current
+    val factor = if (config.screenWidthDp > config.screenHeightDp) 0.4f else 0.55f
+    return minOf(360.dp, (config.screenHeightDp * factor).dp)
 }
 
 /** An avatar URL is another rider's string off the relay, so it is checked
