@@ -337,6 +337,12 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
+    // Compose gesture tests: the trip charts juggle a long-press scrub, a
+    // two-finger zoom and the page scroll on the same canvas, and multitouch
+    // cannot be driven from adb, so those rules are pinned on-device.
+    androidTestImplementation(composeBom)
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 // Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
