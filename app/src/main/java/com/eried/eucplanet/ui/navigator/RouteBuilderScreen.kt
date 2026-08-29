@@ -252,7 +252,7 @@ fun RouteBuilderScreen(
     }
 
     // Backgrounding the app dismisses any pending "Add shared destination?"
-    // dialog — matches the rider's mental model that walking away from the
+    // dialog - matches the rider's mental model that walking away from the
     // prompt cancels it, and avoids a stale dialog reappearing days later.
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -1646,7 +1646,7 @@ fun RouteBuilderScreen(
             }
 
             // A Share-to-app intent landed on a route that already has
-            // stops. Ask before stomping on the rider's current route —
+            // stops. Ask before stomping on the rider's current route -
             // "New route" wipes stops then drops the shared point, "Add
             // as next" appends. Dismissing (back / outside tap) cancels
             // the share; the lifecycle observer also clears it on app

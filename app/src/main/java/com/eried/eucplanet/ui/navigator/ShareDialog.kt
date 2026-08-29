@@ -227,7 +227,15 @@ internal fun ShareDialogCard(
         // get about 57dp of text each, which is what used to break "Anonymous"
         // across two lines; the shared control cannot fix a row it is not
         // given room for.
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+        //
+        // The vertical margin is not cosmetic: a scrollable body makes the card
+        // as tall as the window, and without it the Leave button sits flush
+        // against the screen edge, under the gesture bar. safeDrawingPadding
+        // adds whatever the system bars actually take on top of that.
+        modifier = Modifier
+            .fillMaxWidth()
+            .safeDrawingPadding()
+            .padding(horizontal = 12.dp, vertical = 12.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.appColors.dialog,
@@ -879,8 +887,14 @@ fun ShareGroupDialog(
 }
 
 /**
- * One of the three equal link actions under the QR. Same outlined style, same
- * width, icon over a one-word label so the row survives the longest locale.
+ * One of the three equal link actions under the QR: same outlined style, same
+ * width, an icon over its label.
+ *
+ * A third of the dialog is about 99dp, which "Compartilhar" (pt-rBR) and
+ * "Udostepnij" (pl) do not fit on one line at labelLarge, so the label is a
+ * step smaller and allowed a second line. The minimum height is the two-line
+ * height, so a wrapped cell and a one-word cell stay the same size and the row
+ * does not go ragged.
  */
 @Composable
 private fun RowScope.ShareLinkAction(
@@ -896,7 +910,7 @@ private fun RowScope.ShareLinkAction(
             contentColor = MaterialTheme.appColors.textButton
         ),
         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
-        modifier = Modifier.weight(1f)
+        modifier = Modifier.weight(1f).heightIn(min = 76.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
@@ -908,8 +922,9 @@ private fun RowScope.ShareLinkAction(
             Spacer(Modifier.height(4.dp))
             Text(
                 label,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
+                style = MaterialTheme.typography.labelMedium,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
         }
