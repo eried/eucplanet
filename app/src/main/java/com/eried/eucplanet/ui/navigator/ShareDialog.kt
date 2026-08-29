@@ -738,7 +738,9 @@ fun ShareGroupDialog(
 ) {
     val context = LocalContext.current
     val url = remember(state.link) { ShareLinks.format(state.link) }
-    val peers = state.peers.values.toList()
+    // Entries, not values: the row key must be the relay sender id the map is
+    // keyed by (unique by construction), not the id inside the decrypted body.
+    val peers = state.peers.entries.toList()
     // The one number the toolbar badge shows: the others who are in the room
     // right now. The rider header and the "no one else here yet" line both
     // read it, so the dialog can never say "2 riders" over "nobody is here".
@@ -941,12 +943,13 @@ fun ShareGroupDialog(
                         .heightIn(max = PEER_LIST_MAX_HEIGHT)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    peers.forEachIndexed { index, peer ->
+                    peers.forEachIndexed { index, entry ->
+                        val peer = entry.value
                         // Keyed by the rider, not by position: the room keeps
                         // arrival order today, but a row that changed rider
                         // under a positional identity would keep the old
                         // rider's remembered state and restart their avatar.
-                        key(peer.last.id) {
+                        key(entry.key) {
                             if (index > 0) {
                                 HorizontalDivider(color = MaterialTheme.appColors.divider)
                             }

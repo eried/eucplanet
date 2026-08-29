@@ -11,8 +11,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -82,13 +86,26 @@ private object AvatarCache {
     /** What is already decoded, for a caller that must not block. */
     fun peek(url: String): Bitmap? = cache.get(url)
 
+    /** Fetches under way, so two misses on the same URL share one download. */
+    private val inFlight = ConcurrentHashMap<String, Deferred<Bitmap?>>()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     /** The cached bitmap, or one fetch and decode on IO that fills the cache. */
-    suspend fun load(url: String): Bitmap? =
-        cache.get(url) ?: withContext(Dispatchers.IO) {
-            runCatching { download(url)?.let(::decodeScaled) }
-                .getOrNull()
-                ?.also { cache.put(url, it) }
+    suspend fun load(url: String): Bitmap? {
+        cache.get(url)?.let { return it }
+        val job = inFlight.computeIfAbsent(url) {
+            scope.async {
+                try {
+                    runCatching { download(url)?.let(::decodeScaled) }
+                        .getOrNull()
+                        ?.also { cache.put(url, it) }
+                } finally {
+                    inFlight.remove(url)
+                }
+            }
         }
+        return job.await()
+    }
 
     private fun download(url: String): ByteArray? {
         val conn = (URL(url).openConnection() as HttpURLConnection).apply {
