@@ -27,6 +27,7 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.share.ShareSession
+import com.eried.eucplanet.share.ShareState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -550,7 +551,15 @@ class WheelService : LifecycleService() {
                         tripRepository.recording.value ||
                         navigationEngine.navState.value.active ||
                         s.hudServerEnabled ||
-            s.phoneHudEnabled ||
+                        s.phoneHudEnabled ||
+                        // A live location share publishes on its own heartbeat
+                        // and has nothing to do with a wheel being connected.
+                        // Standing the service down here would put the process
+                        // in the background, Doze would freeze that beat, and
+                        // the rider would silently stop moving on the group's
+                        // map. Turning "Keep app running" off leaves an active
+                        // share running; leaving the group releases it.
+                        shareSession.state.value is ShareState.Joined ||
                         (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
                     if (!s.keepAppAlive && !stillNeeded) {
                         stopForeground(STOP_FOREGROUND_REMOVE)

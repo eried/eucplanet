@@ -1,11 +1,16 @@
 package com.eried.eucplanet.share
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.eucstats.EucStatsApiContract
+import com.eried.eucplanet.service.WheelService
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -48,6 +53,7 @@ sealed class ShareState {
 
 @Singleton
 class ShareSession @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val wheelRepository: WheelRepository,
@@ -122,12 +128,33 @@ class ShareSession @Inject constructor(
         leave()
         closing = false
         key = ShareCrypto.deriveKey(link.key)
+        // Before the first suspension point, so this still runs on the tap that
+        // opened the group: Android 12+ refuses a foreground-service start once
+        // the app has slipped into the background.
+        ensureForegroundService()
         settingsRepository.update { it.copy(share = it.share.copy(
             lastIdentityMode = identity.mode.name,
             lastSessionName = if (identity.mode == IdentityMode.SESSION) identity.name else it.share.lastSessionName)) }
         _state.value = ShareState.Joined(link, identity, emptyMap(), connected = false, error = null)
         connect(link)
         startHeartbeat()
+    }
+
+    /**
+     * Sharing is about the phone's position, not the wheel's, so a rider can
+     * be sharing with nothing connected and "Keep app running" off. That
+     * leaves a plain background process, and Doze freezes the heartbeat with
+     * it: the rider's dot stops moving on everyone else's map while their own
+     * screen still says Connected. Bringing WheelService up as a foreground
+     * service for the duration keeps the beat running with the phone in a
+     * pocket. WheelService's own teardown gate counts an active share as a
+     * reason to stay up, so this is not undone the moment the rider turns
+     * "Keep app running" off.
+     */
+    private fun ensureForegroundService() {
+        runCatching {
+            ContextCompat.startForegroundService(context, Intent(context, WheelService::class.java))
+        }
     }
 
     private suspend fun connect(link: ShareLink) {
