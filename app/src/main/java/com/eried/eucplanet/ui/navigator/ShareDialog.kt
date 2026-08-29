@@ -182,21 +182,35 @@ private fun peerColorOf(hex: String): Color {
 private data class BrowserTabColors(val toolbar: Int, val navigationBar: Int)
 
 /**
- * Hands the share link to a browser, so Open shows the web viewer.
+ * Hands the share link to the phone's real browser, so Open shows the web
+ * viewer as an ordinary tab the rider leaves the app for and comes back from.
  *
  * A plain ACTION_VIEW never leaves the app: the same URL is claimed as a
  * verified App Link (see the /share intent filter in the manifest), so Android
  * routes it back into MainActivity, which parses it, sees the room the rider is
- * already in, and dismisses. Nothing appears to happen. A Chrome Custom Tab is
- * addressed to one browser package, so it is not App Link traffic and the page
- * renders.
+ * already in, and dismisses. Nothing appears to happen.
  *
- * With no custom-tabs browser resolvable the fallback is a browsable view
- * intent inside a chooser, so the system asks which app to use rather than
- * silently handing the link straight back to this one.
+ * A main-selector intent for CATEGORY_APP_BROWSER is addressed to the default
+ * browser as an app rather than to whatever claims the URL, so App Link routing
+ * never sees it, and in its own task it is a real Chrome tab: the task switcher
+ * lists Chrome, and coming back lands on the map where the rider left it. A
+ * Custom Tab renders the page inside this app's own task instead, which is
+ * exactly what the rider asked not to happen.
+ *
+ * A device with no default browser (a bare emulator image) falls back to the
+ * Custom Tab, then to a browsable view inside a chooser, so Open still does
+ * something rather than silently handing the link back to this app.
  */
 private fun openInBrowser(context: Context, url: String, colors: BrowserTabColors) {
     val uri = Uri.parse(url)
+    val toBrowser = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
+        .apply {
+            data = uri
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+    // ActivityNotFoundException is the expected miss (no default browser at
+    // all); any other launch failure is treated the same way, as "next path".
+    if (runCatching { context.startActivity(toBrowser) }.isSuccess) return
     val browser = runCatching { CustomTabsClient.getPackageName(context, null) }.getOrNull()
     if (browser != null) {
         val opened = runCatching {
