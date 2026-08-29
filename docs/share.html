@@ -346,7 +346,7 @@ function freshnessOf(ageMs) {
   return LOST;
 }
 
-function applyPayload(senderId, payload) {
+function applyPayload(senderId, payload, first) {
   if (!payload || payload.v !== 1) return;      // unknown schema, ignore
   // A peer without a usable position has nothing to place on the map.
   if (typeof payload.lat !== "number" || typeof payload.lng !== "number" ||
@@ -363,7 +363,17 @@ function applyPayload(senderId, payload) {
   p.stats = payload.stats || null;
   p.left = false;
   p.lastSeenMs = Date.now();
-  p.relayAgeMs = 0;
+  // The relay hands a viewer that just connected each rider's last payload,
+  // which can be minutes old. A rider's FIRST frame on a connection is dated
+  // by their own stamp so someone who stopped riding long ago is not drawn
+  // live at a stale spot; every later frame really did just arrive, and the
+  // relay's peers frame cross-checks both within 10 s. A stamp from the
+  // future (a wrong sender clock) falls back to "just now".
+  var seedAge = 0;
+  if (first && typeof payload.t === "number") {
+    seedAge = Math.max(0, p.lastSeenMs - payload.t);
+  }
+  p.relayAgeMs = seedAge;
   p.relayStampMs = p.lastSeenMs;
   // Never interpolate or dead reckon: the trail only grows on a real position.
   var t = (typeof payload.t === "number") ? payload.t : Date.now();
@@ -379,6 +389,8 @@ function trimTrail(p, now) {
  * 5. Socket: read only, reconnect every 3 s
  * ------------------------------------------------------------------ */
 function connect(roomId, key) {
+  // Reset per connection: the replayed payloads arrive again on a reconnect.
+  var seenOnSocket = {};
   var ws;
   try {
     ws = new WebSocket(RELAY_BASE + roomId);
@@ -414,8 +426,10 @@ function connect(roomId, key) {
     }
 
     if (frame.from && frame.ct) {
+      var firstOnSocket = !seenOnSocket[frame.from];
+      seenOnSocket[frame.from] = true;
       decryptBlob(key, roomId, b64uToBytes(frame.ct)).then(function (json) {
-        applyPayload(frame.from, JSON.parse(json));
+        applyPayload(frame.from, JSON.parse(json), firstOnSocket);
         render();
       }).catch(function () {
         // Wrong key, tampered blob or a foreign schema: drop it silently.

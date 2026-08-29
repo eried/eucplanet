@@ -157,10 +157,24 @@ class ShareSession @Inject constructor(
                 // Hoisted out of the update{} lambda: a CAS retry re-runs f, and
                 // trail.add / getOrPut are not idempotent, so they must run exactly
                 // once regardless of how many times the CAS loop retries.
-                val trail = (_state.value as? ShareState.Joined)?.peers?.get(from)?.trail ?: Trail(trailMaxAgeMs())
+                val prev = (_state.value as? ShareState.Joined)?.peers?.get(from)
+                val trail = prev?.trail ?: Trail(trailMaxAgeMs())
                 trail.add(p.lat, p.lng, p.t)
                 val color = colorByPeer.getOrPut(from) { PeerPalette.colorFor(++joinOrder) }
-                update { st -> st.copy(peers = st.peers + (from to PeerState(p.copy(color = color), now, trail, Freshness.FRESH, false))) }
+                // The relay hands a client that just connected each rider's last
+                // payload, which can be minutes old. A rider's FIRST frame is
+                // therefore dated by their own stamp, so someone who stopped
+                // riding long ago is not drawn live at a stale spot. Every later
+                // frame really did just arrive, and a stamp from the future (a
+                // wrong sender clock) falls back to now.
+                val seenAt = if (prev == null && p.t in 1..now) p.t else now
+                update { st ->
+                    st.copy(
+                        peers = st.peers + (from to PeerState(
+                            p.copy(color = color), seenAt, trail, Staleness.of(now - seenAt), false
+                        ))
+                    )
+                }
             }
             j.optString("type") == "left" -> update { st -> st.copy(peers = st.peers.mapValues { (id, ps) -> if (id == j.optString("from")) ps.copy(left = true) else ps }) }
             j.optString("type") == "peers" -> {
