@@ -61,6 +61,11 @@ class ShareSession @Inject constructor(
     private var joinOrder = 0
     private val colorByPeer = HashMap<String, String>()
     private var closing = false
+    /** Bumped on every connect and on leave. A socket whose generation is no
+     *  longer the current one is a leftover: its callbacks are ignored, so a
+     *  dying socket from the room the rider just left cannot take over [ws]
+     *  and send this rider's position to the wrong room. */
+    private var connectGen = 0
     /** Heartbeat that keeps publishing while joined. See [startHeartbeat]. */
     private var heartbeat: Job? = null
 
@@ -103,19 +108,40 @@ class ShareSession @Inject constructor(
     }
 
     private suspend fun connect(link: ShareLink) {
+        val gen = ++connectGen
         val relay = settingsRepository.get().share.relayUrl.trimEnd('/')
         val req = Request.Builder().url("$relay/ws/${link.roomId}").build()
         ws = client.newWebSocket(req, object : WebSocketListener() {
-            override fun onOpen(w: WebSocket, r: okhttp3.Response) { update { it.copy(connected = true, error = null) }; lastPubMs = 0L; publishTick() }
-            override fun onMessage(w: WebSocket, text: String) { onFrame(text) }
-            override fun onFailure(w: WebSocket, t: Throwable, r: okhttp3.Response?) { update { it.copy(connected = false, error = t.message) }; scheduleReconnect(link) }
-            override fun onClosed(w: WebSocket, code: Int, reason: String) { update { it.copy(connected = false) }; if (!closing) scheduleReconnect(link) }
+            override fun onOpen(w: WebSocket, r: okhttp3.Response) {
+                // A socket that opened after the rider moved on belongs to the
+                // room they left. Shut it rather than let it publish there.
+                if (gen != connectGen) { w.close(1000, "superseded"); return }
+                update { it.copy(connected = true, error = null) }; lastPubMs = 0L; publishTick()
+            }
+            override fun onMessage(w: WebSocket, text: String) { if (gen == connectGen) onFrame(text) }
+            override fun onFailure(w: WebSocket, t: Throwable, r: okhttp3.Response?) {
+                if (gen != connectGen) return
+                update { it.copy(connected = false, error = t.message) }; scheduleReconnect(link)
+            }
+            override fun onClosed(w: WebSocket, code: Int, reason: String) {
+                if (gen != connectGen) return
+                update { it.copy(connected = false) }; if (!closing) scheduleReconnect(link)
+            }
         })
     }
 
     private fun scheduleReconnect(link: ShareLink) {
         if (closing) return
-        scope.launch { delay(3_000); if (!closing && _state.value is ShareState.Joined) connect(link) }
+        val gen = connectGen
+        scope.launch {
+            delay(3_000)
+            // Anything that happened in the meantime - a leave, a different room,
+            // a newer socket - wins over a retry that was already in flight.
+            if (closing || gen != connectGen) return@launch
+            val st = _state.value as? ShareState.Joined ?: return@launch
+            if (st.link.roomId != link.roomId) return@launch
+            connect(link)
+        }
     }
 
     private fun onFrame(text: String) {
@@ -192,6 +218,7 @@ class ShareSession @Inject constructor(
 
     fun leave() {
         closing = true
+        connectGen++
         heartbeat?.cancel(); heartbeat = null
         ws?.send(JSONObject().put("type", "leave").put("from", myId).toString())
         ws?.close(1000, "leave"); ws = null; key = null
