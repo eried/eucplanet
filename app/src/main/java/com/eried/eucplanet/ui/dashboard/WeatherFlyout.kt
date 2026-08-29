@@ -383,16 +383,10 @@ private fun DetailSection(
     fun w(ms: Float) = if (windMph) ms * 2.23694f else ms
     val tUnit = if (tempF) "°F" else "°C"
     val wUnit = if (windMph) "mph" else "m/s"
-    val fmtTime = remember { SimpleDateFormat("EEE HH:mm", Locale.getDefault()) }
-
     Column(Modifier.padding(top = 6.dp)) {
-        // The scrubbed moment, once for all three charts.
-        Text(
-            fmtTime.format(Date(hours[idx].timeMs)),
-            fontSize = 10.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = ink.copy(alpha = 0.75f),
-        )
+        // No time line here any more: the bubble on the score curve says the
+        // moment for the whole panel, and saying it twice put the same words
+        // three centimetres apart.
         // Temp, humidity and precipitation share one double-height chart,
         // weather-app style: lines over rain/snow bars.
         DetailChart(
@@ -744,8 +738,24 @@ private fun ScoreGraph(
     // The visible tooltip (face lingo, or a graph-tap level read),
     // auto-hiding like a toast. The random phrase behind it is what
     // WeatherPhrases keeps stable for an hour.
+    // Face tips only. The scrubbed read is derived from the shared moment
+    // below, so dragging ANY chart in the panel updates it - the detail
+    // charts no longer carry a time line of their own.
     var tip by remember(hours) { mutableStateOf<GraphTip?>(null) }
     val fmtTip = remember { SimpleDateFormat("EEE HH:mm", Locale.getDefault()) }
+    val scrubTip: GraphTip? = scrub?.let { f ->
+        val n = hours.size
+        val i = ((n - 1) * f).roundToInt().coerceIn(0, (n - 1).coerceAtLeast(0))
+        val score = hours[i].b.score
+        GraphTip(
+            srcKey = -(i + 1),
+            frac = if (n <= 1) 0f else i / (n - 1f),
+            yFrac = 1f - (score + 5f) / 10f,
+            prefix = signedLabel(score),
+            textRes = WeatherPhrases.levelRes(levelBucket(score)),
+            timeLabel = fmtTip.format(Date(hours[i].timeMs)),
+        )
+    }
     LaunchedEffect(tip) {
         if (tip != null) {
             delay(4000)
@@ -778,16 +788,9 @@ private fun ScoreGraph(
                             else ((off.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
                             val score = hours[i].b.score
                             val key = -(i + 1)
-                            val frac = if (n <= 1) 0f else i / (n - 1f)
-                            onScrub(frac)
-                            tip = if (tip?.srcKey == key) null else GraphTip(
-                                srcKey = key,
-                                frac = frac,
-                                yFrac = 1f - (score + 5f) / 10f,
-                                prefix = signedLabel(score),
-                                textRes = WeatherPhrases.levelRes(levelBucket(score)),
-                                timeLabel = fmtTip.format(Date(hours[i].timeMs)),
-                            )
+                            // The read comes from the moment itself now.
+                            tip = null
+                            onScrub(if (n <= 1) 0f else i / (n - 1f))
                         }
                     }
                     // And the finger-follow version: drag along the curve and
@@ -798,16 +801,8 @@ private fun ScoreGraph(
                             val i = if (n <= 1) 0
                             else ((change.position.x / size.width) * (n - 1)).roundToInt().coerceIn(0, n - 1)
                             val score = hours[i].b.score
-                            val frac = if (n <= 1) 0f else i / (n - 1f)
-                            onScrub(frac)
-                            tip = GraphTip(
-                                srcKey = -(i + 1),
-                                frac = frac,
-                                yFrac = 1f - (score + 5f) / 10f,
-                                prefix = signedLabel(score),
-                                textRes = WeatherPhrases.levelRes(levelBucket(score)),
-                                timeLabel = fmtTip.format(Date(hours[i].timeMs)),
-                            )
+                            tip = null
+                            onScrub(if (n <= 1) 0f else i / (n - 1f))
                         }
                     }
             ) {
@@ -992,7 +987,7 @@ private fun ScoreGraph(
                 // tooltip, floated near its anchor and clamped to the graph,
                 // inverse-inked so it pops on the panel. Face taps show the
                 // lingo line; graph taps prefix the signed score.
-                tip?.let { t ->
+                (tip ?: scrubTip)?.let { t ->
                     val tipY = ((graphH - 18.dp) * t.yFrac - 24.dp).coerceAtLeast(0.dp)
                     val prefix = t.prefix?.let { "$it · " } ?: ""
                     Box(Modifier.fillMaxWidth().offset(y = tipY)) {
