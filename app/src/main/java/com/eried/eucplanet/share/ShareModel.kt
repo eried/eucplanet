@@ -26,13 +26,19 @@ data class SharePayload(
             if (j.optInt("v", -1) != 1) return null
             val st = j.optJSONObject("stats")?.let {
                 ShareStats(it.getDouble("speedKmh").toFloat(), it.getInt("batteryPct"), it.getDouble("tempC").toFloat()) }
+            // A position that is not a real number is dropped, the same guard
+            // the web viewer applies. It is not only nonsense on a map:
+            // JSONObject.put rejects NaN and infinity, so re-serialising such a
+            // payload for the map bridge would throw where nothing catches it.
+            val lat = j.getDouble("lat"); val lng = j.getDouble("lng")
+            if (!lat.isFinite() || !lng.isFinite()) return null
             SharePayload(
                 id = j.getString("id"), name = j.getString("name"),
                 mode = IdentityMode.valueOf(j.getString("mode")), color = j.getString("color"),
                 icon = j.optString("icon").takeIf { j.has("icon") },
                 avatarUrl = j.optString("avatarUrl").takeIf { j.has("avatarUrl") },
                 flag = j.optString("flag").takeIf { j.has("flag") },
-                lat = j.getDouble("lat"), lng = j.getDouble("lng"),
+                lat = lat, lng = lng,
                 heading = if (j.has("heading")) j.getDouble("heading").toFloat() else null,
                 t = j.getLong("t"), stats = st,
             )

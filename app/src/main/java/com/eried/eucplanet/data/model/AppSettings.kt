@@ -1141,8 +1141,18 @@ data class ShareSettings(
     val shareStatsDefault: Boolean = true,    // default for the "Share my stats" toggle
     val lastIdentityMode: String = "ANON",    // ANON | SESSION | PROFILE, remembered per rider
     val lastSessionName: String = "",
-    val relayUrl: String = "wss://eucshare.ried.no",
-)
+    val relayUrl: String = DEFAULT_RELAY_URL,
+) {
+    companion object {
+        const val DEFAULT_RELAY_URL = "wss://eucshare.ried.no"
+        /** A relay URL is opened as a WebSocket, so anything that is not a
+         *  ws / wss URL cannot work. A synced or hand-edited file carrying
+         *  something else is reset to the default rather than thrown at
+         *  OkHttp, which answers a malformed URL with an exception. */
+        fun isValidRelayUrl(url: String): Boolean =
+            url.startsWith("ws://") || url.startsWith("wss://")
+    }
+}
 
 /**
  * Bluetooth-signal proximity lock / unlock. Locks the wheel as the rider walks

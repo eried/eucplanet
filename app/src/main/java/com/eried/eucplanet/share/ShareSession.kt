@@ -2,7 +2,6 @@ package com.eried.eucplanet.share
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -25,6 +24,7 @@ import okhttp3.Request
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,7 +61,6 @@ class ShareSession @Inject constructor(
     private val eucStatsApi: EucStatsApiContract,
 ) {
     companion object {
-        private const val TAG = "ShareSession"
         const val PUBLISH_INTERVAL_MS = 3_000L
         const val PUBLISH_MOVE_M = 10.0
         /** The relay closes with 1013 when a room already holds its maximum
@@ -83,7 +82,10 @@ class ShareSession @Inject constructor(
     private val myId = ShareCrypto.b64u(ShareCrypto.randomBytes(8))
     private var lastPubMs = 0L
     private var lastLat = Double.NaN; private var lastLng = Double.NaN
-    private val colorByPeer = HashMap<String, String>()
+    /** Written from the OkHttp reader thread as peers arrive and cleared from
+     *  whatever thread calls [leave] (the UI's). A plain HashMap can corrupt
+     *  its table under that overlap, so this one is concurrent. */
+    private val colorByPeer = ConcurrentHashMap<String, String>()
     private var closing = false
     /** Bumped on every connect and on leave. A socket whose generation is no
      *  longer the current one is a leftover: its callbacks are ignored, so a
@@ -132,8 +134,12 @@ class ShareSession @Inject constructor(
         // opened the group: Android 12+ refuses a foreground-service start once
         // the app has slipped into the background.
         ensureForegroundService()
+        // How the rider chose to appear is remembered for the next group, the
+        // stats toggle included: re-picking it every time was the one part of
+        // the identity the dialog kept forgetting.
         settingsRepository.update { it.copy(share = it.share.copy(
             lastIdentityMode = identity.mode.name,
+            shareStatsDefault = identity.shareStats,
             lastSessionName = if (identity.mode == IdentityMode.SESSION) identity.name else it.share.lastSessionName)) }
         _state.value = ShareState.Joined(link, identity, emptyMap(), connected = false, error = null)
         connect(link)

@@ -20,6 +20,21 @@ class ShareModelTest {
     @Test fun payloadRejectsWrongVersionOrGarbage() {
         assertNull(SharePayload.fromJson("{\"v\":2}")); assertNull(SharePayload.fromJson("nope"))
     }
+    /** A position that is not a real number is dropped rather than carried:
+     *  it cannot be drawn, and JSONObject.put refuses NaN and infinity, so
+     *  re-serialising it for the map bridge would throw. */
+    @Test fun payloadRejectsNonFiniteCoordinates() {
+        fun frame(lat: String, lng: String) = """
+            {"v":1,"id":"abc","name":"Erwin","mode":"ANON","color":"#E53935",
+             "lat":$lat,"lng":$lng,"t":1000}""".trimIndent()
+        // 1e400 overflows a double to +Infinity while still being valid JSON.
+        assertNull(SharePayload.fromJson(frame("1e400", "10.75")))
+        assertNull(SharePayload.fromJson(frame("59.91", "-1e400")))
+        assertNull(SharePayload.fromJson(frame("NaN", "10.75")))
+        // The same frame with real coordinates still parses, so the guard is
+        // rejecting the value and not the shape.
+        assertEquals(59.91, SharePayload.fromJson(frame("59.91", "10.75"))!!.lat, 0.0)
+    }
     /** The relay closes a room at capacity with 1013, and the group dialog
      *  decides "this group is full" by comparing against the typed error the
      *  session raises for exactly that code. Both halves are a contract with

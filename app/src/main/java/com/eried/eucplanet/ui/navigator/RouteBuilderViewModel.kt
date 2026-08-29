@@ -1959,11 +1959,23 @@ class RouteBuilderViewModel @Inject constructor(
         return withContext(Dispatchers.IO) { shareSession.identityFor(mode, name, stats) }
     }
 
-    fun startShare(identity: Identity) = viewModelScope.launch { shareSession.start(identity) }
+    /**
+     * Opening or joining a group reaches the settings store, the crypto and
+     * the relay URL, and none of that is worth taking the navigator down for:
+     * a relay URL the request builder rejects, for instance, throws where the
+     * rider only asked to share. Failures land on the same snackbar the group
+     * view uses when the service is out of reach.
+     */
+    fun startShare(identity: Identity) = viewModelScope.launch {
+        runCatching { shareSession.start(identity) }
+            .onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
+    }
 
     fun joinShare(link: ShareLink, identity: Identity) = viewModelScope.launch {
-        shareSession.join(link, identity)
-        pendingShareJoin.clear()
+        runCatching {
+            shareSession.join(link, identity)
+            pendingShareJoin.clear()
+        }.onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
     }
 
     fun leaveShare() = shareSession.leave()
