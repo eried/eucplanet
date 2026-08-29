@@ -62,6 +62,7 @@ import com.eried.eucplanet.share.Freshness
 import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.IdentityMode
 import com.eried.eucplanet.share.PeerState
+import com.eried.eucplanet.share.ShareLink
 import com.eried.eucplanet.share.ShareLinks
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
@@ -71,6 +72,7 @@ import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
 import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -115,11 +117,34 @@ private fun peerColorOf(hex: String): Color {
 }
 
 /**
+ * A scanned or pasted share link.
+ *
+ * A rider can paste the whole URL, or just the `roomId.key` fragment that a
+ * friend copied out of one. Both name the same room, so the bare fragment is
+ * completed to a full link before it is parsed; anything else is refused by
+ * [ShareLinks.parse] as before.
+ */
+internal fun parseShareText(raw: String): ShareLink? {
+    val text = raw.trim()
+    if (text.isEmpty()) return null
+    ShareLinks.parse(text)?.let { return it }
+    if (text.contains("://") || text.contains('#')) return null
+    return ShareLinks.parse("${ShareLinks.BASE}#$text")
+}
+
+/** The clipboard's text, or "" when it holds nothing readable. */
+private fun clipboardText(context: Context): String {
+    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+    val item = cm?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)
+    return item?.coerceToText(context)?.toString().orEmpty()
+}
+
+/**
  * The shared dialog shell: a bordered card with a surfaceVariant title strip,
  * the same look the floating theme editor and the studio replay panel use.
  */
 @Composable
-private fun ShareDialogCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+internal fun ShareDialogCard(title: String, content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -212,7 +237,12 @@ fun ShareStartDialog(
     // the confirm label is passed in rather than hardcoded, and defaults to
     // the "start a group" label since that is the more common entry point.
     confirmLabelRes: Int = R.string.share_start,
+    /** Hands back a scanned or pasted link. Null while this dialog IS the join
+     *  step for a link the rider already gave us, where offering to join a
+     *  second ride would only be confusing. */
+    onJoinLink: ((ShareLink) -> Unit)? = null,
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var mode by remember(default) {
         mutableStateOf(
@@ -230,6 +260,12 @@ fun ShareStartDialog(
     var shareStats by remember(default) { mutableStateOf(default.shareStats) }
     var starting by remember { mutableStateOf(false) }
     var profile by remember { mutableStateOf<ProfilePreview>(ProfilePreview.Loading) }
+    // "Join another ride" state: the scanner dialog, and the paste field the
+    // rider opens when they have the link as text rather than as a code.
+    var scanning by remember { mutableStateOf(false) }
+    var pasting by remember { mutableStateOf(false) }
+    var pasted by remember { mutableStateOf("") }
+    var pasteInvalid by remember { mutableStateOf(false) }
 
     // Resolved when the rider first looks at the Profile option, not on every
     // open: it reads the rider-id file and can hit the network.
@@ -247,11 +283,99 @@ fun ShareStartDialog(
     val profileMissing = mode == IdentityMode.PROFILE && profile is ProfilePreview.Missing
     val canConfirm = !starting && !nameMissing && !profileMissing
 
+    if (scanning && onJoinLink != null) {
+        ShareQrScanner(
+            onLink = { link ->
+                scanning = false
+                onJoinLink(link)
+            },
+            onDismiss = { scanning = false }
+        )
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(dismissOnClickOutside = false)
     ) {
         ShareDialogCard(stringResource(titleRes)) {
+            if (onJoinLink != null) {
+                ShareSection(stringResource(R.string.share_join_another)) {
+                    Spacer(Modifier.height(8.dp))
+                    // Paired actions, so a half/half row rather than two
+                    // stacked full-width buttons.
+                    Row(Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = { scanning = true },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = themedTonalButtonColors(),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                stringResource(R.string.share_scan_qr),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                // The rider tapped Paste, so the clipboard is
+                                // read once: if it already holds a link there
+                                // is nothing left to type.
+                                val clip = clipboardText(context)
+                                val link = parseShareText(clip)
+                                if (link != null) {
+                                    onJoinLink(link)
+                                } else {
+                                    pasting = true
+                                    pasteInvalid = false
+                                    pasted = clip
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = themedTonalButtonColors(),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                stringResource(R.string.share_paste_link),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    if (pasting) {
+                        Spacer(Modifier.height(10.dp))
+                        Box(Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = pasted,
+                                onValueChange = { typed ->
+                                    pasted = typed
+                                    // A link joins the moment it is complete:
+                                    // a separate confirm would only be a second
+                                    // tap on something already unambiguous.
+                                    val link = parseShareText(typed)
+                                    pasteInvalid = link == null && typed.isNotBlank()
+                                    if (link != null) onJoinLink(link)
+                                },
+                                singleLine = true,
+                                colors = themedFieldColors(),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                            )
+                            FieldNotchLabel(stringResource(R.string.share_paste_link))
+                        }
+                        if (pasteInvalid) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                stringResource(R.string.share_link_invalid),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.statusDanger
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
             ShareSection {
                 SegmentedChoice(
                     label = stringResource(R.string.share_show_me_as),

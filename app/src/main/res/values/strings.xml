@@ -2289,6 +2289,11 @@
     <string name="share_stats_desc">Speed, battery and temperature, shown to riders in this group.</string>
     <string name="share_profile_missing">No leaderboard profile yet.</string>
     <string name="share_profile_loading">Loading profile…</string>
+    <string name="share_join_another">Join another ride</string>
+    <string name="share_scan_qr">Scan QR</string>
+    <string name="share_paste_link">Paste link</string>
+    <string name="share_point_at_qr">Point the camera at the QR code</string>
+    <string name="share_camera_needed">Camera access is needed to scan a QR code.</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
     <!-- ==== Trip share / actions ==== -->

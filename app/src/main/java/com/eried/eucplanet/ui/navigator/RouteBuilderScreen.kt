@@ -1748,7 +1748,11 @@ fun RouteBuilderScreen(
                         // Left open on purpose: the moment the room exists
                         // this becomes the group view with the QR to share.
                         onStart = { identity -> viewModel.startShare(identity) },
-                        onDismiss = { shareDialogOpen = false }
+                        onDismiss = { shareDialogOpen = false },
+                        // A scanned or pasted link takes the same route an
+                        // App Link does, so it lands on the join step of this
+                        // very dialog with the "Join" label.
+                        onJoinLink = { link -> viewModel.offerJoin(link) },
                     )
                 }
 
