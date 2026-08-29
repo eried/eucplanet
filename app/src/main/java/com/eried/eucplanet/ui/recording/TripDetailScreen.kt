@@ -119,6 +119,7 @@ import com.eried.eucplanet.util.GraphScale
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
@@ -2694,7 +2695,7 @@ data class ChartOverlay(val values: List<Float>, val color: Color, val label: St
  * dashboard. Single-polarity data (no zero crossing) just draws the plain line.
  */
 @Composable
-private fun ChartCard(
+internal fun ChartCard(
     title: String,
     values: List<Float>,
     color: Color,
@@ -2941,13 +2942,22 @@ private fun ChartCard(
                                     netZoom *= zoom
                                     val pan = event.calculatePan()
                                     val centroid = event.calculateCentroid()
+                                    // Anchoring on the read only bites while the
+                                    // fingers are actually pinching. Two fingers
+                                    // always drift as a pair, and that drift used
+                                    // to slide the window out from under the line
+                                    // the anchor was holding. A deliberate
+                                    // two-finger drag (no pinch) still pans.
+                                    val readFrac = curScrubFrac.value
+                                    val pinching = abs(zoom - 1f) > 0.002f
+                                    val holdRead = readFrac != null && pinching
                                     if (zoom != 1f || pan.x != 0f) {
                                         val nw = ChartWindow.zoomPan(
                                             curWindow.value,
                                             zoom,
-                                            curScrubFrac.value
-                                                ?: (centroid.x / size.width).coerceIn(0f, 1f),
-                                            pan.x / size.width,
+                                            if (holdRead) readFrac!!
+                                            else (centroid.x / size.width).coerceIn(0f, 1f),
+                                            if (holdRead) 0f else pan.x / size.width,
                                         )
                                         if (nw.start > 0.001f || nw.endInclusive < 0.999f) leftFull = true
                                         curOnWindow.value?.invoke(nw)
