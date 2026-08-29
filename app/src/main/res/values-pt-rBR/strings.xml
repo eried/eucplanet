@@ -1579,7 +1579,7 @@
     <string name="share_identity_session">Sessão</string>
     <string name="share_identity_profile">Perfil</string>
     <string name="share_name_label">Nome</string>
-    <string name="share_stats_toggle">Compartilhar minhas estatísticas</string>
+    <string name="share_stats_toggle">Transmitir meus dados</string>
     <string name="share_start">Iniciar compartilhamento</string>
     <string name="share_join">Entrar</string>
     <string name="share_copy_link">Copiar link</string>
@@ -1596,7 +1596,7 @@
     <string name="share_switch_group">Sair do grupo atual e entrar neste?</string>
     <string name="share_cannot_reach">Não foi possível conectar ao serviço de compartilhamento</string>
     <string name="share_show_me_as">Mostrar como</string>
-    <string name="share_stats_desc">Velocidade, bateria e temperatura, visíveis para os riders deste grupo.</string>
+    <string name="share_stats_desc">Velocidade, bateria e temperatura</string>
     <string name="share_profile_missing">Ainda sem perfil no ranking.</string>
     <string name="share_profile_loading">Carregando perfil…</string>
     <string name="share_join_another">Entrar em outro passeio</string>
@@ -1611,6 +1611,10 @@
     <string name="share_start_new">Iniciar novo passeio</string>
     <string name="share_ride_ended">Este passeio terminou.</string>
     <string name="share_alone">Ainda não há mais ninguém aqui.</string>
+    <string name="share_open">Abrir</string>
+    <string name="share_copy">Copiar</string>
+    <string name="share_rider_count">%1$d riders</string>
+    <string name="share_scan_to_join">Escaneie para entrar</string>
     <string name="nav_end_body">Parar a orientação da rota ativa?</string>
     <string name="nav_end_confirm">Encerrar</string>
     <string name="nav_minimize">Minimizar</string>

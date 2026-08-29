@@ -800,7 +800,7 @@
     <string name="share_identity_session">Sessione</string>
     <string name="share_identity_profile">Profilo</string>
     <string name="share_name_label">Nome</string>
-    <string name="share_stats_toggle">Condividi le mie statistiche</string>
+    <string name="share_stats_toggle">Trasmetti i miei dati</string>
     <string name="share_start">Avvia condivisione</string>
     <string name="share_join">Unisciti</string>
     <string name="share_copy_link">Copia link</string>
@@ -817,7 +817,7 @@
     <string name="share_switch_group">Uscire dal gruppo attuale e unirsi a questo?</string>
     <string name="share_cannot_reach">Impossibile raggiungere il servizio di condivisione</string>
     <string name="share_show_me_as">Mostrami come</string>
-    <string name="share_stats_desc">Velocità, batteria e temperatura, visibili ai rider di questo gruppo.</string>
+    <string name="share_stats_desc">Velocità, batteria e temperatura</string>
     <string name="share_profile_missing">Nessun profilo in classifica.</string>
     <string name="share_profile_loading">Caricamento profilo…</string>
     <string name="share_join_another">Unisciti a un\'altra uscita</string>
@@ -832,6 +832,10 @@
     <string name="share_start_new">Avvia una nuova uscita</string>
     <string name="share_ride_ended">Questa uscita è terminata.</string>
     <string name="share_alone">Per ora non c\'è nessun altro qui.</string>
+    <string name="share_open">Apri</string>
+    <string name="share_copy">Copia</string>
+    <string name="share_rider_count">%1$d rider</string>
+    <string name="share_scan_to_join">Scansiona per unirti</string>
     <string name="nav_expand">Espandi</string>
     <string name="nav_label_destination">Destinazione</string>
     <string name="nav_label_next_stop">Prossima fermata</string>

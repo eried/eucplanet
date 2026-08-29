@@ -1588,7 +1588,7 @@
     <string name="share_identity_session">Session</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Navn</string>
-    <string name="share_stats_toggle">Del mine statistikker</string>
+    <string name="share_stats_toggle">Send mine data</string>
     <string name="share_start">Start deling</string>
     <string name="share_join">Deltag</string>
     <string name="share_copy_link">Kopiér link</string>
@@ -1605,7 +1605,7 @@
     <string name="share_switch_group">Forlad nuværende gruppe og deltag i denne?</string>
     <string name="share_cannot_reach">Kan ikke oprette forbindelse til delingstjenesten</string>
     <string name="share_show_me_as">Vis mig som</string>
-    <string name="share_stats_desc">Hastighed, batteri og temperatur, synligt for riders i denne gruppe.</string>
+    <string name="share_stats_desc">Hastighed, batteri og temperatur</string>
     <string name="share_profile_missing">Ingen profil på ranglisten endnu.</string>
     <string name="share_profile_loading">Indlæser profil…</string>
     <string name="share_join_another">Deltag i en anden tur</string>
@@ -1620,6 +1620,10 @@
     <string name="share_start_new">Start en ny tur</string>
     <string name="share_ride_ended">Denne tur er slut.</string>
     <string name="share_alone">Der er ingen andre her endnu.</string>
+    <string name="share_open">Åbn</string>
+    <string name="share_copy">Kopiér</string>
+    <string name="share_rider_count">%1$d ryttere</string>
+    <string name="share_scan_to_join">Scan for at deltage</string>
     <string name="nav_end_body">Stop vejledningen for den aktive rute?</string>
     <string name="nav_end_confirm">Afslut</string>
     <string name="nav_minimize">Minimér</string>

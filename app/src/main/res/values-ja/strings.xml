@@ -1576,7 +1576,7 @@
     <string name="share_identity_session">今回</string>
     <string name="share_identity_profile">プロフィール</string>
     <string name="share_name_label">名前</string>
-    <string name="share_stats_toggle">自分の統計を共有</string>
+    <string name="share_stats_toggle">自分の統計を配信</string>
     <string name="share_start">共有を開始</string>
     <string name="share_join">参加</string>
     <string name="share_copy_link">リンクをコピー</string>
@@ -1593,7 +1593,7 @@
     <string name="share_switch_group">現在のグループを退出してこちらに参加しますか?</string>
     <string name="share_cannot_reach">共有サービスに接続できません</string>
     <string name="share_show_me_as">表示方法</string>
-    <string name="share_stats_desc">速度、バッテリー、温度をこのグループのライダーに表示します。</string>
+    <string name="share_stats_desc">速度、バッテリー、温度</string>
     <string name="share_profile_missing">ランキングのプロフィールがまだありません。</string>
     <string name="share_profile_loading">プロフィールを読み込み中…</string>
     <string name="share_join_another">別のライドに参加</string>
@@ -1608,6 +1608,10 @@
     <string name="share_start_new">新しいライドを開始</string>
     <string name="share_ride_ended">このライドは終了しました。</string>
     <string name="share_alone">まだ他に誰もいません。</string>
+    <string name="share_open">開く</string>
+    <string name="share_copy">コピー</string>
+    <string name="share_rider_count">%1$d 人</string>
+    <string name="share_scan_to_join">スキャンして参加</string>
     <string name="nav_end_body">現在のルートのガイダンスを停止しますか？</string>
     <string name="nav_end_confirm">終了</string>
     <string name="nav_minimize">最小化</string>

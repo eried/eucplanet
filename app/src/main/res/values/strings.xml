@@ -2294,7 +2294,7 @@
     <string name="share_identity_session">Session</string>
     <string name="share_identity_profile">Profile</string>
     <string name="share_name_label">Name</string>
-    <string name="share_stats_toggle">Share my stats</string>
+    <string name="share_stats_toggle">Broadcast my stats</string>
     <string name="share_start">Start sharing</string>
     <string name="share_join">Join</string>
     <string name="share_copy_link">Copy link</string>
@@ -2311,7 +2311,7 @@
     <string name="share_switch_group">Leave current group and join this one?</string>
     <string name="share_cannot_reach">Cannot reach the share service</string>
     <string name="share_show_me_as">Show me as</string>
-    <string name="share_stats_desc">Speed, battery and temperature, shown to riders in this group.</string>
+    <string name="share_stats_desc">Speed, battery and temperature</string>
     <string name="share_profile_missing">No leaderboard profile yet.</string>
     <string name="share_profile_loading">Loading profile…</string>
     <string name="share_join_another">Join another ride</string>

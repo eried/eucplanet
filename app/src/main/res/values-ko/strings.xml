@@ -1576,7 +1576,7 @@
     <string name="share_identity_session">이번</string>
     <string name="share_identity_profile">프로필</string>
     <string name="share_name_label">이름</string>
-    <string name="share_stats_toggle">내 통계 공유</string>
+    <string name="share_stats_toggle">내 정보 전송</string>
     <string name="share_start">공유 시작</string>
     <string name="share_join">참여</string>
     <string name="share_copy_link">링크 복사</string>
@@ -1593,7 +1593,7 @@
     <string name="share_switch_group">현재 그룹을 나가고 이 그룹에 참가하시겠습니까?</string>
     <string name="share_cannot_reach">공유 서비스에 연결할 수 없습니다</string>
     <string name="share_show_me_as">표시 방식</string>
-    <string name="share_stats_desc">속도, 배터리, 온도를 이 그룹의 라이더에게 표시합니다.</string>
+    <string name="share_stats_desc">속도, 배터리, 온도</string>
     <string name="share_profile_missing">아직 리더보드 프로필이 없습니다.</string>
     <string name="share_profile_loading">프로필 불러오는 중…</string>
     <string name="share_join_another">다른 라이드 참여</string>
@@ -1608,6 +1608,10 @@
     <string name="share_start_new">새 라이드 시작</string>
     <string name="share_ride_ended">이 라이드는 종료되었습니다.</string>
     <string name="share_alone">아직 여기 아무도 없어요.</string>
+    <string name="share_open">열기</string>
+    <string name="share_copy">복사</string>
+    <string name="share_rider_count">%1$d명</string>
+    <string name="share_scan_to_join">스캔하여 참가</string>
     <string name="nav_end_body">현재 경로의 안내를 중지하시겠습니까?</string>
     <string name="nav_end_confirm">종료</string>
     <string name="nav_minimize">최소화</string>

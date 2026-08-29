@@ -1611,7 +1611,7 @@
     <string name="share_identity_session">Сеанс</string>
     <string name="share_identity_profile">Профіль</string>
     <string name="share_name_label">Ім\'я</string>
-    <string name="share_stats_toggle">Ділитися своєю статистикою</string>
+    <string name="share_stats_toggle">Передавати мої дані</string>
     <string name="share_start">Почати трансляцію</string>
     <string name="share_join">Приєднатися</string>
     <string name="share_copy_link">Копіювати посилання</string>
@@ -1628,7 +1628,7 @@
     <string name="share_switch_group">Покинути поточну групу й приєднатися до цієї?</string>
     <string name="share_cannot_reach">Не вдається зв\'язатися зі службою трансляції</string>
     <string name="share_show_me_as">Показувати мене як</string>
-    <string name="share_stats_desc">Швидкість, заряд і температура, видно райдерам у цій групі.</string>
+    <string name="share_stats_desc">Швидкість, батарея і температура</string>
     <string name="share_profile_missing">Профілю в рейтингу ще немає.</string>
     <string name="share_profile_loading">Завантаження профілю…</string>
     <string name="share_join_another">Приєднатися до іншої поїздки</string>
@@ -1643,6 +1643,10 @@
     <string name="share_start_new">Почати нову поїздку</string>
     <string name="share_ride_ended">Ця поїздка завершена.</string>
     <string name="share_alone">Тут поки що нікого більше немає.</string>
+    <string name="share_open">Відкрити</string>
+    <string name="share_copy">Копіювати</string>
+    <string name="share_rider_count">Райдерів: %1$d</string>
+    <string name="share_scan_to_join">Скануйте, щоб приєднатися</string>
     <string name="nav_end_body">Зупинити супровід активного маршруту?</string>
     <string name="nav_end_confirm">Завершити</string>
     <string name="nav_minimize">Згорнути</string>

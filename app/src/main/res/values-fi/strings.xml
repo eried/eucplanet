@@ -1841,7 +1841,7 @@
     <string name="share_identity_session">Istunto</string>
     <string name="share_identity_profile">Profiili</string>
     <string name="share_name_label">Nimi</string>
-    <string name="share_stats_toggle">Jaa tilastoni</string>
+    <string name="share_stats_toggle">Lähetä tietoni</string>
     <string name="share_start">Aloita jakaminen</string>
     <string name="share_join">Liity</string>
     <string name="share_copy_link">Kopioi linkki</string>
@@ -1858,7 +1858,7 @@
     <string name="share_switch_group">Poistu nykyisestä ryhmästä ja liity tähän?</string>
     <string name="share_cannot_reach">Jakopalveluun ei saada yhteyttä</string>
     <string name="share_show_me_as">Näytä minut</string>
-    <string name="share_stats_desc">Nopeus, akku ja lämpötila näkyvät tämän ryhmän ajajille.</string>
+    <string name="share_stats_desc">Nopeus, akku ja lämpötila</string>
     <string name="share_profile_missing">Ei vielä tulostaulun profiilia.</string>
     <string name="share_profile_loading">Ladataan profiilia…</string>
     <string name="share_join_another">Liity toiseen ajoon</string>
@@ -1873,6 +1873,10 @@
     <string name="share_start_new">Aloita uusi ajo</string>
     <string name="share_ride_ended">Tämä ajo on päättynyt.</string>
     <string name="share_alone">Täällä ei ole vielä ketään muuta.</string>
+    <string name="share_open">Avaa</string>
+    <string name="share_copy">Kopioi</string>
+    <string name="share_rider_count">%1$d kuljettajaa</string>
+    <string name="share_scan_to_join">Skannaa liittyäksesi</string>
     <string name="nav_end_body">Pysäytetäänkö aktiivisen reitin opastus?</string>
     <string name="nav_end_confirm">Lopeta</string>
     <string name="nav_minimize">Pienennä</string>

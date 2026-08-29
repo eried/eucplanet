@@ -781,7 +781,7 @@
     <string name="share_identity_session">Økt</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Navn</string>
-    <string name="share_stats_toggle">Del statistikken min</string>
+    <string name="share_stats_toggle">Send mine data</string>
     <string name="share_start">Start deling</string>
     <string name="share_join">Bli med</string>
     <string name="share_copy_link">Kopier lenke</string>
@@ -798,7 +798,7 @@
     <string name="share_switch_group">Forlate nåværende gruppe og bli med i denne?</string>
     <string name="share_cannot_reach">Får ikke kontakt med delingstjenesten</string>
     <string name="share_show_me_as">Vis meg som</string>
-    <string name="share_stats_desc">Hastighet, batteri og temperatur, synlig for riderne i denne gruppen.</string>
+    <string name="share_stats_desc">Hastighet, batteri og temperatur</string>
     <string name="share_profile_missing">Ingen resultatlisteprofil ennå.</string>
     <string name="share_profile_loading">Laster profil…</string>
     <string name="share_join_another">Bli med på en annen tur</string>
@@ -813,6 +813,10 @@
     <string name="share_start_new">Start en ny tur</string>
     <string name="share_ride_ended">Denne turen er over.</string>
     <string name="share_alone">Ingen andre her ennå.</string>
+    <string name="share_open">Åpne</string>
+    <string name="share_copy">Kopier</string>
+    <string name="share_rider_count">%1$d ryttere</string>
+    <string name="share_scan_to_join">Skann for å bli med</string>
     <string name="nav_expand">Utvid</string>
     <string name="nav_label_destination">Bestemmelsessted</string>
     <string name="nav_label_next_stop">Neste stopp</string>

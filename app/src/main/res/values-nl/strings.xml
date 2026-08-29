@@ -1634,7 +1634,7 @@
     <string name="share_identity_session">Sessie</string>
     <string name="share_identity_profile">Profiel</string>
     <string name="share_name_label">Naam</string>
-    <string name="share_stats_toggle">Mijn statistieken delen</string>
+    <string name="share_stats_toggle">Mijn stats uitzenden</string>
     <string name="share_start">Delen starten</string>
     <string name="share_join">Deelnemen</string>
     <string name="share_copy_link">Link kopiëren</string>
@@ -1651,7 +1651,7 @@
     <string name="share_switch_group">Huidige groep verlaten en aan deze deelnemen?</string>
     <string name="share_cannot_reach">Kan de deelservice niet bereiken</string>
     <string name="share_show_me_as">Toon mij als</string>
-    <string name="share_stats_desc">Snelheid, accu en temperatuur, zichtbaar voor riders in deze groep.</string>
+    <string name="share_stats_desc">Snelheid, accu en temperatuur</string>
     <string name="share_profile_missing">Nog geen ranglijstprofiel.</string>
     <string name="share_profile_loading">Profiel laden…</string>
     <string name="share_join_another">Andere rit joinen</string>
@@ -1666,6 +1666,10 @@
     <string name="share_start_new">Nieuwe rit starten</string>
     <string name="share_ride_ended">Deze rit is afgelopen.</string>
     <string name="share_alone">Hier is nog niemand anders.</string>
+    <string name="share_open">Openen</string>
+    <string name="share_copy">Kopiëren</string>
+    <string name="share_rider_count">%1$d riders</string>
+    <string name="share_scan_to_join">Scan om deel te nemen</string>
     <string name="nav_end_body">De begeleiding voor de actieve route stoppen?</string>
     <string name="nav_end_confirm">Beëindigen</string>
     <string name="nav_minimize">Minimaliseren</string>

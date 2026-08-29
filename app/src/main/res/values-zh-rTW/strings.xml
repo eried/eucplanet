@@ -1576,7 +1576,7 @@
     <string name="share_identity_session">本次</string>
     <string name="share_identity_profile">個人資料</string>
     <string name="share_name_label">名稱</string>
-    <string name="share_stats_toggle">分享我的統計資料</string>
+    <string name="share_stats_toggle">廣播我的數據</string>
     <string name="share_start">開始分享</string>
     <string name="share_join">加入</string>
     <string name="share_copy_link">複製連結</string>
@@ -1593,7 +1593,7 @@
     <string name="share_switch_group">要離開目前的群組並加入這個群組嗎？</string>
     <string name="share_cannot_reach">無法連線至分享服務</string>
     <string name="share_show_me_as">顯示為</string>
-    <string name="share_stats_desc">速度、電量和溫度，向本群組騎手顯示。</string>
+    <string name="share_stats_desc">速度、電量和溫度</string>
     <string name="share_profile_missing">尚無排行榜資料。</string>
     <string name="share_profile_loading">正在載入資料…</string>
     <string name="share_join_another">加入其他行程</string>
@@ -1608,6 +1608,10 @@
     <string name="share_start_new">開始新行程</string>
     <string name="share_ride_ended">此行程已結束。</string>
     <string name="share_alone">這裡還沒有其他人。</string>
+    <string name="share_open">開啟</string>
+    <string name="share_copy">複製</string>
+    <string name="share_rider_count">%1$d 人</string>
+    <string name="share_scan_to_join">掃碼加入</string>
     <string name="nav_end_body">停止目前路線的導航？</string>
     <string name="nav_end_confirm">結束</string>
     <string name="nav_minimize">最小化</string>

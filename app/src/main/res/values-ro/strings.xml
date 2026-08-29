@@ -1841,7 +1841,7 @@
     <string name="share_identity_session">Sesiune</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Nume</string>
-    <string name="share_stats_toggle">Distribuie statisticile mele</string>
+    <string name="share_stats_toggle">Transmite datele mele</string>
     <string name="share_start">Începe distribuirea</string>
     <string name="share_join">Alătură-te</string>
     <string name="share_copy_link">Copiază linkul</string>
@@ -1858,7 +1858,7 @@
     <string name="share_switch_group">Părăsești grupul curent pentru a te alătura acestuia?</string>
     <string name="share_cannot_reach">Serviciul de distribuire nu poate fi contactat</string>
     <string name="share_show_me_as">Arată-mă ca</string>
-    <string name="share_stats_desc">Viteza, bateria și temperatura, vizibile conducătorilor din acest grup.</string>
+    <string name="share_stats_desc">Viteză, baterie și temperatură</string>
     <string name="share_profile_missing">Încă nu ai profil în clasament.</string>
     <string name="share_profile_loading">Se încarcă profilul…</string>
     <string name="share_join_another">Alătură-te altei ture</string>
@@ -1873,6 +1873,10 @@
     <string name="share_start_new">Începe o tură nouă</string>
     <string name="share_ride_ended">Această tură s-a încheiat.</string>
     <string name="share_alone">Încă nu mai e nimeni altcineva aici.</string>
+    <string name="share_open">Deschide</string>
+    <string name="share_copy">Copiază</string>
+    <string name="share_rider_count">%1$d rideri</string>
+    <string name="share_scan_to_join">Scanează pentru a te alătura</string>
     <string name="nav_end_body">Oprești ghidarea pentru traseul activ?</string>
     <string name="nav_end_confirm">Încheie</string>
     <string name="nav_minimize">Minimizează</string>

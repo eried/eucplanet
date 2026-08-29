@@ -1576,7 +1576,7 @@
     <string name="share_identity_session">Oturum</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Ad</string>
-    <string name="share_stats_toggle">İstatistiklerimi paylaş</string>
+    <string name="share_stats_toggle">Verilerimi yayınla</string>
     <string name="share_start">Paylaşmayı başlat</string>
     <string name="share_join">Katıl</string>
     <string name="share_copy_link">Bağlantıyı kopyala</string>
@@ -1593,7 +1593,7 @@
     <string name="share_switch_group">Mevcut gruptan ayrılıp buna katılmak ister misin?</string>
     <string name="share_cannot_reach">Paylaşım hizmetine ulaşılamıyor</string>
     <string name="share_show_me_as">Beni şöyle göster</string>
-    <string name="share_stats_desc">Hız, batarya ve sıcaklık, bu gruptaki sürücülere gösterilir.</string>
+    <string name="share_stats_desc">Hız, batarya ve sıcaklık</string>
     <string name="share_profile_missing">Henüz sıralama profili yok.</string>
     <string name="share_profile_loading">Profil yükleniyor…</string>
     <string name="share_join_another">Başka bir sürüşe katıl</string>
@@ -1608,6 +1608,10 @@
     <string name="share_start_new">Yeni sürüş başlat</string>
     <string name="share_ride_ended">Bu sürüş sona erdi.</string>
     <string name="share_alone">Henüz burada başka kimse yok.</string>
+    <string name="share_open">Aç</string>
+    <string name="share_copy">Kopyala</string>
+    <string name="share_rider_count">%1$d rider</string>
+    <string name="share_scan_to_join">Katılmak için tarayın</string>
     <string name="nav_end_body">Aktif rota rehberliği durdurulsun mu?</string>
     <string name="nav_end_confirm">Bitir</string>
     <string name="nav_minimize">Küçült</string>

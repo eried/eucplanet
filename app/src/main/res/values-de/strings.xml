@@ -1609,7 +1609,7 @@
     <string name="share_identity_session">Sitzung</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Name</string>
-    <string name="share_stats_toggle">Meine Statistiken teilen</string>
+    <string name="share_stats_toggle">Meine Werte senden</string>
     <string name="share_start">Teilen starten</string>
     <string name="share_join">Beitreten</string>
     <string name="share_copy_link">Link kopieren</string>
@@ -1626,7 +1626,7 @@
     <string name="share_switch_group">Aktuelle Gruppe verlassen und dieser beitreten?</string>
     <string name="share_cannot_reach">Der Freigabedienst ist nicht erreichbar</string>
     <string name="share_show_me_as">Anzeigen als</string>
-    <string name="share_stats_desc">Geschwindigkeit, Akku und Temperatur, sichtbar für Rider in dieser Gruppe.</string>
+    <string name="share_stats_desc">Geschwindigkeit, Akku und Temperatur</string>
     <string name="share_profile_missing">Noch kein Bestenlisten-Profil.</string>
     <string name="share_profile_loading">Profil wird geladen…</string>
     <string name="share_join_another">Anderer Fahrt beitreten</string>
@@ -1641,6 +1641,10 @@
     <string name="share_start_new">Neue Fahrt starten</string>
     <string name="share_ride_ended">Diese Fahrt ist beendet.</string>
     <string name="share_alone">Noch ist niemand sonst hier.</string>
+    <string name="share_open">Öffnen</string>
+    <string name="share_copy">Kopieren</string>
+    <string name="share_rider_count">%1$d Rider</string>
+    <string name="share_scan_to_join">Zum Beitreten scannen</string>
     <string name="nav_end_body">Die Führung für die aktive Route stoppen?</string>
     <string name="nav_end_confirm">Beenden</string>
     <string name="nav_minimize">Minimieren</string>

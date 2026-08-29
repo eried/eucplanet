@@ -1841,7 +1841,7 @@
     <string name="share_identity_session">Relace</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Jméno</string>
-    <string name="share_stats_toggle">Sdílet mé statistiky</string>
+    <string name="share_stats_toggle">Vysílat má data</string>
     <string name="share_start">Zahájit sdílení</string>
     <string name="share_join">Připojit se</string>
     <string name="share_copy_link">Kopírovat odkaz</string>
@@ -1858,7 +1858,7 @@
     <string name="share_switch_group">Opustit současnou skupinu a připojit se k této?</string>
     <string name="share_cannot_reach">Nelze se připojit ke službě sdílení</string>
     <string name="share_show_me_as">Zobrazit mě jako</string>
-    <string name="share_stats_desc">Rychlost, baterie a teplota, viditelné pro jezdce v této skupině.</string>
+    <string name="share_stats_desc">Rychlost, baterie a teplota</string>
     <string name="share_profile_missing">Zatím žádný profil v žebříčku.</string>
     <string name="share_profile_loading">Načítání profilu…</string>
     <string name="share_join_another">Připojit se k jiné jízdě</string>
@@ -1873,6 +1873,10 @@
     <string name="share_start_new">Začít novou jízdu</string>
     <string name="share_ride_ended">Tato jízda skončila.</string>
     <string name="share_alone">Zatím tu není nikdo jiný.</string>
+    <string name="share_open">Otevřít</string>
+    <string name="share_copy">Kopírovat</string>
+    <string name="share_rider_count">Jezdci: %1$d</string>
+    <string name="share_scan_to_join">Naskenujte pro připojení</string>
     <string name="nav_end_body">Zastavit navádění po aktivní trase?</string>
     <string name="nav_end_confirm">Ukončit</string>
     <string name="nav_minimize">Minimalizovat</string>
