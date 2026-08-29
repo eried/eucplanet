@@ -34,6 +34,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -72,7 +73,6 @@ import com.eried.eucplanet.ui.settings.SwitchSettingWithDesc
 import com.eried.eucplanet.ui.theme.FieldNotchLabel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
-import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -146,7 +146,12 @@ private fun clipboardText(context: Context): String {
 @Composable
 internal fun ShareDialogCard(title: String, content: @Composable ColumnScope.() -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        // Paired with usePlatformDefaultWidth = false at every call site. The
+        // platform default is narrow enough that the three identity segments
+        // get about 57dp of text each, which is what used to break "Anonymous"
+        // across two lines; the shared control cannot fix a row it is not
+        // given room for.
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.appColors.dialog,
@@ -237,10 +242,17 @@ fun ShareStartDialog(
     // the confirm label is passed in rather than hardcoded, and defaults to
     // the "start a group" label since that is the more common entry point.
     confirmLabelRes: Int = R.string.share_start,
-    /** Hands back a scanned or pasted link. Null while this dialog IS the join
-     *  step for a link the rider already gave us, where offering to join a
-     *  second ride would only be confusing. */
-    onJoinLink: ((ShareLink) -> Unit)? = null,
+    /**
+     * Joins the ride behind a scanned or pasted link. Non-null only on the
+     * "not sharing yet" entry point: when this dialog IS the join step for a
+     * link that arrived from outside the app, offering to join a second ride
+     * would only be confusing.
+     *
+     * The captured link is held here rather than handed straight back, so the
+     * rider stays in ONE dialog: the identity they are looking at is the one
+     * they will join as, and this window is never torn down mid-flow.
+     */
+    onJoin: ((ShareLink, Identity) -> Unit)? = null,
     /** The ride the rider last left, offered back to them above the confirm
      *  row. Null when there is nothing to go back to. */
     lastLink: ShareLink? = null,
@@ -270,6 +282,9 @@ fun ShareStartDialog(
     var pasting by remember { mutableStateOf(false) }
     var pasted by remember { mutableStateOf("") }
     var pasteInvalid by remember { mutableStateOf(false) }
+    /** A link the rider scanned or pasted. While it is set the dialog is the
+     *  join step for that ride: same identity controls, different confirm. */
+    var joinLink by remember { mutableStateOf<ShareLink?>(null) }
 
     // Resolved when the rider first looks at the Profile option, not on every
     // open: it reads the rider-id file and can hit the network.
@@ -288,7 +303,7 @@ fun ShareStartDialog(
     val canConfirm = !starting && !nameMissing && !profileMissing
     // Only the "not sharing yet" entry point can rejoin: on the join step the
     // rider already said which ride they mean.
-    val canRejoin = lastLink != null && onRejoin != null && onJoinLink != null
+    val canRejoin = lastLink != null && onRejoin != null && onJoin != null && joinLink == null
     // The identity applies to whichever button is pressed, so the two share
     // one resolve. It reads the rider-id file and may hit the network.
     val confirmWith: (((Identity) -> Unit)) -> Unit = { action ->
@@ -296,11 +311,11 @@ fun ShareStartDialog(
         scope.launch { action(resolveIdentity(mode, name, shareStats)) }
     }
 
-    if (scanning && onJoinLink != null) {
+    if (scanning && onJoin != null) {
         ShareQrScanner(
             onLink = { link ->
                 scanning = false
-                onJoinLink(link)
+                joinLink = link
             },
             onDismiss = { scanning = false }
         )
@@ -308,19 +323,27 @@ fun ShareStartDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(dismissOnClickOutside = false)
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        )
     ) {
-        ShareDialogCard(stringResource(titleRes)) {
-            if (onJoinLink != null) {
+        ShareDialogCard(
+            stringResource(if (joinLink != null) R.string.share_join_title else titleRes)
+        ) {
+            if (onJoin != null) {
                 ShareSection(stringResource(R.string.share_join_another)) {
                     Spacer(Modifier.height(8.dp))
                     // Paired actions, so a half/half row rather than two
                     // stacked full-width buttons.
                     Row(Modifier.fillMaxWidth()) {
-                        Button(
+                        OutlinedButton(
                             onClick = { scanning = true },
                             shape = RoundedCornerShape(12.dp),
-                            colors = themedTonalButtonColors(),
+                            border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.appColors.textButton
+                            ),
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
@@ -330,7 +353,7 @@ fun ShareStartDialog(
                             )
                         }
                         Spacer(Modifier.width(8.dp))
-                        Button(
+                        OutlinedButton(
                             onClick = {
                                 // The rider tapped Paste, so the clipboard is
                                 // read once: if it already holds a link there
@@ -338,7 +361,10 @@ fun ShareStartDialog(
                                 val clip = clipboardText(context)
                                 val link = parseShareText(clip)
                                 if (link != null) {
-                                    onJoinLink(link)
+                                    joinLink = link
+                                    pasting = true
+                                    pasted = clip
+                                    pasteInvalid = false
                                 } else {
                                     pasting = true
                                     pasteInvalid = false
@@ -346,7 +372,10 @@ fun ShareStartDialog(
                                 }
                             },
                             shape = RoundedCornerShape(12.dp),
-                            colors = themedTonalButtonColors(),
+                            border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.appColors.textButton
+                            ),
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
@@ -363,12 +392,12 @@ fun ShareStartDialog(
                                 value = pasted,
                                 onValueChange = { typed ->
                                     pasted = typed
-                                    // A link joins the moment it is complete:
-                                    // a separate confirm would only be a second
-                                    // tap on something already unambiguous.
+                                    // The confirm button follows the field: a
+                                    // complete link turns it into Join, and
+                                    // clearing the field turns it back.
                                     val link = parseShareText(typed)
                                     pasteInvalid = link == null && typed.isNotBlank()
-                                    if (link != null) onJoinLink(link)
+                                    joinLink = link
                                 },
                                 singleLine = true,
                                 colors = themedFieldColors(),
@@ -470,7 +499,12 @@ fun ShareStartDialog(
                 Spacer(Modifier.width(8.dp))
                 Button(
                     enabled = canConfirm,
-                    onClick = { confirmWith(onStart) },
+                    onClick = {
+                        val link = joinLink
+                        val join = onJoin
+                        if (link != null && join != null) confirmWith { join(link, it) }
+                        else confirmWith(onStart)
+                    },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.appColors.primary,
@@ -490,7 +524,11 @@ fun ShareStartDialog(
                         // same thing; it is the other ride that is on offer.
                         Text(
                             stringResource(
-                                if (canRejoin) R.string.share_start_new else confirmLabelRes
+                                when {
+                                    joinLink != null -> R.string.share_join
+                                    canRejoin -> R.string.share_start_new
+                                    else -> confirmLabelRes
+                                }
                             ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -577,7 +615,10 @@ fun ShareGroupDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(dismissOnClickOutside = false)
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        )
     ) {
         ShareDialogCard(stringResource(R.string.share_title)) {
             val copiedMsg = stringResource(R.string.share_copied)

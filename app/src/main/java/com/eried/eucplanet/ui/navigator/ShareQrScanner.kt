@@ -102,7 +102,10 @@ fun ShareQrScanner(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(dismissOnClickOutside = false)
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        )
     ) {
         ShareDialogCard(stringResource(R.string.share_scan_qr)) {
             Box(
@@ -165,11 +168,7 @@ private fun QrCameraPreview(
     // One decode at a time on one thread: MultiFormatReader keeps state
     // between calls and is not safe to share across threads.
     val executor = remember { Executors.newSingleThreadExecutor() }
-    val reader = remember {
-        MultiFormatReader().apply {
-            setHints(mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE)))
-        }
-    }
+    val reader = remember { qrReader() }
     // A QR sits in frame for many frames, and the dialog takes a moment to
     // close: without this latch the same link would be handed back a dozen
     // times and the join would fire repeatedly.
@@ -258,10 +257,36 @@ private fun ImageProxy.decodeQr(reader: MultiFormatReader): String? {
             for (x in 0 until w) gray[out++] = row[x * pixelStride]
         }
     }
-    val source = PlanarYUVLuminanceSource(gray, w, h, 0, 0, w, h, false)
+    return decodeQrLuminance(gray, w, h, reader)
+}
+
+/**
+ * Decode one tightly packed 8-bit greyscale frame. Split out from the camera
+ * path so the ZXing wiring - the QR-only hint, the luminance source geometry
+ * and the reader's between-frame reset - can be pinned by a JVM test instead
+ * of only by pointing a phone at a code.
+ *
+ * [reader] must already carry the POSSIBLE_FORMATS hint: decodeWithState is
+ * what keeps it, where plain decode() would clear the hints on every call.
+ */
+internal fun decodeQrLuminance(
+    gray: ByteArray,
+    width: Int,
+    height: Int,
+    reader: MultiFormatReader,
+): String? {
+    if (width <= 0 || height <= 0 || gray.size < width * height) return null
+    val source = PlanarYUVLuminanceSource(gray, width, height, 0, 0, width, height, false)
     val text = runCatching {
         reader.decodeWithState(BinaryBitmap(HybridBinarizer(source))).text
     }.getOrNull()
+    // The reader caches the previous frame's decoding hints and state; without
+    // the reset a frame that failed can poison the next one.
     reader.reset()
     return text
+}
+
+/** A reader hinted to QR alone, shared by the camera path and its test. */
+internal fun qrReader(): MultiFormatReader = MultiFormatReader().apply {
+    setHints(mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE)))
 }
