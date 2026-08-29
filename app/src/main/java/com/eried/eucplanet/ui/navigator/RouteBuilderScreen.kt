@@ -763,11 +763,16 @@ fun RouteBuilderScreen(
                     // peer who left or aged out to LOST is still in the map
                     // (the group list keeps showing them, greyed, by design)
                     // but is not "currently in it", so the badge excludes them.
-                    val sharePeers = (shareState as? ShareState.Joined)?.peers?.values
+                    val joinedShare = shareState as? ShareState.Joined
+                    val sharePeers = joinedShare?.peers?.values
                         ?.count { !it.left && it.freshness != Freshness.LOST } ?: 0
                     BadgedBox(
                         badge = {
-                            if (sharePeers > 0) {
+                            // Shown from zero up: while a group is running the
+                            // badge itself is the "you are sharing" signal, and
+                            // a 0 is the honest answer to how many friends are
+                            // in it. Hiding it at 0 made a live share look off.
+                            if (joinedShare != null) {
                                 Badge(
                                     containerColor = MaterialTheme.appColors.primary,
                                     contentColor = MaterialTheme.appColors.onPrimary
@@ -779,7 +784,7 @@ fun RouteBuilderScreen(
                             Icon(
                                 Icons.Default.Share,
                                 stringResource(R.string.share_button),
-                                tint = if (shareState is ShareState.Joined) {
+                                tint = if (joinedShare != null) {
                                     MaterialTheme.appColors.statusGood
                                 } else {
                                     MaterialTheme.appColors.textPrimary

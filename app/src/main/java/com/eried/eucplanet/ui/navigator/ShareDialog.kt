@@ -4,28 +4,31 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
@@ -33,6 +36,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -51,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -148,7 +153,14 @@ internal fun parseShareText(raw: String): ShareLink? {
  * the same look the floating theme editor and the studio replay panel use.
  */
 @Composable
-internal fun ShareDialogCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+internal fun ShareDialogCard(
+    title: String,
+    /** Lets the body scroll under a pinned title strip. The group view needs
+     *  it: its QR is as wide as the dialog, so a long enough rider list would
+     *  otherwise push Close and Leave off the bottom of the screen. */
+    scrollable: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Card(
         // Paired with usePlatformDefaultWidth = false at every call site. The
         // platform default is narrow enough that the three identity segments
@@ -184,7 +196,16 @@ internal fun ShareDialogCard(title: String, content: @Composable ColumnScope.() 
                     color = MaterialTheme.appColors.textPrimary,
                 )
             }
-            Column(Modifier.fillMaxWidth().padding(16.dp), content = content)
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (scrollable) Modifier.verticalScroll(rememberScrollState())
+                        else Modifier
+                    )
+                    .padding(16.dp),
+                content = content,
+            )
         }
     }
 }
@@ -561,7 +582,6 @@ private fun ProfilePreviewCard(profile: ProfilePreview) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShareGroupDialog(
     state: ShareState.Joined,
@@ -583,120 +603,165 @@ fun ShareGroupDialog(
             usePlatformDefaultWidth = false,
         )
     ) {
-        ShareDialogCard(stringResource(R.string.share_title)) {
+        ShareDialogCard(stringResource(R.string.share_title), scrollable = true) {
             val copiedMsg = stringResource(R.string.share_copied)
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                // The QR is what a friend standing next to the rider scans.
-                // Long-pressing it still copies the raw link, for the rare
-                // case of pasting it somewhere the share sheet cannot reach.
-                Box(
-                    modifier = Modifier.combinedClickable(
-                        onClick = {},
-                        onLongClick = {
-                            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
-                                as? ClipboardManager
-                            cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
-                            onNotify(copiedMsg)
-                        }
-                    )
-                ) {
-                    QrCodeImage(content = url, sizeDp = 180)
-                }
-            }
-            Spacer(Modifier.height(12.dp))
-            // One way out to friends who are not here: the share sheet, with a
-            // sentence around the link. The link itself is not shown - it is 60
-            // characters of base64 nobody reads, and it filled the dialog.
-            Button(
-                onClick = {
-                    val send = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            context.getString(R.string.share_invite_text, url)
-                        )
-                        putExtra(
-                            Intent.EXTRA_SUBJECT,
-                            context.getString(R.string.share_invite_subject)
-                        )
-                    }
-                    context.startActivity(
-                        Intent.createChooser(
-                            send, context.getString(R.string.share_invite_subject)
-                        )
-                    )
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.appColors.primary,
-                    contentColor = MaterialTheme.appColors.onPrimary
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    stringResource(R.string.action_share),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Spacer(Modifier.height(12.dp))
             // The relay reports a full room by closing with 1013, which the
             // session turns into one typed marker; every other error means
             // the service is simply out of reach.
             val roomFull = state.error == ShareSession.ERR_ROOM_FULL
-            Text(
-                text = when {
-                    roomFull -> stringResource(R.string.share_room_full)
-                    state.connected -> stringResource(R.string.share_connected)
-                    state.error != null -> stringResource(R.string.share_cannot_reach)
-                    else -> stringResource(R.string.share_reconnecting)
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = when {
-                    roomFull || state.error != null -> MaterialTheme.appColors.statusDanger
-                    state.connected -> MaterialTheme.appColors.statusGood
-                    else -> MaterialTheme.appColors.statusWarn
-                }
-            )
-            Spacer(Modifier.height(10.dp))
-            Text(
-                "${stringResource(R.string.share_riders)} (${peers.size})",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.appColors.sectionHeader
-            )
-            Spacer(Modifier.height(4.dp))
-            // Nobody else is in the room, either because no one has joined yet
-            // or every other rider has left. This also covers a rejoin into a
-            // room the relay quietly recycled after its 1 h idle expiry: there
-            // is no way to tell that apart from "not here yet", so it is not
-            // reported as anything more alarming than that.
-            val alone = peers.isEmpty() || peers.all { it.left }
-            if (alone) {
+            val statusColor = when {
+                roomFull || state.error != null -> MaterialTheme.appColors.statusDanger
+                state.connected -> MaterialTheme.appColors.statusGood
+                else -> MaterialTheme.appColors.statusWarn
+            }
+            // One status line, read the way the rest of the app reads them:
+            // a coloured dot, the state, and the count on the far right.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(statusColor)
+                )
+                Spacer(Modifier.width(8.dp))
                 Text(
-                    stringResource(R.string.share_alone),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary
+                    text = when {
+                        roomFull -> stringResource(R.string.share_room_full)
+                        state.connected -> stringResource(R.string.share_connected)
+                        state.error != null -> stringResource(R.string.share_cannot_reach)
+                        else -> stringResource(R.string.share_reconnecting)
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = statusColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    stringResource(R.string.share_rider_count, peers.size),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.appColors.textSecondary,
+                    maxLines = 1
                 )
             }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 200.dp)
-            ) {
-                items(peers, key = { it.last.id }) { peer ->
-                    PeerRow(
-                        peer = peer,
-                        nowMs = state.nowMs,
-                        speedUnit = speedUnit,
-                        tempUnit = tempUnit,
-                        onClick = {
-                            onFlyTo(peer.last.lat, peer.last.lng)
-                            onDismiss()
-                        }
+            Spacer(Modifier.height(14.dp))
+            // The QR, its caption and the three link actions are one block:
+            // the code is sized from the row's own width so its edges land on
+            // the outer edges of the buttons under it.
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val qrSizeDp = maxWidth.value.toInt()
+                Column(Modifier.fillMaxWidth()) {
+                    QrCodeImage(content = url, sizeDp = qrSizeDp)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.share_scan_to_join),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textSecondary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(Modifier.height(12.dp))
+                    // Three ways to hand the link to a friend who is not
+                    // standing here. The link text itself is never shown - it
+                    // is 60 characters of base64 nobody reads, and it filled
+                    // the dialog.
+                    Row(Modifier.fillMaxWidth()) {
+                        ShareLinkAction(
+                            icon = Icons.Default.Share,
+                            label = stringResource(R.string.action_share),
+                            onClick = {
+                                val send = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        context.getString(R.string.share_invite_text, url)
+                                    )
+                                    putExtra(
+                                        Intent.EXTRA_SUBJECT,
+                                        context.getString(R.string.share_invite_subject)
+                                    )
+                                }
+                                runCatching {
+                                    context.startActivity(
+                                        Intent.createChooser(
+                                            send,
+                                            context.getString(R.string.share_invite_subject)
+                                        )
+                                    )
+                                }
+                            }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        ShareLinkAction(
+                            icon = Icons.Default.ContentCopy,
+                            label = stringResource(R.string.share_copy),
+                            onClick = {
+                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                                    as? ClipboardManager
+                                cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
+                                onNotify(copiedMsg)
+                            }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        ShareLinkAction(
+                            icon = Icons.Default.OpenInBrowser,
+                            label = stringResource(R.string.share_open),
+                            // The web viewer, so the rider can see the group
+                            // the way the friends they invite will see it.
+                            onClick = {
+                                runCatching {
+                                    context.startActivity(
+                                        Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
             }
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(16.dp))
+            ShareSection(stringResource(R.string.share_riders)) {
+                Spacer(Modifier.height(6.dp))
+                // Nobody else is in the room, either because no one has joined
+                // yet or every other rider has left. This also covers a rejoin
+                // into a room the relay quietly recycled after its 1 h idle
+                // expiry: there is no way to tell that apart from "not here
+                // yet", so it is not reported as anything more alarming. The
+                // line sits inside the section, so the header is never left
+                // standing over nothing.
+                val alone = peers.isEmpty() || peers.all { it.left }
+                if (alone) {
+                    Text(
+                        stringResource(R.string.share_alone),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textSecondary
+                    )
+                } else {
+                    // A plain Column, not a LazyColumn: the dialog body is the
+                    // scrolling container now, and a lazy list inside it would
+                    // be measured with an unbounded height.
+                    peers.forEachIndexed { index, peer ->
+                        if (index > 0) {
+                            HorizontalDivider(color = MaterialTheme.appColors.divider)
+                        }
+                        PeerRow(
+                            peer = peer,
+                            nowMs = state.nowMs,
+                            speedUnit = speedUnit,
+                            tempUnit = tempUnit,
+                            onClick = {
+                                onFlyTo(peer.last.lat, peer.last.lng)
+                                onDismiss()
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
@@ -717,14 +782,59 @@ fun ShareGroupDialog(
                         containerColor = MaterialTheme.appColors.statusDanger,
                         contentColor = MaterialTheme.appColors.onPrimary
                     )
-                ) { Text(stringResource(R.string.share_leave)) }
+                ) {
+                    Text(
+                        stringResource(R.string.share_leave),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
 }
 
-/** One friend: their dot or avatar, name, live stats and how old the fix is.
- *  Tapping the row flies the map to them. */
+/**
+ * One of the three equal link actions under the QR. Same outlined style, same
+ * width, icon over a one-word label so the row survives the longest locale.
+ */
+@Composable
+private fun RowScope.ShareLinkAction(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = MaterialTheme.appColors.textButton
+        ),
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
+        modifier = Modifier.weight(1f)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.appColors.textButton,
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                label,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+/** One friend, laid out like the app's other list rows: a 40 dp dot or avatar,
+ *  the name with their flag inline, their stats under it, and how fresh the fix
+ *  is on the right. Tapping the row flies the map to them. */
 @Composable
 private fun PeerRow(
     peer: PeerState,
@@ -740,7 +850,7 @@ private fun PeerRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 6.dp)
+            .padding(vertical = 8.dp)
             .alpha(if (faded) 0.45f else 1f),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -749,30 +859,36 @@ private fun PeerRow(
             AsyncImage(
                 model = avatar,
                 contentDescription = null,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
             )
         } else {
             Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
-                    .background(dot),
-                contentAlignment = Alignment.Center
-            ) {
-                peer.last.flag?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-            }
-        }
-        Spacer(Modifier.width(10.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                peer.last.name,
-                color = MaterialTheme.appColors.textPrimary,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                    .background(dot)
             )
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    peer.last.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.appColors.textPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                peer.last.flag?.let {
+                    Spacer(Modifier.width(6.dp))
+                    Text(it, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
             peer.last.stats?.let { s ->
                 Text(
                     String.format(
@@ -799,18 +915,22 @@ private fun PeerRow(
         val ageText = when {
             peer.left -> stringResource(R.string.share_left)
             peer.freshness == Freshness.LOST -> stringResource(R.string.share_lost)
-            peer.freshness == Freshness.STALE ->
-                stringResource(R.string.share_age_seconds, (ageMs / 1000L).toInt())
-            else -> ""
+            else -> stringResource(R.string.share_age_seconds, (ageMs / 1000L).toInt())
         }
-        if (ageText.isNotEmpty()) {
-            Spacer(Modifier.width(8.dp))
-            Text(
-                ageText,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary,
-                maxLines = 1
-            )
+        // Green while the fix is current, amber once it starts aging, muted
+        // once the rider is gone: the same three states the map's markers use.
+        val ageColor = when {
+            peer.left || peer.freshness == Freshness.LOST ->
+                MaterialTheme.appColors.textSecondary
+            peer.freshness == Freshness.STALE -> MaterialTheme.appColors.statusWarn
+            else -> MaterialTheme.appColors.statusGood
         }
+        Spacer(Modifier.width(8.dp))
+        Text(
+            ageText,
+            style = MaterialTheme.typography.labelMedium,
+            color = ageColor,
+            maxLines = 1
+        )
     }
 }
