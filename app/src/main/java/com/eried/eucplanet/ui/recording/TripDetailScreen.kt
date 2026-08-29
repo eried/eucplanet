@@ -202,7 +202,11 @@ fun TripDetailScreen(
     // fades, and ANY touch that means "still reading" - scrubbing, pinching,
     // dragging a trim handle - restarts the clock, because lining a zoom up
     // around the cursor should not be what removes it.
-    var scrubIndex by remember { mutableStateOf<Int?>(null) }
+    // Held against the FULL ride, not the trimmed slice. A pinch that commits
+    // a trim re-bases every chart index, so a cursor stored as a slice index
+    // would come back pointing at some other moment of the ride, or fall off
+    // the end and disappear, exactly when the rider was zooming in to read it.
+    var scrubAnchor by remember { mutableStateOf<Int?>(null) }
     var scrubActivity by remember { mutableStateOf(0) }
     var scrubFading by remember { mutableStateOf(false) }
     val scrubAlpha by androidx.compose.animation.core.animateFloatAsState(
@@ -210,10 +214,14 @@ fun TripDetailScreen(
         animationSpec = androidx.compose.animation.core.tween(SCRUB_FADE_MS),
         label = "tripScrubFade",
     )
-    val keepScrubAlive: () -> Unit = { if (scrubIndex != null) scrubActivity++ }
-    val onScrub: (Int?) -> Unit = { scrubIndex = it; scrubActivity++ }
-    LaunchedEffect(scrubActivity, scrubIndex) {
-        if (scrubIndex == null) {
+    // Where the trimmed slice starts in the full ride, so the anchor above and
+    // the indices the charts speak in can be converted either way.
+    val trimOffset = remember(elapsedMs, trimRange) { TripTrim.startIndex(elapsedMs, trimRange) }
+    val scrubIndex = scrubAnchor?.minus(trimOffset)?.takeIf { it in dataPoints.indices }
+    val keepScrubAlive: () -> Unit = { if (scrubAnchor != null) scrubActivity++ }
+    val onScrub: (Int?) -> Unit = { i -> scrubAnchor = i?.plus(trimOffset); scrubActivity++ }
+    LaunchedEffect(scrubActivity, scrubAnchor) {
+        if (scrubAnchor == null) {
             scrubFading = false
             return@LaunchedEffect
         }
@@ -223,7 +231,7 @@ fun TripDetailScreen(
         // Cleared only once it has gone, so the map dot and the other charts
         // do not blink out from under a still-visible cursor.
         kotlinx.coroutines.delay(SCRUB_FADE_MS.toLong())
-        scrubIndex = null
+        scrubAnchor = null
         scrubFading = false
     }
 
@@ -245,6 +253,9 @@ fun TripDetailScreen(
         }
     }
     val onWindowCommit: (Float) -> Unit = commit@ { netZoom ->
+        // The end of a pinch is the moment the rider looks at the result, so
+        // the clock starts from here rather than from the last drag frame.
+        keepScrubAlive()
         val w = chartWindow
         chartWindow = 0f..1f
         pendingTrim = null
@@ -276,6 +287,7 @@ fun TripDetailScreen(
         // tracked the pinch live.
     }
     val onResetView: () -> Unit = {
+        keepScrubAlive()
         chartWindow = 0f..1f
         pendingTrim = null
         trimRange = null
@@ -1024,6 +1036,7 @@ fun TripDetailScreen(
                             chartWindow = if (we > ws + 0.005f) ws..we else 0f..1f
                         },
                         onRangeEnd = {
+                            keepScrubAlive()
                             val p = pendingTrim
                             pendingTrim = null
                             chartWindow = 0f..1f

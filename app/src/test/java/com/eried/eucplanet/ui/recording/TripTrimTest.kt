@@ -89,6 +89,37 @@ class TripTrimTest {
         assertArrayEquals(longArrayOf(0L, 0L, 0L), TripTrim.elapsedOffsets(pts))
     }
 
+    @Test fun startIndex_isZeroForTheWholeRide() {
+        val elapsed = longArrayOf(0L, 1_000L, 2_000L, 3_000L)
+        assertEquals(0, TripTrim.startIndex(elapsed, null))
+    }
+
+    @Test fun startIndex_findsTheFirstKeptSample() {
+        val elapsed = longArrayOf(0L, 1_000L, 2_000L, 3_000L, 4_000L)
+        assertEquals(2, TripTrim.startIndex(elapsed, 2_000L..3_000L))
+        // A range starting between samples lands on the first one inside it.
+        assertEquals(3, TripTrim.startIndex(elapsed, 2_500L..4_000L))
+    }
+
+    @Test fun startIndex_isZeroWhenTheRangeKeepsNothing() {
+        // apply() would return an empty list; offsetting by 0 keeps the
+        // caller's arithmetic in range instead of going negative.
+        val elapsed = longArrayOf(0L, 1_000L)
+        assertEquals(0, TripTrim.startIndex(elapsed, 9_000L..10_000L))
+    }
+
+    @Test fun startIndex_re_expresses_a_held_index_as_the_same_sample() {
+        // The scrub cursor's contract: an index into the full ride, converted
+        // through startIndex, must name the SAME point after a trim as before.
+        val pts = points(6)
+        val elapsed = TripTrim.elapsedOffsets(pts)
+        val anchor = 4                       // the rider scrubbed the 5th sample
+        val range = elapsed[2]..elapsed[5]
+        val trimmed = TripTrim.apply(pts, elapsed, range)
+        val local = anchor - TripTrim.startIndex(elapsed, range)
+        assertEquals(pts[anchor], trimmed[local])
+    }
+
     @Test fun elapsedOffsets_secondsOnlyFormat() {
         val pts = listOf(
             points(1).first().copy(date = "2026-08-09 12:00:00"),
