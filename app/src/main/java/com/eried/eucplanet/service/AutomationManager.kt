@@ -220,21 +220,20 @@ class AutomationManager @Inject constructor(
             }
         }
 
-        // Nothing known about the sun yet: no fix has arrived since the app
-        // started, and guessing is worse than waiting.
-        val darkEnough = lastDarkEnough ?: return
-
-        // Walking pace kills the beam even when the sun says it is wanted:
-        // rolling to a stop at a crossing with the light in someone's face is
-        // what this is for. The schedule still decides whether a light is
-        // wanted at all, so riding on restores it without any further rule.
-        val shouldBeOn = darkEnough && !lightSlowState.forcedOff
+        // Walking pace kills the beam even when the sun says it is wanted, and
+        // even when no fix has arrived to ask the sun with: the cutoff needs
+        // no schedule. Null is "leave it alone", which only happens when
+        // there is no fix AND the rider is still riding.
+        val shouldBeOn = HeadlightSlowPolicy.beamOn(
+            darkEnough = lastDarkEnough,
+            forcedOff = lightSlowState.forcedOff,
+        ) ?: return
 
         val currentLightOn = wheelRepository.wheelData.value.lightOn
         if (shouldBeOn != currentLightOn) {
             val what = if (shouldBeOn) "ON" else "OFF"
             Log.i(TAG, "Auto-lights: turning " + what +
-                " (dark=" + darkEnough + ", slowOff=" + lightSlowState.forcedOff + ")")
+                " (dark=" + lastDarkEnough + ", slowOff=" + lightSlowState.forcedOff + ")")
             wheelRepository.toggleLight()
             lastAutoToggleMs = now
         }

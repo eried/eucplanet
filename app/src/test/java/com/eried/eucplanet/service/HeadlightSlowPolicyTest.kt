@@ -1,6 +1,8 @@
 package com.eried.eucplanet.service
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -84,5 +86,24 @@ class HeadlightSlowPolicyTest {
         }
         fast = HeadlightSlowPolicy.step(fast, 1f, 4f, t0 + HeadlightSlowPolicy.HOLD_MS, enabled = true)
         assertTrue("should have fired once the hold elapsed", fast.forcedOff)
+    }
+
+    @Test fun `the cutoff beats the sunset schedule`() {
+        // The point of the feature: after dark the schedule wants a light, and
+        // slowing to a walk takes it off anyway.
+        assertEquals(false, HeadlightSlowPolicy.beamOn(darkEnough = true, forcedOff = true))
+        // Riding again after dark puts it back, with no extra rule.
+        assertEquals(true, HeadlightSlowPolicy.beamOn(darkEnough = true, forcedOff = false))
+        // Daylight wants no light either way.
+        assertEquals(false, HeadlightSlowPolicy.beamOn(darkEnough = false, forcedOff = false))
+    }
+
+    @Test fun `the cutoff does not wait for a location fix`() {
+        // With no fix the schedule has no answer, and the light was being left
+        // on: the cutoff has nothing to do with the sun and should not be held
+        // up by it.
+        assertEquals(false, HeadlightSlowPolicy.beamOn(darkEnough = null, forcedOff = true))
+        // Without the cutoff there is genuinely nothing to say yet.
+        assertNull(HeadlightSlowPolicy.beamOn(darkEnough = null, forcedOff = false))
     }
 }
