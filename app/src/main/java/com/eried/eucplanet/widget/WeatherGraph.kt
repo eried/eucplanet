@@ -80,18 +80,53 @@ object WeatherGraph {
         val lo = -5f
         val hi = 5f
         fun y(v: Float) = plotH - ((v.coerceIn(lo, hi) - lo) / (hi - lo)) * plotH * 0.88f - plotH * 0.06f
-        fun x(i: Int) = w * i / (series.size - 1).toFloat()
+        // A column down the left for the score marks, on the size that shows
+        // them. Without it the "+5" sits under the curve exactly when the
+        // afternoon is good, which is when a rider is most likely to look.
+        val gutter = if (withHours) max(14f, w * 0.07f) else 0f
+        fun x(i: Int) = gutter + (w - gutter) * i / (series.size - 1).toFloat()
+
+        // Where the hour labels will point. Drawn before the curve so the
+        // markers sit behind it: a label with nothing above it makes the
+        // rider guess which part of the line it belongs to.
+        val ticks = if (withHours && stepMs > 0L) min(4, series.size) else 0
+        if (ticks > 1) {
+            val tick = Paint().apply {
+                color = INK
+                alpha = 40
+                strokeWidth = max(1f, h / 120f)
+            }
+            for (t in 0 until ticks) {
+                val i = (series.size - 1) * t / (ticks - 1)
+                c.drawLine(x(i), 0f, x(i), plotH, tick)
+            }
+        }
 
         // The neutral line, so a rider can see which side of "fine" the curve
         // is on without reading a number.
         c.drawLine(
-            0f, y(0f), w.toFloat(), y(0f),
+            gutter, y(0f), w.toFloat(), y(0f),
             Paint().apply {
                 color = INK
                 alpha = 60
                 strokeWidth = max(1f, h / 90f)
             },
         )
+
+        // The score's own scale, on the widget that has room for it. Three
+        // marks only: the two ends the band is fixed at, and the neutral line
+        // between them, which is the one that decides good from bad.
+        if (withHours) {
+            val scale = Paint().apply {
+                isAntiAlias = true
+                color = INK
+                alpha = 170
+                textSize = max(8f, plotH * 0.13f)
+            }
+            c.drawText("+5", 1f, y(hi) + scale.textSize * 0.9f, scale)
+            c.drawText("0", 1f, y(0f) + scale.textSize * 0.35f, scale)
+            c.drawText("-5", 1f, y(lo) - 1f, scale)
+        }
 
         val path = Path().apply {
             moveTo(x(0), y(series[0]))
@@ -105,12 +140,14 @@ object WeatherGraph {
             lineTo(x(0), plotH)
             close()
         }
+        // The gradient spans the plot, not the canvas, or the colour at each
+        // end stops matching the score there once a gutter is taken out.
         c.drawPath(
             fill,
             Paint().apply {
                 isAntiAlias = true
                 shader = LinearGradient(
-                    0f, 0f, w.toFloat(), 0f,
+                    gutter, 0f, w.toFloat(), 0f,
                     colorFor(series.first()), colorFor(series.last()),
                     Shader.TileMode.CLAMP,
                 )
@@ -149,7 +186,6 @@ object WeatherGraph {
             }
             // Four labels at most: more than that and they collide on a
             // two-cell widget, and the rider is reading a shape, not a table.
-            val ticks = min(4, series.size)
             for (t in 0 until ticks) {
                 val i = (series.size - 1) * t / max(1, ticks - 1)
                 val at = startMs + stepMs * i
