@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -92,6 +93,13 @@ import java.util.Locale
  * combo uses) and the stats toggle is [SwitchSettingWithDesc]. An earlier
  * hand-rolled segmented row wrapped "Anonymous" mid-word because it lacked the
  * fixed row height, which is exactly what reusing the shared control prevents.
+ *
+ * There is no in-app "paste link" box: the app claims
+ * https://eucplanet.ried.no/share#... as an Android App Link, so a link that is
+ * tapped or pasted anywhere on the phone opens the app on the join step
+ * already. Scanning a friend's QR is the one thing the phone cannot do for the
+ * rider, so it is the one join action here. The web viewer keeps its paste box
+ * because a browser has no such interception.
  */
 
 /** An avatar URL is another rider's string off the relay, so it is checked
@@ -117,11 +125,11 @@ private fun peerColorOf(hex: String): Color {
 }
 
 /**
- * A scanned or pasted share link.
+ * A scanned share link.
  *
- * A rider can paste the whole URL, or just the `roomId.key` fragment that a
- * friend copied out of one. Both name the same room, so the bare fragment is
- * completed to a full link before it is parsed; anything else is refused by
+ * A QR can carry the whole URL, or just the `roomId.key` fragment that a friend
+ * copied out of one. Both name the same room, so the bare fragment is completed
+ * to a full link before it is parsed; anything else is refused by
  * [ShareLinks.parse] as before.
  */
 internal fun parseShareText(raw: String): ShareLink? {
@@ -130,13 +138,6 @@ internal fun parseShareText(raw: String): ShareLink? {
     ShareLinks.parse(text)?.let { return it }
     if (text.contains("://") || text.contains('#')) return null
     return ShareLinks.parse("${ShareLinks.BASE}#$text")
-}
-
-/** The clipboard's text, or "" when it holds nothing readable. */
-private fun clipboardText(context: Context): String {
-    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-    val item = cm?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)
-    return item?.coerceToText(context)?.toString().orEmpty()
 }
 
 /**
@@ -243,10 +244,10 @@ fun ShareStartDialog(
     // the "start a group" label since that is the more common entry point.
     confirmLabelRes: Int = R.string.share_start,
     /**
-     * Joins the ride behind a scanned or pasted link. Non-null only on the
-     * "not sharing yet" entry point: when this dialog IS the join step for a
-     * link that arrived from outside the app, offering to join a second ride
-     * would only be confusing.
+     * Joins the ride behind a scanned link. Non-null only on the "not sharing
+     * yet" entry point: when this dialog IS the join step for a link that
+     * arrived from outside the app, offering to join a second ride would only
+     * be confusing.
      *
      * The captured link is held here rather than handed straight back, so the
      * rider stays in ONE dialog: the identity they are looking at is the one
@@ -258,7 +259,6 @@ fun ShareStartDialog(
     lastLink: ShareLink? = null,
     onRejoin: ((Identity) -> Unit)? = null,
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var mode by remember(default) {
         mutableStateOf(
@@ -276,14 +276,10 @@ fun ShareStartDialog(
     var shareStats by remember(default) { mutableStateOf(default.shareStats) }
     var starting by remember { mutableStateOf(false) }
     var profile by remember { mutableStateOf<ProfilePreview>(ProfilePreview.Loading) }
-    // "Join another ride" state: the scanner dialog, and the paste field the
-    // rider opens when they have the link as text rather than as a code.
+    /** The scanner dialog, the single "join another ride" action. */
     var scanning by remember { mutableStateOf(false) }
-    var pasting by remember { mutableStateOf(false) }
-    var pasted by remember { mutableStateOf("") }
-    var pasteInvalid by remember { mutableStateOf(false) }
-    /** A link the rider scanned or pasted. While it is set the dialog is the
-     *  join step for that ride: same identity controls, different confirm. */
+    /** A link the rider scanned. While it is set the dialog is the join step
+     *  for that ride: same identity controls, different confirm. */
     var joinLink by remember { mutableStateOf<ShareLink?>(null) }
 
     // Resolved when the rider first looks at the Profile option, not on every
@@ -334,86 +330,29 @@ fun ShareStartDialog(
             if (onJoin != null) {
                 ShareSection(stringResource(R.string.share_join_another)) {
                     Spacer(Modifier.height(8.dp))
-                    // Paired actions, so a half/half row rather than two
-                    // stacked full-width buttons.
-                    Row(Modifier.fillMaxWidth()) {
-                        OutlinedButton(
-                            onClick = { scanning = true },
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.appColors.textButton
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                stringResource(R.string.share_scan_qr),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                    // One action, so one full-width button rather than a
+                    // half-width one with a gap where its pair used to be.
+                    OutlinedButton(
+                        onClick = { scanning = true },
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.appColors.textButton
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.QrCodeScanner,
+                            contentDescription = null,
+                            tint = MaterialTheme.appColors.textButton,
+                            modifier = Modifier.size(18.dp),
+                        )
                         Spacer(Modifier.width(8.dp))
-                        OutlinedButton(
-                            onClick = {
-                                // The rider tapped Paste, so the clipboard is
-                                // read once: if it already holds a link there
-                                // is nothing left to type.
-                                val clip = clipboardText(context)
-                                val link = parseShareText(clip)
-                                if (link != null) {
-                                    joinLink = link
-                                    pasting = true
-                                    pasted = clip
-                                    pasteInvalid = false
-                                } else {
-                                    pasting = true
-                                    pasteInvalid = false
-                                    pasted = clip
-                                }
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.appColors.textButton
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                stringResource(R.string.share_paste_link),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                    if (pasting) {
-                        Spacer(Modifier.height(10.dp))
-                        Box(Modifier.fillMaxWidth()) {
-                            OutlinedTextField(
-                                value = pasted,
-                                onValueChange = { typed ->
-                                    pasted = typed
-                                    // The confirm button follows the field: a
-                                    // complete link turns it into Join, and
-                                    // clearing the field turns it back.
-                                    val link = parseShareText(typed)
-                                    pasteInvalid = link == null && typed.isNotBlank()
-                                    joinLink = link
-                                },
-                                singleLine = true,
-                                colors = themedFieldColors(),
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                            )
-                            FieldNotchLabel(stringResource(R.string.share_paste_link))
-                        }
-                        if (pasteInvalid) {
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                stringResource(R.string.share_link_invalid),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.appColors.statusDanger
-                            )
-                        }
+                        Text(
+                            stringResource(R.string.share_scan_qr),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 }
                 Spacer(Modifier.height(12.dp))

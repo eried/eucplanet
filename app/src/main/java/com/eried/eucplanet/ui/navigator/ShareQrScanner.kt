@@ -132,16 +132,9 @@ fun ShareQrScanner(
                 }
             }
             Spacer(Modifier.height(10.dp))
-            if (granted) {
-                Text(
-                    stringResource(R.string.share_point_at_qr),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(10.dp))
-            }
+            // No caption under the preview: a live camera in a dialog called
+            // "Scan QR" needs no sentence explaining what to point it at. The
+            // permission message above stays, because that one is an error.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
