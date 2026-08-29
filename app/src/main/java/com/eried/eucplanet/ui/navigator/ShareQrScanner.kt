@@ -91,9 +91,6 @@ fun ShareQrScannerArea(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    // The callback is read from the camera's analyzer thread long after this
-    // composition ran, so it is kept fresh rather than captured once.
-    val latestOnLink by rememberUpdatedState(onLink)
 
     var granted by remember {
         mutableStateOf(
@@ -145,7 +142,7 @@ fun ShareQrScannerArea(
             if (granted) {
                 QrCameraPreview(
                     lifecycleOwner = lifecycleOwner,
-                    onLink = { link -> latestOnLink(link) },
+                    onLink = onLink,
                     onUnreadable = { invalidAtMs = System.currentTimeMillis() },
                 )
             } else {
@@ -223,7 +220,17 @@ private fun Context.openAppSettings() {
     }
 }
 
-/** The live camera surface and the decode loop behind it. */
+/**
+ * The live camera surface and the decode loop behind it.
+ *
+ * One effect owns the whole camera: it binds when this composable appears and
+ * unbinds when it goes, rather than binding from the AndroidView's update pass
+ * where nothing is paired with the release. The provider future can take
+ * hundreds of ms to resolve on a cold start, which is long enough for the
+ * rider to tap Create or Cancel first, so the listener is guarded: a bind that
+ * lands after the dispose releases the camera instead of leaving it streaming
+ * with the dialog closed and the privacy indicator lit.
+ */
 @Composable
 private fun QrCameraPreview(
     lifecycleOwner: LifecycleOwner,
@@ -232,71 +239,99 @@ private fun QrCameraPreview(
      *  so the tab can say so once, quietly, and carry on scanning. */
     onUnreadable: () -> Unit,
 ) {
-    // One decode at a time on one thread: MultiFormatReader keeps state
-    // between calls and is not safe to share across threads.
-    val executor = remember { Executors.newSingleThreadExecutor() }
-    val reader = remember { qrReader() }
-    // A QR sits in frame for many frames, and the dialog takes a moment to
-    // close: without this latch the same link would be handed back a dozen
-    // times and the join would fire repeatedly.
-    val handled = remember { AtomicBoolean(false) }
-    var provider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
-    var bindStarted by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    // Both callbacks are read from the camera's analyzer thread long after
+    // this composition ran, so they are kept fresh rather than captured once.
+    val latestOnLink by rememberUpdatedState(onLink)
+    val latestOnUnreadable by rememberUpdatedState(onUnreadable)
+    // Built here and handed to AndroidView as it is, so the bind below owns
+    // the surface for as long as this composable lives and does not have to
+    // wait for, or repeat with, a view update pass.
+    val previewView = remember(context) {
+        PreviewView(context).apply {
+            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            scaleType = PreviewView.ScaleType.FILL_CENTER
+        }
+    }
 
-    DisposableEffect(Unit) {
+    // This composable is only in the tree while the Join tab is scanning with
+    // the camera allowed, so being in composition is the enabled flag; the
+    // keys are what the camera is bound to.
+    DisposableEffect(lifecycleOwner, previewView) {
+        // One decode at a time on one thread: MultiFormatReader keeps state
+        // between calls and is not safe to share across threads.
+        val executor = Executors.newSingleThreadExecutor()
+        val reader = qrReader()
+        // A QR sits in frame for many frames, and the dialog takes a moment to
+        // close: without this latch the same link would be handed back a dozen
+        // times and the join would fire repeatedly.
+        val handled = AtomicBoolean(false)
+        // Cleared before anything is released. The provider listener reads it
+        // because it can run after this effect is already gone.
+        val live = AtomicBoolean(true)
+        var bound: ProcessCameraProvider? = null
+        var frames: ImageAnalysis? = null
+
+        val main = ContextCompat.getMainExecutor(context)
+        val future = ProcessCameraProvider.getInstance(context)
+        future.addListener({
+            val provider = runCatching { future.get() }.getOrNull() ?: return@addListener
+            if (!live.get()) {
+                // Disposed while the provider was still starting: hand the
+                // camera straight back instead of binding it to nothing.
+                runCatching { provider.unbindAll() }
+                return@addListener
+            }
+            val preview = Preview.Builder().build().also {
+                it.surfaceProvider = previewView.surfaceProvider
+            }
+            val analysis = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+            analysis.setAnalyzer(executor) { proxy ->
+                val text = runCatching { proxy.decodeQr(reader) }.getOrNull()
+                proxy.close()
+                val link = text?.let { parseShareText(it) }
+                if (link != null) {
+                    if (!handled.compareAndSet(false, true)) return@setAnalyzer
+                    main.execute {
+                        // The scan is over: the camera is released here,
+                        // before the form is asked for, so the light goes out
+                        // at the hit rather than whenever the caller gets
+                        // round to swapping this area out.
+                        live.set(false)
+                        runCatching { analysis.clearAnalyzer() }
+                        runCatching { provider.unbindAll() }
+                        latestOnLink(link)
+                    }
+                } else if (text != null) {
+                    // A QR that is not ours: a wifi code, a product barcode.
+                    // Scanning carries on, the tab notes it.
+                    main.execute { latestOnUnreadable() }
+                }
+            }
+            bound = provider
+            frames = analysis
+            runCatching {
+                provider.unbindAll()
+                provider.bindToLifecycle(
+                    lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis
+                )
+            }
+        }, main)
+
         onDispose {
-            runCatching { provider?.unbindAll() }
+            live.set(false)
+            // The analyzer goes first: it holds the executor that is shut
+            // down two lines below, and a frame handed to a dead executor
+            // throws on the camera's own thread.
+            runCatching { frames?.clearAnalyzer() }
+            runCatching { bound?.unbindAll() }
             executor.shutdown()
         }
     }
 
-    AndroidView(
-        modifier = Modifier.fillMaxSize(),
-        factory = { c ->
-            PreviewView(c).also {
-                it.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-                it.scaleType = PreviewView.ScaleType.FILL_CENTER
-            }
-        },
-        update = { view ->
-            // The update lambda runs on every recomposition; binding the
-            // camera more than once floods CameraX with rebinds (the HUD's
-            // camera screen learned this the hard way).
-            if (bindStarted) return@AndroidView
-            bindStarted = true
-            val future = ProcessCameraProvider.getInstance(view.context)
-            future.addListener({
-                val cameraProvider = runCatching { future.get() }.getOrNull()
-                    ?: return@addListener
-                provider = cameraProvider
-                val preview = Preview.Builder().build().also {
-                    it.surfaceProvider = view.surfaceProvider
-                }
-                val analysis = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-                analysis.setAnalyzer(executor) { proxy ->
-                    val text = runCatching { proxy.decodeQr(reader) }.getOrNull()
-                    proxy.close()
-                    val link = text?.let { parseShareText(it) }
-                    val main = ContextCompat.getMainExecutor(view.context)
-                    if (link != null) {
-                        if (handled.compareAndSet(false, true)) main.execute { onLink(link) }
-                    } else if (text != null) {
-                        // A QR that is not ours: a wifi code, a product
-                        // barcode. Scanning carries on, the tab notes it.
-                        main.execute { onUnreadable() }
-                    }
-                }
-                runCatching {
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis
-                    )
-                }
-            }, ContextCompat.getMainExecutor(view.context))
-        }
-    )
+    AndroidView(modifier = Modifier.fillMaxSize(), factory = { previewView })
 }
 
 /**
