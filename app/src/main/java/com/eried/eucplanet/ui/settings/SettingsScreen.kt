@@ -9942,6 +9942,10 @@ internal fun SegmentedChoice(
     onPreview: (() -> Unit)? = null,
     previewEnabled: Boolean = true,
     enabled: Boolean = true,
+    /** The surface the row sits on, filled behind the notched label. Settings
+     *  sections are the default; a caller on another surface (the share dialog
+     *  puts the row on the dialog fill) passes that colour instead. */
+    notchFill: Color = Color.Unspecified,
 ) {
     Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
         SingleChoiceSegmentedButtonRow(
@@ -9977,7 +9981,7 @@ internal fun SegmentedChoice(
                     PlayButton(onClick = cb, enabled = previewEnabled)
                 }
             } else null
-        FieldNotchLabel(label, trailing = previewTrailing)
+        FieldNotchLabel(label, notchFill = notchFill, trailing = previewTrailing)
     }
 }
 
