@@ -1644,6 +1644,7 @@
     <string name="share_left">heeft de groep verlaten</string>
     <string name="share_lost">signaal verloren</string>
     <string name="share_age_seconds">%1$d s geleden</string>
+    <string name="share_relay_caption">Relay: %1$s</string>
     <string name="share_link_invalid">Deze deellink is verlopen of ongeldig.</string>
     <string name="share_room_full">Deze groep is vol.</string>
     <string name="share_switch_group">Huidige groep verlaten en aan deze deelnemen?</string>

@@ -1851,6 +1851,7 @@
     <string name="share_left">odešel</string>
     <string name="share_lost">ztracen signál</string>
     <string name="share_age_seconds">před %1$d s</string>
+    <string name="share_relay_caption">Relay: %1$s</string>
     <string name="share_link_invalid">Tento sdílený odkaz vypršel nebo je neplatný.</string>
     <string name="share_room_full">Tato skupina je plná.</string>
     <string name="share_switch_group">Opustit současnou skupinu a připojit se k této?</string>

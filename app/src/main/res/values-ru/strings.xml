@@ -1589,6 +1589,7 @@
     <string name="share_left">покинул(а) группу</string>
     <string name="share_lost">нет сигнала</string>
     <string name="share_age_seconds">%1$d с назад</string>
+    <string name="share_relay_caption">Реле: %1$s</string>
     <string name="share_link_invalid">Срок действия этой ссылки истёк или она недействительна.</string>
     <string name="share_room_full">Эта группа заполнена.</string>
     <string name="share_switch_group">Покинуть текущую группу и присоединиться к этой?</string>

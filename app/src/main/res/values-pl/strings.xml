@@ -1602,6 +1602,7 @@
     <string name="share_left">opuścił(a)</string>
     <string name="share_lost">brak sygnału</string>
     <string name="share_age_seconds">%1$d s temu</string>
+    <string name="share_relay_caption">Przekaźnik: %1$s</string>
     <string name="share_link_invalid">Ten link do udostępniania wygasł lub jest nieprawidłowy.</string>
     <string name="share_room_full">Ta grupa jest pełna.</string>
     <string name="share_switch_group">Opuścić bieżącą grupę i dołączyć do tej?</string>

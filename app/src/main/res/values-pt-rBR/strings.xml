@@ -1589,6 +1589,7 @@
     <string name="share_left">saiu</string>
     <string name="share_lost">sinal perdido</string>
     <string name="share_age_seconds">há %1$d s</string>
+    <string name="share_relay_caption">Relay: %1$s</string>
     <string name="share_link_invalid">Este link de compartilhamento expirou ou é inválido.</string>
     <string name="share_room_full">Este grupo está cheio.</string>
     <string name="share_switch_group">Sair do grupo atual e entrar neste?</string>

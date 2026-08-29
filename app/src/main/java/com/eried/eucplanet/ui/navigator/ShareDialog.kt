@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,8 +44,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -729,6 +727,8 @@ private fun Identity.asLeaderboardCard(): RiderCard = RiderCard(
 @Composable
 fun ShareGroupDialog(
     state: ShareState.Joined,
+    /** Host of the relay carrying this group, no scheme, for the header caption. */
+    relayHost: String,
     speedUnit: String,
     tempUnit: String,
     onFlyTo: (Double, Double) -> Unit,
@@ -774,9 +774,13 @@ fun ShareGroupDialog(
                 state.connected -> MaterialTheme.appColors.statusGood
                 else -> MaterialTheme.appColors.statusWarn
             }
-            // One status line, read the way the rest of the app reads them: a
-            // coloured dot and the state. The rider count is not repeated here
-            // - it is the rider section's own header, one line further down.
+            // Service state and the three things a rider does with the link,
+            // as ONE header row in the shape the trip detail screen uses: the
+            // title on the left, tinted icon actions at the side. Three
+            // outlined buttons under the QR were a second block repeating what
+            // this row already says, and they pushed the riders under the
+            // fold. The rider count is not here either - it is the rider
+            // section's own header, further down.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -788,27 +792,81 @@ fun ShareGroupDialog(
                         .background(statusColor)
                 )
                 Spacer(Modifier.width(8.dp))
-                Text(
-                    text = when {
-                        roomFull -> stringResource(R.string.share_room_full)
-                        state.connected -> stringResource(R.string.share_connected)
-                        state.error != null -> stringResource(R.string.share_cannot_reach)
-                        else -> stringResource(R.string.share_reconnecting)
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = statusColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = when {
+                            roomFull -> stringResource(R.string.share_room_full)
+                            state.connected -> stringResource(R.string.share_connected)
+                            state.error != null -> stringResource(R.string.share_cannot_reach)
+                            else -> stringResource(R.string.share_reconnecting)
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = statusColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    // Which relay is carrying the group. On the default one it
+                    // is just where the ride lives; a rider running their own
+                    // needs to see which server actually answered.
+                    Text(
+                        text = stringResource(R.string.share_relay_caption, relayHost),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                // Three ways to hand the link to a friend who is not standing
+                // here. The link text itself is never shown - it is 60
+                // characters of base64 nobody reads, and it filled the dialog.
+                ShareLinkAction(
+                    icon = Icons.Default.Share,
+                    description = stringResource(R.string.action_share),
+                    onClick = {
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(
+                                Intent.EXTRA_TEXT,
+                                context.getString(R.string.share_invite_text, url)
+                            )
+                            putExtra(
+                                Intent.EXTRA_SUBJECT,
+                                context.getString(R.string.share_invite_subject)
+                            )
+                        }
+                        runCatching {
+                            context.startActivity(
+                                Intent.createChooser(
+                                    send,
+                                    context.getString(R.string.share_invite_subject)
+                                )
+                            )
+                        }
+                    }
+                )
+                ShareLinkAction(
+                    icon = Icons.Default.ContentCopy,
+                    description = stringResource(R.string.share_copy),
+                    onClick = {
+                        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                            as? ClipboardManager
+                        cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
+                        onNotify(copiedMsg)
+                    }
+                )
+                ShareLinkAction(
+                    icon = Icons.Default.OpenInBrowser,
+                    description = stringResource(R.string.share_open),
+                    // The web viewer in the phone's own browser, so the rider
+                    // sees the group the way the friends they invite will.
+                    onClick = { openInBrowser(context, url, tabColors) }
                 )
             }
             Spacer(Modifier.height(14.dp))
-            // The QR and the three link actions are one block: the code is
-            // sized from the row's own width so its edges land on the outer
-            // edges of the buttons under it. The block is capped and centred,
-            // because a square that fills a landscape dialog is taller than
-            // the screen and buries Leave under a scroll. It carries no caption
-            // - a QR over a Share row needs no line telling a rider to scan it.
+            // The QR, capped and centred: a square that fills a landscape
+            // dialog is taller than the screen and buries Leave under a
+            // scroll. It carries no caption - a QR under a Share icon needs no
+            // line telling a rider to scan it.
             BoxWithConstraints(
                 Modifier
                     .widthIn(max = shareBlockMaxWidth())
@@ -823,64 +881,11 @@ fun ShareGroupDialog(
                 val qrPx = remember(maxWidth, density) {
                     with(density) { maxWidth.roundToPx() }.coerceAtMost(QR_MAX_PX)
                 }
-                Column(Modifier.fillMaxWidth()) {
-                    QrCodeImage(
-                        content = url,
-                        sizePx = qrPx,
-                        modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    // Three ways to hand the link to a friend who is not
-                    // standing here. The link text itself is never shown - it
-                    // is 60 characters of base64 nobody reads, and it filled
-                    // the dialog.
-                    Row(Modifier.fillMaxWidth()) {
-                        ShareLinkAction(
-                            icon = Icons.Default.Share,
-                            label = stringResource(R.string.action_share),
-                            onClick = {
-                                val send = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        context.getString(R.string.share_invite_text, url)
-                                    )
-                                    putExtra(
-                                        Intent.EXTRA_SUBJECT,
-                                        context.getString(R.string.share_invite_subject)
-                                    )
-                                }
-                                runCatching {
-                                    context.startActivity(
-                                        Intent.createChooser(
-                                            send,
-                                            context.getString(R.string.share_invite_subject)
-                                        )
-                                    )
-                                }
-                            }
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        ShareLinkAction(
-                            icon = Icons.Default.ContentCopy,
-                            label = stringResource(R.string.share_copy),
-                            onClick = {
-                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
-                                    as? ClipboardManager
-                                cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
-                                onNotify(copiedMsg)
-                            }
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        ShareLinkAction(
-                            icon = Icons.Default.OpenInBrowser,
-                            label = stringResource(R.string.share_open),
-                            // The web viewer, so the rider can see the group
-                            // the way the friends they invite will see it.
-                            onClick = { openInBrowser(context, url, tabColors) }
-                        )
-                    }
-                }
+                QrCodeImage(
+                    content = url,
+                    sizePx = qrPx,
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                )
             }
             Spacer(Modifier.height(16.dp))
             // Riders, as one of the app's list sections rather than a card: a
@@ -1001,47 +1006,26 @@ fun ShareGroupDialog(
 }
 
 /**
- * One of the three equal link actions under the QR: same outlined style, same
- * width, an icon over its label.
+ * One of the three link actions in the group header: a tinted icon button, the
+ * same affordance the trip detail bar uses for its actions.
  *
- * A third of the dialog is about 99dp, which "Compartilhar" (pt-rBR) and
- * "Udostepnij" (pl) do not fit on one line at labelLarge, so the label is a
- * step smaller and allowed a second line. The minimum height is the two-line
- * height, so a wrapped cell and a one-word cell stay the same size and the row
- * does not go ragged.
+ * The label they used to carry is the content description now. That is what
+ * lets the row collapse to one line: "Compartilhar" (pt-rBR) and "Udostepnij"
+ * (pl) never fit a third of the dialog, so the old outlined cells needed two
+ * lines of text and 76 dp of height to stay square with each other.
  */
 @Composable
-private fun RowScope.ShareLinkAction(
+private fun ShareLinkAction(
     icon: ImageVector,
-    label: String,
+    description: String,
     onClick: () -> Unit,
 ) {
-    OutlinedButton(
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.appColors.outline),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.appColors.textButton
-        ),
-        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
-        modifier = Modifier.weight(1f).heightIn(min = 76.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = MaterialTheme.appColors.textButton,
-                modifier = Modifier.size(20.dp),
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                label,
-                style = MaterialTheme.typography.labelMedium,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+    IconButton(onClick = onClick) {
+        Icon(
+            icon,
+            contentDescription = description,
+            tint = MaterialTheme.appColors.primary,
+        )
     }
 }
 

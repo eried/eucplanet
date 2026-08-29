@@ -1598,6 +1598,7 @@
     <string name="share_left">forlod</string>
     <string name="share_lost">mistet signal</string>
     <string name="share_age_seconds">for %1$d s siden</string>
+    <string name="share_relay_caption">Relæ: %1$s</string>
     <string name="share_link_invalid">Dette delelink er udløbet eller ugyldigt.</string>
     <string name="share_room_full">Denne gruppe er fuld.</string>
     <string name="share_switch_group">Forlad nuværende gruppe og deltag i denne?</string>

@@ -1586,6 +1586,7 @@
     <string name="share_left">ayrıldı</string>
     <string name="share_lost">sinyal yok</string>
     <string name="share_age_seconds">%1$d sn önce</string>
+    <string name="share_relay_caption">Aktarıcı: %1$s</string>
     <string name="share_link_invalid">Bu paylaşım bağlantısının süresi dolmuş veya geçersiz.</string>
     <string name="share_room_full">Bu grup dolu.</string>
     <string name="share_switch_group">Mevcut gruptan ayrılıp buna katılmak ister misin?</string>

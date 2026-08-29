@@ -276,6 +276,7 @@ fun RouteBuilderScreen(
     // The ride the rider last left, if any: the start dialog offers it back.
     val shareSpeedUnit by viewModel.speedUnit.collectAsState()
     val shareTempUnit by viewModel.tempUnit.collectAsState()
+    val shareRelayHost by viewModel.relayHost.collectAsState()
     // The rider tapped Share; which dialog opens depends on whether a
     // group is already running.
     var shareDialogOpen by remember { mutableStateOf(false) }
@@ -1769,6 +1770,7 @@ fun RouteBuilderScreen(
 
                 shareDialogOpen && joinedGroup != null -> ShareGroupDialog(
                     state = joinedGroup,
+                    relayHost = shareRelayHost,
                     speedUnit = shareSpeedUnit,
                     tempUnit = shareTempUnit,
                     onFlyTo = { lat, lng ->

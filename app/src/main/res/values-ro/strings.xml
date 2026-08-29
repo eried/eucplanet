@@ -1851,6 +1851,7 @@
     <string name="share_left">a plecat</string>
     <string name="share_lost">semnal pierdut</string>
     <string name="share_age_seconds">acum %1$d s</string>
+    <string name="share_relay_caption">Releu: %1$s</string>
     <string name="share_link_invalid">Acest link de distribuire a expirat sau nu este valid.</string>
     <string name="share_room_full">Acest grup este plin.</string>
     <string name="share_switch_group">Părăsești grupul curent pentru a te alătura acestuia?</string>

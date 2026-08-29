@@ -318,6 +318,13 @@ class RouteBuilderViewModel @Inject constructor(
         .map { Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "C")
 
+    /** The relay host the group view names in its header. The scheme is dropped
+     *  (it is always ws or wss) and so is a trailing slash, so the caption is
+     *  the server a rider would recognise and nothing else. */
+    val relayHost: StateFlow<String> = settingsRepository.settings
+        .map { it.share.relayUrl.substringAfter("://").trimEnd('/') }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
     /** Landscape sidebar side for the stops panel: "DEFAULT", "LEFT" or "RIGHT". */
     val navStopsSide: StateFlow<String> = settingsRepository.settings
         .map { it.navStopsSide }
