@@ -1578,8 +1578,6 @@
     <string name="share_stats_toggle">Sänd mina data</string>
     <string name="share_start">Börja dela</string>
     <string name="share_join">Gå med</string>
-    <string name="share_copy_link">Kopiera länk</string>
-    <string name="share_send_link">Skicka länk</string>
     <string name="share_connected">Ansluten</string>
     <string name="share_reconnecting">Ansluter igen…</string>
     <string name="share_riders">Åkare</string>
@@ -1597,8 +1595,6 @@
     <string name="share_profile_loading">Laddar profil…</string>
     <string name="share_join_another">Gå med i en annan tur</string>
     <string name="share_scan_qr">Skanna QR</string>
-    <string name="share_paste_link">Klistra in länk</string>
-    <string name="share_point_at_qr">Rikta kameran mot QR-koden</string>
     <string name="share_camera_needed">Kameraåtkomst behövs för att skanna en QR-kod.</string>
     <string name="share_invite_text">Följ med på min tur på EUC Planet: %1$s</string>
     <string name="share_invite_subject">Följ med på min tur</string>
@@ -1609,7 +1605,10 @@
     <string name="share_alone">Ingen annan är här än.</string>
     <string name="share_open">Öppna</string>
     <string name="share_copy">Kopiera</string>
-    <string name="share_rider_count">%1$d ryttare</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d åkare</item>
+        <item quantity="other">%1$d åkare</item>
+    </plurals>
     <string name="share_scan_to_join">Skanna för att gå med</string>
     <string name="nav_end_body">Stoppa vägledningen för den aktiva rutten?</string>
     <string name="nav_end_confirm">Avsluta</string>

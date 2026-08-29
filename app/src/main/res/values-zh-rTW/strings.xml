@@ -1579,8 +1579,6 @@
     <string name="share_stats_toggle">廣播我的數據</string>
     <string name="share_start">開始分享</string>
     <string name="share_join">加入</string>
-    <string name="share_copy_link">複製連結</string>
-    <string name="share_send_link">傳送連結</string>
     <string name="share_connected">已連線</string>
     <string name="share_reconnecting">重新連線中…</string>
     <string name="share_riders">騎手</string>
@@ -1598,8 +1596,6 @@
     <string name="share_profile_loading">正在載入資料…</string>
     <string name="share_join_another">加入其他行程</string>
     <string name="share_scan_qr">掃描 QR 碼</string>
-    <string name="share_paste_link">貼上連結</string>
-    <string name="share_point_at_qr">將相機對準 QR 碼</string>
     <string name="share_camera_needed">掃描 QR 碼需要相機權限。</string>
     <string name="share_invite_text">加入我在 EUC Planet 的行程：%1$s</string>
     <string name="share_invite_subject">加入我的行程</string>
@@ -1610,7 +1606,9 @@
     <string name="share_alone">這裡還沒有其他人。</string>
     <string name="share_open">開啟</string>
     <string name="share_copy">複製</string>
-    <string name="share_rider_count">%1$d 人</string>
+    <plurals name="share_rider_count">
+        <item quantity="other">%1$d 人</item>
+    </plurals>
     <string name="share_scan_to_join">掃碼加入</string>
     <string name="nav_end_body">停止目前路線的導航？</string>
     <string name="nav_end_confirm">結束</string>

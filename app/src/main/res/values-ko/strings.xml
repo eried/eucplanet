@@ -1579,8 +1579,6 @@
     <string name="share_stats_toggle">내 정보 전송</string>
     <string name="share_start">공유 시작</string>
     <string name="share_join">참여</string>
-    <string name="share_copy_link">링크 복사</string>
-    <string name="share_send_link">링크 보내기</string>
     <string name="share_connected">연결됨</string>
     <string name="share_reconnecting">재연결 중…</string>
     <string name="share_riders">라이더</string>
@@ -1598,8 +1596,6 @@
     <string name="share_profile_loading">프로필 불러오는 중…</string>
     <string name="share_join_another">다른 라이드 참여</string>
     <string name="share_scan_qr">QR 스캔</string>
-    <string name="share_paste_link">링크 붙여넣기</string>
-    <string name="share_point_at_qr">카메라를 QR 코드에 맞추세요</string>
     <string name="share_camera_needed">QR 코드를 스캔하려면 카메라 권한이 필요합니다.</string>
     <string name="share_invite_text">EUC Planet에서 제 라이드에 참여하세요: %1$s</string>
     <string name="share_invite_subject">제 라이드에 참여하세요</string>
@@ -1610,7 +1606,9 @@
     <string name="share_alone">아직 여기 아무도 없어요.</string>
     <string name="share_open">열기</string>
     <string name="share_copy">복사</string>
-    <string name="share_rider_count">%1$d명</string>
+    <plurals name="share_rider_count">
+        <item quantity="other">%1$d명</item>
+    </plurals>
     <string name="share_scan_to_join">스캔하여 참가</string>
     <string name="nav_end_body">현재 경로의 안내를 중지하시겠습니까?</string>
     <string name="nav_end_confirm">종료</string>

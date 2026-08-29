@@ -1612,8 +1612,6 @@
     <string name="share_stats_toggle">Meine Werte senden</string>
     <string name="share_start">Teilen starten</string>
     <string name="share_join">Beitreten</string>
-    <string name="share_copy_link">Link kopieren</string>
-    <string name="share_send_link">Link senden</string>
     <string name="share_connected">Verbunden</string>
     <string name="share_reconnecting">Verbindung wird wiederhergestellt…</string>
     <string name="share_riders">Rider</string>
@@ -1631,8 +1629,6 @@
     <string name="share_profile_loading">Profil wird geladen…</string>
     <string name="share_join_another">Anderer Fahrt beitreten</string>
     <string name="share_scan_qr">QR scannen</string>
-    <string name="share_paste_link">Link einfügen</string>
-    <string name="share_point_at_qr">Kamera auf den QR-Code richten</string>
     <string name="share_camera_needed">Zum Scannen eines QR-Codes wird Kamerazugriff benötigt.</string>
     <string name="share_invite_text">Komm zu meiner Fahrt auf EUC Planet: %1$s</string>
     <string name="share_invite_subject">Komm zu meiner Fahrt</string>
@@ -1643,7 +1639,10 @@
     <string name="share_alone">Noch ist niemand sonst hier.</string>
     <string name="share_open">Öffnen</string>
     <string name="share_copy">Kopieren</string>
-    <string name="share_rider_count">%1$d Rider</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d Rider</item>
+        <item quantity="other">%1$d Rider</item>
+    </plurals>
     <string name="share_scan_to_join">Zum Beitreten scannen</string>
     <string name="nav_end_body">Die Führung für die aktive Route stoppen?</string>
     <string name="nav_end_confirm">Beenden</string>

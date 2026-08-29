@@ -51,6 +51,19 @@ sealed class ShareState {
                       val nowMs: Long = System.currentTimeMillis()) : ShareState()
 }
 
+/**
+ * The riders who are in the group right now: everyone in [ShareState.Joined.peers]
+ * except those who announced they left and those whose last fix aged out to
+ * [Freshness.LOST]. Self is never in the map (peers are keyed by the remote
+ * sender id), so this is always "the others".
+ *
+ * One definition on purpose. The navigator's Share badge, the group dialog's
+ * status line and its "no one else here yet" line all read this, so they cannot
+ * show 2, 2 and "nobody" for the same room.
+ */
+val ShareState.Joined.activePeers: List<PeerState>
+    get() = peers.values.filter { !it.left && it.freshness != Freshness.LOST }
+
 @Singleton
 class ShareSession @Inject constructor(
     @ApplicationContext private val context: Context,

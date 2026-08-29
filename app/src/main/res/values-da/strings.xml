@@ -1591,8 +1591,6 @@
     <string name="share_stats_toggle">Send mine data</string>
     <string name="share_start">Start deling</string>
     <string name="share_join">Deltag</string>
-    <string name="share_copy_link">Kopiér link</string>
-    <string name="share_send_link">Send link</string>
     <string name="share_connected">Forbundet</string>
     <string name="share_reconnecting">Genopretter forbindelse…</string>
     <string name="share_riders">Ryttere</string>
@@ -1610,8 +1608,6 @@
     <string name="share_profile_loading">Indlæser profil…</string>
     <string name="share_join_another">Deltag i en anden tur</string>
     <string name="share_scan_qr">Scan QR</string>
-    <string name="share_paste_link">Indsæt link</string>
-    <string name="share_point_at_qr">Ret kameraet mod QR-koden</string>
     <string name="share_camera_needed">Der skal bruges adgang til kameraet for at scanne en QR-kode.</string>
     <string name="share_invite_text">Vær med på min tur på EUC Planet: %1$s</string>
     <string name="share_invite_subject">Vær med på min tur</string>
@@ -1622,7 +1618,10 @@
     <string name="share_alone">Der er ingen andre her endnu.</string>
     <string name="share_open">Åbn</string>
     <string name="share_copy">Kopiér</string>
-    <string name="share_rider_count">%1$d ryttere</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rytter</item>
+        <item quantity="other">%1$d ryttere</item>
+    </plurals>
     <string name="share_scan_to_join">Scan for at deltage</string>
     <string name="nav_end_body">Stop vejledningen for den aktive rute?</string>
     <string name="nav_end_confirm">Afslut</string>

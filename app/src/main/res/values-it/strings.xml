@@ -803,8 +803,6 @@
     <string name="share_stats_toggle">Trasmetti i miei dati</string>
     <string name="share_start">Avvia condivisione</string>
     <string name="share_join">Unisciti</string>
-    <string name="share_copy_link">Copia link</string>
-    <string name="share_send_link">Invia link</string>
     <string name="share_connected">Connesso</string>
     <string name="share_reconnecting">Riconnessione…</string>
     <string name="share_riders">Rider</string>
@@ -822,8 +820,6 @@
     <string name="share_profile_loading">Caricamento profilo…</string>
     <string name="share_join_another">Unisciti a un\'altra uscita</string>
     <string name="share_scan_qr">Scansiona QR</string>
-    <string name="share_paste_link">Incolla link</string>
-    <string name="share_point_at_qr">Inquadra il codice QR</string>
     <string name="share_camera_needed">Serve l\'accesso alla fotocamera per scansionare un codice QR.</string>
     <string name="share_invite_text">Unisciti alla mia uscita su EUC Planet: %1$s</string>
     <string name="share_invite_subject">Unisciti alla mia uscita</string>
@@ -834,7 +830,10 @@
     <string name="share_alone">Per ora non c\'è nessun altro qui.</string>
     <string name="share_open">Apri</string>
     <string name="share_copy">Copia</string>
-    <string name="share_rider_count">%1$d rider</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rider</item>
+        <item quantity="other">%1$d rider</item>
+    </plurals>
     <string name="share_scan_to_join">Scansiona per unirti</string>
     <string name="nav_expand">Espandi</string>
     <string name="nav_label_destination">Destinazione</string>

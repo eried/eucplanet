@@ -1579,8 +1579,6 @@
     <string name="share_stats_toggle">自分の統計を配信</string>
     <string name="share_start">共有を開始</string>
     <string name="share_join">参加</string>
-    <string name="share_copy_link">リンクをコピー</string>
-    <string name="share_send_link">リンクを送信</string>
     <string name="share_connected">接続済み</string>
     <string name="share_reconnecting">再接続中…</string>
     <string name="share_riders">ライダー</string>
@@ -1598,8 +1596,6 @@
     <string name="share_profile_loading">プロフィールを読み込み中…</string>
     <string name="share_join_another">別のライドに参加</string>
     <string name="share_scan_qr">QRをスキャン</string>
-    <string name="share_paste_link">リンクを貼り付け</string>
-    <string name="share_point_at_qr">カメラをQRコードに向けてください</string>
     <string name="share_camera_needed">QRコードのスキャンにはカメラへのアクセスが必要です。</string>
     <string name="share_invite_text">EUC Planetで私のライドに参加してください: %1$s</string>
     <string name="share_invite_subject">私のライドに参加</string>
@@ -1610,7 +1606,9 @@
     <string name="share_alone">まだ他に誰もいません。</string>
     <string name="share_open">開く</string>
     <string name="share_copy">コピー</string>
-    <string name="share_rider_count">%1$d 人</string>
+    <plurals name="share_rider_count">
+        <item quantity="other">%1$d 人</item>
+    </plurals>
     <string name="share_scan_to_join">スキャンして参加</string>
     <string name="nav_end_body">現在のルートのガイダンスを停止しますか？</string>
     <string name="nav_end_confirm">終了</string>

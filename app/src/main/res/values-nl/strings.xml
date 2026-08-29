@@ -1637,8 +1637,6 @@
     <string name="share_stats_toggle">Mijn stats uitzenden</string>
     <string name="share_start">Delen starten</string>
     <string name="share_join">Deelnemen</string>
-    <string name="share_copy_link">Link kopiëren</string>
-    <string name="share_send_link">Link verzenden</string>
     <string name="share_connected">Verbonden</string>
     <string name="share_reconnecting">Opnieuw verbinden…</string>
     <string name="share_riders">Rijders</string>
@@ -1656,8 +1654,6 @@
     <string name="share_profile_loading">Profiel laden…</string>
     <string name="share_join_another">Andere rit joinen</string>
     <string name="share_scan_qr">QR scannen</string>
-    <string name="share_paste_link">Link plakken</string>
-    <string name="share_point_at_qr">Richt de camera op de QR-code</string>
     <string name="share_camera_needed">Cameratoegang is nodig om een QR-code te scannen.</string>
     <string name="share_invite_text">Doe mee met mijn rit op EUC Planet: %1$s</string>
     <string name="share_invite_subject">Doe mee met mijn rit</string>
@@ -1668,7 +1664,10 @@
     <string name="share_alone">Hier is nog niemand anders.</string>
     <string name="share_open">Openen</string>
     <string name="share_copy">Kopiëren</string>
-    <string name="share_rider_count">%1$d riders</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rijder</item>
+        <item quantity="other">%1$d rijders</item>
+    </plurals>
     <string name="share_scan_to_join">Scan om deel te nemen</string>
     <string name="nav_end_body">De begeleiding voor de actieve route stoppen?</string>
     <string name="nav_end_confirm">Beëindigen</string>

@@ -1614,8 +1614,6 @@
     <string name="share_stats_toggle">Передавати мої дані</string>
     <string name="share_start">Почати трансляцію</string>
     <string name="share_join">Приєднатися</string>
-    <string name="share_copy_link">Копіювати посилання</string>
-    <string name="share_send_link">Надіслати посилання</string>
     <string name="share_connected">Підключено</string>
     <string name="share_reconnecting">Повторне підключення…</string>
     <string name="share_riders">Райдери</string>
@@ -1633,8 +1631,6 @@
     <string name="share_profile_loading">Завантаження профілю…</string>
     <string name="share_join_another">Приєднатися до іншої поїздки</string>
     <string name="share_scan_qr">Сканувати QR</string>
-    <string name="share_paste_link">Вставити посилання</string>
-    <string name="share_point_at_qr">Наведіть камеру на QR-код</string>
     <string name="share_camera_needed">Щоб сканувати QR-код, потрібен доступ до камери.</string>
     <string name="share_invite_text">Приєднуйся до моєї поїздки в EUC Planet: %1$s</string>
     <string name="share_invite_subject">Приєднуйся до моєї поїздки</string>
@@ -1645,7 +1641,12 @@
     <string name="share_alone">Тут поки що нікого більше немає.</string>
     <string name="share_open">Відкрити</string>
     <string name="share_copy">Копіювати</string>
-    <string name="share_rider_count">Райдерів: %1$d</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d райдер</item>
+        <item quantity="few">%1$d райдери</item>
+        <item quantity="many">%1$d райдерів</item>
+        <item quantity="other">%1$d райдера</item>
+    </plurals>
     <string name="share_scan_to_join">Скануйте, щоб приєднатися</string>
     <string name="nav_end_body">Зупинити супровід активного маршруту?</string>
     <string name="nav_end_confirm">Завершити</string>

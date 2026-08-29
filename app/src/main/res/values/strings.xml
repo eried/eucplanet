@@ -2297,8 +2297,6 @@
     <string name="share_stats_toggle">Broadcast my stats</string>
     <string name="share_start">Start sharing</string>
     <string name="share_join">Join</string>
-    <string name="share_copy_link">Copy link</string>
-    <string name="share_send_link">Send link</string>
     <string name="share_connected">Connected</string>
     <string name="share_reconnecting">Reconnecting…</string>
     <string name="share_riders">Riders</string>
@@ -2316,8 +2314,6 @@
     <string name="share_profile_loading">Loading profile…</string>
     <string name="share_join_another">Join another ride</string>
     <string name="share_scan_qr">Scan QR</string>
-    <string name="share_paste_link">Paste link</string>
-    <string name="share_point_at_qr">Point the camera at the QR code</string>
     <string name="share_camera_needed">Camera access is needed to scan a QR code.</string>
     <string name="share_invite_text">Join my ride on EUC Planet: %1$s</string>
     <string name="share_invite_subject">Join my ride</string>
@@ -2327,7 +2323,10 @@
     <string name="share_ride_ended">This ride has ended.</string>
     <string name="share_alone">No one else here yet.</string>
     <string name="share_scan_to_join">Scan to join</string>
-    <string name="share_rider_count">%1$d riders</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rider</item>
+        <item quantity="other">%1$d riders</item>
+    </plurals>
     <string name="share_copy">Copy</string>
     <string name="share_open">Open</string>
     <string name="watch_show_navigation">Show navigation</string>

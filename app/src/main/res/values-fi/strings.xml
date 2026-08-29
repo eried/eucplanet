@@ -1844,8 +1844,6 @@
     <string name="share_stats_toggle">Lähetä tietoni</string>
     <string name="share_start">Aloita jakaminen</string>
     <string name="share_join">Liity</string>
-    <string name="share_copy_link">Kopioi linkki</string>
-    <string name="share_send_link">Lähetä linkki</string>
     <string name="share_connected">Yhdistetty</string>
     <string name="share_reconnecting">Yhdistetään uudelleen…</string>
     <string name="share_riders">Ajajat</string>
@@ -1863,8 +1861,6 @@
     <string name="share_profile_loading">Ladataan profiilia…</string>
     <string name="share_join_another">Liity toiseen ajoon</string>
     <string name="share_scan_qr">Skannaa QR</string>
-    <string name="share_paste_link">Liitä linkki</string>
-    <string name="share_point_at_qr">Suuntaa kamera QR-koodiin</string>
     <string name="share_camera_needed">QR-koodin skannaamiseen tarvitaan kameran käyttöoikeus.</string>
     <string name="share_invite_text">Liity ajooni EUC Planetissa: %1$s</string>
     <string name="share_invite_subject">Liity ajooni</string>
@@ -1875,7 +1871,10 @@
     <string name="share_alone">Täällä ei ole vielä ketään muuta.</string>
     <string name="share_open">Avaa</string>
     <string name="share_copy">Kopioi</string>
-    <string name="share_rider_count">%1$d kuljettajaa</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d ajaja</item>
+        <item quantity="other">%1$d ajajaa</item>
+    </plurals>
     <string name="share_scan_to_join">Skannaa liittyäksesi</string>
     <string name="nav_end_body">Pysäytetäänkö aktiivisen reitin opastus?</string>
     <string name="nav_end_confirm">Lopeta</string>

@@ -767,8 +767,6 @@
     <string name="share_stats_toggle">广播我的数据</string>
     <string name="share_start">开始分享</string>
     <string name="share_join">加入</string>
-    <string name="share_copy_link">复制链接</string>
-    <string name="share_send_link">发送链接</string>
     <string name="share_connected">已连接</string>
     <string name="share_reconnecting">正在重新连接…</string>
     <string name="share_riders">骑手</string>
@@ -786,8 +784,6 @@
     <string name="share_profile_loading">正在加载资料…</string>
     <string name="share_join_another">加入其他行程</string>
     <string name="share_scan_qr">扫描二维码</string>
-    <string name="share_paste_link">粘贴链接</string>
-    <string name="share_point_at_qr">将摄像头对准二维码</string>
     <string name="share_camera_needed">扫描二维码需要相机权限。</string>
     <string name="share_invite_text">加入我在 EUC Planet 的行程：%1$s</string>
     <string name="share_invite_subject">加入我的行程</string>
@@ -798,7 +794,9 @@
     <string name="share_alone">这里还没有其他人。</string>
     <string name="share_open">打开</string>
     <string name="share_copy">复制</string>
-    <string name="share_rider_count">%1$d 人</string>
+    <plurals name="share_rider_count">
+        <item quantity="other">%1$d 人</item>
+    </plurals>
     <string name="share_scan_to_join">扫码加入</string>
     <string name="nav_expand">展开</string>
     <string name="nav_label_destination">目的地</string>

@@ -784,8 +784,6 @@
     <string name="share_stats_toggle">Send mine data</string>
     <string name="share_start">Start deling</string>
     <string name="share_join">Bli med</string>
-    <string name="share_copy_link">Kopier lenke</string>
-    <string name="share_send_link">Send lenke</string>
     <string name="share_connected">Tilkoblet</string>
     <string name="share_reconnecting">Kobler til på nytt…</string>
     <string name="share_riders">Ryttere</string>
@@ -803,8 +801,6 @@
     <string name="share_profile_loading">Laster profil…</string>
     <string name="share_join_another">Bli med på en annen tur</string>
     <string name="share_scan_qr">Skann QR</string>
-    <string name="share_paste_link">Lim inn lenke</string>
-    <string name="share_point_at_qr">Rett kameraet mot QR-koden</string>
     <string name="share_camera_needed">Kameratilgang trengs for å skanne en QR-kode.</string>
     <string name="share_invite_text">Bli med på turen min på EUC Planet: %1$s</string>
     <string name="share_invite_subject">Bli med på turen min</string>
@@ -815,7 +811,10 @@
     <string name="share_alone">Ingen andre her ennå.</string>
     <string name="share_open">Åpne</string>
     <string name="share_copy">Kopier</string>
-    <string name="share_rider_count">%1$d ryttere</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rytter</item>
+        <item quantity="other">%1$d ryttere</item>
+    </plurals>
     <string name="share_scan_to_join">Skann for å bli med</string>
     <string name="nav_expand">Utvid</string>
     <string name="nav_label_destination">Bestemmelsessted</string>

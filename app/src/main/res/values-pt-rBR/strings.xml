@@ -1582,8 +1582,6 @@
     <string name="share_stats_toggle">Transmitir meus dados</string>
     <string name="share_start">Iniciar compartilhamento</string>
     <string name="share_join">Entrar</string>
-    <string name="share_copy_link">Copiar link</string>
-    <string name="share_send_link">Enviar link</string>
     <string name="share_connected">Conectado</string>
     <string name="share_reconnecting">Reconectando…</string>
     <string name="share_riders">Pilotos</string>
@@ -1601,8 +1599,6 @@
     <string name="share_profile_loading">Carregando perfil…</string>
     <string name="share_join_another">Entrar em outro passeio</string>
     <string name="share_scan_qr">Ler QR</string>
-    <string name="share_paste_link">Colar link</string>
-    <string name="share_point_at_qr">Aponte a câmera para o código QR</string>
     <string name="share_camera_needed">É preciso acesso à câmera para ler um código QR.</string>
     <string name="share_invite_text">Entre no meu passeio no EUC Planet: %1$s</string>
     <string name="share_invite_subject">Entre no meu passeio</string>
@@ -1613,7 +1609,10 @@
     <string name="share_alone">Ainda não há mais ninguém aqui.</string>
     <string name="share_open">Abrir</string>
     <string name="share_copy">Copiar</string>
-    <string name="share_rider_count">%1$d riders</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d piloto</item>
+        <item quantity="other">%1$d pilotos</item>
+    </plurals>
     <string name="share_scan_to_join">Escaneie para entrar</string>
     <string name="nav_end_body">Parar a orientação da rota ativa?</string>
     <string name="nav_end_confirm">Encerrar</string>

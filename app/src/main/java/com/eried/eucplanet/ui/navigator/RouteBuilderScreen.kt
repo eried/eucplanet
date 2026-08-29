@@ -134,6 +134,7 @@ import com.eried.eucplanet.share.Freshness
 import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.PeerState
 import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.share.activePeers
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -763,9 +764,10 @@ fun RouteBuilderScreen(
                     // peer who left or aged out to LOST is still in the map
                     // (the group list keeps showing them, greyed, by design)
                     // but is not "currently in it", so the badge excludes them.
+                    // activePeers is the one definition of that; the group
+                    // dialog's status line reads the same one.
                     val joinedShare = shareState as? ShareState.Joined
-                    val sharePeers = joinedShare?.peers?.values
-                        ?.count { !it.left && it.freshness != Freshness.LOST } ?: 0
+                    val sharePeers = joinedShare?.activePeers?.size ?: 0
                     BadgedBox(
                         badge = {
                             // Shown from zero up: while a group is running the

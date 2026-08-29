@@ -1595,8 +1595,6 @@
     <string name="share_stats_toggle">Nadawaj moje dane</string>
     <string name="share_start">Rozpocznij udostępnianie</string>
     <string name="share_join">Dołącz</string>
-    <string name="share_copy_link">Kopiuj link</string>
-    <string name="share_send_link">Wyślij link</string>
     <string name="share_connected">Połączono</string>
     <string name="share_reconnecting">Ponowne łączenie…</string>
     <string name="share_riders">Riderzy</string>
@@ -1614,8 +1612,6 @@
     <string name="share_profile_loading">Wczytywanie profilu…</string>
     <string name="share_join_another">Dołącz do innej jazdy</string>
     <string name="share_scan_qr">Skanuj QR</string>
-    <string name="share_paste_link">Wklej link</string>
-    <string name="share_point_at_qr">Skieruj aparat na kod QR</string>
     <string name="share_camera_needed">Do zeskanowania kodu QR potrzebny jest dostęp do aparatu.</string>
     <string name="share_invite_text">Dołącz do mojej jazdy w EUC Planet: %1$s</string>
     <string name="share_invite_subject">Dołącz do mojej jazdy</string>
@@ -1626,7 +1622,12 @@
     <string name="share_alone">Nikogo innego tu jeszcze nie ma.</string>
     <string name="share_open">Otwórz</string>
     <string name="share_copy">Kopiuj</string>
-    <string name="share_rider_count">Riderzy: %1$d</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rider</item>
+        <item quantity="few">%1$d riderzy</item>
+        <item quantity="many">%1$d riderów</item>
+        <item quantity="other">%1$d ridera</item>
+    </plurals>
     <string name="share_scan_to_join">Zeskanuj, aby dołączyć</string>
     <string name="nav_end_body">Zatrzymać prowadzenie po aktywnej trasie?</string>
     <string name="nav_end_confirm">Zakończ</string>

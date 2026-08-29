@@ -1844,11 +1844,9 @@
     <string name="share_stats_toggle">Adataim sugárzása</string>
     <string name="share_start">Megosztás indítása</string>
     <string name="share_join">Csatlakozás</string>
-    <string name="share_copy_link">Link másolása</string>
-    <string name="share_send_link">Link küldése</string>
     <string name="share_connected">Csatlakozva</string>
     <string name="share_reconnecting">Újracsatlakozás…</string>
-    <string name="share_riders">Vezetők</string>
+    <string name="share_riders">Riderek</string>
     <string name="share_leave">Kilépés</string>
     <string name="share_left">kilépett</string>
     <string name="share_lost">nincs jel</string>
@@ -1863,8 +1861,6 @@
     <string name="share_profile_loading">Profil betöltése…</string>
     <string name="share_join_another">Csatlakozás másik túrához</string>
     <string name="share_scan_qr">QR beolvasása</string>
-    <string name="share_paste_link">Link beillesztése</string>
-    <string name="share_point_at_qr">Irányítsa a kamerát a QR-kódra</string>
     <string name="share_camera_needed">A QR-kód beolvasásához kamera-hozzáférés szükséges.</string>
     <string name="share_invite_text">Csatlakozz a túrámhoz az EUC Planeten: %1$s</string>
     <string name="share_invite_subject">Csatlakozz a túrámhoz</string>
@@ -1875,7 +1871,10 @@
     <string name="share_alone">Egyelőre senki más nincs itt.</string>
     <string name="share_open">Megnyitás</string>
     <string name="share_copy">Másolás</string>
-    <string name="share_rider_count">%1$d rider</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rider</item>
+        <item quantity="other">%1$d rider</item>
+    </plurals>
     <string name="share_scan_to_join">Olvasd be a csatlakozáshoz</string>
     <string name="nav_end_body">Leállítod az útmutatást az aktív útvonalon?</string>
     <string name="nav_end_confirm">Befejezés</string>

@@ -655,6 +655,10 @@ fun ShareGroupDialog(
     val context = LocalContext.current
     val url = remember(state.link) { ShareLinks.format(state.link) }
     val peers = state.peers.values.toList()
+    // The one number the toolbar badge shows: the others who are in the room
+    // right now. The status line and the "no one else here yet" line both read
+    // it, so the dialog can never say "2 riders" over "nobody is here".
+    val activeCount = state.activePeers.size
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -709,7 +713,9 @@ fun ShareGroupDialog(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    stringResource(R.string.share_rider_count, peers.size),
+                    pluralStringResource(
+                        R.plurals.share_rider_count, activeCount, activeCount
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.appColors.textSecondary,
                     maxLines = 1
@@ -798,21 +804,27 @@ fun ShareGroupDialog(
             Spacer(Modifier.height(16.dp))
             ShareSection(stringResource(R.string.share_riders)) {
                 Spacer(Modifier.height(6.dp))
-                // Nobody else is in the room, either because no one has joined
-                // yet or every other rider has left. This also covers a rejoin
-                // into a room the relay quietly recycled after its 1 h idle
-                // expiry: there is no way to tell that apart from "not here
-                // yet", so it is not reported as anything more alarming. The
-                // line sits inside the section, so the header is never left
-                // standing over nothing.
-                val alone = peers.isEmpty() || peers.all { it.left }
-                if (alone) {
+                // Nobody else is in the room right now, either because no one
+                // has joined yet or every other rider has left or aged out.
+                // Tied to the same count the badge shows, so the two cannot
+                // disagree. It also covers a rejoin into a room the relay
+                // quietly recycled after its 1 h idle expiry: there is no way
+                // to tell that apart from "not here yet", so it is not
+                // reported as anything more alarming. The line sits inside the
+                // section, so the header is never left standing over nothing.
+                if (activeCount == 0) {
                     Text(
                         stringResource(R.string.share_alone),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textSecondary
                     )
-                } else {
+                }
+                // Riders who left or went LOST keep their row, greyed, the way
+                // the map keeps their marker: the rider wants to see who was
+                // along. So the rows are drawn whenever the room has ever held
+                // anyone, independently of the empty line above.
+                if (peers.isNotEmpty()) {
+                    if (activeCount == 0) Spacer(Modifier.height(6.dp))
                     // A plain Column, not a LazyColumn: the dialog body is the
                     // scrolling container now, and a lazy list inside it would
                     // be measured with an unbounded height.

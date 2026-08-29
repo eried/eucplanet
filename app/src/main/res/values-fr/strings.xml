@@ -1641,8 +1641,6 @@
     <string name="share_stats_toggle">Diffuser mes stats</string>
     <string name="share_start">Démarrer le partage</string>
     <string name="share_join">Rejoindre</string>
-    <string name="share_copy_link">Copier le lien</string>
-    <string name="share_send_link">Envoyer le lien</string>
     <string name="share_connected">Connecté</string>
     <string name="share_reconnecting">Reconnexion…</string>
     <string name="share_riders">Riders</string>
@@ -1660,8 +1658,6 @@
     <string name="share_profile_loading">Chargement du profil…</string>
     <string name="share_join_another">Rejoindre une autre sortie</string>
     <string name="share_scan_qr">Scanner QR</string>
-    <string name="share_paste_link">Coller le lien</string>
-    <string name="share_point_at_qr">Dirigez la caméra vers le code QR</string>
     <string name="share_camera_needed">L\'accès à la caméra est nécessaire pour scanner un code QR.</string>
     <string name="share_invite_text">Rejoins ma sortie sur EUC Planet : %1$s</string>
     <string name="share_invite_subject">Rejoins ma sortie</string>
@@ -1672,7 +1668,10 @@
     <string name="share_alone">Personne d\'autre ici pour l\'instant.</string>
     <string name="share_open">Ouvrir</string>
     <string name="share_copy">Copier</string>
-    <string name="share_rider_count">%1$d riders</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rider</item>
+        <item quantity="other">%1$d riders</item>
+    </plurals>
     <string name="share_scan_to_join">Scannez pour rejoindre</string>
     <string name="nav_end_body">Arrêter le guidage de l\'itinéraire actif ?</string>
     <string name="nav_end_confirm">Terminer</string>

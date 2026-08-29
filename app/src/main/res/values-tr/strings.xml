@@ -1579,11 +1579,9 @@
     <string name="share_stats_toggle">Verilerimi yayınla</string>
     <string name="share_start">Paylaşmayı başlat</string>
     <string name="share_join">Katıl</string>
-    <string name="share_copy_link">Bağlantıyı kopyala</string>
-    <string name="share_send_link">Bağlantıyı gönder</string>
     <string name="share_connected">Bağlandı</string>
     <string name="share_reconnecting">Yeniden bağlanıyor…</string>
-    <string name="share_riders">Sürücüler</string>
+    <string name="share_riders">Riderlar</string>
     <string name="share_leave">Ayrıl</string>
     <string name="share_left">ayrıldı</string>
     <string name="share_lost">sinyal yok</string>
@@ -1598,8 +1596,6 @@
     <string name="share_profile_loading">Profil yükleniyor…</string>
     <string name="share_join_another">Başka bir sürüşe katıl</string>
     <string name="share_scan_qr">QR tara</string>
-    <string name="share_paste_link">Bağlantıyı yapıştır</string>
-    <string name="share_point_at_qr">Kamerayı QR koduna doğrult</string>
     <string name="share_camera_needed">QR kodu taramak için kamera izni gerekiyor.</string>
     <string name="share_invite_text">EUC Planet\'te sürüşüme katıl: %1$s</string>
     <string name="share_invite_subject">Sürüşüme katıl</string>
@@ -1610,7 +1606,10 @@
     <string name="share_alone">Henüz burada başka kimse yok.</string>
     <string name="share_open">Aç</string>
     <string name="share_copy">Kopyala</string>
-    <string name="share_rider_count">%1$d rider</string>
+    <plurals name="share_rider_count">
+        <item quantity="one">%1$d rider</item>
+        <item quantity="other">%1$d rider</item>
+    </plurals>
     <string name="share_scan_to_join">Katılmak için tarayın</string>
     <string name="nav_end_body">Aktif rota rehberliği durdurulsun mu?</string>
     <string name="nav_end_confirm">Bitir</string>
