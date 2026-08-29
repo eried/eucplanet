@@ -2207,9 +2207,9 @@
     <string name="backup_conflict_title">Varmuuskopioristiriidat</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-aika?</string>
-    <string name="widget_weather_score_desc">Ajopisteet nyt, yksi ruutu.</string>
-    <string name="widget_weather_compact_desc">Ajopisteet ja ennustekäyrä. Suurenna nähdäksesi tunnit, lämpötilan ja tuulen.</string>
-    <string name="widget_weather_graph_desc">Ajopisteet ennustejaksolla</string>
+    <string name="widget_weather_score_desc">Kuinka hyvä sää nyt on ajamiseen, yhdessä ruudussa.</string>
+    <string name="widget_weather_compact_desc">Kuinka hyvä sää on ajamiseen nyt ja tulevina tunteina. Suurenna nähdäksesi tunnit, lämpötilan ja tuulen.</string>
+    <string name="widget_weather_graph_desc">Kuinka hyvä sää on ajamiseen ennustejaksolla</string>
     <string name="widget_weather_refresh_desc">Päivitä ennuste</string>
     <string name="widget_weather_never">Ei vielä ennustetta. Avaa sovellus kerran tai napauta päivitä.</string>
     <string name="widget_weather_never_short">Ei koskaan</string>
@@ -2227,4 +2227,13 @@
     <string name="charge_alert_80_text">Irrota nyt, jos lataat 80 %:iin akun keston vuoksi.</string>
     <string name="charge_alert_full_title">Lataus valmis</string>
     <string name="charge_alert_full_text">Pyöräsi on täyteen ladattu.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Pyörän kojelauta</string>
+    <string name="widget_act_1_label">Pyörän painike 1</string>
+    <string name="widget_act_2_label">Pyörän painike 2</string>
+    <string name="widget_act_3_label">Pyörän painike 3</string>
+    <string name="widget_act_12_label">Pyörän painikkeet 1 ja 2</string>
+    <string name="widget_act_23_label">Pyörän painikkeet 2 ja 3</string>
+    <string name="widget_weather_score_label">Ajokeli?</string>
+    <string name="widget_weather_compact_label">Ajosää</string>
 </resources>

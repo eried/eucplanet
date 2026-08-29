@@ -2406,9 +2406,9 @@
     <string name="backup_conflict_title">Back-upconflicten</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-tijd?</string>
-    <string name="widget_weather_score_desc">Rijscore nu, één cel.</string>
-    <string name="widget_weather_compact_desc">Rijscore en de voorspellingscurve. Vergroot voor uren, temperatuur en wind.</string>
-    <string name="widget_weather_graph_desc">Rijscore over de voorspelde periode</string>
+    <string name="widget_weather_score_desc">Hoe goed het weer nu is om te rijden, in één cel.</string>
+    <string name="widget_weather_compact_desc">Hoe goed het weer is om te rijden, nu en de komende uren. Vergroot voor uren, temperatuur en wind.</string>
+    <string name="widget_weather_graph_desc">Hoe goed het weer is om te rijden, over de voorspelde periode</string>
     <string name="widget_weather_refresh_desc">Voorspelling verversen</string>
     <string name="widget_weather_never">Nog geen voorspelling. Open de app één keer of tik op verversen.</string>
     <string name="widget_weather_never_short">Nooit</string>
@@ -2426,4 +2426,13 @@
     <string name="charge_alert_80_text">Haal hem er nu af als je tot 80 % laadt voor de levensduur.</string>
     <string name="charge_alert_full_title">Opladen klaar</string>
     <string name="charge_alert_full_text">Je wiel is helemaal opgeladen.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Wieldashboard</string>
+    <string name="widget_act_1_label">Wielknop 1</string>
+    <string name="widget_act_2_label">Wielknop 2</string>
+    <string name="widget_act_3_label">Wielknop 3</string>
+    <string name="widget_act_12_label">Wielknoppen 1 en 2</string>
+    <string name="widget_act_23_label">Wielknoppen 2 en 3</string>
+    <string name="widget_weather_score_label">Rijden vandaag?</string>
+    <string name="widget_weather_compact_label">Rijweer</string>
 </resources>

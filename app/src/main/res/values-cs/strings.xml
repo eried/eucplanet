@@ -2207,9 +2207,9 @@
     <string name="backup_conflict_title">Konflikty záloh</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Čas na EUC?</string>
-    <string name="widget_weather_score_desc">Skóre jízdy teď, jedna buňka.</string>
-    <string name="widget_weather_compact_desc">Skóre jízdy a křivka předpovědi. Zvětši pro hodiny, teplotu a vítr.</string>
-    <string name="widget_weather_graph_desc">Skóre jízdy v předpovídaném období</string>
+    <string name="widget_weather_score_desc">Jak dobré je teď počasí na ježdění, v jedné buňce.</string>
+    <string name="widget_weather_compact_desc">Jak dobré je počasí na ježdění, teď i v dalších hodinách. Zvětši pro hodiny, teplotu a vítr.</string>
+    <string name="widget_weather_graph_desc">Jak dobré je počasí na ježdění v předpovídaném období</string>
     <string name="widget_weather_refresh_desc">Obnovit předpověď</string>
     <string name="widget_weather_never">Zatím žádná předpověď. Otevři aplikaci nebo klepni na obnovit.</string>
     <string name="widget_weather_never_short">Nikdy</string>
@@ -2227,4 +2227,13 @@
     <string name="charge_alert_80_text">Odpoj teď, pokud kvůli životnosti nabíjíš na 80 %.</string>
     <string name="charge_alert_full_title">Nabíjení dokončeno</string>
     <string name="charge_alert_full_text">Tvoje kolo je plně nabité.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Přístrojovka kola</string>
+    <string name="widget_act_1_label">Tlačítko kola 1</string>
+    <string name="widget_act_2_label">Tlačítko kola 2</string>
+    <string name="widget_act_3_label">Tlačítko kola 3</string>
+    <string name="widget_act_12_label">Tlačítka kola 1 a 2</string>
+    <string name="widget_act_23_label">Tlačítka kola 2 a 3</string>
+    <string name="widget_weather_score_label">Dá se jet?</string>
+    <string name="widget_weather_compact_label">Počasí na ježdění</string>
 </resources>

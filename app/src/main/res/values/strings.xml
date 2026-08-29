@@ -1270,6 +1270,17 @@
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="widget_description">Metrics and quick actions</string>
+    <!-- Widget names, shown in the launcher's widget picker. Without these
+         every widget is listed as the app itself, which is no help at all when
+         eight of them sit under the same heading. -->
+    <string name="widget_euc_label">Wheel dashboard</string>
+    <string name="widget_act_1_label">Wheel button 1</string>
+    <string name="widget_act_2_label">Wheel button 2</string>
+    <string name="widget_act_3_label">Wheel button 3</string>
+    <string name="widget_act_12_label">Wheel buttons 1 and 2</string>
+    <string name="widget_act_23_label">Wheel buttons 2 and 3</string>
+    <string name="widget_weather_score_label">Good to ride?</string>
+    <string name="widget_weather_compact_label">Riding weather</string>
     <string name="section_surfaces">Live views</string>
     <string name="surface_notification">Notification</string>
     <string name="pip_section">Picture-in-picture</string>
@@ -1308,9 +1319,9 @@
     <string name="widget_standalone_slot">Standalone button %1$d</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC time?</string>
-    <string name="widget_weather_score_desc">Ride score right now, one cell.</string>
-    <string name="widget_weather_compact_desc">Ride score and the forecast curve. Resize for hours, temperature and wind.</string>
-    <string name="widget_weather_graph_desc">Ride score over the forecast window</string>
+    <string name="widget_weather_score_desc">How good the weather is for riding right now, in one cell.</string>
+    <string name="widget_weather_compact_desc">How good the weather is for riding, now and in the hours ahead. Resize for hours, temperature and wind.</string>
+    <string name="widget_weather_graph_desc">How good the weather is for riding, over the forecast window</string>
     <string name="widget_weather_refresh_desc">Refresh the forecast</string>
     <string name="widget_weather_dash">--</string>
     <string name="widget_weather_never">No forecast yet. Open the app once, or tap refresh.</string>

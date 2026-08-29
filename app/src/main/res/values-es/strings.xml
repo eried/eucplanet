@@ -2401,9 +2401,9 @@
     <string name="backup_conflict_title">Conflictos de respaldo</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">¿Hora de EUC?</string>
-    <string name="widget_weather_score_desc">Puntuación de conducción ahora, una celda.</string>
-    <string name="widget_weather_compact_desc">Puntuación de conducción y curva del pronóstico. Amplía para horas, temperatura y viento.</string>
-    <string name="widget_weather_graph_desc">Puntuación de conducción durante el pronóstico</string>
+    <string name="widget_weather_score_desc">Qué tan bueno está el tiempo para rodar ahora, en una celda.</string>
+    <string name="widget_weather_compact_desc">Qué tan bueno está el tiempo para rodar, ahora y en las próximas horas. Amplía para horas, temperatura y viento.</string>
+    <string name="widget_weather_graph_desc">Qué tan bueno está el tiempo para rodar, durante el pronóstico</string>
     <string name="widget_weather_refresh_desc">Actualizar el pronóstico</string>
     <string name="widget_weather_never">Aún no hay pronóstico. Abre la app una vez o toca actualizar.</string>
     <string name="widget_weather_never_short">Nunca</string>
@@ -2421,4 +2421,13 @@
     <string name="charge_alert_80_text">Desenchufa ahora si cargas al 80 % para cuidar la batería.</string>
     <string name="charge_alert_full_title">Carga completa</string>
     <string name="charge_alert_full_text">Tu rueda está cargada del todo.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Panel de la rueda</string>
+    <string name="widget_act_1_label">Botón de rueda 1</string>
+    <string name="widget_act_2_label">Botón de rueda 2</string>
+    <string name="widget_act_3_label">Botón de rueda 3</string>
+    <string name="widget_act_12_label">Botones de rueda 1 y 2</string>
+    <string name="widget_act_23_label">Botones de rueda 2 y 3</string>
+    <string name="widget_weather_score_label">¿Se puede rodar?</string>
+    <string name="widget_weather_compact_label">Tiempo para rodar</string>
 </resources>

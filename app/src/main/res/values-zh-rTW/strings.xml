@@ -2403,9 +2403,9 @@
     <string name="backup_conflict_title">備份衝突</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">適合騎乘嗎？</string>
-    <string name="widget_weather_score_desc">目前騎乘評分，一格。</string>
-    <string name="widget_weather_compact_desc">騎乘評分與預報曲線。放大可顯示時刻、氣溫與風。</string>
-    <string name="widget_weather_graph_desc">預報時段內的騎乘評分</string>
+    <string name="widget_weather_score_desc">現在的天氣有多適合騎乘，只佔一格。</string>
+    <string name="widget_weather_compact_desc">現在與接下來幾小時的天氣有多適合騎乘。放大可顯示時刻、氣溫與風。</string>
+    <string name="widget_weather_graph_desc">預報時段內天氣有多適合騎乘</string>
     <string name="widget_weather_refresh_desc">重新整理預報</string>
     <string name="widget_weather_never">還沒有預報。開啟一次應用程式，或輕觸重新整理。</string>
     <string name="widget_weather_never_short">從未</string>
@@ -2423,4 +2423,13 @@
     <string name="charge_alert_80_text">若為延長電池壽命只充到 80 %，現在拔掉。</string>
     <string name="charge_alert_full_title">充電完成</string>
     <string name="charge_alert_full_text">你的獨輪車已充飽。</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">獨輪車面板</string>
+    <string name="widget_act_1_label">獨輪車按鈕 1</string>
+    <string name="widget_act_2_label">獨輪車按鈕 2</string>
+    <string name="widget_act_3_label">獨輪車按鈕 3</string>
+    <string name="widget_act_12_label">獨輪車按鈕 1 和 2</string>
+    <string name="widget_act_23_label">獨輪車按鈕 2 和 3</string>
+    <string name="widget_weather_score_label">能騎嗎？</string>
+    <string name="widget_weather_compact_label">騎乘天氣</string>
 </resources>

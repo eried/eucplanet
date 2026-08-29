@@ -2207,9 +2207,9 @@
     <string name="backup_conflict_title">Mentési ütközések</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-idő?</string>
-    <string name="widget_weather_score_desc">Menetpontszám most, egy cella.</string>
-    <string name="widget_weather_compact_desc">Menetpontszám és az előrejelzés görbéje. Húzd nagyobbra órákért, hőmérsékletért és szélért.</string>
-    <string name="widget_weather_graph_desc">Menetpontszám az előrejelzett időszakban</string>
+    <string name="widget_weather_score_desc">Mennyire jó most az idő a menethez, egy cellában.</string>
+    <string name="widget_weather_compact_desc">Mennyire jó az idő a menethez, most és a következő órákban. Húzd nagyobbra órákért, hőmérsékletért és szélért.</string>
+    <string name="widget_weather_graph_desc">Mennyire jó az idő a menethez az előrejelzett időszakban</string>
     <string name="widget_weather_refresh_desc">Előrejelzés frissítése</string>
     <string name="widget_weather_never">Még nincs előrejelzés. Nyisd meg az appot, vagy koppints a frissítésre.</string>
     <string name="widget_weather_never_short">Soha</string>
@@ -2227,4 +2227,13 @@
     <string name="charge_alert_80_text">Húzd ki most, ha az élettartam miatt 80 %-ig töltesz.</string>
     <string name="charge_alert_full_title">Töltés kész</string>
     <string name="charge_alert_full_text">A kerekedet feltöltötted.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Kerék műszerfal</string>
+    <string name="widget_act_1_label">Kerék gomb 1</string>
+    <string name="widget_act_2_label">Kerék gomb 2</string>
+    <string name="widget_act_3_label">Kerék gomb 3</string>
+    <string name="widget_act_12_label">Kerék gombok 1 és 2</string>
+    <string name="widget_act_23_label">Kerék gombok 2 és 3</string>
+    <string name="widget_weather_score_label">Mehetünk?</string>
+    <string name="widget_weather_compact_label">Menetidő</string>
 </resources>

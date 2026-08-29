@@ -2292,9 +2292,9 @@
     <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-tid?</string>
-    <string name="widget_weather_score_desc">Kjørescore nå, én celle.</string>
-    <string name="widget_weather_compact_desc">Kjørescore og værkurven. Gjør større for timer, temperatur og vind.</string>
-    <string name="widget_weather_graph_desc">Kjørescore over varselperioden</string>
+    <string name="widget_weather_score_desc">Hvor bra været er å kjøre i akkurat nå, i én celle.</string>
+    <string name="widget_weather_compact_desc">Hvor bra været er å kjøre i, nå og i timene framover. Gjør større for timer, temperatur og vind.</string>
+    <string name="widget_weather_graph_desc">Hvor bra været er å kjøre i, over varselperioden</string>
     <string name="widget_weather_refresh_desc">Oppdater varselet</string>
     <string name="widget_weather_never">Ingen varsel ennå. Åpne appen én gang, eller trykk oppdater.</string>
     <string name="widget_weather_never_short">Aldri</string>
@@ -2312,4 +2312,13 @@
     <string name="charge_alert_80_text">Koble fra nå hvis du lader til 80 % for batterilevetiden.</string>
     <string name="charge_alert_full_title">Ladingen er ferdig</string>
     <string name="charge_alert_full_text">Hjulet ditt er fulladet.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Hjul-dashbord</string>
+    <string name="widget_act_1_label">Hjulknapp 1</string>
+    <string name="widget_act_2_label">Hjulknapp 2</string>
+    <string name="widget_act_3_label">Hjulknapp 3</string>
+    <string name="widget_act_12_label">Hjulknapper 1 og 2</string>
+    <string name="widget_act_23_label">Hjulknapper 2 og 3</string>
+    <string name="widget_weather_score_label">Kjøredag?</string>
+    <string name="widget_weather_compact_label">Kjørevær</string>
 </resources>

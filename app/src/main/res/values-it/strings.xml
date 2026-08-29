@@ -2309,9 +2309,9 @@
     <string name="backup_conflict_title">Conflitti di backup</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Ora di EUC?</string>
-    <string name="widget_weather_score_desc">Punteggio di guida adesso, una cella.</string>
-    <string name="widget_weather_compact_desc">Punteggio di guida e curva delle previsioni. Ingrandisci per ore, temperatura e vento.</string>
-    <string name="widget_weather_graph_desc">Punteggio di guida nel periodo previsto</string>
+    <string name="widget_weather_score_desc">Quanto è buono il meteo per girare adesso, in una cella.</string>
+    <string name="widget_weather_compact_desc">Quanto è buono il meteo per girare, adesso e nelle prossime ore. Ingrandisci per ore, temperatura e vento.</string>
+    <string name="widget_weather_graph_desc">Quanto è buono il meteo per girare, nel periodo previsto</string>
     <string name="widget_weather_refresh_desc">Aggiorna le previsioni</string>
     <string name="widget_weather_never">Nessuna previsione. Apri l’app una volta o tocca aggiorna.</string>
     <string name="widget_weather_never_short">Mai</string>
@@ -2329,4 +2329,13 @@
     <string name="charge_alert_80_text">Stacca ora se carichi all’80 % per la durata del pacco.</string>
     <string name="charge_alert_full_title">Carica completata</string>
     <string name="charge_alert_full_text">Il tuo monoruota è carico.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Cruscotto monoruota</string>
+    <string name="widget_act_1_label">Tasto monoruota 1</string>
+    <string name="widget_act_2_label">Tasto monoruota 2</string>
+    <string name="widget_act_3_label">Tasto monoruota 3</string>
+    <string name="widget_act_12_label">Tasti monoruota 1 e 2</string>
+    <string name="widget_act_23_label">Tasti monoruota 2 e 3</string>
+    <string name="widget_weather_score_label">Si gira?</string>
+    <string name="widget_weather_compact_label">Meteo per girare</string>
 </resources>

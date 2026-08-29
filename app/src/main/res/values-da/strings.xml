@@ -2419,9 +2419,9 @@
     <string name="backup_conflict_title">Backupkonflikter</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-tid?</string>
-    <string name="widget_weather_score_desc">Kørescore lige nu, én celle.</string>
-    <string name="widget_weather_compact_desc">Kørescore og prognosekurven. Gør større for timer, temperatur og vind.</string>
-    <string name="widget_weather_graph_desc">Kørescore over prognoseperioden</string>
+    <string name="widget_weather_score_desc">Hvor godt vejret er at køre i lige nu, i én celle.</string>
+    <string name="widget_weather_compact_desc">Hvor godt vejret er at køre i, nu og i de kommende timer. Gør større for timer, temperatur og vind.</string>
+    <string name="widget_weather_graph_desc">Hvor godt vejret er at køre i, over prognoseperioden</string>
     <string name="widget_weather_refresh_desc">Opdatér prognosen</string>
     <string name="widget_weather_never">Ingen prognose endnu. Åbn appen én gang, eller tryk på opdatér.</string>
     <string name="widget_weather_never_short">Aldrig</string>
@@ -2439,4 +2439,13 @@
     <string name="charge_alert_80_text">Tag den ud nu, hvis du lader til 80 % for batteriets levetid.</string>
     <string name="charge_alert_full_title">Opladning færdig</string>
     <string name="charge_alert_full_text">Dit hjul er fuldt opladet.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Hjul-dashboard</string>
+    <string name="widget_act_1_label">Hjulknap 1</string>
+    <string name="widget_act_2_label">Hjulknap 2</string>
+    <string name="widget_act_3_label">Hjulknap 3</string>
+    <string name="widget_act_12_label">Hjulknapper 1 og 2</string>
+    <string name="widget_act_23_label">Hjulknapper 2 og 3</string>
+    <string name="widget_weather_score_label">Køredag?</string>
+    <string name="widget_weather_compact_label">Kørevejr</string>
 </resources>

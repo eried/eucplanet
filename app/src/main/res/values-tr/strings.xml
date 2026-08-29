@@ -2401,9 +2401,9 @@
     <string name="backup_conflict_title">Yedek çakışmaları</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC zamanı mı?</string>
-    <string name="widget_weather_score_desc">Şu anki sürüş puanı, tek hücre.</string>
-    <string name="widget_weather_compact_desc">Sürüş puanı ve tahmin eğrisi. Saatler, sıcaklık ve rüzgâr için büyüt.</string>
-    <string name="widget_weather_graph_desc">Tahmin süresi boyunca sürüş puanı</string>
+    <string name="widget_weather_score_desc">Şu an havanın sürüşe ne kadar uygun olduğu, tek hücrede.</string>
+    <string name="widget_weather_compact_desc">Havanın sürüşe ne kadar uygun olduğu, şimdi ve önümüzdeki saatlerde. Saatler, sıcaklık ve rüzgâr için büyüt.</string>
+    <string name="widget_weather_graph_desc">Havanın sürüşe ne kadar uygun olduğu, tahmin süresi boyunca</string>
     <string name="widget_weather_refresh_desc">Tahmini yenile</string>
     <string name="widget_weather_never">Henüz tahmin yok. Uygulamayı bir kez aç veya yenileye dokun.</string>
     <string name="widget_weather_never_short">Hiç</string>
@@ -2421,4 +2421,13 @@
     <string name="charge_alert_80_text">Batarya ömrü için %80’e şarj ediyorsan şimdi çıkar.</string>
     <string name="charge_alert_full_title">Şarj tamamlandı</string>
     <string name="charge_alert_full_text">Tekerleğin tam dolu.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Teker paneli</string>
+    <string name="widget_act_1_label">Teker düğmesi 1</string>
+    <string name="widget_act_2_label">Teker düğmesi 2</string>
+    <string name="widget_act_3_label">Teker düğmesi 3</string>
+    <string name="widget_act_12_label">Teker düğmeleri 1 ve 2</string>
+    <string name="widget_act_23_label">Teker düğmeleri 2 ve 3</string>
+    <string name="widget_weather_score_label">Sürülür mü?</string>
+    <string name="widget_weather_compact_label">Sürüş havası</string>
 </resources>

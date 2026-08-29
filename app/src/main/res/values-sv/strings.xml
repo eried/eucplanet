@@ -2404,9 +2404,9 @@
     <string name="backup_conflict_title">Konflikter i säkerhetskopior</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC-dags?</string>
-    <string name="widget_weather_score_desc">Åkbetyg just nu, en ruta.</string>
-    <string name="widget_weather_compact_desc">Åkbetyg och prognoskurvan. Gör större för timmar, temperatur och vind.</string>
-    <string name="widget_weather_graph_desc">Åkbetyg över prognosperioden</string>
+    <string name="widget_weather_score_desc">Hur bra vädret är att åka i just nu, i en ruta.</string>
+    <string name="widget_weather_compact_desc">Hur bra vädret är att åka i, nu och timmarna framåt. Gör större för timmar, temperatur och vind.</string>
+    <string name="widget_weather_graph_desc">Hur bra vädret är att åka i, över prognosperioden</string>
     <string name="widget_weather_refresh_desc">Uppdatera prognosen</string>
     <string name="widget_weather_never">Ingen prognos än. Öppna appen en gång eller tryck på uppdatera.</string>
     <string name="widget_weather_never_short">Aldrig</string>
@@ -2424,4 +2424,13 @@
     <string name="charge_alert_80_text">Koppla ur nu om du laddar till 80 % för batteriets livslängd.</string>
     <string name="charge_alert_full_title">Laddningen klar</string>
     <string name="charge_alert_full_text">Ditt hjul är fulladdat.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Hjulöversikt</string>
+    <string name="widget_act_1_label">Hjulknapp 1</string>
+    <string name="widget_act_2_label">Hjulknapp 2</string>
+    <string name="widget_act_3_label">Hjulknapp 3</string>
+    <string name="widget_act_12_label">Hjulknappar 1 och 2</string>
+    <string name="widget_act_23_label">Hjulknappar 2 och 3</string>
+    <string name="widget_weather_score_label">Åkväder?</string>
+    <string name="widget_weather_compact_label">Åkväder framåt</string>
 </resources>

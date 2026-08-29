@@ -2405,9 +2405,9 @@
     <string name="backup_conflict_title">バックアップの競合</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">EUC日和？</string>
-    <string name="widget_weather_score_desc">今の走行スコア、1マス。</string>
-    <string name="widget_weather_compact_desc">走行スコアと予報カーブ。大きくすると時刻、気温、風も表示。</string>
-    <string name="widget_weather_graph_desc">予報期間の走行スコア</string>
+    <string name="widget_weather_score_desc">今の天気が走行にどれくらい向いているか、1マスで。</string>
+    <string name="widget_weather_compact_desc">今と数時間先の天気が走行にどれくらい向いているか。大きくすると時刻、気温、風も表示。</string>
+    <string name="widget_weather_graph_desc">予報期間中、天気が走行にどれくらい向いているか</string>
     <string name="widget_weather_refresh_desc">予報を更新</string>
     <string name="widget_weather_never">まだ予報がありません。アプリを一度開くか、更新をタップしてください。</string>
     <string name="widget_weather_never_short">なし</string>
@@ -2425,4 +2425,13 @@
     <string name="charge_alert_80_text">バッテリー寿命のため 80 % 充電なら、今抜いてください。</string>
     <string name="charge_alert_full_title">充電完了</string>
     <string name="charge_alert_full_text">ホイールは満充電です。</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">ホイールダッシュボード</string>
+    <string name="widget_act_1_label">ホイールボタン 1</string>
+    <string name="widget_act_2_label">ホイールボタン 2</string>
+    <string name="widget_act_3_label">ホイールボタン 3</string>
+    <string name="widget_act_12_label">ホイールボタン 1と2</string>
+    <string name="widget_act_23_label">ホイールボタン 2と3</string>
+    <string name="widget_weather_score_label">走れる？</string>
+    <string name="widget_weather_compact_label">走行日和</string>
 </resources>

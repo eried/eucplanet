@@ -2401,9 +2401,9 @@
     <string name="backup_conflict_title">Конфлікти резервних копій</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Час для EUC?</string>
-    <string name="widget_weather_score_desc">Оцінка поїздки зараз, одна комірка.</string>
-    <string name="widget_weather_compact_desc">Оцінка та крива прогнозу. Збільште, щоб бачити години, температуру і вітер.</string>
-    <string name="widget_weather_graph_desc">Оцінка поїздки на період прогнозу</string>
+    <string name="widget_weather_score_desc">Наскільки зараз погода добра для катання, в одній комірці.</string>
+    <string name="widget_weather_compact_desc">Наскільки погода добра для катання зараз і в найближчі години. Збільште, щоб бачити години, температуру і вітер.</string>
+    <string name="widget_weather_graph_desc">Наскільки погода добра для катання на період прогнозу</string>
     <string name="widget_weather_refresh_desc">Оновити прогноз</string>
     <string name="widget_weather_never">Прогнозу ще немає. Відкрийте застосунок або натисніть оновити.</string>
     <string name="widget_weather_never_short">Ніколи</string>
@@ -2421,4 +2421,13 @@
     <string name="charge_alert_80_text">Відключіть зараз, якщо заряджаєте до 80 % заради ресурсу.</string>
     <string name="charge_alert_full_title">Заряджання завершено</string>
     <string name="charge_alert_full_text">Ваше колесо заряджене повністю.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Панель колеса</string>
+    <string name="widget_act_1_label">Кнопка колеса 1</string>
+    <string name="widget_act_2_label">Кнопка колеса 2</string>
+    <string name="widget_act_3_label">Кнопка колеса 3</string>
+    <string name="widget_act_12_label">Кнопки колеса 1 і 2</string>
+    <string name="widget_act_23_label">Кнопки колеса 2 і 3</string>
+    <string name="widget_weather_score_label">Кататися можна?</string>
+    <string name="widget_weather_compact_label">Погода для катання</string>
 </resources>

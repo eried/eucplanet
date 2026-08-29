@@ -2404,9 +2404,9 @@
     <string name="backup_conflict_title">Konflikty kopii zapasowych</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Czas na EUC?</string>
-    <string name="widget_weather_score_desc">Ocena jazdy teraz, jedna komórka.</string>
-    <string name="widget_weather_compact_desc">Ocena jazdy i krzywa prognozy. Powiększ, aby zobaczyć godziny, temperaturę i wiatr.</string>
-    <string name="widget_weather_graph_desc">Ocena jazdy w prognozowanym okresie</string>
+    <string name="widget_weather_score_desc">Jak dobra jest teraz pogoda na jazdę, w jednej komórce.</string>
+    <string name="widget_weather_compact_desc">Jak dobra jest pogoda na jazdę, teraz i w najbliższych godzinach. Powiększ, aby zobaczyć godziny, temperaturę i wiatr.</string>
+    <string name="widget_weather_graph_desc">Jak dobra jest pogoda na jazdę w prognozowanym okresie</string>
     <string name="widget_weather_refresh_desc">Odśwież prognozę</string>
     <string name="widget_weather_never">Brak prognozy. Otwórz aplikację raz lub dotknij odświeżania.</string>
     <string name="widget_weather_never_short">Nigdy</string>
@@ -2424,4 +2424,13 @@
     <string name="charge_alert_80_text">Odłącz teraz, jeśli ładujesz do 80 % dla żywotności ogniw.</string>
     <string name="charge_alert_full_title">Ładowanie zakończone</string>
     <string name="charge_alert_full_text">Twoje koło jest w pełni naładowane.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Pulpit koła</string>
+    <string name="widget_act_1_label">Przycisk koła 1</string>
+    <string name="widget_act_2_label">Przycisk koła 2</string>
+    <string name="widget_act_3_label">Przycisk koła 3</string>
+    <string name="widget_act_12_label">Przyciski koła 1 i 2</string>
+    <string name="widget_act_23_label">Przyciski koła 2 i 3</string>
+    <string name="widget_weather_score_label">Da się jechać?</string>
+    <string name="widget_weather_compact_label">Pogoda na jazdę</string>
 </resources>

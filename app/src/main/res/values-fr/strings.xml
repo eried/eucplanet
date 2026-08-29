@@ -2408,9 +2408,9 @@
     <string name="backup_conflict_title">Conflits de sauvegarde</string>
     <!-- Weather widgets -->
     <string name="widget_weather_question">Sortie EUC ?</string>
-    <string name="widget_weather_score_desc">Note de roulage maintenant, une case.</string>
-    <string name="widget_weather_compact_desc">Note de roulage et courbe des prévisions. Agrandis pour les heures, la température et le vent.</string>
-    <string name="widget_weather_graph_desc">Note de roulage sur la période prévue</string>
+    <string name="widget_weather_score_desc">À quel point la météo est bonne pour rouler maintenant, en une case.</string>
+    <string name="widget_weather_compact_desc">À quel point la météo est bonne pour rouler, maintenant et dans les heures à venir. Agrandis pour les heures, la température et le vent.</string>
+    <string name="widget_weather_graph_desc">À quel point la météo est bonne pour rouler, sur la période prévue</string>
     <string name="widget_weather_refresh_desc">Actualiser les prévisions</string>
     <string name="widget_weather_never">Pas encore de prévisions. Ouvre l’app une fois, ou appuie sur actualiser.</string>
     <string name="widget_weather_never_short">Jamais</string>
@@ -2428,4 +2428,13 @@
     <string name="charge_alert_80_text">Débranche maintenant si tu charges à 80 % pour ménager la batterie.</string>
     <string name="charge_alert_full_title">Charge terminée</string>
     <string name="charge_alert_full_text">Ta roue est chargée à fond.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Tableau de bord roue</string>
+    <string name="widget_act_1_label">Bouton roue 1</string>
+    <string name="widget_act_2_label">Bouton roue 2</string>
+    <string name="widget_act_3_label">Bouton roue 3</string>
+    <string name="widget_act_12_label">Boutons roue 1 et 2</string>
+    <string name="widget_act_23_label">Boutons roue 2 et 3</string>
+    <string name="widget_weather_score_label">On roule ?</string>
+    <string name="widget_weather_compact_label">Météo pour rouler</string>
 </resources>
