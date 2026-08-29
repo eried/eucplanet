@@ -738,8 +738,11 @@ fun ShareGroupDialog(
     val url = remember(state.link) { ShareLinks.format(state.link) }
     val peers = state.peers.values.toList()
     // The one number the toolbar badge shows: the others who are in the room
-    // right now. The status line and the "no one else here yet" line both read
-    // it, so the dialog can never say "2 riders" over "nobody is here".
+    // right now. The rider header and the "no one else here yet" line both
+    // read it, so the dialog can never say "2 riders" over "nobody is here".
+    // It is deliberately not peers.size: a rider who left keeps a greyed row
+    // the way their marker stays on the map, and counting those rows would
+    // print "2 riders" directly above "no one else here yet".
     val activeCount = state.activePeers.size
 
     Dialog(
@@ -891,8 +894,10 @@ fun ShareGroupDialog(
                     color = MaterialTheme.appColors.sectionHeader,
                     modifier = Modifier.weight(1f)
                 )
-                // The one place the count is shown, so the status line above
-                // and this header can never disagree about who is here.
+                // The one place the count is shown, and it counts who is here
+                // right now, so it can read lower than the rows under it when
+                // someone has left: their row stays, greyed, and the badge on
+                // the map toolbar shows this same number.
                 Text(
                     pluralStringResource(
                         R.plurals.share_rider_count, activeCount, activeCount
