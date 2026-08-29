@@ -107,25 +107,6 @@ class ShareSession @Inject constructor(
     private var connectGen = 0
     /** Heartbeat that keeps publishing while joined. See [startHeartbeat]. */
     private var heartbeat: Job? = null
-    /** The ride the rider last walked out of, offered back to them as "Rejoin
-     *  last ride". Held here so the dialog sees it the moment Leave is tapped,
-     *  and mirrored into settings so it also survives a restart. The link is
-     *  cleared only when the rider starts a NEW ride ([start]); rejoining never
-     *  forgets it, and there is no timer that guesses the ride is over. The
-     *  relay's own 1 h idle expiry is the only thing that ends a room, and an
-     *  expired room simply looks empty (the group view falls back to "no one
-     *  else here yet") rather than being reported as "ended". */
-    private val _lastLink = MutableStateFlow<ShareLink?>(null)
-    val lastLink: StateFlow<ShareLink?> = _lastLink.asStateFlow()
-
-    init {
-        // The remembered ride outlives the process, so it is read back once at
-        // startup rather than only being known to the session that set it.
-        scope.launch {
-            _lastLink.value = ShareLinks.parse(settingsRepository.get().share.lastLinkUrl)
-        }
-    }
-
     suspend fun resolveDefaultIdentity(): Identity {
         val s = settingsRepository.get()
         val mode = runCatching { IdentityMode.valueOf(s.share.lastIdentityMode) }.getOrDefault(IdentityMode.ANON)
@@ -162,21 +143,14 @@ class ShareSession @Inject constructor(
         }
     }
 
-    /** Create a new room and join it as the first rider. Starting a new ride
-     *  is the rider saying the old one is over, so this is the only place the
-     *  remembered link is cleared: not a timer, not an empty room, only this. */
+    /** Create a new room and join it as the first rider. */
     suspend fun start(identity: Identity): ShareLink {
         val link = ShareLinks.newLink()
         join(link, identity)
-        _lastLink.value = null
-        settingsRepository.update { it.copy(share = it.share.copy(lastLinkUrl = "")) }
         return link
     }
 
-    /** Join [link] as [identity]. Used both for a fresh join and for "Rejoin
-     *  last ride": there is no behavioral difference between them any more,
-     *  since an empty room after rejoining is not treated as evidence the ride
-     *  ended (see [_lastLink]). */
+    /** Join [link] as [identity]. */
     suspend fun join(link: ShareLink, identity: Identity) {
         closeSocket()
         closing = false
@@ -368,23 +342,17 @@ class ShareSession @Inject constructor(
     }
 
     /**
-     * The rider walks out, and the ride is remembered so the dialog can offer
-     * it back. A group ride broken off by a phone call is the same ride when
-     * they return, and the alternative is asking a friend to re-send the link.
+     * The rider walks out. Nothing is remembered: the relay drops a room a
+     * short while after its last socket closes, and every member holds the
+     * full link, so a rider who wants back in is handed the QR or the link by
+     * someone still in the ride. There is no creator role to come back to.
      */
     fun leave() {
-        val link = (_state.value as? ShareState.Joined)?.link
         closeSocket()
-        if (link == null) return
-        _lastLink.value = link
-        val url = ShareLinks.format(link)
-        scope.launch {
-            settingsRepository.update { it.copy(share = it.share.copy(lastLinkUrl = url)) }
-        }
     }
 
-    /** Tear the socket down without touching what is remembered. Switching
-     *  rooms goes through here; only the rider leaving is a leave. */
+    /** Tear the socket down. Switching rooms goes through here too; it is the
+     *  same teardown, only the rider tapping Leave is a leave. */
     private fun closeSocket() {
         closing = true
         connectGen++

@@ -1603,9 +1603,6 @@
     <string name="share_invite_text">Únete a mi ruta en EUC Planet: %1$s</string>
     <string name="share_invite_subject">Únete a mi ruta</string>
     <string name="share_copied">Copiado</string>
-    <string name="share_rejoin_last">Volver a la última ruta</string>
-    <string name="share_start_new">Empezar una ruta nueva</string>
-    <string name="share_ride_ended">Esta ruta ha terminado.</string>
     <string name="share_alone">Aún no hay nadie más aquí.</string>
     <string name="share_open">Abrir</string>
     <string name="share_copy">Copiar</string>

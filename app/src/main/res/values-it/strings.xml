@@ -824,9 +824,6 @@
     <string name="share_invite_text">Unisciti alla mia uscita su EUC Planet: %1$s</string>
     <string name="share_invite_subject">Unisciti alla mia uscita</string>
     <string name="share_copied">Copiato</string>
-    <string name="share_rejoin_last">Torna all\'ultima uscita</string>
-    <string name="share_start_new">Avvia una nuova uscita</string>
-    <string name="share_ride_ended">Questa uscita è terminata.</string>
     <string name="share_alone">Per ora non c\'è nessun altro qui.</string>
     <string name="share_open">Apri</string>
     <string name="share_copy">Copia</string>

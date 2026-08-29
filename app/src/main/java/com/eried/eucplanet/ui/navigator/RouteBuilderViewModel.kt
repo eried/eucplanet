@@ -1903,10 +1903,6 @@ class RouteBuilderViewModel @Inject constructor(
      *  MainActivity's intent handling into this nav-scoped ViewModel. */
     val pendingJoin: StateFlow<ShareLink?> = pendingShareJoin.pending
 
-    /** The ride the rider last left, when there is one to go back to. Drives
-     *  the "Rejoin last ride" button on the not-sharing dialog. */
-    val lastShareLink: StateFlow<ShareLink?> = shareSession.lastLink
-
     fun offerJoin(link: ShareLink) = pendingShareJoin.offer(link)
 
     fun dismissJoin() = pendingShareJoin.clear()
@@ -1985,13 +1981,6 @@ class RouteBuilderViewModel @Inject constructor(
             shareSession.join(link, identity)
             pendingShareJoin.clear()
         }.onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
-    }
-
-    /** Go back to the ride this rider left. Plain reconnect to the remembered
-     *  room: an empty group just means no one else is here yet. */
-    fun rejoinShare(link: ShareLink, identity: Identity) = viewModelScope.launch {
-        runCatching { shareSession.join(link, identity) }
-            .onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
     }
 
     fun leaveShare() = shareSession.leave()

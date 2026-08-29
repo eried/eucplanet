@@ -805,9 +805,6 @@
     <string name="share_invite_text">Bli med på turen min på EUC Planet: %1$s</string>
     <string name="share_invite_subject">Bli med på turen min</string>
     <string name="share_copied">Kopiert</string>
-    <string name="share_rejoin_last">Tilbake til forrige tur</string>
-    <string name="share_start_new">Start en ny tur</string>
-    <string name="share_ride_ended">Denne turen er over.</string>
     <string name="share_alone">Ingen andre her ennå.</string>
     <string name="share_open">Åpne</string>
     <string name="share_copy">Kopier</string>

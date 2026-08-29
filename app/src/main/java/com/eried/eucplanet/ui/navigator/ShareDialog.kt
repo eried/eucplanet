@@ -346,10 +346,6 @@ fun ShareStartDialog(
      * they will join as, and this window is never torn down mid-flow.
      */
     onJoin: ((ShareLink, Identity) -> Unit)? = null,
-    /** The ride the rider last left, offered back to them above the confirm
-     *  row. Null when there is nothing to go back to. */
-    lastLink: ShareLink? = null,
-    onRejoin: ((Identity) -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     var mode by remember(default) {
@@ -389,9 +385,6 @@ fun ShareStartDialog(
     val nameMissing = mode == IdentityMode.SESSION && name.isBlank()
     val profileMissing = mode == IdentityMode.PROFILE && profile is ProfilePreview.Missing
     val canConfirm = !starting && !nameMissing && !profileMissing
-    // Only the "not sharing yet" entry point can rejoin: on the join step the
-    // rider already said which ride they mean.
-    val canRejoin = lastLink != null && onRejoin != null && onJoin != null && joinLink == null
     // The identity applies to whichever button is pressed, so the two share
     // one resolve. It reads the rider-id file and may hit the network.
     val confirmWith: (((Identity) -> Unit)) -> Unit = { action ->
@@ -493,29 +486,6 @@ fun ShareStartDialog(
                 )
             }
             Spacer(Modifier.height(16.dp))
-            if (canRejoin) {
-                // The likelier of the two: a rider who left a group ride for a
-                // phone call is going back to the same ride, not opening one.
-                Button(
-                    enabled = canConfirm,
-                    onClick = { confirmWith { identity -> onRejoin!!(identity) } },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.appColors.primary,
-                        contentColor = MaterialTheme.appColors.onPrimary,
-                        disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
-                        disabledContentColor = MaterialTheme.appColors.textSecondary,
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        stringResource(R.string.share_rejoin_last),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
@@ -552,15 +522,9 @@ fun ShareStartDialog(
                             color = MaterialTheme.appColors.onPrimary
                         )
                     } else {
-                        // Next to a Rejoin button, "Start sharing" reads as the
-                        // same thing; it is the other ride that is on offer.
                         Text(
                             stringResource(
-                                when {
-                                    joinLink != null -> R.string.share_join
-                                    canRejoin -> R.string.share_start_new
-                                    else -> confirmLabelRes
-                                }
+                                if (joinLink != null) R.string.share_join else confirmLabelRes
                             ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -815,11 +779,12 @@ fun ShareGroupDialog(
                 // Nobody else is in the room right now, either because no one
                 // has joined yet or every other rider has left or aged out.
                 // Tied to the same count the badge shows, so the two cannot
-                // disagree. It also covers a rejoin into a room the relay
-                // quietly recycled after its 1 h idle expiry: there is no way
-                // to tell that apart from "not here yet", so it is not
-                // reported as anything more alarming. The line sits inside the
-                // section, so the header is never left standing over nothing.
+                // disagree. It also covers a link into a room the relay
+                // already dropped (it clears a room a couple of minutes after
+                // its last socket closes): there is no way to tell that apart
+                // from "not here yet", so it is not reported as anything more
+                // alarming. The line sits inside the section, so the header is
+                // never left standing over nothing.
                 if (activeCount == 0) {
                     Text(
                         stringResource(R.string.share_alone),

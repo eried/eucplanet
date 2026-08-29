@@ -1658,9 +1658,6 @@
     <string name="share_invite_text">Doe mee met mijn rit op EUC Planet: %1$s</string>
     <string name="share_invite_subject">Doe mee met mijn rit</string>
     <string name="share_copied">Gekopieerd</string>
-    <string name="share_rejoin_last">Terug naar laatste rit</string>
-    <string name="share_start_new">Nieuwe rit starten</string>
-    <string name="share_ride_ended">Deze rit is afgelopen.</string>
     <string name="share_alone">Hier is nog niemand anders.</string>
     <string name="share_open">Openen</string>
     <string name="share_copy">Kopiëren</string>

@@ -16,21 +16,11 @@ class SettingsJsonShareTest {
         val back = SettingsJson.fromJson(JSONObject(SettingsJson.toJson(s).toString()))
         assertEquals(s.share, back.share)
     }
-    /** The ride the rider left is offered back to them as "Rejoin last ride",
-     *  so the link has to survive a restart, not just the process. */
-    @Test fun lastLinkUrlRoundTrip() {
-        val link = "https://eucplanet.ried.no/share#AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBB"
-        val s = AppSettings().copy(share = ShareSettings(lastLinkUrl = link))
-        val back = SettingsJson.fromJson(JSONObject(SettingsJson.toJson(s).toString()))
-        assertEquals(link, back.share.lastLinkUrl)
-        assertEquals(s.share, back.share)
-    }
-    /** Nothing to rejoin is the default, and an older settings file that
-     *  predates the field must land on it rather than on a null string. */
-    @Test fun lastLinkUrlDefaultsEmpty() {
-        assertEquals("", ShareSettings().lastLinkUrl)
+    /** A settings file written before a share field existed still restores:
+     *  every missing key falls back to the ShareSettings default. */
+    @Test fun legacyShareJsonKeepsDefaults() {
         val legacy = JSONObject("""{"share":{"trailMinutes":7}}""")
-        assertEquals("", SettingsJson.fromJson(legacy).share.lastLinkUrl)
+        assertEquals(ShareSettings(trailMinutes = 7), SettingsJson.fromJson(legacy).share)
     }
     @Test fun shareSettingsDefaultsOnEmptyJson() {
         assertEquals(ShareSettings(), SettingsJson.fromJson(JSONObject("{}")).share)

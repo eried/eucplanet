@@ -1599,9 +1599,6 @@
     <string name="share_invite_text">Följ med på min tur på EUC Planet: %1$s</string>
     <string name="share_invite_subject">Följ med på min tur</string>
     <string name="share_copied">Kopierat</string>
-    <string name="share_rejoin_last">Tillbaka till senaste turen</string>
-    <string name="share_start_new">Starta en ny tur</string>
-    <string name="share_ride_ended">Den här turen är slut.</string>
     <string name="share_alone">Ingen annan är här än.</string>
     <string name="share_open">Öppna</string>
     <string name="share_copy">Kopiera</string>

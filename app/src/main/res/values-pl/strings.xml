@@ -1616,9 +1616,6 @@
     <string name="share_invite_text">Dołącz do mojej jazdy w EUC Planet: %1$s</string>
     <string name="share_invite_subject">Dołącz do mojej jazdy</string>
     <string name="share_copied">Skopiowano</string>
-    <string name="share_rejoin_last">Wróć do ostatniej jazdy</string>
-    <string name="share_start_new">Rozpocznij nową jazdę</string>
-    <string name="share_ride_ended">Ta jazda się zakończyła.</string>
     <string name="share_alone">Nikogo innego tu jeszcze nie ma.</string>
     <string name="share_open">Otwórz</string>
     <string name="share_copy">Kopiuj</string>

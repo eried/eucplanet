@@ -1633,9 +1633,6 @@
     <string name="share_invite_text">Komm zu meiner Fahrt auf EUC Planet: %1$s</string>
     <string name="share_invite_subject">Komm zu meiner Fahrt</string>
     <string name="share_copied">Kopiert</string>
-    <string name="share_rejoin_last">Zurück zur letzten Fahrt</string>
-    <string name="share_start_new">Neue Fahrt starten</string>
-    <string name="share_ride_ended">Diese Fahrt ist beendet.</string>
     <string name="share_alone">Noch ist niemand sonst hier.</string>
     <string name="share_open">Öffnen</string>
     <string name="share_copy">Kopieren</string>

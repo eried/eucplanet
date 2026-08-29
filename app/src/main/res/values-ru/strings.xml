@@ -1603,9 +1603,6 @@
     <string name="share_invite_text">Присоединяйся к моей поездке в EUC Planet: %1$s</string>
     <string name="share_invite_subject">Присоединяйся к моей поездке</string>
     <string name="share_copied">Скопировано</string>
-    <string name="share_rejoin_last">Вернуться к прошлой поездке</string>
-    <string name="share_start_new">Начать новую поездку</string>
-    <string name="share_ride_ended">Эта поездка завершена.</string>
     <string name="share_alone">Здесь пока никого больше нет.</string>
     <string name="share_open">Открыть</string>
     <string name="share_copy">Копировать</string>

@@ -1865,9 +1865,6 @@
     <string name="share_invite_text">Liity ajooni EUC Planetissa: %1$s</string>
     <string name="share_invite_subject">Liity ajooni</string>
     <string name="share_copied">Kopioitu</string>
-    <string name="share_rejoin_last">Palaa viime ajoon</string>
-    <string name="share_start_new">Aloita uusi ajo</string>
-    <string name="share_ride_ended">Tämä ajo on päättynyt.</string>
     <string name="share_alone">Täällä ei ole vielä ketään muuta.</string>
     <string name="share_open">Avaa</string>
     <string name="share_copy">Kopioi</string>

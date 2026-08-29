@@ -1865,9 +1865,6 @@
     <string name="share_invite_text">Csatlakozz a túrámhoz az EUC Planeten: %1$s</string>
     <string name="share_invite_subject">Csatlakozz a túrámhoz</string>
     <string name="share_copied">Másolva</string>
-    <string name="share_rejoin_last">Vissza az előző túrához</string>
-    <string name="share_start_new">Új túra indítása</string>
-    <string name="share_ride_ended">Ez a túra véget ért.</string>
     <string name="share_alone">Egyelőre senki más nincs itt.</string>
     <string name="share_open">Megnyitás</string>
     <string name="share_copy">Másolás</string>

@@ -137,7 +137,7 @@ object SettingsJson {
         put("share", JSONObject().apply {
             put("trailMinutes", s.share.trailMinutes); put("shareStatsDefault", s.share.shareStatsDefault)
             put("lastIdentityMode", s.share.lastIdentityMode); put("lastSessionName", s.share.lastSessionName)
-            put("relayUrl", s.share.relayUrl); put("lastLinkUrl", s.share.lastLinkUrl)
+            put("relayUrl", s.share.relayUrl)
         })
         put("batteryPercent", JSONObject().apply {
             put("mode", s.batteryPercent.mode)
@@ -498,7 +498,6 @@ object SettingsJson {
             lastIdentityMode = m.optString("lastIdentityMode", base.share.lastIdentityMode),
             lastSessionName = m.optString("lastSessionName", base.share.lastSessionName),
             relayUrl = m.optString("relayUrl", base.share.relayUrl),
-            lastLinkUrl = m.optString("lastLinkUrl", base.share.lastLinkUrl),
         ) } ?: base.share,
         batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
             base.batteryPercent.copy(

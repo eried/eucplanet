@@ -1603,9 +1603,6 @@
     <string name="share_invite_text">Entre no meu passeio no EUC Planet: %1$s</string>
     <string name="share_invite_subject">Entre no meu passeio</string>
     <string name="share_copied">Copiado</string>
-    <string name="share_rejoin_last">Voltar ao último passeio</string>
-    <string name="share_start_new">Iniciar novo passeio</string>
-    <string name="share_ride_ended">Este passeio terminou.</string>
     <string name="share_alone">Ainda não há mais ninguém aqui.</string>
     <string name="share_open">Abrir</string>
     <string name="share_copy">Copiar</string>

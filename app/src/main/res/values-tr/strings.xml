@@ -1600,9 +1600,6 @@
     <string name="share_invite_text">EUC Planet\'te sürüşüme katıl: %1$s</string>
     <string name="share_invite_subject">Sürüşüme katıl</string>
     <string name="share_copied">Kopyalandı</string>
-    <string name="share_rejoin_last">Son sürüşe dön</string>
-    <string name="share_start_new">Yeni sürüş başlat</string>
-    <string name="share_ride_ended">Bu sürüş sona erdi.</string>
     <string name="share_alone">Henüz burada başka kimse yok.</string>
     <string name="share_open">Aç</string>
     <string name="share_copy">Kopyala</string>

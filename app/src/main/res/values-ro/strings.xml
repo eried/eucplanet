@@ -1865,9 +1865,6 @@
     <string name="share_invite_text">Alătură-te turei mele pe EUC Planet: %1$s</string>
     <string name="share_invite_subject">Alătură-te turei mele</string>
     <string name="share_copied">Copiat</string>
-    <string name="share_rejoin_last">Înapoi la ultima tură</string>
-    <string name="share_start_new">Începe o tură nouă</string>
-    <string name="share_ride_ended">Această tură s-a încheiat.</string>
     <string name="share_alone">Încă nu mai e nimeni altcineva aici.</string>
     <string name="share_open">Deschide</string>
     <string name="share_copy">Copiază</string>
