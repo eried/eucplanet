@@ -571,7 +571,11 @@ private fun ShareTabRow(selected: ShareTab, onSelect: (ShareTab) -> Unit) {
             Tab(
                 selected = selected == entry,
                 onClick = { onSelect(entry) },
-                selectedContentColor = appColors.primary,
+                // The indicator under the tab is what the accent marks;
+                // the label stays the readable text colour, because the
+                // accent on the light theme's white card is well under the
+                // contrast bar for a label.
+                selectedContentColor = appColors.textPrimary,
                 unselectedContentColor = appColors.textSecondary,
                 text = {
                     // Material 3 Tab pads its text slot, so a label can
