@@ -18,7 +18,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -90,6 +93,20 @@ class ShareSession @Inject constructor(
     private val client = OkHttpClient()
     private val _state = MutableStateFlow<ShareState>(ShareState.Idle)
     val state: StateFlow<ShareState> = _state.asStateFlow()
+
+    /**
+     * True while the rider is in a group, as a plain boolean the rest of the
+     * app can watch without knowing what a [ShareState] is.
+     *
+     * TripRepository reads this to keep the phone GPS at 1 Hz while sharing.
+     * It is a separate flow rather than a mapped [state] on purpose: [state]
+     * re-emits every second (the age tick) and carries peer maps, and the tier
+     * recompute only ever cares whether the room is joined. The stateIn
+     * conflates that down to the two transitions that matter.
+     */
+    val sharing: StateFlow<Boolean> = _state
+        .map { it is ShareState.Joined }
+        .stateIn(scope, SharingStarted.Eagerly, false)
 
     private var ws: WebSocket? = null
     private var key: ByteArray? = null

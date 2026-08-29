@@ -54,7 +54,14 @@ class TripRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager,
     private val externalGpsRepository: ExternalGpsRepository,
-    private val legalLockdown: LegalLockdownController
+    private val legalLockdown: LegalLockdownController,
+    /**
+     * Injected as a Provider because [com.eried.eucplanet.share.ShareSession]
+     * takes this repository (it publishes [currentLocation]). A Provider breaks
+     * the construction cycle: the instance is only asked for from a coroutine,
+     * once, after both singletons exist.
+     */
+    private val shareSession: javax.inject.Provider<com.eried.eucplanet.share.ShareSession>
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -145,10 +152,13 @@ class TripRepository @Inject constructor(
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
-    // from recording / navigating / wheel-connected / app-visible so it never
+    // from recording / navigating / sharing / wheel-connected / app-visible so it never
     // burns the 1 Hz high-accuracy stream when nothing needs it.
     @Volatile private var gpsStreamRequested = false
     @Volatile private var gpsNavigating = false
+    // Live location share is running: friends are watching this rider's dot, so
+    // GPS stays at 1 Hz even with the app backgrounded and no wheel connected.
+    @Volatile private var gpsSharing = false
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
@@ -193,6 +203,10 @@ class TripRepository @Inject constructor(
         scope.launch { _recording.collect { recomputeGpsTier() } }
         scope.launch { wheelRepository.connectionState.collect { recomputeGpsTier() } }
         scope.launch { AppForeground.isForeground.collect { recomputeGpsTier() } }
+        // Joining or leaving a group changes the tier the same way navigation
+        // does. Resolved here, off the constructor thread, so the Provider
+        // above never re-enters this repository's own construction.
+        scope.launch { shareSession.get().sharing.collect { gpsSharing = it; recomputeGpsTier() } }
     }
 
     // The just-stopped trip waiting for grace-period finalization, plus the job
@@ -320,7 +334,8 @@ class TripRepository @Inject constructor(
     /**
      * Ensure the demand-driven GPS stream is running. Callers no longer force a
      * power level - the tier is picked by [recomputeGpsTier] from what actually
-     * needs a position (recording / navigating / connected / app-visible), so a
+     * needs a position (recording / navigating / sharing / connected /
+     * app-visible), so a
      * bare "be ready" call from a UI screen costs a low-power keep-warm fix, not
      * the full 1 Hz stream.
      */
@@ -366,6 +381,7 @@ class TripRepository @Inject constructor(
             navigating = gpsNavigating,
             connected = connected,
             appVisible = AppForeground.isForeground.value,
+            sharing = gpsSharing,
         )
         if (tier == GpsTier.OFF) {
             // Already off, or an off-grace already pending: stay put. Do NOT
