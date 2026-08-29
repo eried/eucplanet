@@ -761,7 +761,7 @@
     <string name="share_title">分享我的行程</string>
     <string name="share_join_title">加入群组</string>
     <string name="share_identity_anon">匿名</string>
-    <string name="share_identity_session">本次会话</string>
+    <string name="share_identity_session">本次</string>
     <string name="share_identity_profile">个人资料</string>
     <string name="share_name_label">名称</string>
     <string name="share_stats_toggle">分享我的统计数据</string>

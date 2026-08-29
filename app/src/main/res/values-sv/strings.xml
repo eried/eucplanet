@@ -1572,7 +1572,7 @@
     <string name="share_title">Dela min tur</string>
     <string name="share_join_title">Gå med i grupp</string>
     <string name="share_identity_anon">Anonym</string>
-    <string name="share_identity_session">Den här sessionen</string>
+    <string name="share_identity_session">Session</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Namn</string>
     <string name="share_stats_toggle">Dela min statistik</string>

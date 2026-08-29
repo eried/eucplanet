@@ -1838,7 +1838,7 @@
     <string name="share_title">Utam megosztása</string>
     <string name="share_join_title">Csatlakozás csoporthoz</string>
     <string name="share_identity_anon">Névtelen</string>
-    <string name="share_identity_session">Ez a munkamenet</string>
+    <string name="share_identity_session">Munkamenet</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Név</string>
     <string name="share_stats_toggle">Statisztikáim megosztása</string>

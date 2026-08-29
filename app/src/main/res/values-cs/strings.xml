@@ -1838,7 +1838,7 @@
     <string name="share_title">Sdílet svou jízdu</string>
     <string name="share_join_title">Připojit se ke skupině</string>
     <string name="share_identity_anon">Anonymně</string>
-    <string name="share_identity_session">Toto sezení</string>
+    <string name="share_identity_session">Relace</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Jméno</string>
     <string name="share_stats_toggle">Sdílet mé statistiky</string>

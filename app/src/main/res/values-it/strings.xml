@@ -797,7 +797,7 @@
     <string name="share_title">Condividi il mio viaggio</string>
     <string name="share_join_title">Unisciti al gruppo</string>
     <string name="share_identity_anon">Anonimo</string>
-    <string name="share_identity_session">Questa sessione</string>
+    <string name="share_identity_session">Sessione</string>
     <string name="share_identity_profile">Profilo</string>
     <string name="share_name_label">Nome</string>
     <string name="share_stats_toggle">Condividi le mie statistiche</string>

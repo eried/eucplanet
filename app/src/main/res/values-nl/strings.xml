@@ -1631,7 +1631,7 @@
     <string name="share_title">Rit delen</string>
     <string name="share_join_title">Deelnemen aan groep</string>
     <string name="share_identity_anon">Anoniem</string>
-    <string name="share_identity_session">Deze sessie</string>
+    <string name="share_identity_session">Sessie</string>
     <string name="share_identity_profile">Profiel</string>
     <string name="share_name_label">Naam</string>
     <string name="share_stats_toggle">Mijn statistieken delen</string>

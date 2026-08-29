@@ -1573,7 +1573,7 @@
     <string name="share_title">Sürüşümü paylaş</string>
     <string name="share_join_title">Gruba katıl</string>
     <string name="share_identity_anon">Anonim</string>
-    <string name="share_identity_session">Bu oturum</string>
+    <string name="share_identity_session">Oturum</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Ad</string>
     <string name="share_stats_toggle">İstatistiklerimi paylaş</string>

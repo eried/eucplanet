@@ -1608,7 +1608,7 @@
     <string name="share_title">Поділитися своєю поїздкою</string>
     <string name="share_join_title">Приєднатися до групи</string>
     <string name="share_identity_anon">Анонімно</string>
-    <string name="share_identity_session">Ця сесія</string>
+    <string name="share_identity_session">Сеанс</string>
     <string name="share_identity_profile">Профіль</string>
     <string name="share_name_label">Ім\'я</string>
     <string name="share_stats_toggle">Ділитися своєю статистикою</string>

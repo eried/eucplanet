@@ -1573,7 +1573,7 @@
     <string name="share_title">ライドを共有</string>
     <string name="share_join_title">グループに参加</string>
     <string name="share_identity_anon">匿名</string>
-    <string name="share_identity_session">このセッション</string>
+    <string name="share_identity_session">今回</string>
     <string name="share_identity_profile">プロフィール</string>
     <string name="share_name_label">名前</string>
     <string name="share_stats_toggle">自分の統計を共有</string>

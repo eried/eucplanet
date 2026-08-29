@@ -2266,7 +2266,7 @@
     <string name="share_title">Share my ride</string>
     <string name="share_join_title">Join group</string>
     <string name="share_identity_anon">Anonymous</string>
-    <string name="share_identity_session">This session</string>
+    <string name="share_identity_session">Session</string>
     <string name="share_identity_profile">Profile</string>
     <string name="share_name_label">Name</string>
     <string name="share_stats_toggle">Share my stats</string>
