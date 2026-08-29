@@ -2412,4 +2412,13 @@
     <string name="widget_weather_min_fmt">%1$d хв тому</string>
     <string name="widget_weather_hour_fmt">%1$d год тому</string>
     <string name="widget_weather_window_fmt">найближчі %1$d год</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Повідомити на 80 %</string>
+    <string name="charging_notify_full">Повідомити про повний заряд</string>
+    <string name="charge_alert_channel_name">Сповіщення про заряджання</string>
+    <string name="charge_alert_channel_description">Коли батарея проходить 80 % або заряд завершено.</string>
+    <string name="charge_alert_80_title">Батарея на 80 %</string>
+    <string name="charge_alert_80_text">Відключіть зараз, якщо заряджаєте до 80 % заради ресурсу.</string>
+    <string name="charge_alert_full_title">Заряджання завершено</string>
+    <string name="charge_alert_full_text">Ваше колесо заряджене повністю.</string>
 </resources>

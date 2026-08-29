@@ -2282,4 +2282,13 @@
     <string name="widget_weather_min_fmt">%1$d 分钟前</string>
     <string name="widget_weather_hour_fmt">%1$d 小时前</string>
     <string name="widget_weather_window_fmt">未来 %1$d 小时</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">到 80 % 时通知我</string>
+    <string name="charging_notify_full">充满时通知我</string>
+    <string name="charge_alert_channel_name">充电提醒</string>
+    <string name="charge_alert_channel_description">电量超过 80 % 或充电完成时。</string>
+    <string name="charge_alert_80_title">电量 80 %</string>
+    <string name="charge_alert_80_text">若为延长电池寿命只充到 80 %，现在拔掉。</string>
+    <string name="charge_alert_full_title">充电完成</string>
+    <string name="charge_alert_full_text">你的独轮车已充满。</string>
 </resources>

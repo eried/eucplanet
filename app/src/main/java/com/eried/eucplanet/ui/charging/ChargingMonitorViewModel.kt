@@ -67,6 +67,9 @@ data class ChargingUiState(
     val targetEtaMs: Long? = null,
     val fullEtaMs: Long? = null,
     val estimateToFull: Boolean = false,
+    /** The two charge alerts, both off by default. */
+    val notify80: Boolean = false,
+    val notifyFull: Boolean = false,
     val targetPercent: Float = 80f,
     val chargeHistory: List<MetricSample> = emptyList(),
     val voltageHistory: List<MetricSample> = emptyList(),
@@ -119,7 +122,8 @@ class ChargingMonitorViewModel @Inject constructor(
         settingsRepository.settings,
         wheelRepository.bmsState,
     ) { quad, settings, bms ->
-        buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull, bms,
+        buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull,
+            settings.chargingNotify80, settings.chargingNotifyFull, bms,
             settings.advanced.cellLowWarnMv, settings.advanced.cellLowDangerMv,
             settings.advanced.cellHighMv, settings.advanced.packBalanceTolerancePct)
     }.stateIn(
@@ -132,8 +136,8 @@ class ChargingMonitorViewModel @Inject constructor(
             wheelRepository.chargeStatus.value,
             wheelRepository.connectedDeviceName.value,
             wheelRepository.chargingSnapshot.value,
-            false,
-            wheelRepository.bmsState.value,
+            estimateToFull = false,
+            bms = wheelRepository.bmsState.value,
         ),
     )
 
@@ -145,6 +149,18 @@ class ChargingMonitorViewModel @Inject constructor(
     )
 
     /** Toggle whether the prediction targets 100 % instead of 80 % (persisted). */
+    fun setNotify80(value: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update(settingsRepository.get().copy(chargingNotify80 = value))
+        }
+    }
+
+    fun setNotifyFull(value: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update(settingsRepository.get().copy(chargingNotifyFull = value))
+        }
+    }
+
     fun setEstimateToFull(value: Boolean) {
         viewModelScope.launch {
             settingsRepository.update(settingsRepository.get().copy(chargingEstimateToFull = value))
@@ -234,6 +250,8 @@ class ChargingMonitorViewModel @Inject constructor(
         name: String?,
         snap: ChargingSnapshot,
         estimateToFull: Boolean,
+        notify80: Boolean = false,
+        notifyFull: Boolean = false,
         bms: com.eried.eucplanet.data.model.BmsState = com.eried.eucplanet.data.model.BmsState(),
         cellLowWarnMv: Int = 30,
         cellLowDangerMv: Int = 80,
@@ -300,6 +318,8 @@ class ChargingMonitorViewModel @Inject constructor(
             targetEtaMs = snap.targetEtaMs,
             fullEtaMs = snap.fullEtaMs,
             estimateToFull = estimateToFull,
+            notify80 = notify80,
+            notifyFull = notifyFull,
             chargeHistory = snap.chargeHistory,
             voltageHistory = snap.voltageHistory,
             tempHistory = snap.tempHistory,

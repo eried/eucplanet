@@ -2412,4 +2412,13 @@
     <string name="widget_weather_min_fmt">hace %1$d min</string>
     <string name="widget_weather_hour_fmt">hace %1$d h</string>
     <string name="widget_weather_window_fmt">próximas %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Avisarme al 80 %</string>
+    <string name="charging_notify_full">Avisarme con la carga completa</string>
+    <string name="charge_alert_channel_name">Avisos de carga</string>
+    <string name="charge_alert_channel_description">Cuando la batería pasa del 80 % o termina de cargar.</string>
+    <string name="charge_alert_80_title">Batería al 80 %</string>
+    <string name="charge_alert_80_text">Desenchufa ahora si cargas al 80 % para cuidar la batería.</string>
+    <string name="charge_alert_full_title">Carga completa</string>
+    <string name="charge_alert_full_text">Tu rueda está cargada del todo.</string>
 </resources>

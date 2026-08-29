@@ -2415,4 +2415,13 @@
     <string name="widget_weather_min_fmt">%1$d min temu</string>
     <string name="widget_weather_hour_fmt">%1$d godz. temu</string>
     <string name="widget_weather_window_fmt">najbliższe %1$d godz.</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Powiadom przy 80 %</string>
+    <string name="charging_notify_full">Powiadom po pełnym naładowaniu</string>
+    <string name="charge_alert_channel_name">Alerty ładowania</string>
+    <string name="charge_alert_channel_description">Gdy akumulator przekroczy 80 % albo skończy się ładować.</string>
+    <string name="charge_alert_80_title">Akumulator na 80 %</string>
+    <string name="charge_alert_80_text">Odłącz teraz, jeśli ładujesz do 80 % dla żywotności ogniw.</string>
+    <string name="charge_alert_full_title">Ładowanie zakończone</string>
+    <string name="charge_alert_full_text">Twoje koło jest w pełni naładowane.</string>
 </resources>

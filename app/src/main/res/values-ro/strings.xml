@@ -2218,4 +2218,13 @@
     <string name="widget_weather_min_fmt">acum %1$d min</string>
     <string name="widget_weather_hour_fmt">acum %1$d h</string>
     <string name="widget_weather_window_fmt">următoarele %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Anunță-mă la 80 %</string>
+    <string name="charging_notify_full">Anunță-mă la încărcare completă</string>
+    <string name="charge_alert_channel_name">Alerte de încărcare</string>
+    <string name="charge_alert_channel_description">Când bateria trece de 80 % sau termină de încărcat.</string>
+    <string name="charge_alert_80_title">Baterie la 80 %</string>
+    <string name="charge_alert_80_text">Scoate din priză acum dacă încarci la 80 % pentru durata bateriei.</string>
+    <string name="charge_alert_full_title">Încărcare completă</string>
+    <string name="charge_alert_full_text">Roata ta este încărcată complet.</string>
 </resources>

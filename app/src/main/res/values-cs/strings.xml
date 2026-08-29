@@ -2218,4 +2218,13 @@
     <string name="widget_weather_min_fmt">před %1$d min</string>
     <string name="widget_weather_hour_fmt">před %1$d h</string>
     <string name="widget_weather_window_fmt">dalších %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Upozornit na 80 %</string>
+    <string name="charging_notify_full">Upozornit na plné nabití</string>
+    <string name="charge_alert_channel_name">Upozornění na nabíjení</string>
+    <string name="charge_alert_channel_description">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
+    <string name="charge_alert_80_title">Baterie na 80 %</string>
+    <string name="charge_alert_80_text">Odpoj teď, pokud kvůli životnosti nabíjíš na 80 %.</string>
+    <string name="charge_alert_full_title">Nabíjení dokončeno</string>
+    <string name="charge_alert_full_text">Tvoje kolo je plně nabité.</string>
 </resources>

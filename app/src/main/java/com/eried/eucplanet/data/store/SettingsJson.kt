@@ -355,6 +355,8 @@ object SettingsJson {
         put("settingsSectionOrder", s.settingsLayout.order.joinToString(","))
         put("settingsSectionHidden", s.settingsLayout.hidden.joinToString(","))
         put("chargingEstimateToFull", s.chargingEstimateToFull)
+        put("chargingNotify80", s.chargingNotify80)
+        put("chargingNotifyFull", s.chargingNotifyFull)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
         put("dropboxAccessToken", s.dropboxAccessToken)
@@ -768,6 +770,8 @@ object SettingsJson {
                 .split(",").filter { it.isNotBlank() },
         ),
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
+        chargingNotify80 = j.optBoolean("chargingNotify80", base.chargingNotify80),
+        chargingNotifyFull = j.optBoolean("chargingNotifyFull", base.chargingNotifyFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
         // Dropbox link + sync state is device-bound, but it still has to round-

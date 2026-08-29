@@ -2218,4 +2218,13 @@
     <string name="widget_weather_min_fmt">%1$d min sitten</string>
     <string name="widget_weather_hour_fmt">%1$d t sitten</string>
     <string name="widget_weather_window_fmt">seuraavat %1$d t</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Ilmoita 80 %:ssa</string>
+    <string name="charging_notify_full">Ilmoita täyteen ladattaessa</string>
+    <string name="charge_alert_channel_name">Latausilmoitukset</string>
+    <string name="charge_alert_channel_description">Kun akku ohittaa 80 % tai lataus valmistuu.</string>
+    <string name="charge_alert_80_title">Akku 80 %:ssa</string>
+    <string name="charge_alert_80_text">Irrota nyt, jos lataat 80 %:iin akun keston vuoksi.</string>
+    <string name="charge_alert_full_title">Lataus valmis</string>
+    <string name="charge_alert_full_text">Pyöräsi on täyteen ladattu.</string>
 </resources>

@@ -380,6 +380,18 @@ class MainActivity : AppCompatActivity() {
         // semantics, which we get when the rider just shared again).
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
+        consumeChargingIntent(intent)
+    }
+
+    /** A charge alert was tapped: go where the number came from. */
+    private fun consumeChargingIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(
+                com.eried.eucplanet.service.WheelService.EXTRA_OPEN_CHARGING, false,
+            ) == true
+        ) {
+            com.eried.eucplanet.ui.charging.ChargingMonitorLaunch.request()
+            intent.removeExtra(com.eried.eucplanet.service.WheelService.EXTRA_OPEN_CHARGING)
+        }
     }
 
     /** A weather widget was tapped: ask the dashboard to unfold the panel. */
@@ -400,6 +412,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
+        consumeChargingIntent(intent)
         // requestMissingPermissions() is intentionally NOT called here.
         // On a clean install, asking before setContent runs means the runtime
         // permission dialogs come up over a black activity, the rider thinks
@@ -579,6 +592,19 @@ class MainActivity : AppCompatActivity() {
                     // to the route builder. The Builder's own LaunchedEffect
                     // then consumes the request and either drops the pin or
                     // surfaces a snackbar.
+                    // A charge alert was tapped before the graph existed;
+                    // now it does, so honour it.
+                    val pendingCharge by com.eried.eucplanet.ui.charging
+                        .ChargingMonitorLaunch.pending.collectAsState()
+                    androidx.compose.runtime.LaunchedEffect(pendingCharge) {
+                        if (com.eried.eucplanet.ui.charging.ChargingMonitorLaunch.consume()) {
+                            runCatching {
+                                navController.navigate(
+                                    com.eried.eucplanet.ui.navigation.Screen.ChargingMonitor.createRoute()
+                                ) { launchSingleTop = true }
+                            }
+                        }
+                    }
                     val pendingShare by incomingShareRepository.pending
                         .collectAsState()
                     androidx.compose.runtime.LaunchedEffect(pendingShare) {

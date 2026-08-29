@@ -2320,4 +2320,13 @@
     <string name="widget_weather_min_fmt">%1$d min fa</string>
     <string name="widget_weather_hour_fmt">%1$d h fa</string>
     <string name="widget_weather_window_fmt">prossime %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Avvisami all’80 %</string>
+    <string name="charging_notify_full">Avvisami a carica completa</string>
+    <string name="charge_alert_channel_name">Avvisi di carica</string>
+    <string name="charge_alert_channel_description">Quando la batteria supera l’80 % o finisce di caricare.</string>
+    <string name="charge_alert_80_title">Batteria all’80 %</string>
+    <string name="charge_alert_80_text">Stacca ora se carichi all’80 % per la durata del pacco.</string>
+    <string name="charge_alert_full_title">Carica completata</string>
+    <string name="charge_alert_full_text">Il tuo monoruota è carico.</string>
 </resources>

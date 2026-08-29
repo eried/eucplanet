@@ -2419,4 +2419,13 @@
     <string name="widget_weather_min_fmt">il y a %1$d min</string>
     <string name="widget_weather_hour_fmt">il y a %1$d h</string>
     <string name="widget_weather_window_fmt">%1$d h à venir</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Me prévenir à 80 %</string>
+    <string name="charging_notify_full">Me prévenir à pleine charge</string>
+    <string name="charge_alert_channel_name">Alertes de charge</string>
+    <string name="charge_alert_channel_description">Quand la batterie dépasse 80 % ou finit de charger.</string>
+    <string name="charge_alert_80_title">Batterie à 80 %</string>
+    <string name="charge_alert_80_text">Débranche maintenant si tu charges à 80 % pour ménager la batterie.</string>
+    <string name="charge_alert_full_title">Charge terminée</string>
+    <string name="charge_alert_full_text">Ta roue est chargée à fond.</string>
 </resources>

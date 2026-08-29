@@ -2303,4 +2303,13 @@
     <string name="widget_weather_min_fmt">for %1$d min siden</string>
     <string name="widget_weather_hour_fmt">for %1$d t siden</string>
     <string name="widget_weather_window_fmt">neste %1$d t</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Varsle ved 80 %</string>
+    <string name="charging_notify_full">Varsle ved fulladet</string>
+    <string name="charge_alert_channel_name">Ladevarsler</string>
+    <string name="charge_alert_channel_description">Når batteriet passerer 80 % eller er ferdig ladet.</string>
+    <string name="charge_alert_80_title">Batteri på 80 %</string>
+    <string name="charge_alert_80_text">Koble fra nå hvis du lader til 80 % for batterilevetiden.</string>
+    <string name="charge_alert_full_title">Ladingen er ferdig</string>
+    <string name="charge_alert_full_text">Hjulet ditt er fulladet.</string>
 </resources>

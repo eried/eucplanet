@@ -2218,4 +2218,13 @@
     <string name="widget_weather_min_fmt">%1$d perce</string>
     <string name="widget_weather_hour_fmt">%1$d órája</string>
     <string name="widget_weather_window_fmt">következő %1$d óra</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Szólj 80 %-nál</string>
+    <string name="charging_notify_full">Szólj, ha feltöltött</string>
+    <string name="charge_alert_channel_name">Töltési értesítések</string>
+    <string name="charge_alert_channel_description">Amikor az akku túllépi a 80 %-ot, vagy befejezte a töltést.</string>
+    <string name="charge_alert_80_title">Akku 80 %-on</string>
+    <string name="charge_alert_80_text">Húzd ki most, ha az élettartam miatt 80 %-ig töltesz.</string>
+    <string name="charge_alert_full_title">Töltés kész</string>
+    <string name="charge_alert_full_text">A kerekedet feltöltötted.</string>
 </resources>

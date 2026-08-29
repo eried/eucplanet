@@ -2342,6 +2342,14 @@
     <string name="charging_tab_charge">Charge</string>
     <string name="charging_tab_packs">Packs</string>
     <string name="charging_estimate_to_full">Always estimate to 100%</string>
+    <string name="charging_notify_80">Notify me at 80%</string>
+    <string name="charging_notify_full">Notify me when fully charged</string>
+    <string name="charge_alert_channel_name">Charge alerts</string>
+    <string name="charge_alert_channel_description">When the pack passes 80% or finishes charging.</string>
+    <string name="charge_alert_80_title">Battery at 80%</string>
+    <string name="charge_alert_80_text">Unplug now if you charge to 80% for pack life.</string>
+    <string name="charge_alert_full_title">Charge complete</string>
+    <string name="charge_alert_full_text">Your wheel is fully charged.</string>
     <string name="charging_options">Options</string>
     <string name="charging_tab_power">Power</string>
     <string name="charging_tab_cells">Cells</string>

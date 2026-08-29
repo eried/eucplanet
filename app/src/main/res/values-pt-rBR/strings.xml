@@ -2417,4 +2417,13 @@
     <string name="widget_weather_min_fmt">há %1$d min</string>
     <string name="widget_weather_hour_fmt">há %1$d h</string>
     <string name="widget_weather_window_fmt">próximas %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Avisar aos 80 %</string>
+    <string name="charging_notify_full">Avisar quando carregar tudo</string>
+    <string name="charge_alert_channel_name">Avisos de carga</string>
+    <string name="charge_alert_channel_description">Quando a bateria passa de 80 % ou termina de carregar.</string>
+    <string name="charge_alert_80_title">Bateria em 80 %</string>
+    <string name="charge_alert_80_text">Tire da tomada agora se você carrega a 80 % para poupar a bateria.</string>
+    <string name="charge_alert_full_title">Carga concluída</string>
+    <string name="charge_alert_full_text">Sua roda está totalmente carregada.</string>
 </resources>

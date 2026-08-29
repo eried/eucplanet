@@ -2435,4 +2435,13 @@
     <string name="widget_weather_min_fmt">vor %1$d Min.</string>
     <string name="widget_weather_hour_fmt">vor %1$d Std.</string>
     <string name="widget_weather_window_fmt">nächste %1$d Std.</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Bei 80 % benachrichtigen</string>
+    <string name="charging_notify_full">Bei voller Ladung benachrichtigen</string>
+    <string name="charge_alert_channel_name">Ladehinweise</string>
+    <string name="charge_alert_channel_description">Wenn der Akku 80 % überschreitet oder fertig geladen ist.</string>
+    <string name="charge_alert_80_title">Akku bei 80 %</string>
+    <string name="charge_alert_80_text">Jetzt abziehen, wenn du für die Akkulebensdauer auf 80 % lädst.</string>
+    <string name="charge_alert_full_title">Ladung abgeschlossen</string>
+    <string name="charge_alert_full_text">Dein Wheel ist voll geladen.</string>
 </resources>

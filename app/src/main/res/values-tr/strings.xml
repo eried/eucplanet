@@ -2412,4 +2412,13 @@
     <string name="widget_weather_min_fmt">%1$d dk önce</string>
     <string name="widget_weather_hour_fmt">%1$d sa önce</string>
     <string name="widget_weather_window_fmt">sonraki %1$d sa</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">%80’de bildir</string>
+    <string name="charging_notify_full">Tam dolunca bildir</string>
+    <string name="charge_alert_channel_name">Şarj uyarıları</string>
+    <string name="charge_alert_channel_description">Batarya %80’i geçtiğinde veya şarj bittiğinde.</string>
+    <string name="charge_alert_80_title">Batarya %80</string>
+    <string name="charge_alert_80_text">Batarya ömrü için %80’e şarj ediyorsan şimdi çıkar.</string>
+    <string name="charge_alert_full_title">Şarj tamamlandı</string>
+    <string name="charge_alert_full_text">Tekerleğin tam dolu.</string>
 </resources>

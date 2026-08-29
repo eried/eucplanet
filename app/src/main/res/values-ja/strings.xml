@@ -2416,4 +2416,13 @@
     <string name="widget_weather_min_fmt">%1$d分前</string>
     <string name="widget_weather_hour_fmt">%1$d時間前</string>
     <string name="widget_weather_window_fmt">今後%1$d時間</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">80 % で通知</string>
+    <string name="charging_notify_full">満充電で通知</string>
+    <string name="charge_alert_channel_name">充電の通知</string>
+    <string name="charge_alert_channel_description">バッテリーが 80 % を超えたとき、または充電が終わったとき。</string>
+    <string name="charge_alert_80_title">バッテリー 80 %</string>
+    <string name="charge_alert_80_text">バッテリー寿命のため 80 % 充電なら、今抜いてください。</string>
+    <string name="charge_alert_full_title">充電完了</string>
+    <string name="charge_alert_full_text">ホイールは満充電です。</string>
 </resources>
