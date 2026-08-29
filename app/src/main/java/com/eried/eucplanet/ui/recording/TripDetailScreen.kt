@@ -2928,6 +2928,13 @@ internal fun ChartCard(
                         awaitEachGesture {
                             awaitFirstDown(requireUnconsumed = false)
                             var sawMulti = false
+                            // Latched the moment the fingers pinch at all. A
+                            // real pinch is not a pinch on every frame: plenty
+                            // of them carry drift with no size change, and
+                            // deciding frame by frame let those frames pan the
+                            // window and walk the read off its spot. Once this
+                            // gesture is a pinch, it stays one.
+                            var pinched = false
                             var netZoom = 1f
                             // True once the window actually left the full view
                             // during this gesture. A pinch that dips in and
@@ -2949,8 +2956,8 @@ internal fun ChartCard(
                                     // the anchor was holding. A deliberate
                                     // two-finger drag (no pinch) still pans.
                                     val readFrac = curScrubFrac.value
-                                    val pinching = abs(zoom - 1f) > 0.002f
-                                    val holdRead = readFrac != null && pinching
+                                    if (abs(zoom - 1f) > 0.002f) pinched = true
+                                    val holdRead = readFrac != null && pinched
                                     if (zoom != 1f || pan.x != 0f) {
                                         val nw = ChartWindow.zoomPan(
                                             curWindow.value,
@@ -2960,6 +2967,13 @@ internal fun ChartCard(
                                             if (holdRead) 0f else pan.x / size.width,
                                         )
                                         if (nw.start > 0.001f || nw.endInclusive < 0.999f) leftFull = true
+                                        android.util.Log.d(
+                                            "scrubzoom",
+                                            "zoom=%.4f pan=%.1f read=%s hold=%b win=%.4f..%.4f".format(
+                                                zoom, pan.x, readFrac?.let { "%.4f".format(it) } ?: "-",
+                                                holdRead, nw.start, nw.endInclusive,
+                                            ),
+                                        )
                                         curOnWindow.value?.invoke(nw)
                                     }
                                     event.changes.forEach { it.consume() }

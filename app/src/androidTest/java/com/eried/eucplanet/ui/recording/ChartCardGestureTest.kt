@@ -146,6 +146,41 @@ class ChartCardGestureTest {
     }
 
     @Test
+    fun aPinchThatDriftsBetweenStepsStillHoldsTheRead() {
+        content()
+        placeRead(0.25f)
+        val read = scrub.value!!
+        val before = onScreenFracOf(read)
+        // What a hand actually does: open a little, drift a little, open a
+        // little. The drift-only frames carry no size change at all, and
+        // deciding per frame let them pan the window and walk the read away.
+        rule.onNodeWithTag("chart").performTouchInput {
+            val y = centerY
+            var a = width * 0.75f - 60f
+            var b = width * 0.75f + 60f
+            down(0, Offset(a, y))
+            down(1, Offset(b, y))
+            advanceEventTime(16)
+            repeat(6) {
+                a -= 25f; b += 25f            // a pinch frame
+                updatePointerTo(0, Offset(a, y))
+                updatePointerTo(1, Offset(b, y))
+                move()
+                advanceEventTime(16)
+                a += 14f; b += 14f            // a pure drift frame
+                updatePointerTo(0, Offset(a, y))
+                updatePointerTo(1, Offset(b, y))
+                move()
+                advanceEventTime(16)
+            }
+            up(0)
+            up(1)
+        }
+        rule.waitForIdle()
+        assertEquals("the read holds through the drift", before, onScreenFracOf(read), 0.03f)
+    }
+
+    @Test
     fun withNoReadThePinchTurnsAroundTheFingers() {
         content()
         // Nothing being read: the ordinary gesture, anchored on the centroid.

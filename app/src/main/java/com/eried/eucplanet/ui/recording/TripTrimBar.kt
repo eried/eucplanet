@@ -259,12 +259,18 @@ fun TripTrimBar(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.primary,
             )
-            Text(
-                formatReplayClock(dur),
-                modifier = Modifier.padding(end = 12.dp),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary,
-            )
+            // The whole ride's length, and only while the whole ride is what is
+            // selected. Once trimmed, the span next to it already says what the
+            // rider is looking at, and printing the untrimmed length beside it
+            // put two different durations in one short row.
+            if (!trimmed) {
+                Text(
+                    formatReplayClock(dur),
+                    modifier = Modifier.padding(end = 12.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                )
+            }
         }
     }
 }
