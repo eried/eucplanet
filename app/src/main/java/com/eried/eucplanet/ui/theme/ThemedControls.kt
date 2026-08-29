@@ -119,10 +119,11 @@ fun themedFilterChipColors(): SelectableChipColors {
 
 /**
  * Floating field label that notches the control's top border the way Material's
- * OutlinedTextField does: the section colour (appBackground) shows above the
- * border line, the field colour (fieldBackground) below it. A solid background
- * would leave a visible patch in the dark theme, where the field and section
- * colours differ; the split keeps the label seamless in every theme.
+ * OutlinedTextField does: the label is painted on one solid fill of [notchFill],
+ * the surface the control sits on, which is what a native floating label shows
+ * through the notch it cuts in the outline. The label straddles the border, so
+ * the fill also covers a few dp of the control's own top edge; that is what
+ * hides the border line behind the text.
  *
  * Place inside a Box whose other child is the control, and give that control at
  * least 8dp of top padding so the label has room (it straddles the top border).
