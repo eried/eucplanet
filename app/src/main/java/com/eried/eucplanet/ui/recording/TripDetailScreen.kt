@@ -2863,6 +2863,14 @@ private fun ChartCard(
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val longPress =
                                 awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+                            // Two fingers down means the rider is pinching, not
+                            // reading. The long press still fires for whichever
+                            // finger landed first, so without this the zoom
+                            // yanks the cursor onto that finger and the read
+                            // the rider was zooming in to study is gone.
+                            if (currentEvent.changes.count { it.pressed } > 1) {
+                                return@awaitEachGesture
+                            }
                             // Long-press confirmed, the chart now owns the gesture.
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             longPress.consume()
@@ -2878,6 +2886,13 @@ private fun ChartCard(
                             }
                             report(longPress.position.x)
                             drag(longPress.id) { change ->
+                                // A second finger part-way through: the rider
+                                // is zooming around what they were reading.
+                                // Stop following, and leave the line on its
+                                // sample for the pinch to carry.
+                                if (currentEvent.changes.count { it.pressed } > 1) {
+                                    return@drag
+                                }
                                 report(change.position.x)
                                 change.consume()
                             }
