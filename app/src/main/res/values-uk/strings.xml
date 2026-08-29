@@ -2278,11 +2278,11 @@
     <string name="trip_tools_extend_to">Закінчити на</string>
     <string name="trip_tools_extend_none">Ця поїздка</string>
     <string name="trip_tools_extend_pick_one">Виберіть ранішу або пізнішу поїздку для продовження.</string>
-    <string name="widget_act_1_desc">Кнопка 1, налаштовується в застосунку</string>
-    <string name="widget_act_2_desc">Кнопка 2, налаштовується в застосунку</string>
-    <string name="widget_act_3_desc">Кнопка 3, налаштовується в застосунку</string>
-    <string name="widget_act_12_desc">Кнопки 1 і 2, налаштовується в застосунку</string>
-    <string name="widget_act_23_desc">Кнопки 2 і 3, налаштовується в застосунку</string>
+    <string name="widget_act_1_desc">Дія налаштовується в застосунку</string>
+    <string name="widget_act_2_desc">Дія налаштовується в застосунку</string>
+    <string name="widget_act_3_desc">Дія налаштовується в застосунку</string>
+    <string name="widget_act_12_desc">Дії налаштовуються в застосунку</string>
+    <string name="widget_act_23_desc">Дії налаштовуються в застосунку</string>
     <string name="widget_standalone_desc">Дії віджетів-кнопок, незалежні від ряду вище.</string>
     <string name="widget_standalone_slot">Окрема кнопка %1$d</string>
         <string name="widget_customize">Налаштувати</string>
@@ -2430,7 +2430,7 @@
     <string name="widget_act_23_label">Кнопки колеса 2 і 3</string>
     <string name="widget_weather_score_label">Кататися можна?</string>
     <string name="widget_weather_compact_label">Погода для катання</string>
-    <string name="widget_act_1_short">1</string>
-    <string name="widget_act_2_short">2</string>
-    <string name="widget_act_3_short">3</string>
+    <string name="widget_act_1_short">Дія 1</string>
+    <string name="widget_act_2_short">Дія 2</string>
+    <string name="widget_act_3_short">Дія 3</string>
 </resources>

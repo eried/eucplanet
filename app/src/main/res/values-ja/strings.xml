@@ -2282,11 +2282,11 @@
     <string name="trip_tools_extend_to">終了</string>
     <string name="trip_tools_extend_none">この走行</string>
     <string name="trip_tools_extend_pick_one">延長先となる前後の走行を選んでください。</string>
-    <string name="widget_act_1_desc">ボタン 1（アプリで設定）</string>
-    <string name="widget_act_2_desc">ボタン 2（アプリで設定）</string>
-    <string name="widget_act_3_desc">ボタン 3（アプリで設定）</string>
-    <string name="widget_act_12_desc">ボタン 1 と 2（アプリで設定）</string>
-    <string name="widget_act_23_desc">ボタン 2 と 3（アプリで設定）</string>
+    <string name="widget_act_1_desc">操作はアプリで設定</string>
+    <string name="widget_act_2_desc">操作はアプリで設定</string>
+    <string name="widget_act_3_desc">操作はアプリで設定</string>
+    <string name="widget_act_12_desc">操作はアプリで設定</string>
+    <string name="widget_act_23_desc">操作はアプリで設定</string>
     <string name="widget_standalone_desc">ボタンだけのウィジェットの操作です。上の行とは別に設定します。</string>
     <string name="widget_standalone_slot">単独ボタン %1$d</string>
         <string name="widget_customize">カスタマイズ</string>
@@ -2434,7 +2434,7 @@
     <string name="widget_act_23_label">ホイールボタン 2と3</string>
     <string name="widget_weather_score_label">走れる？</string>
     <string name="widget_weather_compact_label">走行日和</string>
-    <string name="widget_act_1_short">1</string>
-    <string name="widget_act_2_short">2</string>
-    <string name="widget_act_3_short">3</string>
+    <string name="widget_act_1_short">操作 1</string>
+    <string name="widget_act_2_short">操作 2</string>
+    <string name="widget_act_3_short">操作 3</string>
 </resources>

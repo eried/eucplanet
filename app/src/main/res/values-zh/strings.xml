@@ -2148,11 +2148,11 @@
     <string name="trip_tools_extend_to">终点</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">选择要延伸到的较早或较晚行程。</string>
-    <string name="widget_act_1_desc">按钮 1（在应用中设置）</string>
-    <string name="widget_act_2_desc">按钮 2（在应用中设置）</string>
-    <string name="widget_act_3_desc">按钮 3（在应用中设置）</string>
-    <string name="widget_act_12_desc">按钮 1 和 2（在应用中设置）</string>
-    <string name="widget_act_23_desc">按钮 2 和 3（在应用中设置）</string>
+    <string name="widget_act_1_desc">在应用中设置操作</string>
+    <string name="widget_act_2_desc">在应用中设置操作</string>
+    <string name="widget_act_3_desc">在应用中设置操作</string>
+    <string name="widget_act_12_desc">在应用中设置操作</string>
+    <string name="widget_act_23_desc">在应用中设置操作</string>
     <string name="widget_standalone_desc">仅按钮小部件的操作，与上面一行相互独立。</string>
     <string name="widget_standalone_slot">单独按钮 %1$d</string>
         <string name="widget_customize">自定义</string>
@@ -2300,7 +2300,7 @@
     <string name="widget_act_23_label">独轮车按钮 2 和 3</string>
     <string name="widget_weather_score_label">能骑吗？</string>
     <string name="widget_weather_compact_label">骑行天气</string>
-    <string name="widget_act_1_short">1</string>
-    <string name="widget_act_2_short">2</string>
-    <string name="widget_act_3_short">3</string>
+    <string name="widget_act_1_short">操作 1</string>
+    <string name="widget_act_2_short">操作 2</string>
+    <string name="widget_act_3_short">操作 3</string>
 </resources>

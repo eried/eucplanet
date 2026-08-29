@@ -1331,11 +1331,11 @@
     <string name="widget_weather_min_fmt">%1$d min ago</string>
     <string name="widget_weather_hour_fmt">%1$d h ago</string>
     <string name="widget_weather_window_fmt">next %1$d h</string>
-    <string name="widget_act_1_desc">Button 1, set in the app</string>
-    <string name="widget_act_2_desc">Button 2, set in the app</string>
-    <string name="widget_act_3_desc">Button 3, set in the app</string>
-    <string name="widget_act_12_desc">Buttons 1 and 2, set in the app</string>
-    <string name="widget_act_23_desc">Buttons 2 and 3, set in the app</string>
+    <string name="widget_act_1_desc">Set its action in the app</string>
+    <string name="widget_act_2_desc">Set its action in the app</string>
+    <string name="widget_act_3_desc">Set its action in the app</string>
+    <string name="widget_act_12_desc">Set their actions in the app</string>
+    <string name="widget_act_23_desc">Set their actions in the app</string>
     <string name="widget_button_unset">Set a button in Settings</string>
     <string name="widget_speed">Speed</string>
     <string name="widget_distance">Trip</string>
@@ -2455,7 +2455,7 @@
     <string name="trip_tools_wheel_none">No wheel is recorded on this trip yet.</string>
     <string name="backup_conflict_warning">Some trip backups need a manual sync: the copies differ. Press Sync and pick which side wins.</string>
     <string name="backup_conflict_title">Backup conflicts</string>
-    <string name="widget_act_1_short">1</string>
-    <string name="widget_act_2_short">2</string>
-    <string name="widget_act_3_short">3</string>
+    <string name="widget_act_1_short">Action 1</string>
+    <string name="widget_act_2_short">Action 2</string>
+    <string name="widget_act_3_short">Action 3</string>
 </resources>

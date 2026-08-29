@@ -2296,11 +2296,11 @@
     <string name="trip_tools_extend_to">Slut ved</string>
     <string name="trip_tools_extend_none">Denne tur</string>
     <string name="trip_tools_extend_pick_one">Vaelg en tidligere eller senere tur at forlaenge ind i.</string>
-    <string name="widget_act_1_desc">Knap 1, vælges i appen</string>
-    <string name="widget_act_2_desc">Knap 2, vælges i appen</string>
-    <string name="widget_act_3_desc">Knap 3, vælges i appen</string>
-    <string name="widget_act_12_desc">Knapper 1 og 2, vælges i appen</string>
-    <string name="widget_act_23_desc">Knapper 2 og 3, vælges i appen</string>
+    <string name="widget_act_1_desc">Vælg handlingen i appen</string>
+    <string name="widget_act_2_desc">Vælg handlingen i appen</string>
+    <string name="widget_act_3_desc">Vælg handlingen i appen</string>
+    <string name="widget_act_12_desc">Vælg handlingerne i appen</string>
+    <string name="widget_act_23_desc">Vælg handlingerne i appen</string>
     <string name="widget_standalone_desc">Handlinger for knap-widgetterne, uafhængigt af rækken ovenfor.</string>
     <string name="widget_standalone_slot">Enkeltknap %1$d</string>
         <string name="widget_customize">Tilpas</string>
@@ -2448,7 +2448,7 @@
     <string name="widget_act_23_label">Hjulknapper 2 og 3</string>
     <string name="widget_weather_score_label">Køredag?</string>
     <string name="widget_weather_compact_label">Kørevejr</string>
-    <string name="widget_act_1_short">1</string>
-    <string name="widget_act_2_short">2</string>
-    <string name="widget_act_3_short">3</string>
+    <string name="widget_act_1_short">Handling 1</string>
+    <string name="widget_act_2_short">Handling 2</string>
+    <string name="widget_act_3_short">Handling 3</string>
 </resources>

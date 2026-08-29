@@ -70,11 +70,13 @@ class WidgetLabelTest {
     }
 
     @Test fun theButtonPreviewHintFitsOneCell() {
-        // The hint shares a 1x1 cell with a 24dp icon. Rendered at 60dp, the
-        // smallest cell the providers advertise, and photographed so the fit
-        // can be seen rather than assumed.
+        // A preview layout is only ever drawn by the picker, which gives it
+        // a card around the target cell size, not the 60dp floor a PLACED
+        // widget can be dragged to. That floor is the real layout's problem,
+        // not this one's, and sizing the preview for it shrank the type for a
+        // case that never happens.
         val d = ctx.resources.displayMetrics.density
-        val px = (60 * d).toInt()
+        val px = (100 * d).toInt()
         val view = RemoteViews(ctx.packageName, com.eried.eucplanet.R.layout.widget_act_1_preview)
             .apply(ctx, FrameLayout(ctx))
         view.measure(
