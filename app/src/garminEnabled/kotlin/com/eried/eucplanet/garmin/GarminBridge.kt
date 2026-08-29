@@ -275,11 +275,24 @@ class GarminBridge @Inject constructor(
         // pushing frames, the chain has gone silent and the transport
         // needs to be rebuilt so a fresh socket can land.
         scope.launch {
+            var lastReopenMs = 0L
             while (true) {
                 delay(5_000L)
                 val lastAck = _lastSuccessAtMs.value
                 if (lastAck == 0L) continue // never connected yet
                 val sinceAck = System.currentTimeMillis() - lastAck
+                // Real devices (WIRELESS): never tear the SDK down (see below),
+                // but DO reopen the pacing window once per silent half-minute.
+                // With the cap full and no acks arriving, nothing else ever
+                // re-opens it; the worst case is five fresh frames into a watch
+                // that is truly gone, the best case is a link that heals on its
+                // own instead of waiting for a phone restart.
+                if (sinceAck > 30_000L && connectType == ConnectIQ.IQConnectType.WIRELESS &&
+                    System.currentTimeMillis() - lastReopenMs > 30_000L
+                ) {
+                    lastReopenMs = System.currentTimeMillis()
+                    for (id in registeredDevices.keys) reopenPacingWindow(id)
+                }
                 // Only rebuild the transport on the TETHERED dev path, where a
                 // half-dead local socket genuinely needs a fresh one. On real
                 // devices (WIRELESS) the watch's ALIVE ack is unreliable by
@@ -295,6 +308,17 @@ class GarminBridge @Inject constructor(
                 }
             }
         }
+    }
+
+    /** Forget one device's pacing state so the next publish tick sends
+     *  again from seq 1. The MAX_INFLIGHT cap can only be released by acks,
+     *  and a watch that restarted (or lost the link) has nothing to ack, so
+     *  without this the cap is a one-way door. Cheap and safe: the cap
+     *  re-arms after five frames if the watch really is gone. */
+    private fun reopenPacingWindow(id: Long) {
+        lastSentSeq[id] = 0
+        lastAckedSeq[id] = 0
+        sendBusyUntilMs[id] = 0L
     }
 
     /** Tear down all device registrations + the CIQ SDK instance, then
@@ -433,9 +457,21 @@ class GarminBridge @Inject constructor(
                     val id = device.deviceIdentifier
                     watchSupportsSeq[id] = true
                     val sent = lastSentSeq[id] ?: 0
-                    val clamped = echoedInt.coerceIn(0, sent)
                     val prev = (lastAckedSeq[id] ?: 0).coerceAtMost(sent)
-                    lastAckedSeq[id] = maxOf(prev, clamped)
+                    if (echoedInt < prev - MAX_INFLIGHT) {
+                        // A seq far BELOW the last ack is not a late ack, it is
+                        // a watch that restarted with a fresh counter. The old
+                        // monotonic max kept the stale high ack, the window
+                        // stayed "full", the phone never sent again, and the
+                        // watch could never ack its way out: the "watch shows
+                        // Disconnected until the PHONE app restarts" deadlock
+                        // (2026-08-29 field log, three watch restarts ignored).
+                        Log.i(TAG, "watch seq reset ($prev -> $echoedInt); reopening pacing window")
+                        reopenPacingWindow(id)
+                    } else {
+                        val clamped = echoedInt.coerceIn(0, sent)
+                        lastAckedSeq[id] = maxOf(prev, clamped)
+                    }
                 }
             }
             cmd == GarminControl.HORN -> wheelRepository.sendHorn()
@@ -458,6 +494,11 @@ class GarminBridge @Inject constructor(
                 // staring at "Idle" for the first 5 s while the heartbeat
                 // timer warms up.
                 _lastSuccessAtMs.value = System.currentTimeMillis()
+                // It is also the one unambiguous "the watch app just
+                // (re)started" signal: its seq counter is at zero now, so any
+                // pacing window carried over from the previous run is a lie
+                // that would hold every frame back forever. Start clean.
+                reopenPacingWindow(device.deviceIdentifier)
             }
             else -> Log.w(TAG, "unknown Garmin control: $cmd")
         }
