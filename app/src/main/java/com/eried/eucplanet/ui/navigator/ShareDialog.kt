@@ -712,7 +712,9 @@ private fun ProfilePreviewCard(profile: ProfilePreview) {
 private fun Identity.asLeaderboardCard(): RiderCard = RiderCard(
     displayName = name,
     flag = flag,
-    hasAvatar = !avatarUrl.isNullOrBlank(),
+    // Both read the checked url, so a non-https or malformed one cannot
+    // claim a picture the card is never given.
+    hasAvatar = safeAvatar(avatarUrl) != null,
     avatarUrl = safeAvatar(avatarUrl),
     totalKm = 0.0,
     trips = 0,
