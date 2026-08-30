@@ -230,7 +230,7 @@
   #openApp.hide { display: none; }
 
   /* === Fit all riders: an icon-only control stacked with zoom and layers === */
-  #recenter { display: none; }
+  #recenter { display: block; }
   #recenter button svg { width: 18px; height: 18px; display: block; margin: 0 auto; color: var(--ink); }
   #recenter button:hover svg { color: var(--acc); }
 
@@ -410,7 +410,6 @@
       </div>
       <div id="scanView" class="hide">
         <video id="scanVideo" playsinline muted></video>
-        <p class="jc-caption">Point the camera at the QR code</p>
         <button id="scanCancel" type="button">Cancel</button>
       </div>
     </div>
@@ -462,23 +461,20 @@ var FRESH = "FRESH", STALE = "STALE", LOST = "LOST";
 
 /* Basemaps, the same three the app offers behind its layers button. */
 var STYLES = {
-  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-  satellite: {
-    version: 8,
-    sources: {
-      r: {
-        type: "raster",
-        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
-        tileSize: 256,
-        maxzoom: 19,
-        attribution: "&copy; Esri, Maxar"
-      }
-    },
-    layers: [{ id: "r", type: "raster", source: "r" }]
-  }
+  // The same seven layers eucviewer offers, as raster styles.
+  standard:  raster("Standard",     ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors", true),
+  cyclosm:   raster("CyclOSM",      ["https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png","https://b.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png","https://c.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors, CyclOSM", true),
+  topo:      raster("OpenTopoMap",  ["https://a.tile.opentopomap.org/{z}/{x}/{y}.png","https://b.tile.opentopomap.org/{z}/{x}/{y}.png","https://c.tile.opentopomap.org/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors, SRTM, OpenTopoMap (CC-BY-SA)", true),
+  hot:       raster("Humanitarian", ["https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png","https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors, HOT", true),
+  streets:   raster("Streets",      ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"], "Tiles &copy; Esri", true),
+  dark:      raster("Dark",         ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"], "Tiles &copy; Esri", false),
+  satellite: raster("Satellite",    ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"], "Tiles &copy; Esri", false),
 };
-var STYLE_LABELS = { dark: "Dark", light: "Light", satellite: "Satellite" };
+function raster(label, tiles, attribution, light) {
+  return { label: label, light: light, style: { version: 8,
+    sources: { base: { type: "raster", tiles: tiles, tileSize: 256, attribution: attribution, maxzoom: 19 } },
+    layers: [{ id: "base", type: "raster", source: "base" }] } };
+}
 var STYLE_KEY = "eucshare_style";
 
 /* ------------------------------------------------------------------ *
@@ -552,6 +548,7 @@ var statusBase = "Connecting";
 var statusCls = "";
 var ridersStale = false;
 
+var relayBusyUntil = 0;
 function setStatus(text, cls) {
   statusBase = text;
   statusCls = cls || "";
@@ -946,7 +943,7 @@ function connect(roomId, key) {
     ws = new WebSocket(RELAY_BASE + roomId);
   } catch (e) {
     setStatus("Reconnecting", "warn");
-    setTimeout(function () { connect(roomId, key); }, RECONNECT_MS);
+    setTimeout(function () { connect(roomId, key); }, Math.max(RECONNECT_MS, relayBusyUntil - Date.now()));
     return;
   }
 
@@ -991,9 +988,12 @@ function connect(roomId, key) {
     }
   };
 
-  ws.onclose = function () {
-    setStatus("Reconnecting", "warn");
-    setTimeout(function () { connect(roomId, key); }, RECONNECT_MS);
+  ws.onclose = function (ev) {
+    // 1013 is the relay refusing the socket (room full, or too many sockets
+    // from this address): say so, and wait longer before trying again.
+    if (ev && ev.code === 1013) { setStatus("Relay busy", "warn"); relayBusyUntil = Date.now() + 10000; }
+    else setStatus("Reconnecting", "warn");
+    setTimeout(function () { connect(roomId, key); }, Math.max(RECONNECT_MS, relayBusyUntil - Date.now()));
   };
 
   ws.onerror = function () { try { ws.close(); } catch (e) {} };
@@ -1029,7 +1029,7 @@ function setMapStyle(key) {
     try { localStorage.setItem(STYLE_KEY, key); } catch (e) {}
     if (map) {
       mapReady = false;              // the trail source is rebuilt on the new style
-      map.setStyle(STYLES[key]);
+      map.setStyle(STYLES[key].style);
     }
   }
   markActiveStyle();
@@ -1065,7 +1065,7 @@ StyleControl.prototype.onAdd = function () {
     var item = document.createElement("button");
     item.type = "button";
     item.setAttribute("data-s", k);
-    item.textContent = STYLE_LABELS[k];
+    item.textContent = STYLES[k].label;
     item.addEventListener("click", function (ev) {
       ev.stopPropagation();
       wrap.classList.remove("open");
@@ -1124,7 +1124,7 @@ function ensureTrailLayers() {
 function initMap() {
   map = new maplibregl.Map({
     container: "map",
-    style: STYLES[mapStyle],
+    style: STYLES[mapStyle].style,
     center: [0, 20],
     zoom: 1.4
   });
