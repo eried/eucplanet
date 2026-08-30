@@ -218,21 +218,41 @@
   .row.dim { opacity: .55; }
 
   /* === Open in EUC Planet (Android only): the bottom-centre pill === */
-  #openApp {
-    position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); display: block;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
-    padding: 9px 15px; border-radius: 10px; cursor: pointer; text-decoration: none;
+  /* === Bottom row: units (left), Open in EUC Planet (centre), fit all (right).
+     One 40 px baseline, the eucstats dock look for all three. === */
+  :root { --row-b: calc(env(safe-area-inset-bottom, 0px) + 18px); --row-h: 40px; }
+  #unitsDock, #recenter, #openApp {
+    position: fixed; z-index: 6; height: var(--row-h); box-sizing: border-box;
     background: var(--surf); backdrop-filter: blur(14px);
-    border: 1px solid var(--line); box-shadow: var(--shadow);
-    color: var(--ink); font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px;
+    border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow);
+    bottom: var(--row-b);
   }
+  #unitsDock { left: calc(env(safe-area-inset-left, 0px) + 18px); width: 150px; padding: 4px; }
+  #unitsDock .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 100%;
+    background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+  #unitsDock .seg button { background: transparent; border: 0; color: var(--mut); border-radius: 6px; padding: 0 10px;
+    font: 600 11px/1 "Chakra Petch", sans-serif; letter-spacing: .3px; cursor: pointer; }
+  #unitsDock .seg button.on { background: var(--acc); color: #04101f; font-weight: 700; }
+  #recenter { right: calc(env(safe-area-inset-right, 0px) + 18px); width: var(--row-h); padding: 0; }
+  #recenter button { width: 100%; height: 100%; background: transparent; border: 0; cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center; color: var(--ink); border-radius: 9px; }
+  #recenter button svg { width: 18px; height: 18px; display: block; }
+  #recenter button:hover { color: var(--acc); background: rgba(46, 168, 255, .14); }
+  #openApp { left: 50%; transform: translateX(-50%); display: flex; align-items: center;
+    padding: 0 15px; cursor: pointer; text-decoration: none;
+    color: var(--ink); font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px; }
   #openApp:hover { color: var(--acc); border-color: var(--acc); }
   #openApp.hide { display: none; }
+  /* The attribution leaves the bottom row to the controls. */
+  .maplibregl-ctrl-top-right { top: calc(env(safe-area-inset-top, 0px) + 64px); }
+  /* On a phone the centre pill cannot centre on the screen without running
+     into the side pills: it fills the gap between them instead. */
+  @media (max-width: 640px) {
+    #openApp { left: calc(env(safe-area-inset-left, 0px) + 18px + 150px + 10px);
+      right: calc(env(safe-area-inset-right, 0px) + 18px + var(--row-h) + 10px);
+      transform: none; justify-content: center; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  }
 
-  /* === Fit all riders: an icon-only control stacked with zoom and layers === */
-  #recenter { display: block; }
-  #recenter button svg { width: 18px; height: 18px; display: block; margin: 0 auto; color: var(--ink); }
-  #recenter button:hover svg { color: var(--acc); }
 
   /* === Map marker (mirrors the in-app look, readable over satellite too) === */
   /* MapLibre gives everything inside the map its own Helvetica stack, and a
@@ -357,7 +377,7 @@
     }
     .maplibregl-ctrl-top-right .stylemenu { top: auto; bottom: 0; }
   }
-  /* === Settings gear (units + map layer), top-left in the header === */
+  /* === Settings gear (map layer), top-left in the header === */
   #gearBtn { flex: none; width: 28px; height: 28px; margin-right: 4px; padding: 0; border: 0; background: transparent;
     color: var(--mut); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
   #gearBtn svg { width: 17px; height: 17px; }
@@ -402,13 +422,16 @@
 </div>
 
   <div id="gearMenu" class="hide" role="menu">
-  <div class="gm-title">Units</div>
-  <button type="button" data-u="auto">Auto</button>
-  <button type="button" data-u="metric">Metric</button>
-  <button type="button" data-u="imperial">Imperial</button>
   <div class="gm-title">Map</div>
   <div id="gmLayers"></div>
 </div>
+<div id="unitsDock" role="radiogroup" aria-label="Units">
+  <div class="seg">
+    <button type="button" data-u="kmh" role="radio">Metric</button>
+    <button type="button" data-u="mph" role="radio">Imperial</button>
+  </div>
+</div>
+<div id="recenter" title="Fit all riders"><button type="button" aria-label="Fit all riders"></button></div>
 <a id="openApp" class="hide" rel="noopener">Open in EUC Planet</a>
 
 <div id="msg">
@@ -1054,8 +1077,8 @@ function setupGearMenu() {
     item.addEventListener("click", function (ev) { ev.stopPropagation(); setMapStyle(k); });
     layers.appendChild(item);
   });
-  Array.prototype.forEach.call(menu.querySelectorAll("button[data-u]"), function (b) {
-    b.addEventListener("click", function (ev) { ev.stopPropagation(); setUnits(b.getAttribute("data-u")); });
+  Array.prototype.forEach.call(document.querySelectorAll("#unitsDock button[data-u]"), function (b) {
+    b.addEventListener("click", function () { setUnits(b.getAttribute("data-u")); });
   });
   function close() { menu.classList.add("hide"); btn.setAttribute("aria-expanded", "false"); }
   btn.addEventListener("click", function (ev) {
@@ -1130,21 +1153,13 @@ function initMap() {
     center: [0, 20],
     zoom: 1.4
   });
-  // Fit all riders: the same look as the zoom and layer buttons, one icon,
-  // shown once the rider has moved the map or a rider is on it. The whole
-  // group is the #recenter element the existing show/hide and click code use.
-  function FitControl() {}
-  FitControl.prototype.onAdd = function () {
-    var d = document.createElement("div");
-    d.className = "maplibregl-ctrl maplibregl-ctrl-group"; d.id = "recenter";
-    var b = document.createElement("button"); b.type = "button";
-    b.title = "Fit all riders"; b.setAttribute("aria-label", "Fit all riders");
+  // Fit all riders: a fixed button in the bottom row, not a map control.
+  (function () {
+    var b = document.querySelector("#recenter button");
+    if (!b) return;
     b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"></path></svg>';
     b.addEventListener("click", function () { userMoved = false; fitAll(null); });
-    d.appendChild(b); this._c = d; return d;
-  };
-  FitControl.prototype.onRemove = function () { if (this._c && this._c.parentNode) this._c.parentNode.removeChild(this._c); };
-  map.addControl(new FitControl(), "bottom-right");
+  })();
 
   // Fires on the first style and again after every switch, so the trail layers
   // come back with the new basemap.
@@ -1188,44 +1203,50 @@ function ageClass(grey, fresh) {
   return grey ? "lost" : (fresh === STALE ? "stale" : "live");
 }
 
-// Units: the eucviewer routine. Resolution order: ?units= in the URL, then
-// the rider's choice in the gear menu (localStorage), then the timezone.
-// Not navigator.language: English Windows everywhere reports en-US, which
-// misclassified metric riders. Imperial only fires for zones unambiguously
-// in the US, its territories, Liberia or Myanmar; anything else is metric.
+// Units: the eucstats rule. The default follows where the rider IS (their
+// timezone), never the browser language. Only four countries use imperial
+// road units: the US and Liberia (miles, °F), the UK and Myanmar (miles on
+// the road, °C for everything else), so "imperial" is per quantity. Every
+// other or unknown zone is metric. The rider's own choice, once made, wins.
 var UNITS_KEY = "eucshare_units";
-var IMPERIAL_TZ_RE = new RegExp("^(?:" +
+var US_TZ_RE = new RegExp("^(?:" +
   "America/(?:Adak|Anchorage|Boise|Chicago|Denver|Detroit|Indiana/[^/]+|Juneau|Kentucky/[^/]+|Los_Angeles|Menominee|Metlakatla|New_York|Nome|North_Dakota/[^/]+|Phoenix|Puerto_Rico|Sitka|St_Thomas|Yakutat)" +
-  "|Pacific/(?:Honolulu|Pago_Pago|Guam|Saipan|Midway|Wake)" +
-  "|Africa/Monrovia" +
-  "|Asia/(?:Yangon|Rangoon)" +
-  ")$");
-function unitsChoice() {
-  try { var v = localStorage.getItem(UNITS_KEY); if (v === "imperial" || v === "metric") return v; } catch (e) {}
-  return "auto";
+  "|Pacific/(?:Honolulu|Pago_Pago|Guam|Saipan|Midway|Wake))$");
+var GB_TZ = { "Europe/London": 1, "Europe/Belfast": 1, "Europe/Guernsey": 1, "Europe/Isle_of_Man": 1, "Europe/Jersey": 1 };
+var UNIT_PROFILES = { kmh: { d: 0, t: 0 }, mph: { d: 1, t: 1 }, road: { d: 1, t: 0 } };
+function homeProfile() {
+  try {
+    var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").trim();
+    if (US_TZ_RE.test(tz) || tz === "Africa/Monrovia") return "mph";
+    if (GB_TZ[tz] || tz === "Asia/Yangon" || tz === "Asia/Rangoon") return "road";
+  } catch (e) {}
+  return "kmh";
 }
-function detectUnits() {
-  try { var force = new URLSearchParams(location.search).get("units"); if (force === "imperial" || force === "metric") return force; } catch (e) {}
-  var chosen = unitsChoice(); if (chosen !== "auto") return chosen;
-  try { var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").trim(); if (IMPERIAL_TZ_RE.test(tz)) return "imperial"; } catch (e) {}
-  return "metric";
+function unitsChoice() {
+  try { var force = new URLSearchParams(location.search).get("units"); if (force === "imperial") return "mph"; if (force === "metric") return "kmh"; } catch (e) {}
+  try { var v = localStorage.getItem(UNITS_KEY); if (UNIT_PROFILES[v]) return v; } catch (e) {}
+  return homeProfile();
 }
 function buildUnits() {
-  var imperial = detectUnits() === "imperial";
-  return imperial
-    ? { imperial: true, speed: function (k) { return k * 0.621371; }, temp: function (c) { return c * 9 / 5 + 32; }, speedUnit: "mph", tempUnit: "\u00b0F" }
-    : { imperial: false, speed: function (k) { return k; }, temp: function (c) { return c; }, speedUnit: "km/h", tempUnit: "\u00b0C" };
+  var u = UNIT_PROFILES[unitsChoice()] || UNIT_PROFILES.kmh;
+  return {
+    speed: function (k) { return u.d ? k * 0.621371 : k; }, speedUnit: u.d ? "mph" : "km/h",
+    temp: function (c) { return u.t ? c * 9 / 5 + 32 : c; }, tempUnit: u.t ? "\u00b0F" : "\u00b0C"
+  };
 }
 var UNITS = buildUnits();
-function setUnits(choice) {
-  try { if (choice === "auto") localStorage.removeItem(UNITS_KEY); else localStorage.setItem(UNITS_KEY, choice); } catch (e) {}
+function setUnits(profile) {
+  try { localStorage.setItem(UNITS_KEY, profile); } catch (e) {}
   UNITS = buildUnits();
   markActiveUnits();
   if (typeof render === "function") render();
 }
 function markActiveUnits() {
   var c = unitsChoice();
-  Array.prototype.forEach.call(document.querySelectorAll("#gearMenu button[data-u]"), function (b) { b.classList.toggle("on", b.getAttribute("data-u") === c); });
+  Array.prototype.forEach.call(document.querySelectorAll("#unitsDock button[data-u]"), function (b) {
+    var on = b.getAttribute("data-u") === "kmh" ? c === "kmh" : c !== "kmh";
+    b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false");
+  });
 }
 
 function statsText(s) {
