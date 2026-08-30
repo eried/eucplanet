@@ -183,28 +183,73 @@ private fun peerColorOf(hex: String): Color {
 private data class BrowserTabColors(val toolbar: Int, val navigationBar: Int)
 
 /**
- * The package that owns "open a web page" on this phone.
+ * The generic "open a web page" probe used both to find the phone's browser
+ * and to verify a candidate really is one.
  *
- * Asked the way a launcher asks: who answers MAIN / APP_BROWSER. A neutral
- * https URL is the second question, for a phone whose browser does not declare
- * that category. The system resolver ("android") and this app itself are never
- * the answer, so a device with no default picked cannot turn Open into a
- * no-op that hands the link straight back here.
+ * Needs the VIEW + BROWSABLE + scheme https entry in the manifest's
+ * `<queries>` block: without it, both [PackageManager.resolveActivity] and
+ * [PackageManager.queryIntentActivities] go blind to every browser package
+ * on API 30+, and [resolveBrowserPackage] always returns null.
  */
-private fun defaultBrowserPackage(context: Context): String? {
+private fun browserProbe(): Intent =
+    Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com/"))
+        .addCategory(Intent.CATEGORY_BROWSABLE)
+
+/**
+ * The package that owns http/https VIEW links on this phone, or null if none
+ * can be told apart from this app itself.
+ *
+ * [PackageManager.resolveActivity] answers the way a launcher would ("who
+ * opens this by default"), but its answer is not trusted on its own: some
+ * builds report a resolver or chooser activity instead of a real browser
+ * package, and in principle any app that merely claims the https scheme
+ * (without being a browser) could be the default. So the candidate is
+ * accepted only if it also turns up in [PackageManager.queryIntentActivities]
+ * for the very same probe, meaning it genuinely registered as a handler for
+ * a generic web page rather than a name that happened to come back from a
+ * resolver. When there is no default, or the default fails that check, the
+ * first entry of queryIntentActivities that is not this app is used instead.
+ * A device where neither path survives returns null, and the caller falls
+ * back to a Custom Tab.
+ */
+private fun resolveBrowserPackage(context: Context): String? {
     val pm = context.packageManager
-    val probes = listOf(
-        Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER),
-        Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"))
-            .addCategory(Intent.CATEGORY_BROWSABLE),
-    )
-    for (probe in probes) {
-        val pkg = runCatching {
-            pm.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName
-        }.getOrNull() ?: continue
-        if (pkg != context.packageName && pkg != "android") return pkg
+    val probe = browserProbe()
+    val ownPackage = context.packageName
+    val candidates = runCatching {
+        pm.queryIntentActivities(probe, PackageManager.MATCH_DEFAULT_ONLY)
+    }.getOrDefault(emptyList())
+
+    val default = runCatching {
+        pm.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName
+    }.getOrNull()
+    if (default != null && default != ownPackage &&
+        candidates.any { it.activityInfo?.packageName == default }
+    ) {
+        return default
     }
-    return null
+
+    return candidates.firstOrNull { it.activityInfo?.packageName != ownPackage }
+        ?.activityInfo?.packageName
+}
+
+/**
+ * Hands [uri] to the phone's real browser as an explicit ACTION_VIEW, so it
+ * opens in the browser's own task rather than inside this app's. See
+ * [resolveBrowserPackage] for how the browser is named.
+ *
+ * Never throws: returns false, without launching anything, when no browser
+ * package can be told apart, or when the explicit launch itself fails (the
+ * expected case is an ActivityNotFoundException, the package answers the
+ * browser question but not this exact URL). Either way the caller is free to
+ * fall back to a Custom Tab.
+ */
+private fun openInBrowser(context: Context, uri: Uri): Boolean {
+    val browserPackage = resolveBrowserPackage(context) ?: return false
+    val view = Intent(Intent.ACTION_VIEW, uri)
+        .setPackage(browserPackage)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    return runCatching { context.startActivity(view) }.isSuccess
 }
 
 /**
@@ -216,35 +261,27 @@ private fun defaultBrowserPackage(context: Context): String? {
  * routes it back into MainActivity, which parses it, sees the room the rider is
  * already in, and dismisses. Nothing appears to happen.
  *
- * So the browser is named: [defaultBrowserPackage] asks who owns "open a web
- * page" on this phone, and the link goes to that package as an explicit
- * ACTION_VIEW. An explicit intent is not App Link traffic, and it lands in the
- * browser's own task, which is what makes it a real Chrome tab: the task
- * switcher lists Chrome, and coming back lands on the map where the rider left
- * it. A Custom Tab renders the page inside this app's own task instead, which
- * is exactly what the rider asked not to happen.
+ * So the browser is named explicitly: [openInBrowser] resolves who owns
+ * "open a web page" on this phone (see [resolveBrowserPackage]) and addresses
+ * that package directly with the real link. An explicit intent is not App
+ * Link traffic, and it lands in the browser's own task, which is what makes
+ * it a real Chrome tab: the task switcher lists Chrome, and coming back lands
+ * on the map where the rider left it. A Custom Tab renders the page inside
+ * this app's own task instead, which is exactly what the rider asked not to
+ * happen.
  *
  * Addressing the browser with ACTION_MAIN instead (makeMainSelectorActivity)
  * does raise Chrome, but Chrome answers a MAIN launch with its own home page
  * and drops the data URI, so the rider lands on a blank tab. Verified on the
  * emulator, which is why the link travels as a VIEW.
  *
- * A device where no browser package can be read at all falls back to the
- * Custom Tab, then to a browsable view inside a chooser, so Open still does
+ * A device where no browser package can be told apart falls back to a Custom
+ * Tab, then to a browsable view inside a chooser, so Open still does
  * something rather than silently handing the link back to this app.
  */
-private fun openInBrowser(context: Context, url: String, colors: BrowserTabColors) {
+private fun openShareLink(context: Context, url: String, colors: BrowserTabColors) {
     val uri = Uri.parse(url)
-    val browserPackage = defaultBrowserPackage(context)
-    if (browserPackage != null) {
-        val view = Intent(Intent.ACTION_VIEW, uri)
-            .setPackage(browserPackage)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        // ActivityNotFoundException is the expected miss (the package answers
-        // the browser question but not this URL); any other launch failure is
-        // treated the same way, as "try the next path".
-        if (runCatching { context.startActivity(view) }.isSuccess) return
-    }
+    if (openInBrowser(context, uri)) return
     val browser = runCatching { CustomTabsClient.getPackageName(context, null) }.getOrNull()
     if (browser != null) {
         val opened = runCatching {
@@ -907,7 +944,7 @@ fun ShareGroupDialog(
                     description = stringResource(R.string.share_open),
                     // The web viewer in the phone's own browser, so the rider
                     // sees the group the way the friends they invite will.
-                    onClick = { openInBrowser(context, url, tabColors) }
+                    onClick = { openShareLink(context, url, tabColors) }
                 )
             }
             Spacer(Modifier.height(14.dp))

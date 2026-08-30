@@ -80,6 +80,12 @@
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
+        <!-- Both resolveBrowserPackage's probes in ShareDialog.kt
+             (PackageManager.resolveActivity and queryIntentActivities on the
+             same https VIEW+BROWSABLE intent) go blind to every browser
+             package on API 30+ without this entry, and Open silently
+             degrades to a Custom Tab. Keep it even though the app never
+             sends this exact intent itself. -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
