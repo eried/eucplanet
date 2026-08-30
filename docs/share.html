@@ -1244,6 +1244,22 @@ function render() {
 
   if (map && !mapReady) mapReady = ensureTrailLayers();
 
+  // A rider gone for longer than the trail fade has nothing left to show:
+  // drop them, so an anonymous rider who reconnects under a new id (or a
+  // "left" frame this tab missed while reconnecting) never leaves an orphan.
+  var gone = [];
+  peers.forEach(function (p, senderId) {
+    var a = ageMsOf(p, now);
+    if (p.left ? a > TRAIL_MS : a > STALE_MS + TRAIL_MS) gone.push(senderId);
+  });
+  gone.forEach(function (senderId) {
+    var p = peers.get(senderId);
+    if (!p) return;
+    cancelRemoval(p);
+    if (p.marker) p.marker.remove();
+    peers.delete(senderId);
+  });
+
   peers.forEach(function (p) {
     trimTrail(p, now);
     var age = ageMsOf(p, now);
