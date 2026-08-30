@@ -83,4 +83,29 @@ class ShareModelTest {
         assertEquals(3.0, pts.last().lat, 0.0); assertEquals(1.0f, pts.last().alpha, 0.001f)
         assertTrue(pts.first().alpha < pts.last().alpha && pts.first().alpha >= 0.15f)
     }
+    /** The map draws one polyline per band and reads the band number straight
+     *  off the wire, so a band that ever landed outside 0..3 would index past
+     *  the page's opacity table. The boundaries are pinned here because they
+     *  are duplicated in the page's PEER_TRAIL_OPACITY comment. */
+    @Test fun trailBandsAreFourBucketsInOrder() {
+        assertEquals(4, TrailBands.COUNT)
+        assertEquals(0, TrailBands.of(0L))
+        assertEquals(0, TrailBands.of(59_999L))
+        assertEquals(1, TrailBands.of(60_000L))
+        assertEquals(1, TrailBands.of(119_999L))
+        assertEquals(2, TrailBands.of(120_000L))
+        assertEquals(2, TrailBands.of(209_999L))
+        assertEquals(3, TrailBands.of(210_000L))
+        // Older than the longest trail the settings allow still lands in the
+        // last band rather than off the end of it.
+        assertEquals(3, TrailBands.of(60 * 60_000L))
+        // Monotonic: an older point can never come back to a brighter band.
+        var previous = 0
+        for (ageS in 0..400) {
+            val band = TrailBands.of(ageS * 1000L)
+            assertTrue("band went backwards at $ageS s", band >= previous)
+            assertTrue(band in 0 until TrailBands.COUNT)
+            previous = band
+        }
+    }
 }

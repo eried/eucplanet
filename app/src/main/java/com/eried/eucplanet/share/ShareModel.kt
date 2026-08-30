@@ -97,6 +97,32 @@ object Staleness {
 data class TrailPoint(val lat: Double, val lng: Double, val t: Long, val alpha: Float)
 
 /**
+ * The four age bands a trail is drawn in, newest first.
+ *
+ * The map used to draw one polyline per hop so each hop could carry its own
+ * alpha. Five minutes of 3 s publishes is about a hundred of them per rider,
+ * and a hundred SVG paths are a hundred re-projections on every frame of a
+ * pinch: the tail visibly lagged the map during the gesture. Four bands draw
+ * the same fading tail with four paths.
+ *
+ * The bands are not even. The last minute is what a rider is actually reading
+ * ("where did they just go"), so it gets a band to itself at full opacity;
+ * everything past two minutes is context and is squeezed into the two faint
+ * ones. Kotlin stamps the band on every point and the page only reads it, so
+ * these boundaries live in one place.
+ */
+object TrailBands {
+    const val COUNT = 4
+    /** Upper age bound of bands 0, 1 and 2 in ms; anything older is band 3. */
+    val EDGES_MS = longArrayOf(60_000L, 120_000L, 210_000L)
+
+    fun of(ageMs: Long): Int {
+        for (i in EDGES_MS.indices) if (ageMs < EDGES_MS[i]) return i
+        return COUNT - 1
+    }
+}
+
+/**
  * Ring of recent positions; alpha fades 1.0 (newest) to 0.15 (oldest kept).
  *
  * Threading contract: add() and points() may both be called from ANY thread,
