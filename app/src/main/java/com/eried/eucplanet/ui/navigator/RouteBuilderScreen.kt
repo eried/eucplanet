@@ -795,21 +795,19 @@ fun RouteBuilderScreen(
                 },
                 actions = {
                     // Live location share. Green while a group is running,
-                    // with a badge counting the friends currently in it. A
-                    // peer who left or aged out to LOST is still in the map
-                    // (the group list keeps showing them, greyed, by design)
-                    // but is not "currently in it", so the badge excludes them.
-                    // activePeers is the one definition of that; the group
-                    // dialog's status line reads the same one.
+                    // with a badge counting the riders in it, the rider
+                    // themself included, the same number the group dialog's
+                    // "Connected (N)" tab shows. A peer who left or aged out
+                    // to LOST is still in the map (the group list keeps
+                    // showing them, greyed, by design) but is not "in it";
+                    // activePeers is the one definition of that.
                     val joinedShare = shareState as? ShareState.Joined
-                    val sharePeers = joinedShare?.activePeers?.size ?: 0
+                    val sharePeers = joinedShare?.let { it.activePeers.size + 1 } ?: 0
                     BadgedBox(
                         badge = {
-                            // Shown from zero up: while a group is running
-                            // the badge itself is the "you are sharing"
-                            // signal, and a 0 is the honest answer to how
-                            // many friends are in it. Hiding it at 0 made a
-                            // live share look off.
+                            // Never below 1 while a group is running: you are
+                            // in it, so the badge doubles as the "you are
+                            // sharing" signal without ever reading 0.
                             if (joinedShare != null) {
                                 Badge(
                                     containerColor = MaterialTheme.appColors.primary,

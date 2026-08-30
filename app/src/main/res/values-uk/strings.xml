@@ -1636,7 +1636,6 @@
     <string name="share_alone">Тут поки що нікого більше немає.</string>
     <string name="share_open">Відкрити</string>
     <string name="share_copy">Копіювати</string>
-    <string name="share_menu_title">Поділитися</string>
     <string name="share_menu_join">Приєднатися до групи</string>
     <string name="share_menu_join_desc">Сканувати QR-код</string>
     <string name="share_menu_live">Ділитися геопозицією</string>

@@ -1601,7 +1601,6 @@
     <string name="share_alone">這裡還沒有其他人。</string>
     <string name="share_open">開啟</string>
     <string name="share_copy">複製</string>
-    <string name="share_menu_title">分享</string>
     <string name="share_menu_join">加入團騎</string>
     <string name="share_menu_join_desc">掃描 QR 碼</string>
     <string name="share_menu_live">分享即時位置</string>

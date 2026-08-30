@@ -1617,7 +1617,6 @@
     <string name="share_alone">Nikogo innego tu jeszcze nie ma.</string>
     <string name="share_open">Otwórz</string>
     <string name="share_copy">Kopiuj</string>
-    <string name="share_menu_title">Udostępnij</string>
     <string name="share_menu_join">Dołącz do przejazdu</string>
     <string name="share_menu_join_desc">Zeskanuj kod QR</string>
     <string name="share_menu_live">Udostępnij lokalizację</string>

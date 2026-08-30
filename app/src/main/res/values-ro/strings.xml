@@ -1866,7 +1866,6 @@
     <string name="share_alone">Încă nu mai e nimeni altcineva aici.</string>
     <string name="share_open">Deschide</string>
     <string name="share_copy">Copiază</string>
-    <string name="share_menu_title">Distribuie</string>
     <string name="share_menu_join">Intră în grup</string>
     <string name="share_menu_join_desc">Scanează un cod QR</string>
     <string name="share_menu_live">Partajează locația live</string>

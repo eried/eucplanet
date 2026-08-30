@@ -1866,7 +1866,6 @@
     <string name="share_alone">Egyelőre senki más nincs itt.</string>
     <string name="share_open">Megnyitás</string>
     <string name="share_copy">Másolás</string>
-    <string name="share_menu_title">Megosztás</string>
     <string name="share_menu_join">Csatlakozás csoporthoz</string>
     <string name="share_menu_join_desc">QR-kód beolvasása</string>
     <string name="share_menu_live">Élő helyzet megosztása</string>

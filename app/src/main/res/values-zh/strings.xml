@@ -789,7 +789,6 @@
     <string name="share_alone">这里还没有其他人。</string>
     <string name="share_open">打开</string>
     <string name="share_copy">复制</string>
-    <string name="share_menu_title">分享</string>
     <string name="share_menu_join">加入组队骑行</string>
     <string name="share_menu_join_desc">扫描二维码</string>
     <string name="share_menu_live">共享实时位置</string>

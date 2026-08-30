@@ -1601,7 +1601,6 @@
     <string name="share_alone">まだ他に誰もいません。</string>
     <string name="share_open">開く</string>
     <string name="share_copy">コピー</string>
-    <string name="share_menu_title">共有</string>
     <string name="share_menu_join">グループに参加</string>
     <string name="share_menu_join_desc">QRコードを読み取る</string>
     <string name="share_menu_live">現在地をライブ共有</string>

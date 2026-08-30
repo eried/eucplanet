@@ -1663,7 +1663,6 @@
     <string name="share_alone">Personne d\'autre ici pour l\'instant.</string>
     <string name="share_open">Ouvrir</string>
     <string name="share_copy">Copier</string>
-    <string name="share_menu_title">Partager</string>
     <string name="share_menu_join">Rejoindre la sortie</string>
     <string name="share_menu_join_desc">Scanner un QR code</string>
     <string name="share_menu_live">Partager ma position</string>

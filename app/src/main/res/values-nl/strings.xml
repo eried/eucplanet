@@ -1659,7 +1659,6 @@
     <string name="share_alone">Hier is nog niemand anders.</string>
     <string name="share_open">Openen</string>
     <string name="share_copy">Kopiëren</string>
-    <string name="share_menu_title">Delen</string>
     <string name="share_menu_join">Deelnemen aan groepsrit</string>
     <string name="share_menu_join_desc">Scan een QR-code</string>
     <string name="share_menu_live">Live locatie delen</string>

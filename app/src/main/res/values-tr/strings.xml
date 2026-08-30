@@ -1601,7 +1601,6 @@
     <string name="share_alone">Henüz burada başka kimse yok.</string>
     <string name="share_open">Aç</string>
     <string name="share_copy">Kopyala</string>
-    <string name="share_menu_title">Paylaş</string>
     <string name="share_menu_join">Grup sürüşüne katıl</string>
     <string name="share_menu_join_desc">QR kod tara</string>
     <string name="share_menu_live">Konumu canlı paylaş</string>

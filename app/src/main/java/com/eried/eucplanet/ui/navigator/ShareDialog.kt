@@ -534,7 +534,6 @@ fun ShareMenuDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.share_menu_title)) },
         text = {
             Column {
                 ToolRow(

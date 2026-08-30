@@ -1604,7 +1604,6 @@
     <string name="share_alone">Здесь пока никого больше нет.</string>
     <string name="share_open">Открыть</string>
     <string name="share_copy">Копировать</string>
-    <string name="share_menu_title">Поделиться</string>
     <string name="share_menu_join">Присоединиться к группе</string>
     <string name="share_menu_join_desc">Сканировать QR-код</string>
     <string name="share_menu_live">Делиться геопозицией</string>

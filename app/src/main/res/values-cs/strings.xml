@@ -1866,7 +1866,6 @@
     <string name="share_alone">Zatím tu není nikdo jiný.</string>
     <string name="share_open">Otevřít</string>
     <string name="share_copy">Kopírovat</string>
-    <string name="share_menu_title">Sdílet</string>
     <string name="share_menu_join">Připojit se k jízdě</string>
     <string name="share_menu_join_desc">Naskenovat QR kód</string>
     <string name="share_menu_live">Sdílet polohu živě</string>

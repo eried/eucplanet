@@ -806,7 +806,6 @@
     <string name="share_alone">Ingen andre her ennå.</string>
     <string name="share_open">Åpne</string>
     <string name="share_copy">Kopier</string>
-    <string name="share_menu_title">Del</string>
     <string name="share_menu_join">Bli med på gruppetur</string>
     <string name="share_menu_join_desc">Skann en QR-kode</string>
     <string name="share_menu_live">Del posisjon live</string>

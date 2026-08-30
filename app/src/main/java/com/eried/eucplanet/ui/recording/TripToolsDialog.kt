@@ -76,7 +76,6 @@ fun TripToolsDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_tools_title)) },
         text = {
             Column {
                 ToolRow(
