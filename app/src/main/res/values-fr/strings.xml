@@ -1634,7 +1634,7 @@
     <string name="share_button">Partager mon trajet</string>
     <string name="share_join_title">Rejoindre le groupe</string>
     <string name="share_identity_anon">Anonyme</string>
-    <string name="share_identity_session">Session</string>
+    <string name="share_identity_session">Perso</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Nom</string>
     <string name="share_start">Démarrer le partage</string>

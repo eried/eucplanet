@@ -1572,7 +1572,7 @@
     <string name="share_button">分享我的行程</string>
     <string name="share_join_title">加入群組</string>
     <string name="share_identity_anon">匿名</string>
-    <string name="share_identity_session">本次</string>
+    <string name="share_identity_session">自訂</string>
     <string name="share_identity_profile">個人資料</string>
     <string name="share_name_label">名稱</string>
     <string name="share_start">開始分享</string>

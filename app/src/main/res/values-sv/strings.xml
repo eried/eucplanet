@@ -1571,7 +1571,7 @@
     <string name="share_button">Dela min tur</string>
     <string name="share_join_title">Gå med i grupp</string>
     <string name="share_identity_anon">Anonym</string>
-    <string name="share_identity_session">Session</string>
+    <string name="share_identity_session">Egen</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Namn</string>
     <string name="share_start">Börja dela</string>

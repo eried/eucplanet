@@ -1588,7 +1588,7 @@
     <string name="share_button">Udostępnij moją trasę</string>
     <string name="share_join_title">Dołącz do grupy</string>
     <string name="share_identity_anon">Anonimowo</string>
-    <string name="share_identity_session">Sesja</string>
+    <string name="share_identity_session">Własna</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Nazwa</string>
     <string name="share_start">Rozpocznij udostępnianie</string>

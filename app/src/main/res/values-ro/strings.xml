@@ -1837,7 +1837,7 @@
     <string name="share_button">Distribuie cursa mea</string>
     <string name="share_join_title">Alătură-te grupului</string>
     <string name="share_identity_anon">Anonim</string>
-    <string name="share_identity_session">Sesiune</string>
+    <string name="share_identity_session">Propriu</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Nume</string>
     <string name="share_start">Începe distribuirea</string>

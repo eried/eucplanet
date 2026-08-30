@@ -1837,7 +1837,7 @@
     <string name="share_button">Utam megosztása</string>
     <string name="share_join_title">Csatlakozás csoporthoz</string>
     <string name="share_identity_anon">Névtelen</string>
-    <string name="share_identity_session">Alkalmi</string>
+    <string name="share_identity_session">Egyéni</string>
     <string name="share_identity_profile">Profil</string>
     <string name="share_name_label">Név</string>
     <string name="share_start">Megosztás indítása</string>

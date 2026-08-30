@@ -1572,7 +1572,7 @@
     <string name="share_button">ライドを共有</string>
     <string name="share_join_title">グループに参加</string>
     <string name="share_identity_anon">匿名</string>
-    <string name="share_identity_session">今回</string>
+    <string name="share_identity_session">カスタム</string>
     <string name="share_identity_profile">プロフィール</string>
     <string name="share_name_label">名前</string>
     <string name="share_start">共有を開始</string>

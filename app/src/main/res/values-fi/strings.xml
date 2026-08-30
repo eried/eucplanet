@@ -1837,7 +1837,7 @@
     <string name="share_button">Jaa matkani</string>
     <string name="share_join_title">Liity ryhmään</string>
     <string name="share_identity_anon">Anonyymi</string>
-    <string name="share_identity_session">Istunto</string>
+    <string name="share_identity_session">Oma</string>
     <string name="share_identity_profile">Profiili</string>
     <string name="share_name_label">Nimi</string>
     <string name="share_start">Aloita jakaminen</string>
