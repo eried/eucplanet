@@ -250,9 +250,16 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   /* The tapped state of the same plate: the name keeps its line, and the
      stats and age get one each under it. Capped in width so a long name plus
      a stats line cannot stretch the plate across the whole map, and the lines
-     are centred under the dot the way the collapsed name is. */
+     are centred under the dot the way the collapsed name is.
+
+     width:max-content is what makes that work. The plate is a flex item in a
+     26 px wide column (the dot's box), so a plate that is allowed to wrap
+     otherwise shrinks to those 26 px and breaks "Rider #9832" across two
+     lines. The collapsed plate never hit this because it is nowrap; this one
+     asks for its content's width first and only then wraps at the cap. */
   .peer-name-open{
-    white-space:normal;text-align:center;max-width:190px;line-height:1.35;
+    white-space:normal;text-align:center;line-height:1.35;
+    width:max-content;max-width:190px;
     padding:3px 7px;
   }
   .peer-name-open .peer-sub{font-weight:400;opacity:.85}
