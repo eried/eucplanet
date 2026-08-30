@@ -49,6 +49,13 @@ object ShareCrypto {
         return c.doFinal(blob.copyOfRange(12, blob.size))
     }
 
+    /** Plain HMAC-SHA256, for ids that must be stable per key and input. */
+    fun hmacSha256(key: ByteArray, data: ByteArray): ByteArray {
+        val mac = Mac.getInstance("HmacSHA256")
+        mac.init(SecretKeySpec(key, "HmacSHA256"))
+        return mac.doFinal(data)
+    }
+
     fun b64u(bytes: ByteArray): String = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
     fun unb64u(s: String): ByteArray = Base64.getUrlDecoder().decode(s)
 }

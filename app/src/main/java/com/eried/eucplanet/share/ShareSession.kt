@@ -150,7 +150,26 @@ class ShareSession @Inject constructor(
 
     private var ws: WebSocket? = null
     private var key: ByteArray? = null
-    private val myId = ShareCrypto.b64u(ShareCrypto.randomBytes(8))
+    /** This phone's sender id in the current room: HMAC(deviceSecret, roomId),
+     *  so a rejoin from the same phone replaces its own ghost, and no two rooms
+     *  share an id. Set on every join; the random start is only a placeholder. */
+    @Volatile private var myId: String = ShareCrypto.b64u(ShareCrypto.randomBytes(8))
+
+    private suspend fun senderIdFor(roomId: String): ByteArray {
+        var secret = settingsRepository.get().share.deviceSecret
+        if (secret.isBlank()) {
+            secret = ShareCrypto.b64u(ShareCrypto.randomBytes(16))
+            settingsRepository.update { it.copy(share = it.share.copy(deviceSecret = secret)) }
+        }
+        return ShareCrypto.hmacSha256(ShareCrypto.unb64u(secret), roomId.toByteArray())
+    }
+
+    /** "Rider #NNNN" from the room id bytes: the same phone keeps the same
+     *  number in the same room across rejoins. */
+    private fun anonymousName(idBytes: ByteArray): String {
+        val v = ((idBytes[0].toInt() and 0xFF) shl 8) or (idBytes[1].toInt() and 0xFF)
+        return "Rider #${1000 + v % 9000}"
+    }
     private var lastPubMs = 0L
     private var lastLat = Double.NaN; private var lastLng = Double.NaN
     /** Written from the OkHttp reader thread as peers arrive and cleared from
@@ -214,6 +233,9 @@ class ShareSession @Inject constructor(
         closeSocket()
         closing = false
         key = ShareCrypto.deriveKey(link.key)
+        val idBytes = senderIdFor(link.roomId)
+        myId = ShareCrypto.b64u(idBytes.copyOf(9))
+        val me = if (identity.mode == IdentityMode.ANON) identity.copy(name = anonymousName(idBytes)) else identity
         // Before the first suspension point, so this still runs on the tap that
         // opened the group: Android 12+ refuses a foreground-service start once
         // the app has slipped into the background.
@@ -225,7 +247,7 @@ class ShareSession @Inject constructor(
             lastIdentityMode = identity.mode.name,
             shareStatsDefault = identity.shareStats,
             lastSessionName = if (identity.mode == IdentityMode.SESSION) identity.name else it.share.lastSessionName)) }
-        _state.value = ShareState.Joined(link, identity, emptyMap(), connected = false, error = null)
+        _state.value = ShareState.Joined(link, me, emptyMap(), connected = false, error = null)
         connect(link)
         startHeartbeat()
     }
@@ -365,8 +387,10 @@ class ShareSession @Inject constructor(
         update { st -> st.copy(nowMs = now,
             peers = st.peers
                 .filterValues { ps ->
-                    val age = now - ps.lastSeenMs
-                    !(ps.left && age > trailMs) && age <= Staleness.STALE_MS + trailMs
+                    // A rider who went silent stays as a greyed last known
+                    // position (a fall, a dead battery): worth seeing. Only a
+                    // rider who said they left fades out with their trail.
+                    !(ps.left && now - ps.lastSeenMs > trailMs)
                 }
                 .mapValues { (_, ps) -> ps.copy(freshness = Staleness.of(now - ps.lastSeenMs)) }) } }
 

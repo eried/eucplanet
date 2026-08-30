@@ -1151,6 +1151,12 @@ data class ShareSettings(
     val lastIdentityMode: String = "ANON",    // ANON | SESSION | PROFILE, remembered per rider
     val lastSessionName: String = "",
     val relayUrl: String = DEFAULT_RELAY_URL,
+    /** Per-device random secret, generated on first share. The rider's sender
+     *  id in a room is HMAC(secret, roomId): stable for this phone in that room
+     *  (a rejoin replaces its own ghost instead of adding one), different in
+     *  every room (the relay cannot link rooms), and never copied to another
+     *  device (two phones with one secret would collide as one rider). */
+    val deviceSecret: String = "",
 ) {
     companion object {
         const val DEFAULT_RELAY_URL = "wss://eucshare.ried.no"

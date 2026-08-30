@@ -2,6 +2,7 @@ package com.eried.eucplanet.share
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
@@ -56,5 +57,21 @@ class ShareCryptoTest {
         assertEquals("AAAAAAAAAAAAAAAA3XcJbTvCEWy-_Cezzo2ZLA6C", blobB64u)
 
         assertArrayEquals("hi".toByteArray(), ShareCrypto.decrypt(k, room, blob))
+    }
+
+    @Test
+    fun hmacSha256_isStablePerInputAndDiffersAcrossRooms() {
+        // The per-room sender id is HMAC(deviceSecret, roomId): the same phone
+        // gets the same id every time it joins a room, and different rooms
+        // cannot be linked to each other through it.
+        val secret = ByteArray(16) { it.toByte() }
+        val a1 = ShareCrypto.hmacSha256(secret, "room-A".toByteArray())
+        val a2 = ShareCrypto.hmacSha256(secret, "room-A".toByteArray())
+        val b = ShareCrypto.hmacSha256(secret, "room-B".toByteArray())
+        assertArrayEquals(a1, a2)
+        assertFalse(a1.contentEquals(b))
+        assertEquals(32, a1.size)
+        val other = ShareCrypto.hmacSha256(ByteArray(16) { (it + 1).toByte() }, "room-A".toByteArray())
+        assertFalse(a1.contentEquals(other))
     }
 }
