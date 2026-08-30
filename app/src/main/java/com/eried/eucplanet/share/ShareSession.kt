@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
@@ -96,6 +97,14 @@ class ShareSession @Inject constructor(
         const val CLOSE_ROOM_FULL = 1013
     }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    init {
+        scope.launch {
+            settingsRepository.settings
+                .map { it.share.trailMinutes }
+                .distinctUntilChanged()
+                .collect { trailMsCached = it * 60_000L }
+        }
+    }
     private val client = OkHttpClient()
     private val _state = MutableStateFlow<ShareState>(ShareState.Idle)
     val state: StateFlow<ShareState> = _state.asStateFlow()
@@ -348,8 +357,18 @@ class ShareSession @Inject constructor(
      * instead of freezing until the peer goes LOST.
      */
     fun ageTick() { val now = System.currentTimeMillis()
+        // A rider who left, or went silent, stays greyed only while their trail
+        // is still fading; after that there is nothing left to show, and an
+        // anonymous rider who rejoins under a new id would otherwise pile up
+        // orphans for the whole ride.
+        val trailMs = trailMaxAgeMs()
         update { st -> st.copy(nowMs = now,
-            peers = st.peers.mapValues { (_, ps) -> ps.copy(freshness = Staleness.of(now - ps.lastSeenMs)) }) } }
+            peers = st.peers
+                .filterValues { ps ->
+                    val age = now - ps.lastSeenMs
+                    !(ps.left && age > trailMs) && age <= Staleness.STALE_MS + trailMs
+                }
+                .mapValues { (_, ps) -> ps.copy(freshness = Staleness.of(now - ps.lastSeenMs)) }) } }
 
     /**
      * Keeps the rider on the map while they are joined.
@@ -418,7 +437,10 @@ class ShareSession @Inject constructor(
         _state.value = ShareState.Idle
     }
 
-    private fun trailMaxAgeMs(): Long = kotlinx.coroutines.runBlocking { settingsRepository.get().share.trailMinutes } * 60_000L
+    /** The trail length in ms, mirrored from settings so the once-a-second age
+     *  tick never blocks on a DataStore read. Starts at the setting's default. */
+    @Volatile private var trailMsCached: Long = 5 * 60_000L
+    private fun trailMaxAgeMs(): Long = trailMsCached
 
     /** Atomic read-modify-write on the Joined state (CAS loop). Safe from the
      *  OkHttp reader thread and the UI ticker concurrently. No-op when Idle. */
