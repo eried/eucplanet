@@ -218,21 +218,34 @@
   .row.dim { opacity: .55; }
 
   /* === Open in EUC Planet (Android only): the bottom-centre pill === */
-  /* === Bottom row: units (left), Open in EUC Planet (centre), fit all (right).
-     One 40 px baseline, the eucstats dock look for all three. === */
+  /* === Bottom row: settings cog (left), Open in EUC Planet (centre), fit all
+     (right). One 40 px baseline; the cog and its panel are the eucstats ones. === */
   :root { --row-b: calc(env(safe-area-inset-bottom, 0px) + 18px); --row-h: 40px; }
-  #unitsDock, #recenter, #openApp {
+  #gear, #recenter, #openApp {
     position: fixed; z-index: 6; height: var(--row-h); box-sizing: border-box;
     background: var(--surf); backdrop-filter: blur(14px);
     border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow);
     bottom: var(--row-b);
   }
-  #unitsDock { left: calc(env(safe-area-inset-left, 0px) + 18px); width: 150px; padding: 4px; }
-  #unitsDock .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 100%;
-    background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
-  #unitsDock .seg button { background: transparent; border: 0; color: var(--mut); border-radius: 6px; padding: 0 10px;
-    font: 600 11px/1 "Chakra Petch", sans-serif; letter-spacing: .3px; cursor: pointer; }
-  #unitsDock .seg button.on { background: var(--acc); color: #04101f; font-weight: 700; }
+  #gear { left: calc(env(safe-area-inset-left, 0px) + 18px); width: var(--row-h); padding: 0;
+    display: flex; align-items: center; justify-content: center; color: var(--mut); cursor: pointer; transition: color .2s; }
+  #gear:hover, #gear[aria-expanded="true"] { color: var(--acc); }
+  #gear svg { width: 18px; height: 18px; }
+  .cfgpop { position: fixed; left: calc(env(safe-area-inset-left, 0px) + 18px); bottom: calc(var(--row-b) + var(--row-h) + 8px);
+    z-index: 900; display: none; flex-direction: column; gap: 12px; min-width: 264px; max-width: calc(100vw - 36px);
+    background: linear-gradient(158deg, rgba(26,40,78,.86), rgba(8,12,26,.87)); backdrop-filter: blur(16px);
+    border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 24px 70px rgba(0,0,0,.6); padding: 14px; }
+  .cfgpop.open { display: flex; }
+  .crow { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 10px;
+    font: 500 12px/1.2 "Chakra Petch", sans-serif; color: var(--mut); letter-spacing: .4px; }
+  .crow > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,.28);
+    border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+  .seg button { background: transparent; border: 0; color: var(--mut); border-radius: 6px; padding: 5px 9px;
+    font: 600 11px/1.2 "Chakra Petch", sans-serif; cursor: pointer; }
+  .seg button.on { background: var(--acc); color: #04101f; font-weight: 700; }
+  .csel { background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 8px; color: var(--ink);
+    font: 500 12px/1.2 "Chakra Petch", sans-serif; padding: 6px 8px; cursor: pointer; width: 100%; }
   #recenter { right: calc(env(safe-area-inset-right, 0px) + 18px); width: var(--row-h); padding: 0; }
   #recenter button { width: 100%; height: 100%; background: transparent; border: 0; cursor: pointer; padding: 0;
     display: flex; align-items: center; justify-content: center; color: var(--ink); border-radius: 9px; }
@@ -248,7 +261,7 @@
   /* On a phone the centre pill cannot centre on the screen without running
      into the side pills: it fills the gap between them instead. */
   @media (max-width: 640px) {
-    #openApp { left: calc(env(safe-area-inset-left, 0px) + 18px + 150px + 10px);
+    #openApp { left: calc(env(safe-area-inset-left, 0px) + 18px + var(--row-h) + 10px);
       right: calc(env(safe-area-inset-right, 0px) + 18px + var(--row-h) + 10px);
       transform: none; justify-content: center; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   }
@@ -377,23 +390,6 @@
     }
     .maplibregl-ctrl-top-right .stylemenu { top: auto; bottom: 0; }
   }
-  /* === Settings gear (map layer), top-left in the header === */
-  #gearBtn { flex: none; width: 28px; height: 28px; margin-right: 4px; padding: 0; border: 0; background: transparent;
-    color: var(--mut); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
-  #gearBtn svg { width: 17px; height: 17px; }
-  #gearBtn:hover, #gearBtn[aria-expanded="true"] { color: var(--acc); background: rgba(46, 168, 255, .12); }
-  #gearMenu { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 58px); left: 18px; z-index: 12; display: flex; flex-direction: column; min-width: 150px;
-    background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 9px;
-    box-shadow: var(--shadow); overflow: hidden; }
-  #gearMenu.hide { display: none; }
-  #gearMenu .gm-title { padding: 8px 12px 4px; color: var(--mut); font: 700 10.5px/1 "Chakra Petch", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
-  #gearMenu button + .gm-title { border-top: 1px solid var(--line); margin-top: 4px; }
-  #gearMenu button { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: transparent; border: 0;
-    cursor: pointer; text-align: left; color: var(--ink); font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px; }
-  #gearMenu button:hover { background: rgba(46, 168, 255, .14); color: var(--acc); }
-  #gearMenu button::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none; border: 1px solid var(--mut); }
-  #gearMenu button.on { color: var(--acc); }
-  #gearMenu button.on::before { background: var(--acc); border-color: var(--acc); box-shadow: 0 0 8px var(--acc); }
 </style>
 </head>
 <body>
@@ -405,7 +401,6 @@
      the bottom fighting the rounded corners of the screen. -->
 <div id="dock" data-state="">
   <div id="dockHead">
-    <button id="gearBtn" type="button" title="Settings" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
     <span class="led"></span>
     <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener">EUC PLANET</a>
     <button id="dockToggle" type="button" aria-expanded="true" aria-controls="panel">
@@ -421,15 +416,10 @@
   <div id="panel"></div>
 </div>
 
-  <div id="gearMenu" class="hide" role="menu">
-  <div class="gm-title">Map</div>
-  <div id="gmLayers"></div>
-</div>
-<div id="unitsDock" role="radiogroup" aria-label="Units">
-  <div class="seg">
-    <button type="button" data-u="kmh" role="radio">Metric</button>
-    <button type="button" data-u="mph" role="radio">Imperial</button>
-  </div>
+<button id="gear" type="button" title="Settings" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
+<div id="cfg" class="cfgpop" role="dialog" aria-label="Settings">
+  <div class="crow"><span>Units</span><div class="seg"><button type="button" data-u="kmh">Metric</button><button type="button" data-u="mph">Imperial</button></div></div>
+  <div class="crow"><span>Map</span><select id="mapsel" class="csel"></select></div>
 </div>
 <div id="recenter" title="Fit all riders"><button type="button" aria-label="Fit all riders"></button></div>
 <a id="openApp" class="hide" rel="noopener">Open in EUC Planet</a>
@@ -1064,29 +1054,26 @@ function readStoredStyle() {
 }
 
 function markActiveStyle() {
-  Array.prototype.forEach.call(document.querySelectorAll("#gmLayers button"), function (b) {
-    b.classList.toggle("on", b.getAttribute("data-s") === mapStyle);
-  });
+  var sel = $("mapsel");
+  if (sel && sel.value !== mapStyle) sel.value = mapStyle;
 }
-function setupGearMenu() {
-  var btn = $("gearBtn"), menu = $("gearMenu"), layers = $("gmLayers");
-  if (!btn || !menu) return;
+function setupCog() {
+  var gear = $("gear"), cfg = $("cfg"), sel = $("mapsel");
+  if (!gear || !cfg) return;
   Object.keys(STYLES).forEach(function (k) {
-    var item = document.createElement("button"); item.type = "button"; item.setAttribute("data-s", k);
-    item.textContent = STYLES[k].label;
-    item.addEventListener("click", function (ev) { ev.stopPropagation(); setMapStyle(k); });
-    layers.appendChild(item);
+    var o = document.createElement("option"); o.value = k; o.textContent = STYLES[k].label; sel.appendChild(o);
   });
-  Array.prototype.forEach.call(document.querySelectorAll("#unitsDock button[data-u]"), function (b) {
+  sel.addEventListener("change", function () { setMapStyle(sel.value); });
+  Array.prototype.forEach.call(cfg.querySelectorAll("button[data-u]"), function (b) {
     b.addEventListener("click", function () { setUnits(b.getAttribute("data-u")); });
   });
-  function close() { menu.classList.add("hide"); btn.setAttribute("aria-expanded", "false"); }
-  btn.addEventListener("click", function (ev) {
+  function close() { cfg.classList.remove("open"); gear.setAttribute("aria-expanded", "false"); }
+  gear.addEventListener("click", function (ev) {
     ev.stopPropagation();
-    var open = menu.classList.contains("hide");
-    menu.classList.toggle("hide", !open); btn.setAttribute("aria-expanded", open ? "true" : "false");
+    var open = !cfg.classList.contains("open");
+    cfg.classList.toggle("open", open); gear.setAttribute("aria-expanded", open ? "true" : "false");
   });
-  menu.addEventListener("click", function (ev) { ev.stopPropagation(); });
+  cfg.addEventListener("click", function (ev) { ev.stopPropagation(); });
   document.addEventListener("click", close);
   markActiveStyle(); markActiveUnits();
 }
@@ -1243,7 +1230,7 @@ function setUnits(profile) {
 }
 function markActiveUnits() {
   var c = unitsChoice();
-  Array.prototype.forEach.call(document.querySelectorAll("#unitsDock button[data-u]"), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll("#cfg button[data-u]"), function (b) {
     var on = b.getAttribute("data-u") === "kmh" ? c === "kmh" : c !== "kmh";
     b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false");
   });
@@ -1454,7 +1441,7 @@ function renderPanel(rows) {
  * ------------------------------------------------------------------ */
 function boot() {
   readStoredStyle();
-  setupGearMenu();
+  setupCog();
 
   $("joinFormEl").addEventListener("submit", function (e) {
     e.preventDefault();
