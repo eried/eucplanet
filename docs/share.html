@@ -352,6 +352,10 @@
     }
     .maplibregl-ctrl-top-right .stylemenu { top: auto; bottom: 0; }
   }
+  #openApp{display:block;margin:6px 12px 10px;padding:9px 12px;border-radius:10px;
+    background:var(--acc);color:#04101c;font:600 13px "Chakra Petch",system-ui,sans-serif;
+    text-align:center;text-decoration:none;letter-spacing:.02em}
+  #openApp.hide{display:none}
 </style>
 </head>
 <body>
@@ -375,6 +379,7 @@
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
     </button>
   </div>
+  <a id="openApp" class="hide" rel="noopener">Open in EUC Planet</a>
   <div id="panel"></div>
 </div>
 
@@ -1392,6 +1397,19 @@ function boot() {
   }
 
   var link = parseShareHash(location.hash || "");
+  // Android only: a typed or pasted URL stays in the browser, so offer the
+  // app explicitly. Chrome resolves intent: URLs on the device, so the key
+  // travels in the intent path and never reaches any server; without the
+  // app installed it falls back to the Play listing.
+  (function(){
+    var a = document.getElementById("openApp");
+    if (!a || !link || !/Android/i.test(navigator.userAgent)) return;
+    var frag = (location.hash || "").replace(/^#/, "");
+    a.href = "intent://eucplanet.ried.no/share/" + frag +
+      "#Intent;scheme=https;package=com.eried.eucplanet;S.browser_fallback_url=" +
+      encodeURIComponent("https://play.google.com/store/apps/details?id=com.eried.eucplanet") + ";end";
+    a.classList.remove("hide");
+  })();
   if (!link) {
     // No fragment at all (a bare visit to the page) just needs the join
     // card; a fragment that is present but does not parse is worth telling
