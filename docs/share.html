@@ -141,7 +141,8 @@
   }
   #statusText {
     flex: 0 1 auto; min-width: 22px; overflow: hidden; text-overflow: ellipsis;
-    padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px 2px 6px; border-radius: 999px; white-space: nowrap;
     background: rgba(0, 0, 0, .25); border: 1px solid var(--line);
     font-size: 9.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
     color: var(--mut);
@@ -153,7 +154,11 @@
     flex: none; width: 15px; height: 15px; color: var(--mut); transition: transform .25s;
   }
   #dock.shut #dockHead .chev { transform: rotate(180deg); }
-  .led { width: 8px; height: 8px; border-radius: 50%; background: var(--mut); flex: none; }
+  .led { width: 7px; height: 7px; border-radius: 50%; background: var(--mut); flex: none; }
+  /* No riders: nothing to expand, so the chevron goes and the panel stays shut. */
+  #dock.empty #dockHead .chev { display: none; }
+  #dock.empty #panel { max-height: 0; overflow: hidden; }
+  #dock.empty #dockToggle { cursor: default; }
   @keyframes ledpulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
   #dock[data-state="live"] .led {
     background: var(--ok); box-shadow: 0 0 9px var(--ok); animation: ledpulse 2.2s ease-in-out infinite;
@@ -395,12 +400,11 @@
      the bottom fighting the rounded corners of the screen. -->
 <div id="dock" data-state="">
   <div id="dockHead">
-    <span class="led"></span>
     <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener" title="EUC Planet" aria-label="EUC Planet"><img src="icon.png" alt="" width="26" height="26"></a>
     <button id="dockToggle" type="button" aria-expanded="true" aria-controls="panel">
       <span id="headMeta">
         <span id="count">No riders yet</span>
-        <span id="statusText">Connecting</span>
+        <span id="statusText"><span class="led"></span><span id="statusLabel">Connecting</span></span>
       </span>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
     </button>
@@ -588,7 +592,7 @@ function setStatus(text, cls) {
 
 function paintStatus() {
   var stale = ridersStale && statusCls === "live";
-  $("statusText").textContent = stale ? "Stale" : statusBase;
+  $("statusLabel").textContent = stale ? "Stale" : statusBase;
   $("dock").dataset.state = stale ? "warn" : statusCls;
 }
 
@@ -620,6 +624,7 @@ function setPanelOpen(open, remember) {
 }
 
 function togglePanel() {
+  if ($("dock").classList.contains("empty")) return;
   setPanelOpen($("dock").classList.contains("shut"), true);
 }
 
@@ -1391,6 +1396,8 @@ function renderPanel(rows) {
   $("count").textContent = rows.length
     ? (rows.length + (rows.length === 1 ? " rider" : " riders"))
     : "No riders yet";
+
+  $("dock").classList.toggle("empty", peers.size === 0);
   rows.forEach(function (r) {
     var row = document.createElement("div");
     row.className = "row" + (r.grey ? " dim" : "");
