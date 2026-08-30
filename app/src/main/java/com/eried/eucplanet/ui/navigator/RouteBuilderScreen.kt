@@ -1852,6 +1852,9 @@ fun RouteBuilderScreen(
                             // answered it.
                             shareStartOpen = false
                             scannedLink = null
+                            // Arriving through a link: the riders are the
+                            // point, the QR is for whoever started the group.
+                            viewModel.shareGroupTab = GroupTab.CONNECTED
                             shareGroupOpen = true
                             viewModel.joinShare(joinLink, identity)
                         },
@@ -1891,6 +1894,7 @@ fun RouteBuilderScreen(
                             // branch winning over it, stranding the rider on a
                             // confirm button that spun for good.
                             scannedLink = null
+                            viewModel.shareGroupTab = GroupTab.CONNECTED
                             shareGroupOpen = true
                             if (link != null) viewModel.joinShare(link, identity)
                         },
@@ -1914,6 +1918,8 @@ fun RouteBuilderScreen(
                         // over a map the rider was reading.
                         onConfirm = { identity ->
                             shareStartOpen = false
+                            // Starting a group: the QR is what to show first.
+                            viewModel.shareGroupTab = GroupTab.QR
                             shareGroupOpen = true
                             viewModel.startShare(identity)
                         },

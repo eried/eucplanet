@@ -217,17 +217,22 @@
   .row .age.lost { color: var(--mut); }
   .row.dim { opacity: .55; }
 
-  /* === Fit all riders === */
-  #recenter {
-    position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); display: none;
+  /* === Open in EUC Planet (Android only): the bottom-centre pill === */
+  #openApp {
+    position: fixed; z-index: 6; left: 50%; transform: translateX(-50%); display: block;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
-    padding: 9px 15px; border-radius: 10px; cursor: pointer;
+    padding: 9px 15px; border-radius: 10px; cursor: pointer; text-decoration: none;
     background: var(--surf); backdrop-filter: blur(14px);
     border: 1px solid var(--line); box-shadow: var(--shadow);
     color: var(--ink); font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px;
   }
-  #recenter:hover { color: var(--acc); border-color: var(--acc); }
-  #recenter svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 6px; }
+  #openApp:hover { color: var(--acc); border-color: var(--acc); }
+  #openApp.hide { display: none; }
+
+  /* === Fit all riders: an icon-only control stacked with zoom and layers === */
+  #recenter { display: none; }
+  #recenter button svg { width: 18px; height: 18px; display: block; margin: 0 auto; color: var(--ink); }
+  #recenter button:hover svg { color: var(--acc); }
 
   /* === Map marker (mirrors the in-app look, readable over satellite too) === */
   /* MapLibre gives everything inside the map its own Helvetica stack, and a
@@ -352,10 +357,6 @@
     }
     .maplibregl-ctrl-top-right .stylemenu { top: auto; bottom: 0; }
   }
-  #openApp{display:block;margin:6px 12px 10px;padding:9px 12px;border-radius:10px;
-    background:var(--acc);color:#04101c;font:600 13px "Chakra Petch",system-ui,sans-serif;
-    text-align:center;text-decoration:none;letter-spacing:.02em}
-  #openApp.hide{display:none}
 </style>
 </head>
 <body>
@@ -379,12 +380,10 @@
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
     </button>
   </div>
-  <a id="openApp" class="hide" rel="noopener">Open in EUC Planet</a>
   <div id="panel"></div>
 </div>
 
-<button id="recenter" type="button">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2v3.4M12 18.6V22M2 12h3.4M18.6 12H22"></path></svg>Fit all riders</button>
+<a id="openApp" class="hide" rel="noopener">Open in EUC Planet</a>
 
 <div id="msg">
   <div id="msgStack">
@@ -1131,6 +1130,21 @@ function initMap() {
   });
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   map.addControl(new StyleControl(), "top-right");
+  // Fit all riders: the same look as the zoom and layer buttons, one icon,
+  // shown once the rider has moved the map or a rider is on it. The whole
+  // group is the #recenter element the existing show/hide and click code use.
+  function FitControl() {}
+  FitControl.prototype.onAdd = function () {
+    var d = document.createElement("div");
+    d.className = "maplibregl-ctrl maplibregl-ctrl-group"; d.id = "recenter";
+    var b = document.createElement("button"); b.type = "button";
+    b.title = "Fit all riders"; b.setAttribute("aria-label", "Fit all riders");
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2v3.4M12 18.6V22M2 12h3.4M18.6 12H22"></path></svg>';
+    b.addEventListener("click", function () { userMoved = false; fitAll(null); });
+    d.appendChild(b); this._c = d; return d;
+  };
+  FitControl.prototype.onRemove = function () { if (this._c && this._c.parentNode) this._c.parentNode.removeChild(this._c); };
+  map.addControl(new FitControl(), "top-right");
 
   // Fires on the first style and again after every switch, so the trail layers
   // come back with the new basemap.
@@ -1145,7 +1159,7 @@ function initMap() {
 
   // Once the viewer pans or zooms, stop stealing the viewport.
   map.on("movestart", function (e) {
-    if (e && e.originalEvent) { userMoved = true; $("recenter").style.display = "block"; }
+    if (e && e.originalEvent) { userMoved = true; var rc = $("recenter"); if (rc) rc.style.display = "block"; }
   });
 }
 
@@ -1217,7 +1231,7 @@ function makeMarkerEl(p) {
 function flyTo(p) {
   if (!map || p.lat === null) return;
   userMoved = true;
-  $("recenter").style.display = "block";
+  var rc2 = $("recenter"); if (rc2) rc2.style.display = "block";
   map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 15), speed: 1.2 });
 }
 
@@ -1364,10 +1378,6 @@ function renderPanel(rows) {
 function boot() {
   readStoredStyle();
 
-  $("recenter").addEventListener("click", function () {
-    userMoved = false;
-    fitAll(null);
-  });
   $("joinFormEl").addEventListener("submit", function (e) {
     e.preventDefault();
     tryJoin($("joinInput").value);
