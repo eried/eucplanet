@@ -12,6 +12,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavRoute
+import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -318,12 +319,13 @@ class RouteBuilderViewModel @Inject constructor(
         .map { Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "C")
 
-    /** The relay host the group view names in its header. The scheme is dropped
-     *  (it is always ws or wss) and so is a trailing slash, so the caption is
-     *  the server a rider would recognise and nothing else. */
+    /** The relay host the group view names in its header. `Uri.host` drops the
+     *  scheme, any port, and any path, so a self-hosted `wss://relay.example.com/ws`
+     *  still renders as just the server a rider would recognise. Falls back to
+     *  the raw value on the rare relay URL `Uri` cannot parse a host from. */
     val relayHost: StateFlow<String> = settingsRepository.settings
-        .map { it.share.relayUrl.substringAfter("://").trimEnd('/') }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+        .map { Uri.parse(it.share.relayUrl).host ?: it.share.relayUrl }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, Uri.parse(ShareSettings.DEFAULT_RELAY_URL).host.orEmpty())
 
     /** Landscape sidebar side for the stops panel: "DEFAULT", "LEFT" or "RIGHT". */
     val navStopsSide: StateFlow<String> = settingsRepository.settings

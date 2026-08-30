@@ -892,14 +892,18 @@ fun ShareGroupDialog(
                     )
                     // Which relay is carrying the group. On the default one it
                     // is just where the ride lives; a rider running their own
-                    // needs to see which server actually answered.
-                    Text(
-                        text = stringResource(R.string.share_relay_caption, relayHost),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.textSecondary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    // needs to see which server actually answered. Hidden for
+                    // the one frame before the settings flow has emitted a
+                    // value, rather than showing "Relay: " with nothing after it.
+                    if (relayHost.isNotEmpty()) {
+                        Text(
+                            text = stringResource(R.string.share_relay_caption, relayHost),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 // Three ways to hand the link to a friend who is not standing
                 // here. The link text itself is never shown - it is 60
