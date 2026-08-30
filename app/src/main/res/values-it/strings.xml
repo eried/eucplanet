@@ -823,6 +823,7 @@
     <string name="share_alone">Per ora non c\'è nessun altro qui.</string>
     <string name="share_open">Apri</string>
     <string name="share_copy">Copia</string>
+    <string name="share_menu_title">Condividi</string>
     <string name="share_menu_join">Unisciti al gruppo</string>
     <string name="share_menu_join_desc">Scansiona un QR</string>
     <string name="share_menu_live">Condividi posizione live</string>

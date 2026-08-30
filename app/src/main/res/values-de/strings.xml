@@ -1632,6 +1632,7 @@
     <string name="share_alone">Noch ist niemand sonst hier.</string>
     <string name="share_open">Öffnen</string>
     <string name="share_copy">Kopieren</string>
+    <string name="share_menu_title">Teilen</string>
     <string name="share_menu_join">Gruppenfahrt beitreten</string>
     <string name="share_menu_join_desc">QR-Code scannen</string>
     <string name="share_menu_live">Live-Standort teilen</string>

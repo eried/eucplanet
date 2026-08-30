@@ -1611,6 +1611,7 @@
     <string name="share_alone">Der er ingen andre her endnu.</string>
     <string name="share_open">Åbn</string>
     <string name="share_copy">Kopiér</string>
+    <string name="share_menu_title">Del</string>
     <string name="share_menu_join">Deltag i gruppetur</string>
     <string name="share_menu_join_desc">Scan en QR-kode</string>
     <string name="share_menu_live">Del min position</string>

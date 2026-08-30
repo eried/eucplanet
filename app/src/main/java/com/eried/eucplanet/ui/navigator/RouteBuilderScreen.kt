@@ -799,60 +799,40 @@ fun RouteBuilderScreen(
                     // dialog's status line reads the same one.
                     val joinedShare = shareState as? ShareState.Joined
                     val sharePeers = joinedShare?.activePeers?.size ?: 0
-                    // The Box is the menu's anchor: a DropdownMenu positions
-                    // itself against its parent, so without one wrapping the
-                    // button the menu would hang off the whole app bar rather
-                    // than off the icon the rider tapped.
-                    Box {
-                        BadgedBox(
-                            badge = {
-                                // Shown from zero up: while a group is running
-                                // the badge itself is the "you are sharing"
-                                // signal, and a 0 is the honest answer to how
-                                // many friends are in it. Hiding it at 0 made a
-                                // live share look off.
-                                if (joinedShare != null) {
-                                    Badge(
-                                        containerColor = MaterialTheme.appColors.primary,
-                                        contentColor = MaterialTheme.appColors.onPrimary
-                                    ) { Text(sharePeers.toString()) }
-                                }
-                            }
-                        ) {
-                            IconButton(
-                                // In a ride the icon has one meaning, so it
-                                // goes straight to the group rather than
-                                // through a menu asking what the rider wants.
-                                onClick = {
-                                    if (joinedShare != null) shareGroupOpen = true
-                                    else shareMenuOpen = true
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Default.Share,
-                                    stringResource(R.string.share_button),
-                                    tint = if (joinedShare != null) {
-                                        MaterialTheme.appColors.statusGood
-                                    } else {
-                                        MaterialTheme.appColors.textPrimary
-                                    }
-                                )
+                    BadgedBox(
+                        badge = {
+                            // Shown from zero up: while a group is running
+                            // the badge itself is the "you are sharing"
+                            // signal, and a 0 is the honest answer to how
+                            // many friends are in it. Hiding it at 0 made a
+                            // live share look off.
+                            if (joinedShare != null) {
+                                Badge(
+                                    containerColor = MaterialTheme.appColors.primary,
+                                    contentColor = MaterialTheme.appColors.onPrimary
+                                ) { Text(sharePeers.toString()) }
                             }
                         }
-                        ShareMenu(
-                            expanded = shareMenuOpen,
-                            // The live fix, so the two one-shot items copy and
-                            // send where the rider is right now, and say they
-                            // are waiting when there is no fix yet.
-                            fixLat = userLocation?.latitude,
-                            fixLng = userLocation?.longitude,
-                            onDismiss = { shareMenuOpen = false },
-                            onScan = { shareScannerOpen = true },
-                            onStartGroup = { shareStartOpen = true },
-                            onNotify = { msg ->
-                                scope.launch { snackbarHost.showSnackbar(msg) }
-                            },
-                        )
+                    ) {
+                        IconButton(
+                            // In a ride the icon has one meaning, so it
+                            // goes straight to the group rather than
+                            // through a menu asking what the rider wants.
+                            onClick = {
+                                if (joinedShare != null) shareGroupOpen = true
+                                else shareMenuOpen = true
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.Share,
+                                stringResource(R.string.share_button),
+                                tint = if (joinedShare != null) {
+                                    MaterialTheme.appColors.statusGood
+                                } else {
+                                    MaterialTheme.appColors.textPrimary
+                                }
+                            )
+                        }
                     }
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
@@ -1753,11 +1733,11 @@ fun RouteBuilderScreen(
                 )
             }
 
-            // Live location share. The Share icon's menu is up in the app bar;
-            // everything it can open is here. In order: an incoming link that
-            // needs a "leave the group you are in?" answer, the identity form
-            // for that link, the camera, the identity form for a ride the
-            // rider scanned or is starting, and the group view.
+            // Live location share. The Share icon opens one of these. In
+            // order: an incoming link that needs a "leave the group you are
+            // in?" answer, the identity form for that link, the camera, the
+            // identity form for a ride the rider scanned or is starting, the
+            // group view, and last the Share button's own list of options.
             val joinLink = pendingJoin
             val joinedGroup = shareState as? ShareState.Joined
             when {
@@ -1888,6 +1868,20 @@ fun RouteBuilderScreen(
                         shareStartOpen = false
                         scannedLink = null
                     }
+                )
+
+                // The Share button itself, when the rider is not in a ride.
+                // Last, so an incoming link or the group view wins over it.
+                shareMenuOpen -> ShareMenuDialog(
+                    // The live fix, so the two one-shot items copy and send
+                    // where the rider is right now, and say they are waiting
+                    // when there is no fix yet.
+                    fixLat = userLocation?.latitude,
+                    fixLng = userLocation?.longitude,
+                    onDismiss = { shareMenuOpen = false },
+                    onScan = { shareScannerOpen = true },
+                    onStartGroup = { shareStartOpen = true },
+                    onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
                 )
             }
         }

@@ -1598,6 +1598,7 @@
     <string name="share_alone">Ingen annan är här än.</string>
     <string name="share_open">Öppna</string>
     <string name="share_copy">Kopiera</string>
+    <string name="share_menu_title">Dela</string>
     <string name="share_menu_join">Gå med i grupptur</string>
     <string name="share_menu_join_desc">Skanna en QR-kod</string>
     <string name="share_menu_live">Dela position live</string>

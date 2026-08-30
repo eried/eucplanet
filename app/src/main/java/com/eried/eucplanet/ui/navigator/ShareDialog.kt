@@ -47,19 +47,17 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -105,6 +103,7 @@ import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
 import com.eried.eucplanet.share.ShareStats
 import com.eried.eucplanet.share.activePeers
+import com.eried.eucplanet.ui.common.ToolRow
 import com.eried.eucplanet.ui.dashboard.QR_MAX_PX
 import com.eried.eucplanet.ui.dashboard.QrCodeImage
 import com.eried.eucplanet.ui.settings.SegmentedChoice
@@ -123,13 +122,14 @@ import java.util.Locale
 /**
  * Everything behind the navigator's Share button.
  *
- * Not in a ride yet, the button is a MENU, not a dialog ([ShareMenu]): three of
- * the four things a rider wants from that icon are one tap of work (scan a
- * friend's QR, send a Maps pin, copy the coordinates) and only the fourth opens
- * a group. A dialog that asked "how do you want to appear?" before the rider
- * had said what they were doing put the identity question in front of all four.
+ * Not in a ride yet, the button opens a short list of what it can mean
+ * ([ShareMenuDialog], built like the trip tools dialog): three of the four
+ * things a rider wants from that icon are one tap of work (scan a friend's QR,
+ * send a Maps pin, copy the coordinates) and only the fourth opens a group. A
+ * dialog that asked "how do you want to appear?" before the rider had said
+ * what they were doing put the identity question in front of all four.
  *
- * The menu leads to [ShareScannerDialog] (the camera), then to
+ * That list leads to [ShareScannerDialog] (the camera), then to
  * [ShareIdentityDialog] (how the group sees this rider), which is also where
  * "start a group ride" goes directly. Once in a ride the button opens
  * [ShareGroupDialog]: the QR to hand out on one tab, who is in on the other.
@@ -455,26 +455,27 @@ internal fun ShareDialogCard(
 }
 
 /**
- * The Share button's menu when the rider is not in a ride: four things the
+ * The Share button's window when the rider is not in a ride: four things the
  * icon can mean, each said in one line with the detail under it.
+ *
+ * Built exactly like the trip tools dialog (same [ToolRow] rows, same 12 dp
+ * shape, same lone Cancel), because it is the same kind of thing: a short list
+ * of what one button can mean. It used to be a dropdown hanging off the icon,
+ * which read as a pattern of its own next to every other list of actions in
+ * the app.
  *
  * The two live-ride items (scan a friend's code, start a group) hand back to
  * the caller, because both open a dialog the caller owns. The two one-shot
  * items are finished here: a static position is an Android share sheet and a
  * clipboard write, and neither needs a screen.
  *
- * Both one-shot items need a fix. Without one they stay in the menu, disabled,
- * saying what is missing: hiding them would make the menu change shape between
- * two openings a few seconds apart, and a rider who tapped Share for a Maps
- * pin would be left looking for an item that is not there.
- *
- * The container, shape and rows are the app's standard menu (the trip detail
- * screen's map tools), so this reads as one more of the app's menus rather
- * than as a share-specific panel.
+ * Both one-shot items need a fix. Without one they stay in the list, disabled,
+ * saying what is missing: hiding them would make the dialog change shape
+ * between two openings a few seconds apart, and a rider who tapped Share for a
+ * Maps pin would be left looking for an item that is not there.
  */
 @Composable
-fun ShareMenu(
-    expanded: Boolean,
+fun ShareMenuDialog(
     /** The rider's current fix, or null while there is none. */
     fixLat: Double?,
     fixLng: Double?,
@@ -491,109 +492,61 @@ fun ShareMenu(
     val waiting = stringResource(R.string.share_waiting_gps)
     val copied = stringResource(R.string.share_copied)
 
-    DropdownMenu(
-        expanded = expanded,
+    AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.appColors.menuBackground,
-    ) {
-        ShareMenuItem(
-            icon = Icons.Default.QrCodeScanner,
-            label = stringResource(R.string.share_menu_join),
-            caption = stringResource(R.string.share_menu_join_desc),
-            onClick = { onDismiss(); onScan() },
-        )
-        ShareMenuItem(
-            icon = Icons.Default.Share,
-            label = stringResource(R.string.share_menu_live),
-            caption = stringResource(R.string.share_menu_live_desc),
-            onClick = { onDismiss(); onStartGroup() },
-        )
-        HorizontalDivider(color = MaterialTheme.appColors.divider)
-        ShareMenuItem(
-            icon = Icons.Default.Place,
-            label = stringResource(R.string.share_menu_static),
-            caption = if (hasFix) stringResource(R.string.share_menu_static_desc) else waiting,
-            enabled = hasFix,
-            onClick = {
-                onDismiss()
-                val link = ShareLocationText.mapsLink(fixLat!!, fixLng!!)
-                val subject = context.getString(R.string.share_static_subject)
-                val send = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, link)
-                    putExtra(Intent.EXTRA_SUBJECT, subject)
-                }
-                runCatching {
-                    context.startActivity(Intent.createChooser(send, subject))
-                }
-            },
-        )
-        ShareMenuItem(
-            icon = Icons.Default.ContentCopy,
-            label = stringResource(R.string.share_menu_copy),
-            // The live coordinates ARE the caption: the rider sees exactly
-            // what lands on the clipboard before they tap.
-            caption = coords ?: waiting,
-            enabled = hasFix,
-            onClick = {
-                onDismiss()
-                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-                cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", coords))
-                onNotify(copied)
-            },
-        )
-    }
-}
-
-/**
- * One menu row: a leading icon, the action, and one line of detail under it.
- *
- * Every colour is named rather than inherited. A menu item paints its slots
- * from the Material palette by default, and the caption is a second Text
- * inside the text slot, so without explicit colours a disabled row would keep
- * a full-contrast caption under a greyed label.
- */
-@Composable
-private fun ShareMenuItem(
-    icon: ImageVector,
-    label: String,
-    caption: String,
-    enabled: Boolean = true,
-    onClick: () -> Unit,
-) {
-    val appColors = MaterialTheme.appColors
-    val labelColor = if (enabled) appColors.textPrimary else appColors.textSecondary
-    val iconTint = if (enabled) appColors.primary else appColors.textSecondary
-    DropdownMenuItem(
-        enabled = enabled,
-        leadingIcon = {
-            Icon(icon, contentDescription = null, tint = iconTint)
-        },
+        shape = RoundedCornerShape(12.dp),
+        title = { Text(stringResource(R.string.share_menu_title)) },
         text = {
             Column {
-                Text(
-                    label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = labelColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    caption,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = appColors.textSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                ToolRow(
+                    Icons.Default.QrCodeScanner,
+                    stringResource(R.string.share_menu_join),
+                    stringResource(R.string.share_menu_join_desc),
+                ) { onDismiss(); onScan() }
+                ToolRow(
+                    Icons.Default.Share,
+                    stringResource(R.string.share_menu_live),
+                    stringResource(R.string.share_menu_live_desc),
+                ) { onDismiss(); onStartGroup() }
+                ToolRow(
+                    Icons.Default.Place,
+                    stringResource(R.string.share_menu_static),
+                    if (hasFix) stringResource(R.string.share_menu_static_desc) else waiting,
+                    enabled = hasFix,
+                ) {
+                    onDismiss()
+                    val link = ShareLocationText.mapsLink(fixLat!!, fixLng!!)
+                    val subject = context.getString(R.string.share_static_subject)
+                    val send = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, link)
+                        putExtra(Intent.EXTRA_SUBJECT, subject)
+                    }
+                    runCatching {
+                        context.startActivity(Intent.createChooser(send, subject))
+                    }
+                }
+                ToolRow(
+                    Icons.Default.ContentCopy,
+                    stringResource(R.string.share_menu_copy),
+                    // The live coordinates ARE the subtitle: the rider sees
+                    // exactly what lands on the clipboard before they tap.
+                    coords ?: waiting,
+                    enabled = hasFix,
+                ) {
+                    onDismiss()
+                    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                    cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", coords))
+                    onNotify(copied)
+                }
             }
         },
-        colors = MenuDefaults.itemColors(
-            textColor = labelColor,
-            leadingIconColor = iconTint,
-            disabledTextColor = appColors.textSecondary,
-            disabledLeadingIconColor = appColors.textSecondary,
-        ),
-        onClick = onClick,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
     )
 }
 

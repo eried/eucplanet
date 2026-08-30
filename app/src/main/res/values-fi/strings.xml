@@ -1864,6 +1864,7 @@
     <string name="share_alone">Täällä ei ole vielä ketään muuta.</string>
     <string name="share_open">Avaa</string>
     <string name="share_copy">Kopioi</string>
+    <string name="share_menu_title">Jaa</string>
     <string name="share_menu_join">Liity ryhmäajoon</string>
     <string name="share_menu_join_desc">Skannaa QR-koodi</string>
     <string name="share_menu_live">Jaa sijainti livenä</string>

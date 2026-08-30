@@ -2317,6 +2317,7 @@
     <string name="share_alone">No one else here yet.</string>
     <string name="share_copy">Copy</string>
     <string name="share_open">Open</string>
+    <string name="share_menu_title">Share</string>
     <string name="share_menu_join">Join group ride</string>
     <string name="share_menu_join_desc">Scan a QR code</string>
     <string name="share_menu_live">Share live location</string>

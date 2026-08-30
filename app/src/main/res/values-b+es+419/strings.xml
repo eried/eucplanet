@@ -1634,6 +1634,7 @@
     <string name="share_alone">Todavía no hay nadie más aquí.</string>
     <string name="share_open">Abrir</string>
     <string name="share_copy">Copiar</string>
+    <string name="share_menu_title">Compartir</string>
     <string name="share_menu_join">Unirse a la ruta</string>
     <string name="share_menu_join_desc">Escanear un código QR</string>
     <string name="share_menu_live">Compartir mi ubicación</string>

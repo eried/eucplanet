@@ -41,13 +41,13 @@ import java.util.Locale
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.ExtendPlan
 import com.eried.eucplanet.data.repository.TripSplitDetector
+import com.eried.eucplanet.ui.common.ToolRow
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 
@@ -728,31 +728,6 @@ private fun TripPicker(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ToolRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.width(16.dp))
-        Column {
-            Text(title, style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.appColors.textPrimary)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary)
         }
     }
 }

@@ -1599,6 +1599,7 @@
     <string name="share_alone">아직 여기 아무도 없어요.</string>
     <string name="share_open">열기</string>
     <string name="share_copy">복사</string>
+    <string name="share_menu_title">공유</string>
     <string name="share_menu_join">그룹 라이드 참여</string>
     <string name="share_menu_join_desc">QR 코드 스캔</string>
     <string name="share_menu_live">실시간 위치 공유</string>

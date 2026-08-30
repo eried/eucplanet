@@ -1602,6 +1602,7 @@
     <string name="share_alone">Ainda não há mais ninguém aqui.</string>
     <string name="share_open">Abrir</string>
     <string name="share_copy">Copiar</string>
+    <string name="share_menu_title">Compartilhar</string>
     <string name="share_menu_join">Entrar no grupo</string>
     <string name="share_menu_join_desc">Escanear um QR code</string>
     <string name="share_menu_live">Compartilhar localização</string>
