@@ -133,7 +133,7 @@ class TripRepository @Inject constructor(
 
     // The wheel's identity for the active recording, accumulated while it is still
     // connected. Snapshotting only at stop loses it whenever the rider powers the wheel
-    // off to end the ride — see [WheelIdentity].
+    // off to end the ride - see [WheelIdentity].
     private val wheelIdentity = WheelIdentity()
 
     // Last identity JSON already flushed to the current row, so the mid-ride persist
@@ -663,11 +663,11 @@ class TripRepository @Inject constructor(
 
     /**
      * Flush the accumulated wheel identity onto the current row the first time it
-     * becomes known (and again only if it grows) — gated on change, so a whole ride
+     * becomes known (and again only if it grows). Gated on change, so a whole ride
      * costs about one extra write, not one per tick. This is what makes the identity
      * survive an OOM/force-kill: [finalizeUnfinishedTrips] recovers a killed row from
      * its CSV and [finalizedTripOrNull] copies wheelMetaJson through untouched, so a
-     * row that already carries the wheel keeps it. Best-effort — a DB hiccup here must
+     * row that already carries the wheel keeps it. Best-effort - a DB hiccup here must
      * never disturb recording. Targets the row by id, and stopRecording() rewrites the
      * same accumulator value, so the two can never disagree.
      */
@@ -901,7 +901,7 @@ class TripRepository @Inject constructor(
         }
         val capturedMock = tripHadMockFix
         // A last look in case the wheel is still connected, then use what the ride
-        // accumulated — by now a powered-off wheel reads back as all-nulls, which merge
+        // accumulated - by now a powered-off wheel reads back as all-nulls, which merge
         // ignores rather than letting it erase what we already know.
         captureWheelIdentity()
         val wheelMeta = wheelIdentity.toJson()
@@ -1460,14 +1460,14 @@ internal fun isMockLocation(loc: Location): Boolean =
  * Accumulates the connected wheel's identity over the course of a ride.
  *
  * Model, serial and firmware live in [WheelRepository] StateFlows that are nulled the
- * moment BLE drops, and the normal way to end a ride is to power the wheel off — so
+ * moment BLE drops, and the normal way to end a ride is to power the wheel off, so
  * reading them once at stop hands back nulls, the upload carries no serial or MAC, and
  * eucstats has nothing to key the wheel on. Such a trip still counts for the rider but
  * reaches no wheel or brand board at all.
  *
  * Merging as the ride runs fixes that: once a field is known it stays known, because a
  * later blank is ignored. A real value still replaces an earlier real value (identity
- * trickles in — the MAC at connect, the serial only once the wheel answers).
+ * trickles in - the MAC at connect, the serial only once the wheel answers).
  */
 class WheelIdentity {
     private val fields = java.util.concurrent.ConcurrentHashMap<String, String>()
@@ -1505,7 +1505,7 @@ class WheelIdentity {
         return out
     }
 
-    /** Same shape and blank-handling as [buildWheelMetaJson] — it delegates to it. */
+    /** Same shape and blank-handling as [buildWheelMetaJson] - it delegates to it. */
     fun toJson(): String? = buildWheelMetaJson(
         brand = fields["brand"],
         model = fields["model"],

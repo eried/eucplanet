@@ -766,7 +766,7 @@ class RouteBuilderViewModel @Inject constructor(
         val q = req.query
         if (q.isNullOrBlank()) return
         // Google Maps's mobile share sheet often ships only a shortened
-        // `maps.app.goo.gl/xxx` URL — no place name, no coords in the
+        // `maps.app.goo.gl/xxx` URL - no place name, no coords in the
         // payload itself. Follow the HTTP redirect off the main thread,
         // re-parse the expanded URL (which DOES carry `@lat,lng,zoom`),
         // and continue with whatever the resolved version yields.
