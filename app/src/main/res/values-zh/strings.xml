@@ -779,7 +779,7 @@
     <string name="share_room_full">此群组已满。</string>
     <string name="share_switch_group">要离开当前群组并加入这个群组吗？</string>
     <string name="share_cannot_reach">无法连接到分享服务</string>
-    <string name="share_profile_missing">尚无排行榜资料。</string>
+    <string name="share_profile_missing">还没有排行榜资料。请在 %1$s 中设置。</string>
     <string name="share_profile_loading">正在加载资料…</string>
     <string name="share_camera_needed">扫描二维码需要相机权限。</string>
     <string name="share_invite_text">加入我在 EUC Planet 的行程：%1$s</string>
@@ -833,6 +833,7 @@
     <string name="nav_mode_straight">直线</string>
     <string name="nav_mode_walking">步行</string>
     <string name="nav_my_location">我的位置</string>
+    <string name="nav_fit_all">显示所有人</string>
     <string name="nav_need_destination">请先添加目的地</string>
     <string name="nav_no_location">正在等待 GPS 定位…</string>
     <string name="nav_no_results">未找到匹配结果</string>

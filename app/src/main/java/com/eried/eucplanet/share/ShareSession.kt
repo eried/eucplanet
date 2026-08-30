@@ -78,6 +78,11 @@ class ShareSession @Inject constructor(
     private val syncManager: SyncManager,
     private val eucStatsApi: EucStatsApiContract,
 ) {
+
+    /** Ordinal of the group dialog's last tab, kept for the process lifetime
+     *  only (a UI convenience the navigator reads back on reopen). */
+    @Volatile var groupTabOrdinal: Int = 0
+
     companion object {
         const val PUBLISH_INTERVAL_MS = 3_000L
         const val PUBLISH_MOVE_M = 10.0

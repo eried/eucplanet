@@ -1585,6 +1585,7 @@
         <item>Восьма зупинка</item>
     </string-array>
     <string name="nav_my_location">Моє місцеперебування</string>
+    <string name="nav_fit_all">Показати всіх</string>
     <string name="nav_no_location">Очікуємо на сигнал GPS…</string>
     <string name="nav_too_far_to_start">Перша зупинка задалеко. Утримуй «Пуск», щоб все одно почати навігацію.</string>
     <string name="nav_empty_hint">Торкнись карти, скористайся пошуком або завантаж файл GPX</string>
@@ -1626,7 +1627,7 @@
     <string name="share_room_full">Ця група заповнена.</string>
     <string name="share_switch_group">Покинути поточну групу й приєднатися до цієї?</string>
     <string name="share_cannot_reach">Не вдається зв\'язатися зі службою трансляції</string>
-    <string name="share_profile_missing">Профілю в рейтингу ще немає.</string>
+    <string name="share_profile_missing">Профілю таблиці лідерів ще немає. Створіть його в розділі %1$s.</string>
     <string name="share_profile_loading">Завантаження профілю…</string>
     <string name="share_camera_needed">Щоб сканувати QR-код, потрібен доступ до камери.</string>
     <string name="share_invite_text">Приєднуйся до моєї поїздки в EUC Planet: %1$s</string>

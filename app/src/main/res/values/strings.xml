@@ -2064,6 +2064,7 @@
         <item>Eighth stop</item>
     </string-array>
     <string name="nav_my_location">My location</string>
+    <string name="nav_fit_all">Frame everyone</string>
     <string name="nav_no_location">Waiting for a GPS fix…</string>
     <string name="nav_too_far_to_start">First stop is too far away. Hold Start to navigate anyway.</string>
     <string name="nav_empty_hint">Tap the map, search, or load a GPX file</string>
@@ -2309,7 +2310,7 @@
     <string name="share_room_full">This group is full.</string>
     <string name="share_switch_group">Leave current group and join this one?</string>
     <string name="share_cannot_reach">Cannot reach the share service</string>
-    <string name="share_profile_missing">No leaderboard profile yet.</string>
+    <string name="share_profile_missing">No leaderboard profile yet. Set one up under %1$s.</string>
     <string name="share_profile_loading">Loading profile…</string>
     <string name="share_camera_needed">Camera access is needed to scan a QR code.</string>
     <string name="share_invite_text">Join my ride on EUC Planet: %1$s</string>

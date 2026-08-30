@@ -1817,6 +1817,7 @@
         <item>A opta oprire</item>
     </string-array>
     <string name="nav_my_location">Locația mea</string>
+    <string name="nav_fit_all">Încadrează pe toți</string>
     <string name="nav_no_location">Se așteaptă poziția GPS…</string>
     <string name="nav_too_far_to_start">Prima oprire este prea departe. Ține apăsat Start ca să navighezi oricum.</string>
     <string name="nav_empty_hint">Atinge harta, caută sau încarcă un fișier GPX</string>
@@ -1856,7 +1857,7 @@
     <string name="share_room_full">Acest grup este plin.</string>
     <string name="share_switch_group">Părăsești grupul curent pentru a te alătura acestuia?</string>
     <string name="share_cannot_reach">Serviciul de distribuire nu poate fi contactat</string>
-    <string name="share_profile_missing">Încă nu ai profil în clasament.</string>
+    <string name="share_profile_missing">Niciun profil de clasament încă. Creează unul în %1$s.</string>
     <string name="share_profile_loading">Se încarcă profilul…</string>
     <string name="share_camera_needed">Este nevoie de acces la cameră pentru a scana un cod QR.</string>
     <string name="share_invite_text">Alătură-te turei mele pe EUC Planet: %1$s</string>

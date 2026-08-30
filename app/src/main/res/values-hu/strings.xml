@@ -1817,6 +1817,7 @@
         <item>Nyolcadik megálló</item>
     </string-array>
     <string name="nav_my_location">Saját helyzetem</string>
+    <string name="nav_fit_all">Mindenki egy képen</string>
     <string name="nav_no_location">Várakozás GPS-pozícióra…</string>
     <string name="nav_too_far_to_start">Az első megálló túl messze van. Tartsd nyomva az Indítást a navigáláshoz mégis.</string>
     <string name="nav_empty_hint">Koppints a térképre, keress, vagy tölts be egy GPX-fájlt</string>
@@ -1856,7 +1857,7 @@
     <string name="share_room_full">Ez a csoport tele van.</string>
     <string name="share_switch_group">Kilépsz a jelenlegi csoportból és csatlakozol ehhez?</string>
     <string name="share_cannot_reach">A megosztási szolgáltatás nem érhető el</string>
-    <string name="share_profile_missing">Még nincs ranglista-profil.</string>
+    <string name="share_profile_missing">Még nincs ranglista-profil. Hozz létre egyet itt: %1$s.</string>
     <string name="share_profile_loading">Profil betöltése…</string>
     <string name="share_camera_needed">A QR-kód beolvasásához kamera-hozzáférés szükséges.</string>
     <string name="share_invite_text">Csatlakozz a túrámhoz az EUC Planeten: %1$s</string>

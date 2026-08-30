@@ -1612,6 +1612,7 @@
         <item>Huitième arrêt</item>
     </string-array>
     <string name="nav_my_location">Ma position</string>
+    <string name="nav_fit_all">Tout cadrer</string>
     <string name="nav_no_location">En attente d\'un signal GPS…</string>
     <string name="nav_too_far_to_start">Le premier arrêt est trop loin. Maintiens Démarrer pour lancer la navigation quand même.</string>
     <string name="nav_empty_hint">Touche la carte, fais une recherche ou charge un fichier GPX</string>
@@ -1653,7 +1654,7 @@
     <string name="share_room_full">Ce groupe est complet.</string>
     <string name="share_switch_group">Quitter le groupe actuel et rejoindre celui-ci ?</string>
     <string name="share_cannot_reach">Impossible de joindre le service de partage</string>
-    <string name="share_profile_missing">Pas encore de profil de classement.</string>
+    <string name="share_profile_missing">Pas encore de profil de classement. Créez-le dans %1$s.</string>
     <string name="share_profile_loading">Chargement du profil…</string>
     <string name="share_camera_needed">L\'accès à la caméra est nécessaire pour scanner un code QR.</string>
     <string name="share_invite_text">Rejoins ma sortie sur EUC Planet : %1$s</string>

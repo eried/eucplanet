@@ -796,7 +796,7 @@
     <string name="share_room_full">Denne gruppen er full.</string>
     <string name="share_switch_group">Forlate nåværende gruppe og bli med i denne?</string>
     <string name="share_cannot_reach">Får ikke kontakt med delingstjenesten</string>
-    <string name="share_profile_missing">Ingen resultatlisteprofil ennå.</string>
+    <string name="share_profile_missing">Ingen ledertavleprofil ennå. Opprett en under %1$s.</string>
     <string name="share_profile_loading">Laster profil…</string>
     <string name="share_camera_needed">Kameratilgang trengs for å skanne en QR-kode.</string>
     <string name="share_invite_text">Bli med på turen min på EUC Planet: %1$s</string>
@@ -850,6 +850,7 @@
     <string name="nav_mode_straight">Direkte</string>
     <string name="nav_mode_walking">Gange</string>
     <string name="nav_my_location">Min posisjon</string>
+    <string name="nav_fit_all">Vis alle</string>
     <string name="nav_need_destination">Legg til et bestemmelsessted først</string>
     <string name="nav_no_location">Venter på GPS-posisjon…</string>
     <string name="nav_no_results">Ingen treff funnet</string>

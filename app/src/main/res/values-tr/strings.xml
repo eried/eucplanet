@@ -1550,6 +1550,7 @@
         <item>Sekizinci durak</item>
     </string-array>
     <string name="nav_my_location">Konumum</string>
+    <string name="nav_fit_all">Herkesi göster</string>
     <string name="nav_no_location">GPS düzeltmesi bekleniyor…</string>
     <string name="nav_too_far_to_start">İlk durak çok uzak. Navigasyonu yine de başlatmak için Başlat düğmesini basılı tutun.</string>
     <string name="nav_empty_hint">Haritaya dokunun, arama yapın veya GPX dosyası yükleyin</string>
@@ -1591,7 +1592,7 @@
     <string name="share_room_full">Bu grup dolu.</string>
     <string name="share_switch_group">Mevcut gruptan ayrılıp buna katılmak ister misin?</string>
     <string name="share_cannot_reach">Paylaşım hizmetine ulaşılamıyor</string>
-    <string name="share_profile_missing">Henüz sıralama profili yok.</string>
+    <string name="share_profile_missing">Henüz lider tablosu profili yok. %1$s altında oluşturun.</string>
     <string name="share_profile_loading">Profil yükleniyor…</string>
     <string name="share_camera_needed">QR kodu taramak için kamera izni gerekiyor.</string>
     <string name="share_invite_text">EUC Planet\'te sürüşüme katıl: %1$s</string>

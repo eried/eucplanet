@@ -1553,6 +1553,7 @@
         <item>Восьмая остановка</item>
     </string-array>
     <string name="nav_my_location">Моё местоположение</string>
+    <string name="nav_fit_all">Показать всех</string>
     <string name="nav_no_location">Ожидание сигнала GPS…</string>
     <string name="nav_too_far_to_start">Первая остановка слишком далеко. Удерживайте «Пуск», чтобы всё равно начать навигацию.</string>
     <string name="nav_empty_hint">Коснитесь карты, выполните поиск или загрузите файл GPX</string>
@@ -1594,7 +1595,7 @@
     <string name="share_room_full">Эта группа заполнена.</string>
     <string name="share_switch_group">Покинуть текущую группу и присоединиться к этой?</string>
     <string name="share_cannot_reach">Не удаётся подключиться к службе трансляции</string>
-    <string name="share_profile_missing">Профиля в рейтинге пока нет.</string>
+    <string name="share_profile_missing">Профиля таблицы лидеров пока нет. Создайте его в разделе %1$s.</string>
     <string name="share_profile_loading">Загрузка профиля…</string>
     <string name="share_camera_needed">Для сканирования QR-кода нужен доступ к камере.</string>
     <string name="share_invite_text">Присоединяйся к моей поездке в EUC Planet: %1$s</string>

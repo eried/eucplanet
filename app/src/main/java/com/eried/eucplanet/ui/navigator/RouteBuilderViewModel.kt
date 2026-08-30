@@ -86,6 +86,13 @@ class RouteBuilderViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
+    /** The group dialog's last tab. Lives as long as the app process, not on
+     *  disk: reopening the dialog lands on the tab the rider left it on. */
+    var shareGroupTab: GroupTab
+        get() = GroupTab.values().getOrElse(shareSession.groupTabOrdinal) { GroupTab.QR }
+        set(value) { shareSession.groupTabOrdinal = value.ordinal }
+
+
     companion object {
         /**
          * Base layers the rider can pick between, in cycle order.

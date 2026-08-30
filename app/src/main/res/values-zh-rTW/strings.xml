@@ -1550,6 +1550,7 @@
         <item>第八站</item>
     </string-array>
     <string name="nav_my_location">我的位置</string>
+    <string name="nav_fit_all">顯示所有人</string>
     <string name="nav_no_location">等待 GPS 定位…</string>
     <string name="nav_too_far_to_start">第一站太遠。長按「開始」仍可開始導航。</string>
     <string name="nav_empty_hint">點擊地圖、搜尋或載入 GPX 檔案</string>
@@ -1591,7 +1592,7 @@
     <string name="share_room_full">此群組已滿。</string>
     <string name="share_switch_group">要離開目前的群組並加入這個群組嗎？</string>
     <string name="share_cannot_reach">無法連線至分享服務</string>
-    <string name="share_profile_missing">尚無排行榜資料。</string>
+    <string name="share_profile_missing">尚無排行榜個人檔案。請在 %1$s 中設定。</string>
     <string name="share_profile_loading">正在載入資料…</string>
     <string name="share_camera_needed">掃描 QR 碼需要相機權限。</string>
     <string name="share_invite_text">加入我在 EUC Planet 的行程：%1$s</string>

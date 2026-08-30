@@ -1553,6 +1553,7 @@
         <item>Oitava parada</item>
     </string-array>
     <string name="nav_my_location">Minha localização</string>
+    <string name="nav_fit_all">Enquadrar todos</string>
     <string name="nav_no_location">Aguardando sinal de GPS…</string>
     <string name="nav_too_far_to_start">A primeira parada está longe demais. Mantenha Iniciar pressionado para navegar mesmo assim.</string>
     <string name="nav_empty_hint">Toque no mapa, pesquise ou carregue um arquivo GPX</string>
@@ -1594,7 +1595,7 @@
     <string name="share_room_full">Este grupo está cheio.</string>
     <string name="share_switch_group">Sair do grupo atual e entrar neste?</string>
     <string name="share_cannot_reach">Não foi possível conectar ao serviço de compartilhamento</string>
-    <string name="share_profile_missing">Ainda sem perfil no ranking.</string>
+    <string name="share_profile_missing">Ainda sem perfil no ranking. Crie um em %1$s.</string>
     <string name="share_profile_loading">Carregando perfil…</string>
     <string name="share_camera_needed">É preciso acesso à câmera para ler um código QR.</string>
     <string name="share_invite_text">Entre no meu passeio no EUC Planet: %1$s</string>

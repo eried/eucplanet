@@ -84,6 +84,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -1418,33 +1419,70 @@ fun RouteBuilderScreen(
                         }
                     }
                 }
-                FloatingActionButton(
-                    onClick = {
-                        val l = viewModel.recenterOnUser()
-                        if (l != null) {
-                            // Tell the JS how much of the map's bottom is
-                            // occluded by the stops panel so the rider's pin
-                            // ends up in the middle of the VISIBLE map area,
-                            // not buried under the dock. Expanded panel ≈
-                            // 300 dp; collapsed (just the header row) ≈ 80 dp.
-                            webView?.evaluateJavascript(
-                                "nativeRecenter(${l.latitude},${l.longitude},16,$recenterOffsetPx);",
-                                null
-                            )
-                        } else {
-                            scope.launch {
-                                snackbarHost.showSnackbar(
-                                    context.getString(R.string.nav_no_location)
-                                )
-                            }
-                        }
-                    },
+                // The location button, with a long press as a bonus: frame
+                // everyone on the map while a group is live, or the rider and
+                // the stops otherwise. A FAB has no long press, so this is
+                // the same 56 dp surface with a combinedClickable inside.
+                val recenterHaptic = LocalHapticFeedback.current
+                Surface(
                     modifier = Modifier
                         .align(Alignment.End)
                         .padding(end = 16.dp, bottom = 12.dp),
-                    containerColor = MaterialTheme.colorScheme.surface
+                    shape = FloatingActionButtonDefaults.shape,
+                    color = MaterialTheme.appColors.surface,
+                    contentColor = MaterialTheme.appColors.textPrimary,
+                    shadowElevation = 6.dp,
                 ) {
-                    Icon(Icons.Default.MyLocation, stringResource(R.string.nav_my_location))
+                    Box(
+                        Modifier
+                            .size(56.dp)
+                            .combinedClickable(
+                                role = Role.Button,
+                                onClickLabel = stringResource(R.string.nav_my_location),
+                                onLongClickLabel = stringResource(R.string.nav_fit_all),
+                                onClick = {
+                                    val l = viewModel.recenterOnUser()
+                                    if (l != null) {
+                                        // Tell the JS how much of the map's bottom is
+                                        // occluded by the stops panel so the rider's pin
+                                        // ends up in the middle of the VISIBLE map area,
+                                        // not buried under the dock. Expanded panel is
+                                        // about 300 dp; collapsed (just the header row)
+                                        // about 80 dp.
+                                        webView?.evaluateJavascript(
+                                            "nativeRecenter(${l.latitude},${l.longitude},16,$recenterOffsetPx);",
+                                            null
+                                        )
+                                    } else {
+                                        scope.launch {
+                                            snackbarHost.showSnackbar(
+                                                context.getString(R.string.nav_no_location)
+                                            )
+                                        }
+                                    }
+                                },
+                                onLongClick = {
+                                    val pts = mutableListOf<Pair<Double, Double>>()
+                                    mapAnchor?.let { pts += it.latitude to it.longitude }
+                                    val live = shareState as? ShareState.Joined
+                                    if (live != null) {
+                                        live.activePeers.forEach { pts += it.last.lat to it.last.lng }
+                                    } else {
+                                        waypoints.forEach { pts += it.lat to it.lng }
+                                    }
+                                    if (pts.size >= 2) {
+                                        recenterHaptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        val json = JSONArray(pts.map { JSONArray(listOf(it.first, it.second)) }).toString()
+                                        webView?.evaluateJavascript(
+                                            "nativeFitPoints(${JSONObject.quote(json)},$recenterOffsetPx);", null
+                                        )
+                                    }
+                                },
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Default.MyLocation, stringResource(R.string.nav_my_location))
+                    }
                 }
             }
             // The route/stops panel. Always expanded in landscape (the sidebar
@@ -1907,6 +1945,16 @@ fun RouteBuilderScreen(
                             "nativeExpandPeer(${jsString(id)});", null
                         )
                     },
+                    onGoToMe = {
+                        shareGroupOpen = false
+                        mapAnchor?.let { loc ->
+                            webView?.evaluateJavascript(
+                                "nativeRecenter(${loc.latitude},${loc.longitude},16,$recenterOffsetPx);", null
+                            )
+                        }
+                    },
+                    initialTab = viewModel.shareGroupTab,
+                    onTabChange = { viewModel.shareGroupTab = it },
                     onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
                     onLeave = {
                         shareGroupOpen = false

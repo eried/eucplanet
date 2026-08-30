@@ -1562,6 +1562,7 @@
         <item>Ottende stop</item>
     </string-array>
     <string name="nav_my_location">Min position</string>
+    <string name="nav_fit_all">Vis alle</string>
     <string name="nav_no_location">Venter på GPS-fix…</string>
     <string name="nav_too_far_to_start">Første stop er for langt væk. Hold Start nede for at navigere alligevel.</string>
     <string name="nav_empty_hint">Tryk på kortet, søg, eller indlæs en GPX-fil</string>
@@ -1603,7 +1604,7 @@
     <string name="share_room_full">Denne gruppe er fuld.</string>
     <string name="share_switch_group">Forlad nuværende gruppe og deltag i denne?</string>
     <string name="share_cannot_reach">Kan ikke oprette forbindelse til delingstjenesten</string>
-    <string name="share_profile_missing">Ingen profil på ranglisten endnu.</string>
+    <string name="share_profile_missing">Ingen leaderboard-profil endnu. Opret en under %1$s.</string>
     <string name="share_profile_loading">Indlæser profil…</string>
     <string name="share_camera_needed">Der skal bruges adgang til kameraet for at scanne en QR-kode.</string>
     <string name="share_invite_text">Vær med på min tur på EUC Planet: %1$s</string>

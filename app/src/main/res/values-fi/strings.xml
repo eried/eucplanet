@@ -1817,6 +1817,7 @@
         <item>Kahdeksas pysähdys</item>
     </string-array>
     <string name="nav_my_location">Sijaintini</string>
+    <string name="nav_fit_all">Näytä kaikki</string>
     <string name="nav_no_location">Odotetaan GPS-paikannusta…</string>
     <string name="nav_too_far_to_start">Ensimmäinen pysähdys on liian kaukana. Pidä Aloita pohjassa navigoidaksesi silti.</string>
     <string name="nav_empty_hint">Napauta karttaa, hae tai lataa GPX-tiedosto</string>
@@ -1856,7 +1857,7 @@
     <string name="share_room_full">Tämä ryhmä on täynnä.</string>
     <string name="share_switch_group">Poistu nykyisestä ryhmästä ja liity tähän?</string>
     <string name="share_cannot_reach">Jakopalveluun ei saada yhteyttä</string>
-    <string name="share_profile_missing">Ei vielä tulostaulun profiilia.</string>
+    <string name="share_profile_missing">Ei vielä tulostauluprofiilia. Luo se kohdassa %1$s.</string>
     <string name="share_profile_loading">Ladataan profiilia…</string>
     <string name="share_camera_needed">QR-koodin skannaamiseen tarvitaan kameran käyttöoikeus.</string>
     <string name="share_invite_text">Liity ajooni EUC Planetissa: %1$s</string>

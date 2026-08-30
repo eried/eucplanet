@@ -1550,6 +1550,7 @@
         <item>8番目の経由地</item>
     </string-array>
     <string name="nav_my_location">現在地</string>
+    <string name="nav_fit_all">全員を表示</string>
     <string name="nav_no_location">GPS フィックスを待機中…</string>
     <string name="nav_too_far_to_start">最初の経由地は遠すぎます。「開始」を長押しすると、それでもナビを開始します。</string>
     <string name="nav_empty_hint">マップをタップ、検索、または GPX ファイルを読み込んでください</string>
@@ -1591,7 +1592,7 @@
     <string name="share_room_full">このグループは満員です。</string>
     <string name="share_switch_group">現在のグループを退出してこちらに参加しますか?</string>
     <string name="share_cannot_reach">共有サービスに接続できません</string>
-    <string name="share_profile_missing">ランキングのプロフィールがまだありません。</string>
+    <string name="share_profile_missing">リーダーボードのプロフィールがありません。%1$s で設定してください。</string>
     <string name="share_profile_loading">プロフィールを読み込み中…</string>
     <string name="share_camera_needed">QRコードのスキャンにはカメラへのアクセスが必要です。</string>
     <string name="share_invite_text">EUC Planetで私のライドに参加してください: %1$s</string>

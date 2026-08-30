@@ -815,7 +815,7 @@
     <string name="share_room_full">Questo gruppo è al completo.</string>
     <string name="share_switch_group">Uscire dal gruppo attuale e unirsi a questo?</string>
     <string name="share_cannot_reach">Impossibile raggiungere il servizio di condivisione</string>
-    <string name="share_profile_missing">Nessun profilo in classifica.</string>
+    <string name="share_profile_missing">Nessun profilo classifica. Creane uno in %1$s.</string>
     <string name="share_profile_loading">Caricamento profilo…</string>
     <string name="share_camera_needed">Serve l\'accesso alla fotocamera per scansionare un codice QR.</string>
     <string name="share_invite_text">Unisciti alla mia uscita su EUC Planet: %1$s</string>
@@ -869,6 +869,7 @@
     <string name="nav_mode_straight">Diretto</string>
     <string name="nav_mode_walking">A piedi</string>
     <string name="nav_my_location">La mia posizione</string>
+    <string name="nav_fit_all">Inquadra tutti</string>
     <string name="nav_need_destination">Aggiungi prima una destinazione</string>
     <string name="nav_no_location">In attesa del segnale GPS…</string>
     <string name="nav_no_results">Nessun risultato trovato</string>

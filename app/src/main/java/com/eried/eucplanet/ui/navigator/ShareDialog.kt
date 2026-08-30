@@ -915,7 +915,7 @@ private fun ProfilePreviewCard(profile: ProfilePreview) {
             }
 
             is ProfilePreview.Missing -> Text(
-                stringResource(R.string.share_profile_missing),
+                stringResource(R.string.share_profile_missing, stringResource(R.string.tab_cloud)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.textSecondary,
                 textAlign = TextAlign.Center,
@@ -955,7 +955,7 @@ private fun Identity.asLeaderboardCard(): RiderCard = RiderCard(
 /** The two halves of the group view. The QR is what the rider opens the dialog
  *  for while friends are still arriving; the rider list is what they open it
  *  for once the ride is under way. */
-private enum class GroupTab { QR, CONNECTED }
+enum class GroupTab { QR, CONNECTED }
 
 /**
  * The group view once the rider is in a ride: the code to hand out on one tab,
@@ -987,6 +987,12 @@ fun ShareGroupDialog(
     /** Centre the map on one friend and open their marker's label. The id is
      *  the relay sender id, which is what the map keys its markers by. */
     onGoToPeer: (String, Double, Double) -> Unit,
+    /** Centre the map on the rider themself, the way the location button does. */
+    onGoToMe: () -> Unit,
+    /** The tab this dialog was last on during this app run, so reopening it
+     *  lands where the rider left it. Not persisted. */
+    initialTab: GroupTab,
+    onTabChange: (GroupTab) -> Unit,
     onNotify: (String) -> Unit,
     onLeave: () -> Unit,
     onDismiss: () -> Unit,
@@ -1008,7 +1014,7 @@ fun ShareGroupDialog(
     // opened is the truth, where a 0 next to their own row on the tab under it
     // would not be.
     val connectedCount = activeCount + 1
-    var tab by remember { mutableStateOf(GroupTab.QR) }
+    var tab by remember { mutableStateOf(initialTab) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -1027,7 +1033,7 @@ fun ShareGroupDialog(
                 ShareGroupTabRow(
                     selected = tab,
                     connectedCount = connectedCount,
-                    onSelect = { tab = it },
+                    onSelect = { tab = it; onTabChange(it) },
                 )
             }
         ) {
@@ -1176,6 +1182,9 @@ fun ShareGroupDialog(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .background(MaterialTheme.appColors.surfaceVariant)
+                            // Tappable like every other row: it centres the
+                            // map on the rider themself.
+                            .clickable(onClick = onGoToMe)
                             .padding(horizontal = ROW_INSET, vertical = 8.dp)
                     ) {
                         RiderRow(

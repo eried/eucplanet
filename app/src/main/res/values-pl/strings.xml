@@ -1566,6 +1566,7 @@
         <item>Ósmy przystanek</item>
     </string-array>
     <string name="nav_my_location">Moja lokalizacja</string>
+    <string name="nav_fit_all">Pokaż wszystkich</string>
     <string name="nav_no_location">Czekam na sygnał GPS…</string>
     <string name="nav_too_far_to_start">Pierwszy przystanek jest zbyt daleko. Przytrzymaj Start, aby mimo to rozpocząć nawigację.</string>
     <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX</string>
@@ -1607,7 +1608,7 @@
     <string name="share_room_full">Ta grupa jest pełna.</string>
     <string name="share_switch_group">Opuścić bieżącą grupę i dołączyć do tej?</string>
     <string name="share_cannot_reach">Nie można połączyć się z usługą udostępniania</string>
-    <string name="share_profile_missing">Brak profilu w rankingu.</string>
+    <string name="share_profile_missing">Brak profilu rankingu. Utwórz go w %1$s.</string>
     <string name="share_profile_loading">Wczytywanie profilu…</string>
     <string name="share_camera_needed">Do zeskanowania kodu QR potrzebny jest dostęp do aparatu.</string>
     <string name="share_invite_text">Dołącz do mojej jazdy w EUC Planet: %1$s</string>

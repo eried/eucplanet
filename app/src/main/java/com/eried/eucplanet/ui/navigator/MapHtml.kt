@@ -349,6 +349,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (routeLine) routeLine.redraw();
     rings.forEach(function(r){ r.redraw(); });
     if (connector) connector.redraw();
+    // Rider trails live on one canvas; one redraw request per frame repaints
+    // them all, so they track a pinch or a rotate like the route does.
+    if (typeof peerRedrawTrails === 'function') peerRedrawTrails();
   }
   mapEl.addEventListener('touchmove', function(e){
     // ANY touch movement (single or two-finger) counts as the rider
@@ -1748,7 +1751,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   function peerRemove(id, rec){
     peerClearTimer(id);
     if (rec.marker) peerLayer.removeLayer(rec.marker);
-    for (var i = 0; i < rec.lines.length; i++) peerLayer.removeLayer(rec.lines[i]);
+    for (var i = 0; i < rec.lines.length; i++) if (rec.lines[i]) peerLayer.removeLayer(rec.lines[i]);
     rec.lines = [];
   }
 
@@ -1867,9 +1870,19 @@ private const val ROUTE_BUILDER_HTML_2: String = """
    * the bands are contiguous runs and each one only has to reach forward to
    * the next newer run's first point to keep the line unbroken.
    */
+  // One shared canvas for every trail: a canvas renderer paints all of them in
+  // a single pass per frame, where SVG paths are one DOM node each that Leaflet
+  // has to touch one by one. The four band polylines per rider are created
+  // once and only get new points afterwards, so a tick never churns the DOM.
+  var peerTrailRenderer = L.canvas({ padding: 0.5 });
+  function peerRedrawTrails(){
+    for (var id in peerObjs) {
+      var lines = peerObjs[id] && peerObjs[id].lines;
+      if (!lines) continue;
+      for (var i = 0; i < lines.length; i++) if (lines[i]) lines[i].redraw();
+    }
+  }
   function peerBuildTrail(rec, trail, col, lost){
-    for (var k = 0; k < rec.lines.length; k++) peerLayer.removeLayer(rec.lines[k]);
-    rec.lines = [];
     var bands = [[], [], [], []];
     for (var i = 0; i < trail.length; i++) {
       var b = trail[i][3] | 0;
@@ -1884,16 +1897,22 @@ private const val ROUTE_BUILDER_HTML_2: String = """
         if (bands[b2].length) { bands[b1].push(bands[b2][0]); break; }
       }
     }
+    if (!rec.lines || rec.lines.length !== 4) {
+      if (rec.lines) for (var k = 0; k < rec.lines.length; k++) if (rec.lines[k]) peerLayer.removeLayer(rec.lines[k]);
+      rec.lines = [null, null, null, null];
+    }
     for (var b3 = 3; b3 >= 0; b3--) {
-      if (bands[b3].length < 2) continue;
-      rec.lines.push(L.polyline(bands[b3], {
-        color: col, weight: 4, interactive: false,
-        // No renderer option: the map has no preferCanvas, so these are SVG
-        // paths in the overlay pane. That pane is what Leaflet transforms
-        // during a zoom gesture, which is what keeps a trail glued to the map
-        // instead of redrawing a frame late.
-        opacity: PEER_TRAIL_OPACITY[b3] * (lost ? 0.35 : 1)
-      }).addTo(peerLayer));
+      var pts = bands[b3].length >= 2 ? bands[b3] : [];
+      var op = PEER_TRAIL_OPACITY[b3] * (lost ? 0.35 : 1);
+      var line = rec.lines[b3];
+      if (!line) {
+        rec.lines[b3] = L.polyline(pts, {
+          color: col, weight: 4, interactive: false, opacity: op, renderer: peerTrailRenderer
+        }).addTo(peerLayer);
+      } else {
+        line.setLatLngs(pts);
+        if (line.options.color !== col || line.options.opacity !== op) line.setStyle({ color: col, opacity: op });
+      }
     }
   }
 
@@ -1997,6 +2016,17 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     pt.y += screenOffsetPx * Math.cos(rad);
     return map.unproject(pt, zoom);
   }
+
+  // Frame a set of points above the dock: the rider with everyone in the
+  // group, or the rider with the stops. One point just centres on it.
+  window.nativeFitPoints = function(json, bottomOffsetPx){
+    var pts; try { pts = JSON.parse(json); } catch (e) { return; }
+    if (!pts || !pts.length) return;
+    if (pts.length === 1) { map.setView(pts[0], Math.max(map.getZoom(), 15)); return; }
+    map.fitBounds(L.latLngBounds(pts).pad(0.15), {
+      paddingTopLeft: [24, 24], paddingBottomRight: [24, 24 + (bottomOffsetPx || 0)], maxZoom: 17
+    });
+  };
 
   window.nativeRecenter = function(lat, lng, zoom, bottomOffsetPx){
     // Re-check the container size first so the target really lands centred

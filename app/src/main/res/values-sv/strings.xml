@@ -1549,6 +1549,7 @@
         <item>Åttonde stoppet</item>
     </string-array>
     <string name="nav_my_location">Min plats</string>
+    <string name="nav_fit_all">Visa alla</string>
     <string name="nav_no_location">Väntar på GPS-fix…</string>
     <string name="nav_too_far_to_start">Första stoppet är för långt bort. Håll inne Starta för att navigera ändå.</string>
     <string name="nav_empty_hint">Tryck på kartan, sök, eller läs in en GPX-fil</string>
@@ -1590,7 +1591,7 @@
     <string name="share_room_full">Den här gruppen är full.</string>
     <string name="share_switch_group">Lämna nuvarande grupp och gå med i den här?</string>
     <string name="share_cannot_reach">Det går inte att nå delningstjänsten</string>
-    <string name="share_profile_missing">Ingen topplisteprofil än.</string>
+    <string name="share_profile_missing">Ingen topplisteprofil ännu. Skapa en under %1$s.</string>
     <string name="share_profile_loading">Laddar profil…</string>
     <string name="share_camera_needed">Kameraåtkomst behövs för att skanna en QR-kod.</string>
     <string name="share_invite_text">Följ med på min tur på EUC Planet: %1$s</string>

@@ -1817,6 +1817,7 @@
         <item>Osmá zastávka</item>
     </string-array>
     <string name="nav_my_location">Moje poloha</string>
+    <string name="nav_fit_all">Zobrazit všechny</string>
     <string name="nav_no_location">Čekám na polohu GPS…</string>
     <string name="nav_too_far_to_start">První zastávka je příliš daleko. Podržením Start budete navigovat i tak.</string>
     <string name="nav_empty_hint">Klepněte na mapu, vyhledejte nebo načtěte soubor GPX</string>
@@ -1856,7 +1857,7 @@
     <string name="share_room_full">Tato skupina je plná.</string>
     <string name="share_switch_group">Opustit současnou skupinu a připojit se k této?</string>
     <string name="share_cannot_reach">Nelze se připojit ke službě sdílení</string>
-    <string name="share_profile_missing">Zatím žádný profil v žebříčku.</string>
+    <string name="share_profile_missing">Zatím žádný profil žebříčku. Vytvořte ho v %1$s.</string>
     <string name="share_profile_loading">Načítání profilu…</string>
     <string name="share_camera_needed">Ke skenování QR kódu je potřeba přístup k fotoaparátu.</string>
     <string name="share_invite_text">Přidej se k mé jízdě na EUC Planet: %1$s</string>

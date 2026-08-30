@@ -1608,6 +1608,7 @@
         <item>Achtste stop</item>
     </string-array>
     <string name="nav_my_location">Mijn locatie</string>
+    <string name="nav_fit_all">Iedereen in beeld</string>
     <string name="nav_no_location">Wachten op een GPS-fix…</string>
     <string name="nav_too_far_to_start">De eerste stop is te ver weg. Houd Start ingedrukt om toch te navigeren.</string>
     <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand</string>
@@ -1649,7 +1650,7 @@
     <string name="share_room_full">Deze groep is vol.</string>
     <string name="share_switch_group">Huidige groep verlaten en aan deze deelnemen?</string>
     <string name="share_cannot_reach">Kan de deelservice niet bereiken</string>
-    <string name="share_profile_missing">Nog geen ranglijstprofiel.</string>
+    <string name="share_profile_missing">Nog geen ranglijstprofiel. Maak er een aan onder %1$s.</string>
     <string name="share_profile_loading">Profiel laden…</string>
     <string name="share_camera_needed">Cameratoegang is nodig om een QR-code te scannen.</string>
     <string name="share_invite_text">Doe mee met mijn rit op EUC Planet: %1$s</string>
