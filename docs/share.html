@@ -357,6 +357,23 @@
     }
     .maplibregl-ctrl-top-right .stylemenu { top: auto; bottom: 0; }
   }
+  /* === Settings gear (units + map layer), top-left in the header === */
+  #gearBtn { flex: none; width: 28px; height: 28px; margin-right: 4px; padding: 0; border: 0; background: transparent;
+    color: var(--mut); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
+  #gearBtn svg { width: 17px; height: 17px; }
+  #gearBtn:hover, #gearBtn[aria-expanded="true"] { color: var(--acc); background: rgba(46, 168, 255, .12); }
+  #gearMenu { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 58px); left: 18px; z-index: 12; display: flex; flex-direction: column; min-width: 150px;
+    background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 9px;
+    box-shadow: var(--shadow); overflow: hidden; }
+  #gearMenu.hide { display: none; }
+  #gearMenu .gm-title { padding: 8px 12px 4px; color: var(--mut); font: 700 10.5px/1 "Chakra Petch", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+  #gearMenu button + .gm-title { border-top: 1px solid var(--line); margin-top: 4px; }
+  #gearMenu button { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: transparent; border: 0;
+    cursor: pointer; text-align: left; color: var(--ink); font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px; }
+  #gearMenu button:hover { background: rgba(46, 168, 255, .14); color: var(--acc); }
+  #gearMenu button::before { content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none; border: 1px solid var(--mut); }
+  #gearMenu button.on { color: var(--acc); }
+  #gearMenu button.on::before { background: var(--acc); border-color: var(--acc); box-shadow: 0 0 8px var(--acc); }
 </style>
 </head>
 <body>
@@ -368,6 +385,7 @@
      the bottom fighting the rounded corners of the screen. -->
 <div id="dock" data-state="">
   <div id="dockHead">
+    <button id="gearBtn" type="button" title="Settings" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
     <span class="led"></span>
     <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener">EUC PLANET</a>
     <button id="dockToggle" type="button" aria-expanded="true" aria-controls="panel">
@@ -383,6 +401,14 @@
   <div id="panel"></div>
 </div>
 
+  <div id="gearMenu" class="hide" role="menu">
+  <div class="gm-title">Units</div>
+  <button type="button" data-u="auto">Auto</button>
+  <button type="button" data-u="metric">Metric</button>
+  <button type="button" data-u="imperial">Imperial</button>
+  <div class="gm-title">Map</div>
+  <div id="gmLayers"></div>
+</div>
 <a id="openApp" class="hide" rel="noopener">Open in EUC Planet</a>
 
 <div id="msg">
@@ -1004,7 +1030,6 @@ function connect(roomId, key) {
  * 6. Map
  * ------------------------------------------------------------------ */
 var mapStyle = "dark";
-var styleCtlEl = null;
 
 function readStoredStyle() {
   try {
@@ -1016,10 +1041,31 @@ function readStoredStyle() {
 }
 
 function markActiveStyle() {
-  if (!styleCtlEl) return;
-  Array.prototype.forEach.call(styleCtlEl.querySelectorAll(".stylemenu button"), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll("#gmLayers button"), function (b) {
     b.classList.toggle("on", b.getAttribute("data-s") === mapStyle);
   });
+}
+function setupGearMenu() {
+  var btn = $("gearBtn"), menu = $("gearMenu"), layers = $("gmLayers");
+  if (!btn || !menu) return;
+  Object.keys(STYLES).forEach(function (k) {
+    var item = document.createElement("button"); item.type = "button"; item.setAttribute("data-s", k);
+    item.textContent = STYLES[k].label;
+    item.addEventListener("click", function (ev) { ev.stopPropagation(); setMapStyle(k); });
+    layers.appendChild(item);
+  });
+  Array.prototype.forEach.call(menu.querySelectorAll("button[data-u]"), function (b) {
+    b.addEventListener("click", function (ev) { ev.stopPropagation(); setUnits(b.getAttribute("data-u")); });
+  });
+  function close() { menu.classList.add("hide"); btn.setAttribute("aria-expanded", "false"); }
+  btn.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+    var open = menu.classList.contains("hide");
+    menu.classList.toggle("hide", !open); btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  menu.addEventListener("click", function (ev) { ev.stopPropagation(); });
+  document.addEventListener("click", close);
+  markActiveStyle(); markActiveUnits();
 }
 
 function setMapStyle(key) {
@@ -1035,53 +1081,9 @@ function setMapStyle(key) {
   markActiveStyle();
 }
 
-var LAYERS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-  'stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7.5 12 13 22 7.5 12 2">' +
-  '</polygon><polyline points="2 16.5 12 22 22 16.5"></polyline>' +
-  '<polyline points="2 12 12 17.5 22 12"></polyline></svg>';
 
 /** Layers button, sits under the zoom control and looks like the rest of them. */
-function StyleControl() {}
-StyleControl.prototype.onAdd = function () {
-  var wrap = document.createElement("div");
-  wrap.className = "maplibregl-ctrl stylectl";
 
-  var group = document.createElement("div");
-  group.className = "maplibregl-ctrl-group";
-  var btn = document.createElement("button");
-  btn.type = "button";
-  btn.title = "Map style";
-  btn.setAttribute("aria-label", "Map style");
-  btn.innerHTML = LAYERS_SVG;
-  btn.addEventListener("click", function (ev) {
-    ev.stopPropagation();
-    wrap.classList.toggle("open");
-  });
-  group.appendChild(btn);
-
-  var menu = document.createElement("div");
-  menu.className = "stylemenu";
-  Object.keys(STYLES).forEach(function (k) {
-    var item = document.createElement("button");
-    item.type = "button";
-    item.setAttribute("data-s", k);
-    item.textContent = STYLES[k].label;
-    item.addEventListener("click", function (ev) {
-      ev.stopPropagation();
-      wrap.classList.remove("open");
-      setMapStyle(k);
-    });
-    menu.appendChild(item);
-  });
-
-  wrap.appendChild(group);
-  wrap.appendChild(menu);
-  document.addEventListener("click", function () { wrap.classList.remove("open"); });
-  styleCtlEl = wrap;
-  markActiveStyle();
-  return wrap;
-};
-StyleControl.prototype.onRemove = function () { styleCtlEl = null; };
 
 /*
  * Trails are drawn twice: a dark casing underneath so a bright trail still
@@ -1128,8 +1130,6 @@ function initMap() {
     center: [0, 20],
     zoom: 1.4
   });
-  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-  map.addControl(new StyleControl(), "top-right");
   // Fit all riders: the same look as the zoom and layer buttons, one icon,
   // shown once the rider has moved the map or a rider is on it. The whole
   // group is the #recenter element the existing show/hide and click code use.
@@ -1144,7 +1144,7 @@ function initMap() {
     d.appendChild(b); this._c = d; return d;
   };
   FitControl.prototype.onRemove = function () { if (this._c && this._c.parentNode) this._c.parentNode.removeChild(this._c); };
-  map.addControl(new FitControl(), "top-right");
+  map.addControl(new FitControl(), "bottom-right");
 
   // Fires on the first style and again after every switch, so the trail layers
   // come back with the new basemap.
@@ -1188,12 +1188,52 @@ function ageClass(grey, fresh) {
   return grey ? "lost" : (fresh === STALE ? "stale" : "live");
 }
 
+// Units: the eucviewer routine. Resolution order: ?units= in the URL, then
+// the rider's choice in the gear menu (localStorage), then the timezone.
+// Not navigator.language: English Windows everywhere reports en-US, which
+// misclassified metric riders. Imperial only fires for zones unambiguously
+// in the US, its territories, Liberia or Myanmar; anything else is metric.
+var UNITS_KEY = "eucshare_units";
+var IMPERIAL_TZ_RE = new RegExp("^(?:" +
+  "America/(?:Adak|Anchorage|Boise|Chicago|Denver|Detroit|Indiana/[^/]+|Juneau|Kentucky/[^/]+|Los_Angeles|Menominee|Metlakatla|New_York|Nome|North_Dakota/[^/]+|Phoenix|Puerto_Rico|Sitka|St_Thomas|Yakutat)" +
+  "|Pacific/(?:Honolulu|Pago_Pago|Guam|Saipan|Midway|Wake)" +
+  "|Africa/Monrovia" +
+  "|Asia/(?:Yangon|Rangoon)" +
+  ")$");
+function unitsChoice() {
+  try { var v = localStorage.getItem(UNITS_KEY); if (v === "imperial" || v === "metric") return v; } catch (e) {}
+  return "auto";
+}
+function detectUnits() {
+  try { var force = new URLSearchParams(location.search).get("units"); if (force === "imperial" || force === "metric") return force; } catch (e) {}
+  var chosen = unitsChoice(); if (chosen !== "auto") return chosen;
+  try { var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").trim(); if (IMPERIAL_TZ_RE.test(tz)) return "imperial"; } catch (e) {}
+  return "metric";
+}
+function buildUnits() {
+  var imperial = detectUnits() === "imperial";
+  return imperial
+    ? { imperial: true, speed: function (k) { return k * 0.621371; }, temp: function (c) { return c * 9 / 5 + 32; }, speedUnit: "mph", tempUnit: "\u00b0F" }
+    : { imperial: false, speed: function (k) { return k; }, temp: function (c) { return c; }, speedUnit: "km/h", tempUnit: "\u00b0C" };
+}
+var UNITS = buildUnits();
+function setUnits(choice) {
+  try { if (choice === "auto") localStorage.removeItem(UNITS_KEY); else localStorage.setItem(UNITS_KEY, choice); } catch (e) {}
+  UNITS = buildUnits();
+  markActiveUnits();
+  if (typeof render === "function") render();
+}
+function markActiveUnits() {
+  var c = unitsChoice();
+  Array.prototype.forEach.call(document.querySelectorAll("#gearMenu button[data-u]"), function (b) { b.classList.toggle("on", b.getAttribute("data-u") === c); });
+}
+
 function statsText(s) {
   if (!s) return "";
   var parts = [];
-  if (typeof s.speedKmh === "number") parts.push(s.speedKmh.toFixed(1) + " km/h");
+  if (typeof s.speedKmh === "number") parts.push(UNITS.speed(s.speedKmh).toFixed(1) + " " + UNITS.speedUnit);
   if (typeof s.batteryPct === "number") parts.push(Math.round(s.batteryPct) + "%");
-  if (typeof s.tempC === "number") parts.push(Math.round(s.tempC) + "°C");
+  if (typeof s.tempC === "number") parts.push(Math.round(UNITS.temp(s.tempC)) + UNITS.tempUnit);
   return parts.join(" · ");
 }
 
@@ -1393,6 +1433,7 @@ function renderPanel(rows) {
  * ------------------------------------------------------------------ */
 function boot() {
   readStoredStyle();
+  setupGearMenu();
 
   $("joinFormEl").addEventListener("submit", function (e) {
     e.preventDefault();
