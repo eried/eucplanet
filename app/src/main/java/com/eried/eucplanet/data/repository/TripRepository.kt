@@ -59,7 +59,9 @@ class TripRepository @Inject constructor(
      * Injected as a Provider because [com.eried.eucplanet.share.ShareSession]
      * takes this repository (it publishes [currentLocation]). A Provider breaks
      * the construction cycle: the instance is only asked for from a coroutine,
-     * once, after both singletons exist.
+     * once, after both singletons exist. That coroutine runs on [scope], which
+     * is Dispatchers.IO, so this never runs inline on the constructing thread;
+     * a Provider alone does not guarantee that, the dispatcher does.
      */
     private val shareSession: javax.inject.Provider<com.eried.eucplanet.share.ShareSession>
 ) {

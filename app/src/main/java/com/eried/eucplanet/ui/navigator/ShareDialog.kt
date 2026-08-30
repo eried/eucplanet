@@ -1228,6 +1228,10 @@ private fun PeerRow(
         }
         // Green while the fix is current, amber once it starts aging, muted
         // once the rider is gone: the same three states the map's markers use.
+        // The else arm is FRESH, which never actually reaches the screen (its
+        // ageText is empty, so the Text below is skipped entirely); it stays
+        // here as an explicit "else" only because a boolean when needs one to
+        // compile as an expression, not because the colour is ever shown.
         val ageColor = when {
             peer.left || peer.freshness == Freshness.LOST ->
                 MaterialTheme.appColors.textSecondary
