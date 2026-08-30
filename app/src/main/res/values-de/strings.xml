@@ -1615,7 +1615,7 @@
     <string name="share_join">Beitreten</string>
     <string name="share_connected">Verbunden</string>
     <string name="share_reconnecting">Verbindung wird wiederhergestellt…</string>
-    <string name="share_leave">Verlassen</string>
+    <string name="share_leave">Gruppe verlassen</string>
     <string name="share_left">hat verlassen</string>
     <string name="share_lost">kein Signal</string>
     <string name="share_age_seconds">vor %1$d s</string>

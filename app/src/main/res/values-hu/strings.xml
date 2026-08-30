@@ -1847,7 +1847,7 @@
     <string name="share_join">Csatlakozás</string>
     <string name="share_connected">Csatlakozva</string>
     <string name="share_reconnecting">Újracsatlakozás…</string>
-    <string name="share_leave">Kilépés</string>
+    <string name="share_leave">Kilépés a csoportból</string>
     <string name="share_left">kilépett</string>
     <string name="share_lost">nincs jel</string>
     <string name="share_age_seconds">%1$d mp-e</string>

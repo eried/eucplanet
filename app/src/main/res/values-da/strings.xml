@@ -1594,7 +1594,7 @@
     <string name="share_join">Deltag</string>
     <string name="share_connected">Forbundet</string>
     <string name="share_reconnecting">Genopretter forbindelse…</string>
-    <string name="share_leave">Forlad</string>
+    <string name="share_leave">Forlad gruppen</string>
     <string name="share_left">forlod</string>
     <string name="share_lost">mistet signal</string>
     <string name="share_age_seconds">for %1$d s siden</string>

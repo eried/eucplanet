@@ -1847,7 +1847,7 @@
     <string name="share_join">Liity</string>
     <string name="share_connected">Yhdistetty</string>
     <string name="share_reconnecting">Yhdistetään uudelleen…</string>
-    <string name="share_leave">Poistu</string>
+    <string name="share_leave">Poistu ryhmästä</string>
     <string name="share_left">poistui</string>
     <string name="share_lost">signaali kadonnut</string>
     <string name="share_age_seconds">%1$d s sitten</string>

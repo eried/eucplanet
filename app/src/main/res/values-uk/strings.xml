@@ -1617,7 +1617,7 @@
     <string name="share_join">Приєднатися</string>
     <string name="share_connected">Підключено</string>
     <string name="share_reconnecting">Повторне підключення…</string>
-    <string name="share_leave">Покинути</string>
+    <string name="share_leave">Вийти з групи</string>
     <string name="share_left">покинув(ла) групу</string>
     <string name="share_lost">сигнал втрачено</string>
     <string name="share_age_seconds">%1$d с тому</string>

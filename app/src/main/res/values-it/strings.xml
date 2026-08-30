@@ -805,7 +805,7 @@
     <string name="share_join">Unisciti</string>
     <string name="share_connected">Connesso</string>
     <string name="share_reconnecting">Riconnessione…</string>
-    <string name="share_leave">Esci</string>
+    <string name="share_leave">Lascia il gruppo</string>
     <string name="share_left">uscito</string>
     <string name="share_lost">segnale perso</string>
     <string name="share_age_seconds">%1$d s fa</string>

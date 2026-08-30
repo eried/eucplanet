@@ -769,7 +769,7 @@
     <string name="share_join">加入</string>
     <string name="share_connected">已连接</string>
     <string name="share_reconnecting">正在重新连接…</string>
-    <string name="share_leave">离开</string>
+    <string name="share_leave">离开群组</string>
     <string name="share_left">已离开</string>
     <string name="share_lost">信号中断</string>
     <string name="share_age_seconds">%1$d 秒前</string>

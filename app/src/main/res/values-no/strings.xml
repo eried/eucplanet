@@ -786,7 +786,7 @@
     <string name="share_join">Bli med</string>
     <string name="share_connected">Tilkoblet</string>
     <string name="share_reconnecting">Kobler til på nytt…</string>
-    <string name="share_leave">Forlat</string>
+    <string name="share_leave">Forlat gruppen</string>
     <string name="share_left">forlot</string>
     <string name="share_lost">mistet signal</string>
     <string name="share_age_seconds">%1$d s siden</string>

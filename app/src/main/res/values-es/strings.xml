@@ -1585,7 +1585,7 @@
     <string name="share_join">Unirse</string>
     <string name="share_connected">Conectado</string>
     <string name="share_reconnecting">Reconectando…</string>
-    <string name="share_leave">Salir</string>
+    <string name="share_leave">Salir del grupo</string>
     <string name="share_left">se ha ido</string>
     <string name="share_lost">sin señal</string>
     <string name="share_age_seconds">hace %1$d s</string>

@@ -1640,7 +1640,7 @@
     <string name="share_join">Deelnemen</string>
     <string name="share_connected">Verbonden</string>
     <string name="share_reconnecting">Opnieuw verbinden…</string>
-    <string name="share_leave">Verlaten</string>
+    <string name="share_leave">Groep verlaten</string>
     <string name="share_left">heeft de groep verlaten</string>
     <string name="share_lost">signaal verloren</string>
     <string name="share_age_seconds">%1$d s geleden</string>

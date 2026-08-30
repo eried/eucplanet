@@ -1847,7 +1847,7 @@
     <string name="share_join">Připojit se</string>
     <string name="share_connected">Připojeno</string>
     <string name="share_reconnecting">Připojuje se znovu…</string>
-    <string name="share_leave">Opustit</string>
+    <string name="share_leave">Opustit skupinu</string>
     <string name="share_left">odešel</string>
     <string name="share_lost">ztracen signál</string>
     <string name="share_age_seconds">před %1$d s</string>

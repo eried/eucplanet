@@ -1847,7 +1847,7 @@
     <string name="share_join">Alătură-te</string>
     <string name="share_connected">Conectat</string>
     <string name="share_reconnecting">Se reconectează…</string>
-    <string name="share_leave">Părăsește</string>
+    <string name="share_leave">Părăsește grupul</string>
     <string name="share_left">a plecat</string>
     <string name="share_lost">semnal pierdut</string>
     <string name="share_age_seconds">acum %1$d s</string>
