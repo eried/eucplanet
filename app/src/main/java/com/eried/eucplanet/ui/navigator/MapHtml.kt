@@ -1763,7 +1763,8 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     var lost = p.freshness === 'LOST';
     var age = p.freshness === 'FRESH' ? '' : (lost ? peerLostLabel : (p.ageS | 0) + 's');
     if (!rec.expanded){
-      return '<div class="peer-name">' + peerEsc(p.name) +
+      var flagLead = (typeof p.flagText === 'string' && p.flagText) ? peerEsc(p.flagText) + ' ' : '';
+      return '<div class="peer-name">' + flagLead + peerEsc(p.name) +
         (age ? ' <i>' + peerEsc(age) + '</i>' : '') + '</div>';
     }
     // The stats line is formatted in Kotlin and pushed as finished text, so
@@ -1776,12 +1777,21 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // itself keeps the code: a coloured flag inside a coloured 26 px circle
     // is a badge fighting a badge.
     var flagSrc = typeof p.flagText === 'string' && p.flagText ? p.flagText : p.flag;
-    var flag = flagSrc ? ' ' + peerEsc(flagSrc) : '';
+    var flag = flagSrc ? peerEsc(flagSrc) + ' ' : '';
     return '<div class="peer-name peer-name-open">' +
-      '<div>' + peerEsc(p.name) + flag + '</div>' +
+      '<div>' + flag + peerEsc(p.name) + '</div>' +
       (stats ? '<div class="peer-sub">' + peerEsc(stats) + '</div>' : '') +
       (age ? '<div class="peer-sub">' + peerEsc(age) + '</div>' : '') +
       '</div>';
+  }
+
+  // First character of the name, upper-cased, surrogate pairs kept whole so an
+  // emoji name gets a real glyph instead of half of one.
+  function peerInitial(name){
+    var t = String(name || '').trim();
+    if (!t) return '?';
+    var first = Array.from(t)[0];
+    return first.toUpperCase();
   }
 
   function peerHtml(rec){
@@ -1794,7 +1804,9 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     var inner = avatar
       ? '<img src="' + peerEsc(avatar) + '" style="width:' + PEER_AVATAR_PX +
         'px;height:' + PEER_AVATAR_PX + 'px;border-radius:50%;object-fit:cover">'
-      : '<span>' + peerEsc(p.flag || '') + '</span>';
+      // The dot carries the rider's initial, like their row in the group
+      // list; the flag goes with the name, not in the dot.
+      : '<span>' + peerEsc(peerInitial(p.name)) + '</span>';
     return '<div class="peer" style="opacity:' + dim + '">' +
       '<div class="peer-dot" style="background:' + bg + '">' + inner + '</div>' +
       peerLabelHtml(rec) + '</div>';
