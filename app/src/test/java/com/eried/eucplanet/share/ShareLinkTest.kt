@@ -17,4 +17,15 @@ class ShareLinkTest {
         assertNull(ShareLinks.parse("https://eucplanet.ried.no/share#short.x"))
         assertNull(ShareLinks.parse("https://other.example/share#AAAAAAAAAAAAAAAAAAAAAA.AAAAAAAAAAAAAAAAAAAAAA"))
     }
+
+    @Test
+    fun parse_acceptsThePathFormTheWebButtonSends() {
+        val link = ShareLinks.newLink()
+        val frag = ShareLinks.format(link).substringAfter('#')
+        val fromPath = ShareLinks.parse(ShareLinks.BASE + "/" + frag)
+        assertNotNull(fromPath)
+        assertEquals(link.roomId, fromPath!!.roomId)
+        assertArrayEquals(link.key, fromPath.key)
+        assertNull(ShareLinks.parse(ShareLinks.BASE + "/not-a-link"))
+    }
 }

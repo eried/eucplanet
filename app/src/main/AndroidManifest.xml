@@ -140,7 +140,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="eucplanet.ried.no" android:path="/share" />
+                <data android:scheme="https" android:host="eucplanet.ried.no" android:pathPrefix="/share" />
             </intent-filter>
             <!-- Dropbox OAuth (PKCE) redirect. App-key-prefixed scheme is
                  the Dropbox-recommended way to bounce the consent page back
