@@ -1631,7 +1631,9 @@
     <string name="nav_arrived_goal">Objectif %1$d atteint</string>
     <string name="nav_end_title">Terminer la navigation ?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Partager mon trajet</string>
+    <string name="share_button">Options de partage</string>
+    <string name="share_button_long">Partager ma position</string>
+    <string name="share_leave_first">Quittez d\'abord le groupe actuel</string>
     <string name="share_join_title">Rejoindre le groupe</string>
     <string name="share_identity_anon">Anonyme</string>
     <string name="share_identity_session">Perso</string>

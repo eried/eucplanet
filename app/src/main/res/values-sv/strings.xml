@@ -1568,7 +1568,9 @@
     <string name="nav_arrived_goal">Mål %1$d nått</string>
     <string name="nav_end_title">Avsluta navigering?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Dela min tur</string>
+    <string name="share_button">Delningsalternativ</string>
+    <string name="share_button_long">Dela min position</string>
+    <string name="share_leave_first">Lämna nuvarande grupp först</string>
     <string name="share_join_title">Gå med i grupp</string>
     <string name="share_identity_anon">Anonym</string>
     <string name="share_identity_session">Egen</string>

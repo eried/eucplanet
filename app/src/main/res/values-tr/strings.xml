@@ -1569,7 +1569,9 @@
     <string name="nav_arrived_goal">%1$d. hedef tamamlandı</string>
     <string name="nav_end_title">Navigasyon bitirilsin mi?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Sürüşümü paylaş</string>
+    <string name="share_button">Paylaşım seçenekleri</string>
+    <string name="share_button_long">Konumumu paylaş</string>
+    <string name="share_leave_first">Önce mevcut gruptan ayrılın</string>
     <string name="share_join_title">Gruba katıl</string>
     <string name="share_identity_anon">Anonim</string>
     <string name="share_identity_session">Özel</string>

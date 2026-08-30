@@ -1569,7 +1569,9 @@
     <string name="nav_arrived_goal">목표 %1$d 도달</string>
     <string name="nav_end_title">내비게이션을 종료하시겠습니까?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">라이드 공유</string>
+    <string name="share_button">공유 옵션</string>
+    <string name="share_button_long">내 위치 공유</string>
+    <string name="share_leave_first">먼저 현재 그룹에서 나가세요</string>
     <string name="share_join_title">그룹 참가</string>
     <string name="share_identity_anon">익명</string>
     <string name="share_identity_session">맞춤</string>

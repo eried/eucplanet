@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
@@ -66,6 +67,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -116,6 +118,7 @@ import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.util.Units
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -174,6 +177,25 @@ internal fun shareBlockMaxWidth(): Dp {
     val config = LocalConfiguration.current
     val factor = if (config.screenWidthDp > config.screenHeightDp) 0.4f else 0.55f
     return minOf(360.dp, (config.screenHeightDp * factor).dp)
+}
+
+/**
+ * Put something on the clipboard and say so exactly once.
+ *
+ * Android 13 and up pops its own clipboard confirmation for every write, so a
+ * snackbar on top of it says "Copied" twice for one tap. Below that there is
+ * no system feedback at all and the snackbar is the only sign anything
+ * happened, so it is posted there and only there.
+ */
+private fun copyToClipboard(
+    context: Context,
+    text: String,
+    copied: String,
+    onNotify: (String) -> Unit,
+) {
+    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+    cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", text))
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) onNotify(copied)
 }
 
 /** An avatar URL is another rider's string off the relay, so it is checked
@@ -381,6 +403,11 @@ internal fun ShareDialogCard(
      *  QR is as wide as the dialog, so a long enough rider list would otherwise
      *  push Close and Leave off the bottom of the screen. */
     scrollable: Boolean = false,
+    /** What the body is currently showing, when the card has tabs. The scroll
+     *  position belongs to the tab, not to the card: one shared state carried
+     *  a scroll down the QR tab straight into the rider list, which opened
+     *  already scrolled past the rider's own row. */
+    scrollKey: Any? = null,
     /** Drawn inside the header, directly under the title, on the header's own
      *  surface. The tab row is part of the card's chrome rather than a second
      *  strip stacked on it, so the two read as one block with one bottom edge. */
@@ -440,16 +467,18 @@ internal fun ShareDialogCard(
                 header?.invoke()
             }
             HorizontalDivider(color = MaterialTheme.appColors.divider)
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (scrollable) Modifier.verticalScroll(rememberScrollState())
-                        else Modifier
-                    )
-                    .padding(16.dp),
-                content = content,
-            )
+            key(scrollKey) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (scrollable) Modifier.verticalScroll(rememberScrollState())
+                            else Modifier
+                        )
+                        .padding(16.dp),
+                    content = content,
+                )
+            }
         }
     }
 }
@@ -473,12 +502,21 @@ internal fun ShareDialogCard(
  * saying what is missing: hiding them would make the dialog change shape
  * between two openings a few seconds apart, and a rider who tapped Share for a
  * Maps pin would be left looking for an item that is not there.
+ *
+ * A rider already in a group reaches this same list by holding the Share
+ * button down (a tap goes to the group view, which is the one thing that icon
+ * can mean mid-ride). The two group items are disabled there for the same
+ * reason the GPS ones are: the list keeps its shape, and each row says why it
+ * cannot be tapped.
  */
 @Composable
 fun ShareMenuDialog(
     /** The rider's current fix, or null while there is none. */
     fixLat: Double?,
     fixLng: Double?,
+    /** True when the rider is already in a group ride. Joining or starting one
+     *  is then a leave away, so those two rows say so instead of acting. */
+    inGroup: Boolean = false,
     onDismiss: () -> Unit,
     /** Open the camera: the rider is joining a friend's ride. */
     onScan: () -> Unit,
@@ -490,6 +528,7 @@ fun ShareMenuDialog(
     val hasFix = fixLat != null && fixLng != null
     val coords = if (hasFix) ShareLocationText.coordinates(fixLat!!, fixLng!!) else null
     val waiting = stringResource(R.string.share_waiting_gps)
+    val leaveFirst = stringResource(R.string.share_leave_first)
     val copied = stringResource(R.string.share_copied)
 
     AlertDialog(
@@ -501,12 +540,14 @@ fun ShareMenuDialog(
                 ToolRow(
                     Icons.Default.QrCodeScanner,
                     stringResource(R.string.share_menu_join),
-                    stringResource(R.string.share_menu_join_desc),
+                    if (inGroup) leaveFirst else stringResource(R.string.share_menu_join_desc),
+                    enabled = !inGroup,
                 ) { onDismiss(); onScan() }
                 ToolRow(
                     Icons.Default.Share,
                     stringResource(R.string.share_menu_live),
-                    stringResource(R.string.share_menu_live_desc),
+                    if (inGroup) leaveFirst else stringResource(R.string.share_menu_live_desc),
+                    enabled = !inGroup,
                 ) { onDismiss(); onStartGroup() }
                 ToolRow(
                     Icons.Default.Place,
@@ -535,9 +576,7 @@ fun ShareMenuDialog(
                     enabled = hasFix,
                 ) {
                     onDismiss()
-                    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-                    cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", coords))
-                    onNotify(copied)
+                    copyToClipboard(context, coords.orEmpty(), copied, onNotify)
                 }
             }
         },
@@ -938,8 +977,14 @@ fun ShareGroupDialog(
     tempUnit: String,
     /** What this rider is broadcasting right now, or null when nothing real is
      *  going out (stats off, or no wheel connected). The rider's own row shows
-     *  exactly this, so it matches what the group is being told. */
-    myStats: ShareStats?,
+     *  exactly this, so it matches what the group is being told.
+     *
+     *  The flow, not a collected value: it recombines on every wheel telemetry
+     *  tick, so a reader in the navigator's own body would invalidate the whole
+     *  screen several times a second with this dialog closed. Collected here,
+     *  the subscription and the recomposition both last exactly as long as the
+     *  rider list is on screen, which is what its WhileSubscribed assumes. */
+    myStats: StateFlow<ShareStats?>,
     /** Centre the map on one friend and open their marker's label. The id is
      *  the relay sender id, which is what the map keys its markers by. */
     onGoToPeer: (String, Double, Double) -> Unit,
@@ -959,6 +1004,7 @@ fun ShareGroupDialog(
     // the way their marker stays on the map, and counting those rows would
     // print "2 riders" directly above "no one else here yet".
     val activeCount = state.activePeers.size
+    val stats by myStats.collectAsState()
     // The tab counts the rider too: "Connected (1)" alone in a room they just
     // opened is the truth, where a 0 next to their own row on the tab under it
     // would not be.
@@ -975,6 +1021,9 @@ fun ShareGroupDialog(
         ShareDialogCard(
             title = stringResource(R.string.share_title_group),
             scrollable = true,
+            // A tab switch is a new body, so it starts at the top rather than
+            // wherever the other tab was left.
+            scrollKey = tab,
             header = {
                 ShareGroupTabRow(
                     selected = tab,
@@ -1081,12 +1130,7 @@ fun ShareGroupDialog(
                         ShareLinkAction(
                             icon = Icons.Default.ContentCopy,
                             description = stringResource(R.string.share_copy),
-                            onClick = {
-                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
-                                    as? ClipboardManager
-                                cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
-                                onNotify(copiedMsg)
-                            }
+                            onClick = { copyToClipboard(context, url, copiedMsg, onNotify) }
                         )
                         ShareLinkAction(
                             icon = Icons.Default.OpenInBrowser,
@@ -1133,14 +1177,14 @@ fun ShareGroupDialog(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .background(MaterialTheme.appColors.surfaceVariant)
-                            .padding(8.dp)
+                            .padding(horizontal = ROW_INSET, vertical = 8.dp)
                     ) {
                         RiderRow(
                             name = state.me.name,
                             flag = state.me.flag,
                             avatarUrl = state.me.avatarUrl,
                             color = state.me.color,
-                            stats = myStats,
+                            stats = stats,
                             speedUnit = speedUnit,
                             tempUnit = tempUnit,
                             faded = false,
@@ -1168,7 +1212,8 @@ fun ShareGroupDialog(
                         Text(
                             stringResource(R.string.share_alone),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.appColors.textSecondary
+                            color = MaterialTheme.appColors.textSecondary,
+                            modifier = Modifier.padding(horizontal = ROW_INSET)
                         )
                     }
                     // Riders who left or went LOST keep their row, greyed, the
@@ -1185,6 +1230,10 @@ fun ShareGroupDialog(
                         Column(
                             Modifier
                                 .fillMaxWidth()
+                                // Inset by exactly what the filled container
+                                // above pads its own row by, so every avatar
+                                // in the list sits on one vertical line.
+                                .padding(horizontal = ROW_INSET)
                                 .heightIn(max = PEER_LIST_MAX_HEIGHT)
                                 .verticalScroll(rememberScrollState())
                         ) {
@@ -1343,6 +1392,11 @@ private fun ShareLinkAction(
  *  but a full room would otherwise push Close and Leave under the fold every
  *  time the group view is opened. */
 private val PEER_LIST_MAX_HEIGHT = 56.dp * 6 + 5.dp
+
+/** The rider's own row sits in a filled container and the others do not, so
+ *  the inset that container pads by is a shared number: the list under it uses
+ *  the same one and every avatar lines up down the column. */
+private val ROW_INSET = 8.dp
 
 /**
  * One rider as the group sees them: a 40 dp avatar or coloured initial, the

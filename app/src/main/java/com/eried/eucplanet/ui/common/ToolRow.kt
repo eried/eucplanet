@@ -28,8 +28,10 @@ import com.eried.eucplanet.ui.theme.appColors
  *
  * Disabled rows stay in place rather than disappearing: a list that changes
  * shape between two openings a few seconds apart is harder to aim at, and the
- * subtitle is where the row says what is missing. Only the icon and the title
- * grey out, the subtitle is already the muted colour.
+ * subtitle is where the row says what is missing. A disabled row greys down as
+ * a whole and keeps its two levels: the title drops to the muted colour and
+ * the subtitle a step under that, so "Share static location" and "Waiting for
+ * GPS" still read as an action with its reason rather than as two equal lines.
  */
 @Composable
 internal fun ToolRow(
@@ -44,6 +46,8 @@ internal fun ToolRow(
     // this is the same tint the row has always had, read from the app palette.
     val iconTint = if (enabled) appColors.primary else appColors.textSecondary
     val titleColor = if (enabled) appColors.textPrimary else appColors.textSecondary
+    val subtitleColor =
+        if (enabled) appColors.textSecondary else appColors.textSecondary.copy(alpha = 0.7f)
     Row(
         Modifier
             .fillMaxWidth()
@@ -57,7 +61,7 @@ internal fun ToolRow(
             Text(title, style = MaterialTheme.typography.bodyLarge,
                 color = titleColor)
             Text(subtitle, style = MaterialTheme.typography.bodySmall,
-                color = appColors.textSecondary)
+                color = subtitleColor)
         }
     }
 }

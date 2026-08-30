@@ -774,7 +774,9 @@
     <string name="nav_end_confirm">Avslutt</string>
     <string name="nav_end_title">Avslutte navigasjon?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Del turen min</string>
+    <string name="share_button">Delingsvalg</string>
+    <string name="share_button_long">Del posisjonen min</string>
+    <string name="share_leave_first">Forlat gruppen du er i først</string>
     <string name="share_join_title">Bli med i gruppe</string>
     <string name="share_identity_anon">Anonym</string>
     <string name="share_identity_session">Egen</string>

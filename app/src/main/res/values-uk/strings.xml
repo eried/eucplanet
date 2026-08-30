@@ -1604,7 +1604,9 @@
     <string name="nav_arrived_goal">Досягнуто ціль %1$d</string>
     <string name="nav_end_title">Завершити навігацію?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Поділитися своєю поїздкою</string>
+    <string name="share_button">Опції «Поділитися»</string>
+    <string name="share_button_long">Поділитися розташуванням</string>
+    <string name="share_leave_first">Спершу вийдіть із поточної групи</string>
     <string name="share_join_title">Приєднатися до групи</string>
     <string name="share_identity_anon">Анонімно</string>
     <string name="share_identity_session">Своє</string>

@@ -117,8 +117,11 @@ class ShareSession @Inject constructor(
      * what the group is being told rather than a hopeful copy of it.
      *
      * WhileSubscribed rather than Eagerly: wheelData ticks several times a
-     * second while riding, and this only has a reader while the group dialog is
-     * open on the rider list.
+     * second while riding, and the only reader is inside the group dialog, so
+     * the combine runs while that dialog is on screen and not before. It is
+     * handed down as a flow rather than collected in the navigator for exactly
+     * that reason: a screen-level reader would subscribe for the whole life of
+     * the navigator and invalidate it at telemetry rate.
      */
     val myStats: StateFlow<ShareStats?> = combine(
         _state, wheelRepository.connectionState, wheelRepository.wheelData

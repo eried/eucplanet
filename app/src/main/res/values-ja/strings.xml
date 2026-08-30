@@ -1569,7 +1569,9 @@
     <string name="nav_arrived_goal">目標 %1$d に到達しました</string>
     <string name="nav_end_title">ナビを終了しますか？</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">ライドを共有</string>
+    <string name="share_button">共有オプション</string>
+    <string name="share_button_long">現在地を共有</string>
+    <string name="share_leave_first">先に現在のグループを退出</string>
     <string name="share_join_title">グループに参加</string>
     <string name="share_identity_anon">匿名</string>
     <string name="share_identity_session">カスタム</string>

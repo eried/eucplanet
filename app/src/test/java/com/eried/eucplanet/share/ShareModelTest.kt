@@ -85,27 +85,68 @@ class ShareModelTest {
     }
     /** The map draws one polyline per band and reads the band number straight
      *  off the wire, so a band that ever landed outside 0..3 would index past
-     *  the page's opacity table. The boundaries are pinned here because they
-     *  are duplicated in the page's PEER_TRAIL_OPACITY comment. */
+     *  the page's opacity table. The default trail is five minutes, and these
+     *  are the boundaries the page's PEER_TRAIL_OPACITY comment names. */
     @Test fun trailBandsAreFourBucketsInOrder() {
+        val fiveMin = 5 * 60_000L
         assertEquals(4, TrailBands.COUNT)
-        assertEquals(0, TrailBands.of(0L))
-        assertEquals(0, TrailBands.of(59_999L))
-        assertEquals(1, TrailBands.of(60_000L))
-        assertEquals(1, TrailBands.of(119_999L))
-        assertEquals(2, TrailBands.of(120_000L))
-        assertEquals(2, TrailBands.of(209_999L))
-        assertEquals(3, TrailBands.of(210_000L))
+        assertEquals(0, TrailBands.of(0L, fiveMin))
+        assertEquals(0, TrailBands.of(59_999L, fiveMin))
+        assertEquals(1, TrailBands.of(60_000L, fiveMin))
+        assertEquals(1, TrailBands.of(119_999L, fiveMin))
+        assertEquals(2, TrailBands.of(120_000L, fiveMin))
+        assertEquals(2, TrailBands.of(209_999L, fiveMin))
+        assertEquals(3, TrailBands.of(210_000L, fiveMin))
         // Older than the longest trail the settings allow still lands in the
         // last band rather than off the end of it.
-        assertEquals(3, TrailBands.of(60 * 60_000L))
+        assertEquals(3, TrailBands.of(60 * 60_000L, fiveMin))
         // Monotonic: an older point can never come back to a brighter band.
         var previous = 0
         for (ageS in 0..400) {
-            val band = TrailBands.of(ageS * 1000L)
+            val band = TrailBands.of(ageS * 1000L, fiveMin)
             assertTrue("band went backwards at $ageS s", band >= previous)
             assertTrue(band in 0 until TrailBands.COUNT)
             previous = band
         }
+    }
+
+    /** The trail length is a 1..30 minute rider setting, so the bands are
+     *  fractions of it. A fixed table gave a one-minute trail a single flat
+     *  band and a thirty-minute one 26 minutes of the faintest. */
+    @Test fun trailBandsScaleWithTheTrailLength() {
+        assertArrayEquals(longArrayOf(60_000L, 120_000L, 210_000L), TrailBands.edgesMs(5 * 60_000L))
+        // One minute: the same four steps, a fifth of a minute each to start.
+        val oneMin = 60_000L
+        assertArrayEquals(longArrayOf(12_000L, 24_000L, 42_000L), TrailBands.edgesMs(oneMin))
+        assertEquals(0, TrailBands.of(11_999L, oneMin))
+        assertEquals(1, TrailBands.of(12_000L, oneMin))
+        assertEquals(2, TrailBands.of(24_000L, oneMin))
+        assertEquals(3, TrailBands.of(42_000L, oneMin))
+        // Thirty minutes: the faintest band starts at 21 minutes, not at 3.5.
+        val thirtyMin = 30 * 60_000L
+        assertArrayEquals(
+            longArrayOf(6 * 60_000L, 12 * 60_000L, 21 * 60_000L),
+            TrailBands.edgesMs(thirtyMin)
+        )
+        assertEquals(0, TrailBands.of(5 * 60_000L, thirtyMin))
+        assertEquals(1, TrailBands.of(6 * 60_000L, thirtyMin))
+        assertEquals(2, TrailBands.of(12 * 60_000L, thirtyMin))
+        assertEquals(3, TrailBands.of(21 * 60_000L, thirtyMin))
+        // Every settable trail length keeps all four bands, in order, with no
+        // boundary landing on top of another.
+        for (minutes in 1..30) {
+            val maxAge = minutes * 60_000L
+            val edges = TrailBands.edgesMs(maxAge)
+            assertEquals(TrailBands.COUNT - 1, edges.size)
+            assertTrue("edges not ascending at $minutes min", edges[0] < edges[1] && edges[1] < edges[2])
+            assertTrue("last edge past the trail at $minutes min", edges[2] < maxAge)
+            assertEquals(0, TrailBands.of(0L, maxAge))
+            assertEquals(TrailBands.COUNT - 1, TrailBands.of(maxAge, maxAge))
+        }
+    }
+
+    /** The band stamp reads the ring's own length, so the two cannot drift. */
+    @Test fun trailExposesTheAgeTheBandsAreCutFrom() {
+        assertEquals(7 * 60_000L, Trail(maxAgeMs = 7 * 60_000L).maxAgeMs)
     }
 }

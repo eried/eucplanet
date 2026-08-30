@@ -1727,8 +1727,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   // have to tap again to tidy it up.
   var PEER_EXPAND_MS = 5000;
   // Four bands of trail age, newest first, and the opacity each is drawn at.
-  // The Kotlin side stamps every trail point with its band, so this table and
-  // the one over there are the same four buckets: 0-1, 1-2, 2-3.5, 3.5-5 min.
+  // The Kotlin side stamps every trail point with its band, so this table is
+  // the only thing the page knows about trail age. The buckets are fractions
+  // of the rider's own trail length (the first 20%, then 40%, then 70%, then
+  // the rest), which at the default five minutes is 0-1, 1-2, 2-3.5, 3.5-5.
   var PEER_TRAIL_OPACITY = [1.0, 0.7, 0.45, 0.2];
   // One live record per peer, keyed by their id, so a push can update what
   // changed instead of rebuilding the world. This runs once a SECOND (the age
@@ -1765,7 +1767,13 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // the map says "23 km/h" exactly when the group list does, in the rider's
     // own units. Absent when the friend is not broadcasting stats.
     var stats = typeof p.statsText === 'string' ? p.statsText : '';
-    var flag = p.flag ? ' ' + peerEsc(p.flag) : '';
+    // flagText, not flag: Kotlin sends the flag the group list draws (the
+    // emoji, falling back to the two-letter code), so the plate a tapped
+    // marker opens and the row for the same rider say the same thing. The dot
+    // itself keeps the code: a coloured flag inside a coloured 26 px circle
+    // is a badge fighting a badge.
+    var flagSrc = typeof p.flagText === 'string' && p.flagText ? p.flagText : p.flag;
+    var flag = flagSrc ? ' ' + peerEsc(flagSrc) : '';
     return '<div class="peer-name peer-name-open">' +
       '<div>' + peerEsc(p.name) + flag + '</div>' +
       (stats ? '<div class="peer-sub">' + peerEsc(stats) + '</div>' : '') +
@@ -1831,8 +1839,19 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   // The group list's "fly to this rider" opens the same label the rider would
   // get by tapping the dot, so arriving at a friend and tapping them look the
   // same. Called right after nativeRecenter, from Kotlin.
+  //
+  // A rider can be in the list before their marker is on the map: the list is
+  // drawn from the session state and the markers arrive on their own
+  // once-a-second push. Rather than doing nothing, the id is remembered and
+  // opened by the next push that carries it. Once only: a rider who is still
+  // missing after that has left, and a label that opened a minute later would
+  // be a mystery.
+  var peerPendingExpand = null;
   window.nativeExpandPeer = function(id){
-    peerSetExpanded(String(id === null || id === undefined ? '' : id), true);
+    var key = String(id === null || id === undefined ? '' : id);
+    peerPendingExpand = null;
+    if (peerObjs[key]) peerSetExpanded(key, true);
+    else peerPendingExpand = key;
   };
 
   /**
@@ -1936,6 +1955,13 @@ private const val ROUTE_BUILDER_HTML_2: String = """
         peerApplyIcon(rec);
       }
     });
+    // A tap on a rider whose marker had not been pushed yet: this is the push
+    // that brought it, so the label opens now. Cleared either way.
+    if (peerPendingExpand) {
+      var want = peerPendingExpand;
+      peerPendingExpand = null;
+      if (peerObjs[want]) peerSetExpanded(want, true);
+    }
     // Whoever is no longer in the push has left the room or the share ended.
     for (var gone in peerObjs) {
       if (Object.prototype.hasOwnProperty.call(peerObjs, gone) && !alive[gone]) {

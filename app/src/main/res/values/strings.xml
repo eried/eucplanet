@@ -2287,7 +2287,9 @@
     <string name="nav_setting_ocm_key_hint">Adds reviews, photos and connector details to the charger flyout. Sign up for a free key at</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Share my ride</string>
+    <string name="share_button">Share options</string>
+    <string name="share_button_long">Share my location</string>
+    <string name="share_leave_first">Leave the current group first</string>
     <string name="share_join_title">Join group</string>
     <string name="share_identity_anon">Anonymous</string>
     <string name="share_identity_session">Custom</string>

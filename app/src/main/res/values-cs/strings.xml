@@ -1834,7 +1834,9 @@
     <string name="nav_arrived_goal">Dosažen cíl %1$d</string>
     <string name="nav_end_title">Ukončit navigaci?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Sdílet svou jízdu</string>
+    <string name="share_button">Možnosti sdílení</string>
+    <string name="share_button_long">Sdílet moji polohu</string>
+    <string name="share_leave_first">Nejdřív opusťte aktuální skupinu</string>
     <string name="share_join_title">Připojit se ke skupině</string>
     <string name="share_identity_anon">Anonymně</string>
     <string name="share_identity_session">Vlastní</string>

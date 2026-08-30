@@ -1834,7 +1834,9 @@
     <string name="nav_arrived_goal">Saavutettu kohde %1$d</string>
     <string name="nav_end_title">Lopetetaanko navigointi?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Jaa matkani</string>
+    <string name="share_button">Jakovaihtoehdot</string>
+    <string name="share_button_long">Jaa sijaintini</string>
+    <string name="share_leave_first">Poistu ensin nykyisestä ryhmästä</string>
     <string name="share_join_title">Liity ryhmään</string>
     <string name="share_identity_anon">Anonyymi</string>
     <string name="share_identity_session">Oma</string>

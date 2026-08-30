@@ -1569,7 +1569,9 @@
     <string name="nav_arrived_goal">已到達目標 %1$d</string>
     <string name="nav_end_title">結束導航？</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">分享我的行程</string>
+    <string name="share_button">分享選項</string>
+    <string name="share_button_long">分享我的位置</string>
+    <string name="share_leave_first">請先離開目前群組</string>
     <string name="share_join_title">加入群組</string>
     <string name="share_identity_anon">匿名</string>
     <string name="share_identity_session">自訂</string>

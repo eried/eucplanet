@@ -1627,7 +1627,9 @@
     <string name="nav_arrived_goal">Doel %1$d bereikt</string>
     <string name="nav_end_title">Navigatie beëindigen?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Rit delen</string>
+    <string name="share_button">Deelopties</string>
+    <string name="share_button_long">Mijn locatie delen</string>
+    <string name="share_leave_first">Verlaat eerst de huidige groep</string>
     <string name="share_join_title">Deelnemen aan groep</string>
     <string name="share_identity_anon">Anoniem</string>
     <string name="share_identity_session">Eigen</string>

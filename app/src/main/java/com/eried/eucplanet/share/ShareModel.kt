@@ -105,19 +105,35 @@ data class TrailPoint(val lat: Double, val lng: Double, val t: Long, val alpha: 
  * pinch: the tail visibly lagged the map during the gesture. Four bands draw
  * the same fading tail with four paths.
  *
- * The bands are not even. The last minute is what a rider is actually reading
- * ("where did they just go"), so it gets a band to itself at full opacity;
- * everything past two minutes is context and is squeezed into the two faint
- * ones. Kotlin stamps the band on every point and the page only reads it, so
- * these boundaries live in one place.
+ * The bands are fractions of the trail's OWN maximum age, not fixed minutes.
+ * How long a trail is, is a rider setting (1 to 30 minutes), and a fixed table
+ * fitted exactly one of those values: at 1 minute every point landed in band 0
+ * and the tail was a flat line with no fade, at 30 minutes 26 of them were
+ * drawn in the faintest band. At the default 5 minutes the fractions land on
+ * the same boundaries the fixed table had, 1 / 2 / 3.5 minutes.
+ *
+ * The bands are not even. The freshest fifth is what a rider is actually
+ * reading ("where did they just go"), so it gets a band to itself at full
+ * opacity; everything past 40 percent of the trail is context and is squeezed
+ * into the two faint ones. Kotlin stamps the band on every point and the page
+ * only reads it, so these boundaries live in one place.
  */
 object TrailBands {
     const val COUNT = 4
-    /** Upper age bound of bands 0, 1 and 2 in ms; anything older is band 3. */
-    val EDGES_MS = longArrayOf(60_000L, 120_000L, 210_000L)
+    /** Upper bound of bands 0, 1 and 2 as a fraction of the trail's max age,
+     *  in permille; anything older is band 3. Permille rather than a Double so
+     *  a boundary is exact: 0.2 as a double times 5 minutes is a hair OVER a
+     *  minute, which would quietly put the 60 s point in the wrong band. */
+    val EDGE_PERMILLE = intArrayOf(200, 400, 700)
 
-    fun of(ageMs: Long): Int {
-        for (i in EDGES_MS.indices) if (ageMs < EDGES_MS[i]) return i
+    /** Upper age bound of bands 0, 1 and 2 in ms, for a trail this long. */
+    fun edgesMs(maxAgeMs: Long): LongArray =
+        LongArray(EDGE_PERMILLE.size) { maxAgeMs * EDGE_PERMILLE[it] / 1000L }
+
+    fun of(ageMs: Long, maxAgeMs: Long): Int {
+        for (i in EDGE_PERMILLE.indices) {
+            if (ageMs < maxAgeMs * EDGE_PERMILLE[i] / 1000L) return i
+        }
         return COUNT - 1
     }
 }
@@ -133,7 +149,12 @@ object TrailBands {
  * later call. Both operations therefore hold the same lock, and points()
  * returns a fresh list so no caller ever iterates the deque itself.
  */
-class Trail(private val maxAgeMs: Long) {
+class Trail(
+    /** How far back the trail reaches, from the rider's trail-length setting.
+     *  Public because the age bands are fractions of it: the map bridge stamps
+     *  a band on every point and needs the same number this ring prunes by. */
+    val maxAgeMs: Long,
+) {
     private val pts = ArrayDeque<Triple<Double, Double, Long>>()
     private val lock = Any()
     fun add(lat: Double, lng: Double, t: Long) {

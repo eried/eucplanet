@@ -1834,7 +1834,9 @@
     <string name="nav_arrived_goal">Ai atins ținta %1$d</string>
     <string name="nav_end_title">Închei navigarea?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Distribuie cursa mea</string>
+    <string name="share_button">Opțiuni de partajare</string>
+    <string name="share_button_long">Partajează locația mea</string>
+    <string name="share_leave_first">Părăseşte mai întâi grupul curent</string>
     <string name="share_join_title">Alătură-te grupului</string>
     <string name="share_identity_anon">Anonim</string>
     <string name="share_identity_session">Propriu</string>

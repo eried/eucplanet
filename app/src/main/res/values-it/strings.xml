@@ -793,7 +793,9 @@
     <string name="nav_end_confirm">Termina</string>
     <string name="nav_end_title">Terminare la navigazione?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Condividi il mio viaggio</string>
+    <string name="share_button">Opzioni di condivisione</string>
+    <string name="share_button_long">Condividi la mia posizione</string>
+    <string name="share_leave_first">Esci prima dal gruppo attuale</string>
     <string name="share_join_title">Unisciti al gruppo</string>
     <string name="share_identity_anon">Anonimo</string>
     <string name="share_identity_session">Personale</string>

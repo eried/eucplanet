@@ -1834,7 +1834,9 @@
     <string name="nav_arrived_goal">Elérted a(z) %1$d. célt</string>
     <string name="nav_end_title">Befejezed a navigációt?</string>
     <!-- ==== Live location share (navigator) ==== -->
-    <string name="share_button">Utam megosztása</string>
+    <string name="share_button">Megosztási lehetőségek</string>
+    <string name="share_button_long">Helyzetem megosztása</string>
+    <string name="share_leave_first">Előbb hagyd el a jelenlegi csoportot</string>
     <string name="share_join_title">Csatlakozás csoporthoz</string>
     <string name="share_identity_anon">Névtelen</string>
     <string name="share_identity_session">Egyéni</string>
