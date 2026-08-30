@@ -627,7 +627,7 @@
     <string name="welcome_tut_speed">Ta vitesse en direct. Change les unités dans Paramètres → %1$s</string>
     <string name="welcome_tut_metrics">Batterie, température, tension et plus, en direct. Réorganise-les dans Paramètres → %1$s</string>
     <string name="welcome_tut_actions">Commandes rapides. Personnalise-les au même endroit, dans %2$s</string>
-    <string name="welcome_tut_map">Ouvre le navigateur pour planifier des itinéraires et obtenir un guidage virage par virage</string>
+    <string name="welcome_tut_map">Ouvre le navigateur pour planifier des itinéraires, être guidé virage par virage ou partager ta position en direct pour une sortie de groupe</string>
     <string name="welcome_tut_gps">Touche ici pour la vue des données en direct ; tu peux même calibrer la vitesse de ta roue à partir du GPS. À vérifier plus tard dans Paramètres → %1$s</string>
     <string name="welcome_tut_camera">Enregistre des vidéos avec une superposition de télémétrie en direct. Crée tes propres overlays et exporte-les pour réaliser tes vidéos avec les données de tes trajets passés</string>
     <string name="welcome_tut_pd">Affiche Park ou Drive. Touche pour définir ton %1$s</string>

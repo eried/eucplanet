@@ -798,7 +798,7 @@
     <string name="welcome_tut_speed">Reaaliaikainen nopeutesi. Vaihda yksiköt kohdassa Asetukset → %1$s</string>
     <string name="welcome_tut_metrics">Reaaliaikainen akku, lämpötila, jännite ja muuta. Järjestä ne uudelleen kohdassa Asetukset → %1$s</string>
     <string name="welcome_tut_actions">Pikahallinta. Säädä niitä samassa paikassa, kohdassa %2$s</string>
-    <string name="welcome_tut_map">Avaa navigointi suunnitellaksesi reittejä ja saadaksesi käännösopastusta</string>
+    <string name="welcome_tut_map">Avaa navigaattori reittien suunnitteluun, käännösohjeisiin tai reaaliaikaisen sijaintisi jakamiseen ryhmäajossa</string>
     <string name="welcome_tut_gps">Napauta nähdäksesi reaaliaikaisen datanäkymän, voit jopa kalibroida yksipyöräisen nopeuden GPS-nopeuden perusteella. Tarkista kalibrointi myöhemmin kohdassa Asetukset → %1$s</string>
     <string name="welcome_tut_camera">Tallenna videota reaaliaikaisella telemetriapäällysteellä. Luo omia hienoja päällysteitä ja vie ne tehdäksesi omia videoita menneiden matkojen datalla</string>
     <string name="welcome_tut_pd">Näyttää Park tai Drive. Napauta asettaaksesi %1$s</string>

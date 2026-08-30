@@ -623,7 +623,7 @@
     <string name="welcome_tut_speed">您的即時速度。在設定 → %1$s 中更改單位</string>
     <string name="welcome_tut_metrics">即時電池、溫度、電壓等資訊。在設定 → %1$s 中重新排列</string>
     <string name="welcome_tut_actions">快速控制。在同一處的 %2$s 下調整</string>
-    <string name="welcome_tut_map">開啟導航規劃路線並取得逐向指引</string>
+    <string name="welcome_tut_map">開啟導航器來規劃路線、取得逐向導引，或在團騎中分享即時位置</string>
     <string name="welcome_tut_gps">點擊查看即時資料，也可根據 GPS 速度校準車輪速度。稍後在設定 → %1$s 中檢查校準</string>
     <string name="welcome_tut_camera">錄製帶有即時遙測疊加層的影片。建立自訂疊加層並匯出，搭配過去行程資料製作影片</string>
     <string name="welcome_tut_pd">顯示停車或行駛。點擊以設定您的 %1$s</string>

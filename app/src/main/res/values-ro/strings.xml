@@ -798,7 +798,7 @@
     <string name="welcome_tut_speed">Viteza ta în timp real. Schimbă unitățile în Setări → %1$s</string>
     <string name="welcome_tut_metrics">Baterie, temperatură, tensiune și altele în timp real. Rearanjează-le în Setări → %1$s</string>
     <string name="welcome_tut_actions">Comenzi rapide. Ajustează-le în același loc, la %2$s</string>
-    <string name="welcome_tut_map">Deschide navigatorul pentru a planifica trasee și a primi ghidare pas cu pas</string>
+    <string name="welcome_tut_map">Deschide navigatorul pentru a planifica trasee, a primi indicații pas cu pas sau a partaja locația live într-o tură de grup</string>
     <string name="welcome_tut_gps">Atinge pentru vizualizarea datelor în timp real, îți poți chiar calibra viteza monociclului după viteza GPS. Verifică apoi calibrarea în Setări → %1$s</string>
     <string name="welcome_tut_camera">Înregistrează video cu o suprapunere de telemetrie în timp real. Creează suprapuneri personalizate spectaculoase și exportă-le ca să îți faci propriile clipuri cu date din curse anterioare</string>
     <string name="welcome_tut_pd">Arată Park sau Drive. Atinge pentru a seta %1$s</string>

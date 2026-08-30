@@ -1503,7 +1503,7 @@
     <string name="welcome_tut_speed">Farten din i sanntid. Endre enheter under Innstillinger → %1$s</string>
     <string name="welcome_tut_metrics">Batteri, temperatur, spenning og mer i sanntid. Endre rekkefølgen under Innstillinger → %1$s</string>
     <string name="welcome_tut_actions">Hurtigkontroller. Tilpass dem på samme sted, under %2$s</string>
-    <string name="welcome_tut_map">Åpne navigatoren for å planlegge ruter og få veibeskrivelse steg for steg</string>
+    <string name="welcome_tut_map">Åpne navigatoren for å planlegge ruter, få sving-for-sving-veiledning eller dele posisjonen din live på en gruppetur</string>
     <string name="welcome_tut_gps">Trykk for live data her, du kan til og med kalibrere hjulets fart mot GPS-farten. Sjekk kalibreringen senere under Innstillinger → %1$s</string>
     <string name="welcome_tut_camera">Ta opp video med et telemetri-overlegg i sanntid. Lag egne stilige overlegg og eksporter dem for å lage dine egne videoer med data fra tidligere turer</string>
     <string name="welcome_tut_pd">Viser Park eller Kjør. Trykk for å stille inn %1$s</string>

@@ -627,7 +627,7 @@
     <string name="welcome_tut_speed">Din aktuelle fart. Skift enheder under Indstillinger → %1$s</string>
     <string name="welcome_tut_metrics">Live batteri, temperatur, spænding og mere. Omarranger dem under Indstillinger → %1$s</string>
     <string name="welcome_tut_actions">Hurtige kontroller. Tilpas dem samme sted under %2$s</string>
-    <string name="welcome_tut_map">Åbn navigatoren for at planlægge ruter og få sving-for-sving-vejledning</string>
+    <string name="welcome_tut_map">Åbn navigatoren for at planlægge ruter, få sving-for-sving-vejledning eller dele din liveposition på en gruppetur</string>
     <string name="welcome_tut_gps">Tryk for at se live data her, du kan endda kalibrere hjulets hastighed ud fra GPS-farten. Tjek kalibreringen senere under Indstillinger → %1$s</string>
     <string name="welcome_tut_camera">Optag video med live telemetri-overlay. Lav dine egne overlays og eksportér dem til egne videoer med data fra tidligere ture</string>
     <string name="welcome_tut_pd">Viser Park eller Drive. Tryk for at indstille din %1$s</string>

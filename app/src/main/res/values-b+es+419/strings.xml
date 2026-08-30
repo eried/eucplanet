@@ -627,7 +627,7 @@
     <string name="welcome_tut_speed">Tu velocidad en vivo. Cambia las unidades en Configuración → %1$s</string>
     <string name="welcome_tut_metrics">Batería, temperatura, voltaje y más en vivo. Reorganízalos en Configuración → %1$s</string>
     <string name="welcome_tut_actions">Controles rápidos. Personalízalos en el mismo lugar, bajo %2$s</string>
-    <string name="welcome_tut_map">Abre el navegador para planear rutas y recibir indicaciones paso a paso</string>
+    <string name="welcome_tut_map">Abre el navegador para planear rutas, recibir indicaciones paso a paso o compartir tu ubicación en vivo en una rodada grupal</string>
     <string name="welcome_tut_gps">Toca aquí para ver los datos en vivo; incluso puedes calibrar la velocidad de tu rueda según el GPS. Revisa la calibración más tarde en Configuración → %1$s</string>
     <string name="welcome_tut_camera">Graba video con una superposición de telemetría en vivo. Crea overlays personalizados y expórtalos para hacer tus propios videos con datos de viajes anteriores</string>
     <string name="welcome_tut_pd">Muestra Estacionado o En marcha. Tócalo para configurar tu %1$s</string>

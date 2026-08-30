@@ -623,7 +623,7 @@
     <string name="welcome_tut_speed">Anlık hızınız. Ayarlar → %1$s kısmından birimleri değiştirin</string>
     <string name="welcome_tut_metrics">Anlık akü, sıcaklık, gerilim ve daha fazlası. Ayarlar → %1$s kısmından yeniden düzenleyin</string>
     <string name="welcome_tut_actions">Hızlı kontroller. Aynı yerde, %2$s altından özelleştirin</string>
-    <string name="welcome_tut_map">Rota planlamak ve adım adım yönlendirme almak için navigatörü açın</string>
+    <string name="welcome_tut_map">Rota planlamak, adım adım yönlendirme almak veya grup sürüşünde canlı konumunu paylaşmak için navigatörü aç</string>
     <string name="welcome_tut_gps">Canlı veri görünümü için dokunun; GPS hızına göre teker hızınızı bile kalibre edebilirsiniz. Kalibrasyonu daha sonra Ayarlar → %1$s kısmından kontrol edin</string>
     <string name="welcome_tut_camera">Canlı telemetri kaplamasıyla video kaydedin. Özel kaplamalar oluşturun ve geçmiş seferlerden verilerle kendi videolarınızı yapın</string>
     <string name="welcome_tut_pd">Park veya Sürüş gösterir. %1$s ayarlamak için dokunun</string>

@@ -1522,7 +1522,7 @@
     <string name="welcome_tut_speed">La tua velocità in tempo reale. Cambia le unità in Impostazioni → %1$s</string>
     <string name="welcome_tut_metrics">Batteria, temperatura, tensione e altro in tempo reale. Riordinali in Impostazioni → %1$s</string>
     <string name="welcome_tut_actions">Controlli rapidi. Personalizzali nello stesso posto, in %2$s</string>
-    <string name="welcome_tut_map">Apri il navigatore per pianificare percorsi e ottenere indicazioni passo passo</string>
+    <string name="welcome_tut_map">Apri il navigatore per pianificare percorsi, avere indicazioni passo passo o condividere la tua posizione in tempo reale in un giro di gruppo</string>
     <string name="welcome_tut_gps">Tocca per i dati in tempo reale, puoi anche calibrare la velocità del tuo monoruota in base a quella del GPS. Controlla la calibrazione più tardi in Impostazioni → %1$s</string>
     <string name="welcome_tut_camera">Registra video con una sovrapposizione di telemetria in tempo reale. Crea overlay personalizzati ed esportali per realizzare i tuoi video con i dati dei viaggi passati</string>
     <string name="welcome_tut_pd">Mostra Park o Drive. Toccalo per impostare la tua %1$s</string>

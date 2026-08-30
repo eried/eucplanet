@@ -623,7 +623,7 @@
     <string name="welcome_tut_speed">ライブ速度。設定 → %1$s で単位を変更できます</string>
     <string name="welcome_tut_metrics">ライブバッテリー、温度、電圧など。設定 → %1$s で並べ替えられます</string>
     <string name="welcome_tut_actions">クイックコントロール。同じ場所の %2$s でカスタマイズできます</string>
-    <string name="welcome_tut_map">ナビゲーターを開いてルートを計画し、ターンバイターンのガイダンスを利用できます</string>
+    <string name="welcome_tut_map">ナビゲーターでルートを計画し、ターンバイターン案内を受けたり、グループライドで現在地を共有したりできます</string>
     <string name="welcome_tut_gps">タップでライブデータを表示。GPS 速度を元にホイール速度をキャリブレーションすることもできます。設定 → %1$s で後から確認できます</string>
     <string name="welcome_tut_camera">ライブテレメトリーオーバーレイで動画を録画。カスタムオーバーレイを作成・エクスポートして過去のトリップデータで自分だけの動画を作れます</string>
     <string name="welcome_tut_pd">パークまたはドライブを表示します。タップして %1$s を設定</string>

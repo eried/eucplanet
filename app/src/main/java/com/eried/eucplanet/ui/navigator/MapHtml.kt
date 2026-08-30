@@ -1833,6 +1833,13 @@ private const val ROUTE_BUILDER_HTML_2: String = """
 
   // Open or close one peer's label. An open label is raised above the others
   // so a second rider's dot cannot sit on top of the lines being read.
+  function peerHasMore(rec){
+    var p = rec && rec.data; if (!p) return false;
+    var st = p.stats;
+    var hasStats = !!(st && (st.speedKmh != null || st.batteryPct != null || st.tempC != null));
+    return hasStats || (p.freshness && p.freshness !== 'FRESH');
+  }
+
   function peerSetExpanded(id, open){
     var rec = peerObjs[id];
     if (!rec) return;
@@ -1865,7 +1872,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   window.nativeExpandPeer = function(id){
     var key = String(id === null || id === undefined ? '' : id);
     peerPendingExpand = null;
-    if (peerObjs[key]) peerSetExpanded(key, true);
+    if (peerObjs[key]) { if (peerHasMore(peerObjs[key])) peerSetExpanded(key, true); }
     else peerPendingExpand = key;
   };
 
@@ -1977,7 +1984,9 @@ private const val ROUTE_BUILDER_HTML_2: String = """
         rec.marker.on('click', (function(peerId){
           return function(){
             var r = peerObjs[peerId];
-            if (r) peerSetExpanded(peerId, !r.expanded);
+            // Nothing beyond the name to show (no stats, still fresh):
+            // the tap does nothing rather than growing the label by a hair.
+            if (r && (r.expanded || peerHasMore(r))) peerSetExpanded(peerId, !r.expanded);
           };
         })(id));
       } else {

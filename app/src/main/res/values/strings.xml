@@ -890,7 +890,7 @@
     <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>
     <string name="welcome_tut_metrics">Live battery, temp, voltage and more. Rearrange them in Settings → %1$s</string>
     <string name="welcome_tut_actions">Quick controls. Tweak them in the same place, under %2$s</string>
-    <string name="welcome_tut_map">Open the navigator to plan routes and get turn-by-turn guidance</string>
+    <string name="welcome_tut_map">Open the navigator to plan routes, get turn-by-turn guidance, or share your live location for a group ride</string>
     <string name="welcome_tut_gps">Tap for live data view here, you can even calibrate your wheel speed based on GPS speed. Check the calibration later in Settings → %1$s</string>
     <string name="welcome_tut_camera">Record video with a live telemetry overlay. Create custom fancy overlays and export them to make your own videos with data from past trips</string>
     <string name="welcome_tut_pd">Shows Park or Drive. Tap it to set your %1$s</string>

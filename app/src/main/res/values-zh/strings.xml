@@ -1486,7 +1486,7 @@
     <string name="welcome_tut_speed">你的实时速度。可在设置 → %1$s 中更改单位</string>
     <string name="welcome_tut_metrics">实时显示电量、温度、电压等信息。可在设置 → %1$s 中重新排列</string>
     <string name="welcome_tut_actions">快捷控制。可在同一位置的 %2$s 中自定义</string>
-    <string name="welcome_tut_map">打开导航来规划路线并获取逐向导航指引</string>
+    <string name="welcome_tut_map">打开导航器来规划路线、获取逐向导航，或在团骑中分享实时位置</string>
     <string name="welcome_tut_gps">点按这里查看实时数据，还能根据 GPS 速度校准独轮车上报的速度。校准结果稍后可在设置 → %1$s 中查看</string>
     <string name="welcome_tut_camera">录制带有实时遥测叠加信息的视频。你还能制作炫酷的自定义叠加层并将其导出，用过往行程的数据打造属于自己的视频</string>
     <string name="welcome_tut_pd">显示驻车或行驶状态。点按即可设置你的 %1$s</string>

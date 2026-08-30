@@ -623,7 +623,7 @@
     <string name="welcome_tut_speed">Deine aktuelle Geschwindigkeit. Einheiten ändern unter Einstellungen → %1$s</string>
     <string name="welcome_tut_metrics">Akku, Temperatur, Spannung und mehr in Echtzeit. Unter Einstellungen → %1$s neu anordnen</string>
     <string name="welcome_tut_actions">Schnellsteuerung. Anpassen an derselben Stelle unter %2$s</string>
-    <string name="welcome_tut_map">Navigator öffnen, um Routen zu planen und Abbiegehinweise zu erhalten</string>
+    <string name="welcome_tut_map">Öffne den Navigator, um Routen zu planen, Abbiegehinweise zu bekommen oder deinen Live-Standort für eine Gruppenfahrt zu teilen</string>
     <string name="welcome_tut_gps">Tippe für die Live-Datenansicht, du kannst die Wheel-Geschwindigkeit anhand der GPS-Geschwindigkeit kalibrieren. Kalibrierung später unter Einstellungen → %1$s</string>
     <string name="welcome_tut_camera">Nimm Videos mit Live-Telemetrie-Overlay auf. Gestalte eigene Overlays und exportiere sie für Videos mit Daten vergangener Fahrten</string>
     <string name="welcome_tut_pd">Zeigt Parken oder Fahren an. Tippe drauf, um deinen %1$s einzustellen</string>

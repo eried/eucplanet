@@ -798,7 +798,7 @@
     <string name="welcome_tut_speed">Az élő sebességed. A mértékegységet itt módosíthatod: Beállítások → %1$s</string>
     <string name="welcome_tut_metrics">Élő akkumulátor, hőmérséklet, feszültség és további adatok. Itt rendezheted át őket: Beállítások → %1$s</string>
     <string name="welcome_tut_actions">Gyorsvezérlők. Ugyanitt hangolhatod őket, a(z) %2$s alatt</string>
-    <string name="welcome_tut_map">Nyisd meg a navigációt útvonaltervezéshez és kanyarról kanyarra útmutatáshoz</string>
+    <string name="welcome_tut_map">Nyisd meg a navigátort útvonalak tervezéséhez, kanyarról kanyarra navigáláshoz vagy élő helyzeted megosztásához egy csoportos túrán</string>
     <string name="welcome_tut_gps">Koppints az élő adatnézethez, akár a GPS-sebesség alapján is kalibrálhatod az egykerekűd sebességét. A kalibrálást később itt találod: Beállítások → %1$s</string>
     <string name="welcome_tut_camera">Rögzíts videót élő telemetria-átfedéssel. Készíts saját látványos átfedéseket, és exportáld őket, hogy korábbi menetek adataival készíthess videókat</string>
     <string name="welcome_tut_pd">Park vagy Drive állapotot mutat. Koppints a(z) %1$s beállításához</string>

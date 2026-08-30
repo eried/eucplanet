@@ -627,7 +627,7 @@
     <string name="welcome_tut_speed">Twoja bieżąca prędkość. Zmień jednostki w Ustawienia → %1$s</string>
     <string name="welcome_tut_metrics">Bateria, temperatura, napięcie i więcej na żywo. Zmień układ w Ustawienia → %1$s</string>
     <string name="welcome_tut_actions">Szybkie sterowanie. Dostosuj je w tym samym miejscu, w sekcji %2$s</string>
-    <string name="welcome_tut_map">Otwórz nawigator, aby planować trasy i otrzymywać nawigację zakręt po zakręcie</string>
+    <string name="welcome_tut_map">Otwórz nawigator, aby planować trasy, korzystać z nawigacji zakręt po zakręcie lub udostępniać lokalizację na żywo podczas jazdy grupowej</string>
     <string name="welcome_tut_gps">Dotknij, aby zobaczyć dane na żywo, a nawet skalibrować prędkość koła na podstawie GPS. Kalibrację zmienisz później w Ustawienia → %1$s</string>
     <string name="welcome_tut_camera">Nagrywaj wideo z nakładką telemetrii. Twórz własne nakładki i eksportuj filmy z danymi z wcześniejszych przejazdów</string>
     <string name="welcome_tut_pd">Pokazuje Postój lub Jazda. Dotknij, aby ustawić swój %1$s</string>

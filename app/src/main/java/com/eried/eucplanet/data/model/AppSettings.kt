@@ -1314,7 +1314,7 @@ data class ProximityLockSettings(
  * stepper can drive them as Ints); display follows the unit settings.
  */
 data class WeatherSettings(
-    val enabled: Boolean = false,
+    val enabled: Boolean = true,
     /** How many hours ahead the panel shows, 2..168. Free-form rather than
      *  four presets: a rider who wants "the rest of my afternoon" was
      *  choosing between 6 and 24. The dashboard menu still offers presets,

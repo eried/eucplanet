@@ -627,7 +627,7 @@
     <string name="welcome_tut_speed">Je actuele snelheid. Wijzig de eenheden in Instellingen → %1$s</string>
     <string name="welcome_tut_metrics">Live accu, temperatuur, spanning en meer. Herschik ze in Instellingen → %1$s</string>
     <string name="welcome_tut_actions">Snelle bediening. Pas ze aan op dezelfde plek, onder %2$s</string>
-    <string name="welcome_tut_map">Open de navigator om routes te plannen en bochtsgewijze begeleiding te krijgen</string>
+    <string name="welcome_tut_map">Open de navigator om routes te plannen, stap-voor-stap aanwijzingen te krijgen of je live locatie te delen voor een groepsrit</string>
     <string name="welcome_tut_gps">Tik hier voor de live-dataweergave; je kunt je wielsnelheid ook kalibreren op basis van de gps-snelheid. Controleer de kalibratie later via Instellingen → %1$s</string>
     <string name="welcome_tut_camera">Neem video op met een live telemetrie-overlay. Maak eigen overlays en exporteer ze voor video\'s met data van eerdere ritten</string>
     <string name="welcome_tut_pd">Toont Park of Drive. Tik erop om je %1$s in te stellen</string>
