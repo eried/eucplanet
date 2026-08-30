@@ -115,8 +115,9 @@
     color: var(--mut);
   }
   #dock.shut #dockHead { border-bottom: 0; }
-  #dockHead .brand { flex: none; display: inline-flex; line-height: 0; border-radius: 7px; overflow: hidden; }
-  #dockHead .brand img { width: 26px; height: 26px; display: block; }
+  /* The same 28 px circle as a rider's avatar in the list below, for uniformity. */
+  #dockHead .brand { flex: none; display: inline-flex; line-height: 0; border-radius: 50%; overflow: hidden; }
+  #dockHead .brand img { width: 28px; height: 28px; display: block; }
   #dockHead .brand:hover { box-shadow: 0 0 0 1px var(--acc); }
   /* The toggle is a real <button>, so the brand link (invalid inside a
      native button) sits beside it rather than nested inside it. It fills
@@ -400,7 +401,7 @@
      the bottom fighting the rounded corners of the screen. -->
 <div id="dock" data-state="">
   <div id="dockHead">
-    <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener" title="EUC Planet" aria-label="EUC Planet"><img src="icon.png" alt="" width="26" height="26"></a>
+    <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener" title="EUC Planet" aria-label="EUC Planet"><img src="icon.png" alt="" width="28" height="28"></a>
     <button id="dockToggle" type="button" aria-expanded="true" aria-controls="panel">
       <span id="headMeta">
         <span id="count">No riders yet</span>
