@@ -36,6 +36,7 @@ import com.eried.eucplanet.share.PendingShareJoin
 import com.eried.eucplanet.share.ShareLink
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.share.ShareStats
 import com.eried.eucplanet.util.GpxIO
 import com.eried.eucplanet.util.Units
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -1906,6 +1907,11 @@ class RouteBuilderViewModel @Inject constructor(
      *  friend's last position. Drives the Share button, the group dialog and
      *  the friend markers on the map. */
     val shareState: StateFlow<ShareState> = shareSession.state
+
+    /** What this rider is broadcasting right now, or null when nothing real is
+     *  going out. The group view's own row reads it, so the rider sees the
+     *  line the group sees rather than a second guess at it. */
+    val myShareStats: StateFlow<ShareStats?> = shareSession.myStats
 
     /** A share link the rider opened from outside the app (App Link / QR) that
      *  they have not answered yet. Held in a singleton because it crosses from

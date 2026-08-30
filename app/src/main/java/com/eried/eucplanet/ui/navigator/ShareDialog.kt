@@ -9,6 +9,13 @@ import android.net.Uri
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +25,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,17 +44,22 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -71,7 +84,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -88,8 +100,10 @@ import com.eried.eucplanet.share.IdentityMode
 import com.eried.eucplanet.share.PeerState
 import com.eried.eucplanet.share.ShareLink
 import com.eried.eucplanet.share.ShareLinks
+import com.eried.eucplanet.share.ShareLocationText
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.share.ShareStats
 import com.eried.eucplanet.share.activePeers
 import com.eried.eucplanet.ui.dashboard.QR_MAX_PX
 import com.eried.eucplanet.ui.dashboard.QrCodeImage
@@ -107,14 +121,21 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 /**
- * The two live-location-share dialogs behind the navigator's Share button.
+ * Everything behind the navigator's Share button.
  *
- * [ShareStartDialog] asks how the rider wants to appear to the group, then
- * opens (or joins) a room. [ShareGroupDialog] is the group view once joined:
- * the QR / link to hand to friends, who is in, and the way out.
+ * Not in a ride yet, the button is a MENU, not a dialog ([ShareMenu]): three of
+ * the four things a rider wants from that icon are one tap of work (scan a
+ * friend's QR, send a Maps pin, copy the coordinates) and only the fourth opens
+ * a group. A dialog that asked "how do you want to appear?" before the rider
+ * had said what they were doing put the identity question in front of all four.
  *
- * Both keep dismissOnClickOutside off, so a stray tap on the map behind them
- * cannot drop a half-typed name or a room link the rider is still reading.
+ * The menu leads to [ShareScannerDialog] (the camera), then to
+ * [ShareIdentityDialog] (how the group sees this rider), which is also where
+ * "start a group ride" goes directly. Once in a ride the button opens
+ * [ShareGroupDialog]: the QR to hand out on one tab, who is in on the other.
+ *
+ * Every dialog here keeps dismissOnClickOutside off, so a stray tap on the map
+ * behind cannot drop a half-typed name or a room link the rider is reading.
  *
  * Controls are the app's canonical ones, not local copies: the identity picker
  * is [SegmentedChoice] (the 56 dp row with the notched label every settings
@@ -128,13 +149,13 @@ import java.util.Locale
  * https://eucplanet.ried.no/share#... as an Android App Link, so a link that is
  * tapped or pasted anywhere on the phone opens the app on the join step
  * already. Scanning a friend's QR is the one thing the phone cannot do for the
- * rider, so it is the whole Join tab. The web viewer keeps its paste box
+ * rider, so it is the menu's Join item. The web viewer keeps its paste box
  * because a browser has no such interception.
  */
 
 /**
  * How wide the two square blocks in these dialogs are allowed to get: the
- * group view's QR and the Join tab's camera.
+ * group view's QR and the scanner's camera.
  *
  * Both are laid out edge to edge and are as tall as they are wide, so without
  * a cap a landscape phone or a tablet hands a square the full dialog width and
@@ -176,6 +197,29 @@ private fun peerColorOf(hex: String): Color {
         runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrDefault(fallback)
     }
 }
+
+/**
+ * One rider's stats as every surface in the app writes them: the group list's
+ * rows, the rider's own row, and the label a tapped marker opens on the map.
+ *
+ * One function on purpose. The map's tooltip is built in Kotlin and pushed to
+ * the page as finished text rather than re-derived in JS, so a peer's line
+ * cannot read "23 km/h" in the dialog and "14 mph" on the map behind it.
+ */
+internal fun shareStatsLine(
+    context: Context,
+    stats: ShareStats,
+    speedUnit: String,
+    tempUnit: String,
+): String = String.format(
+    Locale.getDefault(),
+    "%.0f %s · %d%% · %.0f%s",
+    Units.speed(stats.speedKmh, speedUnit),
+    Units.speedUnit(context, speedUnit),
+    stats.batteryPct,
+    Units.temperature(stats.tempC, tempUnit),
+    Units.tempUnit(tempUnit),
+)
 
 /** The chrome of the browser tab the Open button raises. Read from the theme
  *  while the dialog is composing, because the tab is launched from a click
@@ -410,6 +454,195 @@ internal fun ShareDialogCard(
     }
 }
 
+/**
+ * The Share button's menu when the rider is not in a ride: four things the
+ * icon can mean, each said in one line with the detail under it.
+ *
+ * The two live-ride items (scan a friend's code, start a group) hand back to
+ * the caller, because both open a dialog the caller owns. The two one-shot
+ * items are finished here: a static position is an Android share sheet and a
+ * clipboard write, and neither needs a screen.
+ *
+ * Both one-shot items need a fix. Without one they stay in the menu, disabled,
+ * saying what is missing: hiding them would make the menu change shape between
+ * two openings a few seconds apart, and a rider who tapped Share for a Maps
+ * pin would be left looking for an item that is not there.
+ *
+ * The container, shape and rows are the app's standard menu (the trip detail
+ * screen's map tools), so this reads as one more of the app's menus rather
+ * than as a share-specific panel.
+ */
+@Composable
+fun ShareMenu(
+    expanded: Boolean,
+    /** The rider's current fix, or null while there is none. */
+    fixLat: Double?,
+    fixLng: Double?,
+    onDismiss: () -> Unit,
+    /** Open the camera: the rider is joining a friend's ride. */
+    onScan: () -> Unit,
+    /** Open the identity form: the rider is starting one. */
+    onStartGroup: () -> Unit,
+    onNotify: (String) -> Unit,
+) {
+    val context = LocalContext.current
+    val hasFix = fixLat != null && fixLng != null
+    val coords = if (hasFix) ShareLocationText.coordinates(fixLat!!, fixLng!!) else null
+    val waiting = stringResource(R.string.share_waiting_gps)
+    val copied = stringResource(R.string.share_copied)
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.appColors.menuBackground,
+    ) {
+        ShareMenuItem(
+            icon = Icons.Default.QrCodeScanner,
+            label = stringResource(R.string.share_menu_join),
+            caption = stringResource(R.string.share_menu_join_desc),
+            onClick = { onDismiss(); onScan() },
+        )
+        ShareMenuItem(
+            icon = Icons.Default.Share,
+            label = stringResource(R.string.share_menu_live),
+            caption = stringResource(R.string.share_menu_live_desc),
+            onClick = { onDismiss(); onStartGroup() },
+        )
+        HorizontalDivider(color = MaterialTheme.appColors.divider)
+        ShareMenuItem(
+            icon = Icons.Default.Place,
+            label = stringResource(R.string.share_menu_static),
+            caption = if (hasFix) stringResource(R.string.share_menu_static_desc) else waiting,
+            enabled = hasFix,
+            onClick = {
+                onDismiss()
+                val link = ShareLocationText.mapsLink(fixLat!!, fixLng!!)
+                val subject = context.getString(R.string.share_static_subject)
+                val send = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, link)
+                    putExtra(Intent.EXTRA_SUBJECT, subject)
+                }
+                runCatching {
+                    context.startActivity(Intent.createChooser(send, subject))
+                }
+            },
+        )
+        ShareMenuItem(
+            icon = Icons.Default.ContentCopy,
+            label = stringResource(R.string.share_menu_copy),
+            // The live coordinates ARE the caption: the rider sees exactly
+            // what lands on the clipboard before they tap.
+            caption = coords ?: waiting,
+            enabled = hasFix,
+            onClick = {
+                onDismiss()
+                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", coords))
+                onNotify(copied)
+            },
+        )
+    }
+}
+
+/**
+ * One menu row: a leading icon, the action, and one line of detail under it.
+ *
+ * Every colour is named rather than inherited. A menu item paints its slots
+ * from the Material palette by default, and the caption is a second Text
+ * inside the text slot, so without explicit colours a disabled row would keep
+ * a full-contrast caption under a greyed label.
+ */
+@Composable
+private fun ShareMenuItem(
+    icon: ImageVector,
+    label: String,
+    caption: String,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    val appColors = MaterialTheme.appColors
+    val labelColor = if (enabled) appColors.textPrimary else appColors.textSecondary
+    val iconTint = if (enabled) appColors.primary else appColors.textSecondary
+    DropdownMenuItem(
+        enabled = enabled,
+        leadingIcon = {
+            Icon(icon, contentDescription = null, tint = iconTint)
+        },
+        text = {
+            Column {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = labelColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    caption,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = appColors.textSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        },
+        colors = MenuDefaults.itemColors(
+            textColor = labelColor,
+            leadingIconColor = iconTint,
+            disabledTextColor = appColors.textSecondary,
+            disabledLeadingIconColor = appColors.textSecondary,
+        ),
+        onClick = onClick,
+    )
+}
+
+/**
+ * The camera, as its own window.
+ *
+ * It used to be a tab of the start dialog, which meant the camera came up
+ * whenever the rider was only trying to start a ride of their own. Behind its
+ * own menu item it is opened by a rider who is holding a phone up at a
+ * friend's screen and nothing else, so it is the whole window: a live square
+ * and one way out.
+ */
+@Composable
+fun ShareScannerDialog(
+    onLink: (ShareLink) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        )
+    ) {
+        ShareDialogCard(
+            title = stringResource(R.string.share_menu_join),
+            // The camera square is as tall as the dialog is wide, so in
+            // landscape the body has to be able to scroll to reach Cancel.
+            scrollable = true,
+        ) {
+            ShareQrScannerArea(onLink = onLink, modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.appColors.textButton
+                    )
+                ) { Text(stringResource(R.string.action_cancel)) }
+            }
+        }
+    }
+}
+
 /** What the Profile option can show while the dialog is open. */
 private sealed class ProfilePreview {
     object Loading : ProfilePreview()
@@ -417,27 +650,18 @@ private sealed class ProfilePreview {
     data class Ready(val identity: Identity) : ProfilePreview()
 }
 
-/** The two ways into a ride, one tab each. Join comes first because a rider
- *  who was handed a QR is looking for the camera, but Create is what opens
- *  selected: starting a ride is the entry point riders reach cold, while a
- *  join usually arrives as a link the app intercepts before this dialog. */
-private enum class ShareTab { JOIN, CREATE }
-
 /**
- * The dialog before the rider is in a ride: one card, two tabs.
+ * How the rider wants the group to see them, asked once, for whichever ride
+ * they are about to be in.
  *
- * Join is the camera, live the moment the tab is shown, and it becomes the
- * identity form as soon as it reads a share link. Create is that same identity
- * form with a different confirm. Both write the same three answers (how to
- * appear, under what name, with or without stats), so there is one form and
- * one set of state behind both tabs rather than two stacked groups.
- *
- * Opened for a link that arrived from outside the app there are no tabs at
- * all: that dialog is the join step for one specific ride, and offering to
- * open a different one would only be in the way.
+ * Starting a ride and joining one ask the same three questions (how to appear,
+ * under what name, with or without stats), so there is one form; only the
+ * title and the confirm label differ. There are no tabs: by the time this is
+ * on screen the rider has already said which of the two they are doing, in the
+ * menu or by opening a link.
  */
 @Composable
-fun ShareStartDialog(
+fun ShareIdentityDialog(
     titleRes: Int,
     default: Identity,
     hasProfile: Boolean,
@@ -445,21 +669,12 @@ fun ShareStartDialog(
     /** The rider's leaderboard identity, or null when nothing is linked. Cached
      *  by the ViewModel, so re-selecting Profile does not re-fetch it. */
     resolveProfile: suspend () -> Identity?,
-    onStart: (Identity) -> Unit,
+    onConfirm: (Identity) -> Unit,
     onDismiss: () -> Unit,
     // Starting a new group and joining an existing one share this dialog, so
     // the confirm label is passed in rather than hardcoded, and defaults to
     // the "start a group" label since that is the more common entry point.
     confirmLabelRes: Int = R.string.share_start,
-    /**
-     * Joins the ride behind a scanned link. Non-null only on the "not sharing
-     * yet" entry point, which is also what puts the tabs on the card.
-     *
-     * The scanned link is held here rather than handed straight back, so the
-     * rider stays in ONE dialog: the identity they are looking at is the one
-     * they will join as, and this window is never torn down mid-flow.
-     */
-    onJoin: ((ShareLink, Identity) -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     var mode by remember(default) {
@@ -478,14 +693,6 @@ fun ShareStartDialog(
     var shareStats by remember(default) { mutableStateOf(default.shareStats) }
     var starting by remember { mutableStateOf(false) }
     var profile by remember { mutableStateOf<ProfilePreview>(ProfilePreview.Loading) }
-    /** The link the camera read. While it is set the Join tab is the identity
-     *  form for that ride instead of the scanner. */
-    var joinLink by remember { mutableStateOf<ShareLink?>(null) }
-    /** Tabs, or the one join step for a link that came from outside the app. */
-    val tabbed = onJoin != null
-    var tab by remember { mutableStateOf(ShareTab.CREATE) }
-    /** The camera is the whole Join tab until it has read a link. */
-    val scanning = tabbed && tab == ShareTab.JOIN && joinLink == null
 
     // Resolved when the rider first looks at the Profile option, not on every
     // open: it reads the rider-id file and can hit the network.
@@ -502,12 +709,6 @@ fun ShareStartDialog(
     val nameMissing = mode == IdentityMode.SESSION && name.isBlank()
     val profileMissing = mode == IdentityMode.PROFILE && profile is ProfilePreview.Missing
     val canConfirm = !starting && !nameMissing && !profileMissing
-    // The identity applies to whichever button is pressed, so the two share
-    // one resolve. It reads the rider-id file and may hit the network.
-    val confirmWith: (((Identity) -> Unit)) -> Unit = { action ->
-        starting = true
-        scope.launch { action(resolveIdentity(mode, name, shareStats)) }
-    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -516,42 +717,16 @@ fun ShareStartDialog(
             usePlatformDefaultWidth = false,
         )
     ) {
-        ShareDialogCard(
-            title = stringResource(if (joinLink != null) R.string.share_join_title else titleRes),
-            // The camera square is as tall as the dialog is wide, so in
-            // landscape the body has to be able to scroll to reach the
-            // buttons under it.
-            scrollable = true,
-            header = if (!tabbed) null else ({
-                ShareTabRow(
-                    selected = tab,
-                    onSelect = { picked ->
-                        tab = picked
-                        // Any tap on the row drops the scanned ride. Walking
-                        // over to Create leaves it behind, and tapping Join
-                        // is the rider asking for the camera again, not for
-                        // the link they already read.
-                        joinLink = null
-                    }
-                )
-            })
-        ) {
-            if (scanning) {
-                ShareQrScannerArea(
-                    onLink = { link -> joinLink = link },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                ShareIdentityForm(
-                    mode = mode,
-                    onModeChange = { mode = it },
-                    name = name,
-                    onNameChange = { name = it },
-                    shareStats = shareStats,
-                    onShareStatsChange = { shareStats = it },
-                    profile = profile,
-                )
-            }
+        ShareDialogCard(title = stringResource(titleRes), scrollable = true) {
+            ShareIdentityForm(
+                mode = mode,
+                onModeChange = { mode = it },
+                name = name,
+                onNameChange = { name = it },
+                shareStats = shareStats,
+                onShareStatsChange = { shareStats = it },
+                profile = profile,
+            )
             Spacer(Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -559,49 +734,42 @@ fun ShareStartDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(
-                    // On the form for a ride the camera just read, Cancel is a
-                    // step back to the camera rather than the way out of the
-                    // dialog: the rider is correcting a scan, not leaving.
-                    onClick = { if (tabbed && joinLink != null) joinLink = null else onDismiss() },
+                    onClick = onDismiss,
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.appColors.textButton
                     )
                 ) { Text(stringResource(R.string.action_cancel)) }
-                // Nothing to confirm while the camera is still looking.
-                if (!scanning) {
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        enabled = canConfirm,
-                        onClick = {
-                            val link = joinLink
-                            val join = onJoin
-                            if (link != null && join != null) confirmWith { join(link, it) }
-                            else confirmWith(onStart)
-                        },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.appColors.primary,
-                            contentColor = MaterialTheme.appColors.onPrimary,
-                            disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
-                            disabledContentColor = MaterialTheme.appColors.textSecondary,
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    enabled = canConfirm,
+                    onClick = {
+                        // Resolving the identity reads the rider-id file and
+                        // may hit the network, so the button holds a spinner
+                        // rather than letting a second tap start twice.
+                        starting = true
+                        scope.launch { onConfirm(resolveIdentity(mode, name, shareStats)) }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.primary,
+                        contentColor = MaterialTheme.appColors.onPrimary,
+                        disabledContainerColor = MaterialTheme.appColors.surfaceVariant,
+                        disabledContentColor = MaterialTheme.appColors.textSecondary,
+                    )
+                ) {
+                    if (starting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.appColors.onPrimary
                         )
-                    ) {
-                        if (starting) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.appColors.onPrimary
-                            )
-                        } else {
-                            Text(
-                                stringResource(
-                                    if (joinLink != null) R.string.share_join else confirmLabelRes
-                                ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                    } else {
+                        Text(
+                            stringResource(confirmLabelRes),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 }
             }
@@ -610,71 +778,17 @@ fun ShareStartDialog(
 }
 
 /**
- * Join | Create, the app's tab row with every colour named.
- *
- * The Material default would paint itself from the Material slots; this row is
- * the bottom half of the card's header, so it is told the header's surface and
- * which accent marks the selected tab. It draws no divider of its own: the
- * header carries one edge, under the tabs, for the whole block.
- */
-// The tab row's own indicator slot is still experimental in Material 3; it is
-// opted into rather than skipped, because the default indicator paints itself
-// from the Material slots and every colour in these dialogs is named.
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ShareTabRow(selected: ShareTab, onSelect: (ShareTab) -> Unit) {
-    val appColors = MaterialTheme.appColors
-    PrimaryTabRow(
-        selectedTabIndex = selected.ordinal,
-        containerColor = appColors.surfaceVariant,
-        contentColor = appColors.textPrimary,
-        indicator = {
-            TabRowDefaults.PrimaryIndicator(
-                modifier = Modifier.tabIndicatorOffset(selected.ordinal, matchContentSize = true),
-                color = appColors.primary,
-            )
-        },
-        divider = {},
-    ) {
-        ShareTab.values().forEach { entry ->
-            Tab(
-                selected = selected == entry,
-                onClick = { onSelect(entry) },
-                // The indicator under the tab is what the accent marks;
-                // the label stays the readable text colour, because the
-                // accent on the light theme's white card is well under the
-                // contrast bar for a label.
-                selectedContentColor = appColors.textPrimary,
-                unselectedContentColor = appColors.textSecondary,
-                text = {
-                    // Material 3 Tab pads its text slot, so a label can
-                    // measure narrower than the text it holds and clip on the
-                    // right even when the tab has room. wrapContentWidth with
-                    // unbounded = true lets the Text report its own width.
-                    Text(
-                        stringResource(
-                            when (entry) {
-                                ShareTab.JOIN -> R.string.share_tab_join
-                                ShareTab.CREATE -> R.string.share_tab_create
-                            }
-                        ),
-                        maxLines = 1,
-                        softWrap = false,
-                        modifier = Modifier.wrapContentWidth(unbounded = true)
-                    )
-                }
-            )
-        }
-    }
-}
-
-/**
- * How the rider will appear to the group: the one form behind both tabs.
+ * How the rider will appear to the group.
  *
  * The controls are the app's canonical ones rather than local copies, so the
  * identity row is the same 56 dp segmented control every settings combo uses
  * and the name field is the same notched one. An earlier hand-rolled segmented
  * row wrapped "Anonymous" mid-word because it lacked the fixed row height.
+ *
+ * What sits under the segmented row changes with the choice (nothing, a name
+ * field, a profile card), so it is crossfaded rather than swapped: the three
+ * blocks are different heights, and a hard swap made the dialog jump under the
+ * rider's finger on every tap of the row.
  *
  * The form sits straight on the dialog surface. It used to be wrapped in a
  * tinted card, which read as a box inside a box; the only reason it needed one
@@ -691,9 +805,10 @@ private fun ShareIdentityForm(
     onShareStatsChange: (Boolean) -> Unit,
     profile: ProfilePreview,
 ) {
+    val slidePx = with(LocalDensity.current) { IDENTITY_SLIDE.roundToPx() }
     Column(Modifier.fillMaxWidth()) {
         SegmentedChoice(
-            label = stringResource(R.string.share_show_me_as),
+            label = stringResource(R.string.share_identity_label),
             options = listOf(
                 IdentityMode.ANON.name to stringResource(R.string.share_identity_anon),
                 IdentityMode.SESSION.name to stringResource(R.string.share_identity_session),
@@ -710,34 +825,61 @@ private fun ShareIdentityForm(
             // its notch with that colour rather than the settings section one.
             notchFill = MaterialTheme.appColors.dialog,
         )
-        if (mode == IdentityMode.SESSION) {
-            Spacer(Modifier.height(10.dp))
-            // The app's standard settings field: the label lives in the
-            // control's own notch, so there is no overlay to keep in sync
-            // with the field's padding.
-            OutlinedTextField(
-                value = name,
-                onValueChange = onNameChange,
-                label = { Text(stringResource(R.string.share_name_label)) },
-                singleLine = true,
-                colors = themedFieldColors(),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        if (mode == IdentityMode.PROFILE) {
-            Spacer(Modifier.height(10.dp))
-            ProfilePreviewCard(profile)
+        AnimatedContent(
+            targetState = mode,
+            transitionSpec = {
+                (fadeIn(tween(IDENTITY_ANIM_MS)) +
+                    slideInVertically(tween(IDENTITY_ANIM_MS)) { slidePx })
+                    .togetherWith(
+                        fadeOut(tween(IDENTITY_ANIM_MS)) +
+                            slideOutVertically(tween(IDENTITY_ANIM_MS)) { -slidePx }
+                    )
+            },
+            label = "identity",
+        ) { current ->
+            when (current) {
+                IdentityMode.ANON -> Box(Modifier.fillMaxWidth())
+
+                IdentityMode.SESSION -> Column(Modifier.fillMaxWidth()) {
+                    Spacer(Modifier.height(10.dp))
+                    // The app's standard settings field: the label lives in the
+                    // control's own notch, so there is no overlay to keep in
+                    // sync with the field's padding.
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = onNameChange,
+                        label = { Text(stringResource(R.string.share_name_label)) },
+                        singleLine = true,
+                        colors = themedFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                IdentityMode.PROFILE -> Column(Modifier.fillMaxWidth()) {
+                    Spacer(Modifier.height(10.dp))
+                    ProfilePreviewCard(profile)
+                }
+            }
         }
         Spacer(Modifier.height(12.dp))
+        // No caption: "Show my speed and battery" already says what it does,
+        // and a line under it repeating the three field names was one more
+        // thing to read in a dialog that asks three questions.
         SwitchSettingWithDesc(
-            label = stringResource(R.string.share_stats_toggle),
-            description = stringResource(R.string.share_stats_desc),
+            label = stringResource(R.string.share_stats_label),
+            description = "",
             checked = shareStats,
             onCheckedChange = onShareStatsChange,
         )
     }
 }
+
+/** How far the block under the identity row travels while it fades, and for
+ *  how long. Short and small on purpose: it is a hint that the form changed
+ *  shape, not a transition the rider waits out. */
+private val IDENTITY_SLIDE = 8.dp
+private const val IDENTITY_ANIM_MS = 200
 
 /**
  * The account the rider is about to ride under.
@@ -750,38 +892,48 @@ private fun ShareIdentityForm(
  *
  * Loading and "nothing linked" stay one muted line: neither is a profile to
  * look at, and a placeholder the size of the card would make the form jump.
+ * The card fades in over the spinner when the fetch lands, rather than
+ * replacing it in one frame.
  */
 @Composable
 private fun ProfilePreviewCard(profile: ProfilePreview) {
-    when (profile) {
-        is ProfilePreview.Loading -> Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(16.dp),
-                strokeWidth = 2.dp,
-                color = MaterialTheme.appColors.primary
-            )
-            Spacer(Modifier.width(10.dp))
-            Text(
-                stringResource(R.string.share_profile_loading),
+    AnimatedContent(
+        targetState = profile,
+        transitionSpec = {
+            fadeIn(tween(IDENTITY_ANIM_MS)) togetherWith fadeOut(tween(IDENTITY_ANIM_MS))
+        },
+        label = "profile",
+    ) { current ->
+        when (current) {
+            is ProfilePreview.Loading -> Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.appColors.primary
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    stringResource(R.string.share_profile_loading),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary
+                )
+            }
+
+            is ProfilePreview.Missing -> Text(
+                stringResource(R.string.share_profile_missing),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary
+                color = MaterialTheme.appColors.textSecondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
+
+            is ProfilePreview.Ready ->
+                LeaderboardProfileCard(current.identity.asLeaderboardCard())
         }
-
-        is ProfilePreview.Missing -> Text(
-            stringResource(R.string.share_profile_missing),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.appColors.textSecondary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        is ProfilePreview.Ready ->
-            LeaderboardProfileCard(profile.identity.asLeaderboardCard())
     }
 }
 
@@ -809,6 +961,21 @@ private fun Identity.asLeaderboardCard(): RiderCard = RiderCard(
     country = flag?.takeIf { it.length == 2 }?.let { countryName(it) },
 )
 
+/** The two halves of the group view. The QR is what the rider opens the dialog
+ *  for while friends are still arriving; the rider list is what they open it
+ *  for once the ride is under way. */
+private enum class GroupTab { QR, CONNECTED }
+
+/**
+ * The group view once the rider is in a ride: the code to hand out on one tab,
+ * who is in on the other.
+ *
+ * They were one long column, which meant the riders sat under a full-width QR
+ * and were reached by scrolling past it every single time. Tabs put the two
+ * jobs side by side, and the selected one is remembered only while the dialog
+ * is open: reopening lands on the QR again, because a rider who reopens this
+ * mid-ride is usually showing it to someone.
+ */
 @Composable
 fun ShareGroupDialog(
     state: ShareState.Joined,
@@ -816,7 +983,13 @@ fun ShareGroupDialog(
     relayHost: String,
     speedUnit: String,
     tempUnit: String,
-    onFlyTo: (Double, Double) -> Unit,
+    /** What this rider is broadcasting right now, or null when nothing real is
+     *  going out (stats off, or no wheel connected). The rider's own row shows
+     *  exactly this, so it matches what the group is being told. */
+    myStats: ShareStats?,
+    /** Centre the map on one friend and open their marker's label. The id is
+     *  the relay sender id, which is what the map keys its markers by. */
+    onGoToPeer: (String, Double, Double) -> Unit,
     onNotify: (String) -> Unit,
     onLeave: () -> Unit,
     onDismiss: () -> Unit,
@@ -833,6 +1006,11 @@ fun ShareGroupDialog(
     // the way their marker stays on the map, and counting those rows would
     // print "2 riders" directly above "no one else here yet".
     val activeCount = state.activePeers.size
+    // The tab counts the rider too: "Connected (1)" alone in a room they just
+    // opened is the truth, where a 0 next to their own row on the tab under it
+    // would not be.
+    val connectedCount = activeCount + 1
+    var tab by remember { mutableStateOf(GroupTab.QR) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -841,7 +1019,17 @@ fun ShareGroupDialog(
             usePlatformDefaultWidth = false,
         )
     ) {
-        ShareDialogCard(stringResource(R.string.share_title), scrollable = true) {
+        ShareDialogCard(
+            title = stringResource(R.string.share_title_group),
+            scrollable = true,
+            header = {
+                ShareGroupTabRow(
+                    selected = tab,
+                    connectedCount = connectedCount,
+                    onSelect = { tab = it },
+                )
+            }
+        ) {
             val copiedMsg = stringResource(R.string.share_copied)
             val appColors = MaterialTheme.appColors
             val tabColors = remember(appColors) {
@@ -850,213 +1038,230 @@ fun ShareGroupDialog(
                     navigationBar = appColors.dialog.toArgb(),
                 )
             }
-            // The relay reports a full room by closing with 1013, which the
-            // session turns into one typed marker; every other error means
-            // the service is simply out of reach.
-            val roomFull = state.error == ShareSession.ERR_ROOM_FULL
-            val statusColor = when {
-                roomFull || state.error != null -> MaterialTheme.appColors.statusDanger
-                state.connected -> MaterialTheme.appColors.statusGood
-                else -> MaterialTheme.appColors.statusWarn
-            }
-            // Service state and the three things a rider does with the link,
-            // as ONE header row in the shape the trip detail screen uses: the
-            // title on the left, tinted icon actions at the side. Three
-            // outlined buttons under the QR were a second block repeating what
-            // this row already says, and they pushed the riders under the
-            // fold. The rider count is not here either - it is the rider
-            // section's own header, further down.
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(statusColor)
-                )
-                Spacer(Modifier.width(8.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = when {
-                            roomFull -> stringResource(R.string.share_room_full)
-                            state.connected -> stringResource(R.string.share_connected)
-                            state.error != null -> stringResource(R.string.share_cannot_reach)
-                            else -> stringResource(R.string.share_reconnecting)
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = statusColor,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    // Which relay is carrying the group. On the default one it
-                    // is just where the ride lives; a rider running their own
-                    // needs to see which server actually answered. Hidden for
-                    // the one frame before the settings flow has emitted a
-                    // value, rather than showing "Relay: " with nothing after it.
-                    if (relayHost.isNotEmpty()) {
-                        Text(
-                            text = stringResource(R.string.share_relay_caption, relayHost),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.appColors.textSecondary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+            when (tab) {
+                GroupTab.QR -> {
+                    // The relay reports a full room by closing with 1013, which
+                    // the session turns into one typed marker; every other error
+                    // means the service is simply out of reach.
+                    val roomFull = state.error == ShareSession.ERR_ROOM_FULL
+                    val statusColor = when {
+                        roomFull || state.error != null -> MaterialTheme.appColors.statusDanger
+                        state.connected -> MaterialTheme.appColors.statusGood
+                        else -> MaterialTheme.appColors.statusWarn
+                    }
+                    // Service state and the three things a rider does with the
+                    // link, as ONE header row in the shape the trip detail
+                    // screen uses: the title on the left, tinted icon actions at
+                    // the side. Three outlined buttons under the QR were a
+                    // second block repeating what this row already says.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(statusColor)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                text = when {
+                                    roomFull -> stringResource(R.string.share_room_full)
+                                    state.connected -> stringResource(R.string.share_connected)
+                                    state.error != null ->
+                                        stringResource(R.string.share_cannot_reach)
+                                    else -> stringResource(R.string.share_reconnecting)
+                                },
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = statusColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            // Which relay is carrying the group. On the default
+                            // one it is just where the ride lives; a rider
+                            // running their own needs to see which server
+                            // actually answered. Hidden for the one frame before
+                            // the settings flow has emitted a value, rather than
+                            // showing "Relay: " with nothing after it.
+                            if (relayHost.isNotEmpty()) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.share_relay_caption, relayHost
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.appColors.textSecondary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                        // Three ways to hand the link to a friend who is not
+                        // standing here. The link text itself is never shown, it
+                        // is 60 characters of base64 nobody reads.
+                        ShareLinkAction(
+                            icon = Icons.Default.Share,
+                            description = stringResource(R.string.action_share),
+                            onClick = {
+                                val send = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        context.getString(R.string.share_invite_text, url)
+                                    )
+                                    putExtra(
+                                        Intent.EXTRA_SUBJECT,
+                                        context.getString(R.string.share_invite_subject)
+                                    )
+                                }
+                                runCatching {
+                                    context.startActivity(
+                                        Intent.createChooser(
+                                            send,
+                                            context.getString(R.string.share_invite_subject)
+                                        )
+                                    )
+                                }
+                            }
+                        )
+                        ShareLinkAction(
+                            icon = Icons.Default.ContentCopy,
+                            description = stringResource(R.string.share_copy),
+                            onClick = {
+                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
+                                    as? ClipboardManager
+                                cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
+                                onNotify(copiedMsg)
+                            }
+                        )
+                        ShareLinkAction(
+                            icon = Icons.Default.OpenInBrowser,
+                            description = stringResource(R.string.share_open),
+                            // The web viewer in the phone's own browser, so the
+                            // rider sees the group the way their friends will.
+                            onClick = { openShareLink(context, url, tabColors) }
+                        )
+                    }
+                    Spacer(Modifier.height(14.dp))
+                    // The QR, capped and centred: a square that fills a
+                    // landscape dialog is taller than the screen and buries
+                    // Leave under a scroll. It carries no caption, a QR under a
+                    // Share icon needs no line telling a rider to scan it.
+                    BoxWithConstraints(
+                        Modifier
+                            .widthIn(max = shareBlockMaxWidth())
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    ) {
+                        // Encode once, at the row's own pixel width but never
+                        // above QR_MAX_PX: the bitmap is remembered per (link,
+                        // size) and the Image scales it to fill the row, so a
+                        // landscape phone or a tablet cannot pull a
+                        // multi-megabyte allocation through here.
+                        val density = LocalDensity.current
+                        val qrPx = remember(maxWidth, density) {
+                            with(density) { maxWidth.roundToPx() }.coerceAtMost(QR_MAX_PX)
+                        }
+                        QrCodeImage(
+                            content = url,
+                            sizePx = qrPx,
+                            modifier = Modifier.fillMaxWidth().aspectRatio(1f)
                         )
                     }
                 }
-                // Three ways to hand the link to a friend who is not standing
-                // here. The link text itself is never shown - it is 60
-                // characters of base64 nobody reads, and it filled the dialog.
-                ShareLinkAction(
-                    icon = Icons.Default.Share,
-                    description = stringResource(R.string.action_share),
-                    onClick = {
-                        val send = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(
-                                Intent.EXTRA_TEXT,
-                                context.getString(R.string.share_invite_text, url)
-                            )
-                            putExtra(
-                                Intent.EXTRA_SUBJECT,
-                                context.getString(R.string.share_invite_subject)
-                            )
-                        }
-                        runCatching {
-                            context.startActivity(
-                                Intent.createChooser(
-                                    send,
-                                    context.getString(R.string.share_invite_subject)
+
+                GroupTab.CONNECTED -> {
+                    // The rider themself, first and set apart: the same row the
+                    // group sees for them, in a filled container so it reads as
+                    // "this is you" without a second visual language.
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.appColors.surfaceVariant)
+                            .padding(8.dp)
+                    ) {
+                        RiderRow(
+                            name = state.me.name,
+                            flag = state.me.flag,
+                            avatarUrl = state.me.avatarUrl,
+                            color = state.me.color,
+                            stats = myStats,
+                            speedUnit = speedUnit,
+                            tempUnit = tempUnit,
+                            faded = false,
+                            trailing = {
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    stringResource(R.string.share_you),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.appColors.textSecondary,
+                                    maxLines = 1
                                 )
-                            )
-                        }
+                            },
+                        )
                     }
-                )
-                ShareLinkAction(
-                    icon = Icons.Default.ContentCopy,
-                    description = stringResource(R.string.share_copy),
-                    onClick = {
-                        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE)
-                            as? ClipboardManager
-                        cm?.setPrimaryClip(ClipData.newPlainText("EUC Planet", url))
-                        onNotify(copiedMsg)
+                    // Nobody else is in the room right now, either because no
+                    // one has joined yet or every other rider has left or aged
+                    // out. Tied to the same count the tab shows, so the two
+                    // cannot disagree. It also covers a link into a room the
+                    // relay already dropped (it clears a room a couple of
+                    // minutes after its last socket closes): there is no way to
+                    // tell that apart from "not here yet", so it is not
+                    // reported as anything more alarming.
+                    if (activeCount == 0) {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            stringResource(R.string.share_alone),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary
+                        )
                     }
-                )
-                ShareLinkAction(
-                    icon = Icons.Default.OpenInBrowser,
-                    description = stringResource(R.string.share_open),
-                    // The web viewer in the phone's own browser, so the rider
-                    // sees the group the way the friends they invite will.
-                    onClick = { openShareLink(context, url, tabColors) }
-                )
-            }
-            Spacer(Modifier.height(14.dp))
-            // The QR, capped and centred: a square that fills a landscape
-            // dialog is taller than the screen and buries Leave under a
-            // scroll. It carries no caption - a QR under a Share icon needs no
-            // line telling a rider to scan it.
-            BoxWithConstraints(
-                Modifier
-                    .widthIn(max = shareBlockMaxWidth())
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                // Encode once, at the row's own pixel width but never above
-                // QR_MAX_PX: the bitmap is remembered per (link, size) and the
-                // Image scales it to fill the row, so a landscape phone or a
-                // tablet cannot pull a multi-megabyte allocation through here.
-                val density = LocalDensity.current
-                val qrPx = remember(maxWidth, density) {
-                    with(density) { maxWidth.roundToPx() }.coerceAtMost(QR_MAX_PX)
-                }
-                QrCodeImage(
-                    content = url,
-                    sizePx = qrPx,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                )
-            }
-            Spacer(Modifier.height(16.dp))
-            // Riders, as one of the app's list sections rather than a card: a
-            // header with the count on the right, then rows separated by a
-            // divider, straight on the dialog surface. A rounded box here sat
-            // inside the dialog's own rounded bottom corner, which is two
-            // corners inside each other and reads as unfinished.
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(R.string.share_riders),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.appColors.sectionHeader,
-                    modifier = Modifier.weight(1f)
-                )
-                // The one place the count is shown, and it counts who is here
-                // right now, so it can read lower than the rows under it when
-                // someone has left: their row stays, greyed, and the badge on
-                // the map toolbar shows this same number.
-                Text(
-                    pluralStringResource(
-                        R.plurals.share_rider_count, activeCount, activeCount
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
-                    maxLines = 1
-                )
-            }
-            // Nobody else is in the room right now, either because no one has
-            // joined yet or every other rider has left or aged out. Tied to the
-            // same count the header shows, so the two cannot disagree. It also
-            // covers a link into a room the relay already dropped (it clears a
-            // room a couple of minutes after its last socket closes): there is
-            // no way to tell that apart from "not here yet", so it is not
-            // reported as anything more alarming.
-            if (activeCount == 0) {
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    stringResource(R.string.share_alone),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary
-                )
-            }
-            // Riders who left or went LOST keep their row, greyed, the way the
-            // map keeps their marker: the rider wants to see who was along. So
-            // the rows are drawn whenever the room has ever held anyone,
-            // independently of the empty line above.
-            if (peers.isNotEmpty()) {
-                if (activeCount == 0) Spacer(Modifier.height(6.dp))
-                // A plain Column, not a LazyColumn: a lazy list inside the
-                // scrolling body would be measured with an unbounded height.
-                // Its own height is capped at six rows and it scrolls past
-                // that, so a full room cannot push Close and Leave off the
-                // bottom of the dialog.
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = PEER_LIST_MAX_HEIGHT)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    peers.forEachIndexed { index, entry ->
-                        val peer = entry.value
-                        // Keyed by the rider, not by position: the room keeps
-                        // arrival order today, but a row that changed rider
-                        // under a positional identity would keep the old
-                        // rider's remembered state and restart their avatar.
-                        key(entry.key) {
-                            if (index > 0) {
-                                HorizontalDivider(color = MaterialTheme.appColors.divider)
-                            }
-                            PeerRow(
-                                peer = peer,
-                                nowMs = state.nowMs,
-                                speedUnit = speedUnit,
-                                tempUnit = tempUnit,
-                                onClick = {
-                                    onFlyTo(peer.last.lat, peer.last.lng)
-                                    onDismiss()
+                    // Riders who left or went LOST keep their row, greyed, the
+                    // way the map keeps their marker: the rider wants to see who
+                    // was along. So the rows are drawn whenever the room has ever
+                    // held anyone, independently of the empty line above.
+                    if (peers.isNotEmpty()) {
+                        Spacer(Modifier.height(4.dp))
+                        // A plain Column, not a LazyColumn: a lazy list inside
+                        // the scrolling body would be measured with an unbounded
+                        // height. Its own height is capped at six rows and it
+                        // scrolls past that, so a full room cannot push Close and
+                        // Leave off the bottom of the dialog.
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = PEER_LIST_MAX_HEIGHT)
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            peers.forEachIndexed { index, entry ->
+                                val peer = entry.value
+                                // Keyed by the rider, not by position: the room
+                                // keeps arrival order today, but a row that
+                                // changed rider under a positional identity would
+                                // keep the old rider's remembered state and
+                                // restart their avatar.
+                                key(entry.key) {
+                                    if (index > 0) {
+                                        HorizontalDivider(
+                                            color = MaterialTheme.appColors.divider
+                                        )
+                                    }
+                                    PeerRow(
+                                        peer = peer,
+                                        nowMs = state.nowMs,
+                                        speedUnit = speedUnit,
+                                        tempUnit = tempUnit,
+                                        onClick = {
+                                            onGoToPeer(
+                                                entry.key, peer.last.lat, peer.last.lng
+                                            )
+                                            onDismiss()
+                                        }
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -1095,6 +1300,68 @@ fun ShareGroupDialog(
 }
 
 /**
+ * QR code | Connected (N), the app's tab row with every colour named.
+ *
+ * The Material default would paint itself from the Material slots; this row is
+ * the bottom half of the card's header, so it is told the header's surface and
+ * which accent marks the selected tab. It draws no divider of its own: the
+ * header carries one edge, under the tabs, for the whole block.
+ */
+// The tab row's own indicator slot is still experimental in Material 3; it is
+// opted into rather than skipped, because the default indicator paints itself
+// from the Material slots and every colour in these dialogs is named.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShareGroupTabRow(
+    selected: GroupTab,
+    connectedCount: Int,
+    onSelect: (GroupTab) -> Unit,
+) {
+    val appColors = MaterialTheme.appColors
+    PrimaryTabRow(
+        selectedTabIndex = selected.ordinal,
+        containerColor = appColors.surfaceVariant,
+        contentColor = appColors.textPrimary,
+        indicator = {
+            TabRowDefaults.PrimaryIndicator(
+                modifier = Modifier.tabIndicatorOffset(selected.ordinal, matchContentSize = true),
+                color = appColors.primary,
+            )
+        },
+        divider = {},
+    ) {
+        GroupTab.values().forEach { entry ->
+            Tab(
+                selected = selected == entry,
+                onClick = { onSelect(entry) },
+                // The indicator under the tab is what the accent marks;
+                // the label stays the readable text colour, because the
+                // accent on the light theme's white card is well under the
+                // contrast bar for a label.
+                selectedContentColor = appColors.textPrimary,
+                unselectedContentColor = appColors.textSecondary,
+                text = {
+                    // Material 3 Tab pads its text slot, so a label can
+                    // measure narrower than the text it holds and clip on the
+                    // right even when the tab has room. wrapContentWidth with
+                    // unbounded = true lets the Text report its own width.
+                    Text(
+                        when (entry) {
+                            GroupTab.QR -> stringResource(R.string.share_tab_qr)
+                            GroupTab.CONNECTED ->
+                                stringResource(R.string.share_tab_connected, connectedCount)
+                        },
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.wrapContentWidth(unbounded = true)
+                    )
+                }
+            )
+        }
+    }
+}
+
+/**
  * One of the three link actions in the group header: a tinted icon button, the
  * same affordance the trip detail bar uses for its actions.
  *
@@ -1124,24 +1391,35 @@ private fun ShareLinkAction(
  *  time the group view is opened. */
 private val PEER_LIST_MAX_HEIGHT = 56.dp * 6 + 5.dp
 
-/** One friend, laid out like the app's other list rows: a 40 dp avatar or
- *  coloured initial, the name with their flag inline, their stats under it, and
- *  how fresh the fix is on the right. Tapping the row flies the map to them. */
+/**
+ * One rider as the group sees them: a 40 dp avatar or coloured initial, the
+ * name with their flag inline, their stats under it, and whatever the caller
+ * puts at the end of the row.
+ *
+ * The rider's own row and a friend's row are the same composable on purpose.
+ * The dialog's whole claim about the top row is that it shows the rider what
+ * the group sees, and two layouts that only look alike would drift apart the
+ * first time either was touched.
+ */
 @Composable
-private fun PeerRow(
-    peer: PeerState,
-    nowMs: Long,
+private fun RiderRow(
+    name: String,
+    flag: String?,
+    avatarUrl: String?,
+    /** Palette colour, "#RRGGBB", the same one this rider's map marker uses. */
+    color: String,
+    stats: ShareStats?,
     speedUnit: String,
     tempUnit: String,
-    onClick: () -> Unit,
+    faded: Boolean,
+    modifier: Modifier = Modifier,
+    trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val context = LocalContext.current
-    val dot = peerColorOf(peer.last.color)
-    val faded = peer.left || peer.freshness == Freshness.LOST
+    val dot = peerColorOf(color)
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .padding(vertical = 8.dp)
             .alpha(if (faded) 0.45f else 1f),
         verticalAlignment = Alignment.CenterVertically
@@ -1151,7 +1429,7 @@ private fun PeerRow(
         // colour otherwise, so the row is the same height either way and the
         // dot still says which marker on the map is theirs.
         RemoteAvatar(
-            url = safeAvatar(peer.last.avatarUrl),
+            url = safeAvatar(avatarUrl),
             modifier = Modifier.size(40.dp).clip(CircleShape),
         ) {
             Box(
@@ -1164,7 +1442,7 @@ private fun PeerRow(
                 Text(
                     // The palette colours are bright, so the theme's ink for a
                     // filled control is what reads on them.
-                    text = avatarInitial(peer.last.name),
+                    text = avatarInitial(name),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.appColors.onPrimary,
                 )
@@ -1174,7 +1452,7 @@ private fun PeerRow(
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    peer.last.name,
+                    name,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.appColors.textPrimary,
                     fontWeight = FontWeight.SemiBold,
@@ -1182,7 +1460,7 @@ private fun PeerRow(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false)
                 )
-                peer.last.flag?.let {
+                flag?.let {
                     Spacer(Modifier.width(6.dp))
                     // The flag as the flag, not as its two-letter code, the
                     // way the profile card shows it.
@@ -1192,17 +1470,9 @@ private fun PeerRow(
                     )
                 }
             }
-            peer.last.stats?.let { s ->
+            stats?.let { s ->
                 Text(
-                    String.format(
-                        Locale.getDefault(),
-                        "%.0f %s · %d%% · %.0f%s",
-                        Units.speed(s.speedKmh, speedUnit),
-                        Units.speedUnit(context, speedUnit),
-                        s.batteryPct,
-                        Units.temperature(s.tempC, tempUnit),
-                        Units.tempUnit(tempUnit)
-                    ),
+                    shareStatsLine(context, s, speedUnit, tempUnit),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.appColors.textSecondary,
                     maxLines = 1,
@@ -1210,42 +1480,69 @@ private fun PeerRow(
                 )
             }
         }
-        // Aged against the session's ticking clock, not a fresh reading taken
-        // during composition: the row only recomposes when the state changes,
-        // so a clock sampled here would only ever be read on the tick that
-        // changed something else and the label would sit still in between.
-        val ageMs = nowMs - peer.lastSeenMs
-        // A fresh fix says nothing: every rider in a live group is under 15 s
-        // old nearly all the time, so a counter there was a number that changed
-        // for no reason and read like a ping. It appears only once the fix has
-        // actually started to age, which is the one time it means something.
-        val ageText = when {
-            peer.left -> stringResource(R.string.share_left)
-            peer.freshness == Freshness.LOST -> stringResource(R.string.share_lost)
-            peer.freshness == Freshness.FRESH -> ""
-            ageMs < 60_000L -> stringResource(R.string.share_age_seconds, (ageMs / 1000L).toInt())
-            else -> stringResource(R.string.share_age_minutes, (ageMs / 60_000L).toInt())
-        }
-        // Green while the fix is current, amber once it starts aging, muted
-        // once the rider is gone: the same three states the map's markers use.
-        // The else arm is FRESH, which never actually reaches the screen (its
-        // ageText is empty, so the Text below is skipped entirely); it stays
-        // here as an explicit "else" only because a boolean when needs one to
-        // compile as an expression, not because the colour is ever shown.
-        val ageColor = when {
-            peer.left || peer.freshness == Freshness.LOST ->
-                MaterialTheme.appColors.textSecondary
-            peer.freshness == Freshness.STALE -> MaterialTheme.appColors.statusWarn
-            else -> MaterialTheme.appColors.statusGood
-        }
-        if (ageText.isNotEmpty()) {
-            Spacer(Modifier.width(8.dp))
-            Text(
-                ageText,
-                style = MaterialTheme.typography.labelMedium,
-                color = ageColor,
-                maxLines = 1
-            )
-        }
+        trailing()
     }
+}
+
+/** One friend in the group list: [RiderRow] with how fresh their fix is at the
+ *  end. Tapping the row centres the map on them. */
+@Composable
+private fun PeerRow(
+    peer: PeerState,
+    nowMs: Long,
+    speedUnit: String,
+    tempUnit: String,
+    onClick: () -> Unit,
+) {
+    val faded = peer.left || peer.freshness == Freshness.LOST
+    // Aged against the session's ticking clock, not a fresh reading taken
+    // during composition: the row only recomposes when the state changes,
+    // so a clock sampled here would only ever be read on the tick that
+    // changed something else and the label would sit still in between.
+    val ageMs = nowMs - peer.lastSeenMs
+    // A fresh fix says nothing: every rider in a live group is under 15 s
+    // old nearly all the time, so a counter there was a number that changed
+    // for no reason and read like a ping. It appears only once the fix has
+    // actually started to age, which is the one time it means something.
+    val ageText = when {
+        peer.left -> stringResource(R.string.share_left)
+        peer.freshness == Freshness.LOST -> stringResource(R.string.share_lost)
+        peer.freshness == Freshness.FRESH -> ""
+        ageMs < 60_000L -> stringResource(R.string.share_age_seconds, (ageMs / 1000L).toInt())
+        else -> stringResource(R.string.share_age_minutes, (ageMs / 60_000L).toInt())
+    }
+    // Green while the fix is current, amber once it starts aging, muted
+    // once the rider is gone: the same three states the map's markers use.
+    // The else arm is FRESH, which never actually reaches the screen (its
+    // ageText is empty, so the Text below is skipped entirely); it stays
+    // here as an explicit "else" only because a boolean when needs one to
+    // compile as an expression, not because the colour is ever shown.
+    val ageColor = when {
+        peer.left || peer.freshness == Freshness.LOST ->
+            MaterialTheme.appColors.textSecondary
+        peer.freshness == Freshness.STALE -> MaterialTheme.appColors.statusWarn
+        else -> MaterialTheme.appColors.statusGood
+    }
+    RiderRow(
+        name = peer.last.name,
+        flag = peer.last.flag,
+        avatarUrl = peer.last.avatarUrl,
+        color = peer.last.color,
+        stats = peer.last.stats,
+        speedUnit = speedUnit,
+        tempUnit = tempUnit,
+        faded = faded,
+        modifier = Modifier.clickable(onClick = onClick),
+        trailing = {
+            if (ageText.isNotEmpty()) {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    ageText,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = ageColor,
+                    maxLines = 1
+                )
+            }
+        },
+    )
 }

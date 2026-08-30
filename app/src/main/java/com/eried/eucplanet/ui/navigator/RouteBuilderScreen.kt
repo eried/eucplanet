@@ -133,7 +133,10 @@ import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.share.Freshness
 import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.PeerState
+import com.eried.eucplanet.share.ShareLink
 import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.share.ShareStats
+import com.eried.eucplanet.share.TrailBands
 import com.eried.eucplanet.share.activePeers
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -277,9 +280,23 @@ fun RouteBuilderScreen(
     val shareSpeedUnit by viewModel.speedUnit.collectAsState()
     val shareTempUnit by viewModel.tempUnit.collectAsState()
     val shareRelayHost by viewModel.relayHost.collectAsState()
-    // The rider tapped Share; which dialog opens depends on whether a
-    // group is already running.
-    var shareDialogOpen by remember { mutableStateOf(false) }
+    // What this rider is broadcasting, for their own row in the group view.
+    val myShareStats by viewModel.myShareStats.collectAsState()
+    // The Share button, not in a ride: a menu of the four things the icon can
+    // mean. Two of them are finished inside the menu (a Maps link, the
+    // coordinates on the clipboard); the other two open one of the windows
+    // below.
+    var shareMenuOpen by remember { mutableStateOf(false) }
+    // The camera, and the ride it read. The link is held rather than joined on
+    // sight: the rider still has to say how they want to appear.
+    var shareScannerOpen by remember { mutableStateOf(false) }
+    var scannedLink by remember { mutableStateOf<ShareLink?>(null) }
+    // The identity form for a ride the rider is starting themselves.
+    var shareStartOpen by remember { mutableStateOf(false) }
+    // The group view. Set when the rider taps Share while in a ride, and by
+    // the two paths into one, so the window that opens is the group they just
+    // entered.
+    var shareGroupOpen by remember { mutableStateOf(false) }
     // Resolved off the tap: both reach for the settings store, and the
     // profile identity also hits the network.
     var shareIdentity by remember { mutableStateOf<Identity?>(null) }
@@ -503,21 +520,31 @@ fun RouteBuilderScreen(
     }
 
     // Friends' markers + fading trails. Re-pushed on every share-state
-    // change: a new position, a freshness tick, or someone leaving.
-    LaunchedEffect(pageReady, shareState) {
+    // change: a new position, a freshness tick, or someone leaving. The units
+    // are keys too: a rider who switches to mph while a group is running has
+    // to see the tapped marker's label change with the group list's rows.
+    LaunchedEffect(pageReady, shareState, shareSpeedUnit, shareTempUnit) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
         val joined = shareState as? ShareState.Joined
         // The session's own tick clock, so the ages the map draws match the
         // ones the group list shows for the same state.
         val now = joined?.nowMs ?: System.currentTimeMillis()
+        // The tapped-marker label is written here rather than in the page, so
+        // it reads in the rider's own units and word for word the same as the
+        // group list's row for the same friend.
+        val statsText: (ShareStats) -> String = { s ->
+            shareStatsLine(context, s, shareSpeedUnit, shareTempUnit)
+        }
         val json = when {
             joined == null -> "[]"
             // A big group means a lot of trail points; keep that off the
             // frame the map is drawing on.
             joined.peers.size > 10 ->
-                withContext(Dispatchers.Default) { sharePeersJson(joined.peers, now) }
-            else -> sharePeersJson(joined.peers, now)
+                withContext(Dispatchers.Default) {
+                    sharePeersJson(joined.peers, now, statsText)
+                }
+            else -> sharePeersJson(joined.peers, now, statsText)
         }
         wv.evaluateJavascript("nativeSetPeers(${JSONObject.quote(json)});", null)
     }
@@ -533,11 +560,15 @@ fun RouteBuilderScreen(
         }
     }
 
-    // Both share dialogs open on the rider's remembered identity. Resolving
-    // it reads the settings store (and the network for a profile), so it is
-    // done once, when a dialog is first needed.
-    LaunchedEffect(shareDialogOpen, pendingJoin) {
-        if (!shareDialogOpen && pendingJoin == null) return@LaunchedEffect
+    // The identity form opens on the rider's remembered identity. Resolving it
+    // reads the settings store (and the network for a profile), so it is done
+    // once, and already on the menu tap: the form is one tap further on, and
+    // starting the read there means it is usually answered before the form is
+    // asked for.
+    LaunchedEffect(shareMenuOpen, shareStartOpen, scannedLink, pendingJoin) {
+        if (!shareMenuOpen && !shareStartOpen && scannedLink == null && pendingJoin == null) {
+            return@LaunchedEffect
+        }
         shareHasProfile = viewModel.hasProfile()
         shareIdentity = viewModel.defaultIdentity()
     }
@@ -768,31 +799,60 @@ fun RouteBuilderScreen(
                     // dialog's status line reads the same one.
                     val joinedShare = shareState as? ShareState.Joined
                     val sharePeers = joinedShare?.activePeers?.size ?: 0
-                    BadgedBox(
-                        badge = {
-                            // Shown from zero up: while a group is running the
-                            // badge itself is the "you are sharing" signal, and
-                            // a 0 is the honest answer to how many friends are
-                            // in it. Hiding it at 0 made a live share look off.
-                            if (joinedShare != null) {
-                                Badge(
-                                    containerColor = MaterialTheme.appColors.primary,
-                                    contentColor = MaterialTheme.appColors.onPrimary
-                                ) { Text(sharePeers.toString()) }
+                    // The Box is the menu's anchor: a DropdownMenu positions
+                    // itself against its parent, so without one wrapping the
+                    // button the menu would hang off the whole app bar rather
+                    // than off the icon the rider tapped.
+                    Box {
+                        BadgedBox(
+                            badge = {
+                                // Shown from zero up: while a group is running
+                                // the badge itself is the "you are sharing"
+                                // signal, and a 0 is the honest answer to how
+                                // many friends are in it. Hiding it at 0 made a
+                                // live share look off.
+                                if (joinedShare != null) {
+                                    Badge(
+                                        containerColor = MaterialTheme.appColors.primary,
+                                        contentColor = MaterialTheme.appColors.onPrimary
+                                    ) { Text(sharePeers.toString()) }
+                                }
+                            }
+                        ) {
+                            IconButton(
+                                // In a ride the icon has one meaning, so it
+                                // goes straight to the group rather than
+                                // through a menu asking what the rider wants.
+                                onClick = {
+                                    if (joinedShare != null) shareGroupOpen = true
+                                    else shareMenuOpen = true
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Default.Share,
+                                    stringResource(R.string.share_button),
+                                    tint = if (joinedShare != null) {
+                                        MaterialTheme.appColors.statusGood
+                                    } else {
+                                        MaterialTheme.appColors.textPrimary
+                                    }
+                                )
                             }
                         }
-                    ) {
-                        IconButton(onClick = { shareDialogOpen = true }) {
-                            Icon(
-                                Icons.Default.Share,
-                                stringResource(R.string.share_button),
-                                tint = if (joinedShare != null) {
-                                    MaterialTheme.appColors.statusGood
-                                } else {
-                                    MaterialTheme.appColors.textPrimary
-                                }
-                            )
-                        }
+                        ShareMenu(
+                            expanded = shareMenuOpen,
+                            // The live fix, so the two one-shot items copy and
+                            // send where the rider is right now, and say they
+                            // are waiting when there is no fix yet.
+                            fixLat = userLocation?.latitude,
+                            fixLng = userLocation?.longitude,
+                            onDismiss = { shareMenuOpen = false },
+                            onScan = { shareScannerOpen = true },
+                            onStartGroup = { shareStartOpen = true },
+                            onNotify = { msg ->
+                                scope.launch { snackbarHost.showSnackbar(msg) }
+                            },
+                        )
                     }
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
@@ -1693,9 +1753,11 @@ fun RouteBuilderScreen(
                 )
             }
 
-            // Live location share. One of four states: an incoming link
-            // that needs a "leave the group you are in?" answer, the join
-            // dialog for that link, the start dialog, or the group view.
+            // Live location share. The Share icon's menu is up in the app bar;
+            // everything it can open is here. In order: an incoming link that
+            // needs a "leave the group you are in?" answer, the identity form
+            // for that link, the camera, the identity form for a ride the
+            // rider scanned or is starting, and the group view.
             val joinLink = pendingJoin
             val joinedGroup = shareState as? ShareState.Joined
             when {
@@ -1726,17 +1788,17 @@ fun RouteBuilderScreen(
                 }
 
                 joinLink != null -> shareIdentity?.let { def ->
-                    ShareStartDialog(
+                    ShareIdentityDialog(
                         titleRes = R.string.share_join_title,
                         default = def,
                         hasProfile = shareHasProfile,
                         resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
                         resolveProfile = { viewModel.profileIdentity() },
-                        onStart = { identity ->
+                        onConfirm = { identity ->
                             shareSwitchConfirmed = false
                             // Land in the group view so the rider sees who
                             // they just joined.
-                            shareDialogOpen = true
+                            shareGroupOpen = true
                             viewModel.joinShare(joinLink, identity)
                         },
                         onDismiss = {
@@ -1747,41 +1809,85 @@ fun RouteBuilderScreen(
                     )
                 }
 
-                shareDialogOpen && joinedGroup == null -> shareIdentity?.let { def ->
-                    ShareStartDialog(
-                        titleRes = R.string.share_title,
+                // The camera. It closes itself on the first frame that reads a
+                // share link, and the identity form for that ride opens next.
+                shareScannerOpen -> ShareScannerDialog(
+                    onLink = { link ->
+                        shareScannerOpen = false
+                        scannedLink = link
+                    },
+                    onDismiss = { shareScannerOpen = false }
+                )
+
+                scannedLink != null -> shareIdentity?.let { def ->
+                    val link = scannedLink
+                    ShareIdentityDialog(
+                        titleRes = R.string.share_join_title,
+                        default = def,
+                        hasProfile = shareHasProfile,
+                        resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
+                        resolveProfile = { viewModel.profileIdentity() },
+                        onConfirm = { identity ->
+                            // Left open on purpose: the moment the room
+                            // answers, this window becomes the group view.
+                            shareGroupOpen = true
+                            if (link != null) viewModel.joinShare(link, identity)
+                        },
+                        onDismiss = { scannedLink = null },
+                        confirmLabelRes = R.string.share_join
+                    )
+                }
+
+                shareStartOpen && joinedGroup == null -> shareIdentity?.let { def ->
+                    ShareIdentityDialog(
+                        titleRes = R.string.share_title_live,
                         default = def,
                         hasProfile = shareHasProfile,
                         resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
                         resolveProfile = { viewModel.profileIdentity() },
                         // Left open on purpose: the moment the room exists
                         // this becomes the group view with the QR to share.
-                        onStart = { identity -> viewModel.startShare(identity) },
-                        onDismiss = { shareDialogOpen = false },
-                        // A scanned or pasted link turns this same dialog into
-                        // the join step: the rider keeps the identity they were
-                        // looking at, and the window is never torn down.
-                        onJoin = { link, identity ->
-                            shareDialogOpen = true
-                            viewModel.joinShare(link, identity)
+                        onConfirm = { identity ->
+                            shareGroupOpen = true
+                            viewModel.startShare(identity)
                         },
+                        onDismiss = { shareStartOpen = false },
                     )
                 }
 
-                shareDialogOpen && joinedGroup != null -> ShareGroupDialog(
+                shareGroupOpen && joinedGroup != null -> ShareGroupDialog(
                     state = joinedGroup,
                     relayHost = shareRelayHost,
                     speedUnit = shareSpeedUnit,
                     tempUnit = shareTempUnit,
-                    onFlyTo = { lat, lng ->
-                        webView?.evaluateJavascript("nativeFlyTo($lat,$lng);", null)
+                    myStats = myShareStats,
+                    onGoToPeer = { id, lat, lng ->
+                        // Exactly the move the "my location" button makes, to
+                        // someone else: same zoom, same bottom offset, so the
+                        // friend lands in the middle of the map the rider can
+                        // actually see rather than behind the stops panel.
+                        webView?.evaluateJavascript(
+                            "nativeRecenter($lat,$lng,16,$recenterOffsetPx);", null
+                        )
+                        // ...and their marker opens the same label a tap on it
+                        // would, so arriving at a friend answers "who is this
+                        // and how are they doing" without a second tap.
+                        webView?.evaluateJavascript(
+                            "nativeExpandPeer(${jsString(id)});", null
+                        )
                     },
                     onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
                     onLeave = {
-                        shareDialogOpen = false
+                        shareGroupOpen = false
+                        shareStartOpen = false
+                        scannedLink = null
                         viewModel.leaveShare()
                     },
-                    onDismiss = { shareDialogOpen = false }
+                    onDismiss = {
+                        shareGroupOpen = false
+                        shareStartOpen = false
+                        scannedLink = null
+                    }
                 )
             }
         }
@@ -3004,22 +3110,48 @@ private class NavJsBridge(
 /**
  * The friend list the map draws: one entry per peer with their palette
  * colour, freshness and the fading trail behind them. The field names are
- * the wire contract with `nativeSetPeers` (and with the web viewer), so they
- * are spelled out here rather than derived from the model.
+ * the wire contract with `nativeSetPeers`, so they are spelled out here
+ * rather than derived from the model.
+ *
+ * Each trail point carries `[lat, lng, alpha, band]`. The band is the page's
+ * whole trail story ([TrailBands]) and is stamped here because the ages are
+ * measured against the session's own clock; `alpha` is the older per-hop fade
+ * and is kept in the tuple so the shape does not change under anything else
+ * reading it.
+ *
+ * [statsText] writes a friend's stats the way the group list writes them, in
+ * the rider's own units, so the label a tapped marker opens cannot disagree
+ * with the row for the same friend.
  */
-private fun sharePeersJson(peers: Map<String, PeerState>, now: Long): String {
+private fun sharePeersJson(
+    peers: Map<String, PeerState>,
+    now: Long,
+    statsText: (ShareStats) -> String,
+): String {
     val arr = JSONArray()
-    peers.values.forEach { p ->
+    peers.forEach { (senderId, p) ->
         val trail = JSONArray()
         // Trail itself serialises add / points, so the race is handled at
         // the source. This stays as a last-resort net: one frame without a
         // rider's trail beats taking the map down.
         runCatching { p.trail.points(now) }.getOrDefault(emptyList()).forEach { pt ->
-            trail.put(JSONArray().put(pt.lat).put(pt.lng).put(pt.alpha.toDouble()))
+            // A sender whose clock runs fast would stamp a point in the
+            // future; coerced, it lands in the newest band rather than
+            // producing a negative one the page would have to guess at.
+            val band = TrailBands.of((now - pt.t).coerceAtLeast(0L))
+            trail.put(
+                JSONArray().put(pt.lat).put(pt.lng).put(pt.alpha.toDouble()).put(band)
+            )
         }
         arr.put(
             JSONObject().apply {
-                put("id", p.last.id)
+                // The RELAY sender id, not the id inside the decrypted body:
+                // the sender id is unique by construction, while the body's is
+                // whatever the other client put there, and two riders claiming
+                // one id would collapse into a single marker. It is also what
+                // the group list hands to nativeExpandPeer, so the two agree
+                // on which marker is which.
+                put("id", senderId)
                 put("name", p.last.name)
                 put("color", p.last.color)
                 put("lat", p.last.lat)
@@ -3030,6 +3162,7 @@ private fun sharePeersJson(peers: Map<String, PeerState>, now: Long): String {
                 put("ageS", (now - p.lastSeenMs) / 1000L)
                 put("avatarUrl", p.last.avatarUrl ?: JSONObject.NULL)
                 put("flag", p.last.flag ?: JSONObject.NULL)
+                put("statsText", p.last.stats?.let(statsText) ?: JSONObject.NULL)
                 put("trail", trail)
             }
         )

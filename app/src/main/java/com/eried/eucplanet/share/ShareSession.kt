@@ -17,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -107,6 +108,28 @@ class ShareSession @Inject constructor(
     val sharing: StateFlow<Boolean> = _state
         .map { it is ShareState.Joined }
         .stateIn(scope, SharingStarted.Eagerly, false)
+
+    /**
+     * The stats block this rider is publishing right now, or null when nothing
+     * real is going out: the toggle is off, no wheel is connected, or there is
+     * no room to publish into. Exactly what [publishTick] would put on the wire,
+     * from the same two sources, so the rider's own row in the group view shows
+     * what the group is being told rather than a hopeful copy of it.
+     *
+     * WhileSubscribed rather than Eagerly: wheelData ticks several times a
+     * second while riding, and this only has a reader while the group dialog is
+     * open on the rider list.
+     */
+    val myStats: StateFlow<ShareStats?> = combine(
+        _state, wheelRepository.connectionState, wheelRepository.wheelData
+    ) { st, connection, wheel ->
+        val me = (st as? ShareState.Joined)?.me ?: return@combine null
+        shareStatsOf(
+            shareStats = me.shareStats,
+            wheelConnected = connection == ConnectionState.CONNECTED,
+            wheel = wheel,
+        )
+    }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), null)
 
     private var ws: WebSocket? = null
     private var key: ByteArray? = null
