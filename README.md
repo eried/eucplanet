@@ -86,16 +86,15 @@ footage from another camera. It's not only for recording and replay: the same
 editor designs your **MotoEye / Android HUD** layout, so the visor shows exactly
 the tiles and gauges you arranged.
 
-**Weather, for riders.** Not a forecast app: a single score for whether the next
-few hours are worth riding, from the things that actually decide it. Rain, wind and
-gusts, cold and heat, night, and golden hour, each weighted the way YOU feel about
-them. Drag along the curve to read any hour; temperature, wind and humidity sit
-underneath. Pick your window (the next 8 hours, tomorrow, the week), your source,
-and your comfort thresholds.
+**Weather.** A score for how the next hours look for riding, from rain, wind and
+gusts, cold, heat, night and golden hour, each weighted by how much you mind it.
+Drag the curve to read any hour, with temperature, wind and humidity underneath.
+Pick the window (next 8 hours, tomorrow, the week), the source, and your comfort
+thresholds.
 
-**On the home screen.** A one-cell widget answering "Ride?" with a face, a score
-and the temperature, and a forecast widget that grows hour markers, a score scale,
-temperature and wind as you drag it larger. Tapping either opens the panel.
+**Home screen widgets.** Wheel metrics and one-tap buttons, plus two for the
+weather: one cell for right now, and a resizable forecast that shows more as you
+make it bigger.
 
 **Charging monitor.** A live charge curve with a scrubbable prediction line,
 energy split into used and charged, and a per-cell BMS view (Cells tab) for

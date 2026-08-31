@@ -1,8 +1,9 @@
-✨ New this release:
+New this release:
 
-📱 Home screen widgets: speed, trip and charge, plus one-tap buttons for horn, light and lock.
-🪟 Picture-in-picture: a floating window when you leave the app.
-🛰️ Phone HUD: keep your wheel's numbers on screen over any other app.
-✂️ Trim and split trips, and save a section as its own ride.
-🛞 InMotion V5/V8/V10: wheel lock and charging fixes.
-🌍 Now also in Czech, Finnish, Hungarian and Romanian.
+🌤️ Weather panel and home screen widgets for riding conditions.
+⌚ Amazfit (Zepp OS) watch app.
+🔋 Battery notifications at 80% and when charging finishes.
+💡 The headlight can turn off at walking pace.
+📈 Trip Details improvements.
+🔄 Reset metrics now works on every wheel.
+🛠️ Garmin, HUD and widget fixes.
