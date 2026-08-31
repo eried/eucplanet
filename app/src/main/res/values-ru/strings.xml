@@ -564,8 +564,8 @@
     <string name="battery_override_label">Заменить процент колеса</string>
     <string name="battery_override_hint">Оценивать по напряжению батареи</string>
     <string name="battery_percent_custom_floor">Линейная шкала</string>
-    <string name="battery_percent_min_cell">Пусто при</string>
-    <string name="battery_percent_max_cell">Полно при</string>
+    <string name="battery_percent_min_cell" formatted="false">Пусто при</string>
+    <string name="battery_percent_max_cell" formatted="false">Полно при</string>
     <string name="battery_percent_cell_range_desc">Напряжение на ячейку для пустого и полного</string>
     <string name="battery_percent_series_cells">Ячеек последовательно</string>
     <string name="battery_capacity_label">Ёмкость</string>
@@ -625,7 +625,7 @@
     <string name="welcome_tut_outro_end">Следите за дорогой, а не за приложением, пока едете на моноколесе!</string>
     <string name="welcome_tut_speed">Ваша текущая скорость. Изменить единицы можно в Настройки → %1$s</string>
     <string name="welcome_tut_metrics">Заряд, температура, напряжение и другое в реальном времени. Изменить порядок можно в Настройки → %1$s</string>
-    <string name="welcome_tut_actions">Быстрые элементы управления. Настроить их можно там же, в разделе %2$s</string>
+    <string name="welcome_tut_actions">Быстрые элементы управления. Настроить их можно там же, в разделе %1$s</string>
     <string name="welcome_tut_map">Откройте навигатор, чтобы планировать маршруты, получать пошаговые подсказки или делиться местоположением в реальном времени в групповой поездке</string>
     <string name="welcome_tut_gps">Нажмите для просмотра данных в реальном времени, здесь можно откалибровать скорость колеса по GPS. Калибровку можно изменить позже в Настройки → %1$s</string>
     <string name="welcome_tut_camera">Записывайте видео с наложением телеметрии. Создавайте свои оверлеи и экспортируйте их для видео с данными прошлых поездок</string>
@@ -949,18 +949,18 @@
     <string name="recording_summary_max_torque">Макс. момент</string>
     <string name="recording_summary_max_phase_current">Макс. фаз. A</string>
     <string name="recording_chart_speed">Скорость (%1$s)</string>
-    <string name="recording_chart_battery">Заряд (%)</string>
-    <string name="recording_chart_battery_envelope">Огибающая батареи (%)</string>
+    <string name="recording_chart_battery" formatted="false">Заряд (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Огибающая батареи (%)</string>
     <string name="recording_chart_temp">Температура (%1$s)</string>
     <string name="recording_chart_voltage">Напряжение (В)</string>
     <string name="recording_chart_current">Ток (А)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Момент (Н·м)</string>
     <string name="recording_chart_phase_current">Фазный ток (A)</string>
-    <string name="recording_chart_battery_smooth">Батарея, среднее (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Батарея, среднее (%)</string>
     <string name="recording_chart_speed_smooth">Скорость, среднее (%1$s)</string>
     <string name="recording_chart_current_smooth">Ток, среднее (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, среднее (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, среднее (%)</string>
     <string name="recording_chart_power">Мощность (Вт)</string>
     <string name="recording_chart_altitude">Высота (м)</string>
 
@@ -1837,7 +1837,7 @@
     <string name="charging_details">Подробности</string>
     <string name="charging_tab_charge">Заряд</string>
     <string name="charging_tab_packs">Блоки</string>
-    <string name="charging_estimate_to_full">Всегда оценивать до 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Всегда оценивать до 100%</string>
     <string name="charging_options">Опции</string>
     <string name="charging_tab_power">Мощность</string>
     <string name="charging_stat_added">Добавлено</string>
@@ -2465,11 +2465,11 @@
     <string name="widget_weather_hour_fmt">%1$d ч назад</string>
     <string name="widget_weather_window_fmt">ближайшие %1$d ч</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Сообщить на 80 %</string>
-    <string name="charging_notify_full">Сообщить на 100 %</string>
+    <string name="charging_notify_80" formatted="false">Сообщить на 80 %</string>
+    <string name="charging_notify_full" formatted="false">Сообщить на 100 %</string>
     <string name="charge_alert_channel_name">Оповещения о зарядке</string>
-    <string name="charge_alert_channel_description">Когда батарея проходит 80 % или заряд завершён.</string>
-    <string name="charge_alert_80_title">Батарея на 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">Когда батарея проходит 80 % или заряд завершён.</string>
+    <string name="charge_alert_80_title" formatted="false">Батарея на 80 %</string>
     <string name="charge_alert_80_text">Отключите сейчас, ради ресурса батареи.</string>
     <string name="charge_alert_full_title">Зарядка завершена</string>
     <string name="charge_alert_full_text">Можно кататься.</string>

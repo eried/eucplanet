@@ -712,8 +712,8 @@
     <string name="battery_override_label">Korvaa pyörän prosentti</string>
     <string name="battery_override_hint">Arvioi se akun jännitteestä</string>
     <string name="battery_percent_custom_floor">Suoraviivainen asteikko</string>
-    <string name="battery_percent_min_cell">Tyhjä kun</string>
-    <string name="battery_percent_max_cell">Täysi kun</string>
+    <string name="battery_percent_min_cell" formatted="false">Tyhjä kun</string>
+    <string name="battery_percent_max_cell" formatted="false">Täysi kun</string>
     <string name="battery_percent_cell_range_desc">Kennon jännite tyhjänä ja täynnä</string>
     <string name="battery_percent_series_cells">Kennoja sarjassa</string>
     <string name="battery_capacity_label">Kapasiteetti</string>
@@ -796,7 +796,7 @@
     <string name="welcome_tut_share">Varmuuskopioi matkasi kohdassa Asetukset → %1$s. Katso ne sovelluksessa %2$s tai analysoi varmuuskopiot osoitteessa eucviewer.ried.no.\n\nSamassa osiossa voit liittyä julkisiin tulostauluihin osoitteessa eucstats.ried.no</string>
     <string name="welcome_tut_speed">Reaaliaikainen nopeutesi. Vaihda yksiköt kohdassa Asetukset → %1$s</string>
     <string name="welcome_tut_metrics">Reaaliaikainen akku, lämpötila, jännite ja muuta. Järjestä ne uudelleen kohdassa Asetukset → %1$s</string>
-    <string name="welcome_tut_actions">Pikahallinta. Säädä niitä samassa paikassa, kohdassa %2$s</string>
+    <string name="welcome_tut_actions">Pikahallinta. Säädä niitä samassa paikassa, kohdassa %1$s</string>
     <string name="welcome_tut_map">Avaa navigaattori reittien suunnitteluun, käännösohjeisiin tai reaaliaikaisen sijaintisi jakamiseen ryhmäajossa</string>
     <string name="welcome_tut_gps">Napauta nähdäksesi reaaliaikaisen datanäkymän, voit jopa kalibroida yksipyöräisen nopeuden GPS-nopeuden perusteella. Tarkista kalibrointi myöhemmin kohdassa Asetukset → %1$s</string>
     <string name="welcome_tut_camera">Tallenna videota reaaliaikaisella telemetriapäällysteellä. Luo omia hienoja päällysteitä ja vie ne tehdäksesi omia videoita menneiden matkojen datalla</string>
@@ -1118,18 +1118,18 @@
     <string name="recording_summary_max_torque">Max vääntö</string>
     <string name="recording_summary_max_phase_current">Max vaihe-A</string>
     <string name="recording_chart_speed">Nopeus (%1$s)</string>
-    <string name="recording_chart_battery">Akku (%)</string>
-    <string name="recording_chart_battery_envelope">Akun verhokäyrä (%)</string>
+    <string name="recording_chart_battery" formatted="false">Akku (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Akun verhokäyrä (%)</string>
     <string name="recording_chart_temp">Lämpötila (%1$s)</string>
     <string name="recording_chart_voltage">Jännite (V)</string>
     <string name="recording_chart_current">Virta (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Vääntö (Nm)</string>
     <string name="recording_chart_phase_current">Vaihevirta (A)</string>
-    <string name="recording_chart_battery_smooth">Akku, keskiarvo (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Akku, keskiarvo (%)</string>
     <string name="recording_chart_speed_smooth">Nopeus, keskiarvo (%1$s)</string>
     <string name="recording_chart_current_smooth">Virta, keskiarvo (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, keskiarvo (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, keskiarvo (%)</string>
     <string name="recording_chart_power">Teho (W)</string>
     <string name="recording_chart_altitude">Korkeus (m)</string>
     <string name="widget_description">Mittarit ja pikatoiminnot</string>
@@ -2141,7 +2141,7 @@
     <string name="charging_details">Tiedot</string>
     <string name="charging_tab_charge">Lataus</string>
     <string name="charging_tab_packs">Paketit</string>
-    <string name="charging_estimate_to_full">Arvioi aina 100 prosenttiin</string>
+    <string name="charging_estimate_to_full" formatted="false">Arvioi aina 100 prosenttiin</string>
     <string name="charging_options">Asetukset</string>
     <string name="charging_tab_power">Teho</string>
     <string name="charging_tab_cells">Kennot</string>
@@ -2268,11 +2268,11 @@
     <string name="widget_weather_hour_fmt">%1$d t sitten</string>
     <string name="widget_weather_window_fmt">seuraavat %1$d t</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Ilmoita 80 %:ssa</string>
-    <string name="charging_notify_full">Ilmoita 100 %:ssa</string>
+    <string name="charging_notify_80" formatted="false">Ilmoita 80 %:ssa</string>
+    <string name="charging_notify_full" formatted="false">Ilmoita 100 %:ssa</string>
     <string name="charge_alert_channel_name">Latausilmoitukset</string>
-    <string name="charge_alert_channel_description">Kun akku ohittaa 80 % tai lataus valmistuu.</string>
-    <string name="charge_alert_80_title">Akku 80 %:ssa</string>
+    <string name="charge_alert_channel_description" formatted="false">Kun akku ohittaa 80 % tai lataus valmistuu.</string>
+    <string name="charge_alert_80_title" formatted="false">Akku 80 %:ssa</string>
     <string name="charge_alert_80_text">Irrota nyt, akku kestää pidempään.</string>
     <string name="charge_alert_full_title">Lataus valmis</string>
     <string name="charge_alert_full_text">Valmis ajoon.</string>

@@ -712,8 +712,8 @@
     <string name="battery_override_label">A kerék százalékának felülírása</string>
     <string name="battery_override_hint">Becslés a csomag feszültségéből</string>
     <string name="battery_percent_custom_floor">Lineáris skála</string>
-    <string name="battery_percent_min_cell">Üres ennél</string>
-    <string name="battery_percent_max_cell">Tele ennél</string>
+    <string name="battery_percent_min_cell" formatted="false">Üres ennél</string>
+    <string name="battery_percent_max_cell" formatted="false">Tele ennél</string>
     <string name="battery_percent_cell_range_desc">Cellánkénti feszültség üres és tele állapothoz</string>
     <string name="battery_percent_series_cells">Sorba kötött cellák</string>
     <string name="battery_capacity_label">Kapacitás</string>
@@ -796,7 +796,7 @@
     <string name="welcome_tut_share">Mentsd a meneteidet itt: Beállítások → %1$s. Nézd meg őket itt: %2$s, vagy elemezd a mentéseket az eucviewer.ried.no oldalon.\n\nUgyanebben a részben csatlakozhatsz a nyilvános ranglistákhoz az eucstats.ried.no oldalon</string>
     <string name="welcome_tut_speed">Az élő sebességed. A mértékegységet itt módosíthatod: Beállítások → %1$s</string>
     <string name="welcome_tut_metrics">Élő akkumulátor, hőmérséklet, feszültség és további adatok. Itt rendezheted át őket: Beállítások → %1$s</string>
-    <string name="welcome_tut_actions">Gyorsvezérlők. Ugyanitt hangolhatod őket, a(z) %2$s alatt</string>
+    <string name="welcome_tut_actions">Gyorsvezérlők. Ugyanitt hangolhatod őket, a(z) %1$s alatt</string>
     <string name="welcome_tut_map">Nyisd meg a navigátort útvonalak tervezéséhez, kanyarról kanyarra navigáláshoz vagy élő helyzeted megosztásához egy csoportos túrán</string>
     <string name="welcome_tut_gps">Koppints az élő adatnézethez, akár a GPS-sebesség alapján is kalibrálhatod az egykerekűd sebességét. A kalibrálást később itt találod: Beállítások → %1$s</string>
     <string name="welcome_tut_camera">Rögzíts videót élő telemetria-átfedéssel. Készíts saját látványos átfedéseket, és exportáld őket, hogy korábbi menetek adataival készíthess videókat</string>
@@ -1118,18 +1118,18 @@
     <string name="recording_summary_max_torque">Max nyomaték</string>
     <string name="recording_summary_max_phase_current">Max fázis A</string>
     <string name="recording_chart_speed">Sebesség (%1$s)</string>
-    <string name="recording_chart_battery">Akkumulátor (%)</string>
-    <string name="recording_chart_battery_envelope">Akku burkológörbe (%)</string>
+    <string name="recording_chart_battery" formatted="false">Akkumulátor (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Akku burkológörbe (%)</string>
     <string name="recording_chart_temp">Hőmérséklet (%1$s)</string>
     <string name="recording_chart_voltage">Feszültség (V)</string>
     <string name="recording_chart_current">Áram (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Nyomaték (Nm)</string>
     <string name="recording_chart_phase_current">Fázisáram (A)</string>
-    <string name="recording_chart_battery_smooth">Akkumulátor, átlag (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Akkumulátor, átlag (%)</string>
     <string name="recording_chart_speed_smooth">Sebesség, átlag (%1$s)</string>
     <string name="recording_chart_current_smooth">Áram, átlag (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, átlag (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, átlag (%)</string>
     <string name="recording_chart_power">Teljesítmény (W)</string>
     <string name="recording_chart_altitude">Magasság (m)</string>
     <string name="widget_description">Mérőszámok és gyorsműveletek</string>
@@ -2141,7 +2141,7 @@
     <string name="charging_details">Részletek</string>
     <string name="charging_tab_charge">Töltés</string>
     <string name="charging_tab_packs">Csomagok</string>
-    <string name="charging_estimate_to_full">Mindig 100%-ig becsüljön</string>
+    <string name="charging_estimate_to_full" formatted="false">Mindig 100%-ig becsüljön</string>
     <string name="charging_options">Beállítások</string>
     <string name="charging_tab_power">Teljesítmény</string>
     <string name="charging_tab_cells">Cellák</string>
@@ -2268,11 +2268,11 @@
     <string name="widget_weather_hour_fmt">%1$d órája</string>
     <string name="widget_weather_window_fmt">következő %1$d óra</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Szólj 80 %-nál</string>
-    <string name="charging_notify_full">Szólj 100 %-nál</string>
+    <string name="charging_notify_80" formatted="false">Szólj 80 %-nál</string>
+    <string name="charging_notify_full" formatted="false">Szólj 100 %-nál</string>
     <string name="charge_alert_channel_name">Töltési értesítések</string>
-    <string name="charge_alert_channel_description">Amikor az akku túllépi a 80 %-ot, vagy befejezte a töltést.</string>
-    <string name="charge_alert_80_title">Akku 80 %-on</string>
+    <string name="charge_alert_channel_description" formatted="false">Amikor az akku túllépi a 80 %-ot, vagy befejezte a töltést.</string>
+    <string name="charge_alert_80_title" formatted="false">Akku 80 %-on</string>
     <string name="charge_alert_80_text">Húzd ki most, az akku hálás lesz.</string>
     <string name="charge_alert_full_title">Töltés kész</string>
     <string name="charge_alert_full_text">Mehet a menet.</string>

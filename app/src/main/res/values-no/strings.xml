@@ -380,18 +380,18 @@
     <string name="recording_summary_energy">Energi</string>
     <string name="recording_summary_consumption">Forbruk</string>
     <string name="recording_chart_speed">Fart (%1$s)</string>
-    <string name="recording_chart_battery">Batteri (%)</string>
-    <string name="recording_chart_battery_envelope">Batteri-envelope (%)</string>
+    <string name="recording_chart_battery" formatted="false">Batteri (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Batteri-envelope (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
     <string name="recording_chart_voltage">Spenning (V)</string>
     <string name="recording_chart_current">Strøm (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Moment (Nm)</string>
     <string name="recording_chart_phase_current">Fasestrøm (A)</string>
-    <string name="recording_chart_battery_smooth">Batteri, gjennomsnitt (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Batteri, gjennomsnitt (%)</string>
     <string name="recording_chart_speed_smooth">Hastighet, gjennomsnitt (%1$s)</string>
     <string name="recording_chart_current_smooth">Strøm, gjennomsnitt (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, gjennomsnitt (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, gjennomsnitt (%)</string>
     <string name="recording_chart_power">Effekt (W)</string>
     <string name="recording_chart_altitude">Høyde (m)</string>
 
@@ -735,8 +735,8 @@
     <string name="battery_override_label">Overstyr hjulets prosent</string>
     <string name="battery_override_hint">Anslå den fra pakkespenningen</string>
     <string name="battery_percent_custom_floor">Rettlinjet skala</string>
-    <string name="battery_percent_min_cell">Tom ved</string>
-    <string name="battery_percent_max_cell">Full ved</string>
+    <string name="battery_percent_min_cell" formatted="false">Tom ved</string>
+    <string name="battery_percent_max_cell" formatted="false">Full ved</string>
     <string name="battery_percent_cell_range_desc">Cellespenning for tom og full</string>
     <string name="battery_percent_series_cells">Celler i serie</string>
     <string name="battery_capacity_label">Kapasitet</string>
@@ -1501,7 +1501,7 @@
     <string name="welcome_tut_outro_buttons">Mange knapper har ekstra handlinger, prøv å holde dem inne</string>
     <string name="welcome_tut_speed">Farten din i sanntid. Endre enheter under Innstillinger → %1$s</string>
     <string name="welcome_tut_metrics">Batteri, temperatur, spenning og mer i sanntid. Endre rekkefølgen under Innstillinger → %1$s</string>
-    <string name="welcome_tut_actions">Hurtigkontroller. Tilpass dem på samme sted, under %2$s</string>
+    <string name="welcome_tut_actions">Hurtigkontroller. Tilpass dem på samme sted, under %1$s</string>
     <string name="welcome_tut_map">Åpne navigatoren for å planlegge ruter, få sving-for-sving-veiledning eller dele posisjonen din live på en gruppetur</string>
     <string name="welcome_tut_gps">Trykk for live data her, du kan til og med kalibrere hjulets fart mot GPS-farten. Sjekk kalibreringen senere under Innstillinger → %1$s</string>
     <string name="welcome_tut_camera">Ta opp video med et telemetri-overlegg i sanntid. Lag egne stilige overlegg og eksporter dem for å lage dine egne videoer med data fra tidligere turer</string>
@@ -1710,7 +1710,7 @@
     <string name="charging_details">Detaljer</string>
     <string name="charging_tab_charge">Lading</string>
     <string name="charging_tab_packs">Pakker</string>
-    <string name="charging_estimate_to_full">Beregn alltid til 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Beregn alltid til 100%</string>
     <string name="charging_options">Valg</string>
     <string name="charging_tab_power">Effekt</string>
     <string name="charging_stat_added">Lagt til</string>
@@ -2353,11 +2353,11 @@
     <string name="widget_weather_hour_fmt">for %1$d t siden</string>
     <string name="widget_weather_window_fmt">neste %1$d t</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Varsle ved 80 %</string>
-    <string name="charging_notify_full">Varsle ved 100 %</string>
+    <string name="charging_notify_80" formatted="false">Varsle ved 80 %</string>
+    <string name="charging_notify_full" formatted="false">Varsle ved 100 %</string>
     <string name="charge_alert_channel_name">Ladevarsler</string>
-    <string name="charge_alert_channel_description">Når batteriet passerer 80 % eller er ferdig ladet.</string>
-    <string name="charge_alert_80_title">Batteri på 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">Når batteriet passerer 80 % eller er ferdig ladet.</string>
+    <string name="charge_alert_80_title" formatted="false">Batteri på 80 %</string>
     <string name="charge_alert_80_text">Koble fra nå, det sparer batteriet.</string>
     <string name="charge_alert_full_title">Ladingen er ferdig</string>
     <string name="charge_alert_full_text">Klar til å kjøre.</string>

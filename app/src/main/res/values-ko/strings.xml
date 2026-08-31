@@ -564,8 +564,8 @@
     <string name="battery_override_label">휠 잔량 덮어쓰기</string>
     <string name="battery_override_hint">팩 전압으로 추정</string>
     <string name="battery_percent_custom_floor">직선 스케일</string>
-    <string name="battery_percent_min_cell">이 전압에서 0%</string>
-    <string name="battery_percent_max_cell">이 전압에서 100%</string>
+    <string name="battery_percent_min_cell" formatted="false">이 전압에서 0%</string>
+    <string name="battery_percent_max_cell" formatted="false">이 전압에서 100%</string>
     <string name="battery_percent_cell_range_desc">빈 상태와 가득 찬 상태의 셀당 전압</string>
     <string name="battery_percent_series_cells">직렬 셀 수</string>
     <string name="battery_capacity_label">용량</string>
@@ -621,7 +621,7 @@
     <string name="welcome_tut_outro_end">외발휠 주행 중에는 눈을 도로에 고정하고 앱을 보지 마세요!</string>
     <string name="welcome_tut_speed">실시간 속도입니다. 설정 → %1$s에서 단위를 바꾸세요</string>
     <string name="welcome_tut_metrics">실시간 배터리, 온도, 전압 등. 설정 → %1$s에서 순서를 변경하세요</string>
-    <string name="welcome_tut_actions">빠른 컨트롤. 같은 위치의 %2$s에서 조정하세요</string>
+    <string name="welcome_tut_actions">빠른 컨트롤. 같은 위치의 %1$s에서 조정하세요</string>
     <string name="welcome_tut_map">내비게이터를 열어 경로를 계획하고, 턴바이턴 안내를 받거나, 그룹 라이딩에서 실시간 위치를 공유하세요</string>
     <string name="welcome_tut_gps">탭하면 실시간 데이터를 확인하고 GPS 속도 기준으로 휠 속도를 보정할 수 있습니다. 나중에 설정 → %1$s에서도 보정할 수 있습니다</string>
     <string name="welcome_tut_camera">실시간 텔레메트리 오버레이로 영상을 녹화하세요. 커스텀 오버레이를 만들어 과거 트립 데이터로 나만의 영상을 제작하세요</string>
@@ -946,18 +946,18 @@
     <string name="recording_summary_max_torque">최대 토크</string>
     <string name="recording_summary_max_phase_current">최대 상전류</string>
     <string name="recording_chart_speed">속도 (%1$s)</string>
-    <string name="recording_chart_battery">배터리 (%)</string>
-    <string name="recording_chart_battery_envelope">배터리 포락선 (%)</string>
+    <string name="recording_chart_battery" formatted="false">배터리 (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">배터리 포락선 (%)</string>
     <string name="recording_chart_temp">온도 (%1$s)</string>
     <string name="recording_chart_voltage">전압 (V)</string>
     <string name="recording_chart_current">전류 (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">토크 (Nm)</string>
     <string name="recording_chart_phase_current">상전류 (A)</string>
-    <string name="recording_chart_battery_smooth">배터리, 평균 (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">배터리, 평균 (%)</string>
     <string name="recording_chart_speed_smooth">속도, 평균 (%1$s)</string>
     <string name="recording_chart_current_smooth">전류, 평균 (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, 평균 (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, 평균 (%)</string>
     <string name="recording_chart_power">출력 (W)</string>
     <string name="recording_chart_altitude">고도 (m)</string>
 
@@ -1865,7 +1865,7 @@
     <string name="charging_charging">충전 중</string>
     <string name="charging_chart_empty">데이터 수집 중</string>
     <string name="charging_details">세부 정보</string>
-    <string name="charging_estimate_to_full">항상 100%까지 예측</string>
+    <string name="charging_estimate_to_full" formatted="false">항상 100%까지 예측</string>
     <string name="charging_eta_at">%1$s</string>
     <string name="charging_eta_to_full">100%%까지 %1$s</string>
     <string name="charging_eta_to_target">%2$d%%까지 %1$s</string>
@@ -2464,11 +2464,11 @@
     <string name="widget_weather_hour_fmt">%1$d시간 전</string>
     <string name="widget_weather_window_fmt">다음 %1$d시간</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">80 %에서 알림</string>
-    <string name="charging_notify_full">100 %에서 알림</string>
+    <string name="charging_notify_80" formatted="false">80 %에서 알림</string>
+    <string name="charging_notify_full" formatted="false">100 %에서 알림</string>
     <string name="charge_alert_channel_name">충전 알림</string>
-    <string name="charge_alert_channel_description">배터리가 80 %를 넘거나 충전이 끝났을 때.</string>
-    <string name="charge_alert_80_title">배터리 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">배터리가 80 %를 넘거나 충전이 끝났을 때.</string>
+    <string name="charge_alert_80_title" formatted="false">배터리 80 %</string>
     <string name="charge_alert_80_text">지금 뽑으면 배터리 수명에 좋습니다.</string>
     <string name="charge_alert_full_title">충전 완료</string>
     <string name="charge_alert_full_text">탈 준비 완료.</string>

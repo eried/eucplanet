@@ -564,8 +564,8 @@
     <string name="battery_override_label">ホイールの残量を上書き</string>
     <string name="battery_override_hint">パック電圧から推定</string>
     <string name="battery_percent_custom_floor">直線スケール</string>
-    <string name="battery_percent_min_cell">空の電圧</string>
-    <string name="battery_percent_max_cell">満充電の電圧</string>
+    <string name="battery_percent_min_cell" formatted="false">空の電圧</string>
+    <string name="battery_percent_max_cell" formatted="false">満充電の電圧</string>
     <string name="battery_percent_cell_range_desc">空と満充電のセルあたり電圧</string>
     <string name="battery_percent_series_cells">直列セル数</string>
     <string name="battery_capacity_label">容量</string>
@@ -621,7 +621,7 @@
     <string name="welcome_tut_outro_end">一輪車に乗りながらこのアプリを操作せず、前方に注意してください！</string>
     <string name="welcome_tut_speed">ライブ速度。設定 → %1$s で単位を変更できます</string>
     <string name="welcome_tut_metrics">ライブバッテリー、温度、電圧など。設定 → %1$s で並べ替えられます</string>
-    <string name="welcome_tut_actions">クイックコントロール。同じ場所の %2$s でカスタマイズできます</string>
+    <string name="welcome_tut_actions">クイックコントロール。同じ場所の %1$s でカスタマイズできます</string>
     <string name="welcome_tut_map">ナビゲーターでルートを計画し、ターンバイターン案内を受けたり、グループライドで現在地を共有したりできます</string>
     <string name="welcome_tut_gps">タップでライブデータを表示。GPS 速度を元にホイール速度をキャリブレーションすることもできます。設定 → %1$s で後から確認できます</string>
     <string name="welcome_tut_camera">ライブテレメトリーオーバーレイで動画を録画。カスタムオーバーレイを作成・エクスポートして過去のトリップデータで自分だけの動画を作れます</string>
@@ -946,18 +946,18 @@
     <string name="recording_summary_max_torque">最大トルク</string>
     <string name="recording_summary_max_phase_current">最大相電流</string>
     <string name="recording_chart_speed">速度 (%1$s)</string>
-    <string name="recording_chart_battery">バッテリー (%)</string>
-    <string name="recording_chart_battery_envelope">バッテリー包絡線 (%)</string>
+    <string name="recording_chart_battery" formatted="false">バッテリー (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">バッテリー包絡線 (%)</string>
     <string name="recording_chart_temp">温度 (%1$s)</string>
     <string name="recording_chart_voltage">電圧 (V)</string>
     <string name="recording_chart_current">電流 (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">トルク (Nm)</string>
     <string name="recording_chart_phase_current">相電流 (A)</string>
-    <string name="recording_chart_battery_smooth">バッテリー、平均 (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">バッテリー、平均 (%)</string>
     <string name="recording_chart_speed_smooth">速度、平均 (%1$s)</string>
     <string name="recording_chart_current_smooth">電流、平均 (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM、平均 (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM、平均 (%)</string>
     <string name="recording_chart_power">出力 (W)</string>
     <string name="recording_chart_altitude">高度 (m)</string>
 
@@ -1865,7 +1865,7 @@
     <string name="charging_charging">充電中</string>
     <string name="charging_chart_empty">データ収集中</string>
     <string name="charging_details">詳細</string>
-    <string name="charging_estimate_to_full">常に 100% まで予測</string>
+    <string name="charging_estimate_to_full" formatted="false">常に 100% まで予測</string>
     <string name="charging_eta_at">%1$s に</string>
     <string name="charging_eta_to_full">100%% まで %1$s</string>
     <string name="charging_eta_to_target">%2$d%% まで %1$s</string>
@@ -2466,11 +2466,11 @@
     <string name="widget_weather_hour_fmt">%1$d時間前</string>
     <string name="widget_weather_window_fmt">今後%1$d時間</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">80 % で通知</string>
-    <string name="charging_notify_full">100 % で通知</string>
+    <string name="charging_notify_80" formatted="false">80 % で通知</string>
+    <string name="charging_notify_full" formatted="false">100 % で通知</string>
     <string name="charge_alert_channel_name">充電の通知</string>
-    <string name="charge_alert_channel_description">バッテリーが 80 % を超えたとき、または充電が終わったとき。</string>
-    <string name="charge_alert_80_title">バッテリー 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">バッテリーが 80 % を超えたとき、または充電が終わったとき。</string>
+    <string name="charge_alert_80_title" formatted="false">バッテリー 80 %</string>
     <string name="charge_alert_80_text">今抜くとバッテリーが長持ち。</string>
     <string name="charge_alert_full_title">充電完了</string>
     <string name="charge_alert_full_text">走る準備完了。</string>

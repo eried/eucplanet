@@ -795,8 +795,8 @@
     <string name="battery_override_label">Override the wheel\'s percentage</string>
     <string name="battery_override_hint">Estimate it from pack voltage</string>
     <string name="battery_percent_custom_floor">Straight-line scale</string>
-    <string name="battery_percent_min_cell">Empty at</string>
-    <string name="battery_percent_max_cell">Full at</string>
+    <string name="battery_percent_min_cell" formatted="false">Empty at</string>
+    <string name="battery_percent_max_cell" formatted="false">Full at</string>
     <string name="battery_percent_cell_range_desc">Per-cell voltage for empty and full</string>
     <string name="battery_percent_series_cells">Cells in series</string>
     <string name="battery_capacity_label">Capacity</string>
@@ -887,7 +887,7 @@
     <string name="welcome_tut_share">Back up your trips in Settings → %1$s. Check them in %2$s, or analyze the backups at eucviewer.ried.no.\n\nIn the same section you can join the public leaderboards at eucstats.ried.no</string>
     <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>
     <string name="welcome_tut_metrics">Live battery, temp, voltage and more. Rearrange them in Settings → %1$s</string>
-    <string name="welcome_tut_actions">Quick controls. Tweak them in the same place, under %2$s</string>
+    <string name="welcome_tut_actions">Quick controls. Tweak them in the same place, under %1$s</string>
     <string name="welcome_tut_map">Open the navigator to plan routes, get turn-by-turn guidance, or share your live location for a group ride</string>
     <string name="welcome_tut_gps">Tap for live data view here, you can even calibrate your wheel speed based on GPS speed. Check the calibration later in Settings → %1$s</string>
     <string name="welcome_tut_camera">Record video with a live telemetry overlay. Create custom fancy overlays and export them to make your own videos with data from past trips</string>
@@ -1253,18 +1253,18 @@
     <string name="recording_summary_max_torque">Max Torque</string>
     <string name="recording_summary_max_phase_current">Max Phase A</string>
     <string name="recording_chart_speed">Speed (%1$s)</string>
-    <string name="recording_chart_battery">Battery (%)</string>
-    <string name="recording_chart_battery_envelope">Battery envelope (%)</string>
+    <string name="recording_chart_battery" formatted="false">Battery (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Battery envelope (%)</string>
     <string name="recording_chart_temp">Temperature (%1$s)</string>
     <string name="recording_chart_voltage">Voltage (V)</string>
     <string name="recording_chart_current">Current (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Torque (Nm)</string>
     <string name="recording_chart_phase_current">Phase current (A)</string>
-    <string name="recording_chart_battery_smooth">Battery, average (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Battery, average (%)</string>
     <string name="recording_chart_speed_smooth">Speed, average (%1$s)</string>
     <string name="recording_chart_current_smooth">Current, average (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, average (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, average (%)</string>
     <string name="recording_chart_power">Power (W)</string>
     <string name="recording_chart_altitude">Altitude (m)</string>
     <string name="widget_description">Metrics and quick actions</string>
@@ -2400,12 +2400,12 @@
     <string name="charging_details">Details</string>
     <string name="charging_tab_charge">Charge</string>
     <string name="charging_tab_packs">Packs</string>
-    <string name="charging_estimate_to_full">Always estimate to 100%</string>
-    <string name="charging_notify_80">Notify me at 80%</string>
-    <string name="charging_notify_full">Notify me at 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Always estimate to 100%</string>
+    <string name="charging_notify_80" formatted="false">Notify me at 80%</string>
+    <string name="charging_notify_full" formatted="false">Notify me at 100%</string>
     <string name="charge_alert_channel_name">Charge alerts</string>
-    <string name="charge_alert_channel_description">When the pack passes 80% or finishes charging.</string>
-    <string name="charge_alert_80_title">Battery at 80%</string>
+    <string name="charge_alert_channel_description" formatted="false">When the pack passes 80% or finishes charging.</string>
+    <string name="charge_alert_80_title" formatted="false">Battery at 80%</string>
     <string name="charge_alert_80_text">Unplug now to keep the pack healthy.</string>
     <string name="charge_alert_full_title">Charge complete</string>
     <string name="charge_alert_full_text">Ready to ride.</string>

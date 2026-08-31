@@ -142,6 +142,28 @@ android {
         buildConfig = true
     }
 
+    lint {
+        // Lint never ran here, so its default severities never mattered:
+        // sync_rate_limited reached 0.19.0 reading English on every language.
+        // checkOnly keeps this to the resource checks that put the wrong words
+        // in front of a rider, so the task stays fast and its failures stay
+        // worth reading. Widen it deliberately, not by turning on everything
+        // at once. LocaleCoverageTest covers the same ground in the unit
+        // tests; this catches the cases a name-by-name comparison cannot, like
+        // a format argument that changed meaning in one language only.
+        checkOnly += setOf(
+            "MissingTranslation",
+            "ExtraTranslation",
+            "MissingQuantity",
+            "ImpliedQuantity",
+            "StringFormatCount",
+            "StringFormatMatches",
+            "StringFormatInvalid",
+        )
+        abortOnError = true
+        warningsAsErrors = true
+    }
+
     testOptions {
         unitTests {
             // JVM tests that exercise plain logic still cross an `android.util.Log`

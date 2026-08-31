@@ -564,8 +564,8 @@
     <string name="battery_override_label">Percentage van het wiel overschrijven</string>
     <string name="battery_override_hint">Schat het uit de pakspanning</string>
     <string name="battery_percent_custom_floor">Lineaire schaal</string>
-    <string name="battery_percent_min_cell">Leeg bij</string>
-    <string name="battery_percent_max_cell">Vol bij</string>
+    <string name="battery_percent_min_cell" formatted="false">Leeg bij</string>
+    <string name="battery_percent_max_cell" formatted="false">Vol bij</string>
     <string name="battery_percent_cell_range_desc">Spanning per cel voor leeg en vol</string>
     <string name="battery_percent_series_cells">Cellen in serie</string>
     <string name="battery_capacity_label">Capaciteit</string>
@@ -625,7 +625,7 @@
     <string name="welcome_tut_outro_end">Houd je ogen op de weg en niet op deze app tijdens het rijden!</string>
     <string name="welcome_tut_speed">Je actuele snelheid. Wijzig de eenheden in Instellingen → %1$s</string>
     <string name="welcome_tut_metrics">Live accu, temperatuur, spanning en meer. Herschik ze in Instellingen → %1$s</string>
-    <string name="welcome_tut_actions">Snelle bediening. Pas ze aan op dezelfde plek, onder %2$s</string>
+    <string name="welcome_tut_actions">Snelle bediening. Pas ze aan op dezelfde plek, onder %1$s</string>
     <string name="welcome_tut_map">Open de navigator om routes te plannen, stap-voor-stap aanwijzingen te krijgen of je live locatie te delen voor een groepsrit</string>
     <string name="welcome_tut_gps">Tik hier voor de live-dataweergave; je kunt je wielsnelheid ook kalibreren op basis van de gps-snelheid. Controleer de kalibratie later via Instellingen → %1$s</string>
     <string name="welcome_tut_camera">Neem video op met een live telemetrie-overlay. Maak eigen overlays en exporteer ze voor video\'s met data van eerdere ritten</string>
@@ -949,18 +949,18 @@
     <string name="recording_summary_energy">Energie</string>
     <string name="recording_summary_consumption">Verbruik</string>
     <string name="recording_chart_speed">Snelheid (%1$s)</string>
-    <string name="recording_chart_battery">Accu (%)</string>
-    <string name="recording_chart_battery_envelope">Accu-omhullende (%)</string>
+    <string name="recording_chart_battery" formatted="false">Accu (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Accu-omhullende (%)</string>
     <string name="recording_chart_temp">Temperatuur (%1$s)</string>
     <string name="recording_chart_voltage">Spanning (V)</string>
     <string name="recording_chart_current">Stroom (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Koppel (Nm)</string>
     <string name="recording_chart_phase_current">Fasestroom (A)</string>
-    <string name="recording_chart_battery_smooth">Accu, gemiddeld (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Accu, gemiddeld (%)</string>
     <string name="recording_chart_speed_smooth">Snelheid, gemiddeld (%1$s)</string>
     <string name="recording_chart_current_smooth">Stroom, gemiddeld (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, gemiddeld (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, gemiddeld (%)</string>
     <string name="recording_chart_power">Vermogen (W)</string>
     <string name="recording_chart_altitude">Hoogte (m)</string>
 
@@ -1207,7 +1207,7 @@
     <string name="charging_details">Details</string>
     <string name="charging_tab_charge">Laden</string>
     <string name="charging_tab_packs">Packs</string>
-    <string name="charging_estimate_to_full">Altijd schatten tot 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Altijd schatten tot 100%</string>
     <string name="charging_options">Opties</string>
     <string name="charging_tab_power">Vermogen</string>
     <string name="charging_stat_added">Toegevoegd</string>
@@ -2467,11 +2467,11 @@
     <string name="widget_weather_hour_fmt">%1$d u geleden</string>
     <string name="widget_weather_window_fmt">komende %1$d u</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Waarschuw me bij 80 %</string>
-    <string name="charging_notify_full">Waarschuw me bij 100 %</string>
+    <string name="charging_notify_80" formatted="false">Waarschuw me bij 80 %</string>
+    <string name="charging_notify_full" formatted="false">Waarschuw me bij 100 %</string>
     <string name="charge_alert_channel_name">Laadmeldingen</string>
-    <string name="charge_alert_channel_description">Wanneer het pakket boven 80 % komt of klaar is met laden.</string>
-    <string name="charge_alert_80_title">Accu op 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">Wanneer het pakket boven 80 % komt of klaar is met laden.</string>
+    <string name="charge_alert_80_title" formatted="false">Accu op 80 %</string>
     <string name="charge_alert_80_text">Haal hem er nu af, scheelt levensduur.</string>
     <string name="charge_alert_full_title">Opladen klaar</string>
     <string name="charge_alert_full_text">Klaar om te rijden.</string>

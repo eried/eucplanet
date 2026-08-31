@@ -419,18 +419,18 @@
     <string name="recording_summary_energy">能耗</string>
     <string name="recording_summary_consumption">电耗</string>
     <string name="recording_chart_speed">速度 (%1$s)</string>
-    <string name="recording_chart_battery">电量 (%)</string>
-    <string name="recording_chart_battery_envelope">电池包络线 (%)</string>
+    <string name="recording_chart_battery" formatted="false">电量 (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">电池包络线 (%)</string>
     <string name="recording_chart_temp">温度 (%1$s)</string>
     <string name="recording_chart_voltage">电压 (V)</string>
     <string name="recording_chart_current">电流 (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">扭矩 (Nm)</string>
     <string name="recording_chart_phase_current">相电流 (A)</string>
-    <string name="recording_chart_battery_smooth">电量，平均 (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">电量，平均 (%)</string>
     <string name="recording_chart_speed_smooth">速度，平均 (%1$s)</string>
     <string name="recording_chart_current_smooth">电流，平均 (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM，平均 (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM，平均 (%)</string>
     <string name="recording_chart_power">功率 (W)</string>
     <string name="recording_chart_altitude">海拔 (m)</string>
 
@@ -718,8 +718,8 @@
     <string name="battery_override_label">覆盖独轮车的电量百分比</string>
     <string name="battery_override_hint">根据电池组电压估算</string>
     <string name="battery_percent_custom_floor">线性刻度</string>
-    <string name="battery_percent_min_cell">没电电压</string>
-    <string name="battery_percent_max_cell">满电电压</string>
+    <string name="battery_percent_min_cell" formatted="false">没电电压</string>
+    <string name="battery_percent_max_cell" formatted="false">满电电压</string>
     <string name="battery_percent_cell_range_desc">没电和满电时的单节电芯电压</string>
     <string name="battery_percent_series_cells">串联电芯数</string>
     <string name="battery_capacity_label">容量</string>
@@ -1484,7 +1484,7 @@
     <string name="welcome_tut_outro_buttons">很多按钮都有额外操作，试试长按它们</string>
     <string name="welcome_tut_speed">你的实时速度。可在设置 → %1$s 中更改单位</string>
     <string name="welcome_tut_metrics">实时显示电量、温度、电压等信息。可在设置 → %1$s 中重新排列</string>
-    <string name="welcome_tut_actions">快捷控制。可在同一位置的 %2$s 中自定义</string>
+    <string name="welcome_tut_actions">快捷控制。可在同一位置的 %1$s 中自定义</string>
     <string name="welcome_tut_map">打开导航器来规划路线、获取逐向导航，或在团骑中分享实时位置</string>
     <string name="welcome_tut_gps">点按这里查看实时数据，还能根据 GPS 速度校准独轮车上报的速度。校准结果稍后可在设置 → %1$s 中查看</string>
     <string name="welcome_tut_camera">录制带有实时遥测叠加信息的视频。你还能制作炫酷的自定义叠加层并将其导出，用过往行程的数据打造属于自己的视频</string>
@@ -1693,7 +1693,7 @@
     <string name="charging_details">详情</string>
     <string name="charging_tab_charge">充电</string>
     <string name="charging_tab_packs">电池组</string>
-    <string name="charging_estimate_to_full">始终预计到 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">始终预计到 100%</string>
     <string name="charging_options">选项</string>
     <string name="charging_tab_power">功率</string>
     <string name="charging_stat_added">已增加</string>
@@ -2332,11 +2332,11 @@
     <string name="widget_weather_hour_fmt">%1$d 小时前</string>
     <string name="widget_weather_window_fmt">未来 %1$d 小时</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">到 80 % 时通知我</string>
-    <string name="charging_notify_full">到 100 % 时通知我</string>
+    <string name="charging_notify_80" formatted="false">到 80 % 时通知我</string>
+    <string name="charging_notify_full" formatted="false">到 100 % 时通知我</string>
     <string name="charge_alert_channel_name">充电提醒</string>
-    <string name="charge_alert_channel_description">电量超过 80 % 或充电完成时。</string>
-    <string name="charge_alert_80_title">电量 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">电量超过 80 % 或充电完成时。</string>
+    <string name="charge_alert_80_title" formatted="false">电量 80 %</string>
     <string name="charge_alert_80_text">现在拔掉，延长电池寿命。</string>
     <string name="charge_alert_full_title">充电完成</string>
     <string name="charge_alert_full_text">可以出发了。</string>

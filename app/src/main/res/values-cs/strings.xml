@@ -712,8 +712,8 @@
     <string name="battery_override_label">Přepsat procenta z kola</string>
     <string name="battery_override_hint">Odhadnout je z napětí sady</string>
     <string name="battery_percent_custom_floor">Lineární stupnice</string>
-    <string name="battery_percent_min_cell">Prázdná při</string>
-    <string name="battery_percent_max_cell">Plná při</string>
+    <string name="battery_percent_min_cell" formatted="false">Prázdná při</string>
+    <string name="battery_percent_max_cell" formatted="false">Plná při</string>
     <string name="battery_percent_cell_range_desc">Napětí na článek pro prázdno a plno</string>
     <string name="battery_percent_series_cells">Články v sérii</string>
     <string name="battery_capacity_label">Kapacita</string>
@@ -796,7 +796,7 @@
     <string name="welcome_tut_share">Zálohujte si jízdy v Nastavení → %1$s. Prohlédněte si je v %2$s nebo zálohy analyzujte na eucviewer.ried.no.\n\nVe stejné sekci se můžete připojit k veřejným žebříčkům na eucstats.ried.no</string>
     <string name="welcome_tut_speed">Vaše aktuální rychlost. Jednotky změníte v Nastavení → %1$s</string>
     <string name="welcome_tut_metrics">Živá baterie, teplota, napětí a další. Přeuspořádáte je v Nastavení → %1$s</string>
-    <string name="welcome_tut_actions">Rychlé ovládání. Upravíte je na stejném místě, v části %2$s</string>
+    <string name="welcome_tut_actions">Rychlé ovládání. Upravíte je na stejném místě, v části %1$s</string>
     <string name="welcome_tut_map">Otevřete navigátor pro plánování tras, navigaci krok za krokem nebo sdílení živé polohy při skupinové jízdě</string>
     <string name="welcome_tut_gps">Klepnutím zobrazíte živá data, můžete si dokonce kalibrovat rychlost monokola podle rychlosti GPS. Kalibraci najdete později v Nastavení → %1$s</string>
     <string name="welcome_tut_camera">Nahrávejte video s živým překryvem telemetrie. Vytvářejte vlastní parádní překryvy a exportujte je, ať si uděláte vlastní videa s daty z dřívějších jízd</string>
@@ -1118,18 +1118,18 @@
     <string name="recording_summary_max_torque">Max. moment</string>
     <string name="recording_summary_max_phase_current">Max fáz. A</string>
     <string name="recording_chart_speed">Rychlost (%1$s)</string>
-    <string name="recording_chart_battery">Baterie (%)</string>
-    <string name="recording_chart_battery_envelope">Obálka baterie (%)</string>
+    <string name="recording_chart_battery" formatted="false">Baterie (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Obálka baterie (%)</string>
     <string name="recording_chart_temp">Teplota (%1$s)</string>
     <string name="recording_chart_voltage">Napětí (V)</string>
     <string name="recording_chart_current">Proud (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Moment (Nm)</string>
     <string name="recording_chart_phase_current">Fázový proud (A)</string>
-    <string name="recording_chart_battery_smooth">Baterie, průměr (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Baterie, průměr (%)</string>
     <string name="recording_chart_speed_smooth">Rychlost, průměr (%1$s)</string>
     <string name="recording_chart_current_smooth">Proud, průměr (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, průměr (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, průměr (%)</string>
     <string name="recording_chart_power">Výkon (W)</string>
     <string name="recording_chart_altitude">Nadmořská výška (m)</string>
     <string name="widget_description">Metriky a rychlé akce</string>
@@ -2141,7 +2141,7 @@
     <string name="charging_details">Podrobnosti</string>
     <string name="charging_tab_charge">Nabití</string>
     <string name="charging_tab_packs">Sady</string>
-    <string name="charging_estimate_to_full">Vždy odhadovat do 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Vždy odhadovat do 100%</string>
     <string name="charging_options">Možnosti</string>
     <string name="charging_tab_power">Výkon</string>
     <string name="charging_tab_cells">Články</string>
@@ -2268,11 +2268,11 @@
     <string name="widget_weather_hour_fmt">před %1$d h</string>
     <string name="widget_weather_window_fmt">dalších %1$d h</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Upozornit na 80 %</string>
-    <string name="charging_notify_full">Upozornit na 100 %</string>
+    <string name="charging_notify_80" formatted="false">Upozornit na 80 %</string>
+    <string name="charging_notify_full" formatted="false">Upozornit na 100 %</string>
     <string name="charge_alert_channel_name">Upozornění na nabíjení</string>
-    <string name="charge_alert_channel_description">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
-    <string name="charge_alert_80_title">Baterie na 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
+    <string name="charge_alert_80_title" formatted="false">Baterie na 80 %</string>
     <string name="charge_alert_80_text">Odpoj teď, prodloužíš životnost baterie.</string>
     <string name="charge_alert_full_title">Nabíjení dokončeno</string>
     <string name="charge_alert_full_text">Připraveno na jízdu.</string>

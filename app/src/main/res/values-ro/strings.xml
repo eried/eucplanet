@@ -712,8 +712,8 @@
     <string name="battery_override_label">Înlocuiește procentul roții</string>
     <string name="battery_override_hint">Estimează-l din tensiunea pachetului</string>
     <string name="battery_percent_custom_floor">Scală liniară</string>
-    <string name="battery_percent_min_cell">Goală la</string>
-    <string name="battery_percent_max_cell">Plină la</string>
+    <string name="battery_percent_min_cell" formatted="false">Goală la</string>
+    <string name="battery_percent_max_cell" formatted="false">Plină la</string>
     <string name="battery_percent_cell_range_desc">Tensiunea pe celulă pentru gol și plin</string>
     <string name="battery_percent_series_cells">Celule în serie</string>
     <string name="battery_capacity_label">Capacitate</string>
@@ -796,7 +796,7 @@
     <string name="welcome_tut_share">Salvează-ți cursele în Setări → %1$s. Vezi-le în %2$s sau analizează copiile de rezervă pe eucviewer.ried.no.\n\nÎn aceeași secțiune te poți alătura clasamentelor publice pe eucstats.ried.no</string>
     <string name="welcome_tut_speed">Viteza ta în timp real. Schimbă unitățile în Setări → %1$s</string>
     <string name="welcome_tut_metrics">Baterie, temperatură, tensiune și altele în timp real. Rearanjează-le în Setări → %1$s</string>
-    <string name="welcome_tut_actions">Comenzi rapide. Ajustează-le în același loc, la %2$s</string>
+    <string name="welcome_tut_actions">Comenzi rapide. Ajustează-le în același loc, la %1$s</string>
     <string name="welcome_tut_map">Deschide navigatorul pentru a planifica trasee, a primi indicații pas cu pas sau a partaja locația live într-o tură de grup</string>
     <string name="welcome_tut_gps">Atinge pentru vizualizarea datelor în timp real, îți poți chiar calibra viteza monociclului după viteza GPS. Verifică apoi calibrarea în Setări → %1$s</string>
     <string name="welcome_tut_camera">Înregistrează video cu o suprapunere de telemetrie în timp real. Creează suprapuneri personalizate spectaculoase și exportă-le ca să îți faci propriile clipuri cu date din curse anterioare</string>
@@ -1118,18 +1118,18 @@
     <string name="recording_summary_max_torque">Cuplu max</string>
     <string name="recording_summary_max_phase_current">A fază max</string>
     <string name="recording_chart_speed">Viteză (%1$s)</string>
-    <string name="recording_chart_battery">Baterie (%)</string>
-    <string name="recording_chart_battery_envelope">Înfășurătoare baterie (%)</string>
+    <string name="recording_chart_battery" formatted="false">Baterie (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Înfășurătoare baterie (%)</string>
     <string name="recording_chart_temp">Temperatură (%1$s)</string>
     <string name="recording_chart_voltage">Tensiune (V)</string>
     <string name="recording_chart_current">Curent (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Cuplu (Nm)</string>
     <string name="recording_chart_phase_current">Curent de fază (A)</string>
-    <string name="recording_chart_battery_smooth">Baterie, medie (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Baterie, medie (%)</string>
     <string name="recording_chart_speed_smooth">Viteză, medie (%1$s)</string>
     <string name="recording_chart_current_smooth">Curent, medie (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, medie (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, medie (%)</string>
     <string name="recording_chart_power">Putere (W)</string>
     <string name="recording_chart_altitude">Altitudine (m)</string>
     <string name="widget_description">Indicatori și acțiuni rapide</string>
@@ -2141,7 +2141,7 @@
     <string name="charging_details">Detalii</string>
     <string name="charging_tab_charge">Încărcare</string>
     <string name="charging_tab_packs">Pachete</string>
-    <string name="charging_estimate_to_full">Estimează întotdeauna până la 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Estimează întotdeauna până la 100%</string>
     <string name="charging_options">Opțiuni</string>
     <string name="charging_tab_power">Putere</string>
     <string name="charging_tab_cells">Celule</string>
@@ -2268,11 +2268,11 @@
     <string name="widget_weather_hour_fmt">acum %1$d h</string>
     <string name="widget_weather_window_fmt">următoarele %1$d h</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Anunță-mă la 80 %</string>
-    <string name="charging_notify_full">Anunță-mă la 100 %</string>
+    <string name="charging_notify_80" formatted="false">Anunță-mă la 80 %</string>
+    <string name="charging_notify_full" formatted="false">Anunță-mă la 100 %</string>
     <string name="charge_alert_channel_name">Alerte de încărcare</string>
-    <string name="charge_alert_channel_description">Când bateria trece de 80 % sau termină de încărcat.</string>
-    <string name="charge_alert_80_title">Baterie la 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">Când bateria trece de 80 % sau termină de încărcat.</string>
+    <string name="charge_alert_80_title" formatted="false">Baterie la 80 %</string>
     <string name="charge_alert_80_text">Scoate din priză acum, pentru baterie.</string>
     <string name="charge_alert_full_title">Încărcare completă</string>
     <string name="charge_alert_full_text">Gata de mers.</string>

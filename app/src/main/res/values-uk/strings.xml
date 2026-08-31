@@ -564,8 +564,8 @@
     <string name="battery_override_label">Замінити відсоток колеса</string>
     <string name="battery_override_hint">Оцінювати за напругою батареї</string>
     <string name="battery_percent_custom_floor">Лінійна шкала</string>
-    <string name="battery_percent_min_cell">Порожньо при</string>
-    <string name="battery_percent_max_cell">Повно при</string>
+    <string name="battery_percent_min_cell" formatted="false">Порожньо при</string>
+    <string name="battery_percent_max_cell" formatted="false">Повно при</string>
     <string name="battery_percent_cell_range_desc">Напруга на комірку для порожнього і повного</string>
     <string name="battery_percent_series_cells">Комірок послідовно</string>
     <string name="battery_capacity_label">Ємність</string>
@@ -625,7 +625,7 @@
     <string name="welcome_tut_outro_end">Дивись на дорогу, а не в цей застосунок під час їзди на моноколесі!</string>
     <string name="welcome_tut_speed">Твоя швидкість наживо. Зміни одиниці в Налаштування → %1$s</string>
     <string name="welcome_tut_metrics">Заряд, температура, напруга та інше наживо. Зміни їх порядок у Налаштування → %1$s</string>
-    <string name="welcome_tut_actions">Швидкі дії. Налаштуй їх там само, у розділі %2$s</string>
+    <string name="welcome_tut_actions">Швидкі дії. Налаштуй їх там само, у розділі %1$s</string>
     <string name="welcome_tut_map">Відкрийте навігатор, щоб планувати маршрути, отримувати покрокові підказки або ділитися своїм місцем у реальному часі в груповій поїздці</string>
     <string name="welcome_tut_gps">Торкнись для перегляду даних у реальному часі, можна навіть відкалібрувати швидкість колеса за GPS. Перевір калібрування пізніше в Налаштування → %1$s</string>
     <string name="welcome_tut_camera">Записуй відео з накладанням телеметрії наживо. Створюй власні стильні оверлеї та роби відео з даними минулих поїздок</string>
@@ -949,18 +949,18 @@
     <string name="recording_summary_max_torque">Макс. момент</string>
     <string name="recording_summary_max_phase_current">Макс. фаз. A</string>
     <string name="recording_chart_speed">Швидкість (%1$s)</string>
-    <string name="recording_chart_battery">Заряд (%)</string>
-    <string name="recording_chart_battery_envelope">Обвідна батареї (%)</string>
+    <string name="recording_chart_battery" formatted="false">Заряд (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Обвідна батареї (%)</string>
     <string name="recording_chart_temp">Температура (%1$s)</string>
     <string name="recording_chart_voltage">Напруга (В)</string>
     <string name="recording_chart_current">Струм (А)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Момент (Н·м)</string>
     <string name="recording_chart_phase_current">Фазний струм (A)</string>
-    <string name="recording_chart_battery_smooth">Батарея, середнє (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Батарея, середнє (%)</string>
     <string name="recording_chart_speed_smooth">Швидкість, середнє (%1$s)</string>
     <string name="recording_chart_current_smooth">Струм, середнє (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, середнє (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, середнє (%)</string>
     <string name="recording_chart_power">Потужність (Вт)</string>
     <string name="recording_chart_altitude">Висота (м)</string>
 
@@ -1209,7 +1209,7 @@
     <string name="charging_details">Деталі</string>
     <string name="charging_tab_charge">Заряд</string>
     <string name="charging_tab_packs">Блоки</string>
-    <string name="charging_estimate_to_full">Завжди оцінювати до 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Завжди оцінювати до 100%</string>
     <string name="charging_options">Опції</string>
     <string name="charging_tab_power">Потужність</string>
     <string name="charging_stat_added">Додано</string>
@@ -2462,11 +2462,11 @@
     <string name="widget_weather_hour_fmt">%1$d год тому</string>
     <string name="widget_weather_window_fmt">найближчі %1$d год</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Повідомити на 80 %</string>
-    <string name="charging_notify_full">Повідомити на 100 %</string>
+    <string name="charging_notify_80" formatted="false">Повідомити на 80 %</string>
+    <string name="charging_notify_full" formatted="false">Повідомити на 100 %</string>
     <string name="charge_alert_channel_name">Сповіщення про заряджання</string>
-    <string name="charge_alert_channel_description">Коли батарея проходить 80 % або заряд завершено.</string>
-    <string name="charge_alert_80_title">Батарея на 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">Коли батарея проходить 80 % або заряд завершено.</string>
+    <string name="charge_alert_80_title" formatted="false">Батарея на 80 %</string>
     <string name="charge_alert_80_text">Відключіть зараз, заради ресурсу батареї.</string>
     <string name="charge_alert_full_title">Заряджання завершено</string>
     <string name="charge_alert_full_text">Можна кататися.</string>

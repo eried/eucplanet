@@ -564,8 +564,8 @@
     <string name="battery_override_label">Zastąp procent koła</string>
     <string name="battery_override_hint">Oszacuj go z napięcia pakietu</string>
     <string name="battery_percent_custom_floor">Skala liniowa</string>
-    <string name="battery_percent_min_cell">Pusty przy</string>
-    <string name="battery_percent_max_cell">Pełny przy</string>
+    <string name="battery_percent_min_cell" formatted="false">Pusty przy</string>
+    <string name="battery_percent_max_cell" formatted="false">Pełny przy</string>
     <string name="battery_percent_cell_range_desc">Napięcie ogniwa dla pustego i pełnego</string>
     <string name="battery_percent_series_cells">Ogniwa szeregowo</string>
     <string name="battery_capacity_label">Pojemność</string>
@@ -625,7 +625,7 @@
     <string name="welcome_tut_outro_end">Podczas jazdy patrz na drogę, nie na tę aplikację!</string>
     <string name="welcome_tut_speed">Twoja bieżąca prędkość. Zmień jednostki w Ustawienia → %1$s</string>
     <string name="welcome_tut_metrics">Bateria, temperatura, napięcie i więcej na żywo. Zmień układ w Ustawienia → %1$s</string>
-    <string name="welcome_tut_actions">Szybkie sterowanie. Dostosuj je w tym samym miejscu, w sekcji %2$s</string>
+    <string name="welcome_tut_actions">Szybkie sterowanie. Dostosuj je w tym samym miejscu, w sekcji %1$s</string>
     <string name="welcome_tut_map">Otwórz nawigator, aby planować trasy, korzystać z nawigacji zakręt po zakręcie lub udostępniać lokalizację na żywo podczas jazdy grupowej</string>
     <string name="welcome_tut_gps">Dotknij, aby zobaczyć dane na żywo, a nawet skalibrować prędkość koła na podstawie GPS. Kalibrację zmienisz później w Ustawienia → %1$s</string>
     <string name="welcome_tut_camera">Nagrywaj wideo z nakładką telemetrii. Twórz własne nakładki i eksportuj filmy z danymi z wcześniejszych przejazdów</string>
@@ -949,18 +949,18 @@
     <string name="recording_summary_max_torque">Maks. moment</string>
     <string name="recording_summary_max_phase_current">Maks. A faz.</string>
     <string name="recording_chart_speed">Prędkość (%1$s)</string>
-    <string name="recording_chart_battery">Bateria (%)</string>
-    <string name="recording_chart_battery_envelope">Obwiednia baterii (%)</string>
+    <string name="recording_chart_battery" formatted="false">Bateria (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Obwiednia baterii (%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
     <string name="recording_chart_voltage">Napięcie (V)</string>
     <string name="recording_chart_current">Prąd (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
     <string name="recording_chart_torque">Moment (Nm)</string>
     <string name="recording_chart_phase_current">Prąd fazowy (A)</string>
-    <string name="recording_chart_battery_smooth">Bateria, średnia (%)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Bateria, średnia (%)</string>
     <string name="recording_chart_speed_smooth">Prędkość, średnia (%1$s)</string>
     <string name="recording_chart_current_smooth">Prąd, średnia (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, średnia (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, średnia (%)</string>
     <string name="recording_chart_power">Moc (W)</string>
     <string name="recording_chart_altitude">Wysokość (m)</string>
 
@@ -1835,7 +1835,7 @@
     <string name="charging_details">Szczegóły</string>
     <string name="charging_tab_charge">Ładunek</string>
     <string name="charging_tab_packs">Pakiety</string>
-    <string name="charging_estimate_to_full">Zawsze szacuj do 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Zawsze szacuj do 100%</string>
     <string name="charging_options">Opcje</string>
     <string name="charging_tab_power">Moc</string>
     <string name="charging_stat_added">Dodano</string>
@@ -2465,11 +2465,11 @@
     <string name="widget_weather_hour_fmt">%1$d godz. temu</string>
     <string name="widget_weather_window_fmt">najbliższe %1$d godz.</string>
     <!-- Charge alerts -->
-    <string name="charging_notify_80">Powiadom przy 80 %</string>
-    <string name="charging_notify_full">Powiadom przy 100 %</string>
+    <string name="charging_notify_80" formatted="false">Powiadom przy 80 %</string>
+    <string name="charging_notify_full" formatted="false">Powiadom przy 100 %</string>
     <string name="charge_alert_channel_name">Alerty ładowania</string>
-    <string name="charge_alert_channel_description">Gdy akumulator przekroczy 80 % albo skończy się ładować.</string>
-    <string name="charge_alert_80_title">Akumulator na 80 %</string>
+    <string name="charge_alert_channel_description" formatted="false">Gdy akumulator przekroczy 80 % albo skończy się ładować.</string>
+    <string name="charge_alert_80_title" formatted="false">Akumulator na 80 %</string>
     <string name="charge_alert_80_text">Odłącz teraz, dla żywotności ogniw.</string>
     <string name="charge_alert_full_title">Ładowanie zakończone</string>
     <string name="charge_alert_full_text">Gotowe do jazdy.</string>
