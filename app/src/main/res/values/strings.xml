@@ -340,9 +340,7 @@
     <string name="action_chip_open_service">Service mode</string>
     <string name="action_chip_open_trips">Trips</string>
     <string name="action_chip_mute_alarms">Mute alarms</string>
-    <string name="action_chip_reset_trip">Reset trip</string>
     <string name="action_chip_toggle_units">Toggle units</string>
-    <string name="action_unsupported_on_wheel">Not supported on this wheel</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Devices</string>
@@ -2458,4 +2456,7 @@
     <string name="widget_act_1_short">Action 1</string>
     <string name="widget_act_2_short">Action 2</string>
     <string name="widget_act_3_short">Action 3</string>
+    <string name="action_chip_reset_metrics">Reset metrics</string>
+    <string name="action_reset_metrics_done">Metrics reset</string>
+    <string name="action_reset_metrics_wheel_done">Metrics reset, wheel trip cleared</string>
 </resources>

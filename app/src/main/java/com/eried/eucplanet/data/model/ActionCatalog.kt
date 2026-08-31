@@ -279,10 +279,16 @@ object ActionCatalog {
             statusReader = { it.alarmsMuted }
         ),
         ActionSpec(
+            // Key kept from when this only cleared the wheel's trip meter: it
+            // is persisted in dashboard layouts and physical-button bindings,
+            // and renaming it would unbind every rider who customised one.
             key = "RESET_TRIP",
-            labelRes = R.string.action_chip_reset_trip,
+            labelRes = R.string.action_chip_reset_metrics,
             icon = Icons.Filled.Restore,
-            enabledReader = { it.connected }
+            // No wheel needed any more. The trip meter and the metric history
+            // are the app's own, and clearing yesterday's numbers before
+            // setting off is a reasonable thing to do with the wheel still in
+            // the hall.
         ),
         ActionSpec(
             key = "TOGGLE_UNITS",

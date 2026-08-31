@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">Tryb serwisowy</string>
     <string name="action_chip_open_trips">Trasy</string>
     <string name="action_chip_mute_alarms">Wycisz alarmy</string>
-    <string name="action_chip_reset_trip">Zeruj trip</string>
     <string name="action_chip_toggle_units">Zmień jednostki</string>
-    <string name="action_unsupported_on_wheel">Nieobsługiwane na tym kole</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Urządzenia</string>
@@ -2436,4 +2434,7 @@
     <string name="widget_act_1_short">Akcja 1</string>
     <string name="widget_act_2_short">Akcja 2</string>
     <string name="widget_act_3_short">Akcja 3</string>
+    <string name="action_chip_reset_metrics">Zeruj liczniki</string>
+    <string name="action_reset_metrics_done">Liczniki wyzerowane</string>
+    <string name="action_reset_metrics_wheel_done">Liczniki wyzerowane, licznik koła skasowany</string>
 </resources>

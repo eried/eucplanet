@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">Servicemodus</string>
     <string name="action_chip_open_trips">Ritten</string>
     <string name="action_chip_mute_alarms">Alarmen dempen</string>
-    <string name="action_chip_reset_trip">Trip resetten</string>
     <string name="action_chip_toggle_units">Eenheden wisselen</string>
-    <string name="action_unsupported_on_wheel">Niet ondersteund op dit wiel</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Apparaten</string>
@@ -2438,4 +2436,7 @@
     <string name="widget_act_1_short">Actie 1</string>
     <string name="widget_act_2_short">Actie 2</string>
     <string name="widget_act_3_short">Actie 3</string>
+    <string name="action_chip_reset_metrics">Meters resetten</string>
+    <string name="action_reset_metrics_done">Meters gereset</string>
+    <string name="action_reset_metrics_wheel_done">Meters gereset, ritteller van het wiel gewist</string>
 </resources>

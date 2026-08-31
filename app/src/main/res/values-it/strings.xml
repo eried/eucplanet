@@ -1278,13 +1278,11 @@
     <string name="action_chip_record">Registratore</string>
     <string name="action_chip_record_start">Avvia reg.</string>
     <string name="action_chip_record_stop">Ferma reg.</string>
-    <string name="action_chip_reset_trip">Resetta tragitto</string>
     <string name="action_chip_safety">Modalità legale</string>
     <string name="action_chip_safety_off">Legale OFF</string>
     <string name="action_chip_safety_on">Legale ON</string>
     <string name="action_chip_toggle_units">Cambia unità</string>
     <string name="action_chip_voice">Voce</string>
-    <string name="action_unsupported_on_wheel">Non supportato su questa ruota</string>
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Chiudi</string>
     <string name="dashboard_columns">Colonne</string>
@@ -2341,4 +2339,7 @@
     <string name="widget_act_1_short">Azione 1</string>
     <string name="widget_act_2_short">Azione 2</string>
     <string name="widget_act_3_short">Azione 3</string>
+    <string name="action_chip_reset_metrics">Azzera le metriche</string>
+    <string name="action_reset_metrics_done">Metriche azzerate</string>
+    <string name="action_reset_metrics_wheel_done">Metriche azzerate, parziale del monoruota cancellato</string>
 </resources>

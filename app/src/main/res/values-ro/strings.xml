@@ -298,9 +298,7 @@
     <string name="action_chip_open_service">Mod service</string>
     <string name="action_chip_open_trips">Curse</string>
     <string name="action_chip_mute_alarms">Oprește sunetul alarmelor</string>
-    <string name="action_chip_reset_trip">Resetează cursa</string>
     <string name="action_chip_toggle_units">Schimbă unitățile</string>
-    <string name="action_unsupported_on_wheel">Nu este acceptat pe acest monociclu</string>
     <string name="section_watch_device">Dispozitive</string>
     <string name="watch_paired_none">Niciun ceas asociat</string>
     <string name="watch_paired_none_desc">Instalează aplicația însoțitoare EUC Planet pe un ceas Wear OS, Garmin sau Amazfit pentru a primi cadranul aici</string>
@@ -2239,4 +2237,7 @@
     <string name="widget_act_1_short">Acțiune 1</string>
     <string name="widget_act_2_short">Acțiune 2</string>
     <string name="widget_act_3_short">Acțiune 3</string>
+    <string name="action_chip_reset_metrics">Resetează valorile</string>
+    <string name="action_reset_metrics_done">Valori resetate</string>
+    <string name="action_reset_metrics_wheel_done">Valori resetate, contorul roții șters</string>
 </resources>

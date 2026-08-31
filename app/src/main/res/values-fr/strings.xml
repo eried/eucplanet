@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">Mode service</string>
     <string name="action_chip_open_trips">Trajets</string>
     <string name="action_chip_mute_alarms">Couper alarmes</string>
-    <string name="action_chip_reset_trip">Réinit. trajet</string>
     <string name="action_chip_toggle_units">Changer unités</string>
-    <string name="action_unsupported_on_wheel">Non pris en charge sur cette roue</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Appareils</string>
@@ -2440,4 +2438,7 @@
     <string name="widget_act_1_short">Action 1</string>
     <string name="widget_act_2_short">Action 2</string>
     <string name="widget_act_3_short">Action 3</string>
+    <string name="action_chip_reset_metrics">Réinitialiser les mesures</string>
+    <string name="action_reset_metrics_done">Mesures réinitialisées</string>
+    <string name="action_reset_metrics_wheel_done">Mesures réinitialisées, trajet de la roue effacé</string>
 </resources>

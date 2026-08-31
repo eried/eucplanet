@@ -72,6 +72,7 @@ class DashboardViewModel @Inject constructor(
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val metricsReset: com.eried.eucplanet.data.repository.MetricsReset,
     private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
@@ -875,8 +876,10 @@ class DashboardViewModel @Inject constructor(
      * family until a documented reset command is added. Callers should
      * snackbar the result so riders know whether the tap took effect.
      */
-    suspend fun resetWheelTrip(): Boolean =
-        kotlinx.coroutines.withContext(Dispatchers.IO) { wheelRepository.resetTripMeter() }
+    /** Clears the trip meter and the metric history, and the wheel's own trip
+     *  odometer where the family supports it. See [MetricsReset]. */
+    suspend fun resetMetrics(): com.eried.eucplanet.data.repository.MetricsReset.Result =
+        metricsReset.resetAll()
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 

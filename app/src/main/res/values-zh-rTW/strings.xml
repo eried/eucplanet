@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">服務模式</string>
     <string name="action_chip_open_trips">行程</string>
     <string name="action_chip_mute_alarms">靜音警報</string>
-    <string name="action_chip_reset_trip">重設行程</string>
     <string name="action_chip_toggle_units">切換單位</string>
-    <string name="action_unsupported_on_wheel">此車輪不支援</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">裝置</string>
@@ -2435,4 +2433,7 @@
     <string name="widget_act_1_short">操作 1</string>
     <string name="widget_act_2_short">操作 2</string>
     <string name="widget_act_3_short">操作 3</string>
+    <string name="action_chip_reset_metrics">重置數據</string>
+    <string name="action_reset_metrics_done">數據已重置</string>
+    <string name="action_reset_metrics_wheel_done">數據已重置，獨輪車里程已清零</string>
 </resources>

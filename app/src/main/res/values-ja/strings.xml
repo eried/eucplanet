@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">サービスモード</string>
     <string name="action_chip_open_trips">トリップ</string>
     <string name="action_chip_mute_alarms">アラームをミュート</string>
-    <string name="action_chip_reset_trip">トリップをリセット</string>
     <string name="action_chip_toggle_units">単位を切り替え</string>
-    <string name="action_unsupported_on_wheel">このホイールではサポートされていません</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">デバイス</string>
@@ -2437,4 +2435,7 @@
     <string name="widget_act_1_short">操作 1</string>
     <string name="widget_act_2_short">操作 2</string>
     <string name="widget_act_3_short">操作 3</string>
+    <string name="action_chip_reset_metrics">記録をリセット</string>
+    <string name="action_reset_metrics_done">記録をリセットしました</string>
+    <string name="action_reset_metrics_wheel_done">記録をリセットし、ホイールの積算距離も消去しました</string>
 </resources>

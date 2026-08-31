@@ -2696,13 +2696,20 @@ fun DashboardScreen(
                                                     }
                                                 }
                                                 override fun toggleAlarmsMuted() { viewModel.toggleAlarmsMuted() }
-                                                override fun resetTrip() {
+                                                override fun resetMetrics() {
                                                     snackbarScope.launch {
-                                                        val ok = viewModel.resetWheelTrip()
+                                                        // Always resets the app's trip meter and
+                                                        // metric history; the wheel's own odometer
+                                                        // only on families with a command for it,
+                                                        // so the message says which happened
+                                                        // rather than reporting a failure to
+                                                        // everyone else.
+                                                        val r = viewModel.resetMetrics()
                                                         snackbar.showSnackbar(
                                                             toastContext.getString(
-                                                                if (ok) R.string.action_chip_reset_trip
-                                                                else R.string.action_unsupported_on_wheel
+                                                                if (r.wheelTripCleared)
+                                                                    R.string.action_reset_metrics_wheel_done
+                                                                else R.string.action_reset_metrics_done
                                                             )
                                                         )
                                                     }
@@ -2713,6 +2720,9 @@ fun DashboardScreen(
                                     }
                                     val offlineSafe = key.startsWith("OPEN_") ||
                                             key == "TOGGLE_UNITS" || key == "MUTE_ALARMS" ||
+                                            // Resets the app's own counters, so it
+                                            // works with no wheel in earshot.
+                                            key == "RESET_TRIP" ||
                                             key.startsWith("MEDIA_")
                                     ActionButton(
                                         icon = actionSpec?.icon ?: Icons.Default.Campaign,

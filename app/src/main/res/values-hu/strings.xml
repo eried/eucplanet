@@ -298,9 +298,7 @@
     <string name="action_chip_open_service">Szervizmód</string>
     <string name="action_chip_open_trips">Menetek</string>
     <string name="action_chip_mute_alarms">Riasztások némítása</string>
-    <string name="action_chip_reset_trip">Menet nullázása</string>
     <string name="action_chip_toggle_units">Mértékegység váltása</string>
-    <string name="action_unsupported_on_wheel">Ezen az egykerekűn nem támogatott</string>
     <string name="section_watch_device">Eszközök</string>
     <string name="watch_paired_none">Nincs párosított óra</string>
     <string name="watch_paired_none_desc">Telepítsd az EUC Planet kísérőalkalmazást egy Wear OS, Garmin vagy Amazfit órára, hogy itt megjelenjen a számlap</string>
@@ -2239,4 +2237,7 @@
     <string name="widget_act_1_short">Művelet 1</string>
     <string name="widget_act_2_short">Művelet 2</string>
     <string name="widget_act_3_short">Művelet 3</string>
+    <string name="action_chip_reset_metrics">Mérések nullázása</string>
+    <string name="action_reset_metrics_done">Mérések nullázva</string>
+    <string name="action_reset_metrics_wheel_done">Mérések nullázva, a kerék napi számlálója törölve</string>
 </resources>

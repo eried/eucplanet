@@ -298,9 +298,7 @@
     <string name="action_chip_open_service">Servisní režim</string>
     <string name="action_chip_open_trips">Jízdy</string>
     <string name="action_chip_mute_alarms">Ztlumit alarmy</string>
-    <string name="action_chip_reset_trip">Vynulovat jízdu</string>
     <string name="action_chip_toggle_units">Přepnout jednotky</string>
-    <string name="action_unsupported_on_wheel">Toto monokolo nepodporuje</string>
     <string name="section_watch_device">Zařízení</string>
     <string name="watch_paired_none">Žádné spárované hodinky</string>
     <string name="watch_paired_none_desc">Nainstaluj doplňkovou aplikaci EUC Planet na hodinky Wear OS, Garmin nebo Amazfit a ciferník se začne zobrazovat zde</string>
@@ -2239,4 +2237,7 @@
     <string name="widget_act_1_short">Akce 1</string>
     <string name="widget_act_2_short">Akce 2</string>
     <string name="widget_act_3_short">Akce 3</string>
+    <string name="action_chip_reset_metrics">Vynulovat metriky</string>
+    <string name="action_reset_metrics_done">Metriky vynulovány</string>
+    <string name="action_reset_metrics_wheel_done">Metriky vynulovány, denní počítadlo kola smazáno</string>
 </resources>

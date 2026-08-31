@@ -228,9 +228,11 @@ interface WheelAdapter {
      * Resets the wheel's onboard trip meter (the field reported as
      * [com.eried.eucplanet.data.model.WheelData.tripDistance]) by sending the
      * family-specific reset command. Returns null on wheels where the
-     * protocol has no documented reset command; the dashboard's RESET_TRIP
-     * action surfaces a "not supported on this wheel" snackbar in that case.
-     * Veteran is the only family with a public command today (CLEARMETER).
+     * protocol has no documented reset command, and Veteran is the only family
+     * with a public one today (CLEARMETER). That is no longer a dead end for
+     * anyone else: the Reset metrics action clears the app's trip meter and
+     * metric history regardless, and only mentions the wheel's own odometer
+     * when a command actually went out.
      */
     fun resetTripMeter(): ByteArray? = null
 

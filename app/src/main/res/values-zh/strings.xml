@@ -1242,13 +1242,11 @@
     <string name="action_chip_record">录制</string>
     <string name="action_chip_record_start">开始录制</string>
     <string name="action_chip_record_stop">停止录制</string>
-    <string name="action_chip_reset_trip">重置行程</string>
     <string name="action_chip_safety">合规模式</string>
     <string name="action_chip_safety_off">合规 关</string>
     <string name="action_chip_safety_on">合规 开</string>
     <string name="action_chip_toggle_units">切换单位</string>
     <string name="action_chip_voice">语音</string>
-    <string name="action_unsupported_on_wheel">此独轮车不支持</string>
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">关闭</string>
     <string name="dashboard_columns">列</string>
@@ -2303,4 +2301,7 @@
     <string name="widget_act_1_short">操作 1</string>
     <string name="widget_act_2_short">操作 2</string>
     <string name="widget_act_3_short">操作 3</string>
+    <string name="action_chip_reset_metrics">重置数据</string>
+    <string name="action_reset_metrics_done">数据已重置</string>
+    <string name="action_reset_metrics_wheel_done">数据已重置，独轮车里程已清零</string>
 </resources>

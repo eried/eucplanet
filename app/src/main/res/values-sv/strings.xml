@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">Serviceläge</string>
     <string name="action_chip_open_trips">Turer</string>
     <string name="action_chip_mute_alarms">Tysta larm</string>
-    <string name="action_chip_reset_trip">Nollställ tur</string>
     <string name="action_chip_toggle_units">Byt enheter</string>
-    <string name="action_unsupported_on_wheel">Stöds inte på det här hjulet</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Enheter</string>
@@ -2436,4 +2434,7 @@
     <string name="widget_act_1_short">Åtgärd 1</string>
     <string name="widget_act_2_short">Åtgärd 2</string>
     <string name="widget_act_3_short">Åtgärd 3</string>
+    <string name="action_chip_reset_metrics">Nollställ mätvärden</string>
+    <string name="action_reset_metrics_done">Mätvärden nollställda</string>
+    <string name="action_reset_metrics_wheel_done">Mätvärden nollställda, hjulets trippmätare rensad</string>
 </resources>

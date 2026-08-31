@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
     @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
+    @Inject lateinit var metricsReset: com.eried.eucplanet.data.repository.MetricsReset
     @Inject lateinit var incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository
     @Inject lateinit var dropboxRepository:
@@ -778,12 +779,11 @@ class MainActivity : AppCompatActivity() {
                                                     settingsRepository.update(c.copy(alarmsMuted = !c.alarmsMuted))
                                                 }
                                             }
-                                            override fun resetTrip() {
-                                                overlayScope.launch {
-                                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                        wheelRepository.resetTripMeter()
-                                                    }
-                                                }
+                                            override fun resetMetrics() {
+                                                // Was sending only the wheel command and
+                                                // dropping the answer, so on a family without
+                                                // one this button did nothing and said nothing.
+                                                overlayScope.launch { metricsReset.resetAll() }
                                             }
                                         },
                                         fallback = { flicManager.dispatchActionByName(it) }

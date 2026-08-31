@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">Servis modu</string>
     <string name="action_chip_open_trips">Seferler</string>
     <string name="action_chip_mute_alarms">Alarmları sustur</string>
-    <string name="action_chip_reset_trip">Seferi sıfırla</string>
     <string name="action_chip_toggle_units">Birimleri değiştir</string>
-    <string name="action_unsupported_on_wheel">Bu tekerde desteklenmiyor</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Cihazlar</string>
@@ -2433,4 +2431,7 @@
     <string name="widget_act_1_short">Eylem 1</string>
     <string name="widget_act_2_short">Eylem 2</string>
     <string name="widget_act_3_short">Eylem 3</string>
+    <string name="action_chip_reset_metrics">Ölçümleri sıfırla</string>
+    <string name="action_reset_metrics_done">Ölçümler sıfırlandı</string>
+    <string name="action_reset_metrics_wheel_done">Ölçümler sıfırlandı, tekerin gezi sayacı temizlendi</string>
 </resources>

@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">Сервісний режим</string>
     <string name="action_chip_open_trips">Поїздки</string>
     <string name="action_chip_mute_alarms">Вимкнути тривоги</string>
-    <string name="action_chip_reset_trip">Скинути поїздку</string>
     <string name="action_chip_toggle_units">Змінити одиниці</string>
-    <string name="action_unsupported_on_wheel">Не підтримується на цьому колесі</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Пристрої</string>
@@ -2433,4 +2431,7 @@
     <string name="widget_act_1_short">Дія 1</string>
     <string name="widget_act_2_short">Дія 2</string>
     <string name="widget_act_3_short">Дія 3</string>
+    <string name="action_chip_reset_metrics">Скинути показники</string>
+    <string name="action_reset_metrics_done">Показники скинуто</string>
+    <string name="action_reset_metrics_wheel_done">Показники скинуто, пробіг колеса обнулено</string>
 </resources>

@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">서비스 모드</string>
     <string name="action_chip_open_trips">트립</string>
     <string name="action_chip_mute_alarms">알람 음소거</string>
-    <string name="action_chip_reset_trip">트립 초기화</string>
     <string name="action_chip_toggle_units">단위 전환</string>
-    <string name="action_unsupported_on_wheel">이 휠에서 지원하지 않습니다</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">기기</string>
@@ -2435,4 +2433,7 @@
     <string name="widget_act_1_short">동작 1</string>
     <string name="widget_act_2_short">동작 2</string>
     <string name="widget_act_3_short">동작 3</string>
+    <string name="action_chip_reset_metrics">측정값 초기화</string>
+    <string name="action_reset_metrics_done">측정값을 초기화했습니다</string>
+    <string name="action_reset_metrics_wheel_done">측정값을 초기화하고 휠 주행거리도 지웠습니다</string>
 </resources>

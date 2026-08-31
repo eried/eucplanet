@@ -298,9 +298,7 @@
     <string name="action_chip_open_service">Huoltotila</string>
     <string name="action_chip_open_trips">Matkat</string>
     <string name="action_chip_mute_alarms">Vaimenna hälytykset</string>
-    <string name="action_chip_reset_trip">Nollaa matka</string>
     <string name="action_chip_toggle_units">Vaihda yksiköitä</string>
-    <string name="action_unsupported_on_wheel">Ei tuettu tässä yksipyöräisessä</string>
     <string name="section_watch_device">Laitteet</string>
     <string name="watch_paired_none">Ei pariliitettyjä kelloja</string>
     <string name="watch_paired_none_desc">Asenna EUC Planet -kumppanisovellus Wear OS-, Garmin- tai Amazfit-kelloon, niin kellotaulu alkaa näkyä täällä</string>
@@ -2239,4 +2237,7 @@
     <string name="widget_act_1_short">Toiminto 1</string>
     <string name="widget_act_2_short">Toiminto 2</string>
     <string name="widget_act_3_short">Toiminto 3</string>
+    <string name="action_chip_reset_metrics">Nollaa mittarit</string>
+    <string name="action_reset_metrics_done">Mittarit nollattu</string>
+    <string name="action_reset_metrics_wheel_done">Mittarit nollattu, pyörän matkamittari tyhjennetty</string>
 </resources>
