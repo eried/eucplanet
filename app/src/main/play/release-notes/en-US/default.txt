@@ -1,9 +1,6 @@
-New this release:
+Ride together: share your live location and see the others on the map.
 
-🌤️ Weather panel and home screen widgets for riding conditions.
-⌚ Amazfit (Zepp OS) watch app.
-🔋 Battery notifications at 80% and when charging finishes.
-💡 The headlight can turn off at walking pace.
-📈 Trip Details improvements.
-🔄 Reset metrics now works on every wheel.
-🛠️ Garmin, HUD and widget fixes.
+Lights and horn answer reliably now, instead of queueing behind telemetry.
+Garmin watches reconnect without restarting the phone app.
+The forecast widget marks where Now is.
+Clearer battery notification wording, and translation fixes in every language.
