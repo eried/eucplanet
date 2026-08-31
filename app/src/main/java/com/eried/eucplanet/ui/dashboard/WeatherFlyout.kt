@@ -1165,7 +1165,8 @@ private fun ScoreGraph(
             Text(
                 nowLabel,
                 fontSize = 9.sp,
-                color = ink.copy(alpha = 0.6f),
+                fontWeight = FontWeight.Bold,
+                color = ink.copy(alpha = 0.85f),
                 modifier = Modifier.align(Alignment.CenterStart),
             )
             ticks.forEach { (f, t) ->
