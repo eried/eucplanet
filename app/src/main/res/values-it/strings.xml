@@ -193,6 +193,7 @@
     <string name="cloud_retry_enqueued">Upload programmato</string>
     <string name="sync_progress">Sincronizzazione %1$d di %2$d</string>
     <string name="sync_no_folder">Scegli prima una cartella di backup</string>
+    <string name="sync_rate_limited">Dropbox sta limitando questo account. Sincronizzati %1$d viaggi su %2$d, il resto verrà riprovato.</string>
     <string name="sync_finished">Sincronizzati %1$d viaggi</string>
     <string name="sync_conflict_title">Conflitto di sincronizzazione</string>
     <string name="sync_conflict_body">%1$d viaggi sono presenti su entrambi i lati.</string>
@@ -2324,7 +2325,7 @@
     <string name="charge_alert_channel_name">Avvisi di carica</string>
     <string name="charge_alert_channel_description">Quando la batteria supera l’80 % o finisce di caricare.</string>
     <string name="charge_alert_80_title">Batteria all’80 %</string>
-    <string name="charge_alert_80_text">Stacca ora, salva il pacco.</string>
+    <string name="charge_alert_80_text">Stacca ora, allunga la vita della batteria.</string>
     <string name="charge_alert_full_title">Carica completata</string>
     <string name="charge_alert_full_text">Pronto a girare.</string>
     <!-- Widget names for the picker -->

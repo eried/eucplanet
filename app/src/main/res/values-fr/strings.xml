@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="sync_progress">Synchronisation %1$d sur %2$d</string>
     <string name="sync_no_folder">Choisis d\'abord un dossier de sauvegarde</string>
+    <string name="sync_rate_limited">Dropbox limite ce compte. %1$d trajets sur %2$d synchronisés, le reste sera réessayé.</string>
     <string name="sync_finished">%1$d trajets synchronisés</string>
     <string name="sync_conflict_title">Conflit de synchronisation</string>
     <string name="sync_conflict_body">%1$d trajets sont présents des deux côtés.</string>

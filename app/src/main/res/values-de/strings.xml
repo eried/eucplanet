@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Upload geplant</string>
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
     <string name="sync_no_folder">Zuerst einen Backup-Ordner wählen</string>
+    <string name="sync_rate_limited">Dropbox drosselt dieses Konto. %1$d von %2$d Fahrten synchronisiert, der Rest wird erneut versucht.</string>
     <string name="sync_finished">%1$d Fahrten synchronisiert</string>
     <string name="sync_conflict_title">Synchronisierungskonflikt</string>
     <string name="sync_conflict_body">%1$d Fahrten sind auf beiden Seiten vorhanden.</string>

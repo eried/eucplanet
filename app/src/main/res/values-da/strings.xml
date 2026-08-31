@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d af %2$d</string>
     <string name="sync_no_folder">Vælg en backup-mappe først</string>
+    <string name="sync_rate_limited">Dropbox begrænser denne konto. %1$d af %2$d ture synkroniseret, resten prøves igen.</string>
     <string name="sync_finished">%1$d ture synkroniseret</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
     <string name="sync_conflict_body">%1$d ture findes på begge sider.</string>

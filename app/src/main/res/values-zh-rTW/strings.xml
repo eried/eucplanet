@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">已排程上傳</string>
     <string name="sync_progress">正在同步第 %1$d / %2$d 筆</string>
     <string name="sync_no_folder">請先選擇備份資料夾</string>
+    <string name="sync_rate_limited">Dropbox 正在限制這個帳戶。已同步 %2$d 次行程中的 %1$d 次，其餘將重試。</string>
     <string name="sync_finished">已同步 %1$d 次行程</string>
     <string name="sync_conflict_title">同步衝突</string>
     <string name="sync_conflict_body">%1$d 次行程在兩端均存在。</string>

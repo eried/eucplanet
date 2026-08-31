@@ -590,6 +590,7 @@
     <string name="action_retry">Reîncearcă</string>
     <string name="sync_progress">Se sincronizează %1$d din %2$d</string>
     <string name="sync_no_folder">Alege mai întâi un dosar de rezervă</string>
+    <string name="sync_rate_limited">Dropbox limitează acest cont. %1$d din %2$d curse sincronizate, restul se va reîncerca.</string>
     <string name="sync_finished">%1$d curse sincronizate</string>
     <string name="sync_up_to_date">Deja la zi</string>
     <string name="sync_conflict_title">Conflict de sincronizare</string>

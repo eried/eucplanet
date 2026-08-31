@@ -590,6 +590,7 @@
     <string name="action_retry">Zkusit znovu</string>
     <string name="sync_progress">Synchronizuji %1$d z %2$d</string>
     <string name="sync_no_folder">Nejprve vyberte složku záloh</string>
+    <string name="sync_rate_limited">Dropbox omezuje tento účet. Synchronizováno %1$d z %2$d jízd, zbytek se zkusí znovu.</string>
     <string name="sync_finished">Synchronizováno %1$d jízd</string>
     <string name="sync_up_to_date">Vše je aktuální</string>
     <string name="sync_conflict_title">Konflikt synchronizace</string>
@@ -2222,7 +2223,7 @@
     <string name="charge_alert_channel_name">Upozornění na nabíjení</string>
     <string name="charge_alert_channel_description">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
     <string name="charge_alert_80_title">Baterie na 80 %</string>
-    <string name="charge_alert_80_text">Odpoj teď, kvůli životnosti.</string>
+    <string name="charge_alert_80_text">Odpoj teď, prodloužíš životnost baterie.</string>
     <string name="charge_alert_full_title">Nabíjení dokončeno</string>
     <string name="charge_alert_full_text">Připraveno na jízdu.</string>
     <!-- Widget names for the picker -->

@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
     <string name="sync_no_folder">Сначала выберите папку для копий</string>
+    <string name="sync_rate_limited">Dropbox ограничивает этот аккаунт. Синхронизировано %1$d из %2$d поездок, остальные повторятся.</string>
     <string name="sync_finished">Синхронизировано поездок: %1$d</string>
     <string name="sync_conflict_title">Конфликт синхронизации</string>
     <string name="sync_conflict_body">%1$d поездок есть с обеих сторон.</string>

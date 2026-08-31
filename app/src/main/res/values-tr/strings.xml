@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Yükleme planlandı</string>
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
     <string name="sync_no_folder">Önce bir yedek klasörü seçin</string>
+    <string name="sync_rate_limited">Dropbox bu hesabı sınırlıyor. %2$d seferden %1$d tanesi eşitlendi, kalanlar yeniden denenecek.</string>
     <string name="sync_finished">%1$d sefer eşitlendi</string>
     <string name="sync_conflict_title">Eşitleme çakışması</string>
     <string name="sync_conflict_body">%1$d sefer her iki tarafta da mevcut.</string>

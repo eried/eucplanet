@@ -590,6 +590,7 @@
     <string name="action_retry">Yritä uudelleen</string>
     <string name="sync_progress">Synkronoidaan %1$d / %2$d</string>
     <string name="sync_no_folder">Valitse ensin varmuuskopiokansio</string>
+    <string name="sync_rate_limited">Dropbox rajoittaa tätä tiliä. Synkronoitu %1$d/%2$d matkaa, loput yritetään uudelleen.</string>
     <string name="sync_finished">Synkronoitu %1$d matkaa</string>
     <string name="sync_up_to_date">Jo ajan tasalla</string>
     <string name="sync_conflict_title">Synkronointiristiriita</string>

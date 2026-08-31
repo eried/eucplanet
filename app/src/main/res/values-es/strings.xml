@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
     <string name="sync_no_folder">Elige primero una carpeta de respaldo</string>
+    <string name="sync_rate_limited">Dropbox está limitando esta cuenta. %1$d de %2$d viajes sincronizados, el resto se reintentará.</string>
     <string name="sync_finished">%1$d viajes sincronizados</string>
     <string name="sync_conflict_title">Conflicto de sincronización</string>
     <string name="sync_conflict_body">Hay %1$d viajes en ambos lados.</string>

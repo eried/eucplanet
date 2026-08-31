@@ -137,6 +137,7 @@
     <string name="sync_checking">正在检查备份文件夹…</string>
     <string name="sync_progress">同步中 %1$d / %2$d</string>
     <string name="sync_no_folder">请先选择备份文件夹</string>
+    <string name="sync_rate_limited">Dropbox 正在限制此账户。已同步 %2$d 条行程中的 %1$d 条，其余将重试。</string>
     <string name="sync_finished">已同步 %1$d 条行程</string>
     <string name="sync_conflict_title">同步冲突</string>
     <string name="sync_conflict_body">两侧都有 %1$d 条行程。</string>

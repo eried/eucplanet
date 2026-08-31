@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
     <string name="sync_no_folder">Kies eerst een back-upmap</string>
+    <string name="sync_rate_limited">Dropbox beperkt dit account. %1$d van %2$d ritten gesynchroniseerd, de rest wordt opnieuw geprobeerd.</string>
     <string name="sync_finished">%1$d ritten gesynchroniseerd</string>
     <string name="sync_conflict_title">Synchronisatieconflict</string>
     <string name="sync_conflict_body">%1$d ritten staan aan beide kanten.</string>

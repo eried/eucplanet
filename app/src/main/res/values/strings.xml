@@ -1321,7 +1321,7 @@
     <string name="widget_weather_compact_desc">How good the weather is for riding, now and in the hours ahead. Resize for hours, temperature and wind.</string>
     <string name="widget_weather_graph_desc">How good the weather is for riding, over the forecast window</string>
     <string name="widget_weather_refresh_desc">Refresh the forecast</string>
-    <string name="widget_weather_dash">--</string>
+    <string name="widget_weather_dash" translatable="false">--</string>
     <string name="widget_weather_never">No forecast yet. Open the app once, or tap refresh.</string>
     <string name="widget_weather_never_short">Never</string>
     <string name="widget_weather_refreshing">Refreshing…</string>
@@ -2356,7 +2356,7 @@
     <string name="charge_alert_channel_name">Charge alerts</string>
     <string name="charge_alert_channel_description">When the pack passes 80% or finishes charging.</string>
     <string name="charge_alert_80_title">Battery at 80%</string>
-    <string name="charge_alert_80_text">Unplug now for pack life.</string>
+    <string name="charge_alert_80_text">Unplug now to keep the pack healthy.</string>
     <string name="charge_alert_full_title">Charge complete</string>
     <string name="charge_alert_full_text">Ready to ride.</string>
     <string name="charging_options">Options</string>

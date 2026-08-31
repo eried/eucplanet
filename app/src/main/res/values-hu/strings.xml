@@ -590,6 +590,7 @@
     <string name="action_retry">Újra</string>
     <string name="sync_progress">Szinkronizálás: %1$d / %2$d</string>
     <string name="sync_no_folder">Előbb válassz mentési mappát</string>
+    <string name="sync_rate_limited">A Dropbox korlátozza ezt a fiókot. %2$d menetből %1$d szinkronizálva, a többi újra próbálkozik.</string>
     <string name="sync_finished">%1$d menet szinkronizálva</string>
     <string name="sync_up_to_date">Már naprakész</string>
     <string name="sync_conflict_title">Szinkronizálási ütközés</string>

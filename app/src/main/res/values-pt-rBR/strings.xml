@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Envio agendado</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
     <string name="sync_no_folder">Escolha uma pasta de backup primeiro</string>
+    <string name="sync_rate_limited">O Dropbox está limitando esta conta. %1$d de %2$d viagens sincronizadas, o resto será repetido.</string>
     <string name="sync_finished">%1$d viagens sincronizadas</string>
     <string name="sync_conflict_title">Conflito de sincronização</string>
     <string name="sync_conflict_body">Há %1$d viagens em ambos os lados.</string>

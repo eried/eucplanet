@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="sync_progress">Synkroniserar %1$d av %2$d</string>
     <string name="sync_no_folder">Välj en backupmapp först</string>
+    <string name="sync_rate_limited">Dropbox begränsar det här kontot. %1$d av %2$d turer synkroniserade, resten försöker igen.</string>
     <string name="sync_finished">Synkroniserade %1$d turer</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
     <string name="sync_conflict_body">%1$d turer finns på båda sidor.</string>

@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">Wysyłanie zaplanowane</string>
     <string name="sync_progress">Synchronizowanie %1$d z %2$d</string>
     <string name="sync_no_folder">Najpierw wybierz folder kopii</string>
+    <string name="sync_rate_limited">Dropbox ogranicza to konto. Zsynchronizowano %1$d z %2$d tras, reszta zostanie ponowiona.</string>
     <string name="sync_finished">Zsynchronizowano %1$d tras</string>
     <string name="sync_conflict_title">Konflikt synchronizacji</string>
     <string name="sync_conflict_body">%1$d tras znajduje się po obu stronach.</string>

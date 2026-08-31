@@ -475,6 +475,7 @@
     <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
     <string name="sync_no_folder">先にバックアップフォルダーを選択してください</string>
+    <string name="sync_rate_limited">Dropbox がこのアカウントを制限しています。%2$d 件中 %1$d 件のトリップを同期しました。残りは再試行します。</string>
     <string name="sync_finished">%1$d 件のトリップを同期しました</string>
     <string name="sync_conflict_title">同期の競合</string>
     <string name="sync_conflict_body">%1$d 件のトリップが両方に存在します。</string>
