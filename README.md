@@ -86,6 +86,17 @@ footage from another camera. It's not only for recording and replay: the same
 editor designs your **MotoEye / Android HUD** layout, so the visor shows exactly
 the tiles and gauges you arranged.
 
+**Weather, for riders.** Not a forecast app: a single score for whether the next
+few hours are worth riding, from the things that actually decide it. Rain, wind and
+gusts, cold and heat, night, and golden hour, each weighted the way YOU feel about
+them. Drag along the curve to read any hour; temperature, wind and humidity sit
+underneath. Pick your window (the next 8 hours, tomorrow, the week), your source,
+and your comfort thresholds.
+
+**On the home screen.** A one-cell widget answering "Ride?" with a face, a score
+and the temperature, and a forecast widget that grows hour markers, a score scale,
+temperature and wind as you drag it larger. Tapping either opens the panel.
+
 **Charging monitor.** A live charge curve with a scrubbable prediction line,
 energy split into used and charged, and a per-cell BMS view (Cells tab) for
 smart-BMS wheels (Veteran, KingSong and others) showing individual cell voltages,
@@ -118,9 +129,13 @@ settings, themes and overlays into your own private folder so you can restore th
 on another phone, and you can hand a single ride out as a link when you want to.
 You decide what leaves the phone, where it goes, and who sees it.
 
-**Automations.** Auto Lights on before sunset, off after sunrise, from live GPS.
-Handles midnight sun and polar night (I live in the arctic circle 🧐). Auto Volume
-scales phone volume with speed.
+**Automations.** Headlight control: on before sunset, off after sunrise, from live
+GPS, and it can cut the beam when you slow to walking pace so it is not in the face
+of whoever is waiting at the crossing with you, coming back when you ride on.
+Handles midnight sun and polar night (I live in the arctic circle 🧐). Volume
+control scales phone volume with speed. Each one runs never, whenever the wheel is
+connected, or only while you are actually riding. Charging can tell you when the
+pack passes 80% and when it is full.
 
 **Helmet HUD.** Sideload the small HUD companion on a MotoEye E6 or any
 Android-based head-up display and the dashboard mirrors live to your visor
