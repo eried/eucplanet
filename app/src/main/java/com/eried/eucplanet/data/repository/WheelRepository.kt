@@ -1709,6 +1709,10 @@ class WheelRepository @Inject constructor(
     }
 
     private suspend fun runPollingLoop() {
+        // Routine telemetry, and the only writes in the app worth losing: the
+        // next one is along in a poll interval. Marking them lets the link keep
+        // a rider's horn ahead of them instead of behind a queue of them.
+        val POLL = com.eried.eucplanet.ble.BleWriteQueue.Kind.POLL
         val initSequence = wheelAdapter.initSequence()
         var realtimeCycle = 0
         val needsConnectAuth = wheelAdapter.requiresConnectAuth()
@@ -1733,12 +1737,12 @@ class WheelRepository @Inject constructor(
                     runConnectAuthHandshake()
                 } else if (realtimeCycle > 0 &&
                     realtimeCycle % STATS_REFRESH_INTERVAL == 0) {
-                    wheelAdapter.pollStats()?.let { bleManager.writeCommand(it) }
-                        ?: bleManager.writeCommand(wheelAdapter.pollRealtime())
+                    wheelAdapter.pollStats()?.let { bleManager.writeCommand(it, POLL) }
+                        ?: bleManager.writeCommand(wheelAdapter.pollRealtime(), POLL)
                 } else if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
-                    bleManager.writeCommand(wheelAdapter.pollSettings())
+                    bleManager.writeCommand(wheelAdapter.pollSettings(), POLL)
                 } else {
-                    bleManager.writeCommand(wheelAdapter.pollRealtime())
+                    bleManager.writeCommand(wheelAdapter.pollRealtime(), POLL)
                 }
                 realtimeCycle++
             }
