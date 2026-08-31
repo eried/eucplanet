@@ -1,14 +1,18 @@
 package com.eried.eucplanet.hud.net
 
 import android.util.Log
+import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.onTimeout
+import kotlinx.coroutines.selects.select
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.Inet4Address
@@ -44,6 +48,16 @@ class HudUdpBeacon(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
+    /** Cuts the current inter-tick sleep short so the next beacon fires now.
+     *  Conflated: kicks while already sending collapse into one early tick. */
+    private val kickCh = Channel<Unit>(Channel.CONFLATED)
+
+    /** Fire the next beacon immediately (e.g. the local IP just changed, or
+     *  WiFi just came back). The tick still re-resolves the IP as always, so
+     *  a kick can never announce a stale address. */
+    fun kick() {
+        kickCh.trySend(Unit)
+    }
 
     /** Stats for the HUD-side diagnostics card. Atomic counters so the UI
      *  can subscribe without a flow contention surface. */
@@ -79,7 +93,7 @@ class HudUdpBeacon(
                     val ip = pickLocalIpv4()
                     if (ip.isBlank()) {
                         Log.v(TAG, "no IPv4 yet; will retry")
-                        delay(intervalMs)
+                        delayOrKick()
                         continue
                     }
                     lastResolvedIp = ip
@@ -102,11 +116,19 @@ class HudUdpBeacon(
                             Log.i(TAG, "beacon tick #$totalTicks ip=$ip targets=${targets.size} sentOk=$sentOk")
                         }
                     }
-                    delay(intervalMs)
+                    delayOrKick()
                 }
             } finally {
                 runCatching { socket.close() }
             }
+        }
+    }
+
+    /** Sleep one beacon interval, or less if [kick] fires first. */
+    private suspend fun delayOrKick() {
+        select<Unit> {
+            onTimeout(intervalMs) { }
+            kickCh.onReceive { }
         }
     }
 
@@ -118,6 +140,9 @@ class HudUdpBeacon(
     /** First non-loopback IPv4 across the up interfaces. Re-walked each
      *  tick so a DHCP renew is reflected within one beacon interval. */
     private fun pickLocalIpv4(): String {
+        // Same debug override the HUD server honours, so a simulated address
+        // change is announced as well as acted on. See HudServer.pickLocalIp.
+        HudDebug.read(HudServer.DEBUG_IP_PROP)?.takeIf { it.isNotBlank() }?.let { return it }
         return runCatching {
             val ifs = NetworkInterface.getNetworkInterfaces() ?: return@runCatching ""
             while (ifs.hasMoreElements()) {
