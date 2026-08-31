@@ -264,6 +264,7 @@ abstract class WeatherWidgetBase(private val layout: Int, private val size: Size
                     WeatherGraph.render(
                         s.series, s.seriesStartMs, s.seriesStepMs,
                         wPx, hPx, withHours = detail,
+                        nowLabel = context.getString(R.string.weather_now),
                     )
                 } else null
                 if (bmp != null) {

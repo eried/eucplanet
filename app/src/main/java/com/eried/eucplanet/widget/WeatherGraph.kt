@@ -7,6 +7,7 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Shader
+import android.graphics.Typeface
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -55,8 +56,10 @@ object WeatherGraph {
      * Draws [series] across [wPx] x [hPx].
      *
      * [withHours] adds the clock labels along the bottom, which only earn their
-     * room on the taller widget. Returns null when there is nothing to draw, so
-     * the caller can show its "never refreshed" state instead of a blank box.
+     * room on the taller widget. [nowLabel] is the word for the leftmost one,
+     * passed in because this object draws pixels and holds no context.
+     * Returns null when there is nothing to draw, so the caller can show its
+     * "never refreshed" state instead of a blank box.
      */
     fun render(
         series: List<Float>,
@@ -65,6 +68,7 @@ object WeatherGraph {
         wPx: Int,
         hPx: Int,
         withHours: Boolean,
+        nowLabel: String = "Now",
     ): Bitmap? {
         if (series.size < 2) return null
         val w = wPx.coerceIn(120, MAX_W)
@@ -184,13 +188,22 @@ object WeatherGraph {
                 textSize = max(9f, labelH * 0.62f)
                 textAlign = Paint.Align.CENTER
             }
+            // The left end is where the rider is standing, so it says so
+            // rather than giving the current hour, which reads as just another
+            // tick. Bold, because it is the one label that is not a time.
+            val nowText = Paint(text).apply { typeface = Typeface.DEFAULT_BOLD }
             // Four labels at most: more than that and they collide on a
             // two-cell widget, and the rider is reading a shape, not a table.
             for (t in 0 until ticks) {
                 val i = (series.size - 1) * t / max(1, ticks - 1)
                 val at = startMs + stepMs * i
-                val tx = x(i).coerceIn(text.textSize, w - text.textSize)
-                c.drawText(fmt.format(Date(at)), tx, h - labelH * 0.15f, text)
+                val paint = if (t == 0) nowText else text
+                val label = if (t == 0) nowLabel else fmt.format(Date(at))
+                // Half its own width of room at each edge, measured on the
+                // label actually being drawn: "Now" is wider than "14".
+                val pad = paint.measureText(label) / 2f
+                val tx = x(i).coerceIn(pad, w - pad)
+                c.drawText(label, tx, h - labelH * 0.15f, paint)
             }
         }
         return bmp
