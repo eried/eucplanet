@@ -320,10 +320,12 @@ dependencies {
     // only need the encoder side.
     implementation(libs.zxing.core)
 
-    // CameraX: Overlay Studio camera viewports
+    // CameraX: Overlay Studio camera viewports, plus the PreviewView the
+    // share dialog's QR scanner draws its live camera feed into.
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
 
     // Play Integrity API (Standard Integrity Manager for request-hash-bound tokens)
     implementation("com.google.android.play:integrity:1.4.0")

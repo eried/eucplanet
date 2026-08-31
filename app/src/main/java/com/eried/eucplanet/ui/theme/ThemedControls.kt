@@ -119,18 +119,25 @@ fun themedFilterChipColors(): SelectableChipColors {
 
 /**
  * Floating field label that notches the control's top border the way Material's
- * OutlinedTextField does: the section colour (appBackground) shows above the
- * border line, the field colour (fieldBackground) below it. A solid background
- * would leave a visible patch in the dark theme, where the field and section
- * colours differ; the split keeps the label seamless in every theme.
+ * OutlinedTextField does: the label is painted on one solid fill of [notchFill],
+ * the surface the control sits on, which is what a native floating label shows
+ * through the notch it cuts in the outline. The label straddles the border, so
+ * the fill also covers a few dp of the control's own top edge; that is what
+ * hides the border line behind the text.
  *
  * Place inside a Box whose other child is the control, and give that control at
  * least 8dp of top padding so the label has room (it straddles the top border).
+ *
+ * [notchFill] is the surface the control sits on. It defaults to the section
+ * colour every settings screen uses; a caller that puts the control straight on
+ * another surface (the share dialogs sit on the dialog fill) passes that one, or
+ * the label reads as a patch of the wrong colour.
  */
 @Composable
 fun BoxScope.FieldNotchLabel(
     text: String,
     color: Color = Color.Unspecified,
+    notchFill: Color = Color.Unspecified,
     trailing: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val c = MaterialTheme.appColors
@@ -151,7 +158,7 @@ fun BoxScope.FieldNotchLabel(
             // built-in themes surfaceVariant ~= the field colour so it looks the
             // same; an OLED/custom theme (black field on a #121212 section) reveals
             // that the native label is the section colour, not the field's black.
-            .background(c.surfaceVariant)
+            .background(notchFill.takeOrElse { c.surfaceVariant })
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

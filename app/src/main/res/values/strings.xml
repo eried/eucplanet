@@ -888,7 +888,7 @@
     <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>
     <string name="welcome_tut_metrics">Live battery, temp, voltage and more. Rearrange them in Settings → %1$s</string>
     <string name="welcome_tut_actions">Quick controls. Tweak them in the same place, under %2$s</string>
-    <string name="welcome_tut_map">Open the navigator to plan routes and get turn-by-turn guidance</string>
+    <string name="welcome_tut_map">Open the navigator to plan routes, get turn-by-turn guidance, or share your live location for a group ride</string>
     <string name="welcome_tut_gps">Tap for live data view here, you can even calibrate your wheel speed based on GPS speed. Check the calibration later in Settings → %1$s</string>
     <string name="welcome_tut_camera">Record video with a live telemetry overlay. Create custom fancy overlays and export them to make your own videos with data from past trips</string>
     <string name="welcome_tut_pd">Shows Park or Drive. Tap it to set your %1$s</string>
@@ -2062,6 +2062,7 @@
         <item>Eighth stop</item>
     </string-array>
     <string name="nav_my_location">My location</string>
+    <string name="nav_fit_all">Frame everyone</string>
     <string name="nav_no_location">Waiting for a GPS fix…</string>
     <string name="nav_too_far_to_start">First stop is too far away. Hold Start to navigate anyway.</string>
     <string name="nav_empty_hint">Tap the map, search, or load a GPX file</string>
@@ -2284,6 +2285,55 @@
     <string name="nav_setting_ocm_key">Open Charge Map API key</string>
     <string name="nav_setting_ocm_key_hint">Adds reviews, photos and connector details to the charger flyout. Sign up for a free key at</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
+    <!-- ==== Live location share (navigator) ==== -->
+    <string name="share_button">Share options</string>
+    <string name="share_button_long">Share my location</string>
+    <string name="share_leave_first">Leave the current group first</string>
+    <string name="share_join_title">Join group</string>
+    <string name="share_identity_anon">Anonymous</string>
+    <string name="share_identity_session">Custom</string>
+    <string name="share_identity_profile">Profile</string>
+    <string name="share_name_label">Name</string>
+    <string name="share_start">Start sharing</string>
+    <string name="share_join">Join</string>
+    <string name="share_connected">Connected</string>
+    <string name="share_reconnecting">Reconnecting…</string>
+    <string name="share_leave">Leave group</string>
+    <string name="share_left">left</string>
+    <string name="share_lost">lost</string>
+    <string name="share_age_seconds">%1$d s ago</string>
+    <string name="share_age_minutes">%1$d min ago</string>
+    <string name="share_relay_caption">Relay: %1$s</string>
+    <string name="share_link_invalid">This share link has expired or is invalid.</string>
+    <string name="share_room_full">This group is full.</string>
+    <string name="share_switch_group">Leave current group and join this one?</string>
+    <string name="share_cannot_reach">Cannot reach the share service</string>
+    <string name="share_profile_missing">No leaderboard profile yet. Set one up under %1$s.</string>
+    <string name="share_profile_loading">Loading profile…</string>
+    <string name="share_camera_needed">Camera access is needed to scan a QR code.</string>
+    <string name="share_invite_text">Join my ride on EUC Planet: %1$s</string>
+    <string name="share_invite_subject">Join my ride</string>
+    <string name="share_copied">Copied</string>
+    <string name="share_camera_allow">Allow camera</string>
+    <string name="share_alone">No one else here yet.</string>
+    <string name="share_copy">Copy</string>
+    <string name="share_open">Open</string>
+    <string name="share_menu_join">Join group ride</string>
+    <string name="share_menu_join_desc">Scan a QR code</string>
+    <string name="share_menu_live">Share live location</string>
+    <string name="share_menu_live_desc">Start a group ride</string>
+    <string name="share_menu_static">Share static location</string>
+    <string name="share_menu_static_desc">Google Maps link</string>
+    <string name="share_menu_copy">Copy coordinates</string>
+    <string name="share_waiting_gps">Waiting for GPS</string>
+    <string name="share_identity_label">Others see me as</string>
+    <string name="share_stats_label">Show my speed and battery</string>
+    <string name="share_tab_qr">QR code</string>
+    <string name="share_tab_connected">Connected (%1$d)</string>
+    <string name="share_title_group">Group ride</string>
+    <string name="share_title_live">Share live location</string>
+    <string name="share_static_subject">My location</string>
+    <string name="share_you">You</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
     <!-- ==== Trip share / actions ==== -->

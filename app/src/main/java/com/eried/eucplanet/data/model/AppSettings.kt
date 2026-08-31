@@ -123,6 +123,8 @@ data class AppSettings(
     val accelSplit: AccelSplitSettings = AccelSplitSettings(),
     // Speed-driven media (music / podcast) pause & resume - see MediaControlSettings.
     val mediaControl: MediaControlSettings = MediaControlSettings(),
+    // Live location share (navigator Share button) - see ShareSettings. Nested: one arg slot.
+    val share: ShareSettings = ShareSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
     /** Weather / ridability module (dashboard icon + forecast flyout). Nested
@@ -1142,6 +1144,31 @@ data class MediaControlSettings(
     val rateCurve: String = "0:1.0,25:1.15,50:1.30,75:1.45",
 )
 
+/** Live location share. Feature-local, nested so AppSettings.copy() stays under the dex 255-arg limit. */
+data class ShareSettings(
+    val trailMinutes: Int = 5,                // 1..30, how long a friend's fading trail is
+    val shareStatsDefault: Boolean = true,    // default for the "Share my stats" toggle
+    val lastIdentityMode: String = "ANON",    // ANON | SESSION | PROFILE, remembered per rider
+    val lastSessionName: String = "",
+    val relayUrl: String = DEFAULT_RELAY_URL,
+    /** Per-device random secret, generated on first share. The rider's sender
+     *  id in a room is HMAC(secret, roomId): stable for this phone in that room
+     *  (a rejoin replaces its own ghost instead of adding one), different in
+     *  every room (the relay cannot link rooms), and never copied to another
+     *  device (two phones with one secret would collide as one rider). */
+    val deviceSecret: String = "",
+) {
+    companion object {
+        const val DEFAULT_RELAY_URL = "wss://eucshare.ried.no"
+        /** A relay URL is opened as a WebSocket, so anything that is not a
+         *  ws / wss URL cannot work. A synced or hand-edited file carrying
+         *  something else is reset to the default rather than thrown at
+         *  OkHttp, which answers a malformed URL with an exception. */
+        fun isValidRelayUrl(url: String): Boolean =
+            url.startsWith("ws://") || url.startsWith("wss://")
+    }
+}
+
 /**
  * Bluetooth-signal proximity lock / unlock. Locks the wheel as the rider walks
  * away (the BT signal fades while still just connected) and, optionally, unlocks
@@ -1293,7 +1320,7 @@ data class ProximityLockSettings(
  * stepper can drive them as Ints); display follows the unit settings.
  */
 data class WeatherSettings(
-    val enabled: Boolean = false,
+    val enabled: Boolean = true,
     /** How many hours ahead the panel shows, 2..168. Free-form rather than
      *  four presets: a rider who wants "the rest of my afternoon" was
      *  choosing between 6 and 24. The dashboard menu still offers presets,

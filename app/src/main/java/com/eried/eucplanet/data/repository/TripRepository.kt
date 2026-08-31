@@ -54,7 +54,16 @@ class TripRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager,
     private val externalGpsRepository: ExternalGpsRepository,
-    private val legalLockdown: LegalLockdownController
+    private val legalLockdown: LegalLockdownController,
+    /**
+     * Injected as a Provider because [com.eried.eucplanet.share.ShareSession]
+     * takes this repository (it publishes [currentLocation]). A Provider breaks
+     * the construction cycle: the instance is only asked for from a coroutine,
+     * once, after both singletons exist. That coroutine runs on [scope], which
+     * is Dispatchers.IO, so this never runs inline on the constructing thread;
+     * a Provider alone does not guarantee that, the dispatcher does.
+     */
+    private val shareSession: javax.inject.Provider<com.eried.eucplanet.share.ShareSession>
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -126,7 +135,7 @@ class TripRepository @Inject constructor(
 
     // The wheel's identity for the active recording, accumulated while it is still
     // connected. Snapshotting only at stop loses it whenever the rider powers the wheel
-    // off to end the ride — see [WheelIdentity].
+    // off to end the ride - see [WheelIdentity].
     private val wheelIdentity = WheelIdentity()
 
     // Last identity JSON already flushed to the current row, so the mid-ride persist
@@ -145,10 +154,13 @@ class TripRepository @Inject constructor(
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
-    // from recording / navigating / wheel-connected / app-visible so it never
+    // from recording / navigating / sharing / wheel-connected / app-visible so it never
     // burns the 1 Hz high-accuracy stream when nothing needs it.
     @Volatile private var gpsStreamRequested = false
     @Volatile private var gpsNavigating = false
+    // Live location share is running: friends are watching this rider's dot, so
+    // GPS stays at 1 Hz even with the app backgrounded and no wheel connected.
+    @Volatile private var gpsSharing = false
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
@@ -193,6 +205,10 @@ class TripRepository @Inject constructor(
         scope.launch { _recording.collect { recomputeGpsTier() } }
         scope.launch { wheelRepository.connectionState.collect { recomputeGpsTier() } }
         scope.launch { AppForeground.isForeground.collect { recomputeGpsTier() } }
+        // Joining or leaving a group changes the tier the same way navigation
+        // does. Resolved here, off the constructor thread, so the Provider
+        // above never re-enters this repository's own construction.
+        scope.launch { shareSession.get().sharing.collect { gpsSharing = it; recomputeGpsTier() } }
     }
 
     // The just-stopped trip waiting for grace-period finalization, plus the job
@@ -320,7 +336,8 @@ class TripRepository @Inject constructor(
     /**
      * Ensure the demand-driven GPS stream is running. Callers no longer force a
      * power level - the tier is picked by [recomputeGpsTier] from what actually
-     * needs a position (recording / navigating / connected / app-visible), so a
+     * needs a position (recording / navigating / sharing / connected /
+     * app-visible), so a
      * bare "be ready" call from a UI screen costs a low-power keep-warm fix, not
      * the full 1 Hz stream.
      */
@@ -366,6 +383,7 @@ class TripRepository @Inject constructor(
             navigating = gpsNavigating,
             connected = connected,
             appVisible = AppForeground.isForeground.value,
+            sharing = gpsSharing,
         )
         if (tier == GpsTier.OFF) {
             // Already off, or an off-grace already pending: stay put. Do NOT
@@ -647,11 +665,11 @@ class TripRepository @Inject constructor(
 
     /**
      * Flush the accumulated wheel identity onto the current row the first time it
-     * becomes known (and again only if it grows) — gated on change, so a whole ride
+     * becomes known (and again only if it grows). Gated on change, so a whole ride
      * costs about one extra write, not one per tick. This is what makes the identity
      * survive an OOM/force-kill: [finalizeUnfinishedTrips] recovers a killed row from
      * its CSV and [finalizedTripOrNull] copies wheelMetaJson through untouched, so a
-     * row that already carries the wheel keeps it. Best-effort — a DB hiccup here must
+     * row that already carries the wheel keeps it. Best-effort - a DB hiccup here must
      * never disturb recording. Targets the row by id, and stopRecording() rewrites the
      * same accumulator value, so the two can never disagree.
      */
@@ -885,7 +903,7 @@ class TripRepository @Inject constructor(
         }
         val capturedMock = tripHadMockFix
         // A last look in case the wheel is still connected, then use what the ride
-        // accumulated — by now a powered-off wheel reads back as all-nulls, which merge
+        // accumulated - by now a powered-off wheel reads back as all-nulls, which merge
         // ignores rather than letting it erase what we already know.
         captureWheelIdentity()
         val wheelMeta = wheelIdentity.toJson()
@@ -1444,14 +1462,14 @@ internal fun isMockLocation(loc: Location): Boolean =
  * Accumulates the connected wheel's identity over the course of a ride.
  *
  * Model, serial and firmware live in [WheelRepository] StateFlows that are nulled the
- * moment BLE drops, and the normal way to end a ride is to power the wheel off — so
+ * moment BLE drops, and the normal way to end a ride is to power the wheel off, so
  * reading them once at stop hands back nulls, the upload carries no serial or MAC, and
  * eucstats has nothing to key the wheel on. Such a trip still counts for the rider but
  * reaches no wheel or brand board at all.
  *
  * Merging as the ride runs fixes that: once a field is known it stays known, because a
  * later blank is ignored. A real value still replaces an earlier real value (identity
- * trickles in — the MAC at connect, the serial only once the wheel answers).
+ * trickles in - the MAC at connect, the serial only once the wheel answers).
  */
 class WheelIdentity {
     private val fields = java.util.concurrent.ConcurrentHashMap<String, String>()
@@ -1489,7 +1507,7 @@ class WheelIdentity {
         return out
     }
 
-    /** Same shape and blank-handling as [buildWheelMetaJson] — it delegates to it. */
+    /** Same shape and blank-handling as [buildWheelMetaJson] - it delegates to it. */
     fun toJson(): String? = buildWheelMetaJson(
         brand = fields["brand"],
         model = fields["model"],

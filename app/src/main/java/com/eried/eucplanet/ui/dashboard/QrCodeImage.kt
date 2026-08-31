@@ -5,6 +5,7 @@ import android.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
@@ -21,19 +24,34 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 /**
- * Renders [content] as a QR code at the requested square size. Uses ZXing's
- * pure-Java encoder; the bitmap is computed once per (content, size) pair
- * and remembered for the lifetime of the composition. Always on white with
- * a small white border so the code stays scannable regardless of the
+ * The widest QR bitmap we will ever encode, in pixels.
+ *
+ * A QR is a grid of black and white modules, so past a certain resolution the
+ * extra pixels carry nothing: 1024 px is already about 25 px per module for a
+ * short URL, sharp on any phone or tablet, and the [Image] scales it up to
+ * whatever the layout asked for. Without the cap the size follows the view
+ * width, and a landscape phone or a tablet would allocate an ARGB_8888 bitmap
+ * plus an IntArray of the same size, roughly 19 MB each at 2186 px, next to the
+ * map and the WebView.
+ */
+const val QR_MAX_PX = 1024
+
+/**
+ * Renders [content] as a QR code that fills the space [modifier] gives it.
+ *
+ * [sizePx] is the encoded bitmap resolution, not the layout size: pass
+ * `min(widthPx, QR_MAX_PX)`. The bitmap is computed once per (content, sizePx)
+ * pair and remembered, so a recomposing caller (a ticking clock, a peer list
+ * update) never re-encodes and never allocates a second one. Always on white
+ * with a small white border so the code stays scannable regardless of the
  * surrounding theme (dark / black mode).
  */
 @Composable
-fun QrCodeImage(content: String, sizeDp: Int) {
-    val pxSize = with(androidx.compose.ui.platform.LocalDensity.current) { sizeDp.dp.toPx().toInt() }
-    val bitmap = remember(content, pxSize) { encodeQr(content, pxSize) }
+fun QrCodeImage(content: String, sizePx: Int, modifier: Modifier = Modifier) {
+    val encodePx = sizePx.coerceIn(64, QR_MAX_PX)
+    val bitmap = remember(content, encodePx) { encodeQr(content, encodePx) }
     Box(
-        modifier = Modifier
-            .size(sizeDp.dp)
+        modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .background(androidx.compose.ui.graphics.Color.White)
             .padding(8.dp),
@@ -42,9 +60,20 @@ fun QrCodeImage(content: String, sizeDp: Int) {
         Image(
             bitmap = bitmap.asImageBitmap(),
             contentDescription = null,
-            modifier = Modifier.size((sizeDp - 16).dp)
+            // Nearest neighbour: the modules are hard squares, so a smoothed
+            // upscale only softens the edges a scanner is looking for.
+            filterQuality = FilterQuality.None,
+            modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+/** Fixed-size variant for callers that lay the code out in dp. */
+@Composable
+fun QrCodeImage(content: String, sizeDp: Int) {
+    val density = LocalDensity.current
+    val sizePx = remember(sizeDp, density) { with(density) { sizeDp.dp.roundToPx() } }
+    QrCodeImage(content = content, sizePx = sizePx, modifier = Modifier.size(sizeDp.dp))
 }
 
 private fun encodeQr(content: String, size: Int): Bitmap {

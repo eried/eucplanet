@@ -5,6 +5,7 @@ import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
+import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.store.SettingsStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -103,6 +104,13 @@ class SettingsRepository @Inject constructor(
         // AUTO, which never uses the saved IP.
         hudDiscoveryMode = hudDiscoveryMode.takeIf { it in HudDiscoveryMode.VALUES }
             ?: HudDiscoveryMode.AUTO,
+        // The share relay is dialled as a WebSocket. A file carrying an http
+        // URL, a hostname, or junk would fail at the OkHttp request builder,
+        // inside the coroutine that opens a group, so it is reset here instead.
+        share = share.copy(
+            relayUrl = share.relayUrl.takeIf { ShareSettings.isValidRelayUrl(it) }
+                ?: ShareSettings.DEFAULT_RELAY_URL
+        ),
     )
 }
 

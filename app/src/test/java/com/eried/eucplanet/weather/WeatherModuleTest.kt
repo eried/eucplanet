@@ -308,9 +308,11 @@ class WeatherModuleTest {
 
     // --- Settings & registry ------------------------------------------------
 
-    @Test fun `ships disabled, with the rider's stated comfort defaults`() {
+    @Test fun `ships enabled, with the rider's stated comfort defaults`() {
         val w = WeatherSettings()
-        assertTrue(!w.enabled)
+        // On by default since the location share release: the widget earns its
+        // place on the dashboard and a rider who wants it gone has the switch.
+        assertTrue(w.enabled)
         // Eight hours: an afternoon and the evening after it, which is the
         // question the panel is usually asked. Free-form now, not a preset.
         assertEquals(8, w.windowHours)

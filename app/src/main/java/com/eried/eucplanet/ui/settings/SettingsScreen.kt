@@ -50,7 +50,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -257,8 +256,8 @@ import com.eried.eucplanet.data.model.AdvGroup
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.sync.SyncChoice
+import com.eried.eucplanet.ui.settings.eucstats.LeaderboardProfileCard
 import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
-import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
@@ -7791,8 +7790,11 @@ private fun HardwareButtonGroup(
     }
 }
 
+/** Label + caption + switch. Internal rather than private: the live-location
+ *  share dialog needs the exact same row, and a second copy of the layout is
+ *  how the two drift apart. */
 @Composable
-private fun SwitchSettingWithDesc(
+internal fun SwitchSettingWithDesc(
     label: String,
     description: String,
     checked: Boolean,
@@ -8737,59 +8739,10 @@ private fun CloudTab(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     if (card != null) {
-                        // Avatar + name/flag row
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            // Avatar: the real photo when available, falling back to
-                            // a circular initial while it loads or if it fails.
-                            val initial = card.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
-                            com.eried.eucplanet.ui.settings.eucstats.RemoteAvatar(
-                                url = card.avatarUrl,
-                                modifier = Modifier.size(48.dp).clip(CircleShape),
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.appColors.primary),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        text = initial,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.appColors.onPrimary,
-                                    )
-                                }
-                            }
-                            // Name and flag
-                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                val nameAndFlag = buildString {
-                                    if (!card.displayName.isNullOrBlank()) append(card.displayName)
-                                    if (!card.flag.isNullOrBlank()) {
-                                        if (isNotEmpty()) append("  ")
-                                        // Show the flag emoji (e.g. 🇳🇴) instead of the raw code (NO).
-                                        append(flagEmoji(card.flag).ifEmpty { card.flag })
-                                    }
-                                }
-                                if (nameAndFlag.isNotEmpty()) {
-                                    Text(
-                                        nameAndFlag,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.appColors.textPrimary,
-                                    )
-                                }
-                                if (!card.country.isNullOrBlank()) {
-                                    Text(
-                                        card.country,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.appColors.textSecondary,
-                                    )
-                                }
-                            }
-                        }
+                        // Avatar + name/flag row. The one leaderboard profile
+                        // card in the app: the live share dialog draws the
+                        // same composable, so the two cannot drift apart.
+                        LeaderboardProfileCard(card)
 
                         // Stats — shown in the unit system the app is currently set to
                         // (not both metric + imperial). 1 decimal for small distances.
@@ -9988,6 +9941,10 @@ internal fun SegmentedChoice(
     onPreview: (() -> Unit)? = null,
     previewEnabled: Boolean = true,
     enabled: Boolean = true,
+    /** The surface the row sits on, filled behind the notched label. Settings
+     *  sections are the default; a caller on another surface (the share dialog
+     *  puts the row on the dialog fill) passes that colour instead. */
+    notchFill: Color = Color.Unspecified,
 ) {
     Box(modifier = Modifier.fillMaxWidth().padding(top = 9.dp, bottom = 4.dp)) {
         SingleChoiceSegmentedButtonRow(
@@ -10023,7 +9980,7 @@ internal fun SegmentedChoice(
                     PlayButton(onClick = cb, enabled = previewEnabled)
                 }
             } else null
-        FieldNotchLabel(label, trailing = previewTrailing)
+        FieldNotchLabel(label, notchFill = notchFill, trailing = previewTrailing)
     }
 }
 

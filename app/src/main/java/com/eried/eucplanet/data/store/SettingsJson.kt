@@ -28,6 +28,7 @@ object SettingsJson {
      * folder picker, paired Flic addresses, etc. survive an app restart.
      */
     fun stripDeviceBindings(s: AppSettings): AppSettings = s.copy(
+        share = s.share.copy(deviceSecret = ""),
         lastDeviceAddress = null,
         lastDeviceName = null,
         flic1Address = null,
@@ -133,6 +134,12 @@ object SettingsJson {
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
             put("rateApplyWhen", s.mediaControl.rateApplyWhen)
             put("rateCurve", s.mediaControl.rateCurve)
+        })
+        put("share", JSONObject().apply {
+            put("trailMinutes", s.share.trailMinutes); put("shareStatsDefault", s.share.shareStatsDefault)
+            put("lastIdentityMode", s.share.lastIdentityMode); put("lastSessionName", s.share.lastSessionName)
+            put("relayUrl", s.share.relayUrl)
+            put("deviceSecret", s.share.deviceSecret)
         })
         put("batteryPercent", JSONObject().apply {
             put("mode", s.batteryPercent.mode)
@@ -487,6 +494,14 @@ object SettingsJson {
                 rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
+        share = j.optJSONObject("share")?.let { m -> base.share.copy(
+            trailMinutes = m.optInt("trailMinutes", base.share.trailMinutes).coerceIn(1, 30),
+            shareStatsDefault = m.optBoolean("shareStatsDefault", base.share.shareStatsDefault),
+            lastIdentityMode = m.optString("lastIdentityMode", base.share.lastIdentityMode),
+            lastSessionName = m.optString("lastSessionName", base.share.lastSessionName),
+            relayUrl = m.optString("relayUrl", base.share.relayUrl),
+            deviceSecret = m.optString("deviceSecret", base.share.deviceSecret),
+        ) } ?: base.share,
         batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
             base.batteryPercent.copy(
                 // A file written before the two switches became one choice

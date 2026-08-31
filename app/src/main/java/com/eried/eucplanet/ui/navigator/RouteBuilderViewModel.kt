@@ -12,6 +12,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavRoute
+import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -29,9 +30,18 @@ import com.eried.eucplanet.nav.PointOfInterest
 import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RouteFileName
 import com.eried.eucplanet.nav.RoutingService
+import com.eried.eucplanet.share.Identity
+import com.eried.eucplanet.share.IdentityMode
+import com.eried.eucplanet.share.PendingShareJoin
+import com.eried.eucplanet.share.ShareLink
+import com.eried.eucplanet.share.ShareSession
+import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.share.ShareStats
 import com.eried.eucplanet.util.GpxIO
+import com.eried.eucplanet.util.Units
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,6 +55,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject
@@ -70,8 +81,17 @@ class RouteBuilderViewModel @Inject constructor(
         com.eried.eucplanet.data.repository.IncomingShareRepository,
     private val currentRouteStore: com.eried.eucplanet.nav.CurrentRouteStore,
     private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore,
+    private val shareSession: ShareSession,
+    private val pendingShareJoin: PendingShareJoin,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    /** The group dialog's last tab. Lives as long as the app process, not on
+     *  disk: reopening the dialog lands on the tab the rider left it on. */
+    var shareGroupTab: GroupTab
+        get() = GroupTab.values().getOrElse(shareSession.groupTabOrdinal) { GroupTab.QR }
+        set(value) { shareSession.groupTabOrdinal = value.ordinal }
+
 
     companion object {
         /**
@@ -297,6 +317,23 @@ class RouteBuilderViewModel @Inject constructor(
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** Display units for the friend-stats line in the share group view. */
+    val speedUnit: StateFlow<String> = settingsRepository.settings
+        .map { Units.effectiveSpeedUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "kmh")
+
+    val tempUnit: StateFlow<String> = settingsRepository.settings
+        .map { Units.effectiveTempUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "C")
+
+    /** The relay host the group view names in its header. `Uri.host` drops the
+     *  scheme, any port, and any path, so a self-hosted `wss://relay.example.com/ws`
+     *  still renders as just the server a rider would recognise. Falls back to
+     *  the raw value on the rare relay URL `Uri` cannot parse a host from. */
+    val relayHost: StateFlow<String> = settingsRepository.settings
+        .map { Uri.parse(it.share.relayUrl).host ?: it.share.relayUrl }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, Uri.parse(ShareSettings.DEFAULT_RELAY_URL).host.orEmpty())
 
     /** Landscape sidebar side for the stops panel: "DEFAULT", "LEFT" or "RIGHT". */
     val navStopsSide: StateFlow<String> = settingsRepository.settings
@@ -737,7 +774,7 @@ class RouteBuilderViewModel @Inject constructor(
         val q = req.query
         if (q.isNullOrBlank()) return
         // Google Maps's mobile share sheet often ships only a shortened
-        // `maps.app.goo.gl/xxx` URL — no place name, no coords in the
+        // `maps.app.goo.gl/xxx` URL - no place name, no coords in the
         // payload itself. Follow the HTTP redirect off the main thread,
         // re-parse the expanded URL (which DOES carry `@lat,lng,zoom`),
         // and continue with whatever the resolved version yields.
@@ -1870,6 +1907,110 @@ class RouteBuilderViewModel @Inject constructor(
             )
         }
     }
+
+    // --- Live location share ------------------------------------------------
+
+    /** Idle, or Joined with the group's link, the rider's identity and every
+     *  friend's last position. Drives the Share button, the group dialog and
+     *  the friend markers on the map. */
+    val shareState: StateFlow<ShareState> = shareSession.state
+
+    /** What this rider is broadcasting right now, or null when nothing real is
+     *  going out. The group view's own row reads it, so the rider sees the
+     *  line the group sees rather than a second guess at it. */
+    val myShareStats: StateFlow<ShareStats?> = shareSession.myStats
+
+    /** A share link the rider opened from outside the app (App Link / QR) that
+     *  they have not answered yet. Held in a singleton because it crosses from
+     *  MainActivity's intent handling into this nav-scoped ViewModel. */
+    val pendingJoin: StateFlow<ShareLink?> = pendingShareJoin.pending
+
+    fun offerJoin(link: ShareLink) = pendingShareJoin.offer(link)
+
+    fun dismissJoin() = pendingShareJoin.clear()
+
+    /**
+     * The rider's profile identity, resolved at most once per ViewModel: it
+     * costs a rider-id file read plus a network round trip, and opening the
+     * identity dialog asks for it twice over (once to decide whether the
+     * Profile option is even selectable, once to build the default identity).
+     * [profileResolved] is what separates "no profile linked" from "not looked
+     * yet", since both leave [profileIdentity] null.
+     *
+     * Deliberately not invalidated mid-session: linking a profile while the
+     * navigator is open is rare enough to leave to the next screen open.
+     */
+    private var profileResolved = false
+    private var profileIdentity: Identity? = null
+
+    private suspend fun resolveProfile(): Identity? {
+        if (!profileResolved) {
+            // identityFor falls back to a SESSION identity when nothing is
+            // linked, so the mode that comes back is the answer.
+            val resolved = withContext(Dispatchers.IO) {
+                shareSession.identityFor(IdentityMode.PROFILE, "", true)
+            }
+            profileIdentity = resolved.takeIf { it.mode == IdentityMode.PROFILE }
+            profileResolved = true
+        }
+        return profileIdentity
+    }
+
+    /** True when a linked profile exists, so the dialog can offer that option. */
+    suspend fun hasProfile(): Boolean = resolveProfile() != null
+
+    /** The linked profile itself, for the share dialog's preview row (avatar,
+     *  display name, flag), or null when nothing is linked. Same cache as
+     *  [hasProfile], so showing the preview costs no extra round trip. */
+    suspend fun profileIdentity(): Identity? = resolveProfile()
+
+    /**
+     * Mirrors [ShareSession.resolveDefaultIdentity] but routes the PROFILE case
+     * through [resolveProfile], so re-opening the dialog does not re-fetch a
+     * profile this screen already has.
+     */
+    suspend fun defaultIdentity(): Identity {
+        val s = withContext(Dispatchers.IO) { settingsRepository.get() }
+        val mode = runCatching { IdentityMode.valueOf(s.share.lastIdentityMode) }
+            .getOrDefault(IdentityMode.ANON)
+        return identityFor(mode, s.share.lastSessionName, s.share.shareStatsDefault)
+    }
+
+    suspend fun identityFor(mode: IdentityMode, name: String, stats: Boolean): Identity {
+        if (mode == IdentityMode.PROFILE) {
+            resolveProfile()?.let { return it.copy(shareStats = stats) }
+            // Nothing linked: the same fallback ShareSession would have made,
+            // without going back to disk for an answer we already have.
+            return identityFor(IdentityMode.SESSION, name, stats)
+        }
+        return withContext(Dispatchers.IO) { shareSession.identityFor(mode, name, stats) }
+    }
+
+    /**
+     * Opening or joining a group reaches the settings store, the crypto and
+     * the relay URL, and none of that is worth taking the navigator down for:
+     * a relay URL the request builder rejects, for instance, throws where the
+     * rider only asked to share. Failures land on the same snackbar the group
+     * view uses when the service is out of reach.
+     */
+    fun startShare(identity: Identity) = viewModelScope.launch {
+        runCatching { shareSession.start(identity) }
+            .onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
+    }
+
+    fun joinShare(link: ShareLink, identity: Identity) = viewModelScope.launch {
+        runCatching {
+            shareSession.join(link, identity)
+            pendingShareJoin.clear()
+        }.onFailure { _messages.tryEmit(R.string.share_cannot_reach) }
+    }
+
+    fun leaveShare() = shareSession.leave()
+
+    /** Re-classifies every friend's freshness from the local clock. The group
+     *  view ticks this once a second so "12 s ago" and the greying-out keep
+     *  moving even when no new position has arrived. */
+    fun ageTick() = shareSession.ageTick()
 
     override fun onCleared() {
         super.onCleared()

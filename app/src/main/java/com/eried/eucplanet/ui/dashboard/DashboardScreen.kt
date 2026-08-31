@@ -1272,7 +1272,6 @@ fun DashboardScreen(
                 Box(
                     Modifier
                         .align(Alignment.BottomStart)
-                        .coachmarkTarget(coachmark, TutorialTarget.MAP_BUTTON)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // Weather / ridability entry, stacked over the map button
@@ -1363,6 +1362,9 @@ fun DashboardScreen(
                         contentDescription = stringResource(R.string.nav_open),
                         tint = MaterialTheme.appColors.dashIcon,
                         modifier = Modifier
+                            // The tutorial spotlights this icon alone, not the
+                            // column it shares with the weather entry above.
+                            .coachmarkTarget(coachmark, TutorialTarget.MAP_BUTTON)
                             .padding(start = 4.dp, bottom = 10.dp)
                             .size(32.dp)
                             .combinedClickable(

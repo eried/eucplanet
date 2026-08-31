@@ -809,12 +809,16 @@ class SyncManager @Inject constructor(
             // never swap in a (possibly stale or blank) token. fromJson now
             // reads these from the JSON like any other field, so re-apply the
             // current values here.
-            val restored = SettingsJson.fromJson(json, current).copy(
+            val parsed = SettingsJson.fromJson(json, current)
+            val restored = parsed.copy(
                 dropboxAccessToken = current.dropboxAccessToken,
                 dropboxRefreshToken = current.dropboxRefreshToken,
                 dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
                 dropboxAccountLabel = current.dropboxAccountLabel,
                 dropboxLastSyncAt = current.dropboxLastSyncAt,
+                // The share secret is this phone's identity in a group: never
+                // taken from a backup, or two phones would ride as one rider.
+                share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
             )
             settingsRepository.update(restored)
             applyRestoredLanguage(restored.language)
@@ -868,12 +872,14 @@ class SyncManager @Inject constructor(
             val factoryJson = SettingsJson.toJson(SettingsJson.stripDeviceBindings(AppSettings()))
             // Factory reset keeps device bindings (pairings, sync folder) and
             // the live Dropbox link, same as the restore path above.
-            val reset = SettingsJson.fromJson(factoryJson, current).copy(
+            val parsedReset = SettingsJson.fromJson(factoryJson, current)
+            val reset = parsedReset.copy(
                 dropboxAccessToken = current.dropboxAccessToken,
                 dropboxRefreshToken = current.dropboxRefreshToken,
                 dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
                 dropboxAccountLabel = current.dropboxAccountLabel,
                 dropboxLastSyncAt = current.dropboxLastSyncAt,
+                share = parsedReset.share.copy(deviceSecret = current.share.deviceSecret),
             )
             settingsRepository.update(reset)
             alarmDao.deleteAll()
