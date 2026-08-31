@@ -1,0 +1,5 @@
+# GitHub Pages (Jekyll) config for eucplanet.ried.no.
+# Jekyll skips dot-directories by default; .well-known must be served for the
+# Android App Link verification of https://eucplanet.ried.no/share.
+include:
+  - ".well-known"

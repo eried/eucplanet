@@ -1,0 +1,5 @@
+[{"relation":["delegate_permission/common.handle_all_urls"],
+  "target":{"namespace":"android_app","package_name":"com.eried.eucplanet",
+            "sha256_cert_fingerprints":[
+              "C7:B3:D7:BF:F3:DC:3F:11:60:16:B5:D6:57:3D:D3:AE:5F:5F:A9:7D:55:7B:1B:0B:86:74:3C:A9:A8:B4:24:A2",
+              "A6:8B:8B:D4:1F:FB:C9:DC:45:D9:B4:38:69:8F:24:E7:90:67:69:AE:F0:8B:29:8E:0B:5F:46:F3:48:BA:86:AC"]}}]
