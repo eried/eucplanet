@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">Modo serviço</string>
     <string name="action_chip_open_trips">Viagens</string>
     <string name="action_chip_mute_alarms">Silenciar alarmes</string>
-    <string name="action_chip_reset_trip">Zerar trip</string>
     <string name="action_chip_toggle_units">Trocar unidades</string>
-    <string name="action_unsupported_on_wheel">Não suportado nesta roda</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Dispositivos</string>
@@ -966,10 +964,13 @@
     <string name="recording_chart_altitude">Altitude (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Luzes</string>
+    <string name="auto_lights_title">Controle do farol</string>
+    <string name="auto_lights_when">Seguir o sol quando</string>
+    <string name="auto_lights_off_slow">Apagar o farol ao desacelerar</string>
+    <string name="auto_lights_off_below">Apagar abaixo de</string>
     <string name="auto_lights_desc">Liga ou desliga os faróis com base no nascer e pôr do sol</string>
-    <string name="auto_lights_on_before_sunset">Luzes LIGADAS antes do pôr do sol</string>
-    <string name="auto_lights_off_after_sunrise">Luzes DESLIGADAS após o nascer do sol</string>
+    <string name="auto_lights_on_before_sunset">Acender antes</string>
+    <string name="auto_lights_off_after_sunrise">Apagar depois</string>
     <string name="auto_waiting_gps">Aguardando localização GPS…</string>
     <string name="auto_volume_title">Controle de volume</string>
     <string name="auto_volume_desc">Aumenta o volume da música conforme a velocidade</string>
@@ -2280,11 +2281,11 @@
     <string name="trip_tools_extend_to">Terminar em</string>
     <string name="trip_tools_extend_none">Este trajeto</string>
     <string name="trip_tools_extend_pick_one">Escolha um trajeto anterior ou posterior para estender.</string>
-    <string name="widget_act_1_desc">Botão 1</string>
-    <string name="widget_act_2_desc">Botão 2</string>
-    <string name="widget_act_3_desc">Botão 3</string>
-    <string name="widget_act_12_desc">Botões 1 e 2</string>
-    <string name="widget_act_23_desc">Botões 2 e 3</string>
+    <string name="widget_act_1_desc">Escolha a ação no app</string>
+    <string name="widget_act_2_desc">Escolha a ação no app</string>
+    <string name="widget_act_3_desc">Escolha a ação no app</string>
+    <string name="widget_act_12_desc">Escolha as ações no app</string>
+    <string name="widget_act_23_desc">Escolha as ações no app</string>
     <string name="widget_standalone_desc">Ações dos widgets só de botão, independentes da linha acima.</string>
     <string name="widget_standalone_slot">Botão avulso %1$d</string>
         <string name="widget_customize">Personalizar</string>
@@ -2401,4 +2402,41 @@
     <string name="trip_tools_wheel_none">Esta viagem ainda não tem roda registrada.</string>
     <string name="backup_conflict_warning">Alguns backups de viagens precisam de sincronização manual: as cópias diferem. Toque em Sincronizar e escolha qual vale.</string>
     <string name="backup_conflict_title">Conflitos de backup</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Rodar?</string>
+    <string name="widget_weather_score_desc">O tempo para rodar, agora.</string>
+    <string name="widget_weather_compact_desc">O quão bom está o tempo para rodar, agora e nas próximas horas. Aumente para horas, temperatura e vento.</string>
+    <string name="widget_weather_graph_desc">O quão bom está o tempo para rodar, no período previsto</string>
+    <string name="widget_weather_refresh_desc">Atualizar a previsão</string>
+    <string name="widget_weather_never">Ainda sem previsão. Abra o app uma vez ou toque em atualizar.</string>
+    <string name="widget_weather_never_short">Nunca</string>
+    <string name="widget_weather_refreshing">Atualizando…</string>
+    <string name="widget_weather_now">Agora mesmo</string>
+    <string name="widget_weather_min_fmt">há %1$d min</string>
+    <string name="widget_weather_hour_fmt">há %1$d h</string>
+    <string name="widget_weather_window_fmt">próximas %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Avisar aos 80 %</string>
+    <string name="charging_notify_full">Avisar aos 100 %</string>
+    <string name="charge_alert_channel_name">Avisos de carga</string>
+    <string name="charge_alert_channel_description">Quando a bateria passa de 80 % ou termina de carregar.</string>
+    <string name="charge_alert_80_title">Bateria em 80 %</string>
+    <string name="charge_alert_80_text">Tire da tomada agora, poupa a bateria.</string>
+    <string name="charge_alert_full_title">Carga concluída</string>
+    <string name="charge_alert_full_text">Pronto para rodar.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Painel da roda</string>
+    <string name="widget_act_1_label">Botão da roda 1</string>
+    <string name="widget_act_2_label">Botão da roda 2</string>
+    <string name="widget_act_3_label">Botão da roda 3</string>
+    <string name="widget_act_12_label">Botões da roda 1 e 2</string>
+    <string name="widget_act_23_label">Botões da roda 2 e 3</string>
+    <string name="widget_weather_score_label">Dá pra rodar?</string>
+    <string name="widget_weather_compact_label">Tempo para rodar</string>
+    <string name="widget_act_1_short">Ação 1</string>
+    <string name="widget_act_2_short">Ação 2</string>
+    <string name="widget_act_3_short">Ação 3</string>
+    <string name="action_chip_reset_metrics">Zerar métricas</string>
+    <string name="action_reset_metrics_done">Métricas zeradas</string>
+    <string name="action_reset_metrics_wheel_done">Métricas zeradas, trajeto da roda limpo</string>
 </resources>

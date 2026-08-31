@@ -90,24 +90,17 @@ fun AutomationsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // --- Lights Section ---
-        BringIntoViewSection(expanded = settings.autoLightsEnabled) {
+        BringIntoViewSection(expanded = settings.lights.applyWhen != ApplyWhenIds.NEVER) {
         Text(stringResource(R.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(stringResource(R.string.auto_lights_desc),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f))
-            Switch(checked = settings.autoLightsEnabled,
-                onCheckedChange = { viewModel.updateAutoLightsEnabled(it) },
-                colors = themedSwitchColors(),)
-        }
+        ApplyWhenSelector(
+            label = stringResource(R.string.auto_lights_when),
+            current = settings.lights.applyWhen,
+            onPick = { viewModel.updateAutoLightsApplyWhen(it) },
+        )
 
-        if (settings.autoLightsEnabled) {
+        if (settings.lights.applyWhen != ApplyWhenIds.NEVER) {
             if (autoLightsSuspended) {
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.appColors.statusWarn.copy(alpha = 0.15f))) {
                     Row(
@@ -134,7 +127,7 @@ fun AutomationsContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 NumberUpDown(
-                    value = settings.autoLightsOnMinutesBefore,
+                    value = settings.lights.onMinutesBefore,
                     onValueChange = { viewModel.updateAutoLightsOnMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -143,7 +136,7 @@ fun AutomationsContent(
                     modifier = Modifier.weight(1f),
                 )
                 NumberUpDown(
-                    value = settings.autoLightsOffMinutesAfter,
+                    value = settings.lights.offMinutesAfter,
                     onValueChange = { viewModel.updateAutoLightsOffMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -163,8 +156,8 @@ fun AutomationsContent(
                     is SunCalculator.SunResult.Normal -> SunScheduleGraph(
                         sunriseMillis = sunResult.sunriseMillis,
                         sunsetMillis = sunResult.sunsetMillis,
-                        lightsOnMinutesBefore = settings.autoLightsOnMinutesBefore,
-                        lightsOffMinutesAfter = settings.autoLightsOffMinutesAfter,
+                        lightsOnMinutesBefore = settings.lights.onMinutesBefore,
+                        lightsOffMinutesAfter = settings.lights.offMinutesAfter,
                         latitude = loc.latitude,
                         longitude = loc.longitude
                     )
@@ -185,6 +178,39 @@ fun AutomationsContent(
                 }
             } else {
                 HintText(stringResource(R.string.auto_waiting_gps), small = true)
+            }
+
+            // Independent of the schedule above: it decides whether a light is
+            // wanted, this decides whether the rider is still riding.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.auto_lights_off_slow),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f))
+                Switch(checked = settings.lights.offWhenSlow,
+                    onCheckedChange = { viewModel.updateAutoLightsOffWhenSlow(it) },
+                    colors = themedSwitchColors(),)
+            }
+            if (settings.lights.offWhenSlow) {
+                // Stored metric, shown in the rider's unit by the shared
+                // control, so "4 km/h" reads as walking pace either way.
+                // Half width, like the pair of minute fields above it: a
+                // lone numeric box spanning the page reads as a different
+                // kind of control than the ones it sits with.
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    SpeedNumberSetting(
+                        label = stringResource(R.string.auto_lights_off_below),
+                        valueKmh = settings.lights.offBelowKmh,
+                        rangeKmh = 1f..15f,
+                        speedUnit = Units.effectiveSpeedUnit(settings),
+                        modifier = Modifier.weight(1f),
+                        onValueChangeKmh = { viewModel.updateAutoLightsOffBelowKmh(it) },
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
             }
         }
         }   // end Lights BringIntoViewSection
@@ -314,6 +340,24 @@ fun AutomationsContent(
 
         Spacer(Modifier.height(8.dp))
 
+        // --- Media speed control Section: PARKED ---
+        //
+        // Commented out rather than deleted, and the code behind it left
+        // intact, because it is worth another attempt one day.
+        //
+        // It never worked reliably. Setting another app's playback rate needs
+        // MediaController.TransportControls.setPlaybackSpeed, which needs
+        // notification access, and even with that granted most players ignore
+        // it: YouTube Music's session never implemented onSetPlaybackSpeed
+        // (ExoPlayer #8229) and its own speed dial is UI-side only. So the
+        // rider granted an alarming permission and got nothing for it.
+        //
+        // To bring it back: uncomment this section, the MediaAccessService
+        // entry in AndroidManifest.xml, the warning in AppHealthRepository,
+        // and the call in AutomationManager.evaluate. The settings, the curve,
+        // the policy and their tests were all left in place, so anything a
+        // rider had configured is still there.
+        /*
         // --- Media speed control Section ---
         // One switch and, once it is on, the same spline editor auto-volume
         // uses: the curve is the identical "speed:value" shape, so a rider who
@@ -376,6 +420,10 @@ fun AutomationsContent(
                 minMultiplier = PlaybackRatePolicy.MIN_RATE,
                 maxMultiplier = PlaybackRatePolicy.MAX_RATE,
                 tickStep = 0.5f,
+                // A rate curve may fall as well as rise, and it lands on the
+                // same grid the policy sends.
+                monotonic = false,
+                valueStep = PlaybackRatePolicy.STEP,
             )
             // Not every player accepts a rate from outside itself, and there
             // is nothing the app can do about the ones that do not.
@@ -384,6 +432,7 @@ fun AutomationsContent(
             )
         }
         }   // end Media speed control BringIntoViewSection
+        */
 
         Spacer(Modifier.height(8.dp))
 
@@ -689,6 +738,15 @@ private fun SplineCurveEditor(
     // Half steps once the range is small enough that whole ones would leave
     // two labels on the axis.
     tickStep: Float = 1f,
+    // Auto-volume's curve may only rise with speed, so each point is pinned
+    // between its neighbours. A playback rate has no such shape: faster at a
+    // crawl and slower at speed is a legitimate thing to want, and so is a
+    // dip in the middle.
+    monotonic: Boolean = true,
+    // Round dragged values onto this grid, so the number the rider sets is
+    // the number that gets sent. The rate is applied on a 0.05 grid; without
+    // this the editor would show 1.23 and the player would get 1.25.
+    valueStep: Float = 0f,
 ) {
     val maxSpeed = 75f
     val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
@@ -756,10 +814,16 @@ private fun SplineCurveEditor(
                             if (dragIndex > 0 && dragIndex < pointsRef.value.size) {
                                 var newM = (minMultiplier + (h - change.position.y) / h * multiplierRange)
                                     .coerceIn(minMultiplier, maxMultiplier)
-                                // Monotonic ascending: never below previous, never above next.
-                                val prevM = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: minMultiplier
-                                val nextM = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxMultiplier
-                                newM = newM.coerceIn(prevM, nextM)
+                                if (monotonic) {
+                                    // Ascending: never below previous, never above next.
+                                    val prevM = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: minMultiplier
+                                    val nextM = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxMultiplier
+                                    newM = newM.coerceIn(prevM, nextM)
+                                }
+                                if (valueStep > 0f) {
+                                    newM = (Math.round(newM / valueStep) * valueStep)
+                                        .coerceIn(minMultiplier, maxMultiplier)
+                                }
                                 val (oldS, _) = pointsRef.value[dragIndex]
                                 val mutable = pointsRef.value.toMutableList()
                                 mutable[dragIndex] = oldS to newM

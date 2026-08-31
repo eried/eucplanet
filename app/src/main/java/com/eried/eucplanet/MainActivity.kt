@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
     @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
+    @Inject lateinit var metricsReset: com.eried.eucplanet.data.repository.MetricsReset
     @Inject lateinit var incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository
     @Inject lateinit var dropboxRepository:
@@ -379,12 +380,40 @@ class MainActivity : AppCompatActivity() {
         // the intent to an already-running instance instead (singleTop
         // semantics, which we get when the rider just shared again).
         consumeShareIntent(intent)
+        consumeWeatherIntent(intent)
+        consumeChargingIntent(intent)
+    }
+
+    /** A charge alert was tapped: go where the number came from. */
+    private fun consumeChargingIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(
+                com.eried.eucplanet.service.WheelService.EXTRA_OPEN_CHARGING, false,
+            ) == true
+        ) {
+            com.eried.eucplanet.ui.charging.ChargingMonitorLaunch.request()
+            intent.removeExtra(com.eried.eucplanet.service.WheelService.EXTRA_OPEN_CHARGING)
+        }
+    }
+
+    /** A weather widget was tapped: ask the dashboard to unfold the panel. */
+    private fun consumeWeatherIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(
+                com.eried.eucplanet.widget.WeatherWidgetBase.EXTRA_OPEN_WEATHER, false,
+            ) == true
+        ) {
+            com.eried.eucplanet.ui.dashboard.WeatherPanelLaunch.request()
+            // Cleared so a rotation, which redelivers the same intent, does
+            // not re-open a panel the rider has since closed.
+            intent.removeExtra(com.eried.eucplanet.widget.WeatherWidgetBase.EXTRA_OPEN_WEATHER)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         consumeShareIntent(intent)
+        consumeWeatherIntent(intent)
+        consumeChargingIntent(intent)
         // requestMissingPermissions() is intentionally NOT called here.
         // On a clean install, asking before setContent runs means the runtime
         // permission dialogs come up over a black activity, the rider thinks
@@ -564,6 +593,19 @@ class MainActivity : AppCompatActivity() {
                     // to the route builder. The Builder's own LaunchedEffect
                     // then consumes the request and either drops the pin or
                     // surfaces a snackbar.
+                    // A charge alert was tapped before the graph existed;
+                    // now it does, so honour it.
+                    val pendingCharge by com.eried.eucplanet.ui.charging
+                        .ChargingMonitorLaunch.pending.collectAsState()
+                    androidx.compose.runtime.LaunchedEffect(pendingCharge) {
+                        if (com.eried.eucplanet.ui.charging.ChargingMonitorLaunch.consume()) {
+                            runCatching {
+                                navController.navigate(
+                                    com.eried.eucplanet.ui.navigation.Screen.ChargingMonitor.createRoute()
+                                ) { launchSingleTop = true }
+                            }
+                        }
+                    }
                     val pendingShare by incomingShareRepository.pending
                         .collectAsState()
                     androidx.compose.runtime.LaunchedEffect(pendingShare) {
@@ -737,12 +779,11 @@ class MainActivity : AppCompatActivity() {
                                                     settingsRepository.update(c.copy(alarmsMuted = !c.alarmsMuted))
                                                 }
                                             }
-                                            override fun resetTrip() {
-                                                overlayScope.launch {
-                                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                                        wheelRepository.resetTripMeter()
-                                                    }
-                                                }
+                                            override fun resetMetrics() {
+                                                // Was sending only the wheel command and
+                                                // dropping the answer, so on a family without
+                                                // one this button did nothing and said nothing.
+                                                overlayScope.launch { metricsReset.resetAll() }
                                             }
                                         },
                                         fallback = { flicManager.dispatchActionByName(it) }

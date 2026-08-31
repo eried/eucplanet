@@ -19,7 +19,7 @@ interface ActionUi {
     fun openTrips()
     fun toggleUnits()
     fun toggleAlarmsMuted()
-    fun resetTrip()
+    fun resetMetrics()
 }
 
 /**
@@ -41,7 +41,7 @@ fun dispatchAction(key: String, ui: ActionUi, fallback: (String) -> Unit) {
         "OPEN_TRIPS" -> ui.openTrips()
         "TOGGLE_UNITS" -> ui.toggleUnits()
         "MUTE_ALARMS" -> ui.toggleAlarmsMuted()
-        "RESET_TRIP" -> ui.resetTrip()
+        "RESET_TRIP" -> ui.resetMetrics()
         else -> fallback(key)
     }
 }

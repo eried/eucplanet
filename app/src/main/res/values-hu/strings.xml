@@ -298,9 +298,7 @@
     <string name="action_chip_open_service">Szervizmód</string>
     <string name="action_chip_open_trips">Menetek</string>
     <string name="action_chip_mute_alarms">Riasztások némítása</string>
-    <string name="action_chip_reset_trip">Menet nullázása</string>
     <string name="action_chip_toggle_units">Mértékegység váltása</string>
-    <string name="action_unsupported_on_wheel">Ezen az egykerekűn nem támogatott</string>
     <string name="section_watch_device">Eszközök</string>
     <string name="watch_paired_none">Nincs párosított óra</string>
     <string name="watch_paired_none_desc">Telepítsd az EUC Planet kísérőalkalmazást egy Wear OS, Garmin vagy Amazfit órára, hogy itt megjelenjen a számlap</string>
@@ -1170,11 +1168,11 @@
     <string name="widget_action_voice">Hang</string>
     <string name="widget_standalone_desc">Műveletek a csak gombokat tartalmazó widgetekhez, a fenti sortól függetlenül.</string>
     <string name="widget_standalone_slot">%1$d. önálló gomb</string>
-    <string name="widget_act_1_desc">1. gomb</string>
-    <string name="widget_act_2_desc">2. gomb</string>
-    <string name="widget_act_3_desc">3. gomb</string>
-    <string name="widget_act_12_desc">1. és 2. gomb</string>
-    <string name="widget_act_23_desc">2. és 3. gomb</string>
+    <string name="widget_act_1_desc">A műveletet az appban állítsd be</string>
+    <string name="widget_act_2_desc">A műveletet az appban állítsd be</string>
+    <string name="widget_act_3_desc">A műveletet az appban állítsd be</string>
+    <string name="widget_act_12_desc">A műveleteket az appban állítsd be</string>
+    <string name="widget_act_23_desc">A műveleteket az appban állítsd be</string>
     <string name="widget_button_unset">Állíts be egy gombot a Beállításokban</string>
     <string name="widget_speed">Sebesség</string>
     <string name="widget_distance">Menet</string>
@@ -1225,10 +1223,13 @@
     <string name="trip_trim_title">Menetnézet vágása</string>
     <string name="trip_customize_tiles">Csempék</string>
     <string name="trip_customize_graphs">Grafikonok</string>
-    <string name="auto_lights_title">Világítás</string>
+    <string name="auto_lights_title">Fényszóró-vezérlés</string>
+    <string name="auto_lights_when">Napkeltéhez igazítás amikor</string>
+    <string name="auto_lights_off_slow">Fény lekapcsolása lassításkor</string>
+    <string name="auto_lights_off_below">Ki ez alatt</string>
     <string name="auto_lights_desc">Be- vagy kikapcsolja a fényszórót napnyugta és napkelte alapján</string>
-    <string name="auto_lights_on_before_sunset">Világítás BE napnyugta előtt</string>
-    <string name="auto_lights_off_after_sunrise">Világítás KI napkelte után</string>
+    <string name="auto_lights_on_before_sunset">Fény BE előtte</string>
+    <string name="auto_lights_off_after_sunrise">Fény KI utána</string>
     <string name="auto_waiting_gps">Várakozás GPS-helyre…</string>
     <string name="auto_volume_title">Hangerő-szabályzás</string>
     <string name="auto_volume_desc">A zene hangerejét a sebesség alapján növeli</string>
@@ -2202,4 +2203,41 @@
     <string name="trip_tools_wheel_none">Ehhez az úthoz még nincs kerék rögzítve.</string>
     <string name="backup_conflict_warning">Néhány út mentése kézi szinkronizálást igényel: a másolatok eltérnek. Nyomja meg a Szinkronizálást, és válassza ki a helyeset.</string>
     <string name="backup_conflict_title">Mentési ütközések</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Megyünk?</string>
+    <string name="widget_weather_score_desc">A menetidő, épp most.</string>
+    <string name="widget_weather_compact_desc">Mennyire jó az idő a menethez, most és a következő órákban. Húzd nagyobbra órákért, hőmérsékletért és szélért.</string>
+    <string name="widget_weather_graph_desc">Mennyire jó az idő a menethez az előrejelzett időszakban</string>
+    <string name="widget_weather_refresh_desc">Előrejelzés frissítése</string>
+    <string name="widget_weather_never">Még nincs előrejelzés. Nyisd meg az appot, vagy koppints a frissítésre.</string>
+    <string name="widget_weather_never_short">Soha</string>
+    <string name="widget_weather_refreshing">Frissítés…</string>
+    <string name="widget_weather_now">Épp most</string>
+    <string name="widget_weather_min_fmt">%1$d perce</string>
+    <string name="widget_weather_hour_fmt">%1$d órája</string>
+    <string name="widget_weather_window_fmt">következő %1$d óra</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Szólj 80 %-nál</string>
+    <string name="charging_notify_full">Szólj 100 %-nál</string>
+    <string name="charge_alert_channel_name">Töltési értesítések</string>
+    <string name="charge_alert_channel_description">Amikor az akku túllépi a 80 %-ot, vagy befejezte a töltést.</string>
+    <string name="charge_alert_80_title">Akku 80 %-on</string>
+    <string name="charge_alert_80_text">Húzd ki most, az akku hálás lesz.</string>
+    <string name="charge_alert_full_title">Töltés kész</string>
+    <string name="charge_alert_full_text">Mehet a menet.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Kerék műszerfal</string>
+    <string name="widget_act_1_label">Kerék gomb 1</string>
+    <string name="widget_act_2_label">Kerék gomb 2</string>
+    <string name="widget_act_3_label">Kerék gomb 3</string>
+    <string name="widget_act_12_label">Kerék gombok 1 és 2</string>
+    <string name="widget_act_23_label">Kerék gombok 2 és 3</string>
+    <string name="widget_weather_score_label">Mehetünk?</string>
+    <string name="widget_weather_compact_label">Menetidő</string>
+    <string name="widget_act_1_short">Művelet 1</string>
+    <string name="widget_act_2_short">Művelet 2</string>
+    <string name="widget_act_3_short">Művelet 3</string>
+    <string name="action_chip_reset_metrics">Mérések nullázása</string>
+    <string name="action_reset_metrics_done">Mérések nullázva</string>
+    <string name="action_reset_metrics_wheel_done">Mérések nullázva, a kerék napi számlálója törölve</string>
 </resources>

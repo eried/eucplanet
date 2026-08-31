@@ -72,6 +72,7 @@ class DashboardViewModel @Inject constructor(
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val metricsReset: com.eried.eucplanet.data.repository.MetricsReset,
     private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
@@ -232,6 +233,32 @@ class DashboardViewModel @Inject constructor(
                 com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
                 fine = fineDetail(w.windowHours),
             )
+        }
+    }
+
+    init {
+        // Whatever the panel fetches, the home screen widgets get too. A
+        // background worker refreshes them on its own hourly cadence, but it
+        // can only ask about a place it already knows, so the app opening the
+        // panel is what teaches it where the rider is. Does nothing when no
+        // widget is placed.
+        //
+        // Below weatherPlace, and it has to stay there: init blocks run in
+        // declaration order, so collecting a field declared further down means
+        // collecting null, which took the whole dashboard down on launch.
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                weatherRepository.forecast,
+                settingsRepository.settings,
+                weatherPlace,
+            ) { forecast, settings, place -> Triple(forecast, settings, place) }
+                .collect { (forecast, settings, place) ->
+                    if (forecast != null) {
+                        com.eried.eucplanet.widget.WeatherWidgetPublisher.publish(
+                            context, forecast, settings, place,
+                        )
+                    }
+                }
         }
     }
 
@@ -849,8 +876,10 @@ class DashboardViewModel @Inject constructor(
      * family until a documented reset command is added. Callers should
      * snackbar the result so riders know whether the tap took effect.
      */
-    suspend fun resetWheelTrip(): Boolean =
-        kotlinx.coroutines.withContext(Dispatchers.IO) { wheelRepository.resetTripMeter() }
+    /** Clears the trip meter and the metric history, and the wheel's own trip
+     *  odometer where the family supports it. See [MetricsReset]. */
+    suspend fun resetMetrics(): com.eried.eucplanet.data.repository.MetricsReset.Result =
+        metricsReset.resetAll()
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 

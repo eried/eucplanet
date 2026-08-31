@@ -395,10 +395,13 @@
     <string name="recording_chart_altitude">Høyde (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Lys</string>
+    <string name="auto_lights_title">Lyktestyring</string>
+    <string name="auto_lights_when">Følg sola når</string>
+    <string name="auto_lights_off_slow">Slå av lykta når du senker farten</string>
+    <string name="auto_lights_off_below">Av under</string>
     <string name="auto_lights_desc">Slå lys av eller på basert på soloppgang og solnedgang</string>
-    <string name="auto_lights_on_before_sunset">Lys PÅ før solnedgang</string>
-    <string name="auto_lights_off_after_sunrise">Lys AV etter soloppgang</string>
+    <string name="auto_lights_on_before_sunset">Lys PÅ før</string>
+    <string name="auto_lights_off_after_sunrise">Lys AV etter</string>
     <string name="auto_waiting_gps">Venter på GPS-posisjon\u2026</string>
     <string name="auto_volume_title">Volumkontroll</string>
     <string name="auto_volume_desc">Adaptivt systemvolum basert på fart</string>
@@ -1256,13 +1259,11 @@
     <string name="action_chip_record">Opptaker</string>
     <string name="action_chip_record_start">Start opptak</string>
     <string name="action_chip_record_stop">Stopp opptak</string>
-    <string name="action_chip_reset_trip">Nullstill tur</string>
     <string name="action_chip_safety">Legal-modus</string>
     <string name="action_chip_safety_off">Legal AV</string>
     <string name="action_chip_safety_on">Legal PÅ</string>
     <string name="action_chip_toggle_units">Bytt enheter</string>
     <string name="action_chip_voice">Tale</string>
-    <string name="action_unsupported_on_wheel">Støttes ikke på dette hjulet</string>
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Lukk</string>
     <string name="dashboard_columns">Kolonner</string>
@@ -2166,11 +2167,11 @@
     <string name="trip_tools_extend_to">Slutt ved</string>
     <string name="trip_tools_extend_none">Denne turen</string>
     <string name="trip_tools_extend_pick_one">Velg en tidligere eller senere tur a forlenge inn i.</string>
-    <string name="widget_act_1_desc">Knapp 1</string>
-    <string name="widget_act_2_desc">Knapp 2</string>
-    <string name="widget_act_3_desc">Knapp 3</string>
-    <string name="widget_act_12_desc">Knapper 1 og 2</string>
-    <string name="widget_act_23_desc">Knapper 2 og 3</string>
+    <string name="widget_act_1_desc">Velg handlingen i appen</string>
+    <string name="widget_act_2_desc">Velg handlingen i appen</string>
+    <string name="widget_act_3_desc">Velg handlingen i appen</string>
+    <string name="widget_act_12_desc">Velg handlingene i appen</string>
+    <string name="widget_act_23_desc">Velg handlingene i appen</string>
     <string name="widget_standalone_desc">Handlinger for knappewidgetene, uavhengig av raden over.</string>
     <string name="widget_standalone_slot">Enkeltknapp %1$d</string>
         <string name="widget_customize">Tilpass</string>
@@ -2287,4 +2288,41 @@
     <string name="trip_tools_wheel_none">Ingen hjul er registrert for denne turen ennå.</string>
     <string name="backup_conflict_warning">Noen tursikkerhetskopier trenger manuell synkronisering: kopiene er ulike. Trykk Synkroniser og velg hvilken side som gjelder.</string>
     <string name="backup_conflict_title">Sikkerhetskopikonflikter</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Kjøre?</string>
+    <string name="widget_weather_score_desc">Kjøreværet, akkurat nå.</string>
+    <string name="widget_weather_compact_desc">Hvor bra været er å kjøre i, nå og i timene framover. Gjør større for timer, temperatur og vind.</string>
+    <string name="widget_weather_graph_desc">Hvor bra været er å kjøre i, over varselperioden</string>
+    <string name="widget_weather_refresh_desc">Oppdater varselet</string>
+    <string name="widget_weather_never">Ingen varsel ennå. Åpne appen én gang, eller trykk oppdater.</string>
+    <string name="widget_weather_never_short">Aldri</string>
+    <string name="widget_weather_refreshing">Oppdaterer…</string>
+    <string name="widget_weather_now">Akkurat nå</string>
+    <string name="widget_weather_min_fmt">for %1$d min siden</string>
+    <string name="widget_weather_hour_fmt">for %1$d t siden</string>
+    <string name="widget_weather_window_fmt">neste %1$d t</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Varsle ved 80 %</string>
+    <string name="charging_notify_full">Varsle ved 100 %</string>
+    <string name="charge_alert_channel_name">Ladevarsler</string>
+    <string name="charge_alert_channel_description">Når batteriet passerer 80 % eller er ferdig ladet.</string>
+    <string name="charge_alert_80_title">Batteri på 80 %</string>
+    <string name="charge_alert_80_text">Koble fra nå, det sparer batteriet.</string>
+    <string name="charge_alert_full_title">Ladingen er ferdig</string>
+    <string name="charge_alert_full_text">Klar til å kjøre.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Hjul-dashbord</string>
+    <string name="widget_act_1_label">Hjulknapp 1</string>
+    <string name="widget_act_2_label">Hjulknapp 2</string>
+    <string name="widget_act_3_label">Hjulknapp 3</string>
+    <string name="widget_act_12_label">Hjulknapper 1 og 2</string>
+    <string name="widget_act_23_label">Hjulknapper 2 og 3</string>
+    <string name="widget_weather_score_label">Kjøredag?</string>
+    <string name="widget_weather_compact_label">Kjørevær</string>
+    <string name="widget_act_1_short">Handling 1</string>
+    <string name="widget_act_2_short">Handling 2</string>
+    <string name="widget_act_3_short">Handling 3</string>
+    <string name="action_chip_reset_metrics">Nullstill målinger</string>
+    <string name="action_reset_metrics_done">Målingene er nullstilt</string>
+    <string name="action_reset_metrics_wheel_done">Målingene er nullstilt, hjulets tripteller er tømt</string>
 </resources>

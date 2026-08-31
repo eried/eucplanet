@@ -335,9 +335,7 @@
     <string name="action_chip_open_service">서비스 모드</string>
     <string name="action_chip_open_trips">트립</string>
     <string name="action_chip_mute_alarms">알람 음소거</string>
-    <string name="action_chip_reset_trip">트립 초기화</string>
     <string name="action_chip_toggle_units">단위 전환</string>
-    <string name="action_unsupported_on_wheel">이 휠에서 지원하지 않습니다</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">기기</string>
@@ -963,10 +961,13 @@
     <string name="recording_chart_altitude">고도 (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">라이트</string>
+    <string name="auto_lights_title">전조등 제어</string>
+    <string name="auto_lights_when">해와 함께 조절할 때</string>
+    <string name="auto_lights_off_slow">감속하면 전조등 끄기</string>
+    <string name="auto_lights_off_below">이 속도 미만에서 끄기</string>
     <string name="auto_lights_desc">일몰과 일출에 따라 헤드라이트를 자동으로 켜고 끕니다</string>
-    <string name="auto_lights_on_before_sunset">일몰 전 라이트 켜기</string>
-    <string name="auto_lights_off_after_sunrise">일출 후 라이트 끄기</string>
+    <string name="auto_lights_on_before_sunset">켜기 (전)</string>
+    <string name="auto_lights_off_after_sunrise">끄기 (후)</string>
     <string name="auto_waiting_gps">GPS 위치 대기 중…</string>
     <string name="auto_volume_title">볼륨 제어</string>
     <string name="auto_volume_desc">속도에 따라 음악 볼륨을 높입니다</string>
@@ -2277,11 +2278,11 @@
     <string name="trip_tools_extend_to">끝</string>
     <string name="trip_tools_extend_none">이 주행</string>
     <string name="trip_tools_extend_pick_one">확장할 이전 또는 이후 주행을 고르세요.</string>
-    <string name="widget_act_1_desc">버튼 1</string>
-    <string name="widget_act_2_desc">버튼 2</string>
-    <string name="widget_act_3_desc">버튼 3</string>
-    <string name="widget_act_12_desc">버튼 1 및 2</string>
-    <string name="widget_act_23_desc">버튼 2 및 3</string>
+    <string name="widget_act_1_desc">동작은 앱에서 설정</string>
+    <string name="widget_act_2_desc">동작은 앱에서 설정</string>
+    <string name="widget_act_3_desc">동작은 앱에서 설정</string>
+    <string name="widget_act_12_desc">동작은 앱에서 설정</string>
+    <string name="widget_act_23_desc">동작은 앱에서 설정</string>
     <string name="widget_standalone_desc">버튼 전용 위젯의 작업입니다. 위쪽 행과 별개입니다.</string>
     <string name="widget_standalone_slot">단독 버튼 %1$d</string>
         <string name="widget_customize">사용자 지정</string>
@@ -2398,4 +2399,41 @@
     <string name="trip_tools_wheel_none">이 주행에는 아직 휠이 기록되지 않았습니다.</string>
     <string name="backup_conflict_warning">일부 트립 백업에 수동 동기화가 필요합니다. 사본이 서로 다릅니다. 동기화를 누르고 남길 쪽을 선택하세요.</string>
     <string name="backup_conflict_title">백업 충돌</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">탈까?</string>
+    <string name="widget_weather_score_desc">지금의 주행 날씨.</string>
+    <string name="widget_weather_compact_desc">지금과 앞으로 몇 시간 동안 날씨가 주행에 얼마나 좋은지. 크게 늘리면 시간, 기온, 바람도 표시.</string>
+    <string name="widget_weather_graph_desc">예보 기간의 날씨가 주행에 얼마나 좋은지</string>
+    <string name="widget_weather_refresh_desc">예보 새로 고침</string>
+    <string name="widget_weather_never">아직 예보가 없습니다. 앱을 한 번 열거나 새로 고침을 누르세요.</string>
+    <string name="widget_weather_never_short">없음</string>
+    <string name="widget_weather_refreshing">새로 고치는 중…</string>
+    <string name="widget_weather_now">방금</string>
+    <string name="widget_weather_min_fmt">%1$d분 전</string>
+    <string name="widget_weather_hour_fmt">%1$d시간 전</string>
+    <string name="widget_weather_window_fmt">다음 %1$d시간</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">80 %에서 알림</string>
+    <string name="charging_notify_full">100 %에서 알림</string>
+    <string name="charge_alert_channel_name">충전 알림</string>
+    <string name="charge_alert_channel_description">배터리가 80 %를 넘거나 충전이 끝났을 때.</string>
+    <string name="charge_alert_80_title">배터리 80 %</string>
+    <string name="charge_alert_80_text">지금 뽑으면 배터리 수명에 좋습니다.</string>
+    <string name="charge_alert_full_title">충전 완료</string>
+    <string name="charge_alert_full_text">탈 준비 완료.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">휠 대시보드</string>
+    <string name="widget_act_1_label">휠 버튼 1</string>
+    <string name="widget_act_2_label">휠 버튼 2</string>
+    <string name="widget_act_3_label">휠 버튼 3</string>
+    <string name="widget_act_12_label">휠 버튼 1과 2</string>
+    <string name="widget_act_23_label">휠 버튼 2와 3</string>
+    <string name="widget_weather_score_label">탈 만한가?</string>
+    <string name="widget_weather_compact_label">주행 날씨</string>
+    <string name="widget_act_1_short">동작 1</string>
+    <string name="widget_act_2_short">동작 2</string>
+    <string name="widget_act_3_short">동작 3</string>
+    <string name="action_chip_reset_metrics">측정값 초기화</string>
+    <string name="action_reset_metrics_done">측정값을 초기화했습니다</string>
+    <string name="action_reset_metrics_wheel_done">측정값을 초기화하고 휠 주행거리도 지웠습니다</string>
 </resources>

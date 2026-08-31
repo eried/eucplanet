@@ -189,9 +189,7 @@ data class AppSettings(
     val flicShowOnDashboard: Boolean = true,
 
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
-    val autoLightsEnabled: Boolean = false,
-    val autoLightsOnMinutesBefore: Int = 30,   // minutes before sunset to turn lights ON
-    val autoLightsOffMinutesAfter: Int = 30,   // minutes after sunrise to turn lights OFF
+    val lights: LightsSettings = LightsSettings(),
 
     // Speed-based volume boost. Multiplier curve maps speed to 1×–2× of the user's baseline volume.
     // 1× = no boost (baseline), 2× = double the baseline (capped at 100% by the system).
@@ -898,6 +896,12 @@ data class AppSettings(
 
     /** Battery screen: estimate straight to 100 % instead of stopping at 80 %. */
     val chargingEstimateToFull: Boolean = false,
+    /** Tell the rider when the pack passes 80%, the mark riders unplug at for
+     *  pack life, and when it finishes. Both off: a notification nobody asked
+     *  for is worse than no feature. Local to the charging monitor rather than
+     *  Advanced settings, like [chargingEstimateToFull] beside them. */
+    val chargingNotify80: Boolean = false,
+    val chargingNotifyFull: Boolean = false,
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
@@ -1085,6 +1089,31 @@ data class AccelSplitSettings(
  * this feature itself paused, so speeding up never blasts music the rider had
  * deliberately stopped.
  */
+/**
+ * Headlight control: when the automation may act, the sun schedule it follows,
+ * and the walking-pace cut-off.
+ *
+ * Nested rather than flat because it is five fields: AppSettings sits near the
+ * JVM/dex 255-argument limit, and a group like this belongs in one slot.
+ */
+data class LightsSettings(
+    /** NEVER is off; the other two are on, with the condition they name. */
+    val applyWhen: String = ApplyWhenIds.NEVER,
+    /** Minutes before sunset to turn the light on. */
+    val onMinutesBefore: Int = 30,
+    /** Minutes after sunrise to turn it off. */
+    val offMinutesAfter: Int = 30,
+    /** Cut the light when the rider slows to a walk, and restore it when they
+     *  ride on. Independent of the sun schedule, which stays in charge of
+     *  whether a light is wanted at all. */
+    val offWhenSlow: Boolean = false,
+    /** Walking pace, stored metric like every other speed. Five is the figure
+     *  walking speed is normally quoted at; four was low enough that a rider
+     *  rolling gently up to a crossing stayed above it and kept the beam on,
+     *  which is the case the whole cutoff exists for. */
+    val offBelowKmh: Float = 5f,
+)
+
 /** Values for the "apply when" gate shared by the speed-driven automations. */
 object ApplyWhenIds {
     const val NEVER = "NEVER"

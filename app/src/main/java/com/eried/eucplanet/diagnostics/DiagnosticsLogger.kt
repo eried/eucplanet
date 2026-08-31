@@ -58,12 +58,47 @@ object DiagnosticsLogger {
      *  duplicating the phone / Wear / wheel info every time. */
     @Volatile private var sessionInfoCaptured = false
 
+    /**
+     * Traces that record whether or not anyone is watching, and get replayed
+     * into the buffer when service mode opens.
+     *
+     * Service mode being off is a no-op for [append], which is what keeps raw
+     * BLE from costing anything for the riders who never open it. The cost of
+     * that is a capture only ever starting when the rider went looking, so an
+     * incident they opened the screen to investigate has already lost its own
+     * run-up. A trace small enough to always keep can register here and hand
+     * that run-up over instead. See `HudLinkTrace`.
+     *
+     * Each provider is asked for the entries it has recorded since the last
+     * time it was asked, oldest first, so reopening service mode cannot write
+     * the same line twice.
+     */
+    private val backfills = mutableListOf<() -> List<Entry>>()
+
+    fun registerBackfill(provider: () -> List<Entry>) {
+        synchronized(backfills) { backfills += provider }
+    }
+
     fun enable() {
         if (lockedDown) return
         if (_enabled.value) return
         _enabled.value = true
         sessionInfoCaptured = false
+        replayBackfills()
         info("entered service mode")
+    }
+
+    /** Fold the always-on traces in before the session marker, so the capture
+     *  reads in the order things actually happened rather than starting at the
+     *  moment the rider went looking. */
+    private fun replayBackfills() {
+        val providers = synchronized(backfills) { backfills.toList() }
+        if (providers.isEmpty()) return
+        val replayed = providers
+            .flatMap { runCatching { it() }.getOrDefault(emptyList()) }
+            .sortedBy { it.timestampMs }
+        if (replayed.isEmpty()) return
+        _entries.value = (_entries.value + replayed).takeLast(MAX_ENTRIES)
     }
 
     fun disable() {

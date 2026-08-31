@@ -298,9 +298,7 @@
     <string name="action_chip_open_service">Servisní režim</string>
     <string name="action_chip_open_trips">Jízdy</string>
     <string name="action_chip_mute_alarms">Ztlumit alarmy</string>
-    <string name="action_chip_reset_trip">Vynulovat jízdu</string>
     <string name="action_chip_toggle_units">Přepnout jednotky</string>
-    <string name="action_unsupported_on_wheel">Toto monokolo nepodporuje</string>
     <string name="section_watch_device">Zařízení</string>
     <string name="watch_paired_none">Žádné spárované hodinky</string>
     <string name="watch_paired_none_desc">Nainstaluj doplňkovou aplikaci EUC Planet na hodinky Wear OS, Garmin nebo Amazfit a ciferník se začne zobrazovat zde</string>
@@ -1170,11 +1168,11 @@
     <string name="widget_action_voice">Hlas</string>
     <string name="widget_standalone_desc">Akce pro widgety jen s tlačítky, nezávisle na řadě výše.</string>
     <string name="widget_standalone_slot">Samostatné tlačítko %1$d</string>
-    <string name="widget_act_1_desc">Tlačítko 1</string>
-    <string name="widget_act_2_desc">Tlačítko 2</string>
-    <string name="widget_act_3_desc">Tlačítko 3</string>
-    <string name="widget_act_12_desc">Tlačítka 1 a 2</string>
-    <string name="widget_act_23_desc">Tlačítka 2 a 3</string>
+    <string name="widget_act_1_desc">Akci nastav v aplikaci</string>
+    <string name="widget_act_2_desc">Akci nastav v aplikaci</string>
+    <string name="widget_act_3_desc">Akci nastav v aplikaci</string>
+    <string name="widget_act_12_desc">Akce nastav v aplikaci</string>
+    <string name="widget_act_23_desc">Akce nastav v aplikaci</string>
     <string name="widget_button_unset">Nastavte tlačítko v Nastavení</string>
     <string name="widget_speed">Rychlost</string>
     <string name="widget_distance">Jízda</string>
@@ -1225,10 +1223,13 @@
     <string name="trip_trim_title">Oříznout zobrazení jízdy</string>
     <string name="trip_customize_tiles">Dlaždice</string>
     <string name="trip_customize_graphs">Grafy</string>
-    <string name="auto_lights_title">Světla</string>
+    <string name="auto_lights_title">Ovládání světla</string>
+    <string name="auto_lights_when">Řídit se sluncem když</string>
+    <string name="auto_lights_off_slow">Zhasnout světlo při zpomalení</string>
+    <string name="auto_lights_off_below">Zhasnout pod</string>
     <string name="auto_lights_desc">Zapne nebo vypne světlomety podle západu a východu slunce</string>
-    <string name="auto_lights_on_before_sunset">Světla ZAP před západem slunce</string>
-    <string name="auto_lights_off_after_sunrise">Světla VYP po východu slunce</string>
+    <string name="auto_lights_on_before_sunset">Rozsvítit před</string>
+    <string name="auto_lights_off_after_sunrise">Zhasnout po</string>
     <string name="auto_waiting_gps">Čekám na polohu GPS…</string>
     <string name="auto_volume_title">Ovládání hlasitosti</string>
     <string name="auto_volume_desc">Zesílí hudbu podle rychlosti</string>
@@ -2202,4 +2203,41 @@
     <string name="trip_tools_wheel_none">K této jízdě zatím není zaznamenané žádné kolo.</string>
     <string name="backup_conflict_warning">Některé zálohy jízd vyžadují ruční synchronizaci: kopie se liší. Stiskněte Synchronizovat a vyberte platnou stranu.</string>
     <string name="backup_conflict_title">Konflikty záloh</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Jedeme?</string>
+    <string name="widget_weather_score_desc">Počasí na ježdění, právě teď.</string>
+    <string name="widget_weather_compact_desc">Jak dobré je počasí na ježdění, teď i v dalších hodinách. Zvětši pro hodiny, teplotu a vítr.</string>
+    <string name="widget_weather_graph_desc">Jak dobré je počasí na ježdění v předpovídaném období</string>
+    <string name="widget_weather_refresh_desc">Obnovit předpověď</string>
+    <string name="widget_weather_never">Zatím žádná předpověď. Otevři aplikaci nebo klepni na obnovit.</string>
+    <string name="widget_weather_never_short">Nikdy</string>
+    <string name="widget_weather_refreshing">Obnovování…</string>
+    <string name="widget_weather_now">Právě teď</string>
+    <string name="widget_weather_min_fmt">před %1$d min</string>
+    <string name="widget_weather_hour_fmt">před %1$d h</string>
+    <string name="widget_weather_window_fmt">dalších %1$d h</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">Upozornit na 80 %</string>
+    <string name="charging_notify_full">Upozornit na 100 %</string>
+    <string name="charge_alert_channel_name">Upozornění na nabíjení</string>
+    <string name="charge_alert_channel_description">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
+    <string name="charge_alert_80_title">Baterie na 80 %</string>
+    <string name="charge_alert_80_text">Odpoj teď, kvůli životnosti.</string>
+    <string name="charge_alert_full_title">Nabíjení dokončeno</string>
+    <string name="charge_alert_full_text">Připraveno na jízdu.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Přístrojovka kola</string>
+    <string name="widget_act_1_label">Tlačítko kola 1</string>
+    <string name="widget_act_2_label">Tlačítko kola 2</string>
+    <string name="widget_act_3_label">Tlačítko kola 3</string>
+    <string name="widget_act_12_label">Tlačítka kola 1 a 2</string>
+    <string name="widget_act_23_label">Tlačítka kola 2 a 3</string>
+    <string name="widget_weather_score_label">Dá se jet?</string>
+    <string name="widget_weather_compact_label">Počasí na ježdění</string>
+    <string name="widget_act_1_short">Akce 1</string>
+    <string name="widget_act_2_short">Akce 2</string>
+    <string name="widget_act_3_short">Akce 3</string>
+    <string name="action_chip_reset_metrics">Vynulovat metriky</string>
+    <string name="action_reset_metrics_done">Metriky vynulovány</string>
+    <string name="action_reset_metrics_wheel_done">Metriky vynulovány, denní počítadlo kola smazáno</string>
 </resources>

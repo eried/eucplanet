@@ -127,6 +127,13 @@ class AppHealthRepository @Inject constructor(
             }
         }
 
+        // Playback rate's notification-access warning, PARKED with the
+        // feature. The app no longer declares a NotificationListenerService,
+        // so it cannot appear in that system list at all and this warning
+        // would send a rider to a screen where nothing of ours is listed.
+        // Any warning a previous version left behind is cleared instead.
+        dismiss(PERM_MEDIA_ACCESS_ID)
+        /*
         // Playback rate needs notification access, and the same shape as PIP
         // and the overlay: granted outside the app, invisible from inside it,
         // and the feature simply does nothing. Latched on the request so
@@ -148,6 +155,8 @@ class AppHealthRepository @Inject constructor(
                 )
             }
         }
+
+        */
 
         // Android keeps its own per-app picture-in-picture switch, and turning
         // it off there is invisible from in here: the window simply never

@@ -433,10 +433,13 @@
     <string name="recording_chart_power">功率 (W)</string>
     <string name="recording_chart_altitude">海拔 (m)</string>
 
-    <string name="auto_lights_title">大灯</string>
+    <string name="auto_lights_title">大灯控制</string>
+    <string name="auto_lights_when">按日出日落调整的时机</string>
+    <string name="auto_lights_off_slow">减速时关闭大灯</string>
+    <string name="auto_lights_off_below">低于此速度关闭</string>
     <string name="auto_lights_desc">根据日出日落自动开关大灯。</string>
-    <string name="auto_lights_on_before_sunset">日落前开灯</string>
-    <string name="auto_lights_off_after_sunrise">日出后关灯</string>
+    <string name="auto_lights_on_before_sunset">提前开灯</string>
+    <string name="auto_lights_off_after_sunrise">延后关灯</string>
     <string name="auto_waiting_gps">等待 GPS 定位\u2026</string>
     <string name="auto_volume_title">音量控制</string>
     <string name="auto_volume_desc">根据速度自动调节系统音量。</string>
@@ -1239,13 +1242,11 @@
     <string name="action_chip_record">录制</string>
     <string name="action_chip_record_start">开始录制</string>
     <string name="action_chip_record_stop">停止录制</string>
-    <string name="action_chip_reset_trip">重置行程</string>
     <string name="action_chip_safety">合规模式</string>
     <string name="action_chip_safety_off">合规 关</string>
     <string name="action_chip_safety_on">合规 开</string>
     <string name="action_chip_toggle_units">切换单位</string>
     <string name="action_chip_voice">语音</string>
-    <string name="action_unsupported_on_wheel">此独轮车不支持</string>
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">关闭</string>
     <string name="dashboard_columns">列</string>
@@ -2145,11 +2146,11 @@
     <string name="trip_tools_extend_to">终点</string>
     <string name="trip_tools_extend_none">此行程</string>
     <string name="trip_tools_extend_pick_one">选择要延伸到的较早或较晚行程。</string>
-    <string name="widget_act_1_desc">按钮 1</string>
-    <string name="widget_act_2_desc">按钮 2</string>
-    <string name="widget_act_3_desc">按钮 3</string>
-    <string name="widget_act_12_desc">按钮 1 和 2</string>
-    <string name="widget_act_23_desc">按钮 2 和 3</string>
+    <string name="widget_act_1_desc">在应用中设置操作</string>
+    <string name="widget_act_2_desc">在应用中设置操作</string>
+    <string name="widget_act_3_desc">在应用中设置操作</string>
+    <string name="widget_act_12_desc">在应用中设置操作</string>
+    <string name="widget_act_23_desc">在应用中设置操作</string>
     <string name="widget_standalone_desc">仅按钮小部件的操作，与上面一行相互独立。</string>
     <string name="widget_standalone_slot">单独按钮 %1$d</string>
         <string name="widget_customize">自定义</string>
@@ -2266,4 +2267,41 @@
     <string name="trip_tools_wheel_none">此行程尚未记录独轮车。</string>
     <string name="backup_conflict_warning">部分行程备份需要手动同步：两侧副本不同。点击同步并选择以哪侧为准。</string>
     <string name="backup_conflict_title">备份冲突</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">骑吗？</string>
+    <string name="widget_weather_score_desc">当前的骑行天气。</string>
+    <string name="widget_weather_compact_desc">现在和接下来几小时的天气有多适合骑行。放大可显示小时、气温和风。</string>
+    <string name="widget_weather_graph_desc">预报时段内天气有多适合骑行</string>
+    <string name="widget_weather_refresh_desc">刷新预报</string>
+    <string name="widget_weather_never">还没有预报。打开一次应用，或点按刷新。</string>
+    <string name="widget_weather_never_short">从未</string>
+    <string name="widget_weather_refreshing">正在刷新…</string>
+    <string name="widget_weather_now">刚刚</string>
+    <string name="widget_weather_min_fmt">%1$d 分钟前</string>
+    <string name="widget_weather_hour_fmt">%1$d 小时前</string>
+    <string name="widget_weather_window_fmt">未来 %1$d 小时</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80">到 80 % 时通知我</string>
+    <string name="charging_notify_full">到 100 % 时通知我</string>
+    <string name="charge_alert_channel_name">充电提醒</string>
+    <string name="charge_alert_channel_description">电量超过 80 % 或充电完成时。</string>
+    <string name="charge_alert_80_title">电量 80 %</string>
+    <string name="charge_alert_80_text">现在拔掉，延长电池寿命。</string>
+    <string name="charge_alert_full_title">充电完成</string>
+    <string name="charge_alert_full_text">可以出发了。</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">独轮车面板</string>
+    <string name="widget_act_1_label">独轮车按钮 1</string>
+    <string name="widget_act_2_label">独轮车按钮 2</string>
+    <string name="widget_act_3_label">独轮车按钮 3</string>
+    <string name="widget_act_12_label">独轮车按钮 1 和 2</string>
+    <string name="widget_act_23_label">独轮车按钮 2 和 3</string>
+    <string name="widget_weather_score_label">能骑吗？</string>
+    <string name="widget_weather_compact_label">骑行天气</string>
+    <string name="widget_act_1_short">操作 1</string>
+    <string name="widget_act_2_short">操作 2</string>
+    <string name="widget_act_3_short">操作 3</string>
+    <string name="action_chip_reset_metrics">重置数据</string>
+    <string name="action_reset_metrics_done">数据已重置</string>
+    <string name="action_reset_metrics_wheel_done">数据已重置，独轮车里程已清零</string>
 </resources>
