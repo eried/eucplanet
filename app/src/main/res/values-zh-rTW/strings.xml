@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">設定備份</string>
     <string name="cloud_backup_now">備份</string>
     <string name="cloud_restore">還原</string>
-    <string name="cloud_settings_backup_desc">你在應用程式中設定的一切，會以 eucplanet_settings.json 存到備份資料夾。行程另外備份。</string>
+    <string name="cloud_settings_backup_desc">你在應用程式裡設定的一切，寫入備份資料夾中的 eucplanet_settings.json。長按按鈕可另存一份有名字的副本。行程另外備份。</string>
     <string name="cloud_last_backup">上次備份：%1$s</string>
 <string name="cloud_last_backup_named">上次備份：%1$s，名稱為「%2$s」</string>
     <string name="cloud_last_backup_never">尚未備份</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">設定已還原</string>
     <string name="cloud_restore_failed">資料夾中找不到備份</string>
     <string name="section_cloud_trips">行程備份</string>
-    <string name="cloud_trips_caption">行程留在這台手機上，並自動同步到你的備份資料夾。在這裡清除會刪掉手機上的副本，也可以順帶封存備份裡的副本。</string>
+    <string name="cloud_trips_caption">行程留在這支手機上，並自動同步到你的備份資料夾。清除只刪除應用程式內的行程，不會動備份資料夾裡的。</string>
     <string name="cloud_retry_now">全部同步</string>
     <string name="cloud_retry_enqueued">已排程上傳</string>
     <string name="sync_progress">正在同步第 %1$d / %2$d 筆</string>
@@ -2510,5 +2510,5 @@
     <string name="action_chip_reset_metrics">重置數據</string>
     <string name="action_reset_metrics_done">數據已重置</string>
     <string name="action_reset_metrics_wheel_done">數據已重置，獨輪車里程已清零</string>
-    <string name="tpms_scan_failed">無法開始搜尋。請檢查藍牙權限。</string>
+    <string name="tpms_not_decoded">已偵測到。此型號的讀數尚未解碼。</string>
 </resources>

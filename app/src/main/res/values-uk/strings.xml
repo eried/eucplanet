@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Резервна копія налаштувань</string>
     <string name="cloud_backup_now">Створити копію</string>
     <string name="cloud_restore">Відновити</string>
-    <string name="cloud_settings_backup_desc">Усе, що ви налаштували в застосунку, зберігається як eucplanet_settings.json у вашій папці резервних копій. Поїздки зберігаються окремо.</string>
+    <string name="cloud_settings_backup_desc">Усе, що ти налаштував у застосунку, записується в eucplanet_settings.json у твоїй папці резервних копій. Утримуй кнопку, щоб зберегти копію з назвою. Поїздки зберігаються окремо.</string>
     <string name="cloud_last_backup">Остання копія: %1$s</string>
 <string name="cloud_last_backup_named">Остання копія: %1$s як \"%2$s\"</string>
     <string name="cloud_last_backup_never">Копій ще немає</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
-    <string name="cloud_trips_caption">Поїздки лишаються на цьому телефоні й автоматично синхронізуються з текою резервних копій. Очищення видаляє копії на телефоні та може архівувати резервні копії.</string>
+    <string name="cloud_trips_caption">Поїздки лишаються на цьому телефоні й самі синхронізуються з папкою копій. Очищення видаляє поїздки всередині застосунку, а не в папці копій.</string>
     <string name="cloud_retry_now">Синхр. усе</string>
     <string name="cloud_retry_enqueued">Вивантаження заплановано</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
@@ -2508,5 +2508,5 @@
     <string name="action_chip_reset_metrics">Скинути показники</string>
     <string name="action_reset_metrics_done">Показники скинуто</string>
     <string name="action_reset_metrics_wheel_done">Показники скинуто, пробіг колеса обнулено</string>
-    <string name="tpms_scan_failed">Не вдалося почати пошук. Перевір дозвіл Bluetooth.</string>
+    <string name="tpms_not_decoded">Знайдено. Показники цієї моделі ще не розшифровані.</string>
 </resources>

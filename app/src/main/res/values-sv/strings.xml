@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Inställningsbackup</string>
     <string name="cloud_backup_now">Säkerhetskopiera</string>
     <string name="cloud_restore">Återställ</string>
-    <string name="cloud_settings_backup_desc">Allt du har ställt in i appen, sparat som eucplanet_settings.json i din backupmapp. Turer säkerhetskopieras separat.</string>
+    <string name="cloud_settings_backup_desc">Allt du ställt in i appen, sparat i eucplanet_settings.json i din backupmapp. Håll in knappen för att spara en namngiven kopia. Turer säkerhetskopieras separat.</string>
     <string name="cloud_last_backup">Senaste kopia: %1$s</string>
 <string name="cloud_last_backup_named">Senaste kopia: %1$s som \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ingen kopia ännu</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Inställningarna återställda</string>
     <string name="cloud_restore_failed">Ingen kopia hittades i mappen</string>
     <string name="section_cloud_trips">Turbackup</string>
-    <string name="cloud_trips_caption">Turerna stannar på den här telefonen och synkas automatiskt till din backupmapp. Rensning tar bort kopiorna i telefonen och kan även arkivera backupkopiorna.</string>
+    <string name="cloud_trips_caption">Turer stannar i den här telefonen och synkas automatiskt till din backupmapp. Rensning tar bort turerna i appen, inte de i backupmappen.</string>
     <string name="cloud_retry_now">Synka allt</string>
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="sync_progress">Synkroniserar %1$d av %2$d</string>
@@ -2511,5 +2511,5 @@
     <string name="action_chip_reset_metrics">Nollställ mätvärden</string>
     <string name="action_reset_metrics_done">Mätvärden nollställda</string>
     <string name="action_reset_metrics_wheel_done">Mätvärden nollställda, hjulets trippmätare rensad</string>
-    <string name="tpms_scan_failed">Kunde inte starta sökningen. Kontrollera Bluetooth-behörigheten.</string>
+    <string name="tpms_not_decoded">Hittad. Avläsningarna från den här modellen är ännu inte avkodade.</string>
 </resources>

@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
+import com.eried.eucplanet.ui.common.rememberScanStarter
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
 
@@ -52,7 +53,8 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
     val paired by viewModel.paired.collectAsState()
     val pairedKpa by viewModel.pairedKpa.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
-    val scanStatus by viewModel.scanStatus.collectAsState()
+    // Scans ask to turn Bluetooth on rather than reporting that it is off.
+    val startScan = rememberScanStarter()
     val seen by viewModel.seen.collectAsState()
 
     val wheelHasSensor = wheelKpa > 0f
@@ -64,7 +66,11 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         if (hasPaired) {
             TpmsSensorRow(
                 title = stringResource(R.string.tpms_paired_sensor),
-                subtitle = paired.orEmpty(),
+                // The address is only worth the line while there is a reading
+                // to go with it. With none, the rider's question is why the
+                // number is missing, and the address does not answer it.
+                subtitle = if (pairedKpa == null) stringResource(R.string.tpms_not_decoded)
+                    else paired.orEmpty(),
                 reading = pairedKpa?.let { formatPressure(it, unit) },
                 onRemove = { viewModel.forgetPaired() },
             )
@@ -103,14 +109,10 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         } else {
             LeftAlignedScanButton(
                 label = stringResource(R.string.tpms_scan),
-                onClick = { viewModel.toggleScan() },
+                onClick = { startScan { viewModel.toggleScan() } },
             )
         }
 
-        // Only the reasons a scan could not start, such as Bluetooth being
-        // off. A tap that cannot start a scan used to look identical to one
-        // that did, which is the one thing silence cannot cover.
-        if (scanStatus.isNotEmpty()) HintText(scanStatus, small = true)
     }
 }
 

@@ -118,7 +118,7 @@
     <string name="section_cloud_settings">Backup av innstillinger</string>
     <string name="cloud_backup_now">Ta backup</string>
     <string name="cloud_restore">Gjenopprett</string>
-    <string name="cloud_settings_backup_desc">Alt du har satt opp i appen, lagret som eucplanet_settings.json i backup-mappen din. Turer sikkerhetskopieres for seg.</string>
+    <string name="cloud_settings_backup_desc">Alt du har satt opp i appen, lagret i eucplanet_settings.json i sikkerhetskopimappen din. Hold knappen inne for å lagre en navngitt kopi. Turer sikkerhetskopieres separat.</string>
     <string name="cloud_last_backup">Siste backup: %1$s</string>
 <string name="cloud_last_backup_named">Siste sikkerhetskopi: %1$s som \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ikke tatt backup ennå</string>
@@ -128,7 +128,7 @@
     <string name="cloud_restore_success">Innstillinger gjenopprettet</string>
     <string name="cloud_restore_failed">Ingen backup funnet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Turene blir på denne telefonen og synkroniseres automatisk til backup-mappen din. Tømming sletter kopiene på telefonen og kan også arkivere kopiene i backupen.</string>
+    <string name="cloud_trips_caption">Turer blir liggende på denne telefonen og synkroniseres automatisk til sikkerhetskopimappen din. Tømming sletter turene i appen, ikke de i sikkerhetskopimappen.</string>
     <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Opplasting planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d av %2$d</string>
@@ -2399,5 +2399,5 @@
     <string name="action_chip_reset_metrics">Nullstill målinger</string>
     <string name="action_reset_metrics_done">Målingene er nullstilt</string>
     <string name="action_reset_metrics_wheel_done">Målingene er nullstilt, hjulets tripteller er tømt</string>
-    <string name="tpms_scan_failed">Kunne ikke starte skanningen. Sjekk Bluetooth-tillatelsen.</string>
+    <string name="tpms_not_decoded">Funnet. Avlesningene fra denne modellen er ennå ikke dekodet.</string>
 </resources>

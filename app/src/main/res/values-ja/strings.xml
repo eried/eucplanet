@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">設定バックアップ</string>
     <string name="cloud_backup_now">バックアップ</string>
     <string name="cloud_restore">復元</string>
-    <string name="cloud_settings_backup_desc">アプリで設定した内容すべてを、バックアップフォルダーに eucplanet_settings.json として保存します。トリップは別に保存されます。</string>
+    <string name="cloud_settings_backup_desc">アプリで設定したすべてを、バックアップフォルダの eucplanet_settings.json に保存します。ボタンを長押しすると名前つきのコピーも保存できます。走行記録は別に保存されます。</string>
     <string name="cloud_last_backup">最終バックアップ: %1$s</string>
 <string name="cloud_last_backup_named">最終バックアップ: %1$s（名前: \"%2$s\"）</string>
     <string name="cloud_last_backup_never">まだバックアップされていません</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">設定を復元しました</string>
     <string name="cloud_restore_failed">フォルダー内にバックアップが見つかりません</string>
     <string name="section_cloud_trips">トリップバックアップ</string>
-    <string name="cloud_trips_caption">走行はこの端末に残り、バックアップフォルダーへ自動で同期されます。ここで消すと端末の控えが消え、バックアップの控えもアーカイブできます。</string>
+    <string name="cloud_trips_caption">走行記録はこの端末に残り、バックアップフォルダへ自動で同期されます。消去するとアプリ内の走行記録だけが削除され、バックアップフォルダのものは残ります。</string>
     <string name="cloud_retry_now">すべて同期</string>
     <string name="cloud_retry_enqueued">アップロードを予約しました</string>
     <string name="sync_progress">%1$d / %2$d を同期中</string>
@@ -2512,5 +2512,5 @@
     <string name="action_chip_reset_metrics">記録をリセット</string>
     <string name="action_reset_metrics_done">記録をリセットしました</string>
     <string name="action_reset_metrics_wheel_done">記録をリセットし、ホイールの積算距離も消去しました</string>
-    <string name="tpms_scan_failed">検索を開始できませんでした。Bluetooth の権限を確認してください。</string>
+    <string name="tpms_not_decoded">検出しました。このモデルの数値はまだ解読できていません。</string>
 </resources>

@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Ayarlar yedekleme</string>
     <string name="cloud_backup_now">Yedekle</string>
     <string name="cloud_restore">Geri yükle</string>
-    <string name="cloud_settings_backup_desc">Uygulamada yaptığın tüm ayarlar, yedek klasörüne eucplanet_settings.json olarak kaydedilir. Sürüşler ayrı yedeklenir.</string>
+    <string name="cloud_settings_backup_desc">Uygulamada ayarladığın her şey, yedek klasöründeki eucplanet_settings.json dosyasına yazılır. Adlandırılmış bir kopya için düğmeyi basılı tut. Sürüşler ayrıca yedeklenir.</string>
     <string name="cloud_last_backup">Son yedekleme: %1$s</string>
 <string name="cloud_last_backup_named">Son yedekleme: %1$s, \"%2$s\" olarak</string>
     <string name="cloud_last_backup_never">Henüz yedeklenmedi</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Ayarlar geri yüklendi</string>
     <string name="cloud_restore_failed">Klasörde yedek bulunamadı</string>
     <string name="section_cloud_trips">Sefer yedekleme</string>
-    <string name="cloud_trips_caption">Sürüşler bu telefonda kalır ve yedek klasörüne otomatik eşitlenir. Buradan silmek telefondaki kopyaları kaldırır, yedektekiler de arşivlenebilir.</string>
+    <string name="cloud_trips_caption">Sürüşler bu telefonda kalır ve yedek klasörüne kendiliğinden eşitlenir. Temizlemek uygulamadaki sürüşleri siler, yedek klasöründekileri değil.</string>
     <string name="cloud_retry_now">Tümünü eşitle</string>
     <string name="cloud_retry_enqueued">Yükleme planlandı</string>
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
@@ -2508,5 +2508,5 @@
     <string name="action_chip_reset_metrics">Ölçümleri sıfırla</string>
     <string name="action_reset_metrics_done">Ölçümler sıfırlandı</string>
     <string name="action_reset_metrics_wheel_done">Ölçümler sıfırlandı, tekerin gezi sayacı temizlendi</string>
-    <string name="tpms_scan_failed">Arama başlatılamadı. Bluetooth iznini kontrol et.</string>
+    <string name="tpms_not_decoded">Bulundu. Bu modelin değerleri henüz çözülmedi.</string>
 </resources>

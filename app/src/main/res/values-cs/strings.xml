@@ -574,7 +574,7 @@
     <string name="section_cloud_settings">Záloha nastavení</string>
     <string name="cloud_backup_now">Zálohovat</string>
     <string name="cloud_restore">Obnovit</string>
-    <string name="cloud_settings_backup_desc">Vše, co jste v aplikaci nastavili, se ukládá jako eucplanet_settings.json do vaší zálohovací složky. Jízdy se zálohují zvlášť.</string>
+    <string name="cloud_settings_backup_desc">Vše, co jsi v aplikaci nastavil, uložené do eucplanet_settings.json ve složce záloh. Podržením tlačítka uložíš pojmenovanou kopii. Jízdy se zálohují zvlášť.</string>
     <string name="cloud_last_backup">Poslední záloha: %1$s</string>
     <string name="cloud_last_backup_named">Poslední záloha: %1$s jako \"%2$s\"</string>
     <string name="cloud_last_backup_never">Zatím nezálohováno</string>
@@ -584,7 +584,7 @@
     <string name="cloud_restore_success">Nastavení obnoveno</string>
     <string name="cloud_restore_failed">Ve složce nebyla nalezena žádná záloha</string>
     <string name="section_cloud_trips">Záloha jízd</string>
-    <string name="cloud_trips_caption">Jízdy zůstávají v telefonu a automaticky se synchronizují do záložní složky. Mazání tady smaže kopie v telefonu a může archivovat i kopie v záloze.</string>
+    <string name="cloud_trips_caption">Jízdy zůstávají v telefonu a samy se synchronizují do složky záloh. Smazání odstraní jízdy v aplikaci, ne ty ve složce záloh.</string>
     <string name="cloud_retry_now">Synchronizovat vše</string>
     <string name="cloud_reset_local">Vymazat místní jízdy</string>
     <string name="cloud_reset_local_title">Vymazat místní jízdy?</string>
@@ -2314,5 +2314,5 @@
     <string name="action_chip_reset_metrics">Vynulovat metriky</string>
     <string name="action_reset_metrics_done">Metriky vynulovány</string>
     <string name="action_reset_metrics_wheel_done">Metriky vynulovány, denní počítadlo kola smazáno</string>
-    <string name="tpms_scan_failed">Skenování se nepodařilo spustit. Zkontroluj oprávnění Bluetooth.</string>
+    <string name="tpms_not_decoded">Nalezeno. Hodnoty tohoto modelu zatím nejsou dekódované.</string>
 </resources>

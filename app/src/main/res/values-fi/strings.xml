@@ -574,7 +574,7 @@
     <string name="section_cloud_settings">Asetusten varmuuskopio</string>
     <string name="cloud_backup_now">Varmuuskopioi</string>
     <string name="cloud_restore">Palauta</string>
-    <string name="cloud_settings_backup_desc">Kaikki sovelluksessa tekemäsi asetukset, tallennettuna nimellä eucplanet_settings.json varmuuskopiokansioosi. Matkat varmuuskopioidaan erikseen.</string>
+    <string name="cloud_settings_backup_desc">Kaikki appiin tekemäsi asetukset, tallennettuna tiedostoon eucplanet_settings.json varmuuskopiokansiossasi. Pidä painiketta pohjassa tallentaaksesi nimetyn kopion. Matkat varmuuskopioidaan erikseen.</string>
     <string name="cloud_last_backup">Viimeisin varmuuskopio: %1$s</string>
     <string name="cloud_last_backup_named">Viimeisin varmuuskopio: %1$s nimellä \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ei vielä varmuuskopioitu</string>
@@ -584,7 +584,7 @@
     <string name="cloud_restore_success">Asetukset palautettu</string>
     <string name="cloud_restore_failed">Kansiosta ei löytynyt varmuuskopiota</string>
     <string name="section_cloud_trips">Matkojen varmuuskopio</string>
-    <string name="cloud_trips_caption">Ajot pysyvät tässä puhelimessa ja synkronoituvat varmuuskopiokansioosi. Tyhjennys poistaa puhelimen kopiot ja voi arkistoida myös varmuuskopiot.</string>
+    <string name="cloud_trips_caption">Matkat pysyvät tässä puhelimessa ja synkronoituvat itsestään varmuuskopiokansioosi. Tyhjennys poistaa apin sisäiset matkat, ei varmuuskopiokansion matkoja.</string>
     <string name="cloud_retry_now">Synkronoi kaikki</string>
     <string name="cloud_reset_local">Tyhjennä paikalliset matkat</string>
     <string name="cloud_reset_local_title">Tyhjennetäänkö paikalliset matkat?</string>
@@ -2314,5 +2314,5 @@
     <string name="action_chip_reset_metrics">Nollaa mittarit</string>
     <string name="action_reset_metrics_done">Mittarit nollattu</string>
     <string name="action_reset_metrics_wheel_done">Mittarit nollattu, pyörän matkamittari tyhjennetty</string>
-    <string name="tpms_scan_failed">Haun aloitus epäonnistui. Tarkista Bluetooth-käyttöoikeus.</string>
+    <string name="tpms_not_decoded">Löytyi. Tämän mallin lukemia ei ole vielä purettu.</string>
 </resources>

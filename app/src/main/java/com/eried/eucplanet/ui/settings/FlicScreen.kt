@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import com.eried.eucplanet.ui.common.rememberScanStarter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -63,6 +64,10 @@ fun FlicScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
+    // Scans ask to turn Bluetooth on rather than failing quietly: Flic's own
+    // startScan returns without a word when the adapter is off, and the status
+    // it writes instead is never rendered, so the button was simply dead.
+    val startScan = rememberScanStarter()
     var forgetTarget by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     forgetTarget?.let { (addr, name) ->
@@ -121,7 +126,10 @@ fun FlicScreen(
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 }
             } else {
-                Button(onClick = { viewModel.startScan() }, shape = RoundedCornerShape(12.dp)) {
+                Button(
+                    onClick = { startScan { viewModel.startScan() } },
+                    shape = RoundedCornerShape(12.dp),
+                ) {
                     Text(stringResource(R.string.flic_start_scan))
                 }
             }

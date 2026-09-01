@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Sauvegarde des paramètres</string>
     <string name="cloud_backup_now">Sauvegarder</string>
     <string name="cloud_restore">Restaurer</string>
-    <string name="cloud_settings_backup_desc">Tout ce que tu as configuré dans l\'app, enregistré sous eucplanet_settings.json dans ton dossier de sauvegarde. Les trajets sont sauvegardés à part.</string>
+    <string name="cloud_settings_backup_desc">Tout ce que tu as configuré dans l\'appli, écrit dans eucplanet_settings.json dans ton dossier de sauvegarde. Maintiens le bouton pour enregistrer une copie nommée. Les trajets sont sauvegardés à part.</string>
     <string name="cloud_last_backup">Dernière sauvegarde : %1$s</string>
 <string name="cloud_last_backup_named">Dernière sauvegarde : %1$s sous \"%2$s\"</string>
     <string name="cloud_last_backup_never">Aucune sauvegarde</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Paramètres restaurés</string>
     <string name="cloud_restore_failed">Aucune sauvegarde trouvée dans le dossier</string>
     <string name="section_cloud_trips">Sauvegarde des trajets</string>
-    <string name="cloud_trips_caption">Les sorties restent sur ce téléphone et se synchronisent avec ton dossier de sauvegarde. Supprimer ici enlève les copies du téléphone, et peut aussi archiver celles de la sauvegarde.</string>
+    <string name="cloud_trips_caption">Les trajets restent sur ce téléphone et se synchronisent tout seuls vers ton dossier de sauvegarde. Effacer supprime les trajets dans l\'appli, pas ceux du dossier de sauvegarde.</string>
     <string name="cloud_retry_now">Tout sync</string>
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="sync_progress">Synchronisation %1$d sur %2$d</string>
@@ -2515,5 +2515,5 @@
     <string name="action_chip_reset_metrics">Réinitialiser les mesures</string>
     <string name="action_reset_metrics_done">Mesures réinitialisées</string>
     <string name="action_reset_metrics_wheel_done">Mesures réinitialisées, trajet de la roue effacé</string>
-    <string name="tpms_scan_failed">Impossible de lancer la recherche. Vérifie la permission Bluetooth.</string>
+    <string name="tpms_not_decoded">Détecté. Les valeurs de ce modèle ne sont pas encore décodées.</string>
 </resources>

@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Einstellungs-Backup</string>
     <string name="cloud_backup_now">Sichern</string>
     <string name="cloud_restore">Wiederherstellen</string>
-    <string name="cloud_settings_backup_desc">Alles, was du in der App eingerichtet hast, als eucplanet_settings.json in deinem Backup-Ordner. Fahrten werden separat gesichert.</string>
+    <string name="cloud_settings_backup_desc">Alles, was du in der App eingestellt hast, gespeichert in eucplanet_settings.json in deinem Backup-Ordner. Halte die Taste gedrückt, um eine benannte Kopie zu speichern. Fahrten werden separat gesichert.</string>
     <string name="cloud_last_backup">Letztes Backup: %1$s</string>
 <string name="cloud_last_backup_named">Letztes Backup: %1$s als \"%2$s\"</string>
     <string name="cloud_last_backup_never">Noch nicht gesichert</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Einstellungen wiederhergestellt</string>
     <string name="cloud_restore_failed">Kein Backup im Ordner gefunden</string>
     <string name="section_cloud_trips">Fahrten-Backup</string>
-    <string name="cloud_trips_caption">Fahrten bleiben auf diesem Handy und werden automatisch in deinen Backup-Ordner synchronisiert. Beim Löschen hier gehen die Handy-Kopien, und die Backup-Kopien können mit archiviert werden.</string>
+    <string name="cloud_trips_caption">Fahrten bleiben auf diesem Handy und werden automatisch in deinen Backup-Ordner synchronisiert. Löschen entfernt die Fahrten in der App, nicht die im Backup-Ordner.</string>
     <string name="cloud_retry_now">Alle sync.</string>
     <string name="cloud_retry_enqueued">Upload geplant</string>
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
@@ -2531,5 +2531,5 @@
     <string name="action_chip_reset_metrics">Werte zurücksetzen</string>
     <string name="action_reset_metrics_done">Werte zurückgesetzt</string>
     <string name="action_reset_metrics_wheel_done">Werte zurückgesetzt, Wheel-Tagesstrecke gelöscht</string>
-    <string name="tpms_scan_failed">Scan konnte nicht gestartet werden. Prüfe die Bluetooth-Berechtigung.</string>
+    <string name="tpms_not_decoded">Erkannt. Die Werte dieses Modells sind noch nicht entschlüsselt.</string>
 </resources>

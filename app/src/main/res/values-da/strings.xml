@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Backup af indstillinger</string>
     <string name="cloud_backup_now">Tag backup</string>
     <string name="cloud_restore">Gendan</string>
-    <string name="cloud_settings_backup_desc">Alt hvad du har sat op i appen, gemt som eucplanet_settings.json i din backupmappe. Ture sikkerhedskopieres for sig.</string>
+    <string name="cloud_settings_backup_desc">Alt, du har sat op i appen, gemt i eucplanet_settings.json i din backupmappe. Hold knappen nede for at gemme en navngivet kopi. Ture sikkerhedskopieres separat.</string>
     <string name="cloud_last_backup">Seneste backup: %1$s</string>
 <string name="cloud_last_backup_named">Seneste backup: %1$s som \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ingen backup endnu</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Turene bliver på denne telefon og synkroniseres automatisk til din backup-mappe. Rydning her sletter kopierne på telefonen og kan også arkivere kopierne i backuppen.</string>
+    <string name="cloud_trips_caption">Ture bliver på denne telefon og synkroniseres automatisk til din backupmappe. Rydning sletter turene i appen, ikke dem i backupmappen.</string>
     <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d af %2$d</string>
@@ -2526,5 +2526,5 @@
     <string name="action_chip_reset_metrics">Nulstil målinger</string>
     <string name="action_reset_metrics_done">Målinger nulstillet</string>
     <string name="action_reset_metrics_wheel_done">Målinger nulstillet, hjulets triptæller ryddet</string>
-    <string name="tpms_scan_failed">Kunne ikke starte scanningen. Tjek Bluetooth-tilladelsen.</string>
+    <string name="tpms_not_decoded">Fundet. Aflæsninger fra denne model er endnu ikke afkodet.</string>
 </resources>

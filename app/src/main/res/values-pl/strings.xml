@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Kopia zapasowa ustawień</string>
     <string name="cloud_backup_now">Wykonaj kopię</string>
     <string name="cloud_restore">Przywróć</string>
-    <string name="cloud_settings_backup_desc">Wszystko, co skonfigurowałeś w aplikacji, zapisane jako eucplanet_settings.json w folderze kopii zapasowych. Trasy zapisują się osobno.</string>
+    <string name="cloud_settings_backup_desc">Wszystko, co ustawiłeś w aplikacji, zapisane w eucplanet_settings.json w twoim folderze kopii. Przytrzymaj przycisk, aby zapisać nazwaną kopię. Przejazdy zapisują się osobno.</string>
     <string name="cloud_last_backup">Ostatnia kopia: %1$s</string>
 <string name="cloud_last_backup_named">Ostatnia kopia: %1$s jako \"%2$s\"</string>
     <string name="cloud_last_backup_never">Brak kopii zapasowej</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Ustawienia przywrócone</string>
     <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
     <string name="section_cloud_trips">Kopia zapasowa tras</string>
-    <string name="cloud_trips_caption">Przejazdy zostają w tym telefonie i synchronizują się z folderem kopii. Czyszczenie usuwa kopie z telefonu i może też zarchiwizować kopie zapasowe.</string>
+    <string name="cloud_trips_caption">Przejazdy zostają w tym telefonie i same synchronizują się do folderu kopii. Czyszczenie usuwa przejazdy w aplikacji, a nie te w folderze kopii.</string>
     <string name="cloud_retry_now">Synchronizuj wszystko</string>
     <string name="cloud_retry_enqueued">Wysyłanie zaplanowane</string>
     <string name="sync_progress">Synchronizowanie %1$d z %2$d</string>
@@ -2511,5 +2511,5 @@
     <string name="action_chip_reset_metrics">Zeruj liczniki</string>
     <string name="action_reset_metrics_done">Liczniki wyzerowane</string>
     <string name="action_reset_metrics_wheel_done">Liczniki wyzerowane, licznik koła skasowany</string>
-    <string name="tpms_scan_failed">Nie udało się rozpocząć skanowania. Sprawdź uprawnienie Bluetooth.</string>
+    <string name="tpms_not_decoded">Znaleziono. Odczyty tego modelu nie są jeszcze rozszyfrowane.</string>
 </resources>

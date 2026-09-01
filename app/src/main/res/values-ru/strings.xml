@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Резервная копия настроек</string>
     <string name="cloud_backup_now">Сделать копию</string>
     <string name="cloud_restore">Восстановить</string>
-    <string name="cloud_settings_backup_desc">Всё, что вы настроили в приложении, сохраняется как eucplanet_settings.json в вашей папке резервных копий. Поездки сохраняются отдельно.</string>
+    <string name="cloud_settings_backup_desc">Всё, что ты настроил в приложении, записывается в eucplanet_settings.json в твоей папке резервных копий. Удерживай кнопку, чтобы сохранить копию с именем. Поездки сохраняются отдельно.</string>
     <string name="cloud_last_backup">Последняя копия: %1$s</string>
 <string name="cloud_last_backup_named">Последняя копия: %1$s как \"%2$s\"</string>
     <string name="cloud_last_backup_never">Копий ещё нет</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Настройки восстановлены</string>
     <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
     <string name="section_cloud_trips">Резервная копия поездок</string>
-    <string name="cloud_trips_caption">Поездки остаются на этом телефоне и синхронизируются с папкой резервных копий. Очистка удаляет копии на телефоне и может архивировать резервные копии.</string>
+    <string name="cloud_trips_caption">Поездки остаются на этом телефоне и сами синхронизируются с папкой резервных копий. Очистка удаляет поездки внутри приложения, но не в папке копий.</string>
     <string name="cloud_retry_now">Синхр. всё</string>
     <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
@@ -2511,5 +2511,5 @@
     <string name="action_chip_reset_metrics">Сбросить показатели</string>
     <string name="action_reset_metrics_done">Показатели сброшены</string>
     <string name="action_reset_metrics_wheel_done">Показатели сброшены, пробег колеса обнулён</string>
-    <string name="tpms_scan_failed">Не удалось начать поиск. Проверь разрешение Bluetooth.</string>
+    <string name="tpms_not_decoded">Найден. Показания этой модели пока не расшифрованы.</string>
 </resources>

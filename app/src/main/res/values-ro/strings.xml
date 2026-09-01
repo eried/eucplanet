@@ -574,7 +574,7 @@
     <string name="section_cloud_settings">Copie de rezervă a setărilor</string>
     <string name="cloud_backup_now">Salvează</string>
     <string name="cloud_restore">Restaurează</string>
-    <string name="cloud_settings_backup_desc">Tot ce ai configurat în aplicație, salvat ca eucplanet_settings.json în folderul tău de backup. Cursele se salvează separat.</string>
+    <string name="cloud_settings_backup_desc">Tot ce ai configurat în aplicație, salvat în eucplanet_settings.json în folderul tău de copii. Ține butonul apăsat ca să salvezi o copie cu nume. Traseele se salvează separat.</string>
     <string name="cloud_last_backup">Ultima copie: %1$s</string>
     <string name="cloud_last_backup_named">Ultima copie: %1$s ca \"%2$s\"</string>
     <string name="cloud_last_backup_never">Încă nu s-a făcut o copie</string>
@@ -584,7 +584,7 @@
     <string name="cloud_restore_success">Setările au fost restaurate</string>
     <string name="cloud_restore_failed">Nu s-a găsit nicio copie în dosar</string>
     <string name="section_cloud_trips">Copie de rezervă a curselor</string>
-    <string name="cloud_trips_caption">Turele rămân pe acest telefon și se sincronizează automat în folderul de backup. Ștergerea de aici elimină copiile de pe telefon și poate arhiva și copiile din backup.</string>
+    <string name="cloud_trips_caption">Traseele rămân pe acest telefon și se sincronizează singure în folderul tău de copii. Ștergerea elimină traseele din aplicație, nu pe cele din folderul de copii.</string>
     <string name="cloud_retry_now">Sincronizează tot</string>
     <string name="cloud_reset_local">Șterge cursele locale</string>
     <string name="cloud_reset_local_title">Ștergi cursele locale?</string>
@@ -2314,5 +2314,5 @@
     <string name="action_chip_reset_metrics">Resetează valorile</string>
     <string name="action_reset_metrics_done">Valori resetate</string>
     <string name="action_reset_metrics_wheel_done">Valori resetate, contorul roții șters</string>
-    <string name="tpms_scan_failed">Căutarea nu a putut porni. Verifică permisiunea Bluetooth.</string>
+    <string name="tpms_not_decoded">Detectat. Valorile acestui model nu sunt încă decodate.</string>
 </resources>

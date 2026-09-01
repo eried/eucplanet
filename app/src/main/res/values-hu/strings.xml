@@ -574,7 +574,7 @@
     <string name="section_cloud_settings">Beállítások mentése</string>
     <string name="cloud_backup_now">Mentés</string>
     <string name="cloud_restore">Visszaállítás</string>
-    <string name="cloud_settings_backup_desc">Minden, amit az appban beállítottál, eucplanet_settings.json néven a biztonsági mentés mappádban. A menetek külön mentődnek.</string>
+    <string name="cloud_settings_backup_desc">Minden, amit az appban beállítottál, az eucplanet_settings.json fájlba mentve a biztonsági mentés mappádban. Tartsd nyomva a gombot elnevezett másolat mentéséhez. Az utak külön készülnek.</string>
     <string name="cloud_last_backup">Utolsó mentés: %1$s</string>
     <string name="cloud_last_backup_named">Utolsó mentés: %1$s \"%2$s\" néven</string>
     <string name="cloud_last_backup_never">Még nincs mentés</string>
@@ -584,7 +584,7 @@
     <string name="cloud_restore_success">Beállítások visszaállítva</string>
     <string name="cloud_restore_failed">Nem található mentés a mappában</string>
     <string name="section_cloud_trips">Menetek mentése</string>
-    <string name="cloud_trips_caption">A túrák ezen a telefonon maradnak, és automatikusan szinkronizálódnak a mentési mappádba. A törlés eltünteti a telefonon lévő másolatokat, és a mentetteket is archiválhatja.</string>
+    <string name="cloud_trips_caption">Az utak ezen a telefonon maradnak, és maguktol szinkronizálódnak a mentési mappádba. A törlés az appon belüli utakat törli, nem a mentési mappában lévőket.</string>
     <string name="cloud_retry_now">Összes szinkronizálása</string>
     <string name="cloud_reset_local">Helyi menetek törlése</string>
     <string name="cloud_reset_local_title">Törlöd a helyi meneteket?</string>
@@ -2314,5 +2314,5 @@
     <string name="action_chip_reset_metrics">Mérések nullázása</string>
     <string name="action_reset_metrics_done">Mérések nullázva</string>
     <string name="action_reset_metrics_wheel_done">Mérések nullázva, a kerék napi számlálója törölve</string>
-    <string name="tpms_scan_failed">A keresés nem indult el. Ellenőrizd a Bluetooth-engedélyt.</string>
+    <string name="tpms_not_decoded">Megtalálva. Ennek a modellnek az értékei még nincsenek dekódolva.</string>
 </resources>

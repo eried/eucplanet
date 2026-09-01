@@ -7,7 +7,6 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
-import com.eried.eucplanet.R
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -81,17 +80,6 @@ class TpmsScanner @Inject constructor(
     private val _scanning = MutableStateFlow(false)
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
-    /**
-     * What the scan is doing, in the rider's words, the way Flic reports it.
-     *
-     * A spinner alone cannot say "Bluetooth is off", and that was the state a
-     * tap used to land in silently: start() found no scanner, returned, and
-     * left the button looking untouched. A scan that cannot start has to say
-     * so.
-     */
-    private val _scanStatus = MutableStateFlow("")
-    val scanStatus: StateFlow<String> = _scanStatus.asStateFlow()
-
     private var callback: ScanCallback? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var window: Job? = null
@@ -99,14 +87,13 @@ class TpmsScanner @Inject constructor(
     @SuppressLint("MissingPermission")
     fun start() {
         if (callback != null) return
-        // A radio that is off is the common reason a scan finds nothing, and
-        // silently returning made the button look broken instead of the
-        // Bluetooth setting look off.
+        // The button asks the rider to turn Bluetooth on before it ever gets
+        // here, so reaching this with the adapter off means they declined.
+        // Nothing to report: they know what they just chose.
         val adapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
         val scanner = adapter?.takeIf { it.isEnabled }?.bluetoothLeScanner
         if (scanner == null) {
             _scanning.value = false
-            _scanStatus.value = context.getString(R.string.scan_bluetooth_off_title)
             return
         }
         val cb = object : ScanCallback() {
@@ -118,7 +105,6 @@ class TpmsScanner @Inject constructor(
             override fun onScanFailed(errorCode: Int) {
                 Log.w(TAG, "TPMS scan failed: $errorCode")
                 _scanning.value = false
-                _scanStatus.value = context.getString(R.string.tpms_scan_failed)
             }
         }
         callback = cb
@@ -131,13 +117,12 @@ class TpmsScanner @Inject constructor(
         runCatching { scanner.startScan(null, settings, cb) }
             .onSuccess {
                 _scanning.value = true
-                _scanStatus.value = ""
                 startWindow()
             }
             .onFailure {
                 Log.w(TAG, "TPMS scan could not start", it)
                 callback = null
-                _scanStatus.value = context.getString(R.string.tpms_scan_failed)
+                _scanning.value = false
             }
     }
 
@@ -165,7 +150,6 @@ class TpmsScanner @Inject constructor(
         val cb = callback ?: return
         callback = null
         _scanning.value = false
-        _scanStatus.value = ""
         runCatching {
             (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)
                 ?.adapter?.bluetoothLeScanner?.stopScan(cb)
@@ -177,11 +161,13 @@ class TpmsScanner @Inject constructor(
         val rec = result.scanRecord
         val manu = HashMap<Int, String>()
         var decoded: Float? = null
+        var isKnownSensor = false
         rec?.manufacturerSpecificData?.let { sparse ->
             for (i in 0 until sparse.size()) {
                 val id = sparse.keyAt(i)
                 val raw = sparse.valueAt(i) ?: continue
                 manu[id] = raw.toHex()
+                if (TpmsSignature.isSensor(id, raw, result.device.address)) isKnownSensor = true
                 if (decoded == null) {
                     decoded = LyTpmsDecoder.pressureKpa(id, raw, result.device.address)
                 }
@@ -229,21 +215,23 @@ class TpmsScanner @Inject constructor(
         if (seen.looksLikeSensor) {
             DiagnosticsLogger.note(line)
         }
-        // Adopted only once a packet has decoded as a pressure.
+        // Adopted on the family signature: the right company id, the right
+        // length, and the MAC written backwards in the last six bytes, all
+        // three at once.
         //
-        // Adopting on the MAC-in-payload shape instead was worse than the
-        // problem it solved: plenty of devices repeat their own address in an
-        // advertisement, so a laptop or a beacon in the room got added as the
-        // rider's tyre sensor. A sensor is a thing that reports a pressure. If
-        // nothing can be read from it, there is nothing to add, and saying so
-        // beats pairing a row that will sit empty forever.
-        //
-        // The consequence is deliberate: a model whose format is not decoded
-        // yet cannot be added at all. That is a decoding job, not a reason to
-        // relax what counts as a sensor.
-        decoded?.let {
+        // Not on a decoded pressure, which is what it was gated on before, and
+        // which meant a disabled decoder disabled finding sensors along with
+        // it. Not on the loose "repeats its own MAC" either, which adopted a
+        // stranger's device. A sensor can be positively identified while its
+        // reading is still unreadable, and this family's is: no byte in any
+        // capture tracks the tyre from 78 psi down to 64.
+        if (isKnownSensor) {
             val hadSensor = tpms.pairedAddress.value != null
-            tpms.submitPaired(it, address, now)
+            if (!hadSensor) tpms.adopt(address)
+            // The number goes in when there is one. Until this family's format
+            // is worked out there is not, and the row says so rather than
+            // showing something invented.
+            decoded?.let { tpms.submitPaired(it, address, now) }
             // Found it, so stop looking. Flic ends its scan on pair, and a
             // radio left running after the answer arrived costs battery for
             // nothing. Only on the sensor that was actually adopted: a second

@@ -8599,7 +8599,9 @@ private fun CloudTab(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.height(6.dp))
+            // No spacer: the section's own column already spaces at 16dp, so
+            // this one made the gap under the description bigger than every
+            // other gap on the screen and read as a stray blank line.
             Text(lastBackupText, style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(

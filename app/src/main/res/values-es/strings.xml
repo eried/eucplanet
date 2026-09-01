@@ -463,7 +463,7 @@
     <string name="section_cloud_settings">Respaldo de ajustes</string>
     <string name="cloud_backup_now">Respaldar</string>
     <string name="cloud_restore">Restaurar</string>
-    <string name="cloud_settings_backup_desc">Todo lo que has configurado en la app, guardado como eucplanet_settings.json en tu carpeta de copias. Los viajes se guardan aparte.</string>
+    <string name="cloud_settings_backup_desc">Todo lo que has configurado en la app, guardado en eucplanet_settings.json en tu carpeta de copias. Manten pulsado el boton para guardar una copia con nombre. Los viajes se respaldan aparte.</string>
     <string name="cloud_last_backup">Último respaldo: %1$s</string>
 <string name="cloud_last_backup_named">Última copia: %1$s como \"%2$s\"</string>
     <string name="cloud_last_backup_never">Sin respaldo aún</string>
@@ -473,7 +473,7 @@
     <string name="cloud_restore_success">Ajustes restaurados</string>
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
-    <string name="cloud_trips_caption">Los viajes se quedan en este teléfono y se sincronizan con tu carpeta de copias. Al borrar aquí se quitan las copias del teléfono y puedes archivar también las de la copia de seguridad.</string>
+    <string name="cloud_trips_caption">Los viajes se quedan en este telefono y se sincronizan solos con tu carpeta de copias. Borrar aqui elimina los viajes de la app, no los de la carpeta de copias.</string>
     <string name="cloud_retry_now">Sincronizar todo</string>
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -2508,5 +2508,5 @@
     <string name="action_chip_reset_metrics">Reiniciar métricas</string>
     <string name="action_reset_metrics_done">Métricas reiniciadas</string>
     <string name="action_reset_metrics_wheel_done">Métricas reiniciadas, viaje de la rueda borrado</string>
-    <string name="tpms_scan_failed">No se pudo iniciar la búsqueda. Revisa el permiso de Bluetooth.</string>
+    <string name="tpms_not_decoded">Detectado. Las lecturas de este modelo aún no están decodificadas.</string>
 </resources>

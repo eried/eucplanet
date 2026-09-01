@@ -653,9 +653,9 @@
     <string name="section_cloud_settings">Settings backup</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Restore</string>
-    <string name="cloud_settings_backup_desc">Everything you have set up in the app, written to eucplanet_settings.json in your backup folder. Trips are backed up separately.</string>
+    <string name="cloud_settings_backup_desc">Everything you have set up in the app, written to eucplanet_settings.json in your backup folder. Hold the button to save a named copy alongside it. Trips are backed up separately.</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
-<string name="cloud_last_backup_named">Last backup: %1$s as \"%2$s\"</string>
+    <string name="cloud_last_backup_named">Last backup: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
 <string name="cloud_backup_named_success">Backed up as %1$s</string>
@@ -663,7 +663,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">Trips stay on this phone and sync to your backup folder automatically. Clearing here deletes the phone copies, and can archive the backup copies too.</string>
+    <string name="cloud_trips_caption">Trips stay on this phone and sync to your backup folder automatically. Clearing deletes the trips inside the app, not the ones in your backup folder.</string>
     <string name="cloud_retry_now">Sync all</string>
     <string name="cloud_reset_local">Clear local trips</string>
     <string name="cloud_reset_local_title">Clear local trips?</string>
@@ -2532,5 +2532,5 @@
     <string name="action_chip_reset_metrics">Reset metrics</string>
     <string name="action_reset_metrics_done">Metrics reset</string>
     <string name="action_reset_metrics_wheel_done">Metrics reset, wheel trip cleared</string>
-    <string name="tpms_scan_failed">Could not start the scan. Check the Bluetooth permission.</string>
+    <string name="tpms_not_decoded">Detected. Readings from this model are not decoded yet.</string>
 </resources>
