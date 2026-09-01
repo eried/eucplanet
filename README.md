@@ -159,6 +159,15 @@ approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or
 vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists
 already trust, now on your EUC.
 
+**Tire pressure (TPMS).** Read the pressure your wheel already knows: an
+InMotion P6 relays its bound sensor and the app shows it live, graphs it, puts
+it on the HUD and in the overlay, and will warn you about it - a slow puncture
+is exactly the thing you notice too late. For wheels with no sensor of their
+own, a generic valve-cap [LY TPMS
+sensor](https://s.click.aliexpress.com/e/_c2xLwuvt) broadcasts a reading the
+app can listen for. Set a low-pressure alarm in psi or bar and the app tells
+you before the tyre does.
+
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
 external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
 without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
