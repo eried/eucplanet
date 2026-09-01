@@ -2390,6 +2390,9 @@
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade.</string>
     <string name="warnings_perm_location_title">Location is off</string>
     <string name="warnings_perm_location_body">Trips record no route, and GPS speed and calibration will not work. Tap to allow.</string>
+    <string name="weather_error_no_location">No location yet, so there is nowhere to ask about</string>
+    <string name="warnings_location_services_body">EUC Planet is allowed to use it, but the phone has location turned off for everything. Tap to switch it on.</string>
+    <string name="warnings_location_services_title">Location is switched off</string>
     <string name="warnings_battery_opt_title">Battery optimisation is on</string>
     <string name="warnings_battery_opt_body">Android can stop EUC Planet in the background, ending a recording mid-ride. Allow it to run unrestricted.</string>
     <string name="warnings_hud_blocked_title">Phone HUD cannot draw</string>

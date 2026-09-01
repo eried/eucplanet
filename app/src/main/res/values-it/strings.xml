@@ -1618,6 +1618,9 @@
     <string name="warnings_perm_notifications_body">Non vedrai lo stato del viaggio nella barra di stato e non riceverai avvisi vocali nelle notifiche.</string>
     <string name="warnings_perm_location_title">La posizione è disattivata</string>
     <string name="warnings_perm_location_body">I viaggi non registrano il percorso e velocità e calibrazione GPS non funzionano. Tocca per consentire.</string>
+    <string name="weather_error_no_location">Ancora nessuna posizione, quindi manca un posto da chiedere</string>
+    <string name="warnings_location_services_body">EUC Planet ha il permesso, ma il telefono ha la posizione spenta per tutto. Tocca per attivarla.</string>
+    <string name="warnings_location_services_title">La posizione è spenta</string>
     <string name="hud_screen_name_map_nav">Mappa + Nav</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->

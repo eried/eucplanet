@@ -83,6 +83,18 @@ class WeatherRepository @Inject constructor() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    /**
+     * Says the panel cannot even start, because there is nowhere to ask about.
+     *
+     * Every other failure happens inside a fetch and lands in [_error] on its
+     * own. This one happens before a fetch exists: with no location the caller
+     * used to return silently, leaving the panel on "Fetching..." with nothing
+     * fetching and no way for a rider to learn why.
+     */
+    fun reportNoLocation(message: String) {
+        _error.value = message
+    }
+
     private val mutex = Mutex()
 
     /** Forecast at the navigator's destination, fetched on demand when the

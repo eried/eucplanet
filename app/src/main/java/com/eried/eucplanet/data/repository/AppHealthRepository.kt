@@ -5,11 +5,13 @@ import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import com.eried.eucplanet.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -141,9 +143,33 @@ class AppHealthRepository @Inject constructor(
             ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
-        if (anyLocation) {
+        // Two different things stop a fix, and a rider hits them separately:
+        // the app not being allowed to ask, and Android being switched off for
+        // everyone. The first version only covered the permission, so a phone
+        // with location toggled off said nothing at all.
+        val locationServicesOn = runCatching {
+            LocationManagerCompat.isLocationEnabled(
+                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            )
+        }.getOrDefault(true)
+        if (anyLocation && !locationServicesOn) {
             dismiss(PERM_LOCATION_ID)
+            upsert(
+                AppWarning(
+                    id = LOCATION_SERVICES_ID,
+                    titleRes = R.string.warnings_location_services_title,
+                    bodyRes = R.string.warnings_location_services_body,
+                    fix = { openLocationSettings() }
+                )
+            )
+        } else if (anyLocation) {
+            dismiss(PERM_LOCATION_ID)
+            dismiss(LOCATION_SERVICES_ID)
         } else {
+            // No permission is the louder problem, and pointing a rider at the
+            // system toggle while the app is not allowed to ask would send
+            // them to the wrong screen. One warning at a time.
+            dismiss(LOCATION_SERVICES_ID)
             upsert(
                 AppWarning(
                     id = PERM_LOCATION_ID,
@@ -354,6 +380,16 @@ class AppHealthRepository @Inject constructor(
     }
 
     /** The system's notification-access list, where that grant lives. */
+    /** Android's own location screen, where the master switch lives. */
+    private fun openLocationSettings() {
+        runCatching {
+            context.startActivity(
+                Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.onFailure { openAppSettings() }
+    }
+
     fun openNotificationAccessSettings() {
         val direct = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -388,6 +424,7 @@ class AppHealthRepository @Inject constructor(
     companion object {
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
         private const val PERM_LOCATION_ID = "perm.location"
+        private const val LOCATION_SERVICES_ID = "location.services-off"
         private const val PERM_MEDIA_ACCESS_ID = "perm.media-access"
         private const val PERM_PIP_ID = "perm.pip"
         private const val PERM_OVERLAY_ID = "perm.overlay"

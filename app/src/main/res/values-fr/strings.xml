@@ -1867,6 +1867,9 @@
     <string name="warnings_perm_notifications_body">Tu ne verras pas l\'état du ride dans la barre d\'état et tu n\'auras pas d\'alertes vocales dans les notifications.</string>
     <string name="warnings_perm_location_title">La localisation est désactivée</string>
     <string name="warnings_perm_location_body">Les trajets n\'enregistrent aucun tracé, et la vitesse et la calibration GPS ne marchent pas. Touche pour autoriser.</string>
+    <string name="weather_error_no_location">Pas encore de position, donc aucun endroit à interroger</string>
+    <string name="warnings_location_services_body">EUC Planet y a droit, mais le téléphone a coupé la localisation pour tout. Touche pour activer.</string>
+    <string name="warnings_location_services_title">La localisation est coupée</string>
 
     <string name="hud_joystick_title">Actions des touches</string>
     <string name="hud_joystick_desc">Appuie deux fois sur une touche du HUD pour lancer une action. Un seul appui change toujours d\'écran.</string>

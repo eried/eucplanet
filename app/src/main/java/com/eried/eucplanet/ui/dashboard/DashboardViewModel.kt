@@ -213,8 +213,18 @@ class DashboardViewModel @Inject constructor(
     private fun fineDetail(windowHours: Int): Boolean = windowHours <= 12
 
     fun refreshWeather(force: Boolean = false) {
+        // No location, nothing to ask about. Returning quietly left the panel
+        // reading "Fetching..." forever with nothing in flight, which is the
+        // one failure a rider cannot wait out: it needs the phone's location
+        // switch or the permission, not patience.
         val loc = tripRepository.currentLocation.value
-            ?: tripRepository.lastKnownLocation.value ?: return
+            ?: tripRepository.lastKnownLocation.value
+            ?: run {
+                weatherRepository.reportNoLocation(
+                    context.getString(R.string.weather_error_no_location)
+                )
+                return
+            }
         val w = weatherSettings.value
         val dest = weatherDest.value
         if (dest != null && weatherUseDest.value) {

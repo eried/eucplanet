@@ -2133,6 +2133,9 @@
     <string name="warnings_perm_notifications_body">Neuvidíte stav jízdy ve stavovém řádku ani nedostanete hlasová upozornění v oznámeních.</string>
     <string name="warnings_perm_location_title">Poloha je vypnutá</string>
     <string name="warnings_perm_location_body">Jízdy nezaznamenají trasu a rychlost ani kalibrace podle GPS nefungují. Klepnutím povolte.</string>
+    <string name="weather_error_no_location">Zatím není poloha, takže není na co se ptát</string>
+    <string name="warnings_location_services_body">EUC Planet má povolení, ale telefon má polohu vypnutou pro všechno. Klepnutím ji zapněte.</string>
+    <string name="warnings_location_services_title">Poloha je v systému vypnutá</string>
     <string name="warnings_battery_opt_title">Optimalizace baterie je zapnutá</string>
     <string name="warnings_battery_opt_body">Android může EUC Planet na pozadí zastavit a ukončit nahrávání uprostřed jízdy. Povolte aplikaci běžet bez omezení.</string>
     <string name="warnings_hud_blocked_title">HUD v telefonu nemůže kreslit</string>

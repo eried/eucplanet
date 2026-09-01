@@ -1825,6 +1825,9 @@
     <string name="warnings_perm_notifications_body">Du ser inte åkstatus i statusfältet och får inga talvarningar i aviseringspanelen.</string>
     <string name="warnings_perm_location_title">Platsåtkomst är av</string>
     <string name="warnings_perm_location_body">Turer spelar inte in någon rutt, och GPS-fart och kalibrering fungerar inte. Tryck för att tillåta.</string>
+    <string name="weather_error_no_location">Ingen plats ännu, så det finns ingen plats att fråga om</string>
+    <string name="warnings_location_services_body">EUC Planet får använda den, men telefonen har plats avstängt för allt. Tryck för att slå på.</string>
+    <string name="warnings_location_services_title">Plats är avstängt</string>
     <string name="warnings_battery_opt_title">Batterioptimering är på</string>
     <string name="warnings_battery_opt_body">Android kan stoppa EUC Planet i bakgrunden och avbryta en inspelning mitt i turen. Tillåt appen att köra obegränsat.</string>
     <string name="warnings_hud_blocked_title">Telefon-HUD kan inte rita</string>

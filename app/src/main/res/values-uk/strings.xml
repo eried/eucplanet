@@ -1861,6 +1861,9 @@
     <string name="warnings_perm_notifications_body">Статус поїздки не з\'явиться в рядку стану, голосові сповіщення не з\'являться в шторці.</string>
     <string name="warnings_perm_location_title">Геолокацію вимкнено</string>
     <string name="warnings_perm_location_body">Поїздки не записують маршрут, а швидкість і калібрування за GPS не працюють. Торкніться, щоб дозволити.</string>
+    <string name="weather_error_no_location">Ще немає місцезнаходження, тож немає про яке місце запитувати</string>
+    <string name="warnings_location_services_body">EUC Planet має дозвіл, але на телефоні геолокацію вимкнено для всього. Торкніться, щоб увімкнути.</string>
+    <string name="warnings_location_services_title">Геолокацію вимкнено в системі</string>
     <string name="hud_joystick_title">Дії кнопок</string>
     <string name="hud_joystick_desc">Двічі натисни кнопку HUD, щоб виконати дію. Одиночне натискання все одно перемикає екрани.</string>
     <string name="hud_joystick_up">Вгору (подвійне натискання)</string>

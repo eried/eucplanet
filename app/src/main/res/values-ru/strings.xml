@@ -1829,6 +1829,9 @@
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке.</string>
     <string name="warnings_perm_location_title">Геолокация выключена</string>
     <string name="warnings_perm_location_body">Поездки не записывают маршрут, скорость и калибровка по GPS не работают. Нажмите, чтобы разрешить.</string>
+    <string name="weather_error_no_location">Пока нет местоположения, поэтому не о чем спрашивать</string>
+    <string name="warnings_location_services_body">У EUC Planet есть разрешение, но на телефоне геолокация выключена для всего. Нажмите, чтобы включить.</string>
+    <string name="warnings_location_services_title">Геолокация отключена в системе</string>
     <string name="warnings_battery_opt_title">Оптимизация батареи включена</string>
     <string name="warnings_battery_opt_body">Android может остановить EUC Planet в фоне и прервать запись посреди поездки. Разрешите работу без ограничений.</string>
     <string name="warnings_hud_blocked_title">HUD на телефоне не может рисовать</string>

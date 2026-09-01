@@ -1826,6 +1826,9 @@
     <string name="warnings_perm_notifications_body">상태 표시줄에서 주행 상태를 볼 수 없고 알림 창에서 음성 알림을 받을 수 없습니다.</string>
     <string name="warnings_perm_location_title">위치 권한이 꺼져 있습니다</string>
     <string name="warnings_perm_location_body">트립에 경로가 기록되지 않고 GPS 속도와 보정도 작동하지 않습니다. 탭하여 허용하세요.</string>
+    <string name="weather_error_no_location">아직 위치가 없어 물어볼 장소가 없습니다</string>
+    <string name="warnings_location_services_body">EUC Planet에는 권한이 있지만 기기 전체에서 위치가 꺼져 있습니다. 탭하여 켜세요.</string>
+    <string name="warnings_location_services_title">기기 위치가 꺼져 있습니다</string>
     <string name="warnings_battery_opt_title">배터리 최적화가 켜져 있음</string>
     <string name="warnings_battery_opt_body">Android가 백그라운드에서 EUC Planet을 중지해 주행 중 기록이 끊길 수 있습니다. 제한 없이 실행하도록 허용하세요.</string>
     <string name="warnings_hud_blocked_title">휴대전화 HUD를 표시할 수 없음</string>
