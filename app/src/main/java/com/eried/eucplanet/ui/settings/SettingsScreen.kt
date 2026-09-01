@@ -519,13 +519,43 @@ fun SettingsScreen(
         )
     }
 
+    /** Far past any believable label count, so a title hit always wins. */
+    val TITLE_WEIGHT = 1000
+
     data class SectionDef(
         val key: String,
         val title: String,
         val icon: ImageVector,
-        val searchCorpus: String,
+        /**
+         * Every label inside the section, one per entry.
+         *
+         * A list rather than one joined string, because the count is now part
+         * of the answer: a collapsed section says how many of its labels the
+         * query hit, which is what lets the rest of the page stay where it is
+         * instead of being filtered away.
+         */
+        val searchCorpus: List<String>,
         val content: @Composable () -> Unit
-    )
+    ) {
+        fun matchCount(query: String): Int =
+            if (query.isEmpty()) 0
+            else searchCorpus.count { it.contains(query, ignoreCase = true) }
+
+        fun matches(query: String): Boolean = matchCount(query) > 0
+
+        /**
+         * How well this section answers [query], for picking which one opens.
+         *
+         * A title hit outranks any number of label hits: a rider typing
+         * "voice" means the Voice section, even if some other section happens
+         * to mention voice four times. Below that, more mentions wins.
+         */
+        fun searchScore(query: String): Int {
+            if (query.isEmpty()) return 0
+            val titleHit = if (title.contains(query, ignoreCase = true)) TITLE_WEIGHT else 0
+            return titleHit + matchCount(query)
+        }
+    }
 
     val titleGeneral = stringResource(R.string.tab_general)
     val titleDisplay = stringResource(R.string.tab_display)
@@ -563,7 +593,7 @@ fun SettingsScreen(
         stringResource(R.string.widget_action_slot, 1),
         stringResource(R.string.widget_standalone_slot, 1),
         stringResource(R.string.charging_monitor)
-    ).joinToString(" ")
+    )
 
     val corpusDashboard = listOf(
         titleDashboard,
@@ -583,7 +613,7 @@ fun SettingsScreen(
         stringResource(R.string.action_chip_safety),
         stringResource(R.string.action_chip_lock),
         stringResource(R.string.action_chip_record)
-    ).joinToString(" ")
+    )
 
     val corpusDisplay = listOf(
         titleDisplay,
@@ -592,7 +622,7 @@ fun SettingsScreen(
         stringResource(R.string.theme),
         stringResource(R.string.show_gauge_color_band),
         stringResource(R.string.language)
-    ).joinToString(" ")
+    )
 
     val corpusSpeed = listOf(
         titleSpeed,
@@ -612,7 +642,7 @@ fun SettingsScreen(
         stringResource(R.string.battery_percent_max_cell),
         stringResource(R.string.battery_capacity_label),
         stringResource(R.string.battery_percent_series_cells)
-    ).joinToString(" ")
+    )
 
     val corpusVoice = listOf(
         titleVoice,
@@ -639,7 +669,7 @@ fun SettingsScreen(
         stringResource(R.string.report_recording),
         stringResource(R.string.report_time),
         stringResource(R.string.section_accel_splits)
-    ).joinToString(" ")
+    )
 
     val corpusMotor = listOf(
         titleMotor,
@@ -653,7 +683,7 @@ fun SettingsScreen(
         stringResource(R.string.engine_brake_label),
         stringResource(R.string.engine_duck_label),
         stringResource(R.string.engine_headphones_only)
-    ).joinToString(" ")
+    )
 
     val corpusCloud = listOf(
         titleCloud,
@@ -661,9 +691,9 @@ fun SettingsScreen(
         stringResource(R.string.section_cloud_settings),
         stringResource(R.string.section_cloud_trips),
         stringResource(R.string.section_online_stats)
-    ).joinToString(" ")
+    )
 
-    val corpusAlarms = titleAlarms + " " + stringResource(R.string.alarm_help)
+    val corpusAlarms = listOf(titleAlarms, stringResource(R.string.alarm_help))
 
     val corpusAuto = listOf(
         titleAuto,
@@ -674,7 +704,7 @@ fun SettingsScreen(
         stringResource(R.string.media_control_desc),
         stringResource(R.string.proximity_lock_title),
         stringResource(R.string.proximity_lock_desc)
-    ).joinToString(" ")
+    )
 
     val corpusIntegration = listOf(
         titleIntegration,
@@ -688,7 +718,7 @@ fun SettingsScreen(
         stringResource(R.string.hud_search_corpus),
         stringResource(R.string.section_tpms),
         stringResource(R.string.tpms_wheel_sensor)
-    ).joinToString(" ")
+    )
 
     val corpusNavigator = listOf(
         titleNavigator,
@@ -697,14 +727,14 @@ fun SettingsScreen(
         stringResource(R.string.nav_setting_arrival_radius),
         stringResource(R.string.nav_setting_offroute),
         stringResource(R.string.nav_setting_endpoints)
-    ).joinToString(" ")
+    )
 
     val corpusGpsSensors = listOf(
         titleGpsSensors,
         stringResource(R.string.gps_show_on_dashboard),
         stringResource(R.string.gps_prioritize_external),
         stringResource(R.string.external_gps_caption)
-    ).joinToString(" ")
+    )
 
     val corpusWatch = listOf(
         titleWatch,
@@ -720,7 +750,7 @@ fun SettingsScreen(
         stringResource(R.string.watch_show_speed_unit),
         stringResource(R.string.section_watch_device),
         stringResource(R.string.section_watch_buttons)
-    ).joinToString(" ")
+    )
 
     val corpusAdvanced = listOf(
         titleAdvanced,
@@ -732,7 +762,7 @@ fun SettingsScreen(
         stringResource(R.string.adv_phone_gps_interval),
         stringResource(R.string.adv_hud_report_interval),
         stringResource(R.string.adv_garmin_report_interval),
-    ).joinToString(" ")
+    )
 
     // Section handles for the reorganize editor (key, title, icon). Every section
     // is reorderable and hideable now, including Advanced (which defaults to last).
@@ -929,10 +959,23 @@ fun SettingsScreen(
             // Where the first match is, so the page can go there. Filtering
             // and highlighting on their own leave the match below the fold on
             // a long page, which reads as a search that did nothing.
+            // The one section that opens. The others stay exactly where the
+            // rider left them: filtering them off the page took away the map
+            // they navigate by, and expanding every match at once buried the
+            // answer in a wall of open sections. A broad word like "speed"
+            // used to open five.
             val searchScrollKey = if (searching) {
-                (topLevel + moreSecs).firstOrNull {
-                    it.searchCorpus.contains(query, ignoreCase = true)
-                }?.key
+                // The best match, not the first one down the page. "speed"
+                // touches a unit label in Display and appearance and five
+                // labels in Wheel parameters, and opening Display because it
+                // is higher up left the rider looking at a section with the
+                // answer nowhere in sight. A section named for the word wins
+                // outright; otherwise the one that mentions it most does.
+                (topLevel + moreSecs)
+                    .map { it to it.searchScore(query) }
+                    .filter { it.second > 0 }
+                    .maxByOrNull { it.second }
+                    ?.first?.key
             } else null
             var searchTargetTop by remember { mutableStateOf<Float?>(null) }
             // A matching heading beats the section it lives in: the section is
@@ -992,10 +1035,12 @@ fun SettingsScreen(
             ) {
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
-                    // While searching, only render sections whose corpus matches.
-                    if (searching && !sec.searchCorpus.contains(query, ignoreCase = true)) return
+                    // Everything stays on the page while searching. Only the
+                    // first match opens; the rest report how many labels they
+                    // hit and stay shut.
                     val explicitlyExpanded = expandedSections.contains(sec.key)
-                    val isExpanded = explicitlyExpanded || searching
+                    val openedByQuery = searching && sec.key == searchScrollKey
+                    val isExpanded = explicitlyExpanded || openedByQuery
                     var sectionModifier = when {
                         sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather ->
                             Modifier.onGloballyPositioned {
@@ -1016,7 +1061,8 @@ fun SettingsScreen(
                         icon = sec.icon,
                         expanded = isExpanded,
                         query = query,
-                        autoExpandedByQuery = !explicitlyExpanded && searching,
+                        autoExpandedByQuery = !explicitlyExpanded && openedByQuery,
+                        matchCount = if (searching && !isExpanded) sec.matchCount(query) else 0,
                         onToggle = {
                             if (explicitlyExpanded) expandedSections.remove(sec.key)
                             else expandedSections.add(sec.key)
@@ -1030,17 +1076,22 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (searching) {
-                        // Flatten so a query finds a section wherever it sits.
-                        orderedMovable.forEach { SectionCard(it) }
-                    } else {
+                    run {
                         topLevel.forEach { SectionCard(it) }
                         if (moreSecs.isNotEmpty()) {
-                            val moreExpanded = expandedSections.contains(MORE_KEY)
+                            // Opens on its own when the match is filed inside
+                            // it. The page no longer dissolves this bucket
+                            // while searching, so without this a hidden
+                            // section would be unfindable.
+                            val moreHasMatch = searching && moreSecs.any { it.key == searchScrollKey }
+                            val moreExpanded = expandedSections.contains(MORE_KEY) || moreHasMatch
                             CollapsibleSection(
                                 title = stringResource(R.string.tab_more),
                                 icon = Icons.Default.MoreHoriz,
                                 expanded = moreExpanded,
+                                autoExpandedByQuery = moreHasMatch,
+                                matchCount = if (searching && !moreExpanded)
+                                    moreSecs.sumOf { it.matchCount(query) } else 0,
                                 onToggle = {
                                     if (moreExpanded) expandedSections.remove(MORE_KEY)
                                     else expandedSections.add(MORE_KEY)
@@ -1087,6 +1138,14 @@ private fun CollapsibleSection(
     modifier: Modifier = Modifier,
     query: String = "",
     autoExpandedByQuery: Boolean = false,
+    /**
+     * How many labels inside this closed section the query hit, or 0 for none.
+     *
+     * A number rather than "2 matches": twenty-three languages pluralise a
+     * count in ways a format string gets wrong, and the badge reads the same
+     * in all of them.
+     */
+    matchCount: Int = 0,
     content: @Composable () -> Unit
 ) {
     // Bring the section header into view when the rider explicitly toggles
@@ -1137,6 +1196,24 @@ private fun CollapsibleSection(
                     color = MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
+                if (matchCount > 0) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        // The accent fill with the theme's on-accent ink. The
+                        // highlight's 55 percent version works behind a word
+                        // in a sentence; behind a badge it would leave the
+                        // count sitting on whatever the card happens to be.
+                        color = MaterialTheme.appColors.selection,
+                        contentColor = MaterialTheme.appColors.onPrimary,
+                    ) {
+                        Text(
+                            matchCount.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        )
+                    }
+                    Spacer(Modifier.width(10.dp))
+                }
                 val chevron by animateFloatAsState(
                     targetValue = if (expanded) 180f else 0f,
                     animationSpec = tween(180),
