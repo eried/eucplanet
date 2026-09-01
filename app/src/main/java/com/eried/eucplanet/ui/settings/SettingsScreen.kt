@@ -297,6 +297,17 @@ import sh.calvin.reorderable.ReorderableColumn
  */
 private const val SEARCH_SETTLE_MS = 180L
 
+/**
+ * How a matching sub-heading tells the search where it is.
+ *
+ * Sections already report their own position for deep links, but a section is
+ * a coarse target: "tpms" matches Integration, whose heading is a screenful
+ * above the TPMS one. Headings that match report too, and the scroll prefers
+ * them.
+ */
+internal val LocalSearchHeadingReporter =
+    androidx.compose.runtime.staticCompositionLocalOf<(String, Float) -> Unit> { { _, _ -> } }
+
 // Reads the one shipped-language registry rather than repeating it: a locale
 // added there reaches the picker with no edit here.
 private val languageOptions =
@@ -904,6 +915,9 @@ fun SettingsScreen(
                 }?.key
             } else null
             var searchTargetTop by remember { mutableStateOf<Float?>(null) }
+            // A matching heading beats the section it lives in: the section is
+            // where the answer is filed, the heading is where the answer is.
+            var headingTop by remember(query) { mutableStateOf<Float?>(null) }
             LaunchedEffect(searchScrollKey) {
                 searchTargetTop = null
                 if (searchScrollKey == null) return@LaunchedEffect
@@ -913,21 +927,32 @@ fun SettingsScreen(
                 // the filter applies, and scrolling to a position that is
                 // still shifting lands somewhere else.
                 while (searchTargetTop == null) kotlinx.coroutines.delay(16)
+                // Give a matching heading a moment to report; it is inside the
+                // section, so it lays out just after it.
+                kotlinx.coroutines.delay(80)
                 while (true) {
-                    val t0 = searchTargetTop
+                    val t0 = headingTop ?: searchTargetTop
                     kotlinx.coroutines.delay(120)
-                    if (searchTargetTop == t0) break
+                    if ((headingTop ?: searchTargetTop) == t0) break
                 }
                 // Relative, like the deep-link scroll: an absolute offset
                 // computed from an already-scrolled window converges on the
                 // wrong place.
-                val delta = ((searchTargetTop ?: return@LaunchedEffect) - container).toInt()
+                val target = headingTop ?: searchTargetTop ?: return@LaunchedEffect
+                val delta = (target - container).toInt()
                 if (kotlin.math.abs(delta) > 8) {
                     scrollState.animateScrollTo((scrollState.value + delta).coerceAtLeast(0))
                 }
             }
 
-            androidx.compose.runtime.CompositionLocalProvider(LocalSettingsSearchQuery provides query) {
+            androidx.compose.runtime.CompositionLocalProvider(
+                LocalSettingsSearchQuery provides query,
+                LocalSearchHeadingReporter provides { _, y ->
+                    // The first matching heading wins; later ones are further
+                    // down the page and would drag the rider past the answer.
+                    if (headingTop == null) headingTop = y
+                },
+            ) {
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
                     // While searching, only render sections whose corpus matches.
@@ -9086,10 +9111,18 @@ private fun SettingsSearchField(
 @Composable
 internal fun SectionHeader(title: String) {
     val query = LocalSettingsSearchQuery.current
+    // A heading that matches the query says where it is, so the search can
+    // land on it rather than on the section containing it. "tpms" used to
+    // scroll to the top of Integration with the answer still off-screen.
+    val report = LocalSearchHeadingReporter.current
+    val matches = query.isNotEmpty() && title.contains(query, ignoreCase = true)
     Text(
         text = highlightMatches(title, query),
         style = MaterialTheme.typography.headlineMedium,
-        color = MaterialTheme.appColors.sectionHeader
+        color = MaterialTheme.appColors.sectionHeader,
+        modifier = if (matches) {
+            Modifier.onGloballyPositioned { report(title, it.positionInWindow().y) }
+        } else Modifier,
     )
 }
 

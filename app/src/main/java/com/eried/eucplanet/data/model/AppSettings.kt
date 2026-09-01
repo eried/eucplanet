@@ -1331,13 +1331,17 @@ data class ProximityLockSettings(
 data class TpmsSettings(
     val pairedAddress: String? = null,
     /**
-     * "psi", "bar" or "kPa".
+     * "psi", "bar", "kPa", or blank to follow the unit system.
      *
-     * Its own setting rather than derived from the distance unit. A rider on
-     * kilometres routinely runs psi in a tyre, because that is how tyres are
-     * talked about, and deriving it got that case wrong every time.
+     * Blank by default, and blank means Imperial gets psi and Metric gets bar
+     * without anyone being asked. Storing a concrete default instead was worse
+     * than deriving it: an existing rider on Imperial kept whatever the
+     * default happened to be, and nothing could tell "they chose bar" from
+     * "they never chose". A rider who picks one gets it everywhere, which is
+     * the part deriving alone could not do - psi in a tyre on a phone that
+     * measures everything else in kilometres.
      */
-    val pressureUnit: String = "bar",
+    val pressureUnit: String = "",
 )
 
 data class WeatherSettings(

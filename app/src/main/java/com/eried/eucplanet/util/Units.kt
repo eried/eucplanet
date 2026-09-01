@@ -140,7 +140,10 @@ object Units {
      * relationship between the two beyond an assumption that was usually
      * false.
      */
-    fun effectivePressureUnit(s: AppSettings): String = s.tpms.pressureUnit
+    fun effectivePressureUnit(s: AppSettings): String =
+        s.tpms.pressureUnit.ifBlank {
+            if (effectiveDistanceUnit(s) == "mi") "psi" else "bar"
+        }
 
     /** The three top-level measurement-unit modes. CUSTOM is a derived label. */
     enum class UnitSystem { METRIC, IMPERIAL, CUSTOM }

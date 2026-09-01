@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
+import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
 
@@ -82,7 +83,10 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         }
 
         if (!hasPaired && !wheelHasSensor && !scanning) {
-            HintText(stringResource(R.string.tpms_none_yet), small = true)
+            // The app's info hint, icon and all, rather than a bare line of
+            // text: this is the state a rider lands on with nothing set up,
+            // and it is the one place the section explains itself.
+            InfoHint(stringResource(R.string.tpms_none_yet))
         }
 
         Spacer(Modifier.height(4.dp))
