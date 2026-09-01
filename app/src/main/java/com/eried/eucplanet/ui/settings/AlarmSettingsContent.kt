@@ -1264,16 +1264,6 @@ private fun AlarmRuleEditorDialog(
                             colors = themedSwitchColors(),
                         )
                     }
-                    HintText(
-                        when {
-                            wheelAddress != null ->
-                                stringResource(R.string.alarm_wheel_only_help_bound, wheelName ?: wheelAddress ?: "")
-                            connectedWheel != null ->
-                                stringResource(R.string.alarm_wheel_only_help_ready, connectedWheel.second)
-                            else -> stringResource(R.string.alarm_wheel_only_help_connect)
-                        },
-                        small = true
-                    )
                 }
                 } // end scrollable middle
 

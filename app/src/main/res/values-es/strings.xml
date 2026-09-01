@@ -1094,11 +1094,8 @@
     <string name="alarm_repeat_label">Disparo</string>
     <string name="alarm_repeat_single">Uno</string>
     <string name="alarm_repeat_multi">Muchos</string>
-    <string name="alarm_wheel_only_label">Solo esta rueda</string>
-    <string name="alarm_wheel_only_help_bound">Se activa solo mientras %1$s está conectada.</string>
-    <string name="alarm_wheel_only_help_ready">Activado: solo en %1$s. Desactivado: cualquier rueda.</string>
-    <string name="alarm_wheel_only_help_connect">Conecta una rueda para limitar esta alarma a ella.</string>
-    <string name="alarm_summary_wheel_fmt">Solo %1$s</string>
+    <string name="alarm_wheel_only_label">Solo aplica a la rueda conectada</string>
+    <string name="alarm_summary_wheel_fmt">Aplica a: %1$s</string>
     <string name="alarm_section_advanced">Avanzado</string>
     <string name="alarm_predict_label">Disparo predictivo</string>
     <string name="alarm_predict_realtime">Ahora</string>

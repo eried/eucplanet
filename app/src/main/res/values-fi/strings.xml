@@ -1357,11 +1357,8 @@
     <string name="alarm_repeat_label">Laukaisu</string>
     <string name="alarm_repeat_single">Kerran</string>
     <string name="alarm_repeat_multi">Monta</string>
-    <string name="alarm_wheel_only_label">Vain tämä pyörä</string>
-    <string name="alarm_wheel_only_help_bound">Laukeaa vain, kun %1$s on yhdistetty.</string>
-    <string name="alarm_wheel_only_help_ready">Päällä: vain %1$s. Pois: mikä tahansa pyörä.</string>
-    <string name="alarm_wheel_only_help_connect">Yhdistä pyörä rajataksesi hälytyksen siihen.</string>
-    <string name="alarm_summary_wheel_fmt">Vain %1$s</string>
+    <string name="alarm_wheel_only_label">Koskee vain yhdistettyä pyörää</string>
+    <string name="alarm_summary_wheel_fmt">Koskee: %1$s</string>
     <string name="alarm_state_atleast">%1$s on %2$s tai enemmän</string>
     <string name="alarm_state_below">%1$s on alle %2$s</string>
     <string name="alarm_repeat_help_once">Yksi hälytys kun %1$s. Viritetään uudelleen kun %2$s, %3$d s jäähdytyksen jälkeen.</string>

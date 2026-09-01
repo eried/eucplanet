@@ -1091,11 +1091,8 @@
     <string name="alarm_repeat_label">Utlösning</string>
     <string name="alarm_repeat_single">En gång</string>
     <string name="alarm_repeat_multi">Flera</string>
-    <string name="alarm_wheel_only_label">Endast detta hjul</string>
-    <string name="alarm_wheel_only_help_bound">Utlöses endast medan %1$s är anslutet.</string>
-    <string name="alarm_wheel_only_help_ready">På: endast på %1$s. Av: alla hjul.</string>
-    <string name="alarm_wheel_only_help_connect">Anslut ett hjul för att begränsa larmet till det.</string>
-    <string name="alarm_summary_wheel_fmt">Endast %1$s</string>
+    <string name="alarm_wheel_only_label">Gäller endast det anslutna hjulet</string>
+    <string name="alarm_summary_wheel_fmt">Gäller: %1$s</string>
     <string name="alarm_predict_label">Förutseende larm</string>
     <string name="alarm_predict_realtime">Nu</string>
     <string name="alarm_state_atleast">%1$s är %2$s eller mer</string>

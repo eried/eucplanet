@@ -1095,11 +1095,8 @@
     <string name="alarm_repeat_label">Срабатывание</string>
     <string name="alarm_repeat_single">Раз</string>
     <string name="alarm_repeat_multi">Много</string>
-    <string name="alarm_wheel_only_label">Только это колесо</string>
-    <string name="alarm_wheel_only_help_bound">Срабатывает только пока подключено %1$s.</string>
-    <string name="alarm_wheel_only_help_ready">Вкл: только на %1$s. Выкл: любое колесо.</string>
-    <string name="alarm_wheel_only_help_connect">Подключите колесо, чтобы ограничить сигнал только им.</string>
-    <string name="alarm_summary_wheel_fmt">Только %1$s</string>
+    <string name="alarm_wheel_only_label">Действует только для подключённого колеса</string>
+    <string name="alarm_summary_wheel_fmt">Действует для: %1$s</string>
     <string name="alarm_predict_label">Упреждающее срабатывание</string>
     <string name="alarm_predict_realtime">Сейчас</string>
     <string name="alarm_state_atleast">%1$s %2$s или больше</string>

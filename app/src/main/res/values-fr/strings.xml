@@ -1094,11 +1094,8 @@
     <string name="alarm_repeat_label">Déclenchement</string>
     <string name="alarm_repeat_single">Unique</string>
     <string name="alarm_repeat_multi">Répété</string>
-    <string name="alarm_wheel_only_label">Seulement cette roue</string>
-    <string name="alarm_wheel_only_help_bound">Se déclenche uniquement quand %1$s est connectée.</string>
-    <string name="alarm_wheel_only_help_ready">Activé : seulement sur %1$s. Désactivé : toute roue.</string>
-    <string name="alarm_wheel_only_help_connect">Connectez une roue pour limiter cette alarme à celle-ci.</string>
-    <string name="alarm_summary_wheel_fmt">Seulement %1$s</string>
+    <string name="alarm_wheel_only_label">S\'applique uniquement à la roue connectée</string>
+    <string name="alarm_summary_wheel_fmt">S\'applique à : %1$s</string>
     <string name="alarm_section_advanced">Avancé</string>
     <string name="alarm_predict_label">Déclenchement prédictif</string>
     <string name="alarm_predict_realtime">Direct</string>
