@@ -508,8 +508,20 @@ class WheelRepository @Inject constructor(
         }
     }
 
-    /** Clears every in-memory rolling history buffer. */
+    /**
+     * Clears every in-memory rolling history buffer.
+     *
+     * The buffers, not just the published snapshot. Emptying only the
+     * StateFlow looked like it worked for about a second: the 1 Hz tick
+     * rebuilds FullMetricHistory from battHist / tempHist / ... / extrasHist,
+     * so every sparkline and every metric-detail chart came straight back and
+     * Reset metrics read as a button that did nothing. [connect] has always
+     * cleared both when switching wheels; this is the same clear.
+     */
     fun resetAllHistory() {
+        battHist.clear(); tempHist.clear(); voltHist.clear()
+        ampsHist.clear(); loadHist.clear(); speedHist.clear()
+        extrasHist.values.forEach { it.clear() }
         _fullHistory.value = FullMetricHistory()
     }
 
