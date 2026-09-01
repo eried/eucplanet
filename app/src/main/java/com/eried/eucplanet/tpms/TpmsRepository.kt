@@ -57,8 +57,20 @@ class TpmsRepository @Inject constructor() {
     }
 
     /** A directly paired sensor reported. */
+    /**
+     * A sensor reported. The first one seen becomes the rider's; after that
+     * only that one is listened to.
+     *
+     * It used to take whichever packet arrived, so two caps in range - a
+     * second tyre, a neighbour's car - traded the reading back and forth and
+     * the pressure looked wrong because it was two tyres at once.
+     */
     fun submitPaired(kpa: Float, address: String? = null, nowMs: Long = System.currentTimeMillis()) {
-        address?.let { _pairedAddress.value = it }
+        if (address != null) {
+            val owned = _pairedAddress.value
+            if (owned == null) _pairedAddress.value = address
+            else if (owned != address) return
+        }
         pairedReading = TpmsPolicy.readingOf(kpa, TpmsSource.PAIRED, nowMs) ?: pairedReading
         recompute(nowMs)
     }

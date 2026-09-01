@@ -748,7 +748,7 @@
     <string name="section_external_gps">GPS y sensores</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">Sensores TPMS</string>
-    <string name="tpms_caption">Presión de neumático de un sensor en la rueda, como el InMotion P6.</string>
+    <string name="tpms_caption">Presión desde un sensor en tu rueda, o un sensor de tapa que agregues acá.</string>
     <string name="tpms_wheel_sensor">Presión de neumático de la rueda</string>
     <string name="tpms_wheel_sensor_desc">Retransmitida desde un sensor vinculado.</string>
     <string name="tpms_idle">Ningún sensor informa aún</string>

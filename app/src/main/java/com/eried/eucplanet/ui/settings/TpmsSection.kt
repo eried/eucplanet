@@ -209,6 +209,16 @@ private fun TpmsSensorRow(
     }
 }
 
-private fun formatPressure(kpa: Float, unit: String): String =
-    if (unit == "psi") "%.1f psi".format(Units.pressure(kpa, "psi"))
-    else "%.2f bar".format(Units.pressure(kpa, "bar"))
+/**
+ * A pressure in the rider's unit.
+ *
+ * kPa had no branch and fell through to bar, so choosing it showed a bar
+ * number labelled bar while the rider had asked for kPa. Decimals differ
+ * because the units do: 77.4 psi and 5.34 bar carry about the same precision,
+ * and kPa is already fine as a whole number.
+ */
+private fun formatPressure(kpa: Float, unit: String): String = when (unit) {
+    "psi" -> "%.1f psi".format(Units.pressure(kpa, "psi"))
+    "kpa", "kPa" -> "%.0f kPa".format(kpa)
+    else -> "%.2f bar".format(Units.pressure(kpa, "bar"))
+}

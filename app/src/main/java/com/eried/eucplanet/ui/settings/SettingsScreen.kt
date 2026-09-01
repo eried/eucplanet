@@ -315,7 +315,10 @@ fun SettingsScreen(
     val ttsSwitchPrompt by viewModel.ttsSwitchPrompt.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
     val engineParked by viewModel.engineParked.collectAsState()
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+    // Only the settled query lives out here. The typed text is the field's,
+    // deliberately: reading it here is what made every letter recompose the
+    // screen and its fourteen search corpora.
+    var settledQuery by rememberSaveable { mutableStateOf("") }
     // One snackbar host for every transient confirmation in Settings, cloud
     // backup success / failure, cheat-console toasts. Replaces the older
     // Android Toast popups so the styling matches Overlay Studio / Navigator
@@ -775,61 +778,40 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     val ctxLocal = androidx.compose.ui.platform.LocalContext.current
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        placeholder = { Text(stringResource(R.string.search_settings)) },
-                        trailingIcon = {
-                            if (searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { searchQuery = "" }) {
-                                    Icon(Icons.Default.Close, contentDescription = null)
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        // Quake-style console: typed cheats (daredevilNN, godmode, bug) are
-                        // intercepted on IME Enter before they become a search query. No
-                        // match → field stays populated and the normal text-search filter
-                        // already running below keeps narrowing the visible sections.
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                            imeAction = androidx.compose.ui.text.input.ImeAction.Search
-                        ),
-                        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
-                            onSearch = {
-                                val result = viewModel.cheatState.tryConsume(searchQuery)
-                                if (result != null) {
-                                    when (result) {
-                                        is com.eried.eucplanet.cheats.CheatState.Result.ShowSheet -> {
-                                            cheatSheet = result
-                                        }
-                                        is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl -> {
-                                            snackbarScope.launch { snackbar.showSnackbar(result.toast) }
-                                            try {
-                                                ctxLocal.startActivity(
-                                                    android.content.Intent(
-                                                        android.content.Intent.ACTION_VIEW,
-                                                        android.net.Uri.parse(result.url)
-                                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                )
-                                            } catch (_: Throwable) { /* no browser installed */ }
-                                        }
-                                        is com.eried.eucplanet.cheats.CheatState.Result.ResetTutorial -> {
-                                            viewModel.resetWelcomeTutorial()
-                                            snackbarScope.launch { snackbar.showSnackbar(result.toast) }
-                                        }
-                                        is com.eried.eucplanet.cheats.CheatState.Result.Toast -> {
-                                            snackbarScope.launch { snackbar.showSnackbar(result.toast) }
-                                        }
+                    // The field keeps its own text and hands it over once the
+                    // typing settles. Holding it out here meant every letter
+                    // recomposed this whole screen, corpora and all.
+                    SettingsSearchField(
+                        onSettled = { settledQuery = it },
+                        onSearchAction = { typed ->
+                            val result = viewModel.cheatState.tryConsume(typed)
+                            if (result != null) {
+                                when (result) {
+                                    is com.eried.eucplanet.cheats.CheatState.Result.ShowSheet -> {
+                                        cheatSheet = result
                                     }
-                                    searchQuery = ""
+                                    is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl -> {
+                                        snackbarScope.launch { snackbar.showSnackbar(result.toast) }
+                                        try {
+                                            ctxLocal.startActivity(
+                                                android.content.Intent(
+                                                    android.content.Intent.ACTION_VIEW,
+                                                    android.net.Uri.parse(result.url)
+                                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            )
+                                        } catch (_: Throwable) { /* no browser installed */ }
+                                    }
+                                    is com.eried.eucplanet.cheats.CheatState.Result.ResetTutorial -> {
+                                        viewModel.resetWelcomeTutorial()
+                                        snackbarScope.launch { snackbar.showSnackbar(result.toast) }
+                                    }
+                                    is com.eried.eucplanet.cheats.CheatState.Result.Toast -> {
+                                        snackbarScope.launch { snackbar.showSnackbar(result.toast) }
+                                    }
                                 }
-                            }
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 10.dp),
-                        colors = themedFieldColors(),
+                                true
+                            } else false
+                        },
                     )
                 },
                 navigationIcon = {
@@ -893,17 +875,6 @@ fun SettingsScreen(
         ) {
             Spacer(Modifier.height(8.dp))
 
-            // The typed text drives the field; a settled copy drives the
-            // work. Every keystroke used to rebuild every section's search
-            // corpus from hundreds of string lookups and re-lay out the page,
-            // which is what made typing feel like wading. A rider does not
-            // need the list to keep up with their fingers, only with their
-            // pauses.
-            var settledQuery by remember { mutableStateOf("") }
-            LaunchedEffect(searchQuery) {
-                kotlinx.coroutines.delay(SEARCH_SETTLE_MS)
-                settledQuery = searchQuery.trim()
-            }
             val query = settledQuery
             val searching = query.isNotEmpty()
 
@@ -9059,6 +9030,57 @@ private fun AnnounceSwitchSetting(
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
+}
+
+/**
+ * The settings search box, which owns the text being typed.
+ *
+ * Deliberately not hoisted. The screen above builds fourteen search corpora
+ * out of a hundred and forty string lookups, and any state it reads recomposes
+ * all of that; with the query up there, every single letter paid for it. The
+ * field keeps the text and reports it once the typing settles, so the screen
+ * recomposes on pauses rather than on keystrokes.
+ *
+ * [onSearchAction] gets the raw text on IME Search and returns true when it
+ * consumed it, which is how the typed-cheat console clears the field.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsSearchField(
+    onSettled: (String) -> Unit,
+    onSearchAction: (String) -> Boolean,
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(text) {
+        kotlinx.coroutines.delay(SEARCH_SETTLE_MS)
+        onSettled(text.trim())
+    }
+    OutlinedTextField(
+        value = text,
+        onValueChange = { text = it },
+        placeholder = { Text(stringResource(R.string.search_settings)) },
+        trailingIcon = {
+            if (text.isNotEmpty()) {
+                IconButton(onClick = { text = "" }) {
+                    Icon(Icons.Default.Close, contentDescription = null)
+                }
+            }
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
+        // Quake-style console: typed cheats are intercepted on IME Enter
+        // before they become a search query.
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+            imeAction = androidx.compose.ui.text.input.ImeAction.Search
+        ),
+        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+            onSearch = { if (onSearchAction(text)) text = "" }
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 10.dp),
+        colors = themedFieldColors(),
+    )
 }
 
 @Composable

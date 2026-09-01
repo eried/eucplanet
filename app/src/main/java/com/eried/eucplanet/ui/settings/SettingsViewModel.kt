@@ -797,12 +797,19 @@ class SettingsViewModel @Inject constructor(
     fun setUnitDistance(v: String) = update { copy(unitDistance = v) }
     fun setUnitTemp(v: String) = update { copy(unitTemp = v) }
 
-    /** Sets all three per-unit fields at once from the Metric/Imperial preset. */
+    /**
+     * Sets every per-unit field at once from the Metric/Imperial preset.
+     *
+     * Pressure included. It was left out when it stopped being derived from
+     * distance, so picking Metric moved speed, distance and temperature and
+     * left the tyre reading in psi, which is not what Metric means.
+     */
     fun applyUnitPreset(imperial: Boolean) = update {
         copy(
             unitSpeed = if (imperial) "mph" else "kmh",
             unitDistance = if (imperial) "mi" else "km",
-            unitTemp = if (imperial) "F" else "C"
+            unitTemp = if (imperial) "F" else "C",
+            tpms = tpms.copy(pressureUnit = if (imperial) "psi" else "bar"),
         )
     }
 

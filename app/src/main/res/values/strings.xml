@@ -1020,7 +1020,7 @@
 
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS sensors</string>
-    <string name="tpms_caption">Tire pressure from a sensor on the wheel, like the InMotion P6.</string>
+    <string name="tpms_caption">Tire pressure from a sensor on your wheel, or a valve-cap sensor you add here.</string>
     <string name="tpms_wheel_sensor">Wheel tire pressure</string>
     <string name="tpms_wheel_sensor_desc">Relayed from a bound sensor.</string>
     <string name="tpms_idle">No sensor reporting yet</string>

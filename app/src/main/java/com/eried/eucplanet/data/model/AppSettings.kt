@@ -1337,7 +1337,7 @@ data class TpmsSettings(
      * kilometres routinely runs psi in a tyre, because that is how tyres are
      * talked about, and deriving it got that case wrong every time.
      */
-    val pressureUnit: String = "psi",
+    val pressureUnit: String = "bar",
 )
 
 data class WeatherSettings(
