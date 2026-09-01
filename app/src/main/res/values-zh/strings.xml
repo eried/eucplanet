@@ -215,7 +215,7 @@
 
     <string name="section_speed_limits">速度限制</string>
     <string name="section_legal_mode_speed">合规模式速度</string>
-    <string name="legal_mode_caption">合规模式开启时生效；必须低于普通回倾速度</string>
+    <string name="legal_mode_caption">合规模式开启时生效；必须低于普通回倾速度。</string>
     <string name="speed_limits_disconnected">连接独轮车后才能编辑校准和限制</string>
     <string name="speed_tiltback">回倾速度</string>
     <string name="speed_alarm">报警速度</string>
@@ -734,7 +734,7 @@
     <string name="battery_capacity_desc">可选。从一开始就设定续航估算，用于续航磁贴和 HUD。</string>
     <string name="battery_percent_cells_from_wheel">来自独轮车：%1$d 串。</string>
     <string name="battery_percent_cells_manual">把电池组电压换算成仪表盘、语音和警报中显示的百分比。</string>
-    <string name="speed_calibration_caption">调整独轮车上报的速度；影响警报、语音和行程日志</string>
+    <string name="speed_calibration_caption">调整独轮车上报的速度；影响警报、语音和行程日志。</string>
     <string name="speed_calibration_label">速度偏移</string>
     <string name="sources_other_metrics">其他指标</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -1270,7 +1270,7 @@
     <string name="studio_cfg_filter_vintage">复古</string>
     <string name="studio_cfg_filter_matte">哑光</string>
     <string name="dash_external_gps_settings">外部 GPS 设置</string>
-    <string name="external_gps_caption">打开设备并点按配对；其速度和 G 力实时输入并保存到行程 CSV</string>
+    <string name="external_gps_caption">打开设备并点按配对；其速度和 G 力实时输入并保存到行程 CSV。</string>
     <string name="gps_prioritize_external_desc">优先使用已连接设备而非手机的速度、位置和 G 力。</string>
     <string name="studio_cfg_show_value">显示数值</string>
     <string name="studio_cfg_unit_position">单位</string>
@@ -1641,7 +1641,7 @@
     <string name="online_upload_card_loading">加载中…</string>
     <string name="online_upload_card_unavailable">无法加载</string>
     <string name="online_profile_retry">重试</string>
-    <string name="online_upload_actions_caption">行程数据上传</string>
+    <string name="online_upload_actions_caption">行程数据上传。</string>
     <string name="online_upload_mileage_rank">里程第 #%d 名</string>
     <string name="online_upload_top_speed">最高 %1$s %2$s</string>
     <string name="online_upload_trips">%d 次行程</string>
@@ -1654,7 +1654,7 @@
     <string name="online_status_checking">正在与排行榜核对…</string>
     <string name="online_status_check_failed">暂时无法核对，请稍后再试</string>
     <string name="online_status_rejected">未被排行榜接受</string>
-    <string name="online_upload_join_caption">你的骑行记录将显示在公开排行榜</string>
+    <string name="online_upload_join_caption">你的骑行记录将显示在公开排行榜。</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">取消关联</string>
@@ -1680,7 +1680,7 @@
     <string name="online_restore_body_switch">此文件夹属于 %1$s。恢复后本机将切换为该骑手账号，当前资料会先备份，随时可切回。</string>
     <string name="online_restore_confirm">以 %1$s 身份继续</string>
     <string name="online_upload_card_missing">此手机的排行榜资料已不在服务器上，新的上传将被拒绝。如果这不符合预期，请联系排行榜管理员。</string>
-    <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜</string>
+    <string name="online_upload_linked_caption">你的统计数据和行程将显示在公开排行榜。</string>
     <string name="online_rejoin_title">重新激活资料</string>
     <string name="online_rejoin_body">备份文件夹中包含一个用于排行榜的资料。\n\n骑手 ID: %1$s</string>
     <string name="warnings_battery_opt_title">电池优化已开启</string>
@@ -1768,7 +1768,7 @@
     <string name="studio_save_keep_both">全部保留</string>
     <string name="welcome_tut_voice_desc">稍后可在设置 → 语音和通告 中开启或关闭单条语音消息。</string>
     <string name="welcome_tut_voice_title">启用语音提醒</string>
-    <string name="dropbox_section_caption">在线备份到 Dropbox</string>
+    <string name="dropbox_section_caption">在线备份到 Dropbox。</string>
     <string name="dropbox_section_desc">连接 Dropbox 后，行程也可以在 %1$s 上打开。</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">关联 Dropbox</string>

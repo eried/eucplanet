@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-Ordner</string>
-    <string name="cloud_caption">Dein Backup-Ordner für Fahrten, Einstellungen, Themes und Overlays</string>
+    <string name="cloud_caption">Dein Backup-Ordner für Fahrten, Einstellungen, Themes und Overlays.</string>
     <string name="cloud_choose_folder">Ordner wählen</string>
     <string name="cloud_change_folder">Ordner ändern</string>
     <string name="cloud_remove_folder">Verknüpfung aufheben</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Verbindung</string>
     <string name="section_display">Anzeige</string>
     <string name="auto_record_on_start">Automatisch aufnehmen</string>
-    <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Wheel verbunden ist</string>
+    <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Wheel verbunden ist.</string>
     <string name="auto_record_start_in_motion">Aufnahme bei Bewegung starten</string>
-    <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Stillstand, läuft bei der nächsten Fahrt wieder an</string>
+    <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Stillstand, läuft bei der nächsten Fahrt wieder an.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Stillstand von</string>
     <string name="auto_connect_on_start">Automatisch verbinden</string>
     <string name="wheel_name_display">Wheel-Name</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Vom Rad übernommen: %1$d in Reihe.</string>
     <string name="battery_percent_cells_manual">Macht aus der Packspannung den Prozentwert auf dem Dashboard, in Sprache und Alarmen</string>
     <string name="speed_calibration_label">Geschwindigkeitsversatz</string>
-    <string name="speed_calibration_caption">Passt die gemeldete Wheel-Geschwindigkeit an; betrifft Alarme, Sprache und Fahrtprotokoll</string>
+    <string name="speed_calibration_caption">Passt die gemeldete Wheel-Geschwindigkeit an; betrifft Alarme, Sprache und Fahrtprotokoll.</string>
     <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>
-    <string name="legal_mode_caption">Aktiv im Legal-Modus; muss unter dem normalen Tiltback liegen</string>
+    <string name="legal_mode_caption">Aktiv im Legal-Modus; muss unter dem normalen Tiltback liegen.</string>
     <string name="speed_limits_disconnected">Rad verbinden, um Kalibrierung und Grenzen zu bearbeiten</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
@@ -1150,7 +1150,7 @@
     <string name="online_upload_card_unavailable">Konnte nicht geladen werden</string>
     <string name="online_profile_retry">Erneut versuchen</string>
     <string name="online_upload_card_missing">Das Bestenlisten-Profil dieses Handys existiert nicht mehr auf dem Server, neue Uploads werden abgelehnt. Falls unerwartet, an den Bestenlisten-Admin wenden.</string>
-    <string name="online_upload_actions_caption">Fahrten-Uploads</string>
+    <string name="online_upload_actions_caption">Fahrten-Uploads.</string>
     <string name="online_upload_actions_desc">Noch nicht hochgeladene Fahrten jetzt in die Bestenliste laden.</string>
     <string name="online_upload_sync_nothing">Nichts zu synchronisieren</string>
     <string name="online_upload_sync_done">%1$d Fahrten synchronisiert</string>
@@ -1169,8 +1169,8 @@
     <string name="online_status_checking">Wird mit der Rangliste abgeglichen…</string>
     <string name="online_status_check_failed">Prüfung derzeit nicht möglich, später erneut versuchen</string>
     <string name="online_status_rejected">Nicht für die Rangliste akzeptiert</string>
-    <string name="online_upload_join_caption">Tritt bei, um deine Statistiken und Fahrten in der öffentlichen Bestenliste zu teilen auf</string>
-    <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf</string>
+    <string name="online_upload_join_caption">Tritt bei, um deine Statistiken und Fahrten in der öffentlichen Bestenliste zu teilen auf.</string>
+    <string name="online_upload_linked_caption">Deine Statistiken und Fahrten erscheinen in der öffentlichen Bestenliste auf.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Verknüpfung aufheben</string>
@@ -1829,7 +1829,7 @@
     <string name="dash_view_photo_gallery">Fotogalerie öffnen</string>
     <string name="dash_no_gallery_app">Keine Galerie-App gefunden</string>
     <string name="dash_external_gps_settings">Einstellungen für externes GPS</string>
-    <string name="external_gps_caption">Gerät einschalten und Koppeln antippen; Geschwindigkeit und G-Kraft werden live übernommen und im Trip-CSV gespeichert</string>
+    <string name="external_gps_caption">Gerät einschalten und Koppeln antippen; Geschwindigkeit und G-Kraft werden live übernommen und im Trip-CSV gespeichert.</string>
     <string name="gps_prioritize_external_desc">Verbundenes Gerät statt Handy für Geschwindigkeit, Position und G-Kraft bevorzugen.</string>
 
     <string name="warnings_indicator_desc">App-Warnungen</string>
@@ -1917,7 +1917,7 @@
     <string name="studio_save_keep_both">Beide behalten</string>
     <string name="welcome_tut_voice_desc">Einzelne Sprachmeldungen kannst du später in Einstellungen → Sprache und Ansagen ein- oder ausschalten.</string>
     <string name="welcome_tut_voice_title">Sprachwarnungen aktivieren</string>
-    <string name="dropbox_section_caption">Online-Backup auf Dropbox</string>
+    <string name="dropbox_section_caption">Online-Backup auf Dropbox.</string>
     <string name="dropbox_section_desc">Fahrten lassen sich auch unter %1$s öffnen, wenn Dropbox verknüpft ist.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox verbinden</string>

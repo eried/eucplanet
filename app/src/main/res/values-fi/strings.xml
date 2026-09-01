@@ -566,7 +566,7 @@
     <string name="watch_haptic_on_action">Värinä toiminnosta</string>
     <string name="watch_haptic_on_action_desc">Lyhyt kellon värinä jokaisesta painalluksesta, jos tuettu.</string>
     <string name="section_cloud_folder">Varmuuskopiokansio</string>
-    <string name="cloud_caption">Varmuuskopiokansiosi matkoille, asetuksille, teemoille ja päällysteille</string>
+    <string name="cloud_caption">Varmuuskopiokansiosi matkoille, asetuksille, teemoille ja päällysteille.</string>
     <string name="cloud_choose_folder">Valitse kansio</string>
     <string name="cloud_change_folder">Vaihda kansio</string>
     <string name="cloud_remove_folder">Poista linkitys</string>
@@ -632,9 +632,9 @@
     <string name="section_connection">Yhteys</string>
     <string name="section_display">Näyttö</string>
     <string name="auto_record_on_start">Automaattitallennus käynnistyksessä</string>
-    <string name="auto_record_caption">Tallentaa matkan, kun yksipyöräinen on yhdistetty</string>
+    <string name="auto_record_caption">Tallentaa matkan, kun yksipyöräinen on yhdistetty.</string>
     <string name="auto_record_start_in_motion">Aloita tallennus liikkeestä</string>
-    <string name="auto_record_start_in_motion_caption">Alkaa liikkeestä, pysähtyy joutokäynnin jälkeen, käynnistyy taas seuraavalla ajolla</string>
+    <string name="auto_record_start_in_motion_caption">Alkaa liikkeestä, pysähtyy joutokäynnin jälkeen, käynnistyy taas seuraavalla ajolla.</string>
     <string name="auto_record_stop_idle_seconds">Pysäytä joutokäynnin jälkeen</string>
     <string name="auto_record_mode_label">Matkan tallennuksen automaattikäynnistys</string>
     <string name="auto_record_mode_never">Ei koskaan</string>
@@ -724,9 +724,9 @@
     <string name="battery_percent_cells_from_wheel">Saatu pyörältä: %1$d sarjassa.</string>
     <string name="battery_percent_cells_manual">Muuttaa akun jännitteen prosentiksi mittaristossa, äänessä ja hälytyksissä</string>
     <string name="speed_calibration_label">Nopeuden poikkeama</string>
-    <string name="speed_calibration_caption">Säätää yksipyöräisen ilmoittamaa nopeutta; vaikuttaa hälytyksiin, ääneen ja matkalokiin</string>
+    <string name="speed_calibration_caption">Säätää yksipyöräisen ilmoittamaa nopeutta; vaikuttaa hälytyksiin, ääneen ja matkalokiin.</string>
     <string name="section_legal_mode_speed">Laillisen tilan nopeus</string>
-    <string name="legal_mode_caption">Käytetään kun laillinen tila on päällä; oltava normaalia tiltbackia matalampi</string>
+    <string name="legal_mode_caption">Käytetään kun laillinen tila on päällä; oltava normaalia tiltbackia matalampi.</string>
     <string name="speed_limits_disconnected">Yhdistä yksipyöräisesi muokataksesi kalibrointia ja rajoituksia</string>
     <string name="speed_tiltback">Tiltback-nopeus</string>
     <string name="speed_alarm">Hälytysnopeus</string>
@@ -1412,7 +1412,7 @@
     <string name="online_upload_card_unavailable">Lataus epäonnistui</string>
     <string name="online_profile_retry">Yritä uudelleen</string>
     <string name="online_upload_card_missing">Tämän puhelimen tulostauluprofiilia ei enää ole palvelimella, joten uudet lähetykset hylätään. Jos tämä on odottamatonta, ota yhteyttä tulostaulun ylläpitäjään.</string>
-    <string name="online_upload_actions_caption">Matkatilastojen lähetykset</string>
+    <string name="online_upload_actions_caption">Matkatilastojen lähetykset.</string>
     <string name="online_upload_actions_desc">Lähetä tulostauluun kaikki vielä lähettämättömät matkat.</string>
     <string name="online_upload_sync_nothing">Ei synkronoitavaa</string>
     <string name="online_upload_sync_done">Synkronoitu %1$d matkaa</string>
@@ -1431,8 +1431,8 @@
     <string name="online_status_checking">Tarkistetaan tulostaulusta…</string>
     <string name="online_status_check_failed">Tarkistus ei onnistunut nyt, yritä myöhemmin</string>
     <string name="online_status_rejected">Ei hyväksytty tulostauluun</string>
-    <string name="online_upload_join_caption">Liity lähettääksesi tilastosi ja matkasi julkiseen tulostauluun osoitteessa</string>
-    <string name="online_upload_linked_caption">Tilastosi ja matkasi näkyvät julkisessa tulostaulussa osoitteessa</string>
+    <string name="online_upload_join_caption">Liity lähettääksesi tilastosi ja matkasi julkiseen tulostauluun osoitteessa.</string>
+    <string name="online_upload_linked_caption">Tilastosi ja matkasi näkyvät julkisessa tulostaulussa osoitteessa.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Poista linkitys</string>
@@ -1778,7 +1778,7 @@
     <string name="nav_share_dialog_body">Reitilläsi on jo pysähdyksiä. Lisätäänkö tämä seuraavaksi pysähdykseksi vai aloitetaanko alusta?</string>
     <string name="nav_share_dialog_append">Lisää seuraavaksi</string>
     <string name="nav_share_dialog_new">Uusi reitti</string>
-    <string name="dropbox_section_caption">Verkkovarmuuskopio Dropboxiin</string>
+    <string name="dropbox_section_caption">Verkkovarmuuskopio Dropboxiin.</string>
     <string name="dropbox_section_desc">Linkitettynä matkat voi avata myös palvelussa %1$s.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Linkitä Dropbox</string>
@@ -2111,7 +2111,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matta</string>
     <string name="dash_external_gps_settings">Ulkoisen GPS:n asetukset</string>
-    <string name="external_gps_caption">Käynnistä laite ja napauta Pariliitä syöttääksesi sen nopeuden ja G-voiman reaaliajassa, tallennetaan myös jokaisen matkan CSV-tiedostoon</string>
+    <string name="external_gps_caption">Käynnistä laite ja napauta Pariliitä syöttääksesi sen nopeuden ja G-voiman reaaliajassa, tallennetaan myös jokaisen matkan CSV-tiedostoon.</string>
     <string name="gps_prioritize_external_desc">Suosi yhdistettyä laitetta puhelimen sijaan nopeudessa, sijainnissa ja G-voimassa.</string>
     <string name="studio_cfg_show_value">Näytä arvo</string>
     <string name="studio_cfg_unit_position">Yksikkö</string>

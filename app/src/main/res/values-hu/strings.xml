@@ -566,7 +566,7 @@
     <string name="watch_haptic_on_action">Rezgés műveletnél</string>
     <string name="watch_haptic_on_action_desc">Rövid óra-rezgés minden megnyomásnál, ahol támogatott.</string>
     <string name="section_cloud_folder">Biztonsági mentés mappája</string>
-    <string name="cloud_caption">A menetek, beállítások, témák és átfedések biztonsági mentési mappája</string>
+    <string name="cloud_caption">A menetek, beállítások, témák és átfedések biztonsági mentési mappája.</string>
     <string name="cloud_choose_folder">Mappa kiválasztása</string>
     <string name="cloud_change_folder">Mappa módosítása</string>
     <string name="cloud_remove_folder">Leválasztás</string>
@@ -632,9 +632,9 @@
     <string name="section_connection">Kapcsolat</string>
     <string name="section_display">Megjelenítés</string>
     <string name="auto_record_on_start">Automatikus rögzítés induláskor</string>
-    <string name="auto_record_caption">Menetet rögzít, amikor az egykerekű csatlakozik</string>
+    <string name="auto_record_caption">Menetet rögzít, amikor az egykerekű csatlakozik.</string>
     <string name="auto_record_start_in_motion">Rögzítés indítása mozgásra</string>
-    <string name="auto_record_start_in_motion_caption">Mozgásra indul, tétlenség után leáll, a következő menetnél újraindul</string>
+    <string name="auto_record_start_in_motion_caption">Mozgásra indul, tétlenség után leáll, a következő menetnél újraindul.</string>
     <string name="auto_record_stop_idle_seconds">Leállítás tétlenség után</string>
     <string name="auto_record_mode_label">Menetrögzítés automatikus indítása</string>
     <string name="auto_record_mode_never">Soha</string>
@@ -724,9 +724,9 @@
     <string name="battery_percent_cells_from_wheel">A keréktől átvéve: %1$d sorban.</string>
     <string name="battery_percent_cells_manual">A csomag feszültségét százalékká alakítja a műszerfalon, a hangban és a riasztásokban.</string>
     <string name="speed_calibration_label">Sebesség eltérése</string>
-    <string name="speed_calibration_caption">Módosítja az egykerekű által jelentett sebességet; hatással van a riasztásokra, a hangra és a menetnaplóra</string>
+    <string name="speed_calibration_caption">Módosítja az egykerekű által jelentett sebességet; hatással van a riasztásokra, a hangra és a menetnaplóra.</string>
     <string name="section_legal_mode_speed">Legális mód sebessége</string>
-    <string name="legal_mode_caption">Akkor használatos, ha a Legális mód be van kapcsolva; alacsonyabbnak kell lennie a normál tiltbacknél</string>
+    <string name="legal_mode_caption">Akkor használatos, ha a Legális mód be van kapcsolva; alacsonyabbnak kell lennie a normál tiltbacknél.</string>
     <string name="speed_limits_disconnected">Csatlakoztasd az egykerekűt a kalibráció és a korlátok szerkesztéséhez</string>
     <string name="speed_tiltback">Tiltback sebesség</string>
     <string name="speed_alarm">Riasztási sebesség</string>
@@ -1412,7 +1412,7 @@
     <string name="online_upload_card_unavailable">Nem sikerült betölteni</string>
     <string name="online_profile_retry">Újra</string>
     <string name="online_upload_card_missing">Ennek a telefonnak a ranglistaprofilja már nem létezik a szerveren, így az új feltöltéseket elutasítja. Ha ez váratlan, lépj kapcsolatba a ranglista adminisztrátorával.</string>
-    <string name="online_upload_actions_caption">Menetstatisztikák feltöltése</string>
+    <string name="online_upload_actions_caption">Menetstatisztikák feltöltése.</string>
     <string name="online_upload_actions_desc">Küldd el a ranglistára az összes még fel nem töltött menetet.</string>
     <string name="online_upload_sync_nothing">Nincs mit szinkronizálni</string>
     <string name="online_upload_sync_done">%1$d menet szinkronizálva</string>
@@ -1778,7 +1778,7 @@
     <string name="nav_share_dialog_body">Az útvonaladon már vannak megállók. Hozzáadod következő megállóként, vagy kezdesz újat?</string>
     <string name="nav_share_dialog_append">Hozzáadás következőként</string>
     <string name="nav_share_dialog_new">Új útvonal</string>
-    <string name="dropbox_section_caption">Online mentés Dropboxra</string>
+    <string name="dropbox_section_caption">Online mentés Dropboxra.</string>
     <string name="dropbox_section_desc">Összekapcsolva a menetek itt is megnyithatók: %1$s.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox összekapcsolása</string>
@@ -2111,7 +2111,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matt</string>
     <string name="dash_external_gps_settings">Külső GPS beállításai</string>
-    <string name="external_gps_caption">Kapcsold be az eszközt, és koppints a Párosításra, hogy élőben küldje a sebességet és a G-erőt, ezek minden menet CSV-jébe is mentődnek</string>
+    <string name="external_gps_caption">Kapcsold be az eszközt, és koppints a Párosításra, hogy élőben küldje a sebességet és a G-erőt, ezek minden menet CSV-jébe is mentődnek.</string>
     <string name="gps_prioritize_external_desc">A csatlakoztatott eszközt részesíti előnyben a telefon helyett sebességnél, pozíciónál és G-erőnél.</string>
     <string name="studio_cfg_show_value">Érték megjelenítése</string>
     <string name="studio_cfg_unit_position">Mértékegység</string>

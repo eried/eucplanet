@@ -566,7 +566,7 @@
     <string name="watch_haptic_on_action">Vibrează la acțiune</string>
     <string name="watch_haptic_on_action_desc">Scurtă vibrație a ceasului la fiecare apăsare, unde este acceptată.</string>
     <string name="section_cloud_folder">Dosarul copiilor de rezervă</string>
-    <string name="cloud_caption">Dosarul tău de rezervă pentru curse, setări, teme și suprapuneri</string>
+    <string name="cloud_caption">Dosarul tău de rezervă pentru curse, setări, teme și suprapuneri.</string>
     <string name="cloud_choose_folder">Alege dosarul</string>
     <string name="cloud_change_folder">Schimbă dosarul</string>
     <string name="cloud_remove_folder">Deconectează</string>
@@ -632,9 +632,9 @@
     <string name="section_connection">Conexiune</string>
     <string name="section_display">Afișare</string>
     <string name="auto_record_on_start">Înregistrare automată la pornire</string>
-    <string name="auto_record_caption">Înregistrează o cursă atunci când monociclul este conectat</string>
+    <string name="auto_record_caption">Înregistrează o cursă atunci când monociclul este conectat.</string>
     <string name="auto_record_start_in_motion">Începe înregistrarea la mișcare</string>
-    <string name="auto_record_start_in_motion_caption">Pornește la mișcare, se oprește după inactivitate, repornește la cursa următoare</string>
+    <string name="auto_record_start_in_motion_caption">Pornește la mișcare, se oprește după inactivitate, repornește la cursa următoare.</string>
     <string name="auto_record_stop_idle_seconds">Oprește după inactivitate de</string>
     <string name="auto_record_mode_label">Pornire automată a înregistrării cursei</string>
     <string name="auto_record_mode_never">Niciodată</string>
@@ -724,9 +724,9 @@
     <string name="battery_percent_cells_from_wheel">Preluat de la roată: %1$d în serie.</string>
     <string name="battery_percent_cells_manual">Transformă tensiunea pachetului în procentul de pe tabloul de bord, în voce și alarme.</string>
     <string name="speed_calibration_label">Abaterea vitezei</string>
-    <string name="speed_calibration_caption">Ajustează viteza raportată de monociclu; afectează alarmele, vocea și jurnalul cursei</string>
+    <string name="speed_calibration_caption">Ajustează viteza raportată de monociclu; afectează alarmele, vocea și jurnalul cursei.</string>
     <string name="section_legal_mode_speed">Viteza modului legal</string>
-    <string name="legal_mode_caption">Folosită când modul legal este pornit; trebuie să fie mai mică decât tiltback-ul normal</string>
+    <string name="legal_mode_caption">Folosită când modul legal este pornit; trebuie să fie mai mică decât tiltback-ul normal.</string>
     <string name="speed_limits_disconnected">Conectează monociclul pentru a edita calibrarea și limitele</string>
     <string name="speed_tiltback">Viteza de tiltback</string>
     <string name="speed_alarm">Viteza de alarmă</string>
@@ -1412,7 +1412,7 @@
     <string name="online_upload_card_unavailable">Nu s-a putut încărca</string>
     <string name="online_profile_retry">Reîncearcă</string>
     <string name="online_upload_card_missing">Profilul de clasament al acestui telefon nu mai există pe server, așa că încărcările noi vor fi respinse. Dacă asta este neașteptat, contactează administratorul clasamentului.</string>
-    <string name="online_upload_actions_caption">Încărcarea statisticilor de cursă</string>
+    <string name="online_upload_actions_caption">Încărcarea statisticilor de cursă.</string>
     <string name="online_upload_actions_desc">Trimite în clasament toate cursele neîncărcate încă.</string>
     <string name="online_upload_sync_nothing">Nimic de sincronizat</string>
     <string name="online_upload_sync_done">%1$d curse sincronizate</string>
@@ -1431,8 +1431,8 @@
     <string name="online_status_checking">Se verifică în clasament…</string>
     <string name="online_status_check_failed">Nu s-a putut verifica acum, încearcă mai târziu</string>
     <string name="online_status_rejected">Neacceptat pentru clasament</string>
-    <string name="online_upload_join_caption">Alătură-te ca să îți trimiți statisticile și cursele în clasamentul public de la</string>
-    <string name="online_upload_linked_caption">Statisticile și cursele tale apar în clasamentul public de la</string>
+    <string name="online_upload_join_caption">Alătură-te ca să îți trimiți statisticile și cursele în clasamentul public de la.</string>
+    <string name="online_upload_linked_caption">Statisticile și cursele tale apar în clasamentul public de la.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Deconectează</string>
@@ -1778,7 +1778,7 @@
     <string name="nav_share_dialog_body">Traseul tău are deja opriri. O adaugi ca următoarea oprire sau începi de la zero?</string>
     <string name="nav_share_dialog_append">Adaugă ca următoarea</string>
     <string name="nav_share_dialog_new">Traseu nou</string>
-    <string name="dropbox_section_caption">Copie de rezervă online pe Dropbox</string>
+    <string name="dropbox_section_caption">Copie de rezervă online pe Dropbox.</string>
     <string name="dropbox_section_desc">Cursele pot fi deschise și pe %1$s când este conectat.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Conectează Dropbox</string>
@@ -2111,7 +2111,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Setările GPS-ului extern</string>
-    <string name="external_gps_caption">Pornește dispozitivul și atinge Asociază pentru a trimite în timp real viteza și forța G, salvate și în fișierul CSV al fiecărei curse</string>
+    <string name="external_gps_caption">Pornește dispozitivul și atinge Asociază pentru a trimite în timp real viteza și forța G, salvate și în fișierul CSV al fiecărei curse.</string>
     <string name="gps_prioritize_external_desc">Preferă dispozitivul conectat în locul telefonului pentru viteză, poziție și forța G.</string>
     <string name="studio_cfg_show_value">Arată valoarea</string>
     <string name="studio_cfg_unit_position">Unitate</string>

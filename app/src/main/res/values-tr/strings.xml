@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Yedek klasörü</string>
-    <string name="cloud_caption">Seferler, ayarlar, temalar ve kaplamalar için yedek klasörünüz</string>
+    <string name="cloud_caption">Seferler, ayarlar, temalar ve kaplamalar için yedek klasörünüz.</string>
     <string name="cloud_choose_folder">Klasör seç</string>
     <string name="cloud_change_folder">Klasörü değiştir</string>
     <string name="cloud_remove_folder">Bağlantıyı kaldır</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Bağlantı</string>
     <string name="section_display">Ekran</string>
     <string name="auto_record_on_start">Başlangıçta otomatik kayıt</string>
-    <string name="auto_record_caption">Teker bağlandığında sefer kaydeder</string>
+    <string name="auto_record_caption">Teker bağlandığında sefer kaydeder.</string>
     <string name="auto_record_start_in_motion">Harekette kaydı başlat</string>
-    <string name="auto_record_start_in_motion_caption">Harekette başlar, boşta kalınca otomatik durur, sonraki sürüşte yeniden başlar</string>
+    <string name="auto_record_start_in_motion_caption">Harekette başlar, boşta kalınca otomatik durur, sonraki sürüşte yeniden başlar.</string>
     <string name="auto_record_stop_idle_seconds">Boşta kalınca dur</string>
     <string name="auto_connect_on_start">Başlangıçta otomatik bağlan</string>
     <string name="wheel_name_display">Teker adı</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Tekerlekten alındı: %1$d seri.</string>
     <string name="battery_percent_cells_manual">Paket voltajını gösterge panelinde, sesli bildirimlerde ve alarmlarda görünen yüzdeye çevirir.</string>
     <string name="speed_calibration_label">Hız ofseti</string>
-    <string name="speed_calibration_caption">Tekerin bildirdiği hızı düzeltir; alarmları, sesi ve sefer günlüğünü etkiler</string>
+    <string name="speed_calibration_caption">Tekerin bildirdiği hızı düzeltir; alarmları, sesi ve sefer günlüğünü etkiler.</string>
     <string name="section_legal_mode_speed">Yasal mod hızı</string>
-    <string name="legal_mode_caption">Yasal Mod açıkken kullanılır; normal geri eğimden düşük olmalıdır</string>
+    <string name="legal_mode_caption">Yasal Mod açıkken kullanılır; normal geri eğimden düşük olmalıdır.</string>
     <string name="speed_limits_disconnected">Kalibrasyonu ve limitleri düzenlemek için tekeri bağlayın</string>
     <string name="speed_tiltback">Geri Eğim Hızı</string>
     <string name="speed_alarm">Alarm Hızı</string>
@@ -1150,7 +1150,7 @@
     <string name="online_upload_card_unavailable">Yüklenemedi</string>
     <string name="online_profile_retry">Yeniden dene</string>
     <string name="online_upload_card_missing">Bu telefonun lider tablosu profili sunucuda artık mevcut değil, yeni yüklemeler reddedilecek. Beklenmedik bir durumsa lider tablosu yöneticisiyle iletişime geçin.</string>
-    <string name="online_upload_actions_caption">Sefer istatistikleri yüklemeleri</string>
+    <string name="online_upload_actions_caption">Sefer istatistikleri yüklemeleri.</string>
     <string name="online_upload_actions_desc">Henüz yüklenmemiş seferleri lider tablosuna gönderin.</string>
     <string name="online_upload_sync_nothing">Eşitlenecek bir şey yok</string>
     <string name="online_upload_sync_done">%1$d sefer eşitlendi</string>
@@ -1169,8 +1169,8 @@
     <string name="online_status_checking">Lider tablosunda kontrol ediliyor…</string>
     <string name="online_status_check_failed">Şu anda kontrol edilemedi, daha sonra tekrar deneyin</string>
     <string name="online_status_rejected">Lider tablosuna kabul edilmedi</string>
-    <string name="online_upload_join_caption">İstatistiklerinizi ve seferlerinizi şu adresteki herkese açık lider tablosuna göndermek için katılın</string>
-    <string name="online_upload_linked_caption">İstatistikleriniz ve seferleriniz şu adresteki herkese açık lider tablosunda görünüyor</string>
+    <string name="online_upload_join_caption">İstatistiklerinizi ve seferlerinizi şu adresteki herkese açık lider tablosuna göndermek için katılın.</string>
+    <string name="online_upload_linked_caption">İstatistikleriniz ve seferleriniz şu adresteki herkese açık lider tablosunda görünüyor.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Bağlantıyı kes</string>
@@ -1805,7 +1805,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Harici GPS ayarları</string>
-    <string name="external_gps_caption">Cihazı açın ve canlı hız ile G-kuvvetini beslemek için Eşleştir\'e dokunun; her sefer CSV\'sine de kaydedilir</string>
+    <string name="external_gps_caption">Cihazı açın ve canlı hız ile G-kuvvetini beslemek için Eşleştir\'e dokunun; her sefer CSV\'sine de kaydedilir.</string>
     <string name="gps_prioritize_external_desc">Hız, konum ve G-kuvveti için bağlı cihazı telefona tercih et.</string>
     <string name="studio_cfg_show_value">Değeri göster</string>
     <string name="studio_cfg_unit_position">Birim</string>
@@ -1896,7 +1896,7 @@
     <string name="voice_announce_connected">Bağlandığında</string>
     <string name="voice_announce_riding">Sürerken</string>
     <string name="voice_announce_when_label">Bildirim</string>
-    <string name="dropbox_section_caption">Dropbox\'a çevrimiçi yedek</string>
+    <string name="dropbox_section_caption">Dropbox\'a çevrimiçi yedek.</string>
     <string name="dropbox_section_desc">Yolculuklar Dropbox bağlandığında %1$s üzerinde de açılabilir.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox bağla</string>

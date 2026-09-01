@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Dossier de sauvegarde</string>
-    <string name="cloud_caption">Ton dossier de sauvegarde pour les trajets, réglages, thèmes et overlays</string>
+    <string name="cloud_caption">Ton dossier de sauvegarde pour les trajets, réglages, thèmes et overlays.</string>
     <string name="cloud_choose_folder">Choisir un dossier</string>
     <string name="cloud_change_folder">Changer de dossier</string>
     <string name="cloud_remove_folder">Dissocier</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Connexion</string>
     <string name="section_display">Affichage</string>
     <string name="auto_record_on_start">Enregistrer dès le démarrage</string>
-    <string name="auto_record_caption">Enregistre un trajet quand la roue est connectée</string>
+    <string name="auto_record_caption">Enregistre un trajet quand la roue est connectée.</string>
     <string name="auto_record_start_in_motion">Démarrer l\'enregistrement en mouvement</string>
-    <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant</string>
+    <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant.</string>
     <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
     <string name="wheel_name_display">Nom de la roue</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Repris de la roue : %1$d en série.</string>
     <string name="battery_percent_cells_manual">Transforme la tension du pack en pourcentage sur le tableau de bord, en voix et alarmes</string>
     <string name="speed_calibration_label">Décalage de vitesse</string>
-    <string name="speed_calibration_caption">Ajuste la vitesse rapportée par la roue ; affecte alarmes, voix et journal de trajet</string>
+    <string name="speed_calibration_caption">Ajuste la vitesse rapportée par la roue ; affecte alarmes, voix et journal de trajet.</string>
     <string name="section_legal_mode_speed">Vitesse en mode légal</string>
-    <string name="legal_mode_caption">Utilisé en mode légal ; doit être inférieur au tiltback normal</string>
+    <string name="legal_mode_caption">Utilisé en mode légal ; doit être inférieur au tiltback normal.</string>
     <string name="speed_limits_disconnected">Connecte ta roue pour modifier la calibration et les limites</string>
     <string name="speed_tiltback">Vitesse de tiltback</string>
     <string name="speed_alarm">Vitesse d\'alarme</string>
@@ -1153,7 +1153,7 @@
     <string name="online_upload_card_unavailable">Chargement impossible</string>
     <string name="online_profile_retry">Réessayer</string>
     <string name="online_upload_card_missing">Le profil de classement de ce téléphone n\'existe plus sur le serveur, les nouveaux envois seront rejetés. Si c\'est inattendu, contacte l\'administrateur du classement.</string>
-    <string name="online_upload_actions_caption">Envois de stats de trajet</string>
+    <string name="online_upload_actions_caption">Envois de stats de trajet.</string>
     <string name="online_upload_actions_desc">Envoyer les trajets pas encore versés au classement.</string>
     <string name="online_upload_sync_nothing">Rien à synchroniser</string>
     <string name="online_upload_sync_done">%1$d trajets synchronisés</string>
@@ -1172,8 +1172,8 @@
     <string name="online_status_checking">Vérification auprès du classement…</string>
     <string name="online_status_check_failed">Vérification impossible pour l\'instant, réessayez plus tard</string>
     <string name="online_status_rejected">Non accepté pour le classement</string>
-    <string name="online_upload_join_caption">Rejoins pour envoyer tes stats et tes trajets au classement public sur</string>
-    <string name="online_upload_linked_caption">Tes stats et tes trajets apparaissent dans le classement public sur</string>
+    <string name="online_upload_join_caption">Rejoins pour envoyer tes stats et tes trajets au classement public sur.</string>
+    <string name="online_upload_linked_caption">Tes stats et tes trajets apparaissent dans le classement public sur.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Dissocier</string>
@@ -1856,7 +1856,7 @@
     <string name="dash_view_photo_gallery">Voir la galerie photo</string>
     <string name="dash_no_gallery_app">Aucune appli de galerie trouvée</string>
     <string name="dash_external_gps_settings">Réglages du GPS externe</string>
-    <string name="external_gps_caption">Allume l\'appareil et touche Appairer ; sa vitesse et sa force G alimentent l\'appli en direct et sont enregistrées dans le CSV</string>
+    <string name="external_gps_caption">Allume l\'appareil et touche Appairer ; sa vitesse et sa force G alimentent l\'appli en direct et sont enregistrées dans le CSV.</string>
     <string name="gps_prioritize_external_desc">Préférer l\'appareil connecté au téléphone pour la vitesse, la position et la force G.</string>
 
     <!-- Warnings indicator -->
@@ -1903,7 +1903,7 @@
     <string name="studio_save_keep_both">Garder les deux</string>
     <string name="welcome_tut_voice_desc">Tu peux activer ou désactiver les messages vocaux individuels plus tard dans Réglages → Voix et annonces.</string>
     <string name="welcome_tut_voice_title">Activer les alertes vocales</string>
-    <string name="dropbox_section_caption">Sauvegarde en ligne sur Dropbox</string>
+    <string name="dropbox_section_caption">Sauvegarde en ligne sur Dropbox.</string>
     <string name="dropbox_section_desc">Tes trajets peuvent aussi s\'ouvrir sur %1$s quand Dropbox est lié.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Lier Dropbox</string>

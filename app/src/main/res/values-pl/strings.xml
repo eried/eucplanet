@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Folder kopii zapasowej</string>
-    <string name="cloud_caption">Folder na trasy, ustawienia, motywy i nakładki</string>
+    <string name="cloud_caption">Folder na trasy, ustawienia, motywy i nakładki.</string>
     <string name="cloud_choose_folder">Wybierz folder</string>
     <string name="cloud_change_folder">Zmień folder</string>
     <string name="cloud_remove_folder">Odłącz</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Połączenie</string>
     <string name="section_display">Ekran</string>
     <string name="auto_record_on_start">Automatyczne nagrywanie po starcie</string>
-    <string name="auto_record_caption">Nagrywa trasę, gdy koło jest podłączone</string>
+    <string name="auto_record_caption">Nagrywa trasę, gdy koło jest podłączone.</string>
     <string name="auto_record_start_in_motion">Zacznij nagrywać przy ruchu</string>
-    <string name="auto_record_start_in_motion_caption">Startuje przy ruchu, kończy po bezczynności, wznawia przy kolejnej jeździe</string>
+    <string name="auto_record_start_in_motion_caption">Startuje przy ruchu, kończy po bezczynności, wznawia przy kolejnej jeździe.</string>
     <string name="auto_record_stop_idle_seconds">Zatrzymaj po bezczynności</string>
     <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
     <string name="wheel_name_display">Nazwa koła</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Z koła: %1$d szeregowo.</string>
     <string name="battery_percent_cells_manual">Zamienia napięcie pakietu na procent na pulpicie, w głosie i alarmach</string>
     <string name="speed_calibration_label">Korekta prędkości</string>
-    <string name="speed_calibration_caption">Koryguje prędkość zgłaszaną przez koło; wpływa na alarmy, głos i log trasy</string>
+    <string name="speed_calibration_caption">Koryguje prędkość zgłaszaną przez koło; wpływa na alarmy, głos i log trasy.</string>
     <string name="section_legal_mode_speed">Prędkość trybu legalnego</string>
-    <string name="legal_mode_caption">Używane przy trybie legalnym; musi być niższe niż normalny tiltback</string>
+    <string name="legal_mode_caption">Używane przy trybie legalnym; musi być niższe niż normalny tiltback.</string>
     <string name="speed_limits_disconnected">Połącz koło, aby edytować kalibrację i limity</string>
     <string name="speed_tiltback">Prędkość tiltbacku</string>
     <string name="speed_alarm">Prędkość alarmu</string>
@@ -1151,7 +1151,7 @@
     <string name="online_upload_card_unavailable">Nie udało się załadować</string>
     <string name="online_profile_retry">Ponów</string>
     <string name="online_upload_card_missing">Profil tego telefonu w rankingu już nie istnieje na serwerze, więc nowe przesyłania będą odrzucane. Jeśli to niespodziewane, skontaktuj się z administratorem rankingu.</string>
-    <string name="online_upload_actions_caption">Przesyłanie statystyk tras</string>
+    <string name="online_upload_actions_caption">Przesyłanie statystyk tras.</string>
     <string name="online_upload_actions_desc">Wyślij trasy jeszcze nieprzesłane do rankingu.</string>
     <string name="online_upload_sync_nothing">Brak tras do synchronizacji</string>
     <string name="online_upload_sync_done">Zsynchronizowano %1$d tras</string>
@@ -1170,8 +1170,8 @@
     <string name="online_status_checking">Sprawdzanie w rankingu…</string>
     <string name="online_status_check_failed">Nie udało się teraz sprawdzić, spróbuj później</string>
     <string name="online_status_rejected">Nie zaakceptowano do rankingu</string>
-    <string name="online_upload_join_caption">Dołącz, aby wysyłać statystyki i trasy do publicznego rankingu na</string>
-    <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu na</string>
+    <string name="online_upload_join_caption">Dołącz, aby wysyłać statystyki i trasy do publicznego rankingu na.</string>
+    <string name="online_upload_linked_caption">Twoje statystyki i trasy pojawiają się w publicznym rankingu na.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Odłącz</string>
@@ -1823,7 +1823,7 @@
     <string name="warnings_perm_notifications_title">Powiadomienia wyłączone</string>
     <string name="warnings_perm_notifications_body">Nie zobaczysz statusu jazdy w pasku stanu ani nie otrzymasz głosowych powiadomień w obszarze powiadomień.</string>
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
-    <string name="external_gps_caption">Włącz urządzenie i dotknij Sparuj, aby zasilać aplikację prędkością i siłą G na żywo, dane są też zapisywane w CSV trasy</string>
+    <string name="external_gps_caption">Włącz urządzenie i dotknij Sparuj, aby zasilać aplikację prędkością i siłą G na żywo, dane są też zapisywane w CSV trasy.</string>
     <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G.</string>
     <string name="warnings_battery_opt_title">Optymalizacja baterii jest włączona</string>
     <string name="warnings_battery_opt_body">Android może zatrzymać EUC Planet w tle i przerwać nagrywanie w środku przejazdu. Zezwól na działanie bez ograniczeń.</string>
@@ -1895,7 +1895,7 @@
     <string name="studio_save_keep_both">Zachowaj oba</string>
     <string name="welcome_tut_voice_desc">Pojedyncze komunikaty głosowe można później włączać i wyłączać w Ustawienia → Głos i komunikaty.</string>
     <string name="welcome_tut_voice_title">Włącz alerty głosowe</string>
-    <string name="dropbox_section_caption">Kopia online w Dropbox</string>
+    <string name="dropbox_section_caption">Kopia online w Dropbox.</string>
     <string name="dropbox_section_desc">Przejazdy można też otwierać na %1$s, gdy Dropbox jest połączony.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Połącz Dropbox</string>

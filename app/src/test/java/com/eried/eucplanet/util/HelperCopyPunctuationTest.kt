@@ -24,7 +24,7 @@ class HelperCopyPunctuationTest {
 
     /** Key suffixes that mark a string as helper copy rather than a label. */
     private val descriptive = listOf(
-        "_desc", "_description", "_help", "_hint", "_subtitle", "_body", "_explain", "_note",
+        "_desc", "_description", "_help", "_hint", "_subtitle", "_body", "_explain", "_note", "_caption",
     )
 
     /**

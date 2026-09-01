@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервных копий</string>
-    <string name="cloud_caption">Папка для поездок, настроек, тем и оверлеев</string>
+    <string name="cloud_caption">Папка для поездок, настроек, тем и оверлеев.</string>
     <string name="cloud_choose_folder">Выбрать папку</string>
     <string name="cloud_change_folder">Сменить папку</string>
     <string name="cloud_remove_folder">Отвязать</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Подключение</string>
     <string name="section_display">Внешний вид</string>
     <string name="auto_record_on_start">Автоматически начинать запись</string>
-    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено</string>
+    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено.</string>
     <string name="auto_record_start_in_motion">Начинать запись при движении</string>
-    <string name="auto_record_start_in_motion_caption">Стартует при движении, автоматически останавливается после простоя, возобновляется в следующей поездке</string>
+    <string name="auto_record_start_in_motion_caption">Стартует при движении, автоматически останавливается после простоя, возобновляется в следующей поездке.</string>
     <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
     <string name="auto_connect_on_start">Автоматически подключаться</string>
     <string name="wheel_name_display">Название колеса</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Взято у колеса: %1$d последовательно.</string>
     <string name="battery_percent_cells_manual">Превращает напряжение батареи в процент на панели, в голосе и сигналах.</string>
     <string name="speed_calibration_label">Поправка скорости</string>
-    <string name="speed_calibration_caption">Корректирует скорость от колеса; влияет на сигналы, голос и журнал поездок</string>
+    <string name="speed_calibration_caption">Корректирует скорость от колеса; влияет на сигналы, голос и журнал поездок.</string>
     <string name="section_legal_mode_speed">Скорости в лег. режиме</string>
-    <string name="legal_mode_caption">Применяется в Legal-режиме; должно быть ниже обычного tiltback</string>
+    <string name="legal_mode_caption">Применяется в Legal-режиме; должно быть ниже обычного tiltback.</string>
     <string name="speed_limits_disconnected">Подключите колесо, чтобы изменить калибровку и ограничения</string>
     <string name="speed_tiltback">Tiltback</string>
     <string name="speed_alarm">Предупреждение</string>
@@ -1153,7 +1153,7 @@
     <string name="online_upload_card_unavailable">Не удалось загрузить</string>
     <string name="online_profile_retry">Повторить</string>
     <string name="online_upload_card_missing">Профиль этого телефона больше не существует на сервере, поэтому новые загрузки будут отклонены. Если это неожиданно, свяжитесь с администратором таблицы лидеров.</string>
-    <string name="online_upload_actions_caption">Загрузки статистики поездок</string>
+    <string name="online_upload_actions_caption">Загрузки статистики поездок.</string>
     <string name="online_upload_actions_desc">Отправить поездки, ещё не загруженные в таблицу лидеров.</string>
     <string name="online_upload_sync_nothing">Нечего синхронизировать</string>
     <string name="online_upload_sync_done">Синхронизировано поездок: %1$d</string>
@@ -1172,8 +1172,8 @@
     <string name="online_status_checking">Проверка в таблице лидеров…</string>
     <string name="online_status_check_failed">Сейчас не удалось проверить, попробуйте позже</string>
     <string name="online_status_rejected">Не принято в таблицу лидеров</string>
-    <string name="online_upload_join_caption">Присоединитесь, чтобы отправлять статистику и поездки в публичную таблицу лидеров на</string>
-    <string name="online_upload_linked_caption">Ваша статистика и поездки отображаются в публичной таблице лидеров на</string>
+    <string name="online_upload_join_caption">Присоединитесь, чтобы отправлять статистику и поездки в публичную таблицу лидеров на.</string>
+    <string name="online_upload_linked_caption">Ваша статистика и поездки отображаются в публичной таблице лидеров на.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Отвязать</string>
@@ -1808,7 +1808,7 @@
     <string name="studio_cfg_filter_vintage">Винтаж</string>
     <string name="studio_cfg_filter_matte">Матовый</string>
     <string name="dash_external_gps_settings">Настройки внешнего GPS</string>
-    <string name="external_gps_caption">Включите устройство и нажмите «Подключить»; скорость и G передаются в реальном времени и сохраняются в CSV поездки</string>
+    <string name="external_gps_caption">Включите устройство и нажмите «Подключить»; скорость и G передаются в реальном времени и сохраняются в CSV поездки.</string>
     <string name="gps_prioritize_external_desc">Использовать подключённое устройство вместо телефона для скорости, положения и G.</string>
     <string name="studio_cfg_show_value">Показывать значение</string>
     <string name="studio_cfg_unit_position">Единица</string>
@@ -1897,7 +1897,7 @@
     <string name="studio_save_keep_both">Сохранить оба</string>
     <string name="welcome_tut_voice_desc">Отдельные голосовые сообщения можно включить или отключить позже в Настройки → Голос и оповещения.</string>
     <string name="welcome_tut_voice_title">Включить голосовые оповещения</string>
-    <string name="dropbox_section_caption">Онлайн-копия в Dropbox</string>
+    <string name="dropbox_section_caption">Онлайн-копия в Dropbox.</string>
     <string name="dropbox_section_desc">Поездки также открываются на %1$s, когда Dropbox привязан.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Подключить Dropbox</string>

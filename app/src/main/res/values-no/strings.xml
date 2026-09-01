@@ -110,7 +110,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Mappe for tur-CSV-er og innstillings-backup</string>
+    <string name="cloud_caption">Mappe for tur-CSV-er og innstillings-backup.</string>
     <string name="cloud_choose_folder">Velg mappe</string>
     <string name="cloud_change_folder">Bytt mappe</string>
     <string name="cloud_remove_folder">Koble fra</string>
@@ -170,9 +170,9 @@
     <string name="section_connection">Tilkobling</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Auto-ta opp ved start</string>
-    <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet</string>
+    <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet.</string>
     <string name="auto_record_start_in_motion">Start opptak når du beveger deg</string>
-    <string name="auto_record_start_in_motion_caption">Starter ved bevegelse, stopper etter inaktivitet, starter igjen ved neste tur</string>
+    <string name="auto_record_start_in_motion_caption">Starter ved bevegelse, stopper etter inaktivitet, starter igjen ved neste tur.</string>
     <string name="auto_record_stop_idle_seconds">Stopp etter inaktivitet i</string>
     <string name="auto_connect_on_start">Auto-koble til ved start</string>
     <string name="last_device">Siste enhet: %1$s</string>
@@ -212,7 +212,7 @@
 
     <string name="section_speed_limits">Fartsgrenser</string>
     <string name="section_legal_mode_speed">Lovlig modus, fart</string>
-    <string name="legal_mode_caption">Brukes med Legal-modus på; må være lavere enn vanlig tiltback</string>
+    <string name="legal_mode_caption">Brukes med Legal-modus på; må være lavere enn vanlig tiltback.</string>
     <string name="speed_limits_disconnected">Koble til hjulet for å endre kalibrering og grenser</string>
     <string name="speed_tiltback">Tiltback-fart</string>
     <string name="speed_alarm">Alarmfart</string>
@@ -751,7 +751,7 @@
     <string name="battery_capacity_desc">Valgfritt. Setter rekkeviddeanslaget fra start, for Rekkevidde-ruten og HUD.</string>
     <string name="battery_percent_cells_from_wheel">Hentet fra hjulet: %1$d i serie.</string>
     <string name="battery_percent_cells_manual">Gjør pakkespenningen om til prosenten på dashbordet, i stemme og alarmer</string>
-    <string name="speed_calibration_caption">Justerer hjulets rapporterte fart; påvirker alarmer, tale og loggen</string>
+    <string name="speed_calibration_caption">Justerer hjulets rapporterte fart; påvirker alarmer, tale og loggen.</string>
     <string name="speed_calibration_label">Fartsjustering</string>
     <string name="sources_other_metrics">Andre målinger</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -1287,7 +1287,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matt</string>
     <string name="dash_external_gps_settings">Innstillinger for ekstern GPS</string>
-    <string name="external_gps_caption">Slå på enheten og trykk Par; fart og G-kraft mates inn live og lagres i tur-CSV</string>
+    <string name="external_gps_caption">Slå på enheten og trykk Par; fart og G-kraft mates inn live og lagres i tur-CSV.</string>
     <string name="gps_prioritize_external_desc">Foretrekk tilkoblet enhet fremfor telefonen for fart, posisjon og G-kraft.</string>
     <string name="studio_cfg_show_value">Vis verdi</string>
     <string name="studio_cfg_unit_position">Enhet</string>
@@ -1658,7 +1658,7 @@
     <string name="online_upload_card_loading">Laster…</string>
     <string name="online_upload_card_unavailable">Kunne ikke laste</string>
     <string name="online_profile_retry">Prøv igjen</string>
-    <string name="online_upload_actions_caption">Opplasting av turstatistikk</string>
+    <string name="online_upload_actions_caption">Opplasting av turstatistikk.</string>
     <string name="online_upload_mileage_rank">#%d kilometer</string>
     <string name="online_upload_top_speed">topp %1$s %2$s</string>
     <string name="online_upload_trips">%d turer</string>
@@ -1671,7 +1671,7 @@
     <string name="online_status_checking">Sjekker med resultatlisten…</string>
     <string name="online_status_check_failed">Kunne ikke sjekke nå, prøv igjen senere</string>
     <string name="online_status_rejected">Ikke godkjent for resultatlisten</string>
-    <string name="online_upload_join_caption">Turene dine vises på den offentlige ledertavlen på</string>
+    <string name="online_upload_join_caption">Turene dine vises på den offentlige ledertavlen på.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Koble fra</string>
@@ -1697,7 +1697,7 @@
     <string name="online_restore_body_switch">Denne mappen tilhører %1$s. Gjenoppretting bytter denne telefonen til den rytteren. Din nåværende profil sikkerhetskopieres først, slik at du kan bytte tilbake.</string>
     <string name="online_restore_confirm">Fortsett som %1$s</string>
     <string name="online_upload_card_missing">Denne telefonens ledertavleprofil finnes ikke lenger på serveren, så nye opplastinger blir avvist. Hvis dette er uventet, kontakt administratoren for ledertavlen.</string>
-    <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på</string>
+    <string name="online_upload_linked_caption">Statistikken og turene dine vises på den offentlige ledertavlen på.</string>
     <string name="online_rejoin_title">Reaktiver profil</string>
     <string name="online_rejoin_body">Sikkerhetskopimappen inneholder en profil som ble brukt for ledertavlen.\n\nRytter-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Batterioptimalisering er på</string>
@@ -1785,7 +1785,7 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan slå enkelte talemeldinger av eller på senere i Innstillinger → Tale og varsler.</string>
     <string name="welcome_tut_voice_title">Aktiver talevarsler</string>
-    <string name="dropbox_section_caption">Nettkopi til Dropbox</string>
+    <string name="dropbox_section_caption">Nettkopi til Dropbox.</string>
     <string name="dropbox_section_desc">Turer kan også åpnes på %1$s når Dropbox er koblet til.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Koble til Dropbox</string>

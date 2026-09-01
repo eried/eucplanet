@@ -566,7 +566,7 @@
     <string name="watch_haptic_on_action">Vibrovat při akci</string>
     <string name="watch_haptic_on_action_desc">Krátká vibrace hodinek při každém stisku, kde je podporována.</string>
     <string name="section_cloud_folder">Složka záloh</string>
-    <string name="cloud_caption">Vaše složka záloh pro jízdy, nastavení, motivy a překryvy</string>
+    <string name="cloud_caption">Vaše složka záloh pro jízdy, nastavení, motivy a překryvy.</string>
     <string name="cloud_choose_folder">Vybrat složku</string>
     <string name="cloud_change_folder">Změnit složku</string>
     <string name="cloud_remove_folder">Odpojit</string>
@@ -632,9 +632,9 @@
     <string name="section_connection">Připojení</string>
     <string name="section_display">Zobrazení</string>
     <string name="auto_record_on_start">Automatické nahrávání při startu</string>
-    <string name="auto_record_caption">Nahraje jízdu, jakmile je monokolo připojeno</string>
+    <string name="auto_record_caption">Nahraje jízdu, jakmile je monokolo připojeno.</string>
     <string name="auto_record_start_in_motion">Spustit nahrávání při pohybu</string>
-    <string name="auto_record_start_in_motion_caption">Spustí se při pohybu, po nečinnosti se zastaví, při další jízdě se znovu spustí</string>
+    <string name="auto_record_start_in_motion_caption">Spustí se při pohybu, po nečinnosti se zastaví, při další jízdě se znovu spustí.</string>
     <string name="auto_record_stop_idle_seconds">Zastavit po nečinnosti</string>
     <string name="auto_record_mode_label">Automatické spuštění nahrávání jízdy</string>
     <string name="auto_record_mode_never">Nikdy</string>
@@ -724,9 +724,9 @@
     <string name="battery_percent_cells_from_wheel">Převzato z kola: %1$d v sérii.</string>
     <string name="battery_percent_cells_manual">Převede napětí sady na procenta na palubní desce, v hlasu a alarmech.</string>
     <string name="speed_calibration_label">Odchylka rychlosti</string>
-    <string name="speed_calibration_caption">Upravuje rychlost hlášenou monokolem; ovlivňuje alarmy, hlas a záznam jízdy</string>
+    <string name="speed_calibration_caption">Upravuje rychlost hlášenou monokolem; ovlivňuje alarmy, hlas a záznam jízdy.</string>
     <string name="section_legal_mode_speed">Rychlost legálního režimu</string>
-    <string name="legal_mode_caption">Použije se při zapnutém legálním režimu; musí být nižší než běžný tiltback</string>
+    <string name="legal_mode_caption">Použije se při zapnutém legálním režimu; musí být nižší než běžný tiltback.</string>
     <string name="speed_limits_disconnected">Připojte monokolo pro úpravu kalibrace a limitů</string>
     <string name="speed_tiltback">Rychlost tiltbacku</string>
     <string name="speed_alarm">Rychlost alarmu</string>
@@ -1412,7 +1412,7 @@
     <string name="online_upload_card_unavailable">Nepodařilo se načíst</string>
     <string name="online_profile_retry">Zkusit znovu</string>
     <string name="online_upload_card_missing">Profil tohoto telefonu pro žebříček již na serveru neexistuje, takže nová nahrání budou odmítnuta. Pokud je to nečekané, kontaktujte správce žebříčku.</string>
-    <string name="online_upload_actions_caption">Nahrávání statistik jízd</string>
+    <string name="online_upload_actions_caption">Nahrávání statistik jízd.</string>
     <string name="online_upload_actions_desc">Odešle do žebříčku všechny dosud nenahrané jízdy.</string>
     <string name="online_upload_sync_nothing">Není co synchronizovat</string>
     <string name="online_upload_sync_done">Synchronizováno %1$d jízd</string>
@@ -1431,8 +1431,8 @@
     <string name="online_status_checking">Ověřuji u žebříčku…</string>
     <string name="online_status_check_failed">Teď se nepodařilo ověřit, zkuste to později</string>
     <string name="online_status_rejected">Nepřijato do žebříčku</string>
-    <string name="online_upload_join_caption">Připojte se a posílejte své statistiky a jízdy do veřejného žebříčku na</string>
-    <string name="online_upload_linked_caption">Vaše statistiky a jízdy se objevují ve veřejném žebříčku na</string>
+    <string name="online_upload_join_caption">Připojte se a posílejte své statistiky a jízdy do veřejného žebříčku na.</string>
+    <string name="online_upload_linked_caption">Vaše statistiky a jízdy se objevují ve veřejném žebříčku na.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Odpojit</string>
@@ -1778,7 +1778,7 @@
     <string name="nav_share_dialog_body">Vaše trasa už má zastávky. Přidat tento jako další zastávku, nebo začít znovu?</string>
     <string name="nav_share_dialog_append">Přidat jako další</string>
     <string name="nav_share_dialog_new">Nová trasa</string>
-    <string name="dropbox_section_caption">Online záloha na Dropbox</string>
+    <string name="dropbox_section_caption">Online záloha na Dropbox.</string>
     <string name="dropbox_section_desc">Po propojení lze jízdy otevřít i na %1$s.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Propojit Dropbox</string>
@@ -2111,7 +2111,7 @@
     <string name="studio_cfg_filter_vintage">Retro</string>
     <string name="studio_cfg_filter_matte">Matný</string>
     <string name="dash_external_gps_settings">Nastavení externí GPS</string>
-    <string name="external_gps_caption">Zapněte zařízení a klepněte na Spárovat, ať živě posílá rychlost a přetížení, ukládá se také do CSV každé jízdy</string>
+    <string name="external_gps_caption">Zapněte zařízení a klepněte na Spárovat, ať živě posílá rychlost a přetížení, ukládá se také do CSV každé jízdy.</string>
     <string name="gps_prioritize_external_desc">Upřednostní připojené zařízení před telefonem pro rychlost, polohu a přetížení.</string>
     <string name="studio_cfg_show_value">Zobrazit hodnotu</string>
     <string name="studio_cfg_unit_position">Jednotka</string>

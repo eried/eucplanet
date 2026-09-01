@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">備份資料夾</string>
-    <string name="cloud_caption">行程、設定、主題和疊加層的備份資料夾</string>
+    <string name="cloud_caption">行程、設定、主題和疊加層的備份資料夾。</string>
     <string name="cloud_choose_folder">選擇資料夾</string>
     <string name="cloud_change_folder">更換資料夾</string>
     <string name="cloud_remove_folder">取消連結</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">連線</string>
     <string name="section_display">顯示</string>
     <string name="auto_record_on_start">啟動時自動錄製</string>
-    <string name="auto_record_caption">連接車輪時自動錄製行程</string>
+    <string name="auto_record_caption">連接車輪時自動錄製行程。</string>
     <string name="auto_record_start_in_motion">移動時開始錄製</string>
-    <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，下次騎乘時重新開始</string>
+    <string name="auto_record_start_in_motion_caption">移動時開始，閒置後自動停止，下次騎乘時重新開始。</string>
     <string name="auto_record_stop_idle_seconds">閒置後停止</string>
     <string name="auto_connect_on_start">啟動時自動連線</string>
     <string name="wheel_name_display">車輪名稱</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">來自車輪：%1$d 串。</string>
     <string name="battery_percent_cells_manual">把電池組電壓換算成儀表板、語音和警報中顯示的百分比。</string>
     <string name="speed_calibration_label">速度偏移</string>
-    <string name="speed_calibration_caption">調整車輪回報的速度，影響警報、語音及行程記錄</string>
+    <string name="speed_calibration_caption">調整車輪回報的速度，影響警報、語音及行程記錄。</string>
     <string name="section_legal_mode_speed">限速模式速度</string>
-    <string name="legal_mode_caption">限速模式開啟時使用，必須低於正常傾斜保護速度</string>
+    <string name="legal_mode_caption">限速模式開啟時使用，必須低於正常傾斜保護速度。</string>
     <string name="speed_limits_disconnected">請連接您的車輪以編輯校準和限制</string>
     <string name="speed_tiltback">傾斜保護速度</string>
     <string name="speed_alarm">警報速度</string>
@@ -1150,7 +1150,7 @@
     <string name="online_upload_card_unavailable">無法載入</string>
     <string name="online_profile_retry">重試</string>
     <string name="online_upload_card_missing">此手機的排行榜個人資料已不存在於伺服器，新上傳將被拒絕。若有疑問，請聯絡排行榜管理員。</string>
-    <string name="online_upload_actions_caption">行程統計上傳</string>
+    <string name="online_upload_actions_caption">行程統計上傳。</string>
     <string name="online_upload_actions_desc">將尚未上傳的行程傳送至排行榜。</string>
     <string name="online_upload_sync_nothing">沒有需要同步的內容</string>
     <string name="online_upload_sync_done">已同步 %1$d 次行程</string>
@@ -1169,8 +1169,8 @@
     <string name="online_status_checking">正在與排行榜核對…</string>
     <string name="online_status_check_failed">暫時無法核對，請稍後再試</string>
     <string name="online_status_rejected">未被排行榜接受</string>
-    <string name="online_upload_join_caption">加入後可將您的統計和行程傳送至公開排行榜</string>
-    <string name="online_upload_linked_caption">您的統計和行程已顯示在公開排行榜上</string>
+    <string name="online_upload_join_caption">加入後可將您的統計和行程傳送至公開排行榜。</string>
+    <string name="online_upload_linked_caption">您的統計和行程已顯示在公開排行榜上。</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">取消連結</string>
@@ -1805,7 +1805,7 @@
     <string name="studio_cfg_filter_vintage">復古</string>
     <string name="studio_cfg_filter_matte">霧面</string>
     <string name="dash_external_gps_settings">外部 GPS 設定</string>
-    <string name="external_gps_caption">開啟裝置電源並點擊「配對」，以即時傳送速度和 G 力，並儲存至每次行程的 CSV</string>
+    <string name="external_gps_caption">開啟裝置電源並點擊「配對」，以即時傳送速度和 G 力，並儲存至每次行程的 CSV。</string>
     <string name="gps_prioritize_external_desc">在速度、位置和 G 力方面，優先使用已連線的裝置而非手機。</string>
     <string name="studio_cfg_show_value">顯示數值</string>
     <string name="studio_cfg_unit_position">單位</string>
@@ -1896,7 +1896,7 @@
     <string name="voice_announce_connected">連線時</string>
     <string name="voice_announce_riding">騎乘時</string>
     <string name="voice_announce_when_label">通報</string>
-    <string name="dropbox_section_caption">線上備份到 Dropbox</string>
+    <string name="dropbox_section_caption">線上備份到 Dropbox。</string>
     <string name="dropbox_section_desc">連結 Dropbox 後，行程也可以在 %1$s 上開啟。</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">連結 Dropbox</string>

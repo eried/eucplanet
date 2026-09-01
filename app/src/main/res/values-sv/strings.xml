@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backupmapp</string>
-    <string name="cloud_caption">Din backupmapp för turer, inställningar, teman och överlägg</string>
+    <string name="cloud_caption">Din backupmapp för turer, inställningar, teman och överlägg.</string>
     <string name="cloud_choose_folder">Välj mapp</string>
     <string name="cloud_change_folder">Byt mapp</string>
     <string name="cloud_remove_folder">Koppla från</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Anslutning</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Spela in automatiskt vid start</string>
-    <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet</string>
+    <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet.</string>
     <string name="auto_record_start_in_motion">Starta inspelning vid rörelse</string>
-    <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar automatiskt efter inaktivitet, startar igen nästa tur</string>
+    <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar automatiskt efter inaktivitet, startar igen nästa tur.</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
     <string name="wheel_name_display">Hjulnamn</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Hämtat från hjulet: %1$d i serie.</string>
     <string name="battery_percent_cells_manual">Gör paketspänningen till procenten på instrumentpanelen, i röst och larm</string>
     <string name="speed_calibration_label">Hastighetsjustering</string>
-    <string name="speed_calibration_caption">Justerar hjulets rapporterade hastighet. Påverkar larm, tal och turloggen</string>
+    <string name="speed_calibration_caption">Justerar hjulets rapporterade hastighet. Påverkar larm, tal och turloggen.</string>
     <string name="section_legal_mode_speed">Hastighet i lagligt läge</string>
-    <string name="legal_mode_caption">Används med lagligt läge på. Måste vara lägre än normal tiltback</string>
+    <string name="legal_mode_caption">Används med lagligt läge på. Måste vara lägre än normal tiltback.</string>
     <string name="speed_limits_disconnected">Anslut hjulet för att ändra kalibrering och gränser</string>
     <string name="speed_tiltback">Tiltback-hastighet</string>
     <string name="speed_alarm">Larmhastighet</string>
@@ -1149,7 +1149,7 @@
     <string name="online_upload_card_unavailable">Kunde inte ladda</string>
     <string name="online_profile_retry">Försök igen</string>
     <string name="online_upload_card_missing">Den här telefonens förarprofil finns inte längre på servern, så nya uppladdningar avvisas. Om detta är oväntat, kontakta topplistans administratör.</string>
-    <string name="online_upload_actions_caption">Uppladdning av turstatistik</string>
+    <string name="online_upload_actions_caption">Uppladdning av turstatistik.</string>
     <string name="online_upload_actions_desc">Skicka turer som ännu inte laddats upp till topplistan.</string>
     <string name="online_upload_sync_nothing">Inget att synka</string>
     <string name="online_upload_sync_done">Synkade %1$d turer</string>
@@ -1168,8 +1168,8 @@
     <string name="online_status_checking">Kontrollerar mot topplistan…</string>
     <string name="online_status_check_failed">Kunde inte kontrollera nu, försök igen senare</string>
     <string name="online_status_rejected">Inte godkänd för topplistan</string>
-    <string name="online_upload_join_caption">Gå med för att skicka din statistik och dina turer till den publika topplistan på</string>
-    <string name="online_upload_linked_caption">Din statistik och dina turer visas på den publika topplistan på</string>
+    <string name="online_upload_join_caption">Gå med för att skicka din statistik och dina turer till den publika topplistan på.</string>
+    <string name="online_upload_linked_caption">Din statistik och dina turer visas på den publika topplistan på.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Koppla från</string>
@@ -1804,7 +1804,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matt</string>
     <string name="dash_external_gps_settings">Inställningar för extern GPS</string>
-    <string name="external_gps_caption">Slå på enheten och tryck Parkoppla. Fart och G-kraft matas in live och sparas i turens CSV</string>
+    <string name="external_gps_caption">Slå på enheten och tryck Parkoppla. Fart och G-kraft matas in live och sparas i turens CSV.</string>
     <string name="gps_prioritize_external_desc">Föredra den anslutna enheten framför telefonen för fart, position och G-kraft.</string>
     <string name="studio_cfg_show_value">Visa värde</string>
     <string name="studio_cfg_unit_position">Enhet</string>
@@ -1897,7 +1897,7 @@
     <string name="studio_save_keep_both">Behåll båda</string>
     <string name="welcome_tut_voice_desc">Du kan slå på eller av enskilda röstmeddelanden senare i Inställningar → Röst och meddelanden.</string>
     <string name="welcome_tut_voice_title">Aktivera röstvarningar</string>
-    <string name="dropbox_section_caption">Onlinekopia till Dropbox</string>
+    <string name="dropbox_section_caption">Onlinekopia till Dropbox.</string>
     <string name="dropbox_section_desc">Turer går också att öppna på %1$s när Dropbox är länkat.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Anslut Dropbox</string>

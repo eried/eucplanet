@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">バックアップフォルダー</string>
-    <string name="cloud_caption">トリップ、設定、テーマ、オーバーレイのバックアップフォルダー</string>
+    <string name="cloud_caption">トリップ、設定、テーマ、オーバーレイのバックアップフォルダー。</string>
     <string name="cloud_choose_folder">フォルダーを選択</string>
     <string name="cloud_change_folder">フォルダーを変更</string>
     <string name="cloud_remove_folder">リンク解除</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">接続</string>
     <string name="section_display">表示</string>
     <string name="auto_record_on_start">起動時に自動記録</string>
-    <string name="auto_record_caption">ホイール接続時にトリップを記録します</string>
+    <string name="auto_record_caption">ホイール接続時にトリップを記録します。</string>
     <string name="auto_record_start_in_motion">走行中に記録を開始</string>
-    <string name="auto_record_start_in_motion_caption">動き始めに開始し、停止後に自動終了、次の走行時に再開始</string>
+    <string name="auto_record_start_in_motion_caption">動き始めに開始し、停止後に自動終了、次の走行時に再開始。</string>
     <string name="auto_record_stop_idle_seconds">停止後に記録終了</string>
     <string name="auto_connect_on_start">起動時に自動接続</string>
     <string name="wheel_name_display">ホイール名</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">ホイールから取得: 直列 %1$d。</string>
     <string name="battery_percent_cells_manual">パック電圧をダッシュボード、音声、アラームの残量に変換します。</string>
     <string name="speed_calibration_label">速度オフセット</string>
-    <string name="speed_calibration_caption">ホイール報告速度を調整します。アラーム、音声、トリップログに影響します</string>
+    <string name="speed_calibration_caption">ホイール報告速度を調整します。アラーム、音声、トリップログに影響します。</string>
     <string name="section_legal_mode_speed">リーガルモード速度</string>
-    <string name="legal_mode_caption">リーガルモードがオンのときに使用されます。通常のチルトバックより低い値にする必要があります</string>
+    <string name="legal_mode_caption">リーガルモードがオンのときに使用されます。通常のチルトバックより低い値にする必要があります。</string>
     <string name="speed_limits_disconnected">補正と制限を編集するにはホイールを接続してください</string>
     <string name="speed_tiltback">チルトバック速度</string>
     <string name="speed_alarm">アラーム速度</string>
@@ -1150,7 +1150,7 @@
     <string name="online_upload_card_unavailable">読み込めません</string>
     <string name="online_profile_retry">再試行</string>
     <string name="online_upload_card_missing">このスマホのリーダーボードプロフィールがサーバーに存在しなくなったため、新しいアップロードは拒否されます。心当たりがない場合はリーダーボード管理者にお問い合わせください。</string>
-    <string name="online_upload_actions_caption">トリップ統計のアップロード</string>
+    <string name="online_upload_actions_caption">トリップ統計のアップロード。</string>
     <string name="online_upload_actions_desc">まだアップロードされていないトリップをリーダーボードに送信します。</string>
     <string name="online_upload_sync_nothing">同期するものはありません</string>
     <string name="online_upload_sync_done">%1$d 件のトリップを同期しました</string>
@@ -1805,7 +1805,7 @@
     <string name="studio_cfg_filter_vintage">ヴィンテージ</string>
     <string name="studio_cfg_filter_matte">マット</string>
     <string name="dash_external_gps_settings">外部 GPS 設定</string>
-    <string name="external_gps_caption">デバイスの電源を入れてペアリングをタップすると、速度と G フォースをリアルタイムに取得し、各トリップ CSV にも保存されます</string>
+    <string name="external_gps_caption">デバイスの電源を入れてペアリングをタップすると、速度と G フォースをリアルタイムに取得し、各トリップ CSV にも保存されます。</string>
     <string name="gps_prioritize_external_desc">速度、位置、G フォースにスマホよりも接続済みデバイスを優先します。</string>
     <string name="studio_cfg_show_value">値を表示</string>
     <string name="studio_cfg_unit_position">単位</string>
@@ -1896,7 +1896,7 @@
     <string name="voice_announce_connected">接続時</string>
     <string name="voice_announce_riding">走行中</string>
     <string name="voice_announce_when_label">アナウンス</string>
-    <string name="dropbox_section_caption">Dropbox へのオンラインバックアップ</string>
+    <string name="dropbox_section_caption">Dropbox へのオンラインバックアップ。</string>
     <string name="dropbox_section_desc">Dropbox を連携すると、走行記録は %1$s でも開けます。</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox を連携</string>

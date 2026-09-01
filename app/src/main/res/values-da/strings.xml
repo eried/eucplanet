@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Din backup-mappe til ture, indstillinger, temaer og overlays</string>
+    <string name="cloud_caption">Din backup-mappe til ture, indstillinger, temaer og overlays.</string>
     <string name="cloud_choose_folder">Vælg mappe</string>
     <string name="cloud_change_folder">Skift mappe</string>
     <string name="cloud_remove_folder">Frakobl</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Forbindelse</string>
     <string name="section_display">Skærm</string>
     <string name="auto_record_on_start">Optag automatisk ved start</string>
-    <string name="auto_record_caption">Optager en tur, når hjulet er forbundet</string>
+    <string name="auto_record_caption">Optager en tur, når hjulet er forbundet.</string>
     <string name="auto_record_start_in_motion">Start optagelse ved bevægelse</string>
-    <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper ved inaktivitet, starter igen ved næste tur</string>
+    <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper ved inaktivitet, starter igen ved næste tur.</string>
     <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
     <string name="wheel_name_display">Hjulnavn</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Hentet fra hjulet: %1$d i serie.</string>
     <string name="battery_percent_cells_manual">Laver pakkespændingen om til procenten på dashboardet, i tale og alarmer</string>
     <string name="speed_calibration_label">Hastighedsjustering</string>
-    <string name="speed_calibration_caption">Justerer hjulets rapporterede hastighed; påvirker alarmer, tale og turloggen</string>
+    <string name="speed_calibration_caption">Justerer hjulets rapporterede hastighed; påvirker alarmer, tale og turloggen.</string>
     <string name="section_legal_mode_speed">Hastighed i legal-tilstand</string>
-    <string name="legal_mode_caption">Bruges når legal-tilstand er til; skal være lavere end normal tiltback</string>
+    <string name="legal_mode_caption">Bruges når legal-tilstand er til; skal være lavere end normal tiltback.</string>
     <string name="speed_limits_disconnected">Forbind hjulet for at ændre kalibrering og grænser</string>
     <string name="speed_tiltback">Tiltback-hastighed</string>
     <string name="speed_alarm">Alarmhastighed</string>
@@ -1153,7 +1153,7 @@
     <string name="online_upload_card_unavailable">Kunne ikke indlæses</string>
     <string name="online_profile_retry">Prøv igen</string>
     <string name="online_upload_card_missing">Denne telefons ranglisteprofil findes ikke længere på serveren, så nye uploads afvises. Kontakt ranglistens administrator, hvis det er uventet.</string>
-    <string name="online_upload_actions_caption">Turstatistik-uploads</string>
+    <string name="online_upload_actions_caption">Turstatistik-uploads.</string>
     <string name="online_upload_actions_desc">Send ture, der endnu ikke er uploadet til ranglisten.</string>
     <string name="online_upload_sync_nothing">Intet at synkronisere</string>
     <string name="online_upload_sync_done">Synkroniserede %1$d ture</string>
@@ -1172,8 +1172,8 @@
     <string name="online_status_checking">Tjekker med ranglisten…</string>
     <string name="online_status_check_failed">Kunne ikke tjekke lige nu, prøv igen senere</string>
     <string name="online_status_rejected">Ikke godkendt til ranglisten</string>
-    <string name="online_upload_join_caption">Tilmeld dig for at sende dine statistikker og ture til den offentlige rangliste på</string>
-    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på</string>
+    <string name="online_upload_join_caption">Tilmeld dig for at sende dine statistikker og ture til den offentlige rangliste på.</string>
+    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Frakobl</string>
@@ -1817,7 +1817,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Indstillinger for ekstern GPS</string>
-    <string name="external_gps_caption">Tænd enheden og tryk Par; fart og G-kraft fødes ind live og gemmes i tur-CSV</string>
+    <string name="external_gps_caption">Tænd enheden og tryk Par; fart og G-kraft fødes ind live og gemmes i tur-CSV.</string>
     <string name="gps_prioritize_external_desc">Foretræk tilsluttet enhed frem for telefonen til fart, position og G-kraft.</string>
     <string name="studio_cfg_show_value">Vis værdi</string>
     <string name="studio_cfg_unit_position">Enhed</string>
@@ -1912,7 +1912,7 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan aktivere eller deaktivere enkelte stemmebeskeder senere i Indstillinger → Stemme og meddelelser.</string>
     <string name="welcome_tut_voice_title">Aktivér stemmebeskeder</string>
-    <string name="dropbox_section_caption">Online-sikkerhedskopi til Dropbox</string>
+    <string name="dropbox_section_caption">Online-sikkerhedskopi til Dropbox.</string>
     <string name="dropbox_section_desc">Ture kan også åbnes på %1$s når Dropbox er forbundet.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Tilknyt Dropbox</string>

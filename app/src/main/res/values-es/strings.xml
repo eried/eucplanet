@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Carpeta de respaldo</string>
-    <string name="cloud_caption">Tu carpeta de respaldo para viajes, ajustes, temas y overlays</string>
+    <string name="cloud_caption">Tu carpeta de respaldo para viajes, ajustes, temas y overlays.</string>
     <string name="cloud_choose_folder">Elegir carpeta</string>
     <string name="cloud_change_folder">Cambiar carpeta</string>
     <string name="cloud_remove_folder">Desvincular</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Conexión</string>
     <string name="section_display">Visualización</string>
     <string name="auto_record_on_start">Grabar automáticamente al inicio</string>
-    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada</string>
+    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada.</string>
     <string name="auto_record_start_in_motion">Empezar a grabar al moverte</string>
-    <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en la siguiente salida</string>
+    <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en la siguiente salida.</string>
     <string name="auto_record_stop_idle_seconds">Detener tras inactividad de</string>
     <string name="auto_connect_on_start">Conectar automáticamente al inicio</string>
     <string name="wheel_name_display">Nombre de la rueda</string>
@@ -576,9 +576,9 @@
     <string name="battery_capacity_label">Capacidad</string>
     <string name="battery_capacity_desc">Opcional. Fija la estimación de autonomía desde el inicio, para la casilla Autonomía y el HUD.</string>
     <string name="speed_calibration_label">Desfase de velocidad</string>
-    <string name="speed_calibration_caption">Ajusta la velocidad reportada por la rueda; afecta alarmas, voz y el registro del viaje</string>
+    <string name="speed_calibration_caption">Ajusta la velocidad reportada por la rueda; afecta alarmas, voz y el registro del viaje.</string>
     <string name="section_legal_mode_speed">Velocidad en Modo Legal</string>
-    <string name="legal_mode_caption">Se aplica con el Modo Legal activo; debe ser menor que el tiltback normal</string>
+    <string name="legal_mode_caption">Se aplica con el Modo Legal activo; debe ser menor que el tiltback normal.</string>
     <string name="speed_limits_disconnected">Conecta tu rueda para editar la calibración y los límites</string>
     <string name="speed_tiltback">Velocidad de tiltback</string>
     <string name="speed_alarm">Velocidad de alarma</string>
@@ -1153,7 +1153,7 @@
     <string name="online_upload_card_unavailable">No se pudo cargar</string>
     <string name="online_profile_retry">Reintentar</string>
     <string name="online_upload_card_missing">El perfil de este teléfono en el marcador ya no existe en el servidor, así que se rechazarán las nuevas subidas. Si esto es inesperado, contacta con el administrador del marcador.</string>
-    <string name="online_upload_actions_caption">Subidas de estadísticas de viajes</string>
+    <string name="online_upload_actions_caption">Subidas de estadísticas de viajes.</string>
     <string name="online_upload_actions_desc">Envía al marcador los viajes que aún no se han subido.</string>
     <string name="online_upload_sync_nothing">Nada que sincronizar</string>
     <string name="online_upload_sync_done">%1$d viajes sincronizados</string>
@@ -1172,8 +1172,8 @@
     <string name="online_status_checking">Consultando la clasificación…</string>
     <string name="online_status_check_failed">No se pudo comprobar ahora, inténtalo más tarde</string>
     <string name="online_status_rejected">No aceptado para la clasificación</string>
-    <string name="online_upload_join_caption">Únete para enviar tus estadísticas y viajes al marcador público en</string>
-    <string name="online_upload_linked_caption">Tus estadísticas y viajes aparecen en el marcador público en</string>
+    <string name="online_upload_join_caption">Únete para enviar tus estadísticas y viajes al marcador público en.</string>
+    <string name="online_upload_linked_caption">Tus estadísticas y viajes aparecen en el marcador público en.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Desvincular</string>
@@ -1808,7 +1808,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mate</string>
     <string name="dash_external_gps_settings">Ajustes del GPS externo</string>
-    <string name="external_gps_caption">Enciende el dispositivo y toca Vincular para usar su velocidad y fuerza G en vivo; también se guarda en el CSV de cada viaje</string>
+    <string name="external_gps_caption">Enciende el dispositivo y toca Vincular para usar su velocidad y fuerza G en vivo; también se guarda en el CSV de cada viaje.</string>
     <string name="gps_prioritize_external_desc">Prefiere el dispositivo conectado al teléfono para velocidad, posición y fuerza G.</string>
     <string name="studio_cfg_show_value">Mostrar valor</string>
     <string name="studio_cfg_unit_position">Unidad</string>
@@ -1897,7 +1897,7 @@
     <string name="studio_save_keep_both">Conservar ambos</string>
     <string name="welcome_tut_voice_desc">Puedes activar o desactivar mensajes de voz individuales luego en Ajustes → Voz y anuncios.</string>
     <string name="welcome_tut_voice_title">Activar alertas de voz</string>
-    <string name="dropbox_section_caption">Copia online a Dropbox</string>
+    <string name="dropbox_section_caption">Copia online a Dropbox.</string>
     <string name="dropbox_section_desc">Tus viajes también se pueden abrir en %1$s cuando está vinculado.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Vincular Dropbox</string>

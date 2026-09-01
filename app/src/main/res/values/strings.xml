@@ -645,7 +645,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Your backup folder for trips, settings, themes and overlays</string>
+    <string name="cloud_caption">Your backup folder for trips, settings, themes and overlays.</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
     <string name="cloud_remove_folder">Unlink</string>
@@ -713,9 +713,9 @@
     <string name="section_connection">Connection</string>
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
-    <string name="auto_record_caption">Records a trip when the wheel is connected</string>
+    <string name="auto_record_caption">Records a trip when the wheel is connected.</string>
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
-    <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride</string>
+    <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride.</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
     <string name="auto_record_mode_label">Auto-start trip recording</string>
     <string name="auto_record_mode_never">Never</string>
@@ -807,9 +807,9 @@
     <string name="battery_percent_cells_from_wheel">Taken from the wheel: %1$d in series.</string>
     <string name="battery_percent_cells_manual">Turns pack voltage into the percentage on the dashboard, in voice and alarms</string>
     <string name="speed_calibration_label">Speed offset</string>
-    <string name="speed_calibration_caption">Adjusts wheel-reported speed; affects alarms, voice and the trip log</string>
+    <string name="speed_calibration_caption">Adjusts wheel-reported speed; affects alarms, voice and the trip log.</string>
     <string name="section_legal_mode_speed">Legal mode speed</string>
-    <string name="legal_mode_caption">Used when Legal Mode is on; must be lower than normal tiltback</string>
+    <string name="legal_mode_caption">Used when Legal Mode is on; must be lower than normal tiltback.</string>
     <string name="speed_limits_disconnected">Connect your wheel to edit calibration and limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
@@ -1609,7 +1609,7 @@
     <string name="online_upload_card_unavailable">Couldn\'t load</string>
     <string name="online_profile_retry">Retry</string>
     <string name="online_upload_card_missing">This phone\'s leaderboard profile no longer exists on the server, so new uploads will be rejected. If this is unexpected, contact the leaderboard admin.</string>
-    <string name="online_upload_actions_caption">Trip stats uploads</string>
+    <string name="online_upload_actions_caption">Trip stats uploads.</string>
     <string name="online_upload_actions_desc">Send any trips not yet uploaded to the leaderboard.</string>
     <string name="online_upload_sync_nothing">Nothing to sync</string>
     <string name="online_upload_sync_done">Synced %1$d trips</string>
@@ -1628,8 +1628,8 @@
     <string name="online_status_checking">Checking with the leaderboard…</string>
     <string name="online_status_check_failed">Could not check right now, try again later</string>
     <string name="online_status_rejected">Not accepted for the leaderboard</string>
-    <string name="online_upload_join_caption">Join to send your stats and trips to the public leaderboard at</string>
-    <string name="online_upload_linked_caption">Your stats and trips appear on the public leaderboard at</string>
+    <string name="online_upload_join_caption">Join to send your stats and trips to the public leaderboard at.</string>
+    <string name="online_upload_linked_caption">Your stats and trips appear on the public leaderboard at.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Unlink</string>
@@ -2023,7 +2023,7 @@
     <string name="nav_share_dialog_body">Your route already has stops. Add this as the next stop, or start fresh?</string>
     <string name="nav_share_dialog_append">Add as next</string>
     <string name="nav_share_dialog_new">New route</string>
-    <string name="dropbox_section_caption">Online backup to Dropbox</string>
+    <string name="dropbox_section_caption">Online backup to Dropbox.</string>
     <string name="dropbox_section_desc">Trips can also be opened on %1$s when linked.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Link Dropbox</string>
@@ -2368,7 +2368,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matte</string>
     <string name="dash_external_gps_settings">External GPS settings</string>
-    <string name="external_gps_caption">Power on the device and tap Pair to feed its speed and G-Force live, also saved to each trip CSV</string>
+    <string name="external_gps_caption">Power on the device and tap Pair to feed its speed and G-Force live, also saved to each trip CSV.</string>
     <string name="gps_prioritize_external_desc">Prefer the connected device over the phone for speed, position and G-Force.</string>
     <string name="studio_cfg_show_value">Show value</string>
     <string name="studio_cfg_unit_position">Unit</string>

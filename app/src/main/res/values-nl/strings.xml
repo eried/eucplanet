@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Back-upmap</string>
-    <string name="cloud_caption">Je back-upmap voor ritten, instellingen, thema\'s en overlays</string>
+    <string name="cloud_caption">Je back-upmap voor ritten, instellingen, thema\'s en overlays.</string>
     <string name="cloud_choose_folder">Map kiezen</string>
     <string name="cloud_change_folder">Map wijzigen</string>
     <string name="cloud_remove_folder">Ontkoppelen</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">Verbinding</string>
     <string name="section_display">Weergave</string>
     <string name="auto_record_on_start">Automatisch opnemen bij verbinden</string>
-    <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is</string>
+    <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is.</string>
     <string name="auto_record_start_in_motion">Opname starten bij beweging</string>
-    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit</string>
+    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
     <string name="wheel_name_display">Wielnaam</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">Overgenomen van het wiel: %1$d in serie.</string>
     <string name="battery_percent_cells_manual">Maakt van de pakspanning het percentage op het dashboard, in spraak en alarmen</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>
-    <string name="speed_calibration_caption">Past de door het wiel gerapporteerde snelheid aan; beïnvloedt alarmen, spraak en het ritlog</string>
+    <string name="speed_calibration_caption">Past de door het wiel gerapporteerde snelheid aan; beïnvloedt alarmen, spraak en het ritlog.</string>
     <string name="section_legal_mode_speed">Snelheid voor Legal Mode</string>
-    <string name="legal_mode_caption">Gebruikt in Legal Mode; moet lager zijn dan de normale tiltback</string>
+    <string name="legal_mode_caption">Gebruikt in Legal Mode; moet lager zijn dan de normale tiltback.</string>
     <string name="speed_limits_disconnected">Verbind je wiel om kalibratie en limieten te bewerken</string>
     <string name="speed_tiltback">Tiltback-snelheid</string>
     <string name="speed_alarm">Alarmsnelheid</string>
@@ -1151,7 +1151,7 @@
     <string name="online_upload_card_unavailable">Kan niet laden</string>
     <string name="online_profile_retry">Opnieuw</string>
     <string name="online_upload_card_missing">Het klassementprofiel van deze telefoon bestaat niet meer op de server, dus nieuwe uploads worden geweigerd. Als dit onverwacht is, neem dan contact op met de klassementbeheerder.</string>
-    <string name="online_upload_actions_caption">Uploads van ritstatistieken</string>
+    <string name="online_upload_actions_caption">Uploads van ritstatistieken.</string>
     <string name="online_upload_actions_desc">Stuur alle ritten die nog niet naar het klassement zijn geüpload.</string>
     <string name="online_upload_sync_nothing">Niets te synchroniseren</string>
     <string name="online_upload_sync_done">%1$d ritten gesynchroniseerd</string>
@@ -1170,8 +1170,8 @@
     <string name="online_status_checking">Controleren bij het klassement…</string>
     <string name="online_status_check_failed">Kon nu niet controleren, probeer het later opnieuw</string>
     <string name="online_status_rejected">Niet geaccepteerd voor het klassement</string>
-    <string name="online_upload_join_caption">Meld je aan om je statistieken en ritten op het openbare klassement te zetten op</string>
-    <string name="online_upload_linked_caption">Je statistieken en ritten verschijnen op het openbare klassement op</string>
+    <string name="online_upload_join_caption">Meld je aan om je statistieken en ritten op het openbare klassement te zetten op.</string>
+    <string name="online_upload_linked_caption">Je statistieken en ritten verschijnen op het openbare klassement op.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Ontkoppelen</string>
@@ -1852,7 +1852,7 @@
     <string name="dash_view_photo_gallery">Fotogalerij openen</string>
     <string name="dash_no_gallery_app">Geen galerij-app gevonden</string>
     <string name="dash_external_gps_settings">Instellingen externe GPS</string>
-    <string name="external_gps_caption">Schakel het apparaat in en tik op Koppelen; snelheid en G-kracht voeden de app live en worden in de trip-CSV opgeslagen</string>
+    <string name="external_gps_caption">Schakel het apparaat in en tik op Koppelen; snelheid en G-kracht voeden de app live en worden in de trip-CSV opgeslagen.</string>
     <string name="gps_prioritize_external_desc">Geef voorrang aan het verbonden apparaat boven de telefoon voor snelheid, positie en G-kracht.</string>
 
     <string name="warnings_indicator_desc">App-waarschuwingen</string>
@@ -1897,7 +1897,7 @@
     <string name="studio_save_keep_both">Beide bewaren</string>
     <string name="welcome_tut_voice_desc">Je kunt individuele spraakberichten later aan- of uitzetten in Instellingen → Spraak en aankondigingen.</string>
     <string name="welcome_tut_voice_title">Spraakwaarschuwingen inschakelen</string>
-    <string name="dropbox_section_caption">Online back-up naar Dropbox</string>
+    <string name="dropbox_section_caption">Online back-up naar Dropbox.</string>
     <string name="dropbox_section_desc">Ritten zijn ook te openen op %1$s wanneer Dropbox is gekoppeld.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox koppelen</string>

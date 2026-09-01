@@ -41,6 +41,12 @@ These are exempt, and the exemption is by name in
   read as part of the address or the value
 - widget-surface strings, where the character is not worth the space
 
+The rule follows the string's job, not its key, but the key is how the guard
+finds it: `_desc`, `_description`, `_help`, `_hint`, `_subtitle`, `_body`,
+`_explain`, `_note` and `_caption` are helper copy. A `_title` is a heading and
+a `_toast` / `_failed` / `_error` is a transient message; neither is a sentence
+of explanation, so neither takes a stop.
+
 A navigation path uses an arrow, not an angle quote: "Settings -> Voice and
 announcements", "Apps -> EUC Planet". Display copy names a site bare
 (`eucstats.ried.no`); a full `https://` URL belongs only in a string that is

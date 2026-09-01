@@ -171,7 +171,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Cartella di backup</string>
-    <string name="cloud_caption">Cartella dove finiscono i CSV dei viaggi e il backup delle impostazioni</string>
+    <string name="cloud_caption">Cartella dove finiscono i CSV dei viaggi e il backup delle impostazioni.</string>
     <string name="cloud_choose_folder">Scegli cartella</string>
     <string name="cloud_change_folder">Cambia cartella</string>
     <string name="cloud_remove_folder">Scollega</string>
@@ -232,9 +232,9 @@
     <string name="section_connection">Connessione</string>
     <string name="section_display">Schermo</string>
     <string name="auto_record_on_start">Registra automaticamente all\'avvio</string>
-    <string name="auto_record_caption">Registra un viaggio quando la ruota è connessa</string>
+    <string name="auto_record_caption">Registra un viaggio quando la ruota è connessa.</string>
     <string name="auto_record_start_in_motion">Avvia registrazione in movimento</string>
-    <string name="auto_record_start_in_motion_caption">Parte al movimento, si ferma dopo inattività, riparte al prossimo giro</string>
+    <string name="auto_record_start_in_motion_caption">Parte al movimento, si ferma dopo inattività, riparte al prossimo giro.</string>
     <string name="auto_record_stop_idle_seconds">Ferma dopo inattività di</string>
     <string name="auto_connect_on_start">Connessione automatica all\'avvio</string>
     <string name="wheel_name_display">Nome ruota</string>
@@ -279,7 +279,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limiti di velocità</string>
     <string name="section_legal_mode_speed">Velocità modalità legale</string>
-    <string name="legal_mode_caption">Usato in Modalità Legale; deve essere inferiore al tiltback normale</string>
+    <string name="legal_mode_caption">Usato in Modalità Legale; deve essere inferiore al tiltback normale.</string>
     <string name="speed_limits_disconnected">Connetti la ruota per modificare calibrazione e limiti</string>
     <string name="speed_tiltback">Velocità di tiltback</string>
     <string name="speed_alarm">Velocità d\'allarme</string>
@@ -770,7 +770,7 @@
     <string name="battery_percent_cells_manual">Converte la tensione del pacco nella percentuale sul cruscotto, nella voce e negli allarmi</string>
     <string name="battery_capacity_label">Capacità</string>
     <string name="battery_capacity_desc">Opzionale. Imposta subito la stima dell\'autonomia, per la casella Autonomia e l\'HUD.</string>
-    <string name="speed_calibration_caption">Regola la velocità riportata dalla ruota; influenza allarmi, voce e registro</string>
+    <string name="speed_calibration_caption">Regola la velocità riportata dalla ruota; influenza allarmi, voce e registro.</string>
     <string name="speed_calibration_label">Scostamento velocità</string>
     <string name="sources_other_metrics">Altre metriche</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -1306,7 +1306,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Opaco</string>
     <string name="dash_external_gps_settings">Impostazioni GPS esterno</string>
-    <string name="external_gps_caption">Accendi il dispositivo e tocca Abbina; velocità e forza G alimentano l\'app in tempo reale e sono salvate nel CSV</string>
+    <string name="external_gps_caption">Accendi il dispositivo e tocca Abbina; velocità e forza G alimentano l\'app in tempo reale e sono salvate nel CSV.</string>
     <string name="gps_prioritize_external_desc">Preferisci il dispositivo connesso al telefono per velocità, posizione e forza G.</string>
     <string name="studio_cfg_show_value">Mostra valore</string>
     <string name="studio_cfg_unit_position">Unità</string>
@@ -1677,7 +1677,7 @@
     <string name="online_upload_card_loading">Caricamento…</string>
     <string name="online_upload_card_unavailable">Impossibile caricare</string>
     <string name="online_profile_retry">Riprova</string>
-    <string name="online_upload_actions_caption">Upload statistiche viaggi</string>
+    <string name="online_upload_actions_caption">Upload statistiche viaggi.</string>
     <string name="online_upload_mileage_rank">#%d chilometraggio</string>
     <string name="online_upload_top_speed">max %1$s %2$s</string>
     <string name="online_upload_trips">%d viaggi</string>
@@ -1690,7 +1690,7 @@
     <string name="online_status_checking">Verifica con la classifica…</string>
     <string name="online_status_check_failed">Impossibile verificare ora, riprova più tardi</string>
     <string name="online_status_rejected">Non accettato per la classifica</string>
-    <string name="online_upload_join_caption">I tuoi viaggi appaiono nella classifica pubblica su</string>
+    <string name="online_upload_join_caption">I tuoi viaggi appaiono nella classifica pubblica su.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Scollega</string>
@@ -1716,7 +1716,7 @@
     <string name="online_restore_body_switch">Questa cartella appartiene a %1$s. Il ripristino passa questo telefono a quel rider. Il tuo profilo attuale viene salvato come backup prima, così puoi tornare indietro.</string>
     <string name="online_restore_confirm">Continua come %1$s</string>
     <string name="online_upload_card_missing">Il profilo di classifica di questo telefono non esiste più sul server, quindi i nuovi upload verranno rifiutati. Se non te lo aspettavi, contatta l\'amministratore della classifica.</string>
-    <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su</string>
+    <string name="online_upload_linked_caption">Le tue statistiche e i tuoi viaggi appaiono nella classifica pubblica su.</string>
     <string name="online_rejoin_title">Riattiva profilo</string>
     <string name="online_rejoin_body">La cartella di backup contiene un profilo che era usato per la classifica.\n\nID rider: %1$s</string>
     <string name="warnings_battery_opt_title">L\'ottimizzazione della batteria è attiva</string>
@@ -1804,7 +1804,7 @@
     <string name="studio_save_keep_both">Tieni entrambi</string>
     <string name="welcome_tut_voice_desc">Puoi attivare o disattivare singoli messaggi vocali più tardi in Impostazioni → Voce e annunci.</string>
     <string name="welcome_tut_voice_title">Attiva avvisi vocali</string>
-    <string name="dropbox_section_caption">Backup online su Dropbox</string>
+    <string name="dropbox_section_caption">Backup online su Dropbox.</string>
     <string name="dropbox_section_desc">I viaggi si possono aprire anche su %1$s quando Dropbox è collegato.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Collega Dropbox</string>

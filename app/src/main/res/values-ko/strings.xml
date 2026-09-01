@@ -455,7 +455,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">백업 폴더</string>
-    <string name="cloud_caption">트립, 설정, 테마, 오버레이의 백업 폴더</string>
+    <string name="cloud_caption">트립, 설정, 테마, 오버레이의 백업 폴더.</string>
     <string name="cloud_choose_folder">폴더 선택</string>
     <string name="cloud_change_folder">폴더 변경</string>
     <string name="cloud_remove_folder">연결 해제</string>
@@ -516,9 +516,9 @@
     <string name="section_connection">연결</string>
     <string name="section_display">화면</string>
     <string name="auto_record_on_start">시작 시 자동 녹화</string>
-    <string name="auto_record_caption">휠이 연결되면 트립을 녹화합니다</string>
+    <string name="auto_record_caption">휠이 연결되면 트립을 녹화합니다.</string>
     <string name="auto_record_start_in_motion">움직일 때 녹화 시작</string>
-    <string name="auto_record_start_in_motion_caption">움직이면 시작, 정지 후 자동 종료, 다음 주행에서 재시작</string>
+    <string name="auto_record_start_in_motion_caption">움직이면 시작, 정지 후 자동 종료, 다음 주행에서 재시작.</string>
     <string name="auto_record_stop_idle_seconds">정지 후 종료</string>
     <string name="auto_connect_on_start">시작 시 자동 연결</string>
     <string name="wheel_name_display">휠 이름</string>
@@ -576,9 +576,9 @@
     <string name="battery_percent_cells_from_wheel">휠에서 가져옴: 직렬 %1$d.</string>
     <string name="battery_percent_cells_manual">팩 전압을 대시보드, 음성, 알람의 잔량으로 변환합니다.</string>
     <string name="speed_calibration_label">속도 오프셋</string>
-    <string name="speed_calibration_caption">휠이 보고하는 속도를 조정합니다. 알람, 음성, 트립 로그에 영향을 줍니다</string>
+    <string name="speed_calibration_caption">휠이 보고하는 속도를 조정합니다. 알람, 음성, 트립 로그에 영향을 줍니다.</string>
     <string name="section_legal_mode_speed">리걸 모드 속도</string>
-    <string name="legal_mode_caption">리걸 모드 켜짐 시 사용. 일반 틸트백보다 낮아야 합니다</string>
+    <string name="legal_mode_caption">리걸 모드 켜짐 시 사용. 일반 틸트백보다 낮아야 합니다.</string>
     <string name="speed_limits_disconnected">보정과 제한을 편집하려면 휠을 연결하세요</string>
     <string name="speed_tiltback">틸트백 속도</string>
     <string name="speed_alarm">알람 속도</string>
@@ -1150,7 +1150,7 @@
     <string name="online_upload_card_unavailable">불러올 수 없음</string>
     <string name="online_profile_retry">다시 시도</string>
     <string name="online_upload_card_missing">이 폰의 리더보드 프로필이 서버에 없어 새 업로드가 거부됩니다. 예상치 못한 상황이라면 리더보드 관리자에게 문의하세요.</string>
-    <string name="online_upload_actions_caption">트립 통계 업로드</string>
+    <string name="online_upload_actions_caption">트립 통계 업로드.</string>
     <string name="online_upload_actions_desc">아직 업로드되지 않은 트립을 리더보드로 전송합니다.</string>
     <string name="online_upload_sync_nothing">동기화할 항목 없음</string>
     <string name="online_upload_sync_done">트립 %1$d개 동기화됨</string>
@@ -1169,8 +1169,8 @@
     <string name="online_status_checking">리더보드에서 확인 중…</string>
     <string name="online_status_check_failed">지금은 확인할 수 없습니다. 나중에 다시 시도하세요</string>
     <string name="online_status_rejected">리더보드에 등록되지 않음</string>
-    <string name="online_upload_join_caption">통계와 트립을 다음 공개 리더보드로 보내려면 참가하세요</string>
-    <string name="online_upload_linked_caption">통계와 트립이 다음 공개 리더보드에 표시됩니다</string>
+    <string name="online_upload_join_caption">통계와 트립을 다음 공개 리더보드로 보내려면 참가하세요.</string>
+    <string name="online_upload_linked_caption">통계와 트립이 다음 공개 리더보드에 표시됩니다.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">연결 해제</string>
@@ -1805,7 +1805,7 @@
     <string name="studio_cfg_filter_vintage">빈티지</string>
     <string name="studio_cfg_filter_matte">매트</string>
     <string name="dash_external_gps_settings">외부 GPS 설정</string>
-    <string name="external_gps_caption">기기 전원을 켜고 페어링을 탭하면 속도와 G-force를 실시간으로 제공하며 각 트립 CSV에도 저장됩니다</string>
+    <string name="external_gps_caption">기기 전원을 켜고 페어링을 탭하면 속도와 G-force를 실시간으로 제공하며 각 트립 CSV에도 저장됩니다.</string>
     <string name="gps_prioritize_external_desc">속도, 위치, G-force에 폰 대신 연결된 외부 기기를 우선 사용합니다.</string>
     <string name="studio_cfg_show_value">값 표시</string>
     <string name="studio_cfg_unit_position">단위</string>
@@ -1896,7 +1896,7 @@
     <string name="voice_announce_connected">연결 시</string>
     <string name="voice_announce_riding">주행 중</string>
     <string name="voice_announce_when_label">안내</string>
-    <string name="dropbox_section_caption">Dropbox 온라인 백업</string>
+    <string name="dropbox_section_caption">Dropbox 온라인 백업.</string>
     <string name="dropbox_section_desc">Dropbox를 연결하면 주행을 %1$s에서도 열 수 있습니다.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox 연결</string>
