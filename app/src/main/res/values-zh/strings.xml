@@ -552,6 +552,11 @@
     <string name="alarm_repeat_label">触发</string>
     <string name="alarm_repeat_single">一次</string>
     <string name="alarm_repeat_multi">多次</string>
+    <string name="alarm_wheel_only_label">仅此轮</string>
+    <string name="alarm_wheel_only_help_bound">仅在 %1$s 连接时触发。</string>
+    <string name="alarm_wheel_only_help_ready">开：仅限 %1$s。关：任意车轮。</string>
+    <string name="alarm_wheel_only_help_connect">连接车轮后即可将此警报限定于它。</string>
+    <string name="alarm_summary_wheel_fmt">仅 %1$s</string>
     <string name="alarm_predict_label">预测触发</string>
     <string name="alarm_predict_realtime">立即</string>
     <string name="alarm_state_atleast">%1$s 达到 %2$s 或更高</string>

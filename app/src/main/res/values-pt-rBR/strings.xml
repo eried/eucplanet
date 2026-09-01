@@ -1095,6 +1095,11 @@
     <string name="alarm_repeat_label">Disparo</string>
     <string name="alarm_repeat_single">Única</string>
     <string name="alarm_repeat_multi">Várias</string>
+    <string name="alarm_wheel_only_label">Somente esta roda</string>
+    <string name="alarm_wheel_only_help_bound">Dispara somente enquanto %1$s está conectada.</string>
+    <string name="alarm_wheel_only_help_ready">Ligado: somente na %1$s. Desligado: qualquer roda.</string>
+    <string name="alarm_wheel_only_help_connect">Conecte uma roda para limitar este alarme a ela.</string>
+    <string name="alarm_summary_wheel_fmt">Somente %1$s</string>
     <string name="alarm_predict_label">Disparo preditivo</string>
     <string name="alarm_predict_realtime">Agora</string>
     <string name="alarm_state_atleast">%1$s está em %2$s ou mais</string>

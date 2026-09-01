@@ -1357,6 +1357,11 @@
     <string name="alarm_repeat_label">Kiváltás</string>
     <string name="alarm_repeat_single">Egyszer</string>
     <string name="alarm_repeat_multi">Többször</string>
+    <string name="alarm_wheel_only_label">Csak ez a kerék</string>
+    <string name="alarm_wheel_only_help_bound">Csak akkor szólal meg, amíg a(z) %1$s csatlakozik.</string>
+    <string name="alarm_wheel_only_help_ready">Be: csak a(z) %1$s keréken. Ki: bármely kerék.</string>
+    <string name="alarm_wheel_only_help_connect">Csatlakoztass egy kereket, hogy a riasztás csak arra szóljon.</string>
+    <string name="alarm_summary_wheel_fmt">Csak %1$s</string>
     <string name="alarm_state_atleast">%1$s legalább %2$s</string>
     <string name="alarm_state_below">%1$s kevesebb mint %2$s</string>
     <string name="alarm_repeat_help_once">Egy riasztás, amikor %1$s. Újraélesedik, amikor %2$s, a(z) %3$d másodperces várakozás után.</string>

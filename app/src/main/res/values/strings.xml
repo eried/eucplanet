@@ -1536,6 +1536,13 @@
     <string name="alarm_repeat_label">Trigger</string>
     <string name="alarm_repeat_single">Once</string>
     <string name="alarm_repeat_multi">Many</string>
+    <!-- Per-wheel alarm binding ("Only this wheel"): the rule fires only while
+         the bound wheel is the connected one. %1$s = the wheel's name. -->
+    <string name="alarm_wheel_only_label">Only this wheel</string>
+    <string name="alarm_wheel_only_help_bound">Fires only while %1$s is connected.</string>
+    <string name="alarm_wheel_only_help_ready">On: fires only on %1$s. Off: any wheel.</string>
+    <string name="alarm_wheel_only_help_connect">Connect a wheel to limit this alarm to it.</string>
+    <string name="alarm_summary_wheel_fmt">Only %1$s</string>
     <!-- Dynamic alarm help. The condition sub-phrases get the metric name + the
          threshold-with-unit plugged in, then the help sentences embed that
          phrase, so the text reads back the rule the rider actually set. -->

@@ -1089,6 +1089,11 @@
     <string name="alarm_repeat_label">Auslösung</string>
     <string name="alarm_repeat_single">Einmal</string>
     <string name="alarm_repeat_multi">Mehrfach</string>
+    <string name="alarm_wheel_only_label">Nur dieses Rad</string>
+    <string name="alarm_wheel_only_help_bound">Löst nur aus, solange %1$s verbunden ist.</string>
+    <string name="alarm_wheel_only_help_ready">An: nur auf %1$s. Aus: jedes Rad.</string>
+    <string name="alarm_wheel_only_help_connect">Rad verbinden, um den Alarm darauf zu beschränken.</string>
+    <string name="alarm_summary_wheel_fmt">Nur %1$s</string>
     <!-- Dynamische Alarm-Hilfe. In die Zustands-Teilsätze werden der Metrikname
          und die Schwelle-mit-Einheit eingesetzt, danach betten die Hilfssätze
          diesen Satz ein, damit der Text die tatsächlich gesetzte Regel widerspiegelt. -->

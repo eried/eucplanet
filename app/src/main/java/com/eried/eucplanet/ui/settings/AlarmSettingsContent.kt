@@ -241,6 +241,7 @@ fun AlarmSettingsContent(
     val pressureUnit by viewModel.pressureUnit.collectAsState()
     val voiceLocale by viewModel.voiceLocale.collectAsState()
     val showRadarMetrics by viewModel.showRadarMetrics.collectAsState()
+    val connectedWheel by viewModel.connectedWheel.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
@@ -320,6 +321,7 @@ fun AlarmSettingsContent(
                                 speedUnit = speedUnit,
                                 tempUnit = tempUnit,
                                 pressureUnit = pressureUnit,
+                                connectedAddress = connectedWheel?.first,
                                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
                                 onEdit = { editingRule = rule; showEditor = true },
                             )
@@ -359,6 +361,7 @@ fun AlarmSettingsContent(
             pressureUnit = pressureUnit,
             defaultVoiceText = defaultVoiceText,
             showRadarMetrics = showRadarMetrics,
+            connectedWheel = connectedWheel,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -438,6 +441,7 @@ private fun AlarmRuleCard(
     speedUnit: String,
     tempUnit: String,
     pressureUnit: String,
+    connectedAddress: String?,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
 ) {
@@ -447,13 +451,17 @@ private fun AlarmRuleCard(
     // Readable on-colour for the condition text -- the coloured group band above
     // already carries the metric's accent, and some accents (e.g. PWM's gauge-warn
     // yellow) are fill colours that read poorly as text on the card surface.
-    val color = if (!rule.enabled)
+    // A rule bound to a wheel other than the connected one (or bound while no
+    // wheel is connected) grays out like a disabled rule, because it will not
+    // fire right now, but it stays fully toggleable / editable / deletable.
+    val boundElsewhere = rule.wheelAddress != null && rule.wheelAddress != connectedAddress
+    val color = if (!rule.enabled || boundElsewhere)
         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     else MaterialTheme.colorScheme.onSurface
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (rule.enabled) MaterialTheme.colorScheme.surfaceVariant
+            containerColor = if (rule.enabled && !boundElsewhere) MaterialTheme.colorScheme.surfaceVariant
             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(12.dp)
@@ -516,6 +524,13 @@ private fun AlarmRuleCard(
                         color = color
                     )
                 }
+                if (rule.wheelAddress != null) {
+                    Text(
+                        stringResource(R.string.alarm_summary_wheel_fmt, rule.wheelName ?: rule.wheelAddress),
+                        fontSize = 11.sp,
+                        color = color
+                    )
+                }
             }
             Switch(checked = rule.enabled, onCheckedChange = onToggle, colors = themedSwitchColors())
         }
@@ -531,6 +546,7 @@ private fun AlarmRuleEditorDialog(
     pressureUnit: String,
     defaultVoiceText: String,
     showRadarMetrics: Boolean,
+    connectedWheel: Pair<String, String>?,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
@@ -549,6 +565,10 @@ private fun AlarmRuleEditorDialog(
     var metric by remember { mutableStateOf(initial.metric) }
     var comparator by remember { mutableStateOf(initial.comparator) }
     var threshold by remember { mutableFloatStateOf(initial.threshold) }
+
+    // Wheel binding ("Only this wheel"): address + name move together.
+    var wheelAddress by remember { mutableStateOf(initial.wheelAddress) }
+    var wheelName by remember { mutableStateOf(initial.wheelName) }
 
     var beepEnabled by remember { mutableStateOf(initial.beepEnabled) }
     var beepFrequency by remember { mutableIntStateOf(initial.beepFrequency) }
@@ -1221,6 +1241,39 @@ private fun AlarmRuleEditorDialog(
                             stringResource(R.string.alarm_predict_help_lead, leadSeconds(leadTimeMs), triggeredPhrase),
                         small = true
                     )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Wheel binding: OFF = the classic any-wheel rule; ON stamps
+                    // the connected wheel so the rule fires only on that wheel.
+                    // Binding needs a live wheel (otherwise we cannot know which
+                    // wheel the rider means); unbinding is always allowed.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(stringResource(R.string.alarm_wheel_only_label), fontSize = 13.sp)
+                        Switch(
+                            checked = wheelAddress != null,
+                            enabled = connectedWheel != null || wheelAddress != null,
+                            onCheckedChange = { on ->
+                                if (on) connectedWheel?.let { wheelAddress = it.first; wheelName = it.second }
+                                else { wheelAddress = null; wheelName = null }
+                            },
+                            colors = themedSwitchColors(),
+                        )
+                    }
+                    HintText(
+                        when {
+                            wheelAddress != null ->
+                                stringResource(R.string.alarm_wheel_only_help_bound, wheelName ?: wheelAddress ?: "")
+                            connectedWheel != null ->
+                                stringResource(R.string.alarm_wheel_only_help_ready, connectedWheel.second)
+                            else -> stringResource(R.string.alarm_wheel_only_help_connect)
+                        },
+                        small = true
+                    )
                 }
                 } // end scrollable middle
 
@@ -1278,7 +1331,9 @@ private fun AlarmRuleEditorDialog(
                                         vibrateTarget = vibrateTarget,
                                         cooldownSeconds = cooldownSeconds,
                                         repeatWhileActive = repeatWhileActive,
-                                        leadTimeMs = leadTimeMs
+                                        leadTimeMs = leadTimeMs,
+                                        wheelAddress = wheelAddress,
+                                        wheelName = wheelName
                                     )
                                 )
                             }

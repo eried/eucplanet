@@ -1091,6 +1091,11 @@
     <string name="alarm_repeat_label">발동</string>
     <string name="alarm_repeat_single">1회</string>
     <string name="alarm_repeat_multi">반복</string>
+    <string name="alarm_wheel_only_label">이 휠에서만</string>
+    <string name="alarm_wheel_only_help_bound">%1$s이(가) 연결된 동안에만 울립니다.</string>
+    <string name="alarm_wheel_only_help_ready">켬: %1$s에서만. 끔: 모든 휠.</string>
+    <string name="alarm_wheel_only_help_connect">휠을 연결하면 이 알람을 해당 휠로 제한할 수 있습니다.</string>
+    <string name="alarm_summary_wheel_fmt">%1$s 전용</string>
     <string name="alarm_section_advanced">고급</string>
     <string name="alarm_predict_label">예측 발동</string>
     <string name="alarm_predict_realtime">지금</string>

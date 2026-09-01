@@ -32,7 +32,8 @@ class AlarmViewModel @Inject constructor(
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
     private val voiceService: VoiceService,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    bleConnectionManager: com.eried.eucplanet.ble.BleConnectionManager
 ) : ViewModel() {
 
     companion object {
@@ -70,6 +71,21 @@ class AlarmViewModel @Inject constructor(
     val voiceLocale: StateFlow<String> = settingsRepository.settings
         .map { it.voiceLocale }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en_US")
+
+    /**
+     * The connected wheel as (address, display name), or null while no wheel
+     * is fully connected. Drives the editor's "Only this wheel" switch and
+     * the graying of bound rules in the list.
+     */
+    val connectedWheel: StateFlow<Pair<String, String>?> = combine(
+        bleConnectionManager.connectionState,
+        bleConnectionManager.connectedAddress,
+        bleConnectionManager.connectedDeviceName
+    ) { state, addr, name ->
+        if (state == com.eried.eucplanet.ble.ConnectionState.CONNECTED && addr != null)
+            addr to (name ?: addr)
+        else null
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
 
     private val vibratorHelper = VibratorHelper(context)

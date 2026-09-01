@@ -1092,6 +1092,11 @@
     <string name="alarm_repeat_label">Tetikleme</string>
     <string name="alarm_repeat_single">Tek</string>
     <string name="alarm_repeat_multi">Çok</string>
+    <string name="alarm_wheel_only_label">Yalnızca bu tekerlek</string>
+    <string name="alarm_wheel_only_help_bound">Yalnızca %1$s bağlıyken tetiklenir.</string>
+    <string name="alarm_wheel_only_help_ready">Açık: yalnızca %1$s. Kapalı: her tekerlek.</string>
+    <string name="alarm_wheel_only_help_connect">Alarmı tek tekerlekle sınırlamak için tekerleği bağlayın.</string>
+    <string name="alarm_summary_wheel_fmt">Yalnızca %1$s</string>
     <string name="alarm_predict_label">Tahminli tetikleme</string>
     <string name="alarm_predict_realtime">Şimdi</string>
     <string name="alarm_state_atleast">%1$s, %2$s veya üzeri</string>

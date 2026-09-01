@@ -1357,6 +1357,11 @@
     <string name="alarm_repeat_label">Spuštění</string>
     <string name="alarm_repeat_single">Jednou</string>
     <string name="alarm_repeat_multi">Vícekrát</string>
+    <string name="alarm_wheel_only_label">Jen toto kolo</string>
+    <string name="alarm_wheel_only_help_bound">Spustí se jen, když je připojeno %1$s.</string>
+    <string name="alarm_wheel_only_help_ready">Zapnuto: jen na %1$s. Vypnuto: jakékoli kolo.</string>
+    <string name="alarm_wheel_only_help_connect">Připojte kolo, aby se alarm omezil jen na něj.</string>
+    <string name="alarm_summary_wheel_fmt">Jen %1$s</string>
     <string name="alarm_state_atleast">%1$s je %2$s nebo více</string>
     <string name="alarm_state_below">%1$s je pod %2$s</string>
     <string name="alarm_repeat_help_once">Jedno upozornění, když %1$s. Znovu se aktivuje, když %2$s, po prodlevě %3$d s.</string>

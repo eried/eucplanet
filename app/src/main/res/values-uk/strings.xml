@@ -1095,6 +1095,11 @@
     <string name="alarm_repeat_label">Спрацювання</string>
     <string name="alarm_repeat_single">Раз</string>
     <string name="alarm_repeat_multi">Багато</string>
+    <string name="alarm_wheel_only_label">Лише це колесо</string>
+    <string name="alarm_wheel_only_help_bound">Спрацьовує лише поки підключено %1$s.</string>
+    <string name="alarm_wheel_only_help_ready">Увімк.: лише на %1$s. Вимк.: будь-яке колесо.</string>
+    <string name="alarm_wheel_only_help_connect">Підключіть колесо, щоб обмежити сигнал лише ним.</string>
+    <string name="alarm_summary_wheel_fmt">Лише %1$s</string>
     <string name="alarm_predict_label">Передбачуване спрацювання</string>
     <string name="alarm_predict_realtime">Зараз</string>
     <string name="alarm_state_atleast">%1$s становить %2$s або більше</string>

@@ -652,6 +652,11 @@
     <string name="alarm_repeat_label">Attivazione</string>
     <string name="alarm_repeat_single">Una</string>
     <string name="alarm_repeat_multi">Più</string>
+    <string name="alarm_wheel_only_label">Solo questa ruota</string>
+    <string name="alarm_wheel_only_help_bound">Scatta solo mentre %1$s è connessa.</string>
+    <string name="alarm_wheel_only_help_ready">On: solo su %1$s. Off: qualsiasi ruota.</string>
+    <string name="alarm_wheel_only_help_connect">Connetti una ruota per limitare l\'allarme ad essa.</string>
+    <string name="alarm_summary_wheel_fmt">Solo %1$s</string>
     <string name="alarm_predict_label">Attivazione predittiva</string>
     <string name="alarm_predict_realtime">Ora</string>
     <string name="alarm_state_atleast">%1$s è %2$s o più</string>
