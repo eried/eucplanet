@@ -835,6 +835,7 @@
     <string name="alarm_metric_speed">Скорость</string>
     <string name="alarm_metric_battery">Заряд</string>
     <string name="alarm_metric_temperature">Температура</string>
+    <string name="alarm_metric_tire_pressure">Давление в шине</string>
     <string name="alarm_metric_pwm">Нагрузка (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напряжение</string>

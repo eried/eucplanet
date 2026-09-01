@@ -522,6 +522,7 @@
     <string name="alarm_metric_speed">Fart</string>
     <string name="alarm_metric_battery">Batteri</string>
     <string name="alarm_metric_temperature">Temperatur</string>
+    <string name="alarm_metric_tire_pressure">Dekktrykk</string>
     <string name="alarm_metric_pwm">Last (PWM)</string>
     <string name="alarm_metric_voltage">Spenning</string>
     <string name="alarm_metric_current">Strøm</string>

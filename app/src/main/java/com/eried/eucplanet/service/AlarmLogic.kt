@@ -159,6 +159,9 @@ object AlarmLogic {
         AlarmMetric.CURRENT.name -> 200f
         AlarmMetric.RADAR_DISTANCE.name -> 140f
         AlarmMetric.RADAR_APPROACH_SPEED.name -> 150f
+        // 500 kPa is about 72 psi / 5 bar: past any EUC tyre, and low enough
+        // that the editor's steps stay useful across the range riders use.
+        AlarmMetric.TIRE_PRESSURE.name -> 500f
         else -> 100f
     }
 

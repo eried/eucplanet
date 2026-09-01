@@ -321,6 +321,7 @@
     <string name="alarm_metric_speed">速度</string>
     <string name="alarm_metric_battery">电量</string>
     <string name="alarm_metric_temperature">温度</string>
+    <string name="alarm_metric_tire_pressure">胎压</string>
     <string name="alarm_metric_pwm">负载 (PWM)</string>
     <string name="alarm_metric_voltage">电压</string>
     <string name="alarm_metric_current">电流</string>

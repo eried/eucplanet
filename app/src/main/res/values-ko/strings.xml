@@ -832,6 +832,7 @@
     <string name="alarm_metric_speed">속도</string>
     <string name="alarm_metric_battery">배터리</string>
     <string name="alarm_metric_temperature">온도</string>
+    <string name="alarm_metric_tire_pressure">타이어 공기압</string>
     <string name="alarm_metric_pwm">부하 (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">전압</string>

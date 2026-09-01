@@ -831,6 +831,7 @@
     <string name="alarm_metric_speed">Geschwindigkeit</string>
     <string name="alarm_metric_battery">Akku</string>
     <string name="alarm_metric_temperature">Temperatur</string>
+    <string name="alarm_metric_tire_pressure">Reifendruck</string>
     <string name="alarm_metric_pwm">Last (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spannung</string>

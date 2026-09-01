@@ -131,6 +131,17 @@ enum class AlarmMetric(
     CURRENT(R.string.alarm_metric_current, "A"),
     TORQUE(R.string.alarm_metric_torque, "Nm"),
     PHASE_CURRENT(R.string.alarm_metric_phase_current, "A", R.string.alarm_metric_phase_current_voice),
+    /**
+     * TPMS tire pressure, held in kPa like [WheelData.tirePressureKpa] and
+     * shown in the rider's psi or bar. Watched from below: a tyre losing air
+     * is the thing worth being told about, and it is the failure a rider
+     * cannot feel until it is already bad.
+     */
+    TIRE_PRESSURE(
+        R.string.alarm_metric_tire_pressure,
+        "kPa",
+        defaultComparator = AlarmComparator.LESS_THAN,
+    ),
     /** Energy spent this ride, for a rider who plans by Wh rather than percent. */
     WH_CONSUMED(R.string.alarm_metric_wh_consumed, "Wh"),
     /**

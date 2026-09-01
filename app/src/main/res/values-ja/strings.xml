@@ -832,6 +832,7 @@
     <string name="alarm_metric_speed">速度</string>
     <string name="alarm_metric_battery">バッテリー</string>
     <string name="alarm_metric_temperature">温度</string>
+    <string name="alarm_metric_tire_pressure">タイヤ空気圧</string>
     <string name="alarm_metric_pwm">負荷（PWM）</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>

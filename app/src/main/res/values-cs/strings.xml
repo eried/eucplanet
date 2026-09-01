@@ -1002,6 +1002,7 @@
     <string name="alarm_metric_speed">Rychlost</string>
     <string name="alarm_metric_battery">Baterie</string>
     <string name="alarm_metric_temperature">Teplota</string>
+    <string name="alarm_metric_tire_pressure">Tlak v pneumatice</string>
     <string name="alarm_metric_pwm">Zatížení (PWM)</string>
     <string name="alarm_metric_voltage">Napětí</string>
     <string name="alarm_metric_current">Proud</string>

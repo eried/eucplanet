@@ -186,6 +186,10 @@ class AlarmEngine @Inject constructor(
                 // rather than comparing against a number that isn't one, which
                 // would either never fire or fire constantly.
                 AlarmMetric.WH_PER_KM -> data.whPerKmRecent.takeIf { !it.isNaN() }
+                // 0 kPa is "no sensor bound", not "flat". Null skips the rule,
+                // or every wheel without TPMS would sit permanently under any
+                // low-pressure threshold the rider set.
+                AlarmMetric.TIRE_PRESSURE -> data.tirePressureKpa.takeIf { it > 0f }
                 AlarmMetric.RANGE_ESTIMATE -> data.rangeKmEstimate.takeIf { !it.isNaN() }
                 // Radar + external-GPS metrics are evaluated via their own
                 // entry points ([evaluateRadar] off RadarRepository,

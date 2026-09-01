@@ -146,26 +146,58 @@ private var suppressConstantTonePrompt = false
 private fun leadSeconds(ms: Int): String =
     String.format(java.util.Locale.US, "%.1f", ms / 1000f).removeSuffix(".0")
 
-private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
+/**
+ * Bar is edited in tenths.
+ *
+ * The stepper is an Int, and a tyre runs somewhere around 1 to 4 bar, so whole
+ * bar would offer a rider four settings across the entire useful range. psi is
+ * 15 to 60 and needs no help. So the displayed number for bar is ten times the
+ * reading, and [NumberUpDown]'s format/parse put the point back.
+ */
+private fun pressureDisplayScale(unit: String): Float = if (unit == "bar") 10f else 1f
+
+private fun displayThreshold(
+    metric: AlarmMetric,
+    valueInternal: Float,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): Float =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speed(valueInternal, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, tempUnit)
+        AlarmMetric.TIRE_PRESSURE ->
+            Units.pressure(valueInternal, pressureUnit) * pressureDisplayScale(pressureUnit)
         else -> valueInternal
     }
 
-private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedUnit: String, tempUnit: String): Float =
+private fun internalThreshold(
+    metric: AlarmMetric,
+    valueDisplayed: Float,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): Float =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
+        AlarmMetric.TIRE_PRESSURE ->
+            Units.pressureToKpa(valueDisplayed / pressureDisplayScale(pressureUnit), pressureUnit)
         else -> valueDisplayed
     }
 
 @androidx.compose.runtime.Composable
-private fun displayUnit(metric: AlarmMetric, speedUnit: String, tempUnit: String): String =
+private fun displayUnit(
+    metric: AlarmMetric,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): String =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED ->
             Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
         AlarmMetric.TEMPERATURE -> Units.tempUnit(tempUnit)
+        AlarmMetric.TIRE_PRESSURE -> Units.pressureUnit(pressureUnit)
         else -> metric.unit
     }
 
@@ -177,9 +209,11 @@ fun AlarmSettingsContent(
     val groups by viewModel.groupedRules.collectAsState()
     val studioPlaying by viewModel.studioPlaying.collectAsState()
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-    // Alarm thresholds only span speed and temperature; distance has no alarm metric.
+    // Alarm thresholds span speed, temperature and tire pressure; distance
+    // still has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val pressureUnit by viewModel.pressureUnit.collectAsState()
     val voiceLocale by viewModel.voiceLocale.collectAsState()
     val showRadarMetrics by viewModel.showRadarMetrics.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
@@ -260,6 +294,7 @@ fun AlarmSettingsContent(
                                 rule = rule,
                                 speedUnit = speedUnit,
                                 tempUnit = tempUnit,
+                                pressureUnit = pressureUnit,
                                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
                                 onEdit = { editingRule = rule; showEditor = true },
                             )
@@ -296,6 +331,7 @@ fun AlarmSettingsContent(
             rule = editingRule,
             speedUnit = speedUnit,
             tempUnit = tempUnit,
+            pressureUnit = pressureUnit,
             defaultVoiceText = defaultVoiceText,
             showRadarMetrics = showRadarMetrics,
             onSave = { rule ->
@@ -359,6 +395,9 @@ private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Colo
     AlarmMetric.WH_PER_KM,
     AlarmMetric.RANGE_ESTIMATE -> MaterialTheme.appColors.statusGood
     AlarmMetric.RADAR_DISTANCE, AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
+    // A soft tyre is a grip problem before it is anything else, which is the
+    // same family of trouble the danger accent already marks.
+    AlarmMetric.TIRE_PRESSURE -> MaterialTheme.appColors.statusDanger
 }
 
 @Composable
@@ -366,6 +405,7 @@ private fun AlarmRuleCard(
     rule: AlarmRule,
     speedUnit: String,
     tempUnit: String,
+    pressureUnit: String,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
 ) {
@@ -401,8 +441,8 @@ private fun AlarmRuleCard(
                     .clickable { onEdit() }
                     .padding(vertical = 12.dp)
             ) {
-                val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).roundToInt()
-                val shownUnit = displayUnit(metric, speedUnit, tempUnit)
+                val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit, pressureUnit).roundToInt()
+                val shownUnit = displayUnit(metric, speedUnit, tempUnit, pressureUnit)
                 // The coloured group band already names the metric, so a rule
                 // reads just "condition threshold unit" (e.g. "≥ 32 km/h").
                 Text(
@@ -456,6 +496,7 @@ private fun AlarmRuleEditorDialog(
     rule: AlarmRule?,
     speedUnit: String,
     tempUnit: String,
+    pressureUnit: String,
     defaultVoiceText: String,
     showRadarMetrics: Boolean,
     onSave: (AlarmRule) -> Unit,
@@ -530,16 +571,16 @@ private fun AlarmRuleEditorDialog(
         val clamped = threshold.coerceIn(thresholdRangeInternal)
         if (clamped != threshold) threshold = clamped
     }
-    val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
-    val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
-        displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, speedUnit, tempUnit)
-    val displayedUnit = displayUnit(selectedMetric, speedUnit, tempUnit)
+    val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit, pressureUnit)
+    val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit, pressureUnit)..
+        displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, speedUnit, tempUnit, pressureUnit)
+    val displayedUnit = displayUnit(selectedMetric, speedUnit, tempUnit, pressureUnit)
 
     if (showStudio) {
         BeepStudioDialog(
             metric = selectedMetric,
             unit = displayedUnit,
-            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit) },
+            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit, pressureUnit) },
             comparator = comparator,
             threshold = threshold,
             baseFreq = beepFrequency,
@@ -731,8 +772,19 @@ private fun AlarmRuleEditorDialog(
                     NumberUpDown(
                         value = displayedThreshold.roundToInt(),
                         onValueChange = { newDisp ->
-                            threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit)
+                            threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit, pressureUnit)
                                 .coerceIn(thresholdRangeInternal)
+                        },
+                        // Tenths for bar, whole numbers for everything else.
+                        format = { v ->
+                            if (selectedMetric == AlarmMetric.TIRE_PRESSURE && pressureUnit == "bar")
+                                String.format(java.util.Locale.US, "%.1f", v / 10f)
+                            else v.toString()
+                        },
+                        parse = { text ->
+                            if (selectedMetric == AlarmMetric.TIRE_PRESSURE && pressureUnit == "bar")
+                                text.replace(',', '.').toFloatOrNull()?.let { (it * 10f).roundToInt() }
+                            else text.toIntOrNull()
                         },
                         range = displayedRange.start.roundToInt()..displayedRange.endInclusive.roundToInt(),
                         suffix = displayedUnit,

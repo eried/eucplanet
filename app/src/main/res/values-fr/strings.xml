@@ -835,6 +835,7 @@
     <string name="alarm_metric_speed">Vitesse</string>
     <string name="alarm_metric_battery">Batterie</string>
     <string name="alarm_metric_temperature">Température</string>
+    <string name="alarm_metric_tire_pressure">Pression du pneu</string>
     <string name="alarm_metric_pwm">Charge (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Tension</string>

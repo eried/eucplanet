@@ -831,6 +831,7 @@
     <string name="alarm_metric_speed">Hastighet</string>
     <string name="alarm_metric_battery">Batteri</string>
     <string name="alarm_metric_temperature">Temperatur</string>
+    <string name="alarm_metric_tire_pressure">Däcktryck</string>
     <string name="alarm_metric_pwm">Belastning (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spänning</string>

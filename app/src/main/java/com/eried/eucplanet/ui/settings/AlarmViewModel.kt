@@ -54,6 +54,12 @@ class AlarmViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 
+    /** "psi" or "bar", following the rider's distance unit, for the tire
+     *  pressure threshold. */
+    val pressureUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectivePressureUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "bar")
+
     /**
      * The rider's chosen voice locale, fed to the alarm editor so a newly
      * created alarm's default voice template is in the language the TTS

@@ -832,6 +832,7 @@
     <string name="alarm_metric_speed">Hız</string>
     <string name="alarm_metric_battery">Akü</string>
     <string name="alarm_metric_temperature">Sıcaklık</string>
+    <string name="alarm_metric_tire_pressure">Lastik basıncı</string>
     <string name="alarm_metric_pwm">Yük (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Gerilim</string>

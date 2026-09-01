@@ -1002,6 +1002,7 @@
     <string name="alarm_metric_speed">Nopeus</string>
     <string name="alarm_metric_battery">Akku</string>
     <string name="alarm_metric_temperature">Lämpötila</string>
+    <string name="alarm_metric_tire_pressure">Rengaspaine</string>
     <string name="alarm_metric_pwm">Kuormitus (PWM)</string>
     <string name="alarm_metric_voltage">Jännite</string>
     <string name="alarm_metric_current">Virta</string>

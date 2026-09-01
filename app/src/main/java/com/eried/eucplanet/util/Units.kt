@@ -112,6 +112,13 @@ object Units {
     fun pressurePsiFloored(kpa: Float): Float =
         kotlin.math.floor(pressure(kpa, "psi") * 10f) / 10f
 
+    /** Back to kPa from the rider's pressure unit, for a threshold they typed. */
+    fun pressureToKpa(value: Float, unit: String): Float = when (unit) {
+        "psi" -> value / 0.145038f
+        "bar" -> value * 100f
+        else -> value
+    }
+
     /** Tire-pressure unit symbol for "psi" or "bar" (kPa otherwise). */
     fun pressureUnit(unit: String): String = when (unit) {
         "psi" -> "psi"
