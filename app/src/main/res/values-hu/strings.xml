@@ -690,6 +690,8 @@
     <string name="units_speed">Sebesség</string>
     <string name="tpms_forget">Elfelejtés</string>
     <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
     <string name="units_pressure_bar">bar</string>
     <string name="units_pressure_psi">psi</string>
     <string name="units_pressure">Guminyomás</string>
@@ -920,17 +922,13 @@
     <string name="flic_hold">Nyomva tartás</string>
     <string name="section_external_gps">GPS és érzékelők</string>
     <string name="section_tpms">TPMS-érzékelők</string>
-    <string name="tpms_caption">Guminyomás a keréken lévő szenzorból, vagy egy szelepsapka-szenzorból, amit itt adsz hozzá.</string>
     <string name="tpms_wheel_sensor">Egykerekű guminyomása</string>
     <string name="tpms_wheel_sensor_desc">Párosított érzékelőtől továbbítva.</string>
     <string name="tpms_idle">Még egyetlen érzékelő sem jelent</string>
-    <string name="tpms_pair_title">Másik érzékelő párosítása</string>
-    <string name="tpms_pair_replaces">A további érzékelő felváltja az egykerekű beépített érzékelőjét, ha van ilyen.</string>
     <string name="tpms_scan">Érzékelők keresése</string>
     <string name="tpms_scan_stop">Keresés leállítása</string>
     <string name="tpms_scan_listening">Szenzorok keresése. Gurítsd meg kicsit a kereket, ha semmi nem jelenik meg, néhány csak mozgásban jelez.</string>
-    <string name="tpms_pair_replace_title">Szenzor cseréje</string>
-    <string name="tpms_none_yet">Még nincs gumiszenzor. Keress egyet a hozzáadáshoz.</string>
+    <string name="tpms_none_yet">Nincs észlelt vagy kézzel hozzáadott guminyomás-szenzor.</string>
     <string name="tpms_wheel_sensor_replaced">A párosított szenzorod váltja ki</string>
     <string name="tpms_paired_sensor">Gumiszenzor</string>
     <string name="external_gps_device_title">Külső GPS</string>

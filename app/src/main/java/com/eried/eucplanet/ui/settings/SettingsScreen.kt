@@ -666,7 +666,6 @@ fun SettingsScreen(
         stringResource(R.string.hud_server_enabled),
         stringResource(R.string.hud_search_corpus),
         stringResource(R.string.section_tpms),
-        stringResource(R.string.tpms_caption),
         stringResource(R.string.tpms_wheel_sensor)
     ).joinToString(" ")
 
@@ -6512,6 +6511,8 @@ private fun UnitsSetting(
                         "psi" to stringResource(R.string.units_pressure_psi),
                         "bar" to stringResource(R.string.units_pressure_bar),
                         "kpa" to stringResource(R.string.units_pressure_kpa),
+                        "kgf" to stringResource(R.string.units_pressure_kgf),
+                        "mpa" to stringResource(R.string.units_pressure_mpa),
                     ),
                     onSelect = { viewModel.setUnitPressure(it) }
                 )

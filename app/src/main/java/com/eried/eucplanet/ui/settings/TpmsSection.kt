@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -53,11 +54,8 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
     val hasPaired = paired != null
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        HintText(stringResource(R.string.tpms_caption), small = true)
-
-        // Your sensors first, because they are the answer to the question the
-        // screen is asking. A paired sensor outranks the wheel's own, which is
-        // the rule the whole feature follows.
+        // Your sensor first. With one paired there is nothing to explain, so
+        // nothing is explained: the row IS the answer.
         if (hasPaired) {
             TpmsSensorRow(
                 title = stringResource(R.string.tpms_paired_sensor),
@@ -67,10 +65,7 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
             )
         }
 
-        // The wheel's own sensor, only when there is one. Saying "no sensor
-        // reporting yet" on a wheel that has never had one is an answer to a
-        // question nobody asked, and it sat above a paired sensor that WAS
-        // reporting, which read as a contradiction.
+        // The wheel's own, only when the wheel actually reports one.
         if (wheelHasSensor) {
             TpmsSensorRow(
                 title = stringResource(R.string.tpms_wheel_sensor),
@@ -82,52 +77,36 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
             )
         }
 
-        if (!hasPaired && !wheelHasSensor && !scanning) {
-            // The app's info hint, icon and all, rather than a bare line of
-            // text: this is the state a rider lands on with nothing set up,
-            // and it is the one place the section explains itself.
+        // Nothing set up: the one sentence worth printing is that nothing is
+        // set up, with the button that fixes it directly under. The caption
+        // that used to sit here described the screen instead of being it.
+        if (!hasPaired && !wheelHasSensor) {
             InfoHint(stringResource(R.string.tpms_none_yet))
         }
 
-        Spacer(Modifier.height(4.dp))
-        Text(
-            stringResource(
-                if (hasPaired) R.string.tpms_pair_replace_title else R.string.tpms_pair_title
-            ),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.appColors.textPrimary,
-        )
-        HintText(stringResource(R.string.tpms_pair_replaces), small = true)
-        LeftAlignedScanButton(
-            label = stringResource(
-                if (scanning) R.string.tpms_scan_stop else R.string.tpms_scan
-            ),
-            onClick = { viewModel.toggleScan() },
-            enabled = true,
-            // Red while scanning, like every other stop-scan in the app
-            // (external GPS, radar, Flic). A scan is a radio the rider has to
-            // remember to switch off, so the button that stops it is marked.
-            containerColor = if (scanning) MaterialTheme.appColors.statusDanger else null,
-        )
-
-        // Only while scanning, and only ones that are not already yours. A
-        // sensor that decodes is adopted on sight, so anything still listed
-        // here is either a new model being worked out or not a sensor at all.
+        // Scanning looks like scanning, the way Flic does: the stop button and
+        // a spinner beside it. A sensor is adopted the moment it decodes, so
+        // there is nothing to tap and nothing to confirm.
         if (scanning) {
-            val others = seen.filter { it.looksLikeSensor && it.address != paired }
-            if (others.isEmpty()) {
-                HintText(stringResource(R.string.tpms_scan_listening), small = true)
-            }
-            others.take(4).forEach { adv ->
-                TpmsSensorRow(
-                    title = adv.name?.takeIf { it.isNotBlank() } ?: adv.address,
-                    subtitle = adv.manufacturer.entries.joinToString(" ") {
-                        "0x%04X %s".format(it.key, it.value)
-                    }.ifBlank { adv.service.values.joinToString(" ") },
-                    reading = adv.kpa?.let { formatPressure(it, unit) } ?: "${adv.rssi} dBm",
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LeftAlignedScanButton(
+                    label = stringResource(R.string.tpms_scan_stop),
+                    onClick = { viewModel.toggleScan() },
+                    enabled = true,
+                    containerColor = MaterialTheme.appColors.statusDanger,
+                )
+                Spacer(Modifier.width(12.dp))
+                androidx.compose.material3.CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp)
                 )
             }
+            HintText(stringResource(R.string.tpms_scan_listening), small = true)
+        } else {
+            LeftAlignedScanButton(
+                label = stringResource(R.string.tpms_scan),
+                onClick = { viewModel.toggleScan() },
+                enabled = true,
+            )
         }
     }
 }
@@ -201,7 +180,7 @@ private fun TpmsSensorRow(
                         modifier = Modifier.size(28.dp),
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = Icons.Default.Delete,
                             contentDescription = stringResource(R.string.tpms_forget),
                             tint = MaterialTheme.appColors.statusDanger,
                             modifier = Modifier.size(18.dp),

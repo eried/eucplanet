@@ -256,6 +256,8 @@
     <string name="units_speed">Velocità</string>
     <string name="tpms_forget">Dimentica</string>
     <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
     <string name="units_pressure_bar">bar</string>
     <string name="units_pressure_psi">psi</string>
     <string name="units_pressure">Pressione</string>
@@ -754,17 +756,13 @@
     <string name="section_external_gps">GPS e sensori</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">Sensori TPMS</string>
-    <string name="tpms_caption">Pressione da un sensore sulla ruota, o da un sensore a tappo che aggiungi qui.</string>
     <string name="tpms_wheel_sensor">Pressione pneumatico della ruota</string>
     <string name="tpms_wheel_sensor_desc">Ritrasmessa da un sensore associato.</string>
     <string name="tpms_idle">Nessun sensore trasmette ancora</string>
-    <string name="tpms_pair_title">Associa un altro sensore</string>
-    <string name="tpms_pair_replaces">Un sensore aggiuntivo sostituisce quello integrato nella ruota, se presente.</string>
     <string name="tpms_scan">Cerca sensori</string>
     <string name="tpms_scan_stop">Ferma la ricerca</string>
     <string name="tpms_scan_listening">In ascolto dei sensori. Fai girare un po la ruota se non appare nulla, alcuni trasmettono solo in movimento.</string>
-    <string name="tpms_pair_replace_title">Sostituisci sensore</string>
-    <string name="tpms_none_yet">Ancora nessun sensore. Cercane uno da aggiungere.</string>
+    <string name="tpms_none_yet">Nessun sensore di pressione rilevato o aggiunto manualmente.</string>
     <string name="tpms_wheel_sensor_replaced">Sostituito dal sensore associato</string>
     <string name="tpms_paired_sensor">Sensore gomma</string>
     <string name="external_gps_device_title">GPS esterno</string>

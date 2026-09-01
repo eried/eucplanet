@@ -540,6 +540,8 @@
     <string name="units_speed">速度</string>
     <string name="tpms_forget">削除</string>
     <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
     <string name="units_pressure_bar">bar</string>
     <string name="units_pressure_psi">psi</string>
     <string name="units_pressure">空気圧</string>
@@ -744,17 +746,13 @@
     <string name="section_external_gps">GPS &amp; センサー</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMSセンサー</string>
-    <string name="tpms_caption">ホイール側のセンサー、またはここで追加するバルブキャップ型センサーからの空気圧です。</string>
     <string name="tpms_wheel_sensor">ホイールのタイヤ空気圧</string>
     <string name="tpms_wheel_sensor_desc">連携したセンサーから中継。</string>
     <string name="tpms_idle">センサーはまだ送信していません</string>
-    <string name="tpms_pair_title">別のセンサーをペアリング</string>
-    <string name="tpms_pair_replaces">追加のセンサーはホイール内蔵のセンサー（あれば）を置き換えます。</string>
     <string name="tpms_scan">センサーを検索</string>
     <string name="tpms_scan_stop">スキャンを停止</string>
     <string name="tpms_scan_listening">センサーを待っています。何も出ないときは少し転がしてください。動いているときだけ送るものもあります。</string>
-    <string name="tpms_pair_replace_title">センサーを置き換える</string>
-    <string name="tpms_none_yet">タイヤセンサーはまだありません。スキャンして追加してください。</string>
+    <string name="tpms_none_yet">タイヤ空気圧センサーは検出も手動追加もされていません。</string>
     <string name="tpms_wheel_sensor_replaced">ペアリング済みセンサーに置き換え</string>
     <string name="tpms_paired_sensor">タイヤセンサー</string>
     <string name="external_gps_device_title">外部 GPS</string>

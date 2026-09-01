@@ -190,6 +190,8 @@
     <string name="units_speed">Fart</string>
     <string name="tpms_forget">Glem</string>
     <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
     <string name="units_pressure_bar">bar</string>
     <string name="units_pressure_psi">psi</string>
     <string name="units_pressure">Dekktrykk</string>
@@ -735,17 +737,13 @@
     <string name="section_external_gps">GPS og sensorer</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS-sensorer</string>
-    <string name="tpms_caption">Dekktrykk fra en sensor på hjulet, eller en ventilhettesensor du legger til her.</string>
     <string name="tpms_wheel_sensor">Hjulets dekktrykk</string>
     <string name="tpms_wheel_sensor_desc">Videresendt fra en tilknyttet sensor.</string>
     <string name="tpms_idle">Ingen sensor rapporterer ennå</string>
-    <string name="tpms_pair_title">Par en annen sensor</string>
-    <string name="tpms_pair_replaces">En ekstra sensor erstatter hjulets innebygde, hvis den finnes.</string>
     <string name="tpms_scan">Søk etter sensorer</string>
     <string name="tpms_scan_stop">Stopp skanning</string>
     <string name="tpms_scan_listening">Lytter etter sensorer. Rull hjulet litt hvis ingenting dukker opp, noen sender bare i bevegelse.</string>
-    <string name="tpms_pair_replace_title">Bytt sensor</string>
-    <string name="tpms_none_yet">Ingen dekksensor ennå. Skann for å legge til en.</string>
+    <string name="tpms_none_yet">Ingen dekktrykksensor funnet eller lagt til manuelt.</string>
     <string name="tpms_wheel_sensor_replaced">Erstattet av din parede sensor</string>
     <string name="tpms_paired_sensor">Dekksensor</string>
     <string name="external_gps_device_title">Ekstern GPS</string>

@@ -771,6 +771,8 @@
     <string name="units_speed">Speed</string>
     <string name="tpms_forget">Forget</string>
     <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
     <string name="units_pressure_bar">bar</string>
     <string name="units_pressure_psi">psi</string>
     <string name="units_pressure">Tire pressure</string>
@@ -1020,17 +1022,13 @@
 
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS sensors</string>
-    <string name="tpms_caption">Tire pressure from a sensor on your wheel, or a valve-cap sensor you add here.</string>
     <string name="tpms_wheel_sensor">Wheel tire pressure</string>
     <string name="tpms_wheel_sensor_desc">Relayed from a bound sensor.</string>
     <string name="tpms_idle">No sensor reporting yet</string>
-    <string name="tpms_pair_title">Pair another sensor</string>
-    <string name="tpms_pair_replaces">An extra sensor replaces the wheel\'s built-in one, if any.</string>
     <string name="tpms_scan">Scan for sensors</string>
     <string name="tpms_scan_stop">Stop scanning</string>
     <string name="tpms_scan_listening">Listening for sensors. Roll the wheel a little if nothing appears, some only report when moving.</string>
-    <string name="tpms_pair_replace_title">Replace sensor</string>
-    <string name="tpms_none_yet">No tire sensor yet. Scan to add one.</string>
+    <string name="tpms_none_yet">No tire pressure sensor detected or manually added.</string>
     <string name="tpms_wheel_sensor_replaced">Replaced by your paired sensor</string>
     <string name="tpms_paired_sensor">Tire sensor</string>
     <string name="external_gps_device_title">External GPS</string>

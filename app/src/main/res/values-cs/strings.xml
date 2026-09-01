@@ -690,6 +690,8 @@
     <string name="units_speed">Rychlost</string>
     <string name="tpms_forget">Zapomenout</string>
     <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
     <string name="units_pressure_bar">bar</string>
     <string name="units_pressure_psi">psi</string>
     <string name="units_pressure">Tlak</string>
@@ -920,17 +922,13 @@
     <string name="flic_hold">Podržení</string>
     <string name="section_external_gps">GPS a senzory</string>
     <string name="section_tpms">Senzory TPMS</string>
-    <string name="tpms_caption">Tlak ze senzoru na kole nebo ze senzoru v čepičce ventilku, který zde přidáte.</string>
     <string name="tpms_wheel_sensor">Tlak v pneumatice monokola</string>
     <string name="tpms_wheel_sensor_desc">Předáno ze spárovaného senzoru.</string>
     <string name="tpms_idle">Zatím se nehlásí žádný senzor</string>
-    <string name="tpms_pair_title">Spárovat další senzor</string>
-    <string name="tpms_pair_replaces">Přidaný senzor nahradí vestavěný senzor monokola, pokud nějaký má.</string>
     <string name="tpms_scan">Hledat senzory</string>
     <string name="tpms_scan_stop">Zastavit hledání</string>
     <string name="tpms_scan_listening">Naslouchám senzorům. Pokud se nic neobjeví, kolem trochu popojeďte, některé hlásí jen za jízdy.</string>
-    <string name="tpms_pair_replace_title">Vyměnit senzor</string>
-    <string name="tpms_none_yet">Zatím žádný senzor. Vyhledejte a přidejte.</string>
+    <string name="tpms_none_yet">Nebyl zjištěn ani ručně přidán žádný snímač tlaku.</string>
     <string name="tpms_wheel_sensor_replaced">Nahrazen vaším spárovaným senzorem</string>
     <string name="tpms_paired_sensor">Senzor pneumatiky</string>
     <string name="external_gps_device_title">Externí GPS</string>

@@ -102,6 +102,12 @@ object Units {
     fun pressure(kpa: Float, unit: String): Float = when (unit) {
         "psi" -> kpa * 0.145038f
         "bar" -> kpa / 100f
+        // Both are bar in disguise, and both are printed on real gauges:
+        // kgf/cm2 sits beside psi on a lot of them, and MPa is what Asian
+        // gauges and most EUC pumps read in. 1 bar is 1.0197 kgf/cm2 and
+        // exactly 0.1 MPa.
+        "kgf" -> kpa / 98.0665f
+        "mpa" -> kpa / 1000f
         else -> kpa
     }
 
@@ -123,6 +129,8 @@ object Units {
     fun pressureUnit(unit: String): String = when (unit) {
         "psi" -> "psi"
         "bar" -> "bar"
+        "kgf" -> "kgf/cm\u00B2"
+        "mpa" -> "MPa"
         else -> "kPa"
     }
 
