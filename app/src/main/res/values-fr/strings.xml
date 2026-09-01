@@ -2515,8 +2515,5 @@
     <string name="action_chip_reset_metrics">Réinitialiser les mesures</string>
     <string name="action_reset_metrics_done">Mesures réinitialisées</string>
     <string name="action_reset_metrics_wheel_done">Mesures réinitialisées, trajet de la roue effacé</string>
-    <string name="tpms_scan_searching_fmt">Recherche, %1$d s restantes</string>
-    <string name="tpms_scan_none_found">Aucun capteur trouvé. Approche le téléphone du bouchon de valve et relance la recherche.</string>
-    <string name="tpms_scan_added">Capteur ajouté.</string>
     <string name="tpms_scan_failed">Impossible de lancer la recherche. Vérifie la permission Bluetooth.</string>
 </resources>

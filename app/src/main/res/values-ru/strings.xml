@@ -2511,8 +2511,5 @@
     <string name="action_chip_reset_metrics">Сбросить показатели</string>
     <string name="action_reset_metrics_done">Показатели сброшены</string>
     <string name="action_reset_metrics_wheel_done">Показатели сброшены, пробег колеса обнулён</string>
-    <string name="tpms_scan_searching_fmt">Поиск, осталось %1$d с</string>
-    <string name="tpms_scan_none_found">Датчики не найдены. Поднеси телефон к колпачку ниппеля и повтори поиск.</string>
-    <string name="tpms_scan_added">Датчик добавлен.</string>
     <string name="tpms_scan_failed">Не удалось начать поиск. Проверь разрешение Bluetooth.</string>
 </resources>

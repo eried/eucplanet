@@ -2513,8 +2513,5 @@
     <string name="action_chip_reset_metrics">Meters resetten</string>
     <string name="action_reset_metrics_done">Meters gereset</string>
     <string name="action_reset_metrics_wheel_done">Meters gereset, ritteller van het wiel gewist</string>
-    <string name="tpms_scan_searching_fmt">Zoeken, nog %1$d s</string>
-    <string name="tpms_scan_none_found">Geen sensoren gevonden. Houd de telefoon bij het ventieldopje en scan opnieuw.</string>
-    <string name="tpms_scan_added">Sensor toegevoegd.</string>
     <string name="tpms_scan_failed">Kan de scan niet starten. Controleer de Bluetooth-toestemming.</string>
 </resources>

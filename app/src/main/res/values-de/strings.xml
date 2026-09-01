@@ -2531,8 +2531,5 @@
     <string name="action_chip_reset_metrics">Werte zurücksetzen</string>
     <string name="action_reset_metrics_done">Werte zurückgesetzt</string>
     <string name="action_reset_metrics_wheel_done">Werte zurückgesetzt, Wheel-Tagesstrecke gelöscht</string>
-    <string name="tpms_scan_searching_fmt">Suche läuft, noch %1$d s</string>
-    <string name="tpms_scan_none_found">Keine Sensoren gefunden. Halte das Handy nah an die Ventilkappe und scanne erneut.</string>
-    <string name="tpms_scan_added">Sensor hinzugefügt.</string>
     <string name="tpms_scan_failed">Scan konnte nicht gestartet werden. Prüfe die Bluetooth-Berechtigung.</string>
 </resources>

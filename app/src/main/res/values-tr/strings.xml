@@ -2508,8 +2508,5 @@
     <string name="action_chip_reset_metrics">Ölçümleri sıfırla</string>
     <string name="action_reset_metrics_done">Ölçümler sıfırlandı</string>
     <string name="action_reset_metrics_wheel_done">Ölçümler sıfırlandı, tekerin gezi sayacı temizlendi</string>
-    <string name="tpms_scan_searching_fmt">Aranıyor, %1$d sn kaldı</string>
-    <string name="tpms_scan_none_found">Sensör bulunamadı. Telefonu sibop kapağına yaklaştır ve tekrar ara.</string>
-    <string name="tpms_scan_added">Sensör eklendi.</string>
     <string name="tpms_scan_failed">Arama başlatılamadı. Bluetooth iznini kontrol et.</string>
 </resources>

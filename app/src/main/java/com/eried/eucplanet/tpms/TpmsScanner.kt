@@ -92,10 +92,6 @@ class TpmsScanner @Inject constructor(
     private val _scanStatus = MutableStateFlow("")
     val scanStatus: StateFlow<String> = _scanStatus.asStateFlow()
 
-    /** Seconds left in the current scan window, so the wait has an end in sight. */
-    private val _secondsLeft = MutableStateFlow(0)
-    val secondsLeft: StateFlow<Int> = _secondsLeft.asStateFlow()
-
     private var callback: ScanCallback? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var window: Job? = null
@@ -146,29 +142,19 @@ class TpmsScanner @Inject constructor(
     }
 
     /**
-     * A scan that ends by itself.
+     * A scan that ends by itself, quietly.
      *
-     * These sensors answer within seconds when they are awake, so a radio left
-     * running past that is draining a battery to hear nothing. The countdown is
-     * also the honest version of a spinner: it says how long the waiting lasts
-     * and admits when it found nothing, instead of turning forever.
+     * A radio left running after the rider walked away drains a battery to
+     * hear nothing, so the scan stops on its own after a minute. It says
+     * nothing when it does: the button going back to "Scan for sensors" is the
+     * whole report, the same as every other scan in the app. A countdown and a
+     * "nothing found" verdict were mine, and neither exists anywhere else.
      */
     private fun startWindow() {
         window?.cancel()
         window = scope.launch {
-            var left = SCAN_WINDOW_S
-            while (left > 0 && _scanning.value) {
-                _secondsLeft.value = left
-                delay(1000)
-                left--
-            }
-            if (_scanning.value) {
-                val foundNothing = tpms.pairedAddress.value == null
-                stop()
-                if (foundNothing) {
-                    _scanStatus.value = context.getString(R.string.tpms_scan_none_found)
-                }
-            }
+            delay(SCAN_WINDOW_S * 1000L)
+            if (_scanning.value) stop()
         }
     }
 
@@ -176,7 +162,6 @@ class TpmsScanner @Inject constructor(
     fun stop() {
         window?.cancel()
         window = null
-        _secondsLeft.value = 0
         val cb = callback ?: return
         callback = null
         _scanning.value = false
@@ -210,7 +195,6 @@ class TpmsScanner @Inject constructor(
 
         val address = result.device.address
         val now = System.currentTimeMillis()
-        val macHex = address.replace(":", "").uppercase()
         val previous = _seen.value.firstOrNull { it.address == address }
         val seen = Seen(
             address = address,
@@ -224,8 +208,8 @@ class TpmsScanner @Inject constructor(
             // hint, kept because it is how an undecoded sensor still shows up
             // as worth looking at while a new model is being worked out.
             looksLikeSensor = decoded != null ||
-                manu.values.any { it.startsWith(macHex) } ||
-                svc.values.any { it.startsWith(macHex) },
+                manu.values.any { TpmsSignature.looksLikeSensor(it, address) } ||
+                svc.values.any { TpmsSignature.looksLikeSensor(it, address) },
             kpa = decoded,
         )
         // Keyed by address and ordered by when it was FIRST heard. Ordering by
@@ -245,21 +229,28 @@ class TpmsScanner @Inject constructor(
         if (seen.looksLikeSensor) {
             DiagnosticsLogger.note(line)
         }
-        // Adopted on sight. A rider who opened this screen wants their tyre
-        // read, not a list of radio addresses to choose between, and a packet
-        // that decodes as a pressure has already proved which device it is.
-        decoded?.let {
+        // Adopted on sight, on the shape rather than on the decode.
+        //
+        // Requiring a decoded pressure meant that switching the decoder off
+        // switched off finding sensors as well: nothing could ever be adopted,
+        // so a scan that used to land on the rider's cap now ended with
+        // nothing at all. What identifies these is that they repeat their own
+        // MAC inside the payload, which they do so a receiver can tell four
+        // identical caps apart, and which almost nothing else in a garage
+        // does. That is true whether or not the pressure field is understood.
+        if (seen.looksLikeSensor) {
             val hadSensor = tpms.pairedAddress.value != null
-            tpms.submitPaired(it, address, now)
+            if (!hadSensor) tpms.adopt(address)
+            // A decoded pressure still goes in when there is one; a sensor
+            // whose format is not worked out yet is paired with no reading
+            // rather than not paired at all.
+            decoded?.let { tpms.submitPaired(it, address, now) }
             // Found it, so stop looking. Flic ends its scan on pair, and a
             // radio left running after the answer arrived costs battery for
             // nothing. Only on the sensor that was actually adopted: a second
             // cap in the room must not end a scan that has not found the
             // rider's yet.
-            if (!hadSensor && tpms.pairedAddress.value == address) {
-                stop()
-                _scanStatus.value = context.getString(R.string.tpms_scan_added)
-            }
+            if (!hadSensor && tpms.pairedAddress.value == address) stop()
         }
         // Everything, at INFO, while the format is still unknown. The only
         // reliable way to find a pressure field is to diff every payload in
@@ -282,6 +273,6 @@ class TpmsScanner @Inject constructor(
          * Long enough for a sensor that only reports when the wheel moves, and
          * short enough that a rider who walked away is not still scanning.
          */
-        private const val SCAN_WINDOW_S = 30
+        private const val SCAN_WINDOW_S = 60
     }
 }

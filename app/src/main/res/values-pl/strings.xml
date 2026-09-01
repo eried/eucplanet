@@ -2511,8 +2511,5 @@
     <string name="action_chip_reset_metrics">Zeruj liczniki</string>
     <string name="action_reset_metrics_done">Liczniki wyzerowane</string>
     <string name="action_reset_metrics_wheel_done">Liczniki wyzerowane, licznik koła skasowany</string>
-    <string name="tpms_scan_searching_fmt">Szukanie, pozostało %1$d s</string>
-    <string name="tpms_scan_none_found">Nie znaleziono czujników. Zbliż telefon do zaworu i zeskanuj ponownie.</string>
-    <string name="tpms_scan_added">Dodano czujnik.</string>
     <string name="tpms_scan_failed">Nie udało się rozpocząć skanowania. Sprawdź uprawnienie Bluetooth.</string>
 </resources>

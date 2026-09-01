@@ -2511,8 +2511,5 @@
     <string name="action_chip_reset_metrics">Nollställ mätvärden</string>
     <string name="action_reset_metrics_done">Mätvärden nollställda</string>
     <string name="action_reset_metrics_wheel_done">Mätvärden nollställda, hjulets trippmätare rensad</string>
-    <string name="tpms_scan_searching_fmt">Söker, %1$d s kvar</string>
-    <string name="tpms_scan_none_found">Inga sensorer hittades. Håll telefonen nära ventilhatten och sök igen.</string>
-    <string name="tpms_scan_added">Sensor tillagd.</string>
     <string name="tpms_scan_failed">Kunde inte starta sökningen. Kontrollera Bluetooth-behörigheten.</string>
 </resources>

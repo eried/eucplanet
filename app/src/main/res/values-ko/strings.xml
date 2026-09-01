@@ -2510,8 +2510,5 @@
     <string name="action_chip_reset_metrics">측정값 초기화</string>
     <string name="action_reset_metrics_done">측정값을 초기화했습니다</string>
     <string name="action_reset_metrics_wheel_done">측정값을 초기화하고 휠 주행거리도 지웠습니다</string>
-    <string name="tpms_scan_searching_fmt">검색 중, %1$d초 남음</string>
-    <string name="tpms_scan_none_found">센서를 찾지 못했습니다. 휴대폰을 밸브 캡에 가까이 대고 다시 검색하세요.</string>
-    <string name="tpms_scan_added">센서를 추가했습니다.</string>
     <string name="tpms_scan_failed">검색을 시작할 수 없습니다. 블루투스 권한을 확인하세요.</string>
 </resources>

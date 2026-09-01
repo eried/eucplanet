@@ -2512,8 +2512,5 @@
     <string name="action_chip_reset_metrics">記録をリセット</string>
     <string name="action_reset_metrics_done">記録をリセットしました</string>
     <string name="action_reset_metrics_wheel_done">記録をリセットし、ホイールの積算距離も消去しました</string>
-    <string name="tpms_scan_searching_fmt">検索中、残り %1$d 秒</string>
-    <string name="tpms_scan_none_found">センサーが見つかりません。スマホをバルブキャップに近づけて、もう一度検索してください。</string>
-    <string name="tpms_scan_added">センサーを追加しました。</string>
     <string name="tpms_scan_failed">検索を開始できませんでした。Bluetooth の権限を確認してください。</string>
 </resources>

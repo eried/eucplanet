@@ -2508,8 +2508,5 @@
     <string name="action_chip_reset_metrics">Reiniciar métricas</string>
     <string name="action_reset_metrics_done">Métricas reiniciadas</string>
     <string name="action_reset_metrics_wheel_done">Métricas reiniciadas, viaje de la rueda borrado</string>
-    <string name="tpms_scan_searching_fmt">Buscando, quedan %1$d s</string>
-    <string name="tpms_scan_none_found">No se encontraron sensores. Acerca el teléfono a la tapa de la válvula y vuelve a buscar.</string>
-    <string name="tpms_scan_added">Sensor añadido.</string>
     <string name="tpms_scan_failed">No se pudo iniciar la búsqueda. Revisa el permiso de Bluetooth.</string>
 </resources>

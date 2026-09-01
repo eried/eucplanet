@@ -2513,8 +2513,5 @@
     <string name="action_chip_reset_metrics">Zerar métricas</string>
     <string name="action_reset_metrics_done">Métricas zeradas</string>
     <string name="action_reset_metrics_wheel_done">Métricas zeradas, trajeto da roda limpo</string>
-    <string name="tpms_scan_searching_fmt">Procurando, faltam %1$d s</string>
-    <string name="tpms_scan_none_found">Nenhum sensor encontrado. Aproxime o celular da tampa da válvula e procure de novo.</string>
-    <string name="tpms_scan_added">Sensor adicionado.</string>
     <string name="tpms_scan_failed">Não foi possível iniciar a busca. Verifique a permissão de Bluetooth.</string>
 </resources>

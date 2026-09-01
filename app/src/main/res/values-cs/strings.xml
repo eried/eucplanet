@@ -2314,8 +2314,5 @@
     <string name="action_chip_reset_metrics">Vynulovat metriky</string>
     <string name="action_reset_metrics_done">Metriky vynulovány</string>
     <string name="action_reset_metrics_wheel_done">Metriky vynulovány, denní počítadlo kola smazáno</string>
-    <string name="tpms_scan_searching_fmt">Hledání, zbývá %1$d s</string>
-    <string name="tpms_scan_none_found">Nenalezeny žádné senzory. Přibliž telefon k čepičce ventilku a zkus to znovu.</string>
-    <string name="tpms_scan_added">Senzor přidán.</string>
     <string name="tpms_scan_failed">Skenování se nepodařilo spustit. Zkontroluj oprávnění Bluetooth.</string>
 </resources>

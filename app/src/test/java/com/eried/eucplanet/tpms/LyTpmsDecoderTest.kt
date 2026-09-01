@@ -98,6 +98,29 @@ class LyTpmsDecoderTest {
         assertEquals(0x00AC, LyTpmsDecoder.COMPANY_ID)
     }
 
+    @Test fun `the sensor is still found while its pressure is not understood`() {
+        // The regression this guards: identification used to require a decoded
+        // pressure, so disabling the decoder stopped the scan finding anything
+        // at all. A rider whose cap is in range must still be able to add it.
+        for (hex in at78psi) {
+            assertTrue(
+                "the rider's own sensor stopped being recognised: $hex",
+                TpmsSignature.looksLikeSensor(hex, address),
+            )
+        }
+    }
+
+    @Test fun `the MAC is found at the end and reversed, which is where this one puts it`() {
+        // The first rule was "the payload STARTS with the MAC". This sensor
+        // ends with it, backwards, and that guess would have missed it.
+        assertTrue(TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", address))
+        assertTrue(TpmsSignature.looksLikeSensor("5B611B111111DEADBEEF", address))
+        // Someone else's phone, laptop or earbuds: no MAC in the payload.
+        assertTrue(!TpmsSignature.looksLikeSensor("0102030405060708", address))
+        assertTrue(!TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", "AA:BB:CC:DD:EE:FF"))
+        assertTrue(!TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", null))
+    }
+
     @Test fun `a foreign company id is never this sensor`() {
         assertNull(LyTpmsDecoder.pressureKpa(0x0969, bytes(at78psi[0]), address))
     }

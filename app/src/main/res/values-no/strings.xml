@@ -2399,8 +2399,5 @@
     <string name="action_chip_reset_metrics">Nullstill målinger</string>
     <string name="action_reset_metrics_done">Målingene er nullstilt</string>
     <string name="action_reset_metrics_wheel_done">Målingene er nullstilt, hjulets tripteller er tømt</string>
-    <string name="tpms_scan_searching_fmt">Søker, %1$d s igjen</string>
-    <string name="tpms_scan_none_found">Fant ingen sensorer. Hold telefonen nær ventilhetten og skann på nytt.</string>
-    <string name="tpms_scan_added">Sensor lagt til.</string>
     <string name="tpms_scan_failed">Kunne ikke starte skanningen. Sjekk Bluetooth-tillatelsen.</string>
 </resources>

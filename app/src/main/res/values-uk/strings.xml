@@ -2508,8 +2508,5 @@
     <string name="action_chip_reset_metrics">Скинути показники</string>
     <string name="action_reset_metrics_done">Показники скинуто</string>
     <string name="action_reset_metrics_wheel_done">Показники скинуто, пробіг колеса обнулено</string>
-    <string name="tpms_scan_searching_fmt">Пошук, залишилось %1$d с</string>
-    <string name="tpms_scan_none_found">Датчиків не знайдено. Піднеси телефон до ковпачка ніпеля та повтори пошук.</string>
-    <string name="tpms_scan_added">Датчик додано.</string>
     <string name="tpms_scan_failed">Не вдалося почати пошук. Перевір дозвіл Bluetooth.</string>
 </resources>

@@ -2314,8 +2314,5 @@
     <string name="action_chip_reset_metrics">Mérések nullázása</string>
     <string name="action_reset_metrics_done">Mérések nullázva</string>
     <string name="action_reset_metrics_wheel_done">Mérések nullázva, a kerék napi számlálója törölve</string>
-    <string name="tpms_scan_searching_fmt">Keresés, %1$d s van hátra</string>
-    <string name="tpms_scan_none_found">Nem található érzékelő. Tartsd a telefont a szelepsapka közelébe, és keress újra.</string>
-    <string name="tpms_scan_added">Érzékelő hozzáadva.</string>
     <string name="tpms_scan_failed">A keresés nem indult el. Ellenőrizd a Bluetooth-engedélyt.</string>
 </resources>

@@ -2532,8 +2532,5 @@
     <string name="action_chip_reset_metrics">Reset metrics</string>
     <string name="action_reset_metrics_done">Metrics reset</string>
     <string name="action_reset_metrics_wheel_done">Metrics reset, wheel trip cleared</string>
-    <string name="tpms_scan_searching_fmt">Searching, %1$d s left</string>
-    <string name="tpms_scan_none_found">No sensors found. Hold the phone near the valve cap and scan again.</string>
-    <string name="tpms_scan_added">Sensor added.</string>
     <string name="tpms_scan_failed">Could not start the scan. Check the Bluetooth permission.</string>
 </resources>

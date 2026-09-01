@@ -2510,8 +2510,5 @@
     <string name="action_chip_reset_metrics">重置數據</string>
     <string name="action_reset_metrics_done">數據已重置</string>
     <string name="action_reset_metrics_wheel_done">數據已重置，獨輪車里程已清零</string>
-    <string name="tpms_scan_searching_fmt">搜尋中，剩餘 %1$d 秒</string>
-    <string name="tpms_scan_none_found">找不到感測器。把手機靠近氣嘴蓋再搜尋一次。</string>
-    <string name="tpms_scan_added">已新增感測器。</string>
     <string name="tpms_scan_failed">無法開始搜尋。請檢查藍牙權限。</string>
 </resources>
