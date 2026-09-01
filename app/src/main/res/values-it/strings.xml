@@ -179,6 +179,7 @@
     <string name="section_cloud_settings">Backup impostazioni</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Ripristina</string>
+    <string name="cloud_settings_backup_desc">Tutto quello che hai configurato nell\'app, salvato come eucplanet_settings.json nella tua cartella di backup. I viaggi si salvano a parte.</string>
     <string name="cloud_last_backup">Ultimo backup: %1$s</string>
 <string name="cloud_last_backup_named">Ultimo backup: %1$s come \"%2$s\"</string>
     <string name="cloud_last_backup_never">Nessun backup ancora</string>

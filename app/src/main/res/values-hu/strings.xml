@@ -574,6 +574,7 @@
     <string name="section_cloud_settings">Beállítások mentése</string>
     <string name="cloud_backup_now">Mentés</string>
     <string name="cloud_restore">Visszaállítás</string>
+    <string name="cloud_settings_backup_desc">Minden, amit az appban beállítottál, eucplanet_settings.json néven a biztonsági mentés mappádban. A menetek külön mentődnek.</string>
     <string name="cloud_last_backup">Utolsó mentés: %1$s</string>
     <string name="cloud_last_backup_named">Utolsó mentés: %1$s \"%2$s\" néven</string>
     <string name="cloud_last_backup_never">Még nincs mentés</string>

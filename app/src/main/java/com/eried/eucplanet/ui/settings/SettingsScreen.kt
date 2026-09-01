@@ -8405,6 +8405,16 @@ private fun CloudTab(
                     stringResource(R.string.cloud_last_backup, date)
                 }
             } ?: stringResource(R.string.cloud_last_backup_never)
+            // What a settings backup is, before the line saying when the last
+            // one happened. The section led with a timestamp and never said
+            // what was in the file or where it lands, so a rider could not
+            // tell whether their trips were in it.
+            Text(
+                stringResource(R.string.cloud_settings_backup_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(6.dp))
             Text(lastBackupText, style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(

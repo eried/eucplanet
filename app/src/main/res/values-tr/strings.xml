@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">Ayarlar yedekleme</string>
     <string name="cloud_backup_now">Yedekle</string>
     <string name="cloud_restore">Geri yükle</string>
+    <string name="cloud_settings_backup_desc">Uygulamada yaptığın tüm ayarlar, yedek klasörüne eucplanet_settings.json olarak kaydedilir. Sürüşler ayrı yedeklenir.</string>
     <string name="cloud_last_backup">Son yedekleme: %1$s</string>
 <string name="cloud_last_backup_named">Son yedekleme: %1$s, \"%2$s\" olarak</string>
     <string name="cloud_last_backup_never">Henüz yedeklenmedi</string>

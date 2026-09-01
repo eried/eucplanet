@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">설정 백업</string>
     <string name="cloud_backup_now">백업</string>
     <string name="cloud_restore">복원</string>
+    <string name="cloud_settings_backup_desc">앱에서 설정한 모든 내용을 백업 폴더에 eucplanet_settings.json으로 저장합니다. 트립은 따로 백업됩니다.</string>
     <string name="cloud_last_backup">마지막 백업: %1$s</string>
 <string name="cloud_last_backup_named">마지막 백업: %1$s ("%2$s"로 저장)</string>
     <string name="cloud_last_backup_never">아직 백업하지 않았습니다</string>

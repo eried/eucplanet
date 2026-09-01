@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">Back-up van instellingen</string>
     <string name="cloud_backup_now">Back-up</string>
     <string name="cloud_restore">Terugzetten</string>
+    <string name="cloud_settings_backup_desc">Alles wat je in de app hebt ingesteld, opgeslagen als eucplanet_settings.json in je back-upmap. Ritten worden apart geback-upt.</string>
     <string name="cloud_last_backup">Laatste back-up: %1$s</string>
 <string name="cloud_last_backup_named">Laatste back-up: %1$s als \"%2$s\"</string>
     <string name="cloud_last_backup_never">Nog geen back-up</string>

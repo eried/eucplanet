@@ -574,6 +574,7 @@
     <string name="section_cloud_settings">Copie de rezervă a setărilor</string>
     <string name="cloud_backup_now">Salvează</string>
     <string name="cloud_restore">Restaurează</string>
+    <string name="cloud_settings_backup_desc">Tot ce ai configurat în aplicație, salvat ca eucplanet_settings.json în folderul tău de backup. Cursele se salvează separat.</string>
     <string name="cloud_last_backup">Ultima copie: %1$s</string>
     <string name="cloud_last_backup_named">Ultima copie: %1$s ca \"%2$s\"</string>
     <string name="cloud_last_backup_never">Încă nu s-a făcut o copie</string>

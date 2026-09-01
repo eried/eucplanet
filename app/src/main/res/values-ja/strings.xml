@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">設定バックアップ</string>
     <string name="cloud_backup_now">バックアップ</string>
     <string name="cloud_restore">復元</string>
+    <string name="cloud_settings_backup_desc">アプリで設定した内容すべてを、バックアップフォルダーに eucplanet_settings.json として保存します。トリップは別に保存されます。</string>
     <string name="cloud_last_backup">最終バックアップ: %1$s</string>
 <string name="cloud_last_backup_named">最終バックアップ: %1$s（名前: \"%2$s\"）</string>
     <string name="cloud_last_backup_never">まだバックアップされていません</string>

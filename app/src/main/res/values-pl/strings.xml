@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">Kopia zapasowa ustawień</string>
     <string name="cloud_backup_now">Wykonaj kopię</string>
     <string name="cloud_restore">Przywróć</string>
+    <string name="cloud_settings_backup_desc">Wszystko, co skonfigurowałeś w aplikacji, zapisane jako eucplanet_settings.json w folderze kopii zapasowych. Trasy zapisują się osobno.</string>
     <string name="cloud_last_backup">Ostatnia kopia: %1$s</string>
 <string name="cloud_last_backup_named">Ostatnia kopia: %1$s jako \"%2$s\"</string>
     <string name="cloud_last_backup_never">Brak kopii zapasowej</string>

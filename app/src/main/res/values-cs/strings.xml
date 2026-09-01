@@ -574,6 +574,7 @@
     <string name="section_cloud_settings">Záloha nastavení</string>
     <string name="cloud_backup_now">Zálohovat</string>
     <string name="cloud_restore">Obnovit</string>
+    <string name="cloud_settings_backup_desc">Vše, co jste v aplikaci nastavili, se ukládá jako eucplanet_settings.json do vaší zálohovací složky. Jízdy se zálohují zvlášť.</string>
     <string name="cloud_last_backup">Poslední záloha: %1$s</string>
     <string name="cloud_last_backup_named">Poslední záloha: %1$s jako \"%2$s\"</string>
     <string name="cloud_last_backup_never">Zatím nezálohováno</string>

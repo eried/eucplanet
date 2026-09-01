@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">Inställningsbackup</string>
     <string name="cloud_backup_now">Säkerhetskopiera</string>
     <string name="cloud_restore">Återställ</string>
+    <string name="cloud_settings_backup_desc">Allt du har ställt in i appen, sparat som eucplanet_settings.json i din backupmapp. Turer säkerhetskopieras separat.</string>
     <string name="cloud_last_backup">Senaste kopia: %1$s</string>
 <string name="cloud_last_backup_named">Senaste kopia: %1$s som \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ingen kopia ännu</string>

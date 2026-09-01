@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">Резервная копия настроек</string>
     <string name="cloud_backup_now">Сделать копию</string>
     <string name="cloud_restore">Восстановить</string>
+    <string name="cloud_settings_backup_desc">Всё, что вы настроили в приложении, сохраняется как eucplanet_settings.json в вашей папке резервных копий. Поездки сохраняются отдельно.</string>
     <string name="cloud_last_backup">Последняя копия: %1$s</string>
 <string name="cloud_last_backup_named">Последняя копия: %1$s как \"%2$s\"</string>
     <string name="cloud_last_backup_never">Копий ещё нет</string>

@@ -574,6 +574,7 @@
     <string name="section_cloud_settings">Asetusten varmuuskopio</string>
     <string name="cloud_backup_now">Varmuuskopioi</string>
     <string name="cloud_restore">Palauta</string>
+    <string name="cloud_settings_backup_desc">Kaikki sovelluksessa tekemäsi asetukset, tallennettuna nimellä eucplanet_settings.json varmuuskopiokansioosi. Matkat varmuuskopioidaan erikseen.</string>
     <string name="cloud_last_backup">Viimeisin varmuuskopio: %1$s</string>
     <string name="cloud_last_backup_named">Viimeisin varmuuskopio: %1$s nimellä \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ei vielä varmuuskopioitu</string>

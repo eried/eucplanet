@@ -463,6 +463,7 @@
     <string name="section_cloud_settings">Sauvegarde des paramètres</string>
     <string name="cloud_backup_now">Sauvegarder</string>
     <string name="cloud_restore">Restaurer</string>
+    <string name="cloud_settings_backup_desc">Tout ce que tu as configuré dans l\'app, enregistré sous eucplanet_settings.json dans ton dossier de sauvegarde. Les trajets sont sauvegardés à part.</string>
     <string name="cloud_last_backup">Dernière sauvegarde : %1$s</string>
 <string name="cloud_last_backup_named">Dernière sauvegarde : %1$s sous \"%2$s\"</string>
     <string name="cloud_last_backup_never">Aucune sauvegarde</string>

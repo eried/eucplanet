@@ -653,6 +653,7 @@
     <string name="section_cloud_settings">Settings backup</string>
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Restore</string>
+    <string name="cloud_settings_backup_desc">Everything you have set up in the app, written to eucplanet_settings.json in your backup folder. Trips are backed up separately.</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
 <string name="cloud_last_backup_named">Last backup: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
@@ -2032,7 +2033,7 @@
     <string name="dropbox_syncing">Syncing trips…</string>
     <string name="dropbox_account_suffix">(account: %1$s)</string>
     <string name="dropbox_folder_desc">Trips and settings are saved in your Dropbox, under %1$s. Only this app can see that folder.</string>
-    <string name="dropbox_folder_path" translatable="false">Apps › EUC Planet</string>
+    <string name="dropbox_folder_path" translatable="false">Apps → EUC Planet</string>
     <string name="dropbox_share_failed">Dropbox share failed</string>
     <string name="dropbox_email_unverified">Verify your Dropbox email address, then try sharing again</string>
     <string name="dropbox_preparing">Preparing the link…</string>

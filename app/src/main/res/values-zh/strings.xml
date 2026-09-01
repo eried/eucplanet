@@ -117,6 +117,7 @@
     <string name="section_cloud_settings">设置备份</string>
     <string name="cloud_backup_now">备份</string>
     <string name="cloud_restore">恢复</string>
+    <string name="cloud_settings_backup_desc">你在应用中设置的一切，会以 eucplanet_settings.json 保存到备份文件夹。行程单独备份。</string>
     <string name="cloud_last_backup">上次备份:%1$s</string>
 <string name="cloud_last_backup_named">上次备份:%1$s 为 \"%2$s\"</string>
     <string name="cloud_last_backup_never">尚未备份</string>
