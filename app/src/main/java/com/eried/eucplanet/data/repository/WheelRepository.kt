@@ -509,6 +509,31 @@ class WheelRepository @Inject constructor(
     }
 
     /**
+     * Zeroes the ride's running energy: Wh used, the in/out buckets behind it,
+     * and the efficiency window that feeds Wh/km and the range estimate.
+     *
+     * Separate from [resetChargingSession], which also clears charge ETAs,
+     * pack history and BMS state. Those belong to a charge rather than a ride,
+     * and a rider clearing the slate before a run should not lose a charging
+     * curve they were watching.
+     */
+    fun resetRideEnergy() {
+        sessionEnergyWh = 0f
+        sessionEnergyInWh = 0f
+        sessionEnergyOutWh = 0f
+        sessionLastEnergyMs = 0L
+        sessionLastPowerW = 0f
+        rideEfficiency.reset()
+        // Publish immediately so the tiles do not read the old total for the
+        // second until the next telemetry frame lands.
+        _wheelData.value = _wheelData.value.copy(
+            whConsumed = 0f,
+            whPerKmRecent = Float.NaN,
+            rangeKmEstimate = Float.NaN,
+        )
+    }
+
+    /**
      * Clears every in-memory rolling history buffer.
      *
      * The buffers, not just the published snapshot. Emptying only the

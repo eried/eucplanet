@@ -8,10 +8,16 @@ import javax.inject.Singleton
 /**
  * "Start counting again", from wherever the rider asks.
  *
- * Three things are reset and they live in two repositories: the app's running
- * trip meter, the in-memory metric history behind the sparklines and the
- * metric-detail charts, and, where the family has a command for it, the
- * wheel's own onboard trip odometer.
+ * Everything that counts "since I started" goes back to zero, because the
+ * rider pressing this is clearing the slate before a run. That is the app's
+ * running trip meter, the in-memory metric history behind the sparklines and
+ * the metric-detail charts, the ride's energy (Wh used, Wh/km, the range
+ * estimate), and, where the family has a command for it, the wheel's own
+ * onboard trip odometer.
+ *
+ * The hold-to-reset inside a metric's detail screen is the smaller version of
+ * this: it clears the history and stops there. This one also flushes the live
+ * accumulators and talks to the wheel.
  *
  * One class because there are three surfaces asking - the dashboard button,
  * the service overlay, and physical buttons through the action catalog - and
@@ -41,6 +47,7 @@ class MetricsReset @Inject constructor(
     suspend fun resetAll(): Result {
         tripMeterRepository.resetAndPersist()
         wheelRepository.resetAllHistory()
+        wheelRepository.resetRideEnergy()
         // BLE write, off the main thread like every other command path.
         val cleared = withContext(Dispatchers.IO) { wheelRepository.resetTripMeter() }
         return Result(wheelTripCleared = cleared)
