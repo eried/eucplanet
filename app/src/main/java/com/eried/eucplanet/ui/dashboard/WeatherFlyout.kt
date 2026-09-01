@@ -219,13 +219,64 @@ fun WeatherFlyout(
         shadowElevation = 10.dp,
     ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            // Always now, never the scrubbed hour. Dragging the curve
+            // already answers "what about then" in the tooltip that follows
+            // the finger; if the header moved too, the rider would lose the
+            // one fixed reading on the panel and have to lift off to get it
+            // back. The header is the answer to "should I go out", which is
+            // a question about now.
+            val head = hours.firstOrNull()
+            // The panel's own ramp, from the theme. The widget hardcodes the
+            // same two ends only because widgets inflate outside the theme.
+            val good = MaterialTheme.appColors.weatherGood
+            val bad = MaterialTheme.appColors.weatherBad
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(titleRes),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = ink,
-                )
-                Spacer(Modifier.width(6.dp))
+                if (head != null) {
+                    val (emoji, verdictRes) = faceFor(head.b)
+                    Text(emoji, fontSize = 22.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        signedLabel(head.b.score),
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = lerp(bad, good, (head.b.score + 5f) / 10f),
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            stringResource(titleRes),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = ink,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            stringResource(verdictRes),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = ink.copy(alpha = 0.75f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                } else {
+                    // No forecast yet: the question is all there is to say.
+                    Text(
+                        stringResource(titleRes),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = ink,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = stringResource(R.string.weather_expand),
+                        tint = ink.copy(alpha = 0.6f),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     windowShortLabel(windowHours),
                     fontSize = 10.sp,
@@ -252,7 +303,7 @@ fun WeatherFlyout(
                     color = if (usingDest) panel else ink.copy(alpha = 0.7f),
                     modifier = Modifier
                         // Long place names ellipsize instead of squeezing the
-                        // refresh and expand buttons off the row.
+                        // conditions and the refresh button off the row.
                         .widthIn(max = 110.dp)
                         .background(
                             if (usingDest) ink.copy(alpha = 0.75f) else ink.copy(alpha = 0.12f),
@@ -274,6 +325,24 @@ fun WeatherFlyout(
                     }
                 }
                 Spacer(Modifier.width(8.dp))
+                // The numbers the widget shows under its score, in the panel's
+                // own units. This is the flexible cell: it ellipsizes first so
+                // the stamp and the refresh button keep their size.
+                Text(
+                    head?.let {
+                        val degrees = if (tempF) it.h.tempC * 9f / 5f + 32f else it.h.tempC
+                        val speed = if (windMph) it.h.windMs * 2.23694f else it.h.windMs
+                        "%.1f%s · %.1f %s".format(
+                            degrees, if (tempF) "°F" else "°C",
+                            speed, if (windMph) "mph" else "m/s",
+                        )
+                    }.orEmpty(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ink.copy(alpha = 0.7f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
                 // A fresh fetch reads "just now", then quietly fades out;
                 // older stamps stay as minutes.
                 var justNowShown by remember { mutableStateOf(true) }
@@ -307,13 +376,12 @@ fun WeatherFlyout(
                     color = ink.copy(alpha = statusAlpha),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    // The flexible middle: this shrinks first, so the trailing
-                    // icon buttons always keep their full size.
-                    modifier = Modifier.weight(1f),
                 )
                 if (refreshing) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier
+                            .padding(start = 6.dp)
+                            .size(16.dp),
                         strokeWidth = 2.dp,
                         color = ink,
                     )
@@ -326,14 +394,6 @@ fun WeatherFlyout(
                             modifier = Modifier.size(18.dp),
                         )
                     }
-                }
-                IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(28.dp)) {
-                    Icon(
-                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = stringResource(R.string.weather_expand),
-                        tint = ink.copy(alpha = 0.6f),
-                        modifier = Modifier.size(20.dp),
-                    )
                 }
             }
 
