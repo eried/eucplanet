@@ -1,6 +1,4 @@
-Ride together: share your live location and see the others on the map.
+The weather panel now answers its own question: a face, the score in its colour, the verdict and the conditions, all in the header.
 
-Lights and horn answer reliably now, instead of queueing behind telemetry.
-Garmin watches reconnect without restarting the phone app.
-The forecast widget marks where Now is.
-Clearer battery notification wording, and translation fixes in every language.
+The forecast marks where Now is.
+Charge notifications read better and no longer say "pack".
