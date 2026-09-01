@@ -72,27 +72,42 @@ class BackupStatusIconTest {
         assertTrue("waiting is not shown", icon.contains("trip.dropboxStatus == 1"))
     }
 
-    @Test fun `only the backups pick the color`() {
-        // A months-old leaderboard "held for review" tinted whole pages of
-        // properly backed-up trips orange. The cloud answers "is this ride
-        // safe": red and orange belong to the backups alone, and the
-        // leaderboard speaks only in the message and the tap.
+    @Test fun `the backups own red and orange, the leaderboard picks a green`() {
+        // The original rule was "only the backups pick the colour", because a
+        // months-old leaderboard "held for review" tinted whole pages of
+        // properly backed-up trips orange. That reasoning stands, and orange
+        // is a backup problem again: an unaccepted share no longer warns.
+        //
+        // What changed is that the leaderboard now chooses BETWEEN TWO GREENS.
+        // A backed-up ride is green either way, so the shade cannot make a safe
+        // ride look unsafe, which is what the original rule was protecting.
         val body = screen.substringAfter("private fun TripStatusIcon")
         assertTrue("there is no failed icon", body.contains("backupFailed -> Icons.Default.CloudOff"))
         assertTrue("failure is not coloured as a problem",
             body.contains("backupFailed -> MaterialTheme.appColors.statusDanger"))
-        val icons = body.substringAfter("val icon = when {").substringBefore("}")
-        val tints = body.substringAfter("val tint = when {").substringBefore("}")
+        // Comments stripped: these blocks explain which states fall into which
+        // green, so a naive search finds the words it is looking for in prose
+        // rather than in a branch.
+        fun code(block: String) = block.lines()
+            .joinToString(" ") { it.substringBefore("//") }
+        val icons = code(body.substringAfter("val icon = when {").substringBefore("}"))
+        val tints = code(body.substringAfter("val tint = when {").substringBefore("}"))
         assertTrue("an interim leaderboard state drives the icon",
             !icons.contains("flagged") && !tints.contains("flagged"))
-        // The two FINAL bad endings do color it - yellow, never red: red is
-        // the backups' alone, and a failed or rejected share still means the
-        // ride is safe somewhere.
-        assertTrue("a failed or rejected share shows no color",
-            icons.contains("onlineProblem") && tints.contains("onlineProblem"))
-        assertTrue("a leaderboard problem outranks the backups' red",
-            body.indexOf("backupFailed -> Icons.Default.CloudOff") <
-                body.indexOf("onlineProblem -> Icons.Default.Cloud"))
+        // Orange is the backups' alone now. A share that failed or was
+        // rejected leaves the ride safe, so it does not get a warning colour.
+        assertTrue("an unaccepted share still warns in orange",
+            !tints.contains("onlineProblem"))
+        assertTrue("orange is not reserved for a backup in flight",
+            tints.contains("backupWaiting -> MaterialTheme.appColors.statusWarn"))
+        // The two greens, and which is which.
+        assertTrue("the accepted ride does not get the lighter green",
+            tints.contains("backupHeld && onlineDone -> MaterialTheme.appColors.statusGood"))
+        assertTrue("a backed-up ride off the leaderboard does not get its own green",
+            tints.contains("backupHeld -> MaterialTheme.appColors.cloudBackupOnly"))
+        // Shape carries the same split, for anyone who cannot separate them.
+        assertTrue("the tick marks the accepted ride",
+            icons.contains("backupHeld && onlineDone -> Icons.Default.CloudDone"))
     }
 
     @Test fun `a trip restored from Dropbox reads as backed up, not as waiting`() {
@@ -101,7 +116,9 @@ class BackupStatusIconTest {
         val body = screen.substringAfter("private fun TripStatusIcon")
         val waiting = body.substringAfter("val backupWaiting =").substringBefore("val backupAt")
         assertTrue("status 4 counts as an upload in flight", !waiting.contains("== 4"))
-        val held = body.substringAfter("val backupHeld =").substringBefore("// The leaderboard")
+        // backupHeld is the shared hasBackupCopy predicate now: the delete
+        // dialog asks the same question before offering to archive a file.
+        val held = screen.substringAfter("private fun hasBackupCopy").substringBefore("@Composable")
         assertTrue("status 4 does not count as held by a backup", held.contains("trip.uploadStatus == 4"))
     }
 
@@ -165,7 +182,7 @@ class BackupStatusIconTest {
         // uploading, which put a green cloud on trips whose own tap message
         // said "Not backed up yet".
         val body = screen.substringAfter("private fun TripStatusIcon")
-        assertTrue(body.contains("backupHeld -> Icons.Default.CloudDone"))
+        assertTrue(body.contains("backupHeld && onlineDone -> Icons.Default.CloudDone"))
         assertTrue("an unbacked trip still reads green",
             body.substringAfter("val icon = when {").substringBefore("}")
                 .lines().any { it.trim() == "else -> Icons.Default.Cloud" })

@@ -54,6 +54,14 @@ data class AppThemeColors(
     val statusGood: Color,
     val statusWarn: Color,
     val statusDanger: Color,
+    /**
+     * The deeper green for a ride that a backup holds but the leaderboard has
+     * not accepted. Pairs with [statusGood], which marks the one that both
+     * hold, so the cloud reads as safe either way and the shade carries the
+     * second question. Derived by darkening [statusGood] when a theme does not
+     * set it, so every theme including a rider's own gets a coherent pair.
+     */
+    val cloudBackupOnly: Color = Color.Unspecified,
 
     // Metric palette
     val metricVoltage: Color,
@@ -181,6 +189,16 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     tileLabel = tileLabel.takeOrElse { textSecondary },
     cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
     dashIcon = dashIcon.takeOrElse { statusGood },
+    // Two thirds of the way to black keeps it unmistakably the same hue while
+    // separating clearly from statusGood at icon size.
+    cloudBackupOnly = cloudBackupOnly.takeOrElse {
+        Color(
+            red = statusGood.red * 0.62f,
+            green = statusGood.green * 0.62f,
+            blue = statusGood.blue * 0.62f,
+            alpha = statusGood.alpha,
+        )
+    },
     fieldBackground = fieldBackground.takeOrElse { surface },
     fieldText = fieldText.takeOrElse { textPrimary },
     fieldLabel = fieldLabel.takeOrElse { textSecondary },
@@ -331,6 +349,7 @@ object ThemeTokens {
         ThemeTokenSpec("statusGood", "Good / safe", GROUP_STATUS, { it.statusGood }, { c, v -> c.copy(statusGood = v) }),
         ThemeTokenSpec("statusWarn", "Warning", GROUP_STATUS, { it.statusWarn }, { c, v -> c.copy(statusWarn = v) }),
         ThemeTokenSpec("statusDanger", "Danger / error", GROUP_STATUS, { it.statusDanger }, { c, v -> c.copy(statusDanger = v) }),
+        ThemeTokenSpec("cloudBackupOnly", "Backed up, not on leaderboard", GROUP_STATUS, { it.cloudBackupOnly }, { c, v -> c.copy(cloudBackupOnly = v) }),
 
         ThemeTokenSpec("metricVoltage", "Voltage", GROUP_METRIC, { it.metricVoltage }, { c, v -> c.copy(metricVoltage = v) }),
         ThemeTokenSpec("metricBattery", "Battery / speed", GROUP_METRIC, { it.metricBattery }, { c, v -> c.copy(metricBattery = v) }),

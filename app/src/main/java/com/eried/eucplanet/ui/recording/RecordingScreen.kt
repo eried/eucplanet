@@ -324,6 +324,12 @@ fun RecordingScreen(
     }
 
     if (tripToDelete != null) {
+        // A destination existing is not the same as this ride having a copy in
+        // it. Deleting inside the grace period, before the first upload, the
+        // row offered to archive a file that was never written. The choice
+        // only appears when there is something to move.
+        val thisTripHasBackup = hasBackupCopy(tripToDelete!!)
+        val offerArchive = canArchiveTrips && thisTripHasBackup
         var archiveBackups by remember(tripToDelete) { mutableStateOf(true) }
         AlertDialog(
             onDismissRequest = { tripToDelete = null },
@@ -335,12 +341,12 @@ fun RecordingScreen(
                     // box under it, or it reads as if the backup goes too.
                     Text(
                         stringResource(
-                            if (canArchiveTrips && archiveBackups)
+                            if (offerArchive && archiveBackups)
                                 R.string.recording_delete_trip_body_archive
                             else R.string.recording_delete_trip_body
                         )
                     )
-                    if (canArchiveTrips) {
+                    if (offerArchive) {
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.appColors.divider)
                     Spacer(Modifier.height(4.dp))
@@ -355,7 +361,7 @@ fun RecordingScreen(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.deleteTrip(tripToDelete!!, archiveBackups)
+                    viewModel.deleteTrip(tripToDelete!!, offerArchive && archiveBackups)
                     tripToDelete = null
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
@@ -797,6 +803,19 @@ private fun PendingStatusIcon() {
  *
  * Failures outrank progress, and the tap acts on the worst thing showing.
  */
+/**
+ * Whether a backup anywhere actually holds this trip.
+ *
+ * Status 2 is uploaded and 4 is a trip that came FROM Dropbox, which a backup
+ * holds by definition. A timestamp means one landed. Anything else - never
+ * sent, in flight, failed - means there is no copy to archive and nothing for
+ * the cloud to promise.
+ */
+private fun hasBackupCopy(trip: TripRecord): Boolean =
+    trip.uploadStatus == 2 || trip.uploadStatus == 4 ||
+        trip.dropboxStatus == 2 ||
+        trip.uploadedAt != null || trip.dropboxUploadedAt != null
+
 @Composable
 private fun TripStatusIcon(
     trip: TripRecord,
@@ -821,10 +840,13 @@ private fun TripStatusIcon(
     val backupWaiting = (folderConfigured && trip.uploadStatus == 1) ||
         (dropboxLinked && trip.dropboxStatus == 1)
     val backupAt = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { fmt.format(Date(it)) }
-    val backupHeld = trip.uploadStatus == 2 || trip.uploadStatus == 4 ||
-        trip.dropboxStatus == 2 || backupAt != null
+    val backupHeld = hasBackupCopy(trip)
 
-    // The leaderboard: message and tap behaviour only, never the color.
+    // The leaderboard used to drive message and tap behaviour only. It now
+    // picks between two GREENS, which keeps the original rule intact: the
+    // colour still answers "is this ride safe", and a backed-up ride is green
+    // either way. The shade is the second question, whether the leaderboard
+    // took it, and a shade cannot make a safe ride look unsafe.
     val settled = trip.eucstatsStatus == 2
     val flagged = settled && trip.eucstatsValidation == "flagged"
     val rejected = settled && trip.eucstatsValidation == "rejected"
@@ -842,18 +864,28 @@ private fun TripStatusIcon(
     // a failed upload (the tap retries it) and a rejection. Yellow, not red -
     // the ride itself is safe in a backup, something just wants attention.
     // Interim pipeline states still color nothing.
+    // A leaderboard that has not taken the ride is no longer a warning. It was
+    // painting orange on rides sitting safely in a backup, which is the exact
+    // complaint this file already records about letting the leaderboard tint
+    // the icon. Orange means a backup problem again. The unaccepted states
+    // keep their own SHAPE, a plain cloud rather than a ticked one, so the
+    // difference survives for anyone who cannot separate the two greens.
     val onlineProblem = trip.eucstatsStatus == 3 || rejected
     val icon = when {
         backupFailed -> Icons.Default.CloudOff
         backupWaiting -> Icons.Default.CloudQueue
-        onlineProblem -> Icons.Default.Cloud
-        backupHeld -> Icons.Default.CloudDone
+        backupHeld && onlineDone -> Icons.Default.CloudDone
+        backupHeld -> Icons.Default.Cloud
         else -> Icons.Default.Cloud
     }
     val tint = when {
         backupFailed -> MaterialTheme.appColors.statusDanger
-        backupWaiting || onlineProblem -> MaterialTheme.appColors.statusWarn
-        backupHeld -> MaterialTheme.appColors.statusGood
+        backupWaiting -> MaterialTheme.appColors.statusWarn
+        // Lighter green: a backup holds it AND the leaderboard took it.
+        backupHeld && onlineDone -> MaterialTheme.appColors.statusGood
+        // Darker green: safe in a backup, the leaderboard has not accepted it
+        // (never sent, still deciding, flagged, rejected, or upload failed).
+        backupHeld -> MaterialTheme.appColors.cloudBackupOnly
         else -> MaterialTheme.appColors.textSecondary
     }
     // The whole story in one message: each part only speaks when it has
