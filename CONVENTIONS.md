@@ -28,6 +28,26 @@ text. Use a comma, a parenthetical, " - ", or a second sentence. Keep
 user-facing copy short: state what the setting affects, then the danger of a bad
 value, in as few words as read cleanly.
 
+### Terminal punctuation and paths
+
+A descriptive string that is a sentence explaining something ends with a full
+stop. Japanese and Chinese take their own full-width stop, not a Latin dot.
+These are exempt, and the exemption is by name in
+`HelperCopyPunctuationTest.exempt` so the reasoning stays readable:
+
+- text-field placeholders and terse field hints ("4 to 8 digits")
+- lists of values ("Garmin: Start / Amazfit: Select")
+- anything ending in a URL, a format argument or markup, where a stop would
+  read as part of the address or the value
+- widget-surface strings, where the character is not worth the space
+
+A navigation path uses an arrow, not an angle quote: "Settings -> Voice and
+announcements", "Apps -> EUC Planet". Display copy names a site bare
+(`eucstats.ried.no`); a full `https://` URL belongs only in a string that is
+handed to an intent, and that string is `translatable="false"`.
+
+`HelperCopyPunctuationTest` enforces the stop across all 23 languages.
+
 ## 3. Modern toast only
 
 Every transient, user-facing message is a Material 3 Snackbar. From Compose use
