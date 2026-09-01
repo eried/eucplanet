@@ -942,7 +942,7 @@
     <string name="recording_route">Rute</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Varighed</string>
-    <string name="recording_summary_points">Punkter</string>
+    <string name="recording_summary_points">Rækker</string>
     <string name="recording_summary_top_speed">Tophastighed</string>
     <string name="recording_summary_avg_speed">Gns. hastighed</string>
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
@@ -1838,7 +1838,7 @@
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i notifikationsskuffen.</string>
     <string name="warnings_perm_location_title">Placering er slået fra</string>
     <string name="warnings_perm_location_body">Ture optager ingen rute, og GPS-hastighed og kalibrering virker ikke. Tryk for at tillade.</string>
-    <string name="weather_error_no_location">Ingen placering endnu, så der er intet sted at spørge om</string>
+    <string name="weather_error_no_location">Ingen placering at spå ud fra</string>
     <string name="warnings_location_services_body">EUC Planet har lov, men telefonen har placering slået fra for alt. Tryk for at slå den til.</string>
     <string name="warnings_location_services_title">Placering er slået fra på telefonen</string>
 

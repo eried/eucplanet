@@ -1111,7 +1111,7 @@
     <string name="recording_details_none">Tälle ajolle ei raportoitu yksipyöräistä.</string>
     <string name="recording_summary_distance">Matka</string>
     <string name="recording_summary_duration">Kesto</string>
-    <string name="recording_summary_points">Pisteet</string>
+    <string name="recording_summary_points">Rivit</string>
     <string name="recording_summary_top_speed">Huippunopeus</string>
     <string name="recording_summary_avg_speed">Keskinopeus</string>
     <string name="recording_summary_max_temp">Maks lämpö</string>
@@ -2133,7 +2133,7 @@
     <string name="warnings_perm_notifications_body">Et näe ajon tilaa tilapalkissa etkä saa äänihälytyksiä ilmoitusalueella.</string>
     <string name="warnings_perm_location_title">Sijainti on pois päältä</string>
     <string name="warnings_perm_location_body">Matkat eivät tallenna reittiä, eivätkä GPS-nopeus ja kalibrointi toimi. Salli napauttamalla.</string>
-    <string name="weather_error_no_location">Sijaintia ei vielä ole, joten ei ole paikkaa josta kysyä</string>
+    <string name="weather_error_no_location">Ei sijaintia ennusteelle</string>
     <string name="warnings_location_services_body">EUC Planetilla on lupa, mutta puhelimen sijainti on pois päältä kaikelta. Kytke se päälle napauttamalla.</string>
     <string name="warnings_location_services_title">Sijainti on kytketty pois</string>
     <string name="warnings_battery_opt_title">Akun optimointi on päällä</string>

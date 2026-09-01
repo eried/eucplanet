@@ -1111,7 +1111,7 @@
     <string name="recording_details_none">Niciun monociclu nu a raportat pentru această cursă.</string>
     <string name="recording_summary_distance">Distanță</string>
     <string name="recording_summary_duration">Durată</string>
-    <string name="recording_summary_points">Puncte</string>
+    <string name="recording_summary_points">Rânduri</string>
     <string name="recording_summary_top_speed">Viteza maximă</string>
     <string name="recording_summary_avg_speed">Viteza medie</string>
     <string name="recording_summary_max_temp">Temp maximă</string>
@@ -2133,7 +2133,7 @@
     <string name="warnings_perm_notifications_body">Nu vei vedea starea cursei în bara de stare și nu vei primi alerte vocale în zona de notificări.</string>
     <string name="warnings_perm_location_title">Locația este dezactivată</string>
     <string name="warnings_perm_location_body">Cursele nu înregistrează traseul, iar viteza și calibrarea GPS nu funcționează. Atinge pentru a permite.</string>
-    <string name="weather_error_no_location">Încă nu există locație, deci nu are despre ce loc să întrebe</string>
+    <string name="weather_error_no_location">Nicio locație pentru prognoză</string>
     <string name="warnings_location_services_body">EUC Planet are permisiune, dar telefonul are locația oprită pentru tot. Atinge pentru a o porni.</string>
     <string name="warnings_location_services_title">Locația este oprită</string>
     <string name="warnings_battery_opt_title">Optimizarea bateriei este activată</string>

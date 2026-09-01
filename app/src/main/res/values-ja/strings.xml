@@ -939,7 +939,7 @@
     <string name="recording_route">ルート</string>
     <string name="recording_summary_distance">距離</string>
     <string name="recording_summary_duration">時間</string>
-    <string name="recording_summary_points">ポイント数</string>
+    <string name="recording_summary_points">行数</string>
     <string name="recording_summary_top_speed">最高速度</string>
     <string name="recording_summary_avg_speed">平均速度</string>
     <string name="recording_summary_max_temp">最高温度</string>
@@ -1826,7 +1826,7 @@
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません。</string>
     <string name="warnings_perm_location_title">位置情報がオフです</string>
     <string name="warnings_perm_location_body">トリップにルートが記録されず、GPS 速度とキャリブレーションも使えません。タップして許可してください。</string>
-    <string name="weather_error_no_location">位置がまだないため、問い合わせる場所がありません</string>
+    <string name="weather_error_no_location">予報する場所がありません</string>
     <string name="warnings_location_services_body">EUC Planet には許可がありますが、端末側で位置情報がすべてオフになっています。タップしてオンにしてください。</string>
     <string name="warnings_location_services_title">端末の位置情報がオフです</string>
     <string name="warnings_battery_opt_title">電池の最適化が有効です</string>

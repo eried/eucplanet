@@ -404,6 +404,17 @@ fun WeatherFlyout(
             }
 
             when {
+                // A precondition, not a failure: there is nothing to report
+                // about because there is nowhere to ask about. Shown on its
+                // own, without the "Forecast failed" wrapper that a real fetch
+                // error earns.
+                hours.isEmpty() && error == stringResource(R.string.weather_error_no_location) -> Text(
+                    error,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ink.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(vertical = 10.dp),
+                )
+
                 hours.isEmpty() && error != null -> Text(
                     stringResource(R.string.weather_error, error),
                     style = MaterialTheme.typography.bodySmall,

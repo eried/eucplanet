@@ -891,16 +891,21 @@ class TripRepository @Inject constructor(
             return
         }
 
-        val data = wheelRepository.wheelData.value
-        // Wheel distance is the per-segment accumulator (immune to mid-ride
-        // wheel switches and to pre-recording session distance); the raw
-        // session counter and GPS distance remain as fallbacks for rides
-        // where the loop never saw a connected tick.
-        val distance = when {
-            tripWheelKmAccum > 0f -> tripWheelKmAccum
-            data.tripDistance > 0f -> data.tripDistance
-            else -> gpsDistanceKm.toFloat()
-        }
+        // Wheel distance is the per-segment accumulator: only forward,
+        // plausible per-tick steps, baseline reset across disconnects. Zero
+        // from it is an ANSWER, not a failure - a recording where the wheel
+        // never moved really is zero km.
+        //
+        // It used to fall through to data.tripDistance, the wheel's own trip
+        // meter, which is an absolute counter running since the rider last
+        // cleared it and has nothing to do with when recording started. A
+        // rider stopped a recording after eight stationary seconds and got
+        // 6 km: their earlier riding that day, borrowed. The fallback claimed
+        // to be for rides "where the loop never saw a connected tick", but it
+        // fired whenever the wheel simply had not moved, which is exactly when
+        // the honest answer is zero. GPS is the only other thing that measured
+        // THIS ride, so it is the only fallback left.
+        val distance = if (tripWheelKmAccum > 0f) tripWheelKmAccum else gpsDistanceKm.toFloat()
         val capturedMock = tripHadMockFix
         // A last look in case the wheel is still connected, then use what the ride
         // accumulated - by now a powered-off wheel reads back as all-nulls, which merge

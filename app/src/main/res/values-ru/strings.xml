@@ -942,7 +942,7 @@
     <string name="recording_route">Маршрут</string>
     <string name="recording_summary_distance">Пробег</string>
     <string name="recording_summary_duration">Длительность</string>
-    <string name="recording_summary_points">Точек</string>
+    <string name="recording_summary_points">Строки</string>
     <string name="recording_summary_top_speed">Макс. скорость</string>
     <string name="recording_summary_avg_speed">Ср. скорость</string>
     <string name="recording_summary_max_temp">Макс. температура</string>
@@ -1829,7 +1829,7 @@
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке.</string>
     <string name="warnings_perm_location_title">Геолокация выключена</string>
     <string name="warnings_perm_location_body">Поездки не записывают маршрут, скорость и калибровка по GPS не работают. Нажмите, чтобы разрешить.</string>
-    <string name="weather_error_no_location">Пока нет местоположения, поэтому не о чем спрашивать</string>
+    <string name="weather_error_no_location">Нет места для прогноза</string>
     <string name="warnings_location_services_body">У EUC Planet есть разрешение, но на телефоне геолокация выключена для всего. Нажмите, чтобы включить.</string>
     <string name="warnings_location_services_title">Геолокация отключена в системе</string>
     <string name="warnings_battery_opt_title">Оптимизация батареи включена</string>

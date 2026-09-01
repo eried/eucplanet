@@ -1111,7 +1111,7 @@
     <string name="recording_details_none">Ehhez a menethez nem jelentett egykerekű.</string>
     <string name="recording_summary_distance">Távolság</string>
     <string name="recording_summary_duration">Időtartam</string>
-    <string name="recording_summary_points">Pontok</string>
+    <string name="recording_summary_points">Sorok</string>
     <string name="recording_summary_top_speed">Csúcssebesség</string>
     <string name="recording_summary_avg_speed">Átlagsebesség</string>
     <string name="recording_summary_max_temp">Max hőmérséklet</string>
@@ -2133,7 +2133,7 @@
     <string name="warnings_perm_notifications_body">Nem látod a menet állapotát az állapotsávon, és nem kapsz hangriasztásokat az értesítési felületen.</string>
     <string name="warnings_perm_location_title">A helymeghatározás ki van kapcsolva</string>
     <string name="warnings_perm_location_body">A menetek nem rögzítenek útvonalat, a GPS-sebesség és a kalibrálás nem működik. Koppints az engedélyezéshez.</string>
-    <string name="weather_error_no_location">Még nincs helyzet, így nincs miről kérdezni</string>
+    <string name="weather_error_no_location">Nincs hely az előrejelzéshez</string>
     <string name="warnings_location_services_body">Az EUC Planet használhatná, de a telefonon minden alkalmazásnak ki van kapcsolva. Koppints a bekapcsoláshoz.</string>
     <string name="warnings_location_services_title">A helymeghatározás ki van kapcsolva</string>
     <string name="warnings_battery_opt_title">Az akkumulátor-optimalizálás be van kapcsolva</string>

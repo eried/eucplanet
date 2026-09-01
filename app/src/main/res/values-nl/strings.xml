@@ -942,7 +942,7 @@
     <string name="recording_route">Route</string>
     <string name="recording_summary_distance">Afstand</string>
     <string name="recording_summary_duration">Duur</string>
-    <string name="recording_summary_points">Punten</string>
+    <string name="recording_summary_points">Rijen</string>
     <string name="recording_summary_top_speed">Topsnelheid</string>
     <string name="recording_summary_avg_speed">Gem. snelheid</string>
     <string name="recording_summary_battery">Accu (-%1$d%%)</string>
@@ -1862,7 +1862,7 @@
     <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel.</string>
     <string name="warnings_perm_location_title">Locatie staat uit</string>
     <string name="warnings_perm_location_body">Ritten leggen geen route vast en GPS-snelheid en kalibratie werken niet. Tik om toe te staan.</string>
-    <string name="weather_error_no_location">Nog geen locatie, dus geen plek om naar te vragen</string>
+    <string name="weather_error_no_location">Geen locatie voor de verwachting</string>
     <string name="warnings_location_services_body">EUC Planet mag het, maar de telefoon heeft locatie voor alles uitgeschakeld. Tik om het aan te zetten.</string>
     <string name="warnings_location_services_title">Locatie staat uit op de telefoon</string>
     <string name="hud_joystick_title">Knopacties</string>

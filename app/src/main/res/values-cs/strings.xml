@@ -1111,7 +1111,7 @@
     <string name="recording_details_none">K této jízdě se nehlásilo žádné monokolo.</string>
     <string name="recording_summary_distance">Vzdálenost</string>
     <string name="recording_summary_duration">Doba trvání</string>
-    <string name="recording_summary_points">Body</string>
+    <string name="recording_summary_points">Řádky</string>
     <string name="recording_summary_top_speed">Nejvyšší rychlost</string>
     <string name="recording_summary_avg_speed">Průměrná rychlost</string>
     <string name="recording_summary_max_temp">Max teplota</string>
@@ -2133,7 +2133,7 @@
     <string name="warnings_perm_notifications_body">Neuvidíte stav jízdy ve stavovém řádku ani nedostanete hlasová upozornění v oznámeních.</string>
     <string name="warnings_perm_location_title">Poloha je vypnutá</string>
     <string name="warnings_perm_location_body">Jízdy nezaznamenají trasu a rychlost ani kalibrace podle GPS nefungují. Klepnutím povolte.</string>
-    <string name="weather_error_no_location">Zatím není poloha, takže není na co se ptát</string>
+    <string name="weather_error_no_location">Bez polohy nelze předpovídat</string>
     <string name="warnings_location_services_body">EUC Planet má povolení, ale telefon má polohu vypnutou pro všechno. Klepnutím ji zapněte.</string>
     <string name="warnings_location_services_title">Poloha je v systému vypnutá</string>
     <string name="warnings_battery_opt_title">Optimalizace baterie je zapnutá</string>

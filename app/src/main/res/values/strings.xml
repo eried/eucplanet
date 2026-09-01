@@ -1245,7 +1245,7 @@
     <string name="recording_details_none">No wheel reported for this ride.</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Duration</string>
-    <string name="recording_summary_points">Points</string>
+    <string name="recording_summary_points">Rows</string>
     <string name="recording_summary_top_speed">Top Speed</string>
     <string name="recording_summary_avg_speed">Avg Speed</string>
     <string name="recording_summary_max_temp">Max Temp</string>
@@ -2390,7 +2390,7 @@
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade.</string>
     <string name="warnings_perm_location_title">Location is off</string>
     <string name="warnings_perm_location_body">Trips record no route, and GPS speed and calibration will not work. Tap to allow.</string>
-    <string name="weather_error_no_location">No location yet, so there is nowhere to ask about</string>
+    <string name="weather_error_no_location">No location to forecast</string>
     <string name="warnings_location_services_body">EUC Planet is allowed to use it, but the phone has location turned off for everything. Tap to switch it on.</string>
     <string name="warnings_location_services_title">Location is switched off</string>
     <string name="warnings_battery_opt_title">Battery optimisation is on</string>

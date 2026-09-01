@@ -939,7 +939,7 @@
     <string name="recording_route">경로</string>
     <string name="recording_summary_distance">거리</string>
     <string name="recording_summary_duration">소요 시간</string>
-    <string name="recording_summary_points">포인트</string>
+    <string name="recording_summary_points">행</string>
     <string name="recording_summary_top_speed">최고 속도</string>
     <string name="recording_summary_avg_speed">평균 속도</string>
     <string name="recording_summary_max_temp">최고 온도</string>
@@ -1826,7 +1826,7 @@
     <string name="warnings_perm_notifications_body">상태 표시줄에서 주행 상태를 볼 수 없고 알림 창에서 음성 알림을 받을 수 없습니다.</string>
     <string name="warnings_perm_location_title">위치 권한이 꺼져 있습니다</string>
     <string name="warnings_perm_location_body">트립에 경로가 기록되지 않고 GPS 속도와 보정도 작동하지 않습니다. 탭하여 허용하세요.</string>
-    <string name="weather_error_no_location">아직 위치가 없어 물어볼 장소가 없습니다</string>
+    <string name="weather_error_no_location">예보할 위치가 없습니다</string>
     <string name="warnings_location_services_body">EUC Planet에는 권한이 있지만 기기 전체에서 위치가 꺼져 있습니다. 탭하여 켜세요.</string>
     <string name="warnings_location_services_title">기기 위치가 꺼져 있습니다</string>
     <string name="warnings_battery_opt_title">배터리 최적화가 켜져 있음</string>

@@ -942,7 +942,7 @@
     <string name="recording_route">Ruta</string>
     <string name="recording_summary_distance">Distancia</string>
     <string name="recording_summary_duration">Duración</string>
-    <string name="recording_summary_points">Puntos</string>
+    <string name="recording_summary_points">Filas</string>
     <string name="recording_summary_top_speed">Vel. máxima</string>
     <string name="recording_summary_avg_speed">Vel. media</string>
     <string name="recording_summary_max_temp">Temp. máx.</string>
@@ -1829,7 +1829,7 @@
     <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en las notificaciones.</string>
     <string name="warnings_perm_location_title">La ubicación está desactivada</string>
     <string name="warnings_perm_location_body">Los viajes no guardan la ruta, y la velocidad y calibración por GPS no funcionan. Toca para permitir.</string>
-    <string name="weather_error_no_location">Todavía no hay ubicación, así que no hay lugar por el que preguntar</string>
+    <string name="weather_error_no_location">Sin ubicación para el pronóstico</string>
     <string name="warnings_location_services_body">EUC Planet tiene permiso, pero el teléfono tiene la ubicación apagada para todo. Toca para activarla.</string>
     <string name="warnings_location_services_title">La ubicación está apagada</string>
     <string name="warnings_battery_opt_title">La optimización de batería está activada</string>

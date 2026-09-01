@@ -942,7 +942,7 @@
     <string name="recording_route">Itinéraire</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Durée</string>
-    <string name="recording_summary_points">Points</string>
+    <string name="recording_summary_points">Lignes</string>
     <string name="recording_summary_top_speed">Vitesse max</string>
     <string name="recording_summary_avg_speed">Vitesse moy</string>
     <string name="recording_summary_battery">Batterie (-%1$d%%)</string>
@@ -1867,7 +1867,7 @@
     <string name="warnings_perm_notifications_body">Tu ne verras pas l\'état du ride dans la barre d\'état et tu n\'auras pas d\'alertes vocales dans les notifications.</string>
     <string name="warnings_perm_location_title">La localisation est désactivée</string>
     <string name="warnings_perm_location_body">Les trajets n\'enregistrent aucun tracé, et la vitesse et la calibration GPS ne marchent pas. Touche pour autoriser.</string>
-    <string name="weather_error_no_location">Pas encore de position, donc aucun endroit à interroger</string>
+    <string name="weather_error_no_location">Pas de position pour la météo</string>
     <string name="warnings_location_services_body">EUC Planet y a droit, mais le téléphone a coupé la localisation pour tout. Touche pour activer.</string>
     <string name="warnings_location_services_title">La localisation est coupée</string>
 

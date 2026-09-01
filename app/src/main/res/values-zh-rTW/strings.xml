@@ -939,7 +939,7 @@
     <string name="recording_route">路線</string>
     <string name="recording_summary_distance">距離</string>
     <string name="recording_summary_duration">時長</string>
-    <string name="recording_summary_points">資料點</string>
+    <string name="recording_summary_points">筆數</string>
     <string name="recording_summary_top_speed">最高速度</string>
     <string name="recording_summary_avg_speed">平均速度</string>
     <string name="recording_summary_max_temp">最高溫度</string>
@@ -1826,7 +1826,7 @@
     <string name="warnings_perm_notifications_body">您將無法在狀態列看到騎乘狀態，也無法在通知欄接收語音警報。</string>
     <string name="warnings_perm_location_title">定位已關閉</string>
     <string name="warnings_perm_location_body">行程不會記錄路線，GPS 速度與校正也無法使用。點一下以允許。</string>
-    <string name="weather_error_no_location">還沒有位置，因此沒有可查詢的地點</string>
+    <string name="weather_error_no_location">沒有可預報的位置</string>
     <string name="warnings_location_services_body">EUC Planet 有權限，但手機已對所有應用關閉定位。點一下開啟。</string>
     <string name="warnings_location_services_title">裝置定位已關閉</string>
     <string name="warnings_battery_opt_title">電池最佳化已開啟</string>

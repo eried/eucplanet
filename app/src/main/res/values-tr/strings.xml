@@ -939,7 +939,7 @@
     <string name="recording_route">Rota</string>
     <string name="recording_summary_distance">Mesafe</string>
     <string name="recording_summary_duration">Süre</string>
-    <string name="recording_summary_points">Nokta sayısı</string>
+    <string name="recording_summary_points">Satır</string>
     <string name="recording_summary_top_speed">En Yüksek Hız</string>
     <string name="recording_summary_avg_speed">Ort. Hız</string>
     <string name="recording_summary_max_temp">Maks. Sıcaklık</string>
@@ -1826,7 +1826,7 @@
     <string name="warnings_perm_notifications_body">Durum çubuğunda sürüş durumunu göremez ve bildirim panelinde sesli uyarı alamazsınız.</string>
     <string name="warnings_perm_location_title">Konum kapalı</string>
     <string name="warnings_perm_location_body">Sürüşler rota kaydetmez, GPS hızı ve kalibrasyon çalışmaz. İzin vermek için dokun.</string>
-    <string name="weather_error_no_location">Henüz konum yok, bu yüzden sorulacak bir yer de yok</string>
+    <string name="weather_error_no_location">Tahmin için konum yok</string>
     <string name="warnings_location_services_body">EUC Planet uygulamasının izni var ama telefonda konum her şey için kapalı. Açmak için dokun.</string>
     <string name="warnings_location_services_title">Konum sistemde kapalı</string>
     <string name="warnings_battery_opt_title">Pil optimizasyonu açık</string>
