@@ -131,8 +131,16 @@ object Units {
      * follows the rider's distance unit: imperial (mi) -> psi, everything else
      * -> bar. A standalone pressure-unit picker can be added later.
      */
-    fun effectivePressureUnit(s: AppSettings): String =
-        if (effectiveDistanceUnit(s) == "mi") "psi" else "bar"
+    /**
+     * The rider's pressure unit.
+     *
+     * A setting now, not a guess. It used to be derived from the distance
+     * unit, which got the common case wrong: EUC riders run psi in a tyre
+     * while measuring everything else in kilometres, and there is no
+     * relationship between the two beyond an assumption that was usually
+     * false.
+     */
+    fun effectivePressureUnit(s: AppSettings): String = s.tpms.pressureUnit
 
     /** The three top-level measurement-unit modes. CUSTOM is a derived label. */
     enum class UnitSystem { METRIC, IMPERIAL, CUSTOM }

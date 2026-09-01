@@ -29,6 +29,17 @@ class TpmsRepository @Inject constructor() {
     private var wheelReading: TpmsReading? = null
     private var pairedReading: TpmsReading? = null
 
+    private val _pairedAddress = MutableStateFlow<String?>(null)
+
+    /**
+     * The sensor the rider owns, kept so the section has something to show and
+     * something to remove. One at a time: a wheel has one tyre, and two would
+     * leave "the tire pressure" meaning whichever spoke last.
+     */
+    val pairedAddress: StateFlow<String?> = _pairedAddress.asStateFlow()
+
+    fun adopt(address: String) { _pairedAddress.value = address }
+
     private val _current = MutableStateFlow<TpmsReading?>(null)
 
     /** The reading to show, or null when nothing fresh is reporting. */
@@ -46,7 +57,8 @@ class TpmsRepository @Inject constructor() {
     }
 
     /** A directly paired sensor reported. */
-    fun submitPaired(kpa: Float, nowMs: Long = System.currentTimeMillis()) {
+    fun submitPaired(kpa: Float, address: String? = null, nowMs: Long = System.currentTimeMillis()) {
+        address?.let { _pairedAddress.value = it }
         pairedReading = TpmsPolicy.readingOf(kpa, TpmsSource.PAIRED, nowMs) ?: pairedReading
         recompute(nowMs)
     }
@@ -59,6 +71,7 @@ class TpmsRepository @Inject constructor() {
      */
     fun forgetPaired(nowMs: Long = System.currentTimeMillis()) {
         pairedReading = null
+        _pairedAddress.value = null
         recompute(nowMs)
     }
 

@@ -538,6 +538,11 @@
     <string name="units_custom">Özel</string>
     <string name="units_temperature">Sıcaklık</string>
     <string name="units_speed">Hız</string>
+    <string name="tpms_forget">Unut</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Lastik basıncı</string>
     <string name="units_distance">Mesafe</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -746,6 +751,12 @@
     <string name="tpms_pair_title">Başka bir sensör eşle</string>
     <string name="tpms_pair_replaces">Ek bir sensör, varsa tekerin dahili sensörünün yerini alır.</string>
     <string name="tpms_scan">Sensör ara</string>
+    <string name="tpms_scan_stop">Taramayı durdur</string>
+    <string name="tpms_scan_listening">Sensörler dinleniyor. Hiçbir şey çıkmazsa tekerleği biraz döndür, bazıları sadece hareketteyken yayın yapar.</string>
+    <string name="tpms_pair_replace_title">Sensörü değiştir</string>
+    <string name="tpms_none_yet">Henüz lastik sensörü yok. Eklemek için tara.</string>
+    <string name="tpms_wheel_sensor_replaced">Eşleşmiş sensörünle değiştirildi</string>
+    <string name="tpms_paired_sensor">Lastik sensörü</string>
     <string name="external_gps_device_title">Harici GPS</string>
     <string name="external_gps_pair_button">Taramayı başlat</string>
     <string name="external_gps_pair_action">Eşleştir</string>

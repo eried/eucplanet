@@ -538,6 +538,11 @@
     <string name="units_custom">사용자 지정</string>
     <string name="units_temperature">온도</string>
     <string name="units_speed">속도</string>
+    <string name="tpms_forget">삭제</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">공기압</string>
     <string name="units_distance">거리</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -746,6 +751,12 @@
     <string name="tpms_pair_title">다른 센서 페어링</string>
     <string name="tpms_pair_replaces">추가 센서는 휠의 내장 센서(있는 경우)를 대체합니다.</string>
     <string name="tpms_scan">센서 검색</string>
+    <string name="tpms_scan_stop">검색 중지</string>
+    <string name="tpms_scan_listening">센서를 찾는 중입니다. 아무것도 없으면 휠을 조금 굴려보세요. 움직일 때만 보내는 것도 있습니다.</string>
+    <string name="tpms_pair_replace_title">센서 교체</string>
+    <string name="tpms_none_yet">아직 타이어 센서가 없습니다. 검색해 추가하세요.</string>
+    <string name="tpms_wheel_sensor_replaced">페어링된 센서로 대체됨</string>
+    <string name="tpms_paired_sensor">타이어 센서</string>
     <string name="external_gps_device_title">외부 GPS</string>
     <string name="external_gps_pair_button">스캔 시작</string>
     <string name="external_gps_pair_action">페어링</string>

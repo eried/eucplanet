@@ -538,6 +538,11 @@
     <string name="units_custom">Anpassat</string>
     <string name="units_temperature">Temperatur</string>
     <string name="units_speed">Hastighet</string>
+    <string name="tpms_forget">Glöm</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Däcktryck</string>
     <string name="units_distance">Avstånd</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -746,6 +751,12 @@
     <string name="tpms_pair_title">Parkoppla en annan sensor</string>
     <string name="tpms_pair_replaces">En extra sensor ersätter hjulets inbyggda, om det finns någon.</string>
     <string name="tpms_scan">Sök efter sensorer</string>
+    <string name="tpms_scan_stop">Sluta skanna</string>
+    <string name="tpms_scan_listening">Lyssnar efter sensorer. Rulla hjulet lite om inget dyker upp, vissa sänder bara i rörelse.</string>
+    <string name="tpms_pair_replace_title">Byt sensor</string>
+    <string name="tpms_none_yet">Ingen däcksensor ännu. Skanna för att lägga till en.</string>
+    <string name="tpms_wheel_sensor_replaced">Ersatt av din parade sensor</string>
+    <string name="tpms_paired_sensor">Däcksensor</string>
     <string name="external_gps_device_title">Extern GPS</string>
     <string name="external_gps_pair_button">Starta sökning</string>
     <string name="external_gps_pair_action">Parkoppla</string>

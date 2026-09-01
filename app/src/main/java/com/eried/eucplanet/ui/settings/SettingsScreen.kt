@@ -286,6 +286,17 @@ import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 
+
+/**
+ * How long the settings search waits after a keystroke before filtering.
+ *
+ * Short enough that the list keeps up with a pause, long enough that a typed
+ * word costs one pass instead of one per letter. Every keystroke rebuilds
+ * every section's search corpus from hundreds of string lookups, so this is
+ * the difference between typing that flows and typing that wades.
+ */
+private const val SEARCH_SETTLE_MS = 180L
+
 // Reads the one shipped-language registry rather than repeating it: a locale
 // added there reaches the picker with no edit here.
 private val languageOptions =
@@ -882,7 +893,18 @@ fun SettingsScreen(
         ) {
             Spacer(Modifier.height(8.dp))
 
-            val query = searchQuery.trim()
+            // The typed text drives the field; a settled copy drives the
+            // work. Every keystroke used to rebuild every section's search
+            // corpus from hundreds of string lookups and re-lay out the page,
+            // which is what made typing feel like wading. A rider does not
+            // need the list to keep up with their fingers, only with their
+            // pauses.
+            var settledQuery by remember { mutableStateOf("") }
+            LaunchedEffect(searchQuery) {
+                kotlinx.coroutines.delay(SEARCH_SETTLE_MS)
+                settledQuery = searchQuery.trim()
+            }
+            val query = settledQuery
             val searching = query.isNotEmpty()
 
             // Effective arrangement: every section (including Advanced) is movable
@@ -902,6 +924,38 @@ fun SettingsScreen(
             val topLevel = orderedMovable.filter { it.key !in hiddenKeys }
             val moreSecs = orderedMovable.filter { it.key in hiddenKeys }
 
+            // Where the first match is, so the page can go there. Filtering
+            // and highlighting on their own leave the match below the fold on
+            // a long page, which reads as a search that did nothing.
+            val searchScrollKey = if (searching) {
+                (topLevel + moreSecs).firstOrNull {
+                    it.searchCorpus.contains(query, ignoreCase = true)
+                }?.key
+            } else null
+            var searchTargetTop by remember { mutableStateOf<Float?>(null) }
+            LaunchedEffect(searchScrollKey) {
+                searchTargetTop = null
+                if (searchScrollKey == null) return@LaunchedEffect
+                val container = scrollContainerTop ?: return@LaunchedEffect
+                // Wait for the filtered page to lay out, then for the section
+                // to stop moving: sections above it are still collapsing as
+                // the filter applies, and scrolling to a position that is
+                // still shifting lands somewhere else.
+                while (searchTargetTop == null) kotlinx.coroutines.delay(16)
+                while (true) {
+                    val t0 = searchTargetTop
+                    kotlinx.coroutines.delay(120)
+                    if (searchTargetTop == t0) break
+                }
+                // Relative, like the deep-link scroll: an absolute offset
+                // computed from an already-scrolled window converges on the
+                // wrong place.
+                val delta = ((searchTargetTop ?: return@LaunchedEffect) - container).toInt()
+                if (kotlin.math.abs(delta) > 8) {
+                    scrollState.animateScrollTo((scrollState.value + delta).coerceAtLeast(0))
+                }
+            }
+
             androidx.compose.runtime.CompositionLocalProvider(LocalSettingsSearchQuery provides query) {
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
@@ -909,13 +963,19 @@ fun SettingsScreen(
                     if (searching && !sec.searchCorpus.contains(query, ignoreCase = true)) return
                     val explicitlyExpanded = expandedSections.contains(sec.key)
                     val isExpanded = explicitlyExpanded || searching
-                    var sectionModifier = if (
-                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather
-                    ) {
-                        Modifier.onGloballyPositioned {
-                            targetSectionTop = it.positionInWindow().y
-                        }
-                    } else Modifier
+                    var sectionModifier = when {
+                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather ->
+                            Modifier.onGloballyPositioned {
+                                targetSectionTop = it.positionInWindow().y
+                            }
+                        // The first search match reports its position the same
+                        // way, so the scroll above has something to aim at.
+                        sec.key == searchScrollKey ->
+                            Modifier.onGloballyPositioned {
+                                searchTargetTop = it.positionInWindow().y
+                            }
+                        else -> Modifier
+                    }
                     if (indent) sectionModifier = sectionModifier.padding(start = 12.dp)
                     CollapsibleSection(
                         modifier = sectionModifier,
@@ -6445,6 +6505,19 @@ private fun UnitsSetting(
                         "kn" to stringResource(R.string.units_speed_kn)
                     ),
                     onSelect = { viewModel.setUnitSpeed(it) }
+                )
+                // Pressure sits with the other units and is chosen, not
+                // derived. A rider on kilometres routinely runs psi in a tyre,
+                // and inferring it from distance got that wrong every time.
+                SimpleDropdown(
+                    label = stringResource(R.string.units_pressure),
+                    currentKey = Units.effectivePressureUnit(settings),
+                    options = listOf(
+                        "psi" to stringResource(R.string.units_pressure_psi),
+                        "bar" to stringResource(R.string.units_pressure_bar),
+                        "kpa" to stringResource(R.string.units_pressure_kpa),
+                    ),
+                    onSelect = { viewModel.setUnitPressure(it) }
                 )
                 SimpleDropdown(
                     label = stringResource(R.string.units_distance),

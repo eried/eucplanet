@@ -254,6 +254,11 @@
     <string name="units_custom">Personalizzato</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Velocità</string>
+    <string name="tpms_forget">Dimentica</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Pressione</string>
     <string name="units_distance">Distanza</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -756,6 +761,12 @@
     <string name="tpms_pair_title">Associa un altro sensore</string>
     <string name="tpms_pair_replaces">Un sensore aggiuntivo sostituisce quello integrato nella ruota, se presente.</string>
     <string name="tpms_scan">Cerca sensori</string>
+    <string name="tpms_scan_stop">Ferma la ricerca</string>
+    <string name="tpms_scan_listening">In ascolto dei sensori. Fai girare un po la ruota se non appare nulla, alcuni trasmettono solo in movimento.</string>
+    <string name="tpms_pair_replace_title">Sostituisci sensore</string>
+    <string name="tpms_none_yet">Ancora nessun sensore. Cercane uno da aggiungere.</string>
+    <string name="tpms_wheel_sensor_replaced">Sostituito dal sensore associato</string>
+    <string name="tpms_paired_sensor">Sensore gomma</string>
     <string name="external_gps_device_title">GPS esterno</string>
     <string name="section_speed_calibration">Calibrazione velocità</string>
     <string name="section_battery_percent">Calibrazione batteria</string>

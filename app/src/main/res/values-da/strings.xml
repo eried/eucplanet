@@ -538,6 +538,11 @@
     <string name="units_custom">Tilpasset</string>
     <string name="units_temperature">Temperatur</string>
     <string name="units_speed">Hastighed</string>
+    <string name="tpms_forget">Glem</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Dæktryk</string>
     <string name="units_distance">Distance</string>
     <string name="units_speed_kmh">km/t</string>
     <string name="units_speed_mph">mph</string>
@@ -750,6 +755,12 @@
     <string name="tpms_pair_title">Tilføj en anden sensor</string>
     <string name="tpms_pair_replaces">En ekstra sensor erstatter hjulets indbyggede, hvis der er en.</string>
     <string name="tpms_scan">Søg efter sensorer</string>
+    <string name="tpms_scan_stop">Stop scanning</string>
+    <string name="tpms_scan_listening">Lytter efter sensorer. Rul hjulet lidt hvis intet dukker op, nogle sender kun i bevægelse.</string>
+    <string name="tpms_pair_replace_title">Erstat sensor</string>
+    <string name="tpms_none_yet">Ingen dæksensor endnu. Scan for at tilføje en.</string>
+    <string name="tpms_wheel_sensor_replaced">Erstattet af din parrede sensor</string>
+    <string name="tpms_paired_sensor">Dæksensor</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="external_gps_pair_button">Start scanning</string>
     <string name="external_gps_pair_action">Par</string>

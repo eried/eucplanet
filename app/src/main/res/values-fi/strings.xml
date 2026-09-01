@@ -688,6 +688,11 @@
     <string name="units_custom">Mukautettu</string>
     <string name="units_temperature">Lämpötila</string>
     <string name="units_speed">Nopeus</string>
+    <string name="tpms_forget">Unohda</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Rengaspaine</string>
     <string name="units_distance">Matka</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -922,6 +927,12 @@
     <string name="tpms_pair_title">Pariliitä toinen anturi</string>
     <string name="tpms_pair_replaces">Lisäanturi korvaa yksipyöräisen sisäänrakennetun anturin, jos sellainen on.</string>
     <string name="tpms_scan">Hae antureita</string>
+    <string name="tpms_scan_stop">Lopeta haku</string>
+    <string name="tpms_scan_listening">Kuunnellaan antureita. Pyöräytä hieman jos mitään ei näy, osa lähettää vain liikkeessä.</string>
+    <string name="tpms_pair_replace_title">Vaihda anturi</string>
+    <string name="tpms_none_yet">Ei vielä rengasanturia. Lisää etsimällä.</string>
+    <string name="tpms_wheel_sensor_replaced">Korvattu paritetulla anturilla</string>
+    <string name="tpms_paired_sensor">Rengasanturi</string>
     <string name="external_gps_device_title">Ulkoinen GPS</string>
     <string name="external_gps_pair_button">Aloita haku</string>
     <string name="external_gps_pair_action">Pariliitä</string>

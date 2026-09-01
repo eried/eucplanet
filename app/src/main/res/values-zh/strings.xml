@@ -191,6 +191,11 @@
     <string name="units_custom">自定义</string>
     <string name="units_temperature">温度</string>
     <string name="units_speed">速度</string>
+    <string name="tpms_forget">移除</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">胎压</string>
     <string name="units_distance">距离</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -720,6 +725,12 @@
     <string name="tpms_pair_title">配对其他传感器</string>
     <string name="tpms_pair_replaces">额外的传感器会取代车轮内置的传感器（如有）。</string>
     <string name="tpms_scan">扫描传感器</string>
+    <string name="tpms_scan_stop">停止扫描</string>
+    <string name="tpms_scan_listening">正在监听传感器。若没有出现，稍微转动轮子，有些只在移动时上报。</string>
+    <string name="tpms_pair_replace_title">更换传感器</string>
+    <string name="tpms_none_yet">尚未有胎压传感器。扫描以添加。</string>
+    <string name="tpms_wheel_sensor_replaced">已由配对的传感器取代</string>
+    <string name="tpms_paired_sensor">胎压传感器</string>
     <string name="external_gps_device_title">外置 GPS</string>
     <string name="section_speed_calibration">速度校准</string>
     <string name="section_battery_percent">电池校准</string>

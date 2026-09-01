@@ -538,6 +538,11 @@
     <string name="units_custom">Niestandardowe</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Prędkość</string>
+    <string name="tpms_forget">Zapomnij</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Ciśnienie</string>
     <string name="units_distance">Dystans</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -750,6 +755,12 @@
     <string name="tpms_pair_title">Sparuj inny czujnik</string>
     <string name="tpms_pair_replaces">Dodatkowy czujnik zastępuje wbudowany w kole, jeśli taki jest.</string>
     <string name="tpms_scan">Szukaj czujników</string>
+    <string name="tpms_scan_stop">Zatrzymaj skanowanie</string>
+    <string name="tpms_scan_listening">Nasłuchiwanie czujników. Potocz trochę kołem, jeśli nic się nie pojawia, niektóre nadają tylko w ruchu.</string>
+    <string name="tpms_pair_replace_title">Wymień czujnik</string>
+    <string name="tpms_none_yet">Brak czujnika opony. Wyszukaj, aby dodać.</string>
+    <string name="tpms_wheel_sensor_replaced">Zastąpiony sparowanym czujnikiem</string>
+    <string name="tpms_paired_sensor">Czujnik opony</string>
     <string name="external_gps_device_title">Zewnętrzny GPS</string>
     <string name="external_gps_pair_button">Rozpocznij skanowanie</string>
     <string name="external_gps_pair_action">Sparuj</string>

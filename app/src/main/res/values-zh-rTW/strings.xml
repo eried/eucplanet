@@ -538,6 +538,11 @@
     <string name="units_custom">自訂</string>
     <string name="units_temperature">溫度</string>
     <string name="units_speed">速度</string>
+    <string name="tpms_forget">移除</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">胎壓</string>
     <string name="units_distance">距離</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -746,6 +751,12 @@
     <string name="tpms_pair_title">配對其他感測器</string>
     <string name="tpms_pair_replaces">額外的感測器會取代車輪內建的感測器（如有）。</string>
     <string name="tpms_scan">掃描感測器</string>
+    <string name="tpms_scan_stop">停止掃描</string>
+    <string name="tpms_scan_listening">正在聆聽感測器。若沒有出現，稍微轉動輪子，有些只在移動時回報。</string>
+    <string name="tpms_pair_replace_title">更換感測器</string>
+    <string name="tpms_none_yet">尚未有胎壓感測器。掃描以新增。</string>
+    <string name="tpms_wheel_sensor_replaced">已由配對的感測器取代</string>
+    <string name="tpms_paired_sensor">胎壓感測器</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">開始掃描</string>
     <string name="external_gps_pair_action">配對</string>

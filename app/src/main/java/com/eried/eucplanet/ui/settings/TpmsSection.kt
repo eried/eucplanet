@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -40,36 +41,90 @@ import com.eried.eucplanet.util.Units
  */
 @Composable
 fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
-    val kpa by viewModel.tirePressureKpa.collectAsState()
+    val wheelKpa by viewModel.tirePressureKpa.collectAsState()
     val unit by viewModel.pressureUnit.collectAsState()
-    val hasData = kpa > 0f
+    val paired by viewModel.paired.collectAsState()
+    val pairedKpa by viewModel.pairedKpa.collectAsState()
+    val scanning by viewModel.scanning.collectAsState()
+    val seen by viewModel.seen.collectAsState()
+
+    val wheelHasSensor = wheelKpa > 0f
+    val hasPaired = paired != null
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         HintText(stringResource(R.string.tpms_caption), small = true)
 
-        TpmsSensorRow(
-            title = stringResource(R.string.tpms_wheel_sensor),
-            subtitle = stringResource(
-                if (hasData) R.string.tpms_wheel_sensor_desc else R.string.tpms_idle
-            ),
-            reading = if (hasData) formatPressure(kpa, unit) else null,
-        )
+        // Your sensors first, because they are the answer to the question the
+        // screen is asking. A paired sensor outranks the wheel's own, which is
+        // the rule the whole feature follows.
+        if (hasPaired) {
+            TpmsSensorRow(
+                title = stringResource(R.string.tpms_paired_sensor),
+                subtitle = paired.orEmpty(),
+                reading = pairedKpa?.let { formatPressure(it, unit) },
+                onRemove = { viewModel.forgetPaired() },
+            )
+        }
 
-        // Pair another sensor: an added sensor replaces the wheel's built-in
-        // one. Direct BLE pairing is stubbed, so the scan button is disabled.
+        // The wheel's own sensor, only when there is one. Saying "no sensor
+        // reporting yet" on a wheel that has never had one is an answer to a
+        // question nobody asked, and it sat above a paired sensor that WAS
+        // reporting, which read as a contradiction.
+        if (wheelHasSensor) {
+            TpmsSensorRow(
+                title = stringResource(R.string.tpms_wheel_sensor),
+                subtitle = stringResource(
+                    if (hasPaired) R.string.tpms_wheel_sensor_replaced
+                    else R.string.tpms_wheel_sensor_desc
+                ),
+                reading = formatPressure(wheelKpa, unit),
+            )
+        }
+
+        if (!hasPaired && !wheelHasSensor && !scanning) {
+            HintText(stringResource(R.string.tpms_none_yet), small = true)
+        }
+
         Spacer(Modifier.height(4.dp))
         Text(
-            stringResource(R.string.tpms_pair_title),
+            stringResource(
+                if (hasPaired) R.string.tpms_pair_replace_title else R.string.tpms_pair_title
+            ),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.appColors.textPrimary,
         )
         HintText(stringResource(R.string.tpms_pair_replaces), small = true)
         LeftAlignedScanButton(
-            label = stringResource(R.string.tpms_scan),
-            onClick = { },
-            enabled = false,
+            label = stringResource(
+                if (scanning) R.string.tpms_scan_stop else R.string.tpms_scan
+            ),
+            onClick = { viewModel.toggleScan() },
+            enabled = true,
+            // Red while scanning, like every other stop-scan in the app
+            // (external GPS, radar, Flic). A scan is a radio the rider has to
+            // remember to switch off, so the button that stops it is marked.
+            containerColor = if (scanning) MaterialTheme.appColors.statusDanger else null,
         )
+
+        // Only while scanning, and only ones that are not already yours. A
+        // sensor that decodes is adopted on sight, so anything still listed
+        // here is either a new model being worked out or not a sensor at all.
+        if (scanning) {
+            val others = seen.filter { it.looksLikeSensor && it.address != paired }
+            if (others.isEmpty()) {
+                HintText(stringResource(R.string.tpms_scan_listening), small = true)
+            }
+            others.take(4).forEach { adv ->
+                TpmsSensorRow(
+                    title = adv.name?.takeIf { it.isNotBlank() } ?: adv.address,
+                    subtitle = adv.manufacturer.entries.joinToString(" ") {
+                        "0x%04X %s".format(it.key, it.value)
+                    }.ifBlank { adv.service.values.joinToString(" ") },
+                    reading = adv.kpa?.let { formatPressure(it, unit) } ?: "${adv.rssi} dBm",
+                )
+            }
+        }
     }
 }
 
@@ -83,6 +138,7 @@ private fun TpmsSensorRow(
     title: String,
     subtitle: String,
     reading: String?,
+    onRemove: (() -> Unit)? = null,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -132,6 +188,21 @@ private fun TpmsSensorRow(
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.appColors.primary,
                     )
+                }
+                // Only the rider's own sensors can be removed; the wheel's is
+                // the wheel's, and a scan result is not yours to forget.
+                if (onRemove != null) {
+                    androidx.compose.material3.IconButton(
+                        onClick = onRemove,
+                        modifier = Modifier.size(28.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.tpms_forget),
+                            tint = MaterialTheme.appColors.statusDanger,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
                 }
             }
         }

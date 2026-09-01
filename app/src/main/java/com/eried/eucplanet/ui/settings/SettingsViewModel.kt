@@ -793,6 +793,7 @@ class SettingsViewModel @Inject constructor(
     // Measurement units: speed, distance and temperature are independently
     // selectable. Metric/Imperial/Custom is a derived label (see Units.unitSystemOf).
     fun setUnitSpeed(v: String) = update { copy(unitSpeed = v) }
+    fun setUnitPressure(v: String) = update { copy(tpms = tpms.copy(pressureUnit = v)) }
     fun setUnitDistance(v: String) = update { copy(unitDistance = v) }
     fun setUnitTemp(v: String) = update { copy(unitTemp = v) }
 

@@ -688,6 +688,11 @@
     <string name="units_custom">Personalizate</string>
     <string name="units_temperature">Temperatură</string>
     <string name="units_speed">Viteză</string>
+    <string name="tpms_forget">Uită</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Presiune</string>
     <string name="units_distance">Distanță</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -922,6 +927,12 @@
     <string name="tpms_pair_title">Asociază alt senzor</string>
     <string name="tpms_pair_replaces">Un senzor suplimentar înlocuiește senzorul integrat al monociclului, dacă există.</string>
     <string name="tpms_scan">Caută senzori</string>
+    <string name="tpms_scan_stop">Oprește scanarea</string>
+    <string name="tpms_scan_listening">Ascult senzorii. Rotește puțin roata dacă nu apare nimic, unii transmit doar în mișcare.</string>
+    <string name="tpms_pair_replace_title">Înlocuiește senzorul</string>
+    <string name="tpms_none_yet">Încă niciun senzor. Scanează pentru a adăuga unul.</string>
+    <string name="tpms_wheel_sensor_replaced">Înlocuit de senzorul tău asociat</string>
+    <string name="tpms_paired_sensor">Senzor anvelopă</string>
     <string name="external_gps_device_title">GPS extern</string>
     <string name="external_gps_pair_button">Începe scanarea</string>
     <string name="external_gps_pair_action">Asociază</string>

@@ -538,6 +538,11 @@
     <string name="units_custom">Personalizado</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Velocidad</string>
+    <string name="tpms_forget">Olvidar</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Presión</string>
     <string name="units_distance">Distancia</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -750,6 +755,12 @@
     <string name="tpms_pair_title">Vincular otro sensor</string>
     <string name="tpms_pair_replaces">Un sensor extra reemplaza el integrado de la rueda, si lo hay.</string>
     <string name="tpms_scan">Buscar sensores</string>
+    <string name="tpms_scan_stop">Detener búsqueda</string>
+    <string name="tpms_scan_listening">Escuchando sensores. Movele un poco la rueda si no aparece nada, algunos solo reportan en movimiento.</string>
+    <string name="tpms_pair_replace_title">Reemplazar sensor</string>
+    <string name="tpms_none_yet">Todavía no hay sensor. Buscá uno para agregarlo.</string>
+    <string name="tpms_wheel_sensor_replaced">Reemplazado por tu sensor vinculado</string>
+    <string name="tpms_paired_sensor">Sensor de la rueda</string>
     <string name="external_gps_device_title">GPS externo</string>
     <string name="external_gps_pair_button">Iniciar búsqueda</string>
     <string name="external_gps_pair_action">Vincular</string>

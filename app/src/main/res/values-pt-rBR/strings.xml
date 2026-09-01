@@ -538,6 +538,11 @@
     <string name="units_custom">Personalizado</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Velocidade</string>
+    <string name="tpms_forget">Esquecer</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Pressão</string>
     <string name="units_distance">Distância</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -750,6 +755,12 @@
     <string name="tpms_pair_title">Parear outro sensor</string>
     <string name="tpms_pair_replaces">Um sensor extra substitui o embutido da roda, se houver.</string>
     <string name="tpms_scan">Procurar sensores</string>
+    <string name="tpms_scan_stop">Parar busca</string>
+    <string name="tpms_scan_listening">Ouvindo sensores. Gire um pouco a roda se nada aparecer, alguns só transmitem em movimento.</string>
+    <string name="tpms_pair_replace_title">Substituir sensor</string>
+    <string name="tpms_none_yet">Ainda sem sensor. Busque um para adicionar.</string>
+    <string name="tpms_wheel_sensor_replaced">Substituído pelo seu sensor pareado</string>
+    <string name="tpms_paired_sensor">Sensor do pneu</string>
     <string name="external_gps_device_title">GPS externo</string>
     <string name="external_gps_pair_button">Iniciar busca</string>
     <string name="external_gps_pair_action">Parear</string>

@@ -538,6 +538,11 @@
     <string name="units_custom">Benutzerdefiniert</string>
     <string name="units_temperature">Temperatur</string>
     <string name="units_speed">Geschwindigkeit</string>
+    <string name="tpms_forget">Entfernen</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Reifendruck</string>
     <string name="units_distance">Distanz</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -746,6 +751,12 @@
     <string name="tpms_pair_title">Weiteren Sensor koppeln</string>
     <string name="tpms_pair_replaces">Ein zusätzlicher Sensor ersetzt den eingebauten des Wheels, falls vorhanden.</string>
     <string name="tpms_scan">Nach Sensoren suchen</string>
+    <string name="tpms_scan_stop">Suche stoppen</string>
+    <string name="tpms_scan_listening">Suche nach Sensoren. Roll das Wheel etwas, wenn nichts erscheint, manche senden nur in Bewegung.</string>
+    <string name="tpms_pair_replace_title">Sensor ersetzen</string>
+    <string name="tpms_none_yet">Noch kein Reifensensor. Suche einen zum Hinzufügen.</string>
+    <string name="tpms_wheel_sensor_replaced">Durch deinen gekoppelten Sensor ersetzt</string>
+    <string name="tpms_paired_sensor">Reifensensor</string>
     <string name="external_gps_device_title">Externes GPS</string>
     <string name="external_gps_pair_button">Scan starten</string>
     <string name="external_gps_pair_action">Koppeln</string>

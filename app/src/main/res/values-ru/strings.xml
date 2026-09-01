@@ -538,6 +538,11 @@
     <string name="units_custom">Свои</string>
     <string name="units_temperature">Температура</string>
     <string name="units_speed">Скорость</string>
+    <string name="tpms_forget">Забыть</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Давление</string>
     <string name="units_distance">Расстояние</string>
     <string name="units_speed_kmh">км/ч</string>
     <string name="units_speed_mph">mph</string>
@@ -750,6 +755,12 @@
     <string name="tpms_pair_title">Привязать другой датчик</string>
     <string name="tpms_pair_replaces">Дополнительный датчик заменяет встроенный в моноколесо, если он есть.</string>
     <string name="tpms_scan">Искать датчики</string>
+    <string name="tpms_scan_stop">Остановить поиск</string>
+    <string name="tpms_scan_listening">Слушаем датчики. Прокатите колесо, если ничего нет: некоторые передают только в движении.</string>
+    <string name="tpms_pair_replace_title">Заменить датчик</string>
+    <string name="tpms_none_yet">Датчика пока нет. Найдите и добавьте.</string>
+    <string name="tpms_wheel_sensor_replaced">Заменён вашим подключённым датчиком</string>
+    <string name="tpms_paired_sensor">Датчик шины</string>
     <string name="external_gps_device_title">Внешний GPS</string>
     <string name="external_gps_pair_button">Начать поиск</string>
     <string name="external_gps_pair_action">Подключить</string>

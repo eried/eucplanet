@@ -688,6 +688,11 @@
     <string name="units_custom">Egyéni</string>
     <string name="units_temperature">Hőmérséklet</string>
     <string name="units_speed">Sebesség</string>
+    <string name="tpms_forget">Elfelejtés</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Guminyomás</string>
     <string name="units_distance">Távolság</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -922,6 +927,12 @@
     <string name="tpms_pair_title">Másik érzékelő párosítása</string>
     <string name="tpms_pair_replaces">A további érzékelő felváltja az egykerekű beépített érzékelőjét, ha van ilyen.</string>
     <string name="tpms_scan">Érzékelők keresése</string>
+    <string name="tpms_scan_stop">Keresés leállítása</string>
+    <string name="tpms_scan_listening">Szenzorok keresése. Gurítsd meg kicsit a kereket, ha semmi nem jelenik meg, néhány csak mozgásban jelez.</string>
+    <string name="tpms_pair_replace_title">Szenzor cseréje</string>
+    <string name="tpms_none_yet">Még nincs gumiszenzor. Keress egyet a hozzáadáshoz.</string>
+    <string name="tpms_wheel_sensor_replaced">A párosított szenzorod váltja ki</string>
+    <string name="tpms_paired_sensor">Gumiszenzor</string>
     <string name="external_gps_device_title">Külső GPS</string>
     <string name="external_gps_pair_button">Keresés indítása</string>
     <string name="external_gps_pair_action">Párosítás</string>

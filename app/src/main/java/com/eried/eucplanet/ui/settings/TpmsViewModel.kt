@@ -23,7 +23,34 @@ import javax.inject.Inject
 class TpmsViewModel @Inject constructor(
     wheelRepository: WheelRepository,
     settingsRepository: SettingsRepository,
+    private val scanner: com.eried.eucplanet.tpms.TpmsScanner,
+    private val tpms: com.eried.eucplanet.tpms.TpmsRepository,
 ) : ViewModel() {
+
+    /** The rider's own sensor, or null when they have none. */
+    val paired: StateFlow<String?> = tpms.pairedAddress
+
+    /** Its live reading in kPa, null once it has gone quiet. */
+    val pairedKpa: StateFlow<Float?> = tpms.current
+        .map { it?.takeIf { r -> r.source == com.eried.eucplanet.tpms.TpmsSource.PAIRED }?.kpa }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    fun forgetPaired() = tpms.forgetPaired()
+
+    /** Advertisements heard while scanning, newest first. */
+    val seen: StateFlow<List<com.eried.eucplanet.tpms.TpmsScanner.Seen>> = scanner.seen
+
+    val scanning: StateFlow<Boolean> = scanner.scanning
+
+    fun toggleScan() {
+        if (scanner.scanning.value) scanner.stop() else scanner.start()
+    }
+
+    override fun onCleared() {
+        // A scan left running is a battery drain the rider cannot see.
+        scanner.stop()
+        super.onCleared()
+    }
 
     /** Live wheel-relayed tire pressure in kPa; 0 when no sensor is reporting. */
     val tirePressureKpa: StateFlow<Float> = wheelRepository.wheelData

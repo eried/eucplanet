@@ -538,6 +538,11 @@
     <string name="units_custom">Aangepast</string>
     <string name="units_temperature">Temperatuur</string>
     <string name="units_speed">Snelheid</string>
+    <string name="tpms_forget">Vergeten</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Bandenspanning</string>
     <string name="units_distance">Afstand</string>
     <string name="units_speed_kmh">km/u</string>
     <string name="units_speed_mph">mph</string>
@@ -750,6 +755,12 @@
     <string name="tpms_pair_title">Andere sensor koppelen</string>
     <string name="tpms_pair_replaces">Een extra sensor vervangt de ingebouwde van het wiel, indien aanwezig.</string>
     <string name="tpms_scan">Zoek naar sensoren</string>
+    <string name="tpms_scan_stop">Scannen stoppen</string>
+    <string name="tpms_scan_listening">Luisteren naar sensoren. Rol het wiel een stukje als er niets verschijnt, sommige zenden alleen in beweging.</string>
+    <string name="tpms_pair_replace_title">Sensor vervangen</string>
+    <string name="tpms_none_yet">Nog geen bandensensor. Scan om er een toe te voegen.</string>
+    <string name="tpms_wheel_sensor_replaced">Vervangen door je gekoppelde sensor</string>
+    <string name="tpms_paired_sensor">Bandensensor</string>
     <string name="external_gps_device_title">Externe GPS</string>
     <string name="external_gps_pair_button">Scannen starten</string>
     <string name="external_gps_pair_action">Koppelen</string>

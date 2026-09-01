@@ -87,7 +87,7 @@ class TpmsPolicyTest {
     @Test fun `forgetting a paired sensor hands the wheel's back`() {
         val repo = TpmsRepository()
         repo.submitWheel(200f, t0)
-        repo.submitPaired(240f, t0)
+        repo.submitPaired(240f, nowMs = t0)
         assertEquals(TpmsSource.PAIRED, repo.current.value?.source)
         repo.forgetPaired(t0)
         assertEquals(TpmsSource.WHEEL, repo.current.value?.source)

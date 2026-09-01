@@ -538,6 +538,11 @@
     <string name="units_custom">Personnalisé</string>
     <string name="units_temperature">Température</string>
     <string name="units_speed">Vitesse</string>
+    <string name="tpms_forget">Oublier</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Pression</string>
     <string name="units_distance">Distance</string>
     <string name="units_speed_kmh">km/h</string>
     <string name="units_speed_mph">mph</string>
@@ -750,6 +755,12 @@
     <string name="tpms_pair_title">Associer un autre capteur</string>
     <string name="tpms_pair_replaces">Un capteur supplémentaire remplace celui intégré à la roue, s\'il y en a un.</string>
     <string name="tpms_scan">Rechercher des capteurs</string>
+    <string name="tpms_scan_stop">Arrêter la recherche</string>
+    <string name="tpms_scan_listening">Ecoute des capteurs. Fais rouler un peu la roue si rien napparait, certains nemettent quen mouvement.</string>
+    <string name="tpms_pair_replace_title">Remplacer le capteur</string>
+    <string name="tpms_none_yet">Pas encore de capteur. Lance une recherche pour en ajouter un.</string>
+    <string name="tpms_wheel_sensor_replaced">Remplacé par ton capteur associé</string>
+    <string name="tpms_paired_sensor">Capteur de pneu</string>
     <string name="external_gps_device_title">GPS externe</string>
     <string name="external_gps_pair_button">Lancer le scan</string>
     <string name="external_gps_pair_action">Appairer</string>

@@ -130,6 +130,7 @@ data class AppSettings(
     /** Weather / ridability module (dashboard icon + forecast flyout). Nested
      *  so the whole feature costs one constructor slot; see rule 8. */
     val weather: WeatherSettings = WeatherSettings(),
+    val tpms: TpmsSettings = TpmsSettings(),
     val batteryPercent: BatteryPercentSettings = BatteryPercentSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
@@ -1319,6 +1320,26 @@ data class ProximityLockSettings(
  * rider's, stored metric (°C and tenths of m/s so the shared NumberUpDown
  * stepper can drive them as Ints); display follows the unit settings.
  */
+/**
+ * The rider's tire-pressure sensor and how pressure is shown.
+ *
+ * [pairedAddress] is a sensor the rider adopted by scanning. One at a time: a
+ * wheel has one tyre, and two paired sensors would leave "the tire pressure"
+ * meaning whichever spoke last. Pairing another replaces it, which is also
+ * what the section has always said about replacing the wheel's own.
+ */
+data class TpmsSettings(
+    val pairedAddress: String? = null,
+    /**
+     * "psi", "bar" or "kPa".
+     *
+     * Its own setting rather than derived from the distance unit. A rider on
+     * kilometres routinely runs psi in a tyre, because that is how tyres are
+     * talked about, and deriving it got that case wrong every time.
+     */
+    val pressureUnit: String = "psi",
+)
+
 data class WeatherSettings(
     val enabled: Boolean = true,
     /** How many hours ahead the panel shows, 2..168. Free-form rather than
