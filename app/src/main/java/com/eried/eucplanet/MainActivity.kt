@@ -798,6 +798,17 @@ class MainActivity : AppCompatActivity() {
                                                 navController.navigate(Screen.Recording.route) { launchSingleTop = true }
                                                 ServiceOverlayState.dismiss()
                                             }
+                                            override fun openWeather() {
+                                                com.eried.eucplanet.ui.dashboard.DashboardDialogBus.open("weather")
+                                                navController.navigate(Screen.Dashboard.route) { launchSingleTop = true }
+                                                ServiceOverlayState.dismiss()
+                                            }
+                                            override fun openCharging() {
+                                                navController.navigate(
+                                                    com.eried.eucplanet.ui.navigation.Screen.ChargingMonitor.createRoute()
+                                                ) { launchSingleTop = true }
+                                                ServiceOverlayState.dismiss()
+                                            }
                                             override fun toggleUnits() {
                                                 overlayScope.launch {
                                                     settingsRepository.update(settingsRepository.get().withUnitsToggled())

@@ -297,6 +297,8 @@
     <string name="action_chip_open_about">Névjegy</string>
     <string name="action_chip_open_service">Szervizmód</string>
     <string name="action_chip_open_trips">Menetek</string>
+    <string name="action_chip_open_charging">Akkufigyelő</string>
+    <string name="action_chip_open_weather">Időjárás</string>
     <string name="action_chip_mute_alarms">Riasztások némítása</string>
     <string name="action_chip_toggle_units">Mértékegység váltása</string>
     <string name="section_watch_device">Eszközök</string>
@@ -1003,6 +1005,12 @@
     <string name="alarm_metric_battery">Akkumulátor</string>
     <string name="alarm_metric_temperature">Hőmérséklet</string>
     <string name="alarm_metric_tire_pressure">Guminyomás</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth jel</string>
+    <string name="alarm_metric_lateral_g">Oldalirányú G</string>
+    <string name="alarm_metric_g_force">G-erő</string>
+    <string name="alarm_metric_battery_temp">Akku hőm.</string>
+    <string name="alarm_metric_controller_temp">Vezérlő hőm.</string>
+    <string name="alarm_metric_motor_temp">Motor hőm.</string>
     <string name="alarm_metric_pwm">Terhelés (PWM)</string>
     <string name="alarm_metric_voltage">Feszültség</string>
     <string name="alarm_metric_current">Áram</string>

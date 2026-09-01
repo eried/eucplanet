@@ -132,6 +132,28 @@ enum class AlarmMetric(
     TORQUE(R.string.alarm_metric_torque, "Nm"),
     PHASE_CURRENT(R.string.alarm_metric_phase_current, "A", R.string.alarm_metric_phase_current_voice),
     /**
+     * The three temperature sensors on their own, where [TEMPERATURE] is only
+     * the hottest of them. A rider who wants "tell me when the BATTERY is
+     * warm" could not say it: the pack could sit at 50 while the controller
+     * ran hotter and swallowed the alarm.
+     */
+    MOTOR_TEMP(R.string.alarm_metric_motor_temp, "\u00b0C"),
+    CONTROLLER_TEMP(R.string.alarm_metric_controller_temp, "\u00b0C"),
+    BATTERY_TEMP(R.string.alarm_metric_battery_temp, "\u00b0C"),
+    /**
+     * Total and lateral acceleration. Worth an alarm for the rider who wants
+     * to know they are cornering harder than they meant to, and as a crude
+     * impact signal.
+     */
+    G_FORCE(R.string.alarm_metric_g_force, "g"),
+    LATERAL_G(R.string.alarm_metric_lateral_g, "g"),
+    /**
+     * BLE link strength, in dBm and therefore negative: -50 is a good link,
+     * -95 is one about to drop. Watched from below so the rule reads the way
+     * the numbers do.
+     */
+    BT_RSSI(R.string.alarm_metric_bt_rssi, "dBm", defaultComparator = AlarmComparator.LESS_THAN),
+    /**
      * TPMS tire pressure, held in kPa like [WheelData.tirePressureKpa] and
      * shown in the rider's psi or bar. Watched from below: a tyre losing air
      * is the thing worth being told about, and it is the failure a rider

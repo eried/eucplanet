@@ -334,6 +334,8 @@
     <string name="action_chip_open_about">Om</string>
     <string name="action_chip_open_service">Serviceläge</string>
     <string name="action_chip_open_trips">Turer</string>
+    <string name="action_chip_open_charging">Batteriövervakning</string>
+    <string name="action_chip_open_weather">Väder</string>
     <string name="action_chip_mute_alarms">Tysta larm</string>
     <string name="action_chip_toggle_units">Byt enheter</string>
 
@@ -832,6 +834,12 @@
     <string name="alarm_metric_battery">Batteri</string>
     <string name="alarm_metric_temperature">Temperatur</string>
     <string name="alarm_metric_tire_pressure">Däcktryck</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth-signal</string>
+    <string name="alarm_metric_lateral_g">Sido-G</string>
+    <string name="alarm_metric_g_force">G-kraft</string>
+    <string name="alarm_metric_battery_temp">Batteritemp.</string>
+    <string name="alarm_metric_controller_temp">Styrenhetstemp.</string>
+    <string name="alarm_metric_motor_temp">Motortemp.</string>
     <string name="alarm_metric_pwm">Belastning (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spänning</string>

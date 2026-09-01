@@ -401,6 +401,12 @@
     <string name="alarm_metric_battery">Batteria</string>
     <string name="alarm_metric_temperature">Temperatura</string>
     <string name="alarm_metric_tire_pressure">Pressione gomma</string>
+    <string name="alarm_metric_bt_rssi">Segnale Bluetooth</string>
+    <string name="alarm_metric_lateral_g">G laterale</string>
+    <string name="alarm_metric_g_force">Forza G</string>
+    <string name="alarm_metric_battery_temp">Temp. batteria</string>
+    <string name="alarm_metric_controller_temp">Temp. centralina</string>
+    <string name="alarm_metric_motor_temp">Temp. motore</string>
     <string name="alarm_metric_pwm">Carico (PWM)</string>
     <string name="alarm_metric_voltage">Tensione</string>
     <string name="alarm_metric_current">Corrente</string>
@@ -1327,6 +1333,8 @@
     <string name="action_chip_open_service">Modalità servizio</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_trips">Tragitti</string>
+    <string name="action_chip_open_charging">Monitor batteria</string>
+    <string name="action_chip_open_weather">Meteo</string>
     <string name="action_chip_record">Registratore</string>
     <string name="action_chip_record_start">Avvia reg.</string>
     <string name="action_chip_record_stop">Ferma reg.</string>

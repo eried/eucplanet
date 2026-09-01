@@ -147,14 +147,25 @@ private fun leadSeconds(ms: Int): String =
     String.format(java.util.Locale.US, "%.1f", ms / 1000f).removeSuffix(".0")
 
 /**
- * Bar is edited in tenths.
+ * Metrics whose useful range is too short for whole numbers are edited in
+ * tenths.
  *
- * The stepper is an Int, and a tyre runs somewhere around 1 to 4 bar, so whole
- * bar would offer a rider four settings across the entire useful range. psi is
- * 15 to 60 and needs no help. So the displayed number for bar is ten times the
- * reading, and [NumberUpDown]'s format/parse put the point back.
+ * The stepper holds an Int. A tyre runs about 1 to 4 bar and g-force about 0
+ * to 3, so whole units would offer a rider four settings across the entire
+ * range they care about. For those the displayed number is ten times the
+ * reading and [NumberUpDown]'s format/parse put the point back. psi is 15 to
+ * 60 and needs no help, which is why pressure's scale depends on the unit and
+ * g-force's does not.
  */
-private fun pressureDisplayScale(unit: String): Float = if (unit == "bar") 10f else 1f
+private fun displayScale(metric: AlarmMetric, pressureUnit: String): Float = when (metric) {
+    AlarmMetric.TIRE_PRESSURE -> if (pressureUnit == "bar") 10f else 1f
+    AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G -> 10f
+    else -> 1f
+}
+
+/** True for the metrics edited in tenths, so the field shows a decimal. */
+private fun isTenths(metric: AlarmMetric, pressureUnit: String): Boolean =
+    displayScale(metric, pressureUnit) != 1f
 
 private fun displayThreshold(
     metric: AlarmMetric,
@@ -165,9 +176,15 @@ private fun displayThreshold(
 ): Float =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speed(valueInternal, speedUnit)
-        AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, tempUnit)
+        // The three sensors convert exactly like the metric they were hiding in.
+        AlarmMetric.TEMPERATURE,
+        AlarmMetric.MOTOR_TEMP,
+        AlarmMetric.CONTROLLER_TEMP,
+        AlarmMetric.BATTERY_TEMP -> Units.temperature(valueInternal, tempUnit)
         AlarmMetric.TIRE_PRESSURE ->
-            Units.pressure(valueInternal, pressureUnit) * pressureDisplayScale(pressureUnit)
+            Units.pressure(valueInternal, pressureUnit) * displayScale(metric, pressureUnit)
+        AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G ->
+            valueInternal * displayScale(metric, pressureUnit)
         else -> valueInternal
     }
 
@@ -180,9 +197,14 @@ private fun internalThreshold(
 ): Float =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
-        AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
+        AlarmMetric.TEMPERATURE,
+        AlarmMetric.MOTOR_TEMP,
+        AlarmMetric.CONTROLLER_TEMP,
+        AlarmMetric.BATTERY_TEMP -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
         AlarmMetric.TIRE_PRESSURE ->
-            Units.pressureToKpa(valueDisplayed / pressureDisplayScale(pressureUnit), pressureUnit)
+            Units.pressureToKpa(valueDisplayed / displayScale(metric, pressureUnit), pressureUnit)
+        AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G ->
+            valueDisplayed / displayScale(metric, pressureUnit)
         else -> valueDisplayed
     }
 
@@ -196,7 +218,10 @@ private fun displayUnit(
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED ->
             Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
-        AlarmMetric.TEMPERATURE -> Units.tempUnit(tempUnit)
+        AlarmMetric.TEMPERATURE,
+        AlarmMetric.MOTOR_TEMP,
+        AlarmMetric.CONTROLLER_TEMP,
+        AlarmMetric.BATTERY_TEMP -> Units.tempUnit(tempUnit)
         AlarmMetric.TIRE_PRESSURE -> Units.pressureUnit(pressureUnit)
         else -> metric.unit
     }
@@ -398,6 +423,13 @@ private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Colo
     // A soft tyre is a grip problem before it is anything else, which is the
     // same family of trouble the danger accent already marks.
     AlarmMetric.TIRE_PRESSURE -> MaterialTheme.appColors.statusDanger
+    // The three sensors join the temperature they were hiding inside.
+    AlarmMetric.MOTOR_TEMP,
+    AlarmMetric.CONTROLLER_TEMP,
+    AlarmMetric.BATTERY_TEMP -> MaterialTheme.appColors.statusDanger
+    // Acceleration is a "how are you riding" reading, like position.
+    AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.BT_RSSI -> MaterialTheme.appColors.metricVoltage
 }
 
 @Composable
@@ -775,17 +807,20 @@ private fun AlarmRuleEditorDialog(
                             threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit, pressureUnit)
                                 .coerceIn(thresholdRangeInternal)
                         },
-                        // Tenths for bar, whole numbers for everything else.
+                        // Tenths where the range is too short for whole
+                        // numbers (bar, g-force); plain integers elsewhere.
                         format = { v ->
-                            if (selectedMetric == AlarmMetric.TIRE_PRESSURE && pressureUnit == "bar")
+                            if (isTenths(selectedMetric, pressureUnit))
                                 String.format(java.util.Locale.US, "%.1f", v / 10f)
                             else v.toString()
                         },
                         parse = { text ->
-                            if (selectedMetric == AlarmMetric.TIRE_PRESSURE && pressureUnit == "bar")
+                            if (isTenths(selectedMetric, pressureUnit))
                                 text.replace(',', '.').toFloatOrNull()?.let { (it * 10f).roundToInt() }
                             else text.toIntOrNull()
                         },
+                        // dBm is negative, so the field has to accept a minus.
+                        allowSign = displayedRange.start < 0f,
                         range = displayedRange.start.roundToInt()..displayedRange.endInclusive.roundToInt(),
                         suffix = displayedUnit,
                         label = stringResource(R.string.alarm_threshold_label),

@@ -334,6 +334,8 @@
     <string name="action_chip_open_about">關於</string>
     <string name="action_chip_open_service">服務模式</string>
     <string name="action_chip_open_trips">行程</string>
+    <string name="action_chip_open_charging">電池監控</string>
+    <string name="action_chip_open_weather">天氣</string>
     <string name="action_chip_mute_alarms">靜音警報</string>
     <string name="action_chip_toggle_units">切換單位</string>
 
@@ -833,6 +835,12 @@
     <string name="alarm_metric_battery">電池</string>
     <string name="alarm_metric_temperature">溫度</string>
     <string name="alarm_metric_tire_pressure">胎壓</string>
+    <string name="alarm_metric_bt_rssi">藍牙訊號</string>
+    <string name="alarm_metric_lateral_g">橫向 G</string>
+    <string name="alarm_metric_g_force">G 力</string>
+    <string name="alarm_metric_battery_temp">電池溫度</string>
+    <string name="alarm_metric_controller_temp">控制器溫度</string>
+    <string name="alarm_metric_motor_temp">馬達溫度</string>
     <string name="alarm_metric_pwm">負載（PWM）</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電壓</string>

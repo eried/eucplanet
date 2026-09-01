@@ -334,6 +334,8 @@
     <string name="action_chip_open_about">Hakkında</string>
     <string name="action_chip_open_service">Servis modu</string>
     <string name="action_chip_open_trips">Seferler</string>
+    <string name="action_chip_open_charging">Batarya izleme</string>
+    <string name="action_chip_open_weather">Hava</string>
     <string name="action_chip_mute_alarms">Alarmları sustur</string>
     <string name="action_chip_toggle_units">Birimleri değiştir</string>
 
@@ -833,6 +835,12 @@
     <string name="alarm_metric_battery">Akü</string>
     <string name="alarm_metric_temperature">Sıcaklık</string>
     <string name="alarm_metric_tire_pressure">Lastik basıncı</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth sinyali</string>
+    <string name="alarm_metric_lateral_g">Yanal G</string>
+    <string name="alarm_metric_g_force">G kuvveti</string>
+    <string name="alarm_metric_battery_temp">Batarya sıcaklığı</string>
+    <string name="alarm_metric_controller_temp">Kontrolcü sıcaklığı</string>
+    <string name="alarm_metric_motor_temp">Motor sıcaklığı</string>
     <string name="alarm_metric_pwm">Yük (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Gerilim</string>

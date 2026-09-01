@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.WbCloudy
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
 
@@ -271,6 +273,16 @@ object ActionCatalog {
             key = "OPEN_TRIPS",
             labelRes = R.string.action_chip_open_trips,
             icon = Icons.AutoMirrored.Filled.List
+        ),
+        ActionSpec(
+            key = "OPEN_WEATHER",
+            labelRes = R.string.action_chip_open_weather,
+            icon = Icons.Filled.WbCloudy
+        ),
+        ActionSpec(
+            key = "OPEN_CHARGING",
+            labelRes = R.string.action_chip_open_charging,
+            icon = Icons.Filled.BatteryChargingFull
         ),
         ActionSpec(
             key = "MUTE_ALARMS",

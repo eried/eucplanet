@@ -334,6 +334,8 @@
     <string name="action_chip_open_about">Acerca de</string>
     <string name="action_chip_open_service">Modo servicio</string>
     <string name="action_chip_open_trips">Viajes</string>
+    <string name="action_chip_open_charging">Monitor de batería</string>
+    <string name="action_chip_open_weather">Clima</string>
     <string name="action_chip_mute_alarms">Silenciar alarmas</string>
     <string name="action_chip_toggle_units">Cambiar unidades</string>
 
@@ -836,6 +838,12 @@
     <string name="alarm_metric_battery">Batería</string>
     <string name="alarm_metric_temperature">Temperatura</string>
     <string name="alarm_metric_tire_pressure">Presión de la rueda</string>
+    <string name="alarm_metric_bt_rssi">Señal Bluetooth</string>
+    <string name="alarm_metric_lateral_g">G lateral</string>
+    <string name="alarm_metric_g_force">Fuerza G</string>
+    <string name="alarm_metric_battery_temp">Temp. de la batería</string>
+    <string name="alarm_metric_controller_temp">Temp. del controlador</string>
+    <string name="alarm_metric_motor_temp">Temp. del motor</string>
     <string name="alarm_metric_pwm">Carga (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltaje</string>

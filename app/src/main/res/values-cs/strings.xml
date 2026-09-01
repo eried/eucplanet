@@ -297,6 +297,8 @@
     <string name="action_chip_open_about">O aplikaci</string>
     <string name="action_chip_open_service">Servisní režim</string>
     <string name="action_chip_open_trips">Jízdy</string>
+    <string name="action_chip_open_charging">Sledování baterie</string>
+    <string name="action_chip_open_weather">Počasí</string>
     <string name="action_chip_mute_alarms">Ztlumit alarmy</string>
     <string name="action_chip_toggle_units">Přepnout jednotky</string>
     <string name="section_watch_device">Zařízení</string>
@@ -1003,6 +1005,12 @@
     <string name="alarm_metric_battery">Baterie</string>
     <string name="alarm_metric_temperature">Teplota</string>
     <string name="alarm_metric_tire_pressure">Tlak v pneumatice</string>
+    <string name="alarm_metric_bt_rssi">Signál Bluetooth</string>
+    <string name="alarm_metric_lateral_g">Boční přetížení</string>
+    <string name="alarm_metric_g_force">Přetížení</string>
+    <string name="alarm_metric_battery_temp">Teplota baterie</string>
+    <string name="alarm_metric_controller_temp">Teplota řídicí jednotky</string>
+    <string name="alarm_metric_motor_temp">Teplota motoru</string>
     <string name="alarm_metric_pwm">Zatížení (PWM)</string>
     <string name="alarm_metric_voltage">Napětí</string>
     <string name="alarm_metric_current">Proud</string>

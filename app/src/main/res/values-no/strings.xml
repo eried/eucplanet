@@ -523,6 +523,12 @@
     <string name="alarm_metric_battery">Batteri</string>
     <string name="alarm_metric_temperature">Temperatur</string>
     <string name="alarm_metric_tire_pressure">Dekktrykk</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth-signal</string>
+    <string name="alarm_metric_lateral_g">Sideveis G</string>
+    <string name="alarm_metric_g_force">G-kraft</string>
+    <string name="alarm_metric_battery_temp">Batteritemp.</string>
+    <string name="alarm_metric_controller_temp">Kontrollertemp.</string>
+    <string name="alarm_metric_motor_temp">Motortemp.</string>
     <string name="alarm_metric_pwm">Last (PWM)</string>
     <string name="alarm_metric_voltage">Spenning</string>
     <string name="alarm_metric_current">Strøm</string>
@@ -1308,6 +1314,8 @@
     <string name="action_chip_open_service">Servicemodus</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_trips">Turer</string>
+    <string name="action_chip_open_charging">Batteriovervåking</string>
+    <string name="action_chip_open_weather">Vær</string>
     <string name="action_chip_record">Opptaker</string>
     <string name="action_chip_record_start">Start opptak</string>
     <string name="action_chip_record_stop">Stopp opptak</string>

@@ -297,6 +297,8 @@
     <string name="action_chip_open_about">Tietoja</string>
     <string name="action_chip_open_service">Huoltotila</string>
     <string name="action_chip_open_trips">Matkat</string>
+    <string name="action_chip_open_charging">Akkumonitori</string>
+    <string name="action_chip_open_weather">Sää</string>
     <string name="action_chip_mute_alarms">Vaimenna hälytykset</string>
     <string name="action_chip_toggle_units">Vaihda yksiköitä</string>
     <string name="section_watch_device">Laitteet</string>
@@ -1003,6 +1005,12 @@
     <string name="alarm_metric_battery">Akku</string>
     <string name="alarm_metric_temperature">Lämpötila</string>
     <string name="alarm_metric_tire_pressure">Rengaspaine</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth-signaali</string>
+    <string name="alarm_metric_lateral_g">Sivuttais-G</string>
+    <string name="alarm_metric_g_force">G-voima</string>
+    <string name="alarm_metric_battery_temp">Akun lämpö</string>
+    <string name="alarm_metric_controller_temp">Ohjaimen lämpö</string>
+    <string name="alarm_metric_motor_temp">Moottorin lämpö</string>
     <string name="alarm_metric_pwm">Kuormitus (PWM)</string>
     <string name="alarm_metric_voltage">Jännite</string>
     <string name="alarm_metric_current">Virta</string>

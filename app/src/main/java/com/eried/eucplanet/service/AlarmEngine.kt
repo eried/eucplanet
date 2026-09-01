@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.util.MetricSanity
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.RadarFrame
@@ -190,6 +191,20 @@ class AlarmEngine @Inject constructor(
                 // or every wheel without TPMS would sit permanently under any
                 // low-pressure threshold the rider set.
                 AlarmMetric.TIRE_PRESSURE -> data.tirePressureKpa.takeIf { it > 0f }
+                // The same plausibility filter the tiles and the history use,
+                // so an alarm never fires on a sensor a wheel does not have or
+                // on the placeholder a family sends when it has nothing. Null
+                // skips the rule.
+                AlarmMetric.MOTOR_TEMP -> data.temperatures.getOrNull(0)
+                    ?.takeIf { MetricSanity.isPlausibleTempC(it) }
+                AlarmMetric.CONTROLLER_TEMP -> data.temperatures.getOrNull(1)
+                    ?.takeIf { MetricSanity.isPlausibleTempC(it) }
+                AlarmMetric.BATTERY_TEMP -> data.temperatures.getOrNull(2)
+                    ?.takeIf { MetricSanity.isPlausibleTempC(it) }
+                AlarmMetric.G_FORCE -> data.gForce
+                AlarmMetric.LATERAL_G -> data.accelX.absoluteValue
+                // 0 dBm is "no read yet", not a perfect link.
+                AlarmMetric.BT_RSSI -> data.rssiDbm.takeIf { it != 0 }?.toFloat()
                 AlarmMetric.RANGE_ESTIMATE -> data.rangeKmEstimate.takeIf { !it.isNaN() }
                 // Radar + external-GPS metrics are evaluated via their own
                 // entry points ([evaluateRadar] off RadarRepository,

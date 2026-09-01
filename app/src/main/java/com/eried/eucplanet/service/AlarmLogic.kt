@@ -145,6 +145,8 @@ object AlarmLogic {
         AlarmMetric.TEMPERATURE.name -> -10f
         AlarmMetric.VOLTAGE.name -> 10f
         AlarmMetric.RADAR_DISTANCE.name -> 5f
+        // dBm is negative all the way down; -100 is past any usable link.
+        AlarmMetric.BT_RSSI.name -> -100f
         else -> 0f   // speed, battery, pwm, current, approach-speed
     }
 
@@ -162,6 +164,15 @@ object AlarmLogic {
         // 500 kPa is about 72 psi / 5 bar: past any EUC tyre, and low enough
         // that the editor's steps stay useful across the range riders use.
         AlarmMetric.TIRE_PRESSURE.name -> 500f
+        // Motors and controllers run hotter than the pack does, and
+        // TEMPERATURE's 90 would clip a motor alarm a rider legitimately
+        // wants at 110. The battery keeps 90: past that it is not a warning.
+        AlarmMetric.MOTOR_TEMP.name, AlarmMetric.CONTROLLER_TEMP.name -> 150f
+        AlarmMetric.BATTERY_TEMP.name -> 90f
+        // 3 g is a crash, not a corner. Edited in tenths.
+        AlarmMetric.G_FORCE.name, AlarmMetric.LATERAL_G.name -> 3f
+        // The top of the dBm scale; the useful settings live near the bottom.
+        AlarmMetric.BT_RSSI.name -> 0f
         else -> 100f
     }
 

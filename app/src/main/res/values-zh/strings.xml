@@ -322,6 +322,12 @@
     <string name="alarm_metric_battery">电量</string>
     <string name="alarm_metric_temperature">温度</string>
     <string name="alarm_metric_tire_pressure">胎压</string>
+    <string name="alarm_metric_bt_rssi">蓝牙信号</string>
+    <string name="alarm_metric_lateral_g">横向 G</string>
+    <string name="alarm_metric_g_force">G 力</string>
+    <string name="alarm_metric_battery_temp">电池温度</string>
+    <string name="alarm_metric_controller_temp">控制器温度</string>
+    <string name="alarm_metric_motor_temp">电机温度</string>
     <string name="alarm_metric_pwm">负载 (PWM)</string>
     <string name="alarm_metric_voltage">电压</string>
     <string name="alarm_metric_current">电流</string>
@@ -1291,6 +1297,8 @@
     <string name="action_chip_open_service">服务模式</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_trips">行程</string>
+    <string name="action_chip_open_charging">电池监控</string>
+    <string name="action_chip_open_weather">天气</string>
     <string name="action_chip_record">录制</string>
     <string name="action_chip_record_start">开始录制</string>
     <string name="action_chip_record_stop">停止录制</string>

@@ -297,6 +297,8 @@
     <string name="action_chip_open_about">Despre</string>
     <string name="action_chip_open_service">Mod service</string>
     <string name="action_chip_open_trips">Curse</string>
+    <string name="action_chip_open_charging">Monitor baterie</string>
+    <string name="action_chip_open_weather">Vremea</string>
     <string name="action_chip_mute_alarms">Oprește sunetul alarmelor</string>
     <string name="action_chip_toggle_units">Schimbă unitățile</string>
     <string name="section_watch_device">Dispozitive</string>
@@ -1003,6 +1005,12 @@
     <string name="alarm_metric_battery">Baterie</string>
     <string name="alarm_metric_temperature">Temperatură</string>
     <string name="alarm_metric_tire_pressure">Presiunea în anvelopă</string>
+    <string name="alarm_metric_bt_rssi">Semnal Bluetooth</string>
+    <string name="alarm_metric_lateral_g">G lateral</string>
+    <string name="alarm_metric_g_force">Forță G</string>
+    <string name="alarm_metric_battery_temp">Temp. baterie</string>
+    <string name="alarm_metric_controller_temp">Temp. controler</string>
+    <string name="alarm_metric_motor_temp">Temp. motor</string>
     <string name="alarm_metric_pwm">Sarcină (PWM)</string>
     <string name="alarm_metric_voltage">Tensiune</string>
     <string name="alarm_metric_current">Curent</string>

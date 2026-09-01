@@ -334,6 +334,8 @@
     <string name="action_chip_open_about">アプリについて</string>
     <string name="action_chip_open_service">サービスモード</string>
     <string name="action_chip_open_trips">トリップ</string>
+    <string name="action_chip_open_charging">バッテリー監視</string>
+    <string name="action_chip_open_weather">天気</string>
     <string name="action_chip_mute_alarms">アラームをミュート</string>
     <string name="action_chip_toggle_units">単位を切り替え</string>
 
@@ -833,6 +835,12 @@
     <string name="alarm_metric_battery">バッテリー</string>
     <string name="alarm_metric_temperature">温度</string>
     <string name="alarm_metric_tire_pressure">タイヤ空気圧</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth 信号</string>
+    <string name="alarm_metric_lateral_g">横 G</string>
+    <string name="alarm_metric_g_force">G フォース</string>
+    <string name="alarm_metric_battery_temp">バッテリー温度</string>
+    <string name="alarm_metric_controller_temp">コントローラー温度</string>
+    <string name="alarm_metric_motor_temp">モーター温度</string>
     <string name="alarm_metric_pwm">負荷（PWM）</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">電圧</string>

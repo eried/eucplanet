@@ -413,6 +413,8 @@ fun DashboardScreen(
     // tap opens.
     var showAboutDialog by remember { mutableStateOf(false) }
     var showDiagnosticsDialog by remember { mutableStateOf(false) }
+    var showWeatherMenu by remember { mutableStateOf(false) }
+    var showWeatherFlyout by remember { mutableStateOf(false) }
     // The service-mode overlay floats outside the dashboard, so it can't flip
     // the local dialog state above directly. Instead it posts a request to
     // DashboardDialogBus and navigates here; we honor it and clear the bus.
@@ -421,6 +423,14 @@ fun DashboardScreen(
         when (dialogRequest) {
             "about" -> { showAboutDialog = true; DashboardDialogBus.consume() }
             "service" -> { showDiagnosticsDialog = true; DashboardDialogBus.consume() }
+            // The panel is dashboard state rather than a dialog, but it
+            // arrives the same way: fired from a surface that had to navigate
+            // here first.
+            "weather" -> {
+                showWeatherFlyout = true
+                viewModel.refreshWeather()
+                DashboardDialogBus.consume()
+            }
         }
     }
     // Holds the CustomTile whose SHOW_QR action was just tapped on the
@@ -433,8 +443,6 @@ fun DashboardScreen(
     var showTextForTile by remember { mutableStateOf<com.eried.eucplanet.ui.settings.CustomTile?>(null) }
     var showDiagnosticsConfirm by remember { mutableStateOf(false) }
     var showMapMenu by remember { mutableStateOf(false) }
-    var showWeatherMenu by remember { mutableStateOf(false) }
-    var showWeatherFlyout by remember { mutableStateOf(false) }
     // Tapping a home screen weather widget lands here: open the panel and
     // refresh it, the same as tapping the dashboard's own weather icon.
     val weatherLaunchPending by WeatherPanelLaunch.pending.collectAsState()
@@ -2689,6 +2697,13 @@ fun DashboardScreen(
                                                 override fun openAbout() { showAboutDialog = true }
                                                 override fun openService() { showDiagnosticsDialog = true }
                                                 override fun openTrips() = onNavigateToRecording()
+                                                // Both are right here, so no
+                                                // bus hop like the overlay needs.
+                                                override fun openWeather() {
+                                                    showWeatherFlyout = true
+                                                    viewModel.refreshWeather()
+                                                }
+                                                override fun openCharging() = onNavigateToCharging()
                                                 override fun toggleUnits() {
                                                     viewModel.toggleUnits()
                                                     snackbarScope.launch {

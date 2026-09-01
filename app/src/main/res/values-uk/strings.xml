@@ -334,6 +334,8 @@
     <string name="action_chip_open_about">Про застосунок</string>
     <string name="action_chip_open_service">Сервісний режим</string>
     <string name="action_chip_open_trips">Поїздки</string>
+    <string name="action_chip_open_charging">Монітор батареї</string>
+    <string name="action_chip_open_weather">Погода</string>
     <string name="action_chip_mute_alarms">Вимкнути тривоги</string>
     <string name="action_chip_toggle_units">Змінити одиниці</string>
 
@@ -836,6 +838,12 @@
     <string name="alarm_metric_battery">Заряд</string>
     <string name="alarm_metric_temperature">Температура</string>
     <string name="alarm_metric_tire_pressure">Тиск у шині</string>
+    <string name="alarm_metric_bt_rssi">Сигнал Bluetooth</string>
+    <string name="alarm_metric_lateral_g">Бічне перевантаження</string>
+    <string name="alarm_metric_g_force">Перевантаження</string>
+    <string name="alarm_metric_battery_temp">Температура батареї</string>
+    <string name="alarm_metric_controller_temp">Температура контролера</string>
+    <string name="alarm_metric_motor_temp">Температура мотора</string>
     <string name="alarm_metric_pwm">Навантаження (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Напруга</string>
