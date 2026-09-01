@@ -1027,7 +1027,6 @@
     <string name="tpms_idle">No sensor reporting yet</string>
     <string name="tpms_scan">Scan for sensors</string>
     <string name="tpms_scan_stop">Stop scanning</string>
-    <string name="tpms_scan_listening">Listening for sensors. Roll the wheel a little if nothing appears, some only report when moving.</string>
     <string name="tpms_none_yet">No tire pressure sensor detected or manually added.</string>
     <string name="tpms_wheel_sensor_replaced">Replaced by your paired sensor</string>
     <string name="tpms_paired_sensor">Tire sensor</string>
@@ -2533,4 +2532,8 @@
     <string name="action_chip_reset_metrics">Reset metrics</string>
     <string name="action_reset_metrics_done">Metrics reset</string>
     <string name="action_reset_metrics_wheel_done">Metrics reset, wheel trip cleared</string>
+    <string name="tpms_scan_searching_fmt">Searching, %1$d s left</string>
+    <string name="tpms_scan_none_found">No sensors found. Hold the phone near the valve cap and scan again.</string>
+    <string name="tpms_scan_added">Sensor added.</string>
+    <string name="tpms_scan_failed">Could not start the scan. Check the Bluetooth permission.</string>
 </resources>

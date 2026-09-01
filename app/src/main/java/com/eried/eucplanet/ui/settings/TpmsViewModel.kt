@@ -42,6 +42,12 @@ class TpmsViewModel @Inject constructor(
 
     val scanning: StateFlow<Boolean> = scanner.scanning
 
+    /** Why the scan is not running, or what it just did. Empty when it has nothing to add. */
+    val scanStatus: StateFlow<String> = scanner.scanStatus
+
+    /** Seconds left in the current scan window. */
+    val secondsLeft: StateFlow<Int> = scanner.secondsLeft
+
     fun toggleScan() {
         if (scanner.scanning.value) scanner.stop() else scanner.start()
     }

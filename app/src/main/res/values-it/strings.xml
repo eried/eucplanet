@@ -761,7 +761,6 @@
     <string name="tpms_idle">Nessun sensore trasmette ancora</string>
     <string name="tpms_scan">Cerca sensori</string>
     <string name="tpms_scan_stop">Ferma la ricerca</string>
-    <string name="tpms_scan_listening">In ascolto dei sensori. Fai girare un po la ruota se non appare nulla, alcuni trasmettono solo in movimento.</string>
     <string name="tpms_none_yet">Nessun sensore di pressione rilevato o aggiunto manualmente.</string>
     <string name="tpms_wheel_sensor_replaced">Sostituito dal sensore associato</string>
     <string name="tpms_paired_sensor">Sensore gomma</string>
@@ -2417,4 +2416,8 @@
     <string name="action_chip_reset_metrics">Azzera le metriche</string>
     <string name="action_reset_metrics_done">Metriche azzerate</string>
     <string name="action_reset_metrics_wheel_done">Metriche azzerate, parziale del monoruota cancellato</string>
+    <string name="tpms_scan_searching_fmt">Ricerca, %1$d s rimanenti</string>
+    <string name="tpms_scan_none_found">Nessun sensore trovato. Avvicina il telefono al tappo della valvola e riprova.</string>
+    <string name="tpms_scan_added">Sensore aggiunto.</string>
+    <string name="tpms_scan_failed">Impossibile avviare la ricerca. Controlla il permesso Bluetooth.</string>
 </resources>

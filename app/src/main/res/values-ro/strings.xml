@@ -927,7 +927,6 @@
     <string name="tpms_idle">Niciun senzor nu raportează încă</string>
     <string name="tpms_scan">Caută senzori</string>
     <string name="tpms_scan_stop">Oprește scanarea</string>
-    <string name="tpms_scan_listening">Ascult senzorii. Rotește puțin roata dacă nu apare nimic, unii transmit doar în mișcare.</string>
     <string name="tpms_none_yet">Niciun senzor de presiune detectat sau adăugat manual.</string>
     <string name="tpms_wheel_sensor_replaced">Înlocuit de senzorul tău asociat</string>
     <string name="tpms_paired_sensor">Senzor anvelopă</string>
@@ -2315,4 +2314,8 @@
     <string name="action_chip_reset_metrics">Resetează valorile</string>
     <string name="action_reset_metrics_done">Valori resetate</string>
     <string name="action_reset_metrics_wheel_done">Valori resetate, contorul roții șters</string>
+    <string name="tpms_scan_searching_fmt">Se caută, au mai rămas %1$d s</string>
+    <string name="tpms_scan_none_found">Niciun senzor găsit. Apropie telefonul de capacul valvei și caută din nou.</string>
+    <string name="tpms_scan_added">Senzor adăugat.</string>
+    <string name="tpms_scan_failed">Căutarea nu a putut porni. Verifică permisiunea Bluetooth.</string>
 </resources>

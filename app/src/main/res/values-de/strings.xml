@@ -751,7 +751,6 @@
     <string name="tpms_idle">Noch sendet kein Sensor</string>
     <string name="tpms_scan">Nach Sensoren suchen</string>
     <string name="tpms_scan_stop">Suche stoppen</string>
-    <string name="tpms_scan_listening">Suche nach Sensoren. Roll das Wheel etwas, wenn nichts erscheint, manche senden nur in Bewegung.</string>
     <string name="tpms_none_yet">Kein Reifendrucksensor erkannt oder manuell hinzugefügt.</string>
     <string name="tpms_wheel_sensor_replaced">Durch deinen gekoppelten Sensor ersetzt</string>
     <string name="tpms_paired_sensor">Reifensensor</string>
@@ -2532,4 +2531,8 @@
     <string name="action_chip_reset_metrics">Werte zurücksetzen</string>
     <string name="action_reset_metrics_done">Werte zurückgesetzt</string>
     <string name="action_reset_metrics_wheel_done">Werte zurückgesetzt, Wheel-Tagesstrecke gelöscht</string>
+    <string name="tpms_scan_searching_fmt">Suche läuft, noch %1$d s</string>
+    <string name="tpms_scan_none_found">Keine Sensoren gefunden. Halte das Handy nah an die Ventilkappe und scanne erneut.</string>
+    <string name="tpms_scan_added">Sensor hinzugefügt.</string>
+    <string name="tpms_scan_failed">Scan konnte nicht gestartet werden. Prüfe die Bluetooth-Berechtigung.</string>
 </resources>

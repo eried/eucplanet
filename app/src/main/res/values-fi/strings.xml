@@ -927,7 +927,6 @@
     <string name="tpms_idle">Yksikään anturi ei vielä raportoi</string>
     <string name="tpms_scan">Hae antureita</string>
     <string name="tpms_scan_stop">Lopeta haku</string>
-    <string name="tpms_scan_listening">Kuunnellaan antureita. Pyöräytä hieman jos mitään ei näy, osa lähettää vain liikkeessä.</string>
     <string name="tpms_none_yet">Rengaspaineanturia ei havaittu eikä lisätty käsin.</string>
     <string name="tpms_wheel_sensor_replaced">Korvattu paritetulla anturilla</string>
     <string name="tpms_paired_sensor">Rengasanturi</string>
@@ -2315,4 +2314,8 @@
     <string name="action_chip_reset_metrics">Nollaa mittarit</string>
     <string name="action_reset_metrics_done">Mittarit nollattu</string>
     <string name="action_reset_metrics_wheel_done">Mittarit nollattu, pyörän matkamittari tyhjennetty</string>
+    <string name="tpms_scan_searching_fmt">Etsitään, %1$d s jäljellä</string>
+    <string name="tpms_scan_none_found">Antureita ei löytynyt. Pidä puhelinta lähellä venttiilin korkkia ja etsi uudelleen.</string>
+    <string name="tpms_scan_added">Anturi lisätty.</string>
+    <string name="tpms_scan_failed">Haun aloitus epäonnistui. Tarkista Bluetooth-käyttöoikeus.</string>
 </resources>

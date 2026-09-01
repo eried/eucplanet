@@ -60,7 +60,27 @@ object LyTpmsDecoder {
      * caps apart, and checking it is what stops another 0x00AC device being
      * read as a tyre.
      */
+    /**
+     * WRONG, AND DISABLED UNTIL IT IS NOT.
+     *
+     * bytes 4..5 were read as pressure on the strength of two captures at
+     * 530 and 538 kPa. Those are one and a half percent apart, which is inside
+     * this field's own noise, so they could not tell a pressure from anything
+     * else that wiggles. A rider then read their gauge across the real range
+     * and the field did not follow:
+     *
+     *   42.5 psi -> 0x0A84    24.5 psi -> 0x0A12    0 psi -> 0x0A62
+     *
+     * It barely moves, and it sits around 2600-2700, which reads much more
+     * like a coin cell in millivolts than a tyre.
+     *
+     * Returning null keeps the wrong number off the rider's screen and keeps
+     * the scanner listening, which is what a decode needs. The captures that
+     * will settle it are two far apart, not two the same.
+     */
     fun pressureKpa(companyId: Int, data: ByteArray, address: String?): Float? {
+        @Suppress("ConstantConditionIf")
+        if (true) return null
         if (companyId != COMPANY_ID) return null
         if (data.size != LENGTH) return null
         if (address != null && !tailMatches(data, address)) return null

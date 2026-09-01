@@ -742,7 +742,6 @@
     <string name="tpms_idle">Ingen sensor rapporterer ennå</string>
     <string name="tpms_scan">Søk etter sensorer</string>
     <string name="tpms_scan_stop">Stopp skanning</string>
-    <string name="tpms_scan_listening">Lytter etter sensorer. Rull hjulet litt hvis ingenting dukker opp, noen sender bare i bevegelse.</string>
     <string name="tpms_none_yet">Ingen dekktrykksensor funnet eller lagt til manuelt.</string>
     <string name="tpms_wheel_sensor_replaced">Erstattet av din parede sensor</string>
     <string name="tpms_paired_sensor">Dekksensor</string>
@@ -2400,4 +2399,8 @@
     <string name="action_chip_reset_metrics">Nullstill målinger</string>
     <string name="action_reset_metrics_done">Målingene er nullstilt</string>
     <string name="action_reset_metrics_wheel_done">Målingene er nullstilt, hjulets tripteller er tømt</string>
+    <string name="tpms_scan_searching_fmt">Søker, %1$d s igjen</string>
+    <string name="tpms_scan_none_found">Fant ingen sensorer. Hold telefonen nær ventilhetten og skann på nytt.</string>
+    <string name="tpms_scan_added">Sensor lagt til.</string>
+    <string name="tpms_scan_failed">Kunne ikke starte skanningen. Sjekk Bluetooth-tillatelsen.</string>
 </resources>

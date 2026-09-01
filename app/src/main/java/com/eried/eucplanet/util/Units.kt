@@ -122,6 +122,11 @@ object Units {
     fun pressureToKpa(value: Float, unit: String): Float = when (unit) {
         "psi" -> value / 0.145038f
         "bar" -> value * 100f
+        // Both were added to pressure() and forgotten here, so a threshold
+        // typed in kgf/cm2 or MPa was stored as though it had been kPa: a
+        // 2.5 kgf alarm became 2.5 kPa and never fired.
+        "kgf" -> value * 98.0665f
+        "mpa" -> value * 1000f
         else -> value
     }
 

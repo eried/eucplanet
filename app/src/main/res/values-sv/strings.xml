@@ -751,7 +751,6 @@
     <string name="tpms_idle">Ingen sensor rapporterar ännu</string>
     <string name="tpms_scan">Sök efter sensorer</string>
     <string name="tpms_scan_stop">Sluta skanna</string>
-    <string name="tpms_scan_listening">Lyssnar efter sensorer. Rulla hjulet lite om inget dyker upp, vissa sänder bara i rörelse.</string>
     <string name="tpms_none_yet">Ingen däcktryckssensor hittad eller tillagd manuellt.</string>
     <string name="tpms_wheel_sensor_replaced">Ersatt av din parade sensor</string>
     <string name="tpms_paired_sensor">Däcksensor</string>
@@ -2512,4 +2511,8 @@
     <string name="action_chip_reset_metrics">Nollställ mätvärden</string>
     <string name="action_reset_metrics_done">Mätvärden nollställda</string>
     <string name="action_reset_metrics_wheel_done">Mätvärden nollställda, hjulets trippmätare rensad</string>
+    <string name="tpms_scan_searching_fmt">Söker, %1$d s kvar</string>
+    <string name="tpms_scan_none_found">Inga sensorer hittades. Håll telefonen nära ventilhatten och sök igen.</string>
+    <string name="tpms_scan_added">Sensor tillagd.</string>
+    <string name="tpms_scan_failed">Kunde inte starta sökningen. Kontrollera Bluetooth-behörigheten.</string>
 </resources>

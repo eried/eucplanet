@@ -298,6 +298,27 @@ import sh.calvin.reorderable.ReorderableColumn
 private const val SEARCH_SETTLE_MS = 180L
 
 /**
+ * Below this many characters the search does not run at all.
+ *
+ * A one-letter query is the most expensive thing the screen can be asked and
+ * the least useful answer it can give. Searching force-expands every matching
+ * section and renders it in full, so "a" matches nearly everything and draws
+ * essentially the whole settings screen; the rider learns nothing from a list
+ * of everything. Waiting longer before doing that would still do it. Two
+ * characters is where a query starts to mean something.
+ */
+private const val SEARCH_MIN_CHARS = 2
+
+/**
+ * Longer settle for a query that is barely started.
+ *
+ * Two characters usually means a word in progress, so the extra pause is free:
+ * the rider is still typing. By three the query is worth answering quickly.
+ */
+private fun searchSettleFor(length: Int): Long =
+    if (length <= SEARCH_MIN_CHARS) 340L else SEARCH_SETTLE_MS
+
+/**
  * How a matching sub-heading tells the search where it is.
  *
  * Sections already report their own position for deep links, but a section is
@@ -917,6 +938,11 @@ fun SettingsScreen(
             // A matching heading beats the section it lives in: the section is
             // where the answer is filed, the heading is where the answer is.
             var headingTop by remember(query) { mutableStateOf<Float?>(null) }
+            // Which heading was picked, so its position can keep being
+            // updated. Recording only the first report froze the target at
+            // where it sat BEFORE the scroll, and scrolling by a stale offset
+            // is how "tpms" kept landing on Integration instead of on TPMS.
+            var headingTitle by remember(query) { mutableStateOf<String?>(null) }
             LaunchedEffect(searchScrollKey) {
                 searchTargetTop = null
                 if (searchScrollKey == null) return@LaunchedEffect
@@ -937,19 +963,31 @@ fun SettingsScreen(
                 // Relative, like the deep-link scroll: an absolute offset
                 // computed from an already-scrolled window converges on the
                 // wrong place.
-                val target = headingTop ?: searchTargetTop ?: return@LaunchedEffect
-                val delta = (target - container).toInt()
-                if (kotlin.math.abs(delta) > 8) {
+                //
+                // And repeated, because one shot cannot land. Scrolling moves
+                // every target it was aiming at, and a heading far below the
+                // fold reports its real position only once the page has moved
+                // toward it. Each pass reads where the answer is NOW and
+                // closes the remaining gap, which is what makes the search
+                // land on the heading rather than near it.
+                repeat(6) {
+                    val target = headingTop ?: searchTargetTop ?: return@LaunchedEffect
+                    val delta = (target - container).toInt()
+                    if (kotlin.math.abs(delta) <= 8) return@LaunchedEffect
                     scrollState.animateScrollTo((scrollState.value + delta).coerceAtLeast(0))
+                    kotlinx.coroutines.delay(120)
                 }
             }
 
             androidx.compose.runtime.CompositionLocalProvider(
                 LocalSettingsSearchQuery provides query,
-                LocalSearchHeadingReporter provides { _, y ->
+                LocalSearchHeadingReporter provides { title, y ->
                     // The first matching heading wins; later ones are further
                     // down the page and would drag the rider past the answer.
-                    if (headingTop == null) headingTop = y
+                    // That one then keeps reporting, so the scroll always has
+                    // its current position rather than where it started.
+                    if (headingTitle == null) headingTitle = title
+                    if (headingTitle == title) headingTop = y
                 },
             ) {
                 @Composable
@@ -9078,8 +9116,12 @@ private fun SettingsSearchField(
 ) {
     var text by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(text) {
-        kotlinx.coroutines.delay(SEARCH_SETTLE_MS)
-        onSettled(text.trim())
+        val typed = text.trim()
+        kotlinx.coroutines.delay(searchSettleFor(typed.length))
+        // A query too short to mean anything is reported as no query, so the
+        // screen goes back to its normal self instead of rendering every
+        // section that happens to contain the letter.
+        onSettled(if (typed.length < SEARCH_MIN_CHARS) "" else typed)
     }
     OutlinedTextField(
         value = text,

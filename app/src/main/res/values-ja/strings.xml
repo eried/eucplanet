@@ -751,7 +751,6 @@
     <string name="tpms_idle">センサーはまだ送信していません</string>
     <string name="tpms_scan">センサーを検索</string>
     <string name="tpms_scan_stop">スキャンを停止</string>
-    <string name="tpms_scan_listening">センサーを待っています。何も出ないときは少し転がしてください。動いているときだけ送るものもあります。</string>
     <string name="tpms_none_yet">タイヤ空気圧センサーは検出も手動追加もされていません。</string>
     <string name="tpms_wheel_sensor_replaced">ペアリング済みセンサーに置き換え</string>
     <string name="tpms_paired_sensor">タイヤセンサー</string>
@@ -2513,4 +2512,8 @@
     <string name="action_chip_reset_metrics">記録をリセット</string>
     <string name="action_reset_metrics_done">記録をリセットしました</string>
     <string name="action_reset_metrics_wheel_done">記録をリセットし、ホイールの積算距離も消去しました</string>
+    <string name="tpms_scan_searching_fmt">検索中、残り %1$d 秒</string>
+    <string name="tpms_scan_none_found">センサーが見つかりません。スマホをバルブキャップに近づけて、もう一度検索してください。</string>
+    <string name="tpms_scan_added">センサーを追加しました。</string>
+    <string name="tpms_scan_failed">検索を開始できませんでした。Bluetooth の権限を確認してください。</string>
 </resources>

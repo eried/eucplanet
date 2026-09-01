@@ -751,7 +751,6 @@
     <string name="tpms_idle">Henüz veri gönderen sensör yok</string>
     <string name="tpms_scan">Sensör ara</string>
     <string name="tpms_scan_stop">Taramayı durdur</string>
-    <string name="tpms_scan_listening">Sensörler dinleniyor. Hiçbir şey çıkmazsa tekerleği biraz döndür, bazıları sadece hareketteyken yayın yapar.</string>
     <string name="tpms_none_yet">Algılanan veya elle eklenen lastik basıncı sensörü yok.</string>
     <string name="tpms_wheel_sensor_replaced">Eşleşmiş sensörünle değiştirildi</string>
     <string name="tpms_paired_sensor">Lastik sensörü</string>
@@ -2509,4 +2508,8 @@
     <string name="action_chip_reset_metrics">Ölçümleri sıfırla</string>
     <string name="action_reset_metrics_done">Ölçümler sıfırlandı</string>
     <string name="action_reset_metrics_wheel_done">Ölçümler sıfırlandı, tekerin gezi sayacı temizlendi</string>
+    <string name="tpms_scan_searching_fmt">Aranıyor, %1$d sn kaldı</string>
+    <string name="tpms_scan_none_found">Sensör bulunamadı. Telefonu sibop kapağına yaklaştır ve tekrar ara.</string>
+    <string name="tpms_scan_added">Sensör eklendi.</string>
+    <string name="tpms_scan_failed">Arama başlatılamadı. Bluetooth iznini kontrol et.</string>
 </resources>

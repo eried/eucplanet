@@ -13,6 +13,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +52,8 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
     val paired by viewModel.paired.collectAsState()
     val pairedKpa by viewModel.pairedKpa.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
+    val scanStatus by viewModel.scanStatus.collectAsState()
+    val secondsLeft by viewModel.secondsLeft.collectAsState()
     val seen by viewModel.seen.collectAsState()
 
     val wheelHasSensor = wheelKpa > 0f
@@ -87,27 +93,40 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         // Scanning looks like scanning, the way Flic does: the stop button and
         // a spinner beside it. A sensor is adopted the moment it decodes, so
         // there is nothing to tap and nothing to confirm.
+        // Exactly Flic's shape, because LeftAlignedScanButton fills the width
+        // from the inside: putting it in a Row pushed the spinner off the
+        // screen, so the animation existed and nobody could see it.
         if (scanning) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                LeftAlignedScanButton(
-                    label = stringResource(R.string.tpms_scan_stop),
+                Button(
                     onClick = { viewModel.toggleScan() },
-                    enabled = true,
-                    containerColor = MaterialTheme.appColors.statusDanger,
-                )
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.appColors.statusDanger
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) { Text(stringResource(R.string.tpms_scan_stop)) }
                 Spacer(Modifier.width(12.dp))
-                androidx.compose.material3.CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp)
-                )
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                if (secondsLeft > 0) {
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        stringResource(R.string.tpms_scan_searching_fmt, secondsLeft),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textSecondary,
+                    )
+                }
             }
-            HintText(stringResource(R.string.tpms_scan_listening), small = true)
         } else {
-            LeftAlignedScanButton(
-                label = stringResource(R.string.tpms_scan),
+            Button(
                 onClick = { viewModel.toggleScan() },
-                enabled = true,
-            )
+                shape = RoundedCornerShape(12.dp),
+            ) { Text(stringResource(R.string.tpms_scan)) }
         }
+
+        // What the scan has to say for itself: Bluetooth off, nothing found,
+        // sensor added. A tap that cannot start a scan used to look identical
+        // to one that did.
+        if (scanStatus.isNotEmpty()) HintText(scanStatus, small = true)
     }
 }
 

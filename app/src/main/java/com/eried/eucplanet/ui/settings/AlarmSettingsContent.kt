@@ -157,17 +157,51 @@ private fun leadSeconds(ms: Int): String =
  * 60 and needs no help, which is why pressure's scale depends on the unit and
  * g-force's does not.
  */
-private fun displayScale(metric: AlarmMetric, pressureUnit: String): Float = when (metric) {
-    AlarmMetric.TIRE_PRESSURE -> if (pressureUnit == "bar") 10f else 1f
+internal fun displayScale(metric: AlarmMetric, pressureUnit: String): Float = when (metric) {
+    // Each pressure unit needs its own scale, not just bar. A tyre tops out
+    // near 5 bar, 5.1 kgf/cm2 or 0.5 MPa, so in MPa whole numbers gave the
+    // rider a range of nought to nought and a stepper that would not move at
+    // all. The scale is whatever it takes to keep the useful range about fifty
+    // steps wide.
+    AlarmMetric.TIRE_PRESSURE -> when (pressureUnit) {
+        "bar", "kgf" -> 10f
+        "mpa" -> 100f
+        else -> 1f      // psi and kPa are already wide enough
+    }
     AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G -> 10f
     else -> 1f
 }
 
-/** True for the metrics edited in tenths, so the field shows a decimal. */
-private fun isTenths(metric: AlarmMetric, pressureUnit: String): Boolean =
-    displayScale(metric, pressureUnit) != 1f
+/** Decimals implied by [displayScale], for formatting and parsing. */
+internal fun displayDecimals(metric: AlarmMetric, pressureUnit: String): Int =
+    when (displayScale(metric, pressureUnit)) {
+        100f -> 2
+        10f -> 1
+        else -> 0
+    }
 
-private fun displayThreshold(
+/**
+ * The threshold as the rider reads it, decimals and all.
+ *
+ * The list rows used to print the raw scaled integer, so a three bar rule read
+ * "< 30bar" and a 1.5 g rule read the same way. The scale is an editing
+ * device, never something to show.
+ */
+internal fun formatThreshold(
+    metric: AlarmMetric,
+    valueInternal: Float,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): String {
+    val shown = displayThreshold(metric, valueInternal, speedUnit, tempUnit, pressureUnit) /
+        displayScale(metric, pressureUnit)
+    val decimals = displayDecimals(metric, pressureUnit)
+    return if (decimals == 0) shown.roundToInt().toString()
+    else String.format(java.util.Locale.US, "%.${decimals}f", shown)
+}
+
+internal fun displayThreshold(
     metric: AlarmMetric,
     valueInternal: Float,
     speedUnit: String,
@@ -188,7 +222,7 @@ private fun displayThreshold(
         else -> valueInternal
     }
 
-private fun internalThreshold(
+internal fun internalThreshold(
     metric: AlarmMetric,
     valueDisplayed: Float,
     speedUnit: String,
@@ -473,7 +507,7 @@ private fun AlarmRuleCard(
                     .clickable { onEdit() }
                     .padding(vertical = 12.dp)
             ) {
-                val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit, pressureUnit).roundToInt()
+                val shownThresh = formatThreshold(metric, rule.threshold, speedUnit, tempUnit, pressureUnit)
                 val shownUnit = displayUnit(metric, speedUnit, tempUnit, pressureUnit)
                 // The coloured group band already names the metric, so a rule
                 // reads just "condition threshold unit" (e.g. "≥ 32 km/h").
@@ -810,13 +844,16 @@ private fun AlarmRuleEditorDialog(
                         // Tenths where the range is too short for whole
                         // numbers (bar, g-force); plain integers elsewhere.
                         format = { v ->
-                            if (isTenths(selectedMetric, pressureUnit))
-                                String.format(java.util.Locale.US, "%.1f", v / 10f)
+                            val scale = displayScale(selectedMetric, pressureUnit)
+                            val decimals = displayDecimals(selectedMetric, pressureUnit)
+                            if (decimals > 0)
+                                String.format(java.util.Locale.US, "%.${decimals}f", v / scale)
                             else v.toString()
                         },
                         parse = { text ->
-                            if (isTenths(selectedMetric, pressureUnit))
-                                text.replace(',', '.').toFloatOrNull()?.let { (it * 10f).roundToInt() }
+                            val scale = displayScale(selectedMetric, pressureUnit)
+                            if (displayDecimals(selectedMetric, pressureUnit) > 0)
+                                text.replace(',', '.').toFloatOrNull()?.let { (it * scale).roundToInt() }
                             else text.toIntOrNull()
                         },
                         // dBm is negative, so the field has to accept a minus.

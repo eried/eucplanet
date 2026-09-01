@@ -755,7 +755,6 @@
     <string name="tpms_idle">Nog geen sensor meldt gegevens</string>
     <string name="tpms_scan">Zoek naar sensoren</string>
     <string name="tpms_scan_stop">Scannen stoppen</string>
-    <string name="tpms_scan_listening">Luisteren naar sensoren. Rol het wiel een stukje als er niets verschijnt, sommige zenden alleen in beweging.</string>
     <string name="tpms_none_yet">Geen bandenspanningssensor gevonden of handmatig toegevoegd.</string>
     <string name="tpms_wheel_sensor_replaced">Vervangen door je gekoppelde sensor</string>
     <string name="tpms_paired_sensor">Bandensensor</string>
@@ -2514,4 +2513,8 @@
     <string name="action_chip_reset_metrics">Meters resetten</string>
     <string name="action_reset_metrics_done">Meters gereset</string>
     <string name="action_reset_metrics_wheel_done">Meters gereset, ritteller van het wiel gewist</string>
+    <string name="tpms_scan_searching_fmt">Zoeken, nog %1$d s</string>
+    <string name="tpms_scan_none_found">Geen sensoren gevonden. Houd de telefoon bij het ventieldopje en scan opnieuw.</string>
+    <string name="tpms_scan_added">Sensor toegevoegd.</string>
+    <string name="tpms_scan_failed">Kan de scan niet starten. Controleer de Bluetooth-toestemming.</string>
 </resources>

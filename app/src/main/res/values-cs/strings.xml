@@ -927,7 +927,6 @@
     <string name="tpms_idle">Zatím se nehlásí žádný senzor</string>
     <string name="tpms_scan">Hledat senzory</string>
     <string name="tpms_scan_stop">Zastavit hledání</string>
-    <string name="tpms_scan_listening">Naslouchám senzorům. Pokud se nic neobjeví, kolem trochu popojeďte, některé hlásí jen za jízdy.</string>
     <string name="tpms_none_yet">Nebyl zjištěn ani ručně přidán žádný snímač tlaku.</string>
     <string name="tpms_wheel_sensor_replaced">Nahrazen vaším spárovaným senzorem</string>
     <string name="tpms_paired_sensor">Senzor pneumatiky</string>
@@ -2315,4 +2314,8 @@
     <string name="action_chip_reset_metrics">Vynulovat metriky</string>
     <string name="action_reset_metrics_done">Metriky vynulovány</string>
     <string name="action_reset_metrics_wheel_done">Metriky vynulovány, denní počítadlo kola smazáno</string>
+    <string name="tpms_scan_searching_fmt">Hledání, zbývá %1$d s</string>
+    <string name="tpms_scan_none_found">Nenalezeny žádné senzory. Přibliž telefon k čepičce ventilku a zkus to znovu.</string>
+    <string name="tpms_scan_added">Senzor přidán.</string>
+    <string name="tpms_scan_failed">Skenování se nepodařilo spustit. Zkontroluj oprávnění Bluetooth.</string>
 </resources>

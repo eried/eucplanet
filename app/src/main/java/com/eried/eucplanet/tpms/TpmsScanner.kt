@@ -7,8 +7,15 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
+import com.eried.eucplanet.R
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,13 +81,38 @@ class TpmsScanner @Inject constructor(
     private val _scanning = MutableStateFlow(false)
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
+    /**
+     * What the scan is doing, in the rider's words, the way Flic reports it.
+     *
+     * A spinner alone cannot say "Bluetooth is off", and that was the state a
+     * tap used to land in silently: start() found no scanner, returned, and
+     * left the button looking untouched. A scan that cannot start has to say
+     * so.
+     */
+    private val _scanStatus = MutableStateFlow("")
+    val scanStatus: StateFlow<String> = _scanStatus.asStateFlow()
+
+    /** Seconds left in the current scan window, so the wait has an end in sight. */
+    private val _secondsLeft = MutableStateFlow(0)
+    val secondsLeft: StateFlow<Int> = _secondsLeft.asStateFlow()
+
     private var callback: ScanCallback? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var window: Job? = null
 
     @SuppressLint("MissingPermission")
     fun start() {
         if (callback != null) return
-        val scanner = (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)
-            ?.adapter?.bluetoothLeScanner ?: return
+        // A radio that is off is the common reason a scan finds nothing, and
+        // silently returning made the button look broken instead of the
+        // Bluetooth setting look off.
+        val adapter = (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)?.adapter
+        val scanner = adapter?.takeIf { it.isEnabled }?.bluetoothLeScanner
+        if (scanner == null) {
+            _scanning.value = false
+            _scanStatus.value = context.getString(R.string.scan_bluetooth_off_title)
+            return
+        }
         val cb = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) = record(result)
             override fun onBatchScanResults(results: MutableList<ScanResult>) {
@@ -90,6 +122,7 @@ class TpmsScanner @Inject constructor(
             override fun onScanFailed(errorCode: Int) {
                 Log.w(TAG, "TPMS scan failed: $errorCode")
                 _scanning.value = false
+                _scanStatus.value = context.getString(R.string.tpms_scan_failed)
             }
         }
         callback = cb
@@ -100,15 +133,54 @@ class TpmsScanner @Inject constructor(
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
         runCatching { scanner.startScan(null, settings, cb) }
-            .onSuccess { _scanning.value = true }
-            .onFailure { Log.w(TAG, "TPMS scan could not start", it) }
+            .onSuccess {
+                _scanning.value = true
+                _scanStatus.value = ""
+                startWindow()
+            }
+            .onFailure {
+                Log.w(TAG, "TPMS scan could not start", it)
+                callback = null
+                _scanStatus.value = context.getString(R.string.tpms_scan_failed)
+            }
+    }
+
+    /**
+     * A scan that ends by itself.
+     *
+     * These sensors answer within seconds when they are awake, so a radio left
+     * running past that is draining a battery to hear nothing. The countdown is
+     * also the honest version of a spinner: it says how long the waiting lasts
+     * and admits when it found nothing, instead of turning forever.
+     */
+    private fun startWindow() {
+        window?.cancel()
+        window = scope.launch {
+            var left = SCAN_WINDOW_S
+            while (left > 0 && _scanning.value) {
+                _secondsLeft.value = left
+                delay(1000)
+                left--
+            }
+            if (_scanning.value) {
+                val foundNothing = tpms.pairedAddress.value == null
+                stop()
+                if (foundNothing) {
+                    _scanStatus.value = context.getString(R.string.tpms_scan_none_found)
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
     fun stop() {
+        window?.cancel()
+        window = null
+        _secondsLeft.value = 0
         val cb = callback ?: return
         callback = null
         _scanning.value = false
+        _scanStatus.value = ""
         runCatching {
             (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager)
                 ?.adapter?.bluetoothLeScanner?.stopScan(cb)
@@ -176,7 +248,19 @@ class TpmsScanner @Inject constructor(
         // Adopted on sight. A rider who opened this screen wants their tyre
         // read, not a list of radio addresses to choose between, and a packet
         // that decodes as a pressure has already proved which device it is.
-        decoded?.let { tpms.submitPaired(it, address, now) }
+        decoded?.let {
+            val hadSensor = tpms.pairedAddress.value != null
+            tpms.submitPaired(it, address, now)
+            // Found it, so stop looking. Flic ends its scan on pair, and a
+            // radio left running after the answer arrived costs battery for
+            // nothing. Only on the sensor that was actually adopted: a second
+            // cap in the room must not end a scan that has not found the
+            // rider's yet.
+            if (!hadSensor && tpms.pairedAddress.value == address) {
+                stop()
+                _scanStatus.value = context.getString(R.string.tpms_scan_added)
+            }
+        }
         // Everything, at INFO, while the format is still unknown. The only
         // reliable way to find a pressure field is to diff every payload in
         // range across a pressure the rider actually changed, and a filter
@@ -191,5 +275,13 @@ class TpmsScanner @Inject constructor(
 
         /** Enough to see everything in a garage without growing without bound. */
         private const val MAX_SEEN = 60
+
+        /**
+         * How long one scan runs.
+         *
+         * Long enough for a sensor that only reports when the wheel moves, and
+         * short enough that a rider who walked away is not still scanning.
+         */
+        private const val SCAN_WINDOW_S = 30
     }
 }

@@ -755,7 +755,6 @@
     <string name="tpms_idle">Nenhum sensor reportando ainda</string>
     <string name="tpms_scan">Procurar sensores</string>
     <string name="tpms_scan_stop">Parar busca</string>
-    <string name="tpms_scan_listening">Ouvindo sensores. Gire um pouco a roda se nada aparecer, alguns só transmitem em movimento.</string>
     <string name="tpms_none_yet">Nenhum sensor de pressão detectado ou adicionado manualmente.</string>
     <string name="tpms_wheel_sensor_replaced">Substituído pelo seu sensor pareado</string>
     <string name="tpms_paired_sensor">Sensor do pneu</string>
@@ -2514,4 +2513,8 @@
     <string name="action_chip_reset_metrics">Zerar métricas</string>
     <string name="action_reset_metrics_done">Métricas zeradas</string>
     <string name="action_reset_metrics_wheel_done">Métricas zeradas, trajeto da roda limpo</string>
+    <string name="tpms_scan_searching_fmt">Procurando, faltam %1$d s</string>
+    <string name="tpms_scan_none_found">Nenhum sensor encontrado. Aproxime o celular da tampa da válvula e procure de novo.</string>
+    <string name="tpms_scan_added">Sensor adicionado.</string>
+    <string name="tpms_scan_failed">Não foi possível iniciar a busca. Verifique a permissão de Bluetooth.</string>
 </resources>

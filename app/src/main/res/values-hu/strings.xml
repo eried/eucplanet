@@ -927,7 +927,6 @@
     <string name="tpms_idle">Még egyetlen érzékelő sem jelent</string>
     <string name="tpms_scan">Érzékelők keresése</string>
     <string name="tpms_scan_stop">Keresés leállítása</string>
-    <string name="tpms_scan_listening">Szenzorok keresése. Gurítsd meg kicsit a kereket, ha semmi nem jelenik meg, néhány csak mozgásban jelez.</string>
     <string name="tpms_none_yet">Nincs észlelt vagy kézzel hozzáadott guminyomás-szenzor.</string>
     <string name="tpms_wheel_sensor_replaced">A párosított szenzorod váltja ki</string>
     <string name="tpms_paired_sensor">Gumiszenzor</string>
@@ -2315,4 +2314,8 @@
     <string name="action_chip_reset_metrics">Mérések nullázása</string>
     <string name="action_reset_metrics_done">Mérések nullázva</string>
     <string name="action_reset_metrics_wheel_done">Mérések nullázva, a kerék napi számlálója törölve</string>
+    <string name="tpms_scan_searching_fmt">Keresés, %1$d s van hátra</string>
+    <string name="tpms_scan_none_found">Nem található érzékelő. Tartsd a telefont a szelepsapka közelébe, és keress újra.</string>
+    <string name="tpms_scan_added">Érzékelő hozzáadva.</string>
+    <string name="tpms_scan_failed">A keresés nem indult el. Ellenőrizd a Bluetooth-engedélyt.</string>
 </resources>
