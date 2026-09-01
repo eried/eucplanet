@@ -2490,9 +2490,9 @@
     <string name="charge_alert_channel_name">Ladehinweise</string>
     <string name="charge_alert_channel_description" formatted="false">Wenn der Akku 80 % überschreitet oder fertig geladen ist.</string>
     <string name="charge_alert_80_title" formatted="false">Akku bei 80 %</string>
-    <string name="charge_alert_80_text">Jetzt abziehen, schont den Akku.</string>
+    <string name="charge_alert_80_text">Genug für die meisten Fahrten, und meist schonender für den Akku.</string>
     <string name="charge_alert_full_title">Ladung abgeschlossen</string>
-    <string name="charge_alert_full_text">Bereit zur Fahrt.</string>
+    <string name="charge_alert_full_text">Voll geladen, zieh ihn ab, wenn es passt. Manche Wheels balancieren jetzt die Zellen.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Wheel-Dashboard</string>
     <string name="widget_act_1_label">Wheel-Taste 1</string>

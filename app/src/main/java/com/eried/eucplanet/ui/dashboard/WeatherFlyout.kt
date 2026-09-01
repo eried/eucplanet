@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -343,18 +342,26 @@ fun WeatherFlyout(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                // A fresh fetch reads "just now", then quietly fades out;
-                // older stamps stay as minutes.
-                var justNowShown by remember { mutableStateOf(true) }
-                LaunchedEffect(refreshing, updatedAgoMin) {
-                    justNowShown = true
-                    if (!refreshing && updatedAgoMin == 0) {
-                        delay(2500)
-                        justNowShown = false
+                // The stamp says its piece and then gets out of the way. It
+                // is context for a reading, not a clock worth a permanent
+                // seat: how old the forecast is matters when you arrive at
+                // the panel, and stops mattering while you read it.
+                //
+                // Keyed on refreshing alone, deliberately. The age ticks over
+                // on its own every minute, and keying on that would flash the
+                // stamp back once a minute forever. This way it returns for
+                // the two things the rider would call an update: opening the
+                // panel again, which remembers afresh, and a fetch landing.
+                var stampShown by remember { mutableStateOf(true) }
+                LaunchedEffect(refreshing) {
+                    stampShown = true
+                    if (!refreshing) {
+                        delay(STAMP_HOLD_MS)
+                        stampShown = false
                     }
                 }
                 val statusAlpha by animateFloatAsState(
-                    targetValue = if (refreshing || (updatedAgoMin ?: 1) > 0 || justNowShown) 0.6f else 0f,
+                    targetValue = if (stampShown) 0.6f else 0f,
                     animationSpec = tween(900),
                     label = "updatedFade",
                 )
@@ -377,23 +384,22 @@ fun WeatherFlyout(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (refreshing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .padding(start = 6.dp)
-                            .size(16.dp),
-                        strokeWidth = 2.dp,
-                        color = ink,
+                // One still icon, never a spinner swapped in for it. A
+                // spinner here spun in the corner of a panel a rider is
+                // reading, and it moved the row's contents as it came and
+                // went. It dims instead, and the panel body already says
+                // "fetching" where the graph will be.
+                IconButton(
+                    onClick = onRefresh,
+                    enabled = !refreshing,
+                    modifier = Modifier.size(28.dp),
+                ) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.weather_refresh),
+                        tint = ink.copy(alpha = if (refreshing) 0.25f else 0.6f),
+                        modifier = Modifier.size(18.dp),
                     )
-                } else {
-                    IconButton(onClick = onRefresh, modifier = Modifier.size(28.dp)) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            contentDescription = stringResource(R.string.weather_refresh),
-                            tint = ink.copy(alpha = 0.6f),
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
                 }
             }
 
@@ -438,6 +444,9 @@ fun WeatherFlyout(
 
 /** How long a scrubbed read stays put after the finger stops. */
 private const val SCRUB_HOLD_MS = 5000L
+
+/** How long the "7 min ago" stamp stays before fading out of the header. */
+private const val STAMP_HOLD_MS = 4000L
 
 /** And how long it takes to go, so it fades rather than blinking out. */
 private const val SCRUB_FADE_MS = 600
@@ -819,7 +828,11 @@ private fun ScoreGraph(
             } ?: break
             list.remove(drop)
         }
-        list.map { i ->
+        // Not the first one. The header shows exactly that face, larger and
+        // a couple of centimetres above, so on the curve it is the same
+        // answer twice. The transitions after it are the ones that say
+        // something the header cannot.
+        list.filter { it != 0 }.map { i ->
             val (emoji, res) = faceFor(hours[i].b)
             FaceSpot(i, emoji, res)
         }

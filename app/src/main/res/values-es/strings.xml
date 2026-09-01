@@ -2467,9 +2467,9 @@
     <string name="charge_alert_channel_name">Avisos de carga</string>
     <string name="charge_alert_channel_description" formatted="false">Cuando la batería pasa del 80 % o termina de cargar.</string>
     <string name="charge_alert_80_title" formatted="false">Batería al 80 %</string>
-    <string name="charge_alert_80_text">Desenchufa ahora, cuida la batería.</string>
+    <string name="charge_alert_80_text">Suficiente para la mayoría de los viajes, y suele cuidar más la batería.</string>
     <string name="charge_alert_full_title">Carga completa</string>
-    <string name="charge_alert_full_text">Listo para rodar.</string>
+    <string name="charge_alert_full_text">Carga completa, desenchúfalo cuando puedas. Algunas ruedas equilibran las celdas ahora.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Panel de la rueda</string>
     <string name="widget_act_1_label">Botón de rueda 1</string>

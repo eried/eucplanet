@@ -2273,9 +2273,9 @@
     <string name="charge_alert_channel_name">Alerte de încărcare</string>
     <string name="charge_alert_channel_description" formatted="false">Când bateria trece de 80 % sau termină de încărcat.</string>
     <string name="charge_alert_80_title" formatted="false">Baterie la 80 %</string>
-    <string name="charge_alert_80_text">Scoate din priză acum, pentru baterie.</string>
+    <string name="charge_alert_80_text">Ajunge pentru majoritatea curselor și de obicei menajează bateria.</string>
     <string name="charge_alert_full_title">Încărcare completă</string>
-    <string name="charge_alert_full_text">Gata de mers.</string>
+    <string name="charge_alert_full_text">Încărcat complet, scoate din priză când poți. Unele roți echilibrează celulele acum.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Bord roată</string>
     <string name="widget_act_1_label">Buton roată 1</string>

@@ -2470,9 +2470,9 @@
     <string name="charge_alert_channel_name">Оповещения о зарядке</string>
     <string name="charge_alert_channel_description" formatted="false">Когда батарея проходит 80 % или заряд завершён.</string>
     <string name="charge_alert_80_title" formatted="false">Батарея на 80 %</string>
-    <string name="charge_alert_80_text">Отключите сейчас, ради ресурса батареи.</string>
+    <string name="charge_alert_80_text">Хватит на большинство поездок, и обычно это бережнее для батареи.</string>
     <string name="charge_alert_full_title">Зарядка завершена</string>
-    <string name="charge_alert_full_text">Можно кататься.</string>
+    <string name="charge_alert_full_text">Заряд полный, отключите, когда сможете. Некоторые колёса сейчас балансируют ячейки.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Панель колеса</string>
     <string name="widget_act_1_label">Кнопка колеса 1</string>

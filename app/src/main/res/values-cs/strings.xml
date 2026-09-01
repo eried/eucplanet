@@ -2273,9 +2273,9 @@
     <string name="charge_alert_channel_name">Upozornění na nabíjení</string>
     <string name="charge_alert_channel_description" formatted="false">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
     <string name="charge_alert_80_title" formatted="false">Baterie na 80 %</string>
-    <string name="charge_alert_80_text">Odpoj teď, prodloužíš životnost baterie.</string>
+    <string name="charge_alert_80_text">Na většinu jízd to stačí a baterii to obvykle prospěje.</string>
     <string name="charge_alert_full_title">Nabíjení dokončeno</string>
-    <string name="charge_alert_full_text">Připraveno na jízdu.</string>
+    <string name="charge_alert_full_text">Nabito, odpoj, až budete moci. Některá kola teď vyrovnávají články.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Přístrojovka kola</string>
     <string name="widget_act_1_label">Tlačítko kola 1</string>
