@@ -333,16 +333,13 @@ fun AlarmSettingsContent(
 
         Spacer(Modifier.height(8.dp))
 
-        // New alarm: natural (content) width, left-aligned - not stretched to a
-        // fixed fraction of the row.
-        Button(
+        // New alarm: same half-width, left-aligned action button as every other
+        // settings section (Start scan, Reorganize, Scan for sensors).
+        LeftAlignedScanButton(
+            label = stringResource(R.string.alarm_add),
+            leadingIcon = Icons.Default.Add,
             onClick = { editingRule = null; showEditor = true },
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(stringResource(R.string.alarm_add))
-        }
+        )
 
         Spacer(Modifier.height(16.dp))
     }

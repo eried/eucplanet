@@ -1091,7 +1091,7 @@
     <string name="alarm_repeat_label">발동</string>
     <string name="alarm_repeat_single">1회</string>
     <string name="alarm_repeat_multi">반복</string>
-    <string name="alarm_wheel_only_label">연결된 휠에만 적용</string>
+    <string name="alarm_wheel_only_label">현재 연결된 휠에만 적용</string>
     <string name="alarm_summary_wheel_fmt">적용 대상: %1$s</string>
     <string name="alarm_section_advanced">고급</string>
     <string name="alarm_predict_label">예측 발동</string>

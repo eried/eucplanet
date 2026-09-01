@@ -1095,7 +1095,7 @@
     <string name="alarm_repeat_label">Udløser</string>
     <string name="alarm_repeat_single">Engang</string>
     <string name="alarm_repeat_multi">Mange</string>
-    <string name="alarm_wheel_only_label">Gælder kun det forbundne hjul</string>
+    <string name="alarm_wheel_only_label">Gælder kun det aktuelt forbundne hjul</string>
     <string name="alarm_summary_wheel_fmt">Gælder: %1$s</string>
     <string name="alarm_repeat_help_once">Én advarsel når %1$s. Klargøres igen når %2$s, efter pausen på %3$d s.</string>
     <string name="alarm_repeat_help_many">Advarer igen hver %1$d s mens %2$s.</string>

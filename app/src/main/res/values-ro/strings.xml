@@ -1357,7 +1357,7 @@
     <string name="alarm_repeat_label">Declanșare</string>
     <string name="alarm_repeat_single">O dată</string>
     <string name="alarm_repeat_multi">De mai multe ori</string>
-    <string name="alarm_wheel_only_label">Se aplică doar roții conectate</string>
+    <string name="alarm_wheel_only_label">Se aplică doar roții conectate în prezent</string>
     <string name="alarm_summary_wheel_fmt">Se aplică: %1$s</string>
     <string name="alarm_state_atleast">%1$s este %2$s sau mai mult</string>
     <string name="alarm_state_below">%1$s este sub %2$s</string>

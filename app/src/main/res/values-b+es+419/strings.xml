@@ -1093,7 +1093,7 @@
     <string name="alarm_repeat_label">Disparo</string>
     <string name="alarm_repeat_single">Uno</string>
     <string name="alarm_repeat_multi">Muchos</string>
-    <string name="alarm_wheel_only_label">Solo aplica a la rueda conectada</string>
+    <string name="alarm_wheel_only_label">Solo aplica a la rueda conectada actualmente</string>
     <string name="alarm_summary_wheel_fmt">Aplica a: %1$s</string>
     <string name="alarm_predict_label">Disparo predictivo</string>
     <string name="alarm_predict_realtime">Ahora</string>

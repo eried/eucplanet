@@ -552,7 +552,7 @@
     <string name="alarm_repeat_label">触发</string>
     <string name="alarm_repeat_single">一次</string>
     <string name="alarm_repeat_multi">多次</string>
-    <string name="alarm_wheel_only_label">仅适用于已连接的车轮</string>
+    <string name="alarm_wheel_only_label">仅适用于当前连接的车轮</string>
     <string name="alarm_summary_wheel_fmt">适用于：%1$s</string>
     <string name="alarm_predict_label">预测触发</string>
     <string name="alarm_predict_realtime">立即</string>

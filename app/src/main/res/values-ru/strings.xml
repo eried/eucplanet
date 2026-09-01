@@ -1095,7 +1095,7 @@
     <string name="alarm_repeat_label">Срабатывание</string>
     <string name="alarm_repeat_single">Раз</string>
     <string name="alarm_repeat_multi">Много</string>
-    <string name="alarm_wheel_only_label">Действует только для подключённого колеса</string>
+    <string name="alarm_wheel_only_label">Действует только для подключённого сейчас колеса</string>
     <string name="alarm_summary_wheel_fmt">Действует для: %1$s</string>
     <string name="alarm_predict_label">Упреждающее срабатывание</string>
     <string name="alarm_predict_realtime">Сейчас</string>

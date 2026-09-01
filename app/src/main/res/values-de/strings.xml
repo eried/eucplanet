@@ -1089,7 +1089,7 @@
     <string name="alarm_repeat_label">Auslösung</string>
     <string name="alarm_repeat_single">Einmal</string>
     <string name="alarm_repeat_multi">Mehrfach</string>
-    <string name="alarm_wheel_only_label">Gilt nur für das verbundene Rad</string>
+    <string name="alarm_wheel_only_label">Gilt nur für das aktuell verbundene Rad</string>
     <string name="alarm_summary_wheel_fmt">Gilt für: %1$s</string>
     <!-- Dynamische Alarm-Hilfe. In die Zustands-Teilsätze werden der Metrikname
          und die Schwelle-mit-Einheit eingesetzt, danach betten die Hilfssätze

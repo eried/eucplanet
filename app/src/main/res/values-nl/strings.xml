@@ -1093,7 +1093,7 @@
     <string name="alarm_repeat_label">Trigger</string>
     <string name="alarm_repeat_single">1×</string>
     <string name="alarm_repeat_multi">Steeds</string>
-    <string name="alarm_wheel_only_label">Geldt alleen voor het verbonden wiel</string>
+    <string name="alarm_wheel_only_label">Geldt alleen voor het momenteel verbonden wiel</string>
     <string name="alarm_summary_wheel_fmt">Geldt voor: %1$s</string>
     <string name="alarm_predict_label">Voorspellende trigger</string>
     <string name="alarm_predict_realtime">Nu</string>

@@ -1092,7 +1092,7 @@
     <string name="alarm_repeat_label">Wyzwalanie</string>
     <string name="alarm_repeat_single">Raz</string>
     <string name="alarm_repeat_multi">Wiele</string>
-    <string name="alarm_wheel_only_label">Dotyczy tylko połączonego koła</string>
+    <string name="alarm_wheel_only_label">Dotyczy tylko aktualnie połączonego koła</string>
     <string name="alarm_summary_wheel_fmt">Dotyczy: %1$s</string>
     <string name="alarm_section_advanced">Zaawansowane</string>
     <string name="alarm_predict_label">Wyzwalanie predykcyjne</string>
