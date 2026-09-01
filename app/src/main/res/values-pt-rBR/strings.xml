@@ -1827,6 +1827,8 @@
     <string name="warnings_fix_button">Corrigir</string>
     <string name="warnings_perm_notifications_title">Notificações desativadas</string>
     <string name="warnings_perm_notifications_body">Você não verá o status do trajeto na barra de status nem receberá alertas por voz nas notificações.</string>
+    <string name="warnings_perm_location_title">A localização está desativada</string>
+    <string name="warnings_perm_location_body">As viagens não gravam rota, e velocidade e calibração por GPS não funcionam. Toque para permitir.</string>
     <string name="warnings_battery_opt_title">A otimização de bateria está ativada</string>
     <string name="warnings_battery_opt_body">O Android pode parar o EUC Planet em segundo plano e cortar uma gravação no meio do trajeto. Permita a execução sem restrições.</string>
     <string name="warnings_hud_blocked_title">O HUD do telefone não consegue desenhar</string>

@@ -1824,6 +1824,8 @@
     <string name="warnings_fix_button">Düzelt</string>
     <string name="warnings_perm_notifications_title">Bildirimler kapalı</string>
     <string name="warnings_perm_notifications_body">Durum çubuğunda sürüş durumunu göremez ve bildirim panelinde sesli uyarı alamazsınız.</string>
+    <string name="warnings_perm_location_title">Konum kapalı</string>
+    <string name="warnings_perm_location_body">Sürüşler rota kaydetmez, GPS hızı ve kalibrasyon çalışmaz. İzin vermek için dokun.</string>
     <string name="warnings_battery_opt_title">Pil optimizasyonu açık</string>
     <string name="warnings_battery_opt_body">Android, EUC Planet\'i arka planda durdurup sürüş ortasında bir kaydı kesebilir. Kısıtlamasız çalışmasına izin ver.</string>
     <string name="warnings_hud_blocked_title">Telefon HUD\'u çizemiyor</string>

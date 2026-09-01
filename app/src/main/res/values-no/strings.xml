@@ -1597,6 +1597,8 @@
     <string name="warnings_fix_button">Fiks</string>
     <string name="warnings_perm_notifications_title">Varsler av</string>
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i varslingsfeltet.</string>
+    <string name="warnings_perm_location_title">Posisjon er av</string>
+    <string name="warnings_perm_location_body">Turer lagrer ingen rute, og GPS-fart og kalibrering virker ikke. Trykk for å tillate.</string>
     <string name="hud_screen_name_map_nav">Kart + Nav</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->

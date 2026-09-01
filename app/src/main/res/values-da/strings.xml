@@ -1836,6 +1836,8 @@
     <string name="warnings_fix_button">Ret</string>
     <string name="warnings_perm_notifications_title">Notifikationer slået fra</string>
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i notifikationsskuffen.</string>
+    <string name="warnings_perm_location_title">Placering er slået fra</string>
+    <string name="warnings_perm_location_body">Ture optager ingen rute, og GPS-hastighed og kalibrering virker ikke. Tryk for at tillade.</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->
 

@@ -1824,6 +1824,8 @@
     <string name="warnings_fix_button">修復</string>
     <string name="warnings_perm_notifications_title">通知已關閉</string>
     <string name="warnings_perm_notifications_body">您將無法在狀態列看到騎乘狀態，也無法在通知欄接收語音警報。</string>
+    <string name="warnings_perm_location_title">定位已關閉</string>
+    <string name="warnings_perm_location_body">行程不會記錄路線，GPS 速度與校正也無法使用。點一下以允許。</string>
     <string name="warnings_battery_opt_title">電池最佳化已開啟</string>
     <string name="warnings_battery_opt_body">系統可能在背景停止 EUC Planet，讓騎行中的記錄中斷。請允許它不受限制地執行。</string>
     <string name="warnings_hud_blocked_title">手機 HUD 無法繪製</string>

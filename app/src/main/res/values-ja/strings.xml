@@ -1824,6 +1824,8 @@
     <string name="warnings_fix_button">修正</string>
     <string name="warnings_perm_notifications_title">通知がオフです</string>
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません。</string>
+    <string name="warnings_perm_location_title">位置情報がオフです</string>
+    <string name="warnings_perm_location_body">トリップにルートが記録されず、GPS 速度とキャリブレーションも使えません。タップして許可してください。</string>
     <string name="warnings_battery_opt_title">電池の最適化が有効です</string>
     <string name="warnings_battery_opt_body">Android がバックグラウンドで EUC Planet を停止し、走行中の記録が途切れることがあります。制限なしでの実行を許可してください。</string>
     <string name="warnings_hud_blocked_title">スマホ HUD を描画できません</string>

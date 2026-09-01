@@ -1580,6 +1580,8 @@
     <string name="warnings_fix_button">修复</string>
     <string name="warnings_perm_notifications_title">通知已关闭</string>
     <string name="warnings_perm_notifications_body">状态栏将不显示骑行状态，通知栏也收不到语音提示。</string>
+    <string name="warnings_perm_location_title">定位已关闭</string>
+    <string name="warnings_perm_location_body">行程不会记录路线，GPS 速度和校准也无法使用。点按以允许。</string>
     <string name="hud_screen_name_map_nav">地图 + 导航</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->

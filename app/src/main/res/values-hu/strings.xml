@@ -2131,6 +2131,8 @@
     <string name="warnings_fix_button">Javítás</string>
     <string name="warnings_perm_notifications_title">Az értesítések ki vannak kapcsolva</string>
     <string name="warnings_perm_notifications_body">Nem látod a menet állapotát az állapotsávon, és nem kapsz hangriasztásokat az értesítési felületen.</string>
+    <string name="warnings_perm_location_title">A helymeghatározás ki van kapcsolva</string>
+    <string name="warnings_perm_location_body">A menetek nem rögzítenek útvonalat, a GPS-sebesség és a kalibrálás nem működik. Koppints az engedélyezéshez.</string>
     <string name="warnings_battery_opt_title">Az akkumulátor-optimalizálás be van kapcsolva</string>
     <string name="warnings_battery_opt_body">Az Android leállíthatja az EUC Planetet a háttérben, félbeszakítva egy menet rögzítését. Engedélyezd a korlátozás nélküli futást.</string>
     <string name="warnings_hud_blocked_title">A telefonos HUD nem tud rajzolni</string>

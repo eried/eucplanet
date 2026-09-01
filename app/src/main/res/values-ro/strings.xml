@@ -2131,6 +2131,8 @@
     <string name="warnings_fix_button">Repară</string>
     <string name="warnings_perm_notifications_title">Notificările sunt oprite</string>
     <string name="warnings_perm_notifications_body">Nu vei vedea starea cursei în bara de stare și nu vei primi alerte vocale în zona de notificări.</string>
+    <string name="warnings_perm_location_title">Locația este dezactivată</string>
+    <string name="warnings_perm_location_body">Cursele nu înregistrează traseul, iar viteza și calibrarea GPS nu funcționează. Atinge pentru a permite.</string>
     <string name="warnings_battery_opt_title">Optimizarea bateriei este activată</string>
     <string name="warnings_battery_opt_body">Android poate opri EUC Planet în fundal și poate întrerupe o înregistrare în mijlocul cursei. Permite rularea fără restricții.</string>
     <string name="warnings_hud_blocked_title">HUD-ul de pe telefon nu poate desena</string>

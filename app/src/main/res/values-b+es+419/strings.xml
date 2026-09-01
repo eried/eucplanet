@@ -1839,6 +1839,8 @@
     <string name="warnings_fix_button">Arreglar</string>
     <string name="warnings_perm_notifications_title">Notificaciones desactivadas</string>
     <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en las notificaciones.</string>
+    <string name="warnings_perm_location_title">La ubicación está desactivada</string>
+    <string name="warnings_perm_location_body">Los viajes no guardan la ruta, y la velocidad y calibración por GPS no funcionan. Tocá para permitir.</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->
 

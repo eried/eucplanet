@@ -1837,6 +1837,8 @@
     <string name="warnings_fix_button">Beheben</string>
     <string name="warnings_perm_notifications_title">Benachrichtigungen aus</string>
     <string name="warnings_perm_notifications_body">Der Fahrstatus erscheint nicht in der Statusleiste und Sprachhinweise tauchen nicht in der Benachrichtigungsleiste auf.</string>
+    <string name="warnings_perm_location_title">Standort ist aus</string>
+    <string name="warnings_perm_location_body">Fahrten zeichnen keine Route auf, GPS-Tempo und Kalibrierung funktionieren nicht. Zum Erlauben tippen.</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->
 

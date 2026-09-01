@@ -2131,6 +2131,8 @@
     <string name="warnings_fix_button">Opravit</string>
     <string name="warnings_perm_notifications_title">Oznámení vypnuta</string>
     <string name="warnings_perm_notifications_body">Neuvidíte stav jízdy ve stavovém řádku ani nedostanete hlasová upozornění v oznámeních.</string>
+    <string name="warnings_perm_location_title">Poloha je vypnutá</string>
+    <string name="warnings_perm_location_body">Jízdy nezaznamenají trasu a rychlost ani kalibrace podle GPS nefungují. Klepnutím povolte.</string>
     <string name="warnings_battery_opt_title">Optimalizace baterie je zapnutá</string>
     <string name="warnings_battery_opt_body">Android může EUC Planet na pozadí zastavit a ukončit nahrávání uprostřed jízdy. Povolte aplikaci běžet bez omezení.</string>
     <string name="warnings_hud_blocked_title">HUD v telefonu nemůže kreslit</string>

@@ -127,6 +127,33 @@ class AppHealthRepository @Inject constructor(
             }
         }
 
+        // Location. The app is most useless without this one: no route on a
+        // recorded trip, no GPS speed, no speed calibration, and nothing said
+        // so until a rider opened a trip and found no line on the map.
+        //
+        // Only when there is NO access at all. A rider who deliberately gave
+        // coarse gets on with it, and the warning clears the instant access is
+        // granted, which is also the instant a fix becomes possible: a fix
+        // cannot happen without the permission, so this covers both.
+        val anyLocation = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        if (anyLocation) {
+            dismiss(PERM_LOCATION_ID)
+        } else {
+            upsert(
+                AppWarning(
+                    id = PERM_LOCATION_ID,
+                    titleRes = R.string.warnings_perm_location_title,
+                    bodyRes = R.string.warnings_perm_location_body,
+                    fix = { openAppSettings() }
+                )
+            )
+        }
+
         // Playback rate's notification-access warning, PARKED with the
         // feature. The app no longer declares a NotificationListenerService,
         // so it cannot appear in that system list at all and this warning
@@ -360,6 +387,7 @@ class AppHealthRepository @Inject constructor(
 
     companion object {
         private const val PERM_NOTIFICATIONS_ID = "perm.notifications"
+        private const val PERM_LOCATION_ID = "perm.location"
         private const val PERM_MEDIA_ACCESS_ID = "perm.media-access"
         private const val PERM_PIP_ID = "perm.pip"
         private const val PERM_OVERLAY_ID = "perm.overlay"

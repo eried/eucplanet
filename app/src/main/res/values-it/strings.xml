@@ -1616,6 +1616,8 @@
     <string name="warnings_fix_button">Correggi</string>
     <string name="warnings_perm_notifications_title">Notifiche disattivate</string>
     <string name="warnings_perm_notifications_body">Non vedrai lo stato del viaggio nella barra di stato e non riceverai avvisi vocali nelle notifiche.</string>
+    <string name="warnings_perm_location_title">La posizione è disattivata</string>
+    <string name="warnings_perm_location_body">I viaggi non registrano il percorso e velocità e calibrazione GPS non funzionano. Tocca per consentire.</string>
     <string name="hud_screen_name_map_nav">Mappa + Nav</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->

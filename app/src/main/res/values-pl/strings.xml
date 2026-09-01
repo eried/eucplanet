@@ -1822,6 +1822,8 @@
     <string name="warnings_fix_button">Napraw</string>
     <string name="warnings_perm_notifications_title">Powiadomienia wyłączone</string>
     <string name="warnings_perm_notifications_body">Nie zobaczysz statusu jazdy w pasku stanu ani nie otrzymasz głosowych powiadomień w obszarze powiadomień.</string>
+    <string name="warnings_perm_location_title">Lokalizacja jest wyłączona</string>
+    <string name="warnings_perm_location_body">Trasy nie zapisują przebiegu, a prędkość i kalibracja GPS nie działają. Dotknij, aby zezwolić.</string>
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
     <string name="external_gps_caption">Włącz urządzenie i dotknij Sparuj, aby zasilać aplikację prędkością i siłą G na żywo, dane są też zapisywane w CSV trasy.</string>
     <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G.</string>
