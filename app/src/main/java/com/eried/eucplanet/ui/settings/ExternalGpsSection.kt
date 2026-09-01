@@ -516,15 +516,7 @@ fun LeftAlignedScanButton(
     containerColor: androidx.compose.ui.graphics.Color? = null,
     leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier,
-    /**
-     * Drawn in the empty half beside the button, for a scanning spinner.
-     *
-     * The half-width button IS the standard here, so a scan that needed to
-     * show it was working had nowhere to put the spinner and got a bare
-     * wrap-content button instead. The room was always there.
-     */
-    trailing: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier
 ) {
     val colors = if (containerColor != null)
         ButtonDefaults.buttonColors(containerColor = containerColor)
@@ -550,14 +542,6 @@ fun LeftAlignedScanButton(
             }
             Text(text = label)
         }
-        if (trailing != null) {
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) { trailing() }
-        } else {
-            Spacer(modifier = Modifier.weight(1f))
-        }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }

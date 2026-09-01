@@ -98,19 +98,19 @@ class LyTpmsDecoderTest {
         assertEquals(0x00AC, LyTpmsDecoder.COMPANY_ID)
     }
 
-    @Test fun `the sensor is still found while its pressure is not understood`() {
-        // The regression this guards: identification used to require a decoded
-        // pressure, so disabling the decoder stopped the scan finding anything
-        // at all. A rider whose cap is in range must still be able to add it.
+    @Test fun `a candidate is worth logging, which is all the signature decides`() {
+        // This marks packets worth keeping in the decode trail. It does NOT
+        // decide what gets added: adopting on this shape put a stranger's
+        // device in as the rider's tyre sensor, because repeating your own
+        // MAC is a habit plenty of hardware has. Three unrelated devices in
+        // one room did it during a single sweep.
         for (hex in at78psi) {
-            assertTrue(
-                "the rider's own sensor stopped being recognised: $hex",
-                TpmsSignature.looksLikeSensor(hex, address),
-            )
+            assertTrue("the real sensor stopped being logged: $hex",
+                TpmsSignature.looksLikeSensor(hex, address))
         }
     }
 
-    @Test fun `the MAC is found at the end and reversed, which is where this one puts it`() {
+    @Test fun `the MAC counts at either end and in either order`() {
         // The first rule was "the payload STARTS with the MAC". This sensor
         // ends with it, backwards, and that guess would have missed it.
         assertTrue(TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", address))
@@ -119,6 +119,24 @@ class LyTpmsDecoderTest {
         assertTrue(!TpmsSignature.looksLikeSensor("0102030405060708", address))
         assertTrue(!TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", "AA:BB:CC:DD:EE:FF"))
         assertTrue(!TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", null))
+    }
+
+    @Test fun `a device that merely repeats its MAC is not adopted as a sensor`() {
+        // Captured in the room while hunting for the cap: all three repeat
+        // their own MAC and none of them is a tyre sensor. Nothing here
+        // decodes as a pressure, which is the only thing that may add one.
+        val strangers = listOf(
+            "C2CA702B4EBF248000640000" to "C2:CA:70:2B:4E:BF",
+            "F2DF89C852D9D46400000000" to "F2:DF:89:C8:52:D9",
+            "F5CBED753B0100FF6A9751BE7400000000" to "F5:CB:ED:75:3B:01",
+        )
+        for ((hex, mac) in strangers) {
+            assertTrue("$mac stopped looking like a candidate", TpmsSignature.looksLikeSensor(hex, mac))
+            assertNull(
+                "$mac was adopted as a tyre sensor",
+                LyTpmsDecoder.pressureKpa(LyTpmsDecoder.COMPANY_ID, bytes(hex), mac),
+            )
+        }
     }
 
     @Test fun `a foreign company id is never this sensor`() {

@@ -89,15 +89,16 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
             InfoHint(stringResource(R.string.tpms_none_yet))
         }
 
-        // The app's scan button, at the app's size, with the spinner in the
-        // empty half beside it. Swapping in a bare Button to make the spinner
-        // fit was me inventing a control the rest of settings does not use.
+        // Character for character what the radar and external GPS sections
+        // do, because they are the two scans that live in a settings section
+        // and this is the third. The spinner sits above the button there, not
+        // beside it; beside it was Flic's full screen, and mine.
         if (scanning) {
+            CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
             LeftAlignedScanButton(
                 label = stringResource(R.string.tpms_scan_stop),
                 onClick = { viewModel.toggleScan() },
                 containerColor = MaterialTheme.appColors.statusDanger,
-                trailing = { CircularProgressIndicator(modifier = Modifier.size(24.dp)) },
             )
         } else {
             LeftAlignedScanButton(

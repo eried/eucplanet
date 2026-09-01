@@ -229,22 +229,21 @@ class TpmsScanner @Inject constructor(
         if (seen.looksLikeSensor) {
             DiagnosticsLogger.note(line)
         }
-        // Adopted on sight, on the shape rather than on the decode.
+        // Adopted only once a packet has decoded as a pressure.
         //
-        // Requiring a decoded pressure meant that switching the decoder off
-        // switched off finding sensors as well: nothing could ever be adopted,
-        // so a scan that used to land on the rider's cap now ended with
-        // nothing at all. What identifies these is that they repeat their own
-        // MAC inside the payload, which they do so a receiver can tell four
-        // identical caps apart, and which almost nothing else in a garage
-        // does. That is true whether or not the pressure field is understood.
-        if (seen.looksLikeSensor) {
+        // Adopting on the MAC-in-payload shape instead was worse than the
+        // problem it solved: plenty of devices repeat their own address in an
+        // advertisement, so a laptop or a beacon in the room got added as the
+        // rider's tyre sensor. A sensor is a thing that reports a pressure. If
+        // nothing can be read from it, there is nothing to add, and saying so
+        // beats pairing a row that will sit empty forever.
+        //
+        // The consequence is deliberate: a model whose format is not decoded
+        // yet cannot be added at all. That is a decoding job, not a reason to
+        // relax what counts as a sensor.
+        decoded?.let {
             val hadSensor = tpms.pairedAddress.value != null
-            if (!hadSensor) tpms.adopt(address)
-            // A decoded pressure still goes in when there is one; a sensor
-            // whose format is not worked out yet is paired with no reading
-            // rather than not paired at all.
-            decoded?.let { tpms.submitPaired(it, address, now) }
+            tpms.submitPaired(it, address, now)
             // Found it, so stop looking. Flic ends its scan on pair, and a
             // radio left running after the answer arrived costs battery for
             // nothing. Only on the sensor that was actually adopted: a second
