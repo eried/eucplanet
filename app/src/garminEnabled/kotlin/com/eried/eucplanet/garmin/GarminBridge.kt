@@ -275,24 +275,23 @@ class GarminBridge @Inject constructor(
         // pushing frames, the chain has gone silent and the transport
         // needs to be rebuilt so a fresh socket can land.
         scope.launch {
-            var lastReopenMs = 0L
             while (true) {
                 delay(5_000L)
                 val lastAck = _lastSuccessAtMs.value
                 if (lastAck == 0L) continue // never connected yet
                 val sinceAck = System.currentTimeMillis() - lastAck
-                // Real devices (WIRELESS): never tear the SDK down (see below),
-                // but DO reopen the pacing window once per silent half-minute.
-                // With the cap full and no acks arriving, nothing else ever
-                // re-opens it; the worst case is five fresh frames into a watch
-                // that is truly gone, the best case is a link that heals on its
-                // own instead of waiting for a phone restart.
-                if (sinceAck > 30_000L && connectType == ConnectIQ.IQConnectType.WIRELESS &&
-                    System.currentTimeMillis() - lastReopenMs > 30_000L
-                ) {
-                    lastReopenMs = System.currentTimeMillis()
-                    for (id in registeredDevices.keys) reopenPacingWindow(id)
-                }
+                // NOTE: there is deliberately NO timer-based pacing-window
+                // reopen here. A blind "silent for 30 s, so release the cap"
+                // rule cannot tell a watch that is GONE from a watch that is
+                // merely SLOW, and the watch stops sending ALIVE while a
+                // transmit is outstanding (Bridge.mc: the heartbeat skips its
+                // tick while _txBusy), so congestion looks exactly like death.
+                // Releasing the cap then pushes more frames into an already
+                // backed-up link: the queue deepens, updates arrive later, the
+                // watch shows Disconnected, and the cycle repeats with a
+                // growing delay (field report 2026-09-02). A genuinely
+                // restarted watch is already handled precisely, and without
+                // guessing, by the WATCH_INFO and seq-regression reopens.
                 // Only rebuild the transport on the TETHERED dev path, where a
                 // half-dead local socket genuinely needs a fresh one. On real
                 // devices (WIRELESS) the watch's ALIVE ack is unreliable by
