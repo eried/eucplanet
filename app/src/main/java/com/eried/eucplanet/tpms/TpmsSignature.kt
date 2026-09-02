@@ -37,9 +37,16 @@ object TpmsSignature {
      * number and a scan that finds nothing.
      */
     fun isSensor(companyId: Int, payload: ByteArray, address: String?): Boolean =
-        companyId == COMPANY_ID &&
-            payload.size == PAYLOAD_LEN &&
-            endsWithOwnMac(payload, address)
+        // The documented family identifies itself by decoding, which is the
+        // strongest proof there is: one packet yields a pressure, a
+        // temperature, a battery level and a wheel number, and all four have
+        // to land somewhere believable at once.
+        ZeepinTpmsDecoder.pressureKpa(companyId, payload) != null ||
+            // The rider's own, which is recognised by shape because its
+            // reading cannot be read yet.
+            (companyId == COMPANY_ID &&
+                payload.size == PAYLOAD_LEN &&
+                endsWithOwnMac(payload, address))
 
     /** Whether the last six bytes are [address]'s own MAC, written backwards. */
     fun endsWithOwnMac(payload: ByteArray, address: String?): Boolean {

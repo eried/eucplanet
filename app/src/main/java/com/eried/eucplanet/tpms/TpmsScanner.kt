@@ -169,7 +169,8 @@ class TpmsScanner @Inject constructor(
                 manu[id] = raw.toHex()
                 if (TpmsSignature.isSensor(id, raw, result.device.address)) isKnownSensor = true
                 if (decoded == null) {
-                    decoded = LyTpmsDecoder.pressureKpa(id, raw, result.device.address)
+                    decoded = ZeepinTpmsDecoder.pressureKpa(id, raw)
+                        ?: LyTpmsDecoder.pressureKpa(id, raw, result.device.address)
                 }
             }
         }
