@@ -113,6 +113,20 @@ class BleConnectionManager @Inject constructor(
     private val _connectedDeviceName = MutableStateFlow<String?>(null)
     val connectedDeviceName: StateFlow<String?> = _connectedDeviceName.asStateFlow()
 
+    /**
+     * Address of the wheel behind the current connect target (virtual wheels
+     * use their pseudo-address); null after an explicit disconnect. Set as
+     * soon as a connect is requested, so pair it with [connectionState] ==
+     * CONNECTED (or use [connectedAddressOrNull]) to know which wheel is
+     * actually live. Drives the per-wheel alarm binding.
+     */
+    private val _connectedAddress = MutableStateFlow<String?>(null)
+    val connectedAddress: StateFlow<String?> = _connectedAddress.asStateFlow()
+
+    /** The connected wheel's address, or null while not fully connected. */
+    fun connectedAddressOrNull(): String? =
+        if (_connectionState.value == ConnectionState.CONNECTED) _connectedAddress.value else null
+
     /** Brand of the connected wheel, from the active adapter. Set on connect. */
     private val _connectedBrand = MutableStateFlow<String?>(null)
     val connectedBrand: StateFlow<String?> = _connectedBrand.asStateFlow()
@@ -442,6 +456,7 @@ class BleConnectionManager @Inject constructor(
         if (bluetoothManager.adapter?.isEnabled != true) {
             Log.i(TAG, "connect($address) deferred: Bluetooth is off")
             currentAddress = address
+            _connectedAddress.value = address
             currentName = name ?: currentName
             shouldReconnect = true
             _connectionState.value = ConnectionState.DISCONNECTED
@@ -449,6 +464,7 @@ class BleConnectionManager @Inject constructor(
         }
 
         currentAddress = address
+        _connectedAddress.value = address
         // Hold on to the name so the auto-reconnect path keeps the same hint;
         // otherwise a P6 that briefly drops would come back as an unknown wheel.
         currentName = name ?: currentName
@@ -593,6 +609,7 @@ class BleConnectionManager @Inject constructor(
         wheel.reset()
         virtualWheel = wheel
         currentAddress = VirtualWheelRegistry.pseudoAddress(id)
+        _connectedAddress.value = currentAddress
         currentName = wheel.bleName.takeIf { it.isNotEmpty() }
         _connectedDeviceName.value = "${wheel.displayName} (virtual)"
         shouldReconnect = false
@@ -653,6 +670,7 @@ class BleConnectionManager @Inject constructor(
         shouldReconnect = false
         stopReconnectScan()
         currentAddress = null
+        _connectedAddress.value = null
         currentName = null
         rxCharacteristic = null
         writeReady = false

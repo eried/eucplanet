@@ -1100,6 +1100,8 @@
     <string name="alarm_repeat_label">発動</string>
     <string name="alarm_repeat_single">1回</string>
     <string name="alarm_repeat_multi">複数回</string>
+    <string name="alarm_wheel_only_label">現在接続中のホイールのみに適用</string>
+    <string name="alarm_summary_wheel_fmt">適用対象: %1$s</string>
     <string name="alarm_predict_label">予測発動</string>
     <string name="alarm_predict_realtime">今すぐ</string>
     <string name="alarm_state_atleast">%1$s が %2$s 以上</string>

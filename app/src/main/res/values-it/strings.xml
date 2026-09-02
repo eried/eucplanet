@@ -659,6 +659,8 @@
     <string name="alarm_repeat_label">Attivazione</string>
     <string name="alarm_repeat_single">Una</string>
     <string name="alarm_repeat_multi">Più</string>
+    <string name="alarm_wheel_only_label">Vale solo per la ruota attualmente connessa</string>
+    <string name="alarm_summary_wheel_fmt">Vale per: %1$s</string>
     <string name="alarm_predict_label">Attivazione predittiva</string>
     <string name="alarm_predict_realtime">Ora</string>
     <string name="alarm_state_atleast">%1$s è %2$s o più</string>

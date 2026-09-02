@@ -1100,6 +1100,8 @@
     <string name="alarm_repeat_label">Tetikleme</string>
     <string name="alarm_repeat_single">Tek</string>
     <string name="alarm_repeat_multi">Çok</string>
+    <string name="alarm_wheel_only_label">Yalnızca şu anda bağlı tekerlek için geçerli</string>
+    <string name="alarm_summary_wheel_fmt">Geçerli: %1$s</string>
     <string name="alarm_predict_label">Tahminli tetikleme</string>
     <string name="alarm_predict_realtime">Şimdi</string>
     <string name="alarm_state_atleast">%1$s, %2$s veya üzeri</string>

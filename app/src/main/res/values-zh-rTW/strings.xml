@@ -1100,6 +1100,8 @@
     <string name="alarm_repeat_label">觸發</string>
     <string name="alarm_repeat_single">一次</string>
     <string name="alarm_repeat_multi">多次</string>
+    <string name="alarm_wheel_only_label">僅適用於目前連線的車輪</string>
+    <string name="alarm_summary_wheel_fmt">適用於：%1$s</string>
     <string name="alarm_predict_label">預測觸發</string>
     <string name="alarm_predict_realtime">立即</string>
     <string name="alarm_state_atleast">%1$s 達到 %2$s 以上</string>

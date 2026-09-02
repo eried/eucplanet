@@ -1099,6 +1099,8 @@
     <string name="alarm_repeat_label">Utlösning</string>
     <string name="alarm_repeat_single">En gång</string>
     <string name="alarm_repeat_multi">Flera</string>
+    <string name="alarm_wheel_only_label">Gäller endast det just nu anslutna hjulet</string>
+    <string name="alarm_summary_wheel_fmt">Gäller: %1$s</string>
     <string name="alarm_predict_label">Förutseende larm</string>
     <string name="alarm_predict_realtime">Nu</string>
     <string name="alarm_state_atleast">%1$s är %2$s eller mer</string>

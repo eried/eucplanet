@@ -1102,6 +1102,8 @@
     <string name="alarm_repeat_label">Déclenchement</string>
     <string name="alarm_repeat_single">Unique</string>
     <string name="alarm_repeat_multi">Répété</string>
+    <string name="alarm_wheel_only_label">S\'applique uniquement à la roue actuellement connectée</string>
+    <string name="alarm_summary_wheel_fmt">S\'applique à : %1$s</string>
     <string name="alarm_section_advanced">Avancé</string>
     <string name="alarm_predict_label">Déclenchement prédictif</string>
     <string name="alarm_predict_realtime">Direct</string>

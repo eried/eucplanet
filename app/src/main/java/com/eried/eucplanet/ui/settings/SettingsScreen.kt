@@ -264,6 +264,7 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.LocalSettingsSearchQuery
 import com.eried.eucplanet.ui.common.highlightMatches
+import com.eried.eucplanet.ui.common.settingsSearchAnchor
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentPink
@@ -318,16 +319,6 @@ private const val SEARCH_MIN_CHARS = 2
 private fun searchSettleFor(length: Int): Long =
     if (length <= SEARCH_MIN_CHARS) 340L else SEARCH_SETTLE_MS
 
-/**
- * How a matching sub-heading tells the search where it is.
- *
- * Sections already report their own position for deep links, but a section is
- * a coarse target: "tpms" matches Integration, whose heading is a screenful
- * above the TPMS one. Headings that match report too, and the scroll prefers
- * them.
- */
-internal val LocalSearchHeadingReporter =
-    androidx.compose.runtime.staticCompositionLocalOf<(String, Float) -> Unit> { { _, _ -> } }
 
 // Reads the one shipped-language registry rather than repeating it: a locale
 // added there reaches the picker with no edit here.
@@ -451,6 +442,10 @@ fun SettingsScreen(
     var targetSectionTop by remember { mutableStateOf<Float?>(null) }
     var hasScrolledToSection by rememberSaveable(initialTab) { mutableStateOf(false) }
 
+    // Ranked search auto-scroll: as the rider types, the best-matching anchor
+    // (section title outranks a named sub-block) is smooth-scrolled to the top.
+    val searchScroller = remember { com.eried.eucplanet.ui.common.SettingsSearchScroller() }
+
     // One non-restarting effect. Keying this on the target position - the
     // obvious thing - cancels its own animateScrollTo the moment the scroll
     // moves the target, and the restart then computes an absolute offset from
@@ -473,6 +468,35 @@ fun SettingsScreen(
             kotlinx.coroutines.delay(160)
         }
         hasScrolledToSection = true
+    }
+
+    // Search auto-scroll. Keyed on the SETTLED query rather than the typed one:
+    // the search field owns the text it is being given and only hands it over
+    // once the typing pauses, because reading it up here recomposed the whole
+    // screen and its fourteen search corpora on every keystroke.
+    // Waits for the expand reflow to settle, then brings the best match to the
+    // top. An empty query leaves the scroll position alone.
+    val searchScrollTrigger = settledQuery.trim()
+    LaunchedEffect(searchScrollTrigger) {
+        searchScroller.query = searchScrollTrigger
+        if (searchScrollTrigger.isEmpty()) return@LaunchedEffect
+        val container = scrollContainerTop ?: run {
+            while (scrollContainerTop == null) kotlinx.coroutines.delay(16)
+            scrollContainerTop!!
+        }
+        // Let the section filter/expand animation settle so positions are stable.
+        var prev = -1
+        while (true) {
+            val sig = searchScroller.positionsSignature()
+            kotlinx.coroutines.delay(180)
+            if (sig == prev) break
+            prev = sig
+        }
+        val best = searchScroller.best() ?: return@LaunchedEffect
+        val delta = (best.windowY - container).toInt()
+        // Scroll in either direction so the match sits at the top (small breathing gap).
+        val target = (scrollState.value + delta - 8).coerceIn(0, scrollState.maxValue)
+        if (kotlin.math.abs(target - scrollState.value) > 8) scrollState.animateScrollTo(target)
     }
 
     val settings = settingsState ?: return
@@ -956,82 +980,34 @@ fun SettingsScreen(
             val topLevel = orderedMovable.filter { it.key !in hiddenKeys }
             val moreSecs = orderedMovable.filter { it.key in hiddenKeys }
 
-            // Where the first match is, so the page can go there. Filtering
-            // and highlighting on their own leave the match below the fold on
-            // a long page, which reads as a search that did nothing.
             // The one section that opens. The others stay exactly where the
             // rider left them: filtering them off the page took away the map
             // they navigate by, and expanding every match at once buried the
             // answer in a wall of open sections. A broad word like "speed"
             // used to open five.
+            //
+            // The best match, not the first one down the page. "speed" touches
+            // a unit label in Display and appearance and six labels in Wheel
+            // parameters, and opening Display because it is higher up left the
+            // rider looking at a section with the answer nowhere in sight. A
+            // section named for the word wins outright; otherwise the one that
+            // mentions it most does.
             val searchScrollKey = if (searching) {
-                // The best match, not the first one down the page. "speed"
-                // touches a unit label in Display and appearance and five
-                // labels in Wheel parameters, and opening Display because it
-                // is higher up left the rider looking at a section with the
-                // answer nowhere in sight. A section named for the word wins
-                // outright; otherwise the one that mentions it most does.
                 (topLevel + moreSecs)
                     .map { it to it.searchScore(query) }
                     .filter { it.second > 0 }
                     .maxByOrNull { it.second }
                     ?.first?.key
             } else null
-            var searchTargetTop by remember { mutableStateOf<Float?>(null) }
-            // A matching heading beats the section it lives in: the section is
-            // where the answer is filed, the heading is where the answer is.
-            var headingTop by remember(query) { mutableStateOf<Float?>(null) }
-            // Which heading was picked, so its position can keep being
-            // updated. Recording only the first report froze the target at
-            // where it sat BEFORE the scroll, and scrolling by a stale offset
-            // is how "tpms" kept landing on Integration instead of on TPMS.
-            var headingTitle by remember(query) { mutableStateOf<String?>(null) }
-            LaunchedEffect(searchScrollKey) {
-                searchTargetTop = null
-                if (searchScrollKey == null) return@LaunchedEffect
-                val container = scrollContainerTop ?: return@LaunchedEffect
-                // Wait for the filtered page to lay out, then for the section
-                // to stop moving: sections above it are still collapsing as
-                // the filter applies, and scrolling to a position that is
-                // still shifting lands somewhere else.
-                while (searchTargetTop == null) kotlinx.coroutines.delay(16)
-                // Give a matching heading a moment to report; it is inside the
-                // section, so it lays out just after it.
-                kotlinx.coroutines.delay(80)
-                while (true) {
-                    val t0 = headingTop ?: searchTargetTop
-                    kotlinx.coroutines.delay(120)
-                    if ((headingTop ?: searchTargetTop) == t0) break
-                }
-                // Relative, like the deep-link scroll: an absolute offset
-                // computed from an already-scrolled window converges on the
-                // wrong place.
-                //
-                // And repeated, because one shot cannot land. Scrolling moves
-                // every target it was aiming at, and a heading far below the
-                // fold reports its real position only once the page has moved
-                // toward it. Each pass reads where the answer is NOW and
-                // closes the remaining gap, which is what makes the search
-                // land on the heading rather than near it.
-                repeat(6) {
-                    val target = headingTop ?: searchTargetTop ?: return@LaunchedEffect
-                    val delta = (target - container).toInt()
-                    if (kotlin.math.abs(delta) <= 8) return@LaunchedEffect
-                    scrollState.animateScrollTo((scrollState.value + delta).coerceAtLeast(0))
-                    kotlinx.coroutines.delay(120)
-                }
-            }
 
+            // Scrolling belongs to the anchor scroller, which keeps every
+            // anchor's CURRENT position in a map and picks the best by rank.
+            // What stood here was one heading reporting its position once and
+            // never again, scrolled at six times over until the number stopped
+            // moving. Same job, worse.
             androidx.compose.runtime.CompositionLocalProvider(
                 LocalSettingsSearchQuery provides query,
-                LocalSearchHeadingReporter provides { title, y ->
-                    // The first matching heading wins; later ones are further
-                    // down the page and would drag the rider past the answer.
-                    // That one then keeps reporting, so the scroll always has
-                    // its current position rather than where it started.
-                    if (headingTitle == null) headingTitle = title
-                    if (headingTitle == title) headingTop = y
-                },
+                com.eried.eucplanet.ui.common.LocalSettingsSearchScroller provides searchScroller,
             ) {
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
@@ -1041,19 +1017,20 @@ fun SettingsScreen(
                     val explicitlyExpanded = expandedSections.contains(sec.key)
                     val openedByQuery = searching && sec.key == searchScrollKey
                     val isExpanded = explicitlyExpanded || openedByQuery
-                    var sectionModifier = when {
-                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather ->
-                            Modifier.onGloballyPositioned {
-                                targetSectionTop = it.positionInWindow().y
-                            }
-                        // The first search match reports its position the same
-                        // way, so the scroll above has something to aim at.
-                        sec.key == searchScrollKey ->
-                            Modifier.onGloballyPositioned {
-                                searchTargetTop = it.positionInWindow().y
-                            }
-                        else -> Modifier
-                    }
+                    var sectionModifier = if (
+                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather
+                    ) {
+                        Modifier.onGloballyPositioned {
+                            targetSectionTop = it.positionInWindow().y
+                        }
+                    } else Modifier
+                    // The section title is the top-ranked search anchor, so a
+                    // query naming a section brings the whole section up.
+                    sectionModifier = sectionModifier.settingsSearchAnchor(
+                        key = "section:${sec.key}",
+                        rank = com.eried.eucplanet.ui.common.SearchAnchorRank.SECTION,
+                        text = sec.title,
+                    )
                     if (indent) sectionModifier = sectionModifier.padding(start = 12.dp)
                     CollapsibleSection(
                         modifier = sectionModifier,
@@ -9233,18 +9210,18 @@ private fun SettingsSearchField(
 @Composable
 internal fun SectionHeader(title: String) {
     val query = LocalSettingsSearchQuery.current
-    // A heading that matches the query says where it is, so the search can
-    // land on it rather than on the section containing it. "tpms" used to
-    // scroll to the top of Integration with the answer still off-screen.
-    val report = LocalSearchHeadingReporter.current
-    val matches = query.isNotEmpty() && title.contains(query, ignoreCase = true)
     Text(
         text = highlightMatches(title, query),
         style = MaterialTheme.typography.headlineMedium,
         color = MaterialTheme.appColors.sectionHeader,
-        modifier = if (matches) {
-            Modifier.onGloballyPositioned { report(title, it.positionInWindow().y) }
-        } else Modifier,
+        // Named sub-block: a rank below a section title, so a query still matching
+        // the section name scrolls to the section, and one that only matches this
+        // sub-block (e.g. "Motoeye") scrolls here instead.
+        modifier = Modifier.settingsSearchAnchor(
+            key = "sub:$title",
+            rank = com.eried.eucplanet.ui.common.SearchAnchorRank.SUBBLOCK,
+            text = title,
+        )
     )
 }
 

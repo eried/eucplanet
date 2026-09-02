@@ -515,6 +515,8 @@
     <string name="alarm_repeat_label">Utløsning</string>
     <string name="alarm_repeat_single">Én</string>
     <string name="alarm_repeat_multi">Flere</string>
+    <string name="alarm_wheel_only_label">Gjelder kun hjulet som er tilkoblet nå</string>
+    <string name="alarm_summary_wheel_fmt">Gjelder: %1$s</string>
     <string name="alarm_predict_label">Forvarsling</string>
     <string name="alarm_predict_realtime">Nå</string>
     <string name="alarm_state_atleast">%1$s er %2$s eller mer</string>

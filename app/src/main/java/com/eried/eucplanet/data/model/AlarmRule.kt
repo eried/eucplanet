@@ -105,7 +105,22 @@ data class AlarmRule(
      * Only triggers while moving toward the threshold; a flat or retreating
      * value never fires predictively. See [com.eried.eucplanet.service.AlarmEngine].
      */
-    val leadTimeMs: Int = 0
+    val leadTimeMs: Int = 0,
+
+    // Wheel binding
+    /**
+     * When set, the rule fires ONLY while this wheel (its BLE address, or a
+     * virtual wheel's pseudo-address) is the connected one. Null keeps the
+     * classic behaviour: the rule applies to whatever wheel is connected.
+     * Stamped from the live connection when the rider enables "Only this
+     * wheel" in the editor's Advanced section.
+     */
+    val wheelAddress: String? = null,
+    /**
+     * Display name of the bound wheel, captured at bind time so the rule row
+     * can say which wheel it belongs to even while that wheel is away.
+     */
+    val wheelName: String? = null
 )
 
 enum class AlarmMetric(

@@ -1855,6 +1855,8 @@ class SyncManager @Inject constructor(
                 put("cooldownSeconds", r.cooldownSeconds)
                 put("repeatWhileActive", r.repeatWhileActive)
                 put("leadTimeMs", r.leadTimeMs)
+                r.wheelAddress?.let { put("wheelAddress", it) }
+                r.wheelName?.let { put("wheelName", it) }
             })
         }
     }
@@ -1889,7 +1891,10 @@ class SyncManager @Inject constructor(
                 vibrateTarget = o.optString("vibrateTarget", default.vibrateTarget),
                 cooldownSeconds = o.optInt("cooldownSeconds", default.cooldownSeconds),
                 repeatWhileActive = o.optBoolean("repeatWhileActive", default.repeatWhileActive),
-                leadTimeMs = o.optInt("leadTimeMs", default.leadTimeMs)
+                leadTimeMs = o.optInt("leadTimeMs", default.leadTimeMs),
+                // Absent in older backups -> null -> the classic any-wheel rule.
+                wheelAddress = o.optString("wheelAddress").takeIf { it.isNotEmpty() },
+                wheelName = o.optString("wheelName").takeIf { it.isNotEmpty() }
             )
         }
         return out
