@@ -46,10 +46,36 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var useP6Protocol: Boolean = false
 
+    companion object {
+        /** `p6` as its own token: not preceded or followed by a letter or digit. */
+        private val RX_P6_NAME = Regex("(^|[^a-z0-9])p6([^a-z0-9]|$)")
+
+        /** The name rule on its own, so a test can hold it to every spelling. */
+        internal fun isP6NameForTest(deviceName: String?): Boolean {
+            val n = deviceName?.lowercase() ?: return false
+            return RX_P6_NAME.containsMatchIn(n)
+        }
+    }
+
     /** Per-pack cells-query rotation index. V14 BMS has 4 packs at addresses
      *  0x24..0x27; we cycle through them on each pollStats() call so all 4
      *  refresh on the stats cadence without spamming BLE traffic. */
     @Volatile private var v14PackPollIndex: Int = 0
+
+    /**
+     * Whether this BLE name is a P6, tolerantly.
+     *
+     * Was `startsWith("P6-")`, which is exactly one spelling. It is
+     * case-sensitive, it demands the hyphen, and it demands the name begin
+     * there, so `p6-1234`, `P6_1234`, `P6 1234` and `InMotion P6-1234` all
+     * read as not-a-P6 and take the V-series path with no warning.
+     *
+     * Matched as a whole token instead, so a name that merely contains those
+     * two characters is still not one: `MSP6` has a letter in front of the
+     * `p6` and stays a Begode, and `ADVENTURE-P61234` runs a digit straight
+     * after it and stays a V14.
+     */
+    internal fun isP6Name(deviceName: String?): Boolean = isP6NameForTest(deviceName)
 
     /** Last controller and battery temps (C) from a P6 0x84 detailed frame,
      *  injected into slots 1/2 of every (frequent) realtime frame and held
@@ -81,7 +107,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * and let [initSequence] / [pollRealtime] / [decode] take the P6 branch.
      */
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
-        if (deviceName != null && deviceName.startsWith("P6-")) {
+        // Every P6-specific path in this adapter hangs off this one line: the
+        // command set, the realtime parse, the temperatures, the speed cap and
+        // whether the wheel counts as a verified model rather than a
+        // preliminary one. Miss it and the wheel is still routed here, still
+        // polled, and still decoded - as a V-series, at the wrong offsets. So
+        // it is worth recording exactly what was decided and from what.
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "InMotion V2 connecting: name=${deviceName ?: "(none)"} p6=${isP6Name(deviceName)}"
+        )
+        if (isP6Name(deviceName)) {
             detectedModel = InMotionV2Model.P6
             useP6Protocol = true
             // Surface the model right away so _maxSpeedCap and other
