@@ -2417,4 +2417,5 @@
     <string name="action_reset_metrics_done">Metriche azzerate</string>
     <string name="action_reset_metrics_wheel_done">Metriche azzerate, parziale del monoruota cancellato</string>
     <string name="tpms_not_decoded">Rilevato. Le letture di questo modello non sono ancora decodificate.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

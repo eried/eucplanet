@@ -2513,4 +2513,5 @@
     <string name="action_reset_metrics_done">記録をリセットしました</string>
     <string name="action_reset_metrics_wheel_done">記録をリセットし、ホイールの積算距離も消去しました</string>
     <string name="tpms_not_decoded">検出しました。このモデルの数値はまだ解読できていません。</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

@@ -2400,4 +2400,5 @@
     <string name="action_reset_metrics_done">Målingene er nullstilt</string>
     <string name="action_reset_metrics_wheel_done">Målingene er nullstilt, hjulets tripteller er tømt</string>
     <string name="tpms_not_decoded">Funnet. Avlesningene fra denne modellen er ennå ikke dekodet.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

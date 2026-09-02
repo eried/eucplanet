@@ -2514,4 +2514,5 @@
     <string name="action_reset_metrics_done">Meters gereset</string>
     <string name="action_reset_metrics_wheel_done">Meters gereset, ritteller van het wiel gewist</string>
     <string name="tpms_not_decoded">Gevonden. De waarden van dit model zijn nog niet ontcijferd.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

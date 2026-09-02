@@ -2315,4 +2315,5 @@
     <string name="action_reset_metrics_done">Mittarit nollattu</string>
     <string name="action_reset_metrics_wheel_done">Mittarit nollattu, pyörän matkamittari tyhjennetty</string>
     <string name="tpms_not_decoded">Löytyi. Tämän mallin lukemia ei ole vielä purettu.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

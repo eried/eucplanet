@@ -84,6 +84,47 @@ class TpmsPolicyTest {
         assertNull(repo.current.value)
     }
 
+    /** A pairing store that survives being handed to a second repository. */
+    private class FakeStore(var saved: String? = null) : TpmsPairingStore {
+        override fun load(onLoaded: (String?) -> Unit) = onLoaded(saved)
+        override fun save(address: String?) { saved = address }
+    }
+
+    @Test fun `a paired sensor is still paired after the app restarts`() {
+        // It never was: pairing lived in memory, so a rider who found their
+        // cap and closed the app had to scan for it again, every time.
+        val store = FakeStore()
+        TpmsRepository(store).adopt("5B:61:1B:11:11:11")
+        assertEquals("5B:61:1B:11:11:11", store.saved)
+
+        val afterRestart = TpmsRepository(store)
+        assertEquals("5B:61:1B:11:11:11", afterRestart.pairedAddress.value)
+    }
+
+    @Test fun `forgetting a sensor outlives the app too`() {
+        // Otherwise a sensor the rider deleted is back on the next launch.
+        val store = FakeStore("5B:61:1B:11:11:11")
+        val repo = TpmsRepository(store)
+        assertEquals("5B:61:1B:11:11:11", repo.pairedAddress.value)
+        repo.forgetPaired(t0)
+        assertNull(store.saved)
+        assertNull(TpmsRepository(store).pairedAddress.value)
+    }
+
+    @Test fun `a sensor found during startup is not overwritten by the stored one`() {
+        // load() answers whenever the settings store gets round to it, which
+        // can be after a scan has already adopted something.
+        var answer: ((String?) -> Unit)? = null
+        val slow = object : TpmsPairingStore {
+            override fun load(onLoaded: (String?) -> Unit) { answer = onLoaded }
+            override fun save(address: String?) = Unit
+        }
+        val repo = TpmsRepository(slow)
+        repo.adopt("AA:BB:CC:DD:EE:FF")
+        answer?.invoke("5B:61:1B:11:11:11")
+        assertEquals("AA:BB:CC:DD:EE:FF", repo.pairedAddress.value)
+    }
+
     @Test fun `forgetting a paired sensor hands the wheel's back`() {
         val repo = TpmsRepository()
         repo.submitWheel(200f, t0)

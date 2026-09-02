@@ -2315,4 +2315,5 @@
     <string name="action_reset_metrics_done">Mérések nullázva</string>
     <string name="action_reset_metrics_wheel_done">Mérések nullázva, a kerék napi számlálója törölve</string>
     <string name="tpms_not_decoded">Megtalálva. Ennek a modellnek az értékei még nincsenek dekódolva.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

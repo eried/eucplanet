@@ -2527,4 +2527,5 @@
     <string name="action_reset_metrics_done">Målinger nulstillet</string>
     <string name="action_reset_metrics_wheel_done">Målinger nulstillet, hjulets triptæller ryddet</string>
     <string name="tpms_not_decoded">Fundet. Aflæsninger fra denne model er endnu ikke afkodet.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

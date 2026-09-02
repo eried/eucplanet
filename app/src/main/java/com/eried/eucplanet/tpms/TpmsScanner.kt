@@ -257,9 +257,13 @@ class TpmsScanner @Inject constructor(
         /**
          * How long one scan runs.
          *
-         * Long enough for a sensor that only reports when the wheel moves, and
-         * short enough that a rider who walked away is not still scanning.
+         * These caps sleep between broadcasts and some only wake when the
+         * wheel moves, so a minute was not long enough to be sure: a scan that
+         * ends before the sensor speaks looks exactly like a sensor that is
+         * not there. Three minutes is long enough to roll the wheel a little
+         * and still short enough that a rider who walked away is not leaving
+         * the radio running all evening.
          */
-        private const val SCAN_WINDOW_S = 60
+        private const val SCAN_WINDOW_S = 180
     }
 }

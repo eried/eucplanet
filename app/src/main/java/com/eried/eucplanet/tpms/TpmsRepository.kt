@@ -24,7 +24,12 @@ import javax.inject.Singleton
  * checked against a real sensor instead of a guess about one.
  */
 @Singleton
-class TpmsRepository @Inject constructor() {
+class TpmsRepository @Inject constructor(
+    private val pairing: TpmsPairingStore,
+) {
+
+    /** For tests, which want the rules without a settings store behind them. */
+    constructor() : this(TpmsPairingStore.None)
 
     private var wheelReading: TpmsReading? = null
     private var pairedReading: TpmsReading? = null
@@ -38,7 +43,25 @@ class TpmsRepository @Inject constructor() {
      */
     val pairedAddress: StateFlow<String?> = _pairedAddress.asStateFlow()
 
-    fun adopt(address: String) { _pairedAddress.value = address }
+    init {
+        // Below _pairedAddress on purpose: initialisers run in declaration
+        // order, so loading from up beside the constructor read a field that
+        // did not exist yet and threw the moment a store answered straight
+        // away.
+        //
+        // A sensor paired on a previous run is still the rider's sensor. Only
+        // taken if nothing has been adopted since, so a scan that found one
+        // while this was still loading is not overwritten by an older answer.
+        pairing.load { saved ->
+            if (saved != null && _pairedAddress.value == null) _pairedAddress.value = saved
+        }
+    }
+
+    fun adopt(address: String) {
+        if (_pairedAddress.value == address) return
+        _pairedAddress.value = address
+        pairing.save(address)
+    }
 
     private val _current = MutableStateFlow<TpmsReading?>(null)
 
@@ -68,7 +91,7 @@ class TpmsRepository @Inject constructor() {
     fun submitPaired(kpa: Float, address: String? = null, nowMs: Long = System.currentTimeMillis()) {
         if (address != null) {
             val owned = _pairedAddress.value
-            if (owned == null) _pairedAddress.value = address
+            if (owned == null) adopt(address)
             else if (owned != address) return
         }
         pairedReading = TpmsPolicy.readingOf(kpa, TpmsSource.PAIRED, nowMs) ?: pairedReading
@@ -84,6 +107,9 @@ class TpmsRepository @Inject constructor() {
     fun forgetPaired(nowMs: Long = System.currentTimeMillis()) {
         pairedReading = null
         _pairedAddress.value = null
+        // Forgetting has to outlive the app too, or a deleted sensor comes
+        // back on the next launch.
+        pairing.save(null)
         recompute(nowMs)
     }
 

@@ -2512,4 +2512,5 @@
     <string name="action_reset_metrics_done">Показатели сброшены</string>
     <string name="action_reset_metrics_wheel_done">Показатели сброшены, пробег колеса обнулён</string>
     <string name="tpms_not_decoded">Найден. Показания этой модели пока не расшифрованы.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

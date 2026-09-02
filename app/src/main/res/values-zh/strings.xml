@@ -2379,4 +2379,5 @@
     <string name="action_reset_metrics_done">数据已重置</string>
     <string name="action_reset_metrics_wheel_done">数据已重置，独轮车里程已清零</string>
     <string name="tpms_not_decoded">已检测到。该型号的读数尚未解码。</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

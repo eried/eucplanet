@@ -2509,4 +2509,5 @@
     <string name="action_reset_metrics_done">Показники скинуто</string>
     <string name="action_reset_metrics_wheel_done">Показники скинуто, пробіг колеса обнулено</string>
     <string name="tpms_not_decoded">Знайдено. Показники цієї моделі ще не розшифровані.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

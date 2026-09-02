@@ -2315,4 +2315,5 @@
     <string name="action_reset_metrics_done">Valori resetate</string>
     <string name="action_reset_metrics_wheel_done">Valori resetate, contorul roții șters</string>
     <string name="tpms_not_decoded">Detectat. Valorile acestui model nu sunt încă decodate.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
 </resources>

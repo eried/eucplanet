@@ -65,7 +65,15 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         // nothing is explained: the row IS the answer.
         if (hasPaired) {
             TpmsSensorRow(
-                title = stringResource(R.string.tpms_paired_sensor),
+                // Named for the sensor rather than for what it is. "Tire
+                // sensor" is the category, and with one row it says nothing a
+                // rider did not already know; the family plus the front of the
+                // address is what they recognise their own cap by.
+                title = stringResource(
+                    R.string.tpms_paired_sensor_fmt,
+                    stringResource(R.string.tpms_family_ly),
+                    shortAddress(paired),
+                ),
                 // The address is only worth the line while there is a reading
                 // to go with it. With none, the rider's question is why the
                 // number is missing, and the address does not answer it.
@@ -117,6 +125,16 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
 }
 
 /**
+ * The front of a MAC, which is how a rider recognises their own sensor.
+ *
+ * The first three octets: this family burns the same 11:11:11 into the tail of
+ * every unit it ships, so the usual trick of showing the last few characters
+ * would give every sensor the same name.
+ */
+private fun shortAddress(address: String?): String =
+    address?.split(":")?.take(3)?.joinToString("")?.uppercase().orEmpty()
+
+/**
  * One sensor rendered like a Watch device card: leading icon, name over a
  * status subtitle, and a live/idle dot on the right (with the reading when a
  * sensor is reporting). Mirrors DeviceCard so both read as the same kind of row.
@@ -155,7 +173,12 @@ private fun TpmsSensorRow(
                     subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = LocalContentColor.current.copy(alpha = 0.72f),
-                    maxLines = 1,
+                    // Wraps. One line was fine while this held an address and
+                    // nothing else; the moment it had to explain a missing
+                    // reading it cut the sentence off mid word, leaving the
+                    // rider with the half that raises the question and none of
+                    // the half that answers it.
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
             }

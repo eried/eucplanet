@@ -2533,4 +2533,6 @@
     <string name="action_reset_metrics_done">Metrics reset</string>
     <string name="action_reset_metrics_wheel_done">Metrics reset, wheel trip cleared</string>
     <string name="tpms_not_decoded">Detected. Readings from this model are not decoded yet.</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_family_ly" translatable="false">LY TPMS</string>
 </resources>
