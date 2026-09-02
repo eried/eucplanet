@@ -62,10 +62,31 @@ class BleWriteQueue(private val commandCapacity: Int = COMMAND_CAPACITY) {
          * a stack that has already said it is busy.
          */
         fun retryDelayMs(attempt: Int): Long = (attempt.coerceAtLeast(1) * 60L).coerceAtMost(420L)
+
+        /**
+         * How many distinct polls may wait at once.
+         *
+         * The busiest wheel here asks for realtime, settings and stats, and
+         * the V14 rotates four BMS pack queries through the stats slot, so
+         * eight is roughly double what any wheel needs.
+         */
+        const val POLL_KINDS_CAPACITY = 8
     }
 
     private val commands = ArrayDeque<ByteArray>()
-    private var pendingPoll: ByteArray? = null
+
+    /**
+     * The waiting polls, one per distinct poll, oldest first.
+     *
+     * Not a single slot. A wheel with more than one kind of poll had its
+     * slower one thrown away by its faster one before it could ever be sent:
+     * on the P6 the 0x84 detailed frame, which is the only carrier of motor
+     * temperature, lost every race against a realtime poll running several
+     * times a second, and on the V14 the four BMS pack queries did the same to
+     * each other. Keyed by the bytes, so a repeat of the same poll still
+     * replaces its predecessor, which is all the original rule was for.
+     */
+    private val pendingPolls = LinkedHashMap<String, ByteArray>()
 
     /** Polls thrown away because a newer one arrived. Normal, worth counting. */
     var supersededPolls = 0
@@ -75,7 +96,7 @@ class BleWriteQueue(private val commandCapacity: Int = COMMAND_CAPACITY) {
     var droppedCommands = 0
         private set
 
-    val isEmpty: Boolean get() = commands.isEmpty() && pendingPoll == null
+    val isEmpty: Boolean get() = commands.isEmpty() && pendingPolls.isEmpty()
     val commandsWaiting: Int get() = commands.size
 
     /**
@@ -85,8 +106,16 @@ class BleWriteQueue(private val commandCapacity: Int = COMMAND_CAPACITY) {
      */
     fun offer(kind: Kind, data: ByteArray): Boolean {
         if (kind == Kind.POLL) {
-            if (pendingPoll != null) supersededPolls++
-            pendingPoll = data
+            val key = data.joinToString("") { "%02x".format(it) }
+            if (pendingPolls.put(key, data) != null) supersededPolls++
+            // A link stuck long enough to collect more distinct polls than any
+            // wheel actually has is stuck, not busy. Drop the oldest so the
+            // map cannot grow without bound.
+            while (pendingPolls.size > POLL_KINDS_CAPACITY) {
+                val oldest = pendingPolls.keys.first()
+                pendingPolls.remove(oldest)
+                supersededPolls++
+            }
             return true
         }
         if (commands.size >= commandCapacity) {
@@ -104,15 +133,17 @@ class BleWriteQueue(private val commandCapacity: Int = COMMAND_CAPACITY) {
     /** The next write to hand to the link, commands first. Null when idle. */
     fun take(): Entry? {
         commands.removeFirstOrNull()?.let { return Entry(Kind.COMMAND, it) }
-        pendingPoll?.let {
-            pendingPoll = null
-            return Entry(Kind.POLL, it)
+        // Oldest waiting poll first, so a slow one cannot be starved by a
+        // fast one that keeps arriving.
+        pendingPolls.keys.firstOrNull()?.let { key ->
+            val data = pendingPolls.remove(key)!!
+            return Entry(Kind.POLL, data)
         }
         return null
     }
 
     fun clear() {
         commands.clear()
-        pendingPoll = null
+        pendingPolls.clear()
     }
 }

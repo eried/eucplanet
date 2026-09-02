@@ -33,17 +33,35 @@ class BleWriteQueueTest {
     }
 
     @Test
-    fun `polls replace each other instead of piling up`() {
+    fun `a repeated poll replaces itself instead of piling up`() {
         // The poll loop keeps writing on its timer whatever the link is doing.
         // Holding all of them is what filled the queue and started refusing
-        // commands; the older ones ask for telemetry the newest already asks for.
+        // commands; a repeat asks for telemetry the newest already asks for.
+        //
+        // This used to offer fifty DIFFERENT polls and expect one survivor,
+        // which is the bug rather than the rule: a wheel with a slow poll and a
+        // fast one lost the slow one every time. On the P6 that was the 0x84
+        // detailed frame, the only carrier of motor temperature. Same poll,
+        // repeated, is the case the rule was always about.
         val q = BleWriteQueue()
-        repeat(50) { q.offer(BleWriteQueue.Kind.POLL, poll(it)) }
+        repeat(50) { q.offer(BleWriteQueue.Kind.POLL, poll(7)) }
 
         val only = q.take()!!
-        assertArrayEquals("the newest poll is the one worth sending", poll(49), only.data)
+        assertArrayEquals("the newest poll is the one worth sending", poll(7), only.data)
         assertNull(q.take())
         assertEquals(49, q.supersededPolls)
+    }
+
+    @Test
+    fun `distinct polls are not interchangeable`() {
+        // The regression this guards: a wheel that asks for more than one thing
+        // must get an answer to each.
+        val q = BleWriteQueue()
+        q.offer(BleWriteQueue.Kind.POLL, poll(1))
+        repeat(30) { q.offer(BleWriteQueue.Kind.POLL, poll(2)) }
+        val sent = generateSequence { q.take() }.map { it.data }.toList()
+        assertEquals(2, sent.size)
+        assertArrayEquals("the slow poll was starved by the fast one", poll(1), sent[0])
     }
 
     @Test
