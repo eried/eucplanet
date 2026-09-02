@@ -141,6 +141,15 @@ object SettingsJson {
             put("relayUrl", s.share.relayUrl)
             put("deviceSecret", s.share.deviceSecret)
         })
+        put("tpms", JSONObject().apply {
+            // Never written until now, so a paired sensor was forgotten on
+            // every restart and a rider who picked psi got it back as bar. The
+            // fields existed on the model and the model was simply not on this
+            // list, which is the one way a setting can look wired up and still
+            // go nowhere.
+            put("pairedAddress", s.tpms.pairedAddress)
+            put("pressureUnit", s.tpms.pressureUnit)
+        })
         put("batteryPercent", JSONObject().apply {
             put("mode", s.batteryPercent.mode)
             put("minimumCellVoltageMv", s.batteryPercent.minimumCellVoltageMv)
@@ -502,6 +511,15 @@ object SettingsJson {
             relayUrl = m.optString("relayUrl", base.share.relayUrl),
             deviceSecret = m.optString("deviceSecret", base.share.deviceSecret),
         ) } ?: base.share,
+        tpms = j.optJSONObject("tpms")?.let { t ->
+            base.tpms.copy(
+                // optString turns a JSON null into the string "null", which
+                // would pair the rider to a sensor at address "null".
+                pairedAddress = t.optString("pairedAddress", "").ifBlank { null }
+                    ?.takeIf { it != "null" },
+                pressureUnit = t.optString("pressureUnit", base.tpms.pressureUnit),
+            )
+        } ?: base.tpms,
         batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
             base.batteryPercent.copy(
                 // A file written before the two switches became one choice
