@@ -105,6 +105,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -525,6 +526,7 @@ private fun AlarmRuleCard(
                     Text(
                         stringResource(R.string.alarm_summary_wheel_fmt, rule.wheelName ?: rule.wheelAddress),
                         fontSize = 11.sp,
+                        fontStyle = FontStyle.Italic,
                         color = color
                     )
                 }
