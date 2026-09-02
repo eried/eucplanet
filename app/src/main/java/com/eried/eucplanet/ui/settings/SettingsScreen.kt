@@ -264,6 +264,7 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.LocalSettingsSearchQuery
 import com.eried.eucplanet.ui.common.highlightMatches
+import com.eried.eucplanet.ui.common.settingsSearchAnchor
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentPink
@@ -405,6 +406,10 @@ fun SettingsScreen(
     var targetSectionTop by remember { mutableStateOf<Float?>(null) }
     var hasScrolledToSection by rememberSaveable(initialTab) { mutableStateOf(false) }
 
+    // Ranked search auto-scroll: as the rider types, the best-matching anchor
+    // (section title outranks a named sub-block) is smooth-scrolled to the top.
+    val searchScroller = remember { com.eried.eucplanet.ui.common.SettingsSearchScroller() }
+
     // One non-restarting effect. Keying this on the target position - the
     // obvious thing - cancels its own animateScrollTo the moment the scroll
     // moves the target, and the restart then computes an absolute offset from
@@ -427,6 +432,32 @@ fun SettingsScreen(
             kotlinx.coroutines.delay(160)
         }
         hasScrolledToSection = true
+    }
+
+    // Search auto-scroll. Keyed on the query so every keystroke re-targets; waits
+    // for the filter/expand reflow to settle, then brings the best match to the
+    // top. Empty query leaves the scroll position alone.
+    val searchScrollTrigger = searchQuery.trim()
+    LaunchedEffect(searchScrollTrigger) {
+        searchScroller.query = searchScrollTrigger
+        if (searchScrollTrigger.isEmpty()) return@LaunchedEffect
+        val container = scrollContainerTop ?: run {
+            while (scrollContainerTop == null) kotlinx.coroutines.delay(16)
+            scrollContainerTop!!
+        }
+        // Let the section filter/expand animation settle so positions are stable.
+        var prev = -1
+        while (true) {
+            val sig = searchScroller.positionsSignature()
+            kotlinx.coroutines.delay(180)
+            if (sig == prev) break
+            prev = sig
+        }
+        val best = searchScroller.best() ?: return@LaunchedEffect
+        val delta = (best.windowY - container).toInt()
+        // Scroll in either direction so the match sits at the top (small breathing gap).
+        val target = (scrollState.value + delta - 8).coerceIn(0, scrollState.maxValue)
+        if (kotlin.math.abs(target - scrollState.value) > 8) scrollState.animateScrollTo(target)
     }
 
     val settings = settingsState ?: return
@@ -902,7 +933,10 @@ fun SettingsScreen(
             val topLevel = orderedMovable.filter { it.key !in hiddenKeys }
             val moreSecs = orderedMovable.filter { it.key in hiddenKeys }
 
-            androidx.compose.runtime.CompositionLocalProvider(LocalSettingsSearchQuery provides query) {
+            androidx.compose.runtime.CompositionLocalProvider(
+                LocalSettingsSearchQuery provides query,
+                com.eried.eucplanet.ui.common.LocalSettingsSearchScroller provides searchScroller,
+            ) {
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
                     // While searching, only render sections whose corpus matches.
@@ -916,6 +950,13 @@ fun SettingsScreen(
                             targetSectionTop = it.positionInWindow().y
                         }
                     } else Modifier
+                    // Rank the section title as the top search anchor so a query that
+                    // matches a section name scrolls the whole section to the top.
+                    sectionModifier = sectionModifier.settingsSearchAnchor(
+                        key = "section:${sec.key}",
+                        rank = com.eried.eucplanet.ui.common.SearchAnchorRank.SECTION,
+                        text = sec.title,
+                    )
                     if (indent) sectionModifier = sectionModifier.padding(start = 12.dp)
                     CollapsibleSection(
                         modifier = sectionModifier,
@@ -8994,7 +9035,15 @@ internal fun SectionHeader(title: String) {
     Text(
         text = highlightMatches(title, query),
         style = MaterialTheme.typography.headlineMedium,
-        color = MaterialTheme.appColors.sectionHeader
+        color = MaterialTheme.appColors.sectionHeader,
+        // Named sub-block: a rank below a section title, so a query still matching
+        // the section name scrolls to the section, and one that only matches this
+        // sub-block (e.g. "Motoeye") scrolls here instead.
+        modifier = Modifier.settingsSearchAnchor(
+            key = "sub:$title",
+            rank = com.eried.eucplanet.ui.common.SearchAnchorRank.SUBBLOCK,
+            text = title,
+        )
     )
 }
 
