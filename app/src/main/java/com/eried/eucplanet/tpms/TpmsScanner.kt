@@ -175,16 +175,23 @@ class TpmsScanner @Inject constructor(
         }
         val svc = HashMap<String, String>()
         rec?.serviceData?.forEach { (uuid, bytes) -> svc[uuid.uuid.toString()] = bytes.toHex() }
-        // Nothing to say without a payload: a bare advertisement is every
-        // other device in the room.
-        if (manu.isEmpty() && svc.isEmpty()) return
+        // Advertised service UUIDs, which carry no payload of their own but
+        // are how some sensor families announce themselves. The best known
+        // cheap TPMS advertises service 0x27A5 with an empty payload and the
+        // short name "BR", and this scan used to drop it on the floor: an
+        // advertisement with no manufacturer and no service DATA was thrown
+        // away before anything looked at it. A hunt for an undecoded sensor
+        // cannot afford a filter that hides whole shapes of packet.
+        val uuids = rec?.serviceUuids?.map { it.uuid.toString() }.orEmpty()
+        val name = rec?.deviceName ?: runCatching { result.device.name }.getOrNull()
+        if (manu.isEmpty() && svc.isEmpty() && uuids.isEmpty() && name.isNullOrBlank()) return
 
         val address = result.device.address
         val now = System.currentTimeMillis()
         val previous = _seen.value.firstOrNull { it.address == address }
         val seen = Seen(
             address = address,
-            name = rec?.deviceName ?: runCatching { result.device.name }.getOrNull(),
+            name = name,
             rssi = result.rssi,
             manufacturer = manu,
             service = svc,
@@ -209,7 +216,8 @@ class TpmsScanner @Inject constructor(
         // the log line is there for a wired session.
         val line = "TPMS adv ${seen.address} ${seen.name ?: "(no name)"} rssi=${seen.rssi} " +
             "manu=${manu.entries.joinToString(",") { "0x%04X:%s".format(it.key, it.value) }} " +
-            "svc=${svc.entries.joinToString(",") { "${it.key}:${it.value}" }}"
+            "svc=${svc.entries.joinToString(",") { "${it.key}:${it.value}" }} " +
+            "uuids=${uuids.joinToString(",")}"
         // Every packet from a candidate, because that is the decode trail;
         // one line per new address otherwise, so the log stays readable.
         if (seen.looksLikeSensor) {

@@ -65,13 +65,16 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         // nothing is explained: the row IS the answer.
         if (hasPaired) {
             TpmsSensorRow(
-                // Named for the sensor rather than for what it is. "Tire
-                // sensor" is the category, and with one row it says nothing a
-                // rider did not already know; the family plus the front of the
-                // address is what they recognise their own cap by.
+                // Category plus the front of the address, and deliberately
+                // no brand. These caps are sold under a dozen names by a dozen
+                // shops from the same factory, and this one advertises under a
+                // squatted company id belonging to a games company that shut
+                // down in 2014, so there is no vendor to read off the air.
+                // Printing a guessed brand would make the app look certain
+                // about the one thing it cannot know.
                 title = stringResource(
                     R.string.tpms_paired_sensor_fmt,
-                    stringResource(R.string.tpms_family_ly),
+                    stringResource(R.string.tpms_paired_sensor),
                     shortAddress(paired),
                 ),
                 // The address is only worth the line while there is a reading
