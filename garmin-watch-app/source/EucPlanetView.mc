@@ -160,18 +160,23 @@ class EucPlanetView extends WatchUi.View {
     //! Self-exit fallback for "Auto-stop on watch". Fires ONLY when the rider
     //! enabled the toggle (s.closeOnExit, pushed from the phone) AND we had a
     //! live phone link (phoneSynced) that has now gone silent for well past the
-    //! 10 s "Disconnected" window. 20 s here so a brief BLE blip mid-ride shows
-    //! the placeholder but never closes the app. If the toggle is off we never
-    //! self-exit -- the dial just keeps waiting for the phone to come back
-    //! (unchanged behaviour). The phone normally closes us promptly via an
-    //! explicit KIND_QUIT; this only matters when that QUIT never arrived
-    //! (phone crashed / was killed before it could send).
+    //! 10 s "Disconnected" window. If the toggle is off we never self-exit --
+    //! the dial just keeps waiting for the phone to come back (unchanged
+    //! behaviour). The phone normally closes us promptly via an explicit
+    //! KIND_QUIT; this only matters when that QUIT never arrived (phone
+    //! crashed / was killed before it could send).
+    //!
+    //! 60 s, not the original 20 s. A congested link can stall the phone feed
+    //! for tens of seconds mid-ride, and at 20 s that stall closed the app on
+    //! the rider's wrist, indistinguishable from a real quit (field report
+    //! 2026-09-02). A missed QUIT is rare and closing a minute later costs
+    //! nothing; closing during a ride costs the rider their dial.
     function maybeAutoClose() as Void {
         var s = WatchState.snapshot;
         if (!s.closeOnExit) { return; }
         if (!s.phoneSynced) { return; }
         if (s.lastUpdateMs <= 0) { return; }
-        if ((System.getTimer() - s.lastUpdateMs) > 20000) {
+        if ((System.getTimer() - s.lastUpdateMs) > 60000) {
             System.exit();
         }
     }

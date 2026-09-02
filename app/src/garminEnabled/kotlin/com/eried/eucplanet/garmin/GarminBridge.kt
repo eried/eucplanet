@@ -261,10 +261,26 @@ class GarminBridge @Inject constructor(
                 // channel's ~1 Hz ceiling (PUBLISH_INTERVAL_MS): faster only
                 // floods the outbound queue (issue #14). The rider can still
                 // publish slower to save battery.
-                delay(
-                    settingsRepository.get().garminReportIntervalMs.toLong()
-                        .coerceAtLeast(PUBLISH_INTERVAL_MS)
-                )
+                // Congestion backoff. The watch suppresses its ALIVE heartbeat
+                // while a transmit is outstanding, so a link that has gone
+                // quiet is one that is STRUGGLING, not one that wants more
+                // traffic. Publishing at full rate into it just deepens the
+                // outbound queue and the dial falls further behind. Slow down
+                // while it is quiet so the queue drains; the first ALIVE back
+                // restores the rider's configured rate immediately. The cap in
+                // sendStateToAll bounds how far ahead we get, this bounds how
+                // hard we push while the watch is not answering.
+                val baseIntervalMs = settingsRepository.get().garminReportIntervalMs.toLong()
+                    .coerceAtLeast(PUBLISH_INTERVAL_MS)
+                val lastAckMs = _lastSuccessAtMs.value
+                val quietMs = if (lastAckMs == 0L) 0L
+                    else System.currentTimeMillis() - lastAckMs
+                val backoff = when {
+                    quietMs > 15_000L -> 4L
+                    quietMs > 6_000L -> 2L
+                    else -> 1L
+                }
+                delay(baseIntervalMs * backoff)
             }
         }
 
