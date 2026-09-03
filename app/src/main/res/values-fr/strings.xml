@@ -2522,4 +2522,6 @@
     <string name="tpms_waiting">En attente de données</string>
     <string name="status_live">En direct</string>
     <string name="status_idle">Inactif</string>
+    <string name="tpms_state_leaking">Fuite d’air</string>
+    <string name="tpms_state_inflating">Gonflage</string>
 </resources>

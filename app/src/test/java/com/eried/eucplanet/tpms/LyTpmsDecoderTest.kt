@@ -94,6 +94,31 @@ class LyTpmsDecoderTest {
         }
     }
 
+    @Test fun `the state byte carries the vendor's own numbering`() {
+        // Read as static field values out of the app, not guessed from the
+        // order they are declared in: an earlier reading had start-up and
+        // power-on the wrong way round.
+        fun st(b: Int) = LyTpmsDecoder.state(
+            LyTpmsDecoder.COMPANY_ID,
+            bytes("B35B52%02X0AA20004281111111B615B".format(b)),
+            address,
+        )
+        assertEquals(LyTpmsDecoder.State.NORMAL, st(0))
+        assertEquals(LyTpmsDecoder.State.LEAKAGE, st(1))
+        assertEquals(LyTpmsDecoder.State.INFLATION, st(2))
+        assertEquals(LyTpmsDecoder.State.START_UP, st(3))
+        assertEquals(LyTpmsDecoder.State.POWER_ON, st(4))
+        assertEquals(LyTpmsDecoder.State.WAKE_UP, st(5))
+        assertNull(st(9))
+    }
+
+    @Test fun `the state byte does not disturb the pressure`() {
+        // Byte 3 sits between the two pressure bytes and is not one of them.
+        val normal = "B35B52000AA20004281111111B615B"
+        val leaking = "B35B52010AA20004281111111B615B"
+        assertEquals(kpa(normal), kpa(leaking))
+    }
+
     @Test fun `a device that is not this sensor is not read as a tyre`() {
         assertNull(LyTpmsDecoder.pressureKpa(0x0969, bytes("C2CA702B4EBF248000640000"), "C2:CA:70:2B:4E:BF"))
         assertNull(LyTpmsDecoder.pressureKpa(LyTpmsDecoder.COMPANY_ID, bytes(midway), "AA:BB:CC:DD:EE:FF"))

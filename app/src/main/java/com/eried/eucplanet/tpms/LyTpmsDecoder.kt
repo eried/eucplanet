@@ -102,6 +102,32 @@ object LyTpmsDecoder {
         return (data[8].toInt() and 0xFF) / 10f
     }
 
+    /** What the cap says it is doing. Values are the vendor application's. */
+    enum class State { NORMAL, LEAKAGE, INFLATION, START_UP, POWER_ON, WAKE_UP }
+
+    /**
+     * The cap's own state, or null when this is not one of these sensors.
+     *
+     * Read as static field values out of the vendor application rather than
+     * guessed from the order they are declared in, which had two of them the
+     * wrong way round.
+     *
+     * Only leakage and inflation say anything about the tyre. The other three
+     * are the cap waking up and mean nothing to a rider.
+     */
+    fun state(companyId: Int, data: ByteArray, address: String?): State? {
+        if (!isThisFamily(companyId, data, address)) return null
+        return when (data[3].toInt() and 0xFF) {
+            0 -> State.NORMAL
+            1 -> State.LEAKAGE
+            2 -> State.INFLATION
+            3 -> State.START_UP
+            4 -> State.POWER_ON
+            5 -> State.WAKE_UP
+            else -> null
+        }
+    }
+
     private fun isThisFamily(companyId: Int, data: ByteArray, address: String?): Boolean =
         companyId == COMPANY_ID &&
             data.size == PAYLOAD_LEN &&

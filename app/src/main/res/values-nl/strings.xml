@@ -2520,4 +2520,6 @@
     <string name="tpms_waiting">Wacht op gegevens</string>
     <string name="status_live">Live</string>
     <string name="status_idle">Inactief</string>
+    <string name="tpms_state_leaking">Verliest lucht</string>
+    <string name="tpms_state_inflating">Oppompen</string>
 </resources>

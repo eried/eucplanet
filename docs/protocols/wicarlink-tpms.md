@@ -124,13 +124,17 @@ a flat tyre.
 | 0 | Normal |
 | 1 | Leakage |
 | 2 | Inflation |
-| 3 | Power on |
-| 4 | Start up |
+| 3 | Start up |
+| 4 | Power on |
 | 5 | Wake up |
 
-Constants are taken from the application's own field names. The exact numeric
-assignment above is inferred from their declaration order and should be
-validated against a labelled capture before being relied on for an alarm.
+These are the application's own constants, read as static field values rather
+than inferred from declaration order. An earlier draft of this document had 3
+and 4 the other way round for exactly that reason.
+
+Leakage and inflation are the two worth showing a rider: one is a tyre going
+down, the other is the cap noticing a pump. The remaining three are transient
+power-up states and say nothing about the tyre.
 
 
 ## 6. A second frame type

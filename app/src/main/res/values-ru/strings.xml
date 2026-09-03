@@ -2518,4 +2518,6 @@
     <string name="tpms_waiting">Ожидание данных</string>
     <string name="status_live">В эфире</string>
     <string name="status_idle">Ожидание</string>
+    <string name="tpms_state_leaking">Спускает</string>
+    <string name="tpms_state_inflating">Накачивается</string>
 </resources>

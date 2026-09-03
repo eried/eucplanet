@@ -2321,4 +2321,6 @@
     <string name="tpms_waiting">Várakozás adatra</string>
     <string name="status_live">Élő</string>
     <string name="status_idle">Tétlen</string>
+    <string name="tpms_state_leaking">Szivárog</string>
+    <string name="tpms_state_inflating">Felfújás</string>
 </resources>

@@ -2517,4 +2517,6 @@
     <string name="tpms_waiting">等待資料</string>
     <string name="status_live">即時</string>
     <string name="status_idle">閒置</string>
+    <string name="tpms_state_leaking">漏氣</string>
+    <string name="tpms_state_inflating">充氣中</string>
 </resources>

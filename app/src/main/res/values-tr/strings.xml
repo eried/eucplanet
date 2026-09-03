@@ -2515,4 +2515,6 @@
     <string name="tpms_waiting">Veri bekleniyor</string>
     <string name="status_live">Canlı</string>
     <string name="status_idle">Boşta</string>
+    <string name="tpms_state_leaking">Hava kaçırıyor</string>
+    <string name="tpms_state_inflating">Şişiriliyor</string>
 </resources>

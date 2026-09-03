@@ -2520,4 +2520,6 @@
     <string name="tpms_waiting">Aguardando dados</string>
     <string name="status_live">Ao vivo</string>
     <string name="status_idle">Inativo</string>
+    <string name="tpms_state_leaking">Perdendo ar</string>
+    <string name="tpms_state_inflating">Enchendo</string>
 </resources>

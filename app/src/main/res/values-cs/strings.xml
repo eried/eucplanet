@@ -2321,4 +2321,6 @@
     <string name="tpms_waiting">Čeká se na data</string>
     <string name="status_live">Živě</string>
     <string name="status_idle">Nečinné</string>
+    <string name="tpms_state_leaking">Uniká vzduch</string>
+    <string name="tpms_state_inflating">Hustí se</string>
 </resources>

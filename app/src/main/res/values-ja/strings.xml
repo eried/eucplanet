@@ -2519,4 +2519,6 @@
     <string name="tpms_waiting">データ待ち</string>
     <string name="status_live">受信中</string>
     <string name="status_idle">待機</string>
+    <string name="tpms_state_leaking">空気漏れ</string>
+    <string name="tpms_state_inflating">空気充填中</string>
 </resources>

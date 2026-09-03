@@ -338,6 +338,10 @@ class TpmsScanner @Inject constructor(
                                 address,
                                 LyTpmsDecoder.batteryVolts(sparse.keyAt(i), sparse.valueAt(i), address)
                             )
+                            tpms.submitPairedState(
+                                address,
+                                LyTpmsDecoder.state(sparse.keyAt(i), sparse.valueAt(i), address)
+                            )
                             break
                         }
                     }

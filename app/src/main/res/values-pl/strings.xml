@@ -2518,4 +2518,6 @@
     <string name="tpms_waiting">Czekam na dane</string>
     <string name="status_live">Na żywo</string>
     <string name="status_idle">Bezczynny</string>
+    <string name="tpms_state_leaking">Traci powietrze</string>
+    <string name="tpms_state_inflating">Pompowanie</string>
 </resources>

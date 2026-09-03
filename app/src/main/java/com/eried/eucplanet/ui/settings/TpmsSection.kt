@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
+import com.eried.eucplanet.tpms.LyTpmsDecoder
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.rememberScanStarter
 import com.eried.eucplanet.ui.theme.appColors
@@ -88,10 +89,18 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
                 // since the app started has nothing to say yet, and says so
                 // rather than blaming the decoder: these transmit when the
                 // pressure moves and stay quiet on a settled tyre.
-                subtitle = if (sensor.kpa == null) {
-                    stringResource(R.string.tpms_waiting)
-                } else {
-                    listOfNotNull(
+                // A cap that says it is losing air says it here, ahead of
+                // everything else: that is the sentence the whole feature
+                // exists for. Inflating earns its place too, as feedback while
+                // a rider stands there with a pump. The other three states are
+                // the cap waking up and mean nothing to anyone.
+                subtitle = when {
+                    sensor.kpa == null -> stringResource(R.string.tpms_waiting)
+                    sensor.state == LyTpmsDecoder.State.LEAKAGE ->
+                        stringResource(R.string.tpms_state_leaking)
+                    sensor.state == LyTpmsDecoder.State.INFLATION ->
+                        stringResource(R.string.tpms_state_inflating)
+                    else -> listOfNotNull(
                         sensor.tempC?.let { formatTemp(it, tempUnit) },
                         sensor.volts?.let { "%.2f V".format(it) },
                     ).joinToString("  ·  ")
@@ -235,11 +244,17 @@ private fun TpmsSensorRow(
                         else LocalContentColor.current.copy(alpha = 0.5f),
                     modifier = Modifier.size(10.dp),
                 )
-                Text(
-                    stringResource(if (active) R.string.status_live else R.string.status_idle),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = LocalContentColor.current.copy(alpha = 0.8f),
-                )
+                // Only the quiet state gets a word. A green dot beside a live
+                // reading already says live; writing it as well is the label
+                // twice. Idle is the one that needs saying, because a number
+                // that has stopped moving looks exactly like one that has not.
+                if (!active) {
+                    Text(
+                        stringResource(R.string.status_idle),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = LocalContentColor.current.copy(alpha = 0.8f),
+                    )
+                }
                 if (reading != null) {
                     Text(
                         reading,

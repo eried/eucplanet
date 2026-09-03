@@ -2518,4 +2518,6 @@
     <string name="tpms_waiting">Väntar på data</string>
     <string name="status_live">Live</string>
     <string name="status_idle">Inaktiv</string>
+    <string name="tpms_state_leaking">Läcker luft</string>
+    <string name="tpms_state_inflating">Pumpar</string>
 </resources>

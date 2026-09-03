@@ -2321,4 +2321,6 @@
     <string name="tpms_waiting">Se așteaptă date</string>
     <string name="status_live">În direct</string>
     <string name="status_idle">Inactiv</string>
+    <string name="tpms_state_leaking">Pierde aer</string>
+    <string name="tpms_state_inflating">Se umflă</string>
 </resources>

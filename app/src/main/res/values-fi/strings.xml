@@ -2321,4 +2321,6 @@
     <string name="tpms_waiting">Odotetaan tietoja</string>
     <string name="status_live">Live</string>
     <string name="status_idle">Lepotila</string>
+    <string name="tpms_state_leaking">Vuotaa</string>
+    <string name="tpms_state_inflating">Täytetään</string>
 </resources>

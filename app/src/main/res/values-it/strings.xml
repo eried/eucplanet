@@ -2423,4 +2423,6 @@
     <string name="tpms_waiting">In attesa di dati</string>
     <string name="status_live">Live</string>
     <string name="status_idle">Inattivo</string>
+    <string name="tpms_state_leaking">Perde aria</string>
+    <string name="tpms_state_inflating">In gonfiaggio</string>
 </resources>

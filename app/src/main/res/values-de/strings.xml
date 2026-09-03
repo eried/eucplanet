@@ -2538,4 +2538,6 @@
     <string name="tpms_waiting">Warte auf Daten</string>
     <string name="status_live">Live</string>
     <string name="status_idle">Inaktiv</string>
+    <string name="tpms_state_leaking">Verliert Luft</string>
+    <string name="tpms_state_inflating">Wird aufgepumpt</string>
 </resources>

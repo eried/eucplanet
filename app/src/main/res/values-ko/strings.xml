@@ -2517,4 +2517,6 @@
     <string name="tpms_waiting">데이터 대기 중</string>
     <string name="status_live">수신 중</string>
     <string name="status_idle">대기</string>
+    <string name="tpms_state_leaking">공기 누출</string>
+    <string name="tpms_state_inflating">공기 주입 중</string>
 </resources>

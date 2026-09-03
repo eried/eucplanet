@@ -81,6 +81,8 @@ class TpmsRepository @Inject constructor(
         val kpa: Float? = null,
         val tempC: Float? = null,
         val volts: Float? = null,
+        /** What the cap says it is doing; only leakage and inflation matter. */
+        val state: LyTpmsDecoder.State? = null,
         val atMs: Long = 0L,
     )
 
@@ -120,6 +122,10 @@ class TpmsRepository @Inject constructor(
 
     fun submitPairedVolts(address: String, volts: Float?) {
         if (volts != null) mutate(address) { it.copy(volts = volts) }
+    }
+
+    fun submitPairedState(address: String, state: LyTpmsDecoder.State?) {
+        if (state != null) mutate(address) { it.copy(state = state) }
     }
 
     /** Convenience for the surfaces that only want a number; 0 when silent. */
