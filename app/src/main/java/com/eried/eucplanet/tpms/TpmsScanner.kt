@@ -88,6 +88,36 @@ class TpmsScanner @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var window: Job? = null
 
+    /**
+     * Picks the watching back up when Bluetooth returns.
+     *
+     * The monitor is not a rider standing on a screen, so it must never throw
+     * a system dialog at them; it just fails quietly when the radio is off.
+     * That left a paired cap unheard for the rest of the session even after
+     * the rider turned Bluetooth on for something else, because nothing was
+     * watching for it. The radar, external GPS and wheel scans all listen for
+     * this; the tyre monitor was the one that did not.
+     */
+    private val bluetoothStateReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(ctx: Context?, intent: android.content.Intent?) {
+            if (intent?.action != android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED) return
+            when (intent.getIntExtra(
+                android.bluetooth.BluetoothAdapter.EXTRA_STATE,
+                android.bluetooth.BluetoothAdapter.ERROR,
+            )) {
+                android.bluetooth.BluetoothAdapter.STATE_TURNING_OFF,
+                android.bluetooth.BluetoothAdapter.STATE_OFF -> {
+                    // The scan is already dead; drop our side of it so the
+                    // flags do not claim to be watching.
+                    stop()
+                    monitoring = false
+                }
+                android.bluetooth.BluetoothAdapter.STATE_ON ->
+                    scope.launch { delay(1_000); startMonitoring() }
+            }
+        }
+    }
+
     init {
         // Below `scope` on purpose: initialisers run in declaration order, so
         // launching from above it reads a field that does not exist yet.
@@ -100,6 +130,13 @@ class TpmsScanner @Inject constructor(
                 if (address != null) startMonitoring() else stopMonitoring()
             }
         }
+        androidx.core.content.ContextCompat.registerReceiver(
+            context,
+            bluetoothStateReceiver,
+            android.content.IntentFilter(android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED),
+            androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+
         // Age the readings. Nothing else ever called refresh(), so a cap that
         // went silent kept its number and its green dot for good: staleness
         // was written, tested, and never actually evaluated after the last
