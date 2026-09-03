@@ -75,12 +75,26 @@ class RadarViewModel @Inject constructor(
 
     // Detects Bluetooth toggling while the radar pairing scan is open: stop +
     // show the "Bluetooth is off" hint when it goes off, auto-resume when back.
+    /**
+     * Whether THIS scan was cut short by Bluetooth going away.
+     *
+     * Without it, any Bluetooth-on event resumed this section: a rider
+     * enabling the radio for a different scan found this one running as well.
+     */
+    private var interruptedByBtOff = false
+
     private val bluetoothStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context?, intent: Intent?) {
             if (intent?.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
             when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
                 BluetoothAdapter.STATE_TURNING_OFF,
                 BluetoothAdapter.STATE_OFF -> {
+                    // Only a scan that was actually running counts as
+                    // interrupted. Sitting on screen when the radio went away
+                    // is not a request to scan, and treating it as one meant
+                    // that turning Bluetooth on for some OTHER section started
+                    // this one too.
+                    interruptedByBtOff = _scanning.value
                     if (_scanning.value) stopScan()
                     _bluetoothOff.value = true
                 }
@@ -102,6 +116,13 @@ class RadarViewModel @Inject constructor(
      *  (the stack isn't ready instantly). Only if we were showing the off hint. */
     private fun resumeScanAfterBtOn() {
         if (!_bluetoothOff.value) return
+        if (!interruptedByBtOff) {
+            // The radio came back for someone else. Drop the hint, start
+            // nothing.
+            _bluetoothOff.value = false
+            return
+        }
+        interruptedByBtOff = false
         resumeJob?.cancel()
         resumeJob = viewModelScope.launch {
             delay(1200)
@@ -115,6 +136,9 @@ class RadarViewModel @Inject constructor(
         // Bluetooth must be on, otherwise scanner.scan() throws inside the flow
         // and the uncaught exception crashes the app.
         if (!scanner.isBluetoothEnabled()) {
+            // The rider DID ask for this one, so it resumes when the radio
+            // returns even though it never got going.
+            interruptedByBtOff = true
             _bluetoothOff.value = true
             return
         }
