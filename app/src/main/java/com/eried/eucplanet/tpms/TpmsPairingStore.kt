@@ -55,7 +55,14 @@ class SettingsTpmsPairingStore @Inject constructor(
     override fun saveAll(addresses: List<String>) {
         scope.launch {
             settingsRepository.update { current ->
-                if (current.tpms.pairedAddresses == addresses) current
+                // Both fields, not just the list. A rider upgrading from the
+                // single-sensor build has the old field set and the list
+                // empty, so deleting their only cap compared [] to [], skipped
+                // the write, and the old field brought the sensor back on the
+                // next launch. Every time.
+                val unchanged = current.tpms.pairedAddresses == addresses &&
+                    current.tpms.pairedAddress == addresses.firstOrNull()
+                if (unchanged) current
                 else current.copy(
                     tpms = current.tpms.copy(
                         pairedAddresses = addresses,

@@ -31,8 +31,10 @@ class TpmsRepository @Inject constructor(
     /** For tests, which want the rules without a settings store behind them. */
     constructor() : this(TpmsPairingStore.None)
 
-    private var wheelReading: TpmsReading? = null
-    private var pairedReading: TpmsReading? = null
+    // Written from the BLE callback thread, read from wherever recompute
+    // happens to run.
+    @Volatile private var wheelReading: TpmsReading? = null
+    @Volatile private var pairedReading: TpmsReading? = null
 
     private val _pairedAddress = MutableStateFlow<String?>(null)
 
@@ -43,6 +45,7 @@ class TpmsRepository @Inject constructor(
      */
     val pairedAddress: StateFlow<String?> = _pairedAddress.asStateFlow()
 
+    @Synchronized
     fun adopt(address: String) {
         if (_sensors.value.any { it.address == address }) return
         _sensors.value = _sensors.value + SensorState(address)
@@ -51,8 +54,13 @@ class TpmsRepository @Inject constructor(
     }
 
     /** Forget one cap, leaving the rider's other wheels alone. */
+    @Synchronized
     fun forget(address: String) {
         _sensors.value = _sensors.value.filterNot { it.address == address }
+        // Clear the last addressless reading too, or recompute's fallback
+        // resurrects the cap that was just deleted and keeps publishing its
+        // pressure.
+        if (_sensors.value.isEmpty()) pairedReading = null
         _pairedAddress.value = _sensors.value.firstOrNull()?.address
         pairing.saveAll(_sensors.value.map { it.address })
         recompute(System.currentTimeMillis())
@@ -101,13 +109,18 @@ class TpmsRepository @Inject constructor(
         // taken if nothing has been adopted since, so a scan that found one
         // while this was still loading is not overwritten by an older answer.
         pairing.load { saved ->
-            if (saved.isNotEmpty() && _sensors.value.isEmpty()) {
-                _sensors.value = saved.map { SensorState(it) }
-                _pairedAddress.value = saved.first()
+            // Merged, not "only if empty". The read comes back on an IO
+            // thread and a scan can adopt before it lands, and the old rule
+            // then dropped every stored cap on the floor.
+            if (saved.isNotEmpty()) {
+                val known = _sensors.value.map { it.address }.toSet()
+                _sensors.value = _sensors.value + saved.filterNot { it in known }.map { SensorState(it) }
+                _pairedAddress.value = _sensors.value.firstOrNull()?.address
             }
         }
     }
 
+    @Synchronized
     private fun mutate(address: String, block: (SensorState) -> SensorState) {
         val list = _sensors.value
         val i = list.indexOfFirst { it.address == address }

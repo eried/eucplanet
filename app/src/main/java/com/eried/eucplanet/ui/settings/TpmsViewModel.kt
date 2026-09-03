@@ -60,7 +60,9 @@ class TpmsViewModel @Inject constructor(
     val scanning: StateFlow<Boolean> = scanner.scanning
 
     fun toggleScan() {
-        if (scanner.scanning.value) scanner.stop() else scanner.start()
+        // Stop ends the SEARCH and goes back to watching a paired cap. A bare
+        // stop() left a rider with a sensor paired and no radio running.
+        if (scanner.scanning.value) scanner.resumeMonitoring() else scanner.start()
     }
 
     override fun onCleared() {

@@ -80,7 +80,8 @@ class TpmsScanner @Inject constructor(
     private val _scanning = MutableStateFlow(false)
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
-    private var callback: ScanCallback? = null
+    /** Written from the BLE callback thread as well as the main one. */
+    @Volatile private var callback: ScanCallback? = null
 
     /** True while the open scan is a background monitor rather than a search. */
     @Volatile private var monitoring = false
@@ -99,6 +100,16 @@ class TpmsScanner @Inject constructor(
                 if (address != null) startMonitoring() else stopMonitoring()
             }
         }
+        // Age the readings. Nothing else ever called refresh(), so a cap that
+        // went silent kept its number and its green dot for good: staleness
+        // was written, tested, and never actually evaluated after the last
+        // packet arrived.
+        scope.launch {
+            while (true) {
+                delay(STALENESS_TICK_MS)
+                tpms.refresh()
+            }
+        }
     }
 
     /**
@@ -112,8 +123,25 @@ class TpmsScanner @Inject constructor(
     @SuppressLint("MissingPermission")
     fun startMonitoring() {
         if (callback != null || tpms.pairedAddress.value == null) return
-        monitoring = true
-        openScan(lowPower = true)
+        // Set only once a scan is actually open. Claiming it up front meant
+        // that with Bluetooth off the flag said "watching" while nothing was,
+        // and endSearch() then refused to fix it.
+        if (openScan(lowPower = true)) monitoring = true
+    }
+
+    /**
+     * End whatever search is running and go back to watching.
+     *
+     * The one way out of a search. Every path that used to call stop() on its
+     * own left a rider with a paired sensor and no radio: adopting a second
+     * cap, the Stop button, and the first adoption racing the pairing
+     * collector all did it, and all of them permanently.
+     */
+    @SuppressLint("MissingPermission")
+    fun resumeMonitoring() {
+        stop()
+        monitoring = false
+        startMonitoring()
     }
 
     /**
@@ -127,8 +155,7 @@ class TpmsScanner @Inject constructor(
     @SuppressLint("MissingPermission")
     fun endSearch() {
         if (monitoring) return
-        stop()
-        startMonitoring()
+        resumeMonitoring()
     }
 
     /** Give the radio back when nothing is paired any more. */
@@ -147,9 +174,10 @@ class TpmsScanner @Inject constructor(
         openScan(lowPower = false)
     }
 
+    /** True when a scan is now open. */
     @SuppressLint("MissingPermission")
-    private fun openScan(lowPower: Boolean) {
-        if (callback != null) return
+    private fun openScan(lowPower: Boolean): Boolean {
+        if (callback != null) return false
         // The button asks the rider to turn Bluetooth on before it ever gets
         // here, so reaching this with the adapter off means they declined.
         // Nothing to report: they know what they just chose.
@@ -157,7 +185,7 @@ class TpmsScanner @Inject constructor(
         val scanner = adapter?.takeIf { it.isEnabled }?.bluetoothLeScanner
         if (scanner == null) {
             _scanning.value = false
-            return
+            return false
         }
         val cb = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) = record(result)
@@ -166,7 +194,13 @@ class TpmsScanner @Inject constructor(
             }
 
             override fun onScanFailed(errorCode: Int) {
+                // Drop the callback as well. Leaving it set made openScan bail
+                // on its own guard forever after, so one refused scan - the OS
+                // rejects registrations that come too fast - killed every
+                // later one until the app was restarted.
                 Log.w(TAG, "TPMS scan failed: $errorCode")
+                callback = null
+                monitoring = false
                 _scanning.value = false
             }
         }
@@ -200,8 +234,10 @@ class TpmsScanner @Inject constructor(
             .onFailure {
                 Log.w(TAG, "TPMS scan could not start", it)
                 callback = null
+                monitoring = false
                 _scanning.value = false
             }
+        return callback != null
     }
 
     /**
@@ -352,7 +388,9 @@ class TpmsScanner @Inject constructor(
             // nothing. Only on the sensor that was actually adopted: a second
             // cap in the room must not end a scan that has not found the
             // rider's yet.
-            if (!alreadyKnown) stop()
+            // End the search and go back to watching. Calling stop() here
+            // was what killed the radio when a rider added a second cap.
+            if (!alreadyKnown) resumeMonitoring()
         }
         // Everything, at INFO, while the format is still unknown. The only
         // reliable way to find a pressure field is to diff every payload in
@@ -380,5 +418,8 @@ class TpmsScanner @Inject constructor(
          * the radio running all evening.
          */
         private const val SCAN_WINDOW_S = 180
+
+        /** How often readings are re-aged. Cheap, and staleness is in minutes. */
+        private const val STALENESS_TICK_MS = 15_000L
     }
 }
