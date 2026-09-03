@@ -160,10 +160,7 @@ class TpmsScanner @Inject constructor(
     @SuppressLint("MissingPermission")
     fun startMonitoring() {
         if (callback != null || tpms.pairedAddress.value == null) return
-        // Set only once a scan is actually open. Claiming it up front meant
-        // that with Bluetooth off the flag said "watching" while nothing was,
-        // and endSearch() then refused to fix it.
-        if (openScan(lowPower = true)) monitoring = true
+        openScan(lowPower = true, asMonitor = true)
     }
 
     /**
@@ -208,12 +205,24 @@ class TpmsScanner @Inject constructor(
         monitoring = false
         // A monitor already holds the radio; take it over for the search.
         if (callback != null) stop()
-        openScan(lowPower = false)
+        openScan(lowPower = false, asMonitor = false)
     }
 
-    /** True when a scan is now open. */
+    /**
+     * Open a scan. [asMonitor] says which KIND, and everything follows from
+     * it.
+     *
+     * Passed in rather than read off the `monitoring` field, which is the
+     * mistake this replaces: the field was assigned after this returned, so a
+     * monitor opening a scan still read "false" here, announced itself to the
+     * UI as a search and armed the give-up window. The rider opened settings
+     * to find it already scanning, and Stop only handed the radio back to a
+     * monitor that immediately did it again.
+     *
+     * Returns true when a scan is now open.
+     */
     @SuppressLint("MissingPermission")
-    private fun openScan(lowPower: Boolean): Boolean {
+    private fun openScan(lowPower: Boolean, asMonitor: Boolean): Boolean {
         if (callback != null) return false
         // The button asks the rider to turn Bluetooth on before it ever gets
         // here, so reaching this with the adapter off means they declined.
@@ -265,8 +274,9 @@ class TpmsScanner @Inject constructor(
             .onSuccess {
                 // Only a search shows as "scanning" and only a search gives
                 // up; a monitor is invisible and runs on.
-                _scanning.value = !monitoring
-                if (!monitoring) startWindow()
+                monitoring = asMonitor
+                _scanning.value = !asMonitor
+                if (!asMonitor) startWindow()
             }
             .onFailure {
                 Log.w(TAG, "TPMS scan could not start", it)
