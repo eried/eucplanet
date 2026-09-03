@@ -82,6 +82,10 @@ data class HudState(
     val unitSpeed: String = "kmh",
     val unitDistance: String = "km",
     val unitTemp: String = "C",
+    /** psi | bar | kpa | kgf | mpa. Its own setting, not derived from
+     *  [unitDistance]: a rider on kilometres can still run psi in the tyre.
+     *  Defaulted so an older phone leaves the HUD reading bar as before. */
+    val unitPressure: String = "bar",
 
     /** Accent colour as an `#AARRGGBB` hex string from phone settings. */
     val accentArgb: String = "#FF00C853",
@@ -318,8 +322,12 @@ data class HudState(
          *    code as a Carto slug and would request a URL that does not exist,
          *    leaving the map blank, so the minor bump is what tells the rider to
          *    update rather than leaving them staring at an empty map.
+         * 18: [HudState.unitPressure] carries the rider's own tyre-pressure
+         *    unit. Older HUDs ignore it and keep deriving one from the
+         *    distance unit, which is what every HUD did until now, so a stale
+         *    HUD reads bar rather than something wrong.
          */
-        const val PROTOCOL_MINOR: Int = 17
+        const val PROTOCOL_MINOR: Int = 18
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

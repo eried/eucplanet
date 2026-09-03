@@ -218,7 +218,8 @@ private fun formatMetricStatValue(
     speedUnitLabel: String,
     tempUnit: String,
     tempUnitLabel: String,
-    distanceUnit: String
+    distanceUnit: String,
+    pressureUnit: String,
 ): String = when (key) {
     "BATTERY" -> "${raw.toInt()}%"
     // Round to match the live LOAD tile (which uses %.0f), not truncate.
@@ -241,12 +242,9 @@ private fun formatMetricStatValue(
     "G_FORCE", "LATERAL_G", "FORWARD_G" -> "%.2fg".format(raw)
     "TORQUE" -> "%.1fNm".format(raw)
     "PHASE_CURRENT" -> "%.1fA".format(raw)
-    // Tire pressure stored raw in kPa; psi for imperial-distance, bar otherwise.
-    // psi floored to match the wheel's own display (see Units.pressurePsiFloored).
-    "TIRE_PRESSURE" -> if (distanceUnit == "mi")
-        "%.1f psi".format(com.eried.eucplanet.util.Units.pressurePsiFloored(raw))
-    else
-        "%.2f bar".format(com.eried.eucplanet.util.Units.pressure(raw, "bar"))
+    // Tire pressure stored raw in kPa, printed in the rider's own pressure
+    // unit - a setting, not the distance unit it used to be guessed from.
+    "TIRE_PRESSURE" -> com.eried.eucplanet.util.Units.formatPressure(raw, pressureUnit)
     // Altitude / accuracy stored raw in metres; feet for imperial riders.
     "GPS_ALTITUDE", "GPS_ACCURACY" -> if (distanceUnit == "mi")
         "%.0fft".format(raw * 3.28084f)
@@ -334,6 +332,7 @@ fun DashboardScreen(
     val speedUnit by viewModel.speedUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val pressureUnit by viewModel.pressureUnit.collectAsState()
     val accentKey by viewModel.accentKey.collectAsState()
     val showGaugeColorBand by viewModel.showGaugeColorBand.collectAsState()
     val gaugeOrangePct by viewModel.gaugeOrangePct.collectAsState()
@@ -1636,7 +1635,8 @@ fun DashboardScreen(
                     stat, samples, fallbackCurrent = samples.last().value
                 ) ?: return placeholder
                 return formatMetricStatValue(
-                    key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel, distanceUnit
+                    key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel,
+                    distanceUnit, pressureUnit
                 )
             }
 
@@ -1739,14 +1739,13 @@ fun DashboardScreen(
                         ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
                         ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
                         ?: placeholder
-                    "TIRE_PRESSURE" -> if (wheelData.tirePressureKpa > 0f) {
-                        // psi for imperial-distance riders, bar otherwise (see Units).
-                        // psi is floored to match the wheel's own display.
-                        if (distanceUnit == "mi")
-                            "%.1f psi".format(com.eried.eucplanet.util.Units.pressurePsiFloored(wheelData.tirePressureKpa))
-                        else
-                            "%.2f bar".format(com.eried.eucplanet.util.Units.pressure(wheelData.tirePressureKpa, "bar"))
-                    } else placeholder
+                    // Guarded on "is anything measuring", not on "> 0", so
+                    // a cap reporting a flat tyre shows 0.00 bar rather than a
+                    // dash that reads as "no sensor".
+                    "TIRE_PRESSURE" -> if (wheelData.hasTirePressure)
+                        com.eried.eucplanet.util.Units.formatPressure(
+                            wheelData.tirePressureKpa, pressureUnit)
+                    else placeholder
                     "PHONE_BATTERY" -> if (phoneBatteryPct in 0..100) "$phoneBatteryPct%" else placeholder
                     "EXTERNAL_GPS_BATTERY" -> externalGpsBattery?.let { "$it%" } ?: placeholder
                     "GPS_ALTITUDE" -> gpsLocation?.altitude?.let { alt ->
@@ -2142,7 +2141,8 @@ fun DashboardScreen(
                                             // composite MAX/AVG cell reads right.
                                             formatMetricStatValue(
                                                 metricKey, value, speedUnit, speedUnitLabel,
-                                                tempUnit, tempUnitLabel, distanceUnit
+                                                tempUnit, tempUnitLabel, distanceUnit,
+                                                pressureUnit
                                             )
                                         }
                                     // A composite always occupies one standard slot

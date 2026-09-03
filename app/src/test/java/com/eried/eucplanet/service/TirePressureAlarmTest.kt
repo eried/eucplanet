@@ -2,6 +2,7 @@ package com.eried.eucplanet.service
 
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.Units
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -66,13 +67,32 @@ class TirePressureAlarmTest {
         assertEquals(34.8f, Units.pressure(kpa, "psi"), 0.1f)
     }
 
-    @Test fun `a wheel with no sensor reads zero, which must not be a flat tyre`() {
-        // The guard the engine applies. Stated here as the rule it is: 0 is
-        // "no sensor bound", and a low-pressure alarm on a wheel without TPMS
-        // would otherwise fire on the first frame and never stop.
-        val noSensor = 0f
-        assertEquals(null, noSensor.takeIf { it > 0f })
-        // A real reading passes through untouched.
-        assertEquals(240f, 240f.takeIf { it > 0f })
+    @Test fun `a wheel with no sensor is skipped, not read as a flat tyre`() {
+        // No sensor: the rule is skipped. Evaluated instead, a low-pressure
+        // alarm on a wheel without TPMS would fire on the first frame and
+        // never stop.
+        assertEquals(null, AlarmLogic.tirePressureForAlarm(WheelData()))
+    }
+
+    @Test fun `a cap reporting zero IS a flat tyre, and must reach the rule`() {
+        // The whole reason a rider screws a sensor onto a valve. A cap on a
+        // flat tyre reports exactly 0 kPa, and the guard this replaced - skip
+        // anything not above zero - threw that reading away, so the one alarm
+        // that matters could never fire.
+        val flat = WheelData(tirePressureKpa = 0f, hasTirePressure = true)
+        assertEquals(0f, AlarmLogic.tirePressureForAlarm(flat))
+        assertTrue(
+            "a 2 bar rule has to match a flat tyre",
+            AlarmLogic.matchesNow(
+                AlarmLogic.tirePressureForAlarm(flat)!!,
+                AlarmComparator.LESS_THAN.name,
+                Units.pressureToKpa(2f, "bar"),
+            ),
+        )
+    }
+
+    @Test fun `a healthy reading passes through untouched`() {
+        val ok = WheelData(tirePressureKpa = 240f, hasTirePressure = true)
+        assertEquals(240f, AlarmLogic.tirePressureForAlarm(ok))
     }
 }

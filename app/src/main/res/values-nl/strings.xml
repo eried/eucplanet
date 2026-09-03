@@ -752,12 +752,10 @@
     <string name="section_tpms">TPMS-sensoren</string>
     <string name="tpms_wheel_sensor">Bandenspanning van het wiel</string>
     <string name="tpms_wheel_sensor_desc">Doorgestuurd vanaf een gekoppelde sensor.</string>
-    <string name="tpms_idle">Nog geen sensor meldt gegevens</string>
     <string name="tpms_scan">Zoek naar sensoren</string>
     <string name="tpms_scan_stop">Scannen stoppen</string>
     <string name="tpms_none_yet">Geen bandenspanningssensor gevonden of handmatig toegevoegd.</string>
     <string name="tpms_wheel_sensor_replaced">Vervangen door je gekoppelde sensor</string>
-    <string name="tpms_paired_sensor">Bandensensor</string>
     <string name="external_gps_device_title">Externe GPS</string>
     <string name="external_gps_pair_button">Scannen starten</string>
     <string name="external_gps_pair_action">Koppelen</string>
@@ -2515,7 +2513,6 @@
     <string name="action_chip_reset_metrics">Meters resetten</string>
     <string name="action_reset_metrics_done">Meters gereset</string>
     <string name="action_reset_metrics_wheel_done">Meters gereset, ritteller van het wiel gewist</string>
-    <string name="tpms_not_decoded">Gevonden. De waarden van dit model zijn nog niet ontcijferd.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Wacht op gegevens</string>
     <string name="status_live">Live</string>

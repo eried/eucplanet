@@ -97,9 +97,6 @@ data class WheelData(
      *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging
      *  for them is derived from sustained negative current in WheelRepository. */
     val charging: Boolean = false,
-    /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
-     *  P6: realtime 0x87 frame, u16le at body[78]). 0 = no sensor / not reported.
-     *  Display converts: psi = kPa x 0.145038, bar = kPa / 100. */
     /**
      * Battery percent with the load taken out of it, or NaN before the first
      * half minute of a ride.
@@ -111,7 +108,27 @@ data class WheelData(
      * against. See [com.eried.eucplanet.util.LiveBatteryEnvelope].
      */
     val batteryEnvelope: Float = Float.NaN,
+    /**
+     * Tyre pressure in kPa from whichever sensor is speaking for the tyre.
+     *
+     * Either a cap the rider screwed onto the valve or one the wheel relays
+     * (InMotion P6: realtime 0x87 frame, u16le at body[78]); which of them
+     * wins is decided in [com.eried.eucplanet.tpms.TpmsPolicy], not here.
+     *
+     * Only meaningful while [hasTirePressure] is true. Display converts:
+     * psi = kPa x 0.145038, bar = kPa / 100.
+     */
     val tirePressureKpa: Float = 0f,
+    /**
+     * Whether anything is currently measuring the tyre.
+     *
+     * Zero is a pressure, not an absence: a cap on a flat tyre reports exactly
+     * 0 kPa, and that is the one reading a low-pressure alarm exists for.
+     * While the number alone carried both meanings, every consumer had to
+     * guard on `> 0f` and so could never fire on a flat tyre, the failure the
+     * sensor was bought to catch.
+     */
+    val hasTirePressure: Boolean = false,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
     /**
      * Lock state as the wheel reports it in its own telemetry, or null when the

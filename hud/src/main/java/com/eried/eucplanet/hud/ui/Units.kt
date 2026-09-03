@@ -60,14 +60,34 @@ object HudUnits {
         else -> "°C"
     }
 
-    /** Tire pressure: raw kPa -> the chosen unit. Follows the distance unit
-     *  (mi -> psi, else bar), mirroring the phone's Units.effectivePressureUnit.
-     *  psi is floored to 1 decimal so the HUD matches the wheel's own display
-     *  (the wheel sends whole kPa and truncates; rounding read 0.1 psi high). */
-    fun pressure(kpa: Float, distCode: String): Float =
-        if (distCode == "mi") kotlin.math.floor(kpa * 0.145038f * 10f) / 10f else kpa / 100f
+    /** Tire pressure: raw kPa -> the rider's own pressure unit, which the
+     *  phone sends as its own code rather than the HUD deriving it from the
+     *  distance unit. psi is floored to 1 decimal so the HUD matches the
+     *  wheel's own display (the wheel sends whole kPa and truncates; rounding
+     *  read 0.1 psi high). */
+    fun pressure(kpa: Float, code: String): Float = when (code) {
+        "psi" -> kotlin.math.floor(kpa * 0.145038f * 10f) / 10f
+        "kpa" -> kpa
+        "kgf" -> kpa / 98.0665f
+        "mpa" -> kpa / 1000f
+        else -> kpa / 100f
+    }
 
-    fun pressureSuffix(distCode: String): String = if (distCode == "mi") "psi" else "bar"
+    fun pressureSuffix(code: String): String = when (code) {
+        "psi" -> "psi"
+        "kpa" -> "kPa"
+        "kgf" -> "kgf/cm\u00B2"
+        "mpa" -> "MPa"
+        else -> "bar"
+    }
+
+    /** Decimals a pressure needs to read right: 1 psi, 2 bar, 3 MPa, 0 kPa. */
+    fun pressureDecimals(code: String): Int = when (code) {
+        "psi" -> 1
+        "bar", "kgf" -> 2
+        "mpa" -> 3
+        else -> 0
+    }
 
     /** Round to N decimals as a Float (rendering uses %.Nf, this is only for
      *  intermediate comparison / threshold checks). */

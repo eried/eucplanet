@@ -801,6 +801,7 @@ fun OverlayStudioScreen(
                                 speedUnit = viewModel.speedUnit,
                                 distanceUnit = viewModel.distanceUnit,
                                 tempUnit = viewModel.tempUnit,
+                                pressureUnit = viewModel.pressureUnit,
                                 clockTimeMs = trip.startEpochMs + pos,
                                 stopwatchMs = pos,
                                 liveGForceTrail = emptyList(),
@@ -1163,6 +1164,7 @@ fun OverlayStudioScreen(
                         speedUnit = viewModel.speedUnit,
                         distanceUnit = viewModel.distanceUnit,
                         tempUnit = viewModel.tempUnit,
+                        pressureUnit = viewModel.pressureUnit,
                         clockTimeMs = clockTimeMs,
                         stopwatchMs = stopwatchMs,
                         // Live mode feeds the G-Force overlay its 50 Hz rolling

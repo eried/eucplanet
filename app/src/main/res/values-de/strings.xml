@@ -748,12 +748,10 @@
     <string name="section_tpms">TPMS-Sensoren</string>
     <string name="tpms_wheel_sensor">Reifendruck des Wheels</string>
     <string name="tpms_wheel_sensor_desc">Vom gekoppelten Sensor weitergeleitet.</string>
-    <string name="tpms_idle">Noch sendet kein Sensor</string>
     <string name="tpms_scan">Nach Sensoren suchen</string>
     <string name="tpms_scan_stop">Suche stoppen</string>
     <string name="tpms_none_yet">Kein Reifendrucksensor erkannt oder manuell hinzugefügt.</string>
     <string name="tpms_wheel_sensor_replaced">Durch deinen gekoppelten Sensor ersetzt</string>
-    <string name="tpms_paired_sensor">Reifensensor</string>
     <string name="external_gps_device_title">Externes GPS</string>
     <string name="external_gps_pair_button">Scan starten</string>
     <string name="external_gps_pair_action">Koppeln</string>
@@ -2533,7 +2531,6 @@
     <string name="action_chip_reset_metrics">Werte zurücksetzen</string>
     <string name="action_reset_metrics_done">Werte zurückgesetzt</string>
     <string name="action_reset_metrics_wheel_done">Werte zurückgesetzt, Wheel-Tagesstrecke gelöscht</string>
-    <string name="tpms_not_decoded">Erkannt. Die Werte dieses Modells sind noch nicht entschlüsselt.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Warte auf Daten</string>
     <string name="status_live">Live</string>

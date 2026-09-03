@@ -41,6 +41,11 @@ object SettingsJson {
         radarAddress = null,
         radarName = null,
         radarVendor = null,
+        // A rider's tyre caps are their hardware, like their Flics and their
+        // radar. A settings file shared with someone else must not carry the
+        // addresses, and a backup restored on a second phone must not pair it
+        // to sensors that are not on that phone's wheel.
+        tpms = s.tpms.copy(pairedAddress = null, pairedAddresses = emptyList()),
         syncFolderUri = null,
         lastSettingsBackupAt = null,
         lastSettingsBackupName = null,

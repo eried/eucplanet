@@ -760,12 +760,10 @@
     <string name="section_tpms">Sensori TPMS</string>
     <string name="tpms_wheel_sensor">Pressione pneumatico della ruota</string>
     <string name="tpms_wheel_sensor_desc">Ritrasmessa da un sensore associato.</string>
-    <string name="tpms_idle">Nessun sensore trasmette ancora</string>
     <string name="tpms_scan">Cerca sensori</string>
     <string name="tpms_scan_stop">Ferma la ricerca</string>
     <string name="tpms_none_yet">Nessun sensore di pressione rilevato o aggiunto manualmente.</string>
     <string name="tpms_wheel_sensor_replaced">Sostituito dal sensore associato</string>
-    <string name="tpms_paired_sensor">Sensore gomma</string>
     <string name="external_gps_device_title">GPS esterno</string>
     <string name="section_speed_calibration">Calibrazione velocità</string>
     <string name="section_battery_percent">Calibrazione batteria</string>
@@ -2418,7 +2416,6 @@
     <string name="action_chip_reset_metrics">Azzera le metriche</string>
     <string name="action_reset_metrics_done">Metriche azzerate</string>
     <string name="action_reset_metrics_wheel_done">Metriche azzerate, parziale del monoruota cancellato</string>
-    <string name="tpms_not_decoded">Rilevato. Le letture di questo modello non sono ancora decodificate.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">In attesa di dati</string>
     <string name="status_live">Live</string>

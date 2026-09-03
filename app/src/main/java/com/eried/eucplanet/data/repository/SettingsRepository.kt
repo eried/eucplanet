@@ -3,6 +3,7 @@ package com.eried.eucplanet.data.repository
 import com.eried.eucplanet.data.model.ADVANCED_SPECS
 import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
+import com.eried.eucplanet.data.model.TpmsSettings
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.ShareSettings
@@ -100,6 +101,15 @@ class SettingsRepository @Inject constructor(
         } else {
             proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEVER)
         },
+        // A pressure unit this build cannot convert would fall through the
+        // formatter to kPa, changing every pressure in the app by a factor of
+        // a hundred without saying so. Blank is the documented "follow the
+        // unit system" value, so an unrecognised one lands there.
+        tpms = tpms.copy(
+            pressureUnit = tpms.pressureUnit.takeIf {
+                it in TpmsSettings.PRESSURE_UNIT_VALUES
+            } ?: "",
+        ),
         // An unknown discovery mode (hand-edited or newer file) falls back to
         // AUTO, which never uses the saved IP.
         hudDiscoveryMode = hudDiscoveryMode.takeIf { it in HudDiscoveryMode.VALUES }

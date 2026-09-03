@@ -748,12 +748,10 @@
     <string name="section_tpms">TPMS 感測器</string>
     <string name="tpms_wheel_sensor">車輪胎壓</string>
     <string name="tpms_wheel_sensor_desc">由已綁定的感測器轉發。</string>
-    <string name="tpms_idle">尚無感測器回報</string>
     <string name="tpms_scan">掃描感測器</string>
     <string name="tpms_scan_stop">停止掃描</string>
     <string name="tpms_none_yet">未偵測到或手動加入胎壓感測器。</string>
     <string name="tpms_wheel_sensor_replaced">已由配對的感測器取代</string>
-    <string name="tpms_paired_sensor">胎壓感測器</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">開始掃描</string>
     <string name="external_gps_pair_action">配對</string>
@@ -2512,7 +2510,6 @@
     <string name="action_chip_reset_metrics">重置數據</string>
     <string name="action_reset_metrics_done">數據已重置</string>
     <string name="action_reset_metrics_wheel_done">數據已重置，獨輪車里程已清零</string>
-    <string name="tpms_not_decoded">已偵測到。此型號的讀數尚未解碼。</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">等待資料</string>
     <string name="status_live">即時</string>

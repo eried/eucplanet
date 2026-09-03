@@ -130,6 +130,35 @@ object Units {
         else -> value
     }
 
+    /**
+     * How many decimals a pressure needs to be readable in [unit].
+     *
+     * Not a constant, because the units are three orders of magnitude apart.
+     * Two decimals is right for bar and kgf/cm2, meaningless for kPa, and too
+     * coarse for MPa: a whole bar of air is 0.1 MPa, so two decimals would
+     * hide a pump stroke.
+     */
+    fun pressureDecimals(unit: String): Int = when (unit) {
+        "psi" -> 1
+        "bar", "kgf" -> 2
+        "mpa" -> 3
+        else -> 0
+    }
+
+    /**
+     * A pressure written the way the rider's own gauge reads, unit included.
+     *
+     * The one place that does this. Four screens used to each write their own
+     * and disagree: two of them knew about kgf/cm2 and MPa, and two silently
+     * printed bar instead.
+     */
+    fun formatPressure(kpa: Float, unit: String): String {
+        // psi is floored rather than rounded, to match the number the wheel
+        // shows on its own display. See pressurePsiFloored.
+        val value = if (unit == "psi") pressurePsiFloored(kpa) else pressure(kpa, unit)
+        return "%.${pressureDecimals(unit)}f %s".format(value, pressureUnit(unit))
+    }
+
     /** Tire-pressure unit symbol for "psi" or "bar" (kPa otherwise). */
     fun pressureUnit(unit: String): String = when (unit) {
         "psi" -> "psi"

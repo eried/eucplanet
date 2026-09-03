@@ -474,6 +474,12 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly,
             com.eried.eucplanet.util.Units.effectiveDistanceUnit(initialSettings))
 
+    /** The rider's own pressure unit, for the tyre-pressure tile and stats. */
+    val pressureUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectivePressureUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            com.eried.eucplanet.util.Units.effectivePressureUnit(initialSettings))
+
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly,

@@ -11,9 +11,15 @@ import kotlin.math.absoluteValue
 /** Whether a metric needs unit conversion, and against which unit setting. */
 enum class StudioMetricKind { SPEED, DISTANCE, ALTITUDE, TEMPERATURE, PRESSURE, CONSUMPTION, PLAIN }
 
-/** Tire-pressure display unit follows the distance unit (mi -> psi, else bar),
- *  matching Units.effectivePressureUnit; no dedicated pressure-unit setting yet. */
-private fun pressureUnitFor(distUnit: String): String = if (distUnit == "mi") "psi" else "bar"
+/**
+ * The pressure unit to print in.
+ *
+ * The rider's setting when there is one. Blank falls back to deriving it from
+ * the distance unit, which is what [Units.effectivePressureUnit] does with an
+ * unset setting and what every caller here used to do unconditionally.
+ */
+private fun pressureUnitFor(distUnit: String, pressureUnit: String): String =
+    pressureUnit.ifBlank { if (distUnit == "mi") "psi" else "bar" }
 
 /**
  * The live telemetry values a DATA_VALUE / DATA_GRAPH overlay element can show.
@@ -74,7 +80,13 @@ enum class StudioMetric(
     val hasUnit: Boolean get() = kind != StudioMetricKind.PLAIN || plainUnit.isNotEmpty()
 
     /** The raw value converted into the rider's chosen display unit. */
-    fun displayValue(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): Float {
+    fun displayValue(
+        data: WheelData,
+        speedUnit: String,
+        distUnit: String,
+        tempUnit: String,
+        pressureUnit: String = "",
+    ): Float {
         val raw = extract(data)
         return when (kind) {
             StudioMetricKind.SPEED -> Units.speed(raw, speedUnit)
@@ -82,7 +94,7 @@ enum class StudioMetric(
             // Held in metres; feet for riders on miles, matching the dashboard tile.
             StudioMetricKind.ALTITUDE -> if (distUnit == "mi") raw * 3.28084f else raw
             StudioMetricKind.TEMPERATURE -> Units.temperature(raw, tempUnit)
-            StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit))
+            StudioMetricKind.PRESSURE -> Units.pressure(raw, pressureUnitFor(distUnit, pressureUnit))
             // Held per km. Dividing by the display units in one km inverts the
             // conversion the way a rate needs: Wh/mi is the km figure over
             // 0.621371, Wh/mil over 0.1.
@@ -95,27 +107,46 @@ enum class StudioMetric(
     }
 
     /** The unit label shown beside the value (already locale-aware). */
-    fun unitText(context: Context, speedUnit: String, distUnit: String, tempUnit: String): String =
+    fun unitText(
+        context: Context,
+        speedUnit: String,
+        distUnit: String,
+        tempUnit: String,
+        pressureUnit: String = "",
+    ): String =
         when (kind) {
             StudioMetricKind.SPEED -> Units.speedUnit(context, speedUnit)
             StudioMetricKind.DISTANCE -> Units.distanceUnit(distUnit)
             StudioMetricKind.ALTITUDE -> if (distUnit == "mi") "ft" else "m"
             StudioMetricKind.TEMPERATURE -> Units.tempUnit(tempUnit)
-            StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit))
+            StudioMetricKind.PRESSURE -> Units.pressureUnit(pressureUnitFor(distUnit, pressureUnit))
             StudioMetricKind.CONSUMPTION -> "Wh/${Units.distanceUnit(distUnit)}"
             StudioMetricKind.PLAIN -> plainUnit
         }
 
     /** The value formatted to [decimals] decimal places. */
-    fun formatted(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): String {
+    fun formatted(
+        data: WheelData,
+        speedUnit: String,
+        distUnit: String,
+        tempUnit: String,
+        pressureUnit: String = "",
+    ): String {
         if (this == GPS) {
             // A lat/lng pair rendered as text; 5 dp is ~1 m. Both 0 means no fix.
             return if (data.latitude == 0.0 && data.longitude == 0.0) "--"
             else String.format(java.util.Locale.US, "%.5f, %.5f", data.latitude, data.longitude)
         }
-        val v = displayValue(data, speedUnit, distUnit, tempUnit)
-        return if (decimals == 0) v.toInt().toString()
-        else String.format(java.util.Locale.US, "%.${decimals}f", v)
+        val v = displayValue(data, speedUnit, distUnit, tempUnit, pressureUnit)
+        // A pressure needs as many decimals as its unit does: 1 for psi, 2 for
+        // bar, 3 for MPa. The metric's own constant cannot be right for all
+        // three, so the unit decides.
+        val dp =
+            if (kind == StudioMetricKind.PRESSURE)
+                Units.pressureDecimals(pressureUnitFor(distUnit, pressureUnit))
+            else decimals
+        return if (dp == 0) v.toInt().toString()
+        else String.format(java.util.Locale.US, "%.${dp}f", v)
     }
 
     companion object {

@@ -208,10 +208,9 @@ class AlarmEngine @Inject constructor(
                 // rather than comparing against a number that isn't one, which
                 // would either never fire or fire constantly.
                 AlarmMetric.WH_PER_KM -> data.whPerKmRecent.takeIf { !it.isNaN() }
-                // 0 kPa is "no sensor bound", not "flat". Null skips the rule,
-                // or every wheel without TPMS would sit permanently under any
-                // low-pressure threshold the rider set.
-                AlarmMetric.TIRE_PRESSURE -> data.tirePressureKpa.takeIf { it > 0f }
+                // Null while nothing measures the tyre (skips the rule),
+                // 0 kPa when a cap says the tyre is flat. See AlarmLogic.
+                AlarmMetric.TIRE_PRESSURE -> AlarmLogic.tirePressureForAlarm(data)
                 // The same plausibility filter the tiles and the history use,
                 // so an alarm never fires on a sensor a wheel does not have or
                 // on the placeholder a family sends when it has nothing. Null

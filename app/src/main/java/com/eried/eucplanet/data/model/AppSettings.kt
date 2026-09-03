@@ -1354,7 +1354,12 @@ data class TpmsSettings(
      * measures everything else in kilometres.
      */
     val pressureUnit: String = "",
-)
+) {
+    companion object {
+        /** Every unit [Units.pressure] can convert to; blank means derive. */
+        val PRESSURE_UNIT_VALUES = setOf("", "psi", "bar", "kpa", "kgf", "mpa")
+    }
+}
 
 data class WeatherSettings(
     val enabled: Boolean = true,

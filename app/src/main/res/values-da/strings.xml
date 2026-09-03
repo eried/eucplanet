@@ -752,12 +752,10 @@
     <string name="section_tpms">TPMS-sensorer</string>
     <string name="tpms_wheel_sensor">Hjulets dæktryk</string>
     <string name="tpms_wheel_sensor_desc">Videresendt fra en tilknyttet sensor.</string>
-    <string name="tpms_idle">Ingen sensor rapporterer endnu</string>
     <string name="tpms_scan">Søg efter sensorer</string>
     <string name="tpms_scan_stop">Stop scanning</string>
     <string name="tpms_none_yet">Ingen dæktryksensor fundet eller tilføjet manuelt.</string>
     <string name="tpms_wheel_sensor_replaced">Erstattet af din parrede sensor</string>
-    <string name="tpms_paired_sensor">Dæksensor</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="external_gps_pair_button">Start scanning</string>
     <string name="external_gps_pair_action">Par</string>
@@ -2528,7 +2526,6 @@
     <string name="action_chip_reset_metrics">Nulstil målinger</string>
     <string name="action_reset_metrics_done">Målinger nulstillet</string>
     <string name="action_reset_metrics_wheel_done">Målinger nulstillet, hjulets triptæller ryddet</string>
-    <string name="tpms_not_decoded">Fundet. Aflæsninger fra denne model er endnu ikke afkodet.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Venter på data</string>
     <string name="status_live">Live</string>

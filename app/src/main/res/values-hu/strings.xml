@@ -924,12 +924,10 @@
     <string name="section_tpms">TPMS-érzékelők</string>
     <string name="tpms_wheel_sensor">Egykerekű guminyomása</string>
     <string name="tpms_wheel_sensor_desc">Párosított érzékelőtől továbbítva.</string>
-    <string name="tpms_idle">Még egyetlen érzékelő sem jelent</string>
     <string name="tpms_scan">Érzékelők keresése</string>
     <string name="tpms_scan_stop">Keresés leállítása</string>
     <string name="tpms_none_yet">Nincs észlelt vagy kézzel hozzáadott guminyomás-szenzor.</string>
     <string name="tpms_wheel_sensor_replaced">A párosított szenzorod váltja ki</string>
-    <string name="tpms_paired_sensor">Gumiszenzor</string>
     <string name="external_gps_device_title">Külső GPS</string>
     <string name="external_gps_pair_button">Keresés indítása</string>
     <string name="external_gps_pair_action">Párosítás</string>
@@ -2316,7 +2314,6 @@
     <string name="action_chip_reset_metrics">Mérések nullázása</string>
     <string name="action_reset_metrics_done">Mérések nullázva</string>
     <string name="action_reset_metrics_wheel_done">Mérések nullázva, a kerék napi számlálója törölve</string>
-    <string name="tpms_not_decoded">Megtalálva. Ennek a modellnek az értékei még nincsenek dekódolva.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Várakozás adatra</string>
     <string name="status_live">Élő</string>

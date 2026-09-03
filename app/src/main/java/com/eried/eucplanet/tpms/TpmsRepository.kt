@@ -55,7 +55,7 @@ class TpmsRepository @Inject constructor(
 
     /** Forget one cap, leaving the rider's other wheels alone. */
     @Synchronized
-    fun forget(address: String) {
+    fun forget(address: String, nowMs: Long = System.currentTimeMillis()) {
         _sensors.value = _sensors.value.filterNot { it.address == address }
         // Clear the last addressless reading too, or recompute's fallback
         // resurrects the cap that was just deleted and keeps publishing its
@@ -63,7 +63,10 @@ class TpmsRepository @Inject constructor(
         if (_sensors.value.isEmpty()) pairedReading = null
         _pairedAddress.value = _sensors.value.firstOrNull()?.address
         pairing.saveAll(_sensors.value.map { it.address })
-        recompute(System.currentTimeMillis())
+        // The clock is passed in like everywhere else here, so the handover
+        // back to the wheel can be argued with in a test instead of depending
+        // on what time it happens to be.
+        recompute(nowMs)
     }
 
     private val _current = MutableStateFlow<TpmsReading?>(null)
@@ -206,6 +209,18 @@ class TpmsRepository @Inject constructor(
     private val _wheelIsActive = MutableStateFlow(false)
     val wheelIsActive: StateFlow<Boolean> = _wheelIsActive.asStateFlow()
 
+    /**
+     * What the wheel itself is reporting, whether or not it is the one being
+     * believed.
+     *
+     * Separate from [current] because the settings section has to draw the
+     * wheel's own row - and whether to draw it at all - while a paired cap is
+     * the one answering. Reading the merged value there would put the cap's
+     * pressure on the wheel's row, on a wheel with no sensor in it.
+     */
+    private val _wheelSensor = MutableStateFlow<TpmsReading?>(null)
+    val wheelSensor: StateFlow<TpmsReading?> = _wheelSensor.asStateFlow()
+
     private fun recompute(nowMs: Long) {
         // Which source speaks for the tyre. Sticky on purpose: see
         // TpmsPolicy.pickActive.
@@ -237,5 +252,10 @@ class TpmsRepository @Inject constructor(
         }
         _current.value = picked
         _pressureKpa.value = picked?.kpa ?: 0f
+        // Aged by the same rule, so a wheel that stopped reporting stops
+        // having a row rather than freezing one.
+        _wheelSensor.value = wheelReading?.takeIf {
+            nowMs - it.atMs < TpmsPolicy.STALE_AFTER_MS
+        }
     }
 }

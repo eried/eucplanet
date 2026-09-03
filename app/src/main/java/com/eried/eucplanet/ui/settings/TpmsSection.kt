@@ -58,7 +58,6 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
     val scanning by viewModel.scanning.collectAsState()
     // Scans ask to turn Bluetooth on rather than reporting that it is off.
     val startScan = rememberScanStarter()
-    val seen by viewModel.seen.collectAsState()
 
     val wheelHasSensor = wheelKpa > 0f
     val hasPaired = sensors.isNotEmpty()
@@ -123,8 +122,11 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         if (wheelHasSensor) {
             TpmsSensorRow(
                 title = stringResource(R.string.tpms_wheel_sensor),
+                // "Replaced" when it has been: a cap that is paired but
+                // has not spoken yet has replaced nothing, and the wheel is
+                // still the sensor answering for the tyre.
                 subtitle = stringResource(
-                    if (hasPaired) R.string.tpms_wheel_sensor_replaced
+                    if (hasPaired && !wheelIsActive) R.string.tpms_wheel_sensor_replaced
                     else R.string.tpms_wheel_sensor_desc
                 ),
                 reading = formatPressure(wheelKpa, unit),
@@ -298,8 +300,5 @@ private fun TpmsSensorRow(
  * because the units do: 77.4 psi and 5.34 bar carry about the same precision,
  * and kPa is already fine as a whole number.
  */
-private fun formatPressure(kpa: Float, unit: String): String = when (unit) {
-    "psi" -> "%.1f psi".format(Units.pressure(kpa, "psi"))
-    "kpa", "kPa" -> "%.0f kPa".format(kpa)
-    else -> "%.2f bar".format(Units.pressure(kpa, "bar"))
-}
+private fun formatPressure(kpa: Float, unit: String): String =
+    Units.formatPressure(kpa, unit)

@@ -924,12 +924,10 @@
     <string name="section_tpms">Senzori TPMS</string>
     <string name="tpms_wheel_sensor">Presiunea în anvelopa monociclului</string>
     <string name="tpms_wheel_sensor_desc">Retransmisă de la un senzor asociat.</string>
-    <string name="tpms_idle">Niciun senzor nu raportează încă</string>
     <string name="tpms_scan">Caută senzori</string>
     <string name="tpms_scan_stop">Oprește scanarea</string>
     <string name="tpms_none_yet">Niciun senzor de presiune detectat sau adăugat manual.</string>
     <string name="tpms_wheel_sensor_replaced">Înlocuit de senzorul tău asociat</string>
-    <string name="tpms_paired_sensor">Senzor anvelopă</string>
     <string name="external_gps_device_title">GPS extern</string>
     <string name="external_gps_pair_button">Începe scanarea</string>
     <string name="external_gps_pair_action">Asociază</string>
@@ -2316,7 +2314,6 @@
     <string name="action_chip_reset_metrics">Resetează valorile</string>
     <string name="action_reset_metrics_done">Valori resetate</string>
     <string name="action_reset_metrics_wheel_done">Valori resetate, contorul roții șters</string>
-    <string name="tpms_not_decoded">Detectat. Valorile acestui model nu sunt încă decodate.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Se așteaptă date</string>
     <string name="status_live">În direct</string>

@@ -2,6 +2,7 @@ package com.eried.eucplanet.service
 
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.WheelData
 
 /**
  * Pure, Android-free decision math for the alarm engine, split out so the
@@ -23,6 +24,25 @@ object AlarmLogic {
     const val SLOPE_MIN_SAMPLES = 3
     const val SLOPE_MIN_SPAN_MS = 300L
     const val BUFFER_MAX_MS = 2500L
+
+    /**
+     * The tyre pressure a rule should be evaluated against, or null to skip.
+     *
+     * Two failures a low-pressure alarm can have, and they pull in opposite
+     * directions:
+     *
+     *  - A wheel with no sensor reports nothing, and a rule evaluated against
+     *    that would sit permanently under any threshold a rider set, alarming
+     *    forever about a tyre nobody is measuring. Null skips the rule.
+     *  - A cap on a FLAT tyre reports exactly 0 kPa. That is the alarm the
+     *    rider bought the sensor for, and the old rule - skip anything not
+     *    above zero - threw it away.
+     *
+     * Which is why the reading and the presence of a sensor are two fields:
+     * zero is an answer, not a silence.
+     */
+    fun tirePressureForAlarm(data: WheelData): Float? =
+        data.tirePressureKpa.takeIf { data.hasTirePressure }
 
     /** Does [value] satisfy the rule's threshold right now? */
     fun matchesNow(value: Float, comparator: String, threshold: Float): Boolean =

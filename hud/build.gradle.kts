@@ -116,6 +116,11 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
 
     implementation(libs.coroutines.core)
+
+    // The HUD keeps its own copy of the unit conversions, because the phone's
+    // pull in string resources it has no use for. Copies drift, so they get a
+    // test.
+    testImplementation(libs.junit)
     implementation(libs.coroutines.android)
 
     implementation(libs.kotlinx.serialization.json)

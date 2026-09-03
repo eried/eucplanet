@@ -157,8 +157,11 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     "MOTOR_TEMP" to { it.temperatures.getOrNull(0)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
     "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
     "BATTERY_TEMP" to { it.temperatures.getOrNull(2)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
-    // TPMS tire pressure, stored raw in kPa; the detail screen converts to psi/bar.
-    "TIRE_PRESSURE" to { it.tirePressureKpa },
+    // TPMS tire pressure, stored raw in kPa; the detail screen converts to
+    // psi/bar. null (skip) while nothing is measuring, so a wheel without a
+    // sensor stops recording a flat line at zero - and a cap reporting 0 kPa
+    // on a flat tyre IS recorded, because that is a reading.
+    "TIRE_PRESSURE" to { w -> w.tirePressureKpa.takeIf { w.hasTirePressure } },
     // BLE link RSSI in dBm; null (skip) until the first read so 0 doesn't skew stats.
     "BT_RSSI" to { it.rssiDbm.takeIf { r -> r != 0 }?.toFloat() },
     // Ride efficiency and range, both computed over the rider's rolling window
@@ -732,6 +735,31 @@ class WheelRepository @Inject constructor(
         scope.launch {
             bleManager.decodedResults.collect { result ->
                 handleDecoded(result)
+            }
+        }
+
+        // The tyre's pressure, from whichever sensor is speaking for it.
+        //
+        // Wheel frames alone are not enough: these caps report when the
+        // pressure moves, not when a wheel frame lands, and a rider whose
+        // wheel is off still has a tyre losing air. This is also what ages a
+        // reading out, so a sensor that stopped stops being shown.
+        scope.launch {
+            tpmsRepository.current.collect { reading ->
+                val kpa = reading?.kpa ?: 0f
+                val has = reading != null
+                val current = _wheelData.value
+                // Only when it actually moved. A wheel relaying its own sensor
+                // submits on every frame, so without this the frame the parser
+                // just published would be read, copied and written back ten
+                // times a second for no change at all - and each of those is a
+                // chance to write back a frame that has since been replaced.
+                if (current.tirePressureKpa != kpa || current.hasTirePressure != has) {
+                    _wheelData.value = current.copy(
+                        tirePressureKpa = kpa,
+                        hasTirePressure = has,
+                    )
+                }
             }
         }
 
@@ -2012,6 +2040,11 @@ class WheelRepository @Inject constructor(
                 // as the live one.
                 result.data.tirePressureKpa.takeIf { it > 0f }
                     ?.let { tpmsRepository.submitWheel(it) }
+                // Then read back whoever won, so the frame carries the tyre's
+                // pressure rather than the wheel's opinion of it. Without this
+                // the copy below put the parser's field back and a paired cap
+                // reached nothing outside its own settings row.
+                val tyre = tpmsRepository.current.value
                 _wheelData.value = result.data.copy(
                     speed = kotlin.math.abs(result.data.speed * cal),
                     batteryEnvelope = envelope,
@@ -2019,6 +2052,11 @@ class WheelRepository @Inject constructor(
                     lightOn = lightOn,
                     maxTemperature = maxTemp,
                     temperatures = temps,
+                    // Whichever sensor is speaking for the tyre. Null is
+                    // silence and 0 is a flat tyre; they are not the same
+                    // thing and an alarm has to be able to tell them apart.
+                    tirePressureKpa = tyre?.kpa ?: 0f,
+                    hasTirePressure = tyre != null,
                     // Link RSSI comes from the GATT layer, not the wheel frame;
                     // fold in the latest read (keep the last value between reads).
                     rssiDbm = bleManager.rssiDbm.value ?: previous.rssiDbm,

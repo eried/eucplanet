@@ -748,12 +748,10 @@
     <string name="section_tpms">TPMSセンサー</string>
     <string name="tpms_wheel_sensor">ホイールのタイヤ空気圧</string>
     <string name="tpms_wheel_sensor_desc">連携したセンサーから中継。</string>
-    <string name="tpms_idle">センサーはまだ送信していません</string>
     <string name="tpms_scan">センサーを検索</string>
     <string name="tpms_scan_stop">スキャンを停止</string>
     <string name="tpms_none_yet">タイヤ空気圧センサーは検出も手動追加もされていません。</string>
     <string name="tpms_wheel_sensor_replaced">ペアリング済みセンサーに置き換え</string>
-    <string name="tpms_paired_sensor">タイヤセンサー</string>
     <string name="external_gps_device_title">外部 GPS</string>
     <string name="external_gps_pair_button">スキャン開始</string>
     <string name="external_gps_pair_action">ペアリング</string>
@@ -2514,7 +2512,6 @@
     <string name="action_chip_reset_metrics">記録をリセット</string>
     <string name="action_reset_metrics_done">記録をリセットしました</string>
     <string name="action_reset_metrics_wheel_done">記録をリセットし、ホイールの積算距離も消去しました</string>
-    <string name="tpms_not_decoded">検出しました。このモデルの数値はまだ解読できていません。</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">データ待ち</string>
     <string name="status_live">受信中</string>

@@ -14,6 +14,13 @@ import kotlin.math.absoluteValue
  */
 enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PRESSURE, PLAIN }
 
+/**
+ * The pressure unit to print in: the rider's own when the phone sent one,
+ * otherwise derived from the distance unit as this always used to be.
+ */
+private fun pressureUnitFor(distUnit: String, pressureUnit: String): String =
+    pressureUnit.ifBlank { if (distUnit == "mi") "psi" else "bar" }
+
 enum class StudioMetric(
     val key: String,
     val label: String,
@@ -48,34 +55,61 @@ enum class StudioMetric(
     /** True when this metric renders a unit beside its value. */
     val hasUnit: Boolean get() = kind != StudioMetricKind.PLAIN || plainUnit.isNotEmpty()
 
-    fun displayValue(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): Float {
+    fun displayValue(
+        data: WheelData,
+        speedUnit: String,
+        distUnit: String,
+        tempUnit: String,
+        pressureUnit: String = "",
+    ): Float {
         val raw = extract(data)
         return when (kind) {
             StudioMetricKind.SPEED -> HudUnits.speed(raw, speedUnit)
             StudioMetricKind.DISTANCE -> HudUnits.distance(raw, distUnit)
             StudioMetricKind.TEMPERATURE -> HudUnits.temperature(raw, tempUnit)
-            StudioMetricKind.PRESSURE -> HudUnits.pressure(raw, distUnit)
+            StudioMetricKind.PRESSURE ->
+                HudUnits.pressure(raw, pressureUnitFor(distUnit, pressureUnit))
             StudioMetricKind.PLAIN -> raw
         }
     }
 
-    fun unitText(context: Context, speedUnit: String, distUnit: String, tempUnit: String): String =
+    fun unitText(
+        context: Context,
+        speedUnit: String,
+        distUnit: String,
+        tempUnit: String,
+        pressureUnit: String = "",
+    ): String =
         when (kind) {
             StudioMetricKind.SPEED -> HudUnits.speedSuffix(speedUnit)
             StudioMetricKind.DISTANCE -> HudUnits.distanceSuffix(distUnit)
             StudioMetricKind.TEMPERATURE -> HudUnits.temperatureSuffix(tempUnit)
-            StudioMetricKind.PRESSURE -> HudUnits.pressureSuffix(distUnit)
+            StudioMetricKind.PRESSURE ->
+                HudUnits.pressureSuffix(pressureUnitFor(distUnit, pressureUnit))
             StudioMetricKind.PLAIN -> plainUnit
         }
 
-    fun formatted(data: WheelData, speedUnit: String, distUnit: String, tempUnit: String): String {
+    fun formatted(
+        data: WheelData,
+        speedUnit: String,
+        distUnit: String,
+        tempUnit: String,
+        pressureUnit: String = "",
+    ): String {
         if (this == GPS) {
             return if (data.latitude == 0.0 && data.longitude == 0.0) "--"
             else String.format(java.util.Locale.US, "%.5f, %.5f", data.latitude, data.longitude)
         }
-        val v = displayValue(data, speedUnit, distUnit, tempUnit)
-        return if (decimals == 0) v.toInt().toString()
-        else String.format(java.util.Locale.US, "%.${decimals}f", v)
+        val v = displayValue(data, speedUnit, distUnit, tempUnit, pressureUnit)
+        // A pressure needs as many decimals as its unit does: 1 for psi, 2 for
+        // bar, 3 for MPa. One constant per metric cannot be right for all
+        // three, so the unit decides.
+        val dp =
+            if (kind == StudioMetricKind.PRESSURE)
+                HudUnits.pressureDecimals(pressureUnitFor(distUnit, pressureUnit))
+            else decimals
+        return if (dp == 0) v.toInt().toString()
+        else String.format(java.util.Locale.US, "%.${dp}f", v)
     }
 
     companion object {

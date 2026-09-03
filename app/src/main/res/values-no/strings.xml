@@ -741,12 +741,10 @@
     <string name="section_tpms">TPMS-sensorer</string>
     <string name="tpms_wheel_sensor">Hjulets dekktrykk</string>
     <string name="tpms_wheel_sensor_desc">Videresendt fra en tilknyttet sensor.</string>
-    <string name="tpms_idle">Ingen sensor rapporterer ennå</string>
     <string name="tpms_scan">Søk etter sensorer</string>
     <string name="tpms_scan_stop">Stopp skanning</string>
     <string name="tpms_none_yet">Ingen dekktrykksensor funnet eller lagt til manuelt.</string>
     <string name="tpms_wheel_sensor_replaced">Erstattet av din parede sensor</string>
-    <string name="tpms_paired_sensor">Dekksensor</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
     <string name="section_battery_percent">Batterikalibrering</string>
@@ -2401,7 +2399,6 @@
     <string name="action_chip_reset_metrics">Nullstill målinger</string>
     <string name="action_reset_metrics_done">Målingene er nullstilt</string>
     <string name="action_reset_metrics_wheel_done">Målingene er nullstilt, hjulets tripteller er tømt</string>
-    <string name="tpms_not_decoded">Funnet. Avlesningene fra denne modellen er ennå ikke dekodet.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">Venter på data</string>
     <string name="status_live">Live</string>

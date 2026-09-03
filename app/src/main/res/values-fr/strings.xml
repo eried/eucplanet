@@ -752,12 +752,10 @@
     <string name="section_tpms">Capteurs TPMS</string>
     <string name="tpms_wheel_sensor">Pression du pneu de la roue</string>
     <string name="tpms_wheel_sensor_desc">Relayée depuis un capteur associé.</string>
-    <string name="tpms_idle">Aucun capteur ne transmet encore</string>
     <string name="tpms_scan">Rechercher des capteurs</string>
     <string name="tpms_scan_stop">Arrêter la recherche</string>
     <string name="tpms_none_yet">Aucun capteur de pression détecté ni ajouté manuellement.</string>
     <string name="tpms_wheel_sensor_replaced">Remplacé par ton capteur associé</string>
-    <string name="tpms_paired_sensor">Capteur de pneu</string>
     <string name="external_gps_device_title">GPS externe</string>
     <string name="external_gps_pair_button">Lancer le scan</string>
     <string name="external_gps_pair_action">Appairer</string>
@@ -2517,7 +2515,6 @@
     <string name="action_chip_reset_metrics">Réinitialiser les mesures</string>
     <string name="action_reset_metrics_done">Mesures réinitialisées</string>
     <string name="action_reset_metrics_wheel_done">Mesures réinitialisées, trajet de la roue effacé</string>
-    <string name="tpms_not_decoded">Détecté. Les valeurs de ce modèle ne sont pas encore décodées.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">En attente de données</string>
     <string name="status_live">En direct</string>

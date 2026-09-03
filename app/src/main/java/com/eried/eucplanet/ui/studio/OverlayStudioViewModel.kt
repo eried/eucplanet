@@ -258,6 +258,7 @@ class OverlayStudioViewModel @Inject constructor(
     val speedUnit: String = Units.effectiveSpeedUnit(initialSettings)
     val distanceUnit: String = Units.effectiveDistanceUnit(initialSettings)
     val tempUnit: String = Units.effectiveTempUnit(initialSettings)
+    val pressureUnit: String = Units.effectivePressureUnit(initialSettings)
 
     // --- Replay export format prefs -----------------------------------------
     // The Replay panel's output-format chooser. Seeded from saved settings;
