@@ -70,13 +70,15 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
         // cap was dropped before it could even be listed.
         sensors.forEach { sensor ->
             TpmsSensorRow(
-                // Named for the app it is sold with, plus the front of the
-                // address. Not read off the air: the company id it advertises
-                // under belongs to a games company that shut down in 2014, so
-                // it is squatted and says nothing. The name comes from the
-                // vendor app the rider actually has, com.zl.dev.tire.lytpms,
-                // whose developer ships the same protocol as ITPMS(K) too, so
-                // treat the label as the family rather than the maker.
+                // Named for the platform, not for one shop's badge. The
+                // same Wicarlink code decodes every one of these caps
+                // whichever app they were sold with - LY TPMS, ITPMS and the
+                // unbranded ones - so the family name is the honest label and
+                // the aliases are listed in docs/protocols/wicarlink-tpms.md.
+                //
+                // The id beside it is the sensor's own, decoded from the
+                // packet: the same characters the rider already sees in the
+                // app the cap came with, rather than a slice of a MAC.
                 title = stringResource(
                     R.string.tpms_paired_sensor_fmt,
                     stringResource(R.string.tpms_family_ly),
@@ -142,11 +144,16 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
 }
 
 /**
- * The front of a MAC, which is how a rider recognises their own sensor.
+ * The sensor id the vendor app shows for this cap.
  *
- * The first three octets: this family burns the same 11:11:11 into the tail of
- * every unit it ships, so the usual trick of showing the last few characters
- * would give every sensor the same name.
+ * The first three octets of the address, which for this family is the same
+ * string the packet carries as its id: the cap sends its id as three bytes
+ * printed backwards, and those are the reversed MAC tail. Showing the LAST few
+ * characters instead - the usual trick - would name every sensor identically,
+ * because this family burns the same 11:11:11 into every unit it ships.
+ *
+ * Same characters the rider already sees in the app the cap was sold with, so
+ * a sensor added in both places is recognisable in both.
  */
 /** The sensor's own air temperature, in the rider's unit. */
 @Composable

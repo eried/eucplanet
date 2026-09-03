@@ -163,10 +163,13 @@ already trust, now on your EUC.
 InMotion P6 relays its bound sensor and the app shows it live, graphs it, puts
 it on the HUD and in the overlay, and will warn you about it - a slow puncture
 is exactly the thing you notice too late. For wheels with no sensor of their
-own, a generic valve-cap [LY TPMS
-sensor](https://s.click.aliexpress.com/e/_c2xLwuvt) broadcasts a reading the
-app can listen for. Set a low-pressure alarm in psi or bar and the app tells
-you before the tyre does.
+own, a screw-on [valve-cap
+sensor](https://s.click.aliexpress.com/e/_c2xLwuvt) broadcasts pressure,
+temperature and battery, and the app listens for it: the Wicarlink family, sold
+as LY TPMS, ITPMS and unbranded, whose format is written up in
+[docs/protocols/wicarlink-tpms.md](docs/protocols/wicarlink-tpms.md). Add one
+cap per wheel. Set a low-pressure alarm in psi or bar and the app tells you
+before the tyre does.
 
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
 external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
