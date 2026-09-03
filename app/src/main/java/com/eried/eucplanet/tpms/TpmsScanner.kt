@@ -116,6 +116,21 @@ class TpmsScanner @Inject constructor(
         openScan(lowPower = true)
     }
 
+    /**
+     * The rider left the screen: end a search, keep watching a paired sensor.
+     *
+     * A plain stop() here was closing the monitor too, and nothing restarted
+     * it, because the pairing had not changed. So the pressure updated only
+     * while the settings screen happened to be open and froze the moment the
+     * rider walked away from it - which is every moment that matters.
+     */
+    @SuppressLint("MissingPermission")
+    fun endSearch() {
+        if (monitoring) return
+        stop()
+        startMonitoring()
+    }
+
     /** Give the radio back when nothing is paired any more. */
     @SuppressLint("MissingPermission")
     fun stopMonitoring() {
@@ -162,10 +177,16 @@ class TpmsScanner @Inject constructor(
         val settings = ScanSettings.Builder()
             .setScanMode(
                 // Low latency while hunting, because these broadcast in short
-                // bursts and a slower mode misses most of them. Low power once
-                // the sensor is known: it is a tyre, it can be a few seconds
-                // late, and this one runs for as long as the app does.
-                if (lowPower) ScanSettings.SCAN_MODE_LOW_POWER
+                // bursts and a slower mode misses most of them.
+                //
+                // Balanced once the sensor is known, not low power. Low power
+                // listens about a tenth of the time, and a cap that speaks for
+                // a few seconds when the pressure moves and then says nothing
+                // for an hour is exactly the signal that slips through a duty
+                // cycle like that. The vendor's own app runs low latency the
+                // whole time; balanced is the middle that still catches a
+                // burst without holding the radio open all day.
+                if (lowPower) ScanSettings.SCAN_MODE_BALANCED
                 else ScanSettings.SCAN_MODE_LOW_LATENCY
             )
             .build()

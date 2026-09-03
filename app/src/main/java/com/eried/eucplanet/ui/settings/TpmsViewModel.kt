@@ -64,8 +64,9 @@ class TpmsViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        // A scan left running is a battery drain the rider cannot see.
-        scanner.stop()
+        // Ends a search, not the watching. A search left running is a battery
+        // drain the rider cannot see; the monitor is the whole feature.
+        scanner.endSearch()
         super.onCleared()
     }
 

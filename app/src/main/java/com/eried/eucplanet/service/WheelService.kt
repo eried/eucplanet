@@ -106,6 +106,16 @@ class WheelService : LifecycleService() {
         const val EXTRA_AUTO = "auto_connect"
     }
 
+    /**
+     * Injected so a paired tyre sensor is listened to for as long as the
+     * service runs.
+     *
+     * It used to be created only when the TPMS settings screen was first
+     * opened, so a rider who never went there had a paired cap that was never
+     * heard, and the dashboard tile, the alarms and the HUD all sat on
+     * nothing.
+     */
+    @Inject lateinit var tpmsScanner: com.eried.eucplanet.tpms.TpmsScanner
     @Inject lateinit var wheelRepository: WheelRepository
     @Inject lateinit var settingsRepository: SettingsRepository
 
@@ -227,6 +237,10 @@ class WheelService : LifecycleService() {
         super.onCreate()
         isRunning = true
         createNotificationChannel()
+
+        // Start listening for a paired tyre cap. Touching the injected scanner
+        // is what creates it; it then follows the pairing on its own.
+        tpmsScanner.startMonitoring()
 
         val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
                 hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
