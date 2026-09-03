@@ -62,6 +62,23 @@ object TpmsPolicy {
      */
     const val ACTIVE_HOLD_MS = 60 * 1000L
 
+    /**
+     * How long a cap keeps speaking for its tyre after its last packet.
+     *
+     * Much longer than [STALE_AFTER_MS], and for a reason particular to these
+     * caps: they transmit when the pressure MOVES and say nothing on a settled
+     * tyre, so a healthy sensor is routinely silent for hours. Ten minutes of
+     * quiet would hand the tyre to the wheel's own relay and start showing a
+     * different sensor's number under the same label, with nothing to say it
+     * changed.
+     *
+     * An hour separates the two cases that look identical from outside. A cap
+     * that is merely quiet is still the truth about its tyre; a cap that has
+     * said nothing for an hour has probably lost its cell or been unscrewed,
+     * and then the wheel's own reading beats showing nothing.
+     */
+    const val PAIRED_STALE_AFTER_MS = 60 * 60 * 1000L
+
     /** One source that could be the active one. */
     data class Candidate(
         /** Null for the wheel's own relayed reading. */
@@ -83,8 +100,15 @@ object TpmsPolicy {
         currentActive: String?,
         holdMs: Long = ACTIVE_HOLD_MS,
         staleAfterMs: Long = STALE_AFTER_MS,
+        pairedStaleAfterMs: Long = PAIRED_STALE_AFTER_MS,
     ): Candidate? {
-        val live = candidates.filter { nowMs - it.atMs < staleAfterMs }
+        // A cap is given far longer than the wheel before it counts as gone:
+        // silence means "settled tyre" for one and "not reporting" for the
+        // other.
+        val live = candidates.filter {
+            val limit = if (it.source == TpmsSource.PAIRED) pairedStaleAfterMs else staleAfterMs
+            nowMs - it.atMs < limit
+        }
         if (live.isEmpty()) return null
 
         val externals = live.filter { it.source == TpmsSource.PAIRED }

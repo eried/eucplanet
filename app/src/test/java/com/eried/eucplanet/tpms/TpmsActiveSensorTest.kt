@@ -38,9 +38,27 @@ class TpmsActiveSensorTest {
         assertEquals("A", a?.address)
     }
 
-    @Test fun `the wheel comes back once every cap has properly gone quiet`() {
-        val now = t0 + TpmsPolicy.STALE_AFTER_MS
+    @Test fun `a cap that is merely quiet keeps its tyre, for a long time`() {
+        // These caps transmit when the pressure MOVES and say nothing on a
+        // settled tyre, so a healthy one is silent for hours. Handing over on
+        // ten minutes of quiet would show the wheel's own sensor under the
+        // cap's label with nothing to say it changed.
+        val now = t0 + 50 * 60 * 1000L
         val a = TpmsPolicy.pickActive(listOf(wheel(now), cap("A", t0)), now, "A")
+        assertEquals("A", a?.address)
+    }
+
+    @Test fun `the wheel takes over once a cap has probably stopped for good`() {
+        // An hour of silence is no longer "settled tyre", it is a dead cell or
+        // a cap that was unscrewed, and then the wheel beats showing nothing.
+        val now = t0 + TpmsPolicy.PAIRED_STALE_AFTER_MS
+        val a = TpmsPolicy.pickActive(listOf(wheel(now), cap("A", t0)), now, "A")
+        assertEquals(TpmsSource.WHEEL, a?.source)
+    }
+
+    @Test fun `with no cap at all the wheel is the answer immediately`() {
+        // The plain case a rider with only a P6 lives in.
+        val a = TpmsPolicy.pickActive(listOf(wheel(t0)), t0, null)
         assertEquals(TpmsSource.WHEEL, a?.source)
     }
 
@@ -67,7 +85,7 @@ class TpmsActiveSensorTest {
     }
 
     @Test fun `nothing is active when everything has gone stale`() {
-        val now = t0 + TpmsPolicy.STALE_AFTER_MS
+        val now = t0 + TpmsPolicy.PAIRED_STALE_AFTER_MS
         assertNull(TpmsPolicy.pickActive(listOf(cap("A", t0)), now, "A"))
         assertNull(TpmsPolicy.pickActive(emptyList(), now, null))
     }
