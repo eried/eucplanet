@@ -123,6 +123,9 @@ data class AlarmRule(
     val wheelName: String? = null
 )
 
+/** The family a metric is filed under: its own name unless it shares one. */
+val AlarmMetric.groupKey: String get() = groupOf ?: name
+
 enum class AlarmMetric(
     val labelRes: Int,
     val unit: String,
@@ -136,10 +139,53 @@ enum class AlarmMetric(
      *  - >= (too high): speed, PWM, temperature, current, approach speed
      *  - <  (too low / too close): battery, voltage, car distance
      */
-    val defaultComparator: AlarmComparator = AlarmComparator.GREATER_EQUAL
+    val defaultComparator: AlarmComparator = AlarmComparator.GREATER_EQUAL,
+    /**
+     * Name in the LIST of choices, where there is room to spell it out.
+     *
+     * [labelRes] is what the field shows once the metric is chosen and has to
+     * fit; this is what the rider reads while deciding. Most metrics want the
+     * same string for both, which is the default.
+     */
+    val longLabelRes: Int = labelRes,
+    /**
+     * Which family this metric is filed under in the rule list.
+     *
+     * Its own name for almost everything. Two metrics that measure the same
+     * quantity a different way share one, so a rider sees one heading with
+     * both rules under it rather than two headings saying nearly the same
+     * word.
+     */
+    val groupOf: String? = null,
 ) {
     SPEED(R.string.alarm_metric_speed, "km/h"),
     BATTERY(R.string.alarm_metric_battery, "%", defaultComparator = AlarmComparator.LESS_THAN),
+    /**
+     * Battery percent with the load taken out of it.
+     *
+     * Watched from below, like BATTERY, and the reason to prefer it: on an
+     * 84 V pack the raw percentage dives under acceleration and recovers on
+     * the overrun, so a rule on the raw value either cries wolf on every hill
+     * or is set so low it fires too late to matter. The envelope only moves
+     * when the charge moved, so the threshold means what the rider thinks it
+     * means.
+     *
+     * Shown as "Battery (est)" rather than "Battery envelope": two words did
+     * not fit the metric field and wrapped onto a second line, and "envelope"
+     * is the name of the technique rather than of the thing a rider wants.
+     * What they want is the battery, estimated properly.
+     */
+    BATTERY_ENVELOPE(
+        R.string.alarm_metric_battery_envelope,
+        "%",
+        // Spoken as "battery". The reading IS the battery; the envelope is
+        // only how it was measured, and a rider does not want the word
+        // estimate read at them every time it fires.
+        voiceLabelRes = R.string.alarm_metric_battery,
+        defaultComparator = AlarmComparator.LESS_THAN,
+        longLabelRes = R.string.alarm_metric_battery_envelope_long,
+        groupOf = "BATTERY",
+    ),
     TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
     PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
     VOLTAGE(R.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
@@ -168,26 +214,6 @@ enum class AlarmMetric(
      * the numbers do.
      */
     BT_RSSI(R.string.alarm_metric_bt_rssi, "dBm", defaultComparator = AlarmComparator.LESS_THAN),
-    /**
-     * Battery percent with the load taken out of it.
-     *
-     * Watched from below, like BATTERY, and the reason to prefer it: on an
-     * 84 V pack the raw percentage dives under acceleration and recovers on
-     * the overrun, so a rule on the raw value either cries wolf on every hill
-     * or is set so low it fires too late to matter. The envelope only moves
-     * when the charge moved, so the threshold means what the rider thinks it
-     * means.
-     *
-     * Shown as "Battery (est)" rather than "Battery envelope": two words did
-     * not fit the metric field and wrapped onto a second line, and "envelope"
-     * is the name of the technique rather than of the thing a rider wants.
-     * What they want is the battery, estimated properly.
-     */
-    BATTERY_ENVELOPE(
-        R.string.alarm_metric_battery_envelope,
-        "%",
-        defaultComparator = AlarmComparator.LESS_THAN,
-    ),
     /**
      * TPMS tire pressure, held in kPa like [WheelData.tirePressureKpa] and
      * shown in the rider's psi or bar. Watched from below: a tyre losing air

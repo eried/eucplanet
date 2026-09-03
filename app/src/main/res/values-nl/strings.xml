@@ -2523,4 +2523,5 @@
     <string name="tpms_state_leaking">Verliest lucht</string>
     <string name="tpms_state_inflating">Oppompen</string>
     <string name="alarm_metric_battery_envelope">Accu (schat)</string>
+    <string name="alarm_metric_battery_envelope_long">Accu-omhullende (schatting zonder belasting)</string>
 </resources>

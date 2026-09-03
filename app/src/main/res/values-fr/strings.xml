@@ -2525,4 +2525,5 @@
     <string name="tpms_state_leaking">Fuite d’air</string>
     <string name="tpms_state_inflating">Gonflage</string>
     <string name="alarm_metric_battery_envelope">Batterie (est)</string>
+    <string name="alarm_metric_battery_envelope_long">Enveloppe batterie (estimation hors charge)</string>
 </resources>

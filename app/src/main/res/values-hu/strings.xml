@@ -2324,4 +2324,5 @@
     <string name="tpms_state_leaking">Szivárog</string>
     <string name="tpms_state_inflating">Felfújás</string>
     <string name="alarm_metric_battery_envelope">Akku (becs)</string>
+    <string name="alarm_metric_battery_envelope_long">Akkumulátor burkológörbe (terhelés nélküli becslés)</string>
 </resources>

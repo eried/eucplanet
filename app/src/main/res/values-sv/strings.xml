@@ -2521,4 +2521,5 @@
     <string name="tpms_state_leaking">Läcker luft</string>
     <string name="tpms_state_inflating">Pumpar</string>
     <string name="alarm_metric_battery_envelope">Batteri (est)</string>
+    <string name="alarm_metric_battery_envelope_long">Batterikurva (uppskattning utan last)</string>
 </resources>

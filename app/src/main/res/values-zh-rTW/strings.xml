@@ -2520,4 +2520,5 @@
     <string name="tpms_state_leaking">漏氣</string>
     <string name="tpms_state_inflating">充氣中</string>
     <string name="alarm_metric_battery_envelope">電量(估算)</string>
+    <string name="alarm_metric_battery_envelope_long">電量包絡（去除負載的估算）</string>
 </resources>

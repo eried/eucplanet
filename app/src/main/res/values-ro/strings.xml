@@ -2324,4 +2324,5 @@
     <string name="tpms_state_leaking">Pierde aer</string>
     <string name="tpms_state_inflating">Se umflă</string>
     <string name="alarm_metric_battery_envelope">Baterie (est)</string>
+    <string name="alarm_metric_battery_envelope_long">Anvelopă baterie (estimare fără sarcină)</string>
 </resources>

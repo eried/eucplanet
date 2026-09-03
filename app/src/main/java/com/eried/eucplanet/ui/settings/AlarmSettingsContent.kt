@@ -123,6 +123,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.groupKey
 import com.eried.eucplanet.service.AlarmLogic
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
@@ -322,7 +323,15 @@ fun AlarmSettingsContent(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) { _, group, _ ->
             key(group.metric) {
-                val groupMetric = try { AlarmMetric.valueOf(group.metric) } catch (_: Exception) { AlarmMetric.SPEED }
+                // A family is named after the metric that heads it, so the
+                // Battery family reads "Battery" whichever of its two members
+                // the rider added first.
+                val groupMetric = AlarmMetric.entries
+                    .firstOrNull { it.groupKey == group.metric }
+                    ?: runCatching { AlarmMetric.valueOf(group.metric) }.getOrDefault(AlarmMetric.SPEED)
+                // With more than one metric under one heading, a rule reading
+                // just "< 20%" would not say WHICH battery it watches.
+                val familyIsMixed = group.rules.map { it.metric }.distinct().size > 1
                 val accent = metricAccent(groupMetric)
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     // Coloured band names the metric once (big); the rules below
@@ -357,6 +366,7 @@ fun AlarmSettingsContent(
                                 tempUnit = tempUnit,
                                 pressureUnit = pressureUnit,
                                 connectedAddress = connectedWheel?.first,
+                                showMetricName = familyIsMixed,
                                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
                                 onEdit = { editingRule = rule; showEditor = true },
                             )
@@ -476,6 +486,14 @@ private fun AlarmRuleCard(
     tempUnit: String,
     pressureUnit: String,
     connectedAddress: String?,
+    /**
+     * True when this rule's heading covers more than one metric.
+     *
+     * The band normally names the metric so a rule can read just "condition
+     * threshold unit". With a family under one heading, two rules could both
+     * read "< 20%" with nothing saying which battery each watches.
+     */
+    showMetricName: Boolean = false,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
 ) {
@@ -519,8 +537,12 @@ private fun AlarmRuleCard(
                 val shownUnit = displayUnit(metric, speedUnit, tempUnit, pressureUnit)
                 // The coloured group band already names the metric, so a rule
                 // reads just "condition threshold unit" (e.g. "≥ 32 km/h").
+                val condition = "${comp.symbol} ${shownThresh}${shownUnit}"
                 Text(
-                    rule.name.ifBlank { "${comp.symbol} ${shownThresh}${shownUnit}" },
+                    rule.name.ifBlank {
+                        if (showMetricName) "${stringResource(metric.labelRes)}  $condition"
+                        else condition
+                    },
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
                     color = color
@@ -809,7 +831,9 @@ private fun AlarmRuleEditorDialog(
                 )
                 val metricOptions = AlarmMetric.entries
                     .filter { showRadarMetrics || it.name !in radarMetricNames || it.name == metric }
-                    .map { it.name to stringResource(it.labelRes) }
+                    // Spelled out while choosing; the field shows the short
+                    // name once chosen.
+                    .map { it.name to stringResource(it.longLabelRes) }
                 val selectedComp = AlarmComparator.parse(comparator)
                 val comparatorOptions = AlarmComparator.entries.map { entry ->
                     entry.name to stringResource(entry.labelRes)

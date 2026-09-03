@@ -2324,4 +2324,5 @@
     <string name="tpms_state_leaking">Vuotaa</string>
     <string name="tpms_state_inflating">Täytetään</string>
     <string name="alarm_metric_battery_envelope">Akku (arvio)</string>
+    <string name="alarm_metric_battery_envelope_long">Akun verhokäyrä (arvio ilman kuormaa)</string>
 </resources>

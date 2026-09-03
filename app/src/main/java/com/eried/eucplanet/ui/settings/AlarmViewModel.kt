@@ -7,6 +7,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.groupKey
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.TonePlayer
@@ -109,11 +110,21 @@ class AlarmViewModel @Inject constructor(
     /** Group rules by metric (most-severe first inside each); order the groups by
      *  priority = the lowest sortOrder in each group (what the rider dragged).
      *  This is both the display order and the engine's group-priority order. */
+    /**
+     * The family a rule belongs to, falling back to its own metric name for
+     * anything the enum does not recognise.
+     */
+    private fun familyOf(metricName: String): String =
+        runCatching { AlarmMetric.valueOf(metricName).groupKey }.getOrDefault(metricName)
+
     private fun buildGroups(list: List<AlarmRule>): List<MetricGroup> =
-        list.groupBy { it.metric }
-            .map { (metric, rs) -> metric to rs.sortedWith(severityComparator()) }
+        // Grouped by FAMILY, not by metric. Battery and Battery (est) measure
+        // the same thing two ways and read as one heading with two rules
+        // under it, rather than two headings a word apart.
+        list.groupBy { familyOf(it.metric) }
+            .map { (family, rs) -> family to rs.sortedWith(severityComparator()) }
             .sortedBy { (_, rs) -> rs.minOf { it.sortOrder } }
-            .map { (metric, rs) -> MetricGroup(metric, rs) }
+            .map { (family, rs) -> MetricGroup(family, rs) }
 
     val groupedRules: StateFlow<List<MetricGroup>> = rules
         .map { buildGroups(it) }
@@ -127,7 +138,13 @@ class AlarmViewModel @Inject constructor(
      */
     private fun sortComparator(): Comparator<AlarmRule> {
         val metricOrder = AlarmMetric.entries.withIndex().associate { (i, m) -> m.name to i }
-        return compareBy<AlarmRule> { metricOrder[it.metric] ?: Int.MAX_VALUE }
+        // Sort by family first so auto-sort cannot split one apart, then by
+        // the metric's own position inside it.
+        val familyOrder = AlarmMetric.entries
+            .groupBy { it.groupKey }
+            .mapValues { (_, ms) -> ms.minOf { AlarmMetric.entries.indexOf(it) } }
+        return compareBy<AlarmRule> { familyOrder[familyOf(it.metric)] ?: Int.MAX_VALUE }
+            .thenBy { metricOrder[it.metric] ?: Int.MAX_VALUE }
             .thenByDescending { severityOf(it) }
     }
 

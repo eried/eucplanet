@@ -2521,4 +2521,5 @@
     <string name="tpms_state_leaking">Traci powietrze</string>
     <string name="tpms_state_inflating">Pompowanie</string>
     <string name="alarm_metric_battery_envelope">Bateria (szac)</string>
+    <string name="alarm_metric_battery_envelope_long">Obwiednia baterii (szacunek bez obciążenia)</string>
 </resources>

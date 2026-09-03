@@ -2324,4 +2324,5 @@
     <string name="tpms_state_leaking">Uniká vzduch</string>
     <string name="tpms_state_inflating">Hustí se</string>
     <string name="alarm_metric_battery_envelope">Baterie (odh)</string>
+    <string name="alarm_metric_battery_envelope_long">Obálka baterie (odhad bez zátěže)</string>
 </resources>

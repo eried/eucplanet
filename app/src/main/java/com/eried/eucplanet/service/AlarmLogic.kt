@@ -155,6 +155,9 @@ object AlarmLogic {
         AlarmMetric.GPS_SPEED.name -> 150f
         AlarmMetric.EXTERNAL_GPS_SPEED.name -> 150f
         AlarmMetric.BATTERY.name -> 100f
+        // Stated rather than inherited from the default, so a change to the
+        // default cannot quietly move a battery threshold.
+        AlarmMetric.BATTERY_ENVELOPE.name -> 100f
         AlarmMetric.PWM.name -> 100f
         AlarmMetric.TEMPERATURE.name -> 90f
         AlarmMetric.VOLTAGE.name -> 480f
