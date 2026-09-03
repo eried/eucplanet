@@ -402,6 +402,14 @@ class TpmsScanner @Inject constructor(
         // capture tracks the tyre from 78 psi down to 64.
         if (isKnownSensor) {
             val alreadyKnown = tpms.sensors.value.any { it.address == address }
+            // Only a rider who pressed Scan may add a sensor.
+            //
+            // The monitor runs for as long as the app does, so without this a
+            // stranger's cap was adopted the moment it came within range: ride
+            // past a car with the same family, or park next to one, and their
+            // tyres joined the rider's list without anyone touching anything.
+            // The monitor exists to hear the caps that are already theirs.
+            if (!alreadyKnown && monitoring) return
             if (!alreadyKnown) tpms.adopt(address)
             // The number goes in when there is one. Until this family's format
             // is worked out there is not, and the row says so rather than
@@ -435,8 +443,10 @@ class TpmsScanner @Inject constructor(
             // nothing. Only on the sensor that was actually adopted: a second
             // cap in the room must not end a scan that has not found the
             // rider's yet.
-            // End the search and go back to watching. Calling stop() here
-            // was what killed the radio when a rider added a second cap.
+            // One search adds one sensor, then goes back to watching, the
+            // way the Flic pairing screen ends on a pair. A rider fitting caps
+            // to three wheels presses Scan three times, which is clearer than
+            // a scan that keeps collecting whatever is in the room.
             if (!alreadyKnown) resumeMonitoring()
         }
         // Everything, at INFO, while the format is still unknown. The only

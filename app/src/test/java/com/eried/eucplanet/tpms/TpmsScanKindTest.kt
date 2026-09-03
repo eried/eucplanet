@@ -49,6 +49,20 @@ class TpmsScanKindTest {
         )
     }
 
+    @Test fun `the monitor never adopts a stranger's cap`() {
+        // The monitor runs for as long as the app does. Without this guard a
+        // cap that came within range was adopted on sight, so riding past a
+        // car with the same family, or parking next to one, added their tyres
+        // to the rider's list with nobody touching anything.
+        assertTrue(
+            "adoption must require a rider-initiated search",
+            source.contains("if (!alreadyKnown && monitoring) return"),
+        )
+        val adoptAt = source.indexOf("tpms.adopt(address)")
+        val guardAt = source.indexOf("if (!alreadyKnown && monitoring) return")
+        assertTrue("the guard must come before the adoption", guardAt in 0 until adoptAt)
+    }
+
     @Test fun `startMonitoring opens a monitor and start opens a search`() {
         assertTrue(
             "startMonitoring must open a monitor",
