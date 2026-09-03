@@ -1,4 +1,4 @@
-The weather panel now answers its own question: a face, the score in its colour, the verdict and the conditions, all in the header.
+Tire pressure sensors: the app now reads the cheap screw-on caps, not just the pressure your wheel already knows.
 
-The forecast marks where Now is.
-Charge notifications read better and no longer say "pack".
+Pressure, temperature and battery from each sensor, one per wheel, kept between restarts.
+A new Battery (est) alarm, for the real charge rather than the number that sags every time you accelerate.
