@@ -2519,4 +2519,5 @@
     <string name="status_idle">대기</string>
     <string name="tpms_state_leaking">공기 누출</string>
     <string name="tpms_state_inflating">공기 주입 중</string>
+    <string name="alarm_metric_battery_envelope">배터리(추정)</string>
 </resources>

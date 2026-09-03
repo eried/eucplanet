@@ -2540,4 +2540,5 @@
     <string name="status_idle">Inaktiv</string>
     <string name="tpms_state_leaking">Verliert Luft</string>
     <string name="tpms_state_inflating">Wird aufgepumpt</string>
+    <string name="alarm_metric_battery_envelope">Akku (gesch)</string>
 </resources>

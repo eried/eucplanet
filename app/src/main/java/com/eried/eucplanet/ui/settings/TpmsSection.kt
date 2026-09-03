@@ -94,15 +94,23 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
                 // exists for. Inflating earns its place too, as feedback while
                 // a rider stands there with a pump. The other three states are
                 // the cap waking up and mean nothing to anyone.
-                subtitle = when {
-                    sensor.kpa == null -> stringResource(R.string.tpms_waiting)
-                    sensor.state == LyTpmsDecoder.State.LEAKAGE ->
-                        stringResource(R.string.tpms_state_leaking)
-                    sensor.state == LyTpmsDecoder.State.INFLATION ->
-                        stringResource(R.string.tpms_state_inflating)
-                    else -> listOfNotNull(
-                        sensor.tempC?.let { formatTemp(it, tempUnit) },
+                subtitle = if (sensor.kpa == null) {
+                    stringResource(R.string.tpms_waiting)
+                } else {
+                    // Everything the cap says, on the one line it has: battery,
+                    // air temperature, and what it thinks is happening. The
+                    // state used to replace the other two, which threw away
+                    // facts to make room for a word.
+                    listOfNotNull(
                         sensor.volts?.let { "%.2f V".format(it) },
+                        sensor.tempC?.let { formatTemp(it, tempUnit) },
+                        when (sensor.state) {
+                            LyTpmsDecoder.State.LEAKAGE -> stringResource(R.string.tpms_state_leaking)
+                            LyTpmsDecoder.State.INFLATION -> stringResource(R.string.tpms_state_inflating)
+                            // The other three are the cap waking up and say
+                            // nothing about the tyre, so they say nothing here.
+                            else -> null
+                        },
                     ).joinToString("  ·  ")
                 },
                 reading = sensor.kpa?.let { formatPressure(it, unit) },

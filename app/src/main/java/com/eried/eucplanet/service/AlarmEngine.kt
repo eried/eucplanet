@@ -193,6 +193,10 @@ class AlarmEngine @Inject constructor(
             when (AlarmMetric.valueOf(metric)) {
                 AlarmMetric.SPEED -> data.speed.absoluteValue
                 AlarmMetric.BATTERY -> data.batteryPercent.toFloat()
+                // NaN for the first half minute of a ride, which the evaluator
+                // skips: a rule must not fire on a number that does not exist
+                // yet.
+                AlarmMetric.BATTERY_ENVELOPE -> data.batteryEnvelope.takeIf { !it.isNaN() }
                 AlarmMetric.TEMPERATURE -> data.maxTemperature
                 AlarmMetric.PWM -> data.pwm.absoluteValue
                 AlarmMetric.VOLTAGE -> data.voltage

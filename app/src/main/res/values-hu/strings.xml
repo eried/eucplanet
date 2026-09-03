@@ -2323,4 +2323,5 @@
     <string name="status_idle">Tétlen</string>
     <string name="tpms_state_leaking">Szivárog</string>
     <string name="tpms_state_inflating">Felfújás</string>
+    <string name="alarm_metric_battery_envelope">Akku (becs)</string>
 </resources>

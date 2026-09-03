@@ -2535,4 +2535,5 @@
     <string name="status_idle">Inaktiv</string>
     <string name="tpms_state_leaking">Taber luft</string>
     <string name="tpms_state_inflating">Pumper op</string>
+    <string name="alarm_metric_battery_envelope">Batteri (est)</string>
 </resources>

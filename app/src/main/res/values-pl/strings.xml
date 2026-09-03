@@ -2520,4 +2520,5 @@
     <string name="status_idle">Bezczynny</string>
     <string name="tpms_state_leaking">Traci powietrze</string>
     <string name="tpms_state_inflating">Pompowanie</string>
+    <string name="alarm_metric_battery_envelope">Bateria (szac)</string>
 </resources>

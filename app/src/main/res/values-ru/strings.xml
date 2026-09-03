@@ -2520,4 +2520,5 @@
     <string name="status_idle">Ожидание</string>
     <string name="tpms_state_leaking">Спускает</string>
     <string name="tpms_state_inflating">Накачивается</string>
+    <string name="alarm_metric_battery_envelope">Батарея (оц)</string>
 </resources>

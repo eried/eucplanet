@@ -2521,4 +2521,5 @@
     <string name="status_idle">待機</string>
     <string name="tpms_state_leaking">空気漏れ</string>
     <string name="tpms_state_inflating">空気充填中</string>
+    <string name="alarm_metric_battery_envelope">バッテリー(推定)</string>
 </resources>

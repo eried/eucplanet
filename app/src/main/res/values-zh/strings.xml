@@ -2387,4 +2387,5 @@
     <string name="status_idle">空闲</string>
     <string name="tpms_state_leaking">漏气</string>
     <string name="tpms_state_inflating">充气中</string>
+    <string name="alarm_metric_battery_envelope">电量(估算)</string>
 </resources>

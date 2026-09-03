@@ -2538,4 +2538,5 @@
     <string name="status_idle">Inactivo</string>
     <string name="tpms_state_leaking">Perdiendo aire</string>
     <string name="tpms_state_inflating">Inflando</string>
+    <string name="alarm_metric_battery_envelope">Batería (est)</string>
 </resources>

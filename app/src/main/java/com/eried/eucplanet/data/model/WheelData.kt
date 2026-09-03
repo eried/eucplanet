@@ -100,6 +100,17 @@ data class WheelData(
     /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
      *  P6: realtime 0x87 frame, u16le at body[78]). 0 = no sensor / not reported.
      *  Display converts: psi = kPa x 0.145038, bar = kPa / 100. */
+    /**
+     * Battery percent with the load taken out of it, or NaN before the first
+     * half minute of a ride.
+     *
+     * The raw percentage on an 84 V pack swings several points every time the
+     * rider accelerates and hands them back when they coast, so there is no
+     * way to read the real charge until they stop. This is the number that
+     * only moves when the charge moved, which is the one an alarm can be set
+     * against. See [com.eried.eucplanet.util.LiveBatteryEnvelope].
+     */
+    val batteryEnvelope: Float = Float.NaN,
     val tirePressureKpa: Float = 0f,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
     /**

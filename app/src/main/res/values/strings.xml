@@ -2545,4 +2545,5 @@
     <string name="status_idle">Idle</string>
     <string name="tpms_state_leaking">Leaking</string>
     <string name="tpms_state_inflating">Inflating</string>
+    <string name="alarm_metric_battery_envelope">Battery (est)</string>
 </resources>

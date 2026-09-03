@@ -2522,4 +2522,5 @@
     <string name="status_idle">Inativo</string>
     <string name="tpms_state_leaking">Perdendo ar</string>
     <string name="tpms_state_inflating">Enchendo</string>
+    <string name="alarm_metric_battery_envelope">Bateria (est)</string>
 </resources>

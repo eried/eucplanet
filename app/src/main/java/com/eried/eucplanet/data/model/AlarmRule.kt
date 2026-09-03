@@ -169,6 +169,26 @@ enum class AlarmMetric(
      */
     BT_RSSI(R.string.alarm_metric_bt_rssi, "dBm", defaultComparator = AlarmComparator.LESS_THAN),
     /**
+     * Battery percent with the load taken out of it.
+     *
+     * Watched from below, like BATTERY, and the reason to prefer it: on an
+     * 84 V pack the raw percentage dives under acceleration and recovers on
+     * the overrun, so a rule on the raw value either cries wolf on every hill
+     * or is set so low it fires too late to matter. The envelope only moves
+     * when the charge moved, so the threshold means what the rider thinks it
+     * means.
+     *
+     * Shown as "Battery (est)" rather than "Battery envelope": two words did
+     * not fit the metric field and wrapped onto a second line, and "envelope"
+     * is the name of the technique rather than of the thing a rider wants.
+     * What they want is the battery, estimated properly.
+     */
+    BATTERY_ENVELOPE(
+        R.string.alarm_metric_battery_envelope,
+        "%",
+        defaultComparator = AlarmComparator.LESS_THAN,
+    ),
+    /**
      * TPMS tire pressure, held in kPa like [WheelData.tirePressureKpa] and
      * shown in the rider's psi or bar. Watched from below: a tyre losing air
      * is the thing worth being told about, and it is the failure a rider

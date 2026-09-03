@@ -2517,4 +2517,5 @@
     <string name="status_idle">Boşta</string>
     <string name="tpms_state_leaking">Hava kaçırıyor</string>
     <string name="tpms_state_inflating">Şişiriliyor</string>
+    <string name="alarm_metric_battery_envelope">Batarya (tah)</string>
 </resources>

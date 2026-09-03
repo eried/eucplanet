@@ -2408,4 +2408,5 @@
     <string name="status_idle">Inaktiv</string>
     <string name="tpms_state_leaking">Lekker luft</string>
     <string name="tpms_state_inflating">Pumper</string>
+    <string name="alarm_metric_battery_envelope">Batteri (est)</string>
 </resources>

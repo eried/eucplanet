@@ -438,6 +438,8 @@ fun AlarmSettingsContent(
 private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Color = when (metric) {
     AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
     AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
+    // The same accent as BATTERY: it is the same quantity, read honestly.
+    AlarmMetric.BATTERY_ENVELOPE -> MaterialTheme.appColors.statusGood
     AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
     AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
     AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage

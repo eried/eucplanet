@@ -219,6 +219,8 @@ class WheelRepository @Inject constructor(
     private val phoneSensorRepository: PhoneSensorRepository,
     private val externalGpsRepository: ExternalGpsRepository,
     private val legalLockdown: LegalLockdownController,
+    /** So the wheel's own relayed tyre pressure competes with a paired cap. */
+    private val tpmsRepository: com.eried.eucplanet.tpms.TpmsRepository,
     // Lazy breaks the Hilt dependency cycle: TripRepository injects this
     // repository, so a direct TripRepository here would be circular. Only
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
@@ -275,6 +277,9 @@ class WheelRepository @Inject constructor(
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /** The load-free battery line for the ride in progress. */
+    private val batteryEnvelope = com.eried.eucplanet.util.LiveBatteryEnvelope()
 
     private val _wheelData = MutableStateFlow(WheelData())
     val wheelData: StateFlow<WheelData> = _wheelData.asStateFlow()
@@ -1365,6 +1370,7 @@ class WheelRepository @Inject constructor(
     fun connect(address: String, name: String? = null, isAuto: Boolean = false) {
         if (lastConnectedAddress != null && lastConnectedAddress != address) {
             // Different wheel, clear history
+            batteryEnvelope.reset()
             battHist.clear(); tempHist.clear(); voltHist.clear()
             ampsHist.clear(); loadHist.clear(); speedHist.clear()
             extrasHist.values.forEach { it.clear() }
@@ -1991,8 +1997,24 @@ class WheelRepository @Inject constructor(
                               else previous.maxTemperature
                 val temps = if (result.data.temperatures.any { it > 0f }) result.data.temperatures
                             else previous.temperatures
+                // The load-free battery line, fed from every frame. A rider
+                // cannot read the real charge off an 84 V pack while moving,
+                // because the raw percentage dives on acceleration and comes
+                // back on the overrun; this is the number that only moves when
+                // the charge did, and the one an alarm can be set against.
+                val envelope = batteryEnvelope.sample(
+                    System.currentTimeMillis(),
+                    result.data.batteryPercent.toFloat(),
+                )
+                // A paired tyre cap outranks the wheel's own relay, and the
+                // policy that decides between them needs to be told the wheel
+                // is still talking. Without this the P6's row could never show
+                // as the live one.
+                result.data.tirePressureKpa.takeIf { it > 0f }
+                    ?.let { tpmsRepository.submitWheel(it) }
                 _wheelData.value = result.data.copy(
                     speed = kotlin.math.abs(result.data.speed * cal),
+                    batteryEnvelope = envelope,
                     totalDistance = totalKm,
                     lightOn = lightOn,
                     maxTemperature = maxTemp,
