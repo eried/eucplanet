@@ -148,6 +148,7 @@ object SettingsJson {
             // list, which is the one way a setting can look wired up and still
             // go nowhere.
             put("pairedAddress", s.tpms.pairedAddress)
+            put("pairedAddresses", org.json.JSONArray(s.tpms.pairedAddresses))
             put("pressureUnit", s.tpms.pressureUnit)
         })
         put("batteryPercent", JSONObject().apply {
@@ -517,6 +518,9 @@ object SettingsJson {
                 // would pair the rider to a sensor at address "null".
                 pairedAddress = t.optString("pairedAddress", "").ifBlank { null }
                     ?.takeIf { it != "null" },
+                pairedAddresses = t.optJSONArray("pairedAddresses")?.let { arr ->
+                    (0 until arr.length()).mapNotNull { arr.optString(it).takeIf { s -> s.isNotBlank() } }
+                } ?: base.tpms.pairedAddresses,
                 pressureUnit = t.optString("pressureUnit", base.tpms.pressureUnit),
             )
         } ?: base.tpms,

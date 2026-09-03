@@ -2514,4 +2514,7 @@
     <string name="action_reset_metrics_wheel_done">측정값을 초기화하고 휠 주행거리도 지웠습니다</string>
     <string name="tpms_not_decoded">찾았습니다. 이 모델의 수치는 아직 해독되지 않았습니다.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">데이터 대기 중</string>
+    <string name="status_live">수신 중</string>
+    <string name="status_idle">대기</string>
 </resources>

@@ -2318,4 +2318,7 @@
     <string name="action_reset_metrics_wheel_done">Metriky vynulovány, denní počítadlo kola smazáno</string>
     <string name="tpms_not_decoded">Nalezeno. Hodnoty tohoto modelu zatím nejsou dekódované.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Čeká se na data</string>
+    <string name="status_live">Živě</string>
+    <string name="status_idle">Nečinné</string>
 </resources>

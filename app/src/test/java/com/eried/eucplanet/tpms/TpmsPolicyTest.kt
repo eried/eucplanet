@@ -61,10 +61,26 @@ class TpmsPolicyTest {
         assertTrue(TpmsPolicy.isStale(wheel(200f), t0 + overnight))
     }
 
-    @Test fun `zero is no sensor, not a flat tyre`() {
+    @Test fun `zero from a wheel is no sensor`() {
         // Every family that does not report pressure leaves the field at zero.
         assertNull(TpmsPolicy.readingOf(0f, TpmsSource.WHEEL, t0))
         assertEquals(200f, TpmsPolicy.readingOf(200f, TpmsSource.WHEEL, t0)?.kpa)
+    }
+
+    @Test fun `zero from a paired cap is a flat tyre, and must be shown`() {
+        // The cap is screwed to a valve and reports what it measures. The
+        // rider's own sensor read exactly 0 kPa against a gauge at 0 bar,
+        // which is how its format was decoded. Throwing that away made a flat
+        // tyre look like a broken sensor: the row went back to saying the
+        // readings were not decoded, at the one moment a tyre sensor matters.
+        assertEquals(0f, TpmsPolicy.readingOf(0f, TpmsSource.PAIRED, t0)?.kpa)
+    }
+
+    @Test fun `a flat tyre survives the repository too`() {
+        val repo = TpmsRepository()
+        repo.submitPaired(240f, "5B:61:1B:11:11:11", t0)
+        repo.submitPaired(0f, "5B:61:1B:11:11:11", t0 + 1000)
+        assertEquals(0f, repo.current.value?.kpa)
     }
 
     @Test fun `the repository keeps the last good reading when a zero arrives`() {
@@ -85,9 +101,9 @@ class TpmsPolicyTest {
     }
 
     /** A pairing store that survives being handed to a second repository. */
-    private class FakeStore(var saved: String? = null) : TpmsPairingStore {
-        override fun load(onLoaded: (String?) -> Unit) = onLoaded(saved)
-        override fun save(address: String?) { saved = address }
+    private class FakeStore(var saved: List<String> = emptyList()) : TpmsPairingStore {
+        override fun load(onLoaded: (List<String>) -> Unit) = onLoaded(saved)
+        override fun saveAll(addresses: List<String>) { saved = addresses }
     }
 
     @Test fun `a paired sensor is still paired after the app restarts`() {
@@ -95,7 +111,7 @@ class TpmsPolicyTest {
         // cap and closed the app had to scan for it again, every time.
         val store = FakeStore()
         TpmsRepository(store).adopt("5B:61:1B:11:11:11")
-        assertEquals("5B:61:1B:11:11:11", store.saved)
+        assertEquals(listOf("5B:61:1B:11:11:11"), store.saved)
 
         val afterRestart = TpmsRepository(store)
         assertEquals("5B:61:1B:11:11:11", afterRestart.pairedAddress.value)
@@ -103,26 +119,56 @@ class TpmsPolicyTest {
 
     @Test fun `forgetting a sensor outlives the app too`() {
         // Otherwise a sensor the rider deleted is back on the next launch.
-        val store = FakeStore("5B:61:1B:11:11:11")
+        val store = FakeStore(listOf("5B:61:1B:11:11:11"))
         val repo = TpmsRepository(store)
         assertEquals("5B:61:1B:11:11:11", repo.pairedAddress.value)
         repo.forgetPaired(t0)
-        assertNull(store.saved)
+        assertEquals(emptyList<String>(), store.saved)
         assertNull(TpmsRepository(store).pairedAddress.value)
     }
 
     @Test fun `a sensor found during startup is not overwritten by the stored one`() {
         // load() answers whenever the settings store gets round to it, which
         // can be after a scan has already adopted something.
-        var answer: ((String?) -> Unit)? = null
+        var answer: ((List<String>) -> Unit)? = null
         val slow = object : TpmsPairingStore {
-            override fun load(onLoaded: (String?) -> Unit) { answer = onLoaded }
-            override fun save(address: String?) = Unit
+            override fun load(onLoaded: (List<String>) -> Unit) { answer = onLoaded }
+            override fun saveAll(addresses: List<String>) = Unit
         }
         val repo = TpmsRepository(slow)
         repo.adopt("AA:BB:CC:DD:EE:FF")
-        answer?.invoke("5B:61:1B:11:11:11")
+        answer?.invoke(listOf("5B:61:1B:11:11:11"))
         assertEquals("AA:BB:CC:DD:EE:FF", repo.pairedAddress.value)
+    }
+
+    @Test fun `a rider with several wheels can add a cap for each`() {
+        // One slot dropped the second cap before it could even be listed, so
+        // it could not be scanned for and could not be added.
+        val store = FakeStore()
+        val repo = TpmsRepository(store)
+        repo.submitPaired(240f, "5B:61:1B:11:11:11", t0)
+        repo.submitPaired(210f, "5B:61:1B:22:22:22", t0)
+        assertEquals(2, repo.sensors.value.size)
+        assertEquals(240f, repo.sensors.value[0].kpa)
+        assertEquals(210f, repo.sensors.value[1].kpa)
+        assertEquals(2, store.saved.size)
+    }
+
+    @Test fun `removing one cap leaves the other wheels alone`() {
+        val repo = TpmsRepository(FakeStore())
+        repo.submitPaired(240f, "5B:61:1B:11:11:11", t0)
+        repo.submitPaired(210f, "5B:61:1B:22:22:22", t0)
+        repo.forget("5B:61:1B:11:11:11")
+        assertEquals(listOf("5B:61:1B:22:22:22"), repo.sensors.value.map { it.address })
+    }
+
+    @Test fun `a paired cap that has not spoken yet has no reading, and that is not a fault`() {
+        // These transmit when the pressure moves and stay quiet on a settled
+        // tyre, so a freshly started app legitimately has a sensor and no
+        // number. The row says it is waiting rather than blaming the decoder.
+        val repo = TpmsRepository(FakeStore(listOf("5B:61:1B:11:11:11")))
+        assertEquals(1, repo.sensors.value.size)
+        assertNull(repo.sensors.value[0].kpa)
     }
 
     @Test fun `forgetting a paired sensor hands the wheel's back`() {

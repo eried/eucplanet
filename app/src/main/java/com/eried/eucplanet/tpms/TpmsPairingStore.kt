@@ -21,16 +21,16 @@ import javax.inject.Singleton
  */
 interface TpmsPairingStore {
 
-    /** Hands back the remembered address, once, whenever it can. */
-    fun load(onLoaded: (String?) -> Unit)
+    /** Hands back the remembered addresses, once, whenever it can. */
+    fun load(onLoaded: (List<String>) -> Unit)
 
-    /** Remembers [address], or forgets when it is null. */
-    fun save(address: String?)
+    /** Remembers exactly this set of sensors, replacing whatever was stored. */
+    fun saveAll(addresses: List<String>)
 
     /** Remembers nothing. The default in tests. */
     object None : TpmsPairingStore {
-        override fun load(onLoaded: (String?) -> Unit) = Unit
-        override fun save(address: String?) = Unit
+        override fun load(onLoaded: (List<String>) -> Unit) = Unit
+        override fun saveAll(addresses: List<String>) = Unit
     }
 }
 
@@ -42,15 +42,28 @@ class SettingsTpmsPairingStore @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    override fun load(onLoaded: (String?) -> Unit) {
-        scope.launch { onLoaded(settingsRepository.get().tpms.pairedAddress) }
+    override fun load(onLoaded: (List<String>) -> Unit) {
+        scope.launch {
+            val t = settingsRepository.get().tpms
+            // A rider upgrading from the single-sensor build keeps their cap:
+            // the old field is read as a one-item list when the new one is
+            // empty.
+            onLoaded(t.pairedAddresses.ifEmpty { listOfNotNull(t.pairedAddress) })
+        }
     }
 
-    override fun save(address: String?) {
+    override fun saveAll(addresses: List<String>) {
         scope.launch {
             settingsRepository.update { current ->
-                if (current.tpms.pairedAddress == address) current
-                else current.copy(tpms = current.tpms.copy(pairedAddress = address))
+                if (current.tpms.pairedAddresses == addresses) current
+                else current.copy(
+                    tpms = current.tpms.copy(
+                        pairedAddresses = addresses,
+                        // The old single slot follows the first sensor so a
+                        // downgrade still finds something.
+                        pairedAddress = addresses.firstOrNull(),
+                    )
+                )
             }
         }
     }

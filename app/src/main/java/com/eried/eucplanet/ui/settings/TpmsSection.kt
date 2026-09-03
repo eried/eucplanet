@@ -50,40 +50,53 @@ import com.eried.eucplanet.util.Units
 fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
     val wheelKpa by viewModel.tirePressureKpa.collectAsState()
     val unit by viewModel.pressureUnit.collectAsState()
-    val paired by viewModel.paired.collectAsState()
-    val pairedKpa by viewModel.pairedKpa.collectAsState()
+    val sensors by viewModel.sensors.collectAsState()
+    val activeAddress by viewModel.activeAddress.collectAsState()
+    val wheelIsActive by viewModel.wheelIsActive.collectAsState()
+    val tempUnit by viewModel.tempUnit.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
     // Scans ask to turn Bluetooth on rather than reporting that it is off.
     val startScan = rememberScanStarter()
     val seen by viewModel.seen.collectAsState()
 
     val wheelHasSensor = wheelKpa > 0f
-    val hasPaired = paired != null
+    val hasPaired = sensors.isNotEmpty()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         // Your sensor first. With one paired there is nothing to explain, so
         // nothing is explained: the row IS the answer.
-        if (hasPaired) {
+        // One row per cap. A rider has more than one wheel and each of them
+        // has its own sensor, which is why a single slot was wrong: the second
+        // cap was dropped before it could even be listed.
+        sensors.forEach { sensor ->
             TpmsSensorRow(
-                // Category plus the front of the address, and deliberately
-                // no brand. These caps are sold under a dozen names by a dozen
-                // shops from the same factory, and this one advertises under a
-                // squatted company id belonging to a games company that shut
-                // down in 2014, so there is no vendor to read off the air.
-                // Printing a guessed brand would make the app look certain
-                // about the one thing it cannot know.
+                // Named for the app it is sold with, plus the front of the
+                // address. Not read off the air: the company id it advertises
+                // under belongs to a games company that shut down in 2014, so
+                // it is squatted and says nothing. The name comes from the
+                // vendor app the rider actually has, com.zl.dev.tire.lytpms,
+                // whose developer ships the same protocol as ITPMS(K) too, so
+                // treat the label as the family rather than the maker.
                 title = stringResource(
                     R.string.tpms_paired_sensor_fmt,
-                    stringResource(R.string.tpms_paired_sensor),
-                    shortAddress(paired),
+                    stringResource(R.string.tpms_family_ly),
+                    shortAddress(sensor.address),
                 ),
-                // The address is only worth the line while there is a reading
-                // to go with it. With none, the rider's question is why the
-                // number is missing, and the address does not answer it.
-                subtitle = if (pairedKpa == null) stringResource(R.string.tpms_not_decoded)
-                    else paired.orEmpty(),
-                reading = pairedKpa?.let { formatPressure(it, unit) },
-                onRemove = { viewModel.forgetPaired() },
+                // What the sensor is telling us. A cap that has not spoken
+                // since the app started has nothing to say yet, and says so
+                // rather than blaming the decoder: these transmit when the
+                // pressure moves and stay quiet on a settled tyre.
+                subtitle = if (sensor.kpa == null) {
+                    stringResource(R.string.tpms_waiting)
+                } else {
+                    listOfNotNull(
+                        sensor.tempC?.let { formatTemp(it, tempUnit) },
+                        sensor.volts?.let { "%.2f V".format(it) },
+                    ).joinToString("  ·  ")
+                },
+                reading = sensor.kpa?.let { formatPressure(it, unit) },
+                active = sensor.address == activeAddress,
+                onRemove = { viewModel.forget(sensor.address) },
             )
         }
 
@@ -96,6 +109,7 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
                     else R.string.tpms_wheel_sensor_desc
                 ),
                 reading = formatPressure(wheelKpa, unit),
+                active = wheelIsActive,
             )
         }
 
@@ -134,6 +148,12 @@ fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {
  * every unit it ships, so the usual trick of showing the last few characters
  * would give every sensor the same name.
  */
+/** The sensor's own air temperature, in the rider's unit. */
+@Composable
+private fun formatTemp(c: Float, unit: String): String =
+    "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(c, unit),
+        com.eried.eucplanet.util.Units.tempUnit(unit))
+
 private fun shortAddress(address: String?): String =
     address?.split(":")?.take(3)?.joinToString("")?.uppercase().orEmpty()
 
@@ -147,6 +167,8 @@ private fun TpmsSensorRow(
     title: String,
     subtitle: String,
     reading: String?,
+    /** True for the sensor currently speaking for the tyre. */
+    active: Boolean = false,
     onRemove: (() -> Unit)? = null,
 ) {
     Surface(
@@ -189,12 +211,27 @@ private fun TpmsSensorRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
+                // The Watch section's badge, verbatim: the same dot, the
+                // same accent, and the same Live / Idle wording. A dot on its
+                // own was a colour the rider had to learn; this is the
+                // vocabulary the app already uses for "this device is the one
+                // talking right now".
+                //
+                // It also explains a frozen number. These caps report when the
+                // pressure moves, so a sensor that has gone quiet keeps its
+                // last reading on screen, and Idle is what says that reading
+                // is old rather than wrong.
                 Icon(
                     imageVector = Icons.Default.FiberManualRecord,
                     contentDescription = null,
-                    tint = if (reading != null) MaterialTheme.appColors.connectionActive
+                    tint = if (active) MaterialTheme.appColors.connectionActive
                         else LocalContentColor.current.copy(alpha = 0.5f),
                     modifier = Modifier.size(10.dp),
+                )
+                Text(
+                    stringResource(if (active) R.string.status_live else R.string.status_idle),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = LocalContentColor.current.copy(alpha = 0.8f),
                 )
                 if (reading != null) {
                     Text(

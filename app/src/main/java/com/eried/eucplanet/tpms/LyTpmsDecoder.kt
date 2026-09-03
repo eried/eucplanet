@@ -1,104 +1,109 @@
 package com.eried.eucplanet.tpms
 
 /**
- * The generic valve-cap TPMS sold as "LY" and a dozen other names.
+ * The valve-cap sensor sold with the LY TPMS app (`com.zl.dev.tire.lytpms`).
  *
- * It never pairs. It wakes, shouts one manufacturer-data blob under company id
- * 0x00AC and sleeps, so the only way to read it is to listen.
+ * The maths here is not inferred from captures any more. It is the vendor
+ * app's own, read out of `com.wicarlink.zl.data.bean.TireBean.parse` in the
+ * APK the rider pulled off their phone, so the units, the offsets and the odd
+ * scale factor are the manufacturer's rather than a fit to a handful of
+ * points. Wicarlink is the actual maker; "LY" is one of several names the same
+ * hardware is sold under, ITPMS being another from the same developer.
  *
- * DECODED FROM CAPTURES, not from a datasheet. A rider read their gauge while
- * the app logged every advertisement in range, at two pressures far enough
- * apart to be unambiguous:
+ * The app reads the WHOLE advertisement, so its indices count the two AD
+ * header bytes and the two company-id bytes that Android strips before it
+ * hands us the payload. Everything below is shifted by four to match:
  *
- *   5.3 bar (530 kPa)   ->  0A61 = 2657  ->  531.4 kPa
- *                           0A50 = 2640  ->  528.0 kPa
- *   78 psi  (538 kPa)   ->  0A80 = 2688  ->  537.6 kPa
- *                           0A78 = 2680  ->  536.0 kPa
+ *   app[4]  -> [0]  battery, hundredths of a volt above 1.22 V
+ *   app[5]  -> [1]  pressure, low byte
+ *   app[6]  -> [2]  temperature, degrees C plus 55
+ *   app[7]  -> [3]  state
+ *   app[8]  -> [4]  protocol version
+ *   app[9]  -> [5]  checksum
+ *   app[10] -> [6]  pressure, high byte
+ *   app[11] -> [7]  checksum
+ *   app[12] -> [8]  BLE version, tenths (0x28 -> 4.0)
+ *   app[16..18] -> [12..14]  sensor id, printed back to front
  *
- * Both within one percent of the gauge, which is closer than the gauge.
+ * Two things this corrects, both of which had looked right for the wrong
+ * reason. The high byte of the pressure is [6], not [3]; [6] was zero in every
+ * capture, so a wrong guess and the right answer agreed on everything up to
+ * 803 kPa. And the reading is not kPa but a raw count scaled by 3.144, so a
+ * rider at 3.6 bar saw 1.15 - the number was the count, unscaled.
  *
- * Layout, 15 bytes, offsets from the start of the manufacturer data:
- * ```
- *   0..1  counter, climbs steadily and rolls over
- *   2     steady at 0x51-0x52 across every capture; temperature, unconfirmed
- *   3     small, changes every packet; part of the counter or a status nibble
- *   4..5  PRESSURE, big-endian, units of 0.2 kPa   <- the one we are sure of
- *   6..7  varies with nothing else; checksum, unconfirmed
- *   8     constant 0x28
- *   9..11 constant 0x111111
- *  12..14 the sensor's own MAC, last three bytes, reversed
- * ```
- * Only the pressure is published. The rest is written down because the next
- * person to look at this should not have to re-derive what was already seen,
- * and marked unconfirmed because a plausible reading is not a decoded one.
+ * Temperature had the same kind of luck. Byte [2] read 82 at a real 27 C, and
+ * both "Fahrenheit" and "Celsius plus 55" land on 27 from 82. The app says it
+ * is the offset, and the two only diverge away from room temperature, which no
+ * capture ever reached.
  */
 object LyTpmsDecoder {
 
-    /** Bluetooth SIG company id this sensor advertises under. */
+    /** The (squatted) manufacturer id this family advertises under. */
     const val COMPANY_ID = 0x00AC
 
-    private const val LENGTH = 15
-    private const val PRESSURE_AT = 4
-
-    /** The value is in fifths of a kPa. */
-    private const val PER_KPA = 5f
+    /** Every packet from this family is exactly this long. */
+    const val PAYLOAD_LEN = 15
 
     /**
-     * Above this, the packet is not a pressure.
+     * The vendor's own scale from raw count to kPa.
      *
-     * A wheel tyre runs somewhere under 6 bar and the sensors are rated to
-     * about 8. The ceiling is here so a same-company-id device that is not a
-     * TPMS cannot be adopted as one on the strength of two plausible bytes.
+     * Not a round number and not ours to tidy: it is the constant in the app,
+     * and 115 x 3.144 is 361.6 kPa against a gauge reading 3.6 bar.
      */
-    private const val MAX_KPA = 1000f
+    private const val KPA_PER_COUNT = 3.144f
 
-    /**
-     * Tire pressure in kPa, or null when this is not one of these sensors.
-     *
-     * [address] is checked against the tail of the payload: these units repeat
-     * their own MAC at the end, which is how a receiver tells four identical
-     * caps apart, and checking it is what stops another 0x00AC device being
-     * read as a tyre.
-     */
-    /**
-     * WRONG, AND DISABLED UNTIL IT IS NOT.
-     *
-     * bytes 4..5 were read as pressure on the strength of two captures at
-     * 530 and 538 kPa. Those are one and a half percent apart, which is inside
-     * this field's own noise, so they could not tell a pressure from anything
-     * else that wiggles. A rider then read their gauge across the real range
-     * and the field did not follow:
-     *
-     *   42.5 psi -> 0x0A84    24.5 psi -> 0x0A12    0 psi -> 0x0A62
-     *
-     * It barely moves, and it sits around 2600-2700, which reads much more
-     * like a coin cell in millivolts than a tyre.
-     *
-     * Returning null keeps the wrong number off the rider's screen and keeps
-     * the scanner listening, which is what a decode needs. The captures that
-     * will settle it are two far apart, not two the same.
-     */
+    /** Degrees the sensor adds to the temperature before sending it. */
+    private const val TEMP_OFFSET_C = 55
+
+    /** Pressure in kPa, or null when this is not one of these sensors. */
     fun pressureKpa(companyId: Int, data: ByteArray, address: String?): Float? {
-        @Suppress("ConstantConditionIf")
-        if (true) return null
-        if (companyId != COMPANY_ID) return null
-        if (data.size != LENGTH) return null
-        if (address != null && !tailMatches(data, address)) return null
-        val raw = ((data[PRESSURE_AT].toInt() and 0xFF) shl 8) or
-            (data[PRESSURE_AT + 1].toInt() and 0xFF)
-        val kpa = raw / PER_KPA
-        // 0 is a sensor with nothing to say, not a flat tyre, and the same
-        // rule the rest of the pressure code follows.
-        return kpa.takeIf { it > 0f && it <= MAX_KPA }
+        if (!isThisFamily(companyId, data, address)) return null
+        val counts = (data[1].toInt() and 0xFF) + 256 * (data[6].toInt() and 0xFF)
+        val kpa = counts * KPA_PER_COUNT
+        // A cap on a flat tyre reports 0, which is a reading. Past 1000 kPa is
+        // not a tyre any of these sits on.
+        return kpa.takeIf { it >= 0f && it < 1000f }
     }
 
-    /** The last three MAC bytes, reversed, sit at the end of the payload. */
-    private fun tailMatches(data: ByteArray, address: String): Boolean {
-        val bytes = address.split(":").mapNotNull { it.toIntOrNull(16) }
-        if (bytes.size != 6) return false
-        // Address 5B:61:1B:11:11:11 ends the payload as 1B 61 5B.
-        return (data[12].toInt() and 0xFF) == bytes[2] &&
-            (data[13].toInt() and 0xFF) == bytes[1] &&
-            (data[14].toInt() and 0xFF) == bytes[0]
+    /** Temperature in Celsius, or null when this is not one of these sensors. */
+    fun temperatureC(companyId: Int, data: ByteArray, address: String?): Float? {
+        if (!isThisFamily(companyId, data, address)) return null
+        val c = ((data[2].toInt() and 0xFF) - TEMP_OFFSET_C).toFloat()
+        return c.takeIf { it > -40f && it < 120f }
     }
+
+    /**
+     * Battery volts, or null when this is not one of these sensors.
+     *
+     * The app's own curve: hundredths of a volt above 1.22. A full CR2032
+     * reads 3.0 V here, which is what the rider's showed while their app said
+     * about 85 percent.
+     */
+    fun batteryVolts(companyId: Int, data: ByteArray, address: String?): Float? {
+        if (!isThisFamily(companyId, data, address)) return null
+        val volts = (data[0].toInt() and 0xFF) * 0.01f + 1.22f
+        return volts.takeIf { it > 1.2f && it < 3.8f }
+    }
+
+    /**
+     * The id the vendor app shows for this sensor, such as "5B611B".
+     *
+     * Its own three bytes, printed back to front, and the same characters the
+     * rider sees in the app they bought it with.
+     */
+    fun sensorId(companyId: Int, data: ByteArray, address: String?): String? {
+        if (!isThisFamily(companyId, data, address)) return null
+        return "%02X%02X%02X".format(data[14], data[13], data[12])
+    }
+
+    /** BLE protocol version the cap reports, such as 4.0. */
+    fun bleVersion(companyId: Int, data: ByteArray, address: String?): Float? {
+        if (!isThisFamily(companyId, data, address)) return null
+        return (data[8].toInt() and 0xFF) / 10f
+    }
+
+    private fun isThisFamily(companyId: Int, data: ByteArray, address: String?): Boolean =
+        companyId == COMPANY_ID &&
+            data.size == PAYLOAD_LEN &&
+            TpmsSignature.endsWithOwnMac(data, address)
 }

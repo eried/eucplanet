@@ -6,140 +6,97 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * What is known about this sensor, including the part that was wrong.
+ * The decode, checked against the vendor's own arithmetic and the rider's
+ * gauge at the same time.
  *
- * The packets are real, captured on a rider's phone from the cap on their own
- * tyre. What was wrong was the reading of them: bytes 4..5 were called pressure
- * on the strength of two captures at 530 and 538 kPa. Those are one and a half
- * percent apart, inside the field's own noise, so they could not tell a
- * pressure from anything else that drifts. Two points that close prove nothing,
- * and calling it verified was the mistake.
- *
- * The rider then read a gauge across the real range:
- *
- *   42.5 psi -> bytes 4..5 = 0x0A84 (2692)
- *   24.5 psi -> bytes 4..5 = 0x0A12 (2578)
- *    0.0 psi -> bytes 4..5 = 0x0A62 (2658)
- *
- * A tyre going from 42 psi to flat did not move it. It is not the pressure. It
- * sits between 2578 and 2692 and barely stirs, which reads like a coin cell in
- * millivolts, around 2.6 V.
- *
- * These tests keep the decoder honest while the real field is still unknown:
- * it must return null rather than publish a guess, and the disproof stays
- * written down so the next person does not spend an evening rediscovering it.
+ * The numbers here are no longer a fit to a handful of captures. They are what
+ * `com.wicarlink.zl.data.bean.TireBean.parse` does in the LY app, read out of
+ * the APK, so the odd 3.144 scale and the 55 degree offset are the
+ * manufacturer's. Two earlier guesses looked right for the wrong reason and
+ * are pinned here so they cannot come back.
  */
 class LyTpmsDecoderTest {
 
     private val address = "5B:61:1B:11:11:11"
 
-    private fun bytes(hex: String) = hex.chunked(2)
-        .map { it.toInt(16).toByte() }
-        .toByteArray()
+    private fun bytes(hex: String) = hex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+    private fun kpa(hex: String) = LyTpmsDecoder.pressureKpa(LyTpmsDecoder.COMPANY_ID, bytes(hex), address)
+    private fun celsius(hex: String) = LyTpmsDecoder.temperatureC(LyTpmsDecoder.COMPANY_ID, bytes(hex), address)
+    private fun volts(hex: String) = LyTpmsDecoder.batteryVolts(LyTpmsDecoder.COMPANY_ID, bytes(hex), address)
 
-    /**
-     * Six real packets, all captured while the gauge read about 78 psi.
-     *
-     * Worth keeping as a set: everything that varies here varies at a CONSTANT
-     * pressure, which is what makes them useful. Bytes 1, 5 and 7 swing wildly
-     * and cannot be the reading. Bytes 0 and 2 hold still - 0xB3-B4 and
-     * 0x51-52 - and are the only candidates a future capture needs to test.
-     */
-    private val at78psi = listOf(
-        "B30051010AD80057281111111B615B",
-        "B4AB52020AB50033281111111B615B",
-        "B4AC52020A9C008E281111111B615B",
-        "B4AC51020A2D0041281111111B615B",
-        "B4AA52030A860059281111111B615B",
-        "B4A752000A80009D281111111B615B",
-    )
+    /** Rider's gauge 0 bar, 27 C. */
+    private val flat = "B30052000A8200BB281111111B615B"
 
-    @Test fun `the decoder publishes nothing while the format is unknown`() {
-        // A wrong pressure on a rider's screen is worse than no pressure: they
-        // would trust it, and it is about a tyre.
-        for (hex in at78psi) {
-            assertNull(
-                "a guess reached the rider: $hex",
-                LyTpmsDecoder.pressureKpa(LyTpmsDecoder.COMPANY_ID, bytes(hex), address),
-            )
-        }
+    /** Rider's gauge 3.2 bar during a deflation, 27 C. */
+    private val midway = "B35B52010AA20004281111111B615B"
+
+    @Test fun `a flat tyre reads zero`() {
+        assertEquals(0f, kpa(flat))
     }
 
-    @Test fun `bytes 4 and 5 are not the pressure, which is the whole point`() {
-        // The rider's own numbers, as the disproof. If someone revives this
-        // field as pressure, these are what they have to explain.
-        val readings = mapOf(42.5f to 0x0A84, 24.5f to 0x0A12, 0.0f to 0x0A62)
-        val atZero = readings[0.0f]!!
-        val atFull = readings[42.5f]!!
-        // A tyre emptied from 42.5 psi to nothing moved this by 1.3 percent.
-        val movement = kotlin.math.abs(atFull - atZero).toFloat() / atZero
-        assertTrue("bytes 4..5 tracked the tyre after all", movement < 0.05f)
+    @Test fun `the raw count is scaled, which is what made 3_6 bar read as 1_15`() {
+        // Byte 1 is a count, not kPa. At 115 counts the rider's gauge read
+        // 3.6 bar: 115 x 3.144 is 361.6 kPa, and unscaled it showed 1.15.
+        val at36bar = "B37352010AA20004281111111B615B"
+        assertEquals(361.6f, kpa(at36bar)!!, 0.1f)
+        assertEquals(3.6f, kpa(at36bar)!! / 100f, 0.02f)
     }
 
-    @Test fun `the constant bytes are the ones a new capture must test`() {
-        // Everything that moves at a fixed pressure is noise; what holds still
-        // is what can carry a reading. This is the shortlist.
-        val payloads = at78psi.map { bytes(it) }
-        fun spread(i: Int) = payloads.map { it[i].toInt() and 0xFF }.let { it.max() - it.min() }
-        assertTrue("byte 0 stopped being stable", spread(0) <= 2)
-        assertTrue("byte 2 stopped being stable", spread(2) <= 2)
-        // The noisy ones, stated so the contrast is on the record.
-        assertTrue("byte 5 stopped being noisy", spread(5) > 100)
-        assertTrue("byte 7 stopped being noisy", spread(7) > 100)
+    @Test fun `the pressure high byte is 6, not 3`() {
+        // Byte 6 was zero in every capture ever taken, so a wrong guess and
+        // the right answer agreed on everything below 803 kPa. Byte 3 moves
+        // here and must not touch the pressure; byte 6 does.
+        val lowOnly = "B30A52010AA20004281111111B615B"   // 10 counts
+        val byte3Set = "B30A52070AA20004281111111B615B"   // byte 3 moved
+        val byte6Set = "B30A52010AA20104281111111B615B"   // byte 6 moved
+        assertEquals(10 * 3.144f, kpa(lowOnly)!!, 0.1f)
+        assertEquals("byte 3 must not touch the pressure", kpa(lowOnly), kpa(byte3Set))
+        assertEquals((10 + 256) * 3.144f, kpa(byte6Set)!!, 0.1f)
     }
 
-    @Test fun `the sensor is still recognised by its shape`() {
-        // Identification does not depend on the decode: these repeat their own
-        // MAC, reversed, at the end of the payload, and that is what tells one
-        // apart from every other advertiser in a garage.
-        val tail = bytes(at78psi[0]).takeLast(3).map { it.toInt() and 0xFF }
-        assertEquals(listOf(0x1B, 0x61, 0x5B), tail)
-        assertEquals(15, bytes(at78psi[0]).size)
-        assertEquals(0x00AC, LyTpmsDecoder.COMPANY_ID)
+    @Test fun `temperature is Celsius with a 55 degree offset`() {
+        // 0x52 is 82, and 82 - 55 is 27, which is what the rider read.
+        // "Fahrenheit" also lands on 27 from 82, which is why it survived: the
+        // two only diverge away from room temperature.
+        assertEquals(27f, celsius(flat))
+        assertEquals(27f, celsius(midway))
+        // 0x64 is 100: 45 C by the app's rule, 37.8 C if it were Fahrenheit.
+        assertEquals(45f, celsius("B35B64010AA20004281111111B615B"))
     }
 
-    @Test fun `a candidate is worth logging, which is all the signature decides`() {
-        // This marks packets worth keeping in the decode trail. It does NOT
-        // decide what gets added: adopting on this shape put a stranger's
-        // device in as the rider's tyre sensor, because repeating your own
-        // MAC is a habit plenty of hardware has. Three unrelated devices in
-        // one room did it during a single sweep.
-        for (hex in at78psi) {
-            assertTrue("the real sensor stopped being logged: $hex",
-                TpmsSignature.looksLikeSensor(hex, address))
-        }
+    @Test fun `battery is hundredths of a volt above 1_22`() {
+        // 0xB3 is 179: 179 x 0.01 + 1.22 = 3.01 V, a healthy CR2032, and the
+        // rider's app read about 85 percent at that moment.
+        assertEquals(3.01f, volts(flat)!!, 0.001f)
     }
 
-    @Test fun `the MAC counts at either end and in either order`() {
-        // The first rule was "the payload STARTS with the MAC". This sensor
-        // ends with it, backwards, and that guess would have missed it.
-        assertTrue(TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", address))
-        assertTrue(TpmsSignature.looksLikeSensor("5B611B111111DEADBEEF", address))
-        // Someone else's phone, laptop or earbuds: no MAC in the payload.
-        assertTrue(!TpmsSignature.looksLikeSensor("0102030405060708", address))
-        assertTrue(!TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", "AA:BB:CC:DD:EE:FF"))
-        assertTrue(!TpmsSignature.looksLikeSensor("B4AC52020A9C008E281111111B615B", null))
+    @Test fun `the sensor id is its own three bytes, printed backwards`() {
+        // The same characters the rider sees in the app they bought it with.
+        assertEquals("5B611B", LyTpmsDecoder.sensorId(LyTpmsDecoder.COMPANY_ID, bytes(flat), address))
     }
 
-    @Test fun `a device that merely repeats its MAC is not adopted as a sensor`() {
-        // Captured in the room while hunting for the cap: all three repeat
-        // their own MAC and none of them is a tyre sensor. Nothing here
-        // decodes as a pressure, which is the only thing that may add one.
-        val strangers = listOf(
-            "C2CA702B4EBF248000640000" to "C2:CA:70:2B:4E:BF",
-            "F2DF89C852D9D46400000000" to "F2:DF:89:C8:52:D9",
-            "F5CBED753B0100FF6A9751BE7400000000" to "F5:CB:ED:75:3B:01",
+    @Test fun `the cap reports BLE 4_0`() {
+        assertEquals(4.0f, LyTpmsDecoder.bleVersion(LyTpmsDecoder.COMPANY_ID, bytes(flat), address)!!, 0.01f)
+    }
+
+    @Test fun `one deflation still falls the whole way down`() {
+        val deflating = listOf(
+            "B39952020AE2008C281111111B615B",
+            "B36F52010A0C0004281111111B615B",
+            "B36752010AAE008A281111111B615B",
+            "B35B52010AA20004281111111B615B",
+            "B35352010A00008A281111111B615B",
+            "B41B52010AEE009A281111111B615B",
         )
-        for ((hex, mac) in strangers) {
-            assertTrue("$mac stopped looking like a candidate", TpmsSignature.looksLikeSensor(hex, mac))
-            assertNull(
-                "$mac was adopted as a tyre sensor",
-                LyTpmsDecoder.pressureKpa(LyTpmsDecoder.COMPANY_ID, bytes(hex), mac),
-            )
+        val values = deflating.map { kpa(it)!! }
+        for (i in 1 until values.size) {
+            assertTrue("pressure rose while the tyre emptied: $values", values[i] < values[i - 1])
         }
     }
 
-    @Test fun `a foreign company id is never this sensor`() {
-        assertNull(LyTpmsDecoder.pressureKpa(0x0969, bytes(at78psi[0]), address))
+    @Test fun `a device that is not this sensor is not read as a tyre`() {
+        assertNull(LyTpmsDecoder.pressureKpa(0x0969, bytes("C2CA702B4EBF248000640000"), "C2:CA:70:2B:4E:BF"))
+        assertNull(LyTpmsDecoder.pressureKpa(LyTpmsDecoder.COMPANY_ID, bytes(midway), "AA:BB:CC:DD:EE:FF"))
+        assertNull(LyTpmsDecoder.pressureKpa(0x004C, bytes(midway), address))
     }
 }

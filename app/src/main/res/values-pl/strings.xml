@@ -2515,4 +2515,7 @@
     <string name="action_reset_metrics_wheel_done">Liczniki wyzerowane, licznik koła skasowany</string>
     <string name="tpms_not_decoded">Znaleziono. Odczyty tego modelu nie są jeszcze rozszyfrowane.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Czekam na dane</string>
+    <string name="status_live">Na żywo</string>
+    <string name="status_idle">Bezczynny</string>
 </resources>

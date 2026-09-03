@@ -2512,4 +2512,7 @@
     <string name="action_reset_metrics_wheel_done">Métricas reiniciadas, viaje de la rueda borrado</string>
     <string name="tpms_not_decoded">Detectado. Las lecturas de este modelo aún no están decodificadas.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Esperando datos</string>
+    <string name="status_live">En vivo</string>
+    <string name="status_idle">Inactivo</string>
 </resources>

@@ -43,6 +43,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
@@ -477,7 +479,18 @@ fun SettingsScreen(
     // Waits for the expand reflow to settle, then brings the best match to the
     // top. An empty query leaves the scroll position alone.
     val searchScrollTrigger = settledQuery.trim()
-    LaunchedEffect(searchScrollTrigger) {
+    // Re-aim when the keyboard comes or goes.
+    //
+    // Closing it gives the page a screenful more room, and a filtered page is
+    // short: the old scroll offset was then past the new bottom, so the list
+    // clamped there and the rider came back from another app to find settings
+    // scrolled to the end. Nothing had moved except the viewport.
+    //
+    // Aiming again puts the match back where it was, so leaving the app and
+    // returning lands on the same place rather than the bottom.
+    val imeVisible = WindowInsets.ime
+        .getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
+    LaunchedEffect(searchScrollTrigger, imeVisible) {
         searchScroller.query = searchScrollTrigger
         if (searchScrollTrigger.isEmpty()) return@LaunchedEffect
         val container = scrollContainerTop ?: run {

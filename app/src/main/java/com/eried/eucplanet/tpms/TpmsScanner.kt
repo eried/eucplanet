@@ -81,11 +81,59 @@ class TpmsScanner @Inject constructor(
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
     private var callback: ScanCallback? = null
+
+    /** True while the open scan is a background monitor rather than a search. */
+    @Volatile private var monitoring = false
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var window: Job? = null
 
+    init {
+        // Below `scope` on purpose: initialisers run in declaration order, so
+        // launching from above it reads a field that does not exist yet.
+        //
+        // Follow the pairing. A sensor the rider owns is listened to for as
+        // long as the app is alive, and the radio goes back the moment they
+        // delete it. Nothing else has to remember to ask.
+        scope.launch {
+            tpms.pairedAddress.collect { address ->
+                if (address != null) startMonitoring() else stopMonitoring()
+            }
+        }
+    }
+
+    /**
+     * Listen for an already-paired sensor, indefinitely.
+     *
+     * Separate from [start], which is the rider pressing Scan to FIND a
+     * sensor and rightly gives up after a while. There is nothing to find
+     * here, so this uses the low power mode and never times out: it is how the
+     * pressure keeps moving once the sensor belongs to the rider.
+     */
+    @SuppressLint("MissingPermission")
+    fun startMonitoring() {
+        if (callback != null || tpms.pairedAddress.value == null) return
+        monitoring = true
+        openScan(lowPower = true)
+    }
+
+    /** Give the radio back when nothing is paired any more. */
+    @SuppressLint("MissingPermission")
+    fun stopMonitoring() {
+        if (!monitoring) return
+        monitoring = false
+        stop()
+    }
+
     @SuppressLint("MissingPermission")
     fun start() {
+        monitoring = false
+        // A monitor already holds the radio; take it over for the search.
+        if (callback != null) stop()
+        openScan(lowPower = false)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun openScan(lowPower: Boolean) {
         if (callback != null) return
         // The button asks the rider to turn Bluetooth on before it ever gets
         // here, so reaching this with the adapter off means they declined.
@@ -112,12 +160,21 @@ class TpmsScanner @Inject constructor(
         // because these broadcast in short bursts and a slower mode misses
         // most of them.
         val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setScanMode(
+                // Low latency while hunting, because these broadcast in short
+                // bursts and a slower mode misses most of them. Low power once
+                // the sensor is known: it is a tyre, it can be a few seconds
+                // late, and this one runs for as long as the app does.
+                if (lowPower) ScanSettings.SCAN_MODE_LOW_POWER
+                else ScanSettings.SCAN_MODE_LOW_LATENCY
+            )
             .build()
         runCatching { scanner.startScan(null, settings, cb) }
             .onSuccess {
-                _scanning.value = true
-                startWindow()
+                // Only a search shows as "scanning" and only a search gives
+                // up; a monitor is invisible and runs on.
+                _scanning.value = !monitoring
+                if (!monitoring) startWindow()
             }
             .onFailure {
                 Log.w(TAG, "TPMS scan could not start", it)
@@ -139,7 +196,12 @@ class TpmsScanner @Inject constructor(
         window?.cancel()
         window = scope.launch {
             delay(SCAN_WINDOW_S * 1000L)
-            if (_scanning.value) stop()
+            if (_scanning.value) {
+                stop()
+                // Hand the radio back to the monitor: the search is over but
+                // the rider's sensor still has a pressure worth showing.
+                startMonitoring()
+            }
         }
     }
 
@@ -235,18 +297,37 @@ class TpmsScanner @Inject constructor(
         // reading is still unreadable, and this family's is: no byte in any
         // capture tracks the tyre from 78 psi down to 64.
         if (isKnownSensor) {
-            val hadSensor = tpms.pairedAddress.value != null
-            if (!hadSensor) tpms.adopt(address)
+            val alreadyKnown = tpms.sensors.value.any { it.address == address }
+            if (!alreadyKnown) tpms.adopt(address)
             // The number goes in when there is one. Until this family's format
             // is worked out there is not, and the row says so rather than
             // showing something invented.
             decoded?.let { tpms.submitPaired(it, address, now) }
+            // The same packet carries the air temperature, so it costs nothing
+            // to keep and answers "did the tyre lose air or just cool down".
+            if (tpms.sensors.value.any { it.address == address }) {
+                rec?.manufacturerSpecificData?.let { sparse ->
+                    for (i in 0 until sparse.size()) {
+                        val t = LyTpmsDecoder.temperatureC(
+                            sparse.keyAt(i), sparse.valueAt(i) ?: continue, address
+                        )
+                        if (t != null) {
+                            tpms.submitPairedTemp(address, t)
+                            tpms.submitPairedVolts(
+                                address,
+                                LyTpmsDecoder.batteryVolts(sparse.keyAt(i), sparse.valueAt(i), address)
+                            )
+                            break
+                        }
+                    }
+                }
+            }
             // Found it, so stop looking. Flic ends its scan on pair, and a
             // radio left running after the answer arrived costs battery for
             // nothing. Only on the sensor that was actually adopted: a second
             // cap in the room must not end a scan that has not found the
             // rider's yet.
-            if (!hadSensor && tpms.pairedAddress.value == address) stop()
+            if (!alreadyKnown) stop()
         }
         // Everything, at INFO, while the format is still unknown. The only
         // reliable way to find a pressure field is to diff every payload in

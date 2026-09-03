@@ -2512,4 +2512,7 @@
     <string name="action_reset_metrics_wheel_done">Ölçümler sıfırlandı, tekerin gezi sayacı temizlendi</string>
     <string name="tpms_not_decoded">Bulundu. Bu modelin değerleri henüz çözülmedi.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Veri bekleniyor</string>
+    <string name="status_live">Canlı</string>
+    <string name="status_idle">Boşta</string>
 </resources>

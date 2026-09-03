@@ -31,11 +31,28 @@ class TpmsViewModel @Inject constructor(
     val paired: StateFlow<String?> = tpms.pairedAddress
 
     /** Its live reading in kPa, null once it has gone quiet. */
+    /** The cap currently speaking for the tyre, or null when the wheel is. */
+    val activeAddress: StateFlow<String?> = tpms.activeAddress
+
+    /** True while the wheel's own relayed reading is the one being shown. */
+    val wheelIsActive: StateFlow<Boolean> = tpms.wheelIsActive
+
+    /** Every paired cap and what it last said. */
+    val sensors: StateFlow<List<com.eried.eucplanet.tpms.TpmsRepository.SensorState>> = tpms.sensors
+
+    /** The rider's temperature unit, for the row beside the pressure. */
+    val tempUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "C")
+
     val pairedKpa: StateFlow<Float?> = tpms.current
         .map { it?.takeIf { r -> r.source == com.eried.eucplanet.tpms.TpmsSource.PAIRED }?.kpa }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun forgetPaired() = tpms.forgetPaired()
+
+    /** Remove one cap, leaving the rider's other wheels alone. */
+    fun forget(address: String) = tpms.forget(address)
 
     /** Advertisements heard while scanning, newest first. */
     val seen: StateFlow<List<com.eried.eucplanet.tpms.TpmsScanner.Seen>> = scanner.seen

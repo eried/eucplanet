@@ -2515,4 +2515,7 @@
     <string name="action_reset_metrics_wheel_done">Mätvärden nollställda, hjulets trippmätare rensad</string>
     <string name="tpms_not_decoded">Hittad. Avläsningarna från den här modellen är ännu inte avkodade.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Väntar på data</string>
+    <string name="status_live">Live</string>
+    <string name="status_idle">Inaktiv</string>
 </resources>

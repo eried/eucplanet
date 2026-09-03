@@ -52,6 +52,58 @@ object TpmsPolicy {
      */
     const val STALE_AFTER_MS = 10 * 60 * 1000L
 
+    /**
+     * How long the active sensor keeps the badge after its last message.
+     *
+     * Long enough that a cap pausing between broadcasts does not lose the
+     * badge, short enough that a sensor which actually stopped hands over
+     * before the rider notices a frozen number. These report on change, so
+     * quiet is normal and a minute of it means nothing.
+     */
+    const val ACTIVE_HOLD_MS = 60 * 1000L
+
+    /** One source that could be the active one. */
+    data class Candidate(
+        /** Null for the wheel's own relayed reading. */
+        val address: String?,
+        val source: TpmsSource,
+        val atMs: Long,
+    )
+
+    /**
+     * Which sensor should be shown as active, or null when nothing is.
+     *
+     * [currentActive] is the address that holds the badge right now (null for
+     * the wheel), and it is what makes the choice sticky rather than a race
+     * between whichever packet landed last.
+     */
+    fun pickActive(
+        candidates: List<Candidate>,
+        nowMs: Long,
+        currentActive: String?,
+        holdMs: Long = ACTIVE_HOLD_MS,
+        staleAfterMs: Long = STALE_AFTER_MS,
+    ): Candidate? {
+        val live = candidates.filter { nowMs - it.atMs < staleAfterMs }
+        if (live.isEmpty()) return null
+
+        val externals = live.filter { it.source == TpmsSource.PAIRED }
+        if (externals.isEmpty()) {
+            // Rule 2: the wheel only speaks for the tyre when no cap can.
+            return live.firstOrNull { it.source == TpmsSource.WHEEL }
+        }
+
+        // Rule 3: the incumbent keeps it while it is still talking.
+        val incumbent = externals.firstOrNull { it.address == currentActive }
+        if (incumbent != null && nowMs - incumbent.atMs < holdMs) return incumbent
+
+        // Otherwise the one that spoke most recently, ties broken by the order
+        // the rider added them so the choice is stable rather than arbitrary.
+        return externals.maxWithOrNull(
+            compareBy<Candidate> { it.atMs }.thenByDescending { candidates.indexOf(it) }
+        )
+    }
+
     /** True when [reading] is too old to show. */
     fun isStale(reading: TpmsReading?, nowMs: Long, staleAfterMs: Long = STALE_AFTER_MS): Boolean =
         reading == null || nowMs - reading.atMs >= staleAfterMs
@@ -86,6 +138,23 @@ object TpmsPolicy {
      * wheel without TPMS would otherwise fire on the first frame and never
      * stop.
      */
-    fun readingOf(kpa: Float, source: TpmsSource, atMs: Long): TpmsReading? =
-        if (kpa > 0f) TpmsReading(kpa, source, atMs) else null
+    /**
+     * A reading, or null when the number means "no sensor" rather than a
+     * pressure.
+     *
+     * Zero means different things depending on who said it. A wheel leaves the
+     * field at zero when nothing is bound to it, so zero from a wheel is an
+     * absence. A cap screwed onto a valve reports the pressure it measures,
+     * and a flat tyre measures zero: the rider's own sensor read exactly 0 kPa
+     * with the gauge at 0 bar, which is how the format was decoded in the
+     * first place.
+     *
+     * Dropping it made a flat tyre look like a broken sensor, which is the
+     * opposite of the one moment a tyre sensor exists for.
+     */
+    fun readingOf(kpa: Float, source: TpmsSource, atMs: Long): TpmsReading? = when {
+        kpa > 0f -> TpmsReading(kpa, source, atMs)
+        source == TpmsSource.PAIRED -> TpmsReading(0f, source, atMs)
+        else -> null
+    }
 }

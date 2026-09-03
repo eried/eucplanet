@@ -2403,4 +2403,7 @@
     <string name="action_reset_metrics_wheel_done">Målingene er nullstilt, hjulets tripteller er tømt</string>
     <string name="tpms_not_decoded">Funnet. Avlesningene fra denne modellen er ennå ikke dekodet.</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Venter på data</string>
+    <string name="status_live">Live</string>
+    <string name="status_idle">Inaktiv</string>
 </resources>

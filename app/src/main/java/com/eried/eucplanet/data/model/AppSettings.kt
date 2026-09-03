@@ -1329,7 +1329,19 @@ data class ProximityLockSettings(
  * what the section has always said about replacing the wheel's own.
  */
 data class TpmsSettings(
+    /**
+     * Kept so a rider downgrading still finds their first sensor. New code
+     * reads [pairedAddresses].
+     */
     val pairedAddress: String? = null,
+    /**
+     * Every cap the rider has added, one per wheel.
+     *
+     * A single slot was the original rule, on the reasoning that a wheel has
+     * one tyre. It does, but a rider has more than one wheel, and the second
+     * cap was dropped before it could even be listed.
+     */
+    val pairedAddresses: List<String> = emptyList(),
     /**
      * "psi", "bar", "kPa", or blank to follow the unit system.
      *
