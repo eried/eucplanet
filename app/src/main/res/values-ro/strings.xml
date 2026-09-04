@@ -201,6 +201,8 @@
     <string name="metric_chip_odometer">Odometru</string>
     <string name="metric_chip_motor_power">Puterea motorului</string>
     <string name="metric_chip_battery_power">Puterea bateriei</string>
+    <string name="metric_chip_battery_envelope">Baterie (est)</string>
+    <string name="metric_desc_battery_envelope">Procentul bateriei fără efectul sarcinii. Mai stabil decât valoarea brută, care scade la accelerare.</string>
     <string name="metric_chip_battery_1">Pachetul 1</string>
     <string name="metric_chip_battery_2">Pachetul 2</string>
     <string name="metric_chip_pitch">Înclinare față-spate</string>
@@ -217,7 +219,7 @@
     <string name="metric_chip_battery_temp">Temperatura bateriei</string>
     <string name="metric_chip_tire_pressure">Presiunea în anvelopă</string>
     <string name="metric_chip_tire_pressure_tile">Anvelopă</string>
-    <string name="metric_desc_tire_pressure">Presiunea în anvelopă de la un senzor TPMS asociat (InMotion P6). Afișată în psi sau bari.</string>
+    <string name="metric_desc_tire_pressure">Presiunea în anvelopă de la senzorul tău sau de la unul retransmis de roată. În unitatea de presiune aleasă.</string>
     <string name="metric_chip_headroom">Rezervă</string>
     <string name="metric_chip_trip_time">Durata cursei</string>
     <string name="metric_chip_trip_max_speed">Maximul cursei</string>

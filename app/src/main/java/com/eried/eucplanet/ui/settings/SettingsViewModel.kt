@@ -68,7 +68,8 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
     // value. Riders use Motor power / Battery power instead.)
     "SPEED", "ODOMETER", "TRIP_METER",
     "MOTOR_POWER", "BATTERY_POWER",
-    "BATTERY_1", "BATTERY_2",
+    // The load-free battery line, beside the packs it is derived from.
+    "BATTERY_ENVELOPE", "BATTERY_1", "BATTERY_2",
     "PITCH", "ROLL",
     "G_FORCE", "LATERAL_G", "FORWARD_G",
     "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",

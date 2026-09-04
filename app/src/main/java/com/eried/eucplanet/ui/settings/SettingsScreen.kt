@@ -6394,7 +6394,7 @@ private fun metricPlaceholderValue(
     key: String,
     s: com.eried.eucplanet.data.model.AppSettings
 ): String = when (key) {
-    "BATTERY", "BATTERY_1", "BATTERY_2", "LOAD" -> "0%"
+    "BATTERY", "BATTERY_ENVELOPE", "BATTERY_1", "BATTERY_2", "LOAD" -> "0%"
     "TEMPERATURE" -> if (s.unitTemp == "F") "0°F" else "0°C"
     "VOLTAGE" -> "0 V"
     "CURRENT", "DYN_CURRENT_LIMIT" -> "0 A"

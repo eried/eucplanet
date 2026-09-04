@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Cuentakilómetros</string>
     <string name="metric_chip_motor_power">Pot. motor</string>
     <string name="metric_chip_battery_power">Pot. batería</string>
+    <string name="metric_chip_battery_envelope">Batería (est)</string>
+    <string name="metric_desc_battery_envelope">Porcentaje de batería sin el efecto de la carga. Más estable que el número directo, que cae al acelerar.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Cabeceo</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Temperatura de la batería</string>
     <string name="metric_chip_tire_pressure">Presión de neumático</string>
     <string name="metric_chip_tire_pressure_tile">Neum.</string>
-    <string name="metric_desc_tire_pressure">Presión del neumático de un sensor TPMS vinculado (InMotion P6). Se muestra en psi o bar.</string>
+    <string name="metric_desc_tire_pressure">Presión del neumático desde tu propio sensor o uno que retransmite la rueda. En la unidad de presión que elegiste.</string>
     <string name="studio_metric_tire_pressure">Presión de neumático</string>
     <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Tiempo viaje</string>

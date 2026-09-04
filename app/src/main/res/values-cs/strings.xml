@@ -201,6 +201,8 @@
     <string name="metric_chip_odometer">Tachometr</string>
     <string name="metric_chip_motor_power">Výkon motoru</string>
     <string name="metric_chip_battery_power">Výkon baterie</string>
+    <string name="metric_chip_battery_envelope">Baterie (odh)</string>
+    <string name="metric_desc_battery_envelope">Procenta baterie bez vlivu zátěže. Stabilnější než přímá hodnota, která při zrychlení klesá.</string>
     <string name="metric_chip_battery_1">Sada 1</string>
     <string name="metric_chip_battery_2">Sada 2</string>
     <string name="metric_chip_pitch">Náklon</string>
@@ -217,7 +219,7 @@
     <string name="metric_chip_battery_temp">Teplota baterie</string>
     <string name="metric_chip_tire_pressure">Tlak v pneumatice</string>
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
-    <string name="metric_desc_tire_pressure">Tlak v pneumatice ze spárovaného snímače TPMS (InMotion P6). Zobrazuje se v psi nebo barech.</string>
+    <string name="metric_desc_tire_pressure">Tlak v pneumatice z vlastního snímače nebo z toho, který přeposílá kolo. V jednotce tlaku, kterou jste zvolili.</string>
     <string name="metric_chip_headroom">Rezerva</string>
     <string name="metric_chip_trip_time">Čas jízdy</string>
     <string name="metric_chip_trip_max_speed">Max jízdy</string>

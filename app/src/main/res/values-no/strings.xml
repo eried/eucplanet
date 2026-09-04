@@ -1412,13 +1412,15 @@
     <string name="metric_chip_ascent">Stigning</string>
     <string name="metric_chip_avg_trip_speed">Gj.sn. fart</string>
     <string name="metric_chip_battery">Batteri</string>
+    <string name="metric_chip_battery_envelope">Batteri (est)</string>
+    <string name="metric_desc_battery_envelope">Batteriprosent uten belastningen. Jevnere enn den rå verdien, som faller når du akselererer.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_battery_power">Batterieffekt</string>
     <string name="metric_chip_battery_temp">Batteritemperatur</string>
     <string name="metric_chip_tire_pressure">Dekktrykk</string>
     <string name="metric_chip_tire_pressure_tile">Dekk</string>
-    <string name="metric_desc_tire_pressure">Dekktrykk fra en tilkoblet TPMS-sensor (InMotion P6). Vises i psi eller bar.</string>
+    <string name="metric_desc_tire_pressure">Dekktrykk fra din egen sensor eller en hjulet videresender. I trykkenheten du valgte.</string>
     <string name="studio_metric_tire_pressure">Dekktrykk</string>
     <string name="metric_chip_bt_rssi">BT-signal</string>
     <string name="metric_chip_controller_temp">Styringstemperatur</string>

@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">주행거리계</string>
     <string name="metric_chip_motor_power">모터 출력</string>
     <string name="metric_chip_battery_power">배터리 출력</string>
+    <string name="metric_chip_battery_envelope">배터리(추정)</string>
+    <string name="metric_desc_battery_envelope">부하를 제외한 배터리 잔량입니다. 가속할 때 떨어지는 원본 값보다 안정적입니다.</string>
     <string name="metric_chip_battery_1">팩 1</string>
     <string name="metric_chip_battery_2">팩 2</string>
     <string name="metric_chip_pitch">피치</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">배터리 온도</string>
     <string name="metric_chip_tire_pressure">타이어 공기압</string>
     <string name="metric_chip_tire_pressure_tile">타이어</string>
-    <string name="metric_desc_tire_pressure">연결된 TPMS 센서(InMotion P6)의 타이어 공기압. psi 또는 bar로 표시.</string>
+    <string name="metric_desc_tire_pressure">직접 연결한 센서나 휠이 중계하는 센서의 타이어 공기압입니다. 선택한 압력 단위로 표시됩니다.</string>
     <string name="studio_metric_tire_pressure">타이어 공기압</string>
     <string name="metric_chip_headroom">헤드룸</string>
     <string name="metric_chip_trip_time">트립 시간</string>

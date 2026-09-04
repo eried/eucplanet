@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Compteur km</string>
     <string name="metric_chip_motor_power">Puiss. moteur</string>
     <string name="metric_chip_battery_power">Puiss. batterie</string>
+    <string name="metric_chip_battery_envelope">Batterie (est)</string>
+    <string name="metric_desc_battery_envelope">Niveau de batterie sans l’effet de la charge. Plus stable que la valeur brute, qui chute à l’accélération.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Tangage</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Température de la batterie</string>
     <string name="metric_chip_tire_pressure">Pression des pneus</string>
     <string name="metric_chip_tire_pressure_tile">Pneu</string>
-    <string name="metric_desc_tire_pressure">Pression du pneu depuis un capteur TPMS associé (InMotion P6). Affichée en psi ou bar.</string>
+    <string name="metric_desc_tire_pressure">Pression du pneu depuis votre propre capteur ou un capteur relayé par la roue. Dans l’unité de pression choisie.</string>
     <string name="studio_metric_tire_pressure">Pression des pneus</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Temps trajet</string>

@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">オドメーター</string>
     <string name="metric_chip_motor_power">モーター電力</string>
     <string name="metric_chip_battery_power">バッテリー電力</string>
+    <string name="metric_chip_battery_envelope">バッテリー(推定)</string>
+    <string name="metric_desc_battery_envelope">負荷を除いたバッテリー残量。加速時に落ち込む生の値より安定しています。</string>
     <string name="metric_chip_battery_1">パック 1</string>
     <string name="metric_chip_battery_2">パック 2</string>
     <string name="metric_chip_pitch">ピッチ</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">バッテリー温度</string>
     <string name="metric_chip_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_tire_pressure_tile">タイヤ</string>
-    <string name="metric_desc_tire_pressure">連携したTPMSセンサー（InMotion P6）からのタイヤ空気圧。psiまたはbarで表示。</string>
+    <string name="metric_desc_tire_pressure">自分のセンサー、またはホイールが中継するセンサーのタイヤ空気圧。選んだ圧力単位で表示します。</string>
     <string name="studio_metric_tire_pressure">タイヤ空気圧</string>
     <string name="metric_chip_headroom">ヘッドルーム</string>
     <string name="metric_chip_trip_time">トリップ時間</string>

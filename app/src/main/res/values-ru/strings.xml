@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Одометр</string>
     <string name="metric_chip_motor_power">Мощн. мотора</string>
     <string name="metric_chip_battery_power">Мощн. бат.</string>
+    <string name="metric_chip_battery_envelope">Батарея (оц)</string>
+    <string name="metric_desc_battery_envelope">Заряд батареи без влияния нагрузки. Стабильнее исходного значения, которое падает при разгоне.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Наклон</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Температура батареи</string>
     <string name="metric_chip_tire_pressure">Давление в шине</string>
     <string name="metric_chip_tire_pressure_tile">Шина</string>
-    <string name="metric_desc_tire_pressure">Давление в шине от привязанного датчика TPMS (InMotion P6). Показывается в psi или bar.</string>
+    <string name="metric_desc_tire_pressure">Давление в шине от вашего датчика или от того, который передаёт колесо. В выбранной вами единице давления.</string>
     <string name="studio_metric_tire_pressure">Давление в шине</string>
     <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_trip_time">Время поездки</string>

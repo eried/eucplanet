@@ -105,6 +105,18 @@ object MetricCatalog {
             sparkline = SparklineStyle.AREA
         ),
         MetricSpec(
+            key = "BATTERY_ENVELOPE",
+            labelRes = R.string.metric_chip_battery_envelope,
+            descriptionRes = R.string.metric_desc_battery_envelope,
+            // The trip chart's envelope colour, not the battery tile's green.
+            // Same family, different reading, and two greens side by side read
+            // as one number printed twice.
+            accent = AccentBlue,
+            // Not smoothed. This only moves when the charge moved, so a curve
+            // would draw motion that did not happen.
+            sparkline = SparklineStyle.LINE
+        ),
+        MetricSpec(
             key = "TEMPERATURE",
             labelRes = R.string.metric_chip_temperature,
             accent = AccentOrange,

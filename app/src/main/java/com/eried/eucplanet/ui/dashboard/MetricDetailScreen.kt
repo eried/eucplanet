@@ -113,6 +113,7 @@ private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
     "ODOMETER" -> w.totalDistance
     "BATTERY_1" -> w.battery1Percent
     "BATTERY_2" -> w.battery2Percent
+    "BATTERY_ENVELOPE" -> w.batteryEnvelope
     "PITCH" -> w.pitchAngle
     "ROLL" -> w.rollAngle
     "G_FORCE" -> w.gForce
@@ -417,8 +418,13 @@ private fun MetricDetailBody(
         // Source-derived metrics have no WheelData field (rawCurrentValueFor
         // returns 0), so use the latest already-converted sample as the live
         // value instead of showing 0.0 in the header.
-        null -> if (isSourceDerived) (samples.lastOrNull()?.value ?: 0f)
-            else convert(rawCurrentValueFor(key, wheelData))
+        null -> if (isSourceDerived) (samples.lastOrNull()?.value ?: 0f) else {
+            // NaN is a metric saying it cannot answer yet: the battery
+            // envelope needs half a minute of riding before it means
+            // anything. The last thing it did say beats printing "NaN".
+            val live = convert(rawCurrentValueFor(key, wheelData))
+            if (live.isNaN()) samples.lastOrNull()?.value ?: 0f else live
+        }
     }
 
     // Both legacyType.color (a baked MetricType palette Color) and catalogSpec.accent

@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Kilometerstand</string>
     <string name="metric_chip_motor_power">Motorvermogen</string>
     <string name="metric_chip_battery_power">Accuvermogen</string>
+    <string name="metric_chip_battery_envelope">Accu (schat)</string>
+    <string name="metric_desc_battery_envelope">Accupercentage zonder de belasting. Stabieler dan de ruwe waarde, die daalt bij accelereren.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Pitch</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Accutemperatuur</string>
     <string name="metric_chip_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_tire_pressure_tile">Band</string>
-    <string name="metric_desc_tire_pressure">Bandenspanning van een gekoppelde TPMS-sensor (InMotion P6). Getoond in psi of bar.</string>
+    <string name="metric_desc_tire_pressure">Bandenspanning van je eigen sensor of een die het wiel doorgeeft. In de drukeenheid die je koos.</string>
     <string name="studio_metric_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Triptime</string>

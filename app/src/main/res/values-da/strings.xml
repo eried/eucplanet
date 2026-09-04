@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Kilometertæller</string>
     <string name="metric_chip_motor_power">Motoreffekt</string>
     <string name="metric_chip_battery_power">Batterieffekt</string>
+    <string name="metric_chip_battery_envelope">Batteri (est)</string>
+    <string name="metric_desc_battery_envelope">Batteriprocent uden belastningen. Mere stabil end det rå tal, der dykker, når du accelererer.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Hældning</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Batteritemperatur</string>
     <string name="metric_chip_tire_pressure">Dæktryk</string>
     <string name="metric_chip_tire_pressure_tile">Dæk</string>
-    <string name="metric_desc_tire_pressure">Dæktryk fra en tilknyttet TPMS-sensor (InMotion P6). Vises i psi eller bar.</string>
+    <string name="metric_desc_tire_pressure">Dæktryk fra din egen sensor eller en, hjulet videresender. Vises i den trykenhed, du har valgt.</string>
     <string name="studio_metric_tire_pressure">Dæktryk</string>
     <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Trip-tid</string>

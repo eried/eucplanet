@@ -221,7 +221,7 @@ private fun formatMetricStatValue(
     distanceUnit: String,
     pressureUnit: String,
 ): String = when (key) {
-    "BATTERY" -> "${raw.toInt()}%"
+    "BATTERY", "BATTERY_ENVELOPE" -> "${raw.toInt()}%"
     // Round to match the live LOAD tile (which uses %.0f), not truncate.
     "LOAD" -> "%.0f%%".format(raw)
     "BATTERY_1", "BATTERY_2", "PHONE_BATTERY", "EXTERNAL_GPS_BATTERY" -> "%.0f%%".format(raw)
@@ -1669,6 +1669,13 @@ fun DashboardScreen(
                 if (!live) return placeholder
                 return when (metricKey) {
                     "BATTERY" -> if (wheelData.batteryPercent > 0) "${wheelData.batteryPercent}%" else placeholder
+                    // NaN for the first half minute of a ride, because the
+                    // line needs a little of the ride before it means
+                    // anything. A placeholder says so; a zero would not.
+                    "BATTERY_ENVELOPE" -> wheelData.batteryEnvelope
+                        .takeIf { !it.isNaN() }
+                        ?.let { "%.0f%%".format(it) }
+                        ?: placeholder
                     "TEMPERATURE" -> if (wheelData.maxTemperature > 0f)
                         "%.0f%s".format(tempValue, tempUnitLabel) else placeholder
                     "VOLTAGE" -> if (wheelData.voltage > 0f) "%.1fV".format(wheelData.voltage) else placeholder

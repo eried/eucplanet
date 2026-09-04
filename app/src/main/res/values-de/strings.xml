@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Kilometerstand</string>
     <string name="metric_chip_motor_power">Motorleistung</string>
     <string name="metric_chip_battery_power">Akku-Leistung</string>
+    <string name="metric_chip_battery_envelope">Akku (gesch)</string>
+    <string name="metric_desc_battery_envelope">Akkustand ohne den Einfluss der Last. Ruhiger als der rohe Wert, der beim Beschleunigen einbricht.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Neigung</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Akkutemperatur</string>
     <string name="metric_chip_tire_pressure">Reifendruck</string>
     <string name="metric_chip_tire_pressure_tile">Reifen</string>
-    <string name="metric_desc_tire_pressure">Reifendruck von einem gekoppelten TPMS-Sensor (InMotion P6). Anzeige in psi oder bar.</string>
+    <string name="metric_desc_tire_pressure">Reifendruck von deinem eigenen Sensor oder einem, den das Wheel weitergibt. In der von dir gewählten Druckeinheit.</string>
     <string name="studio_metric_tire_pressure">Reifendruck</string>
     <string name="metric_chip_headroom">Reserve</string>
     <string name="metric_chip_trip_time">Trip-Zeit</string>

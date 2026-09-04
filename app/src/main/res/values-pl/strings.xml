@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Licznik km</string>
     <string name="metric_chip_motor_power">Moc silnika</string>
     <string name="metric_chip_battery_power">Moc baterii</string>
+    <string name="metric_chip_battery_envelope">Bateria (szac)</string>
+    <string name="metric_desc_battery_envelope">Poziom baterii bez wpływu obciążenia. Stabilniejszy niż surowa wartość, która spada przy przyspieszaniu.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Pochylenie</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Temperatura baterii</string>
     <string name="metric_chip_tire_pressure">Ciśnienie w oponie</string>
     <string name="metric_chip_tire_pressure_tile">Opona</string>
-    <string name="metric_desc_tire_pressure">Ciśnienie w oponie z powiązanego czujnika TPMS (InMotion P6). Pokazywane w psi lub bar.</string>
+    <string name="metric_desc_tire_pressure">Ciśnienie w oponie z własnego czujnika lub z tego przekazywanego przez koło. W wybranej jednostce ciśnienia.</string>
     <string name="studio_metric_tire_pressure">Ciśnienie w oponie</string>
     <string name="metric_chip_headroom">Zapas</string>
     <string name="metric_chip_trip_time">Czas trasy</string>

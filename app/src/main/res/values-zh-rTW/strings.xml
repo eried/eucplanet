@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">里程錶</string>
     <string name="metric_chip_motor_power">馬達功率</string>
     <string name="metric_chip_battery_power">電池功率</string>
+    <string name="metric_chip_battery_envelope">電量(估算)</string>
+    <string name="metric_desc_battery_envelope">去除負載影響的電量百分比。比加速時會驟降的原始數值更穩定。</string>
     <string name="metric_chip_battery_1">電池組 1</string>
     <string name="metric_chip_battery_2">電池組 2</string>
     <string name="metric_chip_pitch">俯仰角</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">電池溫度</string>
     <string name="metric_chip_tire_pressure">胎壓</string>
     <string name="metric_chip_tire_pressure_tile">胎壓</string>
-    <string name="metric_desc_tire_pressure">來自已綁定 TPMS 感測器（InMotion P6）的胎壓。以 psi 或 bar 顯示。</string>
+    <string name="metric_desc_tire_pressure">來自你自己的感測器或輪子轉發的感測器的胎壓。以你選擇的壓力單位顯示。</string>
     <string name="studio_metric_tire_pressure">胎壓</string>
     <string name="metric_chip_headroom">速度餘量</string>
     <string name="metric_chip_trip_time">行程時間</string>

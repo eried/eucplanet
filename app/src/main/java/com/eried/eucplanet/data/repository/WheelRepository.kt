@@ -139,6 +139,10 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
     // POWER is an alias of BATTERY_POWER kept for backwards-compat with
     // dashboards saved before the catalog rename; same buffer.
     "POWER" to { it.batteryPower.toFloat() },
+    // The load-free battery line. NaN until the window has enough of the
+     // ride to say anything, and null (skip) keeps that out of the sparkline
+     // rather than plotting a zero the rider never rode.
+    "BATTERY_ENVELOPE" to { it.batteryEnvelope.takeIf { v -> !v.isNaN() } },
     "BATTERY_1" to { it.battery1Percent },
     "BATTERY_2" to { it.battery2Percent },
     "PITCH" to { it.pitchAngle },
@@ -2030,9 +2034,24 @@ class WheelRepository @Inject constructor(
                 // because the raw percentage dives on acceleration and comes
                 // back on the overrun; this is the number that only moves when
                 // the charge did, and the one an alarm can be set against.
+                // The percentage the rider is shown, worked out before
+                // anything reads it. With the override off this is the wheel's
+                // own number unchanged.
+                val shownBatteryPercent = BatteryPercentEstimator.estimate(
+                    voltage = result.data.voltage,
+                    seriesCells = wheelAdapter.seriesCells
+                        ?: batteryPercentCached.seriesCells,
+                    settings = batteryPercentCached,
+                    reportedPercent = result.data.batteryPercent,
+                )
+                // Fed the SHOWN percentage, not the raw frame. A rider who
+                // overrides the wheel's number does so because they do not
+                // believe it, and an alarm set on the envelope has to be about
+                // the charge they are being shown. The raw frame put the alarm
+                // on the number the override exists to replace.
                 val envelope = batteryEnvelope.sample(
                     System.currentTimeMillis(),
-                    result.data.batteryPercent.toFloat(),
+                    shownBatteryPercent.toFloat(),
                 )
                 // A paired tyre cap outranks the wheel's own relay, and the
                 // policy that decides between them needs to be told the wheel
@@ -2078,13 +2097,7 @@ class WheelRepository @Inject constructor(
                     // with its display. Only this field changes; voltage, the raw
                     // frame and every command are untouched, and with the feature
                     // off the wheel's own number passes straight through.
-                    batteryPercent = BatteryPercentEstimator.estimate(
-                        voltage = result.data.voltage,
-                        seriesCells = wheelAdapter.seriesCells
-                            ?: batteryPercentCached.seriesCells,
-                        settings = batteryPercentCached,
-                        reportedPercent = result.data.batteryPercent,
-                    ),
+                    batteryPercent = shownBatteryPercent,
                     // The frame is built from what the parser returned, so the
                     // fields the phone works out for itself (IMU g-force, the
                     // forward-G estimate, the ride-efficiency window) have to be

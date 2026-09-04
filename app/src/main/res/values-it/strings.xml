@@ -1431,13 +1431,15 @@
     <string name="metric_chip_ascent">Salita</string>
     <string name="metric_chip_avg_trip_speed">Vel. media</string>
     <string name="metric_chip_battery">Batteria</string>
+    <string name="metric_chip_battery_envelope">Batteria (stim)</string>
+    <string name="metric_desc_battery_envelope">Percentuale batteria senza l’effetto del carico. Più stabile del valore grezzo, che cala in accelerazione.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_battery_power">Pot. batteria</string>
     <string name="metric_chip_battery_temp">Temperatura batteria</string>
     <string name="metric_chip_tire_pressure">Pressione pneumatici</string>
     <string name="metric_chip_tire_pressure_tile">Gomma</string>
-    <string name="metric_desc_tire_pressure">Pressione del pneumatico da un sensore TPMS associato (InMotion P6). Mostrata in psi o bar.</string>
+    <string name="metric_desc_tire_pressure">Pressione del pneumatico dal tuo sensore o da uno inoltrato dal monoruota. Nell’unità di pressione scelta.</string>
     <string name="studio_metric_tire_pressure">Pressione pneumatici</string>
     <string name="metric_chip_bt_rssi">Segnale BT</string>
     <string name="metric_chip_controller_temp">Temperatura centralina</string>

@@ -225,6 +225,8 @@
     <string name="metric_chip_odometer">Kilometre sayacı</string>
     <string name="metric_chip_motor_power">Motor gücü</string>
     <string name="metric_chip_battery_power">Akü gücü</string>
+    <string name="metric_chip_battery_envelope">Batarya (tah)</string>
+    <string name="metric_desc_battery_envelope">Yükün etkisi çıkarılmış batarya yüzdesi. Hızlanırken düşen ham değerden daha kararlı.</string>
     <string name="metric_chip_battery_1">Paket 1</string>
     <string name="metric_chip_battery_2">Paket 2</string>
     <string name="metric_chip_pitch">Yunuslama</string>
@@ -241,7 +243,7 @@
     <string name="metric_chip_battery_temp">Akü sıcaklığı</string>
     <string name="metric_chip_tire_pressure">Lastik basıncı</string>
     <string name="metric_chip_tire_pressure_tile">Lastik</string>
-    <string name="metric_desc_tire_pressure">Bağlı bir TPMS sensöründen (InMotion P6) lastik basıncı. psi veya bar olarak gösterilir.</string>
+    <string name="metric_desc_tire_pressure">Kendi sensöründen veya tekerleğin ilettiği bir sensörden lastik basıncı. Seçtiğin basınç biriminde.</string>
     <string name="studio_metric_tire_pressure">Lastik basıncı</string>
     <string name="metric_chip_headroom">Güvenlik payı</string>
     <string name="metric_chip_trip_time">Sefer süresi</string>

@@ -201,6 +201,8 @@
     <string name="metric_chip_odometer">Kilométeróra</string>
     <string name="metric_chip_motor_power">Motorteljesítmény</string>
     <string name="metric_chip_battery_power">Akkumulátor teljesítménye</string>
+    <string name="metric_chip_battery_envelope">Akku (becs)</string>
+    <string name="metric_desc_battery_envelope">Akkumulátor töltöttsége a terhelés hatása nélkül. Stabilabb a nyers értéknél, amely gyorsításkor beesik.</string>
     <string name="metric_chip_battery_1">1. csomag</string>
     <string name="metric_chip_battery_2">2. csomag</string>
     <string name="metric_chip_pitch">Előre-hátra dőlés</string>
@@ -217,7 +219,7 @@
     <string name="metric_chip_battery_temp">Akkumulátor hőmérséklete</string>
     <string name="metric_chip_tire_pressure">Guminyomás</string>
     <string name="metric_chip_tire_pressure_tile">Gumi</string>
-    <string name="metric_desc_tire_pressure">Guminyomás egy párosított TPMS-érzékelőből (InMotion P6). Psi vagy bar egységben jelenik meg.</string>
+    <string name="metric_desc_tire_pressure">Guminyomás a saját érzékelődről vagy a kerék által továbbítottról. Az általad választott nyomásegységben.</string>
     <string name="metric_chip_headroom">Tartalék</string>
     <string name="metric_chip_trip_time">Menetidő</string>
     <string name="metric_chip_trip_max_speed">Menet maximuma</string>

@@ -201,6 +201,8 @@
     <string name="metric_chip_odometer">Kokonaismatka</string>
     <string name="metric_chip_motor_power">Moottorin teho</string>
     <string name="metric_chip_battery_power">Akun teho</string>
+    <string name="metric_chip_battery_envelope">Akku (arvio)</string>
+    <string name="metric_desc_battery_envelope">Akun varaus ilman kuorman vaikutusta. Vakaampi kuin raaka lukema, joka romahtaa kiihdyttäessä.</string>
     <string name="metric_chip_battery_1">Paketti 1</string>
     <string name="metric_chip_battery_2">Paketti 2</string>
     <string name="metric_chip_pitch">Kallistus eteen</string>
@@ -217,7 +219,7 @@
     <string name="metric_chip_battery_temp">Akun lämpötila</string>
     <string name="metric_chip_tire_pressure">Rengaspaine</string>
     <string name="metric_chip_tire_pressure_tile">Rengas</string>
-    <string name="metric_desc_tire_pressure">Rengaspaine sidotusta TPMS-anturista (InMotion P6). Näytetään psi- tai baariyksikköinä.</string>
+    <string name="metric_desc_tire_pressure">Renkaan paine omasta anturistasi tai pyörän välittämästä. Valitsemassasi paineyksikössä.</string>
     <string name="metric_chip_headroom">Pelivara</string>
     <string name="metric_chip_trip_time">Matka-aika</string>
     <string name="metric_chip_trip_max_speed">Matkan maksimi</string>
