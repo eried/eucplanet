@@ -42,6 +42,65 @@ class LiveBatteryEnvelopeTest {
         assertTrue("a momentary sag pulled the envelope down: ${e.value}", e.value >= 79f)
     }
 
+    @Test fun `a ride of nothing but sag and recovery never moves it`() {
+        // The rider's own report, and the shape their graph had: twenty four
+        // minutes on a pack whose resting level never changed, and the line
+        // swung ten points. Accelerate five seconds, coast ten, over and over,
+        // so every half minute holds both states the way a real one does.
+        //
+        // Reduced to its median, such a bucket reports a sagging number, and
+        // the walk believes every fall at once: down hard on the launch, back
+        // up a minute later when the sag let go. Read at its lightest load it
+        // reports the resting level, and the line does not move at all.
+        // Working the wheel: twenty seconds on the throttle, ten coasting.
+        // Load holds the MAJORITY of every half minute, which is what puts the
+        // sag in the middle of the bucket and is the state a rider is in on a
+        // climb or a fast road. A gentler duty cycle hid this, because a
+        // median survives being a third sag.
+        val e = LiveBatteryEnvelope()
+        var t = 0L
+        val seen = HashSet<Float>()
+        while (t < 24 * 60 * 1000L) {
+            val underLoad = (t / 1000L) % 30L < 20L
+            e.sample(t, if (underLoad) 76f else 86f)
+            if (!e.value.isNaN()) seen += e.value
+            t += 1_000L
+        }
+        assertEquals("the envelope moved on a pack that did not: $seen",
+            setOf(86f), seen)
+    }
+
+    @Test fun `each half minute is read at its lightest load, not its middle`() {
+        // Two thirds of this bucket is sag. The median would report it; the
+        // lightest-loaded moment is the one that says what the pack holds.
+        val e = LiveBatteryEnvelope()
+        e.sample(0, 70f)
+        e.sample(5_000, 70f)
+        e.sample(10_000, 70f)
+        e.sample(15_000, 70f)
+        e.sample(20_000, 82f)
+        e.sample(25_000, 82f)
+        e.sample(bucket, 82f)
+        assertEquals(82f, e.value, 0.01f)
+    }
+
+    @Test fun `a sustained climb steps down, and comes back when it lets up`() {
+        // Four minutes of unbroken load. There is no light-load moment to
+        // read, so the honest answer is the sagging one: nothing can see the
+        // resting level while the rider never stops asking for power. It
+        // recovers once they do, through the usual two-bucket confirmation.
+        val e = LiveBatteryEnvelope()
+        var t = 0L
+        while (t < 60_000L) { e.sample(t, 86f); t += 1_000L }
+        val beforeClimb = e.value
+        while (t < 300_000L) { e.sample(t, 74f); t += 1_000L }
+        val duringClimb = e.value
+        while (t < 480_000L) { e.sample(t, 86f); t += 1_000L }
+        assertEquals(86f, beforeClimb, 0.01f)
+        assertEquals("a climb with no let-up must read low, not hold", 74f, duringClimb, 0.01f)
+        assertEquals("the top of the climb must give it back", 86f, e.value, 0.01f)
+    }
+
     @Test fun `a real drop is believed at once`() {
         // Down needs no confirmation: a pack that really fell does not come
         // back, and a late low-battery warning is worse than none.

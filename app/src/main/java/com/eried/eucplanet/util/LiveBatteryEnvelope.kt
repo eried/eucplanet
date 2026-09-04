@@ -11,11 +11,22 @@ package com.eried.eucplanet.util
  * liar: set it tight and it fires on a hill, set it loose and it fires too
  * late.
  *
- * This is the batch code's fallback model, which is the half that works
- * without knowing the future: half-minute buckets, walked with hysteresis.
- * It steps DOWN freely, because a pack that has really dropped does not come
- * back, and it only steps UP when two consecutive buckets agree the rise is
- * real, which is what separates a regen descent from a sag recovering.
+ * Half-minute buckets, walked with hysteresis. Each bucket reports the
+ * reading at its LIGHTEST load, because load moves a battery reading one way
+ * only: down. The lightest-loaded moment in a half minute is the closest look
+ * anyone gets at the resting level without stopping.
+ *
+ * That is the part a median got wrong. Reduced to its middle value, a half
+ * minute the rider spent accelerating reports a sagging number, and the walk
+ * below believes every fall immediately, so the line dived on load and climbed
+ * back a minute later once the sag let go. A rider watching a pack whose
+ * charge had not moved saw it swing ten points, which is the swing this exists
+ * to remove.
+ *
+ * It steps DOWN freely, because a resting level that has really dropped does
+ * not come back, and it only steps UP when two consecutive buckets agree the
+ * rise is real, which is what separates a regen descent from a sag letting
+ * go.
  *
  * Pure and tickless: it is fed samples and asked for a value, so a test can
  * run a whole ride through it in a millisecond.
@@ -76,23 +87,39 @@ class LiveBatteryEnvelope(
 
     private fun closeBucket() {
         if (bucket.isEmpty()) return
-        val median = bucket.sorted()[bucket.size / 2]
+        val level = lightestLoad(bucket)
         bucket.clear()
         when {
-            running.isNaN() -> running = median
-            // Down is always believed. A pack that really fell does not
-            // recover, so waiting for confirmation would only make the alarm
-            // late, and late is the one thing a low-battery warning cannot be.
-            median <= running -> { running = median; pendingRise = Float.NaN }
+            running.isNaN() -> running = level
+            // Down is always believed. A RESTING level that really fell does
+            // not come back, and waiting for confirmation would only make the
+            // alarm late, which is the one thing a low-battery warning cannot
+            // be. This is only safe because [level] is a lightest-load
+            // reading; on a median it made every hard launch look like a
+            // discharge.
+            level <= running -> { running = level; pendingRise = Float.NaN }
             // Up needs two buckets that agree, which is what tells a genuine
             // regen descent from a sag letting go.
-            !pendingRise.isNaN() && median >= running + riseHysteresis -> {
-                running = minOf(median, pendingRise)
+            !pendingRise.isNaN() && level >= running + riseHysteresis -> {
+                running = minOf(level, pendingRise)
                 pendingRise = Float.NaN
             }
-            median >= running + riseHysteresis -> pendingRise = median
+            level >= running + riseHysteresis -> pendingRise = level
             else -> pendingRise = Float.NaN
         }
         value = (running * 10f).toInt() / 10f
+    }
+
+    /**
+     * The bucket's reading at its lightest load: the 90th percentile.
+     *
+     * Not the maximum, so one spurious frame cannot set the level for a whole
+     * half minute, and not the middle, which is a sagging number whenever the
+     * rider spent that half minute working the wheel.
+     */
+    private fun lightestLoad(samples: List<Float>): Float {
+        val sorted = samples.sorted()
+        val i = ((sorted.size - 1) * 9) / 10
+        return sorted[i]
     }
 }
