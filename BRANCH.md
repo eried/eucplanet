@@ -30,6 +30,9 @@ build, on the glasses.
 agrees: the tile, its graph, the alarm threshold, the settings row and the
 overlay.
 
+These three are in the Play beta as 0.20.3 (272) as well, so a rider who does
+not want a CI build can test the same things from there.
+
 ## Reporting back
 
 Say which wheel, which firmware and what you expected instead. A trip

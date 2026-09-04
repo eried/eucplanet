@@ -1,4 +1,5 @@
-Tire pressure sensors: the app now reads the cheap screw-on caps, not just the pressure your wheel already knows.
+Your tire sensor now reaches the whole app: dashboard tile, alarms, trip graphs, overlay and HUD, not only the settings row. A flat tire reads 0 rather than looking like a sensor that stopped, so a low pressure alarm can actually fire.
 
-Pressure, temperature and battery from each sensor, one per wheel, kept between restarts.
-A new Battery (est) alarm, for the real charge rather than the number that sags every time you accelerate.
+Battery (est) is a dashboard tile too, not just an alarm, and it now follows your percentage override the way every other reading does.
+
+Tire pressure shows in the unit you picked, psi, bar, kPa, kgf/cm2 or MPa, on every screen.
