@@ -34,6 +34,10 @@ enum class StudioMetric(
 ) {
     SPEED("SPEED", "Speed", StudioMetricKind.SPEED, "", 1, 60f, { it.speed.absoluteValue }),
     BATTERY("BATTERY", "Battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.batteryPercent.toFloat() }),
+    // The load-free battery line. NaN until the ride has enough behind it;
+    // 0 is what a dial can draw, and it is where the scale starts anyway.
+    BATTERY_ENVELOPE("BATTERY_ENVELOPE", "Battery (est)", StudioMetricKind.PLAIN, "%", 0, 100f,
+        { if (it.batteryEnvelope.isNaN()) 0f else it.batteryEnvelope }),
     TEMPERATURE("TEMP", "Temperature", StudioMetricKind.TEMPERATURE, "", 0, 100f, { it.maxTemperature }),
     VOLTAGE("VOLTAGE", "Voltage", StudioMetricKind.PLAIN, "V", 1, 100f, { it.voltage }),
     CURRENT("CURRENT", "Current", StudioMetricKind.PLAIN, "A", 1, 80f, { it.current }),
@@ -121,6 +125,9 @@ enum class StudioMetric(
 fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.SPEED -> "Speed"
     StudioMetric.BATTERY -> "Battery"
+    // Short because these labels sit in a picker on glasses; the phone
+    // spells it out.
+    StudioMetric.BATTERY_ENVELOPE -> "Batt (est)"
     StudioMetric.TEMPERATURE -> "Temp"
     StudioMetric.VOLTAGE -> "Voltage"
     StudioMetric.CURRENT -> "Current"

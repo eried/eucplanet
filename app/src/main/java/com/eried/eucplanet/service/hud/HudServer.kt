@@ -1204,6 +1204,7 @@ class HudServer @Inject constructor(
             unitDistance = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s),
             unitTemp = com.eried.eucplanet.util.Units.effectiveTempUnit(s),
             unitPressure = com.eried.eucplanet.util.Units.effectivePressureUnit(s),
+            batteryEnvelope = wd.batteryEnvelope,
             accentArgb = resolveAccentArgb(s),
             latitude = (location?.latitude ?: 0.0) + (d?.dLat ?: 0.0),
             longitude = (location?.longitude ?: 0.0) + (d?.dLng ?: 0.0),

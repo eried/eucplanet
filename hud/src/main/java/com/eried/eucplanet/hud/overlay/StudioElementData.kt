@@ -51,6 +51,7 @@ data class StudioElementData(
                 voltage = hud.voltage,
                 current = hud.current,
                 batteryPercent = hud.batteryPercent,
+                batteryEnvelope = hud.batteryEnvelope,
                 pwm = hud.pwm,
                 torque = hud.torque,
                 phaseCurrent = hud.phaseCurrent,

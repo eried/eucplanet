@@ -41,6 +41,11 @@ enum class StudioMetric(
 ) {
     SPEED("SPEED", "Speed", StudioMetricKind.SPEED, "", 1, 60f, { it.speed.absoluteValue }),
     BATTERY("BATTERY", "Battery", StudioMetricKind.PLAIN, "%", 0, 100f, { it.batteryPercent.toFloat() }),
+    // The load-free battery line, beside the raw percentage it corrects. NaN
+    // for the first half minute of a ride; 0 is the stand-in a gauge can draw,
+    // the same rule Consumption, Range and Altitude follow below.
+    BATTERY_ENVELOPE("BATTERY_ENVELOPE", "Battery (est)", StudioMetricKind.PLAIN, "%", 0, 100f,
+        { if (it.batteryEnvelope.isNaN()) 0f else it.batteryEnvelope }),
     TEMPERATURE("TEMP", "Temperature", StudioMetricKind.TEMPERATURE, "", 0, 100f, { it.maxTemperature }),
     VOLTAGE("VOLTAGE", "Voltage", StudioMetricKind.PLAIN, "V", 1, 100f, { it.voltage }),
     CURRENT("CURRENT", "Current", StudioMetricKind.PLAIN, "A", 1, 80f, { it.current }),
@@ -159,6 +164,9 @@ enum class StudioMetric(
 fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.SPEED -> stringResource(R.string.studio_metric_speed)
     StudioMetric.BATTERY -> stringResource(R.string.studio_metric_battery)
+    // The dashboard tile's name, not a second one. A rider who put this on
+    // their dashboard is looking for the same words in the overlay picker.
+    StudioMetric.BATTERY_ENVELOPE -> stringResource(R.string.metric_chip_battery_envelope)
     StudioMetric.TEMPERATURE -> stringResource(R.string.studio_metric_temperature)
     StudioMetric.VOLTAGE -> stringResource(R.string.studio_metric_voltage)
     StudioMetric.CURRENT -> stringResource(R.string.studio_metric_current)

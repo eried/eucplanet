@@ -47,6 +47,11 @@ data class HudState(
     // --- Live telemetry (canonical metric) ---
     val speedKmh: Float = 0f,
     val batteryPercent: Int = 0,
+    /** Battery percent with the load taken out of it, NaN before the first
+     *  half minute of a ride. The raw percentage on an 84 V pack swings
+     *  several points under acceleration, so this is the one worth reading
+     *  while moving. Added at PROTOCOL_MINOR 19; an older HUD ignores it. */
+    val batteryEnvelope: Float = Float.NaN,
     val voltage: Float = 0f,
     val current: Float = 0f,
     val pwm: Float = 0f,
@@ -326,8 +331,11 @@ data class HudState(
          *    unit. Older HUDs ignore it and keep deriving one from the
          *    distance unit, which is what every HUD did until now, so a stale
          *    HUD reads bar rather than something wrong.
+         * 19: [HudState.batteryEnvelope], the load-free battery line, so the
+         *    overlay can show the number that only moves when the charge
+         *    moved. An older HUD never draws the element.
          */
-        const val PROTOCOL_MINOR: Int = 18
+        const val PROTOCOL_MINOR: Int = 19
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
