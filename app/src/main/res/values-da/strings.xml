@@ -32,6 +32,11 @@
     <string name="action_back">Tilbage</string>
     <string name="action_cancel">Annuller</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Erstat</string>
+    <string name="action_continue">Fortsæt</string>
+    <string name="action_select">Vælg</string>
+    <string name="state_on">Til</string>
+    <string name="state_off">Fra</string>
     <string name="action_done">Færdig</string>
     <string name="action_close">Luk</string>
 <string name="crash_log_action_prompt">Du holdt %1$s nede. Slet kun denne log eller slet alle. Tryk Annuller og derefter på filen for at dele den.</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Vis over låseskærmen</string>
     <string name="language">Sprog</string>
     <string name="theme">Tema</string>
+    <string name="theme_editor_widget">Widget til tematilpasning</string>
+    <string name="theme_unsaved_fmt">%1$s (ikke gemt)</string>
+    <string name="theme_editor_save_as">Gem som nyt tema</string>
+    <string name="theme_editor_pick_color">Vælg en farve fra skærmen</string>
+    <string name="theme_editor_replay_blink">Gentag blink</string>
+    <string name="theme_editor_save_title">Gem tema</string>
+    <string name="theme_editor_name_label">Navn</string>
+    <string name="theme_editor_replace_title">Erstat tema?</string>
+    <string name="theme_editor_replace_body">Der findes allerede et tema ved navn \"%1$s\". Det bliver erstattet, når du gemmer.</string>
+    <string name="theme_editor_discard_title">Kassér den ugemte kladde?</string>
+    <string name="theme_editor_discard_body">Dette tema har allerede en ugemt version. Redigerer du det igen, går de ugemte ændringer tabt.</string>
+    <string name="theme_editor_no_folder_title">Ingen backupmappe</string>
+    <string name="theme_editor_no_folder_body">Vælg en backupmappe under %1$s → %2$s for at gemme temaer.</string>
+    <string name="theme_identify">Identificér</string>
+    <string name="theme_identify_results_title">Resultater fra farveidentifikation</string>
     <string name="tts_switch_title">Skift stemme til %1$s?</string>
     <string name="tts_switch_body">Den aktuelle tekst-til-tale-stemme passer ikke til det valgte sprog. Skift til en %1$s stemme til annonceringer?</string>
     <string name="tts_switch_yes">Skift stemme</string>
@@ -956,6 +976,8 @@
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spænding</string>
     <string name="recording_summary_avg_moving">Gns. i bevægelse</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ekst</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Maks. PWM</string>
@@ -1048,6 +1070,7 @@
     <string name="alarm_label_frequency">Frekvens</string>
     <string name="alarm_label_duration">Varighed</string>
     <string name="alarm_label_repeats">Gentagelser</string>
+    <string name="alarm_repeat_toggle">Gentag</string>
     <string name="alarm_label_vibrate_on">Vibrér på</string>
     <string name="alarm_threshold_decrease">Sænk tærskel</string>
     <string name="alarm_threshold_increase">Hæv tærskel</string>
@@ -1075,6 +1098,7 @@
     <string name="sources_fresh_just_now">lige nu</string>
     <string name="sources_fresh_seconds_fmt">%1$ds siden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm siden</string>
+    <string name="sources_delta_avg_fmt">gns %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$dt siden</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Andre målinger</string>
@@ -1915,6 +1939,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth er slukket</string>
     <string name="scan_enable_bluetooth">Tænd Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Afstandsmærker</string>
+    <string name="studio_radar_none">Ingen radar</string>
+    <string name="studio_radar_clear">Fri</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Vognbane</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Spejl</string>
@@ -2152,6 +2180,7 @@
     <string name="adv_wheel_poll_rate_desc">Påvirker hvor friske live-data er, og hvor hurtigt alarmer reagerer. Lavere beder hjulet om data oftere. Fare: meget lave værdier kan overbelaste Bluetooth-forbindelsen og få data til at gå i stå på nogle hjul.</string>
     <string name="alarm_beep_advanced">Avanceret</string>
     <string name="alarm_beep_gap_label">Pausevarighed</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pause %2$d ms</string>
     <string name="alarm_beep_studio">Adaptivt bip</string>
     <string name="alarm_beep_volume_label">Basisvolumen</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2342,6 +2371,7 @@
     <string name="pip_mode_off">Fra</string>
     <string name="pip_mode_simple">Enkel</string>
     <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget pa startskaerm</string>
     <string name="widget_pick_desc">Vælg de %1$d målinger og %2$d knapper, widgetten viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>
@@ -2441,7 +2471,7 @@
     <string name="backup_status_failed">Sikkerhedskopiering mislykkedes, tryk for at prøve igen</string>
     <string name="lockdown_title">Låsetilstand</string>
     <string name="lockdown_action_speed_limit">Grænse</string>
-    <string name="lockdown_action_vehicle">Køretøj</string>
+    <string name="lockdown_action_vehicle">Hjul</string>
     <string name="lockdown_no_wheel">Intet wheel forbundet. Brug Bluetooth-ikonet for at forbinde.</string>
     <string name="lockdown_vehicle_name">Bluetooth-navn</string>
     <string name="lockdown_vehicle_brand">Producent</string>

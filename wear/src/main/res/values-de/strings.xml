@@ -14,6 +14,7 @@
     <string name="watch_voltage_label">Spannung</string>
     <string name="watch_current_label">Strom</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Leistung</string>
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Trip</string>

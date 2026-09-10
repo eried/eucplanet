@@ -639,7 +639,7 @@ private fun ButtonActionArm(
             // still occupies its place in the cross without looking broken.
             if (empty) {
                 Text(
-                    text = "—",
+                    text = "--",
                     color = Color(0xFF808080),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,

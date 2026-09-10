@@ -30,6 +30,11 @@
     <string name="action_back">Înapoi</string>
     <string name="action_cancel">Anulează</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Înlocuiește</string>
+    <string name="action_continue">Continuă</string>
+    <string name="action_select">Selectează</string>
+    <string name="state_on">Pornit</string>
+    <string name="state_off">Oprit</string>
     <string name="action_done">Gata</string>
     <string name="action_close">Închide</string>
     <string name="crash_log_action_prompt">Ai apăsat lung pe %1$s. Șterge doar acest jurnal sau șterge-le pe toate. Dacă vrei să îl partajezi, atinge Anulează, apoi atinge fișierul.</string>
@@ -714,6 +719,21 @@
     <string name="phone_show_over_lock">Arată peste ecranul de blocare</string>
     <string name="language">Limbă</string>
     <string name="theme">Temă</string>
+    <string name="theme_editor_widget">Widget de personalizare a temei</string>
+    <string name="theme_unsaved_fmt">%1$s (nesalvat)</string>
+    <string name="theme_editor_save_as">Salvează ca temă nouă</string>
+    <string name="theme_editor_pick_color">Alege o culoare de pe ecran</string>
+    <string name="theme_editor_replay_blink">Repetă clipirea</string>
+    <string name="theme_editor_save_title">Salvează tema</string>
+    <string name="theme_editor_name_label">Nume</string>
+    <string name="theme_editor_replace_title">Înlocuiești tema?</string>
+    <string name="theme_editor_replace_body">Există deja o temă numită \"%1$s\". Salvarea o va înlocui.</string>
+    <string name="theme_editor_discard_title">Renunți la ciorna nesalvată?</string>
+    <string name="theme_editor_discard_body">Această temă are deja o versiune nesalvată. Dacă o editezi din nou, acele modificări se pierd.</string>
+    <string name="theme_editor_no_folder_title">Niciun dosar de backup</string>
+    <string name="theme_editor_no_folder_body">Pentru a salva teme, alege un dosar de backup în %1$s → %2$s.</string>
+    <string name="theme_identify">Identifică</string>
+    <string name="theme_identify_results_title">Rezultatele identificării culorii</string>
     <string name="tts_switch_title">Schimbi vocea în %1$s?</string>
     <string name="tts_switch_body">Vocea actuală de sinteză nu se potrivește cu limba selectată. Schimbi pe o voce %1$s pentru anunțuri?</string>
     <string name="tts_switch_yes">Schimbă vocea</string>
@@ -1128,6 +1148,8 @@
     <string name="recording_summary_battery">Baterie (-%1$d%%)</string>
     <string name="recording_summary_voltage">Tensiune</string>
     <string name="recording_summary_avg_moving">Media în mișcare</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">PWM maxim</string>
@@ -1159,6 +1181,7 @@
     <string name="pip_mode_off">Oprit</string>
     <string name="pip_mode_simple">Simplu</string>
     <string name="pip_mode_dashboard">Tablou de bord</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">HUD pe telefon</string>
     <string name="phone_hud_desc">Desenează o aranjare din Overlay Studio peste alte aplicații, ca să îți vezi monociclul în timp ce folosești harta sau muzica.</string>
     <string name="phone_hud_permission_desc">Android cere asta separat. Fără ea, suprapunerea nu poate fi afișată.</string>
@@ -1304,6 +1327,7 @@
     <string name="alarm_label_frequency">Frecvență</string>
     <string name="alarm_beep_advanced">Avansat</string>
     <string name="alarm_beep_gap_label">Durata pauzei</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pauză %2$d ms</string>
     <string name="alarm_beep_volume_label">Volum de bază</string>
     <string name="alarm_beep_studio">Bip adaptiv</string>
     <string name="alarm_studio_test_input">Intrare de test %1$s: %2$s %3$s</string>
@@ -1315,6 +1339,7 @@
     <string name="alarm_studio_stop">Oprește</string>
     <string name="alarm_label_duration">Durată</string>
     <string name="alarm_label_repeats">Repetări</string>
+    <string name="alarm_repeat_toggle">Repetă</string>
     <string name="alarm_label_vibrate_on">Vibrează la</string>
     <string name="alarm_threshold_decrease">Scade pragul</string>
     <string name="alarm_threshold_increase">Crește pragul</string>
@@ -1338,6 +1363,7 @@
     <string name="sources_fresh_just_now">chiar acum</string>
     <string name="sources_fresh_seconds_fmt">acum %1$ds</string>
     <string name="sources_fresh_minutes_fmt">acum %1$dm</string>
+    <string name="sources_delta_avg_fmt">med %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">acum %1$dh</string>
     <string name="sources_sats_fmt">%1$d sateliți</string>
     <string name="sources_other_metrics">Alți indicatori</string>
@@ -1678,6 +1704,10 @@
     <string name="studio_cfg_radar_range">Rază</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
     <string name="studio_cfg_radar_distance_labels">Etichete de distanță</string>
+    <string name="studio_radar_none">Fără radar</string>
+    <string name="studio_radar_clear">Liber</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_camera_label">Cameră</string>
     <string name="studio_cfg_replace_image">Înlocuiește imaginea</string>
     <string name="studio_cfg_chroma_key">Fă o culoare transparentă</string>
@@ -2229,7 +2259,7 @@
     <string name="backup_status_failed">Backupul a eșuat, atinge pentru a reîncerca</string>
     <string name="lockdown_title">Mod blocare</string>
     <string name="lockdown_action_speed_limit">Limită</string>
-    <string name="lockdown_action_vehicle">Vehicul</string>
+    <string name="lockdown_action_vehicle">Monociclu</string>
     <string name="lockdown_no_wheel">Nicio roată conectată. Folosește pictograma Bluetooth pentru a conecta.</string>
     <string name="lockdown_vehicle_name">Nume Bluetooth</string>
     <string name="lockdown_vehicle_brand">Producător</string>

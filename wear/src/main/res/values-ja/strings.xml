@@ -14,6 +14,7 @@
     <string name="watch_voltage_label">電圧</string>
     <string name="watch_current_label">電流</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">電力</string>
     <string name="watch_temp_label">温度</string>
     <string name="watch_trip_label">トリップ</string>

@@ -30,6 +30,11 @@
     <string name="action_back">Takaisin</string>
     <string name="action_cancel">Peruuta</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Korvaa</string>
+    <string name="action_continue">Jatka</string>
+    <string name="action_select">Valitse</string>
+    <string name="state_on">Päällä</string>
+    <string name="state_off">Pois</string>
     <string name="action_done">Valmis</string>
     <string name="action_close">Sulje</string>
     <string name="crash_log_action_prompt">Painoit pitkään kohdetta %1$s. Poista vain tämä loki tai poista kaikki. Jos haluat jakaa sen, valitse Peruuta ja napauta sitten tiedostoa.</string>
@@ -714,6 +719,21 @@
     <string name="phone_show_over_lock">Näytä lukitusnäytön päällä</string>
     <string name="language">Kieli</string>
     <string name="theme">Teema</string>
+    <string name="theme_editor_widget">Teeman muokkauswidget</string>
+    <string name="theme_unsaved_fmt">%1$s (tallentamaton)</string>
+    <string name="theme_editor_save_as">Tallenna uutena teemana</string>
+    <string name="theme_editor_pick_color">Poimi väri näytöltä</string>
+    <string name="theme_editor_replay_blink">Toista vilkutus</string>
+    <string name="theme_editor_save_title">Tallenna teema</string>
+    <string name="theme_editor_name_label">Nimi</string>
+    <string name="theme_editor_replace_title">Korvataanko teema?</string>
+    <string name="theme_editor_replace_body">Teema nimeltä \"%1$s\" on jo olemassa. Tallennus korvaa sen.</string>
+    <string name="theme_editor_discard_title">Hylätäänkö tallentamaton luonnos?</string>
+    <string name="theme_editor_discard_body">Tällä teemalla on jo tallentamaton versio. Jos muokkaat sitä uudelleen, nuo muutokset menetetään.</string>
+    <string name="theme_editor_no_folder_title">Ei varmuuskopiokansiota</string>
+    <string name="theme_editor_no_folder_body">Tallentaaksesi teemoja valitse varmuuskopiokansio kohdassa %1$s → %2$s.</string>
+    <string name="theme_identify">Tunnista</string>
+    <string name="theme_identify_results_title">Värintunnistuksen tulokset</string>
     <string name="tts_switch_title">Vaihdetaanko ääni kielelle %1$s?</string>
     <string name="tts_switch_body">Nykyinen puhesynteesin ääni ei vastaa valittua kieltä. Vaihdetaanko kuulutukset %1$s-ääneen?</string>
     <string name="tts_switch_yes">Vaihda ääni</string>
@@ -1128,6 +1148,8 @@
     <string name="recording_summary_battery">Akku (-%1$d%%)</string>
     <string name="recording_summary_voltage">Jännite</string>
     <string name="recording_summary_avg_moving">Ka liikkeessä</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ulk</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Maks PWM</string>
@@ -1159,6 +1181,7 @@
     <string name="pip_mode_off">Pois</string>
     <string name="pip_mode_simple">Yksinkertainen</string>
     <string name="pip_mode_dashboard">Mittaristo</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">Puhelimen HUD</string>
     <string name="phone_hud_desc">Piirtää Overlay Studio -asettelun muiden sovellusten päälle, joten näet yksipyöräisesi karttoja tai musiikkia käyttäessäsi.</string>
     <string name="phone_hud_permission_desc">Android kysyy tätä erikseen. Ilman sitä päällystettä ei voi näyttää.</string>
@@ -1304,6 +1327,7 @@
     <string name="alarm_label_frequency">Taajuus</string>
     <string name="alarm_beep_advanced">Lisäasetukset</string>
     <string name="alarm_beep_gap_label">Tauon kesto</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · tauko %2$d ms</string>
     <string name="alarm_beep_volume_label">Perusvoimakkuus</string>
     <string name="alarm_beep_studio">Mukautuva piippaus</string>
     <string name="alarm_studio_test_input">Testisyöte %1$s: %2$s %3$s</string>
@@ -1315,6 +1339,7 @@
     <string name="alarm_studio_stop">Pysäytä</string>
     <string name="alarm_label_duration">Kesto</string>
     <string name="alarm_label_repeats">Toistot</string>
+    <string name="alarm_repeat_toggle">Toista</string>
     <string name="alarm_label_vibrate_on">Värinä päällä</string>
     <string name="alarm_threshold_decrease">Laske raja-arvoa</string>
     <string name="alarm_threshold_increase">Nosta raja-arvoa</string>
@@ -1338,6 +1363,7 @@
     <string name="sources_fresh_just_now">juuri nyt</string>
     <string name="sources_fresh_seconds_fmt">%1$ds sitten</string>
     <string name="sources_fresh_minutes_fmt">%1$dmin sitten</string>
+    <string name="sources_delta_avg_fmt">ka %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$dh sitten</string>
     <string name="sources_sats_fmt">%1$d satelliittia</string>
     <string name="sources_other_metrics">Muut mittarit</string>
@@ -1678,6 +1704,10 @@
     <string name="studio_cfg_radar_range">Kantama</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
     <string name="studio_cfg_radar_distance_labels">Etäisyystekstit</string>
+    <string name="studio_radar_none">Ei tutkaa</string>
+    <string name="studio_radar_clear">Vapaa</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_camera_label">Kamera</string>
     <string name="studio_cfg_replace_image">Korvaa kuva</string>
     <string name="studio_cfg_chroma_key">Tee väristä läpinäkyvä</string>
@@ -2229,7 +2259,7 @@
     <string name="backup_status_failed">Varmuuskopiointi epäonnistui, yritä napauttamalla</string>
     <string name="lockdown_title">Lukitustila</string>
     <string name="lockdown_action_speed_limit">Rajoitus</string>
-    <string name="lockdown_action_vehicle">Ajoneuvo</string>
+    <string name="lockdown_action_vehicle">Yksipyöräinen</string>
     <string name="lockdown_no_wheel">Yhtään pyörää ei ole yhdistetty. Yhdistä Bluetooth-kuvakkeesta.</string>
     <string name="lockdown_vehicle_name">Bluetooth-nimi</string>
     <string name="lockdown_vehicle_brand">Valmistaja</string>

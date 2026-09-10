@@ -32,6 +32,11 @@
     <string name="action_back">Atrás</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">Aceptar</string>
+    <string name="action_replace">Reemplazar</string>
+    <string name="action_continue">Continuar</string>
+    <string name="action_select">Seleccionar</string>
+    <string name="state_on">Activado</string>
+    <string name="state_off">Desactivado</string>
     <string name="action_done">Listo</string>
     <string name="action_close">Cerrar</string>
 <string name="crash_log_action_prompt">Mantuviste pulsado %1$s. Elimina solo este registro o elimínalos todos. Para compartirlo, toca Cancelar y luego el archivo.</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Mostrar sobre la pantalla de bloqueo</string>
     <string name="language">Idioma</string>
     <string name="theme">Tema</string>
+    <string name="theme_editor_widget">Widget de personalización del tema</string>
+    <string name="theme_unsaved_fmt">%1$s (sin guardar)</string>
+    <string name="theme_editor_save_as">Guardar como tema nuevo</string>
+    <string name="theme_editor_pick_color">Tomar un color de la pantalla</string>
+    <string name="theme_editor_replay_blink">Repetir parpadeo</string>
+    <string name="theme_editor_save_title">Guardar tema</string>
+    <string name="theme_editor_name_label">Nombre</string>
+    <string name="theme_editor_replace_title">¿Reemplazar el tema?</string>
+    <string name="theme_editor_replace_body">Ya existe un tema llamado \"%1$s\". Al guardar se reemplazará.</string>
+    <string name="theme_editor_discard_title">¿Descartar el borrador sin guardar?</string>
+    <string name="theme_editor_discard_body">Este tema ya tiene una versión sin guardar. Si lo editas de nuevo, esos cambios se perderán.</string>
+    <string name="theme_editor_no_folder_title">Sin carpeta de copia de seguridad</string>
+    <string name="theme_editor_no_folder_body">Para guardar temas, elige una carpeta de copia de seguridad en %1$s → %2$s.</string>
+    <string name="theme_identify">Identificar</string>
+    <string name="theme_identify_results_title">Resultados del identificador de color</string>
     <string name="tts_switch_title">¿Cambiar la voz a %1$s?</string>
     <string name="tts_switch_body">La voz de síntesis actual no coincide con el idioma seleccionado. ¿Cambiar a una voz en %1$s para los anuncios?</string>
     <string name="tts_switch_yes">Cambiar voz</string>
@@ -959,6 +979,8 @@
     <string name="recording_summary_battery">Batería (-%1$d%%)</string>
     <string name="recording_summary_voltage">Voltaje</string>
     <string name="recording_summary_avg_moving">Media en marcha</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">PWM máx.</string>
@@ -1048,6 +1070,7 @@
     <string name="alarm_label_frequency">Frecuencia</string>
     <string name="alarm_label_duration">Duración</string>
     <string name="alarm_label_repeats">Repeticiones</string>
+    <string name="alarm_repeat_toggle">Repetir</string>
     <string name="alarm_label_vibrate_on">Vibrar en</string>
     <string name="alarm_threshold_decrease">Bajar umbral</string>
     <string name="alarm_threshold_increase">Subir umbral</string>
@@ -1075,6 +1098,7 @@
     <string name="sources_fresh_just_now">ahora mismo</string>
     <string name="sources_fresh_seconds_fmt">hace %1$ds</string>
     <string name="sources_fresh_minutes_fmt">hace %1$dm</string>
+    <string name="sources_delta_avg_fmt">med %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">hace %1$dh</string>
     <string name="sources_sats_fmt">%1$d sats</string>
     <string name="sources_other_metrics">Otras métricas</string>
@@ -1900,6 +1924,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth desactivado</string>
     <string name="scan_enable_bluetooth">Activar Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Etiquetas de distancia</string>
+    <string name="studio_radar_none">Sin radar</string>
+    <string name="studio_radar_clear">Despejado</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Carril</string>
     <string name="studio_cfg_radar_minimal">Mínimo</string>
     <string name="studio_cfg_radar_mirror">Espejo</string>
@@ -2134,6 +2162,7 @@
     <string name="adv_wheel_poll_rate_desc">Afecta cuán frescos son los datos en vivo y cuán rápido reaccionan las alarmas. Más bajo pide datos a la rueda más a menudo. Peligro: valores muy bajos pueden saturar el enlace Bluetooth y bloquear los datos en algunas ruedas.</string>
     <string name="alarm_beep_advanced">Avanzado</string>
     <string name="alarm_beep_gap_label">Duración de la pausa</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pausa %2$d ms</string>
     <string name="alarm_beep_studio">Pitido adaptativo</string>
     <string name="alarm_beep_volume_label">Volumen base</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2324,6 +2353,7 @@
     <string name="pip_mode_off">Desactivado</string>
     <string name="pip_mode_simple">Simple</string>
     <string name="pip_mode_dashboard">Panel</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget de pantalla de inicio</string>
     <string name="widget_pick_desc">Elige las %1$d métricas y %2$d botones que muestra el widget.</string>
     <string name="widget_metric_slot">Métrica %1$d</string>
@@ -2423,7 +2453,7 @@
     <string name="backup_status_failed">Fallo la copia, toca para reintentar</string>
     <string name="lockdown_title">Modo bloqueo</string>
     <string name="lockdown_action_speed_limit">Límite</string>
-    <string name="lockdown_action_vehicle">Vehículo</string>
+    <string name="lockdown_action_vehicle">Rueda</string>
     <string name="lockdown_no_wheel">No hay rueda conectada. Usa el icono de Bluetooth para conectar.</string>
     <string name="lockdown_vehicle_name">Nombre Bluetooth</string>
     <string name="lockdown_vehicle_brand">Fabricante</string>

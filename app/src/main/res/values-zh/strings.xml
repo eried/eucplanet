@@ -31,6 +31,11 @@
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>
+    <string name="action_replace">替换</string>
+    <string name="action_continue">继续</string>
+    <string name="action_select">选择</string>
+    <string name="state_on">开</string>
+    <string name="state_off">关</string>
     <string name="action_done">完成</string>
     <string name="action_close">关闭</string>
 <string name="crash_log_action_prompt">你长按了 %1$s。可删除此日志或全部删除。如需分享，请点按“取消”后再点按该文件。</string>
@@ -215,6 +220,21 @@
     <string name="phone_show_over_lock">在锁屏上方显示</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>
+    <string name="theme_editor_widget">主题自定义小组件</string>
+    <string name="theme_unsaved_fmt">%1$s（未保存）</string>
+    <string name="theme_editor_save_as">另存为新主题</string>
+    <string name="theme_editor_pick_color">从屏幕取色</string>
+    <string name="theme_editor_replay_blink">重播闪烁</string>
+    <string name="theme_editor_save_title">保存主题</string>
+    <string name="theme_editor_name_label">名称</string>
+    <string name="theme_editor_replace_title">替换主题？</string>
+    <string name="theme_editor_replace_body">已存在名为“%1$s”的主题。保存将替换它。</string>
+    <string name="theme_editor_discard_title">放弃未保存的草稿？</string>
+    <string name="theme_editor_discard_body">此主题已有未保存的版本。再次编辑将丢失这些更改。</string>
+    <string name="theme_editor_no_folder_title">没有备份文件夹</string>
+    <string name="theme_editor_no_folder_body">要保存主题，请在 %1$s → %2$s 中选择备份文件夹。</string>
+    <string name="theme_identify">识别</string>
+    <string name="theme_identify_results_title">颜色识别结果</string>
     <string name="tts_switch_title">切换语音到%1$s?</string>
     <string name="tts_switch_body">当前的语音合成声音与所选语言不一致。是否切换为%1$s语音用于播报?</string>
     <string name="tts_switch_yes">切换语音</string>
@@ -423,6 +443,8 @@
     <string name="recording_summary_battery">电量 (-%1$d%%)</string>
     <string name="recording_summary_voltage">电压</string>
     <string name="recording_summary_avg_moving">行驶平均</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">外部</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">最高 PWM</string>
@@ -510,6 +532,7 @@
     <string name="alarm_label_frequency">频率</string>
     <string name="alarm_label_duration">时长</string>
     <string name="alarm_label_repeats">重复次数</string>
+    <string name="alarm_repeat_toggle">重复</string>
     <string name="alarm_label_vibrate_on">振动设备</string>
 
     <!-- Live data sources bottom sheet -->
@@ -533,6 +556,7 @@
     <string name="sources_fresh_just_now">刚刚</string>
     <string name="sources_fresh_seconds_fmt">%1$d秒前</string>
     <string name="sources_fresh_minutes_fmt">%1$d分钟前</string>
+    <string name="sources_delta_avg_fmt">均 %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d小时前</string>
     <string name="sources_sats_fmt">%1$d 颗卫星</string>
     <string name="sources_collecting">采集中…</string>
@@ -1771,6 +1795,10 @@
     <string name="scan_bluetooth_off_title">蓝牙已关闭</string>
     <string name="scan_enable_bluetooth">开启蓝牙</string>
     <string name="studio_cfg_radar_distance_labels">距离标签</string>
+    <string name="studio_radar_none">无雷达</string>
+    <string name="studio_radar_clear">无车</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">车道</string>
     <string name="studio_cfg_radar_minimal">极简</string>
     <string name="studio_cfg_radar_mirror">镜像</string>
@@ -2004,6 +2032,7 @@
     <string name="adv_wheel_poll_rate_desc">影响实时数据的新鲜度和报警的反应速度。越低越频繁地向独轮车请求数据。危险:过低可能使蓝牙连接拥塞,并导致某些独轮车数据停滞。</string>
     <string name="alarm_beep_advanced">高级</string>
     <string name="alarm_beep_gap_label">间隔时长</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · 间隔 %2$d ms</string>
     <string name="alarm_beep_studio">自适应蜂鸣</string>
     <string name="alarm_beep_volume_label">基本音量</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2194,6 +2223,7 @@
     <string name="pip_mode_off">关</string>
     <string name="pip_mode_simple">简单</string>
     <string name="pip_mode_dashboard">仪表盘</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">主屏幕小部件</string>
     <string name="widget_pick_desc">选择小部件显示的 %1$d 个指标和 %2$d 个按钮。</string>
     <string name="widget_metric_slot">指标 %1$d</string>
@@ -2293,7 +2323,7 @@
     <string name="backup_status_failed">备份失败，点击重试</string>
     <string name="lockdown_title">锁定模式</string>
     <string name="lockdown_action_speed_limit">限速</string>
-    <string name="lockdown_action_vehicle">车辆</string>
+    <string name="lockdown_action_vehicle">独轮车</string>
     <string name="lockdown_no_wheel">未连接轮子。请点击蓝牙图标进行连接。</string>
     <string name="lockdown_vehicle_name">蓝牙名称</string>
     <string name="lockdown_vehicle_brand">厂商</string>

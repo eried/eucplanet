@@ -797,9 +797,9 @@ fun TripDetailScreen(
             }
             val speedOverlays = buildList {
                 if (gpsSpeedSeries.any { !it.isNaN() })
-                    add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = "GPS"))
+                    add(ChartOverlay(gpsSpeedSeries, MaterialTheme.appColors.metricPosition, label = stringResource(R.string.trip_chart_legend_gps)))
                 if (extSpeedSeries.any { !it.isNaN() })
-                    add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = "Ext"))
+                    add(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricTemp, label = stringResource(R.string.trip_chart_legend_ext)))
             }
             // The same two overlays over the whole ride, for the y-axis only:
             // scaling the speed chart to a trimmed section would defeat the

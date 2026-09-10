@@ -32,6 +32,11 @@
     <string name="action_back">戻る</string>
     <string name="action_cancel">キャンセル</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">置き換え</string>
+    <string name="action_continue">続行</string>
+    <string name="action_select">選択</string>
+    <string name="state_on">オン</string>
+    <string name="state_off">オフ</string>
     <string name="action_done">完了</string>
     <string name="action_close">閉じる</string>
 <string name="crash_log_action_prompt">%1$s を長押ししました。このログのみ削除、またはすべて削除できます。共有する場合はキャンセルをタップしてからファイルをタップしてください。</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">ロック画面の上に表示</string>
     <string name="language">言語</string>
     <string name="theme">テーマ</string>
+    <string name="theme_editor_widget">テーマ編集ウィジェット</string>
+    <string name="theme_unsaved_fmt">%1$s（未保存）</string>
+    <string name="theme_editor_save_as">新しいテーマとして保存</string>
+    <string name="theme_editor_pick_color">画面から色を取得</string>
+    <string name="theme_editor_replay_blink">点滅を再生</string>
+    <string name="theme_editor_save_title">テーマを保存</string>
+    <string name="theme_editor_name_label">名前</string>
+    <string name="theme_editor_replace_title">テーマを置き換えますか？</string>
+    <string name="theme_editor_replace_body">「%1$s」という名前のテーマはすでに存在します。保存すると置き換えられます。</string>
+    <string name="theme_editor_discard_title">未保存の下書きを破棄しますか？</string>
+    <string name="theme_editor_discard_body">このテーマには未保存のバージョンがあります。再度編集すると、その変更は失われます。</string>
+    <string name="theme_editor_no_folder_title">バックアップフォルダーがありません</string>
+    <string name="theme_editor_no_folder_body">テーマを保存するには、%1$s → %2$s でバックアップフォルダーを選択してください。</string>
+    <string name="theme_identify">識別</string>
+    <string name="theme_identify_results_title">色の識別結果</string>
     <string name="tts_switch_title">音声を %1$s に切り替えますか？</string>
     <string name="tts_switch_body">現在の読み上げ音声が選択した言語と一致しません。アナウンス用に %1$s の音声に切り替えますか？</string>
     <string name="tts_switch_yes">音声を切り替え</string>
@@ -956,6 +976,8 @@
     <string name="recording_summary_battery">バッテリー (-%1$d%%)</string>
     <string name="recording_summary_voltage">電圧</string>
     <string name="recording_summary_avg_moving">走行中平均</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">外部</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">最大 PWM</string>
@@ -1045,6 +1067,7 @@
     <string name="alarm_label_frequency">周波数</string>
     <string name="alarm_label_duration">長さ</string>
     <string name="alarm_label_repeats">繰り返し</string>
+    <string name="alarm_repeat_toggle">繰り返し</string>
     <string name="alarm_label_vibrate_on">振動するデバイス</string>
     <string name="alarm_threshold_decrease">しきい値を下げる</string>
     <string name="alarm_threshold_increase">しきい値を上げる</string>
@@ -1072,6 +1095,7 @@
     <string name="sources_fresh_just_now">たった今</string>
     <string name="sources_fresh_seconds_fmt">%1$d 秒前</string>
     <string name="sources_fresh_minutes_fmt">%1$d 分前</string>
+    <string name="sources_delta_avg_fmt">平均 %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d 時間前</string>
     <string name="sources_sats_fmt">%1$d 衛星</string>
     <string name="sources_other_metrics">その他のメトリクス</string>
@@ -1873,6 +1897,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth がオフです</string>
     <string name="scan_enable_bluetooth">Bluetooth をオンにする</string>
     <string name="studio_cfg_radar_distance_labels">距離ラベル</string>
+    <string name="studio_radar_none">レーダーなし</string>
+    <string name="studio_radar_clear">クリア</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">レーン</string>
     <string name="studio_cfg_radar_minimal">ミニマル</string>
     <string name="studio_cfg_radar_mirror">ミラー</string>
@@ -2136,6 +2164,7 @@
     <string name="adv_wheel_poll_rate_desc">ライブデータの新しさとアラームの反応速度に影響します。低いほどホイールに頻繁にデータを要求します。危険: 非常に低い値は Bluetooth リンクをあふれさせ、一部のホイールでデータが滞る場合があります。</string>
     <string name="alarm_beep_advanced">詳細</string>
     <string name="alarm_beep_gap_label">間隔の長さ</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · 間隔 %2$d ms</string>
     <string name="alarm_beep_studio">アダプティブビープ</string>
     <string name="alarm_beep_volume_label">基本音量</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2328,6 +2357,7 @@
     <string name="pip_mode_off">オフ</string>
     <string name="pip_mode_simple">シンプル</string>
     <string name="pip_mode_dashboard">ダッシュボード</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">ホーム画面ウィジェット</string>
     <string name="widget_pick_desc">ウィジェットに表示する %1$d 個の指標と %2$d 個のボタンを選びます。</string>
     <string name="widget_metric_slot">指標 %1$d</string>
@@ -2427,7 +2457,7 @@
     <string name="backup_status_failed">バックアップ失敗、タップして再試行</string>
     <string name="lockdown_title">ロックモード</string>
     <string name="lockdown_action_speed_limit">速度制限</string>
-    <string name="lockdown_action_vehicle">車両</string>
+    <string name="lockdown_action_vehicle">ホイール</string>
     <string name="lockdown_no_wheel">ホイールが接続されていません。Bluetooth アイコンから接続してください。</string>
     <string name="lockdown_vehicle_name">Bluetooth 名</string>
     <string name="lockdown_vehicle_brand">メーカー</string>

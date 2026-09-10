@@ -32,6 +32,11 @@
     <string name="action_back">뒤로</string>
     <string name="action_cancel">취소</string>
     <string name="action_ok">확인</string>
+    <string name="action_replace">바꾸기</string>
+    <string name="action_continue">계속</string>
+    <string name="action_select">선택</string>
+    <string name="state_on">켜짐</string>
+    <string name="state_off">꺼짐</string>
     <string name="action_done">완료</string>
     <string name="action_close">닫기</string>
 <string name="crash_log_action_prompt">%1$s을(를) 길게 눌렀습니다. 이 로그만 삭제하거나 전체 삭제할 수 있습니다. 공유하려면 취소 후 파일을 탭하세요.</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">잠금 화면 위에 표시</string>
     <string name="language">언어</string>
     <string name="theme">테마</string>
+    <string name="theme_editor_widget">테마 편집 위젯</string>
+    <string name="theme_unsaved_fmt">%1$s (저장 안 됨)</string>
+    <string name="theme_editor_save_as">새 테마로 저장</string>
+    <string name="theme_editor_pick_color">화면에서 색상 선택</string>
+    <string name="theme_editor_replay_blink">깜박임 다시 보기</string>
+    <string name="theme_editor_save_title">테마 저장</string>
+    <string name="theme_editor_name_label">이름</string>
+    <string name="theme_editor_replace_title">테마를 바꿀까요?</string>
+    <string name="theme_editor_replace_body">\"%1$s\" 테마가 이미 있습니다. 저장하면 덮어씁니다.</string>
+    <string name="theme_editor_discard_title">저장하지 않은 초안을 버릴까요?</string>
+    <string name="theme_editor_discard_body">이 테마에는 저장하지 않은 버전이 있습니다. 다시 편집하면 그 변경 사항은 사라집니다.</string>
+    <string name="theme_editor_no_folder_title">백업 폴더 없음</string>
+    <string name="theme_editor_no_folder_body">테마를 저장하려면 %1$s → %2$s에서 백업 폴더를 선택하세요.</string>
+    <string name="theme_identify">식별</string>
+    <string name="theme_identify_results_title">색상 식별 결과</string>
     <string name="tts_switch_title">음성을 %1$s로 전환하시겠습니까?</string>
     <string name="tts_switch_body">현재 TTS 음성이 선택한 언어와 다릅니다. 알림에 %1$s 음성을 사용하시겠습니까?</string>
     <string name="tts_switch_yes">음성 전환</string>
@@ -956,6 +976,8 @@
     <string name="recording_summary_battery">배터리 (-%1$d%%)</string>
     <string name="recording_summary_voltage">전압</string>
     <string name="recording_summary_avg_moving">이동 평균</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">외부</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">최대 PWM</string>
@@ -1045,6 +1067,7 @@
     <string name="alarm_label_frequency">주파수</string>
     <string name="alarm_label_duration">지속 시간</string>
     <string name="alarm_label_repeats">반복</string>
+    <string name="alarm_repeat_toggle">반복</string>
     <string name="alarm_label_vibrate_on">진동할 기기</string>
     <string name="alarm_threshold_decrease">임계값 낮추기</string>
     <string name="alarm_threshold_increase">임계값 높이기</string>
@@ -1072,6 +1095,7 @@
     <string name="sources_fresh_just_now">방금 전</string>
     <string name="sources_fresh_seconds_fmt">%1$d초 전</string>
     <string name="sources_fresh_minutes_fmt">%1$d분 전</string>
+    <string name="sources_delta_avg_fmt">평균 %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d시간 전</string>
     <string name="sources_sats_fmt">위성 %1$d개</string>
     <string name="sources_other_metrics">기타 지표</string>
@@ -1873,6 +1897,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth가 꺼져 있습니다</string>
     <string name="scan_enable_bluetooth">Bluetooth 켜기</string>
     <string name="studio_cfg_radar_distance_labels">거리 라벨</string>
+    <string name="studio_radar_none">레이더 없음</string>
+    <string name="studio_radar_clear">안전</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">차선</string>
     <string name="studio_cfg_radar_minimal">최소</string>
     <string name="studio_cfg_radar_mirror">거울</string>
@@ -2134,6 +2162,7 @@
     <string name="adv_wheel_poll_rate_desc">실시간 데이터의 신선도와 알람 반응 속도를 결정합니다. 낮을수록 휠에 더 자주 데이터를 요청합니다. 주의: 매우 낮은 값은 블루투스 링크에 과부하를 주고 일부 휠에서 데이터를 멈추게 할 수 있습니다.</string>
     <string name="alarm_beep_advanced">고급</string>
     <string name="alarm_beep_gap_label">간격 길이</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · 간격 %2$d ms</string>
     <string name="alarm_beep_studio">적응형 비프</string>
     <string name="alarm_beep_volume_label">기본 볼륨</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2326,6 +2355,7 @@
     <string name="pip_mode_off">끄기</string>
     <string name="pip_mode_simple">간단</string>
     <string name="pip_mode_dashboard">대시보드</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">홈 화면 위젯</string>
     <string name="widget_pick_desc">위젯에 표시할 지표 %1$d개와 버튼 %2$d개를 고르세요.</string>
     <string name="widget_metric_slot">지표 %1$d</string>
@@ -2425,7 +2455,7 @@
     <string name="backup_status_failed">백업 실패, 다시 시도하려면 탭하세요</string>
     <string name="lockdown_title">잠금 모드</string>
     <string name="lockdown_action_speed_limit">속도 제한</string>
-    <string name="lockdown_action_vehicle">차량</string>
+    <string name="lockdown_action_vehicle">휠</string>
     <string name="lockdown_no_wheel">연결된 휠이 없습니다. Bluetooth 아이콘으로 연결하세요.</string>
     <string name="lockdown_vehicle_name">Bluetooth 이름</string>
     <string name="lockdown_vehicle_brand">제조사</string>

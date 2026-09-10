@@ -32,6 +32,11 @@
     <string name="action_back">Terug</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Vervangen</string>
+    <string name="action_continue">Doorgaan</string>
+    <string name="action_select">Selecteren</string>
+    <string name="state_on">Aan</string>
+    <string name="state_off">Uit</string>
     <string name="action_done">Klaar</string>
     <string name="action_close">Sluiten</string>
 <string name="crash_log_action_prompt">Je hebt %1$s lang ingedrukt. Verwijder alleen dit log, of alles. Tik op Annuleren en dan op het bestand om het te delen.</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Boven vergrendelscherm tonen</string>
     <string name="language">Taal</string>
     <string name="theme">Thema</string>
+    <string name="theme_editor_widget">Widget voor thema-aanpassing</string>
+    <string name="theme_unsaved_fmt">%1$s (niet opgeslagen)</string>
+    <string name="theme_editor_save_as">Opslaan als nieuw thema</string>
+    <string name="theme_editor_pick_color">Kleur van het scherm kiezen</string>
+    <string name="theme_editor_replay_blink">Knipperen herhalen</string>
+    <string name="theme_editor_save_title">Thema opslaan</string>
+    <string name="theme_editor_name_label">Naam</string>
+    <string name="theme_editor_replace_title">Thema vervangen?</string>
+    <string name="theme_editor_replace_body">Er bestaat al een thema met de naam \"%1$s\". Opslaan vervangt het.</string>
+    <string name="theme_editor_discard_title">Niet-opgeslagen concept verwijderen?</string>
+    <string name="theme_editor_discard_body">Dit thema heeft al een niet-opgeslagen versie. Als je het opnieuw bewerkt, gaan die wijzigingen verloren.</string>
+    <string name="theme_editor_no_folder_title">Geen back-upmap</string>
+    <string name="theme_editor_no_folder_body">Kies een back-upmap onder %1$s → %2$s om thema\'s op te slaan.</string>
+    <string name="theme_identify">Identificeren</string>
+    <string name="theme_identify_results_title">Resultaten kleuridentificatie</string>
     <string name="tts_switch_title">Stem omschakelen naar %1$s?</string>
     <string name="tts_switch_body">De huidige tekst-naar-spraakstem komt niet overeen met de gekozen taal. Overschakelen naar een %1$s stem voor meldingen?</string>
     <string name="tts_switch_yes">Stem wisselen</string>
@@ -956,6 +976,8 @@
     <string name="recording_summary_battery">Accu (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spanning</string>
     <string name="recording_summary_avg_moving">Gem. rijdend</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Max. PWM</string>
@@ -1048,6 +1070,7 @@
     <string name="alarm_label_frequency">Frequentie</string>
     <string name="alarm_label_duration">Duur</string>
     <string name="alarm_label_repeats">Herhalingen</string>
+    <string name="alarm_repeat_toggle">Herhalen</string>
     <string name="alarm_label_vibrate_on">Trillen op</string>
 
     <!-- Live data sources bottom sheet -->
@@ -1071,6 +1094,7 @@
     <string name="sources_fresh_just_now">zojuist</string>
     <string name="sources_fresh_seconds_fmt">%1$ds geleden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm geleden</string>
+    <string name="sources_delta_avg_fmt">gem %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$du geleden</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Andere gegevens</string>
@@ -1900,6 +1924,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth is uit</string>
     <string name="scan_enable_bluetooth">Bluetooth inschakelen</string>
     <string name="studio_cfg_radar_distance_labels">Afstandslabels</string>
+    <string name="studio_radar_none">Geen radar</string>
+    <string name="studio_radar_clear">Vrij</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Rijstrook</string>
     <string name="studio_cfg_radar_minimal">Minimaal</string>
     <string name="studio_cfg_radar_mirror">Spiegel</string>
@@ -2137,6 +2165,7 @@
     <string name="adv_wheel_poll_rate_desc">Bepaalt hoe vers de live data is en hoe snel alarmen reageren. Lager vraagt het wiel vaker om data. Let op: zeer lage waarden kunnen de Bluetooth-link overspoelen en data op sommige wielen blokkeren.</string>
     <string name="alarm_beep_advanced">Geavanceerd</string>
     <string name="alarm_beep_gap_label">Pauzeduur</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pauze %2$d ms</string>
     <string name="alarm_beep_studio">Adaptieve piep</string>
     <string name="alarm_beep_volume_label">Basisvolume</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2329,6 +2358,7 @@
     <string name="pip_mode_off">Uit</string>
     <string name="pip_mode_simple">Eenvoudig</string>
     <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Startscherm-widget</string>
     <string name="widget_pick_desc">Kies de %1$d metingen en %2$d knoppen die de widget toont.</string>
     <string name="widget_metric_slot">Meting %1$d</string>
@@ -2428,7 +2458,7 @@
     <string name="backup_status_failed">Back-up mislukt, tik om opnieuw te proberen</string>
     <string name="lockdown_title">Vergrendelmodus</string>
     <string name="lockdown_action_speed_limit">Limiet</string>
-    <string name="lockdown_action_vehicle">Voertuig</string>
+    <string name="lockdown_action_vehicle">Wiel</string>
     <string name="lockdown_no_wheel">Geen wheel verbonden. Gebruik het Bluetooth-icoon om te verbinden.</string>
     <string name="lockdown_vehicle_name">Bluetooth-naam</string>
     <string name="lockdown_vehicle_brand">Fabrikant</string>

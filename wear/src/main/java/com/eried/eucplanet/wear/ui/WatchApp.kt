@@ -441,7 +441,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                             // term and the long-form "Load (PWM):" wasted glance time.
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "PWM: ",
+                                    text = stringResource(R.string.watch_pwm_prefix),
                                     fontSize = pwmNumberSp,
                                     fontWeight = FontWeight.Medium,
                                     color = colors.textSecondary
