@@ -74,7 +74,7 @@
     <string name="experimental_dialog_body">Suportul pentru acest monociclu este preliminar, doar familia InMotion V14 / V12 / P6 este verificată de autor. KingSong, Veteran, Begode, Ninebot și modelele InMotion mai vechi sunt în stadiu de previzualizare și au nevoie de teste din partea conducătorilor. Folosește-l cu prudență.\n\nAtingerea acestei bare raportează o problemă, ca autorul să poată repara ce nu funcționează.</string>
     <string name="experimental_dialog_report">Raportează o problemă</string>
     <string name="scan_simulate_title">Monocicluri virtuale</string>
-    <string name="scan_simulate_subtitle">Ocolește BLE, folosește răspunsuri pregătite. Doar în versiunile de depanare.</string>
+    <string name="scan_simulate_subtitle">Ocolește BLE, folosește răspunsuri pregătite. Doar în Mod service.</string>
     <string name="connection_connected">Conectat</string>
     <string name="connection_connecting">Se caută…</string>
     <string name="connection_initializing">Se inițializează…</string>

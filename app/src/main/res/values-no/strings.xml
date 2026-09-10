@@ -644,7 +644,7 @@
     <string name="report_navigation">Navigasjon</string>
     <string name="scan_show_all_subtitle">Slå på hvis hjulet ditt ikke vises.</string>
     <string name="scan_show_all_title">Vis alle enheter</string>
-    <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i utviklingsbuilds.</string>
+    <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i servicemodus.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
     <string name="section_watch_display">Skjerm</string>
     <string name="section_watch_advanced">Avansert</string>

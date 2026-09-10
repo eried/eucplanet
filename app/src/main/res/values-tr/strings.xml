@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Sanal tekerlekler</string>
-    <string name="scan_simulate_subtitle">BLE\'yi atlayarak hazır yanıtlar kullanır. Yalnızca geliştirme sürümleri.</string>
+    <string name="scan_simulate_subtitle">BLE\'yi atlayarak hazır yanıtlar kullanır. Yalnızca Servis Modunda.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Bağlandı</string>

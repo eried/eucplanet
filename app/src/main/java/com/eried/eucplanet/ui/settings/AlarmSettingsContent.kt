@@ -508,13 +508,13 @@ private fun AlarmRuleCard(
     // fire right now, but it stays fully toggleable / editable / deletable.
     val boundElsewhere = rule.wheelAddress != null && rule.wheelAddress != connectedAddress
     val color = if (!rule.enabled || boundElsewhere)
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-    else MaterialTheme.colorScheme.onSurface
+        MaterialTheme.appColors.textSecondary.copy(alpha = 0.5f)
+    else MaterialTheme.appColors.textPrimary
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (rule.enabled && !boundElsewhere) MaterialTheme.colorScheme.surfaceVariant
-            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = if (rule.enabled && !boundElsewhere) MaterialTheme.appColors.surfaceVariant
+            else MaterialTheme.appColors.surfaceVariant.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(12.dp)
     ) {

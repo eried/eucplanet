@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">虛擬車輪</string>
-    <string name="scan_simulate_subtitle">繞過 BLE，使用預設回應。僅限偵錯版本。</string>
+    <string name="scan_simulate_subtitle">繞過 BLE，使用預設回應。僅限服務模式。</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">已連線</string>

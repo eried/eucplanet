@@ -79,7 +79,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Ruote virtuali</string>
-    <string name="scan_simulate_subtitle">Salta il BLE e usa risposte preregistrate. Solo nelle build di sviluppo.</string>
+    <string name="scan_simulate_subtitle">Salta il BLE e usa risposte preregistrate. Solo in Modalità servizio.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connessa</string>

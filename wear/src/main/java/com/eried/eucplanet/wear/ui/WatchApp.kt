@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.widget.Toast
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -134,6 +133,9 @@ fun WatchApp() {
                 ) {
                     NavWatchOverlay(state, accent)
                 }
+                // Hold-action confirmations and hints ride over whichever page
+                // is showing, in the app palette rather than an OS toast.
+                WatchSnackbarHost(Modifier.align(Alignment.BottomCenter))
             }
         }
     }
@@ -747,20 +749,16 @@ private fun ConfigurableActionButton(
                     onTap = {
                         if (clickAction == "NONE" && holdAction != "NONE") {
                             val label = labelForAction(context, holdAction) ?: holdAction
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.watch_action_long_press_hint, label),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            WatchNotifier.post(context.getString(R.string.watch_action_long_press_hint, label))
                         } else {
                             sendDebugEvent(context, "tapButton act=$clickAction")
-                            fireAction(context, state, clickAction, showToast = false)
+                            fireAction(context, state, clickAction, announce = false)
                         }
                     },
                     onLongPress = if (holdAction != "NONE") {
                         {
                             sendDebugEvent(context, "holdButton act=$holdAction")
-                            fireAction(context, state, holdAction, showToast = true)
+                            fireAction(context, state, holdAction, announce = true)
                         }
                     } else null
                 )
@@ -806,7 +804,7 @@ private fun fireAction(
     context: Context,
     state: WatchState,
     action: String,
-    showToast: Boolean
+    announce: Boolean
 ) {
     if (action == "NONE") return
     val payload = when (action) {
@@ -816,9 +814,8 @@ private fun fireAction(
     }
     com.eried.eucplanet.wear.bridge.WatchStateRepository.sendControl(context, payload)
     if (state.hapticOnAction) vibrate(context, 50L)
-    if (showToast) {
-        val label = labelForAction(context, action) ?: action
-        Toast.makeText(context, label, Toast.LENGTH_SHORT).show()
+    if (announce) {
+        WatchNotifier.post(labelForAction(context, action) ?: action)
     }
 }
 

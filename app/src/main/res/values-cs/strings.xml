@@ -74,7 +74,7 @@
     <string name="experimental_dialog_body">Podpora tohoto monokola je předběžná, autorem je ověřena pouze řada InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot a starší modely InMotion jsou ve stavu Náhled a potřebují testování od jezdců. Používejte opatrně.\n\nKlepnutím na tento banner nahlásíte problém, aby autor mohl opravit, co nefunguje.</string>
     <string name="experimental_dialog_report">Nahlásit problém</string>
     <string name="scan_simulate_title">Virtuální monokola</string>
-    <string name="scan_simulate_subtitle">Obejde BLE a použije připravené odpovědi. Jen v ladicích sestaveních.</string>
+    <string name="scan_simulate_subtitle">Obejde BLE a použije připravené odpovědi. Jen v servisním režimu.</string>
     <string name="connection_connected">Připojeno</string>
     <string name="connection_connecting">Hledání…</string>
     <string name="connection_initializing">Inicializace…</string>

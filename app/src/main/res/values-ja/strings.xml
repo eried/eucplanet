@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">仮想ホイール</string>
-    <string name="scan_simulate_subtitle">BLE をバイパスして定型レスポンスを使用します。デバッグビルド専用。</string>
+    <string name="scan_simulate_subtitle">BLE をバイパスして定型レスポンスを使用します。サービスモード専用。</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">接続済み</string>

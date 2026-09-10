@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Віртуальні моноколеса</string>
-    <string name="scan_simulate_subtitle">Обходить BLE і подає заготовлені відповіді. Лише у налагоджувальних збірках.</string>
+    <string name="scan_simulate_subtitle">Обходить BLE і подає заготовлені відповіді. Лише в сервісному режимі.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Підключено</string>

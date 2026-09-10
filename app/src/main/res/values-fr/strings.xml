@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Roues virtuelles</string>
-    <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en build debug.</string>
+    <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en Mode service.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connectée</string>

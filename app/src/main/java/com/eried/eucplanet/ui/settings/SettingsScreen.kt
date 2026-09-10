@@ -8587,7 +8587,7 @@ private fun CloudTab(
             Text(
                 stringResource(R.string.cloud_settings_backup_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.appColors.textSecondary,
             )
             // No spacer: the section's own column already spaces at 16dp, so
             // this one made the gap under the description bigger than every

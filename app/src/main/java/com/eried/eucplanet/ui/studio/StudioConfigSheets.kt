@@ -116,6 +116,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.settings.NumberUpDown
 import com.eried.eucplanet.ui.settings.RestoreChip
@@ -790,6 +791,7 @@ fun SavePresetDialog(
     var name by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnClickOutside = false),
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text(stringResource(R.string.studio_save_preset_title)) },
         text = {
@@ -2536,6 +2538,7 @@ internal fun ColorPickerDialog(
     val color = Color.hsv(hue.coerceIn(0f, 360f), sat, value, alpha)
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnClickOutside = false),
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text(stringResource(R.string.studio_colour_picker_title)) },
         text = {

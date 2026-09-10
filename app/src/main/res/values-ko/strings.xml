@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">가상 휠</string>
-    <string name="scan_simulate_subtitle">BLE를 우회하고 미리 설정된 응답을 사용합니다. 디버그 빌드 전용.</string>
+    <string name="scan_simulate_subtitle">BLE를 우회하고 미리 설정된 응답을 사용합니다. 서비스 모드 전용.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">연결됨</string>

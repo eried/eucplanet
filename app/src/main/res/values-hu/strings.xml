@@ -74,7 +74,7 @@
     <string name="experimental_dialog_body">Ennek az egykerekűnek a támogatása előzetes, a szerző csak az InMotion V14 / V12 / P6 családot ellenőrizte. A KingSong, Veteran, Begode, Ninebot és a régebbi InMotion modellek előzetes állapotban vannak, és vezetői tesztelést igényelnek. Óvatosan használd.\n\nErre a sávra koppintva hibát jelentesz, hogy a szerző kijavíthassa, ami nem működik.</string>
     <string name="experimental_dialog_report">Hiba jelentése</string>
     <string name="scan_simulate_title">Virtuális egykerekűek</string>
-    <string name="scan_simulate_subtitle">Megkerüli a BLE-t, előre elkészített válaszokat használ. Csak hibakereső változatokban.</string>
+    <string name="scan_simulate_subtitle">Megkerüli a BLE-t, előre elkészített válaszokat használ. Csak szervizmódban.</string>
     <string name="connection_connected">Csatlakoztatva</string>
     <string name="connection_connecting">Keresés…</string>
     <string name="connection_initializing">Inicializálás…</string>

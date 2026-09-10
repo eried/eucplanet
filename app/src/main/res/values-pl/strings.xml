@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Wirtualne koła</string>
-    <string name="scan_simulate_subtitle">Pomija BLE i podaje gotowe odpowiedzi. Tylko w buildach debug.</string>
+    <string name="scan_simulate_subtitle">Pomija BLE i podaje gotowe odpowiedzi. Tylko w trybie serwisowym.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Połączono</string>

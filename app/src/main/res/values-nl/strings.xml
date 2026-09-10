@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuele wielen</string>
-    <string name="scan_simulate_subtitle">Omzeilt BLE en gebruikt voorgekookte antwoorden. Alleen in debug-builds.</string>
+    <string name="scan_simulate_subtitle">Omzeilt BLE en gebruikt voorgekookte antwoorden. Alleen in Servicemodus.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Verbonden</string>

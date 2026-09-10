@@ -24,7 +24,7 @@
     <string name="watch_gps_permission">Коснись для GPS</string>
     <string name="watch_gps_waiting">Ждём сигнал…</string>
 
-    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Сигнал</string>
     <string name="watch_action_light">Фары</string>
     <string name="watch_action_lock">Заблокировать колесо</string>

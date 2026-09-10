@@ -80,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuella hjul</string>
-    <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i debug-builds.</string>
+    <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i serviceläge.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Ansluten</string>

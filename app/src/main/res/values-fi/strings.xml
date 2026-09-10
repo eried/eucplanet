@@ -74,7 +74,7 @@
     <string name="experimental_dialog_body">Tämän yksipyöräisen tuki on alustava, tekijä on varmistanut vain InMotion V14 / V12 / P6 -sarjan. KingSong, Veteran, Begode, Ninebot ja vanhemmat InMotion-mallit ovat esikatseluvaiheessa ja kaipaavat ajajien testausta. Käytä varoen.\n\nTämän palkin napauttaminen tekee vikailmoituksen, jotta tekijä voi korjata sen mikä ei toimi.</string>
     <string name="experimental_dialog_report">Ilmoita ongelmasta</string>
     <string name="scan_simulate_title">Virtuaaliset yksipyöräiset</string>
-    <string name="scan_simulate_subtitle">Ohittaa BLE:n ja käyttää valmiita vastauksia. Vain debug-versioissa.</string>
+    <string name="scan_simulate_subtitle">Ohittaa BLE:n ja käyttää valmiita vastauksia. Vain huoltotilassa.</string>
     <string name="connection_connected">Yhdistetty</string>
     <string name="connection_connecting">Etsitään…</string>
     <string name="connection_initializing">Alustetaan…</string>

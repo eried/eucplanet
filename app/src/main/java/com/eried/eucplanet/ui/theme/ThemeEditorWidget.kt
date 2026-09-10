@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -387,6 +388,8 @@ fun ThemeEditorWidget(
         var name by remember { mutableStateOf(seedName) }
         AlertDialog(
             onDismissRequest = { showSave = false },
+            // A stray tap outside must not drop the typed name.
+            properties = DialogProperties(dismissOnClickOutside = false),
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.theme_editor_save_title)) },
             text = {
