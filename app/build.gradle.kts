@@ -223,7 +223,17 @@ android {
         getByName("main") {
             kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
         }
+        // The exported Room schemas, so MigrationTestHelper can read them on device.
+        getByName("androidTest") {
+            assets.srcDir("$projectDir/schemas")
+        }
     }
+}
+
+// Room writes the schema of every @Database version here. The files are
+// committed: MigrationAllTest validates each migration against the current one.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -369,6 +379,8 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
+    // MigrationTestHelper for MigrationAllTest, same version as room-runtime.
+    androidTestImplementation(libs.room.testing)
     // Compose gesture tests: the trip charts juggle a long-press scrub, a
     // two-finger zoom and the page scroll on the same canvas, and multitouch
     // cannot be driven from adb, so those rules are pinned on-device.
