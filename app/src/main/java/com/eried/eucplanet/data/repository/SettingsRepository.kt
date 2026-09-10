@@ -51,77 +51,82 @@ class SettingsRepository @Inject constructor(
     fun updateLastDeviceAsync(address: String, name: String) {
         scope.launch { updateLastDevice(address, name) }
     }
-
-    private fun AppSettings.sanitized(): AppSettings = copy(
-        autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
-        // Weather comfort thresholds from a synced or hand-edited file: keep
-        // the window one of the offered four, the bands ordered and sane.
-        weather = weather.copy(
-            // Any number of hours now, clamped rather than snapped to a preset.
-            // Two is the shortest that draws a curve; a week is where every
-            // source runs out.
-            windowHours = weather.windowHours.coerceIn(2, 168),
-            prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
-            prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
-            prefRain = weather.prefRain.takeIf { it in PREF_VALUES } ?: "DISLIKE",
-            prefSnow = weather.prefSnow.takeIf { it in PREF_VALUES } ?: "DISLIKE",
-            prefWind = weather.prefWind.takeIf { it in PREF_VALUES } ?: "DISLIKE",
-            prefNight = weather.prefNight.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
-            prefGolden = weather.prefGolden.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
-        ),
-        // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
-        // value (from an imported or Dropbox-synced settings file, not just the
-        // steppers) can never busy-loop a delay(), divide by zero, or starve the
-        // BLE/IO loops. Every settings read — get() and the settings Flow —
-        // passes through here, so consumers never see an unsafe value.
-        advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
-        // A hand-edited or synced file could carry a floor above full charge, or
-        // a cell count that makes every pack read 100%. Clamped here so the
-        // estimate never sees a value the UI would not let a rider pick.
-        batteryPercent = batteryPercent.copy(
-            // Same rule as unlockWhen below: a mode this build does not know
-            // falls back to the wheel's own number rather than to a guess.
-            mode = batteryPercent.mode.takeIf { it in BatteryPercentSettings.MODE_VALUES }
-                ?: BatteryPercentSettings.MODE_WHEEL,
-            minimumCellVoltageMv = batteryPercent.minimumCellVoltageMv.coerceIn(
-                BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV),
-            maximumCellVoltageMv = batteryPercent.maximumCellVoltageMv.coerceIn(
-                BatteryPercentSettings.MIN_FULL_MV, BatteryPercentSettings.MAX_FULL_MV),
-            seriesCells = batteryPercent.seriesCells.coerceIn(
-                BatteryPercentSettings.SERIES_RANGE.first,
-                BatteryPercentSettings.SERIES_RANGE.last),
-            capacityWh = batteryPercent.capacityWh.coerceIn(
-                0, BatteryPercentSettings.MAX_CAPACITY_WH),
-        ),
-        // An imported or Dropbox-synced file can carry an unlockWhen this build
-        // does not know. Fall back to never rather than letting an unrecognised
-        // value decide when a wheel unlocks itself.
-        proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
-            proximityLock
-        } else {
-            proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEVER)
-        },
-        // A pressure unit this build cannot convert would fall through the
-        // formatter to kPa, changing every pressure in the app by a factor of
-        // a hundred without saying so. Blank is the documented "follow the
-        // unit system" value, so an unrecognised one lands there.
-        tpms = tpms.copy(
-            pressureUnit = tpms.pressureUnit.takeIf {
-                it in TpmsSettings.PRESSURE_UNIT_VALUES
-            } ?: "",
-        ),
-        // An unknown discovery mode (hand-edited or newer file) falls back to
-        // AUTO, which never uses the saved IP.
-        hudDiscoveryMode = hudDiscoveryMode.takeIf { it in HudDiscoveryMode.VALUES }
-            ?: HudDiscoveryMode.AUTO,
-        // The share relay is dialled as a WebSocket. A file carrying an http
-        // URL, a hostname, or junk would fail at the OkHttp request builder,
-        // inside the coroutine that opens a group, so it is reset here instead.
-        share = share.copy(
-            relayUrl = share.relayUrl.takeIf { ShareSettings.isValidRelayUrl(it) }
-                ?: ShareSettings.DEFAULT_RELAY_URL
-        ),
-    )
 }
+
+/**
+ * Every settings read passes through here, so no consumer ever sees a value
+ * outside what the UI would let a rider pick. Top level and internal so
+ * AdvancedSettingsSpecGuardTest can run it without a store.
+ */
+internal fun AppSettings.sanitized(): AppSettings = copy(
+    autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
+    // Weather comfort thresholds from a synced or hand-edited file: keep
+    // the window one of the offered four, the bands ordered and sane.
+    weather = weather.copy(
+        // Any number of hours now, clamped rather than snapped to a preset.
+        // Two is the shortest that draws a curve; a week is where every
+        // source runs out.
+        windowHours = weather.windowHours.coerceIn(2, 168),
+        prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+        prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+        prefRain = weather.prefRain.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+        prefSnow = weather.prefSnow.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+        prefWind = weather.prefWind.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+        prefNight = weather.prefNight.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+        prefGolden = weather.prefGolden.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+    ),
+    // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
+    // value (from an imported or Dropbox-synced settings file, not just the
+    // steppers) can never busy-loop a delay(), divide by zero, or starve the
+    // BLE/IO loops. Every settings read, get() and the settings Flow,
+    // passes through here, so consumers never see an unsafe value.
+    advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
+    // A hand-edited or synced file could carry a floor above full charge, or
+    // a cell count that makes every pack read 100%. Clamped here so the
+    // estimate never sees a value the UI would not let a rider pick.
+    batteryPercent = batteryPercent.copy(
+        // Same rule as unlockWhen below: a mode this build does not know
+        // falls back to the wheel's own number rather than to a guess.
+        mode = batteryPercent.mode.takeIf { it in BatteryPercentSettings.MODE_VALUES }
+            ?: BatteryPercentSettings.MODE_WHEEL,
+        minimumCellVoltageMv = batteryPercent.minimumCellVoltageMv.coerceIn(
+            BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV),
+        maximumCellVoltageMv = batteryPercent.maximumCellVoltageMv.coerceIn(
+            BatteryPercentSettings.MIN_FULL_MV, BatteryPercentSettings.MAX_FULL_MV),
+        seriesCells = batteryPercent.seriesCells.coerceIn(
+            BatteryPercentSettings.SERIES_RANGE.first,
+            BatteryPercentSettings.SERIES_RANGE.last),
+        capacityWh = batteryPercent.capacityWh.coerceIn(
+            0, BatteryPercentSettings.MAX_CAPACITY_WH),
+    ),
+    // An imported or Dropbox-synced file can carry an unlockWhen this build
+    // does not know. Fall back to never rather than letting an unrecognised
+    // value decide when a wheel unlocks itself.
+    proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
+        proximityLock
+    } else {
+        proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEVER)
+    },
+    // A pressure unit this build cannot convert would fall through the
+    // formatter to kPa, changing every pressure in the app by a factor of
+    // a hundred without saying so. Blank is the documented "follow the
+    // unit system" value, so an unrecognised one lands there.
+    tpms = tpms.copy(
+        pressureUnit = tpms.pressureUnit.takeIf {
+            it in TpmsSettings.PRESSURE_UNIT_VALUES
+        } ?: "",
+    ),
+    // An unknown discovery mode (hand-edited or newer file) falls back to
+    // AUTO, which never uses the saved IP.
+    hudDiscoveryMode = hudDiscoveryMode.takeIf { it in HudDiscoveryMode.VALUES }
+        ?: HudDiscoveryMode.AUTO,
+    // The share relay is dialled as a WebSocket. A file carrying an http
+    // URL, a hostname, or junk would fail at the OkHttp request builder,
+    // inside the coroutine that opens a group, so it is reset here instead.
+    share = share.copy(
+        relayUrl = share.relayUrl.takeIf { ShareSettings.isValidRelayUrl(it) }
+            ?: ShareSettings.DEFAULT_RELAY_URL
+    ),
+)
 
 private val PREF_VALUES = setOf("DISLIKE", "NEUTRAL", "LIKE")
