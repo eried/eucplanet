@@ -13,11 +13,16 @@ import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.util.VibratorHelper
 import com.eried.eucplanet.wear.WatchVibrator
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -57,6 +62,25 @@ class AlarmEngine @Inject constructor(
     // The pure, Android-free firing core. Holds all per-rule edge / cooldown
     // state and per-metric trend history; unit-tested in AlarmEvaluatorTest.
     private val evaluator = AlarmEvaluator()
+
+    // Completed by Room's first answer, so the first tick after start waits
+    // for the rider's rules rather than evaluating an empty list.
+    private val rulesLoaded = CompletableDeferred<Unit>()
+
+    // Enabled rules, kept warm. Every evaluate path ran a Room query per
+    // frame, which was most of the wheel path's cost at telemetry rate. Room
+    // re-emits on any change to the table, so a rule saved in the editor
+    // lands here at once; a save in the same instant as a tick shows up one
+    // emission later. Declared before init so the collectors it launches
+    // can never see this uninitialised.
+    private val enabledRules: StateFlow<List<AlarmRule>> = alarmDao.observeEnabled()
+        .onEach { rulesLoaded.complete(Unit) }
+        .stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    private suspend fun currentEnabledRules(): List<AlarmRule> {
+        if (!rulesLoaded.isCompleted) rulesLoaded.await()
+        return enabledRules.value
+    }
 
     // The rule id whose CONSTANT tone is currently streaming, or null. A "constant"
     // beep alarm (beep on + Many + cooldown 0) doesn't re-fire a discrete beep each
@@ -136,7 +160,7 @@ class AlarmEngine @Inject constructor(
             // Rules bound to a specific wheel only run while THAT wheel is the
             // connected one; unbound rules behave exactly as before.
             val wheelAddr = bleConnectionManager.connectedAddressOrNull()
-            val rules = alarmDao.getEnabled().filter { it.appliesTo(wheelAddr) }
+            val rules = currentEnabledRules().filter { it.appliesTo(wheelAddr) }
             val now = System.currentTimeMillis()
 
             // Group priority = the order metrics first appear when rules are sorted
@@ -298,7 +322,7 @@ class AlarmEngine @Inject constructor(
         scope.launch {
             evalMutex.withLock {
                 val wheelAddr = bleConnectionManager.connectedAddressOrNull()
-                val rules = alarmDao.getEnabled().filter {
+                val rules = currentEnabledRules().filter {
                     (it.metric == AlarmMetric.RADAR_DISTANCE.name ||
                         it.metric == AlarmMetric.RADAR_APPROACH_SPEED.name) &&
                         it.appliesTo(wheelAddr)
@@ -342,7 +366,7 @@ class AlarmEngine @Inject constructor(
             evalMutex.withLock {
                 if (settingsRepository.currentOrLoad().alarmsMuted) return@withLock
                 val wheelAddr = bleConnectionManager.connectedAddressOrNull()
-                val rules = alarmDao.getEnabled().filter {
+                val rules = currentEnabledRules().filter {
                     (it.metric == AlarmMetric.EXTERNAL_GPS_BATTERY.name ||
                         it.metric == AlarmMetric.EXTERNAL_GPS_SPEED.name) &&
                         it.appliesTo(wheelAddr)
@@ -391,7 +415,7 @@ class AlarmEngine @Inject constructor(
                 if (settingsRepository.currentOrLoad().alarmsMuted) return@withLock
                 val locationMetrics = setOf(AlarmMetric.GPS_SPEED.name, AlarmMetric.GPS_ALTITUDE.name)
                 val wheelAddr = bleConnectionManager.connectedAddressOrNull()
-                val rules = alarmDao.getEnabled().filter {
+                val rules = currentEnabledRules().filter {
                     it.metric in locationMetrics && it.appliesTo(wheelAddr)
                 }
                 if (rules.isEmpty()) return@withLock
