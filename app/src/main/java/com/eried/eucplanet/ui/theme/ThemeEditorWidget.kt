@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
- * Theme customization widget — a floating, draggable, collapsible color editor. Mounted at the
+ * Theme customization widget - a floating, draggable, collapsible color editor. Mounted at the
  * app root only when `themeEditorEnabled` is on, so when it's off none of this is
  * in the tree (zero overhead). Edits preview live in-memory (the whole app
  * re-skins) and persist to the working draft on release; built-ins are never
@@ -107,8 +107,8 @@ fun ThemeEditorWidget(
 
     var offset by remember { mutableStateOf(Offset(36f, 220f)) }
     var collapsed by remember { mutableStateOf(false) }
-    // Keep the widget fully on-screen — whatever its current size (collapsed pill
-    // or expanded card) — so a drag can never push it out of reach and lose it.
+    // Keep the widget fully on-screen - whatever its current size (collapsed pill
+    // or expanded card) - so a drag can never push it out of reach and lose it.
     val view = LocalView.current
     var widgetSize by remember { mutableStateOf(IntSize.Zero) }
     fun clampToScreen(o: Offset): Offset {
@@ -144,7 +144,7 @@ fun ThemeEditorWidget(
         }
     }
 
-    // When a token is selected — especially when picked via the target tool — scroll
+    // When a token is selected - especially when picked via the target tool - scroll
     // it to the TOP of the list so its editor is front and centre.
     LaunchedEffect(selectedKey) {
         val key = selectedKey ?: return@LaunchedEffect
@@ -228,7 +228,7 @@ fun ThemeEditorWidget(
             // dashboard behind it, whatever the theme's background is.
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
-            // Header (drag handle) — shows the active theme name + unsaved state.
+            // Header (drag handle) - shows the active theme name + unsaved state.
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -349,7 +349,7 @@ fun ThemeEditorWidget(
                                     onChange = { c -> vm.preview(spec.set(base, c)) },
                                     onCommit = {
                                         // Editing a clean theme that already has a
-                                        // draft would clobber it — confirm first.
+                                        // draft would clobber it - confirm first.
                                         if (!dirty &&
                                             settings.activeThemeName in choices.unsaved
                                         ) pendingOverwrite = true

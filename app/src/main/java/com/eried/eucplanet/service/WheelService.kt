@@ -48,7 +48,7 @@ class WheelService : LifecycleService() {
         @Volatile
         var isRunning: Boolean = false
             private set
-        // Minimum |speed| (km/h) that counts as "in motion" — shared by the
+        // Minimum |speed| (km/h) that counts as "in motion" - shared by the
         // auto-record start/stop loop and the "When riding" announcement gate
         // so the two never drift. Small enough to catch a real roll, large
         // enough to ignore sensor jitter at a standstill.
@@ -808,7 +808,7 @@ class WheelService : LifecycleService() {
                 // Re-read settings *after* the wait, not before it. If the rider
                 // turns "Report status periodically" off during the countdown, the
                 // pending report is dropped instead of one last one slipping through.
-                // Only this periodic report is gated here — alarm/trigger/nav voice
+                // Only this periodic report is gated here - alarm/trigger/nav voice
                 // lives on separate paths and is unaffected.
                 val settings = settingsRepository.get()
                 // Gate on the single visible "Enable periodic reports" toggle

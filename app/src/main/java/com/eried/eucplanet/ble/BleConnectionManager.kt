@@ -187,7 +187,7 @@ class BleConnectionManager @Inject constructor(
     @Volatile var autoConnectSuppressed: Boolean = false
 
     // True when the current (or most recent) connection was started by
-    // auto-connect — app-start auto-connect or the reconnect loop — rather
+    // auto-connect - app-start auto-connect or the reconnect loop - rather
     // than the rider explicitly picking a wheel on the scan screen. Lets the
     // scan screen drop an auto connection without touching a user-chosen one.
     @Volatile private var currentConnectIsAuto = false
@@ -269,13 +269,13 @@ class BleConnectionManager @Inject constructor(
 
     /**
      * Track the adapter going down and coming back up. Two jobs:
-     *  - STATE_OFF: force the connection to DISCONNECTED. The GATT
+     * - STATE_OFF: force the connection to DISCONNECTED. The GATT
      *    onConnectionStateChange callback is unreliable when the adapter itself
      *    is switched off (the Bluetooth binder can die before it fires), so the
      *    UI would otherwise stay "connected" with no live wheel - especially for
      *    push-only wheels that aren't being polled, where the write-queue guard
      *    never trips.
-     *  - STATE_ON: re-arm auto-connect. The OS does not retry a
+     * - STATE_ON: re-arm auto-connect. The OS does not retry a
      *    connectGatt(autoConnect = false) for us, and the disconnect-time
      *    reconnect is a single delayed attempt that's already spent while the
      *    adapter is still off.

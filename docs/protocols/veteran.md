@@ -229,8 +229,8 @@ Known sub-frames, all observed in a single captured session:
 | Angle adjustment | LkAp  | 16        | `01 80 80 80 80 80 <i8>`                 | i8 in tenths of a degree (e.g. `0xDC` = -36 → -3.6°) |
 | Ride mode        | LdAp  | 15        | `01 02 80 80 80 <u8>`                    | u8 ride-mode scalar (observed range 30..100, slider labels match raw value) |
 | PWM%             | LdAp  | 18        | `01 02 80 80 80 80 80 80 <u8>`           | u8 PWM percent (observed 53, 64) |
-| Horn (frame 1)   | LkAp  | 14        | `00 80 80 80 01`                         | n/a — one-shot trigger; MUST be sent with frame 2 |
-| Horn (frame 2)   | LdAp  | 14        | `00 00 80 80 01`                         | n/a — companion; without it Lynx-class firmware stays silent |
+| Horn (frame 1)   | LkAp  | 14        | `00 80 80 80 01`                         | n/a - one-shot trigger; MUST be sent with frame 2 |
+| Horn (frame 2)   | LdAp  | 14        | `00 00 80 80 01`                         | n/a - companion; without it Lynx-class firmware stays silent |
 | High beam on/off | LkAp + LdAp | 13   | `01 80 80 <0\|1>` then `01 00 80 <0\|1>` | u8 boolean, last byte `01`=on / `00`=off. Separate from the ASCII `SetLightON/OFF` low beam. |
 | Software lock    | LdAp  | 25        | `00 05 1a 06 11 0f 0a <ctr> 02 04 0c ab <state> 00 00 00` | `<state>` = `01` lock / `00` unlock. `<ctr>` is an opaque session byte; reference capture used `0x09` lock / `0x0E` unlock and any value works as long as the CRC matches. No PIN handshake. Captured from a Lynx S, June 2026. |
 
@@ -243,16 +243,16 @@ Notes:
   The Java `zlib.CRC32` is byte-identical to what the LeaperKim app emits.
 - Each command is two back-to-back frames in the byte stream: the `LkAp` frame
   immediately followed by an `LdAp` companion of the same length. They are NOT a
-  fragmented single GATT operation — they are two distinct vendor frames the wheel
+  fragmented single GATT operation - they are two distinct vendor frames the wheel
   reassembles by magic (the app streams the ~28-byte pair as 20 + 8 byte ATT writes
   purely because of the 20-byte MTU).
   - For the **value settings** (tilt-back, alarm, …) the `LkAp` frame alone is
     sufficient: the wheel reflects the new value on the next realtime frame
     (offsets 24/26), so the `LdAp` companion looks like a redundant echo.
-  - The **horn is the exception** — a one-shot with no readback. The wheel only
+  - The **horn is the exception** - a one-shot with no readback. The wheel only
     beeps when the `LkAp` frame (`00 80 80 80 01`) is followed by its `LdAp`
-    companion (`00 00 80 80 01`). Sending the `LkAp` blob alone — as some
-    apps and pre-fix EUC Planet builds did — reaches the wheel with a valid
+    companion (`00 00 80 80 01`). Sending the `LkAp` blob alone - as some
+    apps and pre-fix EUC Planet builds did - reaches the wheel with a valid
     CRC but produces no sound (verified on a Lynx S btsnoop: four `LkAp`-only
     writes, zero beeps; the official app sends both frames on every press).
 - We currently surface only tilt-back and alarm in `VeteranCommands`; the other
@@ -339,7 +339,7 @@ For our `WheelCapabilities` record:
 | `hasAlarmSpeed`  | read-only     | same as above |
 | `hasVolume`      | false         | no command known |
 | `hasDRL`         | false         | no separate DRL command |
-| `needsAuthForLock` | false       | no PIN handshake — wheel CRC-validates the frame and locks |
+| `needsAuthForLock` | false       | no PIN handshake - wheel CRC-validates the frame and locks |
 
 Additional booleans worth tracking:
 

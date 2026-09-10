@@ -320,7 +320,7 @@ fun TripDetailScreen(
     val smoothWindow by viewModel.smoothingWindowSamples.collectAsState()
 
     // Render the ViewModel's messages (e.g. "Preparing the link…", share
-    // failures) here too — sharing is launched straight from this screen, which
+    // failures) here too - sharing is launched straight from this screen, which
     // otherwise has no host so the snackbars went nowhere.
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(viewModel) {
@@ -1478,8 +1478,8 @@ fun TripDetailScreen(
  * appends every current key NOT already listed, in default declaration order.
  *
  * Consequences, by design:
- *  - An empty [savedOrder] means "all keys in default order".
- *  - A key added in a future app version isn't in any saved order yet, so it
+ * - An empty [savedOrder] means "all keys in default order".
+ * - A key added in a future app version isn't in any saved order yet, so it
  *    appears automatically at the end. Visibility is a separate hidden-set (a
  *    key absent from the hidden set is shown), so the new key defaults to shown.
  */
@@ -3318,7 +3318,7 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
  *   - Wheel power-off: the controller's V rail capacitors discharge ~80 V
  *     to ~14 V over five seconds at zero current, then the BLE freezes its
  *     last frame for a couple of minutes while the rider walks away. The
- *     pack itself never dropped — using those frames in voltage min /
+ *     pack itself never dropped - using those frames in voltage min /
  *     battery min reports a fake catastrophic drain.
  *   - BLE-frozen disconnect tail: the last good frame echoes for many
  *     seconds with no current and an artificially-low voltage. Same
@@ -3327,7 +3327,7 @@ private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
  *  Gated to the trip's second half so the wheel's normal post-boot voltage
  *  settling doesn't trigger it; gated to light current so a normal sag dip
  *  during an acceleration is preserved. Trips shorter than 30 samples skip
- *  the check entirely — there's not enough data for the half-gate to mean
+ *  the check entirely - there's not enough data for the half-gate to mean
  *  anything. */
 private fun trimEndIndex(points: List<TripDataPoint>): Int {
     if (points.size < TRIM_MIN_TRIP_SAMPLES) return points.size

@@ -80,7 +80,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
      * in [onRawNotification] so the dashboard's local-tracked
      * [WheelRepository.toggleLight] doesn't see lightOn flip back
      * to the default `false` on the very next 5 Hz realtime frame
-     * — which is exactly the bug the LK19486 rider hit: first toggle
+     * - which is exactly the bug the LK19486 rider hit: first toggle
      * sent SetLightON, parser-default false overwrote it ~200 ms
      * later, next toggle re-sent SetLightON instead of SetLightOFF.
      */
@@ -120,7 +120,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
     // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit
-    // — the same flow P6 already uses for its two-packet flash-commit.
+    // - the same flow P6 already uses for its two-packet flash-commit.
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
 
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray =

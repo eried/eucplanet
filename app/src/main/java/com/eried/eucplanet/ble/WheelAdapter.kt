@@ -219,7 +219,7 @@ interface WheelAdapter {
      * whose lock fits in one packet. Veteran (Lynx-class, 25-byte LdAp lock
      * frame) returns the trailing 5 bytes (valueByte + CRC32) here; without
      * the split the wheel only receives the first 20 bytes and the CRC check
-     * fails on the wheel side, so the lock silently no-ops — the exact
+     * fails on the wheel side, so the lock silently no-ops - the exact
      * symptom users reported.
      */
     fun setLockFollowup(locked: Boolean): ByteArray? = null
@@ -247,7 +247,7 @@ interface WheelAdapter {
      * (light, horn, max-speed) until the connect-time handshake completes.
      *
      * Confirmed cases:
-     *  - InMotion P6: requires auth at connect, otherwise the dashboard
+     * - InMotion P6: requires auth at connect, otherwise the dashboard
      *    Light / Auto Headlight toggles look successful at the L2CAP layer
      *    but the wheel never obeys.
      *
@@ -506,7 +506,7 @@ data class WheelCapabilities(
 
         /**
          * Veteran: rich telemetry (cells, BMS) plus the LeaperKim-decoded
-         * write set — horn, low + high beam, pedal stiffness, reset trip,
+         * write set - horn, low + high beam, pedal stiffness, reset trip,
          * tiltback / alarm speed, and the 25-byte LdAp software-lock frame
          * captured from a Lynx S btsnoop in June 2026.
          */

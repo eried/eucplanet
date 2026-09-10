@@ -5,11 +5,11 @@ import com.eried.eucplanet.R
 /**
  * How the phone finds the network HUD. Three modes so the rider controls
  * whether the saved [AppSettings.hudIp] is ever used:
- *  - [AUTO]  discovery only (UDP beacon / mDNS / subnet probe); the saved
+ * - [AUTO]  discovery only (UDP beacon / mDNS / subnet probe); the saved
  *            IP is never touched, so a stale address from another network
  *            can't capture the connection.
- *  - [FIXED] the saved IP/port only, no discovery.
- *  - [BOTH]  discovery, with the saved IP/port as a last-resort fallback hint.
+ * - [FIXED] the saved IP/port only, no discovery.
+ * - [BOTH]  discovery, with the saved IP/port as a last-resort fallback hint.
  * FIXED and BOTH use the IP/port; AUTO does not. Value strings are stored, so
  * "HYBRID" from an earlier build is normalised to [BOTH] on read.
  */
@@ -332,7 +332,7 @@ data class AppSettings(
     // --- Custom theme system ---
     /**
      * Name of the active theme: a built-in (Light / Dark / Pure Black) or a saved
-     * custom. This is the ONLY theme state that is persisted — the resolved colors
+     * custom. This is the ONLY theme state that is persisted - the resolved colors
      * are re-derived from it on launch (see ui/theme/ThemeController), a built-in
      * from code or a saved `.json` from the themes folder, falling back to a preset
      * if the file is gone. The dirty flag and unsaved working drafts are in-memory
@@ -429,16 +429,16 @@ data class AppSettings(
     /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
     val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
     /**
-     * Open Charge Map API key (free, from openchargemap.org). Blank by default —
+     * Open Charge Map API key (free, from openchargemap.org). Blank by default - 
      * when set, the charger flyout enriches with OCM community data (rating,
      * comments, connectors, photos). Only used in advanced map mode for chargers.
      */
     val navOcmApiKey: String = "",
     // Two nav things are intentionally NOT settings, so they never bloat the
     // settings JSON / backup:
-    //  - the current navigation route -> in memory only
+    // - the current navigation route -> in memory only
     //    (com.eried.eucplanet.nav.CurrentRouteStore); a reinstall starts at zero.
-    //  - the custom user-marker photo -> its own PNG file in noBackupFilesDir
+    // - the custom user-marker photo -> its own PNG file in noBackupFilesDir
     //    (com.eried.eucplanet.data.store.NavMarkerStore); survives app updates but
     //    not a full uninstall / new device (never recovered).
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
@@ -597,7 +597,7 @@ data class AppSettings(
      *
      * Default: false in release, true in debug builds. Debug-only opt-in
      * by default means a fresh sideload-for-testing install dials the HUD
-     * immediately without the rider having to find the toggle in Settings —
+     * immediately without the rider having to find the toggle in Settings - 
      * which is exactly the flow the dev loop runs every reinstall. Release
      * users still see it disabled so a HUDless rider doesn't burn battery
      * on a dial loop they'll never use.
@@ -845,7 +845,7 @@ data class AppSettings(
      * Composite metric definitions as a JSON object keyed by synthetic ID
      * (`M:<uuid>`). Each value is `{ "layout": "ROW2"|"COL2"|"COL3", "cells":
      * [<metric_key>, ...] }`. Composite IDs appear in [dashboardMetricOrder]
-     * alongside regular metric keys — a single grid slot renders the composite
+     * alongside regular metric keys - a single grid slot renders the composite
      * as a multi-cell tile instead of one metric. Empty object `"{}"` means
      * the rider hasn't dragged the `+ Stack` template onto the grid yet.
      */
@@ -865,7 +865,7 @@ data class AppSettings(
      * is `{ "text": <label>, "icon": <icon_key>, "action": <type>, "url": <url> }`.
      * Action types: NONE (display-only label), OPEN_URL (tap opens default
      * browser), SHOW_QR (tap shows a QR-code popup so other riders can scan
-     * and visit the URL — e.g. Instagram handle, club page). Custom tile IDs
+     * and visit the URL - e.g. Instagram handle, club page). Custom tile IDs
      * appear in [dashboardMetricOrder] alongside regular metrics.
      */
     val dashboardCustomTiles: String = "{}",
@@ -876,7 +876,7 @@ data class AppSettings(
      * "frames": [<hex>, ...] }`. Frames are written verbatim (one BLE write each,
      * in order) to the connected wheel, but only when its family matches; the id
      * appears in [dashboardActionOrder] like a built-in action key. Opt-in for
-     * advanced users — empty object until a rider drags the CUSTOM BLE template.
+     * advanced users - empty object until a rider drags the CUSTOM BLE template.
      * See [com.eried.eucplanet.data.model.CustomBleCommand].
      */
     val dashboardCustomBle: String = "{}",
@@ -885,7 +885,7 @@ data class AppSettings(
      * Per-metric corner-stat configuration as a JSON object. Each known metric
      * key maps to a config object with five stat slots (center, top-left,
      * top-right, bottom-left, bottom-right) and a sparkline flag. Defaults are
-     * applied at read time when an entry is missing — empty object means every
+     * applied at read time when an entry is missing - empty object means every
      * metric uses center=CURRENT, others=NONE, sparkline=true. Persisted as a
      * single string so we don't need to grow AppSettings each time a new stat
      * lands.

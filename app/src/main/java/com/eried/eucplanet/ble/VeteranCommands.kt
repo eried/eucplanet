@@ -11,7 +11,7 @@ package com.eried.eucplanet.ble
 object VeteranCommands {
 
     /**
-     * Horn — first of a TWO-frame command on current LeaperKim firmware.
+     * Horn - first of a TWO-frame command on current LeaperKim firmware.
      *
      * A Lynx S btsnoop (mVer 9, May 2026) shows the official app sounds the
      * horn by writing this `LkAp` frame immediately followed by the
@@ -38,7 +38,7 @@ object VeteranCommands {
      * [horn] as a separate BLE write (the official app splits the pair the same
      * way at the 20-byte ATT boundary).
      *
-     * Wire: `4c 64 41 70 0e 00 00 80 80 01 f8 67 9f 85` — 14-byte vendor frame
+     * Wire: `4c 64 41 70 0e 00 00 80 80 01 f8 67 9f 85` - 14-byte vendor frame
      * (payload `00 00 80 80 01`, big-endian CRC32 trailer).
      */
     fun hornCompanion(): ByteArray = buildVendorFrame(
@@ -64,11 +64,11 @@ object VeteranCommands {
         else "SetLightOFF".toByteArray(Charsets.US_ASCII)
 
     /**
-     * High beam on/off — the LeaperKim binary headlight command (`LkAp` frame;
+     * High beam on/off - the LeaperKim binary headlight command (`LkAp` frame;
      * companion `LdAp` in [setHighBeamCompanion]). Captured from the LeaperKim
      * app on a Lynx S: a 13-byte vendor frame, payload `01 80 80 <state>`, state
      * `01`=on / `00`=off. This is a SEPARATE light from the ASCII [setLight] low
-     * beam — the wheel drives the two independently. Send [setHighBeam] then
+     * beam - the wheel drives the two independently. Send [setHighBeam] then
      * [setHighBeamCompanion] (the wheel ignores the `LkAp` half on its own, same
      * as the horn). See docs/protocols/veteran.md section 6.2.
      */
@@ -110,7 +110,7 @@ object VeteranCommands {
      * is `0x01` for lock, `0x00` for unlock.
      *
      * Bytes 4..7 of the payload encode the rider's local wall-clock at the
-     * moment of writing: day-of-month, hour-of-day, minute, second — each one
+     * moment of writing: day-of-month, hour-of-day, minute, second - each one
      * 1 byte, no encoding tricks. Verified against a Lynx S btsnoop where
      * twenty paired lock/unlock writes all match within a second of the
      * captured packet's HCI timestamp, including a minute rollover from
@@ -120,7 +120,7 @@ object VeteranCommands {
      * monotonic counter, hardcoded bytes 4..6 to the wall-clock at the
      * moment of the original capture (the 17th at 15:10), and bumped the
      * counter on each write. Every frame we sent was a frozen "17 days ago
-     * at 15:10:09" timestamp — the wheel rejected them and toggles silently
+     * at 15:10:09" timestamp - the wheel rejected them and toggles silently
      * no-op'd. Using the real wall clock each write fixes it.
      *
      * Older Sherman / Sherman Max wheels (model < 3) haven't been captured

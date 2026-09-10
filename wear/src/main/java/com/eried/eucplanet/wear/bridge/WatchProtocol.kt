@@ -4,8 +4,8 @@ package com.eried.eucplanet.wear.bridge
  * Wire format shared between phone and watch.
  *
  * Wearable Data Layer paths:
- *  - `/euc/state`    phone -> watch, throttled telemetry snapshot (DataItem)
- *  - `/euc/control`  watch -> phone, button-press intents (Message)
+ * - `/euc/state`    phone -> watch, throttled telemetry snapshot (DataItem)
+ * - `/euc/control`  watch -> phone, button-press intents (Message)
  *
  * State snapshot packs into a DataMap; [WatchState] is the typed view. Control
  * intents are short strings on the message channel. Keeping the format tiny
@@ -53,7 +53,7 @@ object WatchKeys {
     const val UNIT_TEMP = "ut"
     const val ACCENT = "ac"
     /** Packed custom-theme colors ("#"-less AARRGGBB, pipe-separated, fixed
-     *  field order — see WatchColors / ThemeAccent.packForWatch). Lets the watch
+     *  field order - see WatchColors / ThemeAccent.packForWatch). Lets the watch
      *  mirror the phone theme's background, gauge, battery and text colors.
      *  Absent on older phone builds → watch keeps its built-in palette. */
     const val THEME = "thm"
@@ -180,9 +180,9 @@ data class WatchState(
     val hasLight: Boolean = true,
     /**
      * Resolved measurement-unit codes mirroring the phone's Units.kt:
-     *  - [speedUnit]    "kmh" / "mph" / "ms" / "kn"
-     *  - [distanceUnit] "km" / "mi" / "m" / "ft" / "mil"
-     *  - [tempUnit]     "C" / "F" / "K"
+     * - [speedUnit]    "kmh" / "mph" / "ms" / "kn"
+     * - [distanceUnit] "km" / "mi" / "m" / "ft" / "mil"
+     * - [tempUnit]     "C" / "F" / "K"
      * Defaults are metric so a freshly-launched watch (pre-sync) renders
      * something sane; [WatchBridgeService] overwrites them from the phone,
      * deriving from the legacy K_IMPERIAL boolean for old phone builds.

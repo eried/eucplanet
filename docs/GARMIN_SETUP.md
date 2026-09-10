@@ -1,4 +1,4 @@
-# Garmin support — setup
+# Garmin support - setup
 
 EUC Planet exposes the same wrist dial on Garmin Connect IQ devices that it
 does on Wear OS. The two surfaces share settings, share the wire vocabulary,
@@ -30,8 +30,8 @@ Phone-side:
   …), same publish cadence (5 Hz), same farewell-on-stop semantics.
 
 Watch-side:
-- `wear/` — Kotlin + Jetpack Compose for Wear OS.
-- `garmin-watch-app/` — Monkey C for Garmin Connect IQ. Same wire keys, same
+- `wear/` - Kotlin + Jetpack Compose for Wear OS.
+- `garmin-watch-app/` - Monkey C for Garmin Connect IQ. Same wire keys, same
   visual language, same FlicAction binding vocabulary.
 
 Because the rider's "Watch" settings drive both bridges, the phone has a
@@ -49,7 +49,7 @@ You need:
 
 The Connect IQ Mobile SDK is on Maven Central
 (`com.garmin.connectiq:ciq-companion-app-sdk:2.4.0`), so nothing to download
-manually — Gradle pulls it in on first build.
+manually - Gradle pulls it in on first build.
 
 ```bash
 ./gradlew :app:assembleDebug
@@ -135,7 +135,7 @@ The fastest path for one-off testing on a real watch:
 
 The watch app talks to the phone through Garmin Connect Mobile (on the
 phone), which routes messages over Bluetooth to the watch. There's no direct
-phone→watch BT connection — Connect Mobile is the broker.
+phone→watch BT connection - Connect Mobile is the broker.
 
 ## Shared settings between Wear OS and Garmin
 
@@ -164,7 +164,7 @@ single source of truth is `SettingsRepository`. Bridges read these fields:
 
 When the rider has both a Wear OS watch and a Garmin watch paired, both
 receive every telemetry frame at 5 Hz. The phone is the source of truth;
-each surface renders independently. There's no cross-watch coordination —
+each surface renders independently. There's no cross-watch coordination - 
 both watches show the same speed at the same moment because both subscribe
 to the same `WheelRepository` flow.
 
@@ -173,7 +173,7 @@ to the same `WheelRepository` flow.
 Opening the EUC Planet phone app launches the watch app for you, via Connect
 IQ's `openApplication()` (called from `GarminBridge.pingWatchToWake()` on every
 `onResume`, gated by the **Auto-start** toggle). The **first** time, the watch
-shows a one-time "Launch EUC Planet?" prompt — tap **Always**, and from then on
+shows a one-time "Launch EUC Planet?" prompt - tap **Always**, and from then on
 it opens automatically at the start of each trip. A few Edge units on old
 firmware render a black dialog instead of the prompt (a known Garmin bug); on
 those, open the app manually as before.

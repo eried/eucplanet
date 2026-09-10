@@ -304,7 +304,7 @@ fun DashboardScreen(
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
     val realHistory by viewModel.history.collectAsState()
-    // No fake disconnected demo. The dashboard shows real samples only —
+    // No fake disconnected demo. The dashboard shows real samples only - 
     // sparklines remain empty until the wheel sends at least 2 frames,
     // matching the per-catalog metric behavior we adopted in Phase 2.
     val history = realHistory
@@ -340,7 +340,7 @@ fun DashboardScreen(
     // Auto-open the Battery monitor when charging starts (rising edge), if
     // enabled. Standstill debounce: only allow the auto-open when the wheel
     // has been stationary for at least AUTO_OPEN_STILL_MS. Charging while
-    // moving (or just-stopped) is almost certainly a false positive — regen
+    // moving (or just-stopped) is almost certainly a false positive - regen
     // while rocking the wheel, balance corrections on a parked wheel, a
     // momentary current dip the inference layer latched on, etc. Without
     // this the rider could be coasting down the street and have the Battery
@@ -361,7 +361,7 @@ fun DashboardScreen(
             System.currentTimeMillis() - maxOf(enteredAt, viewModel.lastMovingAtMs) >= AUTO_OPEN_STILL_MS
         if (started && chargingAutoOpen && stillForLongEnough) onNavigateToCharging()
     }
-    // Customizable dashboard layout — falls back to the catalog defaults
+    // Customizable dashboard layout - falls back to the catalog defaults
     // (BATTERY, TEMPERATURE, VOLTAGE, CURRENT, LOAD, TRIP) when the
     // saved order is blank or has fewer than 6 entries.
     val dashboardMetricOrderRaw by viewModel.dashboardMetricOrder.collectAsState()
@@ -571,7 +571,7 @@ fun DashboardScreen(
             textContentColor = MaterialTheme.appColors.textPrimary,
             // usePlatformDefaultWidth = false breaks Material3's default
             // ~280–560 dp cap so the dialog can stretch closer to the screen
-            // edges — gives each warning card a useful body-text width and
+            // edges - gives each warning card a useful body-text width and
             // keeps the inline Fix button from getting squeezed.
             properties = androidx.compose.ui.window.DialogProperties(
                 usePlatformDefaultWidth = false
@@ -590,7 +590,7 @@ fun DashboardScreen(
                                 containerColor = MaterialTheme.appColors.surfaceVariant
                             )
                         ) {
-                            // Row layout — title/body in a weighted column on
+                            // Row layout - title/body in a weighted column on
                             // the left, Fix button hugging the right edge so
                             // the rider sees the call-to-action without
                             // scanning down past the body text.
@@ -613,7 +613,7 @@ fun DashboardScreen(
                                         color = MaterialTheme.appColors.textSecondary
                                     )
                                 }
-                                // Primary filled Button — solid accent colour
+                                // Primary filled Button - solid accent colour
                                 // so the call-to-action is unmissable on
                                 // every warning card. Close stays a neutral
                                 // TextButton, matching Material guidance
@@ -824,7 +824,7 @@ fun DashboardScreen(
                             onClick = onNavigateToFlic
                         )
                     }
-                    // Battery spark — tap opens the Battery monitor; visibility is a
+                    // Battery spark - tap opens the Battery monitor; visibility is a
                     // setting. Tint signals charging (accent) vs not (muted).
                     val chargeStatus by viewModel.chargeStatus.collectAsState()
                     val showChargingIcon by viewModel.chargingDashboardIcon.collectAsState()
@@ -954,12 +954,12 @@ fun DashboardScreen(
             //
             // Cap the dial at the detected wheel's hardware max (+5 km/h
             // breathing room) so a Mten3/Mten4 owner doesn't see a 110 km/h
-            // dial just because they bumped tilt-back high — the dial is
+            // dial just because they bumped tilt-back high - the dial is
             // useless if 80% of it is unreachable. The cap only applies
             // when we actually KNOW the wheel's max (model detected and
             // its enum sets maxSpeedKmh); for unrecognised wheels the cap
             // sits at WheelRepository.DEFAULT_MAX_SPEED_KMH (90), which we
-            // treat as "unknown — don't constrain" so a high-end wheel we
+            // treat as "unknown - don't constrain" so a high-end wheel we
             // failed to identify (or a rider on a new/protocol-unsupported
             // model) keeps the rider-tilt-back-driven scale they had
             // before.
@@ -1525,7 +1525,7 @@ fun DashboardScreen(
             // we're waiting for the wheel to talk.
             // Read the rider's customized metric order. Falls back to
             // the catalog defaults (BATTERY, TEMPERATURE, VOLTAGE,
-            // CURRENT, LOAD, TRIP) when blank or short — guarantees the
+            // CURRENT, LOAD, TRIP) when blank or short - guarantees the
             // out-of-box layout is byte-identical to the old hardcoded
             // 6-card grid.
             val activeMetricKeys = remember(dashboardMetricOrderRaw) {
@@ -1597,7 +1597,7 @@ fun DashboardScreen(
             // paths don't render a corner chip / don't override the centre).
             // When the rider has picked a real stat but the history buffer is
             // empty (cold boot, no wheel connected yet), returns the
-            // placeholder dash — that way the rider sees confirmation the
+            // placeholder dash - that way the rider sees confirmation the
             // setting took effect on the tile, with the value filling in
             // once samples start flowing.
             fun cornerStatValueFor(
@@ -1637,7 +1637,7 @@ fun DashboardScreen(
                 )
             }
 
-            // Short stat label for the corner chip — "MAX", "MIN", "AVG",
+            // Short stat label for the corner chip - "MAX", "MIN", "AVG",
             // "P50", etc. Mirrors statShortLabel in SettingsScreen so the
             // tile reads the same as the editor preview.
             fun shortStatLabel(stat: com.eried.eucplanet.ui.settings.DashboardStat): String =
@@ -1657,7 +1657,7 @@ fun DashboardScreen(
                     com.eried.eucplanet.ui.settings.DashboardStat.P99 -> "P99"
                 }
 
-            // Per-slot value resolver — turns any metric key into its
+            // Per-slot value resolver - turns any metric key into its
             // current displayable value. Reused by composite tiles to
             // populate each of their 2-3 cells. Static metric formatting
             // mirrors the default-6 cards above; new metric keys fall
@@ -1800,7 +1800,7 @@ fun DashboardScreen(
             // Lookup composite definition by id from the JSON blob the
             // editor writes. Returns null if the id isn't found (which
             // means the rider deleted it but the order entry still
-            // points at it — render an empty placeholder in that case).
+            // points at it - render an empty placeholder in that case).
             fun compositeFor(id: String): com.eried.eucplanet.ui.settings.MetricComposite? = try {
                 val root = org.json.JSONObject(dashboardCompositesJson.ifBlank { "{}" })
                 val node = root.optJSONObject(id) ?: return@compositeFor null
@@ -1909,7 +1909,7 @@ fun DashboardScreen(
                         val cornerRightValue = cornerStatValueFor(key, slotStats.right)
                         // Per-key value / colour / click ingredients.
                         // The default 6 keys preserve every quirk of the
-                        // old StatCard era — long-press on CURRENT toggles
+                        // old StatCard era - long-press on CURRENT toggles
                         // A↔W, tap on TRIP opens the latest trip detail.
                         // New / customized keys still render via the
                         // catalog with a placeholder value where the
@@ -2053,7 +2053,7 @@ fun DashboardScreen(
                                 }
                             )
                             else -> when {
-                                // Composite metric instance — render via
+                                // Composite metric instance - render via
                                 // the shared CompositeMetricBody so the
                                 // live dashboard, the editor preview,
                                 // and the pool pill all draw the tile
@@ -2204,7 +2204,7 @@ fun DashboardScreen(
                                         }
                                     }
                                 }
-                                // Custom tile — rider's icon + text label.
+                                // Custom tile - rider's icon + text label.
                                 key.startsWith("C:") -> {
                                     val tile = remember(dashboardCustomTilesJson, key) {
                                         customTileFor(key)
@@ -2277,7 +2277,7 @@ fun DashboardScreen(
                                     // CONTROLLER_TEMP, PHONE_BATTERY, DYN_*,
                                     // GPS_*, etc.). These tiles honour the
                                     // same per-slot corner stats as the
-                                    // hardcoded 5 above — without this the
+                                    // hardcoded 5 above - without this the
                                     // rider's Left/Right/Center pick from the
                                     // slot editor would silently vanish.
                                     // History buffers only exist for the six
@@ -2345,7 +2345,7 @@ fun DashboardScreen(
 
             // Read the rider's customized action order. Falls back to the
             // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
-            // RECORD) when blank — out-of-box layout stays byte-identical
+            // RECORD) when blank - out-of-box layout stays byte-identical
             // to the old hardcoded 6-button arrangement.
             val activeActionKeys = remember(dashboardActionOrderRaw) {
                 val parsed = dashboardActionOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
@@ -3013,7 +3013,7 @@ fun DashboardScreen(
                             onValueChange = {},
                             readOnly = true,
                             // Allow multi-line; no maxLines cap so the
-                            // whole note is visible — the dialog grows
+                            // whole note is visible - the dialog grows
                             // with content (Material caps the dialog
                             // height itself so it can't run off-screen).
                             modifier = Modifier.fillMaxWidth(),
@@ -3115,10 +3115,10 @@ fun DashboardScreen(
                                             val deadline = System.currentTimeMillis() + 3000L
                                             // Poll pointer events while bounding each wait by the
                                             // remaining time. Three exit conditions:
-                                            //  - 3s elapses with the finger still down inside the
+                                            // - 3s elapses with the finger still down inside the
                                             //    logo bounds  -> trigger Service Mode
-                                            //  - user lifts the finger early                 -> abort
-                                            //  - user drags the finger off the logo          -> abort
+                                            // - user lifts the finger early                 -> abort
+                                            // - user drags the finger off the logo          -> abort
                                             var triggered = false
                                             while (true) {
                                                 val remaining = deadline - System.currentTimeMillis()
@@ -3655,14 +3655,14 @@ internal fun SpeedGauge(
     modifier: Modifier = Modifier
 ) {
     // Speed-arc + speed-number colour rule (phone & watch share this rule):
-    //  - Color band ON  → band tier wins (safe / orange / red), even if the user
+    // - Color band ON  → band tier wins (safe / orange / red), even if the user
     //    has a custom accent, the band is a safety signal, not a style choice.
-    //  - Color band OFF → custom accent wins (overrideColor), else stay safe-green.
+    // - Color band OFF → custom accent wins (overrideColor), else stay safe-green.
     val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
     val speedFraction = (speed / maxSpeed).coerceIn(0f, 1f)
     // Gauge band tier colors. Captured into vals here (composable scope) so the
-    // Canvas DrawScope below — which can't read MaterialTheme — can still use them.
+    // Canvas DrawScope below - which can't read MaterialTheme - can still use them.
     // The "orange" approaching tier maps to statusWarn (defaults to AccentOrange,
     // pixel-identical); the "red" tier maps to gaugeDanger.
     val bandWarnColor = MaterialTheme.appColors.statusWarn
@@ -4222,7 +4222,7 @@ private fun ActionGroupPopover(
         ) {
             // ElevatedCard draws a native Android drop shadow at the
             // requested elevation (handled by the platform Renderer,
-            // not a custom blur), which is what the rider asked for —
+            // not a custom blur), which is what the rider asked for - 
             // crisp and consistent with other M3 surfaces.
             androidx.compose.material3.ElevatedCard(
                 shape = RoundedCornerShape(14.dp),

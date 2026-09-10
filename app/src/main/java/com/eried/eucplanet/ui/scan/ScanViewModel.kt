@@ -152,7 +152,7 @@ class ScanViewModel @Inject constructor(
     fun startScan() {
         if (_isScanning.value) return
         if (!refreshPermissions()) return
-        // Bluetooth itself must be on — otherwise the scan silently throws
+        // Bluetooth itself must be on - otherwise the scan silently throws
         // (null leScanner) and nothing happens. Surface it instead.
         if (!bleScanner.isBluetoothEnabled()) {
             _bluetoothOff.value = true
@@ -231,7 +231,7 @@ class ScanViewModel @Inject constructor(
         runCatching { context.unregisterReceiver(bluetoothStateReceiver) }
         // Rider left the scan screen. Re-enable auto-reconnect; if they didn't
         // pick a new wheel, reconnect to the last one (resumeAutoConnect only
-        // does so while still disconnected) — "reconnect as normal on dismiss".
+        // does so while still disconnected) - "reconnect as normal on dismiss".
         val reconnectAddress =
             if (!deviceSelected && cachedAutoConnect) cachedLastAddress else null
         bleConnectionManager.resumeAutoConnect(reconnectAddress, cachedLastName)

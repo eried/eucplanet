@@ -25,19 +25,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
 
 /**
- * Action layer — single source of truth for every rider-triggerable command.
+ * Action layer - single source of truth for every rider-triggerable command.
  *
  * Surfaces that can bind an action (Flic, volume keys, watch, dashboard tile,
  * future alarm-triggers, voice shortcuts, etc.) all query this catalog
  * instead of maintaining their own list. Adding a new action means adding
- * one entry to [ActionCatalog.all] — no other file should need to grow a
+ * one entry to [ActionCatalog.all] - no other file should need to grow a
  * new branch.
  *
  * The discriminator that picks which surfaces an action lands on is the
  * [ActionSpec.isEyesFreeSafe] flag:
- *  - Eyes-free safe → bindable on every physical / hands-free surface
+ * - Eyes-free safe → bindable on every physical / hands-free surface
  *    (Flic, volume key, watch, future trigger / alarm-fire).
- *  - Not eyes-free → only the surfaces where the rider is looking at the
+ * - Not eyes-free → only the surfaces where the rider is looking at the
  *    screen ([ActionSurface.DASHBOARD] / [ActionSurface.VOICE]).
  *
  * [ActionSpec.statusReader] returns "is this action's effect currently
@@ -80,7 +80,7 @@ enum class ActionSurface {
 /**
  * Read-only snapshot of the running app state, passed to
  * [ActionSpec.statusReader] so it can decide whether the action's effect
- * is currently active. Carrier-only — no Hilt scope, no flows; the caller
+ * is currently active. Carrier-only - no Hilt scope, no flows; the caller
  * builds a snapshot per dispatch from whatever sources it has.
  *
  * Fields are nullable / unknown-default to avoid forcing callers to plumb
@@ -93,7 +93,7 @@ data class StatusContext(
     val tripRecording: Boolean = false,
     /** Imperial-unit toggle state from settings. */
     val imperialUnits: Boolean = false,
-    /** Alarms-muted flag from settings. Not yet wired upstream — defaults false. */
+    /** Alarms-muted flag from settings. Not yet wired upstream - defaults false. */
     val alarmsMuted: Boolean = false,
     /** True when the wheel is currently in safety / legal mode. */
     val safetyActive: Boolean = false,
@@ -132,7 +132,7 @@ data class ActionSpec(
      * - Returns false → surfaces must NOT fire it (and may grey it out).
      * Set on actions that write BLE to the wheel so every eyes-free surface
      * (Flic, volume, watch, HUD, Garmin) is gated consistently when no wheel
-     * is connected — instead of each surface re-implementing the check.
+     * is connected - instead of each surface re-implementing the check.
      */
     val enabledReader: ((StatusContext) -> Boolean)? = null
 )
@@ -186,7 +186,7 @@ object ActionCatalog {
             labelRes = R.string.action_chip_safety_on,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
-            // Highlight when ALREADY in safety mode — pressing this is a
+            // Highlight when ALREADY in safety mode - pressing this is a
             // no-op in that case, so the active state warns the rider.
             statusReader = { it.safetyActive },
             enabledReader = { it.connected }
@@ -196,7 +196,7 @@ object ActionCatalog {
             labelRes = R.string.action_chip_safety_off,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
-            // Mirror of SAFETY_ON — highlight when already off.
+            // Mirror of SAFETY_ON - highlight when already off.
             statusReader = { !it.safetyActive },
             enabledReader = { it.connected }
         ),

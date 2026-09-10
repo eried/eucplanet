@@ -218,7 +218,7 @@ class MainActivity : ComponentActivity() {
         }
         WatchStateRepository.sendControl(this, intent)
         // Mirror the touch-button path's haptic so the rider's
-        // watchHapticOnAction setting works for hardware buttons too —
+        // watchHapticOnAction setting works for hardware buttons too - 
         // previously this path was silent and only on-screen taps
         // produced the buzz. Garmin's Actions.mc:dispatch already fires
         // haptic for both press kinds, so this brings Wear OS to parity.

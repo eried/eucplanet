@@ -53,9 +53,9 @@ private fun parseHexColor(s: String): Color? {
  * Watch-side mirror of the phone's `com.eried.eucplanet.util.Units`. The wheel
  * always sends km/h, km and °C over the Data Layer; these convert into the
  * rider's chosen units. [unit] strings are the same codes the phone resolves:
- *  - speed:    "kmh" / "mph" / "ms" / "kn"
- *  - distance: "km" / "mi" / "m" / "ft" / "mil"
- *  - temperature: "C" / "F" / "K"
+ * - speed:    "kmh" / "mph" / "ms" / "kn"
+ * - distance: "km" / "mi" / "m" / "ft" / "mil"
+ * - temperature: "C" / "F" / "K"
  * Keep the conversion factors in lockstep with the phone's Units.kt.
  */
 object WatchUnits {
@@ -122,7 +122,7 @@ internal val GaugeAccentRed = AccentRed
  * reproduce the watch's previous fixed palette so an un-synced watch (or an
  * older phone that doesn't send the string) looks exactly as before.
  *
- * Field order is the wire contract — keep it in lockstep with the phone's
+ * Field order is the wire contract - keep it in lockstep with the phone's
  * `ThemeAccent.packForWatch`.
  */
 data class WatchColors(

@@ -162,7 +162,7 @@ class GarminBridge @Inject constructor(
      * holds the previous second's tally / paired-device count so the
      * Settings UI shows ~1 Hz on the CIQ transport (which the SDK rate-
      * caps near 1 Hz regardless of how often we call sendMessage). The
-     * Live/Idle indicator does NOT read from this — it reads from
+     * Live/Idle indicator does NOT read from this - it reads from
      * [lastSuccessAtMs] below, because a 1 Hz delivery aliased against a
      * 1-second window would make this flag flip 0/1/0/1 and the UI badge
      * would blink.
@@ -174,7 +174,7 @@ class GarminBridge @Inject constructor(
     /**
      * Timestamp of the last ALIVE heartbeat received from the watch (ms
      * since epoch). Drives the Settings UI's Live/Idle badge with a
-     * generous 10-second tolerance — the watch heartbeats every 5 s, so
+     * generous 10-second tolerance - the watch heartbeats every 5 s, so
      * 10 s tolerates one missed beat without flapping.
      *
      * Intentionally NOT updated from sendMessage success callbacks: in
@@ -268,8 +268,8 @@ class GarminBridge @Inject constructor(
             }
         }
 
-        // Ack watchdog. The CIQ TETHERED transport — and occasionally the
-        // WIRELESS one when Connect Mobile is sluggish — keeps reporting
+        // Ack watchdog. The CIQ TETHERED transport - and occasionally the
+        // WIRELESS one when Connect Mobile is sluggish - keeps reporting
         // sendMessage SUCCESS into a half-dead socket. If we've heard at
         // least one ALIVE before but nothing for 30 s while we're still
         // pushing frames, the chain has gone silent and the transport
@@ -297,13 +297,13 @@ class GarminBridge @Inject constructor(
                 // half-dead local socket genuinely needs a fresh one. On real
                 // devices (WIRELESS) the watch's ALIVE ack is unreliable by
                 // nature, and shutting down + re-initializing the whole CIQ SDK
-                // every 30 s tears down a perfectly good phone->watch link —
+                // every 30 s tears down a perfectly good phone->watch link - 
                 // which is itself a cause of the frozen/stale dial. Connect
                 // Mobile manages WIRELESS reconnection on its own.
                 if (sinceAck > 30_000L && sdkReady && registeredDevices.isNotEmpty() &&
                     connectType == ConnectIQ.IQConnectType.TETHERED
                 ) {
-                    Log.w(TAG, "no watch ack for ${sinceAck}ms — resetting CIQ transport (tethered)")
+                    Log.w(TAG, "no watch ack for ${sinceAck}ms - resetting CIQ transport (tethered)")
                     resetTransport()
                 }
             }
@@ -490,7 +490,7 @@ class GarminBridge @Inject constructor(
                 Log.i(TAG, "Garmin watch info: $info")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("garmin: $info")
                 // The watch sends its info immediately on start, so treat
-                // this as the first "Live" signal too — saves the user
+                // this as the first "Live" signal too - saves the user
                 // staring at "Idle" for the first 5 s while the heartbeat
                 // timer warms up.
                 _lastSuccessAtMs.value = System.currentTimeMillis()
@@ -529,7 +529,7 @@ class GarminBridge @Inject constructor(
      *
      * The FIRST call surfaces a one-time "Launch EUC Planet?" prompt on the
      * watch (Just This Once / Always / No); once the rider taps "Always",
-     * later calls open it silently — the same behaviour as other apps that
+     * later calls open it silently - the same behaviour as other apps that
      * "auto-launch" their Connect IQ companion. Gated identically to
      * [pingWatchToWake] (sdkReady + watchAutoStart), and safe to call on every
      * resume: an already-open app simply reports APP_IS_ALREADY_RUNNING with no
@@ -578,7 +578,7 @@ class GarminBridge @Inject constructor(
             // Actually BLOCK until the SDK confirms the QUIT left the phone (or a
             // short cap elapses). stopEverything() kills our process right after
             // calling this, so the old fire-and-forget sendMessage was torn down
-            // before Connect Mobile transmitted it — the watch app never received
+            // before Connect Mobile transmitted it - the watch app never received
             // the quit and stayed open. Mirrors WearBridge.sendCloseToWatchBlocking's
             // Tasks.await(); runs on a background dispatcher so it never blocks UI.
             val latch = java.util.concurrent.CountDownLatch(devices.size)
@@ -793,7 +793,7 @@ class GarminBridge @Inject constructor(
     }
 
     /** Mirror of [com.eried.eucplanet.wear.WearBridge.computeGpsExtraSpeed].
-     *  Keep in sync if either changes — the watch dial mirrors the phone
+     *  Keep in sync if either changes - the watch dial mirrors the phone
      *  dashboard's gpsExtraSpeed indicator for parity with the Wear OS dial. */
     private fun computeGpsExtraSpeed(settings: AppSettings): Pair<Float, String>? {
         if (!settings.gpsShowOnDashboard) return null

@@ -59,10 +59,10 @@ import javax.inject.Inject
  * [DASHBOARD_METRIC_ALIASES] so the drift-guard tolerates them.
  */
 internal val KNOWN_DASHBOARD_METRICS = listOf(
-    // Currently active by default — keep these 6 first so a fresh install
+    // Currently active by default - keep these 6 first so a fresh install
     // mirrors the hard-coded layout byte-for-byte.
     "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
-    // Pool — already-buffered or simple-to-derive metrics.
+    // Pool - already-buffered or simple-to-derive metrics.
     // (No "POWER": it was a deprecated duplicate of BATTERY_POWER, removed from
     // MetricCatalog, so it rendered as the raw uppercase key with a placeholder
     // value. Riders use Motor power / Battery power instead.)
@@ -79,13 +79,13 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
     // once Phase 3 aggregation lands).
     "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
     "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
-    // Phone + GPS feeds — sourced outside WheelData.
+    // Phone + GPS feeds - sourced outside WheelData.
     "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
     "GPS_ACCURACY", "EXTERNAL_GPS_BATTERY",
-    // Derived motion + pack health — slope/altitude integration and
+    // Derived motion + pack health - slope/altitude integration and
     // wheel-firmware fields some boards expose.
     "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
-    // Connectivity diagnostic — useful when debugging dropouts.
+    // Connectivity diagnostic - useful when debugging dropouts.
     "BT_RSSI",
     // Extras targeted at composite-tile cells (small text, no
     // sparkline) -- they also render fine as standalone tiles.
@@ -247,7 +247,7 @@ class SettingsViewModel @Inject constructor(
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
 
     /**
-     * Unified view of every paired companion device — Wear OS + Garmin —
+     * Unified view of every paired companion device - Wear OS + Garmin - 
      * for the Settings "Device" region. Bridges expose raw name lists and
      * delivery-rate flows; we combine, tag with [PairedSurface.Kind], and
      * stamp each entry with the surface's current update rate so the UI
@@ -334,12 +334,12 @@ class SettingsViewModel @Inject constructor(
 
     /**
      * True when at least one paired surface has bindable hardware buttons:
-     *  - Any Garmin device (every Garmin watch ships ≥2 physical buttons,
+     * - Any Garmin device (every Garmin watch ships ≥2 physical buttons,
      *    and our CIQ Delegate maps the universal Start + Up-hold pair to
      *    `stem1` and `stem2`).
-     *  - Any Amazfit (Zepp OS) watch: the dial maps Select to `stem1`, Up to
+     * - Any Amazfit (Zepp OS) watch: the dial maps Select to `stem1`, Up to
      *    `stem2` and Down to `stem3`, the same layout as the Garmin model.
-     *  - A Galaxy Watch Ultra on Wear OS — the only Wear OS device that
+     * - A Galaxy Watch Ultra on Wear OS - the only Wear OS device that
      *    delivers `KEYCODE_STEM_1` (orange Action) and `KEYCODE_STEM_2`
      *    (bottom side) to third-party apps. Detected by friendly-name
      *    containing "Ultra" (case-insensitive); Pixel Watch / Galaxy
@@ -602,10 +602,10 @@ class SettingsViewModel @Inject constructor(
      * Section preview, play a short clip that demonstrates the section's current setting.
      *
      * [scenario] picks the motion pattern fed to the engine:
-     *  - "DEFAULT": idle → mid-rev → idle (Muffler, shows the muffler tone across the rev range)
-     *  - "GEARBOX": speed sweep so the virtual gearbox actually shifts
-     *  - "DECEL":   accel under load then sharp off-throttle to trigger pops / backfire
-     *  - "BRAKE":   sustained coast at speed so the engine-brake whine engages
+     * - "DEFAULT": idle → mid-rev → idle (Muffler, shows the muffler tone across the rev range)
+     * - "GEARBOX": speed sweep so the virtual gearbox actually shifts
+     * - "DECEL":   accel under load then sharp off-throttle to trigger pops / backfire
+     * - "BRAKE":   sustained coast at speed so the engine-brake whine engages
      */
     fun previewEngineSection(scenario: String) {
         viewModelScope.launch {
@@ -626,9 +626,9 @@ class SettingsViewModel @Inject constructor(
     /**
      * Sets the auto-start trip-recording mode in one atomic write over the
      * existing two booleans (no new persisted field):
-     *  - NEVER     -> autoRecord off
-     *  - CONNECTED -> on, runs from connect to disconnect (no idle stop)
-     *  - RIDING    -> on + motion-linked (start on movement, stop after idle)
+     * - NEVER     -> autoRecord off
+     * - CONNECTED -> on, runs from connect to disconnect (no idle stop)
+     * - RIDING    -> on + motion-linked (start on movement, stop after idle)
      */
     fun updateAutoRecordMode(mode: String) = update {
         when (mode) {
@@ -1514,7 +1514,7 @@ class SettingsViewModel @Inject constructor(
     //   5. When the dashboard renderer (DashboardScreen.kt) is wired in
     //      phase 2, also surface the metric there.
     //
-    // To add a new ACTION: see the comment on knownDashboardActions below —
+    // To add a new ACTION: see the comment on knownDashboardActions below - 
     // multiple files need touching because Flic / volume keys / WearOS have
     // their own definitions today (see audit comment there).
     //
@@ -1526,7 +1526,7 @@ class SettingsViewModel @Inject constructor(
     val knownDashboardMetrics = KNOWN_DASHBOARD_METRICS
     /**
      * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a
-     * new action is a single entry in `ActionCatalog.all` — no edit here.
+     * new action is a single entry in `ActionCatalog.all` - no edit here.
      *
      * The dashboard surface accepts every action regardless of
      * [ActionSpec.isEyesFreeSafe]; physical surfaces (Flic / volume key /
@@ -1542,7 +1542,7 @@ class SettingsViewModel @Inject constructor(
      * Per-slot default layout for the action grid's "Restore slot": the shipped
      * default order ([AppSettings.dashboardActionOrder]) leads, then the rest of
      * the catalog. Mirrors how knownDashboardMetrics' first entries ARE the
-     * metric default — knownDashboardActions is raw catalog declaration order,
+     * metric default - knownDashboardActions is raw catalog declaration order,
      * which didn't match the shipped grid, so restoring by catalog index put the
      * wrong action in slots 2/4/5. Restore uses this so slot N gets the action
      * that actually ships there.
@@ -1564,7 +1564,7 @@ class SettingsViewModel @Inject constructor(
             .filter { it.isNotEmpty() && (it == EMPTY_SLOT_KEY || it in known || it in dynamic) }
         // Append known keys that aren't already in the saved order so the pool
         // surfaces new defaults after an app upgrade. Dynamic IDs are NOT
-        // auto-added — they only exist while the rider has them on the grid
+        // auto-added - they only exist while the rider has them on the grid
         // or until they delete the underlying composite/group definition.
         return s + known.filter { it !in s }
     }
@@ -1963,7 +1963,7 @@ class SettingsViewModel @Inject constructor(
      * Demotes an active-grid metric to the pool and spawns a new empty
      * custom tile in the slot it vacated. The rider then taps the new tile
      * to fill in their text / URL / QR. No-op when [metricKey] isn't in the
-     * active portion of the grid — dragging a pool pill back to the pool
+     * active portion of the grid - dragging a pool pill back to the pool
      * shouldn't create custom tiles.
      */
     fun demoteMetricToCustomTile(metricKey: String) {
@@ -2026,7 +2026,7 @@ class SettingsViewModel @Inject constructor(
      * Catalog-model copy: write [key] into grid slot [slotIndex], leaving
      * the pool catalog untouched. Used when the drag source is a pool
      * pill (i.e. `sourceFromGrid = false` on the controller). Whatever
-     * was at [slotIndex] is discarded — for dynamic instances (composite
+     * was at [slotIndex] is discarded - for dynamic instances (composite
      * / custom tile) the definition is deleted too. The displaced static
      * metric is NOT added to the pool because the pool is the always-
      * present catalog of known metrics.
@@ -2072,7 +2072,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Catalog-model copy for actions — symmetric counterpart to
+     * Catalog-model copy for actions - symmetric counterpart to
      * [setDashboardMetricAtIndex]. Deletes the displaced action group's
      * definition if any.
      */
@@ -2124,7 +2124,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val current = settingsRepository.get()
             // Pass composite + custom-tile IDs as `dynamic` so sanitize keeps
-            // them in the order list — otherwise a stack or custom-link tile
+            // them in the order list - otherwise a stack or custom-link tile
             // dragged between slots would silently vanish from the persisted
             // layout.
             val items = sanitize(
@@ -2207,7 +2207,7 @@ class SettingsViewModel @Inject constructor(
             val needsReorder = currentOccupant != naturalKey
 
             if (needsReorder && occupantIsDynamic) {
-                // Dynamic occupant (composite / custom tile) gets deleted —
+                // Dynamic occupant (composite / custom tile) gets deleted - 
                 // the rider's "restore this slot" intent doesn't preserve
                 // dynamic instances. Remove it from the order, then move
                 // the natural metric into slotIndex (closing any gap).
@@ -2216,7 +2216,7 @@ class SettingsViewModel @Inject constructor(
                 if (naturalIdx >= 0) items.removeAt(naturalIdx)
                 items.add(slotIndex.coerceAtMost(items.size), naturalKey)
             } else if (needsReorder) {
-                // Static occupant — swap with the natural metric's current
+                // Static occupant - swap with the natural metric's current
                 // position so neither static metric is lost.
                 val naturalIdx = items.indexOf(naturalKey)
                 if (naturalIdx >= 0) {
@@ -2278,7 +2278,7 @@ class SettingsViewModel @Inject constructor(
 
     /**
      * Restore the action slot at [slotIndex] to `knownDashboardActions[slotIndex]`
-     * — symmetric counterpart to [resetDashboardMetricAtIndex]. Cleans up any
+     * - symmetric counterpart to [resetDashboardMetricAtIndex]. Cleans up any
      * action-group definitions pushed past the active region.
      */
     fun resetDashboardActionAtIndex(slotIndex: Int) {
@@ -2430,7 +2430,7 @@ class SettingsViewModel @Inject constructor(
             dashboardMetricsColumns = 2,
             dashboardMetricOrder = knownDashboardMetrics.joinToString(","),
             dashboardRollingWindowSeconds = ROLLING_WINDOW_DEFAULT_SECONDS,
-            // Wipe composite + custom-tile definitions too — the rider's
+            // Wipe composite + custom-tile definitions too - the rider's
             // reset action is a "back to defaults" signal, which includes
             // any custom stacks and personal-link tiles they had.
             dashboardCompositeMetrics = "{}",
@@ -2460,7 +2460,7 @@ class SettingsViewModel @Inject constructor(
      *  and fall back to a short "couldn't load" line when the card is still null. */
     val onlineUploadCardLoaded: StateFlow<Boolean> = eucStatsRepository.cardLoaded
 
-    /** True when the backend says this rider no longer exists (404) — the UI then
+    /** True when the backend says this rider no longer exists (404) - the UI then
      *  offers to re-register instead of a generic "couldn't load". */
     val onlineUploadCardMissing: StateFlow<Boolean> = eucStatsRepository.cardMissing
 
@@ -2487,7 +2487,7 @@ class SettingsViewModel @Inject constructor(
 
     /**
      * Enable online upload. Silently skipped when a sync folder or store_id is
-     * absent — the UI routes the rider through onboarding first. (Disabling is
+     * absent - the UI routes the rider through onboarding first. (Disabling is
      * done by [unlinkOnline].)
      */
     fun enableOnlineUpload() {
@@ -2539,7 +2539,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** Manual "Sync all" — runs the foreground bidirectional reconcile
+    /** Manual "Sync all" - runs the foreground bidirectional reconcile
      *  with the same conflict dialog the SAF folder sync uses. Distinct
      *  from the background DropboxSyncWorker that fires on trip-end /
      *  settings-save; that one is upload-only and skips the prompt. */
@@ -2709,7 +2709,7 @@ const val ROLLING_WINDOW_DEFAULT_SECONDS: Int = 300
  * those values stack inside a single grid tile.
  */
 enum class CompositeLayout(val cellCount: Int) {
-    /** Two cells stacked top/bottom — best for long values with units. */
+    /** Two cells stacked top/bottom - best for long values with units. */
     ROW2(2),
     /** Two cells side-by-side. */
     COL2(2),
@@ -2720,14 +2720,14 @@ enum class CompositeLayout(val cellCount: Int) {
 /**
  * Definition of a single composite metric instance. Stored in
  * [AppSettings.dashboardCompositeMetrics] as `{ id: { layout, cells } }`.
- * Sub-metric stats (min/max/avg) are intentionally NOT supported here — a
+ * Sub-metric stats (min/max/avg) are intentionally NOT supported here - a
  * composite always shows current values for each sub-metric.
  */
 data class MetricComposite(
     val layout: CompositeLayout = CompositeLayout.ROW2,
     val cells: List<String> = listOf("SPEED", "BATTERY"),
     /**
-     * Per-cell stat selector — what each cell displays. Parallel to
+     * Per-cell stat selector - what each cell displays. Parallel to
      * [cells]. Defaults to [DashboardStat.CURRENT] (live value) so
      * existing composites and freshly-spawned ones look the same as
      * before. The rider can change it per cell in the composite edit
@@ -2771,7 +2771,7 @@ const val CUSTOM_TILE_DEFAULT_ICON = "INFO"
  * [AppSettings.dashboardActionGroups] as `{ id: { name, icon, actions } }`.
  * Up to 4 sub-actions; the rider can intentionally duplicate an action
  * (e.g. two `RECORD_TOGGLE` entries if they want it twice in the popover).
- * [icon] is a stable key from a curated set rendered by `groupIconFor` —
+ * [icon] is a stable key from a curated set rendered by `groupIconFor` - 
  * not a raw image vector, so the storage stays JSON-stable across icon-set
  * upgrades.
  */
@@ -2787,7 +2787,7 @@ const val GROUP_DEFAULT_ICON = "FOLDER"
 
 /** Curated icon keys the rider can pick from in the group edit sheet and
  *  the custom-tile edit sheet. The list lives here (not in the screen) so
- *  the icon picker and the tile renderer share a single source of truth —
+ *  the icon picker and the tile renderer share a single source of truth - 
  *  adding a new entry shows up everywhere automatically. */
 val GROUP_ICON_CHOICES: List<String> = listOf(
     "FOLDER", "STAR", "BOLT", "FAVORITE", "DASHBOARD",
@@ -2824,8 +2824,8 @@ const val CUSTOM_BLE_DEFAULT_ICON = "BOLT"
  * actual battery reading.
  *
  * Examples:
- *  - "TEXT:" → empty text cell, shows "(empty)" placeholder
- *  - "TEXT:Right pack" → cell renders "Right pack"
+ * - "TEXT:" → empty text cell, shows "(empty)" placeholder
+ * - "TEXT:Right pack" → cell renders "Right pack"
  */
 const val COMPOSITE_TEXT_PREFIX = "TEXT:"
 
@@ -2850,7 +2850,7 @@ const val PICKER_DIVIDER_SENTINEL = "__DIVIDER__"
 /**
  * Sentinel key for an intentionally-blank top-level grid slot. Different from
  * COMPOSITE_CELL_EMPTY (which is the sub-cell placeholder inside a MULTI tile)
- * — this one occupies a row in dashboardMetricOrder / dashboardActionOrder
+ * - this one occupies a row in dashboardMetricOrder / dashboardActionOrder
  * so positions are preserved when the rider drags a tile out of a slot with
  * "move + leave source empty" semantics. Renderers map this key to a blank
  * Box; the pool catalog is the source-of-truth for re-adding the metric.
@@ -2878,7 +2878,7 @@ fun textCellContent(key: String): String = when {
 fun wrapAsTextCell(content: String): String = COMPOSITE_TEXT_PREFIX + content
 
 // Stats are listed in dropdown order. SUSTAINED_PEAK sits next to MAX because
-// it's a softer "Peak ignoring spikes shorter than 2s" companion — the same
+// it's a softer "Peak ignoring spikes shorter than 2s" companion - the same
 // reading Inmotion shows as "Sustained peak". Percentiles ascend so the
 // picker reads: None / Now / Min / Max / Sustained peak / Avg / Median (P50)
 // / P75 / P95 / P99.

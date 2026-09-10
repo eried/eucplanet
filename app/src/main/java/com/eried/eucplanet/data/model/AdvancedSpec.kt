@@ -61,7 +61,7 @@ val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f
 val pinFormat: (Int) -> String = { String.format(java.util.Locale.US, "%06d", it) }
 val pinParse: (String) -> Int? = { it.toIntOrNull() }
 
-/** Canonical defaults — one allocation, reused for resets, JSON fallback, etc. */
+/** Canonical defaults - one allocation, reused for resets, JSON fallback, etc. */
 val ADVANCED_DEFAULTS = AdvancedSettings()
 
 /** A spec's default value = the matching field on [ADVANCED_DEFAULTS]. */

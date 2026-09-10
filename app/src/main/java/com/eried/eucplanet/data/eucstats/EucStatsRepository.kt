@@ -37,14 +37,14 @@ data class SyncResult(val total: Int, val uploaded: Int, val cleared: Int = 0) {
  * fields plus the .txt-backed rider id so [EucStatsRepository] stays
  * JVM-testable without a DataStore, Android Context, or SyncManager.
  *
- *  - [get] / [update] read / write the (now slim) AppSettings record
+ * - [get] / [update] read / write the (now slim) AppSettings record
  *    (which carries only `onlineUploadEnabled` on the eucstats side; the
  *    full profile no longer ships in DataStore).
- *  - [riderStoreId] reads the current rider id from whichever backing
+ * - [riderStoreId] reads the current rider id from whichever backing
  *    store the host wires up. In production this delegates to
  *    `SyncManager.riderStoreId.value` (the `.txt` recovery file is the
  *    single source of truth); tests can substitute a fake.
- *  - [writeRiderId] / [deleteRiderId] persist the id (write to / delete
+ * - [writeRiderId] / [deleteRiderId] persist the id (write to / delete
  *    from the .txt) and update the runtime flow in lock-step.
  */
 interface EucStatsSettingsPort {
@@ -61,7 +61,7 @@ class EucStatsRepository @Inject constructor(
     private val attestation: Attestation,
     private val settings: EucStatsSettingsPort,
     private val tripDao: TripDao,
-    /** Reads the raw CSV bytes for a given trip — injected so no Android FS needed in tests. */
+    /** Reads the raw CSV bytes for a given trip - injected so no Android FS needed in tests. */
     @EucStatsTripFileBytes private val tripFileBytes: @JvmSuppressWildcards (TripRecord) -> ByteArray,
     @EucStatsAppVersion private val appVersion: String,
     @EucStatsOsVersion private val osVersion: String,
@@ -254,7 +254,7 @@ class EucStatsRepository @Inject constructor(
      * [onProgress] (done, total) so the UI can show a determinate bar like the
      * trips-backup "Sync all". Returns a [SyncResult] carrying both the total
      * eligible count and the number that actually uploaded, so callers can
-     * tell "nothing to do" apart from "all attempts failed" — the previous
+     * tell "nothing to do" apart from "all attempts failed" - the previous
      * Int return reported the total either way and led to misleading
      * "Synced N trips" snackbars when uploads silently failed.
      */

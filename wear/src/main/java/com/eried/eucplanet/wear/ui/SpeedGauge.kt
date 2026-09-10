@@ -41,7 +41,7 @@ fun SpeedGauge(
     showColorBand: Boolean = true,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
-    /** Safe-zone / fill, warning and danger colors — themed from the phone.
+    /** Safe-zone / fill, warning and danger colors - themed from the phone.
      *  Defaults reproduce the watch's original fixed gauge palette. */
     fillColor: Color = GaugeAccentGreen,
     warnColor: Color = GaugeAccentOrange,
@@ -63,9 +63,9 @@ fun SpeedGauge(
     modifier: Modifier = Modifier
 ) {
     // Speed-arc colour rule (matches phone dashboard exactly):
-    //  - Color band ON  → band tier wins (safe / orange / red), even if a custom
+    // - Color band ON  → band tier wins (safe / orange / red), even if a custom
     //    accent is picked, the band is a safety signal.
-    //  - Color band OFF → custom accent wins, else safe-green.
+    // - Color band OFF → custom accent wins, else safe-green.
     val orangeFracG = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFracG = (redThresholdPct / 100f).coerceIn(orangeFracG + 0.04f, 0.95f)
     val frac = (speed / maxSpeed.coerceAtLeast(0.0001f)).coerceIn(0f, 1f)
