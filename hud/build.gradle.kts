@@ -38,8 +38,8 @@ android {
         // Offset by 300000 so the HUD APK's version line never collides with
         // the phone (1..99999) or the wear companion (100000-prefixed) when
         // both are visible in the same release notes.
-        versionCode = 300014
-        versionName = "0.1.13"
+        versionCode = 300015
+        versionName = "0.1.14"
     }
 
     signingConfigs {
@@ -65,6 +65,8 @@ android {
             // lets the verifier accept the result -- the screens then
             // run cleanly on the JIT.
             isMinifyEnabled = true
+            // Drop the resources the shrunk code no longer references.
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
