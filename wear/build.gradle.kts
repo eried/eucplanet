@@ -22,9 +22,11 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 30
         targetSdk = 36
-        // Wear OS variant rides on the same package as the phone, so we offset
-        // its versionCode by 100000 to keep them distinct in Play Console while
-        // preserving the phone-side numbering (37 -> 100037).
+        // The wear APK shares the phone's applicationId, so Play needs its
+        // versionCode unique within the package and higher than the last wear
+        // upload. It is its own 1002xx series and does not track the phone's
+        // number: always increase it, never lower it to match, a lower code
+        // is a downgrade Play rejects.
         versionCode = 100267
         versionName = "0.18.0"
     }
