@@ -30,6 +30,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -778,6 +780,9 @@ class WheelRepository @Inject constructor(
         // doesn't flood downstream collectors. A paired external box (RaceBox)
         // is mounted on the wheel, so when the rider has one and "prioritize
         // external" is on, its accelerometer wins over the phone's IMU.
+        // The sensor itself is only held while a wheel is connected or a trip
+        // is recording (see the gate below); with it stopped the IMU flow goes
+        // quiet and this merge stops re-emitting frames for nobody.
         scope.launch {
             phoneSensorRepository.imu.sample(120L).collect { s ->
                 val ext = externalGpsRepository.currentSample.value
@@ -908,14 +913,28 @@ class WheelRepository @Inject constructor(
             }
         }
 
-        // The wheel-data merge needs IMU samples for its lifetime (we feed them
-        // into accelX / accelY / gForce regardless of BLE state, the IMU is
-        // the phone's, not the wheel's). Hold a single start ref forever so
-        // BLE disconnect flaps can't tear the listener down out from under
-        // active consumers like the Overlay Studio. The matching stop() lives
-        // on no code path, this is a singleton, the IMU is cheap, and any
-        // attempt to "balance" this with a stop reintroduces the bug.
-        phoneSensorRepository.start()
+        // Hold the phone IMU only while the g-force it feeds can reach
+        // someone: a connected wheel, or a trip recording without one. Held
+        // forever, the merge above copied and re-emitted the frame ~8 times a
+        // second with no wheel in sight, for every rider, all day. The
+        // sensor is reference counted, so this takes exactly one start() per
+        // rising edge and one stop() per falling edge; the Overlay Studio and
+        // the data-sources sheet keep their own references and are never
+        // touched by a disconnect. The Lazy is read inside the coroutine,
+        // where TripRepository is safe to construct.
+        scope.launch {
+            var held = false
+            combine(
+                bleManager.connectionState,
+                tripRepositoryLazy.get().recording,
+            ) { state, recording ->
+                state == ConnectionState.CONNECTED || recording
+            }.distinctUntilChanged().collect { wanted ->
+                if (wanted == held) return@collect
+                held = wanted
+                if (wanted) phoneSensorRepository.start() else phoneSensorRepository.stop()
+            }
+        }
 
         // React to connection state changes
         scope.launch {
