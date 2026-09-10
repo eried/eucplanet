@@ -16,6 +16,8 @@ name: Release builds
 #                                      without store access)
 #   amazfit-<version>.zab             (Zepp OS mini program bundle, the
 #                                      file submitted to the Zepp app store)
+#   README.md                         (the repo README, so the files come
+#                                      with their own setup notes)
 #
 # `<version>` is the tag with the leading `v` stripped (v0.9.0 -> 0.9.0).
 # Naming matches the branch-builds workflow's `<device>-...` convention.
@@ -83,6 +85,20 @@ jobs:
         with:
           ref: ${{ needs.meta.outputs.tag }}
           fetch-depth: 1
+
+      - name: Verify the tag matches versionName
+        env:
+          TAG: ${{ needs.meta.outputs.tag }}
+          VERSION: ${{ needs.meta.outputs.version }}
+        run: |
+          # The files are named after the tag but the app reports its own
+          # versionName; a mismatch ships a 0.21.0 that calls itself 0.20.3.
+          name=$(sed -nE 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' app/build.gradle.kts | head -1)
+          if [ "$name" != "$VERSION" ]; then
+            echo "::error::Tag $TAG says $VERSION but app/build.gradle.kts versionName is '$name'. Bump the version or retag."
+            exit 1
+          fi
+          echo "versionName $name matches $TAG"
 
       - name: Verify signing secrets are configured
         env:
@@ -198,6 +214,8 @@ jobs:
             cp hud/build/outputs/apk/debug/hud-debug.apk \
                "/tmp/out/hud-${{ needs.meta.outputs.version }}.apk"
           fi
+          # Release parity: the README rides along with every release.
+          cp README.md /tmp/out/README.md
           ls -la /tmp/out
 
       - name: Stage for publish
@@ -391,7 +409,7 @@ jobs:
           # Last gate before the announcement: a stage that came up short (a
           # job that built nothing, an upload that half failed) fails here,
           # not as a rider asking where the watch file went.
-          expected="phone-${VERSION}-slim.apk wearos-${VERSION}.apk hud-${VERSION}.apk garmin-${VERSION}.iq garmin-${VERSION}-prgs.zip amazfit-${VERSION}.zab"
+          expected="phone-${VERSION}-slim.apk wearos-${VERSION}.apk hud-${VERSION}.apk garmin-${VERSION}.iq garmin-${VERSION}-prgs.zip amazfit-${VERSION}.zab README.md"
           have=$(gh release view "$TAG" --json assets --jq '.assets[].name')
           missing=""
           for f in $expected; do
