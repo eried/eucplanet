@@ -255,7 +255,7 @@ class WheelService : LifecycleService() {
 
         if (!canUseLocation && !canUseBluetooth) {
             Log.e(TAG, "No permission for either location or bluetooth FGS type, stopping")
-            stopSelf()
+            stopWithoutBreakingTheForegroundPromise()
             return
         }
 
@@ -267,7 +267,7 @@ class WheelService : LifecycleService() {
             startForeground(NOTIFICATION_ID, buildNotification(null), fgType)
         } catch (e: SecurityException) {
             Log.e(TAG, "startForeground denied, stopping", e)
-            stopSelf()
+            stopWithoutBreakingTheForegroundPromise()
             return
         }
 
@@ -509,6 +509,27 @@ class WheelService : LifecycleService() {
                 }
             }
         }
+    }
+
+    /**
+     * We were started with startForegroundService() but cannot declare our
+     * real foreground type (the rider revoked Bluetooth and location). A bare
+     * stopSelf() here breaks that promise and Android kills the whole app with
+     * ForegroundServiceDidNotStartInTimeException, which is what a rider who
+     * denied the permission and then tapped a wheel used to get. Honour the
+     * promise first with the one type that needs no permission (API 34+), then
+     * stop; if even that is refused, stop the old way, no worse than before.
+     */
+    private fun stopWithoutBreakingTheForegroundPromise() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            runCatching {
+                startForeground(
+                    NOTIFICATION_ID, buildNotification(null),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
+                )
+            }.onFailure { Log.w(TAG, "shortService fallback refused: ${it.message}") }
+        }
+        stopSelf()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
