@@ -65,6 +65,8 @@ android {
             // lets the verifier accept the result -- the screens then
             // run cleanly on the JIT.
             isMinifyEnabled = true
+            // Drop the resources the shrunk code no longer references.
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

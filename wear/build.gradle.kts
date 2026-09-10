@@ -47,6 +47,8 @@ android {
             // proguard-rules.pro keeps the Data Layer bridge classes the
             // companion phone app sends messages to via reflection-y APIs.
             isMinifyEnabled = true
+            // Drop the resources the shrunk code no longer references.
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

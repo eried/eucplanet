@@ -21,6 +21,18 @@ val keystoreProps = Properties().apply {
     }
 }
 
+// Runs git at configuration time through the provider API: the configuration
+// cache records the call and re-checks its output on the next build, where a
+// bare ProcessBuilder is rejected as an untracked external process. Empty when
+// git is missing or the command fails.
+fun git(vararg args: String): String = runCatching {
+    providers.exec {
+        commandLine("git", *args)
+        workingDir = projectDir
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+}.getOrDefault("")
+
 android {
     namespace = "com.eried.eucplanet"
     compileSdk = 36
@@ -34,20 +46,19 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // The stamp is the HEAD commit time, not the wall clock: a clock stamp
+        // changed every minute, which rewrote BuildConfig and recompiled the
+        // app on every build. Wall clock only when git is unavailable.
+        val commitEpoch = git("log", "-1", "--format=%ct").toLongOrNull()
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
-            .format(Date())
+            .format(if (commitEpoch != null) Date(commitEpoch * 1000) else Date())
         buildConfigField("String", "BUILD_STAMP", "\"$buildStamp\"")
 
         // Current git branch, baked in at build time so the About dialog can
         // show which branch a build came from. Empty when git isn't available;
         // the UI hides the tag for "main" / detached HEAD.
-        val gitBranch = try {
-            val process = ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD").start()
-            val out = process.inputStream.bufferedReader().use { it.readText().trim() }
-            process.waitFor()
-            if (process.exitValue() == 0) out else ""
-        } catch (e: Exception) { "" }
+        val gitBranch = git("rev-parse", "--abbrev-ref", "HEAD")
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
 
         // A "dev" build is any branch build other than main. Same signal the
