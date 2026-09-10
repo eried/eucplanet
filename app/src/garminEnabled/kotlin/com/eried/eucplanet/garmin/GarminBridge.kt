@@ -243,7 +243,7 @@ class GarminBridge @Inject constructor(
         scope.launch {
             while (true) {
                 try {
-                    val s = settingsRepository.get()
+                    val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
                         s.safetyTiltbackKmh else s.tiltbackSpeedKmh
                     val gaugeMax = (((effTilt / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)
@@ -262,7 +262,7 @@ class GarminBridge @Inject constructor(
                 // floods the outbound queue (issue #14). The rider can still
                 // publish slower to save battery.
                 delay(
-                    settingsRepository.get().garminReportIntervalMs.toLong()
+                    settingsRepository.currentOrLoad().garminReportIntervalMs.toLong()
                         .coerceAtLeast(PUBLISH_INTERVAL_MS)
                 )
             }

@@ -15,7 +15,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -286,7 +285,6 @@ fun DashboardScreen(
     // displayed speed on the gauge, the underlying wheelData.speed stays accurate
     // for recording, alarms, voice announcements, motor sound, etc.
     val cheatSpeedMult by viewModel.cheatState.speedDisplayMultiplier.collectAsState()
-    SideEffect { Log.d("EucDash", "recompose conn=$connectionState speed=${wheelData.speed}") }
     val safetyActive by viewModel.safetySpeedActive.collectAsState()
     val locked by viewModel.locked.collectAsState()
     val lockBusy by viewModel.lockBusy.collectAsState()
@@ -350,18 +348,17 @@ fun DashboardScreen(
     val chargeStatusForAutoOpen by viewModel.chargeStatus.collectAsState()
     val chargingAutoOpen by viewModel.chargingAutoOpen.collectAsState()
     var lastChargeStatus by remember { mutableStateOf(chargeStatusForAutoOpen) }
-    var lastNonZeroSpeedAt by remember { mutableStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(wheelData.speed) {
-        if (kotlin.math.abs(wheelData.speed) >= 0.5f) {
-            lastNonZeroSpeedAt = System.currentTimeMillis()
-        }
-    }
+    // Entering the screen counts as motion, as it did when this timer was
+    // local: a charge that starts in the first seconds here must not steal
+    // the screen. The moving stamp itself lives in the ViewModel, fed by one
+    // collector, instead of an effect restarted on every speed change.
+    val enteredAt = remember { System.currentTimeMillis() }
     LaunchedEffect(chargeStatusForAutoOpen, chargingAutoOpen) {
         val started = chargeStatusForAutoOpen == com.eried.eucplanet.data.model.ChargeStatus.Charging &&
             lastChargeStatus != com.eried.eucplanet.data.model.ChargeStatus.Charging
         lastChargeStatus = chargeStatusForAutoOpen
         val stillForLongEnough =
-            System.currentTimeMillis() - lastNonZeroSpeedAt >= AUTO_OPEN_STILL_MS
+            System.currentTimeMillis() - maxOf(enteredAt, viewModel.lastMovingAtMs) >= AUTO_OPEN_STILL_MS
         if (started && chargingAutoOpen && stillForLongEnough) onNavigateToCharging()
     }
     // Customizable dashboard layout — falls back to the catalog defaults
@@ -1891,13 +1888,19 @@ fun DashboardScreen(
                             continue
                         }
                         val spec = MetricCatalog.byKey(key)
-                        val sparklineEnabled = sparkEnabledFor(key)
+                        // Both helpers parse the whole stats blob; remembered
+                        // per slot so a telemetry frame does not re-parse it.
+                        val sparklineEnabled = remember(dashboardMetricStatsJson, key) {
+                            sparkEnabledFor(key)
+                        }
                         // Per-slot corner-stat config. Standalone tiles honor
                         // these (centre overrides the big number; left/right
                         // render small "MAX 94" / "MIN 78" chips at the bottom
                         // corners). Composite (MULTI) tiles ignore this layer
                         // and route through their per-cell stat list below.
-                        val slotStats = slotStatsFor(key)
+                        val slotStats = remember(dashboardMetricStatsJson, key) {
+                            slotStatsFor(key)
+                        }
                         val centerOverride = cornerStatValueFor(key, slotStats.center)
                         val centerStatLabel = shortStatLabel(slotStats.center).takeIf { it.isNotEmpty() }
                         val cornerLeftLabel = shortStatLabel(slotStats.left).takeIf { it.isNotEmpty() }
@@ -2059,7 +2062,9 @@ fun DashboardScreen(
                                 // gets the same formatting it would in
                                 // a standalone slot.
                                 key.startsWith("M:") -> {
-                                    val composite = compositeFor(key)
+                                    val composite = remember(dashboardCompositesJson, key) {
+                                        compositeFor(key)
+                                    }
                                     // Tap-side detection: derive which
                                     // cell the rider hit so the History
                                     // popup opens on that cell's tab.
@@ -2201,7 +2206,9 @@ fun DashboardScreen(
                                 }
                                 // Custom tile — rider's icon + text label.
                                 key.startsWith("C:") -> {
-                                    val tile = customTileFor(key)
+                                    val tile = remember(dashboardCustomTilesJson, key) {
+                                        customTileFor(key)
+                                    }
                                     val ctxLocal = LocalContext.current
                                     Box(
                                         modifier = Modifier
