@@ -6,11 +6,11 @@ name: Release builds
 #   phone-<version>-slim.apk          (slim release-signed phone APK)
 #   wearos-<version>.apk              (release-signed wear APK)
 #   hud-<version>.apk                 (release-signed HUD APK)
-#   garmin-<version>.iq               (multi-device Connect IQ bundle —
+#   garmin-<version>.iq               (multi-device Connect IQ bundle -
 #                                      this is the file you upload to the
 #                                      Connect IQ Store; one .iq covers
 #                                      every supported device)
-#   garmin-<version>-prgs.zip         (per-device .prg files bundled —
+#   garmin-<version>-prgs.zip         (per-device .prg files bundled -
 #                                      for advanced sideload via
 #                                      Connect IQ Mobile on Garmins
 #                                      without store access)
@@ -26,9 +26,11 @@ name: Release builds
 # we save them ~40 MB by stripping the embedded wear from the GitHub copy.
 # The companion wear APK is uploaded as its own file for sideloaders.
 #
-# Garmin CI is opt-in: set the GARMIN_SDK_BUNDLE_URL repo secret to a stable
-# download URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1.
-# Without that secret the garmin job exits as `skipped` cleanly.
+# Garmin CI needs the GARMIN_SDK_BUNDLE_URL repo secret: a stable download
+# URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1. Without it
+# the garmin job fails and nothing is published. A release is every
+# companion or none (release parity), so a missing Garmin or Amazfit build
+# can never slip through as a phone-only release.
 #
 # Required signing secrets (Settings -> Secrets and variables -> Actions):
 #   RELEASE_KEYSTORE   : base64-encoded contents of the release .jks file
@@ -186,7 +188,7 @@ jobs:
             cp wear/build/outputs/apk/debug/wearos-debug.apk \
                "/tmp/out/wearos-${{ needs.meta.outputs.version }}.apk"
           fi
-          # HUD release APK — same release/debug fallback as wear so older
+          # HUD release APK, same release/debug fallback as wear so older
           # tags without a release signing config still produce something
           # installable.
           if [ -f hud/build/outputs/apk/release/hud-release.apk ]; then
@@ -216,40 +218,37 @@ jobs:
     env:
       GARMIN_SDK_BUNDLE_URL: ${{ secrets.GARMIN_SDK_BUNDLE_URL }}
     steps:
-      - name: Skip if bundle URL not configured
-        id: precheck
+      - name: Verify the CIQ SDK bundle URL is configured
+        # A missing secret used to turn this job into a silent skip that still
+        # counted as success, so a release could go out without its Garmin
+        # files. Fail instead: publish requires this job to succeed.
         run: |
           if [ -z "$GARMIN_SDK_BUNDLE_URL" ]; then
-            echo "::notice::GARMIN_SDK_BUNDLE_URL secret not set; skipping Garmin build."
-            echo "::notice::See tools/bundle-ciq-sdk-for-ci.ps1 to enable."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "::error::GARMIN_SDK_BUNDLE_URL secret not set; the Garmin build cannot run, so nothing will be published."
+            echo "::error::See tools/bundle-ciq-sdk-for-ci.ps1 to create the bundle and set the secret."
+            exit 1
           fi
 
       - name: Checkout tag
-        if: steps.precheck.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.meta.outputs.tag }}
           fetch-depth: 1
 
       - name: Set up JDK 17
-        if: steps.precheck.outputs.skip == 'false'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Download CIQ SDK bundle
-        if: steps.precheck.outputs.skip == 'false'
         run: |
           mkdir -p /tmp/ciq
           curl -fL --retry 3 -o /tmp/ciq/bundle.zip "$GARMIN_SDK_BUNDLE_URL"
           unzip -q /tmp/ciq/bundle.zip -d /tmp/ciq
           test -x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc || chmod +x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc /tmp/ciq/ciq-bundle/sdk/bin/monkeydo
           # monkeyc hard-codes ~/.Garmin/ConnectIQ/Devices as the device-
-          # profile root — it doesn't honour GARMIN_DEVICE_DIR or any
+          # profile root, it doesn't honour GARMIN_DEVICE_DIR or any
           # equivalent flag. Symlink the bundled devices into the expected
           # location so monkeyc finds every manifest entry, otherwise it
           # errors with "Device ids ... not recognized" for everything in
@@ -258,7 +257,6 @@ jobs:
           ln -sfn /tmp/ciq/ciq-bundle/devices "$HOME/.Garmin/ConnectIQ/Devices"
 
       - name: Install the permanent CIQ signing key
-        if: steps.precheck.outputs.skip == 'false'
         # THE ONLY key allowed to sign .iq/.prg output, ever - see the
         # matching step in branch-apk.yml and the signing vault README.
         env:
@@ -276,7 +274,6 @@ jobs:
           fi
 
       - name: Build .iq + per-device .prg files
-        if: steps.precheck.outputs.skip == 'false'
         run: |
           mkdir -p /tmp/out
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
@@ -293,7 +290,7 @@ jobs:
           ls -la "$IQ_OUT"
 
           # Build each per-device .prg into /tmp/prgs first, then zip
-          # the lot into a single garmin-<version>-prgs.zip — uploading
+          # the lot into a single garmin-<version>-prgs.zip, uploading
           # 17 individual files clutters the release page and most
           # riders only need the .iq above. Power-users who specifically
           # want a single device's .prg can unzip locally.
@@ -312,7 +309,6 @@ jobs:
           ls -la /tmp/out
 
       - name: Stage for publish
-        if: steps.precheck.outputs.skip == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: stage-garmin
@@ -358,8 +354,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: [meta, android, garmin, amazfit]
-    # Run even if garmin or amazfit was skipped or failed, as long as android succeeded.
-    if: always() && needs.android.result == 'success'
+    # Release parity: every companion or nothing. No always() here: a failed
+    # or skipped companion must leave the release untouched, and there is
+    # nothing to run in that case.
+    if: needs.android.result == 'success' && needs.garmin.result == 'success' && needs.amazfit.result == 'success'
     steps:
       - name: Download staged artifacts
         uses: actions/download-artifact@v4
@@ -383,7 +381,31 @@ jobs:
           gh release upload "$tag" /tmp/stage/* --clobber
           ls -la /tmp/stage
 
+      - name: Verify every expected asset is on the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.meta.outputs.tag }}
+          VERSION: ${{ needs.meta.outputs.version }}
+        run: |
+          # Last gate before the announcement: a stage that came up short (a
+          # job that built nothing, an upload that half failed) fails here,
+          # not as a rider asking where the watch file went.
+          expected="phone-${VERSION}-slim.apk wearos-${VERSION}.apk hud-${VERSION}.apk garmin-${VERSION}.iq garmin-${VERSION}-prgs.zip amazfit-${VERSION}.zab"
+          have=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+          missing=""
+          for f in $expected; do
+            printf '%s\n' "$have" | grep -qxF -- "$f" || missing="$missing $f"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Release $TAG is missing:$missing"
+            exit 1
+          fi
+          echo "All expected assets are attached to $TAG"
+
       - name: Announce release on Telegram
+        # Runs only after the asset check above passed, so an incomplete
+        # release is never announced.
         # Posts the release into the @EUCPlanetApp "Github" topic. Opt-in via the
         # TELEGRAM_* secrets; a Telegram hiccup never fails the release (|| true).
         # github.event / notes are passed via env (never inlined) to avoid

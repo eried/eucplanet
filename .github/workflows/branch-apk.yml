@@ -15,10 +15,11 @@ name: Branch builds
 #   garmin-<branch>-<short_sha>-prgs.zip   (per-device .prg files bundled)
 #   amazfit-<branch>-<short_sha>.zab       (Zepp OS mini program bundle)
 #
-# Garmin CI is opt-in: set the GARMIN_SDK_BUNDLE_URL repo secret to a stable
-# download URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1.
-# Without that secret, the garmin job exits as `skipped` and the phone/wear
-# jobs keep working.
+# Garmin CI needs the GARMIN_SDK_BUNDLE_URL repo secret: a stable download
+# URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1. Without it
+# the garmin job fails and the rolling pre-release is not touched, so testers
+# get every companion or none. The phone/wear/HUD APKs still land as workflow
+# artifacts, so a fork without the secret can still test those.
 #
 # Pull-request runs build the APK as a workflow artifact (downloadable from
 # the Actions tab for ~90 days) but do not touch the release list, so PRs
@@ -132,36 +133,32 @@ jobs:
   garmin:
     runs-on: ubuntu-latest
     needs: meta
-    # Skip cleanly when the bundle URL secret isn't set, so the rest of the
-    # workflow still works on forks / first-time setups. Note: secrets can't
-    # be referenced directly in `if:`, so we route through an env var.
+    # Secrets can't be referenced in a job-level `if:`, so the first step
+    # reads the env var and fails loudly when the bundle URL is missing.
     env:
       GARMIN_SDK_BUNDLE_URL: ${{ secrets.GARMIN_SDK_BUNDLE_URL }}
     steps:
-      - name: Skip if bundle URL not configured
-        id: precheck
+      - name: Verify the CIQ SDK bundle URL is configured
+        # A missing secret used to turn this job into a silent skip that still
+        # counted as success, so a release could go out without its Garmin
+        # files. Fail instead: publish requires this job to succeed.
         run: |
           if [ -z "$GARMIN_SDK_BUNDLE_URL" ]; then
-            echo "::notice::GARMIN_SDK_BUNDLE_URL secret not set; skipping Garmin build."
-            echo "::notice::See tools/bundle-ciq-sdk-for-ci.ps1 to enable."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "::error::GARMIN_SDK_BUNDLE_URL secret not set; the Garmin build cannot run, so nothing will be published."
+            echo "::error::See tools/bundle-ciq-sdk-for-ci.ps1 to create the bundle and set the secret."
+            exit 1
           fi
 
       - name: Checkout
-        if: steps.precheck.outputs.skip == 'false'
         uses: actions/checkout@v4
 
       - name: Set up JDK 17 (monkeyc runs on a JRE)
-        if: steps.precheck.outputs.skip == 'false'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Download CIQ SDK bundle
-        if: steps.precheck.outputs.skip == 'false'
         run: |
           mkdir -p /tmp/ciq
           # GH release URLs are public for public repos; if you host on a
@@ -171,7 +168,7 @@ jobs:
           unzip -q /tmp/ciq/bundle.zip -d /tmp/ciq
           test -x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc || chmod +x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc /tmp/ciq/ciq-bundle/sdk/bin/monkeydo
           # monkeyc hard-codes ~/.Garmin/ConnectIQ/Devices as the device-
-          # profile root — symlink the bundled devices there so monkeyc
+          # profile root, symlink the bundled devices there so monkeyc
           # finds every manifest entry. Otherwise it errors with "Device
           # ids ... not recognized" for everything in manifest.xml.
           mkdir -p "$HOME/.Garmin/ConnectIQ"
@@ -179,7 +176,6 @@ jobs:
           ls /tmp/ciq/ciq-bundle/devices | head -5
 
       - name: Install the permanent CIQ signing key
-        if: steps.precheck.outputs.skip == 'false'
         # THE ONLY key allowed to sign .iq/.prg output, ever. The Connect IQ
         # store binds a listing to its first key forever, and two listings
         # were already burned by throwaway-signed uploads (2026-07-06 and
@@ -203,7 +199,6 @@ jobs:
           fi
 
       - name: Build .iq (multi-device bundle)
-        if: steps.precheck.outputs.skip == 'false'
         run: |
           mkdir -p /tmp/out
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
@@ -222,7 +217,6 @@ jobs:
           ls -la "$OUT"
 
       - name: Build per-device .prg files
-        if: steps.precheck.outputs.skip == 'false'
         run: |
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
           export CIQ_HOME=/tmp/ciq/ciq-bundle/sdk
@@ -232,7 +226,7 @@ jobs:
           # release used to carry 135 individual .prg files alongside the
           # .iq, which buried the .iq under a wall of asset rows. The .iq
           # is the universal artifact (multi-device, Connect IQ Store
-          # format); .prgs are advanced-sideload-only — bundling them keeps
+          # format); .prgs are advanced-sideload-only, bundling them keeps
           # the release page scannable.
           mkdir -p /tmp/prgs
           for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8pro47mm fenix8solar47mm fenix8solar51mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
@@ -253,7 +247,6 @@ jobs:
           ls -la /tmp/out
 
       - name: Upload as workflow artifacts (always)
-        if: steps.precheck.outputs.skip == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: garmin-${{ needs.meta.outputs.short_sha }}
@@ -261,7 +254,7 @@ jobs:
           retention-days: 90
 
       - name: Stage for release
-        if: steps.precheck.outputs.skip == 'false' && github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: stage-garmin-${{ needs.meta.outputs.short_sha }}
@@ -312,8 +305,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: [meta, android, garmin, amazfit]
-    # Run even if garmin or amazfit was skipped or failed, but not for PRs.
-    if: always() && github.event_name != 'pull_request' && needs.android.result == 'success'
+    # Same parity rule as the release workflow: the rolling pre-release is
+    # replaced only when every companion built, and never for PRs.
+    if: github.event_name != 'pull_request' && needs.android.result == 'success' && needs.garmin.result == 'success' && needs.amazfit.result == 'success'
     steps:
       - name: Checkout (for release body)
         uses: actions/checkout@v4
