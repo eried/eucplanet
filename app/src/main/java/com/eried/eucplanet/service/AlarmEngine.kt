@@ -132,7 +132,7 @@ class AlarmEngine @Inject constructor(
             evalMutex.withLock {
             // Persisted session mute, set by the dashboard's MUTE_ALARMS action.
             // Read inside the launch so we always see the latest store value.
-            if (settingsRepository.get().alarmsMuted) { stopConstantTone(); return@withLock }
+            if (settingsRepository.currentOrLoad().alarmsMuted) { stopConstantTone(); return@withLock }
             // Rules bound to a specific wheel only run while THAT wheel is the
             // connected one; unbound rules behave exactly as before.
             val wheelAddr = bleConnectionManager.connectedAddressOrNull()
@@ -160,7 +160,7 @@ class AlarmEngine @Inject constructor(
             handleConstantTone(fired, byId)
 
             if (fired.isNotEmpty()) {
-                val s = settingsRepository.get()
+                val s = settingsRepository.currentOrLoad()
                 val su = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 val du = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 val tu = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
@@ -340,7 +340,7 @@ class AlarmEngine @Inject constructor(
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
-                if (settingsRepository.get().alarmsMuted) return@withLock
+                if (settingsRepository.currentOrLoad().alarmsMuted) return@withLock
                 val wheelAddr = bleConnectionManager.connectedAddressOrNull()
                 val rules = alarmDao.getEnabled().filter {
                     (it.metric == AlarmMetric.EXTERNAL_GPS_BATTERY.name ||
@@ -388,7 +388,7 @@ class AlarmEngine @Inject constructor(
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
-                if (settingsRepository.get().alarmsMuted) return@withLock
+                if (settingsRepository.currentOrLoad().alarmsMuted) return@withLock
                 val locationMetrics = setOf(AlarmMetric.GPS_SPEED.name, AlarmMetric.GPS_ALTITUDE.name)
                 val wheelAddr = bleConnectionManager.connectedAddressOrNull()
                 val rules = alarmDao.getEnabled().filter {

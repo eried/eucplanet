@@ -8,11 +8,16 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.store.SettingsStore
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,6 +31,32 @@ class SettingsRepository @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     val settings: Flow<AppSettings> = store.settings.map { it.sanitized() }
+
+    // Completed by the store's first emission. DataStore has no synchronous
+    // read, so until then [current] can only hold the defaults.
+    private val firstLoad = CompletableDeferred<Unit>()
+
+    /**
+     * The latest sanitized settings, kept warm.
+     *
+     * [get] re-parses the whole JSON blob on every call, which the telemetry,
+     * alarm, watch, HUD and Garmin loops were doing several times a second
+     * between them. Reads here cost a field load. A write that lands in the
+     * same instant shows up one emission later, which those loops tolerate.
+     *
+     * Holds the defaults until the store has been read once; a loop that
+     * starts at process birth should use [currentOrLoad] so its first tick
+     * does not act on them.
+     */
+    val current: StateFlow<AppSettings> = settings
+        .onEach { firstLoad.complete(Unit) }
+        .stateIn(scope, SharingStarted.Eagerly, AppSettings().sanitized())
+
+    /** [current] once the store has been read at least once. Free after that. */
+    suspend fun currentOrLoad(): AppSettings {
+        if (!firstLoad.isCompleted) firstLoad.await()
+        return current.value
+    }
 
     suspend fun get(): AppSettings = store.get().sanitized()
 

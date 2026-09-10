@@ -284,7 +284,7 @@ class WearBridge @Inject constructor(
                     //   gaugeMax = ((effectiveTiltback / 10) + 1) * 10
                     // where effectiveTiltback is the safety-tiltback when legal mode is
                     // on, normal tiltback otherwise. Mirroring that here.
-                    val s = settingsRepository.get()
+                    val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
                         s.safetyTiltbackKmh else s.tiltbackSpeedKmh
                     // Mirror the phone dashboard's 30 km/h floor so the watch
@@ -300,7 +300,7 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                delay(publishIntervalMsFor(settingsRepository.get().watchUpdateRate))
+                delay(publishIntervalMsFor(settingsRepository.currentOrLoad().watchUpdateRate))
             }
         }
     }

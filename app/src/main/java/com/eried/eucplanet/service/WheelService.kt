@@ -279,7 +279,7 @@ class WheelService : LifecycleService() {
                 voiceService.recordTelemetry(data)
                 pushWidget(data)
                 pushPhoneHud(data)
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 automationManager.evaluate(settings)
                 shareSession.publishTick()
                 checkLightTransition(data.lightOn, settings)
