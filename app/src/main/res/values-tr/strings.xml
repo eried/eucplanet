@@ -32,6 +32,11 @@
     <string name="action_back">Geri</string>
     <string name="action_cancel">İptal</string>
     <string name="action_ok">Tamam</string>
+    <string name="action_replace">Değiştir</string>
+    <string name="action_continue">Devam</string>
+    <string name="action_select">Seç</string>
+    <string name="state_on">Açık</string>
+    <string name="state_off">Kapalı</string>
     <string name="action_done">Bitti</string>
     <string name="action_close">Kapat</string>
 <string name="crash_log_action_prompt">%1$s\'e uzun bastınız. Yalnızca bu günlüğü silin ya da tümünü silin. Paylaşmak için İptal\'e, ardından dosyaya dokunun.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Sanal tekerlekler</string>
-    <string name="scan_simulate_subtitle">BLE\'yi atlayarak hazır yanıtlar kullanır. Yalnızca geliştirme sürümleri.</string>
+    <string name="scan_simulate_subtitle">BLE\'yi atlayarak hazır yanıtlar kullanır. Yalnızca Servis Modunda.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Bağlandı</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Kilit ekranının üzerinde göster</string>
     <string name="language">Dil</string>
     <string name="theme">Tema</string>
+    <string name="theme_editor_widget">Tema özelleştirme widget\'ı</string>
+    <string name="theme_unsaved_fmt">%1$s (kaydedilmedi)</string>
+    <string name="theme_editor_save_as">Yeni tema olarak kaydet</string>
+    <string name="theme_editor_pick_color">Ekrandan renk seç</string>
+    <string name="theme_editor_replay_blink">Yanıp sönmeyi yinele</string>
+    <string name="theme_editor_save_title">Temayı kaydet</string>
+    <string name="theme_editor_name_label">Ad</string>
+    <string name="theme_editor_replace_title">Tema değiştirilsin mi?</string>
+    <string name="theme_editor_replace_body">\"%1$s\" adlı bir tema zaten var. Kaydedince üzerine yazılır.</string>
+    <string name="theme_editor_discard_title">Kaydedilmemiş taslak silinsin mi?</string>
+    <string name="theme_editor_discard_body">Bu temanın zaten kaydedilmemiş bir sürümü var. Yeniden düzenlerseniz o değişiklikler kaybolur.</string>
+    <string name="theme_editor_no_folder_title">Yedekleme klasörü yok</string>
+    <string name="theme_editor_no_folder_body">Temaları kaydetmek için %1$s → %2$s altından bir yedekleme klasörü seçin.</string>
+    <string name="theme_identify">Tanımla</string>
+    <string name="theme_identify_results_title">Renk tanımlama sonuçları</string>
     <string name="tts_switch_title">%1$s sesine geçilsin mi?</string>
     <string name="tts_switch_body">Mevcut metin okuma sesi seçilen dille eşleşmiyor. Bildirimler için %1$s sesine geçilsin mi?</string>
     <string name="tts_switch_yes">Sesi değiştir</string>
@@ -956,6 +976,8 @@
     <string name="recording_summary_battery">Akü (-%1$d%%)</string>
     <string name="recording_summary_voltage">Gerilim</string>
     <string name="recording_summary_avg_moving">Ort. Seyir</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Harici</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Maks. PWM</string>
@@ -1045,6 +1067,7 @@
     <string name="alarm_label_frequency">Frekans</string>
     <string name="alarm_label_duration">Süre</string>
     <string name="alarm_label_repeats">Tekrarlar</string>
+    <string name="alarm_repeat_toggle">Yinele</string>
     <string name="alarm_label_vibrate_on">Titreşim cihazı</string>
     <string name="alarm_threshold_decrease">Eşiği azalt</string>
     <string name="alarm_threshold_increase">Eşiği artır</string>
@@ -1072,6 +1095,7 @@
     <string name="sources_fresh_just_now">az önce</string>
     <string name="sources_fresh_seconds_fmt">%1$ds önce</string>
     <string name="sources_fresh_minutes_fmt">%1$d dk önce</string>
+    <string name="sources_delta_avg_fmt">ort %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d sa önce</string>
     <string name="sources_sats_fmt">%1$d uydu</string>
     <string name="sources_other_metrics">Diğer metrikler</string>
@@ -1873,6 +1897,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth kapalı</string>
     <string name="scan_enable_bluetooth">Bluetooth\'u aç</string>
     <string name="studio_cfg_radar_distance_labels">Mesafe etiketleri</string>
+    <string name="studio_radar_none">Radar yok</string>
+    <string name="studio_radar_clear">Temiz</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Şerit</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Ayna</string>
@@ -2134,6 +2162,7 @@
     <string name="adv_wheel_poll_rate_desc">Canlı verinin ne kadar taze olduğunu ve alarmların ne kadar hızlı tepki verdiğini etkiler. Düşük değer tekerden daha sık veri ister. Dikkat: çok düşük değerler Bluetooth bağlantısını boğabilir ve bazı tekerlerde veriyi durdurabilir.</string>
     <string name="alarm_beep_advanced">Gelişmiş</string>
     <string name="alarm_beep_gap_label">Boşluk süresi</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · boşluk %2$d ms</string>
     <string name="alarm_beep_studio">Uyarlanır bip</string>
     <string name="alarm_beep_volume_label">Temel ses</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2324,6 +2353,7 @@
     <string name="pip_mode_off">Kapalı</string>
     <string name="pip_mode_simple">Basit</string>
     <string name="pip_mode_dashboard">Gösterge paneli</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Ana ekran widgetı</string>
     <string name="widget_pick_desc">Widget\'ın gösterdiği %1$d metriği ve %2$d düğmeyi seç.</string>
     <string name="widget_metric_slot">Metrik %1$d</string>
@@ -2423,7 +2453,7 @@
     <string name="backup_status_failed">Yedekleme başarısız, yeniden denemek için dokunun</string>
     <string name="lockdown_title">Kilit modu</string>
     <string name="lockdown_action_speed_limit">Limit</string>
-    <string name="lockdown_action_vehicle">Araç</string>
+    <string name="lockdown_action_vehicle">Teker</string>
     <string name="lockdown_no_wheel">Bağlı tekerlek yok. Bağlanmak için Bluetooth simgesini kullan.</string>
     <string name="lockdown_vehicle_name">Bluetooth adı</string>
     <string name="lockdown_vehicle_brand">Üretici</string>

@@ -184,7 +184,9 @@ screen geometry, alarm and charging tuning, and more. Each has a sensible defaul
 a valid range, and a one-tap restore, so you can tune deeply without breaking
 anything.
 
-**Multi-language support.** Full UI localisation, at parity across all of them.
+**Multi-language support.** Full UI localisation in 22 languages, at parity across
+all of them. The exceptions are English-only by design: the Garmin and Amazfit
+dials, the helmet HUD, and Service Mode.
 
 ---
 

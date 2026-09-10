@@ -30,6 +30,11 @@
     <string name="action_back">Zpět</string>
     <string name="action_cancel">Zrušit</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Nahradit</string>
+    <string name="action_continue">Pokračovat</string>
+    <string name="action_select">Vybrat</string>
+    <string name="state_on">Zapnuto</string>
+    <string name="state_off">Vypnuto</string>
     <string name="action_done">Hotovo</string>
     <string name="action_close">Zavřít</string>
     <string name="crash_log_action_prompt">Dlouze jste stiskli %1$s. Smažte jen tento záznam, nebo smažte všechny. Chcete-li jej sdílet, klepněte na Zrušit a pak na soubor.</string>
@@ -69,7 +74,7 @@
     <string name="experimental_dialog_body">Podpora tohoto monokola je předběžná, autorem je ověřena pouze řada InMotion V14 / V12 / P6. KingSong, Veteran, Begode, Ninebot a starší modely InMotion jsou ve stavu Náhled a potřebují testování od jezdců. Používejte opatrně.\n\nKlepnutím na tento banner nahlásíte problém, aby autor mohl opravit, co nefunguje.</string>
     <string name="experimental_dialog_report">Nahlásit problém</string>
     <string name="scan_simulate_title">Virtuální monokola</string>
-    <string name="scan_simulate_subtitle">Obejde BLE a použije připravené odpovědi. Jen v ladicích sestaveních.</string>
+    <string name="scan_simulate_subtitle">Obejde BLE a použije připravené odpovědi. Jen v servisním režimu.</string>
     <string name="connection_connected">Připojeno</string>
     <string name="connection_connecting">Hledání…</string>
     <string name="connection_initializing">Inicializace…</string>
@@ -714,6 +719,21 @@
     <string name="phone_show_over_lock">Zobrazit přes zamykací obrazovku</string>
     <string name="language">Jazyk</string>
     <string name="theme">Motiv</string>
+    <string name="theme_editor_widget">Widget pro úpravu motivu</string>
+    <string name="theme_unsaved_fmt">%1$s (neuloženo)</string>
+    <string name="theme_editor_save_as">Uložit jako nový motiv</string>
+    <string name="theme_editor_pick_color">Vybrat barvu z obrazovky</string>
+    <string name="theme_editor_replay_blink">Zopakovat bliknutí</string>
+    <string name="theme_editor_save_title">Uložit motiv</string>
+    <string name="theme_editor_name_label">Název</string>
+    <string name="theme_editor_replace_title">Nahradit motiv?</string>
+    <string name="theme_editor_replace_body">Motiv s názvem \"%1$s\" už existuje. Uložením ho nahradíte.</string>
+    <string name="theme_editor_discard_title">Zahodit neuložený koncept?</string>
+    <string name="theme_editor_discard_body">Tento motiv už má neuloženou verzi. Pokud ho začnete znovu upravovat, tyto neuložené změny se ztratí.</string>
+    <string name="theme_editor_no_folder_title">Žádná složka pro zálohy</string>
+    <string name="theme_editor_no_folder_body">Pro ukládání motivů zvolte složku pro zálohy v %1$s → %2$s.</string>
+    <string name="theme_identify">Identifikovat</string>
+    <string name="theme_identify_results_title">Výsledky identifikace barvy</string>
     <string name="tts_switch_title">Přepnout hlas na %1$s?</string>
     <string name="tts_switch_body">Aktuální hlas převodu textu na řeč neodpovídá zvolenému jazyku. Přepnout hlášení na hlas %1$s?</string>
     <string name="tts_switch_yes">Přepnout hlas</string>
@@ -1128,6 +1148,8 @@
     <string name="recording_summary_battery">Baterie (-%1$d%%)</string>
     <string name="recording_summary_voltage">Napětí</string>
     <string name="recording_summary_avg_moving">Průměr v pohybu</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Max PWM</string>
@@ -1159,6 +1181,7 @@
     <string name="pip_mode_off">Vypnuto</string>
     <string name="pip_mode_simple">Jednoduchý</string>
     <string name="pip_mode_dashboard">Palubní deska</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">HUD v telefonu</string>
     <string name="phone_hud_desc">Vykreslí rozvržení z Overlay Studia přes ostatní aplikace, takže vidíte své monokolo i při používání map nebo hudby.</string>
     <string name="phone_hud_permission_desc">Android o to žádá zvlášť. Bez tohoto oprávnění překryv nelze zobrazit.</string>
@@ -1304,6 +1327,7 @@
     <string name="alarm_label_frequency">Frekvence</string>
     <string name="alarm_beep_advanced">Pokročilé</string>
     <string name="alarm_beep_gap_label">Délka mezery</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · mezera %2$d ms</string>
     <string name="alarm_beep_volume_label">Základní hlasitost</string>
     <string name="alarm_beep_studio">Adaptivní pípání</string>
     <string name="alarm_studio_test_input">Testovací vstup %1$s: %2$s %3$s</string>
@@ -1315,6 +1339,7 @@
     <string name="alarm_studio_stop">Zastavit</string>
     <string name="alarm_label_duration">Trvání</string>
     <string name="alarm_label_repeats">Opakování</string>
+    <string name="alarm_repeat_toggle">Opakovat</string>
     <string name="alarm_label_vibrate_on">Vibrovat při</string>
     <string name="alarm_threshold_decrease">Snížit mezní hodnotu</string>
     <string name="alarm_threshold_increase">Zvýšit mezní hodnotu</string>
@@ -1338,6 +1363,7 @@
     <string name="sources_fresh_just_now">právě teď</string>
     <string name="sources_fresh_seconds_fmt">před %1$ds</string>
     <string name="sources_fresh_minutes_fmt">před %1$dm</string>
+    <string name="sources_delta_avg_fmt">prům %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">před %1$dh</string>
     <string name="sources_sats_fmt">%1$d satelitů</string>
     <string name="sources_other_metrics">Ostatní metriky</string>
@@ -1678,6 +1704,10 @@
     <string name="studio_cfg_radar_range">Dosah</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
     <string name="studio_cfg_radar_distance_labels">Popisky vzdálenosti</string>
+    <string name="studio_radar_none">Bez radaru</string>
+    <string name="studio_radar_clear">Volno</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_camera_label">Kamera</string>
     <string name="studio_cfg_replace_image">Nahradit obrázek</string>
     <string name="studio_cfg_chroma_key">Zprůhlednit barvu</string>
@@ -2229,7 +2259,7 @@
     <string name="backup_status_failed">Záloha selhala, klepnutím to zkuste znovu</string>
     <string name="lockdown_title">Režim zámku</string>
     <string name="lockdown_action_speed_limit">Limit</string>
-    <string name="lockdown_action_vehicle">Vozidlo</string>
+    <string name="lockdown_action_vehicle">Monokolo</string>
     <string name="lockdown_no_wheel">Není připojeno žádné kolo. Připoj se ikonou Bluetooth.</string>
     <string name="lockdown_vehicle_name">Název Bluetooth</string>
     <string name="lockdown_vehicle_brand">Výrobce</string>

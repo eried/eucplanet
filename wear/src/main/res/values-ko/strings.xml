@@ -14,6 +14,7 @@
     <string name="watch_voltage_label">전압</string>
     <string name="watch_current_label">전류</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">파워</string>
     <string name="watch_temp_label">온도</string>
     <string name="watch_trip_label">트립</string>
@@ -23,7 +24,7 @@
     <string name="watch_gps_permission">탭하여 GPS 허용</string>
     <string name="watch_gps_waiting">신호 대기 중…</string>
 
-    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">경적</string>
     <string name="watch_action_light">라이트</string>
     <string name="watch_action_lock">휠 잠금</string>

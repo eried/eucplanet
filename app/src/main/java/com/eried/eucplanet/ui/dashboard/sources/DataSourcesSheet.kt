@@ -984,7 +984,7 @@ private fun ComparisonChart(
                 )
                 if (deltaAvg != null) {
                     Text(
-                        text = "avg %+.1f%s".format(deltaAvg, deltaSuffix),
+                        text = stringResource(com.eried.eucplanet.R.string.sources_delta_avg_fmt, deltaAvg, deltaSuffix),
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

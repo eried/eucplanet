@@ -30,6 +30,11 @@
     <string name="action_back">Vissza</string>
     <string name="action_cancel">Mégse</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Csere</string>
+    <string name="action_continue">Tovább</string>
+    <string name="action_select">Kiválasztás</string>
+    <string name="state_on">Be</string>
+    <string name="state_off">Ki</string>
     <string name="action_done">Kész</string>
     <string name="action_close">Bezárás</string>
     <string name="crash_log_action_prompt">Hosszan nyomtad ezt: %1$s. Töröld csak ezt a naplót, vagy töröld mindet. Ha inkább megosztanád, koppints a Mégse gombra, majd a fájlra.</string>
@@ -69,7 +74,7 @@
     <string name="experimental_dialog_body">Ennek az egykerekűnek a támogatása előzetes, a szerző csak az InMotion V14 / V12 / P6 családot ellenőrizte. A KingSong, Veteran, Begode, Ninebot és a régebbi InMotion modellek előzetes állapotban vannak, és vezetői tesztelést igényelnek. Óvatosan használd.\n\nErre a sávra koppintva hibát jelentesz, hogy a szerző kijavíthassa, ami nem működik.</string>
     <string name="experimental_dialog_report">Hiba jelentése</string>
     <string name="scan_simulate_title">Virtuális egykerekűek</string>
-    <string name="scan_simulate_subtitle">Megkerüli a BLE-t, előre elkészített válaszokat használ. Csak hibakereső változatokban.</string>
+    <string name="scan_simulate_subtitle">Megkerüli a BLE-t, előre elkészített válaszokat használ. Csak szervizmódban.</string>
     <string name="connection_connected">Csatlakoztatva</string>
     <string name="connection_connecting">Keresés…</string>
     <string name="connection_initializing">Inicializálás…</string>
@@ -714,6 +719,21 @@
     <string name="phone_show_over_lock">Megjelenítés a zárképernyő felett</string>
     <string name="language">Nyelv</string>
     <string name="theme">Téma</string>
+    <string name="theme_editor_widget">Témaszerkesztő widget</string>
+    <string name="theme_unsaved_fmt">%1$s (nem mentett)</string>
+    <string name="theme_editor_save_as">Mentés új témaként</string>
+    <string name="theme_editor_pick_color">Szín felvétele a képernyőről</string>
+    <string name="theme_editor_replay_blink">Villogás újra</string>
+    <string name="theme_editor_save_title">Téma mentése</string>
+    <string name="theme_editor_name_label">Név</string>
+    <string name="theme_editor_replace_title">Lecseréled a témát?</string>
+    <string name="theme_editor_replace_body">Már létezik \"%1$s\" nevű téma. Mentéskor felülíródik.</string>
+    <string name="theme_editor_discard_title">Elveted a nem mentett piszkozatot?</string>
+    <string name="theme_editor_discard_body">Ennek a témának már van egy nem mentett változata. Ha újra szerkeszted, azok a módosítások elvesznek.</string>
+    <string name="theme_editor_no_folder_title">Nincs mentési mappa</string>
+    <string name="theme_editor_no_folder_body">Témák mentéséhez válassz mentési mappát itt: %1$s → %2$s.</string>
+    <string name="theme_identify">Azonosítás</string>
+    <string name="theme_identify_results_title">Színazonosítás eredménye</string>
     <string name="tts_switch_title">Átváltasz erre a hangra: %1$s?</string>
     <string name="tts_switch_body">A jelenlegi felolvasóhang nem egyezik a kiválasztott nyelvvel. Átváltasz %1$s hangra a bemondásokhoz?</string>
     <string name="tts_switch_yes">Hang váltása</string>
@@ -1128,6 +1148,8 @@
     <string name="recording_summary_battery">Akkumulátor (-%1$d%%)</string>
     <string name="recording_summary_voltage">Feszültség</string>
     <string name="recording_summary_avg_moving">Átlag mozgásban</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Külső</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Max PWM</string>
@@ -1159,6 +1181,7 @@
     <string name="pip_mode_off">Ki</string>
     <string name="pip_mode_simple">Egyszerű</string>
     <string name="pip_mode_dashboard">Műszerfal</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">Telefonos HUD</string>
     <string name="phone_hud_desc">Overlay Studio elrendezést rajzol más alkalmazások fölé, így látod az egykerekűdet térkép vagy zene használata közben is.</string>
     <string name="phone_hud_permission_desc">Az Android ezt külön kéri. Enélkül az átfedés nem jeleníthető meg.</string>
@@ -1304,6 +1327,7 @@
     <string name="alarm_label_frequency">Frekvencia</string>
     <string name="alarm_beep_advanced">Speciális</string>
     <string name="alarm_beep_gap_label">Szünet hossza</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · szünet %2$d ms</string>
     <string name="alarm_beep_volume_label">Alaphangerő</string>
     <string name="alarm_beep_studio">Alkalmazkodó sípolás</string>
     <string name="alarm_studio_test_input">Tesztbemenet %1$s: %2$s %3$s</string>
@@ -1315,6 +1339,7 @@
     <string name="alarm_studio_stop">Leállítás</string>
     <string name="alarm_label_duration">Időtartam</string>
     <string name="alarm_label_repeats">Ismétlések</string>
+    <string name="alarm_repeat_toggle">Ismétlés</string>
     <string name="alarm_label_vibrate_on">Rezgés ekkor</string>
     <string name="alarm_threshold_decrease">Küszöbérték csökkentése</string>
     <string name="alarm_threshold_increase">Küszöbérték növelése</string>
@@ -1338,6 +1363,7 @@
     <string name="sources_fresh_just_now">épp most</string>
     <string name="sources_fresh_seconds_fmt">%1$d mp-e</string>
     <string name="sources_fresh_minutes_fmt">%1$d perce</string>
+    <string name="sources_delta_avg_fmt">átl %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d órája</string>
     <string name="sources_sats_fmt">%1$d műhold</string>
     <string name="sources_other_metrics">Egyéb mérőszámok</string>
@@ -1678,6 +1704,10 @@
     <string name="studio_cfg_radar_range">Hatótáv</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
     <string name="studio_cfg_radar_distance_labels">Távolságfeliratok</string>
+    <string name="studio_radar_none">Nincs radar</string>
+    <string name="studio_radar_clear">Szabad</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_camera_label">Kamera</string>
     <string name="studio_cfg_replace_image">Kép cseréje</string>
     <string name="studio_cfg_chroma_key">Egy szín átlátszóvá tétele</string>
@@ -2229,7 +2259,7 @@
     <string name="backup_status_failed">A mentés nem sikerült, koppintson az újrapróbáláshoz</string>
     <string name="lockdown_title">Zárolt mód</string>
     <string name="lockdown_action_speed_limit">Limit</string>
-    <string name="lockdown_action_vehicle">Jármű</string>
+    <string name="lockdown_action_vehicle">Egykerekű</string>
     <string name="lockdown_no_wheel">Nincs csatlakoztatott kerék. A csatlakozáshoz használd a Bluetooth ikont.</string>
     <string name="lockdown_vehicle_name">Bluetooth név</string>
     <string name="lockdown_vehicle_brand">Gyártó</string>

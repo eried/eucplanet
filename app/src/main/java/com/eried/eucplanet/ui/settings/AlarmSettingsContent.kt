@@ -508,13 +508,13 @@ private fun AlarmRuleCard(
     // fire right now, but it stays fully toggleable / editable / deletable.
     val boundElsewhere = rule.wheelAddress != null && rule.wheelAddress != connectedAddress
     val color = if (!rule.enabled || boundElsewhere)
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-    else MaterialTheme.colorScheme.onSurface
+        MaterialTheme.appColors.textSecondary.copy(alpha = 0.5f)
+    else MaterialTheme.appColors.textPrimary
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (rule.enabled && !boundElsewhere) MaterialTheme.colorScheme.surfaceVariant
-            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = if (rule.enabled && !boundElsewhere) MaterialTheme.appColors.surfaceVariant
+            else MaterialTheme.appColors.surfaceVariant.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -1538,7 +1538,7 @@ private fun BeepStudioDialog(
                         // it run forever (onTogglePlay stops when already playing).
                         if (!it && playing) onTogglePlay(false)
                     }) {
-                        Icon(Icons.Default.Repeat, contentDescription = "Repeat",
+                        Icon(Icons.Default.Repeat, contentDescription = stringResource(R.string.alarm_repeat_toggle),
                             tint = when {
                                 gapMs <= 0 -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                                 repeat -> MaterialTheme.appColors.statusWarn
@@ -1616,6 +1616,7 @@ private fun BeepTimeline(
     val grid = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
     val labelColor = MaterialTheme.appColors.fieldLabel
     val txt = with(LocalDensity.current) { 10.sp.toPx() }
+    val footer = stringResource(R.string.alarm_beep_timeline_fmt, count, gapMs)
     Canvas(modifier) {
         val w = size.width; val h = size.height
         val nv = drawContext.canvas.nativeCanvas
@@ -1655,7 +1656,7 @@ private fun BeepTimeline(
             val px = triggerX + f.coerceIn(0f, 1f) * avail
             drawLine(markerCol, Offset(px, ty0 - 8f), Offset(px, ty1 + 8f), 3f)
         }
-        nv.drawText("${count}× · gap ${gapMs} ms", 4f, h - 3f, pLbl)
+        nv.drawText(footer, 4f, h - 3f, pLbl)
     }
 }
 

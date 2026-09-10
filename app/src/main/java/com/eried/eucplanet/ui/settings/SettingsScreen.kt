@@ -378,7 +378,7 @@ fun SettingsScreen(
                                     Icon(
                                         imageVector = if (s.on) Icons.Filled.CheckCircle
                                                       else Icons.Outlined.RadioButtonUnchecked,
-                                        contentDescription = if (s.on) "on" else "off",
+                                        contentDescription = stringResource(if (s.on) R.string.state_on else R.string.state_off),
                                         tint = if (s.on) MaterialTheme.colorScheme.primary
                                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.size(20.dp)
@@ -395,7 +395,7 @@ fun SettingsScreen(
                                 is com.eried.eucplanet.cheats.CheatState.State.Off -> {
                                     Icon(
                                         imageVector = Icons.Outlined.RadioButtonUnchecked,
-                                        contentDescription = "off",
+                                        contentDescription = stringResource(R.string.state_off),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -4913,7 +4913,7 @@ private fun CompositeCellStatDropdown(
 
 @Composable
 private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
-    DashboardStat.NONE -> "—"
+    DashboardStat.NONE -> stringResource(R.string.value_none)
     DashboardStat.CURRENT -> stringResource(R.string.dashboard_stat_current)
     DashboardStat.MIN -> stringResource(R.string.dashboard_stat_min)
     DashboardStat.MAX -> stringResource(R.string.dashboard_stat_max)
@@ -6489,7 +6489,7 @@ private fun DisplayTab(
 
         ThemeDropdown(
             label = stringResource(R.string.theme),
-            current = if (themeDirty) "$currentTheme (unsaved)" else currentTheme,
+            current = if (themeDirty) stringResource(R.string.theme_unsaved_fmt, currentTheme) else currentTheme,
             builtIns = themeChoices.builtIns,
             saved = themeChoices.saved,
             unsaved = themeChoices.unsaved,
@@ -6497,7 +6497,7 @@ private fun DisplayTab(
             onSelectUnsaved = { viewModel.selectUnsavedTheme(it) }
         )
 
-        SwitchSetting("Theme customization widget", settings.themeEditorEnabled) {
+        SwitchSetting(stringResource(R.string.theme_editor_widget), settings.themeEditorEnabled) {
             viewModel.setThemeEditorEnabled(it)
         }
 
@@ -8587,7 +8587,7 @@ private fun CloudTab(
             Text(
                 stringResource(R.string.cloud_settings_backup_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.appColors.textSecondary,
             )
             // No spacer: the section's own column already spaces at 16dp, so
             // this one made the gap under the description bigger than every
@@ -9536,7 +9536,7 @@ private fun ThemeDropdown(
             }
             unsaved.forEach { base ->
                 DropdownMenuItem(
-                    text = { Text("$base (unsaved)") },
+                    text = { Text(stringResource(R.string.theme_unsaved_fmt, base)) },
                     onClick = { onSelectUnsaved(base); expanded = false }
                 )
             }

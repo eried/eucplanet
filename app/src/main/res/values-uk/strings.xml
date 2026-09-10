@@ -32,6 +32,11 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Замінити</string>
+    <string name="action_continue">Далі</string>
+    <string name="action_select">Вибрати</string>
+    <string name="state_on">Увімк</string>
+    <string name="state_off">Вимк</string>
     <string name="action_done">Готово</string>
     <string name="action_close">Закрити</string>
 <string name="crash_log_action_prompt">Ви утримали %1$s. Видаліть цей журнал або всі. Щоб поділитися, натисніть «Скасувати» і торкніться файлу.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Віртуальні моноколеса</string>
-    <string name="scan_simulate_subtitle">Обходить BLE і подає заготовлені відповіді. Лише у налагоджувальних збірках.</string>
+    <string name="scan_simulate_subtitle">Обходить BLE і подає заготовлені відповіді. Лише в сервісному режимі.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Підключено</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Показувати поверх екрана блокування</string>
     <string name="language">Мова</string>
     <string name="theme">Тема</string>
+    <string name="theme_editor_widget">Віджет налаштування теми</string>
+    <string name="theme_unsaved_fmt">%1$s (не збережено)</string>
+    <string name="theme_editor_save_as">Зберегти як нову тему</string>
+    <string name="theme_editor_pick_color">Узяти колір з екрана</string>
+    <string name="theme_editor_replay_blink">Повторити блимання</string>
+    <string name="theme_editor_save_title">Зберегти тему</string>
+    <string name="theme_editor_name_label">Назва</string>
+    <string name="theme_editor_replace_title">Замінити тему?</string>
+    <string name="theme_editor_replace_body">Тема з назвою \"%1$s\" уже існує. Збереження замінить її.</string>
+    <string name="theme_editor_discard_title">Відкинути незбережену чернетку?</string>
+    <string name="theme_editor_discard_body">Ця тема вже має незбережену версію. Якщо редагувати її знову, ті зміни буде втрачено.</string>
+    <string name="theme_editor_no_folder_title">Немає папки резервних копій</string>
+    <string name="theme_editor_no_folder_body">Щоб зберігати теми, виберіть папку резервних копій у %1$s → %2$s.</string>
+    <string name="theme_identify">Визначити</string>
+    <string name="theme_identify_results_title">Результати визначення кольору</string>
     <string name="tts_switch_title">Переключити голос на %1$s?</string>
     <string name="tts_switch_body">Поточний голос синтезу не відповідає вибраній мові. Переключити озвучення на голос %1$s?</string>
     <string name="tts_switch_yes">Переключити голос</string>
@@ -959,6 +979,8 @@
     <string name="recording_summary_battery">Заряд (-%1$d%%)</string>
     <string name="recording_summary_voltage">Напруга</string>
     <string name="recording_summary_avg_moving">Сер. у русі</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Зовн</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f В</string>
     <string name="recording_summary_max_pwm">Макс. PWM</string>
@@ -1048,6 +1070,7 @@
     <string name="alarm_label_frequency">Частота</string>
     <string name="alarm_label_duration">Тривалість</string>
     <string name="alarm_label_repeats">Повторення</string>
+    <string name="alarm_repeat_toggle">Повтор</string>
     <string name="alarm_label_vibrate_on">Вібрація на</string>
     <string name="alarm_threshold_decrease">Зменшити поріг</string>
     <string name="alarm_threshold_increase">Збільшити поріг</string>
@@ -1075,6 +1098,7 @@
     <string name="sources_fresh_just_now">щойно</string>
     <string name="sources_fresh_seconds_fmt">%1$d с тому</string>
     <string name="sources_fresh_minutes_fmt">%1$d хв тому</string>
+    <string name="sources_delta_avg_fmt">сер %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d год тому</string>
     <string name="sources_sats_fmt">%1$d супут.</string>
     <string name="sources_other_metrics">Інші показники</string>
@@ -1899,6 +1923,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth вимкнено</string>
     <string name="scan_enable_bluetooth">Увімкнути Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Мітки відстані</string>
+    <string name="studio_radar_none">Немає радара</string>
+    <string name="studio_radar_clear">Чисто</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Смуга</string>
     <string name="studio_cfg_radar_minimal">Мінімальний</string>
     <string name="studio_cfg_radar_mirror">Дзеркало</string>
@@ -2134,6 +2162,7 @@
     <string name="adv_wheel_poll_rate_desc">Впливає на свіжість живих даних і швидкість реакції сигналів. Менше - частіше запитує дані в моноколеса. Небезпека: дуже малі значення можуть перевантажити зв\'язок Bluetooth і застопорити дані на деяких моноколесах.</string>
     <string name="alarm_beep_advanced">Розширені</string>
     <string name="alarm_beep_gap_label">Тривалість паузи</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · пауза %2$d ms</string>
     <string name="alarm_beep_studio">Адаптивний сигнал</string>
     <string name="alarm_beep_volume_label">Базова гучність</string>
     <string name="alarm_studio_now">%1$d Гц · %2$d%%</string>
@@ -2324,6 +2353,7 @@
     <string name="pip_mode_off">Вимк</string>
     <string name="pip_mode_simple">Просто</string>
     <string name="pip_mode_dashboard">Панель</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Віджет на головному екрані</string>
     <string name="widget_pick_desc">Виберіть %1$d показники та %2$d кнопки, які показує віджет.</string>
     <string name="widget_metric_slot">Показник %1$d</string>
@@ -2423,7 +2453,7 @@
     <string name="backup_status_failed">Не вдалося, торкніться для повтору</string>
     <string name="lockdown_title">Режим блокування</string>
     <string name="lockdown_action_speed_limit">Ліміт</string>
-    <string name="lockdown_action_vehicle">Транспорт</string>
+    <string name="lockdown_action_vehicle">Колесо</string>
     <string name="lockdown_no_wheel">Колесо не підключено. Натисніть значок Bluetooth, щоб підключитися.</string>
     <string name="lockdown_vehicle_name">Назва Bluetooth</string>
     <string name="lockdown_vehicle_brand">Виробник</string>

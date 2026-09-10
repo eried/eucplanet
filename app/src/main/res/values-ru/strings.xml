@@ -32,6 +32,11 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_ok">ОК</string>
+    <string name="action_replace">Заменить</string>
+    <string name="action_continue">Далее</string>
+    <string name="action_select">Выбрать</string>
+    <string name="state_on">Вкл</string>
+    <string name="state_off">Выкл</string>
     <string name="action_done">Готово</string>
     <string name="action_close">Закрыть</string>
 <string name="crash_log_action_prompt">Вы удерживали %1$s. Удалить только этот лог или все сразу. Чтобы поделиться, нажмите «Отмена» и коснитесь файла.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Виртуальные колёса</string>
-    <string name="scan_simulate_subtitle">Обходит BLE и подаёт заготовленные ответы. Только в отладочных сборках.</string>
+    <string name="scan_simulate_subtitle">Обходит BLE и подаёт заготовленные ответы. Только в сервисном режиме.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Подключено</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Показывать поверх экрана блокировки</string>
     <string name="language">Язык</string>
     <string name="theme">Тема</string>
+    <string name="theme_editor_widget">Виджет настройки темы</string>
+    <string name="theme_unsaved_fmt">%1$s (не сохранено)</string>
+    <string name="theme_editor_save_as">Сохранить как новую тему</string>
+    <string name="theme_editor_pick_color">Взять цвет с экрана</string>
+    <string name="theme_editor_replay_blink">Повторить мигание</string>
+    <string name="theme_editor_save_title">Сохранить тему</string>
+    <string name="theme_editor_name_label">Название</string>
+    <string name="theme_editor_replace_title">Заменить тему?</string>
+    <string name="theme_editor_replace_body">Тема с именем \"%1$s\" уже существует. При сохранении она будет заменена.</string>
+    <string name="theme_editor_discard_title">Отменить несохранённый черновик?</string>
+    <string name="theme_editor_discard_body">У этой темы уже есть несохранённая версия. Если снова начать её править, те изменения будут потеряны.</string>
+    <string name="theme_editor_no_folder_title">Нет папки резервных копий</string>
+    <string name="theme_editor_no_folder_body">Чтобы сохранять темы, выберите папку резервных копий в %1$s → %2$s.</string>
+    <string name="theme_identify">Определить</string>
+    <string name="theme_identify_results_title">Результаты определения цвета</string>
     <string name="tts_switch_title">Переключить голос на %1$s?</string>
     <string name="tts_switch_body">Текущий голос не совпадает с выбранным языком интерфейса. Переключить на голос %1$s для оповещений?</string>
     <string name="tts_switch_yes">Переключить</string>
@@ -959,6 +979,8 @@
     <string name="recording_summary_battery">Заряд (-%1$d%%)</string>
     <string name="recording_summary_voltage">Напряжение</string>
     <string name="recording_summary_avg_moving">Ср. в движении</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Внеш</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f В</string>
     <string name="recording_summary_max_pwm">Макс. PWM</string>
@@ -1048,6 +1070,7 @@
     <string name="alarm_label_frequency">Частота</string>
     <string name="alarm_label_duration">Длительность</string>
     <string name="alarm_label_repeats">Повторы</string>
+    <string name="alarm_repeat_toggle">Повтор</string>
     <string name="alarm_label_vibrate_on">Вибрация на</string>
     <string name="alarm_threshold_decrease">Уменьшить порог</string>
     <string name="alarm_threshold_increase">Увеличить порог</string>
@@ -1075,6 +1098,7 @@
     <string name="sources_fresh_just_now">только что</string>
     <string name="sources_fresh_seconds_fmt">%1$d с назад</string>
     <string name="sources_fresh_minutes_fmt">%1$d мин назад</string>
+    <string name="sources_delta_avg_fmt">ср %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d ч назад</string>
     <string name="sources_sats_fmt">%1$d спут</string>
     <string name="sources_other_metrics">Другие показатели</string>
@@ -1900,6 +1924,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth выключен</string>
     <string name="scan_enable_bluetooth">Включить Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Метки расстояния</string>
+    <string name="studio_radar_none">Нет радара</string>
+    <string name="studio_radar_clear">Чисто</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Полоса</string>
     <string name="studio_cfg_radar_minimal">Минимальный</string>
     <string name="studio_cfg_radar_mirror">Зеркало</string>
@@ -2137,6 +2165,7 @@
     <string name="adv_wheel_poll_rate_desc">Влияет на свежесть живых данных и скорость реакции сигналов. Меньше запрашивает данные у моноколеса чаще. Опасно: очень малые значения могут перегрузить Bluetooth-канал и застопорить данные на некоторых моноколёсах.</string>
     <string name="alarm_beep_advanced">Дополнительно</string>
     <string name="alarm_beep_gap_label">Длительность паузы</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · пауза %2$d ms</string>
     <string name="alarm_beep_studio">Адаптивный сигнал</string>
     <string name="alarm_beep_volume_label">Базовая громкость</string>
     <string name="alarm_studio_now">%1$d Гц · %2$d%%</string>
@@ -2327,6 +2356,7 @@
     <string name="pip_mode_off">Выкл</string>
     <string name="pip_mode_simple">Просто</string>
     <string name="pip_mode_dashboard">Панель</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Виджет на главном экране</string>
     <string name="widget_pick_desc">Выберите %1$d показателя и %2$d кнопки, которые показывает виджет.</string>
     <string name="widget_metric_slot">Показатель %1$d</string>
@@ -2426,7 +2456,7 @@
     <string name="backup_status_failed">Не удалось, нажмите для повтора</string>
     <string name="lockdown_title">Режим блокировки</string>
     <string name="lockdown_action_speed_limit">Лимит</string>
-    <string name="lockdown_action_vehicle">Транспорт</string>
+    <string name="lockdown_action_vehicle">Колесо</string>
     <string name="lockdown_no_wheel">Колесо не подключено. Нажмите значок Bluetooth, чтобы подключиться.</string>
     <string name="lockdown_vehicle_name">Имя Bluetooth</string>
     <string name="lockdown_vehicle_brand">Производитель</string>

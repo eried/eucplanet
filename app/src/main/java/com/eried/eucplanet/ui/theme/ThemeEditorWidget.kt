@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -212,7 +213,7 @@ fun ThemeEditorWidget(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Filled.Palette, contentDescription = "Theme customization widget",
+                    Icons.Filled.Palette, contentDescription = stringResource(R.string.theme_editor_widget),
                     tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp)
                 )
             }
@@ -254,14 +255,14 @@ fun ThemeEditorWidget(
                 )
                 // Order: minimize, save, eyedropper (rightmost).
                 IconButton(onClick = { collapsed = true }, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Filled.Minimize, contentDescription = "Minimize",
+                    Icon(Icons.Filled.Minimize, contentDescription = stringResource(R.string.nav_minimize),
                         modifier = Modifier.size(18.dp))
                 }
                 IconButton(onClick = {
                     if (choices.folderAvailable) showSave = true
                     else showNoFolder = true
                 }, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Filled.Save, contentDescription = "Save as new theme",
+                    Icon(Icons.Filled.Save, contentDescription = stringResource(R.string.theme_editor_save_as),
                         modifier = Modifier.size(18.dp))
                 }
                 // Eyedropper. Two flows decided by where the finger lifts:
@@ -305,7 +306,7 @@ fun ThemeEditorWidget(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Filled.Colorize, contentDescription = "Pick a color from the screen",
+                    Icon(Icons.Filled.Colorize, contentDescription = stringResource(R.string.theme_editor_pick_color),
                         modifier = Modifier.size(18.dp))
                 }
             }
@@ -387,12 +388,14 @@ fun ThemeEditorWidget(
         var name by remember { mutableStateOf(seedName) }
         AlertDialog(
             onDismissRequest = { showSave = false },
+            // A stray tap outside must not drop the typed name.
+            properties = DialogProperties(dismissOnClickOutside = false),
             shape = RoundedCornerShape(12.dp),
-            title = { Text("Save theme") },
+            title = { Text(stringResource(R.string.theme_editor_save_title)) },
             text = {
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
-                    singleLine = true, label = { Text("Name") },
+                    singleLine = true, label = { Text(stringResource(R.string.theme_editor_name_label)) },
                     colors = themedFieldColors()
                 )
             },
@@ -415,48 +418,43 @@ fun ThemeEditorWidget(
                             vm.saveAs(n) { showSave = false }
                         }
                     }
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.action_save)) }
             },
-            dismissButton = { TextButton(onClick = { showSave = false }, shape = RoundedCornerShape(12.dp)) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { showSave = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) } }
         )
     }
 
-    // Typed a name that matches another existing saved theme — confirm the replace.
+    // Typed a name that matches another existing saved theme - confirm the replace.
     pendingReplaceName?.let { n ->
         AlertDialog(
             onDismissRequest = { pendingReplaceName = null },
             shape = RoundedCornerShape(12.dp),
-            title = { Text("Replace theme?") },
-            text = { Text("A theme named \"$n\" already exists. Saving will replace it.") },
+            title = { Text(stringResource(R.string.theme_editor_replace_title)) },
+            text = { Text(stringResource(R.string.theme_editor_replace_body, n)) },
             confirmButton = {
                 TextButton(onClick = {
                     vm.saveAs(n) { showSave = false; pendingReplaceName = null }
-                }, shape = RoundedCornerShape(12.dp)) { Text("Replace") }
+                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_replace)) }
             },
             dismissButton = {
-                TextButton(onClick = { pendingReplaceName = null }, shape = RoundedCornerShape(12.dp)) { Text("Cancel") }
+                TextButton(onClick = { pendingReplaceName = null }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
 
-    // Editing a clean theme that already has an unsaved draft would clobber it —
-    // confirm before replacing. Cancel discards this edit and keeps the draft.
+    // Editing a clean theme that already has an unsaved draft would clobber it,
+    // so confirm before replacing. Cancel discards this edit and keeps the draft.
     if (pendingOverwrite) {
         AlertDialog(
             onDismissRequest = { pendingOverwrite = false; vm.preview(null) },
             shape = RoundedCornerShape(12.dp),
-            title = { Text("Discard the unsaved draft?") },
-            text = {
-                Text(
-                    "This theme already has an unsaved version of it. If you start " +
-                        "modifying it again, the previous unsaved changes will be lost."
-                )
-            },
+            title = { Text(stringResource(R.string.theme_editor_discard_title)) },
+            text = { Text(stringResource(R.string.theme_editor_discard_body)) },
             confirmButton = {
-                TextButton(onClick = { pendingOverwrite = false; vm.commit() }, shape = RoundedCornerShape(12.dp)) { Text("Continue") }
+                TextButton(onClick = { pendingOverwrite = false; vm.commit() }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_continue)) }
             },
             dismissButton = {
-                TextButton(onClick = { pendingOverwrite = false; vm.preview(null) }, shape = RoundedCornerShape(12.dp)) { Text("Cancel") }
+                TextButton(onClick = { pendingOverwrite = false; vm.preview(null) }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -468,16 +466,18 @@ fun ThemeEditorWidget(
         AlertDialog(
             onDismissRequest = { showNoFolder = false },
             shape = RoundedCornerShape(12.dp),
-            title = { Text("No backup folder") },
+            title = { Text(stringResource(R.string.theme_editor_no_folder_title)) },
             text = {
                 Text(
-                    "To save themes, choose a backup folder:\n" +
-                        stringResource(R.string.tab_cloud) + " → " +
+                    stringResource(
+                        R.string.theme_editor_no_folder_body,
+                        stringResource(R.string.tab_cloud),
                         stringResource(R.string.cloud_choose_folder)
+                    )
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showNoFolder = false }, shape = RoundedCornerShape(12.dp)) { Text("OK") }
+                TextButton(onClick = { showNoFolder = false }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_ok)) }
             }
         )
     }
@@ -513,7 +513,7 @@ private fun TokenRow(
         IconButton(onClick = onPlay, modifier = Modifier.size(28.dp)) {
             Icon(
                 Icons.Filled.PlayArrow,
-                contentDescription = "Replay blink",
+                contentDescription = stringResource(R.string.theme_editor_replay_blink),
                 modifier = Modifier.size(16.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -34,6 +34,11 @@
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Replace</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_select">Select</string>
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
     <string name="action_done">Done</string>
     <string name="action_close">Close</string>
 <string name="crash_log_action_prompt">You long-pressed %1$s. Delete just this log, or delete all. To share it instead, tap Cancel and then tap the file.</string>
@@ -77,9 +82,9 @@
     <string name="experimental_dialog_body">Support for this wheel is preliminary, only the InMotion V14 / V12 / P6 family is verified by the author. KingSong, Veteran, Begode, Ninebot and the older InMotion models ship as Preview and need rider testing. Use it with caution.\n\nTapping this banner will report an issue, so the author can fix what doesn\'t work.</string>
     <string name="experimental_dialog_report">Report an issue</string>
 
-    <!-- Scan: virtual wheel section (debug builds only) -->
+    <!-- Scan: virtual wheel section (Service Mode only) -->
     <string name="scan_simulate_title">Virtual wheels</string>
-    <string name="scan_simulate_subtitle">Bypass BLE, feed canned responses. Debug builds only.</string>
+    <string name="scan_simulate_subtitle">Bypass BLE, feed canned responses. Service Mode only.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
@@ -795,6 +800,21 @@
     <string name="phone_show_over_lock">Show over lock screen</string>
     <string name="language">Language</string>
     <string name="theme">Theme</string>
+    <string name="theme_editor_widget">Theme customization widget</string>
+    <string name="theme_unsaved_fmt">%1$s (unsaved)</string>
+    <string name="theme_editor_save_as">Save as new theme</string>
+    <string name="theme_editor_pick_color">Pick a color from the screen</string>
+    <string name="theme_editor_replay_blink">Replay blink</string>
+    <string name="theme_editor_save_title">Save theme</string>
+    <string name="theme_editor_name_label">Name</string>
+    <string name="theme_editor_replace_title">Replace theme?</string>
+    <string name="theme_editor_replace_body">A theme named \"%1$s\" already exists. Saving will replace it.</string>
+    <string name="theme_editor_discard_title">Discard the unsaved draft?</string>
+    <string name="theme_editor_discard_body">This theme already has an unsaved version. If you edit it again, those unsaved changes are lost.</string>
+    <string name="theme_editor_no_folder_title">No backup folder</string>
+    <string name="theme_editor_no_folder_body">To save themes, choose a backup folder in %1$s → %2$s.</string>
+    <string name="theme_identify">Identify</string>
+    <string name="theme_identify_results_title">Color identifier results</string>
     <string name="tts_switch_title">Switch voice to %1$s?</string>
     <string name="tts_switch_body">The current text-to-speech voice doesn\'t match the selected language. Switch to a %1$s voice for announcements?</string>
     <string name="tts_switch_yes">Switch voice</string>
@@ -1263,6 +1283,8 @@
     <string name="recording_summary_battery_range">Start→end (-%1$d%%)</string>
     <string name="recording_summary_voltage">Voltage</string>
     <string name="recording_summary_avg_moving">Avg Moving</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Max PWM</string>
@@ -1305,6 +1327,7 @@
     <string name="pip_mode_off">Off</string>
     <string name="pip_mode_simple">Simple</string>
     <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">Phone HUD</string>
     <string name="phone_hud_desc">Draw an Overlay Studio layout on top of other apps, so you can see your wheel while using maps or music.</string>
     <string name="phone_hud_permission_desc">Android asks for this separately. Without it the overlay cannot be shown.</string>
@@ -1362,6 +1385,7 @@
     <string name="widget_connected">Connected</string>
     <string name="widget_disconnected">No wheel</string>
     <string name="widget_placeholder_value">--</string>
+    <string name="value_none" translatable="false">--</string>
     <string name="trip_section_saved">Section saved as a new trip</string>
     <string name="trip_section_failed">Could not save the section</string>
     <string name="trip_tools_title">Trip tools</string>
@@ -1478,6 +1502,7 @@
     <string name="alarm_label_frequency">Frequency</string>
     <string name="alarm_beep_advanced">Advanced</string>
     <string name="alarm_beep_gap_label">Gap duration</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · gap %2$d ms</string>
     <string name="alarm_beep_volume_label">Base volume</string>
     <string name="alarm_beep_studio">Adaptive beep</string>
     <string name="alarm_studio_test_input">Test input %1$s: %2$s %3$s</string>
@@ -1489,6 +1514,7 @@
     <string name="alarm_studio_stop">Stop</string>
     <string name="alarm_label_duration">Duration</string>
     <string name="alarm_label_repeats">Repeats</string>
+    <string name="alarm_repeat_toggle">Repeat</string>
     <string name="alarm_label_vibrate_on">Vibrate on</string>
     <string name="alarm_threshold_decrease">Decrease threshold</string>
     <string name="alarm_threshold_increase">Increase threshold</string>
@@ -1516,6 +1542,7 @@
     <string name="sources_fresh_just_now">just now</string>
     <string name="sources_fresh_seconds_fmt">%1$ds ago</string>
     <string name="sources_fresh_minutes_fmt">%1$dm ago</string>
+    <string name="sources_delta_avg_fmt">avg %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$dh ago</string>
     <string name="sources_sats_fmt">%1$d sats</string>
     <string name="sources_other_metrics">Other metrics</string>
@@ -1911,6 +1938,10 @@
     <string name="studio_cfg_radar_range">Range</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
     <string name="studio_cfg_radar_distance_labels">Distance labels</string>
+    <string name="studio_radar_none">No radar</string>
+    <string name="studio_radar_clear">Clear</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_camera_label">Camera</string>
     <string name="studio_cfg_replace_image">Replace image</string>
     <string name="studio_cfg_chroma_key">Make a colour transparent</string>
@@ -2480,7 +2511,7 @@
     <!-- Legal Mode Lockdown -->
     <string name="lockdown_title">Lockdown mode</string>
     <string name="lockdown_action_speed_limit">Speed limit</string>
-    <string name="lockdown_action_vehicle">Vehicle</string>
+    <string name="lockdown_action_vehicle">Wheel</string>
     <string name="lockdown_no_wheel">No wheel connected. Use the Bluetooth icon to connect.</string>
     <string name="lockdown_vehicle_name">Bluetooth name</string>
     <string name="lockdown_vehicle_brand">Maker</string>

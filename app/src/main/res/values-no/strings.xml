@@ -31,6 +31,11 @@
     <string name="action_back">Tilbake</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Erstatt</string>
+    <string name="action_continue">Fortsett</string>
+    <string name="action_select">Velg</string>
+    <string name="state_on">På</string>
+    <string name="state_off">Av</string>
     <string name="action_done">Ferdig</string>
     <string name="action_close">Lukk</string>
 <string name="crash_log_action_prompt">Du holdt %1$s inne. Slett bare denne loggen, eller alle. Trykk Avbryt og deretter på filen for å dele den.</string>
@@ -212,6 +217,21 @@
     <string name="phone_show_over_lock">Vis over låseskjermen</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
+    <string name="theme_editor_widget">Widget for tilpasning av tema</string>
+    <string name="theme_unsaved_fmt">%1$s (ulagret)</string>
+    <string name="theme_editor_save_as">Lagre som nytt tema</string>
+    <string name="theme_editor_pick_color">Velg en farge fra skjermen</string>
+    <string name="theme_editor_replay_blink">Gjenta blink</string>
+    <string name="theme_editor_save_title">Lagre tema</string>
+    <string name="theme_editor_name_label">Navn</string>
+    <string name="theme_editor_replace_title">Erstatte temaet?</string>
+    <string name="theme_editor_replace_body">Et tema med navnet \"%1$s\" finnes allerede. Lagring erstatter det.</string>
+    <string name="theme_editor_discard_title">Forkaste det ulagrede utkastet?</string>
+    <string name="theme_editor_discard_body">Dette temaet har allerede en ulagret versjon. Redigerer du det igjen, går de endringene tapt.</string>
+    <string name="theme_editor_no_folder_title">Ingen sikkerhetskopimappe</string>
+    <string name="theme_editor_no_folder_body">Velg en sikkerhetskopimappe under %1$s → %2$s for å lagre temaer.</string>
+    <string name="theme_identify">Identifiser</string>
+    <string name="theme_identify_results_title">Resultater fra fargeidentifisering</string>
     <string name="tts_switch_title">Bytte stemme til %1$s?</string>
     <string name="tts_switch_body">Nåværende TTS-stemme passer ikke til valgt språk. Bytte til en %1$s-stemme for varsler?</string>
     <string name="tts_switch_yes">Bytt stemme</string>
@@ -377,6 +397,8 @@
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spenning</string>
     <string name="recording_summary_avg_moving">Snitt i bevegelse</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ekst</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Maks PWM</string>
@@ -466,6 +488,7 @@
     <string name="alarm_label_frequency">Frekvens</string>
     <string name="alarm_label_duration">Varighet</string>
     <string name="alarm_label_repeats">Gjentakelser</string>
+    <string name="alarm_repeat_toggle">Gjenta</string>
     <string name="alarm_label_vibrate_on">Vibrer på</string>
 
     <!-- Live data sources bottom sheet -->
@@ -489,6 +512,7 @@
     <string name="sources_fresh_just_now">akkurat nå</string>
     <string name="sources_fresh_seconds_fmt">%1$ds siden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm siden</string>
+    <string name="sources_delta_avg_fmt">snitt %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$dt siden</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_collecting">Samler inn…</string>
@@ -620,7 +644,7 @@
     <string name="report_navigation">Navigasjon</string>
     <string name="scan_show_all_subtitle">Slå på hvis hjulet ditt ikke vises.</string>
     <string name="scan_show_all_title">Vis alle enheter</string>
-    <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i utviklingsbuilds.</string>
+    <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i servicemodus.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
     <string name="section_watch_display">Skjerm</string>
     <string name="section_watch_advanced">Avansert</string>
@@ -1788,6 +1812,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth er av</string>
     <string name="scan_enable_bluetooth">Slå på Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Avstandsmerker</string>
+    <string name="studio_radar_none">Ingen radar</string>
+    <string name="studio_radar_clear">Klart</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Felt</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Speil</string>
@@ -2023,6 +2051,7 @@
     <string name="adv_wheel_poll_rate_desc">Påvirker hvor ferske live-dataene er og hvor raskt alarmer reagerer. Lavere ber hjulet om data oftere. Fare: svært lave verdier kan oversvømme Bluetooth-linken og stoppe data på noen hjul.</string>
     <string name="alarm_beep_advanced">Avansert</string>
     <string name="alarm_beep_gap_label">Pausevarighet</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pause %2$d ms</string>
     <string name="alarm_beep_studio">Adaptivt pip</string>
     <string name="alarm_beep_volume_label">Basisvolum</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2215,6 +2244,7 @@
     <string name="pip_mode_off">Av</string>
     <string name="pip_mode_simple">Enkel</string>
     <string name="pip_mode_dashboard">Dashbord</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget pa startskjerm</string>
     <string name="widget_pick_desc">Velg de %1$d målingene og %2$d knappene widgetet viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>
@@ -2314,7 +2344,7 @@
     <string name="backup_status_failed">Sikkerhetskopiering mislyktes, trykk for å prøve igjen</string>
     <string name="lockdown_title">Låsemodus</string>
     <string name="lockdown_action_speed_limit">Grense</string>
-    <string name="lockdown_action_vehicle">Kjøretøy</string>
+    <string name="lockdown_action_vehicle">Hjul</string>
     <string name="lockdown_no_wheel">Ingen wheel tilkoblet. Bruk Bluetooth-ikonet for å koble til.</string>
     <string name="lockdown_vehicle_name">Bluetooth-navn</string>
     <string name="lockdown_vehicle_brand">Produsent</string>

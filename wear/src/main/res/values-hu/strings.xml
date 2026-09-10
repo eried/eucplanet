@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Nyisd meg az EUC Planetet\na telefonon</string>
+    <string name="watch_waiting_wheel">Csatlakoztass egykerekűt\naz EUC Planetben</string>
+    <string name="watch_disconnected">Lecsatlakozva</string>
+    <string name="watch_horn">Duda</string>
+    <string name="watch_light">Világítás</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_speed_unit_ms" translatable="false">m/s</string>
+    <string name="watch_speed_unit_kn" translatable="false">kn</string>
+    <string name="watch_battery_label">Akku</string>
+    <string name="watch_voltage_label">Feszültség</string>
+    <string name="watch_current_label">Áram</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
+    <string name="watch_power_label">Teljesítmény</string>
+    <string name="watch_temp_label">Hőm.</string>
+    <string name="watch_trip_label">Menet</string>
+    <string name="watch_torque_label">Nyomaték</string>
+    <string name="watch_action_failed">A telefon nem érhető el</string>
+    <string name="watch_gps_label">GPS-sebesség</string>
+    <string name="watch_gps_permission">Koppints a GPS engedélyezéséhez</string>
+    <string name="watch_gps_waiting">Várakozás GPS-jelre…</string>
+
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
+    <string name="watch_action_horn">Duda</string>
+    <string name="watch_action_light">Világítás</string>
+    <string name="watch_action_lock">Egykerekű zárolása</string>
+    <string name="watch_action_safety">Legális mód</string>
+    <string name="watch_action_safety_on">Legális mód be</string>
+    <string name="watch_action_safety_off">Legális mód ki</string>
+    <string name="watch_action_voice">Hangjelentés</string>
+    <string name="watch_action_record">Rögzítés</string>
+    <string name="watch_action_record_start">Rögzítés elindítva</string>
+    <string name="watch_action_record_stop">Rögzítés leállítva</string>
+    <string name="watch_action_media_play">Lejátszás / szünet</string>
+    <string name="watch_action_media_next">Következő szám</string>
+    <string name="watch_action_media_prev">Előző szám</string>
+    <string name="watch_action_long_press_hint">Hosszan nyomva: %1$s</string>
+</resources>

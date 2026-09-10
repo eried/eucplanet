@@ -52,8 +52,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.eried.eucplanet.R
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
@@ -231,10 +233,10 @@ fun ThemeTargetOverlay(
                     .onGloballyPositioned { rowWpx = it.size.width; rowHpx = it.size.height },
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Cancel on the left, primary (Identify) on the right — matches the
+                // Cancel on the left, primary (Identify) on the right, matching the
                 // app's dialog button convention (dismiss left, confirm right).
-                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) { Text("Cancel") }
-                FilledTonalButton(onClick = { sample() }, shape = RoundedCornerShape(12.dp)) { Text("Identify") }
+                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                FilledTonalButton(onClick = { sample() }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.theme_identify)) }
             }
         } else if (choosing) {
             // Centered chooser: title + tap-to-blink list (scrolls if many) + buttons.
@@ -252,7 +254,7 @@ fun ThemeTargetOverlay(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        "Color identifier results",
+                        stringResource(R.string.theme_identify_results_title),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(start = 6.dp, bottom = 8.dp)
                     )
@@ -294,12 +296,12 @@ fun ThemeTargetOverlay(
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
                         TextButton(onClick = { candidates = null; chosen = null; onCancel() }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.action_cancel))
                         }
                         TextButton(
                             enabled = chosen != null,
                             onClick = { chosen?.let { candidates = null; onPicked(it) } }
-                        ) { Text("Select") }
+                        ) { Text(stringResource(R.string.action_select)) }
                     }
                 }
             }

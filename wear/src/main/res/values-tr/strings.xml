@@ -14,6 +14,7 @@
     <string name="watch_voltage_label">Gerilim</string>
     <string name="watch_current_label">Akım</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Güç</string>
     <string name="watch_temp_label">Sıcaklık</string>
     <string name="watch_trip_label">Sefer</string>
@@ -23,7 +24,7 @@
     <string name="watch_gps_permission">GPS için izin vermek için dokunun</string>
     <string name="watch_gps_waiting">Sinyal bekleniyor…</string>
 
-    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Korna</string>
     <string name="watch_action_light">Işık</string>
     <string name="watch_action_lock">Tekeri kilitle</string>

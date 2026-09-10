@@ -32,6 +32,11 @@
     <string name="action_back">Tillbaka</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Ersätt</string>
+    <string name="action_continue">Fortsätt</string>
+    <string name="action_select">Välj</string>
+    <string name="state_on">På</string>
+    <string name="state_off">Av</string>
     <string name="action_done">Klar</string>
     <string name="action_close">Stäng</string>
 <string name="crash_log_action_prompt">Du höll inne %1$s. Radera just den här loggen, eller alla. Tryck Avbryt och sedan på filen för att dela den.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuella hjul</string>
-    <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i debug-builds.</string>
+    <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i serviceläge.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Ansluten</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Visa över låsskärmen</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
+    <string name="theme_editor_widget">Widget för temaanpassning</string>
+    <string name="theme_unsaved_fmt">%1$s (osparat)</string>
+    <string name="theme_editor_save_as">Spara som nytt tema</string>
+    <string name="theme_editor_pick_color">Välj en färg från skärmen</string>
+    <string name="theme_editor_replay_blink">Upprepa blinkning</string>
+    <string name="theme_editor_save_title">Spara tema</string>
+    <string name="theme_editor_name_label">Namn</string>
+    <string name="theme_editor_replace_title">Ersätta temat?</string>
+    <string name="theme_editor_replace_body">Ett tema med namnet \"%1$s\" finns redan. Att spara ersätter det.</string>
+    <string name="theme_editor_discard_title">Kasta det osparade utkastet?</string>
+    <string name="theme_editor_discard_body">Det här temat har redan en osparad version. Redigerar du det igen går de ändringarna förlorade.</string>
+    <string name="theme_editor_no_folder_title">Ingen säkerhetskopieringsmapp</string>
+    <string name="theme_editor_no_folder_body">Välj en säkerhetskopieringsmapp under %1$s → %2$s för att spara teman.</string>
+    <string name="theme_identify">Identifiera</string>
+    <string name="theme_identify_results_title">Resultat från färgidentifiering</string>
     <string name="tts_switch_title">Byta röst till %1$s?</string>
     <string name="tts_switch_body">Den nuvarande rösten matchar inte valt språk. Byta till en %1$s-röst för meddelanden?</string>
     <string name="tts_switch_yes">Byt röst</string>
@@ -955,6 +975,8 @@
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spänning</string>
     <string name="recording_summary_avg_moving">Snitt i rörelse</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Högsta PWM</string>
@@ -1044,6 +1066,7 @@
     <string name="alarm_label_frequency">Frekvens</string>
     <string name="alarm_label_duration">Varaktighet</string>
     <string name="alarm_label_repeats">Upprepningar</string>
+    <string name="alarm_repeat_toggle">Upprepa</string>
     <string name="alarm_label_vibrate_on">Vibrera på</string>
     <string name="alarm_threshold_decrease">Sänk tröskel</string>
     <string name="alarm_threshold_increase">Höj tröskel</string>
@@ -1071,6 +1094,7 @@
     <string name="sources_fresh_just_now">just nu</string>
     <string name="sources_fresh_seconds_fmt">%1$ds sedan</string>
     <string name="sources_fresh_minutes_fmt">%1$dm sedan</string>
+    <string name="sources_delta_avg_fmt">med %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$dh sedan</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Andra mätvärden</string>
@@ -1900,6 +1924,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth är av</string>
     <string name="scan_enable_bluetooth">Slå på Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Avståndsetiketter</string>
+    <string name="studio_radar_none">Ingen radar</string>
+    <string name="studio_radar_clear">Fritt</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Fil</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Spegel</string>
@@ -2137,6 +2165,7 @@
     <string name="adv_wheel_poll_rate_desc">Påverkar hur färsk livedatan är och hur snabbt larm reagerar. Lägre frågar hjulet efter data oftare. Fara: mycket låga värden kan överbelasta Bluetooth-länken och stoppa data på vissa hjul.</string>
     <string name="alarm_beep_advanced">Avancerat</string>
     <string name="alarm_beep_gap_label">Pauslängd</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · paus %2$d ms</string>
     <string name="alarm_beep_studio">Adaptivt pip</string>
     <string name="alarm_beep_volume_label">Basvolym</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2327,6 +2356,7 @@
     <string name="pip_mode_off">Av</string>
     <string name="pip_mode_simple">Enkel</string>
     <string name="pip_mode_dashboard">Instrumentpanel</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget pa hemskarmen</string>
     <string name="widget_pick_desc">Välj de %1$d mätvärden och %2$d knappar som widgeten visar.</string>
     <string name="widget_metric_slot">Mätvärde %1$d</string>
@@ -2426,7 +2456,7 @@
     <string name="backup_status_failed">Säkerhetskopieringen misslyckades, tryck för att försöka igen</string>
     <string name="lockdown_title">Låsläge</string>
     <string name="lockdown_action_speed_limit">Gräns</string>
-    <string name="lockdown_action_vehicle">Fordon</string>
+    <string name="lockdown_action_vehicle">Hjul</string>
     <string name="lockdown_no_wheel">Inget wheel anslutet. Använd Bluetooth-ikonen för att ansluta.</string>
     <string name="lockdown_vehicle_name">Bluetooth-namn</string>
     <string name="lockdown_vehicle_brand">Tillverkare</string>

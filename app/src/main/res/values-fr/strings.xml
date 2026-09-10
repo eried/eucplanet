@@ -32,6 +32,11 @@
     <string name="action_back">Retour</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Remplacer</string>
+    <string name="action_continue">Continuer</string>
+    <string name="action_select">Sélectionner</string>
+    <string name="state_on">Activé</string>
+    <string name="state_off">Désactivé</string>
     <string name="action_done">Terminé</string>
     <string name="action_close">Fermer</string>
 <string name="crash_log_action_prompt">Tu as appuyé longuement sur %1$s. Supprime ce journal ou tous. Pour le partager, touche Annuler puis le fichier.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Roues virtuelles</string>
-    <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en build debug.</string>
+    <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en Mode service.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connectée</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">Afficher sur l\'écran de verrouillage</string>
     <string name="language">Langue</string>
     <string name="theme">Thème</string>
+    <string name="theme_editor_widget">Widget de personnalisation du thème</string>
+    <string name="theme_unsaved_fmt">%1$s (non enregistré)</string>
+    <string name="theme_editor_save_as">Enregistrer comme nouveau thème</string>
+    <string name="theme_editor_pick_color">Prélever une couleur à l\'écran</string>
+    <string name="theme_editor_replay_blink">Rejouer le clignotement</string>
+    <string name="theme_editor_save_title">Enregistrer le thème</string>
+    <string name="theme_editor_name_label">Nom</string>
+    <string name="theme_editor_replace_title">Remplacer le thème ?</string>
+    <string name="theme_editor_replace_body">Un thème nommé \"%1$s\" existe déjà. L\'enregistrer le remplacera.</string>
+    <string name="theme_editor_discard_title">Abandonner le brouillon non enregistré ?</string>
+    <string name="theme_editor_discard_body">Ce thème a déjà une version non enregistrée. Si vous le modifiez à nouveau, ces changements seront perdus.</string>
+    <string name="theme_editor_no_folder_title">Aucun dossier de sauvegarde</string>
+    <string name="theme_editor_no_folder_body">Pour enregistrer des thèmes, choisissez un dossier de sauvegarde dans %1$s → %2$s.</string>
+    <string name="theme_identify">Identifier</string>
+    <string name="theme_identify_results_title">Résultats de l\'identification de couleur</string>
     <string name="tts_switch_title">Changer la voix en %1$s ?</string>
     <string name="tts_switch_body">La voix de synthèse actuelle ne correspond pas à la langue choisie. Passer à une voix %1$s pour les annonces ?</string>
     <string name="tts_switch_yes">Changer la voix</string>
@@ -956,6 +976,8 @@
     <string name="recording_summary_battery">Batterie (-%1$d%%)</string>
     <string name="recording_summary_voltage">Tension</string>
     <string name="recording_summary_avg_moving">Moy. en roulant</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">PWM max</string>
@@ -1048,6 +1070,7 @@
     <string name="alarm_label_frequency">Fréquence</string>
     <string name="alarm_label_duration">Durée</string>
     <string name="alarm_label_repeats">Répétitions</string>
+    <string name="alarm_repeat_toggle">Répéter</string>
     <string name="alarm_label_vibrate_on">Vibrer sur</string>
     <string name="alarm_threshold_decrease">Diminuer le seuil</string>
     <string name="alarm_threshold_increase">Augmenter le seuil</string>
@@ -1075,6 +1098,7 @@
     <string name="sources_fresh_just_now">à l\'instant</string>
     <string name="sources_fresh_seconds_fmt">il y a %1$ds</string>
     <string name="sources_fresh_minutes_fmt">il y a %1$dm</string>
+    <string name="sources_delta_avg_fmt">moy %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">il y a %1$dh</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Autres mesures</string>
@@ -1906,6 +1930,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth désactivé</string>
     <string name="scan_enable_bluetooth">Activer le Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Étiquettes de distance</string>
+    <string name="studio_radar_none">Pas de radar</string>
+    <string name="studio_radar_clear">Dégagé</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Voie</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Miroir</string>
@@ -2141,6 +2169,7 @@
     <string name="adv_wheel_poll_rate_desc">Détermine la fraîcheur des données en direct et la rapidité de réaction des alarmes. Plus bas interroge la roue plus souvent. Danger : des valeurs très basses peuvent saturer le lien Bluetooth et bloquer les données sur certaines roues.</string>
     <string name="alarm_beep_advanced">Avancé</string>
     <string name="alarm_beep_gap_label">Durée d\'intervalle</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · intervalle %2$d ms</string>
     <string name="alarm_beep_studio">Bip adaptatif</string>
     <string name="alarm_beep_volume_label">Volume de base</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2331,6 +2360,7 @@
     <string name="pip_mode_off">Désactivé</string>
     <string name="pip_mode_simple">Simple</string>
     <string name="pip_mode_dashboard">Tableau de bord</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget d ecran d accueil</string>
     <string name="widget_pick_desc">Choisis les %1$d mesures et %2$d boutons affichés par le widget.</string>
     <string name="widget_metric_slot">Mesure %1$d</string>
@@ -2430,7 +2460,7 @@
     <string name="backup_status_failed">Echec de la sauvegarde, touchez pour reessayer</string>
     <string name="lockdown_title">Mode verrouillé</string>
     <string name="lockdown_action_speed_limit">Limite</string>
-    <string name="lockdown_action_vehicle">Véhicule</string>
+    <string name="lockdown_action_vehicle">Roue</string>
     <string name="lockdown_no_wheel">Aucune roue connectée. Utilise l’icône Bluetooth pour te connecter.</string>
     <string name="lockdown_vehicle_name">Nom Bluetooth</string>
     <string name="lockdown_vehicle_brand">Fabricant</string>

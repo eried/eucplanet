@@ -32,6 +32,11 @@
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">確定</string>
+    <string name="action_replace">取代</string>
+    <string name="action_continue">繼續</string>
+    <string name="action_select">選擇</string>
+    <string name="state_on">開</string>
+    <string name="state_off">關</string>
     <string name="action_done">完成</string>
     <string name="action_close">關閉</string>
 <string name="crash_log_action_prompt">您長按了 %1$s。可刪除此日誌或全部刪除。若要分享，請點「取消」再點選該檔案。</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">虛擬車輪</string>
-    <string name="scan_simulate_subtitle">繞過 BLE，使用預設回應。僅限偵錯版本。</string>
+    <string name="scan_simulate_subtitle">繞過 BLE，使用預設回應。僅限服務模式。</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">已連線</string>
@@ -564,6 +569,21 @@
     <string name="phone_show_over_lock">在鎖定畫面上方顯示</string>
     <string name="language">語言</string>
     <string name="theme">主題</string>
+    <string name="theme_editor_widget">主題自訂小工具</string>
+    <string name="theme_unsaved_fmt">%1$s（未儲存）</string>
+    <string name="theme_editor_save_as">另存為新主題</string>
+    <string name="theme_editor_pick_color">從螢幕取色</string>
+    <string name="theme_editor_replay_blink">重播閃爍</string>
+    <string name="theme_editor_save_title">儲存主題</string>
+    <string name="theme_editor_name_label">名稱</string>
+    <string name="theme_editor_replace_title">取代主題？</string>
+    <string name="theme_editor_replace_body">已有名為「%1$s」的主題。儲存後將取代它。</string>
+    <string name="theme_editor_discard_title">捨棄未儲存的草稿？</string>
+    <string name="theme_editor_discard_body">此主題已有未儲存的版本。再次編輯將遺失這些變更。</string>
+    <string name="theme_editor_no_folder_title">沒有備份資料夾</string>
+    <string name="theme_editor_no_folder_body">要儲存主題，請在 %1$s → %2$s 中選擇備份資料夾。</string>
+    <string name="theme_identify">辨識</string>
+    <string name="theme_identify_results_title">顏色辨識結果</string>
     <string name="tts_switch_title">切換語音至 %1$s？</string>
     <string name="tts_switch_body">目前的文字轉語音聲音與所選語言不符。是否切換至 %1$s 語音進行播報？</string>
     <string name="tts_switch_yes">切換語音</string>
@@ -956,6 +976,8 @@
     <string name="recording_summary_battery">電池（-%1$d%%）</string>
     <string name="recording_summary_voltage">電壓</string>
     <string name="recording_summary_avg_moving">移動平均速</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">外部</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">最大 PWM</string>
@@ -1045,6 +1067,7 @@
     <string name="alarm_label_frequency">頻率</string>
     <string name="alarm_label_duration">時長</string>
     <string name="alarm_label_repeats">重複次數</string>
+    <string name="alarm_repeat_toggle">重複</string>
     <string name="alarm_label_vibrate_on">震動裝置</string>
     <string name="alarm_threshold_decrease">降低閾值</string>
     <string name="alarm_threshold_increase">提高閾值</string>
@@ -1072,6 +1095,7 @@
     <string name="sources_fresh_just_now">剛剛</string>
     <string name="sources_fresh_seconds_fmt">%1$d 秒前</string>
     <string name="sources_fresh_minutes_fmt">%1$d 分鐘前</string>
+    <string name="sources_delta_avg_fmt">平均 %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d 小時前</string>
     <string name="sources_sats_fmt">%1$d 顆衛星</string>
     <string name="sources_other_metrics">其他指標</string>
@@ -1873,6 +1897,10 @@
     <string name="scan_bluetooth_off_title">藍牙已關閉</string>
     <string name="scan_enable_bluetooth">開啟藍牙</string>
     <string name="studio_cfg_radar_distance_labels">距離標籤</string>
+    <string name="studio_radar_none">無雷達</string>
+    <string name="studio_radar_clear">無車</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">車道</string>
     <string name="studio_cfg_radar_minimal">極簡</string>
     <string name="studio_cfg_radar_mirror">鏡像</string>
@@ -2136,6 +2164,7 @@
     <string name="adv_wheel_poll_rate_desc">影響即時資料的新鮮度與警報的反應速度。越低向車輪索取資料越頻繁。危險：極低的數值可能淹沒藍牙連結，並使某些車輪資料停滯。</string>
     <string name="alarm_beep_advanced">進階</string>
     <string name="alarm_beep_gap_label">間隔時長</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · 間隔 %2$d ms</string>
     <string name="alarm_beep_studio">自適應嗶聲</string>
     <string name="alarm_beep_volume_label">基本音量</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2326,6 +2355,7 @@
     <string name="pip_mode_off">關閉</string>
     <string name="pip_mode_simple">簡單</string>
     <string name="pip_mode_dashboard">儀表板</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">主畫面小工具</string>
     <string name="widget_pick_desc">選擇小工具顯示的 %1$d 個指標和 %2$d 個按鈕。</string>
     <string name="widget_metric_slot">指標 %1$d</string>
@@ -2425,7 +2455,7 @@
     <string name="backup_status_failed">備份失敗，點擊重試</string>
     <string name="lockdown_title">鎖定模式</string>
     <string name="lockdown_action_speed_limit">限速</string>
-    <string name="lockdown_action_vehicle">車輛</string>
+    <string name="lockdown_action_vehicle">車輪</string>
     <string name="lockdown_no_wheel">未連接輪子。請點選藍牙圖示進行連接。</string>
     <string name="lockdown_vehicle_name">藍牙名稱</string>
     <string name="lockdown_vehicle_brand">廠商</string>

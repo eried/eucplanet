@@ -183,8 +183,8 @@ those, open the app manually as before.
 These don't carry over from Wear OS to Garmin yet, and are tracked as
 follow-up work:
 
-- **Per-locale strings**: Wear OS ships in 16 languages; the Garmin app
-  starts with English only. Porting the strings is mechanical — copy from
+- **Per-locale strings**: Wear OS ships in 22 languages; the Garmin app
+  starts with English only. Porting the strings is mechanical, copy from
   `wear/src/main/res/values-XX/strings.xml` into
   `garmin-watch-app/resources-XX/strings.xml`.
 - **Accent colour**: the gauge defaults to safe-green when the color band is
