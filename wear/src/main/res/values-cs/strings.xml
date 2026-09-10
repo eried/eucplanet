@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Otevřete EUC Planet\nv telefonu</string>
+    <string name="watch_waiting_wheel">Připojte monokolo\nv EUC Planet</string>
+    <string name="watch_disconnected">Odpojeno</string>
+    <string name="watch_horn">Klakson</string>
+    <string name="watch_light">Světlo</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_speed_unit_ms" translatable="false">m/s</string>
+    <string name="watch_speed_unit_kn" translatable="false">kn</string>
+    <string name="watch_battery_label">Baterie</string>
+    <string name="watch_voltage_label">Napětí</string>
+    <string name="watch_current_label">Proud</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
+    <string name="watch_power_label">Výkon</string>
+    <string name="watch_temp_label">Tepl.</string>
+    <string name="watch_trip_label">Jízda</string>
+    <string name="watch_torque_label">Moment</string>
+    <string name="watch_action_failed">Telefon nedostupný</string>
+    <string name="watch_gps_label">Rychlost GPS</string>
+    <string name="watch_gps_permission">Klepnutím povolte GPS</string>
+    <string name="watch_gps_waiting">Čekám na signál…</string>
+
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
+    <string name="watch_action_horn">Klakson</string>
+    <string name="watch_action_light">Světlo</string>
+    <string name="watch_action_lock">Zamknout monokolo</string>
+    <string name="watch_action_safety">Legální režim</string>
+    <string name="watch_action_safety_on">Legální režim zap.</string>
+    <string name="watch_action_safety_off">Legální režim vyp.</string>
+    <string name="watch_action_voice">Hlasové hlášení</string>
+    <string name="watch_action_record">Záznam</string>
+    <string name="watch_action_record_start">Záznam spuštěn</string>
+    <string name="watch_action_record_stop">Záznam zastaven</string>
+    <string name="watch_action_media_play">Přehrát / pauza</string>
+    <string name="watch_action_media_next">Další skladba</string>
+    <string name="watch_action_media_prev">Předchozí skladba</string>
+    <string name="watch_action_long_press_hint">Podržte pro: %1$s</string>
+</resources>

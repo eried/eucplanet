@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Deschide EUC Planet\npe telefon</string>
+    <string name="watch_waiting_wheel">Conectează un monociclu\nîn EUC Planet</string>
+    <string name="watch_disconnected">Deconectat</string>
+    <string name="watch_horn">Claxon</string>
+    <string name="watch_light">Lumină</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_speed_unit_ms" translatable="false">m/s</string>
+    <string name="watch_speed_unit_kn" translatable="false">kn</string>
+    <string name="watch_battery_label">Baterie</string>
+    <string name="watch_voltage_label">Tensiune</string>
+    <string name="watch_current_label">Curent</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
+    <string name="watch_power_label">Putere</string>
+    <string name="watch_temp_label">Temp.</string>
+    <string name="watch_trip_label">Cursă</string>
+    <string name="watch_torque_label">Cuplu</string>
+    <string name="watch_action_failed">Telefonul nu răspunde</string>
+    <string name="watch_gps_label">Viteză GPS</string>
+    <string name="watch_gps_permission">Atinge pentru a permite GPS</string>
+    <string name="watch_gps_waiting">Se așteaptă semnal…</string>
+
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
+    <string name="watch_action_horn">Claxon</string>
+    <string name="watch_action_light">Lumină</string>
+    <string name="watch_action_lock">Blochează monociclul</string>
+    <string name="watch_action_safety">Mod legal</string>
+    <string name="watch_action_safety_on">Mod legal pornit</string>
+    <string name="watch_action_safety_off">Mod legal oprit</string>
+    <string name="watch_action_voice">Raport vocal</string>
+    <string name="watch_action_record">Înregistrare</string>
+    <string name="watch_action_record_start">Înregistrare pornită</string>
+    <string name="watch_action_record_stop">Înregistrare oprită</string>
+    <string name="watch_action_media_play">Redare / pauză</string>
+    <string name="watch_action_media_next">Piesa următoare</string>
+    <string name="watch_action_media_prev">Piesa anterioară</string>
+    <string name="watch_action_long_press_hint">Apasă lung pentru %1$s</string>
+</resources>
