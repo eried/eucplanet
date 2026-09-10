@@ -83,7 +83,15 @@ class AutomationManager @Inject constructor(
      * disconnect / Stop All / when the feature is disabled, so the app never
      * leaves STREAM_MUSIC turned down after the rider stops (they were having to
      * manually raise it every time). No-op if we never touched the volume.
+     *
+     * Every non-suspending step here and below is synchronized: [evaluate]
+     * runs on the telemetry collector's worker thread while these resets
+     * arrive from the main thread (disconnect, Stop All, Settings) and from
+     * the Flic callback thread, and the policy state is plain fields. The
+     * lock makes each step atomic against them, which is what running on the
+     * main thread used to guarantee. Nothing under it blocks.
      */
+    @Synchronized
     fun restoreBaselineVolume() {
         if (lastWrittenSystemVol == -1) return
         lastWrittenSystemVol = -1            // stop tracking; next enable re-initialises
@@ -100,6 +108,7 @@ class AutomationManager @Inject constructor(
     val autoLightsSuspended: StateFlow<Boolean> = _autoLightsSuspended.asStateFlow()
 
     /** Called from the UI / Flic paths whenever the user toggles the light manually. */
+    @Synchronized
     fun notifyManualLightChange() {
         // Legal Mode Lockdown is temporary, so its light button must not leave
         // auto-lights suspended for the rest of the session. Guarded here so
@@ -112,6 +121,7 @@ class AutomationManager @Inject constructor(
     }
 
     /** Called on wheel reconnect or when the auto-lights setting is toggled. */
+    @Synchronized
     fun clearLightsSuspension() {
         if (_autoLightsSuspended.value) {
             Log.i(TAG, "Auto-lights suspension cleared")
@@ -125,6 +135,7 @@ class AutomationManager @Inject constructor(
     }
 
     /** Reset the throttle so the next tick re-evaluates immediately. */
+    @Synchronized
     fun triggerImmediateLightEvaluation() {
         lastLightCheckMs = 0L
         lastDarkEnough = null
@@ -164,6 +175,7 @@ class AutomationManager @Inject constructor(
     }
 
     /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */
+    @Synchronized
     private fun detectManualLightChange(settings: AppSettings) {
         val current = wheelRepository.wheelData.value.lightOn
         val previous = lastKnownLightOn
@@ -176,6 +188,7 @@ class AutomationManager @Inject constructor(
         }
     }
 
+    @Synchronized
     private fun evaluateLights(settings: AppSettings) {
         val now = System.currentTimeMillis()
         val location = tripRepository.currentLocation.value
@@ -315,6 +328,7 @@ class AutomationManager @Inject constructor(
      * ([mediaAutoPaused]), so speeding up never starts music the rider deliberately
      * stopped.
      */
+    @Synchronized
     private fun evaluateMediaControl(settings: AppSettings) {
         // Only act on a live wheel connection. A disconnected wheel reports 0 speed,
         // which would otherwise pause your music the moment you walk off with the phone.
@@ -453,6 +467,7 @@ class AutomationManager @Inject constructor(
      * do NOT auto-resume here - playback is left wherever it is (the rider can press
      * play) rather than risk blasting audio when a ride ends.
      */
+    @Synchronized
     fun resetMediaControl() {
         mediaAutoPaused = false
         mediaState = MediaControlPolicy.State()
@@ -466,6 +481,7 @@ class AutomationManager @Inject constructor(
      * fading - a full disconnect leaves nothing to send over (documented
      * limitation).
      */
+    @Synchronized
     private fun evaluateProximityLock(settings: AppSettings) {
         if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) return
         val rssi = wheelRepository.wheelData.value.rssiDbm
@@ -490,6 +506,7 @@ class AutomationManager @Inject constructor(
     }
 
     /** Clear proximity-lock state entirely, for Stop All and for disable. */
+    @Synchronized
     fun resetProximityLock() = proximityLock.reset()
 
     /**
@@ -497,6 +514,7 @@ class AutomationManager @Inject constructor(
      * range and came back still gets the auto-unlock; see
      * [ProximityLockEvaluator.onLinkLost].
      */
+    @Synchronized
     fun onProximityLinkLost() = proximityLock.onLinkLost()
 }
 

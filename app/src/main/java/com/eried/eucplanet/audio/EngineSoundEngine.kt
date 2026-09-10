@@ -76,6 +76,10 @@ class EngineSoundEngine @Inject constructor(
     private var duckMode: String = "DUCK"
     private var headphonesOnly: Boolean = false
 
+    // Guards the telemetry state below: pushTelemetry runs on the service's
+    // worker thread (and the preview thread) while the disconnect reset in
+    // setConnected runs on the main thread. Never held across start()/stop().
+    private val telemetryLock = Any()
     private var smoothedRpm: Float = 0f
     private var smoothedLoad: Float = 0f
     private var lastPwm: Float = 0f
@@ -152,14 +156,16 @@ class EngineSoundEngine @Inject constructor(
             // pwmEverNonZero is sticky to avoid flapping back to derivative-load
             // mid-ride on a momentary 0% PWM read, but across BLE sessions
             // (potentially a different wheel) we want to re-discover capability.
-            pwmEverNonZero = false
-            lastPwm = 0f
-            lastSpeedKmh = 0f
-            lastTelemetryAtMs = 0L
-            smoothedRpm = 0f
-            smoothedLoad = 0f
-            brakeEnvelope = 0f
-            decelEnvelope = 0f
+            synchronized(telemetryLock) {
+                pwmEverNonZero = false
+                lastPwm = 0f
+                lastSpeedKmh = 0f
+                lastTelemetryAtMs = 0L
+                smoothedRpm = 0f
+                smoothedLoad = 0f
+                brakeEnvelope = 0f
+                decelEnvelope = 0f
+            }
         }
     }
 
@@ -302,6 +308,10 @@ class EngineSoundEngine @Inject constructor(
 
     /** Telemetry tick from WheelService (typically 5-20 Hz). */
     fun pushTelemetry(speedKmh: Float, pwmPercent: Float) {
+        synchronized(telemetryLock) { pushTelemetryLocked(speedKmh, pwmPercent) }
+    }
+
+    private fun pushTelemetryLocked(speedKmh: Float, pwmPercent: Float) {
         val now = System.currentTimeMillis()
         if (lastTelemetryAtMs == 0L) lastTelemetryAtMs = now
         val dt = ((now - lastTelemetryAtMs).coerceAtLeast(1L)) / 1000f

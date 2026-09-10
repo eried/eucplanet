@@ -29,6 +29,7 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -211,6 +212,9 @@ class WheelService : LifecycleService() {
     // change takes effect without a reconnect. Reset on disconnect.
     private val accelSplitTracker = AccelSplitTracker(increment = 10, minSpeed = 20)
     private var lastConnectionState: ConnectionState? = null
+    // Written by the telemetry collector (a worker thread) and cleared on
+    // disconnect from the main thread.
+    @Volatile
     private var lastLightOn: Boolean? = null
     // Flipped true by ACTION_STOP_ALL_AND_KILL so onDestroy knows to
     // SIGKILL the process at the end of cleanup. Set only once -- never
@@ -269,8 +273,13 @@ class WheelService : LifecycleService() {
 
         voiceService.initialize()
 
-        // Update notification + check alarms + automations on telemetry updates
-        lifecycleScope.launch {
+        // Update notification + check alarms + automations on telemetry updates.
+        // Off the main thread: a frame builds a notification, paints the widget
+        // and copies the Phone HUD history, none of which needs the UI thread,
+        // and at BLE rate it was competing with Compose for it. wheelData is a
+        // StateFlow, so the stream is already conflated: a slow frame drops the
+        // ones behind it instead of queueing them.
+        lifecycleScope.launch(Dispatchers.Default) {
             wheelRepository.wheelData.collect { data ->
                 updateNotification(data)
                 // Every frame, so the load-style voice reports average over a
@@ -447,8 +456,9 @@ class WheelService : LifecycleService() {
                             automationManager.onProximityLinkLost()
                             // Drop any in-flight run + session history so a fresh
                             // ride starts clean and a stale timestamp gap can't
-                            // fabricate a summary on reconnect.
-                            accelSplitTracker.hardReset()
+                            // fabricate a summary on reconnect. Locked against
+                            // the telemetry collector's worker thread.
+                            synchronized(accelSplitTracker) { accelSplitTracker.hardReset() }
                         }
                         else -> {}
                     }
@@ -679,7 +689,7 @@ class WheelService : LifecycleService() {
         try { renderWidget(null) } catch (_: Exception) {}
         // The window belongs to this service; nothing else would remove it.
         try { phoneHudWindow.hide() } catch (_: Exception) {}
-        phoneHudHistory.clear()
+        synchronized(phoneHudHistory) { phoneHudHistory.clear() }
         try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
@@ -720,6 +730,9 @@ class WheelService : LifecycleService() {
 
     // Timestamp of the last sample in motion (|speed| > MOTION_MIN_KMH) while
     // connected. Used by the idle-timeout loop to decide when to auto-stop.
+    // Written from the telemetry collector's worker thread and from the main
+    // thread loops, so it must be visible to both.
+    @Volatile
     private var lastMotionAtMs: Long = 0L
 
     private fun evaluateAutoRecordOnTelemetry(
@@ -836,21 +849,26 @@ class WheelService : LifecycleService() {
         // settings.voiceEnabled: that field is the "Report status periodically"
         // switch, so gating here silenced split announcements for any rider who
         // turned periodic reports off while wanting acceleration splits on.
-        if (!cfg.enabled) {
-            accelSplitTracker.hardReset()
-            return
+        // The tracker is plain state; the disconnect reset touches it from the
+        // main thread, so each step is taken under its lock.
+        val splits = synchronized(accelSplitTracker) {
+            if (!cfg.enabled) {
+                accelSplitTracker.hardReset()
+                return
+            }
+            val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+            val speed = com.eried.eucplanet.util.Units.speed(data.speed, unit).toDouble()
+            accelSplitTracker.configure(
+                cfg.increment,
+                cfg.minSpeed,
+                trackAccel = cfg.direction != "BRAKE",
+                trackDecel = cfg.direction != "ACCEL",
+            )
+            accelSplitTracker.onSample(data.timestamp, speed)
         }
-        val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
-        val speed = com.eried.eucplanet.util.Units.speed(data.speed, unit).toDouble()
-        accelSplitTracker.configure(
-            cfg.increment,
-            cfg.minSpeed,
-            trackAccel = cfg.direction != "BRAKE",
-            trackDecel = cfg.direction != "ACCEL",
-        )
         // announceEvent queues (QUEUE_ADD) and never drops, so a step crossed
         // while the previous line is still speaking is voiced right after.
-        for (s in accelSplitTracker.onSample(data.timestamp, speed)) {
+        for (s in splits) {
             val text = AccelSplitVoice.splitText(this, s, cfg)
             Log.i(TAG, "accel split: $text")
             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("accel_split: $text")
@@ -1168,19 +1186,25 @@ class WheelService : LifecycleService() {
         // a timestamp plus the WheelData we already hold, so the buffer costs
         // the list and nothing else: same shape the Studio keeps for its own
         // live graphs, trimmed to the same window it uses.
-        phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
-        val cutoff = now - PHONE_HUD_HISTORY_MS
-        while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
-            phoneHudHistory.removeFirst()
+        //
+        // Locked because onDestroy clears the deque from the main thread while
+        // this runs on the collector's worker thread.
+        val history = synchronized(phoneHudHistory) {
+            phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
+            val cutoff = now - PHONE_HUD_HISTORY_MS
+            while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
+                phoneHudHistory.removeFirst()
+            }
+            // Copied, not handed over: Compose needs a stable snapshot, and
+            // the deque keeps mutating underneath on the next frame.
+            phoneHudHistory.toList()
         }
         phoneHudWindow.update(
             com.eried.eucplanet.ui.studio.StudioElementData(
                 wheelData = data,
                 wheelName = lastDeviceNameCached.orEmpty(),
                 connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
-                // Copied, not handed over: Compose needs a stable snapshot, and
-                // the deque keeps mutating underneath on the next frame.
-                history = phoneHudHistory.toList(),
+                history = history,
                 // Radar, mapped exactly as the Studio maps it, so a RADAR
                 // element shows real threats here instead of its "no radar"
                 // face. Same eight-target cap.
