@@ -22,6 +22,8 @@ interface ActionUi {
     fun toggleUnits()
     fun toggleAlarmsMuted()
     fun resetMetrics()
+    /** Off, accel, brake, both, and round again. */
+    fun cycleSpeedSplits()
 }
 
 /**
@@ -46,6 +48,7 @@ fun dispatchAction(key: String, ui: ActionUi, fallback: (String) -> Unit) {
         "TOGGLE_UNITS" -> ui.toggleUnits()
         "MUTE_ALARMS" -> ui.toggleAlarmsMuted()
         "RESET_TRIP" -> ui.resetMetrics()
+        "SPEED_SPLITS" -> ui.cycleSpeedSplits()
         else -> fallback(key)
     }
 }

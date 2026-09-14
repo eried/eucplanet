@@ -35,6 +35,13 @@ ten points on the throttle, jitters, and loses a point a minute. A plain
 Battery alarm at 30 % fires on the first burst; Battery (est) at 30 % should
 fire only once the resting level is actually there, about seven minutes in.
 
+**Speed splits button.** Settings, Dashboard layout, drag the Speed splits
+action onto a slot. Each tap walks Splits off, accel, brake, both, and the tile
+says which; it works with no wheel connected. Off pauses: the session's best
+and last times stay, and Settings, Voice, Speed splits now lists them with a
+Reset. A different wheel connecting clears them; a reconnect of the same wheel
+does not.
+
 **Pressure units.** Pick psi, bar, kPa, kgf/cm2 or MPa and check every screen
 agrees: the tile, its graph, the alarm threshold, the settings row and the
 overlay.

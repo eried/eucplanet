@@ -84,6 +84,8 @@ data class ServiceOverlaySnapshot(
     val safetyActive: Boolean = false,
     /** True when the alarms-muted setting is on. */
     val alarmsMuted: Boolean = false,
+    /** True while speed splits are on, in any direction. */
+    val speedSplitsOn: Boolean = false,
     /** Per-transport connection status for the Connections tab. */
     val connections: List<ConnectionInfo> = emptyList()
 ) {
@@ -94,7 +96,8 @@ data class ServiceOverlaySnapshot(
             tripRecording = tripRecording,
             imperialUnits = imperialUnits,
             alarmsMuted = alarmsMuted,
-            safetyActive = safetyActive
+            safetyActive = safetyActive,
+            speedSplitsOn = speedSplitsOn,
         )
 }
 

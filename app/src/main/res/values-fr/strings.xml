@@ -2303,6 +2303,16 @@
     <string name="accel_splits_dir_both">Les deux</string>
     <string name="accel_splits_compare_previous">Comparer au passage précédent</string>
     <string name="accel_splits_compare_best">Comparer au meilleur de la session</string>
+    <string name="action_splits_off">Splits désactivés</string>
+    <string name="action_splits_accel">Splits : accél.</string>
+    <string name="action_splits_brake">Splits : freinage</string>
+    <string name="action_splits_both">Splits : les deux</string>
+    <string name="accel_splits_session">Cette session</string>
+    <string name="accel_splits_session_empty">Pas encore de split. Franchissez un palier pour en enregistrer un.</string>
+    <string name="accel_splits_session_row">%1$d à %2$d</string>
+    <string name="accel_splits_session_best">meilleur %1$s s</string>
+    <string name="accel_splits_session_last">dernier %1$s s</string>
+    <string name="accel_splits_reset">Réinitialiser</string>
     <string name="accel_split_time_fmt">de %1$d à %2$d, %3$s secondes</string>
     <string name="accel_split_faster_prev">, %1$s secondes plus rapide que le précédent</string>
     <string name="accel_split_slower_prev">, %1$s secondes plus lent que le précédent</string>

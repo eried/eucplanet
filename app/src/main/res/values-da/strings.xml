@@ -2314,6 +2314,16 @@
     <string name="accel_splits_dir_both">Begge</string>
     <string name="accel_splits_compare_previous">Sammenlign med forrige forsøg</string>
     <string name="accel_splits_compare_best">Sammenlign med sessionens bedste</string>
+    <string name="action_splits_off">Splits fra</string>
+    <string name="action_splits_accel">Splits: accel.</string>
+    <string name="action_splits_brake">Splits: bremse</string>
+    <string name="action_splits_both">Splits: begge</string>
+    <string name="accel_splits_session">Denne tur</string>
+    <string name="accel_splits_session_empty">Ingen splits endnu. Kør gennem et trin for at måle et.</string>
+    <string name="accel_splits_session_row">%1$d til %2$d</string>
+    <string name="accel_splits_session_best">bedst %1$s s</string>
+    <string name="accel_splits_session_last">sidst %1$s s</string>
+    <string name="accel_splits_reset">Nulstil</string>
     <string name="accel_split_time_fmt">fra %1$d til %2$d, %3$s sekunder</string>
     <string name="accel_split_faster_prev">, %1$s sekunder hurtigere end forrige</string>
     <string name="accel_split_slower_prev">, %1$s sekunder langsommere end forrige</string>

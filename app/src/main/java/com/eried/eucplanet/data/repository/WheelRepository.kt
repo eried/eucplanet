@@ -230,6 +230,7 @@ class WheelRepository @Inject constructor(
     private val legalLockdown: LegalLockdownController,
     /** So the wheel's own relayed tyre pressure competes with a paired cap. */
     private val tpmsRepository: com.eried.eucplanet.tpms.TpmsRepository,
+    private val accelSplitRepository: AccelSplitRepository,
     // Lazy breaks the Hilt dependency cycle: TripRepository injects this
     // repository, so a direct TripRepository here would be circular. Only
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
@@ -1436,6 +1437,9 @@ class WheelRepository @Inject constructor(
             // Same rule for the Battery screen's charging session: a new wheel starts
             // fresh so its charge curve / packs / cells don't inherit the last wheel's.
             resetChargingSession()
+            // And for the speed splits: another wheel is another motor, so its
+            // times are not this one's to beat.
+            accelSplitRepository.reset()
         }
         lastConnectedAddress = address
         bleManager.connect(address, name, isAuto)

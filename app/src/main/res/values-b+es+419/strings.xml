@@ -2317,6 +2317,16 @@
     <string name="accel_splits_dir_both">Ambos</string>
     <string name="accel_splits_compare_previous">Comparar con el intento anterior</string>
     <string name="accel_splits_compare_best">Comparar con el mejor de la sesión</string>
+    <string name="action_splits_off">Splits: apagado</string>
+    <string name="action_splits_accel">Splits: acel.</string>
+    <string name="action_splits_brake">Splits: freno</string>
+    <string name="action_splits_both">Splits: ambos</string>
+    <string name="accel_splits_session">Esta sesión</string>
+    <string name="accel_splits_session_empty">Aún no hay splits. Cruza un tramo para registrar uno.</string>
+    <string name="accel_splits_session_row">%1$d a %2$d</string>
+    <string name="accel_splits_session_best">mejor %1$s s</string>
+    <string name="accel_splits_session_last">último %1$s s</string>
+    <string name="accel_splits_reset">Restablecer</string>
     <string name="accel_split_time_fmt">de %1$d a %2$d, %3$s segundos</string>
     <string name="accel_split_faster_prev">, %1$s segundos más rápido que el anterior</string>
     <string name="accel_split_slower_prev">, %1$s segundos más lento que el anterior</string>

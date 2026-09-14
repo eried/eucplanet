@@ -786,6 +786,16 @@
     <string name="accel_splits_dir_both">Ambele</string>
     <string name="accel_splits_compare_previous">Compară cu încercarea anterioară</string>
     <string name="accel_splits_compare_best">Compară cu cel mai bun din sesiune</string>
+    <string name="action_splits_off">Splituri oprite</string>
+    <string name="action_splits_accel">Splituri: accel.</string>
+    <string name="action_splits_brake">Splituri: frânare</string>
+    <string name="action_splits_both">Splituri: ambele</string>
+    <string name="accel_splits_session">Această sesiune</string>
+    <string name="accel_splits_session_empty">Niciun split încă. Treci printr-o treaptă ca să înregistrezi unul.</string>
+    <string name="accel_splits_session_row">%1$d la %2$d</string>
+    <string name="accel_splits_session_best">cel mai bun %1$s s</string>
+    <string name="accel_splits_session_last">ultimul %1$s s</string>
+    <string name="accel_splits_reset">Resetează</string>
     <string name="accel_split_time_fmt">de la %1$d la %2$d, %3$s secunde</string>
     <string name="accel_split_faster_prev">, cu %1$s secunde mai rapid decât anterior</string>
     <string name="accel_split_slower_prev">, cu %1$s secunde mai lent decât anterior</string>

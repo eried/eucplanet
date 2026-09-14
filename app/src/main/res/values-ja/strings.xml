@@ -2300,6 +2300,16 @@
     <string name="accel_splits_dir_both">両方</string>
     <string name="accel_splits_compare_previous">前回の走行と比較</string>
     <string name="accel_splits_compare_best">セッションベストと比較</string>
+    <string name="action_splits_off">スプリット オフ</string>
+    <string name="action_splits_accel">スプリット: 加速</string>
+    <string name="action_splits_brake">スプリット: 減速</string>
+    <string name="action_splits_both">スプリット: 両方</string>
+    <string name="accel_splits_session">今回の走行</string>
+    <string name="accel_splits_session_empty">まだスプリットはありません。区間を走ると記録されます。</string>
+    <string name="accel_splits_session_row">%1$d→%2$d</string>
+    <string name="accel_splits_session_best">ベスト %1$s 秒</string>
+    <string name="accel_splits_session_last">前回 %1$s 秒</string>
+    <string name="accel_splits_reset">リセット</string>
     <string name="accel_split_time_fmt">%1$dから%2$d、%3$s秒</string>
     <string name="accel_split_faster_prev">、前回より%1$s秒速い</string>
     <string name="accel_split_slower_prev">、前回より%1$s秒遅い</string>

@@ -2301,6 +2301,16 @@
     <string name="accel_splits_dir_both">Beide</string>
     <string name="accel_splits_compare_previous">Vergelijk met vorige rit</string>
     <string name="accel_splits_compare_best">Vergelijk met sessierecord</string>
+    <string name="action_splits_off">Splits uit</string>
+    <string name="action_splits_accel">Splits: accel.</string>
+    <string name="action_splits_brake">Splits: remmen</string>
+    <string name="action_splits_both">Splits: beide</string>
+    <string name="accel_splits_session">Deze rit</string>
+    <string name="accel_splits_session_empty">Nog geen splits. Rijd door een stap om er een vast te leggen.</string>
+    <string name="accel_splits_session_row">%1$d tot %2$d</string>
+    <string name="accel_splits_session_best">beste %1$s s</string>
+    <string name="accel_splits_session_last">laatste %1$s s</string>
+    <string name="accel_splits_reset">Resetten</string>
     <string name="accel_split_time_fmt">%1$d naar %2$d, %3$s seconden</string>
     <string name="accel_split_faster_prev">, %1$s seconden sneller dan vorige</string>
     <string name="accel_split_slower_prev">, %1$s seconden langzamer dan vorige</string>

@@ -2299,6 +2299,16 @@
     <string name="accel_splits_dir_both">Båda</string>
     <string name="accel_splits_compare_previous">Jämför med förra åket</string>
     <string name="accel_splits_compare_best">Jämför med sessionens bästa</string>
+    <string name="action_splits_off">Splittar av</string>
+    <string name="action_splits_accel">Splittar: accel.</string>
+    <string name="action_splits_brake">Splittar: broms</string>
+    <string name="action_splits_both">Splittar: båda</string>
+    <string name="accel_splits_session">Denna tur</string>
+    <string name="accel_splits_session_empty">Inga splittar än. Kör genom ett steg för att mäta ett.</string>
+    <string name="accel_splits_session_row">%1$d till %2$d</string>
+    <string name="accel_splits_session_best">bäst %1$s s</string>
+    <string name="accel_splits_session_last">senast %1$s s</string>
+    <string name="accel_splits_reset">Återställ</string>
     <string name="accel_split_time_fmt">%1$d till %2$d, %3$s sekunder</string>
     <string name="accel_split_faster_prev">, %1$s sekunder snabbare än föregående</string>
     <string name="accel_split_slower_prev">, %1$s sekunder långsammare än föregående</string>

@@ -7413,7 +7413,106 @@ private fun VoiceTab(
                 viewModel.updateAccelSplitCompareBest(it)
             }
         }
+        // What the session has recorded so far, and the way to clear it.
+        // Shown whether the splits are on or off: switching them off pauses
+        // and keeps these, so a rider can see what they are still racing.
+        val splitSession by viewModel.splitSession.collectAsState()
+        SplitSessionBlock(
+            session = splitSession,
+            unit = accelUnit,
+            onReset = { viewModel.resetSplits() },
+        )
+    }
+}
 
+/**
+ * The speed-split session, best and last time per step, with a Reset.
+ *
+ * The Reset chip is the metric-detail screen's, so a rider who has cleared a
+ * graph there recognises the control here. Switching the splits off no longer
+ * clears anything, which is why this exists.
+ */
+@Composable
+private fun SplitSessionBlock(
+    session: com.eried.eucplanet.service.AccelSplitTracker.Session,
+    unit: String,
+    onReset: () -> Unit,
+) {
+    val colors = MaterialTheme.appColors
+    Text(
+        stringResource(R.string.accel_splits_session),
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+    if (session.isEmpty) {
+        HintText(stringResource(R.string.accel_splits_session_empty), small = true)
+        return
+    }
+    @Composable
+    fun steps(title: String, rows: List<com.eried.eucplanet.service.AccelSplitTracker.StepTime>) {
+        if (rows.isEmpty()) return
+        Text(
+            title,
+            style = MaterialTheme.typography.labelMedium,
+            color = colors.textSecondary,
+            modifier = Modifier.padding(top = 6.dp, bottom = 2.dp),
+        )
+        for (r in rows) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.accel_splits_session_row, r.fromSpeed, r.toSpeed) + " " + unit,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    stringResource(R.string.accel_splits_session_best, "%.2f".format(r.bestSeconds)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                )
+                r.lastSeconds?.let {
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        stringResource(R.string.accel_splits_session_last, "%.2f".format(it)),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.textSecondary,
+                    )
+                }
+            }
+        }
+    }
+    steps(stringResource(R.string.accel_splits_dir_accel), session.accel)
+    steps(stringResource(R.string.accel_splits_dir_brake), session.brake)
+    // Below the rows and on the left, where the metric detail screen puts its
+    // Reset. The app never puts a reset on the right of a heading.
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+        horizontalArrangement = Arrangement.Start,
+    ) {
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(colors.primary.copy(alpha = 0.12f))
+                .clickable(onClick = onReset)
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Filled.Restore,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = colors.primary,
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                stringResource(R.string.accel_splits_reset),
+                color = colors.primary,
+                fontWeight = FontWeight.Medium,
+                fontSize = 13.sp,
+            )
+        }
     }
 }
 

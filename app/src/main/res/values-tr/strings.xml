@@ -2296,6 +2296,16 @@
     <string name="accel_splits_dir_both">İkisi</string>
     <string name="accel_splits_compare_previous">Önceki turla karşılaştır</string>
     <string name="accel_splits_compare_best">Oturumun en iyisiyle karşılaştır</string>
+    <string name="action_splits_off">Splitler kapalı</string>
+    <string name="action_splits_accel">Splitler: hızlanma</string>
+    <string name="action_splits_brake">Splitler: fren</string>
+    <string name="action_splits_both">Splitler: ikisi</string>
+    <string name="accel_splits_session">Bu sürüş</string>
+    <string name="accel_splits_session_empty">Henüz split yok. Bir adımdan geçince kaydedilir.</string>
+    <string name="accel_splits_session_row">%1$d - %2$d</string>
+    <string name="accel_splits_session_best">en iyi %1$s sn</string>
+    <string name="accel_splits_session_last">son %1$s sn</string>
+    <string name="accel_splits_reset">Sıfırla</string>
     <string name="accel_split_time_fmt">%1$d ile %2$d arası, %3$s saniye</string>
     <string name="accel_split_faster_prev">, öncekinden %1$s saniye daha hızlı</string>
     <string name="accel_split_slower_prev">, öncekinden %1$s saniye daha yavaş</string>

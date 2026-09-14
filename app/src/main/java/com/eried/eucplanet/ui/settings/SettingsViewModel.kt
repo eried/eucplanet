@@ -107,6 +107,7 @@ internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
+    private val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository,
     val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
     private val voiceService: VoiceService,
     private val tripRepository: TripRepository,
@@ -524,6 +525,12 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportPower(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerPower = v)) }
     // Acceleration splits (RaceBox-style). Feature-local nested group.
     fun updateAccelSplitEnabled(v: Boolean) = update { copy(accelSplit = accelSplit.copy(enabled = v)) }
+
+    /** The session's split times, best and last per step, for the section to show. */
+    val splitSession: StateFlow<com.eried.eucplanet.service.AccelSplitTracker.Session> = accelSplitRepository.session
+
+    /** Clear the session's split times. Switching the splits off does not. */
+    fun resetSplits() = accelSplitRepository.reset()
     fun updateAccelSplitIncrement(v: Int) =
         update { copy(accelSplit = accelSplit.copy(increment = v.coerceIn(1, 50))) }
     fun updateAccelSplitMinSpeed(v: Int) =

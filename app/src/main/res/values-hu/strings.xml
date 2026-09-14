@@ -786,6 +786,16 @@
     <string name="accel_splits_dir_both">Mindkettő</string>
     <string name="accel_splits_compare_previous">Összevetés az előzővel</string>
     <string name="accel_splits_compare_best">Összevetés a menet legjobbjával</string>
+    <string name="action_splits_off">Részidők ki</string>
+    <string name="action_splits_accel">Részidők: gyors.</string>
+    <string name="action_splits_brake">Részidők: fékezés</string>
+    <string name="action_splits_both">Részidők: mindkettő</string>
+    <string name="accel_splits_session">Ez a menet</string>
+    <string name="accel_splits_session_empty">Még nincs részidő. Haladj át egy lépcsőn a rögzítéshez.</string>
+    <string name="accel_splits_session_row">%1$d–%2$d</string>
+    <string name="accel_splits_session_best">legjobb %1$s s</string>
+    <string name="accel_splits_session_last">utolsó %1$s s</string>
+    <string name="accel_splits_reset">Visszaállítás</string>
     <string name="accel_split_time_fmt">%1$d-ról %2$d-ra, %3$s másodperc</string>
     <string name="accel_split_faster_prev">, %1$s másodperccel gyorsabb az előzőnél</string>
     <string name="accel_split_slower_prev">, %1$s másodperccel lassabb az előzőnél</string>

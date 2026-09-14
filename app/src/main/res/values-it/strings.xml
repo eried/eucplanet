@@ -2204,6 +2204,16 @@
     <string name="accel_splits_dir_both">Entrambi</string>
     <string name="accel_splits_compare_previous">Confronta con la prova precedente</string>
     <string name="accel_splits_compare_best">Confronta con il migliore della sessione</string>
+    <string name="action_splits_off">Split disattivati</string>
+    <string name="action_splits_accel">Split: accel.</string>
+    <string name="action_splits_brake">Split: frenata</string>
+    <string name="action_splits_both">Split: entrambi</string>
+    <string name="accel_splits_session">Questa sessione</string>
+    <string name="accel_splits_session_empty">Nessuno split ancora. Attraversa uno scalino per registrarne uno.</string>
+    <string name="accel_splits_session_row">%1$d a %2$d</string>
+    <string name="accel_splits_session_best">migliore %1$s s</string>
+    <string name="accel_splits_session_last">ultimo %1$s s</string>
+    <string name="accel_splits_reset">Azzera</string>
     <string name="accel_split_time_fmt">da %1$d a %2$d, %3$s secondi</string>
     <string name="accel_split_faster_prev">, %1$s secondi più veloce del precedente</string>
     <string name="accel_split_slower_prev">, %1$s secondi più lento del precedente</string>

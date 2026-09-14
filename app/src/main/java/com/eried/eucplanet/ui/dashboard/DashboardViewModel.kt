@@ -794,6 +794,22 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /** Which of the four speed-split states the settings are in, for the tile. */
+    val accelSplitMode: StateFlow<com.eried.eucplanet.data.model.AccelSplitMode> = settingsRepository.settings
+        .map { com.eried.eucplanet.data.model.AccelSplitMode.of(it.accelSplit) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            com.eried.eucplanet.data.model.AccelSplitMode.of(initialSettings.accelSplit))
+
+    /** Off, accel, brake, both, and round again. The service re-reads the
+     *  settings on every frame, so the tracker follows at once. */
+    fun cycleSpeedSplits() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val next = com.eried.eucplanet.data.model.AccelSplitMode.of(current.accelSplit).next()
+            settingsRepository.update(current.copy(accelSplit = next.applyTo(current.accelSplit)))
+        }
+    }
+
     /** Flip the persisted alarm mute. AlarmEngine reads this on every
      *  evaluate() so the change takes effect on the next telemetry frame. */
     fun toggleAlarmsMuted() {

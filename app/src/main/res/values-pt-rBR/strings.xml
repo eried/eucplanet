@@ -2301,6 +2301,16 @@
     <string name="accel_splits_dir_both">Ambos</string>
     <string name="accel_splits_compare_previous">Comparar com a corrida anterior</string>
     <string name="accel_splits_compare_best">Comparar com o melhor da sessão</string>
+    <string name="action_splits_off">Splits desligados</string>
+    <string name="action_splits_accel">Splits: acel.</string>
+    <string name="action_splits_brake">Splits: freio</string>
+    <string name="action_splits_both">Splits: ambos</string>
+    <string name="accel_splits_session">Esta sessão</string>
+    <string name="accel_splits_session_empty">Ainda sem splits. Passe por um degrau para registrar um.</string>
+    <string name="accel_splits_session_row">%1$d a %2$d</string>
+    <string name="accel_splits_session_best">melhor %1$s s</string>
+    <string name="accel_splits_session_last">último %1$s s</string>
+    <string name="accel_splits_reset">Redefinir</string>
     <string name="accel_split_time_fmt">de %1$d a %2$d, %3$s segundos</string>
     <string name="accel_split_faster_prev">, %1$s segundos mais rápido que o anterior</string>
     <string name="accel_split_slower_prev">, %1$s segundos mais lento que o anterior</string>

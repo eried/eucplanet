@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.WbCloudy
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
@@ -97,6 +98,8 @@ data class StatusContext(
     val alarmsMuted: Boolean = false,
     /** True when the wheel is currently in safety / legal mode. */
     val safetyActive: Boolean = false,
+    /** True while speed splits are on in any direction (see [AccelSplitMode]). */
+    val speedSplitsOn: Boolean = false,
     /** True when a wheel is connected over BLE. Consumed by [ActionSpec.enabledReader]
      *  to gate actions that write to the wheel. Defaults false so existing
      *  construction sites that don't plumb it keep compiling. */
@@ -307,6 +310,15 @@ object ActionCatalog {
             labelRes = R.string.action_chip_toggle_units,
             icon = Icons.Filled.SwapHoriz,
             statusReader = { it.imperialUnits }
+        ),
+        ActionSpec(
+            // Cycles off, accel, brake, both: see AccelSplitMode. Screen-only,
+            // because a four-way cycle needs the rider to see where it landed;
+            // the tile's label says which.
+            key = "SPEED_SPLITS",
+            labelRes = R.string.section_accel_splits,
+            icon = Icons.Filled.Timer,
+            statusReader = { it.speedSplitsOn }
         )
     )
 

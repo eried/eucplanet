@@ -2299,6 +2299,16 @@
     <string name="accel_splits_dir_both">Оба</string>
     <string name="accel_splits_compare_previous">Сравнивать с прошлым заездом</string>
     <string name="accel_splits_compare_best">Сравнивать с лучшим за сессию</string>
+    <string name="action_splits_off">Сплиты выкл.</string>
+    <string name="action_splits_accel">Сплиты: разгон</string>
+    <string name="action_splits_brake">Сплиты: торможение</string>
+    <string name="action_splits_both">Сплиты: оба</string>
+    <string name="accel_splits_session">Эта поездка</string>
+    <string name="accel_splits_session_empty">Сплитов пока нет. Проедьте одну ступень, чтобы записать.</string>
+    <string name="accel_splits_session_row">%1$d до %2$d</string>
+    <string name="accel_splits_session_best">лучший %1$s с</string>
+    <string name="accel_splits_session_last">последний %1$s с</string>
+    <string name="accel_splits_reset">Сбросить</string>
     <string name="accel_split_time_fmt">от %1$d до %2$d, %3$s секунды</string>
     <string name="accel_split_faster_prev">, на %1$s секунды быстрее предыдущего</string>
     <string name="accel_split_slower_prev">, на %1$s секунды медленнее предыдущего</string>
