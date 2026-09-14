@@ -13,9 +13,18 @@ says "Still searching. The phone is on WiFi and its hotspot is off" (or "no
 WiFi and no hotspot"), and after the second empty search a toast says "HUD not
 found. Phone hotspot is off." Turn the hotspot on: the card goes back to the
 normal hint once the HUD pairs. A diagnostics capture now names the interface
-too ("Phone networks: wlan0 10.250.3.26/24 (WiFi), hotspot off"). Not fixed
-here: the 75 s the HUD's own radio took to find the hotspot once it was up.
-That is the HUD's Android scanning, and the next step there is on the HUD app.
+too ("Phone networks: wlan0 10.250.3.26/24 (WiFi), hotspot off").
+
+**HUD rejoins faster (HUD build from this branch).** The 75 s in that capture
+between the hotspot coming up and the HUD's first beacon was the HUD's Android
+waiting for its own next scan. The HUD app now asks for a scan every 35 s
+while it is off the air, so a returning hotspot is joined within about that.
+It needs the location permission on the HUD device: the app asks once at
+launch, next to the camera prompt, and the "Phone disconnected" screen says
+so while it is missing. No position is ever read. To check: with the HUD
+paired, switch the phone's hotspot off and on, and time the reconnect; the
+HUD's diagnostics show "rescan: startScan()=true" while it waits and "scan xN"
+in the recovery line once it is back.
 
 **Tyre sensors.** Settings, Integration, TPMS sensors, Scan for sensors. A
 screw-on valve cap should be found within a minute and stay in the list after

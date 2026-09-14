@@ -768,6 +768,22 @@ private fun DisconnectedDialog(localIp: String?) {
                     fontSize = captionSize,
                     textAlign = TextAlign.Center
                 )
+                // Without location the HUD cannot ask Android to scan, and a
+                // hotspot that comes back is rejoined on the OS's own schedule
+                // (a tester waited 75 s). Said here, where the rider is looking
+                // while it is not connecting. Re-read on each composition so it
+                // goes away once granted.
+                val locationGranted = androidx.core.content.ContextCompat.checkSelfPermission(
+                    ctx, android.Manifest.permission.ACCESS_FINE_LOCATION
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                if (!locationGranted) {
+                    Text(
+                        text = ctx.getString(R.string.hud_disconnected_location_hint),
+                        color = Color(0xFF8A8A8A),
+                        fontSize = captionSize,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
             // 2×2 grid: column 1 = labels, column 2 = cells. Both columns
             // share fixed widths so corners line up cleanly. The inner pad

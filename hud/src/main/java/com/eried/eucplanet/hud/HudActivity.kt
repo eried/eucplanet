@@ -70,28 +70,36 @@ class HudActivity : ComponentActivity() {
     private val sessionState = HudSessionState()
 
     /**
-     * One-shot launcher for the CAMERA runtime permission. Triggered on
-     * first launch so the rear-camera screen has a working preview without
-     * the rider having to dig into device settings. The result is read by
-     * [com.eried.eucplanet.hud.ui.screens.CameraScreen] via the activity
-     * context, so we don't need to thread the result through Compose state.
+     * One-shot launcher for the runtime permissions, asked together on first
+     * launch so the rider taps through them once:
+     *  - CAMERA, so the rear-camera screen has a working preview without the
+     *    rider having to dig into device settings. Read by
+     *    [com.eried.eucplanet.hud.ui.screens.CameraScreen] via the activity
+     *    context, so the result is not threaded through Compose state.
+     *  - Location, because Android only serves a WiFi scan request to an app
+     *    that holds it. HudServer asks for scans while off the air so a
+     *    returning hotspot is rejoined in seconds instead of on the OS's
+     *    backed-off schedule. The HUD never reads a position.
      */
-    private val cameraPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { /* CameraScreen re-checks on next composition */ }
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { /* CameraScreen and HudServer re-check when they need it */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Ask once at launch. If the rider denies it the placeholder text
-        // on the rear-camera screen will say "permission denied" rather
-        // than "no camera". The Motoeye does have a rear camera; we just
-        // need to ask for access on Android 6+.
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        // Ask once at launch, only for what is still missing. A denied camera
+        // leaves the rear-camera screen saying "permission denied" rather
+        // than "no camera"; a denied location leaves rejoining the hotspot
+        // to the OS, and the disconnected screen says so.
+        val missing = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ).filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
+        if (missing.isNotEmpty()) permissionLauncher.launch(missing.toTypedArray())
 
         // Fullscreen, no system bars, screen stays on while the app is up.
         WindowCompat.setDecorFitsSystemWindows(window, false)

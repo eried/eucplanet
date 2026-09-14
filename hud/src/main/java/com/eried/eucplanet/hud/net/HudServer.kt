@@ -223,6 +223,10 @@ class HudServer(private val context: Context) {
     @Volatile private var rcRestart: Int = 0
     @Volatile private var rcReassoc: Int = 0
     @Volatile private var rcToggle: Int = 0
+    @Volatile private var rcScan: Int = 0
+    /** Paces our own scan requests while off the air; see [requestRescan]. */
+    private val rescan = com.eried.eucplanet.hud.protocol.RescanPacer()
+    private var scanPermissionNoted = false
     /** Number of off-air episodes we've auto-recovered from this run -- surfaced
      *  on the stats card so a "had to reboot" report can instead read "recovered
      *  N times on its own". */
@@ -584,6 +588,7 @@ class HudServer(private val context: Context) {
             when (verdict) {
                 LinkVerdict.HEALTHY -> {
                     watchdogFailStreak = 0
+                    rescan.reset()
                     if (offAirSinceMs != 0L) finishOffAirEpisode()
                     offAirStreak = 0
                     // We've been on the air with a usable IP at least once this
@@ -617,6 +622,10 @@ class HudServer(private val context: Context) {
 
                 LinkVerdict.OFF_AIR -> {
                     watchdogFailStreak = 0
+                    // Either way below, ask the OS to look for the hotspot now.
+                    // A scan changes no radio state, so it is safe even before
+                    // the first healthy link, where the ladder must stay quiet.
+                    requestRescan()
                     if (!everHealthyWithIp) {
                         // First-connection / boot association: the OS supplicant
                         // is still doing the initial join (or the rider hasn't
@@ -741,7 +750,7 @@ class HudServer(private val context: Context) {
 
     private fun beginOffAirEpisode(h: LinkHealth) {
         offAirSinceMs = System.currentTimeMillis()
-        rcRestart = 0; rcReassoc = 0; rcToggle = 0
+        rcRestart = 0; rcReassoc = 0; rcToggle = 0; rcScan = 0
         HudDiag.log("recovery",
             "OFF-AIR detected (ip=${h.localIp ?: "-"} assoc=${h.associated} " +
                 "server=${h.serverAlive}); beginning self-heal")
@@ -760,12 +769,53 @@ class HudServer(private val context: Context) {
             if (rcRestart > 0) append("restart x$rcRestart ")
             if (rcReassoc > 0) append("reassoc x$rcReassoc ")
             if (rcToggle > 0) append("toggle x$rcToggle ")
+            if (rcScan > 0) append("scan x$rcScan ")
         }.trim().ifEmpty { "no action" }
         val note = "recovered after ${gap}s off-air ($actions) [#$offAirRecoveries]"
         HudDiag.log("recovery", "BACK ON AIR: $note")
         HudDiag.setRecoveryNote(note)
         offAirSinceMs = 0L
     }
+
+    /**
+     * Ask the OS to scan for WiFi now, so a hotspot that just came up is joined
+     * on this scan instead of on Android's disconnected-scan schedule (20, 40,
+     * 80, 160 s between scans, up to three minutes with the screen off).
+     *
+     * The 2026-09-11 capture: the phone's hotspot came up at 12:21:05, this
+     * HUD's first beacon reached the phone at 12:22:20, and the phone paired
+     * 125 ms after that. The 75 s in between were that schedule.
+     *
+     * `startScan()` is deprecated but still served to a foreground app, four
+     * times per two minutes; [RescanPacer] keeps us under that so the request
+     * that lands right after the hotspot returns is never the refused one. It
+     * needs the location permission (and location on) from Android 9, which is
+     * why HudActivity asks for it. Nothing here touches radio state: no toggle,
+     * no reassociate.
+     */
+    private fun requestRescan() {
+        if (!rescan.claim(System.currentTimeMillis())) return
+        val wifi = wifiManager() ?: return
+        if (!hasLocationPermission()) {
+            if (!scanPermissionNoted) {
+                scanPermissionNoted = true
+                HudDiag.log("recovery",
+                    "rescan: no location permission, the OS rejoins on its own schedule")
+            }
+            return
+        }
+        @Suppress("DEPRECATION")
+        val ok = runCatching { wifi.startScan() }.getOrDefault(false)
+        rcScan++
+        HudDiag.log("recovery",
+            "rescan: startScan()=$ok" +
+                if (ok) "" else " (throttled by the OS, or location is off on this HUD)")
+    }
+
+    private fun hasLocationPermission(): Boolean =
+        androidx.core.content.ContextCompat.checkSelfPermission(
+            context, android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
     /** Climb one rung of the off-air recovery ladder. Best-effort; every step
      *  is logged so the rider's diagnostics show exactly what was tried. The

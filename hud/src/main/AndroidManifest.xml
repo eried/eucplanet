@@ -19,6 +19,12 @@
          On API29+ reconnect/reassociate/setWifiEnabled are no-ops for non-system
          apps, so the recovery degrades gracefully; the detection still helps. -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <!-- Location, only because Android serves WifiManager.startScan() to an
+         app that holds it (from Android 9). The watchdog asks for a scan
+         while off the air so a returning hotspot is rejoined in seconds
+         instead of on the OS's backed-off schedule. No position is read. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Partial CPU wake lock so the Ktor server, UDP beacon and self-heal
          watchdog keep running if the device tries to suspend. A tester saw
          the link freeze after ~2 min and need a HUD reboot to recover. -->
