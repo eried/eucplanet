@@ -622,10 +622,6 @@ class HudServer(private val context: Context) {
 
                 LinkVerdict.OFF_AIR -> {
                     watchdogFailStreak = 0
-                    // Either way below, ask the OS to look for the hotspot now.
-                    // A scan changes no radio state, so it is safe even before
-                    // the first healthy link, where the ladder must stay quiet.
-                    requestRescan()
                     if (!everHealthyWithIp) {
                         // First-connection / boot association: the OS supplicant
                         // is still doing the initial join (or the rider hasn't
@@ -637,8 +633,15 @@ class HudServer(private val context: Context) {
                         HudDiag.log("watchdog",
                             "off-air before first healthy link; leaving initial " +
                                 "association to the OS (no recovery yet)")
+                        // A scan changes no radio state, so it is the one thing
+                        // safe to ask for here: the HUD switched on before the
+                        // hotspot, or the rider is still turning it on.
+                        requestRescan()
                     } else {
                         if (offAirSinceMs == 0L) beginOffAirEpisode(health)
+                        // After the episode opened, so the first scan is counted
+                        // in its recovery line rather than wiped by it.
+                        requestRescan()
                         offAirStreak++
                         if (offAirStreak <= OFF_AIR_GRACE_TICKS) {
                             HudDiag.log("watchdog",
