@@ -261,10 +261,27 @@ class GarminBridge @Inject constructor(
                 // channel's ~1 Hz ceiling (PUBLISH_INTERVAL_MS): faster only
                 // floods the outbound queue (issue #14). The rider can still
                 // publish slower to save battery.
-                delay(
-                    settingsRepository.currentOrLoad().garminReportIntervalMs.toLong()
-                        .coerceAtLeast(PUBLISH_INTERVAL_MS)
-                )
+                // Congestion backoff. The watch suppresses its ALIVE heartbeat
+                // while a transmit is outstanding, so a link that has gone
+                // quiet is one that is STRUGGLING, not one that wants more
+                // traffic. Publishing at full rate into it just deepens the
+                // outbound queue and the dial falls further behind. Slow down
+                // while it is quiet so the queue drains; the first ALIVE back
+                // restores the rider's configured rate immediately. The cap in
+                // sendStateToAll bounds how far ahead we get, this bounds how
+                // hard we push while the watch is not answering.
+                // (Settings come from the warm cache, not a fresh JSON parse.)
+                val baseIntervalMs = settingsRepository.currentOrLoad().garminReportIntervalMs.toLong()
+                    .coerceAtLeast(PUBLISH_INTERVAL_MS)
+                val lastAckMs = _lastSuccessAtMs.value
+                val quietMs = if (lastAckMs == 0L) 0L
+                    else System.currentTimeMillis() - lastAckMs
+                val backoff = when {
+                    quietMs > 15_000L -> 4L
+                    quietMs > 6_000L -> 2L
+                    else -> 1L
+                }
+                delay(baseIntervalMs * backoff)
             }
         }
 
@@ -275,24 +292,23 @@ class GarminBridge @Inject constructor(
         // pushing frames, the chain has gone silent and the transport
         // needs to be rebuilt so a fresh socket can land.
         scope.launch {
-            var lastReopenMs = 0L
             while (true) {
                 delay(5_000L)
                 val lastAck = _lastSuccessAtMs.value
                 if (lastAck == 0L) continue // never connected yet
                 val sinceAck = System.currentTimeMillis() - lastAck
-                // Real devices (WIRELESS): never tear the SDK down (see below),
-                // but DO reopen the pacing window once per silent half-minute.
-                // With the cap full and no acks arriving, nothing else ever
-                // re-opens it; the worst case is five fresh frames into a watch
-                // that is truly gone, the best case is a link that heals on its
-                // own instead of waiting for a phone restart.
-                if (sinceAck > 30_000L && connectType == ConnectIQ.IQConnectType.WIRELESS &&
-                    System.currentTimeMillis() - lastReopenMs > 30_000L
-                ) {
-                    lastReopenMs = System.currentTimeMillis()
-                    for (id in registeredDevices.keys) reopenPacingWindow(id)
-                }
+                // NOTE: there is deliberately NO timer-based pacing-window
+                // reopen here. A blind "silent for 30 s, so release the cap"
+                // rule cannot tell a watch that is GONE from a watch that is
+                // merely SLOW, and the watch stops sending ALIVE while a
+                // transmit is outstanding (Bridge.mc: the heartbeat skips its
+                // tick while _txBusy), so congestion looks exactly like death.
+                // Releasing the cap then pushes more frames into an already
+                // backed-up link: the queue deepens, updates arrive later, the
+                // watch shows Disconnected, and the cycle repeats with a
+                // growing delay (field report 2026-09-02). A genuinely
+                // restarted watch is already handled precisely, and without
+                // guessing, by the WATCH_INFO and seq-regression reopens.
                 // Only rebuild the transport on the TETHERED dev path, where a
                 // half-dead local socket genuinely needs a fresh one. On real
                 // devices (WIRELESS) the watch's ALIVE ack is unreliable by

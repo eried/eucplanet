@@ -40,6 +40,8 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override val capabilities = WheelCapabilities.VETERAN
 
     @Volatile private var detectedModel: VeteranModel? = null
+    @Volatile private var controlProfile = VeteranControlProfile.forModel(null)
+    private var pendingLightProfile: VeteranControlProfile? = null
 
     override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
 
@@ -49,6 +51,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { VeteranModel.fromReportedName(it) }
+        controlProfile = VeteranControlProfile.forModel(detectedModel)
         return null
     }
 
@@ -100,22 +103,22 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     override fun setLight(on: Boolean): ByteArray {
         lastLightOn = on
-        // HIGH beam by default (LkAp frame; LdAp companion via [setLightFollowup]).
-        return VeteranCommands.setHighBeam(on)
-        // LOW beam (legacy ASCII, single frame). To switch the in-app light
-        // toggle back to the low beam: comment the high-beam return above,
-        // uncomment the line below, and make [setLightFollowup] return null.
-        // return VeteranCommands.setLight(on)
+        val profile = controlProfile
+        pendingLightProfile = profile
+        return profile.setLight(on)
     }
 
     /**
      * Second frame of the high-beam command (`LdAp`); the wheel ignores the
      * `LkAp` half from [setLight] on its own. Decoded from the same Lynx S
-     * btsnoop as the horn. If you switch [setLight] back to the low beam,
-     * change this to `null` (low beam is a single ASCII frame).
+     * btsnoop as the horn. Aeon uses a single ASCII frame and has no companion.
      */
-    override fun setLightFollowup(on: Boolean): ByteArray =
-        VeteranCommands.setHighBeamCompanion(on)
+    override fun setLightFollowup(on: Boolean): ByteArray? {
+        // Model telemetry can arrive between the two writes; finish the same mapping.
+        val profile = pendingLightProfile ?: controlProfile
+        pendingLightProfile = null
+        return profile.setLightFollowup(on)
+    }
 
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
@@ -258,6 +261,13 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             // the `f.isLong` branch below.
             val isStandardTelemetry =
                 f.bytes.size > 3 && f.bytes[3] != 0x5f.toByte()
+            // Generic BLE names (e.g. NF7445) do not identify the wheel. Select
+            // commands from the model in a reassembled telemetry frame as well.
+            if (isStandardTelemetry) {
+                VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes))?.let {
+                    controlProfile = VeteranControlProfile.forModel(it)
+                }
+            }
             val telem = if (isStandardTelemetry)
                 VeteranParser.parseTelemetry(f.bytes, detectedModel) else null
             val emitted = if (telem != null) {
@@ -329,6 +339,8 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         parser.reset()
         detectedModel = null
+        controlProfile = VeteranControlProfile.forModel(null)
+        pendingLightProfile = null
         lastOryxBatterySoc = -1
         emittedModel = false
         // A wheel reboot loses light state on the wheel side, so the rider's
