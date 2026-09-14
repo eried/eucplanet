@@ -320,6 +320,9 @@
     <string name="hud_server_port">Portti</string>
     <string name="hud_hotspot_off_hint">Puhelimen yhteyspiste on pois päältä. Varmista, että HUD ja puhelin ovat samassa WiFi-verkossa.</string>
     <string name="hud_hotspot_on_hint">Puhelimen yhteyspiste lähettää. Yhdistä HUD tämän puhelimen WiFiin, niin yhteys muodostuu.</string>
+    <string name="hud_search_wifi_no_hotspot">Etsitään yhä. Puhelin on WiFi-verkossa ja sen yhteyspiste on pois päältä. Kytke yhteyspiste päälle tai liitä HUD tähän WiFi-verkkoon.</string>
+    <string name="hud_search_no_network">Etsitään yhä. Puhelimella ei ole WiFiä eikä yhteyspistettä, joten HUD:lla ei ole mihin liittyä.</string>
+    <string name="hud_search_toast_no_hotspot">HUD ei löytynyt. Puhelimen yhteyspiste on pois päältä.</string>
     <string name="hud_overlay_subsection">Mukautettu päällyste</string>
     <string name="hud_overlay_subsection_desc">Tuo Overlay Studion esiasetus HUDin Mukautettu-näytölle ilman taustoja. Esiasetus kopioidaan tänne, joten myöhemmät muutokset studiossa eivät muuta HUDia ennen kuin tuot sen uudelleen.</string>
     <string name="hud_overlay_select_preset">Tuo esiasetus</string>

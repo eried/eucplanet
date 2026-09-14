@@ -1,14 +1,21 @@
-# next-experimental
+# hud-fixes
 
-Where new features are built first. Things here work on the wheels they were
-written against and may not work on yours yet, and settings can move or reset
-between builds. Fine for a ride you are happy to cut short, not for one you
-need to get home from.
-
-For riders who are happy to report what broke. Everyone else wants the Play
-Store build.
+HUD link fixes, branched from next-experimental so everything there is in this
+build too. For riders with a HUD (glasses, Motoeye, a second phone) who can
+tell us what the phone said while the HUD was not connecting.
 
 ## What to check in this build
+
+**HUD not found, and why.** From the 2026-09-11 shop capture: the phone sat on
+the shop's WiFi with its hotspot off for 21 minutes and only said "Searching".
+Now, with the link on and nothing found, Settings, Integration, HUD companion
+says "Still searching. The phone is on WiFi and its hotspot is off" (or "no
+WiFi and no hotspot"), and after the second empty search a toast says "HUD not
+found. Phone hotspot is off." Turn the hotspot on: the card goes back to the
+normal hint once the HUD pairs. A diagnostics capture now names the interface
+too ("Phone networks: wlan0 10.250.3.26/24 (WiFi), hotspot off"). Not fixed
+here: the 75 s the HUD's own radio took to find the hotspot once it was up.
+That is the HUD's Android scanning, and the next step there is on the HUD app.
 
 **Tyre sensors.** Settings, Integration, TPMS sensors, Scan for sensors. A
 screw-on valve cap should be found within a minute and stay in the list after

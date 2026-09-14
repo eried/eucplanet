@@ -360,6 +360,9 @@
     <string name="hud_server_port">ポート</string>
     <string name="hud_hotspot_off_hint">スマホのホットスポットがオフです。HUD とスマホが同じ WiFi ネットワークに接続されているか確認してください。</string>
     <string name="hud_hotspot_on_hint">スマホのホットスポットが起動中です。HUD をこのスマホの WiFi に接続してリンクを有効にしてください。</string>
+    <string name="hud_search_wifi_no_hotspot">検索中です。スマホは WiFi に接続中で、ホットスポットはオフです。ホットスポットをオンにするか、HUD をこの WiFi に接続してください。</string>
+    <string name="hud_search_no_network">検索中です。スマホに WiFi もホットスポットもないため、HUD が接続できる先がありません。</string>
+    <string name="hud_search_toast_no_hotspot">HUD が見つかりません。スマホのホットスポットがオフです。</string>
     <string name="hud_overlay_subsection">カスタムオーバーレイ</string>
     <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタム画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても再インポートするまで HUD には反映されません。</string>
     <string name="hud_overlay_select_preset">プリセットをインポート</string>

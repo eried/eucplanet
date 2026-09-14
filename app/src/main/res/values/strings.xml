@@ -370,6 +370,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>
+    <string name="hud_search_wifi_no_hotspot">Still searching. The phone is on WiFi and its hotspot is off. Turn the hotspot on, or put the HUD on this WiFi.</string>
+    <string name="hud_search_no_network">Still searching. The phone has no WiFi and no hotspot, so the HUD has nothing to join.</string>
+    <string name="hud_search_toast_no_hotspot">HUD not found. Phone hotspot is off.</string>
     <string name="hud_overlay_subsection">Custom overlay</string>
     <string name="hud_overlay_subsection_desc">Import an Overlay Studio preset onto the HUD\'s Custom screen, without backgrounds. The preset is copied here, so later edits in the studio won\'t change the HUD until you import again.</string>
     <string name="hud_overlay_select_preset">Import preset</string>

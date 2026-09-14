@@ -91,6 +91,7 @@ class HudServer @Inject constructor(
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     val udpListener: HudUdpListener,
     private val subnetProbe: HudSubnetProbe,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
 ) {
 
     companion object {
@@ -291,6 +292,19 @@ class HudServer @Inject constructor(
         get() = _connectionSource
 
     /**
+     * Why the searches are coming up empty, when the phone can tell. Shown
+     * on the HUD settings screen in place of the generic hotspot hint, and
+     * said once as a toast, so a rider waiting in a shop learns that the
+     * phone is on the shop's WiFi with its hotspot off instead of watching
+     * "Searching" for twenty minutes. See [HudSearchHint].
+     */
+    private val _searchHint = kotlinx.coroutines.flow.MutableStateFlow(HudSearchHint.NONE)
+    val searchHint: kotlinx.coroutines.flow.StateFlow<HudSearchHint>
+        get() = _searchHint
+    /** Consecutive empty searches under the current hint. */
+    private var emptySearchesInHint = 0
+
+    /**
      * Discovery / dial-layer trace. Always written to logcat for OEM-side
      * debugging; piped through [DiagnosticsLogger] as NOTE entries so a
      * Service Mode capture has the full story (probe started, no answer,
@@ -398,6 +412,7 @@ class HudServer @Inject constructor(
         beaconKickJob?.cancel(); beaconKickJob = null
         udpListener.stop()
         _connectionSource.value = ConnectionSource.NONE
+        clearSearchHint()
         try { multicastLock?.release() } catch (_: Throwable) {}
         multicastLock = null
         try { wifiLock?.release() } catch (_: Throwable) {}
@@ -699,6 +714,39 @@ class HudServer @Inject constructor(
      * (no UDP, no mDNS, no manual hint, subnet probe runs).
      */
     /**
+     * A search ended with nothing. Work out whether the phone itself explains
+     * it, log that once per change, and after the second empty search in a
+     * row on WiFi with the hotspot off (about 40 s) say it where the rider is
+     * looking. The first search is left alone so a HUD that is merely slow to
+     * answer on the same WiFi does not draw advice it does not need.
+     */
+    private fun noteEmptySearch(nets: List<LocalNet>) {
+        val hint = HudSearchHint.of(nets)
+        if (hint != _searchHint.value) {
+            _searchHint.value = hint
+            emptySearchesInHint = 0
+            when (hint) {
+                HudSearchHint.NO_NETWORK ->
+                    log("No HUD: the phone has no WiFi and no hotspot, so there is nothing to search")
+                HudSearchHint.WIFI_NO_HOTSPOT ->
+                    log("No HUD on the phone's WiFi, and the hotspot is off: " +
+                        "a HUD set up for the hotspot has nothing to join")
+                HudSearchHint.NONE -> Unit
+            }
+        }
+        emptySearchesInHint++
+        if (hint == HudSearchHint.WIFI_NO_HOTSPOT && emptySearchesInHint == 2) {
+            appNotifier.post(context.getString(com.eried.eucplanet.R.string.hud_search_toast_no_hotspot))
+            log("Told the rider: HUD not found, phone hotspot is off")
+        }
+    }
+
+    private fun clearSearchHint() {
+        _searchHint.value = HudSearchHint.NONE
+        emptySearchesInHint = 0
+    }
+
+    /**
      * Resolve a peer when auto-discovery is OFF. We trust whatever the rider
      * typed, fill in only what's missing with mDNS (no UDP, no subnet probe
      * - the rider has explicitly said they don't want the full sweep):
@@ -774,11 +822,8 @@ class HudServer @Inject constructor(
         // possibly reach, and it is the first thing to check when all of them
         // come up empty. Logged per search because it changes: a hotspot coming
         // up, home WiFi dropping as the rider leaves.
-        val phoneNets = runCatching { subnetProbe.candidateIpv4Cidrs() }.getOrDefault(emptyList())
-        log(
-            if (phoneNets.isEmpty()) "Phone networks: none (no WiFi, no hotspot)"
-            else "Phone networks: $phoneNets"
-        )
+        val phoneNets = runCatching { subnetProbe.localNetworks() }.getOrDefault(emptyList())
+        log(HudSearchHint.describe(phoneNets))
         log("Searching (all channels in parallel)…")
         val results = kotlinx.coroutines.channels.Channel<Pair<String, ConnectionSource>>(
             kotlinx.coroutines.channels.Channel.UNLIMITED
@@ -879,7 +924,12 @@ class HudServer @Inject constructor(
             val winner = kotlinx.coroutines.withTimeoutOrNull(discoveryTotalTimeoutMs) {
                 results.receive()
             }
-            if (winner != null) winner else null to ConnectionSource.NONE
+            if (winner != null) {
+                winner
+            } else {
+                noteEmptySearch(phoneNets)
+                null to ConnectionSource.NONE
+            }
         } finally {
             // Cancel, then wait for the channels to actually stop - but NOT for
             // the JmDNS close, which is detached in resolveViaMdns. Without the
@@ -1034,6 +1084,7 @@ class HudServer @Inject constructor(
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.i(TAG, "HUD link open: $peer")
                 log("Connected to $peer ✓")
+                clearSearchHint()
                 wasOpen = true
                 ws = webSocket
                 currentPeer = peer

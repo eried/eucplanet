@@ -360,6 +360,9 @@
     <string name="hud_server_port">埠號</string>
     <string name="hud_hotspot_off_hint">手機熱點已關閉。請確保 HUD 和手機在同一個 WiFi 網路上。</string>
     <string name="hud_hotspot_on_hint">手機熱點正在廣播。將 HUD 連至此手機的 WiFi 以啟用連結。</string>
+    <string name="hud_search_wifi_no_hotspot">仍在搜尋。手機已連線 WiFi，但熱點已關閉。請開啟熱點，或讓 HUD 連線到這個 WiFi。</string>
+    <string name="hud_search_no_network">仍在搜尋。手機既沒有 WiFi 也沒有熱點，HUD 無處可連。</string>
+    <string name="hud_search_toast_no_hotspot">未找到 HUD。手機熱點已關閉。</string>
     <string name="hud_overlay_subsection">自訂疊加層</string>
     <string name="hud_overlay_subsection_desc">將疊加工作室預設套用至 HUD 的自訂畫面（不含背景）。預設會複製至此處，因此稍後在工作室的編輯不會影響 HUD，直到您再次匯入為止。</string>
     <string name="hud_overlay_select_preset">匯入預設</string>

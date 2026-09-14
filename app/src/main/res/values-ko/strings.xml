@@ -360,6 +360,9 @@
     <string name="hud_server_port">포트</string>
     <string name="hud_hotspot_off_hint">폰 핫스팟이 꺼져 있습니다. HUD와 폰이 같은 Wi-Fi 네트워크에 있는지 확인하세요.</string>
     <string name="hud_hotspot_on_hint">폰 핫스팟이 켜져 있습니다. HUD를 이 폰의 Wi-Fi에 연결하면 링크가 활성화됩니다.</string>
+    <string name="hud_search_wifi_no_hotspot">계속 검색 중입니다. 폰이 Wi-Fi에 연결되어 있고 핫스팟은 꺼져 있습니다. 핫스팟을 켜거나 HUD를 이 Wi-Fi에 연결하세요.</string>
+    <string name="hud_search_no_network">계속 검색 중입니다. 폰에 Wi-Fi도 핫스팟도 없어 HUD가 연결할 곳이 없습니다.</string>
+    <string name="hud_search_toast_no_hotspot">HUD를 찾지 못했습니다. 폰 핫스팟이 꺼져 있습니다.</string>
     <string name="hud_overlay_subsection">커스텀 오버레이</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio 프리셋을 배경 없이 HUD 커스텀 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다.</string>
     <string name="hud_overlay_select_preset">프리셋 가져오기</string>

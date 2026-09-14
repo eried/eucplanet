@@ -138,6 +138,9 @@ class SettingsViewModel @Inject constructor(
     /** Which discovery channel produced the current HUD link address. */
     val hudConnectionSource = hudServer.connectionSource
 
+    /** Why the HUD search is coming up empty, when the phone can tell. */
+    val hudSearchHint = hudServer.searchHint
+
     /**
      * Bundle the phone-side UDP listener counters into a single state for
      * the diagnostic card. Polled on a 1s tick from the screen so the user

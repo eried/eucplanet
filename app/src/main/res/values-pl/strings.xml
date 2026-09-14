@@ -360,6 +360,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Hotspot telefonu jest wyłączony. Upewnij się, że HUD i telefon są w tej samej sieci WiFi.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu jest aktywny. Połącz HUD z WiFi tego telefonu, aby aktywować łącze.</string>
+    <string name="hud_search_wifi_no_hotspot">Wciąż szukam. Telefon jest w sieci WiFi, a jego hotspot jest wyłączony. Włącz hotspot albo podłącz HUD do tej sieci WiFi.</string>
+    <string name="hud_search_no_network">Wciąż szukam. Telefon nie ma WiFi ani hotspotu, więc HUD nie ma do czego się podłączyć.</string>
+    <string name="hud_search_toast_no_hotspot">Nie znaleziono HUD. Hotspot telefonu jest wyłączony.</string>
     <string name="hud_overlay_subsection">Własna nakładka</string>
     <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekran Custom HUD-a, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studio nie trafią do HUD-a, dopóki nie zaimportujesz ponownie.</string>
     <string name="hud_overlay_select_preset">Importuj preset</string>

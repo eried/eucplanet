@@ -360,6 +360,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Le partage de connexion est désactivé. Assure-toi que le HUD et le téléphone sont sur le même réseau WiFi.</string>
     <string name="hud_hotspot_on_hint">Le partage de connexion est actif. Connecte le HUD au WiFi de ce téléphone pour activer la liaison.</string>
+    <string name="hud_search_wifi_no_hotspot">Recherche en cours. Le téléphone est en WiFi et son partage de connexion est désactivé. Active le partage de connexion, ou mets le HUD sur ce WiFi.</string>
+    <string name="hud_search_no_network">Recherche en cours. Le téléphone n\'a ni WiFi ni partage de connexion, le HUD n\'a donc rien à rejoindre.</string>
+    <string name="hud_search_toast_no_hotspot">HUD introuvable. Le partage de connexion est désactivé.</string>
     <string name="hud_overlay_subsection">Overlay personnalisé</string>
     <string name="hud_overlay_subsection_desc">Importe un preset Overlay Studio sur l\'écran Custom du HUD, sans arrière-plan. Le preset est copié ici, donc tes modifications ultérieures dans le studio n\'affecteront le HUD qu\'après un nouvel import.</string>
     <string name="hud_overlay_select_preset">Importer un preset</string>

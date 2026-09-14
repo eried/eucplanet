@@ -360,6 +360,9 @@
     <string name="hud_server_port">Porta</string>
     <string name="hud_hotspot_off_hint">O hotspot do celular está desligado. Verifique se o HUD e o celular estão na mesma rede Wi-Fi.</string>
     <string name="hud_hotspot_on_hint">O hotspot do celular está ativo. Conecte o HUD ao Wi-Fi deste celular para ativar o link.</string>
+    <string name="hud_search_wifi_no_hotspot">Ainda procurando. O celular está no Wi-Fi e o hotspot está desligado. Ligue o hotspot ou coloque o HUD neste Wi-Fi.</string>
+    <string name="hud_search_no_network">Ainda procurando. O celular não tem Wi-Fi nem hotspot, então o HUD não tem a que se conectar.</string>
+    <string name="hud_search_toast_no_hotspot">HUD não encontrado. O hotspot do celular está desligado.</string>
     <string name="hud_overlay_subsection">Overlay personalizado</string>
     <string name="hud_overlay_subsection_desc">Importe um preset do Overlay Studio para a tela Custom do HUD, sem fundos. O preset é copiado aqui, então edições posteriores no Studio só atualizam o HUD quando você importar novamente.</string>
     <string name="hud_overlay_select_preset">Importar preset</string>

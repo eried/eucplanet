@@ -134,6 +134,9 @@
     <string name="hud_server_port">Porta</string>
     <string name="hud_hotspot_off_hint">L\'hotspot del telefono è disattivato. Assicurati che il HUD e il telefono siano sulla stessa rete WiFi.</string>
     <string name="hud_hotspot_on_hint">L\'hotspot del telefono sta trasmettendo. Collega il HUD al WiFi di questo telefono per abilitare il collegamento.</string>
+    <string name="hud_search_wifi_no_hotspot">Ricerca in corso. Il telefono è su WiFi e il suo hotspot è disattivato. Attiva l\'hotspot, oppure metti il HUD su questo WiFi.</string>
+    <string name="hud_search_no_network">Ricerca in corso. Il telefono non ha né WiFi né hotspot, quindi il HUD non ha nulla a cui collegarsi.</string>
+    <string name="hud_search_toast_no_hotspot">HUD non trovato. L\'hotspot del telefono è disattivato.</string>
     <string name="hud_custom_overlay_none">Nessuno</string>
 
     <!-- Wear OS companion settings -->

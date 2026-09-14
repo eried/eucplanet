@@ -360,6 +360,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Telefonens hotspot är av. Se till att HUD:en och telefonen är på samma WiFi-nätverk.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot sänder. Anslut HUD:en till telefonens WiFi för att aktivera länken.</string>
+    <string name="hud_search_wifi_no_hotspot">Söker fortfarande. Telefonen är på WiFi och dess hotspot är av. Slå på hotspoten, eller sätt HUD:en på detta WiFi.</string>
+    <string name="hud_search_no_network">Söker fortfarande. Telefonen har varken WiFi eller hotspot, så HUD:en har inget att ansluta till.</string>
+    <string name="hud_search_toast_no_hotspot">HUD hittades inte. Telefonens hotspot är av.</string>
     <string name="hud_overlay_subsection">Eget överlägg</string>
     <string name="hud_overlay_subsection_desc">Importera en Overlay Studio-mall till HUD:ens Custom-skärm, utan bakgrund. Mallen kopieras hit, så senare ändringar i studion påverkar inte HUD:en förrän du importerar igen.</string>
     <string name="hud_overlay_select_preset">Importera mall</string>

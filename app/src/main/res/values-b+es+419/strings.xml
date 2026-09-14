@@ -360,6 +360,9 @@
     <string name="hud_server_port">Puerto</string>
     <string name="hud_hotspot_off_hint">El hotspot del teléfono está desactivado. Asegúrate de que el HUD y el teléfono estén en la misma red WiFi.</string>
     <string name="hud_hotspot_on_hint">El hotspot del teléfono está activo. Conecta el HUD al WiFi de este teléfono para habilitar el enlace.</string>
+    <string name="hud_search_wifi_no_hotspot">Sigue buscando. El teléfono está en WiFi y su hotspot está desactivado. Activa el hotspot o conecta el HUD a esta red WiFi.</string>
+    <string name="hud_search_no_network">Sigue buscando. El teléfono no tiene WiFi ni hotspot, así que el HUD no tiene a qué conectarse.</string>
+    <string name="hud_search_toast_no_hotspot">HUD no encontrado. El hotspot del teléfono está desactivado.</string>
     <string name="hud_overlay_subsection">Overlay personalizado</string>
     <string name="hud_overlay_subsection_desc">Importa un preset de Overlay Studio en la pantalla Custom del HUD, sin fondos. El preset se copia aquí, así que los cambios posteriores en el studio no afectarán al HUD hasta que importes de nuevo.</string>
     <string name="hud_overlay_select_preset">Importar preset</string>

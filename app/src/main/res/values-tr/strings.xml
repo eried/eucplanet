@@ -360,6 +360,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Telefon hotspot\'u kapalı. HUD ile telefonun aynı WiFi ağında olduğundan emin olun.</string>
     <string name="hud_hotspot_on_hint">Telefon hotspot\'u yayın yapıyor. Bağlantıyı etkinleştirmek için HUD\'ı bu telefonun WiFi\'sine bağlayın.</string>
+    <string name="hud_search_wifi_no_hotspot">Hâlâ aranıyor. Telefon WiFi\'ye bağlı ve hotspot\'u kapalı. Hotspot\'u açın ya da HUD\'ı bu WiFi\'ye bağlayın.</string>
+    <string name="hud_search_no_network">Hâlâ aranıyor. Telefonda WiFi de hotspot da yok, bu yüzden HUD\'ın bağlanacağı bir ağ yok.</string>
+    <string name="hud_search_toast_no_hotspot">HUD bulunamadı. Telefon hotspot\'u kapalı.</string>
     <string name="hud_overlay_subsection">Özel kaplama</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio önayarını HUD\'ın Özel ekranına arka plan olmadan aktarır. Önayar buraya kopyalanır; stüdyodaki sonraki düzenlemeler tekrar içe aktarılmadan HUD\'ı etkilemez.</string>
     <string name="hud_overlay_select_preset">Önayarı içe aktar</string>

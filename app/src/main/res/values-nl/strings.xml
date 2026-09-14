@@ -360,6 +360,9 @@
     <string name="hud_server_port">Poort</string>
     <string name="hud_hotspot_off_hint">Telefoon-hotspot is uit. Zorg dat de HUD en de telefoon op hetzelfde wifi-netwerk zitten.</string>
     <string name="hud_hotspot_on_hint">Telefoon-hotspot zendt uit. Verbind de HUD met de wifi van deze telefoon om de link te activeren.</string>
+    <string name="hud_search_wifi_no_hotspot">Nog aan het zoeken. De telefoon zit op wifi en de hotspot staat uit. Zet de hotspot aan, of zet de HUD op deze wifi.</string>
+    <string name="hud_search_no_network">Nog aan het zoeken. De telefoon heeft geen wifi en geen hotspot, dus de HUD kan nergens mee verbinden.</string>
+    <string name="hud_search_toast_no_hotspot">HUD niet gevonden. Telefoon-hotspot staat uit.</string>
     <string name="hud_overlay_subsection">Eigen overlay</string>
     <string name="hud_overlay_subsection_desc">Importeer een Overlay Studio-preset op het Custom-scherm van de HUD, zonder achtergrond. De preset wordt hier gekopieerd, dus latere wijzigingen in de studio veranderen de HUD pas als je opnieuw importeert.</string>
     <string name="hud_overlay_select_preset">Preset importeren</string>

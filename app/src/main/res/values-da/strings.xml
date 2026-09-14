@@ -360,6 +360,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Telefonens hotspot er slukket. Sørg for, at HUD\'en og telefonen er på samme WiFi-netværk.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot sender. Tilslut HUD\'en til denne telefons WiFi for at aktivere forbindelsen.</string>
+    <string name="hud_search_wifi_no_hotspot">Søger stadig. Telefonen er på WiFi, og dens hotspot er slukket. Tænd hotspottet, eller sæt HUD\'en på dette WiFi.</string>
+    <string name="hud_search_no_network">Søger stadig. Telefonen har hverken WiFi eller hotspot, så HUD\'en har intet at forbinde til.</string>
+    <string name="hud_search_toast_no_hotspot">HUD ikke fundet. Telefonens hotspot er slukket.</string>
     <string name="hud_overlay_subsection">Eget overlay</string>
     <string name="hud_overlay_subsection_desc">Importér en Overlay Studio-skabelon til HUDens Custom-skærm uden baggrunde. Skabelonen kopieres hertil, så senere ændringer i studiet ændrer ikke HUDen, før du importerer igen.</string>
     <string name="hud_overlay_select_preset">Importér skabelon</string>

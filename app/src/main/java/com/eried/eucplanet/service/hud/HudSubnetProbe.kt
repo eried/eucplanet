@@ -95,20 +95,24 @@ class HudSubnetProbe @Inject constructor(
      * Cellular / virtual interfaces are skipped by name so we don't waste a
      * 254-host sweep on a carrier subnet the HUD can't be on.
      */
-    internal fun candidateIpv4Cidrs(): List<String> {
-        val out = LinkedHashSet<String>()
-
-        runCatching {
-            val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-            val active = cm?.activeNetwork
-            val props = active?.let { cm.getLinkProperties(it) }
-            props?.linkAddresses
-                ?.firstOrNull {
-                    val a = it.address
-                    a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress
-                }
-                ?.let { out.add("${it.address.hostAddress}/${it.prefixLength}") }
-        }
+    /**
+     * Every local IPv4 network the phone is on, with the interface it rides
+     * and whether that interface is the phone's own hotspot.
+     *
+     * Two sources, deduped by address:
+     *  1. A full NetworkInterface enumeration, filtered to up, non-loopback,
+     *     non-cellular interfaces with a site-local (private) IPv4. This is the
+     *     ONLY way to see the softAP interface when the phone is the hotspot,
+     *     because that interface is never the `activeNetwork`.
+     *  2. The active network's LinkProperties, in case the enumeration was
+     *     refused (it never is on a phone that can run the app, but it is
+     *     cheap insurance for a normal WiFi client).
+     *
+     * Cellular / virtual interfaces are skipped by name so we don't waste a
+     * 254-host sweep on a carrier subnet the HUD can't be on.
+     */
+    internal fun localNetworks(): List<LocalNet> {
+        val out = LinkedHashMap<String, LocalNet>()
 
         runCatching {
             java.net.NetworkInterface.getNetworkInterfaces()?.toList()?.forEach { nif ->
@@ -122,14 +126,36 @@ class HudSubnetProbe @Inject constructor(
                 nif.interfaceAddresses.forEach { ia ->
                     val a = ia.address
                     if (a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress) {
-                        out.add("${a.hostAddress}/${ia.networkPrefixLength}")
+                        val cidr = "${a.hostAddress}/${ia.networkPrefixLength}"
+                        out.getOrPut(cidr) {
+                            LocalNet(nif.name, cidr, HudSearchHint.isHotspotInterface(nif.name))
+                        }
                     }
                 }
             }
         }.onFailure { hudLinkNote(TAG, "interface enumeration failed: ${it.message}") }
 
-        return out.toList()
+        runCatching {
+            val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            val active = cm?.activeNetwork
+            val props = active?.let { cm.getLinkProperties(it) }
+            val iface = props?.interfaceName ?: "wlan?"
+            props?.linkAddresses
+                ?.firstOrNull {
+                    val a = it.address
+                    a is Inet4Address && !a.isLoopbackAddress && a.isSiteLocalAddress
+                }
+                ?.let {
+                    val cidr = "${it.address.hostAddress}/${it.prefixLength}"
+                    out.getOrPut(cidr) { LocalNet(iface, cidr, HudSearchHint.isHotspotInterface(iface)) }
+                }
+        }
+
+        return out.values.toList()
     }
+
+    /** The subnets to sweep: [localNetworks] as `ip/prefix` strings. */
+    internal fun candidateIpv4Cidrs(): List<String> = localNetworks().map { it.cidr }
 
     /**
      * Expand a /24 CIDR (or wider, clamped to /24) into the list of host

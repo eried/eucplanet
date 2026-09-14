@@ -360,6 +360,9 @@
     <string name="hud_server_port">Порт</string>
     <string name="hud_hotspot_off_hint">Точка доступа телефона отключена. Убедитесь, что HUD и телефон в одной WiFi-сети.</string>
     <string name="hud_hotspot_on_hint">Точка доступа телефона работает. Подключите HUD к WiFi этого телефона для активации связи.</string>
+    <string name="hud_search_wifi_no_hotspot">Поиск продолжается. Телефон подключён к WiFi, а его точка доступа отключена. Включите точку доступа или подключите HUD к этой WiFi-сети.</string>
+    <string name="hud_search_no_network">Поиск продолжается. У телефона нет ни WiFi, ни точки доступа, поэтому HUD не к чему подключиться.</string>
+    <string name="hud_search_toast_no_hotspot">HUD не найден. Точка доступа телефона отключена.</string>
     <string name="hud_overlay_subsection">Свой оверлей</string>
     <string name="hud_overlay_subsection_desc">Импортируйте пресет Overlay Studio на экран Custom HUD без фона. Пресет копируется здесь, поэтому последующие правки в студии не изменят HUD, пока вы не импортируете снова.</string>
     <string name="hud_overlay_select_preset">Импортировать пресет</string>

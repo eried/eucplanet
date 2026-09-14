@@ -11216,7 +11216,7 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
 }
 
 @Composable
-private fun HudHotspotHint() {
+private fun HudHotspotHint(searchHint: com.eried.eucplanet.service.hud.HudSearchHint) {
     val ctx = LocalContext.current
     var hotspotOn by remember { mutableStateOf<Boolean?>(null) }
     LaunchedEffect(Unit) {
@@ -11229,7 +11229,17 @@ private fun HudHotspotHint() {
     // Info icon matches the InfoHint pattern used elsewhere in the app, so
     // this reads as a regular "here's some context" card, not a red error.
     // null = first probe in flight; suppress so the card doesn't flash.
-    val on = hotspotOn ?: return
+    // A live search verdict needs no probe: it already knows.
+    val on = hotspotOn
+    if (on == null && searchHint == com.eried.eucplanet.service.hud.HudSearchHint.NONE) return
+    // While the link searches and the phone can say why it finds nothing,
+    // that verdict replaces the generic setup hint: same card, sharper copy.
+    val textRes = when (searchHint) {
+        com.eried.eucplanet.service.hud.HudSearchHint.WIFI_NO_HOTSPOT -> R.string.hud_search_wifi_no_hotspot
+        com.eried.eucplanet.service.hud.HudSearchHint.NO_NETWORK -> R.string.hud_search_no_network
+        com.eried.eucplanet.service.hud.HudSearchHint.NONE ->
+            if (on == true) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
+    }
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -11247,9 +11257,7 @@ private fun HudHotspotHint() {
                 modifier = Modifier.size(18.dp)
             )
             Text(
-                text = stringResource(
-                    if (on) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
-                ),
+                text = stringResource(textRes),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -11279,11 +11287,8 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
     return runCatching {
         val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
         ifs.any { iface ->
-            val name = iface.name.orEmpty().lowercase()
-            iface.isUp && !iface.isLoopback && (
-                name.startsWith("ap") || name.startsWith("softap") ||
-                name.startsWith("swlan") || name == "wlan1"
-            )
+            iface.isUp && !iface.isLoopback &&
+                com.eried.eucplanet.service.hud.HudSearchHint.isHotspotInterface(iface.name.orEmpty())
         }
     }.getOrDefault(false)
 }
@@ -11332,7 +11337,13 @@ private fun HudIntegrationSection(
         // wifi or a separate router, in which case the hotspot doesn't
         // matter. The hint copy makes that explicit so a rider whose
         // hotspot is intentionally off doesn't think anything is wrong.
-        HudHotspotHint()
+        // While the link is on and searching, the search's own verdict
+        // (WiFi on, hotspot off; no network at all) takes the card over.
+        val searchHint by viewModel.hudSearchHint.collectAsState()
+        HudHotspotHint(
+            searchHint = if (settings.hudServerEnabled) searchHint
+            else com.eried.eucplanet.service.hud.HudSearchHint.NONE
+        )
 
         // Discovery mode comes FIRST -- it decides whether the rider needs to
         // know the IP at all. Auto finds the HUD on its own; Fixed uses only

@@ -320,6 +320,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">A telefon hotspotja ki van kapcsolva. Győződj meg róla, hogy a HUD és a telefon ugyanazon a WiFi-hálózaton van.</string>
     <string name="hud_hotspot_on_hint">A telefon hotspotja sugároz. Csatlakoztasd a HUD-ot ennek a telefonnak a WiFi-jéhez a kapcsolat létrehozásához.</string>
+    <string name="hud_search_wifi_no_hotspot">Még keres. A telefon WiFi-n van, a hotspotja pedig ki van kapcsolva. Kapcsold be a hotspotot, vagy tedd a HUD-ot erre a WiFi-re.</string>
+    <string name="hud_search_no_network">Még keres. A telefonnak nincs se WiFi-je, se hotspotja, így a HUD-nak nincs mihez csatlakoznia.</string>
+    <string name="hud_search_toast_no_hotspot">A HUD nem található. A telefon hotspotja ki van kapcsolva.</string>
     <string name="hud_overlay_subsection">Egyéni átfedés</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio-előbeállítás importálása a HUD Egyéni képernyőjére, háttér nélkül. Az előbeállítás ide másolódik, így a stúdióban végzett későbbi módosítások nem változtatják meg a HUD-ot, amíg újra nem importálod.</string>
     <string name="hud_overlay_select_preset">Előbeállítás importálása</string>

@@ -106,6 +106,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Telefonens hotspot er av. Sørg for at HUD-en og telefonen er på samme WiFi-nettverk.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot kringkaster. Koble HUD-en til denne telefonens WiFi for å aktivere linken.</string>
+    <string name="hud_search_wifi_no_hotspot">Søker fortsatt. Telefonen er på WiFi og hotspoten er av. Slå på hotspoten, eller sett HUD-en på dette WiFi-et.</string>
+    <string name="hud_search_no_network">Søker fortsatt. Telefonen har verken WiFi eller hotspot, så HUD-en har ingenting å koble til.</string>
+    <string name="hud_search_toast_no_hotspot">HUD ikke funnet. Telefonens hotspot er av.</string>
     <string name="hud_custom_overlay_none">Ingen</string>
 
     <!-- Settings: Backup -->

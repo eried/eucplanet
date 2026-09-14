@@ -320,6 +320,9 @@
     <string name="hud_server_port">Port</string>
     <string name="hud_hotspot_off_hint">Hotspot telefonu je vypnutý. Ujistěte se, že HUD i telefon jsou na stejné síti WiFi.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu vysílá. Připojte HUD k WiFi tohoto telefonu a spojení se naváže.</string>
+    <string name="hud_search_wifi_no_hotspot">Stále hledám. Telefon je na WiFi a jeho hotspot je vypnutý. Zapni hotspot, nebo připoj HUD k této WiFi.</string>
+    <string name="hud_search_no_network">Stále hledám. Telefon nemá WiFi ani hotspot, takže se HUD nemá k čemu připojit.</string>
+    <string name="hud_search_toast_no_hotspot">HUD nenalezen. Hotspot telefonu je vypnutý.</string>
     <string name="hud_overlay_subsection">Vlastní překryv</string>
     <string name="hud_overlay_subsection_desc">Naimportuje předvolbu z Overlay Studia na obrazovku Vlastní v HUD, bez pozadí. Předvolba se sem zkopíruje, takže pozdější úpravy ve studiu HUD nezmění, dokud ji neimportujete znovu.</string>
     <string name="hud_overlay_select_preset">Importovat předvolbu</string>
