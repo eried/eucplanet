@@ -475,6 +475,9 @@ class WheelRepository @Inject constructor(
     /** Connected wheel's BLE name (with " (virtual)" for simulators), or null. */
     val connectedDeviceName: StateFlow<String?> = bleManager.connectedDeviceName
 
+    /** When the current connection began, or 0 when disconnected. */
+    val connectedSinceMs: StateFlow<Long> = bleManager.connectedSinceMs
+
     /** Connected wheel's brand (InMotion / Begode / ...), or null. */
     val connectedBrand: StateFlow<String?> = bleManager.connectedBrand
 

@@ -126,8 +126,9 @@ fun AutomationsContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = settings.lights.onMinutesBefore,
+                    default = SETTINGS_DEFAULTS.lights.onMinutesBefore,
                     onValueChange = { viewModel.updateAutoLightsOnMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -135,8 +136,9 @@ fun AutomationsContent(
                     label = stringResource(R.string.auto_lights_on_before_sunset),
                     modifier = Modifier.weight(1f),
                 )
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = settings.lights.offMinutesAfter,
+                    default = SETTINGS_DEFAULTS.lights.offMinutesAfter,
                     onValueChange = { viewModel.updateAutoLightsOffMinutes(it) },
                     range = 0..120,
                     step = 10,
@@ -204,6 +206,7 @@ fun AutomationsContent(
                     SpeedNumberSetting(
                         label = stringResource(R.string.auto_lights_off_below),
                         valueKmh = settings.lights.offBelowKmh,
+                        defaultKmh = SETTINGS_DEFAULTS.lights.offBelowKmh,
                         rangeKmh = 1f..15f,
                         speedUnit = Units.effectiveSpeedUnit(settings),
                         modifier = Modifier.weight(1f),
@@ -288,6 +291,7 @@ fun AutomationsContent(
             SpeedNumberSetting(
                 label = stringResource(R.string.media_control_pause_below),
                 valueKmh = settings.mediaControl.pauseBelowKmh.toFloat(),
+                defaultKmh = SETTINGS_DEFAULTS.mediaControl.pauseBelowKmh.toFloat(),
                 rangeKmh = 1f..(settings.mediaControl.resumeAboveKmh - 2).coerceAtLeast(1).toFloat(),
                 speedUnit = Units.effectiveSpeedUnit(settings),
                 modifier = Modifier.fillMaxWidth(0.5f),
@@ -315,6 +319,7 @@ fun AutomationsContent(
                 SpeedNumberSetting(
                     label = stringResource(R.string.media_control_resume_above),
                     valueKmh = settings.mediaControl.resumeAboveKmh.toFloat(),
+                    defaultKmh = SETTINGS_DEFAULTS.mediaControl.resumeAboveKmh.toFloat(),
                     rangeKmh = (settings.mediaControl.pauseBelowKmh + 2).toFloat()..60f,
                     speedUnit = Units.effectiveSpeedUnit(settings),
                     modifier = Modifier.fillMaxWidth(0.5f),
@@ -479,8 +484,9 @@ fun AutomationsContent(
             )
 
             // Capped below unlock (>=10 dBm gap) so a lock/unlock loop is impossible.
-            NumberUpDown(
+            NumberFieldWithDefault(
                 value = settings.proximityLock.lockBelowDbm,
+                default = SETTINGS_DEFAULTS.proximityLock.lockBelowDbm,
                 onValueChange = { viewModel.updateProxLockBelow(it) },
                 range = -110..(settings.proximityLock.unlockAboveDbm - 2).coerceIn(-110, -30),
                 step = 1,
@@ -524,8 +530,9 @@ fun AutomationsContent(
             }
 
             if (settings.proximityLock.unlockWhen != ProximityLockSettings.UNLOCK_WHEN_NEVER) {
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = settings.proximityLock.unlockAboveDbm,
+                    default = SETTINGS_DEFAULTS.proximityLock.unlockAboveDbm,
                     onValueChange = { viewModel.updateProxUnlockAbove(it) },
                     range = (settings.proximityLock.lockBelowDbm + 2).coerceIn(-100, -15)..-15,
                     step = 1,

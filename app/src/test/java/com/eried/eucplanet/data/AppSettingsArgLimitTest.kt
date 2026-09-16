@@ -93,11 +93,26 @@ class AppSettingsArgLimitTest {
         // nested LightsSettings holding five - the gate, the two sun offsets,
         // and the walking-pace cut-off with its speed. Adding a feature and
         // spending fewer slots is the shape this tripwire is asking for.
-        // 252: the tire-pressure group. Its two fields, the paired sensor and
-        // the pressure unit, are nested in TpmsSettings and cost one slot
-        // between them, which is what this tripwire keeps asking for. Three
-        // slots left before 255: nest the next addition too.
-        val expectedSlots = 252
+        // 253: the voice-command group. Its three fields, the enable, the
+        // prompt style and the listening window, are nested in
+        // VoiceCommandSettings and cost one slot between them. They were added
+        // flat first and took the class to exactly 255, which this tripwire
+        // caught: past that, copy() stops verifying and the app dies at
+        // runtime. Two slots left before 255, so nest the next addition too.
+        // 252: and back down, because the group emptied. The enable went (a
+        // button is the only way in, so there was nothing to enable), the
+        // prompt style went (of three choices only the tone worked), and the
+        // window moved to Advanced where rule 1 says a global tunable lives.
+        // The whole nested class went with them. A feature that grew for a
+        // day and cost a net zero slots.
+        // 253: and the class came back, for four fields this time. Riders on a
+        // headset that plays its own tone needed a way to silence ours, a
+        // tester needed the unrecognised-phrase sentence to stop scolding him,
+        // the spoken language had to come apart from the interface language,
+        // and the headset button needed a switch because claiming a
+        // device-wide gesture is not something to ship switched on. Nested
+        // from the start this time, so four fields cost one slot.
+        val expectedSlots = 253
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

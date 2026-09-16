@@ -77,6 +77,7 @@ class DashboardViewModel @Inject constructor(
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
+    private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -549,6 +550,22 @@ class DashboardViewModel @Inject constructor(
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.voiceEnabled }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voiceEnabled)
+
+    /**
+     * The language the spoken-command list should be written in.
+     *
+     * The rider's own choice, or the speaking voice when they have not made
+     * one. Needed here because "what can I say" opens the same list from the
+     * dashboard as the settings screen does, and a list of words in the wrong
+     * language is a list of words that will not work.
+     */
+    val voiceCommandLanguage: StateFlow<String> = settingsRepository.settings
+        .map { it.voiceCommands.recognitionLocale.ifBlank { it.voiceLocale } }
+        .stateIn(
+            viewModelScope, SharingStarted.Eagerly,
+            initialSettings.voiceCommands.recognitionLocale
+                .ifBlank { initialSettings.voiceLocale },
+        )
 
     /** Whether the dashboard top-bar Battery-monitor (spark) icon renders at all. */
     val chargingDashboardIcon: StateFlow<Boolean> = settingsRepository.settings
@@ -1052,6 +1069,37 @@ class DashboardViewModel @Inject constructor(
     fun onSafetySpeedToggle() {
         viewModelScope.launch {
             wheelRepository.toggleSafetySpeed()
+        }
+    }
+
+    /** What a listening session is doing, for the tile and the transcript. */
+    val voiceCommandState = voiceCommands.state
+
+    /** Asking out loud what can be said puts the list on screen. */
+    val showVocabulary = voiceCommands.showVocabulary
+
+    fun onVoiceListen() {
+        // The tile lights up, so it does not also need a snackbar saying so.
+        voiceCommands.listen(notify = false)
+    }
+
+    /**
+     * Swap which of the two voice tiles owns this dashboard slot.
+     *
+     * The pair shares one slot and one icon, so this is a single entry in
+     * dashboardActionOrder changing. Per slot rather than global: a rider with
+     * two voice tiles gets to keep them different.
+     */
+    fun switchVoiceTile(from: String, to: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val order = current.dashboardActionOrder.split(",").map { it.trim() }
+            val at = order.indexOf(from)
+            if (at < 0) return@launch
+            val swapped = order.toMutableList().also { it[at] = to }
+            settingsRepository.update(
+                current.copy(dashboardActionOrder = swapped.joinToString(","))
+            )
         }
     }
 

@@ -160,6 +160,17 @@ class BleConnectionManager @Inject constructor(
     @Volatile private var lastDataMs = 0L
     @Volatile private var connectedAtMs = 0L
 
+    private val _connectedSinceMs = MutableStateFlow(0L)
+
+    /**
+     * When the current connection went CONNECTED, or 0 when there is none.
+     *
+     * Already tracked for the stale-data check; exposed because "how long has
+     * the wheel been connected" is a question a rider asks out loud when the
+     * dashboard looks frozen and they want to know whether to trust it.
+     */
+    val connectedSinceMs: StateFlow<Long> = _connectedSinceMs.asStateFlow()
+
     // Poll the link RSSI once a second while connected so the BT dBm metric and
     // the proximity-lock feature stay snappy. A no-op on virtual connections.
     private val rssiJob = scope.launch {
@@ -307,6 +318,7 @@ class BleConnectionManager @Inject constructor(
         gatt = null
         wheelAdapter.onDisconnect()
         _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
     }
 
     private fun onBluetoothOn() {
@@ -390,6 +402,7 @@ class BleConnectionManager @Inject constructor(
             stopReconnectScan()
             if (_connectionState.value == ConnectionState.SCANNING) {
                 _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             }
             val pause = RECONNECT_SCAN_PAUSES_MS[
                 minOf(reconnectScanCycle, RECONNECT_SCAN_PAUSES_MS.lastIndex)
@@ -460,6 +473,7 @@ class BleConnectionManager @Inject constructor(
             currentName = name ?: currentName
             shouldReconnect = true
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
 
@@ -527,6 +541,7 @@ class BleConnectionManager @Inject constructor(
             gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
             gatt = null
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             val addr = currentAddress
             if (shouldReconnect && currentConnectIsAuto && addr != null && !autoConnectSuppressed) {
                 reconnectViaScan(addr, currentName)
@@ -547,6 +562,7 @@ class BleConnectionManager @Inject constructor(
         val address = currentAddress ?: return
         if (bluetoothManager.adapter?.isEnabled != true) {
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
         _connectionState.value = ConnectionState.CONNECTING
@@ -683,12 +699,14 @@ class BleConnectionManager @Inject constructor(
             wheelAdapter.onDisconnect()
             virtualWheel = null
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
 
         val g = gatt
         if (g == null) {
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
         // Request clean GATT teardown; close() runs in the STATE_DISCONNECTED callback
@@ -707,6 +725,7 @@ class BleConnectionManager @Inject constructor(
                 try { still.close() } catch (_: Exception) {}
                 gatt = null
                 _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             }
         }
     }
@@ -876,6 +895,7 @@ class BleConnectionManager @Inject constructor(
                 gatt = null
                 wheelAdapter.onDisconnect()
                 _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             }
             writeReady = true
             WriteOutcome.CONNECTION_LOST
@@ -932,6 +952,7 @@ class BleConnectionManager @Inject constructor(
                         this@BleConnectionManager.gatt = null
                     }
                     _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
 
                     if (shouldReconnect && status != 0 && !currentConnectIsAuto &&
                         manualRetryCount < MAX_MANUAL_CONNECT_RETRIES) {
@@ -1228,6 +1249,7 @@ class BleConnectionManager @Inject constructor(
         // rider power-cycles the wheel and reconnects. Any real frame resets the
         // timer, so a slow-streaming wheel is never dropped.
         connectedAtMs = System.currentTimeMillis()
+        _connectedSinceMs.value = connectedAtMs
         val watchdogGatt = gatt
         scope.launch {
             delay(NO_DATA_TIMEOUT_MS)

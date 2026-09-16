@@ -244,6 +244,24 @@ object SettingsJson {
         put("weatherPrefWind", s.weather.prefWind)
         put("weatherPrefNight", s.weather.prefNight)
         put("weatherPrefGolden", s.weather.prefGolden)
+        // Flat keys for a nested group, same as the report toggles above: the
+        // file is read by hand and synced between builds, and a nested object
+        // would make every older build drop the lot rather than the one key it
+        // does not know.
+        put("voicePromptCue", s.voiceCommands.promptCue)
+        put("voiceUnknownCue", s.voiceCommands.unknownCue)
+        put("voiceHeadsetButton", s.voiceCommands.headsetButton)
+        put("voiceRecognitionLocale", s.voiceCommands.recognitionLocale)
+        put("voiceReportBatteryEst", s.voiceReports.periodicBatteryEst)
+        put("triggerReportBatteryEst", s.voiceReports.triggerBatteryEst)
+        put("voiceReportRange", s.voiceReports.periodicRange)
+        put("triggerReportRange", s.voiceReports.triggerRange)
+        put("voiceReportVoltage", s.voiceReports.periodicVoltage)
+        put("triggerReportVoltage", s.voiceReports.triggerVoltage)
+        put("voiceReportOdometer", s.voiceReports.periodicOdometer)
+        put("triggerReportOdometer", s.voiceReports.triggerOdometer)
+        put("voiceReportConsumption", s.voiceReports.periodicConsumption)
+        put("triggerReportConsumption", s.voiceReports.triggerConsumption)
         put("voiceReportCurrent", s.voiceReports.periodicCurrent)
         put("voiceReportPower", s.voiceReports.periodicPower)
         put("triggerReportCurrent", s.voiceReports.triggerCurrent)
@@ -456,8 +474,24 @@ object SettingsJson {
             prefNight = j.optString("weatherPrefNight", base.weather.prefNight),
             prefGolden = j.optString("weatherPrefGolden", base.weather.prefGolden),
         ),
+        voiceCommands = com.eried.eucplanet.data.model.VoiceCommandSettings(
+            promptCue = j.optString("voicePromptCue", base.voiceCommands.promptCue),
+            unknownCue = j.optString("voiceUnknownCue", base.voiceCommands.unknownCue),
+            headsetButton = j.optBoolean("voiceHeadsetButton", base.voiceCommands.headsetButton),
+            recognitionLocale = j.optString("voiceRecognitionLocale", base.voiceCommands.recognitionLocale),
+        ),
         voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(
             periodicSpeed = j.optBoolean("voiceReportSpeed", base.voiceReports.periodicSpeed),
+            periodicBatteryEst = j.optBoolean("voiceReportBatteryEst", base.voiceReports.periodicBatteryEst),
+            triggerBatteryEst = j.optBoolean("triggerReportBatteryEst", base.voiceReports.triggerBatteryEst),
+            periodicRange = j.optBoolean("voiceReportRange", base.voiceReports.periodicRange),
+            triggerRange = j.optBoolean("triggerReportRange", base.voiceReports.triggerRange),
+            periodicVoltage = j.optBoolean("voiceReportVoltage", base.voiceReports.periodicVoltage),
+            triggerVoltage = j.optBoolean("triggerReportVoltage", base.voiceReports.triggerVoltage),
+            periodicOdometer = j.optBoolean("voiceReportOdometer", base.voiceReports.periodicOdometer),
+            triggerOdometer = j.optBoolean("triggerReportOdometer", base.voiceReports.triggerOdometer),
+            periodicConsumption = j.optBoolean("voiceReportConsumption", base.voiceReports.periodicConsumption),
+            triggerConsumption = j.optBoolean("triggerReportConsumption", base.voiceReports.triggerConsumption),
             periodicBattery = j.optBoolean("voiceReportBattery", base.voiceReports.periodicBattery),
             periodicTemp = j.optBoolean("voiceReportTemp", base.voiceReports.periodicTemp),
             periodicPwm = j.optBoolean("voiceReportPwm", base.voiceReports.periodicPwm),

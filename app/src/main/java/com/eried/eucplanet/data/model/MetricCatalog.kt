@@ -70,6 +70,18 @@ data class MetricSpec(
     /** Stable identifier persisted in settings (composites/custom tiles reference these by key too). */
     val key: String,
     @StringRes val labelRes: Int,
+    /**
+     * What to call this out loud, when the tile label is an abbreviation.
+     *
+     * Tile labels are sized for a dashboard cell: "Phase A", "BT signal",
+     * "Battery (est)". Voice takes the labels as the words a rider says, so
+     * those became things nobody says, and "Phase A" is worse than unsayable:
+     * the "A" is a single letter, which the matcher requires to be spoken
+     * exactly, so "phase amps" missed it and landed on Amps instead.
+     *
+     * Null for the great majority, whose label is already a word.
+     */
+    @StringRes val spokenLabelRes: Int? = null,
     /** Optional explainer surfaced in the slot-sheet info box. */
     @StringRes val descriptionRes: Int? = null,
     /** Accent colour the tile's value text + sparkline tint pick up. */
@@ -107,6 +119,7 @@ object MetricCatalog {
         MetricSpec(
             key = "BATTERY_ENVELOPE",
             labelRes = R.string.metric_chip_battery_envelope,
+            spokenLabelRes = R.string.metric_spoken_battery_envelope,
             descriptionRes = R.string.metric_desc_battery_envelope,
             // The trip chart's envelope colour, not the battery tile's green.
             // Same family, different reading, and two greens side by side read
@@ -246,6 +259,7 @@ object MetricCatalog {
         MetricSpec(
             key = "PHASE_CURRENT",
             labelRes = R.string.metric_chip_phase_current,
+            spokenLabelRes = R.string.metric_spoken_phase_current,
             accent = AccentBlue,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen
@@ -319,6 +333,7 @@ object MetricCatalog {
         MetricSpec(
             key = "AVG_TRIP_SPEED",
             labelRes = R.string.metric_chip_avg_trip_speed,
+            spokenLabelRes = R.string.metric_spoken_avg_trip_speed,
             descriptionRes = R.string.metric_desc_avg_trip_speed,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
@@ -430,6 +445,7 @@ object MetricCatalog {
         MetricSpec(
             key = "BT_RSSI",
             labelRes = R.string.metric_chip_bt_rssi,
+            spokenLabelRes = R.string.metric_spoken_bt_rssi,
             descriptionRes = R.string.metric_desc_bt_rssi,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
@@ -443,6 +459,7 @@ object MetricCatalog {
         MetricSpec(
             key = "LAT_LONG",
             labelRes = R.string.metric_chip_lat_long,
+            spokenLabelRes = R.string.metric_spoken_lat_long,
             accent = AccentBlue,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
@@ -471,6 +488,13 @@ object MetricCatalog {
         MetricSpec(
             key = "LIGHT_ON",
             labelRes = R.string.metric_chip_light_on,
+            // The tile says "Light" because it sits under a number that is
+            // the answer. Spoken, the bare word is what a rider says when
+            // they want the light switched, so the reading has to ask for
+            // itself by a longer name. The matcher prefers the longest match,
+            // which is what keeps "light status" off the toggle and off the
+            // "status" report.
+            spokenLabelRes = R.string.metric_spoken_light_on,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
             supportsStats = false

@@ -105,6 +105,45 @@
         android:localeConfig="@xml/locales_config"
         android:theme="@style/Theme.EucPlanet">
 
+        <!-- The headset voice button.
+
+             A Bluetooth headset raises recognition over the hands-free
+             profile and Android turns that into VOICE_COMMAND; ASSIST and
+             SEARCH_LONG_PRESS are the other two a button on a helmet or an
+             earcup can land on, depending on the device. Declaring all three
+             costs nothing and covers the ways the same press arrives.
+
+             Transparent and no-history: it starts listening and finishes, so
+             it never appears in the recents list or covers the dashboard.
+
+             Declared disabled. Enabled here means the app joins Android's
+             chooser for that button on every install, including riders who
+             never wanted it and pressed it meaning to reach their assistant:
+             a device-wide gesture is not ours to claim by shipping an update.
+             VoiceTriggerGate switches the component on for the rider who asks
+             for it in settings. -->
+        <activity
+            android:name=".voice.VoiceTriggerActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH_LONG_PRESS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

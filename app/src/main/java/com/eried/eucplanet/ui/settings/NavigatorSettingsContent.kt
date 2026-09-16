@@ -117,8 +117,9 @@ fun NavigatorSettingsContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            NumberUpDown(
+            NumberFieldWithDefault(
                 value = settings.navArrivalRadiusM,
+                default = SETTINGS_DEFAULTS.navArrivalRadiusM,
                 onValueChange = { viewModel.updateNavArrivalRadius(it) },
                 range = 5..100,
                 step = 5,
@@ -127,8 +128,9 @@ fun NavigatorSettingsContent(
                 format = { distLabel(it) },
                 parse = { distParse(it) },
             )
-            NumberUpDown(
+            NumberFieldWithDefault(
                 value = settings.navOffRouteToleranceM,
+                default = SETTINGS_DEFAULTS.navOffRouteToleranceM,
                 onValueChange = { viewModel.updateNavOffRouteTolerance(it) },
                 range = 15..150,
                 step = 5,
@@ -356,8 +358,9 @@ fun NavigatorSettingsContent(
             // numeric fields further up this page, rather than a lone box
             // spanning the screen for a two-digit number.
             Row(modifier = Modifier.fillMaxWidth()) {
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = settings.weather.windowHours,
+                    default = SETTINGS_DEFAULTS.weather.windowHours,
                     onValueChange = { viewModel.updateWeatherWindow(it) },
                     range = 2..168,
                     suffix = stringResource(R.string.weather_window_hours_suffix),

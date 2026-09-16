@@ -80,6 +80,7 @@ class AppHealthRepository @Inject constructor(
         // told once; the setting has already been turned off to match.
         if (id == PERM_PIP_ID) pipNoticePending = false
         if (id == PERM_OVERLAY_ID) hudNoticePending = false
+        if (id == PERM_MIC_ID) micNoticePending = false
         val current = _warnings.value
         if (current.any { it.id == id }) {
             _warnings.value = current.filterNot { it.id == id }
@@ -104,6 +105,26 @@ class AppHealthRepository @Inject constructor(
      * dismisses the corresponding warning. Idempotent - safe to call from
      * onResume on every dashboard visit.
      */
+    /**
+     * Set when a rider pressed a listen button and the microphone was not
+     * ours to open.
+     *
+     * Gated rather than always on, because the microphone is only needed by a
+     * rider who uses voice commands, and there is no setting left that says
+     * whether they do. Warning everybody about a permission they may never
+     * want is how a top bar becomes something riders stop reading. Asking for
+     * it is the signal that it matters, and it is remembered so the warning
+     * survives the walk to system settings and back.
+     */
+    @Volatile
+    var micNoticePending: Boolean = false
+        private set
+
+    /** Called when listening is refused for want of the permission. */
+    fun noteMicrophoneNeeded() {
+        micNoticePending = true
+    }
+
     fun refreshPermissionWarnings(
         pipRequested: Boolean = false,
         phoneHudRequested: Boolean = false,
@@ -123,6 +144,26 @@ class AppHealthRepository @Inject constructor(
                         id = PERM_NOTIFICATIONS_ID,
                         titleRes = R.string.warnings_perm_notifications_title,
                         bodyRes = R.string.warnings_perm_notifications_body,
+                        fix = { openAppSettings() }
+                    )
+                )
+            }
+        }
+
+        // Microphone, but only once a rider has actually reached for it.
+        if (micNoticePending) {
+            val micGranted = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+            if (micGranted) {
+                micNoticePending = false
+                dismiss(PERM_MIC_ID)
+            } else {
+                upsert(
+                    AppWarning(
+                        id = PERM_MIC_ID,
+                        titleRes = R.string.warnings_perm_mic_title,
+                        bodyRes = R.string.warnings_perm_mic_body,
                         fix = { openAppSettings() }
                     )
                 )
@@ -428,6 +469,7 @@ class AppHealthRepository @Inject constructor(
         private const val PERM_MEDIA_ACCESS_ID = "perm.media-access"
         private const val PERM_PIP_ID = "perm.pip"
         private const val PERM_OVERLAY_ID = "perm.overlay"
+        private const val PERM_MIC_ID = "perm.microphone"
         private const val BATTERY_OPT_ID = "power.battery-optimised"
         private const val BACKUP_FOLDER_ID = "backup.folder"
 

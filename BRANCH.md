@@ -35,6 +35,26 @@ ten points on the throttle, jitters, and loses a point a minute. A plain
 Battery alarm at 30 % fires on the first burst; Battery (est) at 30 % should
 fire only once the resting level is actually there, about seven minutes in.
 
+**Voice commands.** Hold the Voice button on the dashboard and pick Listen
+for voice command, then ask for a metric: "battery", "controller temp", "max
+speed", "what can I say". Bind it to a Flic, the volume keys, your watch or
+the HUD if you would rather not hold anything, or put the Listen tile on the
+dashboard for a one tap start.
+
+Four things worth pushing on. Settings, Voice, Cue when listening: Off should
+leave the session completely silent at both ends, which is what a headset with
+its own tone needs. When not understood: Off and Beep should replace the "I
+did not catch that" sentence without slowing the session down. Command
+language lets you speak one language while the app is in another, so try the
+app in English with a Russian voice and Russian commands. And Headset voice
+button, off by default, makes your headset's voice button reach the app:
+Android will ask which app should answer it the first time you press it.
+
+Say "voice off" to stop the periodic announcements mid-ride, "voice on" to
+bring them back, and "voice report" for one now. Five new report items too,
+all off until you switch them on in Customize voice report: Battery (est),
+Range, Voltage, Odometer and Consumption.
+
 **Speed splits button.** Settings, Dashboard layout, drag the Speed splits
 action onto a slot. Each tap walks Splits off, accel, brake, both, and the tile
 says which; it works with no wheel connected. Off pauses: the session's best

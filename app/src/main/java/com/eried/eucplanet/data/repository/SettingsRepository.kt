@@ -5,6 +5,7 @@ import com.eried.eucplanet.data.model.BatteryPercentSettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.TpmsSettings
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.VoiceCommandSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.store.SettingsStore
@@ -129,6 +130,16 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
             BatteryPercentSettings.SERIES_RANGE.last),
         capacityWh = batteryPercent.capacityWh.coerceIn(
             0, BatteryPercentSettings.MAX_CAPACITY_WH),
+    ),
+    // A cue or an unknown-reply this build does not know would fall
+    // through every when() to silence, which is the one behaviour a rider
+    // cannot tell apart from the feature being broken. Fall back to the
+    // defaults instead, so an unrecognised value is merely ignored.
+    voiceCommands = voiceCommands.copy(
+        promptCue = voiceCommands.promptCue.takeIf { it in VoiceCommandSettings.CUES }
+            ?: VoiceCommandSettings.CUE_BEEP,
+        unknownCue = voiceCommands.unknownCue.takeIf { it in VoiceCommandSettings.UNKNOWNS }
+            ?: VoiceCommandSettings.UNKNOWN_MESSAGE,
     ),
     // An imported or Dropbox-synced file can carry an unlockWhen this build
     // does not know. Fall back to never rather than letting an unrecognised

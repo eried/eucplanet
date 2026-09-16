@@ -511,6 +511,14 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
+                // The headset button's manifest claim, kept in step with the
+                // setting. Here rather than only in the settings row because a
+                // value can also arrive from a Dropbox restore or another
+                // device, and a claim that only ever changed when someone
+                // tapped the switch would be wrong on exactly those launches.
+                com.eried.eucplanet.voice.VoiceTriggerGate.apply(
+                    this@MainActivity, it.voiceCommands.headsetButton,
+                )
                 // Deliberately outside the `first` gate above.
                 //
                 // `first` is always false here: the synchronous seed below sets

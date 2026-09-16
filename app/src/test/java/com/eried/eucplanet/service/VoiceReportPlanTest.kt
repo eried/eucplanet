@@ -104,9 +104,17 @@ class VoiceReportPlanTest {
                 triggerTime = true, triggerNavigation = true,
             ),
         )
+        // The catalog-backed ones switch themselves on through the registry.
+        // Written out by hand they would have to be remembered twice, and the
+        // whole point of this test is that nobody remembers.
+        val everythingOn = allOn.copy(
+            voiceReports = VoiceReportPlan.EXTRA.fold(allOn.voiceReports) { v, spec ->
+                spec.set(spec.set(v, true, true), false, true)
+            },
+        )
         for (item in VoiceReportPlan.KNOWN) {
-            assertTrue("$item has no periodic switch", VoiceReportPlan.isEnabled(item, allOn, true))
-            assertTrue("$item has no trigger switch", VoiceReportPlan.isEnabled(item, allOn, false))
+            assertTrue("$item has no periodic switch", VoiceReportPlan.isEnabled(item, everythingOn, true))
+            assertTrue("$item has no trigger switch", VoiceReportPlan.isEnabled(item, everythingOn, false))
         }
     }
 

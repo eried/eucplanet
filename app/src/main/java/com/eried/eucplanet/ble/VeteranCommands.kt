@@ -168,8 +168,19 @@ object VeteranCommands {
      * with 8-byte payload `01 80 80 80 80 80 80 [VAL]`. Verified by
      * matching wire byte 0x14 to the Alarm-speed slider reading 20 km/h.
      */
-    fun setAlarmSpeed(kmh: Int): ByteArray =
-        buildLeaperKimSpeedFrame(magic = LKAP, subOp = SUBOP_ALARM, kmh = kmh)
+    fun setAlarmSpeed(kmh: Int, model: VeteranModel? = null): ByteArray =
+        if (model == VeteranModel.NOSFET_AEON) setAeonAlarmSpeed(kmh)
+        else buildLeaperKimSpeedFrame(magic = LKAP, subOp = SUBOP_ALARM, kmh = kmh)
+
+    /** Aeon 503002 capture-verified setting readback (35 -> 34 -> 35), also
+     * confirmed at bank 2 / wire byte 14 in official Aero 502.0.06 firmware.
+     * Preserve application bounds; no off sentinel or riding-enforcement claim.
+     * See docs/protocols/aeon-alarm-speed.md for vectors and provenance. */
+    private fun setAeonAlarmSpeed(kmh: Int): ByteArray = buildVendorFrame(
+        magic = LDAP, totalLen = 19,
+        payloadHead = byteArrayOf(0x01, 0x02) + ByteArray(7) { 0x80.toByte() },
+        valueByte = kmh.coerceIn(1, 99).toByte(),
+    )
 
     // ---- Other decoded LeaperKim settings (no UI binding yet) ----
     //

@@ -880,6 +880,12 @@ private fun AlarmRuleEditorDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // The one numeric field in Settings with no restore chip,
+                    // deliberately: a new rule's threshold is 30, which is a
+                    // speed. Offered as the default on a tyre-pressure alarm it
+                    // reads "30 bar", and on a temperature alarm "30 degrees".
+                    // A default that is wrong for most metrics is worse than no
+                    // default, and a per-metric one is a table nobody asked for.
                     NumberUpDown(
                         value = displayedThreshold.roundToInt(),
                         onValueChange = { newDisp ->
@@ -938,15 +944,17 @@ private fun AlarmRuleEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = beepFrequency,
+                            default = NEW_RULE.beepFrequency,
                             onValueChange = { beepFrequency = it },
                             range = 200..3000, step = 100, suffix = "Hz",
                             label = stringResource(R.string.alarm_label_frequency),
                             modifier = Modifier.weight(1f),
                         )
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = beepCount,
+                            default = NEW_RULE.beepCount,
                             onValueChange = { beepCount = it },
                             range = 1..5, step = 1, suffix = "x",
                             label = stringResource(R.string.alarm_label_repeats),
@@ -970,8 +978,9 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepDurationMs,
+                                default = NEW_RULE.beepDurationMs,
                                 onValueChange = { beepDurationMs = it },
                                 // Floor 30 ms: shorter tones read as a click rather than a
                                 // pitched beep and can fall under the audio route's start
@@ -981,8 +990,9 @@ private fun AlarmRuleEditorDialog(
                                 label = stringResource(R.string.alarm_label_duration),
                                 modifier = Modifier.weight(1f),
                             )
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepGapMs,
+                                default = NEW_RULE.beepGapMs,
                                 onValueChange = {
                                     val wasZero = beepGapMs == 0
                                     beepGapMs = it
@@ -1001,8 +1011,9 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepVolume,
+                                default = NEW_RULE.beepVolume,
                                 onValueChange = { beepVolume = it },
                                 range = 0..100, step = 5, suffix = "%",
                                 label = stringResource(R.string.alarm_beep_volume_label),
@@ -1011,8 +1022,9 @@ private fun AlarmRuleEditorDialog(
                             // Attack/release ramp as % of duration: 0 = crisp beep,
                             // 50 = a soft swell. Higher smooths the up/down; gap 0 makes
                             // it one continuous tone.
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepTransitionPct,
+                                default = NEW_RULE.beepTransitionPct,
                                 onValueChange = { beepTransitionPct = it },
                                 range = 0..50, step = 4, suffix = "%",
                                 label = stringResource(R.string.alarm_beep_transition_label),
@@ -1132,8 +1144,9 @@ private fun AlarmRuleEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = vibrateDurationMs,
+                            default = NEW_RULE.vibrateDurationMs,
                             onValueChange = { vibrateDurationMs = it },
                             range = 100..2000, step = 100, suffix = "ms",
                             label = stringResource(R.string.alarm_label_duration),
@@ -1216,8 +1229,9 @@ private fun AlarmRuleEditorDialog(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.Top
                     ) {
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = cooldownSeconds,
+                            default = NEW_RULE.cooldownSeconds,
                             onValueChange = { cooldownSeconds = it },
                             range = 0..120,
                             suffix = "s",
@@ -1495,8 +1509,9 @@ private fun BeepStudioDialog(
                 // Pitch + volume FACTOR (numeric) -- just below the title.
                 Spacer(Modifier.height(10.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NumberUpDown(
+                    NumberFieldWithDefault(
                         value = pitchFactor,
+                        default = NEW_RULE.beepModulationReachPct,
                         onValueChange = { pitchFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },
@@ -1504,8 +1519,9 @@ private fun BeepStudioDialog(
                         label = stringResource(R.string.alarm_studio_pitch_factor),
                         modifier = Modifier.weight(1f),
                     )
-                    NumberUpDown(
+                    NumberFieldWithDefault(
                         value = volFactor,
+                        default = NEW_RULE.beepVolumeReachPct,
                         onValueChange = { volFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },
@@ -1770,6 +1786,15 @@ private fun SectionTitleWithPreview(
         }
     }
 }
+
+/**
+ * What a freshly created alarm rule is worth.
+ *
+ * The alarm editor's numbers are per-alarm by design (rule 1), so their
+ * default is not an app setting: it is whatever a new rule ships with. Read
+ * from the model so the restore chips cannot drift from it.
+ */
+private val NEW_RULE = com.eried.eucplanet.data.model.AlarmRule()
 
 /**
  * Numeric up/down as one cohesive pill: a borderless centered number with its

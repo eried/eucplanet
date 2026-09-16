@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
@@ -202,6 +203,15 @@ object ActionCatalog {
             // Mirror of SAFETY_ON - highlight when already off.
             statusReader = { !it.safetyActive },
             enabledReader = { it.connected }
+        ),
+        ActionSpec(
+            // Opens the microphone for a spoken question. Eyes-free by
+            // definition: the whole point is that the rider does not have to
+            // look, so every physical surface picks it up from here.
+            key = "VOICE_LISTEN",
+            labelRes = R.string.action_chip_voice_listen,
+            icon = Icons.Filled.Mic,
+            isEyesFreeSafe = true
         ),
         ActionSpec(
             key = "VOICE_ANNOUNCE",

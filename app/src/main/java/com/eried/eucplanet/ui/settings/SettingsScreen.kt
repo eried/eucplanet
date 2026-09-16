@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -697,6 +698,15 @@ fun SettingsScreen(
         stringResource(R.string.announce_gps),
         stringResource(R.string.announce_legal_mode),
         stringResource(R.string.announce_welcome),
+        stringResource(R.string.voice_commands_title),
+        stringResource(R.string.voice_command_vocabulary),
+        stringResource(R.string.voice_prompt_cue),
+        stringResource(R.string.voice_prompt_cue_desc),
+        stringResource(R.string.voice_unknown_cue),
+        stringResource(R.string.voice_recognition_language),
+        stringResource(R.string.voice_recognition_desc),
+        stringResource(R.string.voice_headset_button),
+        stringResource(R.string.voice_headset_button_desc),
         stringResource(R.string.section_report_status),
         stringResource(R.string.report_speed),
         stringResource(R.string.report_battery),
@@ -1284,8 +1294,9 @@ private fun GeneralTab(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    NumberUpDown(
+                    NumberFieldWithDefault(
                         value = idleSec,
+                        default = SETTINGS_DEFAULTS.autoRecordStopIdleSeconds,
                         onValueChange = {
                             viewModel.updateAutoRecordStopIdleSeconds(
                                 (Math.round(it / 30f) * 30).coerceIn(30, 600)
@@ -1789,6 +1800,124 @@ private fun AdvRow(spec: AdvancedSpec, advanced: AdvancedSettings, onChange: (In
     }
 }
 
+/**
+ * A numeric field that carries its own default underneath it.
+ *
+ * Drops into an existing Row in place of a bare [NumberUpDown] without moving
+ * anything: same modifier, same width, the chip simply appears below. That
+ * matters for the rows that hold two fields side by side, like the empty and
+ * full cell voltages, where turning each into a full settings row would break
+ * the pairing that makes them readable.
+ *
+ * [default] is meant to come from `SETTINGS_DEFAULTS` rather than being typed
+ * in, so the chip cannot drift from the shipped value.
+ */
+@Composable
+internal fun NumberFieldWithDefault(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    range: IntRange,
+    default: Int,
+    modifier: Modifier = Modifier,
+    step: Int = 1,
+    suffix: String = "",
+    label: String? = null,
+    enabled: Boolean = true,
+    format: (Int) -> String = { it.toString() },
+    parse: (String) -> Int? = { it.toIntOrNull() },
+    allowSign: Boolean = false,
+    numberAlign: TextAlign = TextAlign.End,
+) {
+    Column(modifier = modifier) {
+        NumberUpDown(
+            value = value,
+            onValueChange = onValueChange,
+            range = range,
+            modifier = Modifier.fillMaxWidth(),
+            step = step,
+            suffix = suffix,
+            label = label,
+            enabled = enabled,
+            format = format,
+            parse = parse,
+            allowSign = allowSign,
+            numberAlign = numberAlign,
+        )
+        val unit = if (suffix.isEmpty()) "" else " $suffix"
+        RestoreChip(
+            text = "${format(default)}$unit",
+            enabled = enabled && value != default,
+        ) { onValueChange(default) }
+    }
+}
+
+/**
+ * A numeric setting, in the shape the Advanced section established.
+ *
+ * The label lives inside the field rather than as a separate Text beside it,
+ * and the default sits under it as a restore chip that is always visible and
+ * goes grey once the value matches it. Rules 4 and 9 ask for both, and the
+ * Advanced rows were the only place in Settings honouring them: everywhere
+ * else a rider who had nudged a number had no way back to the default and no
+ * way to know what it had been.
+ *
+ * [default] is meant to be read from `AppSettings()` at the call site rather
+ * than typed in, so the chip cannot drift from the real default.
+ *
+ * [description] is optional: with one the row reads control-then-explanation
+ * like an Advanced row, without one the control keeps the same width so a
+ * column of these still lines up.
+ */
+@Composable
+internal fun NumberSettingRow(
+    label: String,
+    value: Int,
+    default: Int,
+    range: IntRange,
+    onChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    step: Int = 1,
+    suffix: String = "",
+    description: String? = null,
+    enabled: Boolean = true,
+    format: (Int) -> String = { it.toString() },
+    parse: (String) -> Int? = { it.toIntOrNull() },
+    allowSign: Boolean = false,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1.4f)) {
+            NumberUpDown(
+                value = value,
+                onValueChange = onChange,
+                range = range,
+                modifier = Modifier.fillMaxWidth(),
+                step = step,
+                suffix = suffix,
+                label = label,
+                enabled = enabled,
+                format = format,
+                parse = parse,
+                allowSign = allowSign,
+                numberAlign = TextAlign.End,
+            )
+            val unit = if (suffix.isEmpty()) "" else " $suffix"
+            RestoreChip(
+                text = "${format(default)}$unit",
+                enabled = enabled && value != default,
+            ) { onChange(default) }
+        }
+        Spacer(Modifier.width(10.dp))
+        if (description != null) {
+            HintText(description, modifier = Modifier.weight(1f), small = true)
+        } else {
+            Spacer(Modifier.weight(1f))
+        }
+    }
+}
+
 /** Always-visible "undo -> <default>" affordance. Active (accent, clickable) when
  *  the value is off its default; greyed and inert once it matches. */
 @Composable
@@ -1812,6 +1941,15 @@ internal fun RestoreChip(text: String, enabled: Boolean, onClick: () -> Unit) {
         Text(text, fontSize = 12.sp, color = color)
     }
 }
+
+/**
+ * The shipped defaults, for the restore chips.
+ *
+ * Read from the model rather than retyped at each call site, so a chip cannot
+ * promise a default that the model no longer has. A plain data class with
+ * default arguments, so constructing one costs nothing.
+ */
+internal val SETTINGS_DEFAULTS = com.eried.eucplanet.data.model.AppSettings()
 
 /** Lightweight handle for the reorganize editor: a section's key, title, icon. */
 private data class SectionHandle(val key: String, val title: String, val icon: ImageVector)
@@ -6685,8 +6823,9 @@ private fun SpeedTab(
             // Tenths-of-a-percent domain so the pill keeps the slider's 0.1%
             // precision: the Int value is tenths, displayed as a signed 1-decimal
             // percent, stepped 0.1% per tap (hold to sweep).
-            NumberUpDown(
+            NumberFieldWithDefault(
                 value = (calPct * 10).roundToInt(),
+                default = (SETTINGS_DEFAULTS.speedCalibrationOffsetPct * 10).roundToInt(),
                 onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it / 10f) },
                 range = -150..150,
                 step = 1,
@@ -6749,8 +6888,9 @@ private fun SpeedTab(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    NumberUpDown(
+                    NumberFieldWithDefault(
                         value = bp.seriesCells,
+                        default = SETTINGS_DEFAULTS.batteryPercent.seriesCells,
                         onValueChange = { viewModel.updateBatteryPercentSeriesCells(it) },
                         range = BatteryPercentSettings.SERIES_RANGE,
                         modifier = Modifier.weight(1f),
@@ -6808,8 +6948,9 @@ private fun SpeedTab(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = bp.capacityWh,
+                    default = SETTINGS_DEFAULTS.batteryPercent.capacityWh,
                     onValueChange = { viewModel.updateBatteryPercentCapacityWh(it) },
                     range = 0..BatteryPercentSettings.MAX_CAPACITY_WH,
                     modifier = Modifier.weight(1f),
@@ -6857,8 +6998,9 @@ private fun SpeedTab(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = bp.minimumCellVoltageMv,
+                            default = SETTINGS_DEFAULTS.batteryPercent.minimumCellVoltageMv,
                             onValueChange = { viewModel.updateBatteryPercentMinimumMv(it) },
                             range = BatteryPercentSettings.MIN_CELL_MV..BatteryPercentSettings.MAX_CELL_MV,
                             modifier = Modifier.weight(1f),
@@ -6870,8 +7012,9 @@ private fun SpeedTab(
                             enabled = isConnected,
                             numberAlign = TextAlign.End,
                         )
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = bp.maximumCellVoltageMv,
+                            default = SETTINGS_DEFAULTS.batteryPercent.maximumCellVoltageMv,
                             onValueChange = { viewModel.updateBatteryPercentMaximumMv(it) },
                             range = BatteryPercentSettings.MIN_FULL_MV..BatteryPercentSettings.MAX_FULL_MV,
                             modifier = Modifier.weight(1f),
@@ -6905,6 +7048,7 @@ private fun SpeedTab(
             SpeedNumberSetting(
                 label = stringResource(R.string.speed_tiltback),
                 valueKmh = settings.tiltbackSpeedKmh,
+                defaultKmh = SETTINGS_DEFAULTS.tiltbackSpeedKmh,
                 rangeKmh = 0f..maxSpeedCap,
                 speedUnit = speedUnit,
                 enabled = isConnected,
@@ -6914,6 +7058,7 @@ private fun SpeedTab(
             SpeedNumberSetting(
                 label = stringResource(R.string.speed_alarm),
                 valueKmh = settings.alarmSpeedKmh,
+                defaultKmh = SETTINGS_DEFAULTS.alarmSpeedKmh,
                 rangeKmh = 0f..settings.tiltbackSpeedKmh,
                 speedUnit = speedUnit,
                 enabled = isConnected,
@@ -6932,6 +7077,7 @@ private fun SpeedTab(
             SpeedNumberSetting(
                 label = stringResource(R.string.speed_legal_tiltback),
                 valueKmh = settings.safetyTiltbackKmh,
+                defaultKmh = SETTINGS_DEFAULTS.safetyTiltbackKmh,
                 rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
                 speedUnit = speedUnit,
                 enabled = isConnected,
@@ -6941,6 +7087,7 @@ private fun SpeedTab(
             SpeedNumberSetting(
                 label = stringResource(R.string.speed_legal_alarm),
                 valueKmh = settings.safetyAlarmKmh,
+                defaultKmh = SETTINGS_DEFAULTS.safetyAlarmKmh,
                 rangeKmh = 0f..settings.safetyTiltbackKmh,
                 speedUnit = speedUnit,
                 enabled = isConnected,
@@ -7014,8 +7161,9 @@ private fun VoiceTab(
             ) {
                 // Tenths-of-x domain so it reads as the original "1.2x" with 0.1
                 // steps, not a percentage.
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = (settings.voiceSpeechRate * 10).roundToInt(),
+                    default = (SETTINGS_DEFAULTS.voiceSpeechRate * 10).roundToInt(),
                     onValueChange = { viewModel.updateVoiceSpeechRate(it / 10f, voiceWelcome) },
                     range = 5..25,
                     step = 1,
@@ -7089,6 +7237,158 @@ private fun VoiceTab(
             onCheckedChange = { viewModel.updateAnnounceWelcome(it) },
             onTest = { viewModel.testSpeak(sWelcome) })
 
+        // Voice commands. Its own heading rather than its own section: the
+        // whole area is a toggle, a segmented row, a number and a viewer, which
+        // beside a dozen announcement rows would be a section that looks empty.
+        SectionHeader(stringResource(R.string.voice_commands_title))
+        // No enable switch. Nothing here runs until the rider presses a button,
+        // so a toggle only added a second thing to find and a way for that
+        // press to do nothing. A rider who does not want it simply does not
+        // put the action on a surface.
+        // The list used to be a button of its own under a gap, which put a
+        // lot of empty space between the section and the only thing in it that
+        // is not a control. It reads better as a link on the sentence that
+        // already explains the feature.
+        var vocabularyOpen by remember { mutableStateOf(false) }
+        // No spacers between these. The section column already puts 8dp
+        // between its children, and a Spacer is another child, so the 6dp I
+        // added made it 22 and the two paragraphs read as unrelated.
+        //
+        // The link lives in the first paragraph, next to the sentence that
+        // sends a rider looking for a button: what they can say is the next
+        // thing they will want, and a paragraph of its own to hold one link
+        // was a paragraph earning nothing.
+        val linkColor = MaterialTheme.appColors.primary
+        val vocabularyLabel = stringResource(R.string.voice_command_vocabulary)
+        // Resolved here rather than inside the preview lambdas: a lambda that
+        // runs on a click is not a composition, so stringResource cannot be
+        // called from one.
+        val listeningWord = stringResource(R.string.voice_cue_listening)
+        val unknownSample = stringResource(
+            R.string.voice_answer_unknown,
+            stringResource(R.string.voice_command_vocabulary),
+        )
+        val introText = stringResource(R.string.voice_commands_enable_desc)
+        Text(
+            buildAnnotatedString {
+                append(introText)
+                append(" ")
+                // Only the link is tappable: LinkAnnotation scopes the tap to
+                // its own span, so the explanation around it stays text.
+                withLink(
+                    LinkAnnotation.Clickable(
+                        tag = "vocabulary",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = linkColor,
+                                textDecoration = TextDecoration.Underline,
+                            )
+                        ),
+                    ) { vocabularyOpen = true }
+                ) { append(vocabularyLabel) }
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.appColors.textSecondary,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        HintText(stringResource(R.string.voice_commands_bind_desc))
+
+        // The permission, offered here rather than only discovered by pressing
+        // a button and being turned down. Re-read on resume: the rider grants
+        // it outside the app and comes back, so a value captured once would be
+        // stale exactly when it matters. Same shape as the phone HUD section.
+        val micCtx = androidx.compose.ui.platform.LocalContext.current
+        var micGranted by remember {
+            mutableStateOf(
+                androidx.core.content.ContextCompat.checkSelfPermission(
+                    micCtx, android.Manifest.permission.RECORD_AUDIO
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            )
+        }
+        val micLifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current
+        androidx.compose.runtime.DisposableEffect(micLifecycle) {
+            val obs = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                    micGranted = androidx.core.content.ContextCompat.checkSelfPermission(
+                        micCtx, android.Manifest.permission.RECORD_AUDIO
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                }
+            }
+            micLifecycle.lifecycle.addObserver(obs)
+            onDispose { micLifecycle.lifecycle.removeObserver(obs) }
+        }
+        val micLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+        ) { granted -> micGranted = granted }
+        if (!micGranted) {
+            // No line of explanation above it: the button says what it does,
+            // and the paragraph above already says the feature needs a
+            // microphone.
+            com.eried.eucplanet.ui.common.FixButton(
+                text = stringResource(R.string.voice_mic_grant),
+                onClick = { micLauncher.launch(android.Manifest.permission.RECORD_AUDIO) },
+            )
+        }
+        // The cue, and the way out of it. A rider on a headset that plays its
+        // own tone when it opens the microphone has been hearing two of them,
+        // and the only way to stop ours was to stop using the feature.
+        SegmentedChoice(
+            label = stringResource(R.string.voice_prompt_cue),
+            options = listOf(
+                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_BEEP to stringResource(R.string.voice_cue_beep),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_VOICE to stringResource(R.string.voice_cue_spoken),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_NONE to stringResource(R.string.voice_cue_off),
+            ),
+            current = settings.voiceCommands.promptCue,
+            // Rule 10, without a button: choosing an option plays that
+            // option, so what a rider hears is always what they just picked.
+            // Tapping the one already selected plays it again.
+            onChange = { viewModel.updateVoicePromptCue(it, listeningWord) },
+        )
+        HintText(stringResource(R.string.voice_prompt_cue_desc))
+
+        SegmentedChoice(
+            label = stringResource(R.string.voice_unknown_cue),
+            options = listOf(
+                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_MESSAGE to stringResource(R.string.voice_unknown_message),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_BEEP to stringResource(R.string.voice_cue_beep),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_NONE to stringResource(R.string.voice_cue_off),
+            ),
+            current = settings.voiceCommands.unknownCue,
+            onChange = { viewModel.updateVoiceUnknownCue(it, unknownSample) },
+        )
+
+        // The language the rider speaks, which is not always the language the
+        // app is in and not always the one it answers in. Blank follows the
+        // speaking voice, which is what almost everyone wants and what the
+        // feature used to assume without saying so.
+        VoiceCommandLanguagePicker(
+            current = settings.voiceCommands.recognitionLocale,
+            onSelected = { viewModel.updateVoiceRecognitionLocale(it) },
+        )
+        HintText(stringResource(R.string.voice_recognition_desc))
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.voice_headset_button),
+            description = stringResource(R.string.voice_headset_button_desc),
+            checked = settings.voiceCommands.headsetButton,
+            onCheckedChange = { viewModel.updateVoiceHeadsetButton(it) },
+        )
+
+        if (vocabularyOpen) {
+            VoiceVocabularyDialog(
+                onDismiss = { vocabularyOpen = false },
+                languageTag = settings.voiceCommands.recognitionLocale
+                    .ifBlank { settings.voiceLocale },
+            )
+        }
+        run {
+            // No spacer: SegmentedChoice already pads itself top and bottom,
+            // and adding eight more put this row seventeen pixels down while
+            // every other row in Settings sits at nine.
+            Spacer(Modifier.height(8.dp))
+        }
+
         // Report status: the periodic-report enable + when/interval, then the
         // draggable per-metric Periodic/Trigger matrix, all tucked into a
         // collapsible so the long list no longer dominates the tab.
@@ -7117,11 +7417,34 @@ private fun VoiceTab(
             android.text.format.DateFormat.getTimeFormat(ctx).format(java.util.Date())
         )
 
-        val reportKeys = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Distance", "Recording", "Time", "Navigation")
+        // The plan's own list, so a report added to the registry appears here
+        // without a second list to remember. It used to be written out again
+        // by hand and was already two items short of the truth.
+        val reportKeys = com.eried.eucplanet.service.VoiceReportPlan.KNOWN
         val savedReportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
         // Append known items missing from the saved order (e.g. PhoneBattery) so they
         // show in the list and preview even before the rider reorders.
         val reportOrder = savedReportOrder + reportKeys.filter { it !in savedReportOrder }
+
+        val liveData by viewModel.wheelData.collectAsState()
+        val metricCtx = androidx.compose.ui.platform.LocalContext.current
+        fun extraSample(spec: com.eried.eucplanet.service.VoiceReportPlan.MetricReport): String? {
+            val raw = spec.read(liveData)
+            if (raw.isNaN() || (spec.blankAtZero && raw == 0f)) return null
+            val metric = com.eried.eucplanet.data.model.MetricCatalog.all
+                .first { it.key == spec.metricKey }
+            val value = com.eried.eucplanet.data.model.MetricValueFormat.format(
+                key = spec.metricKey,
+                raw = raw,
+                speedUnit = Units.effectiveSpeedUnit(settings),
+                speedUnitLabel = Units.speedUnit(metricCtx, Units.effectiveSpeedUnit(settings)),
+                tempUnit = Units.effectiveTempUnit(settings),
+                tempUnitLabel = Units.tempUnit(Units.effectiveTempUnit(settings)),
+                distanceUnit = Units.effectiveDistanceUnit(settings),
+                pressureUnit = Units.effectivePressureUnit(settings),
+            )
+            return metricCtx.getString(metric.spokenLabelRes ?: metric.labelRes) + ", " + value
+        }
 
         fun exampleFor(key: String): String? = when (key) {
             "Speed" -> sSpeedEx
@@ -7140,6 +7463,11 @@ private fun VoiceTab(
 
         fun buildPreview(periodic: Boolean): String {
             val parts = reportOrder.mapNotNull { key ->
+                com.eried.eucplanet.service.VoiceReportPlan.extra(key)?.let { spec ->
+                    return@mapNotNull if (spec.get(settings.voiceReports, periodic)) {
+                        extraSample(spec)
+                    } else null
+                }
                 val enabled = if (periodic) when (key) {
                     "Speed" -> settings.voiceReportSpeed
                     "Battery" -> settings.voiceReportBattery
@@ -7193,8 +7521,9 @@ private fun VoiceTab(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = settings.voiceIntervalSeconds,
+                    default = SETTINGS_DEFAULTS.voiceIntervalSeconds,
                     onValueChange = {
                         viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300))
                     },
@@ -7303,10 +7632,41 @@ private fun VoiceTab(
                 navSample)
         )
 
+        // The catalog-backed reports, built rather than written out: name from
+        // the metric catalog (already translated), value through the same
+        // formatter the tile uses, both toggles through one view-model method.
+        val extraItems = com.eried.eucplanet.service.VoiceReportPlan.EXTRA.associate { spec ->
+            val metric = com.eried.eucplanet.data.model.MetricCatalog.all
+                .first { it.key == spec.metricKey }
+            spec.key to ReportItemConfig(
+                key = spec.key,
+                // The tile's name, not the spoken one. "Battery (est)" is
+                // what the rider reads on the dashboard and what they are
+                // looking for in this list; "Estimated battery" exists so the
+                // voice does not have to say "est" out loud, which is a
+                // different job and a longer word.
+                label = stringResource(metric.labelRes),
+                periodicChecked = spec.get(settings.voiceReports, true),
+                onPeriodicChange = { viewModel.updateVoiceReportExtra(spec.key, true, it) },
+                triggerChecked = spec.get(settings.voiceReports, false),
+                onTriggerChange = { viewModel.updateVoiceReportExtra(spec.key, false, it) },
+                // Rule 10: the preview speaks the rider's own wheel, and says
+                // so honestly when it has nothing to read yet.
+                // Nothing from the wheel yet is itself the honest preview:
+                // "No estimated battery yet" is what a rider asking right now
+                // would actually hear.
+                testText = extraSample(spec) ?: metricCtx.getString(
+                    R.string.voice_answer_nodata,
+                    stringResource(metric.spokenLabelRes ?: metric.labelRes),
+                ),
+            )
+        }
+        val everyItem = allItems + extraItems
+
         // Existing users may have a saved order that predates new report items (e.g. "Time").
         // Append any known items missing from the saved order so they still appear.
-        val orderedItems = (reportOrder.mapNotNull { allItems[it] } +
-            allItems.filterKeys { it !in reportOrder }.values).toList()
+        val orderedItems = (reportOrder.mapNotNull { everyItem[it] } +
+            everyItem.filterKeys { it !in reportOrder }.values).toList()
 
         val haptic = LocalHapticFeedback.current
         ReorderableColumn(
@@ -7386,8 +7746,9 @@ private fun VoiceTab(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = accel.minSpeed,
+                    default = SETTINGS_DEFAULTS.accelSplit.minSpeed,
                     onValueChange = { viewModel.updateAccelSplitMinSpeed(it) },
                     range = 0..200,
                     step = 5,
@@ -7395,8 +7756,9 @@ private fun VoiceTab(
                     label = stringResource(R.string.accel_splits_from),
                     modifier = Modifier.weight(1f),
                 )
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = accel.increment,
+                    default = SETTINGS_DEFAULTS.accelSplit.increment,
                     onValueChange = { viewModel.updateAccelSplitIncrement(it) },
                     range = 1..50,
                     step = 1,
@@ -7414,14 +7776,22 @@ private fun VoiceTab(
             }
         }
         // What the session has recorded so far, and the way to clear it.
-        // Shown whether the splits are on or off: switching them off pauses
-        // and keeps these, so a rider can see what they are still racing.
+        //
+        // Switching the splits off from the tile is a pause, so times survive
+        // it and stay on show: a rider who paused is still racing them. The
+        // settings switch is a different kind of off, and with nothing
+        // recorded this block was telling a rider with the feature disabled
+        // to "ride through a step to record one", which is an instruction
+        // that cannot work. Times that do exist stay visible either way, so
+        // disabling never hides a real number or the Reset that clears it.
         val splitSession by viewModel.splitSession.collectAsState()
-        SplitSessionBlock(
-            session = splitSession,
-            unit = accelUnit,
-            onReset = { viewModel.resetSplits() },
-        )
+        if (accel.enabled || !splitSession.isEmpty) {
+            SplitSessionBlock(
+                session = splitSession,
+                unit = accelUnit,
+                onReset = { viewModel.resetSplits() },
+            )
+        }
     }
 }
 
@@ -9233,7 +9603,18 @@ private fun ReportRow(
         )
         Spacer(Modifier.width(6.dp))
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
+            // The label yields, the play button does not. Without the weight
+            // the text took its full intrinsic width and left the button the
+            // remainder: "Estimated battery" squeezed it from 126px to 69 and
+            // the glyph inside it from 37 to 12, which is a preview a rider
+            // cannot see, let alone hit.
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
             Spacer(Modifier.width(6.dp))
             PlayButton(onClick = onTest)
         }
@@ -9343,6 +9724,8 @@ internal fun SpeedNumberSetting(
     valueKmh: Float,
     rangeKmh: ClosedFloatingPointRange<Float>,
     speedUnit: String,
+    /** The shipped value, shown as the restore chip in the rider's own unit. */
+    defaultKmh: Float,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
     onValueChangeKmh: (Float) -> Unit
@@ -9356,18 +9739,28 @@ internal fun SpeedNumberSetting(
     val displayEnd = if (displayEndRaw < displayStart) displayStart else displayEndRaw
     val displayValue = Units.speed(valueKmh, speedUnit).roundToInt()
         .coerceIn(displayStart, displayEnd)
-    NumberUpDown(
-        value = displayValue,
-        onValueChange = { displayed ->
-            val kmh = Units.speedToKmh(displayed.toFloat(), speedUnit)
-            onValueChangeKmh(kmh.coerceIn(rangeKmh))
-        },
-        range = displayStart..displayEnd,
-        suffix = Units.speedUnit(LocalContext.current, speedUnit),
-        label = label,
-        enabled = enabled,
-        modifier = modifier,
-    )
+    val unitLabel = Units.speedUnit(LocalContext.current, speedUnit)
+    // The chip speaks the rider's unit too: a default of 25 km/h has to read
+    // as 16 mph to somebody riding in mph, or it is not their default.
+    val displayDefault = Units.speed(defaultKmh, speedUnit).roundToInt()
+    Column(modifier = modifier) {
+        NumberUpDown(
+            value = displayValue,
+            onValueChange = { displayed ->
+                val kmh = Units.speedToKmh(displayed.toFloat(), speedUnit)
+                onValueChangeKmh(kmh.coerceIn(rangeKmh))
+            },
+            range = displayStart..displayEnd,
+            suffix = unitLabel,
+            label = label,
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        RestoreChip(
+            text = "$displayDefault $unitLabel",
+            enabled = enabled && displayValue != displayDefault,
+        ) { onValueChangeKmh(defaultKmh.coerceIn(rangeKmh)) }
+    }
 }
 
 @Composable
@@ -10072,6 +10465,65 @@ private fun EngineTypePicker(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The language a rider speaks commands in.
+ *
+ * Only the shipped languages, not everything the recogniser can transcribe.
+ * The command words are themselves translated strings, so offering a language
+ * with no translation would leave the recogniser listening in Greek for words
+ * that only exist in English: the same mismatch this setting exists to end,
+ * moved somewhere new rather than fixed.
+ *
+ * Blank is the first entry and the default: follow the speaking voice, so a
+ * rider who never opens this is understood and answered in one language.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VoiceCommandLanguagePicker(
+    current: String,
+    onSelected: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val followLabel = stringResource(R.string.voice_recognition_follow)
+    val normalized = current.replace('-', '_')
+    val displayText = com.eried.eucplanet.util.LocaleHelper.SUPPORTED
+        .firstOrNull { it.tag.replace('-', '_') == normalized }?.nativeName ?: followLabel
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = displayText,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.voice_recognition_language)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
+        ) {
+            DropdownMenuItem(
+                text = { Text(followLabel) },
+                onClick = { onSelected(""); expanded = false }
+            )
+            com.eried.eucplanet.util.LocaleHelper.SUPPORTED.forEach { lang ->
+                DropdownMenuItem(
+                    text = { Text(lang.nativeName) },
+                    onClick = { onSelected(lang.tag); expanded = false }
+                )
             }
         }
     }

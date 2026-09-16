@@ -102,6 +102,166 @@ class TonePlayer @Inject constructor() {
      * and no silent gaps, instead of a flat constant tone or a string of separate
      * beeps. The sine phase runs continuously across contiguous tones.
      */
+    /**
+     * Several notes in a single buffer.
+     *
+     * One AudioTrack for the whole figure, not one per note. Two playBeep
+     * calls back to back is two starts and two stops, and the amp transient in
+     * the seam between them is louder than the notes at these frequencies.
+     * Each note gets its own short raised-cosine ramp, and the gaps are
+     * silence inside the same buffer, so there is no seam to click.
+     *
+     * @param notes    frequency in hertz to duration in milliseconds, in order
+     * @param gapMs    silence between notes
+     * @param leadPadMs silence before the first note. The listening cue needs
+     *   a long one: the recogniser has just opened the microphone, which moves
+     *   the device into a communication audio mode, and a tone started into
+     *   that switch arrives with the switch audible underneath it.
+     */
+    /**
+     * Queue one finished buffer and wait for it to actually play out.
+     *
+     * Shared by the beep and the note figure. The stop and release are in a
+     * finally for a reason that is safety critical rather than tidy: a leaked
+     * AudioTrack accumulates until every later build fails, and what fails
+     * then is the alarms.
+     */
+    private fun playSamples(samples: ShortArray, totalN: Int, what: String) {
+        val minBuf = AudioTrack.getMinBufferSize(
+            sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
+        )
+        val track = try {
+            AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setSampleRate(sampleRate)
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                .setBufferSizeInBytes(maxOf(minBuf, samples.size * 2))
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .build()
+        } catch (e: Exception) {
+            Log.e(TAG, "$what: AudioTrack build failed", e)
+            return
+        }
+        try {
+            track.write(samples, 0, samples.size)
+            track.play()
+            val playMs = totalN.toLong() * 1000 / sampleRate
+            val capNs = System.nanoTime() + (playMs + 2000L) * 1_000_000L
+            while (track.playbackHeadPosition < totalN &&
+                track.playState == AudioTrack.PLAYSTATE_PLAYING &&
+                System.nanoTime() < capNs
+            ) {
+                Thread.sleep(10)
+            }
+            Thread.sleep(30)
+        } catch (e: Exception) {
+            Log.e(TAG, "$what: playback failed", e)
+        } finally {
+            runCatching { track.stop() }
+            runCatching { track.release() }
+        }
+    }
+
+    suspend fun playNotes(
+        notes: List<Pair<Int, Int>>,
+        gapMs: Int = 40,
+        leadPadMs: Int = 30,
+        volumePct: Int = 100,
+    ) {
+        if (notes.isEmpty()) return
+        withContext(Dispatchers.IO) {
+            val leadPadN = sampleRate * leadPadMs.coerceAtLeast(0) / 1000
+            val tailPadN = sampleRate * 12 / 1000
+            val gapN = sampleRate * gapMs.coerceAtLeast(0) / 1000
+            val noteN = notes.map { (_, ms) -> (sampleRate.toLong() * ms / 1000).toInt() }
+            if (noteN.any { it <= 0 }) return@withContext
+            val bodyN = leadPadN + noteN.sum() + gapN * (notes.size - 1) + tailPadN
+            val minBuf = AudioTrack.getMinBufferSize(
+                sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
+            )
+            val minFrames = if (minBuf > 0) minBuf / 2 else 0
+            val totalN = maxOf(bodyN, minFrames)
+            val samples = ShortArray(totalN)
+            val gain = 0.8 * (volumePct.coerceIn(0, 100) / 100.0)
+
+            var w = leadPadN
+            for ((index, note) in notes.withIndex()) {
+                val (hz, _) = note
+                val n = noteN[index]
+                // A quarter of the note, capped, so short notes still ramp and
+                // long ones are not all ramp.
+                val edge = (n / 4).coerceIn(1, maxOf(1, sampleRate * 12 / 1000))
+                var phase = 0.0
+                val inc = hz.toDouble() / sampleRate
+                for (i in 0 until n) {
+                    val ramp = minOf(
+                        if (i < edge) i.toDouble() / edge else 1.0,
+                        if (i >= n - edge) (n - i).toDouble() / edge else 1.0
+                    )
+                    val env = 0.5 - 0.5 * cos(Math.PI * ramp)
+                    samples[w++] = (sin(2.0 * Math.PI * phase) * env * gain * Short.MAX_VALUE)
+                        .toInt().toShort()
+                    phase += inc
+                    if (phase >= 1.0) phase -= 1.0
+                }
+                if (index < notes.size - 1) w += gapN
+            }
+            playSamples(samples, totalN, "notes")
+        }
+    }
+
+    /**
+     * The cue that the microphone is open: two quick notes going up.
+     *
+     * Rising and quick reads as an invitation. Nothing a wheel does sounds
+     * like it, which matters: a single flat beep is easy to take for the wheel
+     * warning about something.
+     */
+    suspend fun playPrompt() {
+        playNotes(listOf(780 to 70, 1040 to 80), gapMs = 45, leadPadMs = 160)
+    }
+
+    /**
+     * The cue that it has stopped listening: the same two notes, going down.
+     *
+     * The mirror of the prompt on purpose. A rider who has learned one has
+     * learned the other, and a window that closes silently is the app going
+     * quiet in a way that cannot be told from it still listening.
+     */
+    suspend fun playEndPrompt() {
+        playNotes(listOf(1040 to 70, 780 to 80), gapMs = 45, leadPadMs = 20, volumePct = 75)
+    }
+
+    /**
+     * The cue that nothing matched: two low notes, the second lower still.
+     *
+     * Deliberately below both the opening and closing chirps and slower than
+     * either. A rider learns three sounds here at most, so they have to be
+     * told apart at speed with wind noise over them, and pitch carries
+     * further than rhythm. Down-and-down reads as a refusal in a way that a
+     * single flat note does not.
+     */
+    suspend fun playErrorPrompt() {
+        // 160ms of lead silence, the same as the opening chirp and for the
+        // same reason: the track's first samples arrive while it is still
+        // warming up and the route may still be switching, and whatever is
+        // written into that window is heard as a scratch. This one needs it
+        // more than the chirps do, not less, because 420Hz is a long
+        // wavelength and a clipped start on a low note is far more audible
+        // than on a high one.
+        playNotes(listOf(420 to 110, 310 to 150), gapMs = 30, leadPadMs = 160, volumePct = 85)
+    }
+
     suspend fun playBeep(
         frequencyHz: Int,
         durationMs: Int,
@@ -111,6 +271,25 @@ class TonePlayer @Inject constructor() {
         transitionMs: Int = -1,
         waveform: Int = 0,
         effect: Int = 0,
+        /**
+         * Sweep to this frequency across the run, 0 for a steady tone.
+         *
+         * A rising cue used to be two playBeep calls back to back, which is
+         * two AudioTracks, two starts and two stops: the seam between them
+         * clicked, and at low frequencies the click is the loudest part of the
+         * sound. One buffer that changes pitch has no seam.
+         */
+        glideToHz: Int = 0,
+        /**
+         * Silence written before the tone, milliseconds.
+         *
+         * Thirty is enough for a beep on a settled route. The listening cue is
+         * not on a settled route: the recogniser has just opened the
+         * microphone, which moves the device into a communication audio mode,
+         * and a tone started into that transition arrives with the switch
+         * still audible under it.
+         */
+        leadPadMs: Int = 30,
     ) {
         if (count <= 0 || durationMs <= 0) return
         Log.d(TAG, "playBeep freq=$frequencyHz dur=$durationMs count=$count gap=$gapMs vol=$volumePct")
@@ -129,7 +308,7 @@ class TonePlayer @Inject constructor() {
             // Lead-in silence so the audio route/amp power-up transient (a start-of-
             // playback pop) settles in silence before the tone ramps in; a small tail
             // pad drains cleanly before stop().
-            val leadPadN = sampleRate * 30 / 1000
+            val leadPadN = sampleRate * leadPadMs.coerceAtLeast(0) / 1000
             val tailPadN = sampleRate * 12 / 1000
             val bodyN = leadPadN + runN * runCount + gapN * (runCount - 1).coerceAtLeast(0) + tailPadN
             // MODE_STREAM only begins playing once the written frames reach its start
@@ -156,6 +335,7 @@ class TonePlayer @Inject constructor() {
 
             var w = leadPadN  // write cursor; leading silence pad already skipped
             val inc = frequencyHz.toDouble() / sampleRate
+            val glideEnd = if (glideToHz > 0) glideToHz.toDouble() else frequencyHz.toDouble()
             var phase = 0.0       // carrier phase in cycles; continuous within a run
             var modPhase = 0.0    // FM modulator phase (runs at 2x carrier)
             val fx = Fx()
@@ -168,10 +348,18 @@ class TonePlayer @Inject constructor() {
                         if (i >= runN - edge) (runN - i).toDouble() / edge else 1.0
                     )
                     val env = 0.5 - 0.5 * cos(Math.PI * ramp)
-                    val osc = applyFx(effect, waveSample(waveform, phase, modPhase), frequencyHz.toDouble(), fx)
+                    // Steady unless gliding, in which case the frequency walks
+                    // from one end to the other across the run.
+                    val freqNow = if (glideToHz > 0) {
+                        frequencyHz + (glideEnd - frequencyHz) * (i.toDouble() / runN)
+                    } else {
+                        frequencyHz.toDouble()
+                    }
+                    val incNow = if (glideToHz > 0) freqNow / sampleRate else inc
+                    val osc = applyFx(effect, waveSample(waveform, phase, modPhase), freqNow, fx)
                     samples[w++] = (osc * env * gain * Short.MAX_VALUE).toInt().toShort()
-                    phase += inc; if (phase >= 1.0) phase -= 1.0
-                    modPhase += 2.0 * inc; if (modPhase >= 1.0) modPhase -= 1.0
+                    phase += incNow; if (phase >= 1.0) phase -= 1.0
+                    modPhase += 2.0 * incNow; if (modPhase >= 1.0) modPhase -= 1.0
                 }
                 if (b < runCount - 1 && gapN > 0) {
                     w += gapN   // leave zeros (silence); restart phase + effect state after the gap
@@ -180,56 +368,7 @@ class TonePlayer @Inject constructor() {
                 }
             }
 
-            val track = try {
-                AudioTrack.Builder()
-                    .setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .build()
-                    )
-                    .setAudioFormat(
-                        AudioFormat.Builder()
-                            .setSampleRate(sampleRate)
-                            .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                            .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                            .build()
-                    )
-                    // Whole buffer fits, so write() queues it once; MODE_STREAM drains
-                    // gracefully on stop() (unlike MODE_STATIC which halts the track dead).
-                    .setBufferSizeInBytes(maxOf(minBuf, samples.size * 2))
-                    .setTransferMode(AudioTrack.MODE_STREAM)
-                    .build()
-            } catch (e: Exception) {
-                // Build can fail under audio-resource pressure. Log and bail rather than
-                // crash the coroutine silently.
-                Log.e(TAG, "playBeep: AudioTrack build failed (freq=$frequencyHz dur=$durationMs)", e)
-                return@withContext
-            }
-
-            // ALWAYS stop+release, even if write/play/poll throws, so a failed beep can
-            // never leak a system AudioTrack. Leaks accumulate until every later build()
-            // fails -- i.e. alarms silently go dead. This is the safety-critical bit.
-            try {
-                track.write(samples, 0, samples.size)
-                track.play()
-                val playMs = totalN.toLong() * 1000 / sampleRate
-                // Wait for the frames to actually PLAY OUT (BT adds ~100-200ms), with a
-                // hard cap so a stalled route can't hang the coroutine.
-                val capNs = System.nanoTime() + (playMs + 2000L) * 1_000_000L
-                while (track.playbackHeadPosition < totalN &&
-                    track.playState == AudioTrack.PLAYSTATE_PLAYING &&
-                    System.nanoTime() < capNs
-                ) {
-                    Thread.sleep(10)
-                }
-                Thread.sleep(30)   // small drain margin after the last frame
-            } catch (e: Exception) {
-                Log.e(TAG, "playBeep: playback failed (freq=$frequencyHz)", e)
-            } finally {
-                runCatching { track.stop() }
-                runCatching { track.release() }
-            }
+            playSamples(samples, totalN, "beep")
         }
     }
 

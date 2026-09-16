@@ -110,6 +110,8 @@ class SettingsViewModel @Inject constructor(
     private val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository,
     val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
     private val voiceService: VoiceService,
+    private val tonePlayer: com.eried.eucplanet.service.TonePlayer,
+    private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
     private val automationManager: AutomationManager,
@@ -246,6 +248,17 @@ class SettingsViewModel @Inject constructor(
         .map { it.rssiDbm }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+
+    /**
+     * The live packet, for the report previews.
+     *
+     * Rule 10: the play button beside a report row speaks the rider's own
+     * wheel, not an invented number. The catalog-backed reports have no
+     * hand-written example sentence to fall back on, so they read the same
+     * values the tiles do.
+     */
+    val wheelData: StateFlow<com.eried.eucplanet.data.model.WheelData> =
+        wheelRepository.wheelData
 
     /**
      * Unified view of every paired companion device - Wear OS + Garmin - 
@@ -796,7 +809,74 @@ class SettingsViewModel @Inject constructor(
     fun updateAnnounceSafetyMode(v: Boolean) = update { copy(announceSafetyMode = v) }
     fun updateAnnounceWelcome(v: Boolean) = update { copy(announceWelcome = v) }
 
+    /**
+     * Pick a cue and hear it, because picking is the only reason to be here.
+     *
+     * The row used to carry a small play button beside its label. It was a
+     * second thing to find and press for something the choice itself can
+     * answer, and a rider comparing three options wants to hear each as they
+     * touch it rather than choose blind and then hunt for a button.
+     *
+     * The chosen value is played, not the stored one: the write is
+     * asynchronous, so reading the setting back here would play whatever was
+     * selected a moment ago.
+     */
+    fun updateVoicePromptCue(v: String, spokenWord: String) {
+        update { copy(voiceCommands = voiceCommands.copy(promptCue = v)) }
+        viewModelScope.launch {
+            when (v) {
+                // The opening note only. The falling one means "the window
+                // closed", which is a thing a session says and this is not a
+                // session: back to back here they just sound like one longer
+                // cue that is not the one being chosen.
+                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_BEEP -> tonePlayer.playPrompt()
+                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_VOICE -> {
+                    val s = settingsRepository.get()
+                    voiceService.testSpeak(spokenWord, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
+                }
+                else -> {}
+            }
+        }
+    }
+
+    /** The same, for what a rider hears when nothing matched. */
+    fun updateVoiceUnknownCue(v: String, sentence: String) {
+        update { copy(voiceCommands = voiceCommands.copy(unknownCue = v)) }
+        viewModelScope.launch {
+            when (v) {
+                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_MESSAGE -> {
+                    val s = settingsRepository.get()
+                    voiceService.testSpeak(sentence, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
+                }
+                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_BEEP -> tonePlayer.playErrorPrompt()
+                else -> {}
+            }
+        }
+    }
+
+    fun updateVoiceRecognitionLocale(v: String) =
+        update { copy(voiceCommands = voiceCommands.copy(recognitionLocale = v)) }
+
+    fun updateVoiceHeadsetButton(v: Boolean) =
+        update { copy(voiceCommands = voiceCommands.copy(headsetButton = v)) }
+
+    /**
+     * Switch one catalog-backed report on or off.
+     *
+     * One method for all of them, rather than the two-per-report pattern the
+     * hand-written eleven use. Twenty-two more named methods to add five
+     * reports is the boilerplate the registry exists to stop.
+     */
+    fun updateVoiceReportExtra(key: String, periodic: Boolean, on: Boolean) {
+        val spec = com.eried.eucplanet.service.VoiceReportPlan.extra(key) ?: return
+        update { copy(voiceReports = spec.set(voiceReports, periodic, on)) }
+    }
+
     fun updateVoiceReportOrder(order: String) = update { copy(voiceReportOrder = order) }
+
+    // Voice commands. The window and the prompt are clamped in
+    // SettingsRepository.sanitized(), so a synced file cannot leave the
+    // segmented row with nothing selected.
 
     // Measurement units: speed, distance and temperature are independently
     // selectable. Metric/Imperial/Custom is a derived label (see Units.unitSystemOf).

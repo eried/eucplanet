@@ -81,6 +81,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         15..360, 15, unit = "min", get = { it.pendingUploadIntervalMin }, set = { s, v -> s.copy(pendingUploadIntervalMin = v) }),
     AdvancedSpec("tripFinalizeGraceMs", AdvGroup.RATES, R.string.adv_trip_finalize_grace, R.string.adv_trip_finalize_grace_desc,
         5000..60000, 1000, get = { it.tripFinalizeGraceMs }, set = { s, v -> s.copy(tripFinalizeGraceMs = v) }),
+    AdvancedSpec("voiceListenWindowSec", AdvGroup.CONTROLS, R.string.adv_voice_listen_window, R.string.adv_voice_listen_window_desc,
+        3..30, 1, unit = "s", get = { it.voiceListenWindowSec }, set = { s, v -> s.copy(voiceListenWindowSec = v) }),
     AdvancedSpec("lockMaxSpeedKmh", AdvGroup.CONTROLS, R.string.adv_lock_max_speed, R.string.adv_lock_max_speed_desc,
         0..20, 1, unit = "km/h", get = { it.lockMaxSpeedKmh }, set = { s, v -> s.copy(lockMaxSpeedKmh = v) }),
     AdvancedSpec("phoneGpsIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_interval, R.string.adv_phone_gps_interval_desc,

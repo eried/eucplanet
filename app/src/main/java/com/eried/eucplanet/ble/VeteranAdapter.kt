@@ -42,6 +42,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var detectedModel: VeteranModel? = null
     @Volatile private var controlProfile = VeteranControlProfile.forModel(null)
     private var pendingLightProfile: VeteranControlProfile? = null
+    @Volatile private var alarmCommandModel: VeteranModel? = null
 
     override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
 
@@ -52,6 +53,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { VeteranModel.fromReportedName(it) }
         controlProfile = VeteranControlProfile.forModel(detectedModel)
+        alarmCommandModel = detectedModel
         return null
     }
 
@@ -130,7 +132,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         VeteranCommands.setTiltbackSpeed(tiltbackKmh.toInt())
 
     override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray =
-        VeteranCommands.setAlarmSpeed(alarmKmh.toInt())
+        VeteranCommands.setAlarmSpeed(alarmKmh.toInt(), alarmCommandModel)
 
     // No volume, no DRL on this family.
     override fun setVolume(percent: Int): ByteArray? = null
@@ -262,10 +264,12 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             val isStandardTelemetry =
                 f.bytes.size > 3 && f.bytes[3] != 0x5f.toByte()
             // Generic BLE names (e.g. NF7445) do not identify the wheel. Select
-            // commands from the model in a reassembled telemetry frame as well.
+            // commands from the model in a reassembled telemetry frame as well:
+            // the light profile (PR #20) and the alarm-speed packet (PR #22).
             if (isStandardTelemetry) {
                 VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes))?.let {
                     controlProfile = VeteranControlProfile.forModel(it)
+                    alarmCommandModel = it
                 }
             }
             val telem = if (isStandardTelemetry)
@@ -341,6 +345,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         detectedModel = null
         controlProfile = VeteranControlProfile.forModel(null)
         pendingLightProfile = null
+        alarmCommandModel = null
         lastOryxBatterySoc = -1
         emittedModel = false
         // A wheel reboot loses light state on the wheel side, so the rider's
