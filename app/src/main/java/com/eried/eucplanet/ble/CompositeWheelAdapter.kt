@@ -42,12 +42,14 @@ internal fun wheelFamilyForName(deviceName: String?): WheelFamily {
     }
 }
 
-/** V1 protocol family detector: the pre-V11 V-series (V3/V5/V6/V8/V10 and the
- *  odd/rare low numbers), L6, Glide, Lively, IM<digits>. The V-series protocol
- *  boundary is V11: V11+ speak V2 and must stay there. Matching an explicit
- *  {3,5,8,10} list silently mis-routed anything else (e.g. a `V6-800679D7`
- *  advertising wheel) to the V2 default, which connects but decodes no stats.
- *  Pure; takes a lowercased name. */
+/** V1 protocol family detector: the V-series that shipped with the V1 wire
+ *  format (V3, V5, V8, V10 and their F/S variants), L6, Glide, Lively,
+ *  IM<digits>. The number alone is not the boundary: the V6 (2025) and the
+ *  V9 (2024) are newer than the V14 and talk over Nordic UART like every V2
+ *  wheel. Routing them here once (any number below 11) sent the V6 to an
+ *  adapter whose 0xFFE0 service it does not have; the service reroute
+ *  bounced it back to V2 and the wheel stayed silent for a different
+ *  reason, the command dialect. Pure; takes a lowercased name. */
 internal fun isV1WheelName(n: String): Boolean {
     if (n.startsWith("l6") || n.startsWith("lively") || n.startsWith("glide") ||
         n.startsWith("solowheel")) return true
@@ -59,8 +61,9 @@ internal fun isV1WheelName(n: String): Boolean {
         var i = 1
         while (i < stripped.length && stripped[i].isDigit()) i++
         val digits = stripped.substring(1, i).toIntOrNull() ?: return false
-        // Pre-V11 V-series is the V1 wire format; V11+ is V2.
-        return digits in 1..10
+        // Only the numbers that ever shipped on the V1 wire format. Anything
+        // else (V6, V9, V11 and up, numbers that do not exist) is V2.
+        return digits == 3 || digits == 5 || digits == 8 || digits == 10
     }
     return false
 }

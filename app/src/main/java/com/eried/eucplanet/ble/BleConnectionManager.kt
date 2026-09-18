@@ -187,6 +187,21 @@ class BleConnectionManager @Inject constructor(
     private var currentAddress: String? = null
     /** BLE advertised name from the most recent connect call, kept across reconnects. */
     private var currentName: String? = null
+    /** The last name we connected with, kept across [disconnect] so the
+     *  "Disconnected" note can still say which wheel it was. The watchdog
+     *  releases the link before that callback lands, and a file that then
+     *  reads name=(unknown) sent us looking for a missing name that was
+     *  never missing. */
+    @Volatile private var lastConnectName: String? = null
+    private fun nameForLog(): String = currentName ?: lastConnectName ?: "(unknown)"
+
+    /** `0000ffe0-0000-1000-8000-00805f9b34fb` as `ffe0`, vendor UUIDs as their
+     *  first group, so a service list fits on one diagnostics line. */
+    private fun shortUuid(u: java.util.UUID): String {
+        val s = u.toString()
+        return if (s.startsWith("0000") && s.endsWith("-0000-1000-8000-00805f9b34fb")) s.substring(4, 8)
+        else s.substringBefore('-')
+    }
     private var shouldReconnect = true
 
     /**
@@ -482,9 +497,10 @@ class BleConnectionManager @Inject constructor(
         // Hold on to the name so the auto-reconnect path keeps the same hint;
         // otherwise a P6 that briefly drops would come back as an unknown wheel.
         currentName = name ?: currentName
+        lastConnectName = currentName ?: lastConnectName
         _connectedDeviceName.value = currentName
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-            "Connect requested: name=${currentName ?: "(unknown)"} address=$address"
+            "Connect requested: name=${nameForLog()} address=$address"
         )
         shouldReconnect = true
         _connectionState.value = ConnectionState.CONNECTING
@@ -627,6 +643,7 @@ class BleConnectionManager @Inject constructor(
         currentAddress = VirtualWheelRegistry.pseudoAddress(id)
         _connectedAddress.value = currentAddress
         currentName = wheel.bleName.takeIf { it.isNotEmpty() }
+        lastConnectName = currentName ?: lastConnectName
         _connectedDeviceName.value = "${wheel.displayName} (virtual)"
         shouldReconnect = false
         _connectionState.value = ConnectionState.CONNECTING
@@ -936,7 +953,7 @@ class BleConnectionManager @Inject constructor(
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     Log.i(TAG, "Disconnected from GATT (status=$status, shouldReconnect=$shouldReconnect)")
                     com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                        "Disconnected: name=${currentName ?: "(unknown)"} status=$status reconnect=$shouldReconnect"
+                        "Disconnected: name=${nameForLog()} status=$status reconnect=$shouldReconnect"
                     )
                     rxCharacteristic = null
                     writeReady = false
@@ -1031,14 +1048,25 @@ class BleConnectionManager @Inject constructor(
                 // as `RW` or similar). Ask the dispatcher to re-route based
                 // on the GATT-discovered service set, then retry.
                 val discoveredUuids = gatt.services.map { it.uuid }.toSet()
-                Log.w(TAG, "Adapter ${wheelAdapter.familyDisplayName} service ${profile.serviceUuid} not on wheel; " +
+                val before = wheelAdapter.familyDisplayName
+                Log.w(TAG, "Adapter $before service ${profile.serviceUuid} not on wheel; " +
                         "discovered services=$discoveredUuids - attempting fallback")
+                // Into the diagnostics file too: a wheel that lands on an
+                // adapter its name did not pick is the first thing to know
+                // when it then stays silent.
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "Adapter $before has no service on this wheel; discovered=" +
+                        discoveredUuids.joinToString(" ") { shortUuid(it) }
+                )
                 val rerouted = wheelAdapter.pickAdapterByDiscoveredServices(discoveredUuids, currentName)
                 if (rerouted) {
                     profile = wheelAdapter.bleProfile()
                     service = gatt.getService(profile.serviceUuid)
                     if (service != null) {
                         Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyDisplayName}")
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "Adapter rerouted by service to ${wheelAdapter.familyDisplayName}"
+                        )
                         _connectedBrand.value = wheelAdapter.brand
                     }
                 }
@@ -1138,7 +1166,7 @@ class BleConnectionManager @Inject constructor(
         private fun failConnectAndTeardown(gatt: BluetoothGatt, reason: String) {
             Log.e(TAG, "Connect failed: $reason")
             com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                "Connect failed: name=${currentName ?: "(unknown)"} reason=$reason"
+                "Connect failed: name=${nameForLog()} reason=$reason"
             )
             try { gatt.disconnect() } catch (_: Exception) {}
         }
@@ -1203,7 +1231,7 @@ class BleConnectionManager @Inject constructor(
         _connectionState.value = ConnectionState.CONNECTED
         Log.i(TAG, "Connected (adapter=${wheelAdapter.familyDisplayName})")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-            "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyDisplayName}"
+            "Connected: name=${nameForLog()} adapter=${wheelAdapter.familyDisplayName}"
         )
         // (InMotion V1 connection-priority request now happens at STATE_CONNECTED,
         // before service discovery, so the whole setup runs at the fast interval.)
@@ -1259,7 +1287,8 @@ class BleConnectionManager @Inject constructor(
             ) {
                 Log.w(TAG, "No telemetry ${NO_DATA_TIMEOUT_MS}ms after connect - releasing the phantom link")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "No telemetry after connect - releasing the link so the rider can power-cycle (no GATT churn)"
+                    "No telemetry ${NO_DATA_TIMEOUT_MS / 1000} s after connect (name=${nameForLog()} " +
+                        "adapter=${wheelAdapter.familyDisplayName}) - releasing the link so the rider can power-cycle (no GATT churn)"
                 )
                 appNotifier.post(context.getString(com.eried.eucplanet.R.string.wheel_no_data_reset))
                 disconnect()

@@ -55,6 +55,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             val n = deviceName?.lowercase() ?: return false
             return RX_P6_NAME.containsMatchIn(n)
         }
+
+        /** `v6` as its own token, the 2025 InMotion V6 (`V6-XXXXXXXX`). */
+        private val RX_V6_NAME = Regex("(^|[^a-z0-9])v6([^a-z0-9]|$)")
+
+        internal fun isV6NameForTest(deviceName: String?): Boolean {
+            val n = deviceName?.lowercase() ?: return false
+            return RX_V6_NAME.containsMatchIn(n)
+        }
     }
 
     /** Per-pack cells-query rotation index. V14 BMS has 4 packs at addresses
@@ -114,7 +122,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         // polled, and still decoded - as a V-series, at the wrong offsets. So
         // it is worth recording exactly what was decided and from what.
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-            "InMotion V2 connecting: name=${deviceName ?: "(none)"} p6=${isP6Name(deviceName)}"
+            "InMotion V2 connecting: name=${deviceName ?: "(none)"} p6=${isP6Name(deviceName)} v6=${isV6NameForTest(deviceName)}"
         )
         if (isP6Name(deviceName)) {
             detectedModel = InMotionV2Model.P6
@@ -123,6 +131,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             // model-keyed UI updates don't wait for the wheel's info-bundle
             // round-trip. The serial fills in later when 0x06 lands.
             return DecodeResult.ModelName("InMotion P6", InMotionV2Model.P6)
+        }
+        if (isV6NameForTest(deviceName)) {
+            // Experiment (2026-09-18): a V6 connected over Nordic UART and
+            // answered none of the V14 queries for 15 s, the same silence the
+            // P6 gave the legacy queries before its extended-only command set
+            // was captured. Try that set on the V6 first; if the wheel answers
+            // at all, the diagnostics show it and a capture is unnecessary.
+            // No typed model: the 26 V pack and its layout are not known yet.
+            useP6Protocol = true
+            return DecodeResult.ModelName("InMotion V6", null)
         }
         // Coarse model straight from the BLE advertised name: V11/V12/V13
         // carry "V1x", the V14 advertises as "Adventure-...". The carType

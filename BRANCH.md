@@ -1,80 +1,35 @@
-# next-experimental
+# inmotion-v6
 
-Where new features are built first. Things here work on the wheels they were
-written against and may not work on yours yet, and settings can move or reset
-between builds. Fine for a ride you are happy to cut short, not for one you
-need to get home from.
+An experiment for the InMotion V6 (the 2025 commuter wheel), branched from
+next-experimental so everything there is in this build too. For the rider
+whose V6 connected and then showed nothing.
 
-For riders who are happy to report what broke. Everyone else wants the Play
-Store build.
+## What happened
+
+Your diagnostics showed the app connected to the V6, asked it for data the
+way it asks a V14, and got no reply at all for 15 seconds, then let go on
+purpose. The V6 is a 2025 wheel on the same radio as the V14 and P6, but it
+does not answer the V14 questions. The P6 was the same story last year until
+its own command set was captured, so this build tries the P6 command set on
+the V6.
 
 ## What to check in this build
 
-**KingSong lock.** The Lock Wheel tile and the horn now work on KingSong,
-from a tester's captures of the official app on a KS-18XL and confirmed by
-him on 2026-09-18: nothing to type, the wheel takes the default six digits.
-Known gap: with a 4-digit password set in the KingSong app the wheel ignores
-lock and unlock; remove the password and they work. If yours refuses, say
-which model and firmware, and whether a password is set.
+1. Turn on Service Mode first: About screen, hold the logo, Enter. Then
+   connect to the V6 from the Connection screen.
+2. Wait 20 seconds. If numbers appear on the dashboard, even wrong ones, that
+   is a result. Voltage will read strangely: the V6 has a 26 V pack and the
+   app does not know its layout yet.
+3. Either way, share the diagnostics file (Service Mode, Share). This time it
+   will contain the connect itself, the wheel's services, which adapter was
+   chosen and every reply, if any.
 
-**Tyre sensors.** Settings, Integration, TPMS sensors, Scan for sensors. A
-screw-on valve cap should be found within a minute and stay in the list after
-the scan stops. Its pressure should now reach the dashboard tile, an alarm
-rule, the trip graphs, the overlay and the HUD, not just the settings row. Let
-some air out: the reading should fall and reach 0 on a flat tyre, and a low
-pressure alarm should fire there. The wheel's own sensor (InMotion P6) still
-works and steps aside when a cap is talking.
-
-**Battery (est).** New dashboard tile, and an alarm metric filed under
-Battery. It is the battery percentage with the load taken out, so on an 84 V
-pack it should sit still while the plain Battery number dives under
-acceleration and comes back when you coast. Two rules to hold it to: it never
-goes up while you ride (only on the charger), and it only steps down once two
-half minutes in a row agree the pack really dropped. If you see it climb
-mid-ride, or dive on a launch, that is the bug to report. Turn on Settings,
-Wheel parameters, Override the wheel's percentage: both numbers should follow
-the override together. Also available on overlay elements and, with an updated
-HUD build, on the glasses.
-
-No wheel handy? Service Mode (hold the logo on the About screen) adds a
-"Virtual Begode Master (sagging pack)" to the wheel picker: a pack that sags
-ten points on the throttle, jitters, and loses a point a minute. A plain
-Battery alarm at 30 % fires on the first burst; Battery (est) at 30 % should
-fire only once the resting level is actually there, about seven minutes in.
-
-**Voice commands.** Hold the Voice button on the dashboard and pick Listen
-for voice command, then ask for a metric: "battery", "controller temp", "max
-speed", "what can I say". Bind it to a Flic, the volume keys, your watch or
-the HUD if you would rather not hold anything, or put the Listen tile on the
-dashboard for a one tap start.
-
-Four things worth pushing on. Settings, Voice, Cue when listening: Off should
-leave the session completely silent at both ends, which is what a headset with
-its own tone needs. When not understood: Off and Beep should replace the "I
-did not catch that" sentence without slowing the session down. Command
-language lets you speak one language while the app is in another, so try the
-app in English with a Russian voice and Russian commands. And Headset voice
-button, off by default, makes your headset's voice button reach the app:
-Android will ask which app should answer it the first time you press it.
-
-Say "voice off" to stop the periodic announcements mid-ride, "voice on" to
-bring them back, and "voice report" for one now. Five new report items too,
-all off until you switch them on in Customize voice report: Battery (est),
-Range, Voltage, Odometer and Consumption.
-
-**Speed splits button.** Settings, Dashboard layout, drag the Speed splits
-action onto a slot. Each tap walks Splits off, accel, brake, both, and the tile
-says which; it works with no wheel connected. Off pauses: the session's best
-and last times stay, and Settings, Voice, Speed splits now lists them with a
-Reset. A different wheel connecting clears them; a reconnect of the same wheel
-does not.
-
-**Pressure units.** Pick psi, bar, kPa, kgf/cm2 or MPa and check every screen
-agrees: the tile, its graph, the alarm threshold, the settings row and the
-overlay.
-
-These three are in the Play beta as 0.20.3 (272) as well, so a rider who does
-not want a CI build can test the same things from there.
+If the file shows replies (RECV lines), the rest is a parsing job and no
+capture is needed. If it shows only SEND lines again, the V6 speaks something
+neither the V14 nor the P6 speaks, and the only way forward is a Bluetooth
+capture of the official InMotion app talking to the wheel for about a minute:
+see docs/BLE_CAPTURE_GUIDE.md. Please add the exact wheel name from the scan
+list and the firmware version the InMotion app shows.
 
 ## Reporting back
 
