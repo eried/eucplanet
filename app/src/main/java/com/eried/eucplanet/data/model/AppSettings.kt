@@ -1046,6 +1046,7 @@ data class AppSettings(
     val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
     val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
     val inmotionV1Pin: Int get() = advanced.inmotionV1Pin
+    val kingsongUnlockCode: Int get() = advanced.kingsongUnlockCode
 }
 
 /**
@@ -1539,6 +1540,7 @@ data class AdvancedSettings(
     val tripFinalizeGraceMs: Int = 15000,
     // Speed (km/h) above which a lock command is refused, for safety.
     val lockMaxSpeedKmh: Int = 5,
+    val headlightReadbackMaxAgeMs: Int = 8000,
     /**
      * Seconds the microphone stays open having heard nothing.
      *
@@ -1627,6 +1629,12 @@ data class AdvancedSettings(
     // number (0 = "000000", the factory default). Sent on connect so the wheel
     // leaves its identity-only wait and streams; wheels with no PIN ignore it.
     val inmotionV1Pin: Int = 0,
+    // KingSong unlock code, the six digits the unlock command carries (0x5D,
+    // ASCII at bytes 10..15), stored as a number like the V1 PIN. 123456 is
+    // what a wheel reports when the rider never set a code in the KingSong app,
+    // and such a wheel accepts any six digits (two KS-18XL captures, issue
+    // #19). Only a rider who set their own code needs to change it.
+    val kingsongUnlockCode: Int = 123456,
 )
 
 // FlicAction enum removed (2026-05). Replaced by

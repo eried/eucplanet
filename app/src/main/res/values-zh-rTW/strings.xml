@@ -358,7 +358,9 @@
     <string name="voice_act_announce_off_terms">語音關閉,播報關閉,關閉語音</string>
     <string name="voice_command_vocabulary">我可以說什麼</string>
     <string name="voice_command_vocabulary_tap">可以只說名稱，也可以放在問題裡。</string>
-    <string name="voice_command_vocabulary_legend">* 不是車輛讀數：它會執行操作，或回答其他內容。</string>
+    <string name="voice_vocab_group_wheel">車輪</string>
+    <string name="voice_vocab_group_actions">操作</string>
+    <string name="voice_vocab_group_around">周圍</string>
     <string name="voice_listening">聆聽中</string>
     <string name="voice_answer_off">%1$s已關閉。可在設定中開啟。</string>
     <string name="voice_answer_unsupported">你的輪子不提供%1$s。</string>
@@ -386,6 +388,15 @@
     <string name="voice_special_not_connected">未連接輪子。</string>
     <string name="voice_special_uptime">已連接 %1$s。</string>
     <string name="voice_special_weather">%1$s。%2$s。</string>
+    <string name="voice_special_weather_full">%1$s，評分 %2$s。氣溫 %3$s 度，風速 %4$s，濕度 %5$s%%</string>
+    <string name="voice_weather_checking">正在查看天氣。</string>
+    <string name="voice_sp_air_temp_terms">氣溫,室外溫度,有多冷</string>
+    <string name="voice_sp_wind_terms">風,風速,風有多大</string>
+    <string name="voice_sp_humidity_terms">濕度,有多潮濕</string>
+    <string name="voice_sp_air_temp_answer">外面 %1$s 度。</string>
+    <string name="voice_sp_wind_answer">風速 %1$s。</string>
+    <string name="voice_sp_wind_gust_answer">風速 %1$s，陣風 %2$s。</string>
+    <string name="voice_sp_humidity_answer">濕度 %1$s%%。</string>
     <string name="voice_weather_great">非常適合騎行</string>
     <string name="voice_weather_good">適合騎行</string>
     <string name="voice_weather_ok">可以騎</string>
@@ -2364,6 +2375,8 @@
     <string name="adv_nav_sidebar_min_desc">比此更窄的螢幕即使橫向也保留底部停靠點面板。太低會在小螢幕上遮住地圖。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 車輪的存取 PIN，連線時傳送，讓車輪開始傳送資料。除非你在 InMotion 應用程式中設定了自己的 PIN，否則請保持 000000。</string>
+    <string name="adv_kingsong_unlock_code">KingSong 解鎖碼</string>
+    <string name="adv_kingsong_unlock_code_desc">隨解鎖指令傳送的六位數字。已測試的車輪接受任何數字，因此除非你的車輪拒絕，否則請保持 123456。</string>
     <string name="adv_nav_sidebar_width">停靠點面板寬度</string>
     <string name="adv_nav_sidebar_width_desc">橫向停靠點側欄的寬度。太寬會讓地圖變小。</string>
     <string name="adv_simple_speedo_scale">簡易速度表尺寸</string>
@@ -2663,4 +2676,12 @@
     <string name="tpms_state_inflating">充氣中</string>
     <string name="alarm_metric_battery_envelope">電量(估算)</string>
     <string name="alarm_metric_battery_envelope_long">電量包絡（去除負載的估算）</string>
+
+    <string name="headlight_state_off">頭燈：關</string>
+    <string name="headlight_state_low">頭燈：低</string>
+    <string name="headlight_state_medium">頭燈：中</string>
+    <string name="headlight_state_high">頭燈：高</string>
+    <string name="headlight_state_unknown">頭燈：?</string>
+    <string name="adv_headlight_readback_age">燈光狀態有效期</string>
+    <string name="adv_headlight_readback_age_desc">回報的燈光亮度保持有效的時間。時間過長可能顯示過時的亮度。</string>
 </resources>

@@ -10,6 +10,13 @@ Store build.
 
 ## What to check in this build
 
+**KingSong lock.** The Lock Wheel tile and the horn now work on KingSong,
+from a tester's captures of the official app on a KS-18XL and confirmed by
+him on 2026-09-18: nothing to type, the wheel takes the default six digits.
+Known gap: with a 4-digit password set in the KingSong app the wheel ignores
+lock and unlock; remove the password and they work. If yours refuses, say
+which model and firmware, and whether a password is set.
+
 **Tyre sensors.** Settings, Integration, TPMS sensors, Scan for sensors. A
 screw-on valve cap should be found within a minute and stay in the list after
 the scan stops. Its pressure should now reach the dashboard tile, an alarm

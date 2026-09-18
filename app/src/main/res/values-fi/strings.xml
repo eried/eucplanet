@@ -321,7 +321,9 @@
     <string name="voice_act_announce_off_terms">ääni pois,kuulutukset pois,puhe pois</string>
     <string name="voice_command_vocabulary">Mitä voin sanoa</string>
     <string name="voice_command_vocabulary_tap">Sano nimi yksin tai osana kysymystä.</string>
-    <string name="voice_command_vocabulary_legend">* ei ole pyörän lukema: se tekee jotain tai vastaa muusta.</string>
+    <string name="voice_vocab_group_wheel">Yksipyöräinen</string>
+    <string name="voice_vocab_group_actions">Toiminnot</string>
+    <string name="voice_vocab_group_around">Ympärilläsi</string>
     <string name="voice_listening">Kuuntelen</string>
     <string name="voice_answer_off">%1$s on pois käytöstä. Voit ottaa sen käyttöön asetuksista.</string>
     <string name="voice_answer_unsupported">Pyöräsi ei ilmoita %1$s.</string>
@@ -349,6 +351,15 @@
     <string name="voice_special_not_connected">Ei yhdistettyä pyörää.</string>
     <string name="voice_special_uptime">Yhdistettynä %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, pisteet %2$s. %3$s astetta, tuuli %4$s, kosteus %5$s prosenttia</string>
+    <string name="voice_weather_checking">Tarkistan sään.</string>
+    <string name="voice_sp_air_temp_terms">ulkolämpötila,ilman lämpötila,kuinka kylmä</string>
+    <string name="voice_sp_wind_terms">tuuli,tuulen nopeus,kuinka tuulista</string>
+    <string name="voice_sp_humidity_terms">kosteus,ilmankosteus</string>
+    <string name="voice_sp_air_temp_answer">%1$s astetta ulkona.</string>
+    <string name="voice_sp_wind_answer">Tuuli %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Tuuli %1$s, puuskissa %2$s.</string>
+    <string name="voice_sp_humidity_answer">Kosteus %1$s prosenttia.</string>
     <string name="voice_weather_great">Erinomainen ajokeli</string>
     <string name="voice_weather_good">Hyvä ajokeli</string>
     <string name="voice_weather_ok">Ajettavaa</string>
@@ -614,6 +625,8 @@
     <string name="adv_nav_sidebar_min_desc">Tätä kapeammat näytöt pitävät alapysähdyspaneelin myös vaakanäkymässä. Liian pieni hautaa kartan pienillä näytöillä.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 -yksipyöräisten pääsykoodi, lähetetään yhdistettäessä, jotta yksipyöräinen alkaa lähettää dataa. Jätä arvoon 000000, ellet ole asettanut omaa PIN-koodia InMotion-sovelluksessa.</string>
+    <string name="adv_kingsong_unlock_code">KingSong-avauskoodi</string>
+    <string name="adv_kingsong_unlock_code_desc">Kuusi numeroa, jotka lähetetään avauskomennon mukana. Testatut yksipyöräiset hyväksyvät mitkä tahansa numerot, joten jätä arvoon 123456, ellei omasi hylkää sitä.</string>
     <string name="adv_charging_warning">Nämä säätävät arviota täyteen latautumisen ajasta. Väärät arvot antavat harhaanjohtavan arvion, mutta eivät koskaan vaikuta itse lataukseen.</string>
     <string name="adv_charging_target_pct">Tavoiteprosentti</string>
     <string name="adv_charging_target_pct_desc">Vaikuttaa lataustasoon, jossa arvio siirtyy hitaampaan loppuvaiheeseen.</string>
@@ -1292,7 +1305,7 @@
     <string name="pip_desc">Kutistuu kelluvaksi ikkunaksi, kun poistut sovelluksesta.</string>
     <string name="pip_mode_label">PIP-tila</string>
     <string name="pip_mode_off">Pois</string>
-    <string name="pip_mode_simple">Yksinkertainen</string>
+    <string name="pip_mode_simple">Perus</string>
     <string name="pip_mode_dashboard">Mittaristo</string>
     <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">Puhelimen HUD</string>
@@ -2467,4 +2480,12 @@
     <string name="tpms_state_inflating">Täytetään</string>
     <string name="alarm_metric_battery_envelope">Akku (arvio)</string>
     <string name="alarm_metric_battery_envelope_long">Akun verhokäyrä (arvio ilman kuormaa)</string>
+
+    <string name="headlight_state_off">Valo: pois</string>
+    <string name="headlight_state_low">Valo: himmeä</string>
+    <string name="headlight_state_medium">Valo: keskitaso</string>
+    <string name="headlight_state_high">Valo: kirkas</string>
+    <string name="headlight_state_unknown">Valo: ?</string>
+    <string name="adv_headlight_readback_age">Valotiedon voimassaolo</string>
+    <string name="adv_headlight_readback_age_desc">Kuinka kauan ilmoitettu valotaso on ajantasainen. Liian pitkä aika voi näyttää vanhentuneen tason.</string>
 </resources>

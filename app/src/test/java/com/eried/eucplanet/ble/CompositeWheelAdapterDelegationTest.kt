@@ -1,6 +1,9 @@
 package com.eried.eucplanet.ble
 
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -47,6 +50,17 @@ class CompositeWheelAdapterDelegationTest {
         for ((name, cells) in expected) {
             assertEquals(name, cells, cellsAfterConnecting(name))
         }
+    }
+
+    @Test
+    fun `the KingSong lock code reaches the family adapter`() {
+        // Shipped once without this forward: the interface default swallowed
+        // the code and the KingSong adapter behind the composite sent the wheel
+        // default for a rider who had set their own.
+        val c = composite().apply { notifyConnectingTo("KS-18XL") }
+        c.provideLockCode("509540")
+        assertArrayEquals(KingsongCommands.unlock("509540"), c.setLock(false))
+        assertArrayEquals(KingsongCommands.lock(), c.setLock(true))
     }
 
     @Test

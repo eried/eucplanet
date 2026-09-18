@@ -36,6 +36,9 @@ object VoicePhrases {
     /** The things the app knows that are not wheel readings. */
     val SPECIALS: List<Pair<String, Int>> = listOf(
         VoiceVocabulary.Special.WEATHER to R.string.voice_sp_weather_terms,
+        VoiceVocabulary.Special.AIR_TEMP to R.string.voice_sp_air_temp_terms,
+        VoiceVocabulary.Special.WIND to R.string.voice_sp_wind_terms,
+        VoiceVocabulary.Special.HUMIDITY to R.string.voice_sp_humidity_terms,
         VoiceVocabulary.Special.DAYLIGHT to R.string.voice_sp_daylight_terms,
         VoiceVocabulary.Special.CONNECTED to R.string.voice_sp_connected_terms,
         VoiceVocabulary.Special.UPTIME to R.string.voice_sp_uptime_terms,

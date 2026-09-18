@@ -1,6 +1,13 @@
 package com.eried.eucplanet.ui.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,9 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
@@ -91,26 +95,38 @@ private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
     // actions carry several phrasings per key, and listing every one of them
     // would bury the metrics: the first is the canonical one, and the matcher
     // accepts the rest whether or not they are written down.
-    val names = terms
+    //
+    // Three groups, each with its own header and colour, replace the old
+    // asterisk-and-footnote: half the list answers with a number off the
+    // wheel, a few entries change the wheel, the rest answer about the world.
+    // Read as one alphabetical column there was no way to tell "light" from
+    // "load"; a header says it and the dot keeps saying it once the header has
+    // scrolled away.
+    val entries = terms
         .groupBy { if (it.kind == VoiceVocabulary.Kind.METRIC ||
                 it.kind == VoiceVocabulary.Kind.REPORT ||
                 it.kind == VoiceVocabulary.Kind.SPLIT
             ) it.name else it.key
         }
-        // Carry the kind through, not just the name. Half this list answers
-        // with a number off the wheel and half does something or answers
-        // about the world, and read as one alphabetical column there was no
-        // way to tell "light" from "load".
         .map { (_, group) ->
             val term = group.first()
-            term.name to (
-                term.kind == VoiceVocabulary.Kind.METRIC ||
-                    term.kind == VoiceVocabulary.Kind.REPORT ||
-                    term.kind == VoiceVocabulary.Kind.SPLIT
-                )
+            // Metric names arrive capitalised from the catalog; the spoken
+            // phrases for actions and specials do not. One list, one case.
+            term.name.replaceFirstChar { it.uppercase() } to when (term.kind) {
+                VoiceVocabulary.Kind.METRIC,
+                VoiceVocabulary.Kind.REPORT,
+                VoiceVocabulary.Kind.SPLIT -> VocabGroup.WHEEL
+                VoiceVocabulary.Kind.ACTION -> VocabGroup.ACTIONS
+                else -> VocabGroup.AROUND
+            }
         }
         .distinctBy { it.first }
         .sortedBy { it.first }
+    val groups = listOf(
+        Triple(VocabGroup.WHEEL, R.string.voice_vocab_group_wheel, MaterialTheme.appColors.primary),
+        Triple(VocabGroup.ACTIONS, R.string.voice_vocab_group_actions, MaterialTheme.appColors.statusWarn),
+        Triple(VocabGroup.AROUND, R.string.voice_vocab_group_around, MaterialTheme.appColors.textSecondary),
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -127,35 +143,37 @@ private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
                     modifier = Modifier.heightIn(max = 360.dp),
                     contentPadding = PaddingValues(vertical = 4.dp),
                 ) {
-                    items(names) { (name, isReading) ->
-                        // A reference, not a control. Tapping used to speak the
-                        // answer, which made a list of words look like a list of
-                        // buttons and invited a rider to press one instead of
-                        // reading it.
-                        Text(
-                            buildAnnotatedString {
-                                append(name)
-                                // The star, dimmed: it is a note about the
-                                // entry rather than part of what to say, and
-                                // at full weight it read as a character a
-                                // rider was supposed to pronounce.
-                                if (!isReading) {
-                                    withStyle(
-                                        SpanStyle(color = MaterialTheme.appColors.textSecondary)
-                                    ) { append(" *") }
-                                }
-                            },
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                        )
+                    for ((group, titleRes, tint) in groups) {
+                        val inGroup = entries.filter { it.second == group }
+                        if (inGroup.isEmpty()) continue
+                        item(key = "header-$group") {
+                            Text(
+                                stringResource(titleRes),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = tint,
+                                modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
+                            )
+                        }
+                        items(inGroup, key = { "$group-${it.first}" }) { (name, _) ->
+                            // A reference, not a control. Tapping used to speak the
+                            // answer, which made a list of words look like a list of
+                            // buttons and invited a rider to press one instead of
+                            // reading it.
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                            ) {
+                                Box(
+                                    Modifier
+                                        .size(8.dp)
+                                        .background(tint, CircleShape)
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text(name, style = MaterialTheme.typography.bodyLarge)
+                            }
+                        }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    stringResource(R.string.voice_command_vocabulary_legend),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.appColors.textSecondary,
-                )
             }
         },
         confirmButton = {
@@ -163,3 +181,6 @@ private fun VoiceVocabularyDialogContent(onDismiss: () -> Unit) {
         },
     )
 }
+
+/** The three headers of the list, in the order they are shown. */
+private enum class VocabGroup { WHEEL, ACTIONS, AROUND }

@@ -358,7 +358,9 @@
     <string name="voice_act_announce_off_terms">voz desligada,anúncios desligados,desligar a voz</string>
     <string name="voice_command_vocabulary">O que posso dizer</string>
     <string name="voice_command_vocabulary_tap">Diga um nome sozinho ou dentro de uma pergunta.</string>
-    <string name="voice_command_vocabulary_legend">* não é uma leitura da roda: faz algo ou responde sobre outra coisa.</string>
+    <string name="voice_vocab_group_wheel">Roda</string>
+    <string name="voice_vocab_group_actions">Ações</string>
+    <string name="voice_vocab_group_around">Ao seu redor</string>
     <string name="voice_listening">Ouvindo</string>
     <string name="voice_answer_off">%1$s está desativado. Você pode ativar nas configurações.</string>
     <string name="voice_answer_unsupported">Sua roda não informa %1$s.</string>
@@ -386,6 +388,15 @@
     <string name="voice_special_not_connected">Nenhuma roda conectada.</string>
     <string name="voice_special_uptime">Conectado há %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, pontuação %2$s. %3$s graus, vento %4$s, umidade %5$s por cento</string>
+    <string name="voice_weather_checking">Verificando o tempo.</string>
+    <string name="voice_sp_air_temp_terms">temperatura externa,temperatura do ar,que frio faz</string>
+    <string name="voice_sp_wind_terms">vento,velocidade do vento,quanto vento</string>
+    <string name="voice_sp_humidity_terms">umidade,quanta umidade</string>
+    <string name="voice_sp_air_temp_answer">%1$s graus lá fora.</string>
+    <string name="voice_sp_wind_answer">Vento %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vento %1$s, com rajadas de %2$s.</string>
+    <string name="voice_sp_humidity_answer">Umidade %1$s por cento.</string>
     <string name="voice_weather_great">Ótimo tempo para andar</string>
     <string name="voice_weather_good">Bom tempo para andar</string>
     <string name="voice_weather_ok">Dá para andar</string>
@@ -643,7 +654,7 @@
     <string name="units_label">Unidades</string>
     <string name="units_metric">Métrico</string>
     <string name="units_imperial">Imperial</string>
-    <string name="units_custom">Personalizado</string>
+    <string name="units_custom">Próprio</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Velocidade</string>
     <string name="tpms_forget">Esquecer</string>
@@ -2365,6 +2376,8 @@
     <string name="adv_nav_sidebar_min_desc">Telas mais estreitas que isso mantêm o painel de paradas embaixo mesmo na horizontal. Muito baixo esconde o mapa em telas pequenas.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN de acesso para rodas InMotion V5/V8/V10, enviado ao conectar para que a roda comece a enviar dados. Deixe 000000, a menos que você tenha definido seu próprio PIN no app da InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Código de destravar KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Seis dígitos enviados com o comando de destravar. As rodas testadas aceitam quaisquer dígitos, então deixe 123456 a menos que a sua recuse.</string>
     <string name="adv_nav_sidebar_width">Largura do painel de paradas</string>
     <string name="adv_nav_sidebar_width_desc">Largura da barra lateral de paradas na horizontal. Muito larga deixa pouco mapa.</string>
     <string name="adv_simple_speedo_scale">Tamanho do velocímetro simples</string>
@@ -2666,4 +2679,12 @@
     <string name="tpms_state_inflating">Enchendo</string>
     <string name="alarm_metric_battery_envelope">Bateria (est)</string>
     <string name="alarm_metric_battery_envelope_long">Envoltória da bateria (estimativa sem carga)</string>
+
+    <string name="headlight_state_off">Luz: desligada</string>
+    <string name="headlight_state_low">Luz: baixa</string>
+    <string name="headlight_state_medium">Luz: média</string>
+    <string name="headlight_state_high">Luz: alta</string>
+    <string name="headlight_state_unknown">Luz: ?</string>
+    <string name="adv_headlight_readback_age">Validade do estado da luz</string>
+    <string name="adv_headlight_readback_age_desc">Por quanto tempo o nível de luz informado permanece atual. Um tempo excessivo pode mostrar um nível desatualizado.</string>
 </resources>

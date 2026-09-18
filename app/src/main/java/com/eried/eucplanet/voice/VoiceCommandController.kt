@@ -109,6 +109,17 @@ class VoiceCommandController @Inject constructor(
         /** How long to wait for a yes. Short: it is one word. */
         const val CONFIRM_WINDOW_MS = 4000L
 
+        /**
+         * How long a rider waits for a forecast before being told there is
+         * none.
+         *
+         * Generous, because the alternative answer is "no weather yet" and
+         * they have already been told a check is happening. Capped all the
+         * same: a session that never ends is a microphone button that looks
+         * broken.
+         */
+        const val WEATHER_FETCH_MS = 8000L
+
         const val PROMPT_HZ = 1320
         const val PROMPT_MS = 90
     }
@@ -361,6 +372,33 @@ class VoiceCommandController @Inject constructor(
 
         VoiceVocabulary.Special.WEATHER -> weatherVerdict(settings)
 
+        VoiceVocabulary.Special.AIR_TEMP -> currentHour()?.let { h ->
+            voiceCtx.getString(R.string.voice_sp_air_temp_answer, spokenTemp(h.tempC, settings))
+        }
+
+        VoiceVocabulary.Special.WIND -> currentHour()?.let { h ->
+            // The gust only when it is worth saying. A gust equal to the wind
+            // is not a gust, and reading both every time makes the answer
+            // twice as long for nothing.
+            val wind = spokenWind(h.windMs, settings)
+            if (h.gustMs > h.windMs * 1.3f) {
+                voiceCtx.getString(
+                    R.string.voice_sp_wind_gust_answer, wind, spokenWind(h.gustMs, settings),
+                )
+            } else {
+                voiceCtx.getString(R.string.voice_sp_wind_answer, wind)
+            }
+        }
+
+        // Zero is the documented "the provider did not send it", not dry air.
+        VoiceVocabulary.Special.HUMIDITY -> currentHour()
+            ?.takeIf { it.humidityPct > 0f }
+            ?.let {
+                voiceCtx.getString(
+                    R.string.voice_sp_humidity_answer, "%.0f".format(it.humidityPct),
+                )
+            }
+
         VoiceVocabulary.Special.DAYLIGHT -> daylightLeft()
 
         VoiceVocabulary.Special.NAV_NEXT -> navNext()
@@ -389,10 +427,90 @@ class VoiceCommandController @Inject constructor(
      * the one helper that reads the rider's own thresholds, so the spoken
      * verdict cannot disagree with the number on screen.
      */
-    private fun weatherVerdict(settings: com.eried.eucplanet.data.model.AppSettings): String? {
+    /**
+     * Whether this phrase is about the weather, decided before answering it.
+     *
+     * The matcher runs here and again inside the session. It is pure and
+     * cheap, and the alternative is a read path that can suspend, which would
+     * mean every reading in the app paying for the one that needs a network.
+     */
+    private fun weatherWanted(
+        phrase: String,
+        vocabulary: List<SpokenTerm>,
+        onDashboard: Set<String>,
+    ): Boolean {
+        val hit = VoiceCommandMatcher.match(phrase, vocabulary, onDashboard)
+        return hit is VoiceCommandMatcher.VoiceMatch.Hit && hit.term.key in WEATHER_KEYS
+    }
+
+    /**
+     * Bring the forecast up to date, saying so if it is going to take a while.
+     *
+     * The spoken line only happens when there is really nothing to say yet.
+     * A forecast under half an hour old comes straight back out of
+     * ensureFresh without touching the network, and announcing a check that
+     * takes no time is worse than saying nothing.
+     */
+    private suspend fun fetchWeather(settings: com.eried.eucplanet.data.model.AppSettings) {
+        val loc = tripRepository.currentLocation.value
+            ?: tripRepository.lastKnownLocation.value
+            ?: return
+        val cold = currentHour() == null
+        if (cold) {
+            val wait = voiceCtx.getString(R.string.voice_weather_checking)
+            _state.value = UiState.Spoke(wait)
+            voiceService.speak(wait)
+            withTimeoutOrNull(SPEECH_START_WAIT_MS) { voiceService.isSpeaking.first { it } }
+            withTimeoutOrNull(SPEECH_END_WAIT_MS) { voiceService.isSpeaking.first { !it } }
+        }
+        runCatching {
+            withTimeoutOrNull(WEATHER_FETCH_MS) {
+                weatherRepository.ensureFresh(
+                    loc.latitude, loc.longitude,
+                    com.eried.eucplanet.weather.WeatherSource.byId(settings.weather.source),
+                    force = false,
+                )
+            }
+        }.onFailure { Log.w(TAG, "weather fetch failed", it) }
+    }
+
+    /** The forecast hour closest to now, or null when there is no forecast. */
+    private fun currentHour(): com.eried.eucplanet.weather.HourForecast? {
         val hours = weatherRepository.forecast.value?.hours ?: return null
         val now = System.currentTimeMillis()
-        val hour = hours.minByOrNull { kotlin.math.abs(it.timeMs - now) } ?: return null
+        return hours.minByOrNull { kotlin.math.abs(it.timeMs - now) }
+    }
+
+    /** Outside air in the rider's own unit, the way a report says it. */
+    private fun spokenTemp(
+        tempC: Float,
+        settings: com.eried.eucplanet.data.model.AppSettings,
+    ): String = "%.0f".format(
+        com.eried.eucplanet.util.Units.temperature(
+            tempC, com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+        )
+    )
+
+    /**
+     * Wind in the rider's speed unit.
+     *
+     * The forecast carries metres per second, which is the one unit nobody
+     * rides in. Converted the same way the weather widget converts it, so the
+     * spoken number matches the one on the home screen.
+     */
+    private fun spokenWind(
+        ms: Float,
+        settings: com.eried.eucplanet.data.model.AppSettings,
+    ): String {
+        val unit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+        return "%.0f %s".format(
+            com.eried.eucplanet.util.Units.speed(ms * 3.6f, unit),
+            com.eried.eucplanet.util.Units.speedUnit(voiceCtx, unit),
+        )
+    }
+
+    private fun weatherVerdict(settings: com.eried.eucplanet.data.model.AppSettings): String? {
+        val hour = currentHour() ?: return null
         val b = com.eried.eucplanet.weather.WeatherScoring.scoreOf(hour, settings)
         val verdict = voiceCtx.getString(
             when {
@@ -414,8 +532,21 @@ class VoiceCommandController @Inject constructor(
             b.night -> R.string.voice_weather_night
             else -> null
         }
-        return if (reason == null) verdict
-        else voiceCtx.getString(R.string.voice_special_weather, verdict, voiceCtx.getString(reason))
+        // The numbers behind the verdict, because "good to ride" on its own
+        // is a judgement a rider cannot check. The score is signed on purpose:
+        // it is the same number the weather panel draws, and plus or minus is
+        // the half of it that says which side of neutral the day is on.
+        val full = voiceCtx.getString(
+            R.string.voice_special_weather_full,
+            verdict,
+            "%+.0f".format(b.score),
+            spokenTemp(hour.tempC, settings),
+            spokenWind(hour.windMs, settings),
+            "%.0f".format(hour.humidityPct),
+        )
+        // One reason, the worst one, and only when there is something wrong.
+        return if (reason == null) full
+        else voiceCtx.getString(R.string.voice_special_weather, full, voiceCtx.getString(reason))
     }
 
     /**
@@ -596,6 +727,13 @@ class VoiceCommandController @Inject constructor(
         // inside it. Both are a single value from a flow already in memory.
         lastTripSnapshot = runCatching { tripRepository.allTrips.first() }
             .getOrNull()?.filter { it.endTime != null }?.maxByOrNull { it.startTime }
+        // The forecast is not one of those. It lives in memory only, filled by
+        // the dashboard panel and by the weather widget's worker, so a rider
+        // who has neither open has never had one: asking for the weather
+        // answered "no weather yet" on every fresh start of the app, forever.
+        // Fetched here instead, and only when the phrase turned out to be
+        // about weather, so asking for the battery never touches the network.
+        if (weatherWanted(phrase, vocabulary, onDashboard)) fetchWeather(settings)
         val answer = VoiceCommandSession.answer(
             heard = phrase,
             vocabulary = vocabulary,
@@ -1027,6 +1165,14 @@ private object VoiceAction {
 
 private val CONFIRMED_ACTIONS = setOf("RECORD_STOP", "RESET_TRIP")
 
+/** The specials that need a forecast before they can answer. */
+private val WEATHER_KEYS = setOf(
+    VoiceVocabulary.Special.WEATHER,
+    VoiceVocabulary.Special.AIR_TEMP,
+    VoiceVocabulary.Special.WIND,
+    VoiceVocabulary.Special.HUMIDITY,
+)
+
 internal val OFF_WHEEL = setOf(
     "Time", "PhoneBattery", "Recording", "Navigation",
     "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "EXTERNAL_GPS_BATTERY",
@@ -1034,6 +1180,8 @@ internal val OFF_WHEEL = setOf(
     // The specials are mostly about the world rather than the wheel, and
     // "is the wheel connected" is asked precisely when it is not.
     VoiceVocabulary.Special.WEATHER, VoiceVocabulary.Special.DAYLIGHT,
+    VoiceVocabulary.Special.AIR_TEMP, VoiceVocabulary.Special.WIND,
+    VoiceVocabulary.Special.HUMIDITY,
     VoiceVocabulary.Special.CONNECTED, VoiceVocabulary.Special.UPTIME,
     VoiceVocabulary.Special.NAV_NEXT, VoiceVocabulary.Special.LAST_TRIP,
     VoiceVocabulary.Special.REPORT,

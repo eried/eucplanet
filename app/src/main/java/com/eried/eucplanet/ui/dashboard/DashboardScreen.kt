@@ -353,6 +353,9 @@ fun DashboardScreen(
     val landscapeSpeedoStyle by viewModel.landscapeSpeedoStyle.collectAsState()
     val landscapeMirrored by viewModel.landscapeMirrored.collectAsState()
     val advancedVars by viewModel.advanced.collectAsState()
+    val headlightButton = rememberHeadlightButtonState(
+        wheelData, connectionState == ConnectionState.CONNECTED, advancedVars.headlightReadbackMaxAgeMs,
+    )
     val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
@@ -2406,8 +2409,8 @@ fun DashboardScreen(
                             "LIGHT_TOGGLE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.FlashlightOn,
-                                label = stringResource(R.string.action_light),
-                                active = wheelData.lightOn,
+                                label = stringResource(headlightButton.labelRes),
+                                active = headlightButton.active,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.gaugeWarn,
                                 enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
                                 onClick = { viewModel.onLightToggle() },
@@ -3424,6 +3427,13 @@ fun DashboardScreen(
                                                     "Soolek" to "KS-16X testing.",
                                                     "Jonathan Wiesner" to "LeaperKim Lynx S testing.",
                                                     "Felix K" to "LeaperKim Oryx testing.",
+                                                    "Bearkat713" to "Motoeye E6 testing.",
+                                                    "PhilDaintree" to "KS-18XL testing and the BLE captures behind the KingSong lock and horn.",
+                                                    "elektro-NIK" to "Garmin watch testing across nine builds, with the logs that pinned the pacing bug.",
+                                                    "jeronimo701" to "KingSong S22 report and patch that led to battery percent from voltage.",
+                                                    "jforssblad" to "NOSFET Aeon cell-voltage testing.",
+                                                    "Dubardo" to "Odometer-in-trip bug report.",
+                                                    "Amoenus" to "Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures. The first code contributed from outside.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )

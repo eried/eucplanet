@@ -321,7 +321,9 @@
     <string name="voice_act_announce_off_terms">hang ki,bemondások ki,kapcsold ki a hangot</string>
     <string name="voice_command_vocabulary">Mit mondhatok</string>
     <string name="voice_command_vocabulary_tap">Mondd a nevet önmagában vagy egy kérdésben.</string>
-    <string name="voice_command_vocabulary_legend">* nem a kerék adata: csinál valamit, vagy másról válaszol.</string>
+    <string name="voice_vocab_group_wheel">Egykerekű</string>
+    <string name="voice_vocab_group_actions">Műveletek</string>
+    <string name="voice_vocab_group_around">Körülötted</string>
     <string name="voice_listening">Hallgatom</string>
     <string name="voice_answer_off">%1$s ki van kapcsolva. A beállításokban bekapcsolhatod.</string>
     <string name="voice_answer_unsupported">A kerekedet nem jelenti a(z) %1$s értéket.</string>
@@ -349,6 +351,15 @@
     <string name="voice_special_not_connected">Nincs csatlakoztatott kerék.</string>
     <string name="voice_special_uptime">%1$s óta csatlakozva.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, pontszám %2$s. %3$s fok, szél %4$s, páratartalom %5$s százalék</string>
+    <string name="voice_weather_checking">Megnézem az időjárást.</string>
+    <string name="voice_sp_air_temp_terms">külső hőmérséklet,levegő hőmérséklete,mennyire hideg</string>
+    <string name="voice_sp_wind_terms">szél,szélsebesség,mennyire szeles</string>
+    <string name="voice_sp_humidity_terms">páratartalom,mennyire párás</string>
+    <string name="voice_sp_air_temp_answer">%1$s fok van kint.</string>
+    <string name="voice_sp_wind_answer">Szél %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Szél %1$s, lökésekben %2$s.</string>
+    <string name="voice_sp_humidity_answer">Páratartalom %1$s százalék.</string>
     <string name="voice_weather_great">Kiváló idő a tekeréshez</string>
     <string name="voice_weather_good">Jó idő a tekeréshez</string>
     <string name="voice_weather_ok">Tekerhető</string>
@@ -614,6 +625,8 @@
     <string name="adv_nav_sidebar_min_desc">Az ennél keskenyebb képernyők fekvő tájolásban is megtartják az alsó megállópanelt. A túl alacsony érték kis képernyőkön elrejti a térképet.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Hozzáférési PIN az InMotion V5/V8/V10 egykerekűekhez, csatlakozáskor küldi el, hogy az egykerekű adatot kezdjen küldeni. Hagyd 000000 értéken, hacsak nem állítottál be saját PIN-t az InMotion alkalmazásban.</string>
+    <string name="adv_kingsong_unlock_code">KingSong nyitókód</string>
+    <string name="adv_kingsong_unlock_code_desc">Hat számjegy, amelyet a nyitóparanccsal küld el. A tesztelt egykerekűek bármilyen számjegyet elfogadnak, ezért hagyd 123456 értéken, hacsak a tiéd el nem utasítja.</string>
     <string name="adv_charging_warning">Ezek a teljes töltésig hátralévő idő becslését hangolják. A rossz értékek félrevezető becslést adnak, de sosem befolyásolják magát a töltést.</string>
     <string name="adv_charging_target_pct">Céltöltöttség</string>
     <string name="adv_charging_target_pct_desc">Befolyásolja azt a töltöttségi szintet, ahol a becslés a lassabb záró szakaszra vált.</string>
@@ -987,14 +1000,14 @@
     <string name="engine_decel_label">Lassítás jellege</string>
     <string name="engine_decel_smooth">Lágy</string>
     <string name="engine_decel_standard">Normál</string>
-    <string name="engine_decel_backfire">Visszagyújtás</string>
+    <string name="engine_decel_backfire">Durrogás</string>
     <string name="engine_brake_label">Motorfék</string>
     <string name="engine_brake_off">Ki</string>
     <string name="engine_brake_light">Enyhe</string>
     <string name="engine_brake_strong">Erős</string>
     <string name="engine_duck_label">Amíg a hang beszél</string>
     <string name="engine_duck_duck">Halkítás</string>
-    <string name="engine_duck_pause">Szüneteltetés</string>
+    <string name="engine_duck_pause">Szünet</string>
     <string name="engine_duck_mix">Keverés</string>
     <string name="engine_headphones_only">Csak fejhallgatóval</string>
     <string name="engine_headphones_only_hint">Kihagyja a telefon hangszóróját. A motorhang csak vezetékes vagy Bluetooth-hangon szól.</string>
@@ -2467,4 +2480,12 @@
     <string name="tpms_state_inflating">Felfújás</string>
     <string name="alarm_metric_battery_envelope">Akku (becs)</string>
     <string name="alarm_metric_battery_envelope_long">Akkumulátor burkológörbe (terhelés nélküli becslés)</string>
+
+    <string name="headlight_state_off">Fény: ki</string>
+    <string name="headlight_state_low">Fény: alacsony</string>
+    <string name="headlight_state_medium">Fény: közepes</string>
+    <string name="headlight_state_high">Fény: magas</string>
+    <string name="headlight_state_unknown">Fény: ?</string>
+    <string name="adv_headlight_readback_age">Lámpaállapot érvényessége</string>
+    <string name="adv_headlight_readback_age_desc">Meddig számít aktuálisnak a jelzett fényerőszint. Túl hosszú idő esetén elavult szint jelenhet meg.</string>
 </resources>

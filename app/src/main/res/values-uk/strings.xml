@@ -358,7 +358,9 @@
     <string name="voice_act_announce_off_terms">голос вимкнути,оголошення вимкнути,вимкни голос</string>
     <string name="voice_command_vocabulary">Що можна сказати</string>
     <string name="voice_command_vocabulary_tap">Назвіть пункт окремо або у запитанні.</string>
-    <string name="voice_command_vocabulary_legend">* це не показник колеса: команда щось робить або відповідає про інше.</string>
+    <string name="voice_vocab_group_wheel">Колесо</string>
+    <string name="voice_vocab_group_actions">Дії</string>
+    <string name="voice_vocab_group_around">Навколо тебе</string>
     <string name="voice_listening">Слухаю</string>
     <string name="voice_answer_off">%1$s вимкнено. Увімкнути можна в налаштуваннях.</string>
     <string name="voice_answer_unsupported">Ваше колесо не повідомляє %1$s.</string>
@@ -386,6 +388,15 @@
     <string name="voice_special_not_connected">Колесо не підключено.</string>
     <string name="voice_special_uptime">Підключено %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, оцінка %2$s. %3$s градусів, вітер %4$s, вологість %5$s відсотків</string>
+    <string name="voice_weather_checking">Перевіряю погоду.</string>
+    <string name="voice_sp_air_temp_terms">температура повітря,температура надворі,наскільки холодно</string>
+    <string name="voice_sp_wind_terms">вітер,швидкість вітру,наскільки вітряно</string>
+    <string name="voice_sp_humidity_terms">вологість,наскільки волого</string>
+    <string name="voice_sp_air_temp_answer">%1$s градусів надворі.</string>
+    <string name="voice_sp_wind_answer">Вітер %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Вітер %1$s, пориви до %2$s.</string>
+    <string name="voice_sp_humidity_answer">Вологість %1$s відсотків.</string>
     <string name="voice_weather_great">Чудова погода для поїздки</string>
     <string name="voice_weather_good">Гарна погода для поїздки</string>
     <string name="voice_weather_ok">Їхати можна</string>
@@ -2362,6 +2373,8 @@
     <string name="adv_nav_sidebar_min_desc">Вужчі екрани зберігають нижню панель зупинок навіть в альбомній орієнтації. Замало ховає карту на малих екранах.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN доступу для моноколіс InMotion V5/V8/V10, надсилається під час підключення, щоб колесо почало передавати дані. Залиште 000000, якщо ви не задали власний PIN у застосунку InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Код розблокування KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Шість цифр, що надсилаються з командою розблокування. Перевірені колеса приймають будь-які цифри, тож залиште 123456, якщо ваше їх не відхиляє.</string>
     <string name="adv_nav_sidebar_width">Ширина панелі зупинок</string>
     <string name="adv_nav_sidebar_width_desc">Ширина бічної панелі зупинок в альбомній орієнтації. Заширока лишає мало карти.</string>
     <string name="adv_simple_speedo_scale">Розмір простого спідометра</string>
@@ -2661,4 +2674,12 @@
     <string name="tpms_state_inflating">Накачується</string>
     <string name="alarm_metric_battery_envelope">Батарея (оц)</string>
     <string name="alarm_metric_battery_envelope_long">Огинальна заряду (оцінка без навантаження)</string>
+
+    <string name="headlight_state_off">Світло: вимк.</string>
+    <string name="headlight_state_low">Світло: слабке</string>
+    <string name="headlight_state_medium">Світло: середнє</string>
+    <string name="headlight_state_high">Світло: яскраве</string>
+    <string name="headlight_state_unknown">Світло: ?</string>
+    <string name="adv_headlight_readback_age">Термін актуальності світла</string>
+    <string name="adv_headlight_readback_age_desc">Як довго отриманий рівень світла вважається актуальним. Надто великий термін може показувати застарілий рівень.</string>
 </resources>

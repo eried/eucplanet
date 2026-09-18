@@ -1383,7 +1383,9 @@
     <string name="voice_act_announce_off_terms">stemme av,meldinger av,tale av</string>
     <string name="voice_command_vocabulary">Hva kan jeg si</string>
     <string name="voice_command_vocabulary_tap">Si et navn alene eller i et spørsmål.</string>
-    <string name="voice_command_vocabulary_legend">* er ikke en måling fra hjulet: det gjør noe eller svarer om noe annet.</string>
+    <string name="voice_vocab_group_wheel">Hjul</string>
+    <string name="voice_vocab_group_actions">Handlinger</string>
+    <string name="voice_vocab_group_around">Rundt deg</string>
     <string name="voice_listening">Lytter</string>
     <string name="voice_answer_off">%1$s er av. Du kan slå det på i innstillingene.</string>
     <string name="voice_answer_unsupported">Hjulet ditt rapporterer ikke %1$s.</string>
@@ -1411,6 +1413,15 @@
     <string name="voice_special_not_connected">Ingen wheel tilkoblet.</string>
     <string name="voice_special_uptime">Tilkoblet i %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, score %2$s. %3$s grader, vind %4$s, luftfuktighet %5$s prosent</string>
+    <string name="voice_weather_checking">Jeg sjekker været.</string>
+    <string name="voice_sp_air_temp_terms">utetemperatur,lufttemperatur,hvor kaldt er det</string>
+    <string name="voice_sp_wind_terms">vind,vindhastighet,hvor mye vind</string>
+    <string name="voice_sp_humidity_terms">luftfuktighet,hvor fuktig</string>
+    <string name="voice_sp_air_temp_answer">%1$s grader ute.</string>
+    <string name="voice_sp_wind_answer">Vind %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vind %1$s, kast %2$s.</string>
+    <string name="voice_sp_humidity_answer">Luftfuktighet %1$s prosent.</string>
     <string name="voice_weather_great">Utmerket kjørevær</string>
     <string name="voice_weather_good">Godt kjørevær</string>
     <string name="voice_weather_ok">Kjørbart</string>
@@ -2251,6 +2262,8 @@
     <string name="adv_nav_sidebar_min_desc">Smalere skjermer beholder det nederste stopp-panelet selv i liggende retning. For lavt skjuler kartet på små skjermer.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Tilgangs-PIN for InMotion V5/V8/V10 hjul, sendes ved tilkobling så hjulet begynner å sende data. La 000000 stå med mindre du har satt din egen PIN i InMotion-appen.</string>
+    <string name="adv_kingsong_unlock_code">KingSong-opplåsingskode</string>
+    <string name="adv_kingsong_unlock_code_desc">Seks sifre som sendes med opplåsingskommandoen. Testede hjul godtar alle sifre, så la 123456 stå med mindre ditt avviser det.</string>
     <string name="adv_nav_sidebar_width">Bredde på stopp-panel</string>
     <string name="adv_nav_sidebar_width_desc">Bredden på det liggende stopp-sidepanelet. For bredt gir lite kart.</string>
     <string name="adv_simple_speedo_scale">Størrelse på enkelt speedometer</string>
@@ -2552,4 +2565,12 @@
     <string name="tpms_state_inflating">Pumper</string>
     <string name="alarm_metric_battery_envelope">Batteri (est)</string>
     <string name="alarm_metric_battery_envelope_long">Batterikurve (estimat uten last)</string>
+
+    <string name="headlight_state_off">Lys: av</string>
+    <string name="headlight_state_low">Lys: lavt</string>
+    <string name="headlight_state_medium">Lys: middels</string>
+    <string name="headlight_state_high">Lys: høyt</string>
+    <string name="headlight_state_unknown">Lys: ?</string>
+    <string name="adv_headlight_readback_age">Lysstatusens gyldighet</string>
+    <string name="adv_headlight_readback_age_desc">Hvor lenge et rapportert lysnivå er aktuelt. For lang tid kan vise et utdatert nivå.</string>
 </resources>

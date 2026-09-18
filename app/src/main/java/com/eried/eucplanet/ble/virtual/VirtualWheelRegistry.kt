@@ -18,6 +18,9 @@ object VirtualWheelRegistry {
         // real rate and jitters frame to frame: the ride a battery filter has
         // to survive, on a phone with no wheel in the room.
         "MASTER_SAG" to ::BegodeMasterSaggingVirtualWheel,
+        // A KS-18XL replaying the frames of the issue #19 capture, with the
+        // lock handshake (0x5D / 0x5E / 0x5F) and the code "123456".
+        "KS18XL" to ::KingsongVirtualWheel,
     )
 
     fun all(): List<VirtualWheelInfo> =

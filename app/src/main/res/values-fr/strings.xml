@@ -358,7 +358,9 @@
     <string name="voice_act_announce_off_terms">voix désactivée,annonces désactivées,couper la voix</string>
     <string name="voice_command_vocabulary">Que puis-je dire</string>
     <string name="voice_command_vocabulary_tap">Dites un nom seul ou dans une question.</string>
-    <string name="voice_command_vocabulary_legend">* n\'est pas une mesure de la roue : cela fait quelque chose ou répond sur autre chose.</string>
+    <string name="voice_vocab_group_wheel">Roue</string>
+    <string name="voice_vocab_group_actions">Actions</string>
+    <string name="voice_vocab_group_around">Autour de toi</string>
     <string name="voice_listening">J\'écoute</string>
     <string name="voice_answer_off">%1$s est désactivé. Vous pouvez l\'activer dans les réglages.</string>
     <string name="voice_answer_unsupported">Votre roue ne communique pas %1$s.</string>
@@ -386,6 +388,15 @@
     <string name="voice_special_not_connected">Aucune roue connectée.</string>
     <string name="voice_special_uptime">Connecté depuis %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, score %2$s. %3$s degrés, vent %4$s, humidité %5$s pour cent</string>
+    <string name="voice_weather_checking">Je vérifie la météo.</string>
+    <string name="voice_sp_air_temp_terms">température extérieure,température de l\'air,quel froid fait-il</string>
+    <string name="voice_sp_wind_terms">vent,vitesse du vent,est-ce venteux</string>
+    <string name="voice_sp_humidity_terms">humidité,quelle humidité</string>
+    <string name="voice_sp_air_temp_answer">%1$s degrés dehors.</string>
+    <string name="voice_sp_wind_answer">Vent %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vent %1$s, rafales à %2$s.</string>
+    <string name="voice_sp_humidity_answer">Humidité %1$s pour cent.</string>
     <string name="voice_weather_great">Très bon temps pour rouler</string>
     <string name="voice_weather_good">Bon temps pour rouler</string>
     <string name="voice_weather_ok">Roulable</string>
@@ -2369,6 +2380,8 @@
     <string name="adv_nav_sidebar_min_desc">Les écrans plus étroits gardent le panneau d\'arrêts en bas même en paysage. Trop bas enterre la carte sur les petits écrans.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN d\'accès pour les roues InMotion V5/V8/V10, envoyé à la connexion pour que la roue commence à envoyer des données. Laissez 000000 sauf si vous avez défini votre propre PIN dans l\'application InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Code de déverrouillage KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Six chiffres envoyés avec la commande de déverrouillage. Les roues testées acceptent n\'importe quels chiffres, laissez donc 123456 sauf si la vôtre le refuse.</string>
     <string name="adv_nav_sidebar_width">Largeur du panneau d\'arrêts</string>
     <string name="adv_nav_sidebar_width_desc">Largeur de la barre latérale d\'arrêts en paysage. Trop large laisse peu de carte.</string>
     <string name="adv_simple_speedo_scale">Taille du compteur simple</string>
@@ -2668,4 +2681,12 @@
     <string name="tpms_state_inflating">Gonflage</string>
     <string name="alarm_metric_battery_envelope">Batterie (est)</string>
     <string name="alarm_metric_battery_envelope_long">Enveloppe batterie (estimation hors charge)</string>
+
+    <string name="headlight_state_off">Phare : éteint</string>
+    <string name="headlight_state_low">Phare : faible</string>
+    <string name="headlight_state_medium">Phare : moyen</string>
+    <string name="headlight_state_high">Phare : fort</string>
+    <string name="headlight_state_unknown">Phare : ?</string>
+    <string name="adv_headlight_readback_age">Validité du niveau du phare</string>
+    <string name="adv_headlight_readback_age_desc">Durée de validité du niveau de phare reçu. Une durée trop longue peut afficher un niveau périmé.</string>
 </resources>

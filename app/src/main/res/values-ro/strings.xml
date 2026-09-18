@@ -321,7 +321,9 @@
     <string name="voice_act_announce_off_terms">voce oprită,anunțuri oprite,oprește vocea</string>
     <string name="voice_command_vocabulary">Ce pot să spun</string>
     <string name="voice_command_vocabulary_tap">Spune un nume singur sau într-o întrebare.</string>
-    <string name="voice_command_vocabulary_legend">* nu este o citire de pe roată: face ceva sau răspunde despre altceva.</string>
+    <string name="voice_vocab_group_wheel">Monociclu</string>
+    <string name="voice_vocab_group_actions">Acțiuni</string>
+    <string name="voice_vocab_group_around">În jurul tău</string>
     <string name="voice_listening">Ascult</string>
     <string name="voice_answer_off">%1$s este dezactivat. Îl poți activa din setări.</string>
     <string name="voice_answer_unsupported">Roata ta nu raportează %1$s.</string>
@@ -349,6 +351,15 @@
     <string name="voice_special_not_connected">Nicio roată conectată.</string>
     <string name="voice_special_uptime">Conectat de %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, scor %2$s. %3$s grade, vânt %4$s, umiditate %5$s la sută</string>
+    <string name="voice_weather_checking">Verific vremea.</string>
+    <string name="voice_sp_air_temp_terms">temperatura exterioară,temperatura aerului,cât de frig este</string>
+    <string name="voice_sp_wind_terms">vânt,viteza vântului,cât de vânt</string>
+    <string name="voice_sp_humidity_terms">umiditate,cât de umed</string>
+    <string name="voice_sp_air_temp_answer">%1$s grade afară.</string>
+    <string name="voice_sp_wind_answer">Vânt %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vânt %1$s, cu rafale de %2$s.</string>
+    <string name="voice_sp_humidity_answer">Umiditate %1$s la sută.</string>
     <string name="voice_weather_great">Vreme excelentă de mers</string>
     <string name="voice_weather_good">Vreme bună de mers</string>
     <string name="voice_weather_ok">Se poate merge</string>
@@ -614,6 +625,8 @@
     <string name="adv_nav_sidebar_min_desc">Ecranele mai înguste de atât păstrează panoul de opriri de jos chiar și în modul peisaj. O valoare prea mică îngroapă harta pe ecranele mici.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN-ul de acces pentru monociclurile InMotion V5/V8/V10, trimis la conectare pentru ca monociclul să înceapă să trimită date. Lasă 000000 dacă nu ți-ai setat propriul PIN în aplicația InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Cod de deblocare KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Șase cifre trimise cu comanda de deblocare. Monociclurile testate acceptă orice cifre, așa că lasă 123456 dacă al tău nu îl refuză.</string>
     <string name="adv_charging_warning">Acestea reglează estimarea timpului până la încărcarea completă. Valorile greșite dau o estimare înșelătoare, dar nu afectează niciodată încărcarea în sine.</string>
     <string name="adv_charging_target_pct">Procentul țintă</string>
     <string name="adv_charging_target_pct_desc">Influențează nivelul de încărcare la care estimarea trece la faza finală, mai lentă.</string>
@@ -795,7 +808,7 @@
     <string name="units_label">Unități</string>
     <string name="units_metric">Metrice</string>
     <string name="units_imperial">Imperiale</string>
-    <string name="units_custom">Personalizate</string>
+    <string name="units_custom">Proprii</string>
     <string name="units_temperature">Temperatură</string>
     <string name="units_speed">Viteză</string>
     <string name="tpms_forget">Uită</string>
@@ -2467,4 +2480,12 @@
     <string name="tpms_state_inflating">Se umflă</string>
     <string name="alarm_metric_battery_envelope">Baterie (est)</string>
     <string name="alarm_metric_battery_envelope_long">Anvelopă baterie (estimare fără sarcină)</string>
+
+    <string name="headlight_state_off">Far: oprit</string>
+    <string name="headlight_state_low">Far: slab</string>
+    <string name="headlight_state_medium">Far: mediu</string>
+    <string name="headlight_state_high">Far: puternic</string>
+    <string name="headlight_state_unknown">Far: ?</string>
+    <string name="adv_headlight_readback_age">Valabilitatea stării luminii</string>
+    <string name="adv_headlight_readback_age_desc">Cât timp nivelul de lumină raportat rămâne actual. O durată prea mare poate afișa un nivel învechit.</string>
 </resources>

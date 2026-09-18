@@ -256,7 +256,7 @@
     <string name="units_label">Unità</string>
     <string name="units_metric">Metrico</string>
     <string name="units_imperial">Imperiale</string>
-    <string name="units_custom">Personalizzato</string>
+    <string name="units_custom">Su misura</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Velocità</string>
     <string name="tpms_forget">Dimentica</string>
@@ -1402,7 +1402,9 @@
     <string name="voice_act_announce_off_terms">voce disattivata,annunci disattivati,disattiva la voce</string>
     <string name="voice_command_vocabulary">Cosa posso dire</string>
     <string name="voice_command_vocabulary_tap">Pronuncia un nome da solo o in una domanda.</string>
-    <string name="voice_command_vocabulary_legend">* non è una lettura della ruota: fa qualcosa o risponde su altro.</string>
+    <string name="voice_vocab_group_wheel">Ruota</string>
+    <string name="voice_vocab_group_actions">Azioni</string>
+    <string name="voice_vocab_group_around">Intorno a te</string>
     <string name="voice_listening">In ascolto</string>
     <string name="voice_answer_off">%1$s è disattivato. Puoi attivarlo nelle impostazioni.</string>
     <string name="voice_answer_unsupported">La tua ruota non riporta %1$s.</string>
@@ -1430,6 +1432,15 @@
     <string name="voice_special_not_connected">Nessun monoruota collegato.</string>
     <string name="voice_special_uptime">Collegato da %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, punteggio %2$s. %3$s gradi, vento %4$s, umidità %5$s per cento</string>
+    <string name="voice_weather_checking">Controllo il meteo.</string>
+    <string name="voice_sp_air_temp_terms">temperatura esterna,temperatura dell\'aria,quanto fa freddo</string>
+    <string name="voice_sp_wind_terms">vento,velocità del vento,quanto vento</string>
+    <string name="voice_sp_humidity_terms">umidità,quanta umidità</string>
+    <string name="voice_sp_air_temp_answer">%1$s gradi fuori.</string>
+    <string name="voice_sp_wind_answer">Vento %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vento %1$s, raffiche a %2$s.</string>
+    <string name="voice_sp_humidity_answer">Umidità %1$s per cento.</string>
     <string name="voice_weather_great">Ottimo tempo per uscire</string>
     <string name="voice_weather_good">Buon tempo per uscire</string>
     <string name="voice_weather_ok">Si può uscire</string>
@@ -2270,6 +2281,8 @@
     <string name="adv_nav_sidebar_min_desc">Gli schermi più stretti mantengono il pannello fermate in basso anche in orizzontale. Troppo basso nasconde la mappa sugli schermi piccoli.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN di accesso per le ruote InMotion V5/V8/V10, inviato alla connessione così la ruota inizia a inviare dati. Lascia 000000 a meno che tu non abbia impostato un PIN nell\'app InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Codice di sblocco KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Sei cifre inviate con il comando di sblocco. Le ruote testate accettano qualsiasi cifra, quindi lascia 123456 a meno che la tua lo rifiuti.</string>
     <string name="adv_nav_sidebar_width">Larghezza pannello fermate</string>
     <string name="adv_nav_sidebar_width_desc">Larghezza della barra laterale delle fermate in orizzontale. Troppo larga lascia poca mappa.</string>
     <string name="adv_simple_speedo_scale">Dimensione tachimetro semplice</string>
@@ -2569,4 +2582,12 @@
     <string name="tpms_state_inflating">In gonfiaggio</string>
     <string name="alarm_metric_battery_envelope">Batteria (stim)</string>
     <string name="alarm_metric_battery_envelope_long">Inviluppo batteria (stima senza carico)</string>
+
+    <string name="headlight_state_off">Luce: spenta</string>
+    <string name="headlight_state_low">Luce: bassa</string>
+    <string name="headlight_state_medium">Luce: media</string>
+    <string name="headlight_state_high">Luce: alta</string>
+    <string name="headlight_state_unknown">Luce: ?</string>
+    <string name="adv_headlight_readback_age">Validità dello stato luce</string>
+    <string name="adv_headlight_readback_age_desc">Per quanto tempo il livello di luce ricevuto resta attuale. Un tempo eccessivo può mostrare un livello obsoleto.</string>
 </resources>

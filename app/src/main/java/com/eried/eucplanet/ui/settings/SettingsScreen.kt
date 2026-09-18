@@ -799,17 +799,12 @@ fun SettingsScreen(
         stringResource(R.string.section_watch_buttons)
     )
 
-    val corpusAdvanced = listOf(
-        titleAdvanced,
-        stringResource(R.string.adv_group_rates),
-        stringResource(R.string.adv_group_nav),
-        stringResource(R.string.adv_group_alarm),
-        stringResource(R.string.adv_group_radar_auto),
-        stringResource(R.string.adv_wheel_poll_rate),
-        stringResource(R.string.adv_phone_gps_interval),
-        stringResource(R.string.adv_hud_report_interval),
-        stringResource(R.string.adv_garmin_report_interval),
-    )
+    // Every group and every spec label, from the registry, so a new Advanced
+    // row is searchable the day it is added instead of when someone remembers
+    // this list. A hand-picked list here once covered four rows of sixty.
+    val corpusAdvanced = listOf(titleAdvanced) +
+        AdvGroup.entries.map { stringResource(it.titleRes) } +
+        ADVANCED_SPECS.map { stringResource(it.label) }
 
     // Section handles for the reorganize editor (key, title, icon). Every section
     // is reorderable and hideable now, including Advanced (which defaults to last).
@@ -10762,6 +10757,9 @@ internal fun SegmentedChoice(
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
+                    // Two lines, wrapped at the word. Single words that are too
+                    // long for a third of the row are shortened in strings.xml
+                    // rather than scaled: the font stays the same everywhere.
                     Text(
                         optLabel,
                         textAlign = TextAlign.Center,

@@ -33,6 +33,11 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
      * live values and dashes ~3x per second (FlyboyEUC KS-16X tester report).
      */
     @Volatile private var lastTelemetry: WheelData = WheelData()
+    /** Lock state from the last 0x5F frame; null until the wheel has said. */
+    @Volatile private var lastLockState: Boolean? = null
+    /** The six-digit unlock code, handed over by the repository from Advanced
+     *  settings before a lock command. Blank falls back to the wheel default. */
+    @Volatile private var lockCode: String = ""
     /** Latest temperature from the 0xA9 frame (board or generic sensor). */
     @Volatile private var lastTempA9: Float = 0f
     /** Latest temperature from the 0xB9 frame (second sensor, usually motor). */
@@ -162,7 +167,14 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
 
     override fun setVolume(percent: Int): ByteArray? = null
     override fun setDRL(on: Boolean): ByteArray? = null
-    override fun setLock(locked: Boolean): ByteArray? = null
+    // Lock and unlock, from the KS-18XL capture in issue #19 (2026-09-16).
+    // Locking is a plain frame; unlocking carries the six digits the rider
+    // set in the KingSong app, so without them there is nothing to send.
+    override fun setLock(locked: Boolean): ByteArray? =
+        if (locked) KingsongCommands.lock() else KingsongCommands.unlock(lockCode)
+    /** Read the state straight back so the icon settles on what the wheel says. */
+    override fun setLockFollowup(locked: Boolean): ByteArray? = KingsongCommands.queryLock()
+    override fun provideLockCode(code: String) { lockCode = code }
 
     override fun requestAuthKey(): ByteArray? = null
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = null
@@ -205,7 +217,10 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                     // resets lightOn -> false, then the next B9 sets it
                     // back -> true, oscillating at frame interleave rate
                     // and spamming the TTS "lights on/off" announcement.
-                    lightOn = lastTelemetry.lightOn
+                    lightOn = lastTelemetry.lightOn,
+                    // The lock state only ever arrives on 0x5F; carry it so a
+                    // realtime frame does not read as "the wheel said nothing".
+                    lockedReported = lastLockState
                 )
                 listOf(DecodeResult.Telemetry(lastTelemetry))
             }
@@ -225,6 +240,17 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                     charging = isCharging,
                     timestamp = trip.timestamp
                 )
+                listOf(DecodeResult.Telemetry(lastTelemetry))
+            }
+            0x5F -> {
+                // Lock state, answering 0x5E or straight after a 0x5D set. Byte 2
+                // is 1 locked, 0 unlocked (KS-18XL capture, issue #19). Surfaced as
+                // lockedReported so the repository lets telemetry own the lock
+                // icon, the way it does for InMotion V1.
+                val locked = rawBytes[2].toInt() == 1
+                DiagnosticsLogger.note("KingSong lock state: ${if (locked) "locked" else "unlocked"}")
+                lastLockState = locked
+                lastTelemetry = lastTelemetry.copy(lockedReported = locked)
                 listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xBB -> {
@@ -282,6 +308,7 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
         detectedModel = null
         pendingEcho = null
         lastTelemetry = WheelData()
+        lastLockState = null
         lastTempA9 = 0f
         lastTempB9 = 0f
         limitsReceived = false
@@ -306,7 +333,7 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
      * consequences if the user is mid-ride or the wheel is upright.
      *
      * Per docs/protocols/kingsong.md section 8 KingSong has no documented
-     * lock command in the public protocol, so no lock toggle is offered.
+     * lock command in the public protocol; ours came from the issue #19 capture, see [setLock].
      */
     override fun getDiagnosticCommands(): List<DiagnosticCommand> {
         val LIGHT = DiagnosticCommand.Category.LIGHT
@@ -324,6 +351,8 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 KingsongCommands.querySerial(), QUERY),
             DiagnosticCommand("QE1", "Read BMS1 serial",
                 KingsongCommands.bmsQuery(KingsongCommands.Type.BMS1_SERIAL_REQ), QUERY),
+            DiagnosticCommand("Q5E", "Read lock state (the wheel answers 0x5F)",
+                KingsongCommands.queryLock(), QUERY),
 
             // --- Horn ---
             DiagnosticCommand("T88", "Beep the horn once",

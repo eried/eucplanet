@@ -358,7 +358,9 @@
     <string name="voice_act_announce_off_terms">głos wyłączony,komunikaty wyłączone,wyłącz głos</string>
     <string name="voice_command_vocabulary">Co mogę powiedzieć</string>
     <string name="voice_command_vocabulary_tap">Powiedz nazwę samodzielnie lub w pytaniu.</string>
-    <string name="voice_command_vocabulary_legend">* to nie odczyt koła: coś robi albo odpowiada o czymś innym.</string>
+    <string name="voice_vocab_group_wheel">Koło</string>
+    <string name="voice_vocab_group_actions">Akcje</string>
+    <string name="voice_vocab_group_around">Wokół ciebie</string>
     <string name="voice_listening">Słucham</string>
     <string name="voice_answer_off">%1$s jest wyłączone. Możesz to włączyć w ustawieniach.</string>
     <string name="voice_answer_unsupported">Twoje koło nie podaje %1$s.</string>
@@ -386,6 +388,15 @@
     <string name="voice_special_not_connected">Brak połączonego koła.</string>
     <string name="voice_special_uptime">Połączono od %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, wynik %2$s. %3$s stopni, wiatr %4$s, wilgotność %5$s procent</string>
+    <string name="voice_weather_checking">Sprawdzam pogodę.</string>
+    <string name="voice_sp_air_temp_terms">temperatura powietrza,temperatura na zewnątrz,jak zimno</string>
+    <string name="voice_sp_wind_terms">wiatr,prędkość wiatru,jak wietrznie</string>
+    <string name="voice_sp_humidity_terms">wilgotność,jak wilgotno</string>
+    <string name="voice_sp_air_temp_answer">%1$s stopni na zewnątrz.</string>
+    <string name="voice_sp_wind_answer">Wiatr %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Wiatr %1$s, w porywach %2$s.</string>
+    <string name="voice_sp_humidity_answer">Wilgotność %1$s procent.</string>
     <string name="voice_weather_great">Świetna pogoda na jazdę</string>
     <string name="voice_weather_good">Dobra pogoda na jazdę</string>
     <string name="voice_weather_ok">Da się jechać</string>
@@ -643,7 +654,7 @@
     <string name="units_label">Jednostki</string>
     <string name="units_metric">Metryczne</string>
     <string name="units_imperial">Imperialne</string>
-    <string name="units_custom">Niestandardowe</string>
+    <string name="units_custom">Własne</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Prędkość</string>
     <string name="tpms_forget">Zapomnij</string>
@@ -2363,6 +2374,8 @@
     <string name="adv_nav_sidebar_min_desc">Węższe ekrany zachowują dolny panel przystanków nawet w poziomie. Zbyt niski chowa mapę na małych ekranach.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN dostępu do kół InMotion V5/V8/V10, wysyłany przy połączeniu, aby koło zaczęło przesyłać dane. Zostaw 000000, chyba że ustawiłeś własny PIN w aplikacji InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Kod odblokowania KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Sześć cyfr wysyłanych z poleceniem odblokowania. Przetestowane koła przyjmują dowolne cyfry, więc zostaw 123456, chyba że twoje je odrzuci.</string>
     <string name="adv_nav_sidebar_width">Szerokość panelu przystanków</string>
     <string name="adv_nav_sidebar_width_desc">Szerokość bocznego panelu przystanków w poziomie. Zbyt szeroki zostawia mało mapy.</string>
     <string name="adv_simple_speedo_scale">Rozmiar prostego prędkościomierza</string>
@@ -2664,4 +2677,12 @@
     <string name="tpms_state_inflating">Pompowanie</string>
     <string name="alarm_metric_battery_envelope">Bateria (szac)</string>
     <string name="alarm_metric_battery_envelope_long">Obwiednia baterii (szacunek bez obciążenia)</string>
+
+    <string name="headlight_state_off">Światło: wył.</string>
+    <string name="headlight_state_low">Światło: niskie</string>
+    <string name="headlight_state_medium">Światło: średnie</string>
+    <string name="headlight_state_high">Światło: wysokie</string>
+    <string name="headlight_state_unknown">Światło: ?</string>
+    <string name="adv_headlight_readback_age">Ważność stanu światła</string>
+    <string name="adv_headlight_readback_age_desc">Jak długo zgłoszony poziom światła pozostaje aktualny. Zbyt długi czas może pokazywać nieaktualny poziom.</string>
 </resources>
