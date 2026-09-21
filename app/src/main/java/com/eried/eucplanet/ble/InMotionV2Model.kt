@@ -64,7 +64,11 @@ enum class InMotionV2Model(
     V14_50GB(91, "InMotion V14 50GB",  maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
     V14_50S( 92, "InMotion V14 50S",   maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
     V12S(  111, "InMotion V12S",       maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 120),
-    V9(    121, "InMotion V9",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 120);
+    V9(    121, "InMotion V9",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 120),
+    // carType reply 02 0e 01 -> series 14, type 1. Small last-mile wheel; the
+    // wheel's own config block carries a 30.00 km/h cap, so the slider stops
+    // there. Speaks the P6-style extended-routing dialect, see the adapter.
+    V6(    141, "InMotion V6",         maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 30);
 
     companion object {
         /** Horn sub-cmd byte for `playBeep` (V13 / V14 / V11Y). */

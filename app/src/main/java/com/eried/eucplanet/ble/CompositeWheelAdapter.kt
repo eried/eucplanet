@@ -59,8 +59,14 @@ internal fun isV1WheelName(n: String): Boolean {
         var i = 1
         while (i < stripped.length && stripped[i].isDigit()) i++
         val digits = stripped.substring(1, i).toIntOrNull() ?: return false
-        // Pre-V11 V-series is the V1 wire format; V11+ is V2.
-        return digits in 1..10
+        // Pre-V11 V-series is the V1 wire format; V11+ is V2. The 2026 V6
+        // (last-mile wheel, advertises V6-XXXXXXXX) is NOT the old series:
+        // it speaks the V2 family's extended dialect, so 6 routes to V2 and
+        // the InMotionV2Adapter picks its dialect from the same name. A
+        // device named V6 that turns out to be ancient hardware still lands
+        // right: it has no Nordic UART service, and the post-connect
+        // service-based rescue re-routes it to the V1 adapter.
+        return digits in 1..10 && digits != 6
     }
     return false
 }

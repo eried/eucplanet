@@ -426,6 +426,79 @@ object InMotionV2Parser {
      * Extract the ASCII serial from the data block of a `21 02 86 01 00 …` info
      * bundle response. Returns null if the layout doesn't match what we've seen.
      */
+    /**
+     * Parse V6 realtime telemetry from the body of a `02 84` extended reply
+     * (the two routing bytes already stripped; body[0] is the first data byte).
+     *
+     * Field map recovered from a rider-labelled capture of the official app
+     * against V6-700326F3 (two annotated screenshots plus a written timeline):
+     *  - body[0-1]  uint16 LE  battery voltage, 0.01 V   (51.30 V at the start
+     *    label, 49.30 V at the end label, both matching the rider's notes)
+     *  - body[2-3]  int16 LE   battery current, 0.01 A   (0.26 A read against
+     *    the app's idle "0.22 A" screenshot moment)
+     *  - body[4-5]  int16 LE   speed, 0.01 km/h, signed for reverse (5.68 at
+     *    the "5.6 km/h" screenshot, session max 20.26 vs the noted 20.9)
+     *  - body[22-23] uint16 LE session trip, 0.01 km (grew 0 -> 256 = 2.56 km,
+     *    exactly the lifetime-odometer delta of the same session)
+     *  - body[45]   temperature in the family's TempOffset80 coding (signed
+     *    byte + 80 C) behind a 0xB0 placeholder at body[44]; rose 26 -> 42 C
+     *    over the ride. Which sensor it is stays unconfirmed until a capture
+     *    with our own app, so it fills the single-temp slot.
+     *  - body[54]   0x49 while the rider is on, 0x00 lifted; same marker
+     *    value the P6 uses.
+     *
+     * Battery percent is not transmitted; the official app derives it from
+     * voltage, and both labelled points sit on the same 13S line:
+     * 51.3 V -> 69 %, 49.3 V -> 49 %, i.e. percent = (V - 44.4) * 10.
+     *
+     * body[8-9] tracks speed almost perfectly (corr 0.98) but its unit is
+     * unconfirmed (power?), so it is deliberately not mapped yet.
+     */
+    fun parseV6Telemetry(body: ByteArray): WheelData? {
+        if (body.size < 56) return null
+        val voltage = ByteUtils.getUint16LE(body, 0) / 100f
+        val current = ByteUtils.getInt16LE(body, 2) / 100f
+        val speed = ByteUtils.getInt16LE(body, 4) / 100f
+        val tripKm = ByteUtils.getUint16LE(body, 22) / 100f
+        val temp = if ((body[44].toInt() and 0xFF) == 0xB0) body[45] + 80f else 0f
+        val riderOn = (body[54].toInt() and 0xFF) == 0x49
+        val batteryPercent = ((voltage - 44.4f) * 10f).roundToInt().coerceIn(0, 100)
+        return WheelData(
+            speed = speed,
+            voltage = voltage,
+            current = current,
+            pwm = 0f,
+            torque = 0f,
+            phaseCurrent = 0f,
+            batteryPower = 0,
+            motorPower = 0,
+            // 0 would read as "locked" to the lock chip and voice metric; the
+            // V6 dialect carries no lock signal, so a lifted rider is idle (3).
+            pcMode = if (riderOn) 1 else 3,
+            batteryPercent = batteryPercent,
+            battery1Percent = batteryPercent.toFloat(),
+            battery2Percent = batteryPercent.toFloat(),
+            tripDistance = tripKm,
+            totalDistance = 0f,
+            temperatures = if (temp != 0f) listOf(temp) else emptyList(),
+            maxTemperature = temp,
+            lightOn = false,
+            tirePressureKpa = 0f,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /**
+     * Parse the V6 lifetime-stats body (`02 91` reply, routing stripped):
+     * six uint32 LE counters, the first being the total odometer in 0.01 km
+     * (497 -> 753 across the labelled ride while the app showed 5.0 -> 7.5 km,
+     * and the fourth lifetime riding seconds, delta 961 s vs the shown 16 min).
+     */
+    fun parseV6TotalKm(body: ByteArray): Float? {
+        if (body.size < 4) return null
+        return ByteUtils.getUint32LE(body, 0) / 100f
+    }
+
     fun parseP6Serial(data: ByteArray): String? {
         if (data.size < 17 || data[0] != 0x01.toByte()) return null
         val serialBytes = data.copyOfRange(1, 17)

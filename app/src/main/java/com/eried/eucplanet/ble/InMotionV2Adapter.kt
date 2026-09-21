@@ -21,11 +21,11 @@ import javax.inject.Singleton
 class InMotionV2Adapter @Inject constructor() : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
-    override val familyDisplayName: String = "InMotion V14 / V12 / P6"
+    override val familyDisplayName: String = "InMotion V14 / V12 / P6 / V6"
     override val capabilities: WheelCapabilities = WheelCapabilities.INMOTION_V2
 
     override fun inspectMessageTypes(): List<String> =
-        listOf("V14 realtime", "P6 realtime", "P6 detailed")
+        listOf("V14 realtime", "P6 realtime", "P6 detailed", "V6 realtime")
 
     /**
      * Detected model from the wheel's MainInfo response. Set the first time
@@ -46,6 +46,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var useP6Protocol: Boolean = false
 
+    /**
+     * Use the V6's dialect: P6-style extended routing for realtime and stats,
+     * a 0x13-wrapped query for the info bundle, and its own `02 84` realtime
+     * layout. Name-bound exactly like [useP6Protocol]: the wheel advertises
+     * `V6-XXXXXXXX`, and telemetry never flips it.
+     */
+    @Volatile private var useV6Protocol: Boolean = false
+
     companion object {
         /** `p6` as its own token: not preceded or followed by a letter or digit. */
         private val RX_P6_NAME = Regex("(^|[^a-z0-9])p6([^a-z0-9]|$)")
@@ -54,6 +62,13 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         internal fun isP6NameForTest(deviceName: String?): Boolean {
             val n = deviceName?.lowercase() ?: return false
             return RX_P6_NAME.containsMatchIn(n)
+        }
+
+        /** `v6` as its own token, mirroring the P6 rule (`V6-700326F3`). */
+        private val RX_V6_NAME = Regex("(^|[^a-z0-9])v6([^a-z0-9]|$)")
+        internal fun isV6NameForTest(deviceName: String?): Boolean {
+            val n = deviceName?.lowercase() ?: return false
+            return RX_V6_NAME.containsMatchIn(n)
         }
     }
 
@@ -106,6 +121,8 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * `P6-XXXXXXXX` is the cleanest pre-connect signal, so we set the model now
      * and let [initSequence] / [pollRealtime] / [decode] take the P6 branch.
      */
+    private fun isV6Name(deviceName: String?): Boolean = isV6NameForTest(deviceName)
+
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         // Every P6-specific path in this adapter hangs off this one line: the
         // command set, the realtime parse, the temperatures, the speed cap and
@@ -123,6 +140,11 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             // model-keyed UI updates don't wait for the wheel's info-bundle
             // round-trip. The serial fills in later when 0x06 lands.
             return DecodeResult.ModelName("InMotion P6", InMotionV2Model.P6)
+        }
+        if (isV6Name(deviceName)) {
+            detectedModel = InMotionV2Model.V6
+            useV6Protocol = true
+            return DecodeResult.ModelName("InMotion V6", InMotionV2Model.V6)
         }
         // Coarse model straight from the BLE advertised name: V11/V12/V13
         // carry "V1x", the V14 advertises as "Adventure-...". The carType
@@ -151,6 +173,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 InMotionV2Commands.getP6Settings()
             )
         }
+        // V6: carType, serial and versions through the 0x13 wrapper (the only
+        // one it answers); realtime starts with pollRealtime, totals with
+        // pollSettings. There is no settings page we can parse yet.
+        if (useV6Protocol) {
+            return listOf(
+                InMotionV2Commands.getV6Info(0x01),
+                InMotionV2Commands.getV6Info(0x02),
+                InMotionV2Commands.getV6Info(0x06)
+            )
+        }
         return listOf(
             InMotionV2Commands.getCarType(),
             InMotionV2Commands.getSerialNumber(),
@@ -161,17 +193,23 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         )
     }
 
-    override fun pollRealtime(): ByteArray =
-        if (useP6Protocol) InMotionV2Commands.getP6RealTimeData()
-        else InMotionV2Commands.getRealTimeData()
+    override fun pollRealtime(): ByteArray = when {
+        useP6Protocol -> InMotionV2Commands.getP6RealTimeData()
+        useV6Protocol -> InMotionV2Commands.getV6RealTimeData()
+        else -> InMotionV2Commands.getRealTimeData()
+    }
 
     /**
      * Periodic settings refresh. The P6 returns a 51-byte settings page on
      * `02 21 20 [20]`; the parser pulls the current tiltback at offset 13-14.
      */
-    override fun pollSettings(): ByteArray =
-        if (useP6Protocol) InMotionV2Commands.getP6Settings()
-        else InMotionV2Commands.getCurrentSettings()
+    override fun pollSettings(): ByteArray = when {
+        useP6Protocol -> InMotionV2Commands.getP6Settings()
+        // V6: no known settings page yet; the slow slot refreshes the
+        // lifetime odometer instead (extended 0x11 -> TotalDistance).
+        useV6Protocol -> InMotionV2Commands.getV6TotalStats()
+        else -> InMotionV2Commands.getCurrentSettings()
+    }
 
     /** Stats-cadence poll. For V14 family, rotates through the 4 BMS pack
      *  cell-voltage queries (one per call), so the 128 cells refresh once
@@ -183,6 +221,9 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      *  into the realtime frames (see decode() sub 0x04 / sub 0x07). */
     override fun pollStats(): ByteArray? {
         if (useP6Protocol) return InMotionV2Commands.getP6Stats()
+        // V6: realtime and totals already cover everything we can parse; the
+        // V14 per-pack BMS rotation below would just be ignored noise.
+        if (useV6Protocol) return null
         val pack = V14_BMS_PACK_ADDRS[v14PackPollIndex and 0x03]
         v14PackPollIndex = (v14PackPollIndex + 1) and 0x03
         // `aa aa 16 [len=3] 02 [pack=0x24..27] 02 [xor]` — InMotion's per-pack
@@ -347,6 +388,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         reassemblyBuffer.reset()
         detectedModel = null
         useP6Protocol = false
+        useV6Protocol = false
     }
 
     /**
@@ -555,6 +597,15 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 DecodeResult.Telemetry(merged)
             }
             0x04 -> {
+                // V6: the same `02 84` frame number is that wheel's realtime
+                // frame, its own layout (see parseV6Telemetry). Handled before
+                // the P6 detailed-data path so the two dialects cannot mix.
+                if (useV6Protocol) {
+                    if (data.size < 2) return DecodeResult.Unknown
+                    val body = data.copyOfRange(2, data.size)
+                    val telem = InMotionV2Parser.parseV6Telemetry(body)
+                    return telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+                }
                 // detailed-data: response to `02 21 04`. Its body carries the
                 // full temperature block (motor/controller/battery/...). Skip the
                 // `02 84` routing pair so offset 0 matches the block analysis.
@@ -573,6 +624,17 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                     it.batteryC?.let { v -> lastP6BatteryC = v }
                 }
                 DecodeResult.Unknown
+            }
+            0x11 -> {
+                // V6 lifetime stats (`02 91`): six uint32 counters, the first
+                // the total odometer in 0.01 km. Other dialects never poll
+                // this wrapped form, so the gate is just documentation.
+                if (useV6Protocol) {
+                    if (data.size < 6) return DecodeResult.Unknown
+                    val km = InMotionV2Parser.parseV6TotalKm(data.copyOfRange(2, data.size))
+                    return km?.let { DecodeResult.TotalDistance(it) } ?: DecodeResult.Unknown
+                }
+                return DecodeResult.Unknown
             }
             0x06 -> {
                 // info bundle: skip `02 86 01 00`, then ASCII serial follows
@@ -659,6 +721,26 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * and auth responses (routing 0x80). The first byte distinguishes them.
      */
     private fun decodeMainInfoOrAuth(data: ByteArray): DecodeResult {
+        // V6 info replies mark the echo with 0x80: data = [0x82, sub, payload].
+        // Only the serial is consumed; carType stays name-bound (P6 precedent)
+        // and the version layout is unverified, so both are just logged.
+        if (useV6Protocol && data.size >= 2 && (data[0].toInt() and 0xFF) == 0x82) {
+            val sub = data[1].toInt() and 0xFF
+            val body = data.copyOfRange(2, data.size)
+            return when (sub) {
+                0x02 -> {
+                    val serial = body.takeWhile { it != 0.toByte() }.toByteArray()
+                        .toString(Charsets.US_ASCII).trim()
+                    if (serial.isNotEmpty()) DecodeResult.Serial(serial) else DecodeResult.Unknown
+                }
+                else -> {
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "V6 info sub=%02x body=%s".format(sub, body.joinToString(" ") { "%02x".format(it) })
+                    )
+                    DecodeResult.Unknown
+                }
+            }
+        }
         if (data.isEmpty()) return DecodeResult.Unknown
         return when (data[0].toInt() and 0xFF) {
             0x01 -> {
