@@ -63,6 +63,49 @@ class InMotionV6Test {
     }
 
     @Test
+    fun v6Connect_enablesTheSessionHandshake_andDisconnectClearsIt() {
+        // The capture shows the official app repeating the auth echo every
+        // ~6 s for the whole ride; without it the real wheel stops answering
+        // (the "still disconnects" tester report). The repository runs that
+        // exchange only when requiresConnectAuth() says so.
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("V6-700326F3")
+        assertTrue(adapter.requiresConnectAuth())
+        adapter.onDisconnect()
+        assertFalse(adapter.requiresConnectAuth())
+        // The V14 path never runs the connect handshake.
+        adapter.notifyConnectingTo("V14-ABCD")
+        assertFalse(adapter.requiresConnectAuth())
+    }
+
+    @Test
+    fun v6Handshake_roundTripsThroughTheSimulatorAndAdapter() {
+        // Full loop the repository drives: query -> key -> echo -> ack, using
+        // the same command builders and decode path as a live connection.
+        val adapter = InMotionV2Adapter()
+        adapter.notifyConnectingTo("V6-VIRTUAL1")
+        val sim = com.eried.eucplanet.ble.virtual.V6VirtualWheel()
+
+        val keyReplies = sim.onWrite(InMotionV2Commands.requestAuthKey())
+        assertEquals(1, keyReplies.size)
+        val keyResult = adapter.onRawNotification(keyReplies[0])
+            .filterIsInstance<DecodeResult.AuthKey>().single()
+        assertEquals(16, keyResult.encryptedKey.size)
+
+        val ackReplies = sim.onWrite(InMotionV2Commands.verifyAuth(keyResult.encryptedKey))
+        assertEquals(1, ackReplies.size)
+        val confirm = adapter.onRawNotification(ackReplies[0])
+            .filterIsInstance<DecodeResult.AuthConfirm>().single()
+        assertTrue(confirm.success)
+
+        // A wrong echo is refused, mirroring the real wheel's gate.
+        val badAck = sim.onWrite(InMotionV2Commands.verifyAuth(ByteArray(16)))
+        val badConfirm = adapter.onRawNotification(badAck.single())
+            .filterIsInstance<DecodeResult.AuthConfirm>().single()
+        assertFalse(badConfirm.success)
+    }
+
+    @Test
     fun parseV6Telemetry_riderLifted_readsIdleNotLock() {
         // Same frame with the rider marker cleared. Must read idle (3),
         // never lock (0): the lock chip treats pcMode 0 as "wheel locked".

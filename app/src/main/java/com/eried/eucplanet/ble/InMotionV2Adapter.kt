@@ -328,10 +328,19 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * a 16-byte "encrypted" blob and accepts the same blob back), so
      * running it adds no security but unlocks the control endpoint.
      *
+     * The V6 needs the same handshake to KEEP a session at all: the
+     * official-app capture against a password-protected V6 shows the
+     * identical query / key / echo / ack exchange repeated every ~6 s
+     * for the whole ride, with no other credential ever sent. The
+     * repository's periodic re-prime matches that cadence, so enabling
+     * this flag is the whole password story for the V6 - there is no
+     * PIN to store (the V1-protocol PIN in Advanced settings is not
+     * used by this dialect).
+     *
      * V14 family wheels do NOT need this; their light/horn writes work
      * pre-auth; only lock requires the handshake on demand.
      */
-    override fun requiresConnectAuth(): Boolean = useP6Protocol
+    override fun requiresConnectAuth(): Boolean = useP6Protocol || useV6Protocol
 
     /**
      * Walk the reassembly buffer for complete AA AA frames, parse each, decode,

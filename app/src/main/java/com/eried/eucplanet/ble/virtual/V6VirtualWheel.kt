@@ -31,6 +31,10 @@ class V6VirtualWheel : VirtualWheel {
     private var startTimeMs = System.currentTimeMillis()
     private var totalKm0 = 7.53f
 
+    /** Fixed 16-byte session value handed out by the auth-key query; the
+     *  wheel accepts only an exact echo of it. Synthetic, not a captured one. */
+    private val sessionKey = ByteArray(16) { (0x10 + it).toByte() }
+
     override fun reset() {
         startTimeMs = System.currentTimeMillis()
     }
@@ -40,6 +44,33 @@ class V6VirtualWheel : VirtualWheel {
         val cmd = packet.command.toInt() and 0x7F
         val d = packet.data
 
+        // Session handshake, same shape as the real wheel: the auth-key query
+        // (data [00 00 02]) gets a 16-byte session value, and echoing that
+        // value back (data [00 00 82] + 16 bytes) gets the success ack. The
+        // real V6 requires this exchange every ~6 s to keep answering, so the
+        // simulator serves it to exercise the repository's connect-auth path.
+        if (cmd == (Command.MAIN_INFO.toInt() and 0x7F) && d.size == 3 &&
+            d[0].toInt() == 0x00 && d[1].toInt() == 0x00 && d[2].toInt() == 0x02
+        ) {
+            return listOf(
+                InMotionV2Protocol.buildPacket(
+                    0x12, Command.MAIN_INFO,
+                    byteArrayOf(0x80.toByte(), 0x02) + sessionKey
+                )
+            )
+        }
+        if (cmd == (Command.MAIN_INFO.toInt() and 0x7F) && d.size >= 19 &&
+            d[0].toInt() == 0x00 && d[1].toInt() == 0x00 && (d[2].toInt() and 0xFF) == 0x82
+        ) {
+            val echoed = d.copyOfRange(3, 19)
+            val ok = echoed.contentEquals(sessionKey)
+            return listOf(
+                InMotionV2Protocol.buildPacket(
+                    0x12, Command.MAIN_INFO,
+                    byteArrayOf(0x80.toByte(), 0x82.toByte(), if (ok) 0x01 else 0x00)
+                )
+            )
+        }
         // 0x13-wrapped info query: command 0x02, data = [0x00, 0x02, sub].
         if (cmd == (Command.MAIN_INFO.toInt() and 0x7F) && d.size >= 3 &&
             d[0].toInt() == 0x00 && d[1].toInt() == 0x02
