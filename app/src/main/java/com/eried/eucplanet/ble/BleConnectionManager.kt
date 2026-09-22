@@ -1089,15 +1089,27 @@ class BleConnectionManager @Inject constructor(
             }
 
             // Honour what the write characteristic actually supports; see
-            // BleProfile.writeTypeFor.
+            // BleProfile.writeTypeFor. Always logged: which write type a wheel
+            // got is the first thing to check when it connects but says
+            // nothing, and inferring it from the family costs a tester round
+            // trip.
             val props = rxCharacteristic?.properties ?: 0
             val resolvedWriteType = BleProfile.writeTypeFor(profile.writeType, props)
-            forcedWriteType = resolvedWriteType.takeIf { it != profile.writeType }?.also {
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "Write characteristic is no-response only - switching write type " +
-                        "(props=0x${"%02x".format(props)})"
-                )
-            }
+            forcedWriteType = resolvedWriteType.takeIf { it != profile.writeType }
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Write characteristic props=0x${"%02x".format(props)}" +
+                    " (" + buildString {
+                        if (props and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) append("write ")
+                        if (props and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) {
+                            append("write-no-response")
+                        }
+                    }.trim().ifEmpty { "none" } + ")" +
+                    ", using " +
+                    (if (resolvedWriteType == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
+                        "write-no-response"
+                    } else "write-with-response") +
+                    (if (forcedWriteType != null) " (switched from the family default)" else "")
+            )
 
             // Enable notifications on TX. The CCCD descriptor write is what
             // actually subscribes us to the wheel's push stream; it completes
@@ -1137,6 +1149,13 @@ class BleConnectionManager @Inject constructor(
                     kotlinx.coroutines.delay(4000L)
                     if (_connectionState.value == ConnectionState.INITIALIZING) {
                         Log.w(TAG, "CCCD onDescriptorWrite not seen, forcing connect")
+                        // Connecting anyway is right (some stacks never call
+                        // back), but it means the subscription is unconfirmed:
+                        // say so, or a wheel that answers into an unopened
+                        // pipe reads exactly like a wheel that never answered.
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "Notification subscribe never confirmed - connecting anyway"
+                        )
                         markReadyAndConnected()
                     }
                 }
@@ -1188,6 +1207,13 @@ class BleConnectionManager @Inject constructor(
             // the init sequence start writing.
             if (descriptor.uuid == CCCD_UUID) {
                 Log.i(TAG, "CCCD notification-enable confirmed (status=$status)")
+                // Whether we are actually subscribed decides how to read a
+                // silent wheel: unsubscribed, it may be answering perfectly
+                // into a pipe we never opened.
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    if (status == BluetoothGatt.GATT_SUCCESS) "Subscribed to wheel notifications"
+                    else "Notification subscribe FAILED (status=$status) - replies cannot reach us"
+                )
                 markReadyAndConnected()
             }
         }
@@ -1198,6 +1224,19 @@ class BleConnectionManager @Inject constructor(
             status: Int
         ) {
             Log.d(TAG, "onCharacteristicWrite status=$status")
+            // A non-zero status means the wheel refused the write: the bytes
+            // never reached the firmware. It still releases the worker below,
+            // so without this line a refused write is indistinguishable from a
+            // delivered one and the log shows a healthy-looking stream of
+            // sends that the wheel never received. Status 3 is
+            // GATT_WRITE_NOT_PERMITTED, what a characteristic answers when the
+            // write type is one it does not accept.
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "Write REFUSED by the wheel (status=$status" +
+                        (if (status == 3) ", write not permitted" else "") + ")"
+                )
+            }
             // Releases the worker: the stack has finished with this write, so
             // the next one can go without colliding with it.
             pendingAck?.complete(Unit)
