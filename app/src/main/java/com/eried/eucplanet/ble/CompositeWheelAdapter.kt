@@ -206,6 +206,12 @@ class CompositeWheelAdapter @Inject constructor(
     override fun requestAuthKey(): ByteArray? = active.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = active.verifyAuth(encryptedKey)
 
+    // Without this the composite answered the interface default (false) and
+    // the repository never ran the connect handshake, however loudly the
+    // family adapter asked for it. The P6's control-endpoint priming and the
+    // V6's session keepalive both hang off this flag.
+    override fun requiresConnectAuth(): Boolean = active.requiresConnectAuth()
+
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
         // Post-connect family rescue. Veteran wheels (Sherman / Patton /
         // Lynx / Lynx S / Abrams / Oryx) share the HM-10 BLE profile with

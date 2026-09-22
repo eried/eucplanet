@@ -43,6 +43,33 @@ data class BleProfile(
     val effectiveWriteServiceUuid: UUID get() = writeServiceUuid ?: serviceUuid
 
     companion object {
+        /**
+         * The write type to really use, given what the wheel's discovered
+         * write characteristic supports.
+         *
+         * A characteristic advertising only WRITE_NO_RESPONSE cannot take a
+         * write-with-response: the bytes never reach the firmware, so the
+         * wheel stays silent and every ACK wait runs out. The InMotion V6 is
+         * that wheel - its Nordic UART RX is no-response only, while the
+         * V11-V14 and P6 firmware accepts both - which is why the profile
+         * alone cannot decide this. Only a characteristic that genuinely
+         * cannot do write-with-response is switched, so families that need
+         * the ATT retransmit (InMotion V1) keep their profile setting.
+         *
+         * [charProperties] of 0 means the properties are unknown; the
+         * profile's choice stands.
+         */
+        fun writeTypeFor(profileWriteType: Int, charProperties: Int): Int {
+            val canWrite = charProperties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
+            val canWriteNoResponse =
+                charProperties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
+            return if (!canWrite && canWriteNoResponse) {
+                BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+            } else {
+                profileWriteType
+            }
+        }
+
         /** Nordic UART used by the InMotion V2 family (V11/V12/V13/V14). */
         val NORDIC_UART = BleProfile(
             serviceUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"),

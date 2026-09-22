@@ -184,6 +184,21 @@ class BleConnectionManager @Inject constructor(
         }
     }
     private var rxCharacteristic: BluetoothGattCharacteristic? = null
+
+    /**
+     * Write type forced by what the wheel's write characteristic actually
+     * supports, overriding the profile's choice. Null means "use the profile".
+     *
+     * A characteristic that advertises only WRITE_NO_RESPONSE cannot accept a
+     * write-with-response: the write never reaches the firmware, so the wheel
+     * answers nothing and every ACK wait burns its full timeout. The InMotion
+     * V6 is exactly that case - its Nordic UART RX characteristic is
+     * no-response only, while the V11-V14 and P6 firmware accepts both - so
+     * the family profile alone cannot get this right. Decided per connection
+     * from the discovered properties; wheels that support write-with-response
+     * keep the profile's setting, so no other family changes behaviour.
+     */
+    @Volatile private var forcedWriteType: Int? = null
     private var currentAddress: String? = null
     /** BLE advertised name from the most recent connect call, kept across reconnects. */
     private var currentName: String? = null
@@ -312,6 +327,7 @@ class BleConnectionManager @Inject constructor(
         Log.i(TAG, "Bluetooth turned off; forcing disconnect")
         // Keep shouldReconnect / currentAddress so onBluetoothOn() can re-arm.
         rxCharacteristic = null
+        forcedWriteType = null
         writeReady = false
         synchronized(writeQueueLock) { writeQueue.clear() }
         gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
@@ -689,6 +705,7 @@ class BleConnectionManager @Inject constructor(
         _connectedAddress.value = null
         currentName = null
         rxCharacteristic = null
+        forcedWriteType = null
         writeReady = false
         synchronized(writeQueueLock) { writeQueue.clear() }
 
@@ -817,7 +834,7 @@ class BleConnectionManager @Inject constructor(
             val ack = pendingAck
             if (ack != null) {
                 val budget =
-                    if (wheelAdapter.bleProfile().writeType ==
+                    if (effectiveWriteType() ==
                         BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                     ) WRITE_ACK_NO_RESPONSE_MS else WRITE_ACK_TIMEOUT_MS
                 if (withTimeoutOrNull(budget) { ack.await() } == null &&
@@ -832,6 +849,10 @@ class BleConnectionManager @Inject constructor(
         }
     }
 
+    /** The profile's write type, unless this wheel's characteristic forced another. */
+    private fun effectiveWriteType(): Int =
+        forcedWriteType ?: wheelAdapter.bleProfile().writeType
+
     /**
      * One pass at handing [data] to the GATT layer. Separate from the queue so
      * a rejection can simply be retried; see [BleWriteQueue.maxAttempts].
@@ -844,8 +865,9 @@ class BleConnectionManager @Inject constructor(
         // Pick the write type from the active adapter's profile. HM-10
         // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
         // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
-        // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT.
-        val writeType = wheelAdapter.bleProfile().writeType
+        // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT,
+        // unless this wheel's characteristic cannot accept one.
+        val writeType = effectiveWriteType()
         return try {
             val accepted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val result = g.writeCharacteristic(characteristic, data, writeType)
@@ -891,6 +913,7 @@ class BleConnectionManager @Inject constructor(
             Log.w(TAG, "writeCharacteristic threw; connection lost, tearing down", e)
             if (gatt === g) {
                 rxCharacteristic = null
+                forcedWriteType = null
                 try { g.close() } catch (_: Exception) {}
                 gatt = null
                 wheelAdapter.onDisconnect()
@@ -939,6 +962,7 @@ class BleConnectionManager @Inject constructor(
                         "Disconnected: name=${currentName ?: "(unknown)"} status=$status reconnect=$shouldReconnect"
                     )
                     rxCharacteristic = null
+                    forcedWriteType = null
                     writeReady = false
                     // A write queued against a link that has just dropped is
                     // stale: the rider's horn belongs to the ride they were on,
@@ -1062,6 +1086,17 @@ class BleConnectionManager @Inject constructor(
                         "service ${profile.effectiveWriteServiceUuid}, notify ${profile.notifyCharacteristic} " +
                         "on service ${profile.serviceUuid})")
                 return
+            }
+
+            // Honour what the write characteristic actually supports; see
+            // BleProfile.writeTypeFor.
+            val props = rxCharacteristic?.properties ?: 0
+            val resolvedWriteType = BleProfile.writeTypeFor(profile.writeType, props)
+            forcedWriteType = resolvedWriteType.takeIf { it != profile.writeType }?.also {
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "Write characteristic is no-response only - switching write type " +
+                        "(props=0x${"%02x".format(props)})"
+                )
             }
 
             // Enable notifications on TX. The CCCD descriptor write is what

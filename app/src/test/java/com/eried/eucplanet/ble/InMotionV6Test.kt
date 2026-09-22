@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ble
 
+import android.bluetooth.BluetoothGattCharacteristic
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -76,6 +77,39 @@ class InMotionV6Test {
         // The V14 path never runs the connect handshake.
         adapter.notifyConnectingTo("V14-ABCD")
         assertFalse(adapter.requiresConnectAuth())
+    }
+
+    @Test
+    fun v6WriteCharacteristic_isNoResponseOnly_soTheWriteTypeSwitches() {
+        // The tester's wheel answered nothing at all: its Nordic UART RX
+        // characteristic advertises properties 0x04 (write-no-response only,
+        // straight from the capture's GATT discovery), so every
+        // write-with-response we sent died before reaching the firmware.
+        val noResponseOnly = BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+        assertEquals(
+            BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE,
+            BleProfile.writeTypeFor(BleProfile.NORDIC_UART.writeType, noResponseOnly)
+        )
+        // A characteristic that supports write-with-response keeps the
+        // profile's type: InMotion V1 must keep the ATT retransmit, and the
+        // V11-V14 / P6 firmware is unaffected.
+        val both = BluetoothGattCharacteristic.PROPERTY_WRITE or
+            BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
+        assertEquals(
+            BleProfile.INMOTION_V1.writeType,
+            BleProfile.writeTypeFor(BleProfile.INMOTION_V1.writeType, both)
+        )
+        assertEquals(
+            BleProfile.NORDIC_UART.writeType,
+            BleProfile.writeTypeFor(
+                BleProfile.NORDIC_UART.writeType, BluetoothGattCharacteristic.PROPERTY_WRITE
+            )
+        )
+        // Unknown properties leave the profile in charge.
+        assertEquals(
+            BleProfile.NORDIC_UART.writeType,
+            BleProfile.writeTypeFor(BleProfile.NORDIC_UART.writeType, 0)
+        )
     }
 
     @Test
