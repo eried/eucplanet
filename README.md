@@ -264,7 +264,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 
 | Who | For |
 | --- | --- |
-| Gio (Wheel In Motion) | Promotion, suggestions and P6 testing |
+| [Gio (Wheel In Motion)](https://www.youtube.com/@RealWheelInMotion) | Promotion, suggestions and P6 testing |
 | FlyboyEUC (Adam) | Mten3, E20 and EX30 testing |
 | Soolek | KS-16X testing |
 | Jonathan Wiesner | LeaperKim Lynx S testing |
