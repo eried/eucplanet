@@ -451,14 +451,20 @@ object InMotionV2Parser {
      * voltage, and both labelled points sit on the same 13S line:
      * 51.3 V -> 69 %, 49.3 V -> 49 %, i.e. percent = (V - 44.4) * 10.
      *
-     * body[8-9] tracks speed almost perfectly (corr 0.98) but its unit is
-     * unconfirmed (power?), so it is deliberately not mapped yet.
+     *  - body[8-9]  int16 LE   PWM duty, 0.01 %. Identified against the whole
+     *    capture: it is zero parked, correlates 0.98 with speed, and lands
+     *    where the wheel's 30 km/h ceiling puts it (18.1 km/h reads 62.2 %,
+     *    speed/max gives 60 %). What rules out "speed in other units" is that
+     *    it dips while braking with speed still high, which is duty
+     *    behaviour, not speed. Reads a few percent while balancing a
+     *    stationary rider, as a real duty cycle does.
      */
     fun parseV6Telemetry(body: ByteArray): WheelData? {
         if (body.size < 56) return null
         val voltage = ByteUtils.getUint16LE(body, 0) / 100f
         val current = ByteUtils.getInt16LE(body, 2) / 100f
         val speed = ByteUtils.getInt16LE(body, 4) / 100f
+        val pwm = ByteUtils.getInt16LE(body, 8) / 100f
         val tripKm = ByteUtils.getUint16LE(body, 22) / 100f
         val temp = if ((body[44].toInt() and 0xFF) == 0xB0) body[45] + 80f else 0f
         val riderOn = (body[54].toInt() and 0xFF) == 0x49
@@ -467,7 +473,7 @@ object InMotionV2Parser {
             speed = speed,
             voltage = voltage,
             current = current,
-            pwm = 0f,
+            pwm = pwm,
             torque = 0f,
             phaseCurrent = 0f,
             batteryPower = 0,

@@ -47,6 +47,9 @@ class InMotionV6Test {
         assertEquals(66, d.batteryPercent)
         assertEquals(28f, d.maxTemperature, 0.001f)
         assertEquals(1, d.pcMode)
+        // PWM against the wheel's own 30 km/h ceiling: 5.68 km/h is 18.9 % of
+        // it, and the wheel reports 19.99 %.
+        assertEquals(19.99f, d.pwm, 0.001f)
     }
 
     @Test
@@ -61,6 +64,8 @@ class InMotionV6Test {
         assertEquals(42f, d.maxTemperature, 0.001f)
         // The end label was taken still standing on the wheel at 0 km/h.
         assertEquals(1, d.pcMode)
+        // Balancing a stationary rider still costs a few percent of duty.
+        assertEquals(4.66f, d.pwm, 0.001f)
     }
 
     @Test

@@ -126,6 +126,9 @@ class V6VirtualWheel : VirtualWheel {
         putInt16LE(body, 0, (voltage * 100).toInt())
         putInt16LE(body, 2, (current * 100).toInt())
         putInt16LE(body, 4, (speedKmh * 100).toInt())
+        // Duty against the model's 30 km/h ceiling, the relationship the
+        // capture shows, so the dashboard's PWM tile moves with the speed.
+        putInt16LE(body, 8, (speedKmh / 30f * 100f * 100f).toInt())
         putInt16LE(body, 22, (tripKm * 100).toInt())
         body[45] = (-50).toByte() // TempOffset80: 30 C
         body[54] = if (speedKmh > 1f) 0x49 else 0x00
