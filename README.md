@@ -26,7 +26,7 @@ riders who have the wheel.
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S) |
 | **Verified** | InMotion P6 |
-| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X |
+| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X, KS-18XL |
 | **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
 | **In test** | LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
 | **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
@@ -270,6 +270,11 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | Jonathan Wiesner | LeaperKim Lynx S testing |
 | Felix K | LeaperKim Oryx testing |
 | Bearkat713 | Motoeye E6 testing |
+| [PhilDaintree](https://github.com/PhilDaintree) | KS-18XL testing and the BLE captures behind the KingSong lock and horn |
+| [elektro-NIK](https://github.com/elektro-NIK) | Garmin watch testing across nine builds, with the logs that pinned the pacing bug |
+| [jeronimo701](https://github.com/jeronimo701) | KingSong S22 report and patch that led to battery percent from voltage |
+| [jforssblad](https://github.com/jforssblad) | NOSFET Aeon cell-voltage testing |
+| [Dubardo](https://github.com/Dubardo) | Odometer-in-trip bug report |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |
