@@ -59,10 +59,10 @@ class WheelService : LifecycleService() {
         private const val PHONE_HUD_INTERVAL_MS = 200L
         /** Graph window kept for the Phone HUD. Matches the Studio's own. */
         private const val PHONE_HUD_HISTORY_MS = 360_000L
-        /** Spacing of the wheel-vs-GPS speed lines in the Service Mode log.
-         *  Once a second is plenty to see a steady stretch without burying
-         *  the frames the log is really there to record. */
-        private const val GPS_SPEED_CHECK_INTERVAL_MS = 1000L
+        /** Spacing of the GPS fix lines in the Service Mode log. Once a
+         *  second shows a steady stretch without burying the wheel frames
+         *  the log is really there to record. */
+        private const val GPS_FIX_LOG_INTERVAL_MS = 1000L
         // Bumped to _v2 so the new lock-screen visibility on the channel actually
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
@@ -189,7 +189,7 @@ class WheelService : LifecycleService() {
     @Volatile
     private var phoneHudOnlyWhenAwayCached: Boolean = true
     private var lastPhoneHudPush = 0L
-    private var lastGpsSpeedCheckMs = 0L
+    private var lastGpsFixLogMs = 0L
 
     /**
      * Rolling telemetry for the Phone HUD's graph elements.
@@ -295,7 +295,7 @@ class WheelService : LifecycleService() {
                 }
                 handleAccelSplits(data, settings)
                 checkChargeAlerts(data, settings)
-                logGpsSpeedCheck(data)
+                logGpsFix(data)
             }
         }
 
@@ -1148,34 +1148,32 @@ class WheelService : LifecycleService() {
      * out for the same reason: it is a 1100-sample buffer at IMU rate.
      */
     /**
-     * While Service Mode is recording, put the wheel's speed and the phone's
-     * GPS speed on the same log line.
+     * While Service Mode is recording, log the GPS fix as its own observation.
      *
-     * A wheel's own speed and its own odometer come from one sensor, so they
-     * agree even when both are wrong, and a rider's memory of how fast they
-     * were going is not evidence. GPS is the one reference that does not come
-     * from the wheel, and pairing the two in the log means a tester only has
-     * to ride: the answer is in the file instead of in someone watching two
-     * numbers at once.
+     * The log is worth reading because every line is something that actually
+     * arrived, so this records only what the satellites reported, not the
+     * app's view of the wheel. The wheel's speed is already in the frames
+     * beside it and the comparison is arithmetic anyone can do afterwards;
+     * writing our own answer into the record would just be us marking our own
+     * homework. What makes the fix worth logging at all is that it is the one
+     * source that does not come from the wheel: wheel speed and wheel
+     * odometer share a sensor, so they agree even when both are wrong.
      *
-     * Only while the log is recording, and only above a walking pace, where a
-     * GPS fix is worth comparing.
+     * Accuracy rides along because a fix is only evidence when it is a good
+     * one.
      */
-    private fun logGpsSpeedCheck(data: WheelData) {
+    private fun logGpsFix(data: WheelData) {
         if (!DiagnosticsLogger.enabled.value) return
         val now = System.currentTimeMillis()
-        if (now - lastGpsSpeedCheckMs < GPS_SPEED_CHECK_INTERVAL_MS) return
+        if (now - lastGpsFixLogMs < GPS_FIX_LOG_INTERVAL_MS) return
         val external = data.gpsSpeedKmh.takeIf { it >= 0f }
-        val gps = external ?: tripRepository.currentLocation.value
-            ?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f } ?: return
-        if (data.speed < 5f && gps < 5f) return
-        lastGpsSpeedCheckMs = now
+        val loc = tripRepository.currentLocation.value
+        val speed = external ?: loc?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f } ?: return
+        lastGpsFixLogMs = now
         val source = if (external != null) "external" else "phone"
-        val delta = data.speed - gps
-        DiagnosticsLogger.note(
-            "speed check: wheel %.2f km/h, gps %.2f km/h (%s), difference %+.2f"
-                .format(data.speed, gps, source, delta)
-        )
+        val accuracy = loc?.takeIf { it.hasAccuracy() }?.let { " accuracy %.0fm".format(it.accuracy) }
+            ?: ""
+        DiagnosticsLogger.note("gps %s: %.2f km/h%s".format(source, speed, accuracy))
     }
 
     private fun pushPhoneHud(rawData: WheelData) {
