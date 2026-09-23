@@ -28,6 +28,7 @@ import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.share.ShareSession
 import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -58,6 +59,10 @@ class WheelService : LifecycleService() {
         private const val PHONE_HUD_INTERVAL_MS = 200L
         /** Graph window kept for the Phone HUD. Matches the Studio's own. */
         private const val PHONE_HUD_HISTORY_MS = 360_000L
+        /** Spacing of the wheel-vs-GPS speed lines in the Service Mode log.
+         *  Once a second is plenty to see a steady stretch without burying
+         *  the frames the log is really there to record. */
+        private const val GPS_SPEED_CHECK_INTERVAL_MS = 1000L
         // Bumped to _v2 so the new lock-screen visibility on the channel actually
         // applies: a NotificationChannel's settings are frozen after first
         // creation, so an existing install ignores code changes to the old id.
@@ -184,6 +189,7 @@ class WheelService : LifecycleService() {
     @Volatile
     private var phoneHudOnlyWhenAwayCached: Boolean = true
     private var lastPhoneHudPush = 0L
+    private var lastGpsSpeedCheckMs = 0L
 
     /**
      * Rolling telemetry for the Phone HUD's graph elements.
@@ -289,6 +295,7 @@ class WheelService : LifecycleService() {
                 }
                 handleAccelSplits(data, settings)
                 checkChargeAlerts(data, settings)
+                logGpsSpeedCheck(data)
             }
         }
 
@@ -1140,6 +1147,37 @@ class WheelService : LifecycleService() {
      * pushed into ANR territory by exactly that. The live G-force trail is left
      * out for the same reason: it is a 1100-sample buffer at IMU rate.
      */
+    /**
+     * While Service Mode is recording, put the wheel's speed and the phone's
+     * GPS speed on the same log line.
+     *
+     * A wheel's own speed and its own odometer come from one sensor, so they
+     * agree even when both are wrong, and a rider's memory of how fast they
+     * were going is not evidence. GPS is the one reference that does not come
+     * from the wheel, and pairing the two in the log means a tester only has
+     * to ride: the answer is in the file instead of in someone watching two
+     * numbers at once.
+     *
+     * Only while the log is recording, and only above a walking pace, where a
+     * GPS fix is worth comparing.
+     */
+    private fun logGpsSpeedCheck(data: WheelData) {
+        if (!DiagnosticsLogger.enabled.value) return
+        val now = System.currentTimeMillis()
+        if (now - lastGpsSpeedCheckMs < GPS_SPEED_CHECK_INTERVAL_MS) return
+        val external = data.gpsSpeedKmh.takeIf { it >= 0f }
+        val gps = external ?: tripRepository.currentLocation.value
+            ?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f } ?: return
+        if (data.speed < 5f && gps < 5f) return
+        lastGpsSpeedCheckMs = now
+        val source = if (external != null) "external" else "phone"
+        val delta = data.speed - gps
+        DiagnosticsLogger.note(
+            "speed check: wheel %.2f km/h, gps %.2f km/h (%s), difference %+.2f"
+                .format(data.speed, gps, source, delta)
+        )
+    }
+
     private fun pushPhoneHud(rawData: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the overlay updates
         if (!phoneHudWindow.isShowing) return
