@@ -52,6 +52,13 @@ These rules are binding. The terse list below is the contract; `CONVENTIONS.md`
 15. **Branching.** Rules and repo-wide docs land on every branch (main,
     next-version, next-experimental). New features are built on
     next-experimental.
+16. **Merging a PR: account for every deleted line, then run every surface.**
+    List each non-comment line the PR removes and say where it went or why it
+    goes. A replaced line hides a deletion. Then run the phone, watch and HUD
+    builds live and look at the screens the PR touched, not only the build.
+    Startup wiring is guarded by `AppStartupTest` and `LifecycleWiringTest`;
+    a new process-wide `start()` goes in `EucPlanetApp.onCreate` and in the
+    first test's list.
 
 ## Theming / colors (read before adding any UI color)
 

@@ -156,3 +156,27 @@ failed build can look like it passed.
 Rules and repo-wide docs (`CLAUDE.md`, this file) land on every long-lived branch:
 `main`, `next-version`, and `next-experimental`. New features are developed on
 `next-experimental` first.
+
+## 16. Merging a PR: account for every deleted line, then run every surface
+
+The watch-map PR (#25) replaced the line `flicManager.initialize()` in
+`EucPlanetApp.onCreate` with `MapTileCache.start(...)`. It compiled, every test
+passed, and Flic buttons were dead: no scan, no forget, no presses, and not one
+log line, because every Flic call sits behind a `?: return` on a manager that
+was never created. The review read the diff as an addition.
+
+Before merging anything from outside:
+
+- Take the diff and list every non-comment line it deletes, per file. For each
+  one write down where it moved or why it should go. A refactor moves hundreds
+  of lines and is fine; one lost line in a file the feature does not own is
+  the thing to find. `git diff base..head | grep '^-'` is the starting point.
+- Run every surface the PR could touch, live, not just the compile: phone on
+  the emulator, watch on the paired Wear emulator, HUD on its emulator. Open
+  the screens the PR changed and look at them.
+- The suite guards the wiring: `AppStartupTest` pins the start list in
+  `EucPlanetApp.onCreate`, and `LifecycleWiringTest` fails when any
+  `@Singleton` with a `start()` or `initialize()` is called by nobody. A new
+  process-wide subsystem gets its call in `onCreate` and its line in the first
+  test. Both tests strip comments first, so commenting a call out is the same
+  as deleting it.
