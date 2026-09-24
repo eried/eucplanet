@@ -1,9 +1,9 @@
-Voice commands: ask for battery, speed or the weather, or say horn, lights, lock.
+Beta 0.22.0
 
-Share a ride: invite friends with a link or QR and see each other live on the map.
-
-Tire pressure sensors, in the unit you pick.
-
-Battery (est): a battery reading with the load sag taken out, so it holds steady when you accelerate hard.
-
-Also: per-wheel alarms, a speed splits button, better settings search, NOSFET Aeon fixes.
+- Watch map (Wear OS): position, route while navigating, zoom on the dial. Thanks to ZiraiMode.
+- KingSong: lock, unlock and horn, with the app password if you set one.
+- Begode: PWM reads positive under load and no longer flashes to zero.
+- Flic 2 buttons work again.
+- HUD map draws again and follows the map style you pick.
+- Voice: weather with numbers, "What can I say" in three groups.
+- Fixes: shared locations into a closed app, notification after disconnect, alarms in backups.

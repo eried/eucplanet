@@ -27,8 +27,8 @@ android {
         // upload. It is its own 1002xx series and does not track the phone's
         // number: always increase it, never lower it to match, a lower code
         // is a downgrade Play rejects.
-        versionCode = 100267
-        versionName = "0.18.0"
+        versionCode = 100268
+        versionName = "0.22.0-beta1"
     }
 
     signingConfigs {
