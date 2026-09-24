@@ -47,6 +47,9 @@ class WheelService : LifecycleService() {
         @Volatile
         var isRunning: Boolean = false
             private set
+        @Volatile
+        var locationForegroundReady: Boolean = false
+            private set
         // Minimum |speed| (km/h) that counts as "in motion" — shared by the
         // auto-record start/stop loop and the "When riding" announcement gate
         // so the two never drift. Small enough to catch a real roll, large
@@ -73,6 +76,7 @@ class WheelService : LifecycleService() {
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
         const val ACTION_START_NAVIGATION = "com.eried.eucplanet.START_NAVIGATION"
         const val ACTION_STOP_NAVIGATION = "com.eried.eucplanet.STOP_NAVIGATION"
+        const val ACTION_START_WATCH_MAP = "com.eried.eucplanet.START_WATCH_MAP"
         /** Stop everything AND hard-kill the process as the last step of
          *  onDestroy. The activity uses this for "Stop All" so the rider
          *  doesn't see the app card linger in the OS cached-process pool
@@ -165,6 +169,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
+    @Inject lateinit var wearMapBridge: com.eried.eucplanet.wear.WearMapBridge
     @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
     @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
     @Inject lateinit var externalGpsRepository:
@@ -223,6 +228,8 @@ class WheelService : LifecycleService() {
     // because DashboardViewModel already closed the watch before the kill.
     @Volatile
     private var closeWatchOnKill: Boolean = false
+    @Volatile
+    private var watchMapStartRequested: Boolean = false
     // Flipped true the instant a teardown begins (Stop All, or onDestroy).
     // Gates every NotificationManager.notify() so a telemetry or nav emission
     // arriving mid-shutdown can't RE-POST the ongoing notification after we
@@ -235,6 +242,35 @@ class WheelService : LifecycleService() {
     private fun hasPermission(perm: String) =
         ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
 
+    private fun promoteWithAvailableTypes(): Boolean {
+        val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+            hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        val canUseBluetooth = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
+        if (!canUseLocation) locationForegroundReady = false
+        if (!canUseLocation && !canUseBluetooth) return false
+
+        var foregroundTypes = 0
+        if (canUseBluetooth) {
+            foregroundTypes =
+                foregroundTypes or ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+        }
+        if (canUseLocation) {
+            foregroundTypes = foregroundTypes or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+        }
+        return try {
+            startForeground(NOTIFICATION_ID, buildNotification(null), foregroundTypes)
+            locationForegroundReady =
+                canUseLocation &&
+                    (foregroundTypes and ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION) != 0
+            true
+        } catch (e: RuntimeException) {
+            locationForegroundReady = false
+            Log.e(TAG, "startForeground failed", e)
+            false
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         isRunning = true
@@ -244,28 +280,12 @@ class WheelService : LifecycleService() {
         // is what creates it; it then follows the pairing on its own.
         tpmsScanner.startMonitoring()
 
-        val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-        val canUseBluetooth = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-                hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
-
-        if (!canUseLocation && !canUseBluetooth) {
+        if (!promoteWithAvailableTypes()) {
             Log.e(TAG, "No permission for either location or bluetooth FGS type, stopping")
             stopSelf()
             return
         }
-
-        var fgType = 0
-        if (canUseBluetooth) fgType = fgType or ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
-        if (canUseLocation) fgType = fgType or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-
-        try {
-            startForeground(NOTIFICATION_ID, buildNotification(null), fgType)
-        } catch (e: SecurityException) {
-            Log.e(TAG, "startForeground denied, stopping", e)
-            stopSelf()
-            return
-        }
+        wearMapBridge.onServiceStarted()
 
         voiceService.initialize()
 
@@ -295,6 +315,7 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             var hudWasOn = false
+            var watchMapWasEnabled: Boolean? = null
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
@@ -345,6 +366,17 @@ class WheelService : LifecycleService() {
                 if (effective != hudWasOn) {
                     if (effective) hudServer.start() else hudServer.stop()
                     hudWasOn = effective
+                }
+                val previousWatchMapEnabled = watchMapWasEnabled
+                if (s.watchMap.enabled != previousWatchMapEnabled) {
+                    watchMapWasEnabled = s.watchMap.enabled
+                    if (!s.watchMap.enabled &&
+                        (previousWatchMapEnabled == true || watchMapStartRequested)
+                    ) {
+                        wearMapBridge.onPublisherTick()
+                        watchMapStartRequested = false
+                        reevaluateKeepAlive()
+                    }
                 }
             }
         }
@@ -433,6 +465,16 @@ class WheelService : LifecycleService() {
                             // keeps the last live numbers, which a rider
                             // glancing at the launcher reads as current.
                             renderWidget(null)
+                            // Same for the ongoing notification. The repository
+                            // zeroes the speed on disconnect, but that final
+                            // emission can land inside updateNotification's
+                            // 1 Hz throttle and be dropped, leaving the last
+                            // "1.4 mph | 84%" line up for hours. Post the state
+                            // once, unthrottled, so it reads "Disconnected".
+                            if (!shuttingDown) {
+                                getSystemService(NotificationManager::class.java)
+                                    .notify(NOTIFICATION_ID, buildNotification(null))
+                            }
                             // Only announce if we were actually connected (not just reconnect cycling)
                             if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))
@@ -476,7 +518,7 @@ class WheelService : LifecycleService() {
         }
 
         // Start GPS tracking for trip recording (only if permission granted)
-        if (canUseLocation) {
+        if (locationForegroundReady) {
             tripRepository.startLocationUpdates()
         } else {
             Log.w(TAG, "Location permission not granted, GPS tracking disabled")
@@ -501,6 +543,23 @@ class WheelService : LifecycleService() {
                     )
                 }
             }
+        }
+    }
+
+    private suspend fun reevaluateKeepAlive() {
+        val s = settingsRepository.get()
+        val stillNeeded =
+            wheelRepository.connectionState.value != ConnectionState.DISCONNECTED ||
+                tripRepository.recording.value ||
+                navigationEngine.navState.value.active ||
+                s.hudServerEnabled ||
+                s.phoneHudEnabled ||
+                s.watchMap.enabled ||
+                shareSession.state.value is ShareState.Joined ||
+                (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
+        if (!s.keepAppAlive && !stillNeeded) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
         }
     }
 
@@ -561,35 +620,29 @@ class WheelService : LifecycleService() {
                 // keeps flowing and the process stays alive while guiding.
                 tripRepository.startLocationUpdates()
             }
+            ACTION_START_WATCH_MAP -> {
+                watchMapStartRequested = true
+                val enabled = kotlinx.coroutines.runBlocking {
+                    settingsRepository.get().watchMap.enabled
+                }
+                if (enabled) {
+                    if (promoteWithAvailableTypes()) {
+                        wearMapBridge.onServiceStarted()
+                    } else {
+                        Log.w(TAG, "Watch map foreground promotion unavailable")
+                    }
+                    wearMapBridge.onPublisherTick()
+                } else {
+                    wearMapBridge.onPublisherTick()
+                    watchMapStartRequested = false
+                    lifecycleScope.launch { reevaluateKeepAlive() }
+                }
+            }
             ACTION_STOP_NAVIGATION -> {
                 navigationEngine.stop()
             }
             ACTION_STOP_KEEPALIVE -> {
-                // "Keep app running" was turned OFF. Stand the service down, but
-                // only if nothing else still depends on it. Never kill the
-                // process (that's ACTION_STOP_ALL_AND_KILL's job).
-                lifecycleScope.launch {
-                    val s = settingsRepository.get()
-                    val stillNeeded =
-                        wheelRepository.connectionState.value != ConnectionState.DISCONNECTED ||
-                        tripRepository.recording.value ||
-                        navigationEngine.navState.value.active ||
-                        s.hudServerEnabled ||
-                        s.phoneHudEnabled ||
-                        // A live location share publishes on its own heartbeat
-                        // and has nothing to do with a wheel being connected.
-                        // Standing the service down here would put the process
-                        // in the background, Doze would freeze that beat, and
-                        // the rider would silently stop moving on the group's
-                        // map. Turning "Keep app running" off leaves an active
-                        // share running; leaving the group releases it.
-                        shareSession.state.value is ShareState.Joined ||
-                        (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
-                    if (!s.keepAppAlive && !stillNeeded) {
-                        stopForeground(STOP_FOREGROUND_REMOVE)
-                        stopSelf()
-                    }
-                }
+                lifecycleScope.launch { reevaluateKeepAlive() }
             }
             ACTION_STOP_ALL_AND_KILL -> {
                 // Mark first, drop foreground status second, then stopSelf
@@ -603,6 +656,7 @@ class WheelService : LifecycleService() {
                 // below seals it: even if Android wanted to redeliver,
                 // this intent's stickiness is disabled.
                 killProcessOnDestroy = true
+                locationForegroundReady = false
                 // From the notification button only: onDestroy must close the
                 // watch(es) too. The in-app path already did and omits the extra.
                 closeWatchOnKill = intent?.getBooleanExtra(EXTRA_CLOSE_WATCH, false) == true
@@ -636,6 +690,7 @@ class WheelService : LifecycleService() {
 
     override fun onDestroy() {
         isRunning = false
+        locationForegroundReady = false
         // Any destroy path (not just Stop All) tears the notification down and
         // stops further re-posts, so an ordinary stopSelf() can't leave it behind
         // either.
@@ -694,6 +749,7 @@ class WheelService : LifecycleService() {
         automationManager.resetProximityLock()
         shareSession.leave()
         voiceService.shutdown()
+        wearMapBridge.onServiceStopped()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
         wheelRepository.disconnect()

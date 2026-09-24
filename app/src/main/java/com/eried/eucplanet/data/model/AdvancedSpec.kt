@@ -34,6 +34,7 @@ enum class AdvGroup(
     RADAR_CLASS(R.string.adv_group_radar_class, warningRes = R.string.adv_radar_warning),
     CHARGING(R.string.adv_group_charging, warningRes = R.string.adv_charging_warning),
     GEOMETRY(R.string.adv_group_geometry),
+    MAP_CACHE(R.string.adv_group_map_cache),
     CONTROLS(R.string.adv_group_controls),
     WEATHER(R.string.adv_group_weather),
 }
@@ -97,6 +98,11 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         50..2000, 25, get = { it.hudReportIntervalMs }, set = { s, v -> s.copy(hudReportIntervalMs = v) }),
     AdvancedSpec("garminReportIntervalMs", AdvGroup.RATES, R.string.adv_garmin_report_interval, R.string.adv_garmin_report_interval_desc,
         100..2000, 25, get = { it.garminReportIntervalMs }, set = { s, v -> s.copy(garminReportIntervalMs = v) }),
+
+    AdvancedSpec("headlightReadbackMaxAgeMs", AdvGroup.CONTROLS,
+        R.string.adv_headlight_readback_age, R.string.adv_headlight_readback_age_desc,
+        1000..30000, 1000, get = { it.headlightReadbackMaxAgeMs },
+        set = { s, v -> s.copy(headlightReadbackMaxAgeMs = v) }),
 
     // --- Navigation timing ---
     AdvancedSpec("navOffRouteGraceMs", AdvGroup.NAV_TIMING, R.string.adv_nav_offroute_grace, R.string.adv_nav_offroute_grace_desc,
@@ -232,6 +238,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("navSidebarMinScreenDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_min, R.string.adv_nav_sidebar_min_desc,
         400..900, 20, unit = "dp", get = { it.navSidebarMinScreenDp }, set = { s, v -> s.copy(navSidebarMinScreenDp = v) }),
 
+    // --- Map cache budgets ---
+    AdvancedSpec("mapEncodedCacheMiB", AdvGroup.MAP_CACHE, R.string.adv_map_encoded_cache, R.string.adv_map_encoded_cache_desc,
+        1..32, 1, unit = "MiB", get = { it.mapEncodedCacheMiB }, set = { s, v -> s.copy(mapEncodedCacheMiB = v) }),
+    AdvancedSpec("mapHttpCacheMiB", AdvGroup.MAP_CACHE, R.string.adv_map_http_cache, R.string.adv_map_http_cache_desc,
+        16..256, 16, unit = "MiB", get = { it.mapHttpCacheMiB }, set = { s, v -> s.copy(mapHttpCacheMiB = v) }),
+
     // --- Wheel access ---
     // InMotion V1 (V5/V8/V10/L6) BLE PIN. Typed 6-digit field; factory default
     // 000000. The +/- steppers are incidental (you type the PIN); NumberUpDown
@@ -239,6 +251,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("inmotionV1Pin", AdvGroup.CONTROLS, R.string.adv_inmotion_v1_pin, R.string.adv_inmotion_v1_pin_desc,
         0..999999, 1, unit = "", get = { it.inmotionV1Pin }, set = { s, v -> s.copy(inmotionV1Pin = v) },
         format = pinFormat, parse = pinParse),
+    AdvancedSpec("kingsongUnlockCode", AdvGroup.CONTROLS, R.string.adv_kingsong_unlock_code, R.string.adv_kingsong_unlock_code_desc,
+        0..999999, 1, unit = "", get = { it.kingsongUnlockCode }, set = { s, v -> s.copy(kingsongUnlockCode = v) },
+        format = pinFormat, parse = pinParse),
+    AdvancedSpec("kingsongPassword", AdvGroup.CONTROLS, R.string.adv_kingsong_password, R.string.adv_kingsong_password_desc,
+        0..9999, 1, unit = "", get = { it.kingsongPassword }, set = { s, v -> s.copy(kingsongPassword = v) },
+        format = { String.format(java.util.Locale.US, "%04d", it) }, parse = pinParse),
 
     // --- Weather score thresholds ---
     // The comfort numbers behind the ridability score; the riding

@@ -34,3 +34,12 @@
 # DNS record types.
 -keep class javax.jmdns.** { *; }
 -dontwarn javax.jmdns.**
+
+# Debug and verbose logging is stripped from release builds. Some of it sat
+# on the telemetry path (a string format per frame for a logcat line nobody
+# reads on a release install). Log.i / w / e stay: testers' crash traces and
+# Service Mode captures lean on them.
+-assumenosideeffects class android.util.Log {
+    public static int d(...);
+    public static int v(...);
+}

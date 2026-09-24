@@ -38,4 +38,19 @@
     <string name="watch_action_media_next">下一首</string>
     <string name="watch_action_media_prev">上一首</string>
     <string name="watch_action_long_press_hint">長按以執行 %1$s</string>
+    <string name="watch_map_phone_disconnected">沒有手機</string>
+    <string name="watch_map_gps_permission">允許 GPS</string>
+    <string name="watch_map_gps_stale">GPS 已過時</string>
+    <string name="watch_map_route_loading">正在載入路線</string>
+    <string name="watch_map_route_unavailable">沒有路線</string>
+    <string name="watch_map_loading">正在載入地圖</string>
+    <string name="watch_map_unavailable">沒有地圖</string>
+    <string name="watch_map_zoom_in">放大</string>
+    <string name="watch_map_zoom_out">縮小</string>
+    <string name="watch_map_open_phone">開啟手機應用程式</string>
+    <string name="watch_map_waiting_gps">等待 GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s，速度 %2$s，電壓 %3$s。</string>
 </resources>

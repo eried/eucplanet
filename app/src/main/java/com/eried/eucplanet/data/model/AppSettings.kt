@@ -586,6 +586,7 @@ data class AppSettings(
      * as the only glance surface.
      */
     val watchShowNavigation: Boolean = true,
+    val watchMap: WatchMapSettings = WatchMapSettings(),
 
     // --- HUD companion (paired by typing the HUD IP, see HudServer) ---
     /**
@@ -1046,7 +1047,16 @@ data class AppSettings(
     val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
     val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
     val inmotionV1Pin: Int get() = advanced.inmotionV1Pin
+    val kingsongUnlockCode: Int get() = advanced.kingsongUnlockCode
+    val kingsongPassword: Int get() = advanced.kingsongPassword
 }
+/** Watch map display settings, grouped to preserve AppSettings copy() headroom. */
+data class WatchMapSettings(
+    val enabled: Boolean = false,
+    val headingUp: Boolean = false,
+    val keepScreenOnDuringNavigation: Boolean = false,
+    val showTelemetry: Boolean = true,
+)
 
 /**
  * The rider's Settings-screen arrangement.
@@ -1539,6 +1549,7 @@ data class AdvancedSettings(
     val tripFinalizeGraceMs: Int = 15000,
     // Speed (km/h) above which a lock command is refused, for safety.
     val lockMaxSpeedKmh: Int = 5,
+    val headlightReadbackMaxAgeMs: Int = 8000,
     /**
      * Seconds the microphone stays open having heard nothing.
      *
@@ -1623,10 +1634,23 @@ data class AdvancedSettings(
     val simpleSpeedoScalePct: Int = 62,
     val navSidebarWidthDp: Int = 400,
     val navSidebarMinScreenDp: Int = 600,
+    val mapEncodedCacheMiB: Int = 32,
+    val mapHttpCacheMiB: Int = 64,
     // InMotion V1 (V5 / V8 / V10 / L6) BLE access PIN, stored as the 6-digit
     // number (0 = "000000", the factory default). Sent on connect so the wheel
     // leaves its identity-only wait and streams; wheels with no PIN ignore it.
     val inmotionV1Pin: Int = 0,
+    // KingSong unlock code, the six digits the unlock command carries (0x5D,
+    // ASCII at bytes 10..15), stored as a number like the V1 PIN. 123456 is
+    // what a wheel reports when the rider never set a code in the KingSong app,
+    // and such a wheel accepts any six digits (two KS-18XL captures, issue
+    // #19). Only a rider who set their own code needs to change it.
+    val kingsongUnlockCode: Int = 123456,
+    // The KingSong app password, four digits stored as a number, 0 for none.
+    // A wheel with one set ignores lock and unlock until the app has sent it
+    // (0x41) in the session, so it goes out on connect and before every lock
+    // action (issue #19 capture, 2026-09-22).
+    val kingsongPassword: Int = 0,
 )
 
 // FlicAction enum removed (2026-05). Replaced by

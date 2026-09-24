@@ -49,7 +49,8 @@ class WearBridge @Inject constructor(
     private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
-    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
+    private val wearMapBridge: WearMapBridge,
 ) {
     companion object {
         private const val TAG = "WearBridge"
@@ -102,6 +103,9 @@ class WearBridge @Inject constructor(
         private const val K_GPS_SOURCE = "gsr"
         // Watch-display option keys mirror WatchKeys.OPT_* on the wear side.
         private const val K_OPT_KEEP_ON = "wko"
+        private const val K_OPT_KEEP_ON_NAV = "wkn"
+        private const val K_MAP_ENABLED = "wme"
+        private const val K_MAP_SHOW_TELEMETRY = "wmt"
         private const val K_OPT_SHOW_WHEEL_BATT = "wsb"
         private const val K_OPT_SHOW_PHONE_BATT = "wpb"
         private const val K_OPT_SHOW_WATCH_BATT = "wwb"
@@ -240,6 +244,7 @@ class WearBridge @Inject constructor(
         if (started) return
         started = true
         Log.i(TAG, "Wear bridge starting (publish follows watchUpdateRate tier)")
+        wearMapBridge.start()
 
         // NO wake here on purpose. start() runs from EucPlanetApp.onCreate,
         // which fires on EVERY phone process start -- including background wakes
@@ -278,6 +283,7 @@ class WearBridge @Inject constructor(
         // the watch's freshness signal alive without per-emission complexity.
         scope.launch {
             while (true) {
+                wearMapBridge.onPublisherTick()
                 try {
                     // Watch gauge max must match the phone dashboard gauge max so the
                     // two dials show the same range. Dashboard computes:
@@ -313,6 +319,7 @@ class WearBridge @Inject constructor(
         settings: AppSettings
     ) {
         try {
+            val nav = navigationEngine.navState.value
             val request = PutDataMapRequest.create(PATH_STATE).apply {
                 dataMap.putBoolean(K_CONNECTED, state == ConnectionState.CONNECTED)
                 dataMap.putString(K_WHEEL_NAME, name ?: "")
@@ -357,6 +364,12 @@ class WearBridge @Inject constructor(
                     )
                 )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
+                dataMap.putBoolean(
+                    K_OPT_KEEP_ON_NAV,
+                    settings.watchMap.keepScreenOnDuringNavigation && nav.active,
+                )
+                dataMap.putBoolean(K_MAP_ENABLED, settings.watchMap.enabled)
+                dataMap.putBoolean(K_MAP_SHOW_TELEMETRY, settings.watchMap.showTelemetry)
                 dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
                 dataMap.putBoolean(K_OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)
                 dataMap.putBoolean(K_OPT_SHOW_WATCH_BATT, settings.watchShowWatchBattery)
@@ -394,7 +407,6 @@ class WearBridge @Inject constructor(
                 // and clearing them mid-fade would swap the Flag icon back to
                 // a Navigation arrow and blank the "You have arrived" text
                 // while the popup is still on screen visibly fading out.
-                val nav = navigationEngine.navState.value
                 // cueVisible folds in the phone popup's transient timeout, so
                 // the watch shows nav only while the phone's popup is on screen.
                 val navShow = nav.active && !nav.minimized && nav.cueVisible &&

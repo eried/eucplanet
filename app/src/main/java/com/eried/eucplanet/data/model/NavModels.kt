@@ -197,6 +197,7 @@ enum class Proximity { HOT, WARM, COLD }
  */
 data class NavState(
     val active: Boolean = false,
+    val sessionId: String = "",
     val mode: NavMode = NavMode.TURN_BY_TURN,
     val minimized: Boolean = false,
     /** True before a travel heading has been established, popup says "start riding". */

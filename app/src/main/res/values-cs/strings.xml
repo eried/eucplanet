@@ -316,7 +316,9 @@
     <string name="voice_act_announce_off_terms">hlas vypnut,hlášení vypnuta,vypni hlas</string>
     <string name="voice_command_vocabulary">Co mohu říct</string>
     <string name="voice_command_vocabulary_tap">Řekni název samostatně nebo v otázce.</string>
-    <string name="voice_command_vocabulary_legend">* není údaj z kola: něco udělá nebo odpoví na něco jiného.</string>
+    <string name="voice_vocab_group_wheel">Monokolo</string>
+    <string name="voice_vocab_group_actions">Akce</string>
+    <string name="voice_vocab_group_around">Kolem tebe</string>
     <string name="voice_listening">Poslouchám</string>
     <string name="voice_answer_off">%1$s je vypnuto. Můžeš to zapnout v nastavení.</string>
     <string name="voice_answer_unsupported">Tvoje kolo nehlásí %1$s.</string>
@@ -344,6 +346,15 @@
     <string name="voice_special_not_connected">Není připojeno žádné kolo.</string>
     <string name="voice_special_uptime">Připojeno %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, skóre %2$s. %3$s stupňů, vítr %4$s, vlhkost %5$s procent</string>
+    <string name="voice_weather_checking">Kontroluji počasí.</string>
+    <string name="voice_sp_air_temp_terms">venkovní teplota,teplota vzduchu,jaká je zima</string>
+    <string name="voice_sp_wind_terms">vítr,rychlost větru,jak větrno</string>
+    <string name="voice_sp_humidity_terms">vlhkost,jak vlhko</string>
+    <string name="voice_sp_air_temp_answer">%1$s stupňů venku.</string>
+    <string name="voice_sp_wind_answer">Vítr %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vítr %1$s, v nárazech %2$s.</string>
+    <string name="voice_sp_humidity_answer">Vlhkost %1$s procent.</string>
     <string name="voice_weather_great">Skvělé počasí na jízdu</string>
     <string name="voice_weather_good">Dobré počasí na jízdu</string>
     <string name="voice_weather_ok">Dá se jet</string>
@@ -419,7 +430,7 @@
     <string name="hud_ip_incomplete">Zadejte celou adresu, například 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP adresa zařízení (automaticky)</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_off_hint">Hotspot telefonu je vypnutý. Ujistěte se, že HUD i telefon jsou na stejné síti WiFi.</string>
+    <string name="hud_hotspot_unknown_hint">Ujistěte se, že HUD i telefon jsou na stejné síti WiFi. Pokud používáte hotspot telefonu, nejprve jej zapněte.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu vysílá. Připojte HUD k WiFi tohoto telefonu a spojení se naváže.</string>
     <string name="hud_overlay_subsection">Vlastní překryv</string>
     <string name="hud_overlay_subsection_desc">Naimportuje předvolbu z Overlay Studia na obrazovku Vlastní v HUD, bez pozadí. Předvolba se sem zkopíruje, takže pozdější úpravy ve studiu HUD nezmění, dokud ji neimportujete znovu.</string>
@@ -461,6 +472,15 @@
     <string name="watch_keep_on_desc">Nenechá hodinky usnout, dokud je aplikace otevřená.</string>
     <string name="watch_update_rate">Frekvence aktualizací</string>
     <string name="watch_update_rate_desc">Pomalejší aktualizace šetří baterii hodinek. Toto je nezávislé na frekvenci dotazování monokola v části Pokročilé.</string>
+    <string name="watch_map_enabled">Mapa v hodinkách</string>
+    <string name="watch_map_enabled_desc">Zobrazuje polohu a trasu z telefonu. Pro běh na pozadí zůstává aktivní oznámení.</string>
+    <string name="watch_map_orientation">Orientace mapy</string>
+    <string name="watch_map_north_up">Sever nahoře</string>
+    <string name="watch_map_heading_up">Směr jízdy nahoře</string>
+    <string name="watch_keep_on_navigation">Nechat zapnuté při navigaci</string>
+    <string name="watch_keep_on_navigation_desc">Při navigaci udrží obrazovku hodinek zapnutou. Spotřebuje více baterie.</string>
+    <string name="watch_map_telemetry">Telemetrie mapy</string>
+    <string name="watch_map_telemetry_desc">Zobrazuje PWM, rychlost a napětí podél horního okraje.</string>
     <string name="tab_advanced">Pokročilé</string>
     <string name="adv_restore_default">Obnovit výchozí</string>
     <string name="adv_reset_all">Obnovit vše na výchozí</string>
@@ -587,6 +607,11 @@
     <string name="adv_radar_min_frame_desc">Ovlivňuje nejmenší dobu mezi snímky použitou pro výpočet rychlosti přiblížení. Nebezpečí: příliš nízká hodnota může přehnaně reagovat na kolísání.</string>
     <string name="adv_group_charging">Odhad nabíjení</string>
     <string name="adv_group_geometry">Proměnné geometrie obrazovky</string>
+    <string name="adv_group_map_cache">Mezipaměť map</string>
+    <string name="adv_map_encoded_cache">Mezipaměť kódovaných dlaždic</string>
+    <string name="adv_map_encoded_cache_desc">PNG dlaždice uložené pro hodinky. Vyšší hodnota používá více paměti telefonu.</string>
+    <string name="adv_map_http_cache">Mezipaměť stažených dlaždic</string>
+    <string name="adv_map_http_cache_desc">Stažené mapové dlaždice uložené v telefonu. Vyšší hodnota zabere více úložiště.</string>
     <string name="adv_group_controls">Ovládání monokola</string>
     <string name="adv_group_weather">Skóre počasí</string>
     <string name="adv_weather_cold_desc">Pod tímto je hodina příliš studená.</string>
@@ -609,6 +634,10 @@
     <string name="adv_nav_sidebar_min_desc">Obrazovky užší než toto ponechají spodní panel zastávek i na šířku. Příliš nízká hodnota pohřbí mapu na malých obrazovkách.</string>
     <string name="adv_inmotion_v1_pin">PIN pro InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">Přístupový PIN pro monokola InMotion V5/V8/V10, odesílá se při připojení, aby monokolo začalo posílat data. Ponechte 000000, pokud jste si v aplikaci InMotion nenastavili vlastní PIN.</string>
+    <string name="adv_kingsong_unlock_code">Kód odemknutí KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Šest číslic odesílaných s příkazem k odemknutí. Testovaná monokola přijmou jakékoli číslice, ponechte tedy 123456, pokud je vaše neodmítne.</string>
+    <string name="adv_kingsong_password">Heslo aplikace KingSong</string>
+    <string name="adv_kingsong_password_desc">Čtyřmístné heslo nastavené v aplikaci KingSong, odesílané při připojení a před zamknutím a odemknutím. Ponechte 0000, pokud jste žádné nenastavili.</string>
     <string name="adv_charging_warning">Tyto hodnoty ladí odhad času do plného nabití. Nesprávné hodnoty dají zavádějící odhad, ale nikdy neovlivní samotné nabíjení.</string>
     <string name="adv_charging_target_pct">Cílové procento</string>
     <string name="adv_charging_target_pct_desc">Ovlivňuje úroveň nabití, kde odhad přejde do pomalejší závěrečné fáze.</string>
@@ -2437,4 +2466,12 @@
     <string name="tpms_state_inflating">Hustí se</string>
     <string name="alarm_metric_battery_envelope">Baterie (odh)</string>
     <string name="alarm_metric_battery_envelope_long">Obálka baterie (odhad bez zátěže)</string>
+
+    <string name="headlight_state_off">Světlo: vyp.</string>
+    <string name="headlight_state_low">Světlo: nízké</string>
+    <string name="headlight_state_medium">Světlo: střední</string>
+    <string name="headlight_state_high">Světlo: vysoké</string>
+    <string name="headlight_state_unknown">Světlo: ?</string>
+    <string name="adv_headlight_readback_age">Platnost stavu světla</string>
+    <string name="adv_headlight_readback_age_desc">Jak dlouho je hlášená úroveň světla aktuální. Příliš dlouhá doba může zobrazit zastaralou úroveň.</string>
 </resources>

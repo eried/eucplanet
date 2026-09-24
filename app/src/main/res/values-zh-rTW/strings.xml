@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">語音關閉,播報關閉,關閉語音</string>
     <string name="voice_command_vocabulary">我可以說什麼</string>
     <string name="voice_command_vocabulary_tap">可以只說名稱，也可以放在問題裡。</string>
-    <string name="voice_command_vocabulary_legend">* 不是車輛讀數：它會執行操作，或回答其他內容。</string>
+    <string name="voice_vocab_group_wheel">車輪</string>
+    <string name="voice_vocab_group_actions">操作</string>
+    <string name="voice_vocab_group_around">周圍</string>
     <string name="voice_listening">聆聽中</string>
     <string name="voice_answer_off">%1$s已關閉。可在設定中開啟。</string>
     <string name="voice_answer_unsupported">你的輪子不提供%1$s。</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">未連接輪子。</string>
     <string name="voice_special_uptime">已連接 %1$s。</string>
     <string name="voice_special_weather">%1$s。%2$s。</string>
+    <string name="voice_special_weather_full">%1$s，評分 %2$s。氣溫 %3$s 度，風速 %4$s，濕度 %5$s%%</string>
+    <string name="voice_weather_checking">正在查看天氣。</string>
+    <string name="voice_sp_air_temp_terms">氣溫,室外溫度,有多冷</string>
+    <string name="voice_sp_wind_terms">風,風速,風有多大</string>
+    <string name="voice_sp_humidity_terms">濕度,有多潮濕</string>
+    <string name="voice_sp_air_temp_answer">外面 %1$s 度。</string>
+    <string name="voice_sp_wind_answer">風速 %1$s。</string>
+    <string name="voice_sp_wind_gust_answer">風速 %1$s，陣風 %2$s。</string>
+    <string name="voice_sp_humidity_answer">濕度 %1$s%%。</string>
     <string name="voice_weather_great">非常適合騎行</string>
     <string name="voice_weather_good">適合騎行</string>
     <string name="voice_weather_ok">可以騎</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">請輸入完整位址，例如 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">裝置 IP（自動）</string>
     <string name="hud_server_port">埠號</string>
-    <string name="hud_hotspot_off_hint">手機熱點已關閉。請確保 HUD 和手機在同一個 WiFi 網路上。</string>
+    <string name="hud_hotspot_unknown_hint">請確保 HUD 和手機在同一個 WiFi 網路上。如果使用手機熱點，請先開啟。</string>
     <string name="hud_hotspot_on_hint">手機熱點正在廣播。將 HUD 連至此手機的 WiFi 以啟用連結。</string>
     <string name="hud_overlay_subsection">自訂疊加層</string>
     <string name="hud_overlay_subsection_desc">將疊加工作室預設套用至 HUD 的自訂畫面（不含背景）。預設會複製至此處，因此稍後在工作室的編輯不會影響 HUD，直到您再次匯入為止。</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">應用程式開啟時保持手錶喚醒。</string>
     <string name="watch_update_rate">更新頻率</string>
     <string name="watch_update_rate_desc">降低更新頻率可節省手機與手錶的電量。</string>
+    <string name="watch_map_enabled">手錶地圖</string>
+    <string name="watch_map_enabled_desc">顯示手機上的位置和路線。背景執行時會保留通知。</string>
+    <string name="watch_map_orientation">地圖方向</string>
+    <string name="watch_map_north_up">北方朝上</string>
+    <string name="watch_map_heading_up">航向朝上</string>
+    <string name="watch_keep_on_navigation">導航時保持開啟</string>
+    <string name="watch_keep_on_navigation_desc">導航時保持手錶螢幕開啟。會消耗更多電量。</string>
+    <string name="watch_map_telemetry">地圖遙測</string>
+    <string name="watch_map_telemetry_desc">在頂部邊緣顯示 PWM、速度和電壓。</string>
     <string name="watch_update_conservative">省電</string>
     <string name="watch_update_normal">正常</string>
     <string name="watch_update_fast">快速</string>
@@ -2327,6 +2347,11 @@
     <string name="side_left">左</string>
     <string name="side_right">右</string>
     <string name="adv_group_geometry">螢幕幾何變數</string>
+    <string name="adv_group_map_cache">地圖快取</string>
+    <string name="adv_map_encoded_cache">已編碼圖磚快取</string>
+    <string name="adv_map_encoded_cache_desc">為手錶保留的 PNG 圖磚。數值越高，使用的手機記憶體越多。</string>
+    <string name="adv_map_http_cache">已下載圖磚快取</string>
+    <string name="adv_map_http_cache_desc">保留在手機上的已下載地圖圖磚。數值越高，使用的儲存空間越多。</string>
     <string name="adv_compact_max_screen">精簡螢幕上限</string>
     <string name="adv_compact_max_screen_desc">當精簡儀表板設為「小螢幕」時，兩邊都小於此值的螢幕會切換為精簡儀表板。</string>
     <string name="adv_cover_cutout_inset">鏡頭開孔尺寸</string>
@@ -2335,6 +2360,10 @@
     <string name="adv_nav_sidebar_min_desc">比此更窄的螢幕即使橫向也保留底部停靠點面板。太低會在小螢幕上遮住地圖。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 車輪的存取 PIN，連線時傳送，讓車輪開始傳送資料。除非你在 InMotion 應用程式中設定了自己的 PIN，否則請保持 000000。</string>
+    <string name="adv_kingsong_unlock_code">KingSong 解鎖碼</string>
+    <string name="adv_kingsong_unlock_code_desc">隨解鎖指令傳送的六位數字。已測試的車輪接受任何數字，因此除非你的車輪拒絕，否則請保持 123456。</string>
+    <string name="adv_kingsong_password">KingSong 應用程式密碼</string>
+    <string name="adv_kingsong_password_desc">在 KingSong 應用程式中設定的 4 位數密碼，連線時以及鎖定與解鎖前傳送。若從未設定，請保持 0000。</string>
     <string name="adv_nav_sidebar_width">停靠點面板寬度</string>
     <string name="adv_nav_sidebar_width_desc">橫向停靠點側欄的寬度。太寬會讓地圖變小。</string>
     <string name="adv_simple_speedo_scale">簡易速度表尺寸</string>
@@ -2633,4 +2662,12 @@
     <string name="tpms_state_inflating">充氣中</string>
     <string name="alarm_metric_battery_envelope">電量(估算)</string>
     <string name="alarm_metric_battery_envelope_long">電量包絡（去除負載的估算）</string>
+
+    <string name="headlight_state_off">頭燈：關</string>
+    <string name="headlight_state_low">頭燈：低</string>
+    <string name="headlight_state_medium">頭燈：中</string>
+    <string name="headlight_state_high">頭燈：高</string>
+    <string name="headlight_state_unknown">頭燈：?</string>
+    <string name="adv_headlight_readback_age">燈光狀態有效期</string>
+    <string name="adv_headlight_readback_age_desc">回報的燈光亮度保持有效的時間。時間過長可能顯示過時的亮度。</string>
 </resources>

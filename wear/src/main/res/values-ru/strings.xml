@@ -38,4 +38,19 @@
     <string name="watch_action_media_next">Следующий трек</string>
     <string name="watch_action_media_prev">Предыдущий трек</string>
     <string name="watch_action_long_press_hint">Удерживай для %1$s</string>
+    <string name="watch_map_phone_disconnected">Нет телефона</string>
+    <string name="watch_map_gps_permission">Доступ к GPS</string>
+    <string name="watch_map_gps_stale">GPS устарел</string>
+    <string name="watch_map_route_loading">Загрузка маршрута</string>
+    <string name="watch_map_route_unavailable">Нет маршрута</string>
+    <string name="watch_map_loading">Загрузка карты</string>
+    <string name="watch_map_unavailable">Нет карты</string>
+    <string name="watch_map_zoom_in">Приблизить</string>
+    <string name="watch_map_zoom_out">Отдалить</string>
+    <string name="watch_map_open_phone">Откройте приложение</string>
+    <string name="watch_map_waiting_gps">Поиск GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s В</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, скорость %2$s, напряжение %3$s.</string>
 </resources>

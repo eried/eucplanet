@@ -19,6 +19,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Singleton
 
 @Module
@@ -255,12 +259,21 @@ object AppModule {
         }
     }
 
+    /** Every migration, oldest first. Internal so MigrationAllTest can run them one at a time. */
+    internal val ALL_MIGRATIONS: Array<Migration> = arrayOf(
+        MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49,
+        MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53, MIGRATION_53_54,
+        MIGRATION_54_55, MIGRATION_55_56, MIGRATION_56_57, MIGRATION_57_58, MIGRATION_58_59,
+        MIGRATION_59_60, MIGRATION_60_61,
+    )
+
     /**
-     * Build the Room database with the v44->v45 migration. If the open still
-     * fails (e.g. a future identity-hash mismatch from a forgotten migration),
-     * wipe the DB file and rebuild, trip / alarm / profile loss is regrettable
-     * but better than an unrecoverable crash on every cold start. Settings
-     * stay safe in DataStore regardless.
+     * Build the Room database and open it. If the open fails (a broken
+     * migration, an identity-hash mismatch from a forgotten one, a corrupt
+     * file), the file is copied next to itself as `<db>.corrupt-<stamp>` and
+     * only then deleted and rebuilt, so a rider's trips, alarms and profiles
+     * can still be pulled off the device instead of being wiped on the spot.
+     * Settings stay safe in DataStore regardless.
      */
     private fun openOrRecover(context: Context): AppDatabase {
         val first = buildDb(context)
@@ -268,8 +281,10 @@ object AppModule {
             first.openHelper.writableDatabase
             first
         } catch (t: Throwable) {
-            Log.w(TAG, "DB open failed, wiping and rebuilding: ${t.message}")
+            Log.e(TAG, "DB open failed, keeping a copy of $DB_NAME before rebuilding", t)
             runCatching { first.close() }
+            runCatching { keepCorruptCopy(context.getDatabasePath(DB_NAME)) }
+                .onFailure { Log.e(TAG, "Could not copy the unreadable database", it) }
             runCatching { context.deleteDatabase(DB_NAME) }
             val rebuilt = buildDb(context)
             runCatching { rebuilt.openHelper.writableDatabase }
@@ -277,9 +292,36 @@ object AppModule {
         }
     }
 
+    /** How many `.corrupt-*` copies to keep; older ones are deleted. */
+    private const val CORRUPT_COPIES_KEPT = 2
+    private val SIDE_FILES = listOf("-wal", "-shm")
+
+    /**
+     * Copy [dbFile] and its -wal / -shm to `<name>.corrupt-<yyyyMMdd-HHmmss>`
+     * (the side files keep their suffix after the stamp so SQLite still pairs
+     * them with the copy), then drop all but the newest [CORRUPT_COPIES_KEPT].
+     */
+    private fun keepCorruptCopy(dbFile: File) {
+        if (!dbFile.exists()) return
+        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+        val copy = File(dbFile.parentFile, "${dbFile.name}.corrupt-$stamp")
+        dbFile.copyTo(copy, overwrite = true)
+        for (suffix in SIDE_FILES) {
+            val side = File(dbFile.path + suffix)
+            if (side.exists()) side.copyTo(File(copy.path + suffix), overwrite = true)
+        }
+        Log.e(TAG, "Unreadable database kept at ${copy.path}")
+        val prefix = "${dbFile.name}.corrupt-"
+        dbFile.parentFile
+            ?.listFiles { f -> f.name.startsWith(prefix) && SIDE_FILES.none { f.name.endsWith(it) } }
+            ?.sortedByDescending { it.name } // the stamp sorts newest first
+            ?.drop(CORRUPT_COPIES_KEPT)
+            ?.forEach { old -> (listOf("") + SIDE_FILES).forEach { File(old.path + it).delete() } }
+    }
+
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49, MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53, MIGRATION_53_54, MIGRATION_54_55, MIGRATION_55_56, MIGRATION_56_57, MIGRATION_57_58, MIGRATION_58_59, MIGRATION_59_60, MIGRATION_60_61)
+            .addMigrations(*ALL_MIGRATIONS)
             .build()
 
     @Provides

@@ -42,7 +42,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var detectedModel: VeteranModel? = null
     @Volatile private var controlProfile = VeteranControlProfile.forModel(null)
     private var pendingLightProfile: VeteranControlProfile? = null
-    @Volatile private var alarmCommandModel: VeteranModel? = null
+    @Volatile private var commandModel: VeteranModel? = null
 
     override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
 
@@ -53,7 +53,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { VeteranModel.fromReportedName(it) }
         controlProfile = VeteranControlProfile.forModel(detectedModel)
-        alarmCommandModel = detectedModel
+        commandModel = detectedModel
         return null
     }
 
@@ -77,19 +77,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
      */
     override fun hornFollowup(): ByteArray = VeteranCommands.hornCompanion()
 
-    /**
-     * Light state is never echoed in Veteran realtime frames (per
-     * docs/protocols/veteran.md §6: "Light state has no readback.
-     * Track it locally after each write."). We cache the last
-     * commanded state here and stamp it onto every outgoing telemetry
-     * in [onRawNotification] so the dashboard's local-tracked
-     * [WheelRepository.toggleLight] doesn't see lightOn flip back
-     * to the default `false` on the very next 5 Hz realtime frame
-     * — which is exactly the bug the LK19486 rider hit: first toggle
-     * sent SetLightON, parser-default false overwrote it ~200 ms
-     * later, next toggle re-sent SetLightON instead of SetLightOFF.
-     */
-    @Volatile private var lastLightOn: Boolean = false
+    private val headlightState = VeteranHeadlightState()
 
     // Last Oryx BMS state-of-charge read from a page-2 sub-frame (byte 50).
     // The wheel only sends page 2 ~1 frame in 9, so we cache it and stamp it
@@ -104,7 +92,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var emittedModel: Boolean = false
 
     override fun setLight(on: Boolean): ByteArray {
-        lastLightOn = on
+        headlightState.commanded(commandModel, on)
         val profile = controlProfile
         pendingLightProfile = profile
         return profile.setLight(on)
@@ -125,14 +113,14 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
     // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit
-    // — the same flow P6 already uses for its two-packet flash-commit.
+    // The same flow P6 already uses for its two-packet flash-commit.
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
 
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray =
         VeteranCommands.setTiltbackSpeed(tiltbackKmh.toInt())
 
     override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray =
-        VeteranCommands.setAlarmSpeed(alarmKmh.toInt(), alarmCommandModel)
+        VeteranCommands.setAlarmSpeed(alarmKmh.toInt(), commandModel)
 
     // No volume, no DRL on this family.
     override fun setVolume(percent: Int): ByteArray? = null
@@ -269,7 +257,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
             if (isStandardTelemetry) {
                 VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes))?.let {
                     controlProfile = VeteranControlProfile.forModel(it)
-                    alarmCommandModel = it
+                    commandModel = it
                 }
             }
             val telem = if (isStandardTelemetry)
@@ -288,7 +276,10 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
                 }
                 val battery = if (lastOryxBatterySoc in 0..100) lastOryxBatterySoc
                               else telem.batteryPercent
-                telem.copy(lightOn = lastLightOn, batteryPercent = battery)
+                val model = VeteranModel.fromMVer(VeteranParser.mVerOf(f.bytes)) ?: detectedModel
+                headlightState.acceptFrame(f.bytes, model)
+                val headlight = headlightState.snapshot
+                telem.copy(lightOn = headlight.lightOn, headlightReadback = headlight.readback, batteryPercent = battery)
             } else null
             // Log the DECODED values (not just raw bytes) per frame so a
             // service-mode capture shows the speed/battery timeline directly -
@@ -345,12 +336,9 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
         detectedModel = null
         controlProfile = VeteranControlProfile.forModel(null)
         pendingLightProfile = null
-        alarmCommandModel = null
+        commandModel = null
         lastOryxBatterySoc = -1
+        headlightState.reset()
         emittedModel = false
-        // A wheel reboot loses light state on the wheel side, so the rider's
-        // most reliable mental model after a reconnect is "light is off until
-        // I press the button again". Reset the cache to match.
-        lastLightOn = false
     }
 }

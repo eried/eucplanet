@@ -92,6 +92,7 @@ data class WheelData(
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,
+    val headlightReadback: HeadlightReadback? = null,
     /** True when the wheel reports it is charging via an explicit firmware flag
      *  (InMotion V14/V12 state-byte bit 7, KingSong 0xB9). Inference-only
      *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging

@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">voz desactivada,anuncios desactivados,desactivar voz,silenciar voz</string>
     <string name="voice_command_vocabulary">Qué puedo decir</string>
     <string name="voice_command_vocabulary_tap">Di un nombre solo o dentro de una pregunta.</string>
-    <string name="voice_command_vocabulary_legend">* no es una lectura de la rueda: hace algo o responde sobre otra cosa.</string>
+    <string name="voice_vocab_group_wheel">Rueda</string>
+    <string name="voice_vocab_group_actions">Acciones</string>
+    <string name="voice_vocab_group_around">A tu alrededor</string>
     <string name="voice_listening">Escuchando</string>
     <string name="voice_answer_off">%1$s está desactivado. Puedes activarlo en los ajustes.</string>
     <string name="voice_answer_unsupported">Tu rueda no informa de %1$s.</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">Ninguna rueda conectada.</string>
     <string name="voice_special_uptime">Conectado desde hace %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, puntuación %2$s. %3$s grados, viento %4$s, humedad %5$s por ciento</string>
+    <string name="voice_weather_checking">Consultando el tiempo.</string>
+    <string name="voice_sp_air_temp_terms">temperatura del aire,temperatura exterior,qué frío hace</string>
+    <string name="voice_sp_wind_terms">viento,velocidad del viento,cuánto viento</string>
+    <string name="voice_sp_humidity_terms">humedad,cuánta humedad</string>
+    <string name="voice_sp_air_temp_answer">%1$s grados fuera.</string>
+    <string name="voice_sp_wind_answer">Viento %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Viento %1$s, con rachas de %2$s.</string>
+    <string name="voice_sp_humidity_answer">Humedad %1$s por ciento.</string>
     <string name="voice_weather_great">Excelente para rodar</string>
     <string name="voice_weather_good">Buen tiempo para rodar</string>
     <string name="voice_weather_ok">Se puede rodar</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">Escribe una dirección completa, por ejemplo 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP del dispositivo (automático)</string>
     <string name="hud_server_port">Puerto</string>
-    <string name="hud_hotspot_off_hint">El punto de acceso del teléfono está desactivado. Asegúrate de que el HUD y el teléfono estén en la misma red WiFi.</string>
+    <string name="hud_hotspot_unknown_hint">Asegúrate de que el HUD y el teléfono estén en la misma red WiFi. Si usas el punto de acceso del teléfono, actívalo primero.</string>
     <string name="hud_hotspot_on_hint">El punto de acceso del teléfono está activo. Conecta el HUD a la WiFi de este teléfono para habilitar el enlace.</string>
     <string name="hud_overlay_subsection">Overlay personalizado</string>
     <string name="hud_overlay_subsection_desc">Importa una plantilla de Overlay Studio en la pantalla Custom del HUD, sin fondos. La plantilla se copia aquí, así que los cambios posteriores en el estudio no afectan al HUD hasta que vuelvas a importar.</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">Mantiene el reloj activo mientras la app esté abierta.</string>
     <string name="watch_update_rate">Frecuencia de actualización</string>
     <string name="watch_update_rate_desc">Las actualizaciones más lentas ahorran batería en el teléfono y el reloj.</string>
+    <string name="watch_map_enabled">Mapa en el reloj</string>
+    <string name="watch_map_enabled_desc">Muestra la posición y la ruta del teléfono. Se mantiene una notificación para funcionar en segundo plano.</string>
+    <string name="watch_map_orientation">Orientación del mapa</string>
+    <string name="watch_map_north_up">Norte arriba</string>
+    <string name="watch_map_heading_up">Dirección arriba</string>
+    <string name="watch_keep_on_navigation">Mantener encendida durante navegación</string>
+    <string name="watch_keep_on_navigation_desc">Mantiene encendida la pantalla del reloj al navegar. Usa más batería.</string>
+    <string name="watch_map_telemetry">Telemetría del mapa</string>
+    <string name="watch_map_telemetry_desc">Muestra PWM, velocidad y voltaje en el borde superior.</string>
     <string name="watch_update_conservative">Conservador</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Rápido</string>
@@ -638,7 +658,7 @@
     <string name="units_label">Unidades</string>
     <string name="units_metric">Métrico</string>
     <string name="units_imperial">Imperial</string>
-    <string name="units_custom">Personalizado</string>
+    <string name="units_custom">Personal</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Velocidad</string>
     <string name="tpms_forget">Olvidar</string>
@@ -2325,6 +2345,11 @@
     <string name="side_left">Izquierda</string>
     <string name="side_right">Derecha</string>
     <string name="adv_group_geometry">Variables de geometría de pantalla</string>
+    <string name="adv_group_map_cache">Caché de mapas</string>
+    <string name="adv_map_encoded_cache">Caché de mosaicos codificados</string>
+    <string name="adv_map_encoded_cache_desc">Mosaicos PNG guardados para el reloj. Los valores altos usan más memoria del teléfono.</string>
+    <string name="adv_map_http_cache">Caché de mosaicos descargados</string>
+    <string name="adv_map_http_cache_desc">Mosaicos de mapa descargados en el teléfono. Los valores altos usan más almacenamiento.</string>
     <string name="adv_compact_max_screen">Límite de pantalla compacta</string>
     <string name="adv_compact_max_screen_desc">Las pantallas con ambos lados por debajo de esto cambian al panel compacto cuando Panel compacto está en Pantallas pequeñas.</string>
     <string name="adv_cover_cutout_inset">Tamaño del recorte de cámara</string>
@@ -2333,6 +2358,10 @@
     <string name="adv_nav_sidebar_min_desc">Las pantallas más estrechas que esto mantienen el panel de paradas inferior incluso en horizontal. Muy bajo entierra el mapa en pantallas pequeñas.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN de acceso para las ruedas InMotion V5/V8/V10, se envía al conectar para que la rueda empiece a enviar datos. Deja 000000 salvo que hayas configurado tu propio PIN en la app de InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Código de desbloqueo KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Seis dígitos que se envían con el comando de desbloqueo. Las ruedas probadas aceptan cualquier dígito, así que deja 123456 salvo que la tuya lo rechace.</string>
+    <string name="adv_kingsong_password">Contraseña de la app KingSong</string>
+    <string name="adv_kingsong_password_desc">La contraseña de 4 dígitos configurada en la app de KingSong, enviada al conectar y antes de bloquear y desbloquear. Deja 0000 si nunca pusiste una.</string>
     <string name="adv_nav_sidebar_width">Ancho del panel de paradas</string>
     <string name="adv_nav_sidebar_width_desc">Ancho de la barra lateral de paradas en horizontal. Muy ancho deja poco mapa.</string>
     <string name="adv_simple_speedo_scale">Tamaño del velocímetro simple</string>
@@ -2631,4 +2660,12 @@
     <string name="tpms_state_inflating">Inflando</string>
     <string name="alarm_metric_battery_envelope">Batería (est)</string>
     <string name="alarm_metric_battery_envelope_long">Envolvente de batería (estimación sin carga)</string>
+
+    <string name="headlight_state_off">Luz: apagada</string>
+    <string name="headlight_state_low">Luz: baja</string>
+    <string name="headlight_state_medium">Luz: media</string>
+    <string name="headlight_state_high">Luz: alta</string>
+    <string name="headlight_state_unknown">Luz: ?</string>
+    <string name="adv_headlight_readback_age">Vigencia del estado de luz</string>
+    <string name="adv_headlight_readback_age_desc">Tiempo durante el cual el nivel de luz recibido sigue vigente. Un tiempo excesivo puede mostrar un nivel desactualizado.</string>
 </resources>

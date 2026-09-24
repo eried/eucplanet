@@ -21,6 +21,7 @@ class MapProvidersTest {
             "../hud-protocol/src/main/java/com/eried/eucplanet/hud/protocol/MapLayers.kt",
             "../hud/src/main/java/com/eried/eucplanet/hud/net/HudTileCache.kt",
             "src/main/java/com/eried/eucplanet/ui/navigator/MapHtml.kt",
+            "src/main/java/com/eried/eucplanet/map/MapTileCache.kt",
             "src/main/java/com/eried/eucplanet/ui/recording/TripDetailScreen.kt",
         )
         val offenders = sources.filter { File(it).readText().contains("cartocdn") }
@@ -44,22 +45,64 @@ class MapProvidersTest {
     }
 
     @Test fun `the legacy carto slugs still resolve`() {
-        // Riders have "voyager" / "dark_all" persisted from the carto era.
-        assertEquals(MapLayers.LIGHT, MapLayers.byId("voyager").id)
-        assertEquals(MapLayers.DARK, MapLayers.byId("dark_all").id)
+        // Riders have carto slugs persisted from that era; every light_* and
+        // voyager_* one was a light chart, every dark_* one a dark chart.
+        for (slug in listOf("voyager", "voyager_nolabels", "voyager_labels_under",
+            "voyager_only_labels", "positron", "light_all", "light_nolabels", "light_only_labels")) {
+            assertEquals(slug, MapLayers.LIGHT, MapLayers.byId(slug).id)
+        }
+        for (slug in listOf("dark_all", "dark_nolabels", "dark_only_labels", "dark_matter", "dark_matter_nolabels")) {
+            assertEquals(slug, MapLayers.DARK, MapLayers.byId(slug).id)
+        }
+    }
+
+    @Test fun `every code the hud style picker offers resolves to its own layer`() {
+        // The HUD's cache used to map its codes itself and turned all seven
+        // into the light chart, so the picker on the phone changed nothing on
+        // the HUD and dark was impossible. The registry resolves them now,
+        // case-insensitively, so "osm" and "OSM" are one layer.
+        val expected = mapOf(
+            "osm" to MapLayers.OSM, "cyclosm" to MapLayers.CYCLOSM, "topo" to MapLayers.TOPO,
+            "hot" to MapLayers.HUMANITARIAN, "satellite" to MapLayers.SATELLITE,
+            "light" to MapLayers.LIGHT, "dark" to MapLayers.DARK,
+        )
+        expected.forEach { (code, id) -> assertEquals(code, id, MapLayers.byId(code).id) }
+        assertEquals(MapLayers.OSM, MapLayers.byId("no such layer").id)
+        assertEquals(null, MapLayers.refTileUrl("osm", 16, 1, 2))
+        assertEquals(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/16/2/1",
+            MapLayers.refTileUrl("dark", 16, 1, 2),
+        )
+    }
+
+    @Test fun `no canvas renderer asks the provider for tiles deeper than it renders`() {
+        // The HUD's default zoom is 17 and Esri Canvas stops at 16: the whole
+        // HUD map screen was a grid of "Map data not yet available" tiles in
+        // 0.21.0. Each renderer caps its tile zoom at the layer's native depth
+        // and draws those tiles scaled up.
+        val renderers = listOf(
+            "../hud/src/main/java/com/eried/eucplanet/hud/ui/screens/MapScreen.kt",
+            "../hud/src/main/java/com/eried/eucplanet/hud/overlay/OverlayElements.kt",
+            "src/main/java/com/eried/eucplanet/ui/studio/StudioOverlayElements.kt",
+        )
+        val offenders = renderers.filter { !File(it).readText().contains("maxNativeZoom") }
+        assertTrue("fetch past the provider's depth: $offenders", offenders.isEmpty())
     }
 
     @Test fun `the canvas renderers composite the labels layer`() {
         // Studio map element and the HUD tile cache draw single bitmaps, so
         // they fetch the Esri reference (labels) tile and draw it over the
         // base instead of showing a label-less map.
-        val studio = File("src/main/java/com/eried/eucplanet/ui/studio/StudioOverlayElements.kt").readText()
+        // The Studio map element draws through the shared MapTileCache since
+        // PR #25, so the compositing lives there now.
+        val studio = File("src/main/java/com/eried/eucplanet/map/MapTileCache.kt").readText()
         val hud = File("../hud/src/main/java/com/eried/eucplanet/hud/net/HudTileCache.kt").readText()
         assertTrue(studio.contains("_Gray_Reference/"))
-        assertTrue(hud.contains("_Gray_Reference/"))
-        // Every dark_* legacy slug means dark - dark_nolabels must not fall
-        // through to the light basemap.
-        assertTrue(hud.contains("style.startsWith(\"dark\")"))
+        // The HUD cache takes both URLs from the registry rather than a table
+        // of its own: that table is how the picker codes got lost once.
+        assertTrue(hud.contains("MapLayers.refTileUrl("))
+        assertTrue(hud.contains("MapLayers.tileUrl("))
+        assertTrue(hud.contains("MapLayers.byId("))
     }
 
     @Test fun `the hud style picker offers real styles, not carto slugs`() {

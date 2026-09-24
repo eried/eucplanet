@@ -9,33 +9,49 @@ ride, this is the branch.
 
 ## What to check in this build
 
-**Voice commands.** Hold the Voice button on the dashboard and pick Listen for
-voice command, then ask for a metric: "battery", "controller temp", "max
-speed", "what can I say". Bind it to a Flic, the volume keys, your watch or the
-HUD if you would rather not hold anything, or drag the Listen action onto a
-dashboard slot for a one tap start. It answers in the voice you picked, with
-the units your tiles use.
+**Watch map (Wear OS).** Contributed by ZiraiMode (PR #25). Settings, Watch,
+Watch map on: the watch gets a third page with your position, the route while
+navigating, and minus and plus zoom buttons on the dial. Map orientation
+(north up or heading up) and the telemetry strip along the top are settings on
+the phone. Tiles come from the phone over the Data Layer, so it works with no
+watch data plan; the first tiles take a few seconds. Advanced, Map cache, sets
+how much the phone keeps. Report if the map lags the wheel, if the route is
+missing while the phone shows one, or if the watch drains noticeably faster
+with the page open.
 
-Four settings under Settings, Voice. **Cue when listening**: Beep, a spoken
-word, or Off, which is what a headset with its own tone needs. **When not
-understood**: the sentence, a low two-note fall, or nothing. **Command
-language**, so you can run the app in one language and speak another. And
-**Headset voice button**, off by default, which lets your headset's voice
-button start listening; Android asks once which app should answer it.
+**KingSong lock.** The Lock Wheel tile and the horn now work on KingSong,
+from a tester's captures of the official app on a KS-18XL and confirmed by
+him: nothing to type, the wheel takes the default six digits. If you set a
+password in the KingSong app, the wheel ignores lock and unlock until the app
+has sent it, so enter the same four digits in Settings, Advanced, Wheel
+controls, KingSong app password; leave 0000 if you never set one. If yours
+refuses, say which model and firmware, and whether a password is set.
 
-Some commands do things rather than answer: "light" flips the headlight,
-"light status" reads it back, "lights on" and "lights off" say which way.
-"voice off" stops the periodic announcements mid-ride, "voice on" brings them
-back, "voice report" gives you one now. The "what can I say" list marks those
-with a star.
+**Begode PWM.** On a T4 (or any Begode whose speed used to read negative
+before the app fixed that) the PWM tile reads a positive number under load,
+and a PWM alarm set at, say, 60 % fires when you push past it (issue #24). On
+a Master with stock firmware the PWM and amps tiles no longer flash to zero
+once a second (issue #26). Both tiles should read steady while you ride.
 
-Five report items are new and all start off, under Customize voice report:
-Battery (est), Range, Voltage, Odometer and Consumption.
+**Flic 2 buttons.** They were dead in the last builds of next-experimental
+(no scan, no forget, no presses). Scan, pair, forget and every action should
+work again; your paired buttons should come back without re-pairing.
 
-**Everything else from next-experimental**, which is a lot: tyre sensors on the
-dashboard and in alarms, the Battery (est) tile, the speed splits button,
-pressure units, and the Aeon alarm-speed mapping. Ride normally and report what
-looks wrong.
+**HUD map.** The HUD's map screen drew "Map data not yet available" tiles at
+its default zoom, and the Map style picker on the phone changed nothing on
+the HUD. It draws the map now, and light, dark, OSM, topo and the others
+follow the picker within a few seconds.
+
+**Voice: weather and the list.** "Weather" fetches a forecast when there is
+none cached ("Checking the weather" first), and answers with the score,
+temperature, wind and humidity; each of those can be asked alone. "What can
+I say" lists Wheel, Actions and Around you as three groups.
+
+**Smaller things.** A `geo:` link or a Maps share into a closed app opens the
+route instead of crashing. After a wheel disconnects the notification reads
+Disconnected instead of the last speed. Settings backup keeps every alarm's
+beep ramp, waveform and effect. NOSFET Aeon shows the measured headlight
+level. Segmented settings labels wrap at the word in every language.
 
 ## Reporting back
 

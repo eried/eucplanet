@@ -154,13 +154,15 @@ class TripRepository @Inject constructor(
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
-    // from recording / navigating / sharing / wheel-connected / app-visible so it never
-    // burns the 1 Hz high-accuracy stream when nothing needs it.
+    // from recording / navigating / sharing / a visible watch map /
+    // wheel-connected / app-visible so it never burns the 1 Hz high-accuracy
+    // stream when nothing needs it.
     @Volatile private var gpsStreamRequested = false
     @Volatile private var gpsNavigating = false
     // Live location share is running: friends are watching this rider's dot, so
     // GPS stays at 1 Hz even with the app backgrounded and no wheel connected.
     @Volatile private var gpsSharing = false
+    @Volatile private var gpsWatchMapVisible = false
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
@@ -374,6 +376,12 @@ class TripRepository @Inject constructor(
         recomputeGpsTier()
     }
 
+    fun setWatchMapVisible(visible: Boolean) {
+        gpsWatchMapVisible = visible
+        if (visible) startLocationUpdates()
+        recomputeGpsTier()
+    }
+
     /** Pick the GPS tier for the current demand and (re)issue the fused request. */
     private fun recomputeGpsTier() {
         if (!gpsStreamRequested || !hasLocationPermission()) return
@@ -384,6 +392,7 @@ class TripRepository @Inject constructor(
             connected = connected,
             appVisible = AppForeground.isForeground.value,
             sharing = gpsSharing,
+            watchMapVisible = gpsWatchMapVisible,
         )
         if (tier == GpsTier.OFF) {
             // Already off, or an off-grace already pending: stay put. Do NOT
@@ -521,6 +530,7 @@ class TripRepository @Inject constructor(
         fusedLocationClient.removeLocationUpdates(locationCallback)
         locationUpdatesActive = false
         gpsStreamRequested = false
+        gpsWatchMapVisible = false
         currentGpsTier = null
         Log.i(TAG, "Location updates stopped (received $locationFixCount fixes this session)")
     }

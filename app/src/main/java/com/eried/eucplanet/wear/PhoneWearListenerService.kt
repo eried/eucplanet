@@ -3,6 +3,7 @@ package com.eried.eucplanet.wear
 import android.util.Log
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.flic.FlicManager
+import com.eried.eucplanet.hud.protocol.WatchMapProtocol
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,9 +38,12 @@ class PhoneWearListenerService : WearableListenerService() {
 
     @Inject lateinit var wheelRepository: WheelRepository
     @Inject lateinit var flicManager: FlicManager
+    @Inject lateinit var wearMapBridge: WearMapBridge
 
     override fun onMessageReceived(event: MessageEvent) {
         when (event.path) {
+            WatchMapProtocol.PRESENCE_PATH ->
+                wearMapBridge.onPresence(event.sourceNodeId, event.data)
             PATH_CONTROL -> handleControl(String(event.data))
             PATH_WATCH_INFO -> {
                 // Watch sends this once per launch with its own Build /

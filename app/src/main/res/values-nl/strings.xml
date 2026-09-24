@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">stem uit,meldingen uit,spraak uit</string>
     <string name="voice_command_vocabulary">Wat kan ik zeggen</string>
     <string name="voice_command_vocabulary_tap">Zeg een naam los of in een vraag.</string>
-    <string name="voice_command_vocabulary_legend">* is geen meting van het wiel: het doet iets of antwoordt over iets anders.</string>
+    <string name="voice_vocab_group_wheel">Wiel</string>
+    <string name="voice_vocab_group_actions">Acties</string>
+    <string name="voice_vocab_group_around">Om je heen</string>
     <string name="voice_listening">Luisteren</string>
     <string name="voice_answer_off">%1$s staat uit. Je kunt het aanzetten in de instellingen.</string>
     <string name="voice_answer_unsupported">Je wiel rapporteert %1$s niet.</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">Geen wheel verbonden.</string>
     <string name="voice_special_uptime">Verbonden sinds %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, score %2$s. %3$s graden, wind %4$s, luchtvochtigheid %5$s procent</string>
+    <string name="voice_weather_checking">Ik check het weer.</string>
+    <string name="voice_sp_air_temp_terms">buitentemperatuur,luchttemperatuur,hoe koud is het</string>
+    <string name="voice_sp_wind_terms">wind,windsnelheid,hoe winderig</string>
+    <string name="voice_sp_humidity_terms">luchtvochtigheid,hoe vochtig</string>
+    <string name="voice_sp_air_temp_answer">%1$s graden buiten.</string>
+    <string name="voice_sp_wind_answer">Wind %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Wind %1$s, uitschieters %2$s.</string>
+    <string name="voice_sp_humidity_answer">Luchtvochtigheid %1$s procent.</string>
     <string name="voice_weather_great">Prima rijweer</string>
     <string name="voice_weather_good">Goed rijweer</string>
     <string name="voice_weather_ok">Rijdbaar</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">Voer een volledig adres in, bijvoorbeeld 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Apparaat-IP (automatisch)</string>
     <string name="hud_server_port">Poort</string>
-    <string name="hud_hotspot_off_hint">Telefoon-hotspot is uit. Zorg dat de HUD en de telefoon op hetzelfde wifi-netwerk zitten.</string>
+    <string name="hud_hotspot_unknown_hint">Zorg dat de HUD en de telefoon op hetzelfde wifi-netwerk zitten. Gebruik je de telefoon-hotspot, zet die dan eerst aan.</string>
     <string name="hud_hotspot_on_hint">Telefoon-hotspot zendt uit. Verbind de HUD met de wifi van deze telefoon om de link te activeren.</string>
     <string name="hud_overlay_subsection">Eigen overlay</string>
     <string name="hud_overlay_subsection_desc">Importeer een Overlay Studio-preset op het Custom-scherm van de HUD, zonder achtergrond. De preset wordt hier gekopieerd, dus latere wijzigingen in de studio veranderen de HUD pas als je opnieuw importeert.</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is.</string>
     <string name="watch_update_rate">Verversingssnelheid</string>
     <string name="watch_update_rate_desc">Langzamere updates besparen batterij op telefoon en horloge.</string>
+    <string name="watch_map_enabled">Kaart op horloge</string>
+    <string name="watch_map_enabled_desc">Toont de positie en route vanaf de telefoon. Er blijft een melding staan voor werking op de achtergrond.</string>
+    <string name="watch_map_orientation">Kaartoriëntatie</string>
+    <string name="watch_map_north_up">Noorden boven</string>
+    <string name="watch_map_heading_up">Rijrichting boven</string>
+    <string name="watch_keep_on_navigation">Aan tijdens navigatie</string>
+    <string name="watch_keep_on_navigation_desc">Houdt het horlogescherm aan tijdens navigatie. Gebruikt meer batterij.</string>
+    <string name="watch_map_telemetry">Kaarttelemetrie</string>
+    <string name="watch_map_telemetry_desc">Toont PWM, snelheid en spanning langs de bovenrand.</string>
     <string name="watch_update_conservative">Zuinig</string>
     <string name="watch_update_normal">Normaal</string>
     <string name="watch_update_fast">Snel</string>
@@ -2328,6 +2348,11 @@
     <string name="side_left">Links</string>
     <string name="side_right">Rechts</string>
     <string name="adv_group_geometry">Variabelen voor schermgeometrie</string>
+    <string name="adv_group_map_cache">Kaartcache</string>
+    <string name="adv_map_encoded_cache">Cache voor gecodeerde tegels</string>
+    <string name="adv_map_encoded_cache_desc">PNG-tegels voor het horloge. Hogere waarden gebruiken meer telefoongeheugen.</string>
+    <string name="adv_map_http_cache">Cache voor gedownloade tegels</string>
+    <string name="adv_map_http_cache_desc">Gedownloade kaarttegels op de telefoon. Hogere waarden gebruiken meer opslagruimte.</string>
     <string name="adv_compact_max_screen">Limiet compact scherm</string>
     <string name="adv_compact_max_screen_desc">Schermen met beide zijden hieronder schakelen naar het compacte dashboard als Compact dashboard op Kleine schermen staat.</string>
     <string name="adv_cover_cutout_inset">Grootte camera-uitsparing</string>
@@ -2336,6 +2361,10 @@
     <string name="adv_nav_sidebar_min_desc">Smallere schermen houden het stopspaneel onderaan, ook liggend. Te laag verstopt de kaart op kleine schermen.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Toegangs-PIN voor InMotion V5/V8/V10 wielen, wordt bij verbinden verstuurd zodat het wiel data gaat sturen. Laat 000000 staan, tenzij je een eigen PIN hebt ingesteld in de InMotion-app.</string>
+    <string name="adv_kingsong_unlock_code">KingSong-ontgrendelcode</string>
+    <string name="adv_kingsong_unlock_code_desc">Zes cijfers die met het ontgrendelcommando worden verstuurd. Geteste wielen accepteren elk cijfer, dus laat 123456 staan tenzij het jouwe het weigert.</string>
+    <string name="adv_kingsong_password">KingSong-app wachtwoord</string>
+    <string name="adv_kingsong_password_desc">Het 4-cijferige wachtwoord uit de KingSong-app, verstuurd bij verbinden en voor vergrendelen en ontgrendelen. Laat 0000 staan als je er nooit een instelde.</string>
     <string name="adv_nav_sidebar_width">Breedte stopspaneel</string>
     <string name="adv_nav_sidebar_width_desc">Breedte van de liggende stopszijbalk. Te breed laat weinig kaart over.</string>
     <string name="adv_simple_speedo_scale">Grootte eenvoudige snelheidsmeter</string>
@@ -2636,4 +2665,12 @@
     <string name="tpms_state_inflating">Oppompen</string>
     <string name="alarm_metric_battery_envelope">Accu (schat)</string>
     <string name="alarm_metric_battery_envelope_long">Accu-omhullende (schatting zonder belasting)</string>
+
+    <string name="headlight_state_off">Licht: uit</string>
+    <string name="headlight_state_low">Licht: laag</string>
+    <string name="headlight_state_medium">Licht: midden</string>
+    <string name="headlight_state_high">Licht: hoog</string>
+    <string name="headlight_state_unknown">Licht: ?</string>
+    <string name="adv_headlight_readback_age">Geldigheid lichtstatus</string>
+    <string name="adv_headlight_readback_age_desc">Hoelang een gemelde lichtstand actueel blijft. Een te lange tijd kan een verouderde stand tonen.</string>
 </resources>

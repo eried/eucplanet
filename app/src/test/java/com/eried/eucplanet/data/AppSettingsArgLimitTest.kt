@@ -50,69 +50,14 @@ class AppSettingsArgLimitTest {
     }
 
     @Test fun theRemainingHeadroomIsStatedOutLoud() {
-        // Not a correctness check: a deliberate tripwire. AppSettings had been
-        // sitting ON the limit, so anyone adding a field should have to look at
-        // this number and decide consciously rather than discovering it in a
-        // crash report. Moving the voice report flags into VoiceReportSettings
-        // bought back 17 slots. Update this when the usage genuinely changes,
-        // and prefer nesting over spending the headroom.
-        // 250: the two charge alerts, at 80% and at full. Two flat fields
-        // rather than a nested pair, to sit beside chargingEstimateToFull
-        // where the rest of the charging monitor's own settings already live.
-        // 248: dropboxPullRequested, the flag that keeps downloading something
-        // the rider asked for rather than something the app decided. It has to
-        // outlive the process - a library takes the better part of an hour and
-        // the phone goes in a pocket - so it is settings, not memory.
-        // 247: next-experimental combines two additions on top of the 245 base -
-        // trip-details' flat tripExtraTiles (opt-in stat-tile store), and the
-        // nested battery-percent estimate (four fields inside
-        // BatteryPercentSettings, one slot). Each cost one slot; on their own
-        // branches each read 246.
-        // 245: merged next-experimental brought the auto-volume connected flag,
-        // on top of the PIP mode field.
-        // 242: the Phone HUD added an enable flag plus the preset name and its
-        // cached JSON. 239 before that.
-        // 239: the widget's nested settings added a field, which also crossed a
-        // 32-property boundary and so cost a second bitmask slot.
-        // 249: folderConflictCount - trips whose file differs between phone
-        // and backup folder. Counted by the folder worker each pass; the
-        // dashboard warning with its Fix button shows while it is non-zero.
-        // It has to survive the process so the warning does not vanish on a
-        // relaunch before the next pass.
-        // 250: watchStem3Click - the Garmin three-button model's Down key.
-        // A single string like its stem siblings; nesting the watch button
-        // fields is the move if another one ever appears.
-        // 251: the weather module. Nested WeatherSettings holds its seven
-        // knobs in ONE slot - the same move that keeps every feature from
-        // spending seven.
-        // 250: DOWN one, for once. Auto-volume's enable flag and its
-        // connected-only flag became a single applyWhen gate shared with the
-        // playback rate (whose own state lives nested in MediaControlSettings).
-        // Two booleans that could disagree replaced by one value that cannot.
-        // 248: down two more. The three flat autoLights* fields became one
-        // nested LightsSettings holding five - the gate, the two sun offsets,
-        // and the walking-pace cut-off with its speed. Adding a feature and
-        // spending fewer slots is the shape this tripwire is asking for.
-        // 253: the voice-command group. Its three fields, the enable, the
-        // prompt style and the listening window, are nested in
-        // VoiceCommandSettings and cost one slot between them. They were added
-        // flat first and took the class to exactly 255, which this tripwire
-        // caught: past that, copy() stops verifying and the app dies at
-        // runtime. Two slots left before 255, so nest the next addition too.
-        // 252: and back down, because the group emptied. The enable went (a
-        // button is the only way in, so there was nothing to enable), the
-        // prompt style went (of three choices only the tone worked), and the
-        // window moved to Advanced where rule 1 says a global tunable lives.
-        // The whole nested class went with them. A feature that grew for a
-        // day and cost a net zero slots.
-        // 253: and the class came back, for four fields this time. Riders on a
-        // headset that plays its own tone needed a way to silence ours, a
-        // tester needed the unrecognised-phrase sentence to stop scolding him,
-        // the spoken language had to come apart from the interface language,
-        // and the headset button needed a switch because claiming a
-        // device-wide gesture is not something to ship switched on. Nested
-        // from the start this time, so four fields cost one slot.
-        val expectedSlots = 253
+        // Not a correctness check: a deliberate tripwire. AppSettings sits ONE
+        // slot under the JVM's 255, so anyone adding a field has to look at
+        // this number and decide consciously rather than discover it in a
+        // crash report. 253 was the voice cues nested as one group; 254 is the
+        // watch map (PR #25), nested as WatchMapSettings so four fields cost
+        // one slot. There is no room for another top-level field: the next
+        // one goes into an existing nested group, or moves a group out.
+        val expectedSlots = 254
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">音声オフ,アナウンスオフ,音声をオフ</string>
     <string name="voice_command_vocabulary">何と言えますか</string>
     <string name="voice_command_vocabulary_tap">名前だけでも、質問の中でもかまいません。</string>
-    <string name="voice_command_vocabulary_legend">* はホイールの計測値ではありません。何かを実行するか、別のことに答えます。</string>
+    <string name="voice_vocab_group_wheel">ホイール</string>
+    <string name="voice_vocab_group_actions">操作</string>
+    <string name="voice_vocab_group_around">周囲</string>
     <string name="voice_listening">聞き取り中</string>
     <string name="voice_answer_off">%1$sはオフです。設定でオンにできます。</string>
     <string name="voice_answer_unsupported">このホイールは%1$sを報告しません。</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">ホイール未接続。</string>
     <string name="voice_special_uptime">接続してから %1$s。</string>
     <string name="voice_special_weather">%1$s。%2$s。</string>
+    <string name="voice_special_weather_full">%1$s、スコア %2$s。気温 %3$s 度、風 %4$s、湿度 %5$s パーセント</string>
+    <string name="voice_weather_checking">天気を確認します。</string>
+    <string name="voice_sp_air_temp_terms">外気温,気温,どのくらい寒い</string>
+    <string name="voice_sp_wind_terms">風,風速,どのくらい風が強い</string>
+    <string name="voice_sp_humidity_terms">湿度,どのくらい湿っている</string>
+    <string name="voice_sp_air_temp_answer">外は %1$s 度です。</string>
+    <string name="voice_sp_wind_answer">風 %1$s。</string>
+    <string name="voice_sp_wind_gust_answer">風 %1$s、最大 %2$s。</string>
+    <string name="voice_sp_humidity_answer">湿度 %1$s パーセント。</string>
     <string name="voice_weather_great">絶好の走行日和</string>
     <string name="voice_weather_good">走りやすい天気</string>
     <string name="voice_weather_ok">走れます</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">完全なアドレスを入力してください（例: 192.168.43.42）</string>
     <string name="hud_ip_label_autodetect">デバイス IP（自動）</string>
     <string name="hud_server_port">ポート</string>
-    <string name="hud_hotspot_off_hint">スマホのホットスポットがオフです。HUD とスマホが同じ WiFi ネットワークに接続されているか確認してください。</string>
+    <string name="hud_hotspot_unknown_hint">HUD とスマホが同じ WiFi ネットワークに接続されているか確認してください。スマホのホットスポットを使う場合は、先にオンにしてください。</string>
     <string name="hud_hotspot_on_hint">スマホのホットスポットが起動中です。HUD をこのスマホの WiFi に接続してリンクを有効にしてください。</string>
     <string name="hud_overlay_subsection">カスタムオーバーレイ</string>
     <string name="hud_overlay_subsection_desc">オーバーレイスタジオのプリセットを背景なしで HUD のカスタム画面にインポートします。プリセットはここにコピーされるため、スタジオで後から編集しても再インポートするまで HUD には反映されません。</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">アプリが開いている間ウォッチをスリープさせない。</string>
     <string name="watch_update_rate">更新レート</string>
     <string name="watch_update_rate_desc">更新頻度を下げるとスマホとウォッチのバッテリーを節約できます。</string>
+    <string name="watch_map_enabled">ウォッチ地図</string>
+    <string name="watch_map_enabled_desc">スマートフォンの位置とルートを表示します。バックグラウンド動作のため通知が残ります。</string>
+    <string name="watch_map_orientation">地図の向き</string>
+    <string name="watch_map_north_up">北が上</string>
+    <string name="watch_map_heading_up">進行方向が上</string>
+    <string name="watch_keep_on_navigation">ナビ中も点灯</string>
+    <string name="watch_keep_on_navigation_desc">ナビ中はウォッチ画面を点灯したままにします。電池を多く消費します。</string>
+    <string name="watch_map_telemetry">地図のテレメトリ</string>
+    <string name="watch_map_telemetry_desc">上端にPWM、速度、電圧を表示します。</string>
     <string name="watch_update_conservative">低頻度</string>
     <string name="watch_update_normal">通常</string>
     <string name="watch_update_fast">高頻度</string>
@@ -2327,6 +2347,11 @@
     <string name="side_left">左</string>
     <string name="side_right">右</string>
     <string name="adv_group_geometry">画面ジオメトリの変数</string>
+    <string name="adv_group_map_cache">地図キャッシュ</string>
+    <string name="adv_map_encoded_cache">エンコード済みタイルキャッシュ</string>
+    <string name="adv_map_encoded_cache_desc">時計用に保持するPNGタイル。値が大きいほど携帯電話のメモリを多く使います。</string>
+    <string name="adv_map_http_cache">ダウンロード済みタイルキャッシュ</string>
+    <string name="adv_map_http_cache_desc">携帯電話に保持するダウンロード済み地図タイル。値が大きいほど保存容量を使います。</string>
     <string name="adv_compact_max_screen">コンパクト画面の上限</string>
     <string name="adv_compact_max_screen_desc">両辺がこの値未満の画面は、コンパクトダッシュボードが「小さい画面」のときにコンパクト表示に切り替わります。</string>
     <string name="adv_cover_cutout_inset">カメラの切り欠きサイズ</string>
@@ -2335,6 +2360,10 @@
     <string name="adv_nav_sidebar_min_desc">これより狭い画面は横向きでも下部の経由地パネルを保持します。小さすぎると小画面で地図が埋もれます。</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 ホイールのアクセスPIN。接続時に送信され、ホイールがデータ送信を開始します。InMotionアプリで独自のPINを設定していない限り、000000のままにしてください。</string>
+    <string name="adv_kingsong_unlock_code">KingSong 解除コード</string>
+    <string name="adv_kingsong_unlock_code_desc">解除コマンドと一緒に送信する6桁の数字。テスト済みのホイールはどの数字でも受け付けるため、拒否されない限り123456のままにしてください。</string>
+    <string name="adv_kingsong_password">KingSong アプリのパスワード</string>
+    <string name="adv_kingsong_password_desc">KingSong アプリで設定した4桁のパスワード。接続時とロック・解除の前に送信します。設定していなければ0000のままにしてください。</string>
     <string name="adv_nav_sidebar_width">経由地パネルの幅</string>
     <string name="adv_nav_sidebar_width_desc">横向きの経由地サイドバーの幅。広すぎると地図が狭くなります。</string>
     <string name="adv_simple_speedo_scale">シンプル速度計のサイズ</string>
@@ -2635,4 +2664,12 @@
     <string name="tpms_state_inflating">空気充填中</string>
     <string name="alarm_metric_battery_envelope">バッテリー(推定)</string>
     <string name="alarm_metric_battery_envelope_long">バッテリー包絡線 (負荷を除いた推定)</string>
+
+    <string name="headlight_state_off">ライト: オフ</string>
+    <string name="headlight_state_low">ライト: 弱</string>
+    <string name="headlight_state_medium">ライト: 中</string>
+    <string name="headlight_state_high">ライト: 強</string>
+    <string name="headlight_state_unknown">ライト: ?</string>
+    <string name="adv_headlight_readback_age">ライト状態の有効時間</string>
+    <string name="adv_headlight_readback_age_desc">受信したライトの明るさを有効とする時間です。長すぎると古い状態が表示されます。</string>
 </resources>

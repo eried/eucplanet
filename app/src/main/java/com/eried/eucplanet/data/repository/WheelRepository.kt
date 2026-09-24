@@ -872,6 +872,14 @@ class WheelRepository @Inject constructor(
         // wheel restores everything (tiltback, alarm, safety, calibration).
         scope.launch {
             settingsRepository.settings.collect { s ->
+                lockCodeCache = String.format(java.util.Locale.US, "%06d", s.advanced.kingsongUnlockCode)
+                lockPasswordCache = s.advanced.kingsongPassword.let { p ->
+                    if (p == 0) "" else String.format(java.util.Locale.US, "%04d", p)
+                }
+                // Handed over here as well as at lock time, so the adapter's
+                // init sequence already carries the password on connect.
+                wheelAdapter.provideLockCode(lockCodeCache)
+                wheelAdapter.provideLockPassword(lockPasswordCache)
                 val clamped = s.speedCalibrationOffsetPct.coerceIn(-15f, 15f)
                 speedCalibrationMultiplier = 1f + clamped / 100f
                 // Wheel poll + chart sampling are independent rider settings now,
@@ -948,6 +956,7 @@ class WheelRepository @Inject constructor(
                     }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
+                        invalidateHeadlightReadback()
                         // Cut any constant alarm tone immediately (telemetry stops now,
                         // so the engine won't get another tick to clear it itself).
                         alarmEngine.stopConstantTone()
@@ -989,10 +998,16 @@ class WheelRepository @Inject constructor(
                         _wheelSerial.value = null
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
+                        // Motion goes to zero too: a wheel we cannot hear is
+                        // not doing 3 mph. Left alone, this emission carried
+                        // the last speed into the ongoing notification and
+                        // the gauge, where it sat until the next connection.
                         _wheelData.value =
                             _wheelData.value.copy(
                                 totalDistance = 0f, gForce = 0f,
-                                accelX = 0f, accelY = 0f
+                                accelX = 0f, accelY = 0f,
+                                speed = 0f, pwm = 0f, current = 0f,
+                                phaseCurrent = 0f, torque = 0f, motorPower = 0,
                             )
                         // History is preserved across disconnects (cleared only on new wheel)
                         // Keep the audio route warm a few seconds longer so the
@@ -1374,7 +1389,7 @@ class WheelRepository @Inject constructor(
                         // A pack we've never sized starts blank, not carrying the
                         // last wheel's capacity into this one's range estimate.
                         capacityWh = 0,
-                    )
+                    ),
                 )
             )
             persistWheelProfile(name, settingsRepository.get())
@@ -1559,6 +1574,22 @@ class WheelRepository @Inject constructor(
         return true
     }
 
+    private fun invalidateHeadlightReadback() {
+        val previous = _wheelData.value
+        if (previous.headlightReadback == null) return
+        // Do not briefly revive the previous session's level on reconnect.
+        _wheelData.value = previous.copy(
+            headlightReadback = com.eried.eucplanet.data.model.HeadlightReadback(),
+        )
+    }
+
+    private fun updateCommandTrackedLight(on: Boolean) {
+        val previous = _wheelData.value
+        if (previous.headlightReadback != null) return
+        // A level-reporting wheel confirms its own state; command intent is not a measurement.
+        _wheelData.value = previous.copy(lightOn = on)
+    }
+
     fun toggleLight() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         if (_lightBusy.value) return  // cooldown active, ignore the spam tap
@@ -1583,7 +1614,7 @@ class WheelRepository @Inject constructor(
         // frame; queued as a second write so it lands in order. Null for the
         // ASCII low beam and every other family (single-frame headlight).
         wheelAdapter.setLightFollowup(next)?.let { bleManager.writeCommand(it) }
-        _wheelData.value = _wheelData.value.copy(lightOn = next)
+        updateCommandTrackedLight(next)
         startCooldown(_lightBusy, LIGHT_COOLDOWN_MS) { lightCooldownUntilMs = it }
     }
 
@@ -1593,6 +1624,12 @@ class WheelRepository @Inject constructor(
     fun setLock(target: Boolean) {
         if (_locked.value != target) toggleLock()
     }
+
+    /** The KingSong unlock code from Advanced settings as six digits, mirrored
+     *  so [toggleLock] can hand it to the adapter without suspending. */
+    @Volatile private var lockCodeCache: String = ""
+    /** The KingSong app password from Advanced settings, "" for none. */
+    @Volatile private var lockPasswordCache: String = ""
 
     fun toggleLock() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
@@ -1608,6 +1645,11 @@ class WheelRepository @Inject constructor(
             return
         }
         val targetState = !_locked.value
+        // KingSong unlocks with six digits; locking needs none. A wheel with no
+        // rider-set code takes any digits, so the Advanced default unlocks it,
+        // and a rider who set a code in the KingSong app enters it there.
+        wheelAdapter.provideLockCode(lockCodeCache)
+        wheelAdapter.provideLockPassword(lockPasswordCache)
         // Hard block the lock direction when the wheel is moving, any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
         // always allowed; if the wheel is already locked, speed is 0 anyway.
@@ -1657,6 +1699,9 @@ class WheelRepository @Inject constructor(
         val lockTail = wheelAdapter.setLockFollowup(locked)
 
         if (!wheelAdapter.capabilities.needsAuthForLock) {
+            // KingSong: the app password first, or a wheel with one set
+            // ignores what follows (issue #19 capture, 2026-09-22).
+            wheelAdapter.lockPrelude()?.let { bleManager.writeCommand(it) }
             bleManager.writeCommand(lockPacket)
             lockTail?.let { bleManager.writeCommand(it) }
             return@withLock true
@@ -2029,11 +2074,15 @@ class WheelRepository @Inject constructor(
                 // value triggers a stray TTS "lights on/off" transition in
                 // WheelService.checkLightTransition (race seen ~3-4 times
                 // per 20 taps in tester reports). Preserve the optimistic
-                // value during the cooldown for every family, same defensive
+                // value during the cooldown for command-tracked families, the same defensive
                 // pattern P6 already uses unconditionally because its parser
                 // can't recover lightOn from telemetry at all.
-                val lightOn = if (realtimeLacksLight || _lightBusy.value) previous.lightOn
-                              else result.data.lightOn
+                // Level-reporting wheels use measurements even during the command cooldown.
+                val lightOn = when {
+                    result.data.headlightReadback != null -> result.data.lightOn
+                    realtimeLacksLight || _lightBusy.value -> previous.lightOn
+                    else -> result.data.lightOn
+                }
                 // Motor temperature never legitimately drops to 0 mid-ride, but
                 // the P6 emits the odd frame whose temp byte reads
                 // "uninitialized" (parsed as 0), which would blank the dashboard

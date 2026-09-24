@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -131,6 +132,7 @@ class MainActivity : AppCompatActivity() {
         if (needsServiceForBackgroundFeature) {
             startForegroundService(Intent(this, WheelService::class.java))
         }
+        ensureWatchMapService(s)
         // Whatever the rider answered (yes or no), refresh the warning list so
         // the dashboard top-bar indicator reflects the new permission state.
         reconcilePipWithSystem()
@@ -180,6 +182,16 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
+
+    private fun ensureWatchMapService(settings: AppSettings?) {
+        if (settings?.watchMap?.enabled != true) return
+        if (!hasLocationPermission()) return
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
+        startForegroundService(
+            Intent(this, WheelService::class.java)
+                .setAction(WheelService.ACTION_START_WATCH_MAP),
+        )
+    }
 
     private fun canStartWheelService(): Boolean {
         val hasBt = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
@@ -290,6 +302,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        ensureWatchMapService(_settings.value)
         wearBridge.pingWatchToWake()
         garminBridge.pingWatchToWake()
         // Catch permission flips done in Settings while the app was in the
@@ -451,6 +464,7 @@ class MainActivity : AppCompatActivity() {
                     it.copy(themeEditorEnabled = false)
                 } else it
                 _settings.value = effective
+                ensureWatchMapService(effective)
                 // Honour the "keep screen on" toggle. Setting the window flag
                 // is idempotent so we don't need a delta check.
                 if (it.phoneKeepScreenOn) {

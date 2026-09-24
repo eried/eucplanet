@@ -1,4 +1,4 @@
-package com.eried.eucplanet.wear.ui
+package com.eried.eucplanet.wear.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -14,6 +14,8 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.wear.ui.utils.WatchColors
+import com.eried.eucplanet.wear.ui.utils.WatchUnits
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -41,13 +43,14 @@ fun SpeedGauge(
     showColorBand: Boolean = true,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
-    /** Safe-zone / fill, warning and danger colors — themed from the phone.
-     *  Defaults reproduce the watch's original fixed gauge palette. */
-    fillColor: Color = GaugeAccentGreen,
-    warnColor: Color = GaugeAccentOrange,
-    dangerColor: Color = GaugeAccentRed,
-    trackColor: Color = Color(0xFF2A2A2A),
-    dimColor: Color = Color(0xFF9AA0A6),
+    /** Safe-zone / fill, warning and danger colors, themed from the phone.
+     *  Defaults are the watch palette's own tokens, so a caller that passes
+     *  nothing still draws the same gauge as one that passes the theme. */
+    fillColor: Color = WatchColors.Default.gaugeFill,
+    warnColor: Color = WatchColors.Default.gaugeWarn,
+    dangerColor: Color = WatchColors.Default.gaugeDanger,
+    trackColor: Color = WatchColors.Default.gaugeTrack,
+    dimColor: Color = WatchColors.Default.textSecondary,
     /** When true, the gauge traces near the bezel and scale labels render
      *  inside the arc, meant for watch faces where the dial wraps the
      *  whole display and overlay UI lives in the center. */

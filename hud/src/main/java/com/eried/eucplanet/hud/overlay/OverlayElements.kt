@@ -50,9 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.WebMercator
 import kotlin.math.cos
 import kotlin.math.floor
-import kotlin.math.ln
 import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.tan
@@ -778,7 +778,13 @@ private fun GForceElement(element: OverlayElement, data: StudioElementData) {
 private fun MapElement(element: OverlayElement, data: StudioElementData) {
     val cache = remember { com.eried.eucplanet.hud.net.HudTileCache() }
     var tick by remember { mutableStateOf(0) }
-    val z = element.mapZoom.coerceIn(10, 19)
+    // Fetch no deeper than the provider renders (Esri Canvas stops at 16);
+    // beyond that the tiles are drawn scaled up. styleVersion is read so a
+    // layer swap on the phone recomputes the cap.
+    cache.styleVersion
+    val zWanted = element.mapZoom.coerceIn(10, 19)
+    val z = zWanted.coerceAtMost(cache.maxNativeZoom)
+    val tilePx = 256f * (1 shl (zWanted - z))
     val hasFix = data.latitude != 0.0 || data.longitude != 0.0
     val accent = Color(element.foreground)
 
@@ -799,32 +805,38 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             }
             return@Box
         }
-        val (cx, cy) = lonLatToTileFloat(data.longitude, data.latitude, z)
+        val cx = WebMercator.tileX(data.longitude, z)
+        val cy = WebMercator.tileY(data.latitude, z)
         Canvas(Modifier.fillMaxSize()) {
             @Suppress("UNUSED_EXPRESSION") tick
-            val cols = (size.width / 256f).toInt() + 2
-            val rows = (size.height / 256f).toInt() + 2
+            val cols = (size.width / tilePx).toInt() + 2
+            val rows = (size.height / tilePx).toInt() + 2
             val originX = floor(cx).toInt() - cols / 2
             val originY = floor(cy).toInt() - rows / 2
             val centerPx = Offset(size.width / 2f, size.height / 2f)
             val originTilePx = Offset(
-                centerPx.x - ((cx - originX) * 256f),
-                centerPx.y - ((cy - originY) * 256f)
+                centerPx.x - ((cx - originX) * tilePx).toFloat(),
+                centerPx.y - ((cy - originY) * tilePx).toFloat()
             )
+            val tileSize = androidx.compose.ui.unit.IntSize(tilePx.toInt(), tilePx.toInt())
             for (dy in 0 until rows) for (dx in 0 until cols) {
                 val tx = originX + dx
                 val ty = originY + dy
                 if (tx < 0 || ty < 0) continue
                 val bm = cache.peek(z, tx, ty)
                 val topLeft = Offset(
-                    originTilePx.x + dx * 256f,
-                    originTilePx.y + dy * 256f
+                    originTilePx.x + dx * tilePx,
+                    originTilePx.y + dy * tilePx
                 )
                 if (bm != null) {
-                    drawImage(image = bm.asImageBitmap(), topLeft = topLeft)
+                    drawImage(
+                        image = bm.asImageBitmap(),
+                        dstOffset = androidx.compose.ui.unit.IntOffset(topLeft.x.toInt(), topLeft.y.toInt()),
+                        dstSize = tileSize,
+                    )
                 } else {
                     drawRect(color = Color(0xFF1A1A1A), topLeft = topLeft,
-                        size = Size(256f, 256f))
+                        size = Size(tilePx, tilePx))
                 }
             }
             drawCircle(color = Color.White, radius = 9.dp.toPx(), center = centerPx)
@@ -847,13 +859,6 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
     }
 }
 
-private fun lonLatToTileFloat(lon: Double, lat: Double, z: Int): Pair<Float, Float> {
-    val n = (1 shl z).toDouble()
-    val x = (lon + 180.0) / 360.0 * n
-    val latRad = lat * PI / 180.0
-    val y = (1.0 - ln(tan(latRad) + 1.0 / cos(latRad)) / PI) / 2.0 * n
-    return x.toFloat() to y.toFloat()
-}
 
 // ---------- RADAR (Garmin Varia rear-view) ------------------------------
 // HUD-side twin of the phone's RadarElement. Same geometry/colours so a

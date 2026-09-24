@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">głos wyłączony,komunikaty wyłączone,wyłącz głos</string>
     <string name="voice_command_vocabulary">Co mogę powiedzieć</string>
     <string name="voice_command_vocabulary_tap">Powiedz nazwę samodzielnie lub w pytaniu.</string>
-    <string name="voice_command_vocabulary_legend">* to nie odczyt koła: coś robi albo odpowiada o czymś innym.</string>
+    <string name="voice_vocab_group_wheel">Koło</string>
+    <string name="voice_vocab_group_actions">Akcje</string>
+    <string name="voice_vocab_group_around">Wokół ciebie</string>
     <string name="voice_listening">Słucham</string>
     <string name="voice_answer_off">%1$s jest wyłączone. Możesz to włączyć w ustawieniach.</string>
     <string name="voice_answer_unsupported">Twoje koło nie podaje %1$s.</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">Brak połączonego koła.</string>
     <string name="voice_special_uptime">Połączono od %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, wynik %2$s. %3$s stopni, wiatr %4$s, wilgotność %5$s procent</string>
+    <string name="voice_weather_checking">Sprawdzam pogodę.</string>
+    <string name="voice_sp_air_temp_terms">temperatura powietrza,temperatura na zewnątrz,jak zimno</string>
+    <string name="voice_sp_wind_terms">wiatr,prędkość wiatru,jak wietrznie</string>
+    <string name="voice_sp_humidity_terms">wilgotność,jak wilgotno</string>
+    <string name="voice_sp_air_temp_answer">%1$s stopni na zewnątrz.</string>
+    <string name="voice_sp_wind_answer">Wiatr %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Wiatr %1$s, w porywach %2$s.</string>
+    <string name="voice_sp_humidity_answer">Wilgotność %1$s procent.</string>
     <string name="voice_weather_great">Świetna pogoda na jazdę</string>
     <string name="voice_weather_good">Dobra pogoda na jazdę</string>
     <string name="voice_weather_ok">Da się jechać</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">Wpisz pełny adres, na przykład 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP urządzenia (automatycznie)</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_off_hint">Hotspot telefonu jest wyłączony. Upewnij się, że HUD i telefon są w tej samej sieci WiFi.</string>
+    <string name="hud_hotspot_unknown_hint">Upewnij się, że HUD i telefon są w tej samej sieci WiFi. Jeśli używasz hotspotu telefonu, najpierw go włącz.</string>
     <string name="hud_hotspot_on_hint">Hotspot telefonu jest aktywny. Połącz HUD z WiFi tego telefonu, aby aktywować łącze.</string>
     <string name="hud_overlay_subsection">Własna nakładka</string>
     <string name="hud_overlay_subsection_desc">Zaimportuj preset z Overlay Studio na ekran Custom HUD-a, bez tła. Preset jest kopiowany, więc późniejsze zmiany w studio nie trafią do HUD-a, dopóki nie zaimportujesz ponownie.</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">Trzymaj zegarek wybudzony, gdy aplikacja jest otwarta.</string>
     <string name="watch_update_rate">Częstotliwość odświeżania</string>
     <string name="watch_update_rate_desc">Wolniejsze odświeżanie oszczędza baterię telefonu i zegarka.</string>
+    <string name="watch_map_enabled">Mapa na zegarku</string>
+    <string name="watch_map_enabled_desc">Pokazuje pozycję i trasę z telefonu. Powiadomienie pozostaje, aby działać w tle.</string>
+    <string name="watch_map_orientation">Orientacja mapy</string>
+    <string name="watch_map_north_up">Północ u góry</string>
+    <string name="watch_map_heading_up">Kierunek jazdy u góry</string>
+    <string name="watch_keep_on_navigation">Włącz podczas nawigacji</string>
+    <string name="watch_keep_on_navigation_desc">Utrzymuje ekran zegarka włączony podczas nawigacji. Zużywa więcej baterii.</string>
+    <string name="watch_map_telemetry">Telemetria mapy</string>
+    <string name="watch_map_telemetry_desc">Pokazuje PWM, prędkość i napięcie wzdłuż górnej krawędzi.</string>
     <string name="watch_update_conservative">Oszczędny</string>
     <string name="watch_update_normal">Normalny</string>
     <string name="watch_update_fast">Szybki</string>
@@ -638,7 +658,7 @@
     <string name="units_label">Jednostki</string>
     <string name="units_metric">Metryczne</string>
     <string name="units_imperial">Imperialne</string>
-    <string name="units_custom">Niestandardowe</string>
+    <string name="units_custom">Własne</string>
     <string name="units_temperature">Temperatura</string>
     <string name="units_speed">Prędkość</string>
     <string name="tpms_forget">Zapomnij</string>
@@ -2326,6 +2346,11 @@
     <string name="side_left">Lewa</string>
     <string name="side_right">Prawa</string>
     <string name="adv_group_geometry">Zmienne geometrii ekranu</string>
+    <string name="adv_group_map_cache">Pamięć podręczna map</string>
+    <string name="adv_map_encoded_cache">Pamięć podręczna zakodowanych kafelków</string>
+    <string name="adv_map_encoded_cache_desc">Kafelki PNG przechowywane dla zegarka. Wyższe wartości używają więcej pamięci telefonu.</string>
+    <string name="adv_map_http_cache">Pamięć pobranych kafelków</string>
+    <string name="adv_map_http_cache_desc">Pobrane kafelki mapy przechowywane w telefonie. Wyższe wartości zajmują więcej miejsca.</string>
     <string name="adv_compact_max_screen">Limit kompaktowego ekranu</string>
     <string name="adv_compact_max_screen_desc">Ekrany, których oba boki są poniżej, przełączają się na kompaktowy pulpit, gdy Kompaktowy pulpit jest ustawiony na Małe ekrany.</string>
     <string name="adv_cover_cutout_inset">Rozmiar wycięcia kamery</string>
@@ -2334,6 +2359,10 @@
     <string name="adv_nav_sidebar_min_desc">Węższe ekrany zachowują dolny panel przystanków nawet w poziomie. Zbyt niski chowa mapę na małych ekranach.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN dostępu do kół InMotion V5/V8/V10, wysyłany przy połączeniu, aby koło zaczęło przesyłać dane. Zostaw 000000, chyba że ustawiłeś własny PIN w aplikacji InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Kod odblokowania KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Sześć cyfr wysyłanych z poleceniem odblokowania. Przetestowane koła przyjmują dowolne cyfry, więc zostaw 123456, chyba że twoje je odrzuci.</string>
+    <string name="adv_kingsong_password">Hasło aplikacji KingSong</string>
+    <string name="adv_kingsong_password_desc">4-cyfrowe hasło ustawione w aplikacji KingSong, wysyłane przy połączeniu oraz przed blokowaniem i odblokowaniem. Zostaw 0000, jeśli nigdy go nie ustawiłeś.</string>
     <string name="adv_nav_sidebar_width">Szerokość panelu przystanków</string>
     <string name="adv_nav_sidebar_width_desc">Szerokość bocznego panelu przystanków w poziomie. Zbyt szeroki zostawia mało mapy.</string>
     <string name="adv_simple_speedo_scale">Rozmiar prostego prędkościomierza</string>
@@ -2634,4 +2663,12 @@
     <string name="tpms_state_inflating">Pompowanie</string>
     <string name="alarm_metric_battery_envelope">Bateria (szac)</string>
     <string name="alarm_metric_battery_envelope_long">Obwiednia baterii (szacunek bez obciążenia)</string>
+
+    <string name="headlight_state_off">Światło: wył.</string>
+    <string name="headlight_state_low">Światło: niskie</string>
+    <string name="headlight_state_medium">Światło: średnie</string>
+    <string name="headlight_state_high">Światło: wysokie</string>
+    <string name="headlight_state_unknown">Światło: ?</string>
+    <string name="adv_headlight_readback_age">Ważność stanu światła</string>
+    <string name="adv_headlight_readback_age_desc">Jak długo zgłoszony poziom światła pozostaje aktualny. Zbyt długi czas może pokazywać nieaktualny poziom.</string>
 </resources>

@@ -38,4 +38,19 @@
     <string name="watch_action_media_next">다음 트랙</string>
     <string name="watch_action_media_prev">이전 트랙</string>
     <string name="watch_action_long_press_hint">%1$s 길게 누르기</string>
+    <string name="watch_map_phone_disconnected">휴대전화 없음</string>
+    <string name="watch_map_gps_permission">GPS 허용</string>
+    <string name="watch_map_gps_stale">GPS 오래됨</string>
+    <string name="watch_map_route_loading">경로 로드 중</string>
+    <string name="watch_map_route_unavailable">경로 없음</string>
+    <string name="watch_map_loading">지도 로드 중</string>
+    <string name="watch_map_unavailable">지도 없음</string>
+    <string name="watch_map_zoom_in">확대</string>
+    <string name="watch_map_zoom_out">축소</string>
+    <string name="watch_map_open_phone">휴대전화 앱 열기</string>
+    <string name="watch_map_waiting_gps">GPS 대기 중</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, 속도 %2$s, 전압 %3$s.</string>
 </resources>

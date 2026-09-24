@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="watch_map_phone_disconnected">Fără telefon</string>
+    <string name="watch_map_gps_permission">Permite GPS</string>
+    <string name="watch_map_gps_stale">GPS învechit</string>
+    <string name="watch_map_route_loading">Se încarcă ruta</string>
+    <string name="watch_map_route_unavailable">Fără rută</string>
+    <string name="watch_map_loading">Se încarcă harta</string>
+    <string name="watch_map_unavailable">Fără hartă</string>
+    <string name="watch_map_zoom_in">Mărește</string>
+    <string name="watch_map_zoom_out">Micșorează</string>
+    <string name="watch_map_open_phone">Deschide aplicația telefonului</string>
+    <string name="watch_map_waiting_gps">Se așteaptă GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, viteză %2$s, tensiune %3$s.</string>
+</resources>

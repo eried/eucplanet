@@ -48,8 +48,10 @@ class BegodeParser {
      *  cluster lights up while moving. 3 = idle (stopped), 1 = drive. */
     @Volatile private var lastPcMode: Int = 3
 
-    /** True once we have ever seen a 0x07 extras frame; from then on, we trust 0x07 PWM/current over 0x00 derivations. */
+    /** True once a 0x07 extras frame carried a non-zero PWM; from then on, we trust 0x07 PWM over 0x00 derivations. */
     @Volatile private var hasExtras: Boolean = false
+    /** True once a 0x07 extras frame carried a non-zero battery current; from then on, we trust it over Live A phase current. */
+    @Volatile private var hasExtrasCurrent: Boolean = false
 
     /**
      * True once a Freestyl3r (CF) or SmirnoV (BF) firmware banner identifies
@@ -87,6 +89,7 @@ class BegodeParser {
         lastLightOn = false
         lastPcMode = 3
         hasExtras = false
+        hasExtrasCurrent = false
         hwPwmFirmware = false
         wheelInMiles = false
     }
@@ -228,8 +231,12 @@ class BegodeParser {
         // when a CF/BF banner has flagged the firmware as HW-PWM capable
         // ([hwPwmFirmware]); otherwise we derive PWM from speed/voltage so
         // Master / Mten3 / EX30 / E20 riders see a real number.
+        // Signed on the wire, and the sign is the motor's direction, not a
+        // load. A T4 read -67 % at 42 km/h (issue #24): the same inverted
+        // wiring that sends speed negative, which speed already loses at the
+        // apply site. PWM is a duty cycle, so it is a magnitude here too.
         val hardwarePwmRaw = ByteUtils.getInt16BE(frame, 14)
-        val hardwarePwmPct = hardwarePwmRaw / 10f
+        val hardwarePwmPct = kotlin.math.abs(hardwarePwmRaw) / 10f
         val pwmPct = when {
             hasExtras -> lastPwmPct
             hwPwmFirmware && hardwarePwmPct != 0f -> hardwarePwmPct
@@ -337,24 +344,32 @@ class BegodeParser {
         // negative means regen; the convention used everywhere else in
         // the app. Without the flip the dashboard reads backwards during
         // acceleration vs braking.
-        val battCurrent = -(ByteUtils.getInt16BE(frame, 2) / 100f)
+        val battCurrentRaw = -(ByteUtils.getInt16BE(frame, 2) / 100f)
         val motorTempC = ByteUtils.getInt16BE(frame, 6).toFloat()
         // 0x07 offset 8 carries true PWM as a signed short already in PERCENT
         // (raw 50 = 50 % PWM); no further scaling needed. An earlier `/ 100f`
         // here was dividing again and producing 0.x % for every reading.
+        // Signed, with the motor direction as the sign (issue #24, a T4 at
+        // 42 km/h read -67 %). The duty cycle is what the tile, the alarms
+        // and the trip log want, so the sign goes.
         val truePwmRaw = ByteUtils.getInt16BE(frame, 8)
-        val truePwm = truePwmRaw.toFloat()
+        val truePwm = kotlin.math.abs(truePwmRaw).toFloat()
 
         // Only latch onto the 0x07 PWM path when the field is actually
-        // populated (`abs(hwPWMb) > 0` arming check). Some Begode firmwares
-        // emit 0x07 frames with offset 8 = 0 at idle, and the old
-        // unconditional latch silently locked us out of the 0x00 /
-        // derived PWM fallbacks forever after.
-        if (truePwmRaw != 0) {
-            hasExtras = true
-            lastPwmPct = truePwm
-        }
-        lastPhaseCurrent = battCurrent
+        // populated (`abs(hwPWMb) > 0` arming check). Stock Begode firmware
+        // sends 0x07 about once a second with offset 8 always 0, and the old
+        // unconditional latch silently locked us out of the 0x00 / derived
+        // PWM fallbacks forever after. Once armed, a zero is a real zero:
+        // the wheel stands, and the tile must follow it down.
+        if (truePwmRaw != 0) hasExtras = true
+        if (hasExtras) lastPwmPct = truePwm
+        // Same arming for battery current, on its own flag: a Master v3 on
+        // stock firmware leaves it at 0 too, and emitting that 0 put a blank
+        // AMPS reading and a 0 % PWM on the dashboard every second, between
+        // the 5 Hz Live A frames that carried the real values (issue #26).
+        if (battCurrentRaw != 0f) hasExtrasCurrent = true
+        if (hasExtrasCurrent) lastPhaseCurrent = battCurrentRaw
+        val battCurrent = lastPhaseCurrent
 
         // Pick the hottest of (motor, IMU) so the dashboard's max-temp ring
         // shows whichever is more concerning at this moment.
@@ -367,7 +382,7 @@ class BegodeParser {
             current = battCurrent,
             phaseCurrent = battCurrent,
             batteryPercent = lastBatteryPct,
-            pwm = truePwm,
+            pwm = lastPwmPct,
             temperatures = temps,
             maxTemperature = temps.max(),
             tripDistance = lastTripKm,

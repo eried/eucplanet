@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">음성 끄기,안내 끄기,음성 꺼</string>
     <string name="voice_command_vocabulary">무엇을 말할 수 있나요</string>
     <string name="voice_command_vocabulary_tap">이름만 말해도 되고 질문에 넣어도 됩니다.</string>
-    <string name="voice_command_vocabulary_legend">* 은 휠 측정값이 아닙니다. 무언가를 실행하거나 다른 것을 답합니다.</string>
+    <string name="voice_vocab_group_wheel">휠</string>
+    <string name="voice_vocab_group_actions">동작</string>
+    <string name="voice_vocab_group_around">주변</string>
     <string name="voice_listening">듣는 중</string>
     <string name="voice_answer_off">%1$s이(가) 꺼져 있습니다. 설정에서 켤 수 있습니다.</string>
     <string name="voice_answer_unsupported">이 휠은 %1$s을(를) 보고하지 않습니다.</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">연결된 휠 없음.</string>
     <string name="voice_special_uptime">%1$s 동안 연결됨.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, 점수 %2$s. 기온 %3$s 도, 바람 %4$s, 습도 %5$s 퍼센트</string>
+    <string name="voice_weather_checking">날씨를 확인합니다.</string>
+    <string name="voice_sp_air_temp_terms">외부 기온,바깥 온도,얼마나 추운지</string>
+    <string name="voice_sp_wind_terms">바람,풍속,바람이 얼마나</string>
+    <string name="voice_sp_humidity_terms">습도,얼마나 습한지</string>
+    <string name="voice_sp_air_temp_answer">바깥은 %1$s 도입니다.</string>
+    <string name="voice_sp_wind_answer">바람 %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">바람 %1$s, 순간 %2$s.</string>
+    <string name="voice_sp_humidity_answer">습도 %1$s 퍼센트.</string>
     <string name="voice_weather_great">타기 아주 좋은 날씨</string>
     <string name="voice_weather_good">타기 좋은 날씨</string>
     <string name="voice_weather_ok">탈 만합니다</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">전체 주소를 입력하세요. 예: 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">기기 IP (자동)</string>
     <string name="hud_server_port">포트</string>
-    <string name="hud_hotspot_off_hint">폰 핫스팟이 꺼져 있습니다. HUD와 폰이 같은 Wi-Fi 네트워크에 있는지 확인하세요.</string>
+    <string name="hud_hotspot_unknown_hint">HUD와 폰이 같은 Wi-Fi 네트워크에 있는지 확인하세요. 폰 핫스팟을 사용한다면 먼저 켜세요.</string>
     <string name="hud_hotspot_on_hint">폰 핫스팟이 켜져 있습니다. HUD를 이 폰의 Wi-Fi에 연결하면 링크가 활성화됩니다.</string>
     <string name="hud_overlay_subsection">커스텀 오버레이</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio 프리셋을 배경 없이 HUD 커스텀 화면에 가져옵니다. 프리셋은 여기에 복사되므로 스튜디오에서 편집해도 다시 가져오기 전까지 HUD에 반영되지 않습니다.</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">앱이 열려 있는 동안 워치 화면을 유지합니다.</string>
     <string name="watch_update_rate">업데이트 속도</string>
     <string name="watch_update_rate_desc">업데이트 속도를 낮추면 폰과 워치 배터리를 절약합니다.</string>
+    <string name="watch_map_enabled">워치 지도</string>
+    <string name="watch_map_enabled_desc">휴대전화의 위치와 경로를 표시합니다. 백그라운드에서 작동하도록 알림이 유지됩니다.</string>
+    <string name="watch_map_orientation">지도 방향</string>
+    <string name="watch_map_north_up">북쪽 위</string>
+    <string name="watch_map_heading_up">진행 방향 위</string>
+    <string name="watch_keep_on_navigation">내비게이션 중 켜기</string>
+    <string name="watch_keep_on_navigation_desc">내비게이션 중 워치 화면을 켜 둡니다. 배터리를 더 사용합니다.</string>
+    <string name="watch_map_telemetry">지도 텔레메트리</string>
+    <string name="watch_map_telemetry_desc">상단 가장자리에 PWM, 속도, 전압을 표시합니다.</string>
     <string name="watch_update_conservative">절약</string>
     <string name="watch_update_normal">보통</string>
     <string name="watch_update_fast">빠름</string>
@@ -2325,6 +2345,11 @@
     <string name="side_left">왼쪽</string>
     <string name="side_right">오른쪽</string>
     <string name="adv_group_geometry">화면 지오메트리 변수</string>
+    <string name="adv_group_map_cache">지도 캐시</string>
+    <string name="adv_map_encoded_cache">인코딩된 타일 캐시</string>
+    <string name="adv_map_encoded_cache_desc">시계에 보관하는 PNG 타일입니다. 값이 높을수록 휴대전화 메모리를 더 사용합니다.</string>
+    <string name="adv_map_http_cache">다운로드한 타일 캐시</string>
+    <string name="adv_map_http_cache_desc">휴대전화에 보관하는 다운로드한 지도 타일입니다. 값이 높을수록 저장 공간을 더 사용합니다.</string>
     <string name="adv_compact_max_screen">간결 화면 한계</string>
     <string name="adv_compact_max_screen_desc">양쪽 변이 모두 이보다 작은 화면은 간결한 대시보드가 작은 화면으로 설정된 경우 간결 모드로 전환됩니다.</string>
     <string name="adv_cover_cutout_inset">카메라 컷아웃 크기</string>
@@ -2333,6 +2358,10 @@
     <string name="adv_nav_sidebar_min_desc">이보다 좁은 화면은 가로 모드에서도 하단 경유지 패널을 유지합니다. 너무 낮으면 작은 화면에서 지도가 가려집니다.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 휠의 접속 PIN. 연결 시 전송되어 휠이 데이터 전송을 시작합니다. InMotion 앱에서 직접 PIN을 설정하지 않았다면 000000으로 두세요.</string>
+    <string name="adv_kingsong_unlock_code">KingSong 해제 코드</string>
+    <string name="adv_kingsong_unlock_code_desc">해제 명령과 함께 전송하는 여섯 자리 숫자. 테스트한 휠은 어떤 숫자든 받아들이므로, 거부되지 않는 한 123456으로 두세요.</string>
+    <string name="adv_kingsong_password">KingSong 앱 비밀번호</string>
+    <string name="adv_kingsong_password_desc">KingSong 앱에서 설정한 4자리 비밀번호. 연결 시와 잠금·해제 전에 전송됩니다. 설정한 적이 없으면 0000으로 두세요.</string>
     <string name="adv_nav_sidebar_width">경유지 패널 너비</string>
     <string name="adv_nav_sidebar_width_desc">가로 모드 경유지 사이드바의 너비. 너무 넓으면 지도가 거의 남지 않습니다.</string>
     <string name="adv_simple_speedo_scale">단순 속도계 크기</string>
@@ -2633,4 +2662,12 @@
     <string name="tpms_state_inflating">공기 주입 중</string>
     <string name="alarm_metric_battery_envelope">배터리(추정)</string>
     <string name="alarm_metric_battery_envelope_long">배터리 포락선 (부하 제외 추정)</string>
+
+    <string name="headlight_state_off">라이트: 꺼짐</string>
+    <string name="headlight_state_low">라이트: 약</string>
+    <string name="headlight_state_medium">라이트: 중</string>
+    <string name="headlight_state_high">라이트: 강</string>
+    <string name="headlight_state_unknown">라이트: ?</string>
+    <string name="adv_headlight_readback_age">조명 상태 유효 시간</string>
+    <string name="adv_headlight_readback_age_desc">수신한 조명 단계를 최신 상태로 유지하는 시간입니다. 너무 길면 오래된 단계가 표시될 수 있습니다.</string>
 </resources>

@@ -788,6 +788,8 @@ fun SettingsScreen(
         stringResource(R.string.section_watch_general),
         stringResource(R.string.section_watch_display),
         stringResource(R.string.watch_keep_on),
+        stringResource(R.string.watch_keep_on_navigation),
+        stringResource(R.string.watch_keep_on_navigation_desc),
         stringResource(R.string.watch_auto_start),
         stringResource(R.string.watch_close_on_exit),
         stringResource(R.string.watch_show_wheel_battery),
@@ -796,20 +798,22 @@ fun SettingsScreen(
         stringResource(R.string.watch_pwm_display),
         stringResource(R.string.watch_show_speed_unit),
         stringResource(R.string.section_watch_device),
-        stringResource(R.string.section_watch_buttons)
+        stringResource(R.string.section_watch_buttons),
+        stringResource(R.string.watch_map_enabled),
+        stringResource(R.string.watch_map_enabled_desc),
+        stringResource(R.string.watch_map_orientation),
+        stringResource(R.string.watch_map_north_up),
+        stringResource(R.string.watch_map_heading_up),
+        stringResource(R.string.watch_map_telemetry),
+        stringResource(R.string.watch_map_telemetry_desc),
     )
 
-    val corpusAdvanced = listOf(
-        titleAdvanced,
-        stringResource(R.string.adv_group_rates),
-        stringResource(R.string.adv_group_nav),
-        stringResource(R.string.adv_group_alarm),
-        stringResource(R.string.adv_group_radar_auto),
-        stringResource(R.string.adv_wheel_poll_rate),
-        stringResource(R.string.adv_phone_gps_interval),
-        stringResource(R.string.adv_hud_report_interval),
-        stringResource(R.string.adv_garmin_report_interval),
-    )
+    // Every group and every spec label, from the registry, so a new Advanced
+    // row is searchable the day it is added instead of when someone remembers
+    // this list. A hand-picked list here once covered four rows of sixty.
+    val corpusAdvanced = listOf(titleAdvanced) +
+        AdvGroup.entries.map { stringResource(it.titleRes) } +
+        ADVANCED_SPECS.map { stringResource(it.label) }
 
     // Section handles for the reorganize editor (key, title, icon). Every section
     // is reorderable and hideable now, including Advanced (which defaults to last).
@@ -8071,6 +8075,19 @@ private fun WatchTab(
     val garminBadge: (@Composable () -> Unit)? = if (hasGarminPaired) {
         { com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("GARMIN") }
     } else null
+    val mapUnsupportedBadge: (@Composable () -> Unit)? =
+        if (hasGarminPaired || hasAmazfitPaired) {
+            {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (hasGarminPaired) {
+                        com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("GARMIN")
+                    }
+                    if (hasAmazfitPaired) {
+                        com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("AMAZFIT")
+                    }
+                }
+            }
+        } else null
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -8109,13 +8126,10 @@ private fun WatchTab(
             onCheckedChange = { viewModel.updateWatchCloseOnExit(it) }
         )
 
-        // Display: when the watch screen is on / what it primarily shows.
-        // Pared down to the two switches that affect "do I see anything
-        // useful right now" — Keep-display-on (Wear OS only — Garmin
-        // watches manage screen timeout in their own system Settings)
-        // and Show-navigation (mirror the turn arrow). Battery icons,
-        // PWM rendering, unit labels, dial rotation are all visual
-        // tweaks that live in Customization below.
+        // Display controls screen wake behavior and what the watch shows.
+        // Navigation-only screen hold is Wear OS only. Garmin watches
+        // manage screen timeout in system settings. Visual tweaks such as
+        // battery icons, PWM, units, and rotation live in Customization below.
         SectionHeader(stringResource(R.string.section_watch_display))
 
         if (hasWearOs || hasAmazfitPaired) {
@@ -8127,12 +8141,46 @@ private fun WatchTab(
                 badge = garminBadge
             )
         }
+        if (hasWearOs || settings.watchMap.keepScreenOnDuringNavigation) {
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_keep_on_navigation),
+                description = stringResource(R.string.watch_keep_on_navigation_desc),
+                checked = settings.watchMap.keepScreenOnDuringNavigation,
+                onCheckedChange = { viewModel.updateWatchKeepScreenOnDuringNavigation(it) },
+            )
+        }
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_show_navigation),
             description = stringResource(R.string.watch_show_navigation_desc),
             checked = settings.watchShowNavigation,
             onCheckedChange = { viewModel.updateWatchShowNavigation(it) }
         )
+        if (hasWearOs || settings.watchMap.enabled) {
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_map_enabled),
+                description = stringResource(R.string.watch_map_enabled_desc),
+                checked = settings.watchMap.enabled,
+                onCheckedChange = { viewModel.updateWatchMapEnabled(it) },
+                badge = mapUnsupportedBadge,
+            )
+            if (settings.watchMap.enabled) {
+                SegmentedChoice(
+                    label = stringResource(R.string.watch_map_orientation),
+                    options = listOf(
+                        "NORTH_UP" to stringResource(R.string.watch_map_north_up),
+                        "HEADING_UP" to stringResource(R.string.watch_map_heading_up),
+                    ),
+                    current = if (settings.watchMap.headingUp) "HEADING_UP" else "NORTH_UP",
+                    onChange = { viewModel.updateWatchMapHeadingUp(it == "HEADING_UP") },
+                )
+                SwitchSettingWithDesc(
+                    label = stringResource(R.string.watch_map_telemetry),
+                    description = stringResource(R.string.watch_map_telemetry_desc),
+                    checked = settings.watchMap.showTelemetry,
+                    onCheckedChange = { viewModel.updateWatchMapShowTelemetry(it) },
+                )
+            }
+        }
 
         // Advanced (collapsed by default) — visual tweaks most riders
         // configure once and forget. Hiding them keeps the Watch tab
@@ -10762,6 +10810,9 @@ internal fun SegmentedChoice(
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size, baseShape = RoundedCornerShape(12.dp)),
                     colors = themedSegmentedColors(),
                 ) {
+                    // Two lines, wrapped at the word. Single words that are too
+                    // long for a third of the row are shortened in strings.xml
+                    // rather than scaled: the font stays the same everywhere.
                     Text(
                         optLabel,
                         textAlign = TextAlign.Center,
@@ -11670,18 +11721,20 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
 @Composable
 private fun HudHotspotHint() {
     val ctx = LocalContext.current
+    var probed by remember { mutableStateOf(false) }
     var hotspotOn by remember { mutableStateOf<Boolean?>(null) }
     LaunchedEffect(Unit) {
         while (true) {
             hotspotOn = detectHotspotEnabled(ctx)
+            probed = true
             kotlinx.coroutines.delay(5_000L)
         }
     }
     // Always informational, never alarming. surfaceVariant + the outlined
     // Info icon matches the InfoHint pattern used elsewhere in the app, so
     // this reads as a regular "here's some context" card, not a red error.
-    // null = first probe in flight; suppress so the card doesn't flash.
-    val on = hotspotOn ?: return
+    // Nothing until the first probe lands, so the card doesn't flash.
+    if (!probed) return
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -11700,7 +11753,11 @@ private fun HudHotspotHint() {
             )
             Text(
                 text = stringResource(
-                    if (on) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
+                    // Confirmed on, or "we cannot tell". There is deliberately
+                    // no "off" copy: nothing available to an ordinary app can
+                    // prove a hotspot is off, so the card never claims it.
+                    if (hotspotOn == true) R.string.hud_hotspot_on_hint
+                    else R.string.hud_hotspot_unknown_hint
                 ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -11710,10 +11767,19 @@ private fun HudHotspotHint() {
 }
 
 /**
- * Two-stage hotspot detection. Returns true/false when we have a signal, or
- * false when nothing answered (so the UI defaults to surfacing the hint).
+ * Two-stage hotspot detection. Returns true or false only when a stage
+ * actually answered, and null when neither could tell.
+ *
+ * The null matters. This used to return false when nothing answered, so the
+ * card stated "Phone hotspot is off" to riders whose hotspot was plainly on,
+ * and a tester had to argue with it. Neither stage is dependable on a modern
+ * phone: [android.net.wifi.WifiManager] `isWifiApEnabled` is a blocklisted
+ * hidden API for apps targeting API 30 and up (we target 36), and the
+ * interface-name sniff below only recognises the names we happened to know.
+ * A miss on both is "we cannot tell", which is not the same fact as "off",
+ * and only one of those is safe to print.
  */
-private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
+private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
     // Stage 1: reflection into the legacy isWifiApEnabled API.
     val viaReflection: Boolean? = runCatching {
         val wifi = ctx.applicationContext
@@ -11722,13 +11788,23 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
         val m = wifi.javaClass.getMethod("isWifiApEnabled")
         m.invoke(wifi) as? Boolean
     }.getOrNull()
-    if (viaReflection != null) return viaReflection
+    // Only a `true` here means anything. Querying AP state is a privileged
+    // operation, so for an ordinary app this answers false whether the hotspot
+    // is off OR we simply are not allowed to know, and those are not the same
+    // fact. Verified on an emulator: it returns false with no hidden-API denial
+    // logged at all. Trusting that false is what told a tester his hotspot was
+    // off while he was looking at it running.
+    if (viaReflection == true) return true
 
     // Stage 2: look for a SoftAP-style network interface. When the rider
     // toggles hotspot on, the kernel brings up an interface named "ap0",
-    // "softap0", "wlan1" (Samsung) or "swlan0" (some MIUI). When hotspot
-    // is off, none of those exist - only "wlan0" for the regular client.
-    return runCatching {
+    // "softap0", "wlan1" (Samsung) or "swlan0" (some MIUI).
+    //
+    // Finding one proves the hotspot is up. NOT finding one proves nothing:
+    // the list is a guess at OEM naming, and an OEM we have not met names it
+    // something else. So a hit returns true and a miss returns null, never
+    // false. Only stage 1 can report a trustworthy "off".
+    val sawSoftAp = runCatching {
         val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
         ifs.any { iface ->
             val name = iface.name.orEmpty().lowercase()
@@ -11738,6 +11814,7 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
             )
         }
     }.getOrDefault(false)
+    return if (sawSoftAp) true else null
 }
 
 // --- HUD section (lives inside the Integration tab) ---

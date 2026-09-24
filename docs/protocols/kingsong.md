@@ -391,12 +391,12 @@ For our `WheelCapabilities` struct, KingSong (any current model) maps to:
 | --- | --- | --- |
 | `hasHorn` | true | Single beep via `0x88` |
 | `hasLight` | true | `0x73` + mode byte; off / on / auto |
-| `hasLock` | false | No documented lock command in the public protocol. Some KS firmwares expose lock through the official app's password feature, but it is not exposed over BLE in any open-source adapter. Treat as unsupported. |
+| `hasLock` | true | `0x5D` locks (byte 2 = `01`) and unlocks (six ASCII digits at bytes 10..15); `0x5E` asks; the wheel answers `0x5F` with `01` locked / `00` unlocked at byte 2. From two KS-18XL FW 2.00 captures of the official app, issue #19, 2026-09-16. The wheel pings when moved while locked. The two captures unlocked with different digits the wheel had never sent (`509540`, `763021`) while the wheel reported `123456` as its stored code, so with no rider-set code the digits are not checked. The app sends the code from Advanced settings, `123456` by default. With a 4-digit password set in the KingSong app the wheel ignores `0x5D` until the password has been sent in the session: `0x41` carries it as ASCII from byte 2, the wheel answers `0x43` echoing the stored password (`FF FF FF FF` after `0x42` clears it). Captured 2026-09-22 with password 9111: `41 9111` then `43 9111`, lock and unlock as usual, `42 9111` then `43 ff ff ff ff`. The `0x74` / `0x75` pair is the fixed `654321` in every capture, with or without a password, so it is not the gate. The app sends `0x41` on connect and before every lock action from Advanced, KingSong app password. |
 | `hasMaxSpeed` | true | `0x85` byte 8 (km/h) |
 | `hasAlarmSpeed` | true | `0x85` bytes 2 / 4 / 6, three independent alarms |
 | `hasVolume` | false | Not exposed over BLE; horn volume is fixed in hardware |
 | `hasDRL` | partial | DRL behaviour rides on the headlight mode `0x73` (`mode 2` = auto). No separate DRL channel. |
-| `needsAuthForLock` | n/a | Lock not supported (see hasLock). |
+| `needsAuthForLock` | false | No handshake; the unlock frame itself carries the digits. |
 
 Per task instructions: KingSong does not require auth for lock/unlock,
 which is consistent with the public protocol exposing no lock at all.
@@ -430,11 +430,13 @@ capture from a known-good wheel before being relied on.
 5. **Pedal mode numeric mapping**. `0..2` is consistent across captures
    but we have not confirmed that S22 firmware uses the same indices as
    18L. Newer KS firmwares may have added a fourth mode.
-6. **Lock / password feature**. The KingSong official app supports a
-   numeric lock password. We have no public documentation showing this
-   travels over the public `0xFFE0/0xFFE1` channel; it may use a hidden
-   service or be enforced server-side in the app. Mark as not
-   implementable from public sources.
+6. **Lock / password feature**. Resolved for the lock itself (`0x5D` /
+   `0x5E` / `0x5F` above, from the issue #19 captures). Still open: whether
+   the `0x74` / `0x75` frames the official app sent (`654321`) actually
+   do: they are identical with and without a password, so not the gate.
+   The password gate itself is `0x41` / `0x42` / `0x43` (see `hasLock`).
+   Unknown: what the wheel answers to a wrong `0x41`, and whether `0x41`
+   also sets the password on a wheel that has none.
 7. **Mode-valid sentinel `0xE0`**. Other adapters treat the same byte as
    a generic "ride state" with multiple values (0xE0 normal, others for
    tiltback / pedal cutoff). We currently only special-case `0xE0`.

@@ -294,6 +294,26 @@ class DashboardViewModel @Inject constructor(
 
     val wheelData: StateFlow<com.eried.eucplanet.data.model.WheelData> = wheelRepository.wheelData
 
+    /**
+     * Wall-clock time of the last frame that showed the wheel moving.
+     *
+     * The charging auto-open reads it to make sure the wheel has really
+     * stopped. Kept here behind one collector rather than a screen effect
+     * keyed on the speed, which restarted a coroutine on every change at
+     * telemetry rate. distinctUntilChanged is the same trigger that key had.
+     */
+    @Volatile
+    var lastMovingAtMs: Long = System.currentTimeMillis()
+        private set
+
+    init {
+        viewModelScope.launch {
+            wheelData.map { it.speed }.distinctUntilChanged().collect { speed ->
+                if (kotlin.math.abs(speed) >= 0.5f) lastMovingAtMs = System.currentTimeMillis()
+            }
+        }
+    }
+
     val connectionState: StateFlow<ConnectionState> = wheelRepository.connectionState
 
     /** Hardware top-speed cap from the detected wheel model (BegodeModel /

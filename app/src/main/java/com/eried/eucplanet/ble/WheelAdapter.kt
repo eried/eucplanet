@@ -224,6 +224,20 @@ interface WheelAdapter {
      */
     fun setLockFollowup(locked: Boolean): ByteArray? = null
 
+    /** Hand the adapter the unlock code before a lock command. Only KingSong
+     *  uses one (six digits, from Advanced settings; the unlock frame carries it). */
+    fun provideLockCode(code: String) {}
+
+    /** Hand the adapter the wheel's app password, "" for none. Only KingSong
+     *  uses one: with a password set the wheel ignores lock and unlock until
+     *  it has been sent in the session. */
+    fun provideLockPassword(password: String) {}
+
+    /** A frame to write right before a lock or unlock command, or null. The
+     *  repository writes it on every lock action and the adapter may also put
+     *  it in its init sequence; cheap to repeat, fatal to forget. */
+    fun lockPrelude(): ByteArray? = null
+
     /**
      * Resets the wheel's onboard trip meter (the field reported as
      * [com.eried.eucplanet.data.model.WheelData.tripDistance]) by sending the
@@ -480,7 +494,9 @@ data class WheelCapabilities(
         val KINGSONG = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
-            hasLock = false,
+            // 0x5D lock / unlock-with-code, 0x5E ask, 0x5F state: from the
+            // KS-18XL capture in issue #19 (2026-09-16), see KingsongCommands.
+            hasLock = true,
             hasMaxSpeed = true,
             hasAlarmSpeed = true,
             hasVolume = false,

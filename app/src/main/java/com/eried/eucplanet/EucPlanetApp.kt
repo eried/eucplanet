@@ -3,8 +3,10 @@ package com.eried.eucplanet
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.garmin.GarminBridge
+import com.eried.eucplanet.map.MapTileCache
 import com.eried.eucplanet.util.CrashHandler
 import com.eried.eucplanet.wear.WearBridge
 import dagger.hilt.android.HiltAndroidApp
@@ -16,6 +18,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
 
     @Inject lateinit var flicManager: FlicManager
     @Inject lateinit var workerFactory: HiltWorkerFactory
+    @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var wearBridge: WearBridge
     @Inject lateinit var garminBridge: GarminBridge
     @Inject lateinit var amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge
@@ -64,7 +67,12 @@ class EucPlanetApp : Application(), Configuration.Provider {
             override fun onActivitySaveInstanceState(a: android.app.Activity, o: android.os.Bundle) {}
             override fun onActivityDestroyed(activity: android.app.Activity) {}
         })
+        // Every start below is one line, and one line is easy to lose: the
+        // watch-map merge replaced flicManager.initialize() with the tile
+        // cache start and Flic went dead (no scan, no delete, no presses)
+        // with nothing in the log. AppStartupTest pins the whole list.
         flicManager.initialize()
+        MapTileCache.start(settingsRepository)
         wearBridge.start()
         garminBridge.start()
         amazfitBridge.start()

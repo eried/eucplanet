@@ -684,7 +684,7 @@ class SyncManager @Inject constructor(
         val existing = folder.findFile(fileName)
         if (existing != null && !overwrite) return BackupOutcome.AlreadyExists
         val payload = SettingsJson.toJson(SettingsJson.stripDeviceBindings(current)).apply {
-            put("alarms", alarmsToJson(alarmDao.getAll()))
+            put("alarms", AlarmBackupJson.alarmsToJson(alarmDao.getAll()))
         }
         val json = payload.toString(2)
         return try {
@@ -826,7 +826,7 @@ class SyncManager @Inject constructor(
             // "alarms" array. Older backups (pre-v0.4.3) keep the user's
             // current rules untouched.
             if (json.has("alarms")) {
-                val rules = jsonToAlarms(json.optJSONArray("alarms"))
+                val rules = AlarmBackupJson.jsonToAlarms(json.optJSONArray("alarms"))
                 alarmDao.deleteAll()
                 rules.forEach { alarmDao.insert(it.copy(id = 0)) }
             }
@@ -1826,9 +1826,16 @@ class SyncManager @Inject constructor(
             false
         }
     }
+}
 
-
-    private fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {
+/**
+ * Alarm rules as they travel inside the settings backup. Kept outside
+ * [SyncManager] so a JVM test can round-trip a rule without building the
+ * whole manager. Every [AlarmRule] field except the row id must appear in
+ * BOTH halves; the drift-guard test fails on the first one that does not.
+ */
+internal object AlarmBackupJson {
+    fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {
         rules.forEach { r ->
             put(JSONObject().apply {
                 put("name", r.name)
@@ -1843,6 +1850,9 @@ class SyncManager @Inject constructor(
                 put("beepCount", r.beepCount)
                 put("beepModulation", r.beepModulation)
                 put("beepGapMs", r.beepGapMs)
+                put("beepTransitionPct", r.beepTransitionPct)
+                put("beepWaveform", r.beepWaveform)
+                put("beepEffect", r.beepEffect)
                 put("beepVolume", r.beepVolume)
                 put("beepVolumeModulation", r.beepVolumeModulation)
                 put("beepModulationReachPct", r.beepModulationReachPct)
@@ -1861,7 +1871,7 @@ class SyncManager @Inject constructor(
         }
     }
 
-    private fun jsonToAlarms(arr: JSONArray?): List<AlarmRule> {
+    fun jsonToAlarms(arr: JSONArray?): List<AlarmRule> {
         if (arr == null) return emptyList()
         val out = mutableListOf<AlarmRule>()
         val default = AlarmRule()
@@ -1880,6 +1890,10 @@ class SyncManager @Inject constructor(
                 beepCount = o.optInt("beepCount", default.beepCount),
                 beepModulation = o.optInt("beepModulation", default.beepModulation),
                 beepGapMs = o.optInt("beepGapMs", default.beepGapMs),
+                // Absent in backups written before the timbre controls: entity defaults.
+                beepTransitionPct = o.optInt("beepTransitionPct", default.beepTransitionPct),
+                beepWaveform = o.optInt("beepWaveform", default.beepWaveform),
+                beepEffect = o.optInt("beepEffect", default.beepEffect),
                 beepVolume = o.optInt("beepVolume", default.beepVolume),
                 beepVolumeModulation = o.optInt("beepVolumeModulation", default.beepVolumeModulation),
                 beepModulationReachPct = o.optInt("beepModulationReachPct", default.beepModulationReachPct),

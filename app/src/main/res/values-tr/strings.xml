@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">ses kapalı,duyurular kapalı,sesi kapat</string>
     <string name="voice_command_vocabulary">Ne diyebilirim</string>
     <string name="voice_command_vocabulary_tap">Bir adı tek başına ya da soru içinde söyle.</string>
-    <string name="voice_command_vocabulary_legend">* tekerlek ölçümü değil: bir şey yapar veya başka bir şeyi yanıtlar.</string>
+    <string name="voice_vocab_group_wheel">Teker</string>
+    <string name="voice_vocab_group_actions">Eylemler</string>
+    <string name="voice_vocab_group_around">Çevrende</string>
     <string name="voice_listening">Dinliyorum</string>
     <string name="voice_answer_off">%1$s kapalı. Ayarlardan açabilirsin.</string>
     <string name="voice_answer_unsupported">Tekerleğin %1$s bildirmiyor.</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">Bağlı teker yok.</string>
     <string name="voice_special_uptime">%1$s bağlı.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, puan %2$s. %3$s derece, rüzgar %4$s, nem %5$s yüzde</string>
+    <string name="voice_weather_checking">Havayı kontrol ediyorum.</string>
+    <string name="voice_sp_air_temp_terms">dış sıcaklık,hava sıcaklığı,ne kadar soğuk</string>
+    <string name="voice_sp_wind_terms">rüzgar,rüzgar hızı,ne kadar rüzgarlı</string>
+    <string name="voice_sp_humidity_terms">nem,ne kadar nemli</string>
+    <string name="voice_sp_air_temp_answer">Dışarısı %1$s derece.</string>
+    <string name="voice_sp_wind_answer">Rüzgar %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Rüzgar %1$s, %2$s hamleli.</string>
+    <string name="voice_sp_humidity_answer">Nem yüzde %1$s.</string>
     <string name="voice_weather_great">Sürüş için harika hava</string>
     <string name="voice_weather_good">Sürüş için iyi hava</string>
     <string name="voice_weather_ok">Sürülebilir</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">Tam bir adres gir, örneğin 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Cihaz IP (otomatik)</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_off_hint">Telefon hotspot\'u kapalı. HUD ile telefonun aynı WiFi ağında olduğundan emin olun.</string>
+    <string name="hud_hotspot_unknown_hint">HUD ile telefonun aynı WiFi ağında olduğundan emin olun. Telefon hotspot\'unu kullanıyorsanız önce açın.</string>
     <string name="hud_hotspot_on_hint">Telefon hotspot\'u yayın yapıyor. Bağlantıyı etkinleştirmek için HUD\'ı bu telefonun WiFi\'sine bağlayın.</string>
     <string name="hud_overlay_subsection">Özel kaplama</string>
     <string name="hud_overlay_subsection_desc">Overlay Studio önayarını HUD\'ın Özel ekranına arka plan olmadan aktarır. Önayar buraya kopyalanır; stüdyodaki sonraki düzenlemeler tekrar içe aktarılmadan HUD\'ı etkilemez.</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">Uygulama açıkken saati uyandık tut.</string>
     <string name="watch_update_rate">Güncelleme hızı</string>
     <string name="watch_update_rate_desc">Daha yavaş güncellemeler telefon ve saatte pil tasarrufu sağlar.</string>
+    <string name="watch_map_enabled">Saat haritası</string>
+    <string name="watch_map_enabled_desc">Telefondaki konumu ve rotayı gösterir. Arka planda çalışması için bildirim kalır.</string>
+    <string name="watch_map_orientation">Harita yönü</string>
+    <string name="watch_map_north_up">Kuzey yukarı</string>
+    <string name="watch_map_heading_up">Gidilen yön yukarı</string>
+    <string name="watch_keep_on_navigation">Navigasyon sırasında açık tut</string>
+    <string name="watch_keep_on_navigation_desc">Navigasyon sırasında saat ekranını açık tutar. Daha fazla pil kullanır.</string>
+    <string name="watch_map_telemetry">Harita telemetrisi</string>
+    <string name="watch_map_telemetry_desc">PWM, hız ve voltajı üst kenar boyunca gösterir.</string>
     <string name="watch_update_conservative">Tutumlu</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Hızlı</string>
@@ -2325,6 +2345,11 @@
     <string name="side_left">Sol</string>
     <string name="side_right">Sağ</string>
     <string name="adv_group_geometry">Ekran geometrisi değişkenleri</string>
+    <string name="adv_group_map_cache">Harita önbelleği</string>
+    <string name="adv_map_encoded_cache">Kodlanmış döşeme önbelleği</string>
+    <string name="adv_map_encoded_cache_desc">Saat için tutulan PNG döşemeleri. Daha yüksek değerler telefon belleğini daha çok kullanır.</string>
+    <string name="adv_map_http_cache">İndirilen döşeme önbelleği</string>
+    <string name="adv_map_http_cache_desc">Telefonda tutulan indirilmiş harita döşemeleri. Daha yüksek değerler daha çok depolama kullanır.</string>
     <string name="adv_compact_max_screen">Kompakt ekran sınırı</string>
     <string name="adv_compact_max_screen_desc">Her iki kenarı da bunun altında olan ekranlar, Kompakt gösterge paneli Küçük ekranlar olarak ayarlandığında kompakt panele geçer.</string>
     <string name="adv_cover_cutout_inset">Kamera çentiği boyutu</string>
@@ -2333,6 +2358,10 @@
     <string name="adv_nav_sidebar_min_desc">Bundan dar ekranlar, yatayda bile alttaki durak panelini tutar. Çok düşük, küçük ekranlarda haritayı gizler.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 tekerler için erişim PIN\'i, bağlanınca gönderilir ve teker veri göndermeye başlar. InMotion uygulamasında kendi PIN\'inizi ayarlamadıysanız 000000 olarak bırakın.</string>
+    <string name="adv_kingsong_unlock_code">KingSong kilit açma kodu</string>
+    <string name="adv_kingsong_unlock_code_desc">Kilit açma komutuyla gönderilen altı hane. Test edilen tekerler her haneyi kabul eder, bu yüzden sizinki reddetmedikçe 123456 olarak bırakın.</string>
+    <string name="adv_kingsong_password">KingSong uygulama şifresi</string>
+    <string name="adv_kingsong_password_desc">KingSong uygulamasında belirlenen 4 haneli şifre; bağlanırken ve kilitleme ile kilit açmadan önce gönderilir. Hiç belirlemediyseniz 0000 olarak bırakın.</string>
     <string name="adv_nav_sidebar_width">Durak paneli genişliği</string>
     <string name="adv_nav_sidebar_width_desc">Yatay durak kenar çubuğunun genişliği. Çok geniş olursa harita az kalır.</string>
     <string name="adv_simple_speedo_scale">Basit hız göstergesi boyutu</string>
@@ -2631,4 +2660,12 @@
     <string name="tpms_state_inflating">Şişiriliyor</string>
     <string name="alarm_metric_battery_envelope">Batarya (tah)</string>
     <string name="alarm_metric_battery_envelope_long">Batarya zarfı (yüksüz tahmin)</string>
+
+    <string name="headlight_state_off">Far: kapalı</string>
+    <string name="headlight_state_low">Far: düşük</string>
+    <string name="headlight_state_medium">Far: orta</string>
+    <string name="headlight_state_high">Far: yüksek</string>
+    <string name="headlight_state_unknown">Far: ?</string>
+    <string name="adv_headlight_readback_age">Işık durumu geçerliliği</string>
+    <string name="adv_headlight_readback_age_desc">Bildirilen ışık seviyesinin güncel kaldığı süre. Çok uzun bir süre eski bir seviyeyi gösterebilir.</string>
 </resources>

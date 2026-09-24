@@ -38,4 +38,19 @@
     <string name="watch_action_media_next">Następny utwór</string>
     <string name="watch_action_media_prev">Poprzedni utwór</string>
     <string name="watch_action_long_press_hint">Przytrzymaj, by %1$s</string>
+    <string name="watch_map_phone_disconnected">Brak telefonu</string>
+    <string name="watch_map_gps_permission">Zezwól na GPS</string>
+    <string name="watch_map_gps_stale">GPS nieaktualny</string>
+    <string name="watch_map_route_loading">Wczytywanie trasy</string>
+    <string name="watch_map_route_unavailable">Brak trasy</string>
+    <string name="watch_map_loading">Wczytywanie mapy</string>
+    <string name="watch_map_unavailable">Brak mapy</string>
+    <string name="watch_map_zoom_in">Przybliż</string>
+    <string name="watch_map_zoom_out">Oddal</string>
+    <string name="watch_map_open_phone">Otwórz aplikację telefonu</string>
+    <string name="watch_map_waiting_gps">Oczekiwanie na GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, prędkość %2$s, napięcie %3$s.</string>
 </resources>

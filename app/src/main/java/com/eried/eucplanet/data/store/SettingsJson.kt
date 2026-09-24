@@ -352,6 +352,12 @@ object SettingsJson {
         put("navAvoidFerries", s.navAvoidFerries)
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
+        put("watchMap", JSONObject().apply {
+            put("enabled", s.watchMap.enabled)
+            put("headingUp", s.watchMap.headingUp)
+            put("keepScreenOnDuringNavigation", s.watchMap.keepScreenOnDuringNavigation)
+            put("showTelemetry", s.watchMap.showTelemetry)
+        })
         put("hudServerEnabled", s.hudServerEnabled)
         put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
@@ -787,6 +793,17 @@ object SettingsJson {
         navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
+        watchMap = j.optJSONObject("watchMap")?.let { w ->
+            base.watchMap.copy(
+                enabled = w.optBoolean("enabled", base.watchMap.enabled),
+                headingUp = w.optBoolean("headingUp", base.watchMap.headingUp),
+                keepScreenOnDuringNavigation = w.optBoolean(
+                    "keepScreenOnDuringNavigation",
+                    base.watchMap.keepScreenOnDuringNavigation,
+                ),
+                showTelemetry = w.optBoolean("showTelemetry", base.watchMap.showTelemetry),
+            )
+        } ?: base.watchMap,
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
         keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
         notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),

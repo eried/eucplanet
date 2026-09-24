@@ -68,6 +68,9 @@ object WatchKeys {
 
     // --- Watch UI options pushed from the phone Settings -> Watch section ---
     const val OPT_KEEP_ON = "wko"
+    const val OPT_KEEP_ON_NAV = "wkn"
+    const val MAP_ENABLED = "wme"
+    const val MAP_SHOW_TELEMETRY = "wmt"
     const val OPT_SHOW_WHEEL_BATT = "wsb"
     const val OPT_SHOW_PHONE_BATT = "wpb"
     const val OPT_SHOW_WATCH_BATT = "wwb"
@@ -116,6 +119,18 @@ object WatchKeys {
     /** Pre-formatted distance line, e.g. "200 m". */
     const val NAV_DISTANCE = "nd"
     const val NAV_ARRIVED = "nar"
+}
+
+object WatchMapPrefs {
+    const val NAME = "watch_map"
+    const val VIEWER_ID = "viewer_id"
+    const val VIEWER_EPOCH = "viewer_epoch"
+    const val PHONE_NODE_ID = "phone_node_id"
+    const val ENABLED = "enabled"
+    const val SHOW_TELEMETRY = "show_telemetry"
+    const val ZOOM = "zoom"
+    const val FRAME_JSON = "frame_json"
+    const val LAST_AUTO_OPEN_SESSION = "last_auto_open_session"
 }
 
 object WatchControl {
@@ -196,6 +211,9 @@ data class WatchState(
     val themePacked: String = "",
     // Watch UI options sourced from phone Settings.
     val keepScreenOn: Boolean = true,
+    val keepScreenOnForNavigation: Boolean = false,
+    val watchMapEnabled: Boolean = false,
+    val mapShowTelemetry: Boolean = true,
     val showWheelBattery: Boolean = true,
     val showPhoneBattery: Boolean = true,
     val showWatchBattery: Boolean = true,

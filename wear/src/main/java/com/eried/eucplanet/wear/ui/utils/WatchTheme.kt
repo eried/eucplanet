@@ -1,7 +1,14 @@
-package com.eried.eucplanet.wear.ui
+package com.eried.eucplanet.wear.ui.utils
 
+import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.wear.compose.material.MaterialTheme
+import com.eried.eucplanet.wear.R
+import com.eried.eucplanet.wear.bridge.WatchState
 
 /**
  * Tiny mirror of the phone's accent palette and unit helpers. We deliberately
@@ -85,11 +92,11 @@ object WatchUnits {
      * Russian "км/ч" etc., so km/h and mph route through string resources;
      * m/s and knots are technical abbreviations that stay constant.
      */
-    fun speedUnit(context: android.content.Context, unit: String): String = when (unit) {
-        "mph" -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_mph)
-        "ms" -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_ms)
-        "kn" -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_kn)
-        else -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit)
+    fun speedUnit(context: Context, unit: String): String = when (unit) {
+        "mph" -> context.getString(R.string.watch_speed_unit_mph)
+        "ms" -> context.getString(R.string.watch_speed_unit_ms)
+        "kn" -> context.getString(R.string.watch_speed_unit_kn)
+        else -> context.getString(R.string.watch_speed_unit)
     }
 
     fun distanceUnit(unit: String): String = when (unit) {
@@ -195,5 +202,25 @@ fun parseWatchColors(packed: String): WatchColors {
     )
 }
 
-/** Active watch theme colors, provided at the [WatchApp] root. */
+/** Active watch theme colors, provided at the [com.eried.eucplanet.wear.ui.WatchApp] root. */
 val LocalWatchColors = staticCompositionLocalOf { WatchColors.Default }
+
+/**
+ * Shared watch surface theme for runtime screens and previews.
+ */
+@Composable
+internal fun WatchTheme(
+    state: WatchState,
+    content: @Composable (accent: Color) -> Unit,
+) {
+    val colors = remember(state.themePacked) {
+        parseWatchColors(state.themePacked)
+    }
+    val accent = if (state.themePacked.isNotBlank()) colors.accent
+    else accentColorFor(state.accentKey)
+    CompositionLocalProvider(LocalWatchColors provides colors) {
+        MaterialTheme {
+            content(accent)
+        }
+    }
+}

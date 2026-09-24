@@ -38,4 +38,19 @@
     <string name="watch_action_media_next">Morceau suivant</string>
     <string name="watch_action_media_prev">Morceau précédent</string>
     <string name="watch_action_long_press_hint">Appui long pour %1$s</string>
+    <string name="watch_map_phone_disconnected">Pas de téléphone</string>
+    <string name="watch_map_gps_permission">Autoriser GPS</string>
+    <string name="watch_map_gps_stale">GPS obsolète</string>
+    <string name="watch_map_route_loading">Chargement de l’itinéraire</string>
+    <string name="watch_map_route_unavailable">Pas d’itinéraire</string>
+    <string name="watch_map_loading">Chargement de la carte</string>
+    <string name="watch_map_unavailable">Pas de carte</string>
+    <string name="watch_map_zoom_in">Zoom avant</string>
+    <string name="watch_map_zoom_out">Zoom arrière</string>
+    <string name="watch_map_open_phone">Ouvrir l’appli du téléphone</string>
+    <string name="watch_map_waiting_gps">GPS en attente</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, vitesse %2$s, tension %3$s.</string>
 </resources>

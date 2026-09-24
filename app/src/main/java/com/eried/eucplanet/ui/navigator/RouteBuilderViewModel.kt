@@ -130,6 +130,17 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     private val _waypoints = MutableStateFlow<List<Waypoint>>(emptyList())
+    // Declared up here, above init: a share queued before this screen ever
+    // opened is consumed inside init through addWaypoint(), which writes this
+    // flow. Declared below init (where it sat since May), that write hit a
+    // null and every "geo:" link or Maps share into a cold app crashed.
+    /**
+     * The kind of preset added last ("HOME" / "WORK"), or null if the last
+     * waypoint added was a plain stop. The search field hides whichever preset
+     * this names; it was just used, so re-suggesting it is noise. Adding any
+     * other stop clears this and both suggestions return.
+     */
+    private val _lastAddedPresetKind = MutableStateFlow<String?>(null)
     val waypoints: StateFlow<List<Waypoint>> = _waypoints.asStateFlow()
 
     private val _route = MutableStateFlow<NavRoute?>(null)
@@ -1487,15 +1498,6 @@ class RouteBuilderViewModel @Inject constructor(
         savePreset(Waypoint(it.latitude, it.longitude), home = false)
     }
 
-    // Declaration moved up earlier in the file; see the top of the class.
-
-    /**
-     * The kind of preset added last ("HOME" / "WORK"), or null if the last
-     * waypoint added was a plain stop. The search field hides whichever preset
-     * this names; it was just used, so re-suggesting it is noise. Adding any
-     * other stop clears this and both suggestions return.
-     */
-    private val _lastAddedPresetKind = MutableStateFlow<String?>(null)
     val lastAddedPresetKind: StateFlow<String?> = _lastAddedPresetKind.asStateFlow()
 
     /** Drops a saved Home / Work preset onto the map as the next waypoint. */

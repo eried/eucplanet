@@ -353,7 +353,9 @@
     <string name="voice_act_announce_off_terms">голос вимкнути,оголошення вимкнути,вимкни голос</string>
     <string name="voice_command_vocabulary">Що можна сказати</string>
     <string name="voice_command_vocabulary_tap">Назвіть пункт окремо або у запитанні.</string>
-    <string name="voice_command_vocabulary_legend">* це не показник колеса: команда щось робить або відповідає про інше.</string>
+    <string name="voice_vocab_group_wheel">Колесо</string>
+    <string name="voice_vocab_group_actions">Дії</string>
+    <string name="voice_vocab_group_around">Навколо тебе</string>
     <string name="voice_listening">Слухаю</string>
     <string name="voice_answer_off">%1$s вимкнено. Увімкнути можна в налаштуваннях.</string>
     <string name="voice_answer_unsupported">Ваше колесо не повідомляє %1$s.</string>
@@ -381,6 +383,15 @@
     <string name="voice_special_not_connected">Колесо не підключено.</string>
     <string name="voice_special_uptime">Підключено %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, оцінка %2$s. %3$s градусів, вітер %4$s, вологість %5$s відсотків</string>
+    <string name="voice_weather_checking">Перевіряю погоду.</string>
+    <string name="voice_sp_air_temp_terms">температура повітря,температура надворі,наскільки холодно</string>
+    <string name="voice_sp_wind_terms">вітер,швидкість вітру,наскільки вітряно</string>
+    <string name="voice_sp_humidity_terms">вологість,наскільки волого</string>
+    <string name="voice_sp_air_temp_answer">%1$s градусів надворі.</string>
+    <string name="voice_sp_wind_answer">Вітер %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Вітер %1$s, пориви до %2$s.</string>
+    <string name="voice_sp_humidity_answer">Вологість %1$s відсотків.</string>
     <string name="voice_weather_great">Чудова погода для поїздки</string>
     <string name="voice_weather_good">Гарна погода для поїздки</string>
     <string name="voice_weather_ok">Їхати можна</string>
@@ -459,7 +470,7 @@
     <string name="hud_ip_incomplete">Введіть повну адресу, наприклад 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">IP пристрою (автоматично)</string>
     <string name="hud_server_port">Порт</string>
-    <string name="hud_hotspot_off_hint">Точка доступу телефона вимкнена. Переконайся, що HUD і телефон підключені до однієї мережі Wi-Fi.</string>
+    <string name="hud_hotspot_unknown_hint">Переконайся, що HUD і телефон підключені до однієї мережі Wi-Fi. Якщо використовуєш точку доступу телефона, спершу увімкни її.</string>
     <string name="hud_hotspot_on_hint">Точка доступу телефона активна. Підключи HUD до Wi-Fi цього телефона, щоб активувати з\'єднання.</string>
     <string name="hud_overlay_subsection">Власний оверлей</string>
     <string name="hud_overlay_subsection_desc">Імпортуй пресет Overlay Studio на екран Custom HUD без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, поки не імпортуєш знову.</string>
@@ -513,6 +524,15 @@
     <string name="watch_keep_on_desc">Тримати годинник активним, поки додаток відкритий.</string>
     <string name="watch_update_rate">Частота оновлення</string>
     <string name="watch_update_rate_desc">Повільніші оновлення заощаджують заряд телефона та годинника.</string>
+    <string name="watch_map_enabled">Карта на годиннику</string>
+    <string name="watch_map_enabled_desc">Показує місцезнаходження та маршрут із телефона. Для роботи у фоні залишається сповіщення.</string>
+    <string name="watch_map_orientation">Орієнтація карти</string>
+    <string name="watch_map_north_up">Північ угорі</string>
+    <string name="watch_map_heading_up">Напрямок руху вгору</string>
+    <string name="watch_keep_on_navigation">Не вимикати під час навігації</string>
+    <string name="watch_keep_on_navigation_desc">Тримає екран годинника ввімкненим під час навігації. Витрачає більше заряду.</string>
+    <string name="watch_map_telemetry">Телеметрія карти</string>
+    <string name="watch_map_telemetry_desc">Показує PWM, швидкість і напругу вздовж верхнього краю.</string>
     <string name="watch_update_conservative">Економна</string>
     <string name="watch_update_normal">Звичайна</string>
     <string name="watch_update_fast">Швидка</string>
@@ -2325,6 +2345,11 @@
     <string name="side_left">Ліворуч</string>
     <string name="side_right">Праворуч</string>
     <string name="adv_group_geometry">Змінні геометрії екрана</string>
+    <string name="adv_group_map_cache">Кеш карти</string>
+    <string name="adv_map_encoded_cache">Кеш кодованих тайлів</string>
+    <string name="adv_map_encoded_cache_desc">PNG-тайли, що зберігаються для годинника. Вищі значення використовують більше пам’яті телефона.</string>
+    <string name="adv_map_http_cache">Кеш завантажених тайлів</string>
+    <string name="adv_map_http_cache_desc">Завантажені тайли карти, що зберігаються на телефоні. Вищі значення використовують більше місця.</string>
     <string name="adv_compact_max_screen">Межа компактного екрана</string>
     <string name="adv_compact_max_screen_desc">Екрани, обидві сторони яких менші за це, перемикаються на компактну панель, коли Компактна панель встановлена на Малі екрани.</string>
     <string name="adv_cover_cutout_inset">Розмір вирізу камери</string>
@@ -2333,6 +2358,10 @@
     <string name="adv_nav_sidebar_min_desc">Вужчі екрани зберігають нижню панель зупинок навіть в альбомній орієнтації. Замало ховає карту на малих екранах.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN доступу для моноколіс InMotion V5/V8/V10, надсилається під час підключення, щоб колесо почало передавати дані. Залиште 000000, якщо ви не задали власний PIN у застосунку InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Код розблокування KingSong</string>
+    <string name="adv_kingsong_unlock_code_desc">Шість цифр, що надсилаються з командою розблокування. Перевірені колеса приймають будь-які цифри, тож залиште 123456, якщо ваше їх не відхиляє.</string>
+    <string name="adv_kingsong_password">Пароль застосунку KingSong</string>
+    <string name="adv_kingsong_password_desc">4-значний пароль, заданий у застосунку KingSong, надсилається під час підключення та перед блокуванням і розблокуванням. Залиште 0000, якщо ви його не задавали.</string>
     <string name="adv_nav_sidebar_width">Ширина панелі зупинок</string>
     <string name="adv_nav_sidebar_width_desc">Ширина бічної панелі зупинок в альбомній орієнтації. Заширока лишає мало карти.</string>
     <string name="adv_simple_speedo_scale">Розмір простого спідометра</string>
@@ -2631,4 +2660,12 @@
     <string name="tpms_state_inflating">Накачується</string>
     <string name="alarm_metric_battery_envelope">Батарея (оц)</string>
     <string name="alarm_metric_battery_envelope_long">Огинальна заряду (оцінка без навантаження)</string>
+
+    <string name="headlight_state_off">Світло: вимк.</string>
+    <string name="headlight_state_low">Світло: слабке</string>
+    <string name="headlight_state_medium">Світло: середнє</string>
+    <string name="headlight_state_high">Світло: яскраве</string>
+    <string name="headlight_state_unknown">Світло: ?</string>
+    <string name="adv_headlight_readback_age">Термін актуальності світла</string>
+    <string name="adv_headlight_readback_age_desc">Як довго отриманий рівень світла вважається актуальним. Надто великий термін може показувати застарілий рівень.</string>
 </resources>

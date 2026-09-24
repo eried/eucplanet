@@ -202,7 +202,7 @@ emulator never reproduces.
   simulator sustains about 7 a second, so Fast keeps a margin; faster costs
   watch battery for little visible gain.
 - **Accent colour is ignored**, same as Garmin: fixed green / amber / red.
-- **English only** on the watch, same as Garmin.
+- **English only** on the watch, same as Garmin and the helmet HUD.
 - **The Zepp app must be running** on the phone; it hosts the Side Service.
   Battery optimisation that kills the Zepp app also stops the dial.
 - **Updating a BUTTON needs its geometry.** Zepp OS ignores a BUTTON

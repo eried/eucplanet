@@ -358,7 +358,9 @@
     <string name="voice_act_announce_off_terms">voice off,announcements off,turn off voice,mute voice</string>
     <string name="voice_command_vocabulary">What can I say</string>
     <string name="voice_command_vocabulary_tap">Say a name on its own or inside a question.</string>
-    <string name="voice_command_vocabulary_legend">* is not a wheel reading: it does something, or answers about something else.</string>
+    <string name="voice_vocab_group_wheel">Wheel</string>
+    <string name="voice_vocab_group_actions">Actions</string>
+    <string name="voice_vocab_group_around">Around you</string>
     <string name="voice_listening">Listening</string>
     <string name="voice_answer_off">%1$s is off. You can turn it on in settings.</string>
     <string name="voice_answer_unsupported">Your wheel does not report %1$s.</string>
@@ -386,6 +388,15 @@
     <string name="voice_special_not_connected">No wheel connected.</string>
     <string name="voice_special_uptime">Connected for %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, score %2$s. %3$s degrees, wind %4$s, humidity %5$s percent</string>
+    <string name="voice_weather_checking">Checking the weather.</string>
+    <string name="voice_sp_air_temp_terms">air temperature,outside temperature,how cold is it</string>
+    <string name="voice_sp_wind_terms">wind,wind speed,how windy</string>
+    <string name="voice_sp_humidity_terms">humidity,how humid</string>
+    <string name="voice_sp_air_temp_answer">%1$s degrees outside.</string>
+    <string name="voice_sp_wind_answer">Wind %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Wind %1$s, gusting %2$s.</string>
+    <string name="voice_sp_humidity_answer">Humidity %1$s percent.</string>
     <string name="voice_weather_great">Great riding weather</string>
     <string name="voice_weather_good">Good riding weather</string>
     <string name="voice_weather_ok">Rideable</string>
@@ -469,7 +480,7 @@
     <string name="hud_discovery_both">Both</string>
     <string name="hud_discovery_desc">Auto finds the HUD on its own. Fixed only uses the address below.</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
+    <string name="hud_hotspot_unknown_hint">Make sure the HUD and the phone are on the same WiFi network. If you use the phone hotspot, turn it on first.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>
     <string name="hud_overlay_subsection">Custom overlay</string>
     <string name="hud_overlay_subsection_desc">Import an Overlay Studio preset onto the HUD\'s Custom screen, without backgrounds. The preset is copied here, so later edits in the studio won\'t change the HUD until you import again.</string>
@@ -531,6 +542,15 @@
     <string name="watch_keep_on_desc">Keep the watch awake while the app is open.</string>
     <string name="watch_update_rate">Update rate</string>
     <string name="watch_update_rate_desc">Slower updates save watch battery. This is separate from the wheel poll rate in the Advanced section.</string>
+    <string name="watch_map_enabled">Watch map</string>
+    <string name="watch_map_enabled_desc">Shows position and route from the phone. A notification remains for background operation.</string>
+    <string name="watch_map_orientation">Map orientation</string>
+    <string name="watch_map_north_up">North up</string>
+    <string name="watch_map_heading_up">Heading up</string>
+    <string name="watch_keep_on_navigation">Keep on during navigation</string>
+    <string name="watch_keep_on_navigation_desc">Keeps the watch screen on while navigating. Uses more battery.</string>
+    <string name="watch_map_telemetry">Map telemetry</string>
+    <string name="watch_map_telemetry_desc">Shows PWM, speed and voltage along the top edge.</string>
     <!-- Advanced timing: its own section at the bottom of Settings -->
     <string name="tab_advanced">Advanced</string>
     <string name="adv_restore_default">Restore default</string>
@@ -658,6 +678,11 @@
     <string name="adv_radar_min_frame_desc">Affects the smallest time between frames used for the closing-rate math. Danger: too low can over-react to jitter.</string>
     <string name="adv_group_charging">Charging ETA</string>
     <string name="adv_group_geometry">Screen geometry variables</string>
+    <string name="adv_group_map_cache">Map cache</string>
+    <string name="adv_map_encoded_cache">Encoded tile cache</string>
+    <string name="adv_map_encoded_cache_desc">PNG tiles kept for the watch. Higher values use more phone memory.</string>
+    <string name="adv_map_http_cache">Downloaded tile cache</string>
+    <string name="adv_map_http_cache_desc">Downloaded map tiles kept on the phone. Higher values use more storage.</string>
     <string name="adv_group_controls">Wheel controls</string>
     <string name="adv_group_weather">Weather score</string>
     <string name="adv_weather_cold_desc">Below this the hour reads too cold.</string>
@@ -680,6 +705,10 @@
     <string name="adv_nav_sidebar_min_desc">Screens narrower than this keep the bottom stops panel even in landscape. Too low buries the map on small screens.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Access PIN for InMotion V5/V8/V10 wheels, sent on connect so the wheel starts sending data. Leave 000000 unless you set your own PIN in the InMotion app.</string>
+    <string name="adv_kingsong_unlock_code">KingSong unlock code</string>
+    <string name="adv_kingsong_unlock_code_desc">Six digits sent with the unlock command. Tested wheels accept any digits, so leave 123456 unless yours refuses it.</string>
+    <string name="adv_kingsong_password">KingSong app password</string>
+    <string name="adv_kingsong_password_desc">The 4-digit password set in the KingSong app, sent on connect and before lock and unlock. Leave 0000 if you never set one.</string>
     <string name="adv_charging_warning">These tune the time-to-full estimate. Wrong values give a misleading ETA but never affect charging itself.</string>
     <string name="adv_charging_target_pct">Target percent</string>
     <string name="adv_charging_target_pct_desc">Affects the charge level where the estimate switches to the slower final phase.</string>
@@ -2658,4 +2687,12 @@
     <string name="tpms_state_inflating">Inflating</string>
     <string name="alarm_metric_battery_envelope">Battery (est)</string>
     <string name="alarm_metric_battery_envelope_long">Battery envelope (load-free estimate)</string>
+
+    <string name="headlight_state_off">Light: Off</string>
+    <string name="headlight_state_low">Light: Low</string>
+    <string name="headlight_state_medium">Light: Medium</string>
+    <string name="headlight_state_high">Light: High</string>
+    <string name="headlight_state_unknown">Light: ?</string>
+    <string name="adv_headlight_readback_age">Light readback timeout</string>
+    <string name="adv_headlight_readback_age_desc">How long a reported light level stays current. Too long can show an outdated level.</string>
 </resources>

@@ -951,6 +951,14 @@ class SettingsViewModel @Inject constructor(
         update { copy(settingsLayout = layout) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
+    fun updateWatchMapEnabled(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(enabled = v)) }
+    fun updateWatchMapHeadingUp(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(headingUp = v)) }
+    fun updateWatchKeepScreenOnDuringNavigation(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(keepScreenOnDuringNavigation = v)) }
+    fun updateWatchMapShowTelemetry(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(showTelemetry = v)) }
 
     fun updateKeepAppAlive(v: Boolean) {
         update { copy(keepAppAlive = v) }

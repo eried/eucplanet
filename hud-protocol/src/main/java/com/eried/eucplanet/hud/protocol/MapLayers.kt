@@ -134,19 +134,44 @@ object MapLayers {
     private val ALIASES = mapOf(
         "SAT" to SATELLITE,
         "STREET" to OSM,
-        "osm" to OSM,
-        "cyclosm" to CYCLOSM,
-        "topo" to TOPO,
         "hot" to HUMANITARIAN,
-        "satellite" to SATELLITE,
+        // The HUD's own picker codes and the CARTO slugs it stored before the
+        // Esri move. Every voyager_* and light_* slug was a light chart, every
+        // dark_* one a dark chart; the HUD's cache used to resolve them itself
+        // and quietly turned all seven new codes into the light chart too.
         "voyager" to LIGHT,
+        "voyager_nolabels" to LIGHT,
+        "voyager_labels_under" to LIGHT,
+        "voyager_only_labels" to LIGHT,
+        "positron" to LIGHT,
+        "light_all" to LIGHT,
+        "light_nolabels" to LIGHT,
+        "light_only_labels" to LIGHT,
         "dark_all" to DARK,
+        "dark_nolabels" to DARK,
+        "dark_only_labels" to DARK,
+        "dark_matter" to DARK,
+        "dark_matter_nolabels" to DARK,
     )
 
-    /** The layer for a stored id, falling back to plain OSM. */
+    /**
+     * The layer for a stored id, falling back to plain OSM. Case does not
+     * matter, so the HUD's lowercase "osm" / "light" / "dark" and the phone's
+     * uppercase ids land on the same entry.
+     */
     fun byId(id: String): Layer {
-        val canonical = ALIASES[id] ?: id
+        val canonical = ALIASES[id] ?: id.uppercase()
         return ALL.firstOrNull { it.id == canonical } ?: ALL.first()
+    }
+
+    /** The labels tile that goes on top of [tileUrl] for a split Esri layer, or null. */
+    fun refTileUrl(id: String, z: Int, x: Int, y: Int): String? {
+        val layer = byId(id)
+        if (layer.refUrlTemplate.isBlank()) return null
+        return layer.refUrlTemplate
+            .replace("{z}", z.toString())
+            .replace("{x}", x.toString())
+            .replace("{y}", y.toString())
     }
 
     /** Tile URL with the placeholders filled in, for the canvas renderers that

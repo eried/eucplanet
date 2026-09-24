@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="watch_map_phone_disconnected">Nincs telefon</string>
+    <string name="watch_map_gps_permission">GPS engedélyezése</string>
+    <string name="watch_map_gps_stale">Elavult GPS</string>
+    <string name="watch_map_route_loading">Útvonal betöltése</string>
+    <string name="watch_map_route_unavailable">Nincs útvonal</string>
+    <string name="watch_map_loading">Térkép betöltése</string>
+    <string name="watch_map_unavailable">Nincs térkép</string>
+    <string name="watch_map_zoom_in">Nagyítás</string>
+    <string name="watch_map_zoom_out">Kicsinyítés</string>
+    <string name="watch_map_open_phone">Telefonos app megnyitása</string>
+    <string name="watch_map_waiting_gps">GPS-re vár</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, sebesség %2$s, feszültség %3$s.</string>
+</resources>

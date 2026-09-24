@@ -27,9 +27,11 @@ class BegodeMasterVirtualWheel : VirtualWheel {
     override val bleName = "Master_VIRTUAL"
 
     private var startTimeMs = System.currentTimeMillis()
+    private var lastExtrasTickMs = -1_000L
 
     override fun reset() {
         startTimeMs = System.currentTimeMillis()
+        lastExtrasTickMs = -1_000L
     }
 
     override fun onWrite(data: ByteArray): List<ByteArray> {
@@ -61,7 +63,17 @@ class BegodeMasterVirtualWheel : VirtualWheel {
         val rawCurrent = 1200       // 12.0 A phase current
         val rawTempReg = 0x0EFF     // ≈ 47 °C through the MPU6050 formula
 
-        return listOf(begodeLiveFrame(elapsedMs, rawCv, rawSpeed, rawCurrent, rawTempReg))
+        val out = ArrayList<ByteArray>(2)
+        out += begodeLiveFrame(elapsedMs, rawCv, rawSpeed, rawCurrent, rawTempReg)
+        // Stock firmware also sends the 0x07 extras frame about once a second
+        // with only the motor temperature filled in; true PWM and battery
+        // current stay 0. A Master v3 rider saw the PWM tile flash to 0 % on
+        // every one of them (issue #26), so the fake sends them too.
+        if (elapsedMs - lastExtrasTickMs >= 1_000L) {
+            lastExtrasTickMs = elapsedMs
+            out += begodeExtrasFrame(motorTempC = 38)
+        }
+        return out
     }
 
 }
@@ -85,6 +97,23 @@ internal fun begodeLiveFrame(elapsedMs: Long, rawCv: Int, rawSpeed: Int, rawCurr
     // 16..17: padding
     frame[18] = 0x00 // Live A tag
     frame[19] = 0x00
+    frame[20] = 0x5A
+    frame[21] = 0x5A
+    frame[22] = 0x5A
+    frame[23] = 0x5A
+    return frame
+}
+
+/**
+ * One Begode 0x07 "extras" frame as stock firmware sends it: motor temperature
+ * at 6..7, true PWM (8..9) and battery current (2..3) left at zero.
+ */
+internal fun begodeExtrasFrame(motorTempC: Int): ByteArray {
+    val frame = ByteArray(24)
+    frame[0] = 0x55
+    frame[1] = 0xAA.toByte()
+    putInt16BE(frame, 6, motorTempC)
+    frame[18] = 0x07
     frame[20] = 0x5A
     frame[21] = 0x5A
     frame[22] = 0x5A

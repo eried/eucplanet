@@ -38,4 +38,19 @@
     <string name="watch_action_media_next">Volgend nummer</string>
     <string name="watch_action_media_prev">Vorig nummer</string>
     <string name="watch_action_long_press_hint">Lang indrukken voor %1$s</string>
+    <string name="watch_map_phone_disconnected">Geen telefoon</string>
+    <string name="watch_map_gps_permission">GPS toestaan</string>
+    <string name="watch_map_gps_stale">GPS verouderd</string>
+    <string name="watch_map_route_loading">Route laden</string>
+    <string name="watch_map_route_unavailable">Geen route</string>
+    <string name="watch_map_loading">Kaart laden</string>
+    <string name="watch_map_unavailable">Geen kaart</string>
+    <string name="watch_map_zoom_in">Inzoomen</string>
+    <string name="watch_map_zoom_out">Uitzoomen</string>
+    <string name="watch_map_open_phone">Telefoonapp openen</string>
+    <string name="watch_map_waiting_gps">Wachten op GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, snelheid %2$s, spanning %3$s.</string>
 </resources>

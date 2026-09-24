@@ -1,8 +1,10 @@
 package com.eried.eucplanet.data
 
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.WatchMapSettings
 import com.eried.eucplanet.data.store.SettingsJson
 import org.json.JSONObject
+import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import kotlin.reflect.full.memberProperties
@@ -138,5 +140,24 @@ class SettingsJsonDriftGuardTest {
                     "toJson() AND fromJson():\n" + dropped.joinToString("\n")
             )
         }
+    }
+
+    @Test
+    fun legacyWatchMapPartialImportInheritsBaseFields() {
+        val base = AppSettings(
+            watchMap = WatchMapSettings(
+                enabled = false,
+                headingUp = false,
+                keepScreenOnDuringNavigation = true,
+                showTelemetry = false,
+            ),
+        )
+        val legacy = JSONObject("""{"watchMap":{"enabled":true,"headingUp":true}}""")
+        val loaded = SettingsJson.fromJson(legacy, base)
+
+        assertEquals(true, loaded.watchMap.enabled)
+        assertEquals(true, loaded.watchMap.headingUp)
+        assertEquals(true, loaded.watchMap.keepScreenOnDuringNavigation)
+        assertEquals(false, loaded.watchMap.showTelemetry)
     }
 }

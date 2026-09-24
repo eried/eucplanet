@@ -38,4 +38,19 @@
     <string name="watch_action_media_next">Neste låt</string>
     <string name="watch_action_media_prev">Forrige låt</string>
     <string name="watch_action_long_press_hint">Hold inne for %1$s</string>
+    <string name="watch_map_phone_disconnected">Ingen telefon</string>
+    <string name="watch_map_gps_permission">Tillat GPS</string>
+    <string name="watch_map_gps_stale">GPS utdatert</string>
+    <string name="watch_map_route_loading">Laster rute</string>
+    <string name="watch_map_route_unavailable">Ingen rute</string>
+    <string name="watch_map_loading">Laster kart</string>
+    <string name="watch_map_unavailable">Ingen kart</string>
+    <string name="watch_map_zoom_in">Zoom inn</string>
+    <string name="watch_map_zoom_out">Zoom ut</string>
+    <string name="watch_map_open_phone">Åpne telefonappen</string>
+    <string name="watch_map_waiting_gps">Venter på GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, fart %2$s, spenning %3$s.</string>
 </resources>

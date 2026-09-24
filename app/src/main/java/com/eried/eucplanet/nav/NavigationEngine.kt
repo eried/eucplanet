@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -315,6 +316,7 @@ class NavigationEngine @Inject constructor(
 
             _navState.value = NavState(
                 active = true,
+                sessionId = UUID.randomUUID().toString(),
                 mode = mode,
                 waiting = true,
                 primaryText = context.getString(R.string.nav_start_riding),

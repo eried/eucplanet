@@ -92,6 +92,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
+import com.eried.eucplanet.hud.protocol.WebMercator
+import com.eried.eucplanet.map.MapTileCache
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
@@ -1943,79 +1945,23 @@ private fun decimateTrace(pts: List<WheelData>, cap: Int): List<WheelData> {
     return out
 }
 
-/**
- * Process-wide raster tile cache + async loader. Tiles are immutable for a
- * given (style, z, x, y), so one shared LRU serves every MAP element.
- */
-private object MapTileCache {
-    // ~64 tiles ≈ 16 MB of ARGB_8888 bitmaps; plenty for a 3x3 view plus pans.
-    private val cache = android.util.LruCache<String, ImageBitmap>(64)
-    // URLs currently being fetched, so two recompositions don't double-load.
-    private val inFlight = java.util.Collections.synchronizedSet(HashSet<String>())
-
-    fun get(url: String): ImageBitmap? = cache.get(url)
-
-    fun isLoading(url: String): Boolean = inFlight.contains(url)
-
-    /** Loads [url] off the main thread; returns true once a bitmap is cached. */
-    suspend fun load(url: String): Boolean {
-        if (cache.get(url) != null) return true
-        if (!inFlight.add(url)) return false
-        return try {
-            val bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                fun fetch(u: String): android.graphics.Bitmap? = runCatching {
-                    val conn = (java.net.URL(u).openConnection()
-                        as java.net.HttpURLConnection).apply {
-                        // Tile servers (OSM in particular) reject blank UAs.
-                        setRequestProperty("User-Agent", "EUC Planet")
-                        connectTimeout = 8000
-                        readTimeout = 8000
-                    }
-                    conn.inputStream.use { android.graphics.BitmapFactory.decodeStream(it) }
-                }.getOrNull()
-                val base = fetch(url)
-                // Esri Canvas keeps its labels on a separate reference layer;
-                // the base URL names it, so composite when it exists. A failed
-                // label fetch still shows the base rather than nothing.
-                val refUrl = url.replace("_Gray_Base/", "_Gray_Reference/")
-                if (base != null && refUrl != url) {
-                    fetch(refUrl)?.let { ref ->
-                        val out = base.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
-                        android.graphics.Canvas(out).drawBitmap(ref, 0f, 0f, null)
-                        return@withContext out
-                    }
-                }
-                base
-            }
-            if (bmp != null) {
-                cache.put(url, bmp.asImageBitmap())
-                true
-            } else false
-        } finally {
-            inFlight.remove(url)
-        }
-    }
-}
 
 /** Tile URL for a style + z/x/y, from the registry every map screen shares. */
 private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String =
     com.eried.eucplanet.hud.protocol.MapLayers.tileUrl(style, z, x, y)
 
-/** Fractional tile X for a longitude at [zoom] (slippy-map / Web Mercator). */
-private fun lonToTileX(lon: Double, zoom: Int): Double =
-    (lon + 180.0) / 360.0 * (1 shl zoom)
-
-/** Fractional tile Y for a latitude at [zoom] (slippy-map / Web Mercator). */
-private fun latToTileY(lat: Double, zoom: Int): Double {
-    val rad = Math.toRadians(lat)
-    return (1.0 - kotlin.math.ln(
-        kotlin.math.tan(rad) + 1.0 / kotlin.math.cos(rad)
-    ) / Math.PI) / 2.0 * (1 shl zoom)
-}
 
 @Composable
 private fun MapElement(element: OverlayElement, data: StudioElementData) {
-    val zoom = element.mapZoom.coerceIn(10, 19)
+    val wantedZoom = element.mapZoom.coerceIn(10, 19)
+    // Tiles come no deeper than the provider renders (Esri Canvas stops at
+    // 16 and answers deeper requests with a "Map data not yet available"
+    // tile); past that depth the last real tiles are drawn scaled up.
+    val zoom = wantedZoom.coerceAtMost(
+        com.eried.eucplanet.hud.protocol.MapLayers.byId(element.mapStyle).maxNativeZoom
+    )
+    val tilePx = MAP_TILE_SIZE shl (wantedZoom - zoom)
+    val context = LocalContext.current
 
     // GPS drops constantly on a real ride: a tunnel, a built-up street, a
     // momentary loss. The live sample then carries 0,0 and the map used to fall
@@ -2079,8 +2025,8 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
         }
 
         // Fractional tile coordinates of the centre at this zoom.
-        val centerTx = lonToTileX(centerLon, zoom)
-        val centerTy = latToTileY(centerLat, zoom)
+        val centerTx = WebMercator.tileX(centerLon, zoom)
+        val centerTy = WebMercator.tileY(centerLat, zoom)
         val maxTile = (1 shl zoom) - 1
 
         // Which tiles are needed: enough rings around the centre tile to cover
@@ -2110,7 +2056,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 tileKeys.forEach { (_, _, url) ->
                     if (MapTileCache.get(url) == null) {
                         launch {
-                            if (MapTileCache.load(url)) tilesReady++
+                            if (MapTileCache.load(context, url)) tilesReady++
                         }
                     }
                 }
@@ -2174,8 +2120,8 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             // Project a (lat, lon) to canvas pixels: pixel offset from centre
             // tile coords, scaled by the tile size.
             fun project(lat: Double, lon: Double): Offset {
-                val px = (lonToTileX(lon, zoom) - centerTx) * MAP_TILE_SIZE
-                val py = (latToTileY(lat, zoom) - centerTy) * MAP_TILE_SIZE
+                val px = (WebMercator.tileX(lon, zoom) - centerTx) * tilePx
+                val py = (WebMercator.tileY(lat, zoom) - centerTy) * tilePx
                 return Offset(cx + px.toFloat(), cy + py.toFloat())
             }
 
@@ -2185,16 +2131,14 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 // Tiles: top-left of each tile is its (tileX - centerTx) offset.
                 tileKeys.forEach { (tx, ty, url) ->
                     val bmp = MapTileCache.get(url) ?: return@forEach
-                    val left = cx + ((tx - centerTx) * MAP_TILE_SIZE).toFloat()
-                    val top = cy + ((ty - centerTy) * MAP_TILE_SIZE).toFloat()
+                    val left = cx + ((tx - centerTx) * tilePx).toFloat()
+                    val top = cy + ((ty - centerTy) * tilePx).toFloat()
                     drawImage(
                         image = bmp,
                         dstOffset = androidx.compose.ui.unit.IntOffset(
                             left.roundToInt(), top.roundToInt()
                         ),
-                        dstSize = androidx.compose.ui.unit.IntSize(
-                            MAP_TILE_SIZE, MAP_TILE_SIZE
-                        )
+                        dstSize = androidx.compose.ui.unit.IntSize(tilePx, tilePx)
                     )
                 }
 

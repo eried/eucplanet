@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -16,9 +17,11 @@ import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
+import com.eried.eucplanet.wear.bridge.WatchMapRepository
 import com.eried.eucplanet.wear.ui.WatchApp
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -75,8 +78,35 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                Intent.ACTION_SCREEN_ON -> WatchMapRepository.setInteractive(
+                    applicationContext,
+                    true,
+                )
+                Intent.ACTION_SCREEN_OFF -> WatchMapRepository.setInteractive(
+                    applicationContext,
+                    false,
+                )
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WatchMapRepository.hydrateMapConfiguration(applicationContext)
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        WatchMapRepository.setInteractive(applicationContext, powerManager.isInteractive)
+        ContextCompat.registerReceiver(
+            this,
+            screenReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         if (isDebuggable()) {
             ContextCompat.registerReceiver(
                 this,
@@ -86,16 +116,31 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        // Apply / clear FLAG_KEEP_SCREEN_ON whenever the phone-pushed setting
-        // toggles. The watch's own ambient mode still kicks in if the user
-        // covers the screen, this only blocks the inactivity timeout.
+        // Keep the screen on globally when configured, or briefly while a fresh
+        // navigation hold is arriving from the phone. collectLatest cancels the
+        // freshness timer whenever either source changes.
         lifecycleScope.launch {
-            WatchStateRepository.state
-                .map { it.keepScreenOn }
-                .distinctUntilChanged()
-                .collect { keepOn ->
-                    if (keepOn) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                    else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            combine(
+                WatchStateRepository.state,
+                WatchStateRepository.lastPushAtMs,
+            ) { state, lastPushAtMs -> state to lastPushAtMs }
+                .collectLatest { (state, lastPushAtMs) ->
+                    val ageMs = (System.currentTimeMillis() - lastPushAtMs).coerceAtLeast(0L)
+                    val freshNavigationHold =
+                        state.keepScreenOnForNavigation && lastPushAtMs > 0L && ageMs < 3_000L
+                    when {
+                        state.keepScreenOn -> {
+                            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                        freshNavigationHold -> {
+                            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                            delay(3_000L - ageMs)
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                        else -> {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                    }
                 }
         }
 
@@ -117,6 +162,18 @@ class MainActivity : ComponentActivity() {
         setContent { WatchApp() }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        WatchMapRepository.setInteractive(applicationContext, powerManager.isInteractive)
+        WatchMapRepository.setActivityResumed(applicationContext, true)
+    }
+
+    override fun onPause() {
+        WatchMapRepository.setActivityResumed(applicationContext, false)
+        super.onPause()
+    }
+
     override fun onStart() {
         super.onStart()
         WatchStateRepository.setActivityVisible(true)
@@ -124,14 +181,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         WatchStateRepository.setActivityVisible(false)
+        WatchMapRepository.setActivityResumed(applicationContext, false)
         super.onStop()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        runCatching { unregisterReceiver(screenReceiver) }
         if (isDebuggable()) {
             runCatching { unregisterReceiver(demoReceiver) }
         }
+        super.onDestroy()
     }
 
     /**

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="watch_map_phone_disconnected">Ei puhelinta</string>
+    <string name="watch_map_gps_permission">Salli GPS</string>
+    <string name="watch_map_gps_stale">GPS vanhentunut</string>
+    <string name="watch_map_route_loading">Ladataan reittiä</string>
+    <string name="watch_map_route_unavailable">Ei reittiä</string>
+    <string name="watch_map_loading">Ladataan karttaa</string>
+    <string name="watch_map_unavailable">Ei karttaa</string>
+    <string name="watch_map_zoom_in">Lähennä</string>
+    <string name="watch_map_zoom_out">Loitonna</string>
+    <string name="watch_map_open_phone">Avaa puhelinsovellus</string>
+    <string name="watch_map_waiting_gps">Odotetaan GPS:ää</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, nopeus %2$s, jännite %3$s.</string>
+</resources>
