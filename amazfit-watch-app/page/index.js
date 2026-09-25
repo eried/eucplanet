@@ -951,7 +951,10 @@ Page(
           w: cellStep,
           h: textH,
           text_size: fontSize,
-          text: String(Math.round(f.pct)),
+          // Only tag the unit when all three are shown (small values, and the
+          // icons alone are ambiguous). One or two read big, so the icon is
+          // enough and a "%" would only echo the PWM badge below.
+          text: String(Math.round(f.pct)) + (n === 3 ? '%' : ''),
           color: batteryColor(f.pct),
         })
         cell.icon.setProperty(prop.VISIBLE, true)
