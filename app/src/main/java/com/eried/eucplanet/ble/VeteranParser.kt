@@ -331,14 +331,86 @@ class VeteranParser {
                     )
                 }
                 8 -> {
-                    // Spec open question: pnum == 8 is a newer packet type
-                    // whose contents are not yet decoded. Returning a stub
-                    // slice keeps the dispatcher simple; we just don't
-                    // populate any of the optional fields.
+                    // Page 8 is a configuration settings frame (decoded by parsePage8),
+                    // not a smart-BMS cell telemetry slice. Returning a stub slice
+                    // preserves backwards compatibility for callers expecting BmsSlice.
                     BmsSlice(pnum = pnum, packIndex = 0)
                 }
                 else -> null
             }
+        }
+
+        /**
+         * Parse a Page 8 configuration settings frame (75 bytes, pageId == 8).
+         * Returns null if the frame is too short, does not have pageId 8, or
+         * has invalid framing.
+         *
+         * Offsets 47..70 carry wheel settings. Sentinel value 0x80 (128) denotes
+         * an unsupported or inactive field, which maps to null (never zero-filled).
+         */
+        fun parsePage8(
+            frame: ByteArray,
+            receivedAtNanos: Long = System.nanoTime()
+        ): VeteranPage8Settings? {
+            if (frame.size < 71 || pageId(frame) != 8) return null
+
+            fun extractByte(offset: Int): Int? {
+                if (offset >= frame.size) return null
+                val raw = frame[offset].toInt() and 0xFF
+                return if (raw == 0x80) null else raw
+            }
+
+            fun extractSignedByte(offset: Int): Int? {
+                if (offset >= frame.size) return null
+                val raw = frame[offset]
+                return if (raw == 0x80.toByte()) null else raw.toInt()
+            }
+
+            val pedalHardness = extractByte(50)?.takeIf { it in 0..100 }
+            val tiltbackSpeed = extractByte(52)?.takeIf { it in 10..120 || it == 200 }
+            val pwmTiltback = extractByte(53)?.takeIf { it in 30..100 || it == 200 }
+            val alarmSpeed = extractByte(54)?.takeIf { it in 10..120 }
+            val displayBrightness = extractByte(55)?.takeIf { it in 0..100 }
+            val gyroCalibration = extractByte(56)?.takeIf { it in 0..2 }
+            val transport = extractByte(57)?.let { it == 1 }
+            val displayUnits = extractByte(58)?.takeIf { it in 0..1 }
+            val voltageAdjustment = extractSignedByte(59)?.takeIf { it in -15..15 }
+            val lowBatteryMode = extractByte(60)?.takeIf { it in 0..1 }
+            val highSpeedMode = extractByte(61)?.takeIf { it in 0..1 }
+            val keyToneVolume = extractByte(63)?.takeIf { it in 0..100 }
+            val maxChargeVoltageRaw = extractByte(64)?.takeIf { it in 0..120 }
+            val voltageBase = extractByte(65)
+            val dynamicAssist = extractByte(66)?.takeIf { it in 0..100 }
+            val pedalDipCompensation = extractByte(68)?.takeIf { it in 0..100 }
+            val headlightMode = extractByte(47)?.takeIf { it in 0..3 }
+
+            val rawPayload = if (frame.size >= 71) {
+                frame.copyOfRange(47, 71)
+            } else {
+                ByteArray(0)
+            }
+
+            return VeteranPage8Settings(
+                headlightMode = headlightMode,
+                pedalHardnessPercent = pedalHardness,
+                tiltbackSpeedKmh = tiltbackSpeed,
+                pwmTiltbackPercent = pwmTiltback,
+                alarmSpeedKmh = alarmSpeed,
+                displayBrightnessPercent = displayBrightness,
+                gyroCalibrationState = gyroCalibration,
+                transportMode = transport,
+                displayUnits = displayUnits,
+                voltageAdjustmentTenths = voltageAdjustment,
+                lowBatteryMode = lowBatteryMode,
+                highSpeedMode = highSpeedMode,
+                keyToneVolumePercent = keyToneVolume,
+                maxChargeVoltageRaw = maxChargeVoltageRaw,
+                voltageBase = voltageBase,
+                dynamicAssistPercent = dynamicAssist,
+                pedalDipCompensationPercent = pedalDipCompensation,
+                receivedAtNanos = receivedAtNanos,
+                rawPayload = rawPayload,
+            )
         }
 
         // --- Helpers --------------------------------------------------------------
