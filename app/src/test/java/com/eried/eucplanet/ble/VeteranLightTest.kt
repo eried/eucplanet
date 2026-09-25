@@ -11,7 +11,7 @@ import org.junit.Test
  * The in-app light toggle drives the HIGH beam by default: a two-frame
  * `LkAp` + `LdAp` pair decoded from a LeaperKim-app btsnoop on a Lynx S
  * (high beam on @cap25.3s, off @cap28.3s). The legacy ASCII `SetLightON/OFF`
- * (low beam) is selected for the NOSFET Aeon only.
+ * (low beam) is selected for NOSFET models (Aero, Aeon, Apex).
  * Pure-JVM test; no Android runtime needed.
  */
 class VeteranLightTest {
@@ -48,10 +48,21 @@ class VeteranLightTest {
 
     @Test
     fun `all other models retain the existing light pair`() {
-        for (model in VeteranModel.entries.filter { it != VeteranModel.NOSFET_AEON } + null) {
+        for (model in VeteranModel.entries.filter { it.brandOverride != "NOSFET" } + null) {
             val profile = VeteranControlProfile.forModel(model)
             assertEquals(HIGHBEAM_ON_LKAP, profile.setLight(true).hex())
             assertEquals(HIGHBEAM_ON_LDAP, profile.setLightFollowup(true)!!.hex())
+        }
+    }
+
+    @Test
+    fun `all nosfet models use single ASCII commands without followup`() {
+        for (model in VeteranModel.entries.filter { it.brandOverride == "NOSFET" }) {
+            val profile = VeteranControlProfile.forModel(model)
+            assertEquals("SetLightON", profile.setLight(true).toString(Charsets.US_ASCII))
+            assertEquals("SetLightOFF", profile.setLight(false).toString(Charsets.US_ASCII))
+            assertNull(profile.setLightFollowup(true))
+            assertNull(profile.setLightFollowup(false))
         }
     }
 
