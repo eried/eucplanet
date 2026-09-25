@@ -164,7 +164,7 @@ Cell counts per model:
 | Model              | Cells |
 |--------------------|------:|
 | Sherman, Abrams, Sherman S | 24 |
-| Patton, Patton S, Nosfet Aero | 30 |
+| Patton, Patton S, Nosfet Aero, Nosfet Xeno | 30 |
 | Lynx, Lynx S, Sherman L, Nosfet Apex, Nosfet Aeon | 36 |
 | Oryx               | 42 |
 
@@ -291,6 +291,7 @@ revision = ver % 100
 | 42      | Nosfet Apex | 36    | 11902 .. 14805 |
 | 43      | Nosfet Aero | 30    | 9918 .. 12337 |
 | 44      | Nosfet Aeon | 36    | 11902 .. 14805 |
+| 45      | Nosfet Xeno | 30    | 9918 .. 12337 |
 
 Battery percent (linear curve, simple variant):
 

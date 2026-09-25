@@ -381,12 +381,13 @@ class VeteranParser {
         private fun batteryPercentForModel(voltageCv: Int, model: VeteranModel?): Int {
             // Per-pack-class linear curves: Sherman / Abrams / Sherman S /
             // Sherman Max share the 100 V 24-cell range, 134 V wheels (Patton +
-            // Patton S + Nosfet Aero) their own, and 151 V wheels (Lynx +
-            // Sherman L + Lynx S + Nosfet Apex + Nosfet Aeon) theirs.
+            // Patton S) and 126 V wheels (Nosfet Aero + Nosfet Xeno) their own,
+            // and 151 V wheels (Lynx + Sherman L + Lynx S + Nosfet Apex + Nosfet Aeon) theirs.
             val percent = when (model) {
                 VeteranModel.PATTON,
                 VeteranModel.PATTON_S,
-                VeteranModel.NOSFET_AERO ->
+                VeteranModel.NOSFET_AERO,
+                VeteranModel.NOSFET_XENO ->
                     ((voltageCv - 9918) / 24.2f).roundToInt()
                 VeteranModel.LYNX,
                 VeteranModel.LYNX_S,
