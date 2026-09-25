@@ -927,23 +927,30 @@ Page(
       })
       if (fields.length === 0) return
 
-      const rowW = Math.floor((L.W * 55) / 100)
+      // Fewer cells read bigger. Three tiny values were unreadable on the wrist,
+      // so the percent now scales with how many the rider keeps: wheel-only
+      // fills the row, and hiding the phone / watch battery in Settings grows
+      // the wheel figure instead of leaving it small.
+      const n = fields.length
+      const fontSize = n === 1 ? 56 : n === 2 ? 46 : 36
+      const cellStep = n === 1 ? 170 : n === 2 ? 128 : 96
+      const rowW = cellStep * n
       const rowLeft = Math.floor(L.W / 2) - Math.floor(rowW / 2)
-      const step = Math.floor(rowW / fields.length)
       const iconSize = 32
-      const textH = 30
-      const blockH = iconSize + 1 + textH
+      const textH = fontSize + 8
+      const blockH = iconSize + 2 + textH
       const blockTop = Math.floor((L.H * 64) / 100) - Math.floor(blockH / 2)
 
-      fields.forEach((f, n) => {
-        const cxCell = rowLeft + Math.floor(step / 2) + step * n
+      fields.forEach((f, idx) => {
+        const cxCell = rowLeft + Math.floor(cellStep / 2) + cellStep * idx
         const cell = w.batt[f.i]
         cell.icon.setProperty(prop.MORE, { x: cxCell - Math.floor(iconSize / 2), y: blockTop })
         cell.text.setProperty(prop.MORE, {
-          x: cxCell - 45,
-          y: blockTop + iconSize + 1,
-          w: 90,
+          x: cxCell - Math.floor(cellStep / 2),
+          y: blockTop + iconSize + 2,
+          w: cellStep,
           h: textH,
+          text_size: fontSize,
           text: String(Math.round(f.pct)),
           color: batteryColor(f.pct),
         })
