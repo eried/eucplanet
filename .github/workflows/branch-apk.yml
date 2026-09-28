@@ -139,26 +139,37 @@ jobs:
       GARMIN_SDK_BUNDLE_URL: ${{ secrets.GARMIN_SDK_BUNDLE_URL }}
     steps:
       - name: Verify the CIQ SDK bundle URL is configured
+        id: sdk
         # A missing secret used to turn this job into a silent skip that still
         # counted as success, so a release could go out without its Garmin
-        # files. Fail instead: publish requires this job to succeed.
+        # files. Fail instead: publish requires this job to succeed. The one
+        # exception is a pull request from a fork, where GitHub never passes
+        # secrets and nothing is published anyway: skip with a notice there.
         run: |
-          if [ -z "$GARMIN_SDK_BUNDLE_URL" ]; then
+          if [ -n "$GARMIN_SDK_BUNDLE_URL" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "::notice::Pull request from a fork: GitHub withholds secrets, so the Garmin build is skipped. Nothing is published for PRs."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
             echo "::error::GARMIN_SDK_BUNDLE_URL secret not set; the Garmin build cannot run, so nothing will be published."
             echo "::error::See tools/bundle-ciq-sdk-for-ci.ps1 to create the bundle and set the secret."
             exit 1
           fi
 
       - name: Checkout
+        if: steps.sdk.outputs.run == 'true'
         uses: actions/checkout@v4
 
       - name: Set up JDK 17 (monkeyc runs on a JRE)
+        if: steps.sdk.outputs.run == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Download CIQ SDK bundle
+        if: steps.sdk.outputs.run == 'true'
         run: |
           mkdir -p /tmp/ciq
           # GH release URLs are public for public repos; if you host on a
@@ -176,6 +187,7 @@ jobs:
           ls /tmp/ciq/ciq-bundle/devices | head -5
 
       - name: Install the permanent CIQ signing key
+        if: steps.sdk.outputs.run == 'true'
         # THE ONLY key allowed to sign .iq/.prg output, ever. The Connect IQ
         # store binds a listing to its first key forever, and two listings
         # were already burned by throwaway-signed uploads (2026-07-06 and
@@ -199,6 +211,7 @@ jobs:
           fi
 
       - name: Build .iq (multi-device bundle)
+        if: steps.sdk.outputs.run == 'true'
         run: |
           mkdir -p /tmp/out
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
@@ -217,6 +230,7 @@ jobs:
           ls -la "$OUT"
 
       - name: Build per-device .prg files
+        if: steps.sdk.outputs.run == 'true'
         run: |
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
           export CIQ_HOME=/tmp/ciq/ciq-bundle/sdk
@@ -247,6 +261,7 @@ jobs:
           ls -la /tmp/out
 
       - name: Upload as workflow artifacts (always)
+        if: steps.sdk.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: garmin-${{ needs.meta.outputs.short_sha }}
@@ -254,7 +269,7 @@ jobs:
           retention-days: 90
 
       - name: Stage for release
-        if: github.event_name != 'pull_request'
+        if: steps.sdk.outputs.run == 'true' && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: stage-garmin-${{ needs.meta.outputs.short_sha }}
