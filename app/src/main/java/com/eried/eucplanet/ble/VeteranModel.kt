@@ -17,7 +17,7 @@ enum class VeteranModel(
     val maxSpeedKmh: Int,
     /**
      * Brand override for non-LeaperKim wheels that ride on the same Veteran
-     * wire protocol. NOSFET (Apex / Aero / Aeon) is a separate manufacturer
+     * wire protocol. NOSFET (Apex / Aero / Aeon / Xeno) is a separate manufacturer
      * that licenses the firmware family; the dashboard / eucstats brand
      * should read "NOSFET" rather than "LeaperKim" for those.
      */
@@ -37,7 +37,8 @@ enum class VeteranModel(
     // mVer 4 / 7 / 43: Patton family (134 V curve)
     PATTON(        "Veteran Patton",       134, 110),
     PATTON_S(      "Veteran Patton S",     134, 110),
-    NOSFET_AERO(   "NOSFET Aero",          134, 110, brandOverride = "NOSFET"),
+    NOSFET_AERO(   "NOSFET Aero",          126, 110, brandOverride = "NOSFET"),
+    NOSFET_XENO(   "NOSFET Xeno",          126, 110, brandOverride = "NOSFET"),
     // mVer 5 / 6 / 9 / 42 / 44: Lynx / Sherman L / Nosfet (151 V curve)
     LYNX(          "Veteran Lynx",         151, 120),
     LYNX_S(        "Veteran Lynx S",       151, 120),
@@ -64,6 +65,7 @@ enum class VeteranModel(
                 "nosfet apex" in n || "nosfetapex" in n -> NOSFET_APEX
                 "nosfet aero" in n || "nosfetaero" in n -> NOSFET_AERO
                 "nosfet aeon" in n || "nosfetaeon" in n -> NOSFET_AEON
+                "nosfet xeno" in n || "nosfetxeno" in n || "xeno" in n -> NOSFET_XENO
                 "oryx"   in n -> ORYX
                 "lynx s" in n || "lynxs" in n -> LYNX_S
                 "lynx"   in n -> LYNX
@@ -97,6 +99,7 @@ enum class VeteranModel(
             42 -> NOSFET_APEX
             43 -> NOSFET_AERO
             44 -> NOSFET_AEON
+            45 -> NOSFET_XENO
             else -> null
         }
     }
