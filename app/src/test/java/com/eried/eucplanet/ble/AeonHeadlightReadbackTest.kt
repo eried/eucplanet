@@ -80,7 +80,7 @@ class AeonHeadlightReadbackTest {
     }
 
     @Test fun `other models and unidentified wheels retain command tracked state`() {
-        for (version in listOf(5000, 8000, 9000, 42000, 43000, 0)) {
+        for (version in listOf(5000, 8000, 9000, 0)) {
             val adapter = VeteranAdapter()
             adapter.setLight(true)
             val data = telemetry(adapter, frame(0, version = version))
@@ -90,6 +90,20 @@ class AeonHeadlightReadbackTest {
             val off = telemetry(adapter, frame(3, version = version))
             assertNull(off.headlightReadback)
             assertFalse(off.lightOn)
+        }
+    }
+
+    @Test fun `all nosfet models accept headlight readback while veteran models reject it`() {
+        val state = VeteranHeadlightState()
+        val frame = frame(2, page = 1)
+        for (model in VeteranModel.entries.filter { it.brandOverride == "NOSFET" }) {
+            state.acceptFrame(frame, model)
+            assertEquals(HeadlightReadback.Level.MEDIUM, state.snapshot.readback?.level)
+            assertTrue(state.snapshot.lightOn)
+        }
+        for (model in VeteranModel.entries.filter { it.brandOverride != "NOSFET" } + null) {
+            state.acceptFrame(frame, model)
+            assertNull(state.snapshot.readback)
         }
     }
 
