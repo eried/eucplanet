@@ -29,11 +29,19 @@ riders who have the wheel.
 | **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X, KS-18XL |
 | **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
 | **In test** | LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
+| **In test** | NOSFET Apex, Aero, Xeno |
 | **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
 | **Waiting to be tested** | InMotion V12 HS / HT / Pro |
 | **Waiting to be tested** | Rest of the InMotion V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 |
 | **Waiting to be tested** | Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
+
+**NOSFET Apex, Aero or Xeno rider?** Your wheel now gets the same light and
+headlight handling as the Aeon, and the Aero gets its speed alarm the Aeon
+way. Please try the light tile and the speed alarm and tell us if they do what
+the app says. Apex riders: the speed alarm stays on the older command until
+someone captures it, because on some wheels that setting slot is tiltback.
+[Open an issue](https://github.com/eried/eucplanet/issues) with your model and firmware.
 
 Help with your wheel, check the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
 Already connects but a reading looks wrong? See the [in-app diagnostics guide](docs/DIAGNOSTICS_GUIDE.md).
