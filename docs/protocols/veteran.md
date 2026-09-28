@@ -154,10 +154,41 @@ at offset 46 (`pnum`) that tells you which slice you got.
 | 1, 5   | cells 0..14  | 15 i16 BE values starting at offset 53, each / 1000 = volts per cell |
 | 2, 6   | cells 15..29 | 15 u16 BE values starting at offset 53, each / 1000 = volts per cell |
 | 3, 7   | cells 30..41 + temps | up to 12 cells starting at offset 59. Six temps at offsets 47, 49, 51, 53, 55, 57 (each i16 BE / 100 = degrees C) |
-| 8      | reserved | newer packet type, contents not yet decoded |
+| 8      | settings | configuration readback (75 bytes, offsets 47..70 carry active settings; see 5.1) |
 
 Even values of `pnum` belong to BMS pack 1, odd values to BMS pack 2 (`pnum < 4` is
 pack 1, `pnum >= 4` is pack 2 on dual-BMS wheels).
+
+### 5.1 Page 8 configuration settings frame
+
+Modern firmwares (including Lynx, Sherman L, Patton, and NOSFET models) emit a
+75-byte frame with `LEN = 71` (0x47) and `pageId = 8` (offset 46) carrying active
+wheel settings.
+
+Unsupported or unpopulated fields report sentinel `0x80` (128 unsigned / -128 signed)
+and must not be zero-filled.
+
+| Offset | Type | Field | Scale / units |
+|-------:|------|-------|---------------|
+| 46     | u8   | pageId | Constant `0x08` |
+| 47     | u8   | headlight mode | 0 = off, 1 = low, 2 = medium, 3 = high |
+| 50     | u8   | pedal hardness | 0..100% continuous |
+| 52     | u8   | tiltback speed | 10..120 km/h (200 = disabled) |
+| 53     | u8   | PWM tiltback | 30..100% duty (200 = disabled) |
+| 54     | u8   | alarm speed | 10..120 km/h |
+| 55     | u8   | display brightness | 0..100% backlight |
+| 56     | u8   | gyro calibration | 0..2 |
+| 57     | u8   | transport mode | 0 = disabled, 1 = enabled |
+| 58     | u8   | display units | 0 = km/h (metric), 1 = mph (imperial) |
+| 59     | i8   | voltage adjustment | signed -15..+15 (tenths of a percent) |
+| 60     | u8   | low battery mode | 0 = disabled, 1 = enabled |
+| 61     | u8   | high speed mode | 0 = disabled, 1 = enabled |
+| 63     | u8   | key tone volume | 0..100% button buzzer sound (SND) |
+| 64     | u8   | charge voltage limit | raw scalar (0..120), offset by base voltage |
+| 65     | u8   | voltage base | pack base reference (e.g. 145 on 36S, 121 on 30S) |
+| 66     | u8   | dynamic assist | 0..100% acceleration assistance (ANG%) |
+| 68     | u8   | pedal dip compensation | 0..100% recenter rate (ANG TLT) |
+| 71..74 | u32 BE | CRC32 | Checksum over bytes 0..70 |
 
 Cell counts per model:
 
@@ -359,8 +390,8 @@ Additional booleans worth tracking:
 - The 14-byte horn blob for `model >= 3`: meaning of bytes 4..13 not understood.
   Possibly a session-randomized auth tag or a feature negotiation. Replay works in
   practice; treat as opaque.
-- `pnum == 8` smart-BMS frame: unrecognized in current research, may carry charge
-  cycles or balancer status.
+- `pnum == 8` settings frame: decoded as the 75-byte configuration settings frame
+  (section 5.1).
 - Older Sherman firmwares (pre-2020) reportedly used a shorter 24-byte payload
   without offsets 28..35 populated. If you see `LEN < 38`, fall back to: parse
   voltage / speed / distance / current / temp only and treat `model = 0`.
