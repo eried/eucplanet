@@ -1268,41 +1268,61 @@ internal fun voiceCanRead(key: String): Boolean =
     key in EXTRACTORS || key in STATE_READINGS || key in REPORT_FOR_METRIC
 
 /**
+ * What [EXTRACTORS] reads, in order, and whether the registry's "no value"
+ * sentinel is dropped (true) or passed through as held (false). A NaN passed
+ * through is answered as "no data yet" just like a null.
+ */
+private val VOICE_READS: List<Pair<String, Boolean>> = listOf(
+    "VOLTAGE" to false,
+    // Temperature slots as held: a missing slot is null, an implausible one
+    // is read out.
+    "MOTOR_TEMP" to false,
+    "CONTROLLER_TEMP" to false,
+    "BATTERY_TEMP" to false,
+    "ODOMETER" to false,
+    // As held, -1 included.
+    "TRIP_METER" to false,
+    "PITCH" to false,
+    "ROLL" to false,
+    "G_FORCE" to false,
+    "FORWARD_G" to false,
+    "LATERAL_G" to false,
+    "TORQUE" to false,
+    "PHASE_CURRENT" to false,
+    "BATTERY_1" to false,
+    "BATTERY_2" to false,
+    "BATTERY_ENVELOPE" to false,
+    // A wheel with no sensor reads 0, which is not a pressure. hasTirePressure
+    // is the wheel saying whether it has one at all, and the rider hears
+    // "your wheel does not report tyre pressure" instead of "0".
+    "TIRE_PRESSURE" to true,
+    "WH_CONSUMED" to false,
+    "REGEN_WH" to false,
+    "WH_PER_KM" to false,
+    "RANGE_ESTIMATE" to false,
+    "GPS_ALTITUDE" to false,
+    // Negative (-1) means no fix / not reported.
+    "GPS_SPEED" to true,
+    "DYN_SPEED_LIMIT" to false,
+    "DYN_CURRENT_LIMIT" to false,
+    "WHEEL_MAX_SPEED" to true,
+    "WHEEL_ALARM_SPEED" to true,
+    // 0 dBm is "not read yet".
+    "BT_RSSI" to true,
+    "EXTERNAL_GPS_BATTERY" to true,
+)
+
+/**
  * Live values for the metrics with no spoken report of their own. Numbers
  * without units for now: the units live in the dashboard's per-key formatter,
  * and lifting them out is its own change.
  */
-internal val EXTRACTORS: Map<String, (com.eried.eucplanet.data.model.WheelData) -> Float?> = mapOf(
-    "VOLTAGE" to { it.voltage },
-    "MOTOR_TEMP" to { it.temperatures.firstOrNull() },
-    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1) },
-    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) },
-    "ODOMETER" to { it.totalDistance },
-    "TRIP_METER" to { it.tripMeterKm },
-    "PITCH" to { it.pitchAngle },
-    "ROLL" to { it.rollAngle },
-    "G_FORCE" to { it.gForce },
-    "FORWARD_G" to { it.forwardGFromSpeed },
-    "LATERAL_G" to { it.accelX },
-    "TORQUE" to { it.torque },
-    "PHASE_CURRENT" to { it.phaseCurrent },
-    "BATTERY_1" to { it.battery1Percent },
-    "BATTERY_2" to { it.battery2Percent },
-    "BATTERY_ENVELOPE" to { it.batteryEnvelope },
-    // A wheel with no sensor reads 0, which is not a pressure. hasTirePressure
-    // is the wheel saying whether it has one at all, and the rider hears
-    // "your wheel does not report tyre pressure" instead of "0".
-    "TIRE_PRESSURE" to { if (it.hasTirePressure) it.tirePressureKpa else null },
-    "WH_CONSUMED" to { it.whConsumed },
-    "REGEN_WH" to { it.whRegen },
-    "WH_PER_KM" to { it.whPerKmRecent },
-    "RANGE_ESTIMATE" to { it.rangeKmEstimate },
-    "GPS_ALTITUDE" to { it.gpsAltitudeM },
-    "GPS_SPEED" to { it.gpsSpeedKmh.takeIf { v -> v >= 0f } },
-    "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
-    "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
-    "WHEEL_MAX_SPEED" to { it.wheelMaxSpeedKmh.takeIf { v -> v >= 0f } },
-    "WHEEL_ALARM_SPEED" to { it.wheelAlarmSpeedKmh.takeIf { v -> v >= 0f } },
-    "BT_RSSI" to { it.rssiDbm.toFloat().takeIf { v -> v != 0f } },
-    "EXTERNAL_GPS_BATTERY" to { it.externalGpsBatteryPercent.toFloat().takeIf { v -> v >= 0f } },
-)
+internal val EXTRACTORS: Map<String, (com.eried.eucplanet.data.model.WheelData) -> Float?> =
+    VOICE_READS.associate { (key, filtered) ->
+        val def = com.eried.eucplanet.data.model.MetricRegistry.def(key)
+        key to if (filtered) {
+            { w: com.eried.eucplanet.data.model.WheelData -> def.read(w) }
+        } else {
+            { w: com.eried.eucplanet.data.model.WheelData -> def.readRaw(w) }
+        }
+    }
