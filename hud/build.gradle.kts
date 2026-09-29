@@ -16,6 +16,15 @@ val keystoreProps = Properties().apply {
 }
 
 android {
+    androidResources {
+        // Keep only this module's own languages from library resources
+        // (about 1 MB on the phone, 0.2 MB on the watch and HUD). Derived
+        // from the values-* folders that hold a strings.xml, so a new
+        // translation is picked up without touching this list.
+        localeFilters += listOf("en") + (file("src/main/res").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("values-") && it.resolve("strings.xml").exists() }
+            .map { it.name.removePrefix("values-") }
+    }
     namespace = "com.eried.eucplanet.hud"
     compileSdk = 35
 
@@ -65,6 +74,9 @@ android {
             // lets the verifier accept the result -- the screens then
             // run cleanly on the JIT.
             isMinifyEnabled = true
+            // Drop resources the shrunk code no longer references. Nothing in
+            // this module loads a resource by name (checked 2026-09-29).
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

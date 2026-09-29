@@ -34,6 +34,15 @@ fun git(vararg args: String): String = runCatching {
 }.getOrDefault("")
 
 android {
+    androidResources {
+        // Keep only this module's own languages from library resources
+        // (about 1 MB on the phone, 0.2 MB on the watch and HUD). Derived
+        // from the values-* folders that hold a strings.xml, so a new
+        // translation is picked up without touching this list.
+        localeFilters += listOf("en") + (file("src/main/res").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("values-") && it.resolve("strings.xml").exists() }
+            .map { it.name.removePrefix("values-") }
+    }
     namespace = "com.eried.eucplanet"
     compileSdk = 36
 
