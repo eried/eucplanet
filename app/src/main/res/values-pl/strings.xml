@@ -2389,9 +2389,9 @@
     <string name="adv_nav_sidebar_min_desc">Węższe ekrany zachowują dolny panel przystanków nawet w poziomie. Zbyt niski chowa mapę na małych ekranach.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN dostępu do kół InMotion V5/V8/V10, wysyłany przy połączeniu, aby koło zaczęło przesyłać dane. Zostaw 000000, chyba że ustawiłeś własny PIN w aplikacji InMotion.</string>
-    <string name="adv_kingsong_unlock_code">Kod odblokowania KingSong</string>
+    <string name="adv_kingsong_unlock_code">Kod odblok. KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Sześć cyfr wysyłanych z poleceniem odblokowania. Przetestowane koła przyjmują dowolne cyfry, więc zostaw 123456, chyba że twoje je odrzuci.</string>
-    <string name="adv_kingsong_password">Hasło aplikacji KingSong</string>
+    <string name="adv_kingsong_password">Hasło KingSong</string>
     <string name="adv_kingsong_password_desc">4-cyfrowe hasło ustawione w aplikacji KingSong, wysyłane przy połączeniu oraz przed blokowaniem i odblokowaniem. Zostaw 0000, jeśli nigdy go nie ustawiłeś.</string>
     <string name="adv_nav_sidebar_width">Szerokość panelu przystanków</string>
     <string name="adv_nav_sidebar_width_desc">Szerokość bocznego panelu przystanków w poziomie. Zbyt szeroki zostawia mało mapy.</string>

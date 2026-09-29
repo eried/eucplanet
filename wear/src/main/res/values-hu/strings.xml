@@ -45,7 +45,7 @@
     <string name="watch_map_unavailable">Nincs térkép</string>
     <string name="watch_map_zoom_in">Nagyítás</string>
     <string name="watch_map_zoom_out">Kicsinyítés</string>
-    <string name="watch_map_open_phone">Telefonos app megnyitása</string>
+    <string name="watch_map_open_phone">Nyisd meg a telefonon</string>
     <string name="watch_map_waiting_gps">GPS-re vár</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="notification_channel_name">Подключение к моноколесу</string>
+    <string name="notification_channel_name">Подключение к колесу</string>
     <string name="notification_channel_description">Показывает статус подключения и телеметрию.</string>
 
     <!-- Notification quick actions -->
@@ -92,7 +92,7 @@
     <string name="settings">Настройки</string>
     <string name="disconnect">Отключиться</string>
     <string name="disconnect_from">Отключиться от %1$s?</string>
-    <string name="wheel_generic">моноколеса</string>
+    <string name="wheel_generic">колеса</string>
     <string name="exit_title">Выйти из EUC Planet</string>
     <string name="exit_body">Оставить приложение работать в фоне или полностью завершить?</string>
     <string name="exit_stop_all">Завершить</string>
@@ -644,7 +644,7 @@
     <string name="section_connection">Подключение</string>
     <string name="section_display">Внешний вид</string>
     <string name="auto_record_on_start">Автоматически начинать запись</string>
-    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено.</string>
+    <string name="auto_record_caption">Записывает поездку, когда колесо подключено.</string>
     <string name="auto_record_start_in_motion">Начинать запись при движении</string>
     <string name="auto_record_start_in_motion_caption">Стартует при движении, автоматически останавливается после простоя, возобновляется в следующей поездке.</string>
     <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
@@ -753,7 +753,7 @@
     <string name="announce_wheel_lock">Блокировка и разблокировка</string>
     <string name="announce_lights">Включение и выключение фар</string>
     <string name="announce_recording">Старт и остановка записи</string>
-    <string name="announce_connection">Подключение и отключение моноколеса</string>
+    <string name="announce_connection">Подключение и отключение колеса</string>
     <string name="announce_gps">Потеря и возврат GPS</string>
     <string name="announce_legal_mode">Включение и выключение лег. режима</string>
     <string name="announce_welcome">Приветствие при запуске приложения</string>
@@ -894,7 +894,7 @@
     <string name="section_external_gps">GPS и датчики</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">Датчики TPMS</string>
-    <string name="tpms_wheel_sensor">Давление в шине моноколеса</string>
+    <string name="tpms_wheel_sensor">Давление в шине колеса</string>
     <string name="tpms_wheel_sensor_desc">Передаётся от привязанного датчика.</string>
     <string name="tpms_scan">Искать датчики</string>
     <string name="tpms_scan_stop">Остановить поиск</string>
@@ -971,14 +971,14 @@
     <string name="voice_time_fmt">время %1$s</string>
     <string name="voice_recording_on">идёт запись</string>
     <string name="voice_recording_off">запись остановлена</string>
-    <string name="voice_wheel_locked">Моноколесо заблокировано</string>
-    <string name="voice_wheel_unlocked">Моноколесо разблокировано</string>
+    <string name="voice_wheel_locked">Колесо заблокировано</string>
+    <string name="voice_wheel_unlocked">Колесо разблокировано</string>
     <string name="voice_lights_on">Фары включены</string>
     <string name="voice_lights_off">Фары выключены</string>
     <string name="voice_recording_started">Запись началась</string>
     <string name="voice_recording_finished">Запись остановлена</string>
-    <string name="voice_wheel_connected">Моноколесо подключено</string>
-    <string name="voice_wheel_disconnected">Моноколесо отключено</string>
+    <string name="voice_wheel_connected">Колесо подключено</string>
+    <string name="voice_wheel_disconnected">Колесо отключено</string>
     <string name="voice_gps_acquired">GPS найден</string>
     <string name="voice_gps_lost">GPS потерян</string>
     <string name="voice_legal_on">Легальный режим включён</string>
@@ -1043,7 +1043,7 @@
     <string name="flic_status_scan_failed_fmt">Поиск не удался (код %1$d)</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Подключить к моноколесу</string>
+    <string name="scan_title">Подключить к колесу</string>
     <string name="scan_scanning">Поиск…</string>
     <string name="scan_start">Начать поиск</string>
     <string name="scan_show_all_title">Показать все устройства</string>
@@ -1645,7 +1645,7 @@
     <string name="trip_meter_avg">Сред.</string>
     <string name="trip_meter_reset">Сбросить счётчик поездки</string>
     <string name="trip_meter_reset_msg">Обнуляет текущий пробег и удаляет все отрезки. Это действие нельзя отменить.</string>
-    <string name="trip_meter_empty">Пока нет расстояния. Счётчик работает, пока подключено моноколесо.</string>
+    <string name="trip_meter_empty">Пока нет расстояния. Счётчик работает, пока подключено колесо.</string>
     <string name="trip_meter_partial">Сейчас</string>
     <string name="trip_meter_col_split">#</string>
     <string name="trip_meter_col_dist">Дист.</string>
@@ -2257,7 +2257,7 @@
     <string name="adv_phone_gps_idle_interval">Интервал GPS в покое</string>
     <string name="adv_phone_gps_idle_interval_desc">Частота GPS в покое, когда нет записи или навигации, чтобы Навигатор и новое подключение были готовы. Больше - экономит батарею.</string>
     <string name="adv_gps_idle_off_delay">Выключать GPS в покое</string>
-    <string name="adv_gps_idle_off_delay_desc">Когда приложение в фоне, моноколесо не подключено и ничего не записывается, GPS выключается ради экономии батареи. 0 выключает сразу; большее значение сначала держит энергоэкономную позицию активной это время, чтобы быстрое переключение приложений не сбрасывало GPS.</string>
+    <string name="adv_gps_idle_off_delay_desc">Когда приложение в фоне, колесо не подключено и ничего не записывается, GPS выключается ради экономии батареи. 0 выключает сразу; большее значение сначала держит энергоэкономную позицию активной это время, чтобы быстрое переключение приложений не сбрасывало GPS.</string>
     <string name="adv_gps_fix_max_age">Макс. возраст GPS</string>
     <string name="adv_gps_fix_max_age_desc">Позиция старше этого считается отсутствием сигнала, чтобы запись, начатая до готовности GPS, не начиналась с устаревшей точки.</string>
     <string name="adv_pushonly_note">Некоторые устройства передают данные на своей фиксированной частоте и игнорируют эти настройки: моноколёса с односторонней передачей (Begode, Gotway, Veteran, KingSong), внешний GPS (RaceBox), радар и кнопки Flic.</string>
@@ -2285,8 +2285,8 @@
     <string name="adv_pending_upload_interval_desc">Влияет на то, как часто приложение повторяет отправку поездок, оставшихся в ожидании, например после закрытия во время синхронизации. 15 мин, это минимум Android. Опасно: слишком долго задерживает застрявшую отправку.</string>
     <string name="adv_trip_finalize_grace">Отсрочка завершения поездки</string>
     <string name="adv_trip_finalize_grace_desc">Влияет на то, как долго после остановки, прежде чем поездка будет завершена и синхронизирована. Опасно: слишком малое может обрезать поездку, которая лишь ненадолго остановилась.</string>
-    <string name="adv_wheel_poll_rate">Частота опроса моноколеса</string>
-    <string name="adv_wheel_poll_rate_desc">Влияет на свежесть живых данных и скорость реакции сигналов. Меньше запрашивает данные у моноколеса чаще. Опасно: очень малые значения могут перегрузить Bluetooth-канал и застопорить данные на некоторых моноколёсах.</string>
+    <string name="adv_wheel_poll_rate">Частота опроса колеса</string>
+    <string name="adv_wheel_poll_rate_desc">Влияет на свежесть живых данных и скорость реакции сигналов. Меньше запрашивает данные у колеса чаще. Опасно: очень малые значения могут перегрузить Bluetooth-канал и застопорить данные на некоторых колёсах.</string>
     <string name="alarm_beep_advanced">Дополнительно</string>
     <string name="alarm_beep_gap_label">Длительность паузы</string>
     <string name="alarm_beep_timeline_fmt">%1$d× · пауза %2$d ms</string>
@@ -2390,10 +2390,10 @@
     <string name="adv_nav_sidebar_min">Минимальный экран для боковой панели</string>
     <string name="adv_nav_sidebar_min_desc">Экраны уже этого сохраняют нижнюю панель остановок даже в альбомной ориентации. Слишком мало прячет карту на малых экранах.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
-    <string name="adv_inmotion_v1_pin_desc">PIN доступа для моноколёс InMotion V5/V8/V10, отправляется при подключении, чтобы моноколесо начало передавать данные. Оставьте 000000, если вы не задали свой PIN в приложении InMotion.</string>
-    <string name="adv_kingsong_unlock_code">Код разблокировки KingSong</string>
+    <string name="adv_inmotion_v1_pin_desc">PIN доступа для колёс InMotion V5/V8/V10, отправляется при подключении, чтобы колесо начало передавать данные. Оставьте 000000, если вы не задали свой PIN в приложении InMotion.</string>
+    <string name="adv_kingsong_unlock_code">Код разблок. KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Шесть цифр, отправляемых с командой разблокировки. Проверенные моноколёса принимают любые цифры, поэтому оставьте 123456, если ваше их не отклоняет.</string>
-    <string name="adv_kingsong_password">Пароль приложения KingSong</string>
+    <string name="adv_kingsong_password">Пароль KingSong</string>
     <string name="adv_kingsong_password_desc">4-значный пароль, заданный в приложении KingSong, отправляется при подключении и перед блокировкой и разблокировкой. Оставьте 0000, если вы его не задавали.</string>
     <string name="adv_nav_sidebar_width">Ширина панели остановок</string>
     <string name="adv_nav_sidebar_width_desc">Ширина боковой панели остановок в альбомной ориентации. Слишком широкая оставляет мало карты.</string>
@@ -2543,14 +2543,14 @@
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графики</string>
     <string name="recording_details_section">Дополнительные сведения</string>
-    <string name="recording_details_none">Для этой поездки моноколесо не указано.</string>
+    <string name="recording_details_none">Для этой поездки колесо не указано.</string>
     <string name="cloud_reset_local">Очистить локальные поездки</string>
     <string name="cloud_reset_local_title">Очистить локальные поездки?</string>
     <string name="cloud_reset_local_body">Удаляет все поездки, сохранённые на этом телефоне. Папка резервных копий не затрагивается, поэтому синхронизированные поездки можно восстановить оттуда.</string>
     <string name="dropbox_syncing">Синхронизация поездок…</string>
     <string name="dropbox_folder_desc">Поездки и настройки сохраняются в вашем Dropbox, в %1$s. Эту папку видит только это приложение.</string>
     <string name="keep_app_alive">Держать приложение активным</string>
-    <string name="keep_app_alive_desc">Показывает постоянное уведомление, чтобы приложение оставалось активным в фоне. Синхронизация поездок и голос работают даже без подключённого моноколеса. Расходует немного больше заряда.</string>
+    <string name="keep_app_alive_desc">Показывает постоянное уведомление, чтобы приложение оставалось активным в фоне. Синхронизация поездок и голос работают даже без подключённого колеса. Расходует немного больше заряда.</string>
     <string name="sync_up_to_date">Уже актуально</string>
     <string name="studio_source_transparent">Прозрачный</string>
     <string name="studio_source_video">Видео</string>
@@ -2568,11 +2568,11 @@
     <string name="studio_video_edge_freeze">Стоп-кадр</string>
     <string name="studio_video_edge_loop">Цикл</string>
     <string name="studio_video_edge_black">Чёрный</string>
-    <string name="wheel_no_data_reconnecting">Нет данных от моноколеса. Переподключение…</string>
-    <string name="wheel_no_data_reset">По-прежнему нет данных от моноколеса. Попробуйте выключить и снова включить его.</string>
+    <string name="wheel_no_data_reconnecting">Нет данных от колеса. Переподключение…</string>
+    <string name="wheel_no_data_reset">По-прежнему нет данных от колеса. Попробуйте выключить и снова включить его.</string>
     <string name="trip_map_ride_start">Начало поездки: %1$s</string>
     <string name="trip_map_reconnected">Переподключено: %1$s</string>
-    <string name="trip_map_new_wheel">Новое моноколесо: %1$s</string>
+    <string name="trip_map_new_wheel">Новое колесо: %1$s</string>
     <string name="trip_map_ride_end">Конец поездки</string>
     <string name="adv_smoothing_window">Окно сглаживания</string>
     <string name="adv_smoothing_window_desc">Отсчёты, усредняемые графиками поездки \"среднее\" и сглаженными голосовыми отчётами. Поездки записываются примерно раз в секунду, поэтому значение соответствует секундам. Внимание: большие значения скрывают короткие всплески.</string>

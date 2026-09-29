@@ -45,7 +45,7 @@
     <string name="watch_map_unavailable">Žádná mapa</string>
     <string name="watch_map_zoom_in">Přiblížit</string>
     <string name="watch_map_zoom_out">Oddálit</string>
-    <string name="watch_map_open_phone">Otevřít aplikaci v telefonu</string>
+    <string name="watch_map_open_phone">Otevřete v telefonu</string>
     <string name="watch_map_waiting_gps">Čekání na GPS</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

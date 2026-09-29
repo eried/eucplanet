@@ -48,8 +48,8 @@
     <string name="watch_map_unavailable">Brak mapy</string>
     <string name="watch_map_zoom_in">Przybliż</string>
     <string name="watch_map_zoom_out">Oddal</string>
-    <string name="watch_map_open_phone">Otwórz aplikację telefonu</string>
-    <string name="watch_map_waiting_gps">Oczekiwanie na GPS</string>
+    <string name="watch_map_open_phone">Otwórz w telefonie</string>
+    <string name="watch_map_waiting_gps">Czekam na GPS</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>
     <string name="watch_map_voltage_value">%1$s V</string>

@@ -48,7 +48,7 @@
     <string name="watch_map_unavailable">Немає карти</string>
     <string name="watch_map_zoom_in">Збільшити</string>
     <string name="watch_map_zoom_out">Зменшити</string>
-    <string name="watch_map_open_phone">Відкрити телефонний застосунок</string>
+    <string name="watch_map_open_phone">Відкрити на телефоні</string>
     <string name="watch_map_waiting_gps">Очікування GPS</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

@@ -48,7 +48,7 @@
     <string name="watch_map_unavailable">Sem mapa</string>
     <string name="watch_map_zoom_in">Aumentar zoom</string>
     <string name="watch_map_zoom_out">Diminuir zoom</string>
-    <string name="watch_map_open_phone">Abrir app do telefone</string>
+    <string name="watch_map_open_phone">Abrir no celular</string>
     <string name="watch_map_waiting_gps">Aguardando GPS</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

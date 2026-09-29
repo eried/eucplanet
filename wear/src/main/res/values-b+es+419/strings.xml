@@ -48,7 +48,7 @@
     <string name="watch_map_unavailable">Sin mapa</string>
     <string name="watch_map_zoom_in">Acercar</string>
     <string name="watch_map_zoom_out">Alejar</string>
-    <string name="watch_map_open_phone">Abrir app del teléfono</string>
+    <string name="watch_map_open_phone">Abrir en el teléfono</string>
     <string name="watch_map_waiting_gps">Esperando GPS</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

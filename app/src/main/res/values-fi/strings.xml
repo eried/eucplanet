@@ -641,7 +641,7 @@
     <string name="adv_inmotion_v1_pin_desc">InMotion V5/V8/V10 -yksipyöräisten pääsykoodi, lähetetään yhdistettäessä, jotta yksipyöräinen alkaa lähettää dataa. Jätä arvoon 000000, ellet ole asettanut omaa PIN-koodia InMotion-sovelluksessa.</string>
     <string name="adv_kingsong_unlock_code">KingSong-avauskoodi</string>
     <string name="adv_kingsong_unlock_code_desc">Kuusi numeroa, jotka lähetetään avauskomennon mukana. Testatut yksipyöräiset hyväksyvät mitkä tahansa numerot, joten jätä arvoon 123456, ellei omasi hylkää sitä.</string>
-    <string name="adv_kingsong_password">KingSong-sovelluksen salasana</string>
+    <string name="adv_kingsong_password">KingSong-salasana</string>
     <string name="adv_kingsong_password_desc">KingSong-sovelluksessa asetettu 4-numeroinen salasana, lähetetään yhdistettäessä sekä ennen lukitusta ja avausta. Jätä arvoon 0000, jos et ole asettanut salasanaa.</string>
     <string name="adv_charging_warning">Nämä säätävät arviota täyteen latautumisen ajasta. Väärät arvot antavat harhaanjohtavan arvion, mutta eivät koskaan vaikuta itse lataukseen.</string>
     <string name="adv_charging_target_pct">Tavoiteprosentti</string>

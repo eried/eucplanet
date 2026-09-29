@@ -1439,7 +1439,7 @@
     <string name="voice_stat_answer">%1$s %2$s, %3$s</string>
     <string name="voice_answer_examples">Ecco la lista di quello che puoi dire.</string>
     <string name="voice_special_connected">Collegato a %1$s.</string>
-    <string name="voice_special_not_connected">Nessun monoruota collegato.</string>
+    <string name="voice_special_not_connected">Nessuna ruota collegata.</string>
     <string name="voice_special_uptime">Collegato da %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
     <string name="voice_special_weather_full">%1$s, punteggio %2$s. %3$s gradi, vento %4$s, umidità %5$s per cento</string>
@@ -1579,7 +1579,7 @@
     <string name="metric_chip_battery_temp">Temperatura batteria</string>
     <string name="metric_chip_tire_pressure">Pressione pneumatici</string>
     <string name="metric_chip_tire_pressure_tile">Gomma</string>
-    <string name="metric_desc_tire_pressure">Pressione del pneumatico dal tuo sensore o da uno inoltrato dal monoruota. Nell’unità di pressione scelta.</string>
+    <string name="metric_desc_tire_pressure">Pressione del pneumatico dal tuo sensore o da uno inoltrato dalla ruota. Nell’unità di pressione scelta.</string>
     <string name="studio_metric_tire_pressure">Pressione pneumatici</string>
     <string name="metric_chip_bt_rssi">Segnale BT</string>
     <string name="metric_chip_controller_temp">Temperatura centralina</string>
@@ -1680,15 +1680,15 @@
     <string name="welcome_tut_skip_body">Non verrà mostrato di nuovo.</string>
     <string name="welcome_tut_skip_yes">Salta comunque</string>
     <string name="welcome_tut_welcome">Benvenuto su EUC Planet, un\'app concreta e open source per monoruota elettrici</string>
-    <string name="welcome_tut_bt">Collega e scollega il tuo monoruota qui</string>
-    <string name="welcome_tut_version">Molti monoruota hanno solo bisogno di tester per essere pienamente supportati, di solito è una correzione semplice. Tocca la versione per aprire Informazioni e dare una mano</string>
+    <string name="welcome_tut_bt">Collega e scollega la tua ruota qui</string>
+    <string name="welcome_tut_version">Molte ruote hanno solo bisogno di tester per essere pienamente supportate, di solito è una correzione semplice. Tocca la versione per aprire Informazioni e dare una mano</string>
     <string name="welcome_tut_outro_title">Il tour è finito!</string>
     <string name="welcome_tut_outro_buttons">Molti pulsanti hanno azioni aggiuntive, prova a tenerli premuti a lungo</string>
     <string name="welcome_tut_speed">La tua velocità in tempo reale. Cambia le unità in Impostazioni → %1$s</string>
     <string name="welcome_tut_metrics">Batteria, temperatura, tensione e altro in tempo reale. Riordinali in Impostazioni → %1$s</string>
     <string name="welcome_tut_actions">Controlli rapidi. Personalizzali nello stesso posto, in %1$s</string>
     <string name="welcome_tut_map">Apri il navigatore per pianificare percorsi, avere indicazioni passo passo o condividere la tua posizione in tempo reale in un giro di gruppo</string>
-    <string name="welcome_tut_gps">Tocca per i dati in tempo reale, puoi anche calibrare la velocità del tuo monoruota in base a quella del GPS. Controlla la calibrazione più tardi in Impostazioni → %1$s</string>
+    <string name="welcome_tut_gps">Tocca per i dati in tempo reale, puoi anche calibrare la velocità della tua ruota in base a quella del GPS. Controlla la calibrazione più tardi in Impostazioni → %1$s</string>
     <string name="welcome_tut_camera">Registra video con una sovrapposizione di telemetria in tempo reale. Crea overlay personalizzati ed esportali per realizzare i tuoi video con i dati dei viaggi passati</string>
     <string name="welcome_tut_pd">Mostra Park o Drive. Toccalo per impostare la tua %1$s</string>
     <string name="welcome_tut_outro_alarms">Esplora il potente editor di allarmi personalizzati in Impostazioni → %1$s</string>
@@ -2296,9 +2296,9 @@
     <string name="adv_nav_sidebar_min_desc">Gli schermi più stretti mantengono il pannello fermate in basso anche in orizzontale. Troppo basso nasconde la mappa sugli schermi piccoli.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN di accesso per le ruote InMotion V5/V8/V10, inviato alla connessione così la ruota inizia a inviare dati. Lascia 000000 a meno che tu non abbia impostato un PIN nell\'app InMotion.</string>
-    <string name="adv_kingsong_unlock_code">Codice di sblocco KingSong</string>
+    <string name="adv_kingsong_unlock_code">Codice sblocco KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Sei cifre inviate con il comando di sblocco. Le ruote testate accettano qualsiasi cifra, quindi lascia 123456 a meno che la tua lo rifiuti.</string>
-    <string name="adv_kingsong_password">Password dell\'app KingSong</string>
+    <string name="adv_kingsong_password">Password app KingSong</string>
     <string name="adv_kingsong_password_desc">La password a 4 cifre impostata nell\'app KingSong, inviata alla connessione e prima di bloccare e sbloccare. Lascia 0000 se non ne hai mai impostata una.</string>
     <string name="adv_nav_sidebar_width">Larghezza pannello fermate</string>
     <string name="adv_nav_sidebar_width_desc">Larghezza della barra laterale delle fermate in orizzontale. Troppo larga lascia poca mappa.</string>
@@ -2390,7 +2390,7 @@
     <string name="trip_tools_combine_failed">Impossibile unire quei viaggi</string>
     <string name="trip_tools_wheel_current">Attuale</string>
     <string name="trip_tools_combine_summary">Unisce %1$d viaggi in uno nuovo.</string>
-    <string name="phone_hud_desc">Disegna un layout di Overlay Studio sopra le altre app, per vedere il monoruota mentre usi mappe o musica.</string>
+    <string name="phone_hud_desc">Disegna un layout di Overlay Studio sopra le altre app, per vedere la ruota mentre usi mappe o musica.</string>
     <string name="phone_hud_permission_desc">Android lo chiede a parte. Senza, la sovrimpressione non può essere mostrata.</string>
     <string name="phone_hud_grant">Consenti</string>
     <string name="phone_hud_section">HUD del telefono</string>
@@ -2577,12 +2577,12 @@
     <string name="charge_alert_full_title">Carica completata</string>
     <string name="charge_alert_full_text">Carica completa, stacca quando puoi. Alcune ruote ora bilanciano le celle.</string>
     <!-- Widget names for the picker -->
-    <string name="widget_euc_label">Cruscotto monoruota</string>
-    <string name="widget_act_1_label">Tasto monoruota 1</string>
-    <string name="widget_act_2_label">Tasto monoruota 2</string>
-    <string name="widget_act_3_label">Tasto monoruota 3</string>
-    <string name="widget_act_12_label">Tasti monoruota 1 e 2</string>
-    <string name="widget_act_23_label">Tasti monoruota 2 e 3</string>
+    <string name="widget_euc_label">Cruscotto ruota</string>
+    <string name="widget_act_1_label">Tasto ruota 1</string>
+    <string name="widget_act_2_label">Tasto ruota 2</string>
+    <string name="widget_act_3_label">Tasto ruota 3</string>
+    <string name="widget_act_12_label">Tasti ruota 1 e 2</string>
+    <string name="widget_act_23_label">Tasti ruota 2 e 3</string>
     <string name="widget_weather_score_label">Si gira?</string>
     <string name="widget_weather_compact_label">Meteo per girare</string>
     <string name="widget_act_1_short">Azione 1</string>
@@ -2590,7 +2590,7 @@
     <string name="widget_act_3_short">Azione 3</string>
     <string name="action_chip_reset_metrics">Azzera le metriche</string>
     <string name="action_reset_metrics_done">Metriche azzerate</string>
-    <string name="action_reset_metrics_wheel_done">Metriche azzerate, parziale del monoruota cancellato</string>
+    <string name="action_reset_metrics_wheel_done">Metriche azzerate, parziale della ruota cancellato</string>
     <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
     <string name="tpms_waiting">In attesa di dati</string>
     <string name="status_live">Live</string>

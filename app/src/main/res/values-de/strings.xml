@@ -714,7 +714,7 @@
     <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
     <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
     <string name="section_battery_percent">Batteriekalibrierung</string>
-    <string name="battery_override_label">Prozentwert des Rads überschreiben</string>
+    <string name="battery_override_label">Prozentwert des Wheels überschreiben</string>
     <string name="battery_override_hint">Aus der Packspannung schätzen.</string>
     <string name="battery_percent_custom_floor">Lineare Skala</string>
     <string name="battery_percent_min_cell" formatted="false">Leer bei</string>
@@ -723,14 +723,14 @@
     <string name="battery_percent_series_cells">Zellen in Reihe</string>
     <string name="battery_capacity_label">Kapazität</string>
     <string name="battery_capacity_desc">Optional. Legt die Reichweitenschätzung von Anfang an fest, für die Kachel Reichweite und das HUD.</string>
-    <string name="battery_percent_cells_from_wheel">Vom Rad übernommen: %1$d in Reihe.</string>
+    <string name="battery_percent_cells_from_wheel">Vom Wheel übernommen: %1$d in Reihe.</string>
     <string name="battery_percent_cells_manual">Macht aus der Packspannung den Prozentwert auf dem Dashboard, in Sprache und Alarmen</string>
     <string name="speed_calibration_label">Geschwindigkeitsversatz</string>
     <string name="speed_calibration_caption">Passt die gemeldete Wheel-Geschwindigkeit an; betrifft Alarme, Sprache und Fahrtprotokoll.</string>
     <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>
     <string name="legal_mode_caption">Aktiv im Legal-Modus; muss unter dem normalen Tiltback liegen.</string>
-    <string name="speed_limits_disconnected">Rad verbinden, um Kalibrierung und Grenzen zu bearbeiten</string>
-    <string name="speed_limits_unsupported">Die Grenzen dieses Rads stellst du am Rad selbst ein</string>
+    <string name="speed_limits_disconnected">Wheel verbinden, um Kalibrierung und Grenzen zu bearbeiten</string>
+    <string name="speed_limits_unsupported">Die Grenzen dieses Wheels stellst du am Wheel selbst ein</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
     <string name="speed_legal_tiltback">Legal-Tiltback</string>
@@ -1243,7 +1243,7 @@
     <string name="alarm_repeat_label">Auslösung</string>
     <string name="alarm_repeat_single">Einmal</string>
     <string name="alarm_repeat_multi">Mehrfach</string>
-    <string name="alarm_wheel_only_label">Gilt nur für das aktuell verbundene Rad</string>
+    <string name="alarm_wheel_only_label">Gilt nur für das aktuell verbundene Wheel</string>
     <string name="alarm_summary_wheel_fmt">Gilt für: %1$s</string>
     <!-- Dynamische Alarm-Hilfe. In die Zustands-Teilsätze werden der Metrikname
          und die Schwelle-mit-Einheit eingesetzt, danach betten die Hilfssätze
@@ -1906,12 +1906,12 @@
     <string name="weather_breezy">Böig über</string>
     <string name="weather_windy">Zu windig über</string>
     <string name="weather_source_credit">Die Vorhersage kommt aus der gewählten Quelle und wird nur abgerufen, solange dies an ist. Ein kürzeres Fenster kann in feineren Schritten kommen, wenn die Quelle sie anbietet.</string>
-    <string name="weather_title_1">Einradwetter?</string>
+    <string name="weather_title_1">Wheel-Wetter?</string>
     <string name="weather_title_2">EUC-Zeit?</string>
     <string name="weather_title_3">Zeit für eine Fahrt?</string>
     <string name="weather_title_4">Ausrüstung anlegen?</string>
     <string name="weather_title_5">Bereit fürs Einrad?</string>
-    <string name="weather_lvl_awful_1">Furchtbar, Rad bleibt daheim.</string>
+    <string name="weather_lvl_awful_1">Furchtbar, das Wheel bleibt daheim.</string>
     <string name="weather_lvl_awful_2">Auf keinen Fall.</string>
     <string name="weather_lvl_bad_1">Übel, überleg es dir.</string>
     <string name="weather_lvl_bad_2">Draußen ist es mies.</string>
@@ -2062,7 +2062,7 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Warte auf Zellspannungsdaten…</string>
     <string name="charging_tab_cells">Zellen</string>
-    <string name="scan_bluetooth_off_body">Bluetooth einschalten, um nach Rädern zu suchen.</string>
+    <string name="scan_bluetooth_off_body">Bluetooth einschalten, um nach Wheels zu suchen.</string>
     <string name="scan_bluetooth_off_title">Bluetooth ist aus</string>
     <string name="scan_enable_bluetooth">Bluetooth einschalten</string>
     <string name="studio_cfg_radar_distance_labels">Entfernungsbeschriftungen</string>
@@ -2666,7 +2666,7 @@
     <string name="lockdown_warning_now">Der Legal-Modus ist an, das wirkt also sofort und die App sperrt umgehend.</string>
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
-    <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Einrad hinterlegt.</string>
+    <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Wheel hinterlegt.</string>
     <string name="backup_conflict_warning">Einige Fahrt-Sicherungen brauchen einen manuellen Abgleich: die Kopien unterscheiden sich. Auf Synchronisieren tippen und die gültige Seite wählen.</string>
     <string name="backup_conflict_title">Backup-Konflikte</string>
     <!-- Weather widgets -->

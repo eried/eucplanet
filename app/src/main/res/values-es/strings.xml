@@ -2388,9 +2388,9 @@
     <string name="adv_nav_sidebar_min_desc">Las pantallas más estrechas que esto mantienen el panel de paradas inferior incluso en horizontal. Muy bajo entierra el mapa en pantallas pequeñas.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN de acceso para las ruedas InMotion V5/V8/V10, se envía al conectar para que la rueda empiece a enviar datos. Deja 000000 salvo que hayas configurado tu propio PIN en la app de InMotion.</string>
-    <string name="adv_kingsong_unlock_code">Código de desbloqueo KingSong</string>
+    <string name="adv_kingsong_unlock_code">Desbloqueo KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Seis dígitos que se envían con el comando de desbloqueo. Las ruedas probadas aceptan cualquier dígito, así que deja 123456 salvo que la tuya lo rechace.</string>
-    <string name="adv_kingsong_password">Contraseña de la app KingSong</string>
+    <string name="adv_kingsong_password">Contraseña KingSong</string>
     <string name="adv_kingsong_password_desc">La contraseña de 4 dígitos configurada en la app de KingSong, enviada al conectar y antes de bloquear y desbloquear. Deja 0000 si nunca pusiste una.</string>
     <string name="adv_nav_sidebar_width">Ancho del panel de paradas</string>
     <string name="adv_nav_sidebar_width_desc">Ancho de la barra lateral de paradas en horizontal. Muy ancho deja poco mapa.</string>

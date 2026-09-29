@@ -41,14 +41,14 @@
     <string name="watch_action_long_press_hint">%1$s için uzun bas</string>
     <string name="watch_map_phone_disconnected">Telefon yok</string>
     <string name="watch_map_gps_permission">GPS\'e izin ver</string>
-    <string name="watch_map_gps_stale">GPS güncel değil</string>
+    <string name="watch_map_gps_stale">GPS eski</string>
     <string name="watch_map_route_loading">Rota yükleniyor</string>
     <string name="watch_map_route_unavailable">Rota yok</string>
     <string name="watch_map_loading">Harita yükleniyor</string>
     <string name="watch_map_unavailable">Harita yok</string>
     <string name="watch_map_zoom_in">Yakınlaştır</string>
     <string name="watch_map_zoom_out">Uzaklaştır</string>
-    <string name="watch_map_open_phone">Telefon uygulamasını aç</string>
+    <string name="watch_map_open_phone">Telefonda aç</string>
     <string name="watch_map_waiting_gps">GPS bekleniyor</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

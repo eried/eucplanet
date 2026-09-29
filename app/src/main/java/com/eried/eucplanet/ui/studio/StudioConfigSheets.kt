@@ -1297,7 +1297,7 @@ private fun ReplayBackgroundEditor(face: ViewportReplayFace, onChange: (Viewport
 /** Upper bound for the replay-video offset field (24h in ms) - well past any ride. */
 private const val MAX_VIDEO_OFFSET_MS = 86_400_000
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun ReplayVideoEditor(
     face: ViewportReplayFace,
@@ -1361,7 +1361,8 @@ private fun ReplayVideoEditor(
     val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
     val fitContain = stringResource(R.string.studio_cfg_fit_contain)
     val fitCenter = stringResource(R.string.studio_cfg_fit_center)
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Wraps: translated labels can outgrow the sheet.
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
             "STRETCH" to fitStretch, "CROP" to fitCrop, "FIT" to fitContain, "CENTER" to fitCenter
         ).forEach { (key, lbl) ->
@@ -1510,14 +1511,15 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
  * Crop / Fit / Center chips controlling how the camera frame or source image
  * fills its viewport. Shown for any source that draws visual content.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun FitModePicker(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
     Text(stringResource(R.string.studio_cfg_fit), fontWeight = FontWeight.SemiBold)
     val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
     val fitContain = stringResource(R.string.studio_cfg_fit_contain)
     val fitCenter = stringResource(R.string.studio_cfg_fit_center)
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Wraps: translated labels can outgrow the sheet.
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
             "CROP" to fitCrop, "FIT" to fitContain, "CENTER" to fitCenter
         ).forEach { (key, lbl) ->

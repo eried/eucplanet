@@ -45,7 +45,7 @@
     <string name="watch_map_unavailable">Ei karttaa</string>
     <string name="watch_map_zoom_in">Lähennä</string>
     <string name="watch_map_zoom_out">Loitonna</string>
-    <string name="watch_map_open_phone">Avaa puhelinsovellus</string>
+    <string name="watch_map_open_phone">Avaa puhelimessa</string>
     <string name="watch_map_waiting_gps">Odotetaan GPS:ää</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

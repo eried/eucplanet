@@ -48,7 +48,7 @@
     <string name="watch_map_unavailable">Pas de carte</string>
     <string name="watch_map_zoom_in">Zoom avant</string>
     <string name="watch_map_zoom_out">Zoom arrière</string>
-    <string name="watch_map_open_phone">Ouvrir l’appli du téléphone</string>
+    <string name="watch_map_open_phone">Ouvrir l’appli mobile</string>
     <string name="watch_map_waiting_gps">GPS en attente</string>
     <string name="watch_map_pwm_value">%1$s%%</string>
     <string name="watch_map_speed_value">%1$s %2$s</string>

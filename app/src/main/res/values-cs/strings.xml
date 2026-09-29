@@ -637,7 +637,7 @@
     <string name="adv_nav_sidebar_width_desc">Šířka bočního panelu zastávek na šířku. Příliš široký nechá málo mapy.</string>
     <string name="adv_nav_sidebar_min">Minimum obrazovky pro panel</string>
     <string name="adv_nav_sidebar_min_desc">Obrazovky užší než toto ponechají spodní panel zastávek i na šířku. Příliš nízká hodnota pohřbí mapu na malých obrazovkách.</string>
-    <string name="adv_inmotion_v1_pin">PIN pro InMotion V5/V8/V10</string>
+    <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">Přístupový PIN pro monokola InMotion V5/V8/V10, odesílá se při připojení, aby monokolo začalo posílat data. Ponechte 000000, pokud jste si v aplikaci InMotion nenastavili vlastní PIN.</string>
     <string name="adv_kingsong_unlock_code">Kód odemknutí KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Šest číslic odesílaných s příkazem k odemknutí. Testovaná monokola přijmou jakékoli číslice, ponechte tedy 123456, pokud je vaše neodmítne.</string>
