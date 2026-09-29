@@ -2,8 +2,8 @@ package com.eried.eucplanet.service
 
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
+import com.eried.eucplanet.data.model.MetricRegistry
 import com.eried.eucplanet.data.model.WheelData
-import com.eried.eucplanet.util.MetricSanity
 import kotlin.math.absoluteValue
 
 /**
@@ -63,24 +63,29 @@ internal object AlarmWheelPass {
      */
     fun metricValue(metric: String, data: WheelData): Float? {
         return try {
-            when (AlarmMetric.valueOf(metric)) {
-                AlarmMetric.SPEED -> data.speed.absoluteValue
-                AlarmMetric.BATTERY -> data.batteryPercent.toFloat()
+            val m = AlarmMetric.valueOf(metric)
+            when (m) {
+                AlarmMetric.SPEED,
+                // PWM is the registry's LOAD, by alias.
+                AlarmMetric.PWM,
+                AlarmMetric.CURRENT,
+                AlarmMetric.TORQUE,
+                AlarmMetric.PHASE_CURRENT,
+                AlarmMetric.LATERAL_G -> wheelRead(m, data)?.absoluteValue
+                AlarmMetric.BATTERY,
+                AlarmMetric.TEMPERATURE,
+                AlarmMetric.VOLTAGE,
+                AlarmMetric.WH_CONSUMED,
+                AlarmMetric.G_FORCE -> wheelRead(m, data)
                 // NaN for the first half minute of a ride, which the evaluator
                 // skips: a rule must not fire on a number that does not exist
-                // yet.
-                AlarmMetric.BATTERY_ENVELOPE -> data.batteryEnvelope.takeIf { !it.isNaN() }
-                AlarmMetric.TEMPERATURE -> data.maxTemperature
-                AlarmMetric.PWM -> data.pwm.absoluteValue
-                AlarmMetric.VOLTAGE -> data.voltage
-                AlarmMetric.CURRENT -> data.current.absoluteValue
-                AlarmMetric.TORQUE -> data.torque.absoluteValue
-                AlarmMetric.PHASE_CURRENT -> data.phaseCurrent.absoluteValue
-                AlarmMetric.WH_CONSUMED -> data.whConsumed
+                // yet. The registry reads NaN as null.
+                AlarmMetric.BATTERY_ENVELOPE -> wheelRead(m, data)
                 // NaN until the window has enough distance. Null skips the rule
                 // rather than comparing against a number that isn't one, which
                 // would either never fire or fire constantly.
-                AlarmMetric.WH_PER_KM -> data.whPerKmRecent.takeIf { !it.isNaN() }
+                AlarmMetric.WH_PER_KM,
+                AlarmMetric.RANGE_ESTIMATE -> wheelRead(m, data)
                 // Null while nothing measures the tyre (skips the rule),
                 // 0 kPa when a cap says the tyre is flat. See AlarmLogic.
                 AlarmMetric.TIRE_PRESSURE -> AlarmLogic.tirePressureForAlarm(data)
@@ -88,17 +93,11 @@ internal object AlarmWheelPass {
                 // so an alarm never fires on a sensor a wheel does not have or
                 // on the placeholder a family sends when it has nothing. Null
                 // skips the rule.
-                AlarmMetric.MOTOR_TEMP -> data.temperatures.getOrNull(0)
-                    ?.takeIf { MetricSanity.isPlausibleTempC(it) }
-                AlarmMetric.CONTROLLER_TEMP -> data.temperatures.getOrNull(1)
-                    ?.takeIf { MetricSanity.isPlausibleTempC(it) }
-                AlarmMetric.BATTERY_TEMP -> data.temperatures.getOrNull(2)
-                    ?.takeIf { MetricSanity.isPlausibleTempC(it) }
-                AlarmMetric.G_FORCE -> data.gForce
-                AlarmMetric.LATERAL_G -> data.accelX.absoluteValue
+                AlarmMetric.MOTOR_TEMP,
+                AlarmMetric.CONTROLLER_TEMP,
+                AlarmMetric.BATTERY_TEMP -> wheelRead(m, data)
                 // 0 dBm is "no read yet", not a perfect link.
-                AlarmMetric.BT_RSSI -> data.rssiDbm.takeIf { it != 0 }?.toFloat()
-                AlarmMetric.RANGE_ESTIMATE -> data.rangeKmEstimate.takeIf { !it.isNaN() }
+                AlarmMetric.BT_RSSI -> wheelRead(m, data)
                 // Radar and GPS metrics have their own entry points in the
                 // engine (radar frames, location fixes). Null here keeps the
                 // wheel loop from firing one of them on stale or absent data.
@@ -111,4 +110,12 @@ internal object AlarmWheelPass {
             }
         } catch (_: Exception) { null }
     }
+
+    /**
+     * [metric] read through [MetricRegistry.read]: the value as the frame
+     * holds it, or null on that metric's "no value" sentinel. Alarm names are
+     * registry keys or aliases.
+     */
+    private fun wheelRead(metric: AlarmMetric, data: WheelData): Float? =
+        MetricRegistry.def(metric.name).read(data)
 }

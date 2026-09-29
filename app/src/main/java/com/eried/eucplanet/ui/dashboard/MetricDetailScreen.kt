@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
+import com.eried.eucplanet.data.model.MetricRegistry
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.ui.theme.AccentBlue
@@ -106,29 +107,26 @@ enum class MetricType(val titleRes: Int, val unit: String, val color: Color) {
  * dedicated [MetricType] entry. Maps to the same WheelData fields the
  * dashboard's `displayValueFor` uses, returning 0 for keys the dashboard
  * doesn't yet source (GPS / phone-battery / derived aggregates).
+ *
+ * Reads the field as held ([MetricRegistry.readRaw]): the NaN envelope, an
+ * implausible temperature slot and a tyre pressure with no sensor all come
+ * through unfiltered, and a missing temperature slot reads 0.
  */
-private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
-    "POWER", "BATTERY_POWER" -> w.batteryPower.toFloat()
-    "MOTOR_POWER" -> w.motorPower.toFloat()
-    "ODOMETER" -> w.totalDistance
-    "BATTERY_1" -> w.battery1Percent
-    "BATTERY_2" -> w.battery2Percent
-    "BATTERY_ENVELOPE" -> w.batteryEnvelope
-    "PITCH" -> w.pitchAngle
-    "ROLL" -> w.rollAngle
-    "G_FORCE" -> w.gForce
-    "LATERAL_G" -> w.accelX
-    "FORWARD_G" -> w.forwardGFromSpeed
-    "TORQUE" -> w.torque
-    "PHASE_CURRENT" -> w.phaseCurrent
-    "DYN_SPEED_LIMIT" -> w.dynamicSpeedLimit
-    "DYN_CURRENT_LIMIT" -> w.dynamicCurrentLimit
-    "MOTOR_TEMP" -> w.temperatures.getOrNull(0) ?: 0f
-    "CONTROLLER_TEMP" -> w.temperatures.getOrNull(1) ?: 0f
-    "BATTERY_TEMP" -> w.temperatures.getOrNull(2) ?: 0f
-    "TIRE_PRESSURE" -> w.tirePressureKpa
-    else -> 0f
-}
+internal fun rawCurrentValueFor(key: String, w: WheelData): Float =
+    if (key in DETAIL_RAW_VALUE_KEYS) MetricRegistry.readRaw(key, w) ?: 0f else 0f
+
+/**
+ * The keys [rawCurrentValueFor] reads from the frame. Every other key reads 0,
+ * including ones the registry could answer (the header then falls back to the
+ * latest sample where it is source-derived).
+ */
+internal val DETAIL_RAW_VALUE_KEYS: Set<String> = setOf(
+    "POWER", "BATTERY_POWER", "MOTOR_POWER", "ODOMETER",
+    "BATTERY_1", "BATTERY_2", "BATTERY_ENVELOPE",
+    "PITCH", "ROLL", "G_FORCE", "LATERAL_G", "FORWARD_G",
+    "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+    "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP", "TIRE_PRESSURE",
+)
 
 /**
  * Unified full-screen metric detail. Renders any list of metric keys
