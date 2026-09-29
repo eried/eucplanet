@@ -143,6 +143,10 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
     // An imported or Dropbox-synced file can carry an unlockWhen this build
     // does not know. Fall back to never rather than letting an unrecognised
     // value decide when a wheel unlocks itself.
+    // A horn mode this build does not know (a newer backup) falls back to the
+    // wheel's own horn, which every build understands.
+    horn = if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
+        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL),
     proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
         proximityLock
     } else {

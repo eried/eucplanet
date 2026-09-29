@@ -2701,4 +2701,19 @@
     <string name="headlight_state_unknown">라이트: ?</string>
     <string name="adv_headlight_readback_age">조명 상태 유효 시간</string>
     <string name="adv_headlight_readback_age_desc">수신한 조명 단계를 최신 상태로 유지하는 시간입니다. 너무 길면 오래된 단계가 표시될 수 있습니다.</string>
+    <string name="horn_headphones_only">헤드폰 사용 시에만</string>
+    <string name="horn_section">경적</string>
+    <string name="horn_mode_label">경적 소리</string>
+    <string name="horn_mode_wheel">휠</string>
+    <string name="horn_mode_sound">사용자</string>
+    <string name="horn_mode_both">둘 다</string>
+    <string name="horn_mode_hint">사용자는 휴대폰에서 내 소리를 재생합니다. 둘 다는 외부 스피커용으로 휠 경적에 더해 재생합니다. 휴대폰이 재생할 수 없으면 휠 경적이 울립니다.</string>
+    <string name="horn_sound_none">선택한 소리 없음</string>
+    <string name="horn_sound_choose">소리 선택</string>
+    <string name="horn_sound_play">재생</string>
+    <string name="horn_headphones_only_hint">그렇지 않으면 휠 경적이 울립니다.</string>
+    <string name="horn_sound_imported">경적 소리를 저장했습니다</string>
+    <string name="horn_sound_too_long">소리가 5초보다 깁니다</string>
+    <string name="horn_sound_too_big">파일이 2 MB보다 큽니다</string>
+    <string name="horn_sound_unreadable">파일을 재생할 수 없습니다</string>
 </resources>

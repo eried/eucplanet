@@ -2720,4 +2720,19 @@
     <string name="headlight_state_unknown">Luz: ?</string>
     <string name="adv_headlight_readback_age">Vigencia del estado de luz</string>
     <string name="adv_headlight_readback_age_desc">Tiempo durante el cual el nivel de luz informado sigue vigente. Un tiempo excesivo puede mostrar un nivel desactualizado.</string>
+    <string name="horn_headphones_only">Solo con auriculares</string>
+    <string name="horn_section">Bocina</string>
+    <string name="horn_mode_label">Sonido de bocina</string>
+    <string name="horn_mode_wheel">Rueda</string>
+    <string name="horn_mode_sound">Propio</string>
+    <string name="horn_mode_both">Ambos</string>
+    <string name="horn_mode_hint">Propio reproduce tu sonido en el teléfono. Ambos lo suma a la bocina de la rueda, para un parlante externo. Si el teléfono no puede reproducirlo, suena la bocina de la rueda.</string>
+    <string name="horn_sound_none">Ningún sonido elegido</string>
+    <string name="horn_sound_choose">Elegir sonido</string>
+    <string name="horn_sound_play">Reproducir</string>
+    <string name="horn_headphones_only_hint">Si no, suena la bocina de la rueda.</string>
+    <string name="horn_sound_imported">Sonido de bocina guardado</string>
+    <string name="horn_sound_too_long">Ese sonido dura más de 5 segundos</string>
+    <string name="horn_sound_too_big">Ese archivo pesa más de 2 MB</string>
+    <string name="horn_sound_unreadable">No se pudo reproducir ese archivo</string>
 </resources>

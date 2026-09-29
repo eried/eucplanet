@@ -2727,4 +2727,19 @@
     <string name="headlight_state_unknown">Light: ?</string>
     <string name="adv_headlight_readback_age">Light readback timeout</string>
     <string name="adv_headlight_readback_age_desc">How long a reported light level stays current. Too long can show an outdated level.</string>
+    <string name="horn_headphones_only">Only with headphones</string>
+    <string name="horn_section">Horn</string>
+    <string name="horn_mode_label">Horn sound</string>
+    <string name="horn_mode_wheel">Wheel</string>
+    <string name="horn_mode_sound">Custom</string>
+    <string name="horn_mode_both">Both</string>
+    <string name="horn_mode_hint">Custom plays your own sound on the phone. Both adds it to the wheel horn, for an external speaker. If the phone cannot play it, the wheel horn sounds instead.</string>
+    <string name="horn_sound_none">No sound chosen</string>
+    <string name="horn_sound_choose">Choose sound</string>
+    <string name="horn_sound_play">Play</string>
+    <string name="horn_headphones_only_hint">Otherwise the wheel horn sounds.</string>
+    <string name="horn_sound_imported">Horn sound saved</string>
+    <string name="horn_sound_too_long">That sound is longer than 5 seconds</string>
+    <string name="horn_sound_too_big">That file is larger than 2 MB</string>
+    <string name="horn_sound_unreadable">That file could not be played</string>
 </resources>

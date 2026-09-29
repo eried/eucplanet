@@ -2706,4 +2706,19 @@
     <string name="headlight_state_unknown">Phare : ?</string>
     <string name="adv_headlight_readback_age">Validité du niveau du phare</string>
     <string name="adv_headlight_readback_age_desc">Durée de validité du niveau de phare reçu. Une durée trop longue peut afficher un niveau périmé.</string>
+    <string name="horn_headphones_only">Uniquement au casque</string>
+    <string name="horn_section">Klaxon</string>
+    <string name="horn_mode_label">Son du klaxon</string>
+    <string name="horn_mode_wheel">Roue</string>
+    <string name="horn_mode_sound">Perso</string>
+    <string name="horn_mode_both">Les deux</string>
+    <string name="horn_mode_hint">Perso joue ton son sur le téléphone. Les deux l\'ajoute au klaxon de la roue, pour une enceinte externe. Si le téléphone ne peut pas le jouer, le klaxon de la roue retentit.</string>
+    <string name="horn_sound_none">Aucun son choisi</string>
+    <string name="horn_sound_choose">Choisir un son</string>
+    <string name="horn_sound_play">Écouter</string>
+    <string name="horn_headphones_only_hint">Sinon, le klaxon de la roue retentit.</string>
+    <string name="horn_sound_imported">Son du klaxon enregistré</string>
+    <string name="horn_sound_too_long">Ce son dure plus de 5 secondes</string>
+    <string name="horn_sound_too_big">Ce fichier dépasse 2 Mo</string>
+    <string name="horn_sound_unreadable">Impossible de lire ce fichier</string>
 </resources>

@@ -2699,4 +2699,19 @@
     <string name="headlight_state_unknown">Світло: ?</string>
     <string name="adv_headlight_readback_age">Термін актуальності світла</string>
     <string name="adv_headlight_readback_age_desc">Як довго отриманий рівень світла вважається актуальним. Надто великий термін може показувати застарілий рівень.</string>
+    <string name="horn_headphones_only">Лише з навушниками</string>
+    <string name="horn_section">Сигнал</string>
+    <string name="horn_mode_label">Звук сигналу</string>
+    <string name="horn_mode_wheel">Колесо</string>
+    <string name="horn_mode_sound">Свій</string>
+    <string name="horn_mode_both">Обидва</string>
+    <string name="horn_mode_hint">Свій відтворює ваш звук на телефоні. Обидва додає його до сигналу колеса, для зовнішньої колонки. Якщо телефон не може його відтворити, лунає сигнал колеса.</string>
+    <string name="horn_sound_none">Звук не вибрано</string>
+    <string name="horn_sound_choose">Вибрати звук</string>
+    <string name="horn_sound_play">Відтворити</string>
+    <string name="horn_headphones_only_hint">Інакше лунає сигнал колеса.</string>
+    <string name="horn_sound_imported">Звук сигналу збережено</string>
+    <string name="horn_sound_too_long">Звук довший за 5 секунд</string>
+    <string name="horn_sound_too_big">Файл більший за 2 МБ</string>
+    <string name="horn_sound_unreadable">Не вдалося відтворити файл</string>
 </resources>

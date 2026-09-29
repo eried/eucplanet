@@ -2569,4 +2569,19 @@
     <string name="headlight_state_unknown">头灯：?</string>
     <string name="adv_headlight_readback_age">灯光状态有效期</string>
     <string name="adv_headlight_readback_age_desc">上报的灯光亮度保持有效的时间。时间过长可能显示过时的亮度。</string>
+    <string name="horn_headphones_only">仅在耳机连接时</string>
+    <string name="horn_section">喇叭</string>
+    <string name="horn_mode_label">喇叭声音</string>
+    <string name="horn_mode_wheel">独轮车</string>
+    <string name="horn_mode_sound">自定义</string>
+    <string name="horn_mode_both">两者</string>
+    <string name="horn_mode_hint">自定义会在手机播放你的声音。两者会在独轮车喇叭之外同时播放,适合外接音箱。手机无法播放时,改由独轮车喇叭发声。</string>
+    <string name="horn_sound_none">未选择声音</string>
+    <string name="horn_sound_choose">选择声音</string>
+    <string name="horn_sound_play">播放</string>
+    <string name="horn_headphones_only_hint">否则由独轮车喇叭发声。</string>
+    <string name="horn_sound_imported">已保存喇叭声音</string>
+    <string name="horn_sound_too_long">这个声音超过 5 秒</string>
+    <string name="horn_sound_too_big">这个文件超过 2 MB</string>
+    <string name="horn_sound_unreadable">无法播放这个文件</string>
 </resources>

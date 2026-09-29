@@ -2702,4 +2702,19 @@
     <string name="headlight_state_unknown">Ljus: ?</string>
     <string name="adv_headlight_readback_age">Ljusstatusens giltighet</string>
     <string name="adv_headlight_readback_age_desc">Hur länge en rapporterad ljusnivå är aktuell. För lång tid kan visa en inaktuell nivå.</string>
+    <string name="horn_headphones_only">Endast med hörlurar</string>
+    <string name="horn_section">Signalhorn</string>
+    <string name="horn_mode_label">Hornljud</string>
+    <string name="horn_mode_wheel">Hjul</string>
+    <string name="horn_mode_sound">Eget</string>
+    <string name="horn_mode_both">Båda</string>
+    <string name="horn_mode_hint">Eget spelar ditt ljud i telefonen. Båda lägger det ovanpå hjulets horn, för en extern högtalare. Kan telefonen inte spela det låter hjulets horn i stället.</string>
+    <string name="horn_sound_none">Inget ljud valt</string>
+    <string name="horn_sound_choose">Välj ljud</string>
+    <string name="horn_sound_play">Spela upp</string>
+    <string name="horn_headphones_only_hint">Annars låter hjulets horn.</string>
+    <string name="horn_sound_imported">Hornljud sparat</string>
+    <string name="horn_sound_too_long">Ljudet är längre än 5 sekunder</string>
+    <string name="horn_sound_too_big">Filen är större än 2 MB</string>
+    <string name="horn_sound_unreadable">Filen kunde inte spelas upp</string>
 </resources>

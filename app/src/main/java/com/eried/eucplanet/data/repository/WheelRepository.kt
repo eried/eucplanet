@@ -236,7 +236,8 @@ class WheelRepository @Inject constructor(
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
     // GPS_ACCURACY from the current location fix.
     private val tripRepositoryLazy: dagger.Lazy<TripRepository>,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -883,6 +884,7 @@ class WheelRepository @Inject constructor(
         scope.launch {
             settingsRepository.settings.collect { s ->
                 lockCodeCache = String.format(java.util.Locale.US, "%06d", s.advanced.kingsongUnlockCode)
+                hornCache = s.horn
                 lockPasswordCache = s.advanced.kingsongPassword.let { p ->
                     if (p == 0) "" else String.format(java.util.Locale.US, "%04d", p)
                 }
@@ -1517,8 +1519,28 @@ class WheelRepository @Inject constructor(
      */
     private fun wheelConnected() = bleManager.connectionState.value == ConnectionState.CONNECTED
 
+    /** The horn settings, mirrored so a press never waits on the store. */
+    @Volatile private var hornCache = com.eried.eucplanet.data.model.HornSettings()
+
     fun sendHorn() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
+        val h = hornCache
+        val plan = com.eried.eucplanet.audio.HornPlan.decide(
+            mode = h.mode,
+            soundReady = hornPlayer.isReady,
+            headphonesOnly = h.headphonesOnly,
+            externalOutput = h.headphonesOnly && hornPlayer.externalOutputActive(),
+        )
+        // The wheel first: its command waits in the Bluetooth queue, so the
+        // phone clip started right after still lands within a beat of it.
+        if (plan.wheel) sendWheelHorn()
+        // A clip that fails to start after all (focus refused, pool busy)
+        // must not leave a SOUND-only press silent.
+        if (plan.phoneSound && !hornPlayer.play() && !plan.wheel) sendWheelHorn()
+    }
+
+    /** The wheel's own horn, or the phone beep on families without one. */
+    private fun sendWheelHorn() {
         val cmd = wheelAdapter.horn()
         if (cmd != null) {
             bleManager.writeCommand(cmd)

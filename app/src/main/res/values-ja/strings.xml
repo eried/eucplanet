@@ -2703,4 +2703,19 @@
     <string name="headlight_state_unknown">ライト: ?</string>
     <string name="adv_headlight_readback_age">ライト状態の有効時間</string>
     <string name="adv_headlight_readback_age_desc">受信したライトの明るさを有効とする時間です。長すぎると古い状態が表示されます。</string>
+    <string name="horn_headphones_only">ヘッドフォン使用時のみ</string>
+    <string name="horn_section">ホーン</string>
+    <string name="horn_mode_label">ホーンの音</string>
+    <string name="horn_mode_wheel">ホイール</string>
+    <string name="horn_mode_sound">カスタム</string>
+    <string name="horn_mode_both">両方</string>
+    <string name="horn_mode_hint">カスタムは電話で自分の音を鳴らします。両方はホイールのホーンに重ねて鳴らします(外部スピーカー向け)。電話で再生できない場合はホイールのホーンが鳴ります。</string>
+    <string name="horn_sound_none">音が選択されていません</string>
+    <string name="horn_sound_choose">音を選ぶ</string>
+    <string name="horn_sound_play">再生</string>
+    <string name="horn_headphones_only_hint">それ以外はホイールのホーンが鳴ります。</string>
+    <string name="horn_sound_imported">ホーンの音を保存しました</string>
+    <string name="horn_sound_too_long">その音は5秒を超えています</string>
+    <string name="horn_sound_too_big">そのファイルは2 MBを超えています</string>
+    <string name="horn_sound_unreadable">そのファイルは再生できません</string>
 </resources>

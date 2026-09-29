@@ -2699,4 +2699,19 @@
     <string name="headlight_state_unknown">Far: ?</string>
     <string name="adv_headlight_readback_age">Işık durumu geçerliliği</string>
     <string name="adv_headlight_readback_age_desc">Bildirilen ışık seviyesinin güncel kaldığı süre. Çok uzun bir süre eski bir seviyeyi gösterebilir.</string>
+    <string name="horn_headphones_only">Yalnızca kulaklıkla</string>
+    <string name="horn_section">Korna</string>
+    <string name="horn_mode_label">Korna sesi</string>
+    <string name="horn_mode_wheel">Teker</string>
+    <string name="horn_mode_sound">Özel</string>
+    <string name="horn_mode_both">İkisi</string>
+    <string name="horn_mode_hint">Özel, kendi sesini telefonda çalar. İkisi, harici bir hoparlör için sesi tekerin kornasına ekler. Telefon çalamazsa tekerin kornası çalar.</string>
+    <string name="horn_sound_none">Ses seçilmedi</string>
+    <string name="horn_sound_choose">Ses seç</string>
+    <string name="horn_sound_play">Çal</string>
+    <string name="horn_headphones_only_hint">Aksi halde tekerin kornası çalar.</string>
+    <string name="horn_sound_imported">Korna sesi kaydedildi</string>
+    <string name="horn_sound_too_long">Bu ses 5 saniyeden uzun</string>
+    <string name="horn_sound_too_big">Bu dosya 2 MB\'tan büyük</string>
+    <string name="horn_sound_unreadable">Bu dosya çalınamadı</string>
 </resources>
