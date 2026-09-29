@@ -42,7 +42,7 @@ class V14VirtualWheel : VirtualWheel {
     private var batterySim = 80f
     // Jittered charge: a random 0–0.3 % step every 5 s, with the 4th step of each
     // 20 s window topped up so the window adds exactly 1 % (steady 3 %/min average,
-    // uneven per-step) — the noisy input the ETA smoothing must stay steady against.
+    // uneven per-step), the noisy input the ETA smoothing must stay steady against.
     private var chargeTickMs = 0L
     private var chargeWindowAdded = 0f
     private var chargeWindowTick = 0
@@ -214,7 +214,7 @@ class V14VirtualWheel : VirtualWheel {
 
         // Charging is simulated when the wheel is "locked", the headlight is on,
         // or during a window right after connect (so the Charging Monitor is
-        // demonstrable on the emulator without any control command — the sim
+        // demonstrable on the emulator without any control command, the sim
         // doesn't act on lock/light writes). While charging the wheel is parked
         // (speed 0) and the current sensor reads ~0 A like a real V14, so
         // detection leans on the explicit bit-7 charging flag.

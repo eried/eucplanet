@@ -21,7 +21,7 @@ class PhoneBridge {
     //! True while a Communications.transmit is outstanding. The heartbeat skips
     //! its tick while this is set, so unacked ALIVE frames can't pile up in the
     //! SDK's small outbound queue. A full queue throws "Communications transmit
-    //! queue full" — which both crashes the dial (the IQ error icon) AND stalls
+    //! queue full", which both crashes the dial (the IQ error icon) AND stalls
     //! the inbound telemetry channel (the frozen-at-0 dial on real devices).
     //! Cleared from the shared TransmitListener when each transmit finishes.
     private var _txBusy as Lang.Boolean = false;
@@ -42,7 +42,7 @@ class PhoneBridge {
     }
 
     //! Wire the listener up. The View calls this in onShow() so the watch
-    //! only consumes incoming frames while the dial is on screen — same
+    //! only consumes incoming frames while the dial is on screen, same
     //! lifecycle as the Wear OS `WatchBridgeService` registration.
     function start() as Void {
         Communications.registerForPhoneAppMessages(method(:onMessage));
@@ -302,7 +302,7 @@ class TransmitListener extends Communications.ConnectionListener {
     function onError() {
         // Phone gone, Connect Mobile not running, or BT dropped. The phone
         // is the authoritative side; a dropped horn tap is recoverable so
-        // we don't surface this — same trade-off as the Wear OS bridge.
+        // we don't surface this, same trade-off as the Wear OS bridge.
         _bridge.onTransmitDone();
     }
 }

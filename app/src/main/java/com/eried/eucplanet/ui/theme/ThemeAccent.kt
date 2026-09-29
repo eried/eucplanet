@@ -8,7 +8,7 @@ package com.eried.eucplanet.ui.theme
  */
 object ThemeAccent {
     /**
-     * "#AARRGGBB" — the wire format the HUD already consumes and the Wear/Garmin
+     * "#AARRGGBB", the wire format the HUD already consumes and the Wear/Garmin
      * apps parse (hex when prefixed with '#', else a legacy palette key).
      */
     fun primaryArgb(colors: AppThemeColors): String = "#" + colors.primary.toHex()

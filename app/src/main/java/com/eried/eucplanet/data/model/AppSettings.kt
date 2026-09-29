@@ -336,7 +336,7 @@ data class AppSettings(
     // --- Custom theme system ---
     /**
      * Name of the active theme: a built-in (Light / Dark / Pure Black) or a saved
-     * custom. This is the ONLY theme state that is persisted — the resolved colors
+     * custom. This is the ONLY theme state that is persisted, the resolved colors
      * are re-derived from it on launch (see ui/theme/ThemeController), a built-in
      * from code or a saved `.json` from the themes folder, falling back to a preset
      * if the file is gone. The dirty flag and unsaved working drafts are in-memory
@@ -433,8 +433,7 @@ data class AppSettings(
     /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
     val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
     /**
-     * Open Charge Map API key (free, from openchargemap.org). Blank by default —
-     * when set, the charger flyout enriches with OCM community data (rating,
+     * Open Charge Map API key (free, from openchargemap.org). Blank by default, * when set, the charger flyout enriches with OCM community data (rating,
      * comments, connectors, photos). Only used in advanced map mode for chargers.
      */
     val navOcmApiKey: String = "",
@@ -527,7 +526,7 @@ data class AppSettings(
     /**
      * Hardware-button bindings on the watch (Galaxy Watch Ultra exposes the
      * orange Action button as STEM_1 and the bottom side button as STEM_2;
-     * Pixel Watch only has one). Stored as the [FlicAction] enum name so the
+     * Pixel Watch only has one). Stored as an [ActionCatalog] key so the
      * picker can reuse the same UI/string set as Flic and Volume keys. The
      * Wear OS side reads these via the Data Layer publish, intercepts
      * KEYCODE_STEM_* in MainActivity, and either fires a local control
@@ -544,8 +543,8 @@ data class AppSettings(
 
     /**
      * On-screen watch button bindings. Two configurable buttons; tap fires the
-     * "click" action, long-press fires the "hold" action. Same FlicAction
-     * vocabulary as Flic / Volume / Stem buttons. Defaults match the wheel's
+     * "click" action, long-press fires the "hold" action. Same [ActionCatalog]
+     * key vocabulary as Flic / Volume / Stem buttons. Defaults match the wheel's
      * most-used controls (Horn, Light) so out-of-the-box behavior matches
      * the previous hardcoded buttons.
      */
@@ -602,8 +601,7 @@ data class AppSettings(
      *
      * Default: false in release, true in debug builds. Debug-only opt-in
      * by default means a fresh sideload-for-testing install dials the HUD
-     * immediately without the rider having to find the toggle in Settings —
-     * which is exactly the flow the dev loop runs every reinstall. Release
+     * immediately without the rider having to find the toggle in Settings, * which is exactly the flow the dev loop runs every reinstall. Release
      * users still see it disabled so a HUDless rider doesn't burn battery
      * on a dial loop they'll never use.
      */
@@ -850,7 +848,7 @@ data class AppSettings(
      * Composite metric definitions as a JSON object keyed by synthetic ID
      * (`M:<uuid>`). Each value is `{ "layout": "ROW2"|"COL2"|"COL3", "cells":
      * [<metric_key>, ...] }`. Composite IDs appear in [dashboardMetricOrder]
-     * alongside regular metric keys — a single grid slot renders the composite
+     * alongside regular metric keys, a single grid slot renders the composite
      * as a multi-cell tile instead of one metric. Empty object `"{}"` means
      * the rider hasn't dragged the `+ Stack` template onto the grid yet.
      */
@@ -870,7 +868,7 @@ data class AppSettings(
      * is `{ "text": <label>, "icon": <icon_key>, "action": <type>, "url": <url> }`.
      * Action types: NONE (display-only label), OPEN_URL (tap opens default
      * browser), SHOW_QR (tap shows a QR-code popup so other riders can scan
-     * and visit the URL — e.g. Instagram handle, club page). Custom tile IDs
+     * and visit the URL, e.g. Instagram handle, club page). Custom tile IDs
      * appear in [dashboardMetricOrder] alongside regular metrics.
      */
     val dashboardCustomTiles: String = "{}",
@@ -881,7 +879,7 @@ data class AppSettings(
      * "frames": [<hex>, ...] }`. Frames are written verbatim (one BLE write each,
      * in order) to the connected wheel, but only when its family matches; the id
      * appears in [dashboardActionOrder] like a built-in action key. Opt-in for
-     * advanced users — empty object until a rider drags the CUSTOM BLE template.
+     * advanced users, empty object until a rider drags the CUSTOM BLE template.
      * See [com.eried.eucplanet.data.model.CustomBleCommand].
      */
     val dashboardCustomBle: String = "{}",
@@ -890,7 +888,7 @@ data class AppSettings(
      * Per-metric corner-stat configuration as a JSON object. Each known metric
      * key maps to a config object with five stat slots (center, top-left,
      * top-right, bottom-left, bottom-right) and a sparkline flag. Defaults are
-     * applied at read time when an entry is missing — empty object means every
+     * applied at read time when an entry is missing, empty object means every
      * metric uses center=CURRENT, others=NONE, sparkline=true. Persisted as a
      * single string so we don't need to grow AppSettings each time a new stat
      * lands.

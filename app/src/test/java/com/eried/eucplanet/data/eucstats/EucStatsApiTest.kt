@@ -54,7 +54,7 @@ class EucStatsApiTest {
     }
 
     /** Regression: an unreachable server must NOT throw (which previously crashed
-     *  the app when registering with no connectivity) — it returns safe defaults. */
+     *  the app when registering with no connectivity), it returns safe defaults. */
     @Test fun unreachableServer_returnsSafeDefaults_neverThrows() = runBlocking {
         val dead = EucStatsApi(
             OkHttpClient.Builder()

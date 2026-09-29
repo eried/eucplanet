@@ -10,7 +10,7 @@ import com.eried.eucplanet.ui.theme.AccentPink
 import com.eried.eucplanet.ui.theme.AccentPurple
 
 /**
- * Metric layer — single source of truth for every metric the dashboard
+ * Metric layer, single source of truth for every metric the dashboard
  * editor catalogues, the live dashboard renders, and the debug overlay
  * reflects on. Mirrors [ActionCatalog]: adding a new metric is one entry
  * in [MetricCatalog.all]; the editor / live dashboard / debug overlay
@@ -20,7 +20,7 @@ import com.eried.eucplanet.ui.theme.AccentPurple
  * sparkline style, supports-stats flag) but NOT raw value extraction or
  * unit conversion. Those stay in the live dashboard because they need
  * AppSettings (for imperial/metric) and WheelData (for the wheel
- * snapshot) — keeping the catalog free of those references means it
+ * snapshot), keeping the catalog free of those references means it
  * stays a pure metadata declaration that compiles with no dependencies
  * beyond Compose colour primitives.
  *
@@ -34,7 +34,7 @@ import com.eried.eucplanet.ui.theme.AccentPurple
 /**
  * How the rolling sparkline behind a metric tile should be drawn. The
  * live dashboard reads this when [MetricSlotStats.sparkline] is enabled.
- * Choosing a style is purely visual — corner stats (min/max/avg) compute
+ * Choosing a style is purely visual, corner stats (min/max/avg) compute
  * from the same history regardless of the style picked, and remain
  * computable even when the rider hides the sparkline.
  */
@@ -45,7 +45,7 @@ enum class SparklineStyle {
     /** Thin stroke connecting samples. */
     LINE,
 
-    /** Stroke with a Catmull-Rom-ish smoothing pass — softer for slow-moving metrics. */
+    /** Stroke with a Catmull-Rom-ish smoothing pass, softer for slow-moving metrics. */
     SMOOTH_LINE,
 
     /** Stroke + faint fill underneath; the dashboard's default treatment historically. */
@@ -63,7 +63,7 @@ enum class SparklineStyle {
 /**
  * Metadata for a single dashboard metric. Catalog declares one of these
  * per static metric key. Dynamic instances (`M:uuid` composites, `C:uuid`
- * custom tiles) don't have entries here — they pull cells from the
+ * custom tiles) don't have entries here, they pull cells from the
  * catalog at render time but have their own per-instance state.
  */
 data class MetricSpec(
@@ -96,7 +96,7 @@ data class MetricSpec(
      */
     val supportsStats: Boolean = true,
     /**
-     * Baseline for [SparklineStyle.AREA_BIPOLAR]. Usually 0 — separates
+     * Baseline for [SparklineStyle.AREA_BIPOLAR]. Usually 0, separates
      * the positive lobe (drawn in [accent]) from the negative lobe
      * (drawn in [bipolarNegativeAccent], or a darker tint of [accent]
      * if null).

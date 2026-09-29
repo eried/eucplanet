@@ -7,7 +7,7 @@
 # Usage:
 #   pwsh -NoProfile -File tools/tour-devices.ps1 [-Devices fenix843mm,fr970]
 #
-# Stops the simulator between devices is not necessary — monkeydo reuses
+# Stops the simulator between devices is not necessary, monkeydo reuses
 # the running simulator.exe instance and just swaps the active device.
 
 param(

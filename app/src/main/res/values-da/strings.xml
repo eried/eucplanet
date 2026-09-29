@@ -32,6 +32,11 @@
     <string name="action_back">Tilbage</string>
     <string name="action_cancel">Annuller</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Erstat</string>
+    <string name="action_continue">Fortsæt</string>
+    <string name="action_select">Vælg</string>
+    <string name="state_on">Til</string>
+    <string name="state_off">Fra</string>
     <string name="action_done">Færdig</string>
     <string name="action_close">Luk</string>
 <string name="crash_log_action_prompt">Du holdt %1$s nede. Slet kun denne log eller slet alle. Tryk Annuller og derefter på filen for at dele den.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuelle hjul</string>
-    <string name="scan_simulate_subtitle">Springer BLE over og bruger prædefinerede svar. Kun i debug-builds.</string>
+    <string name="scan_simulate_subtitle">Springer BLE over og bruger prædefinerede svar. Kun i servicetilstand.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Forbundet</string>
@@ -685,6 +690,21 @@
     <string name="phone_show_over_lock">Vis over låseskærmen</string>
     <string name="language">Sprog</string>
     <string name="theme">Tema</string>
+    <string name="theme_editor_widget">Widget til tematilpasning</string>
+    <string name="theme_unsaved_fmt">%1$s (ikke gemt)</string>
+    <string name="theme_editor_save_as">Gem som nyt tema</string>
+    <string name="theme_editor_pick_color">Vælg en farve fra skærmen</string>
+    <string name="theme_editor_replay_blink">Gentag blink</string>
+    <string name="theme_editor_save_title">Gem tema</string>
+    <string name="theme_editor_name_label">Navn</string>
+    <string name="theme_editor_replace_title">Erstat tema?</string>
+    <string name="theme_editor_replace_body">Der findes allerede et tema ved navn \"%1$s\". Det bliver erstattet, når du gemmer.</string>
+    <string name="theme_editor_discard_title">Kassér den ugemte kladde?</string>
+    <string name="theme_editor_discard_body">Dette tema har allerede en ugemt version. Redigerer du det igen, går de ugemte ændringer tabt.</string>
+    <string name="theme_editor_no_folder_title">Ingen backupmappe</string>
+    <string name="theme_editor_no_folder_body">Vælg en backupmappe under %1$s → %2$s for at gemme temaer.</string>
+    <string name="theme_identify">Identificér</string>
+    <string name="theme_identify_results_title">Resultater fra farveidentifikation</string>
     <string name="tts_switch_title">Skift stemme til %1$s?</string>
     <string name="tts_switch_body">Den aktuelle tekst-til-tale-stemme passer ikke til det valgte sprog. Skift til en %1$s stemme til annonceringer?</string>
     <string name="tts_switch_yes">Skift stemme</string>
@@ -710,6 +730,7 @@
     <string name="section_legal_mode_speed">Hastighed i legal-tilstand</string>
     <string name="legal_mode_caption">Bruges når legal-tilstand er til; skal være lavere end normal tiltback.</string>
     <string name="speed_limits_disconnected">Forbind hjulet for at ændre kalibrering og grænser</string>
+    <string name="speed_limits_unsupported">Dette hjuls grænser indstilles på selve hjulet</string>
     <string name="speed_tiltback">Tiltback-hastighed</string>
     <string name="speed_alarm">Alarmhastighed</string>
     <string name="speed_legal_tiltback">Legal tiltback</string>
@@ -1077,6 +1098,8 @@
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spænding</string>
     <string name="recording_summary_avg_moving">Gns. i bevægelse</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ekst</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Maks. PWM</string>
@@ -1169,6 +1192,7 @@
     <string name="alarm_label_frequency">Frekvens</string>
     <string name="alarm_label_duration">Varighed</string>
     <string name="alarm_label_repeats">Gentagelser</string>
+    <string name="alarm_repeat_toggle">Gentag</string>
     <string name="alarm_label_vibrate_on">Vibrér på</string>
     <string name="alarm_threshold_decrease">Sænk tærskel</string>
     <string name="alarm_threshold_increase">Hæv tærskel</string>
@@ -1196,6 +1220,7 @@
     <string name="sources_fresh_just_now">lige nu</string>
     <string name="sources_fresh_seconds_fmt">%1$ds siden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm siden</string>
+    <string name="sources_delta_avg_fmt">gns %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$dt siden</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Andre målinger</string>
@@ -2036,6 +2061,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth er slukket</string>
     <string name="scan_enable_bluetooth">Tænd Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Afstandsmærker</string>
+    <string name="studio_radar_none">Ingen radar</string>
+    <string name="studio_radar_clear">Fri</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Vognbane</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Spejl</string>
@@ -2275,6 +2304,7 @@
     <string name="adv_wheel_poll_rate_desc">Påvirker hvor friske live-data er, og hvor hurtigt alarmer reagerer. Lavere beder hjulet om data oftere. Fare: meget lave værdier kan overbelaste Bluetooth-forbindelsen og få data til at gå i stå på nogle hjul.</string>
     <string name="alarm_beep_advanced">Avanceret</string>
     <string name="alarm_beep_gap_label">Pausevarighed</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pause %2$d ms</string>
     <string name="alarm_beep_studio">Adaptivt bip</string>
     <string name="alarm_beep_volume_label">Basisvolumen</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2378,7 +2408,7 @@
     <string name="adv_inmotion_v1_pin_desc">Adgangs-PIN til InMotion V5/V8/V10 hjul, sendes ved tilslutning så hjulet begynder at sende data. Lad 000000 stå, medmindre du har angivet din egen PIN i InMotion-appen.</string>
     <string name="adv_kingsong_unlock_code">KingSong oplåsningskode</string>
     <string name="adv_kingsong_unlock_code_desc">Seks cifre der sendes med oplåsningskommandoen. Testede hjul accepterer alle cifre, så lad 123456 stå, medmindre dit afviser det.</string>
-    <string name="adv_kingsong_password">KingSong-appens adgangskode</string>
+    <string name="adv_kingsong_password">KingSong-adgangskode</string>
     <string name="adv_kingsong_password_desc">Den 4-cifrede adgangskode sat i KingSong-appen, sendt ved tilslutning og før låsning og oplåsning. Lad 0000 stå, hvis du aldrig har sat en.</string>
     <string name="adv_nav_sidebar_width">Bredde på stoppanel</string>
     <string name="adv_nav_sidebar_width_desc">Bredden på det liggende stopsidepanel. For bredt efterlader lidt kort.</string>
@@ -2446,9 +2476,9 @@
     <string name="widget_description">Målinger og hurtige handlinger</string>
     <string name="trip_section_saved">Udsnit gemt som ny tur</string>
     <string name="trip_section_failed">Kunne ikke gemme udsnittet</string>
-    <string name="trip_tools_title">Turvaerktoj</string>
+    <string name="trip_tools_title">Turværktøj</string>
     <string name="trip_tools_change_wheel">Skift hjul</string>
-    <string name="trip_tools_change_wheel_desc">Ret hvilket hjul turen var pa. Opdaterer turen og dens fil.</string>
+    <string name="trip_tools_change_wheel_desc">Ret hvilket hjul turen var på. Opdaterer turen og dens fil.</string>
     <string name="trip_tools_wheel_other">Et andet hjul</string>
     <string name="trip_tools_split">Opdel tur</string>
     <string name="trip_tools_split_desc">Find hjulskift, lange pauser og huller i optagelsen, og klip turen der.</string>
@@ -2458,17 +2488,17 @@
     <string name="trip_split_reason_stopped">Stoppet i lang tid</string>
     <string name="trip_tools_combine">Kombiner ture</string>
     <string name="trip_tools_combine_desc">Flet andre ture ind i denne som en ny tur, og behold originalerne.</string>
-    <string name="trip_tools_combine_none">Ingen andre faerdige ture at kombinere med.</string>
-    <string name="trip_tools_combine_mixed_wheels">Nogle af disse blev kort pa et andet hjul. Distance og energi bliver lagt sammen.</string>
+    <string name="trip_tools_combine_none">Ingen andre færdige ture at kombinere med.</string>
+    <string name="trip_tools_combine_mixed_wheels">Nogle af disse blev kørt på et andet hjul. Distance og energi bliver lagt sammen.</string>
     <string name="trip_tools_wheel_changed">Hjul sat til %1$s</string>
         <string name="trip_split_lasted">varede %1$s</string>
     <string name="trip_tools_split_pick">Vælg mindst ét sted at klippe.</string>
-<string name="trip_tools_split_hint">Vaelg hvor der skal klippes. Dette laver %1$d ture og beholder originalen.</string>
+<string name="trip_tools_split_hint">Vælg hvor der skal klippes. Dette laver %1$d ture og beholder originalen.</string>
     <string name="trip_tools_split_done">Opdelt i %1$d ture</string>
     <string name="trip_tools_split_failed">Kunne ikke opdele denne tur</string>
     <string name="trip_tools_combine_done">Ture kombineret til en ny</string>
     <string name="trip_tools_combine_failed">Kunne ikke kombinere de ture</string>
-    <string name="trip_tools_wheel_current">Nuvaerende</string>
+    <string name="trip_tools_wheel_current">Nuværende</string>
     <string name="trip_tools_combine_summary">Kombinerer %1$d ture til en ny tur.</string>
     <string name="phone_hud_desc">Tegn et Overlay Studio-layout oven på andre apps, så du kan se dit hjul mens du bruger kort eller musik.</string>
     <string name="phone_hud_permission_desc">Android spørger separat om dette. Uden det kan overlayet ikke vises.</string>
@@ -2484,6 +2514,7 @@
     <string name="pip_mode_off">Fra</string>
     <string name="pip_mode_simple">Enkel</string>
     <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget pa startskaerm</string>
     <string name="widget_pick_desc">Vælg de %1$d målinger og %2$d knapper, widgetten viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>
@@ -2504,14 +2535,14 @@
     <string name="widget_metric_torque">Moment</string>
     <string name="widget_metric_phase_current">Fasestrøm</string>
     <string name="widget_action_voice">Tale</string>
-    <string name="widget_button_unset">Vaelg en knap i Indstillinger</string>
-    <string name="trip_tools_extend">Forlaeng tur</string>
-    <string name="trip_tools_extend_desc">Optag turene for eller efter denne i en ny, laengere tur.</string>
-    <string name="trip_tools_extend_hint">Raek tilbage og frem sa langt du vil. Alt derimellem foelger med.</string>
+    <string name="widget_button_unset">Vælg en knap i Indstillinger</string>
+    <string name="trip_tools_extend">Forlæng tur</string>
+    <string name="trip_tools_extend_desc">Optag turene før eller efter denne i en ny, længere tur.</string>
+    <string name="trip_tools_extend_hint">Ræk tilbage og frem så langt du vil. Alt derimellem følger med.</string>
     <string name="trip_tools_extend_from">Start fra</string>
     <string name="trip_tools_extend_to">Slut ved</string>
     <string name="trip_tools_extend_none">Denne tur</string>
-    <string name="trip_tools_extend_pick_one">Vaelg en tidligere eller senere tur at forlaenge ind i.</string>
+    <string name="trip_tools_extend_pick_one">Vælg en tidligere eller senere tur at forlænge ind i.</string>
     <string name="widget_act_1_desc">Vælg handlingen i appen</string>
     <string name="widget_act_2_desc">Vælg handlingen i appen</string>
     <string name="widget_act_3_desc">Vælg handlingen i appen</string>
@@ -2583,7 +2614,7 @@
     <string name="backup_status_failed">Sikkerhedskopiering mislykkedes, tryk for at prøve igen</string>
     <string name="lockdown_title">Låsetilstand</string>
     <string name="lockdown_action_speed_limit">Grænse</string>
-    <string name="lockdown_action_vehicle">Køretøj</string>
+    <string name="lockdown_action_vehicle">Hjul</string>
     <string name="lockdown_no_wheel">Intet wheel forbundet. Brug Bluetooth-ikonet for at forbinde.</string>
     <string name="lockdown_vehicle_name">Bluetooth-navn</string>
     <string name="lockdown_vehicle_brand">Producent</string>

@@ -9,7 +9,7 @@ import com.eried.eucplanet.R
  * Each tunable is declared once as an [AdvancedSpec]; the UI, the clamping in
  * SettingsRepository.sanitized(), JSON (de)serialization, the per-setting update,
  * and the restore-default affordance all iterate this list instead of repeating
- * 46 hand-written rows / functions / clamp lines. Adding a knob = one field on
+ * a hand-written row / function / clamp line per knob. Adding a knob = one field on
  * [AdvancedSettings] + one spec entry + two strings.
  *
  * Mirrors the project's existing `ThemeTokens.specs` registry pattern.
@@ -62,7 +62,7 @@ val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f
 val pinFormat: (Int) -> String = { String.format(java.util.Locale.US, "%06d", it) }
 val pinParse: (String) -> Int? = { it.toIntOrNull() }
 
-/** Canonical defaults — one allocation, reused for resets, JSON fallback, etc. */
+/** Canonical defaults, one allocation, reused for resets, JSON fallback, etc. */
 val ADVANCED_DEFAULTS = AdvancedSettings()
 
 /** A spec's default value = the matching field on [ADVANCED_DEFAULTS]. */

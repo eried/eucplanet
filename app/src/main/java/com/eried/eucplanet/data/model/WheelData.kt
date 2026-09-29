@@ -42,7 +42,7 @@ data class WheelData(
      *  lat/long and gpsSpeedKmh, and NaN rather than -1 because a rider below
      *  sea level is a real reading, not a missing one. */
     val gpsAltitudeM: Float = Float.NaN,
-    /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
+    /** Running trip-meter distance in km (the connect-scoped trip odometer), or -1
      *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
      *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay
      *  number can show it. */

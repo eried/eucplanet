@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="notification_channel_name">З\'єднання з моноколесом</string>
-    <string name="notification_channel_description">Показує стан з\'єднання з моноколесом і телеметрію.</string>
+    <string name="notification_channel_name">З\'єднання з колесом</string>
+    <string name="notification_channel_description">Показує стан з\'єднання з колесом і телеметрію.</string>
 
     <!-- Notification quick actions -->
     <string name="notif_actions_section">Налаштувати</string>
@@ -32,6 +32,11 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Замінити</string>
+    <string name="action_continue">Далі</string>
+    <string name="action_select">Вибрати</string>
+    <string name="state_on">Увімк</string>
+    <string name="state_off">Вимк</string>
     <string name="action_done">Готово</string>
     <string name="action_close">Закрити</string>
 <string name="crash_log_action_prompt">Ви утримали %1$s. Видаліть цей журнал або всі. Щоб поділитися, натисніть «Скасувати» і торкніться файлу.</string>
@@ -62,20 +67,20 @@
 
     <!-- Permissions -->
     <string name="scan_permission_needed">Потрібен дозвіл</string>
-    <string name="scan_permission_body">Щоб знайти твоє моноколесо, додатку потрібен доступ до Bluetooth і геолокації.</string>
+    <string name="scan_permission_body">Щоб знайти твоє колесо, додатку потрібен доступ до Bluetooth і геолокації.</string>
     <string name="scan_permission_body_settings">Дозвіл відхилено. Відкрий системні налаштування, щоб дозволити Bluetooth і геолокацію</string>
     <string name="recording_location_permission_needed">Потрібна геолокація</string>
     <string name="recording_location_permission_body">Запис поїздок зберігає GPS-точки, щоб показати маршрут на карті. Надай доступ до геолокації, щоб продовжити.</string>
 
     <!-- Experimental banner -->
-    <string name="experimental_banner">Попередня підтримка цього моноколеса. Натисни, щоб повідомити про проблему.</string>
+    <string name="experimental_banner">Попередня підтримка цього колеса. Натисни, щоб повідомити про проблему.</string>
     <string name="experimental_dialog_title">Допоможи покращити EUC Planet</string>
-    <string name="experimental_dialog_body">Підтримка цього моноколеса попередня. Лише сімейство InMotion V14 / V12 / P6 перевірено автором. KingSong, Veteran, Begode, Ninebot та старіші InMotion поставляються як Preview і потребують тестування райдерами. Використовуй обережно.\n\nНатискання цього банера створить звіт, щоб автор міг виправити те, що не працює.</string>
+    <string name="experimental_dialog_body">Підтримка цього колеса попередня. Лише сімейство InMotion V14 / V12 / P6 перевірено автором. KingSong, Veteran, Begode, Ninebot та старіші InMotion поставляються як Preview і потребують тестування райдерами. Використовуй обережно.\n\nНатискання цього банера створить звіт, щоб автор міг виправити те, що не працює.</string>
     <string name="experimental_dialog_report">Повідомити про проблему</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
-    <string name="scan_simulate_title">Віртуальні моноколеса</string>
-    <string name="scan_simulate_subtitle">Обходить BLE і подає заготовлені відповіді. Лише у налагоджувальних збірках.</string>
+    <string name="scan_simulate_title">Віртуальні колеса</string>
+    <string name="scan_simulate_subtitle">Обходить BLE і подає заготовлені відповіді. Лише в сервісному режимі.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Підключено</string>
@@ -87,7 +92,7 @@
     <string name="settings">Налаштування</string>
     <string name="disconnect">Відключитись</string>
     <string name="disconnect_from">Відключитись від %1$s?</string>
-    <string name="wheel_generic">моноколесо</string>
+    <string name="wheel_generic">колесо</string>
     <string name="exit_title">Вийти з EUC Planet</string>
     <string name="exit_body">Залишити фонову службу працювати чи зупинити все?</string>
     <string name="exit_stop_all">Зупинити все</string>
@@ -540,7 +545,7 @@
     <string name="watch_auto_start_desc">Відкривати додаток на годиннику разом із додатком на телефоні.</string>
     <string name="watch_close_on_exit">Автозупинка на годиннику</string>
     <string name="watch_close_on_exit_desc">Зупиняти додаток годинника при «Зупинити все».</string>
-    <string name="watch_show_wheel_battery">Показувати заряд моноколеса</string>
+    <string name="watch_show_wheel_battery">Показувати заряд колеса</string>
     <string name="watch_show_phone_battery">Показувати заряд телефона</string>
     <string name="watch_show_watch_battery">Показувати заряд годинника</string>
     <string name="watch_pwm_display">Індикатор PWM</string>
@@ -615,7 +620,7 @@
     <string name="cloud_not_uploaded">Поки не збережено</string>
     <string name="cloud_restore_confirm_title">Відновити налаштування</string>
     <string name="cloud_restore_confirm_body_p1">Твої поточні налаштування буде замінено налаштуваннями з резервної копії.</string>
-    <string name="cloud_restore_confirm_body_p2">Жести Flic відновлюються, але кнопки й моноколесо доведеться знову спарувати на цьому телефоні. Їхні Bluetooth-зв\'язки зберігаються в Android, а не в додатку.</string>
+    <string name="cloud_restore_confirm_body_p2">Жести Flic відновлюються, але кнопки й колесо доведеться знову спарувати на цьому телефоні. Їхні Bluetooth-зв\'язки зберігаються в Android, а не в додатку.</string>
     <string name="sync_checking">Перевіряємо папку копій…</string>
     <string name="action_restore">Відновити</string>
     <string name="action_overwrite">Перезаписати</string>
@@ -639,7 +644,7 @@
     <string name="section_connection">З\'єднання</string>
     <string name="section_display">Екран</string>
     <string name="auto_record_on_start">Автозапис при підключенні</string>
-    <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене.</string>
+    <string name="auto_record_caption">Записує поїздку, коли колесо підключене.</string>
     <string name="auto_record_start_in_motion">Починати запис при русі</string>
     <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці.</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
@@ -685,6 +690,21 @@
     <string name="phone_show_over_lock">Показувати поверх екрана блокування</string>
     <string name="language">Мова</string>
     <string name="theme">Тема</string>
+    <string name="theme_editor_widget">Віджет налаштування теми</string>
+    <string name="theme_unsaved_fmt">%1$s (не збережено)</string>
+    <string name="theme_editor_save_as">Зберегти як нову тему</string>
+    <string name="theme_editor_pick_color">Узяти колір з екрана</string>
+    <string name="theme_editor_replay_blink">Повторити блимання</string>
+    <string name="theme_editor_save_title">Зберегти тему</string>
+    <string name="theme_editor_name_label">Назва</string>
+    <string name="theme_editor_replace_title">Замінити тему?</string>
+    <string name="theme_editor_replace_body">Тема з назвою \"%1$s\" уже існує. Збереження замінить її.</string>
+    <string name="theme_editor_discard_title">Відкинути незбережену чернетку?</string>
+    <string name="theme_editor_discard_body">Ця тема вже має незбережену версію. Якщо редагувати її знову, ті зміни буде втрачено.</string>
+    <string name="theme_editor_no_folder_title">Немає папки резервних копій</string>
+    <string name="theme_editor_no_folder_body">Щоб зберігати теми, виберіть папку резервних копій у %1$s → %2$s.</string>
+    <string name="theme_identify">Визначити</string>
+    <string name="theme_identify_results_title">Результати визначення кольору</string>
     <string name="tts_switch_title">Переключити голос на %1$s?</string>
     <string name="tts_switch_body">Поточний голос синтезу не відповідає вибраній мові. Переключити озвучення на голос %1$s?</string>
     <string name="tts_switch_yes">Переключити голос</string>
@@ -709,7 +729,8 @@
     <string name="speed_calibration_caption">Коригує швидкість від колеса; впливає на тривоги, голос і журнал поїздки.</string>
     <string name="section_legal_mode_speed">Швидкість у легальному режимі</string>
     <string name="legal_mode_caption">Застосовується в режимі Legal; має бути нижчим за звичайний tiltback.</string>
-    <string name="speed_limits_disconnected">Підключи моноколесо, щоб змінити калібрування та обмеження</string>
+    <string name="speed_limits_disconnected">Підключи колесо, щоб змінити калібрування та обмеження</string>
+    <string name="speed_limits_unsupported">Обмеження цього колеса задаються на самому колесі</string>
     <string name="speed_tiltback">Швидкість tiltback</string>
     <string name="speed_alarm">Швидкість тривоги</string>
     <string name="speed_legal_tiltback">Tiltback (лег.)</string>
@@ -732,7 +753,7 @@
     <string name="announce_wheel_lock">Блокування і розблокування</string>
     <string name="announce_lights">Увімкнення і вимкнення світла</string>
     <string name="announce_recording">Запис поїздки</string>
-    <string name="announce_connection">Підключення і відключення моноколеса</string>
+    <string name="announce_connection">Підключення і відключення колеса</string>
     <string name="announce_gps">Втрата і відновлення GPS</string>
     <string name="announce_legal_mode">Увімкнення і вимкнення легального режиму</string>
     <string name="announce_welcome">Вітання при запуску додатка</string>
@@ -748,7 +769,7 @@
     <string name="welcome_tut_skip_body">Більше він не показуватиметься.</string>
     <string name="welcome_tut_skip_yes">Все одно пропустити</string>
     <string name="welcome_tut_welcome">Ласкаво просимо до EUC Planet, простого застосунку з відкритим кодом для моноколіс</string>
-    <string name="welcome_tut_bt">Тут підключай і відключай своє моноколесо</string>
+    <string name="welcome_tut_bt">Тут підключай і відключай своє колесо</string>
     <string name="welcome_tut_version">Багатьом колесам для повної підтримки бракує лише тестувальників, і це зазвичай легко виправити. Торкнись версії, щоб відкрити «Про додаток» і допомогти</string>
     <string name="welcome_tut_outro_title">Ось і весь тур!</string>
     <string name="welcome_tut_outro_buttons">Багато кнопок мають додаткові дії, спробуй утримувати їх</string>
@@ -873,7 +894,7 @@
     <string name="section_external_gps">GPS і датчики</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">Датчики TPMS</string>
-    <string name="tpms_wheel_sensor">Тиск у шині моноколеса</string>
+    <string name="tpms_wheel_sensor">Тиск у шині колеса</string>
     <string name="tpms_wheel_sensor_desc">Передається від прив\'язаного датчика.</string>
     <string name="tpms_scan">Шукати датчики</string>
     <string name="tpms_scan_stop">Зупинити пошук</string>
@@ -950,14 +971,14 @@
     <string name="voice_time_fmt">час %1$s</string>
     <string name="voice_recording_on">йде запис</string>
     <string name="voice_recording_off">запис не ведеться</string>
-    <string name="voice_wheel_locked">Моноколесо заблоковано</string>
-    <string name="voice_wheel_unlocked">Моноколесо розблоковано</string>
+    <string name="voice_wheel_locked">Колесо заблоковано</string>
+    <string name="voice_wheel_unlocked">Колесо розблоковано</string>
     <string name="voice_lights_on">Світло увімкнено</string>
     <string name="voice_lights_off">Світло вимкнено</string>
     <string name="voice_recording_started">Запис розпочато</string>
     <string name="voice_recording_finished">Запис завершено</string>
-    <string name="voice_wheel_connected">Моноколесо підключено</string>
-    <string name="voice_wheel_disconnected">Моноколесо відключено</string>
+    <string name="voice_wheel_connected">Колесо підключено</string>
+    <string name="voice_wheel_disconnected">Колесо відключено</string>
     <string name="voice_gps_acquired">GPS-сигнал знайдено</string>
     <string name="voice_gps_lost">GPS-сигнал втрачено</string>
     <string name="voice_legal_on">Легальний режим увімкнено</string>
@@ -1022,11 +1043,11 @@
     <string name="flic_status_scan_failed_fmt">Сканування не вдалося (код %1$d)</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Підключитися до моноколеса</string>
+    <string name="scan_title">Підключитися до колеса</string>
     <string name="scan_scanning">Пошук…</string>
     <string name="scan_start">Почати сканування</string>
     <string name="scan_show_all_title">Показати всі пристрої</string>
-    <string name="scan_show_all_subtitle">Увімкни, якщо твоє моноколесо не з\'являється.</string>
+    <string name="scan_show_all_subtitle">Увімкни, якщо твоє колесо не з\'являється.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">Історія</string>
@@ -1080,6 +1101,8 @@
     <string name="recording_summary_battery">Заряд (-%1$d%%)</string>
     <string name="recording_summary_voltage">Напруга</string>
     <string name="recording_summary_avg_moving">Сер. у русі</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Зовн</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f В</string>
     <string name="recording_summary_max_pwm">Макс. PWM</string>
@@ -1151,7 +1174,7 @@
     <string name="auto_midnight_sun_body">Сьогодні на цій широті сонце не заходить, фари залишатимуться ВИМКНЕНИМИ.</string>
     <string name="auto_polar_night_title">Полярна ніч</string>
     <string name="auto_polar_night_body">Сьогодні на цій широті сонце не сходить, фари залишатимуться УВІМКНЕНИМИ.</string>
-    <string name="auto_lights_suspended">Призупинено через ручне перемикання світла в цій сесії. Перепідключи моноколесо або перезапусти додаток, щоб відновити</string>
+    <string name="auto_lights_suspended">Призупинено через ручне перемикання світла в цій сесії. Перепідключи колесо або перезапусти додаток, щоб відновити</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Для кожної метрики автоматично спрацьовує найдоречніша тривога. Порядок у списку не змінює, яка саме; сортування лише підтримує лад.</string>
@@ -1169,6 +1192,7 @@
     <string name="alarm_label_frequency">Частота</string>
     <string name="alarm_label_duration">Тривалість</string>
     <string name="alarm_label_repeats">Повторення</string>
+    <string name="alarm_repeat_toggle">Повтор</string>
     <string name="alarm_label_vibrate_on">Вібрація на</string>
     <string name="alarm_threshold_decrease">Зменшити поріг</string>
     <string name="alarm_threshold_increase">Збільшити поріг</string>
@@ -1196,6 +1220,7 @@
     <string name="sources_fresh_just_now">щойно</string>
     <string name="sources_fresh_seconds_fmt">%1$d с тому</string>
     <string name="sources_fresh_minutes_fmt">%1$d хв тому</string>
+    <string name="sources_delta_avg_fmt">сер %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$d год тому</string>
     <string name="sources_sats_fmt">%1$d супут.</string>
     <string name="sources_other_metrics">Інші показники</string>
@@ -1250,7 +1275,7 @@
     <string name="service_mode_recording">Поки активний, застосунок записує кожен BLE-байт, надісланий до колеса і отриманий від нього, а також будь-які тестові команди. Журнал зберігається в пам\'яті до закриття застосунку.</string>
     <string name="service_mode_link">Докладніше на eucplanet.ried.no/service.</string>
     <string name="service_mode_enter">Увійти</string>
-    <string name="toast_external_speed_change">Швидкість оновлено з моноколеса: %1$d км/год tiltback, %2$d км/год тривога</string>
+    <string name="toast_external_speed_change">Швидкість оновлено з колеса: %1$d км/год tiltback, %2$d км/год тривога</string>
 
     <!-- ==== EucStats online upload onboarding ==== -->
 
@@ -1652,7 +1677,7 @@
     <string name="trip_meter_avg">Сер.</string>
     <string name="trip_meter_reset">Скинути лічильник поїздки</string>
     <string name="trip_meter_reset_msg">Обнуляє поточну відстань і видаляє всі відрізки. Цю дію не можна скасувати.</string>
-    <string name="trip_meter_empty">Ще немає відстані. Лічильник рахує, поки підключено моноколесо.</string>
+    <string name="trip_meter_empty">Ще немає відстані. Лічильник рахує, поки підключено колесо.</string>
     <string name="trip_meter_partial">Зараз</string>
     <string name="trip_meter_col_split">#</string>
     <string name="trip_meter_col_dist">Відст.</string>
@@ -2020,6 +2045,10 @@
     <string name="scan_bluetooth_off_title">Bluetooth вимкнено</string>
     <string name="scan_enable_bluetooth">Увімкнути Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Мітки відстані</string>
+    <string name="studio_radar_none">Немає радара</string>
+    <string name="studio_radar_clear">Чисто</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Смуга</string>
     <string name="studio_cfg_radar_minimal">Мінімальний</string>
     <string name="studio_cfg_radar_mirror">Дзеркало</string>
@@ -2225,10 +2254,10 @@
     <string name="adv_phone_gps_idle_interval">Інтервал GPS у спокої</string>
     <string name="adv_phone_gps_idle_interval_desc">Частота GPS у спокої, коли немає запису чи навігації, щоб Навігатор і нове підключення були готові. Більше - економить батарею.</string>
     <string name="adv_gps_idle_off_delay">Вимикати GPS у спокої</string>
-    <string name="adv_gps_idle_off_delay_desc">Коли застосунок у фоні, моноколесо не підключене й нічого не записується, GPS вимикається задля економії батареї. 0 вимикає одразу; більше значення спершу тримає енергоощадну позицію активною цей час, щоб швидке перемикання застосунків не скидало GPS.</string>
+    <string name="adv_gps_idle_off_delay_desc">Коли застосунок у фоні, колесо не підключене й нічого не записується, GPS вимикається задля економії батареї. 0 вимикає одразу; більше значення спершу тримає енергоощадну позицію активною цей час, щоб швидке перемикання застосунків не скидало GPS.</string>
     <string name="adv_gps_fix_max_age">Макс. вік позиції GPS</string>
     <string name="adv_gps_fix_max_age_desc">Позиція, старіша за це, вважається відсутністю сигналу, щоб запис, розпочатий до готовності GPS, не починався із застарілої точки.</string>
-    <string name="adv_pushonly_note">Деякі пристрої передають дані зі своєю фіксованою частотою й ігнорують ці налаштування: моноколеса лише з передачею (Begode, Gotway, Veteran, KingSong), зовнішній GPS (RaceBox), радар і кнопки Flic.</string>
+    <string name="adv_pushonly_note">Деякі пристрої передають дані зі своєю фіксованою частотою й ігнорують ці налаштування: колеса лише з передачею (Begode, Gotway, Veteran, KingSong), зовнішній GPS (RaceBox), радар і кнопки Flic.</string>
     <string name="adv_radar_clear_decay">Згасання смуги радара</string>
     <string name="adv_radar_clear_decay_desc">Впливає на те, як довго смуга залишається після того, як дорога звільниться. Небезпека: замало - блимає, коли машини з\'являються та зникають.</string>
     <string name="adv_radar_fallback">Резервна швидкість зближення</string>
@@ -2253,10 +2282,11 @@
     <string name="adv_pending_upload_interval_desc">Впливає на те, як часто застосунок повторює вивантаження поїздок, що залишилися в очікуванні, наприклад після закриття під час синхронізації. 15 хв, це мінімум Android. Небезпека: задовго затримує застрягле вивантаження.</string>
     <string name="adv_trip_finalize_grace">Відстрочка завершення поїздки</string>
     <string name="adv_trip_finalize_grace_desc">Впливає на те, як довго після зупинки, перш ніж поїздка буде завершена та синхронізована. Небезпека: замале значення може обрізати поїздку, яка лише ненадовго зупинилася.</string>
-    <string name="adv_wheel_poll_rate">Частота опитування моноколеса</string>
-    <string name="adv_wheel_poll_rate_desc">Впливає на свіжість живих даних і швидкість реакції сигналів. Менше - частіше запитує дані в моноколеса. Небезпека: дуже малі значення можуть перевантажити зв\'язок Bluetooth і застопорити дані на деяких моноколесах.</string>
+    <string name="adv_wheel_poll_rate">Частота опитування колеса</string>
+    <string name="adv_wheel_poll_rate_desc">Впливає на свіжість живих даних і швидкість реакції сигналів. Менше - частіше запитує дані в колеса. Небезпека: дуже малі значення можуть перевантажити зв\'язок Bluetooth і застопорити дані на деяких колесах.</string>
     <string name="alarm_beep_advanced">Розширені</string>
     <string name="alarm_beep_gap_label">Тривалість паузи</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · пауза %2$d ms</string>
     <string name="alarm_beep_studio">Адаптивний сигнал</string>
     <string name="alarm_beep_volume_label">Базова гучність</string>
     <string name="alarm_studio_now">%1$d Гц · %2$d%%</string>
@@ -2358,9 +2388,9 @@
     <string name="adv_nav_sidebar_min_desc">Вужчі екрани зберігають нижню панель зупинок навіть в альбомній орієнтації. Замало ховає карту на малих екранах.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN доступу для моноколіс InMotion V5/V8/V10, надсилається під час підключення, щоб колесо почало передавати дані. Залиште 000000, якщо ви не задали власний PIN у застосунку InMotion.</string>
-    <string name="adv_kingsong_unlock_code">Код розблокування KingSong</string>
+    <string name="adv_kingsong_unlock_code">Код розблок. KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Шість цифр, що надсилаються з командою розблокування. Перевірені колеса приймають будь-які цифри, тож залиште 123456, якщо ваше їх не відхиляє.</string>
-    <string name="adv_kingsong_password">Пароль застосунку KingSong</string>
+    <string name="adv_kingsong_password">Пароль KingSong</string>
     <string name="adv_kingsong_password_desc">4-значний пароль, заданий у застосунку KingSong, надсилається під час підключення та перед блокуванням і розблокуванням. Залиште 0000, якщо ви його не задавали.</string>
     <string name="adv_nav_sidebar_width">Ширина панелі зупинок</string>
     <string name="adv_nav_sidebar_width_desc">Ширина бічної панелі зупинок в альбомній орієнтації. Заширока лишає мало карти.</string>
@@ -2466,6 +2496,7 @@
     <string name="pip_mode_off">Вимк</string>
     <string name="pip_mode_simple">Просто</string>
     <string name="pip_mode_dashboard">Панель</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Віджет на головному екрані</string>
     <string name="widget_pick_desc">Виберіть %1$d показники та %2$d кнопки, які показує віджет.</string>
     <string name="widget_metric_slot">Показник %1$d</string>
@@ -2509,14 +2540,14 @@
     <string name="trip_customize_tiles">Плитки</string>
     <string name="trip_customize_graphs">Графіки</string>
     <string name="recording_details_section">Додаткові відомості</string>
-    <string name="recording_details_none">Для цієї поїздки моноколесо не вказано.</string>
+    <string name="recording_details_none">Для цієї поїздки колесо не вказано.</string>
     <string name="cloud_reset_local">Очистити локальні поїздки</string>
     <string name="cloud_reset_local_title">Очистити локальні поїздки?</string>
     <string name="cloud_reset_local_body">Видаляє всі поїздки, збережені на цьому телефоні. Папка резервних копій не змінюється, тож синхронізовані поїздки можна відновити звідти.</string>
     <string name="dropbox_syncing">Синхронізація поїздок…</string>
     <string name="dropbox_folder_desc">Поїздки та налаштування зберігаються у вашому Dropbox, у %1$s. Цю папку бачить лише цей застосунок.</string>
     <string name="keep_app_alive">Тримати застосунок активним</string>
-    <string name="keep_app_alive_desc">Показує постійне сповіщення, щоб застосунок залишався активним у фоні. Синхронізація поїздок і голос працюють навіть без під’єднаного моноколеса. Споживає трохи більше заряду.</string>
+    <string name="keep_app_alive_desc">Показує постійне сповіщення, щоб застосунок залишався активним у фоні. Синхронізація поїздок і голос працюють навіть без під’єднаного колеса. Споживає трохи більше заряду.</string>
     <string name="sync_up_to_date">Уже актуально</string>
     <string name="studio_source_transparent">Прозорий</string>
     <string name="studio_source_video">Відео</string>
@@ -2534,8 +2565,8 @@
     <string name="studio_video_edge_freeze">Стоп-кадр</string>
     <string name="studio_video_edge_loop">Цикл</string>
     <string name="studio_video_edge_black">Чорний</string>
-    <string name="wheel_no_data_reconnecting">Немає даних від моноколеса. Повторне підключення…</string>
-    <string name="wheel_no_data_reset">Досі немає даних від моноколеса. Спробуйте вимкнути та ввімкнути його.</string>
+    <string name="wheel_no_data_reconnecting">Немає даних від колеса. Повторне підключення…</string>
+    <string name="wheel_no_data_reset">Досі немає даних від колеса. Спробуйте вимкнути та ввімкнути його.</string>
     <string name="trip_map_ride_start">Початок поїздки: %1$s</string>
     <string name="trip_map_reconnected">Перепідключено: %1$s</string>
     <string name="trip_map_new_wheel">Нове колесо: %1$s</string>
@@ -2565,7 +2596,7 @@
     <string name="backup_status_failed">Не вдалося, торкніться для повтору</string>
     <string name="lockdown_title">Режим блокування</string>
     <string name="lockdown_action_speed_limit">Ліміт</string>
-    <string name="lockdown_action_vehicle">Транспорт</string>
+    <string name="lockdown_action_vehicle">Колесо</string>
     <string name="lockdown_no_wheel">Колесо не підключено. Натисніть значок Bluetooth, щоб підключитися.</string>
     <string name="lockdown_vehicle_name">Назва Bluetooth</string>
     <string name="lockdown_vehicle_brand">Виробник</string>

@@ -379,7 +379,7 @@ fun SettingsScreen(
                                     Icon(
                                         imageVector = if (s.on) Icons.Filled.CheckCircle
                                                       else Icons.Outlined.RadioButtonUnchecked,
-                                        contentDescription = if (s.on) "on" else "off",
+                                        contentDescription = stringResource(if (s.on) R.string.state_on else R.string.state_off),
                                         tint = if (s.on) MaterialTheme.colorScheme.primary
                                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.size(20.dp)
@@ -396,7 +396,7 @@ fun SettingsScreen(
                                 is com.eried.eucplanet.cheats.CheatState.State.Off -> {
                                     Icon(
                                         imageVector = Icons.Outlined.RadioButtonUnchecked,
-                                        contentDescription = "off",
+                                        contentDescription = stringResource(R.string.state_off),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -1170,7 +1170,7 @@ private fun CollapsibleSection(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             // Body text inside a section is normal text (off-white on dark, dark
-            // ink on light) — only the leading icon carries the accent. Without
+            // ink on light), only the leading icon carries the accent. Without
             // this, un-colored labels inherited an accent content color and the
             // whole section read teal.
             contentColor = MaterialTheme.appColors.textPrimary,
@@ -2435,7 +2435,7 @@ private fun DashboardLayoutTab(
     // explains the gesture instead of opening the edit sheet, which would
     // be misleading (pool-position settings are not what they're editing).
     // Throttled to one toast per 5 taps so it doesn't spam the rider while
-    // they explore — the same counter governs +STACK / +TEXT / +group
+    // they explore, the same counter governs +STACK / +TEXT / +group
     // template taps too.
     val poolTapMessage = stringResource(R.string.dashboard_pool_tap_toast)
     var poolTapCount by remember { mutableStateOf(0) }
@@ -2568,7 +2568,7 @@ private fun DashboardLayoutTab(
             groupOf = { id -> viewModel.getActionGroup(settings, id) },
             customBleOf = { id -> viewModel.getCustomBle(settings, id) },
             onSwapInto = { key, index ->
-                // Catalog model — see metric grid for explanation.
+                // Catalog model, see metric grid for explanation.
                 when {
                     key == ACTION_GROUP_TEMPLATE_KEY -> viewModel.createActionGroupAt(index)
                     key == CUSTOM_BLE_TEMPLATE_KEY -> viewModel.createCustomBleAt(index)
@@ -2624,7 +2624,7 @@ private fun DashboardLayoutTab(
         // so the restored metric shows its fresh out-of-box appearance.
         val onResetSlot: () -> Unit = {
             when {
-                // A custom BLE command has no "shipped default" — Reset means
+                // A custom BLE command has no "shipped default", Reset means
                 // delete the command and clear the slot.
                 target is DashboardEditTarget.CustomBle ->
                     viewModel.deleteCustomBle(target.key)
@@ -2848,13 +2848,13 @@ private sealed interface DashboardEditTarget {
     val slotIndex: Int
     data class Metric(override val key: String, override val slotIndex: Int) : DashboardEditTarget
     data class Action(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Composite metric instance — `key` is the composite ID like `M:abc123`. */
+    /** Composite metric instance, `key` is the composite ID like `M:abc123`. */
     data class Composite(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Action group instance — `key` is the group ID like `G:abc123`. */
+    /** Action group instance, `key` is the group ID like `G:abc123`. */
     data class Group(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Custom tile instance — `key` is the tile ID like `C:abc123`. */
+    /** Custom tile instance, `key` is the tile ID like `C:abc123`. */
     data class CustomTile(override val key: String, override val slotIndex: Int) : DashboardEditTarget
-    /** Custom BLE command instance — `key` is the command ID like `B:abc123`. */
+    /** Custom BLE command instance, `key` is the command ID like `B:abc123`. */
     data class CustomBle(override val key: String, override val slotIndex: Int) : DashboardEditTarget
 }
 
@@ -2865,7 +2865,7 @@ private sealed interface DashboardEditTarget {
 
 // Custom bounds transform applied to every grid tile so column-count changes
 // (2 ↔ 3 ↔ 4) animate visibly. The default BoundsTransform settles too
-// quickly for small motion deltas — tiles that move only a few dp appear to
+// quickly for small motion deltas, tiles that move only a few dp appear to
 // snap. This spring is slower (Spring.StiffnessLow) and slightly underdamped
 // (0.7) so motion reads as a smooth glide for both big and small repositions.
 @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
@@ -2974,7 +2974,7 @@ private fun MetricMiniGrid(
  * box with a centred "no" glyph (a circle with a diagonal slash) so the
  * rider clearly reads "this slot is intentionally empty". Registers as a
  * drop target so dragging a tile into it fills the slot; no click handler
- * — tapping an empty slot does nothing (and never routes to a phantom
+ *, tapping an empty slot does nothing (and never routes to a phantom
  * metric history).
  */
 @Composable
@@ -3015,7 +3015,7 @@ private fun EmptyMetricSlot(
 }
 
 /**
- * Composite metric tile — one grid slot rendering 2 or 3 sub-metric current
+ * Composite metric tile, one grid slot rendering 2 or 3 sub-metric current
  * values in the chosen layout. Wraps the same drag/drop modifiers as
  * [MetricTile] so the rider can re-position the composite or replace it
  * with another tile.
@@ -3086,7 +3086,7 @@ private fun CompositeMetricTile(
  * Inner layout switcher for a composite tile. Each layout renders its cells
  * with a per-cell accent + uppercase short label; no stats, no sparkline.
  * Public-internal so the live dashboard renderer can reuse the exact same
- * body — the editor passes placeholder values, the live dashboard passes
+ * body, the editor passes placeholder values, the live dashboard passes
  * real telemetry, both go through this composable.
  */
 @Composable
@@ -3216,7 +3216,7 @@ private fun CompositeCell(
     }
     val label = metricChipLabel(key, short = true).uppercase()
     val value = valueOf(key, stat)
-    // Stat indicator on top — only shown when the rider picked a non-
+    // Stat indicator on top, only shown when the rider picked a non-
     // default stat (Min / Max / Avg / Median / P75 / etc.). Tinted with
     // the metric's accent so the cell reads as "MAX of SPEED" at a
     // glance rather than the value alone being ambiguous.
@@ -3258,7 +3258,7 @@ private fun CompositeCell(
 }
 
 /**
- * ROW2 layout cell — label LEFT, value RIGHT. The 2-row composite is wide
+ * ROW2 layout cell, label LEFT, value RIGHT. The 2-row composite is wide
  * and short, so stacking label-above-value (the column form) wastes the
  * horizontal space. Putting them side-by-side reads more like a row in a
  * spec sheet ("SPEED   42 km/h"), which is what the rider asked for.
@@ -3297,7 +3297,7 @@ private fun CompositeCellRow(
     val value = valueOf(key, stat)
     val showStat = stat != DashboardStat.CURRENT && stat != DashboardStat.NONE
     // Label gets the squeezable slot (weight 1f, fill = true) so it expands to
-    // hold the leftover space after the value's natural width — that pins the
+    // hold the leftover space after the value's natural width, that pins the
     // value flush right while still ellipsising the label if it grows too long.
     // Stat indicator (when present) sits as a small label INLINE with the
     // metric label, separated by a · so the row reads as "MAX · SPEED  42".
@@ -3354,7 +3354,7 @@ private fun MetricTile(
     val outlineColor = MaterialTheme.colorScheme.outlineVariant
     val hasSideReadings = !stats.isDefault
     val isBeingDragged = controller.draggingKey == key
-    // Animated border when this slot is the drag's drop target — gives the
+    // Animated border when this slot is the drag's drop target, gives the
     // rider visual feedback for "release here" without the recomposition
     // glitches that mid-drag layout shifts caused.
     val isDropTarget = controller.isDragging &&
@@ -3391,7 +3391,7 @@ private fun MetricTile(
                 onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
             )
     ) {
-        // Drag state hides only the content — the border + surface stay so
+        // Drag state hides only the content, the border + surface stay so
         // the slot reads as a clearly-marked empty placeholder for the tile
         // the rider is holding.
         Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
@@ -3422,11 +3422,10 @@ private fun MetricTile(
 /**
  * Pool = catalog. Renders the metric template followed by every key in
  * [catalogKeys] sorted alphabetically by its display label. Composite and
- * custom-tile instances are NOT shown here — they live only in the grid;
+ * custom-tile instances are NOT shown here, they live only in the grid;
  * the catalog is the rider's source-of-truth list of static metrics.
  *
- * Drop behaviour (only fires when the drag started on a big grid tile —
- * pool→pool drags are intentional no-ops):
+ * Drop behaviour (only fires when the drag started on a big grid tile, * pool→pool drags are intentional no-ops):
  *   - Composite tile → delete its definition
  *   - Custom tile   → delete its definition
  *   - Static metric → demote (slot becomes empty custom tile; the static
@@ -3448,11 +3447,11 @@ private fun MetricPool(
     // labels first then sort. Stable .uppercase() avoids locale-flips
     // between "Speed" and "SPEED" when adding a metric. Sort by the same
     // short variant the pool pills render so the order matches what the
-    // rider reads — alphabetising by the long label and showing the short
+    // rider reads, alphabetising by the long label and showing the short
     // one would scramble the apparent ordering.
     val labeled = catalogKeys.map { it to metricChipLabel(it, short = true) }
     val sorted = labeled.sortedBy { it.second.uppercase() }.map { it.first }
-    // Pool pill physical size in pixels — needs to live inside the composable
+    // Pool pill physical size in pixels, needs to live inside the composable
     // since LocalDensity is composition-scoped. Used as the "shrink-back" size
     // when a previously-grown pool pill is dragged back over this region.
     val density = LocalDensity.current
@@ -3491,7 +3490,7 @@ private fun MetricPool(
             MetricCompositeTemplatePill(controller = controller)
             // Explicit custom-tile creation (text / link / QR). Drag-to-pool
             // demote was removed for consistency, so this template is now the
-            // only way to add one — sits next to the + Stack composite source.
+            // only way to add one, sits next to the + Stack composite source.
             CustomTileTemplatePill(controller = controller)
             sorted.forEach { key ->
                 MetricPoolPill(
@@ -3829,9 +3828,8 @@ private fun MetricPoolPill(
             )
     ) {
         // Sparkline background mirrors the grid tiles' style. Three states:
-        // active (full accent), dimmed (gray ghost — disabled but available
-        // to re-enable on tap), or absent (metric doesn't support stats —
-        // counters / heading). No corner icon: the wave itself is the
+        // active (full accent), dimmed (gray ghost, disabled but available
+        // to re-enable on tap), or absent (metric doesn't support stats, // counters / heading). No corner icon: the wave itself is the
         // indicator.
         if (supportsStats) {
             val waveColor = if (statsEnabled) accent
@@ -4082,7 +4080,7 @@ private fun ActionTile(
 /**
  * Resolves a curated [GROUP_ICON_CHOICES] key to a Material icon. Used by
  * both [ActionGroupTile] and the icon picker in [ActionGroupSheet] so the
- * tile preview and the picker stay in sync — change one key here, both
+ * tile preview and the picker stay in sync, change one key here, both
  * surfaces update.
  */
 internal fun groupIconFor(key: String): ImageVector = when (key) {
@@ -4288,7 +4286,7 @@ private fun CustomBleTile(
 /**
  * Action pool = catalog. Renders the group template followed by every key
  * in [catalogKeys] sorted alphabetically by display label. Action groups
- * are dynamic instances and only live in the grid — pool drops only handle
+ * are dynamic instances and only live in the grid, pool drops only handle
  * group deletion. Pool→pool drags of static actions land as no-ops because
  * a static action can't be "removed" from the catalog.
  */
@@ -4371,7 +4369,7 @@ private fun ActionGroupTemplatePill(
                     style = dashSpec
                 )
             }
-            // Same action-source semantics as a pool pill — the controller
+            // Same action-source semantics as a pool pill, the controller
             // treats this drag like a regular action move and the downstream
             // drop callback routes the template key to createActionGroupAt.
             .dashboardDragSource(
@@ -4559,7 +4557,7 @@ private fun DashboardSlotSheet(
             when (target) {
                 is DashboardEditTarget.Metric -> {
                     val stats = viewModel.dashboardMetricSlotStats(settings, target.key)
-                    // Sheet header — the FULL descriptive metric name with
+                    // Sheet header, the FULL descriptive metric name with
                     // plenty of width to breathe. The preview tile below
                     // shows the SHORT tile label (matching the dashboard
                     // face), so this header is the rider's single place to
@@ -4609,7 +4607,7 @@ private fun DashboardSlotSheet(
  * Edit sheet for a composite-metric instance. Lets the rider pick the layout
  * (2-row, 2-col, 3-col) and which sub-metrics fill each cell. Deliberately
  * stats-free; the rider deletes the instance by dragging the tile off the
- * grid OR by hitting "Default metric" — which restores the slot to its
+ * grid OR by hitting "Default metric", which restores the slot to its
  * shipped occupant and removes the composite definition.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -4631,7 +4629,7 @@ private fun CompositeMetricSheet(
     val baseCells = remember(id, composite.cells) {
         // Pad/truncate to 3 slots (the maximum any layout uses) so the
         // dropdowns never reach for a missing index. EMPTY is the safe
-        // default for unused cells — switching to a wider layout reveals
+        // default for unused cells, switching to a wider layout reveals
         // a blank slot rather than auto-injecting a duplicate metric.
         val seeded = composite.cells + List(3) { COMPOSITE_CELL_EMPTY }
         androidx.compose.runtime.mutableStateListOf<String>().apply { addAll(seeded.take(3)) }
@@ -4681,7 +4679,7 @@ private fun CompositeMetricSheet(
                 )
             }
 
-            // Layout segmented control — three mutually-exclusive options
+            // Layout segmented control, three mutually-exclusive options
             // (2 rows / 2 cols / 3 cols) feel more like a single switch
             // when bound together as a segmented row rather than three
             // independent chips. No title; the labels speak for themselves.
@@ -4706,7 +4704,7 @@ private fun CompositeMetricSheet(
             // Two-row picker per cell:
             //   row 1 = which metric
             //   row 2 = which stat (Now / Min / Max / Avg / percentiles…)
-            // 3 columns regardless of layout — cells past the active layout's
+            // 3 columns regardless of layout, cells past the active layout's
             // cell count grey out instead of disappearing, so the row's
             // overall height never jumps when the rider switches between
             // ROW2/COL2 (2 cells) and COL3 (3 cells).
@@ -4805,7 +4803,7 @@ internal fun compositeLayoutLabel(layout: CompositeLayout): String = when (layou
  * Dropdown letting the rider choose which catalog metric fills a composite
  * cell. Reuses the same `metricChipLabel` mapping the rest of the editor
  * uses so labels stay in sync. [enabled] is false for cells past the
- * active layout's cell count — the field greys out instead of disappearing
+ * active layout's cell count, the field greys out instead of disappearing
  * so the row's footprint stays stable as the rider switches layouts.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -4987,7 +4985,7 @@ private fun NotificationActionSlotDropdown(
 /**
  * Stat picker dropdown used under each composite cell. Lets the rider
  * choose what the cell shows for its metric: Now (live value), Min, Max,
- * Avg, Sustained peak, Median, P75, P95, P99 — all computed from the
+ * Avg, Sustained peak, Median, P75, P95, P99, all computed from the
  * rolling history buffer for that metric. Greys out when the parent cell
  * is past the active layout's cell count.
  */
@@ -5055,7 +5053,7 @@ private fun CompositeCellStatDropdown(
 
 @Composable
 private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
-    DashboardStat.NONE -> "—"
+    DashboardStat.NONE -> stringResource(R.string.value_none)
     DashboardStat.CURRENT -> stringResource(R.string.dashboard_stat_current)
     DashboardStat.MIN -> stringResource(R.string.dashboard_stat_min)
     DashboardStat.MAX -> stringResource(R.string.dashboard_stat_max)
@@ -5072,8 +5070,8 @@ private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
  * Edit sheet for an action-group instance. Lets the rider rename the group,
  * pick its tile icon from a curated 10-icon set, and configure up to four
  * sub-actions in chosen order. Duplicate sub-actions are allowed (the rider
- * may want the same action twice in a popover — e.g. two RECORD_TOGGLE
- * entries). No reset / delete buttons — deletion happens by dragging the
+ * may want the same action twice in a popover, e.g. two RECORD_TOGGLE
+ * entries). No reset / delete buttons, deletion happens by dragging the
  * tile back to the pool.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -5116,14 +5114,14 @@ private fun ActionGroupSheet(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Preview tile intentionally omitted — the icon-picker button
+            // Preview tile intentionally omitted, the icon-picker button
             // already shows what the group's icon looks like, and the
             // name field shows the label. A full-width preview here would
             // duplicate both for no extra information.
 
             // Compact name + icon row. The icon lives as a leading button
             // inside the OutlinedTextField's row so the picker takes zero
-            // extra vertical space — the rider can scan through icons from
+            // extra vertical space, the rider can scan through icons from
             // a popup grid without scrolling the sheet.
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -5162,7 +5160,7 @@ private fun ActionGroupSheet(
             }
 
             // Four sub-action dropdowns in a 2x2 grid. (none) is the
-            // first option so the rider can leave a slot empty — useful
+            // first option so the rider can leave a slot empty, useful
             // for groups with fewer than four actions. Packing two per
             // row keeps the sheet from getting tall, and the labels on
             // each field communicate which slot they map to.
@@ -5233,7 +5231,7 @@ private fun CustomBleSheet(
     fun persist() {
         // Re-parse the CURRENT text here. `parsedFrames` is a composition-scoped
         // val captured from the previous composition, so using it persisted the
-        // frames a keystroke behind — a hex that only becomes valid on the last
+        // frames a keystroke behind, a hex that only becomes valid on the last
         // character never saved, so the field looked empty on reopen (you were
         // seeing the placeholder, which happens to be the low-beam hex).
         val parsed = com.eried.eucplanet.data.model.CustomBleCommand.parseFrames(framesText)
@@ -5330,7 +5328,7 @@ private fun CustomBleSheet(
  * Square icon-button that shows the currently-chosen group/custom-tile
  * icon. Tapping it pops a grid of curated icons; selecting one closes
  * the popup. Lives next to the name OutlinedTextField in the edit sheet
- * so the picker contributes zero extra vertical space — and scales to
+ * so the picker contributes zero extra vertical space, and scales to
  * arbitrarily many icons via the popup's internal scroll.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -5342,7 +5340,7 @@ private fun GroupIconButton(
     var expanded by remember { mutableStateOf(false) }
     val outline = MaterialTheme.colorScheme.outline
     Box {
-        // Anchor — matches OutlinedTextField height so the row aligns
+        // Anchor, matches OutlinedTextField height so the row aligns
         // visually with the name field next to it.
         Box(
             modifier = Modifier
@@ -5522,7 +5520,7 @@ private fun CustomTileSheet(
 
             // Compact icon + text row. The icon button is sized to match the
             // OutlinedTextField (56dp tall) and centred so the two controls
-            // read as one band — no top-edge drift.
+            // read as one band, no top-edge drift.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -5559,7 +5557,7 @@ private fun CustomTileSheet(
 
             // Three-way segmented control: Text (no action), Open URL,
             // Show QR. NONE reads as "Text" because a custom tile with no
-            // action is just a label — the rider already named it via the
+            // action is just a label, the rider already named it via the
             // text field above.
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 CustomTileAction.values().forEachIndexed { index, opt ->
@@ -5585,7 +5583,7 @@ private fun CustomTileSheet(
 
             if (action != CustomTileAction.NONE) {
                 // Rotating placeholder so the rider sees a different social /
-                // donation / portfolio URL each time the sheet opens — keeps
+                // donation / portfolio URL each time the sheet opens, keeps
                 // the field from feeling Instagram-only. MySpace shows up
                 // roughly 1-in-25 times as a nod to early-web nostalgia.
                 val placeholder = remember(id) { urlPlaceholderSample() }
@@ -5656,7 +5654,7 @@ private fun SlotSheetMetricPreview(
     onSparklineChange: (Boolean) -> Unit
 ) {
     val accent = metricAccentColor(key)
-    // Slot-sheet preview MUST mirror the dashboard tile face — same short
+    // Slot-sheet preview MUST mirror the dashboard tile face, same short
     // label as actually appears on the dashboard, so the preview is an
     // honest representation of what the rider will see. The FULL name is
     // shown separately as the sheet header above this preview.
@@ -5698,7 +5696,7 @@ private fun SlotSheetMetricPreview(
             selected = stats.sparkline,
             onClick = { onSparklineChange(!stats.sparkline) },
             // Default Material typography so the label baseline aligns
-            // naturally with the leading icon — overriding fontSize here
+            // naturally with the leading icon, overriding fontSize here
             // throws off the chip's internal centering.
             label = { Text(stringResource(R.string.dashboard_slot_sparkline_chip)) },
             leadingIcon = {
@@ -5725,7 +5723,7 @@ private fun SlotSheetMetricPreview(
  * The metric name lives ONLY in the centre column's label area, so the rider
  * always reads the tile's identity in the middle of the row. The centre stat
  * itself shows its own label (NOW / MIN / MAX / AVG) above the metric name
- * only when it's something other than the default CURRENT — that way the
+ * only when it's something other than the default CURRENT, that way the
  * common case looks clean ("BATTERY" above the big value, no "NOW" clutter).
  *
  * Arrangement: when BOTH left and right are populated the row spreads with
@@ -5976,7 +5974,7 @@ private fun SlotStatsEditor(
         )
     }
     // Self-documenting metrics (e.g. Forward G is speed-derived) explain themselves
-    // right here in the editor — the descriptionRes shows as an italic subtitle.
+    // right here in the editor, the descriptionRes shows as an italic subtitle.
     val descRes = remember(key) {
         com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.descriptionRes
     }
@@ -6125,7 +6123,7 @@ private fun viewLabel(columns: Int): String = when (columns) {
     else -> stringResource(R.string.dashboard_view_default)
 }
 
-/** Label for the expanded dropdown only — qualifies Wide as the tablet layout so
+/** Label for the expanded dropdown only, qualifies Wide as the tablet layout so
  *  riders understand they won't normally see it; the collapsed field uses
  *  [viewLabel] so the short text fits. */
 @Composable
@@ -6312,14 +6310,14 @@ private fun SlotSheetActionPreview(key: String) {
 // ---- Catalog look-up helpers (shared with the live dashboard) ----------
 //
 // All of these are `internal` so the eventual `com.eried.eucplanet.ui.dashboard`
-// renderer can call them directly — keeps a single source of truth for chip
+// renderer can call them directly, keeps a single source of truth for chip
 // labels, accent palette, action icons, etc. between the editor preview and
 // the live dashboard. Adding a new metric / action means updating one of
 // these tables, not two.
 
 /**
  * Display label for a metric key. Reads from [com.eried.eucplanet.data.model.MetricCatalog]
- * so adding a new metric is one entry in `MetricCatalog.all` — this
+ * so adding a new metric is one entry in `MetricCatalog.all`, this
  * function never needs to grow another branch. The composite-empty
  * sentinel and unknown keys fall back to bespoke strings.
  *
@@ -6351,7 +6349,7 @@ internal fun metricChipLabel(key: String, short: Boolean = false): String {
  * 1-2 sentence explanation surfaced in the slot-sheet info box for
  * metrics whose meaning isn't obvious from the chip label. Pulls
  * [com.eried.eucplanet.data.model.MetricSpec.descriptionRes] from the
- * catalog — null when the metric has no description.
+ * catalog, null when the metric has no description.
  */
 @Composable
 internal fun metricDescription(key: String): String? {
@@ -6362,7 +6360,7 @@ internal fun metricDescription(key: String): String? {
 
 /**
  * Display label for an action key. Reads from [ActionCatalog] so adding
- * a new action only needs a catalog entry — this function never needs to
+ * a new action only needs a catalog entry, this function never needs to
  * grow another branch.
  */
 @Composable
@@ -6374,7 +6372,7 @@ internal fun actionChipLabel(key: String): String {
 /**
  * True when min/max/avg/percentile stats are meaningful for this metric.
  * Monotonic counters (`TRIP`, `ODOMETER`, accumulating trip-time/energy) and
- * circular values (`GPS_HEADING`) return false — for those the pool pill
+ * circular values (`GPS_HEADING`) return false, for those the pool pill
  * shows no sparkline background at all, since "stats off" isn't a state the
  * rider can toggle out of.
  */
@@ -6387,7 +6385,7 @@ internal fun metricSupportsStats(key: String): Boolean =
     com.eried.eucplanet.data.model.MetricCatalog.byKey(key)?.supportsStats ?: true
 
 /**
- * Accent palette for a metric — drives the value text + sparkline tint.
+ * Accent palette for a metric, drives the value text + sparkline tint.
  * Reads from [com.eried.eucplanet.data.model.MetricCatalog]; unknown keys
  * (including the COMPOSITE_CELL_EMPTY sentinel) fall through to AccentBlue.
  */
@@ -6457,7 +6455,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawDashboardTileDe
 // Stylized "histogram" wave drawn behind the tile when the rider has the
 // trend background toggled on. Rendered as 30 horizontal step segments at
 // quantised sine heights so it reads as a stepped sparkline rather than a
-// smooth curve — matches the rhythm of real 1Hz dashboard samples connected
+// smooth curve, matches the rhythm of real 1Hz dashboard samples connected
 // by straight segments. When [animated] is true the wave's phase shifts over
 // time so the staircase visibly scrolls; used in the bottom-sheet preview to
 // hint that this is a *live* trend feature, while the small grid tiles stay
@@ -6470,7 +6468,7 @@ private fun WavePatternBackground(
     steps: Int = 30,
     /**
      * When `true`, renders the wave at a much fainter alpha so it reads as
-     * "stats are available but disabled — tap to re-enable" instead of an
+     * "stats are available but disabled, tap to re-enable" instead of an
      * active sparkline. Used by the pool pills to distinguish disabled
      * metrics from those that don't support stats at all (the latter omit
      * the background entirely).
@@ -6516,7 +6514,7 @@ private fun WavePatternBackground(
         fillPath.lineTo(size.width, size.height)
         fillPath.lineTo(0f, size.height)
         fillPath.close()
-        // Kept deliberately faint so the readings stay the focus — the wave
+        // Kept deliberately faint so the readings stay the focus, the wave
         // is a hint, not a chart. The dimmed variant fades further so a
         // "disabled but available" wave reads as a ghost behind the pill.
         val fillAlpha = if (dimmed) 0.015f else 0.04f
@@ -6583,7 +6581,7 @@ private fun metricPlaceholderValue(
     "MOTOR_RPM" -> "0 rpm"
     "REGEN_WH" -> "0 Wh"
     "BT_RSSI" -> "0 dBm"
-    // EMPTY cell renders no value — the cell composable already shows the
+    // EMPTY cell renders no value, the cell composable already shows the
     // "(empty)" placeholder text via the chip-label path instead.
     COMPOSITE_CELL_EMPTY -> ""
     else -> "--"
@@ -6598,7 +6596,7 @@ private fun DisplayTab(
 ) {
     // Theme combo: built-in themes (Light, Dark, Pure Black) + saved customs
     // (visible once a backup folder is set). Replaces the legacy theme-mode +
-    // accent pickers — the accent is now the active theme's `primary` token.
+    // accent pickers, the accent is now the active theme's `primary` token.
     val themeChoices = viewModel.themeChoices.collectAsState().value
     val themeDirty = viewModel.themeDirty.collectAsState().value
     LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, themeDirty) {
@@ -6631,7 +6629,7 @@ private fun DisplayTab(
 
         ThemeDropdown(
             label = stringResource(R.string.theme),
-            current = if (themeDirty) "$currentTheme (unsaved)" else currentTheme,
+            current = if (themeDirty) stringResource(R.string.theme_unsaved_fmt, currentTheme) else currentTheme,
             builtIns = themeChoices.builtIns,
             saved = themeChoices.saved,
             unsaved = themeChoices.unsaved,
@@ -6639,7 +6637,7 @@ private fun DisplayTab(
             onSelectUnsaved = { viewModel.selectUnsavedTheme(it) }
         )
 
-        SwitchSetting("Theme customization widget", settings.themeEditorEnabled) {
+        SwitchSetting(stringResource(R.string.theme_editor_widget), settings.themeEditorEnabled) {
             viewModel.setThemeEditorEnabled(it)
         }
 
@@ -6803,8 +6801,14 @@ private fun SpeedTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Speed limits (and so Legal Mode) need a wheel that takes them from
+        // the app; Begode and the legacy Ninebots set theirs on the wheel itself.
+        val hasSpeedLimit by viewModel.wheelHasSpeedLimit.collectAsState()
+        val limitsEditable = isConnected && hasSpeedLimit
         if (!isConnected) {
             InfoHint(stringResource(R.string.speed_limits_disconnected))
+        } else if (!hasSpeedLimit) {
+            InfoHint(stringResource(R.string.speed_limits_unsupported))
         }
 
         val speedUnit = Units.effectiveSpeedUnit(settings)
@@ -7055,7 +7059,7 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.tiltbackSpeedKmh,
                 rangeKmh = 0f..maxSpeedCap,
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
             )
@@ -7065,7 +7069,7 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.alarmSpeedKmh,
                 rangeKmh = 0f..settings.tiltbackSpeedKmh,
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
             )
@@ -7084,7 +7088,7 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.safetyTiltbackKmh,
                 rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
             )
@@ -7094,7 +7098,7 @@ private fun SpeedTab(
                 defaultKmh = SETTINGS_DEFAULTS.safetyAlarmKmh,
                 rangeKmh = 0f..settings.safetyTiltbackKmh,
                 speedUnit = speedUnit,
-                enabled = isConnected,
+                enabled = limitsEditable,
                 modifier = Modifier.weight(1f),
                 onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
             )
@@ -8069,7 +8073,7 @@ private fun WatchTab(
     val amazfitBadge: (@Composable () -> Unit)? = if (hasAmazfitPaired) {
         { com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("AMAZFIT") }
     } else null
-    // "Not on Garmin" badge for the Wear-only rows — shown only when a Garmin is
+    // "Not on Garmin" badge for the Wear-only rows, shown only when a Garmin is
     // ALSO paired (the feature works on the Wear watch, just not the Garmin one).
     // When only a Garmin is paired these rows stay hidden (hasWearOs gate).
     val garminBadge: (@Composable () -> Unit)? = if (hasGarminPaired) {
@@ -8182,7 +8186,7 @@ private fun WatchTab(
             }
         }
 
-        // Advanced (collapsed by default) — visual tweaks most riders
+        // Advanced (collapsed by default), visual tweaks most riders
         // configure once and forget. Hiding them keeps the Watch tab
         // tight for first-time setup while still letting power users
         // dial things in. Update-rate sits here because it's a
@@ -8317,12 +8321,12 @@ private fun WatchTab(
             }
         }
 
-        // Buttons region — two collapsable sub-cards (collapsible surfaceVariant-card style)
+        // Buttons region, two collapsable sub-cards (collapsible surfaceVariant-card style)
         // grouping the on-screen tap targets and the side hardware keys.
         // Touch is always available (every watch has a touchscreen) so its
         // card always shows; Hardware only appears for surfaces that
         // actually deliver key events (every Garmin, Galaxy Watch Ultra)
-        // — gated by [hasHardwareButtons]. Haptic-on-action lives after
+        //, gated by [hasHardwareButtons]. Haptic-on-action lives after
         // the two cards because it applies to both kinds of press.
         SectionHeader(stringResource(R.string.section_watch_buttons))
 
@@ -8901,7 +8905,7 @@ private fun CloudTab(
         }
 
         // --- Online backup (Dropbox) -----------------------------------
-        // Only shown once a SAF folder is chosen — the cloud copy is
+        // Only shown once a SAF folder is chosen, the cloud copy is
         // framed as a mirror of the local backup, so it doesn't make
         // sense to offer Dropbox before the rider has set up the local
         // side first.
@@ -9104,7 +9108,7 @@ private fun CloudTab(
             Text(
                 stringResource(R.string.cloud_settings_backup_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.appColors.textSecondary,
             )
             // No spacer: the section's own column already spaces at 16dp, so
             // this one made the gap under the description bigger than every
@@ -9344,7 +9348,7 @@ private fun CloudTab(
             )
         }
 
-        // Online leaderboards — only shown once a backup folder is configured.
+        // Online leaderboards, only shown once a backup folder is configured.
         if (settings.syncFolderUri != null) {
             SectionHeader(stringResource(R.string.section_online_stats))
 
@@ -9448,7 +9452,7 @@ private fun CloudTab(
                         // same composable, so the two cannot drift apart.
                         LeaderboardProfileCard(card)
 
-                        // Stats — shown in the unit system the app is currently set to
+                        // Stats, shown in the unit system the app is currently set to
                         // (not both metric + imperial). 1 decimal for small distances.
                         val distUnit = Units.effectiveDistanceUnit(settings)
                         val spdUnit = Units.effectiveSpeedUnit(settings)
@@ -9534,7 +9538,7 @@ private fun CloudTab(
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-            // "Trip stats uploads" subsection — a title plus a one-line
+            // "Trip stats uploads" subsection, a title plus a one-line
             // description, matching the title + caption pattern used by the
             // other subsections in this group (e.g. Trips backup).
             Text(
@@ -9574,7 +9578,7 @@ private fun CloudTab(
                     Text(stringResource(R.string.online_upload_unlink))
                 }
             }
-            // Determinate progress while syncing — mirrors the trips-backup
+            // Determinate progress while syncing, mirrors the trips-backup
             // "Sync all" (indeterminate "checking…" first, then done/total).
             if (eucstatsSyncRunning) {
                 Column(
@@ -10076,7 +10080,7 @@ private fun ThemeDropdown(
             }
             unsaved.forEach { base ->
                 DropdownMenuItem(
-                    text = { Text("$base (unsaved)") },
+                    text = { Text(stringResource(R.string.theme_unsaved_fmt, base)) },
                     onClick = { onSelectUnsaved(base); expanded = false }
                 )
             }
@@ -10296,7 +10300,7 @@ private fun EngineSoundSection(
         // flagged gearless (2-stroke singles, CVT ATVs, electric/jet sims)
         // have EngineSoundEngine ignore the gearbox setting anyway, so
         // hiding it matches what already happens for supportsMuffler /
-        // supportsPops / supportsBrakeWhine — keeps the panel honest about
+        // supportsPops / supportsBrakeWhine, keeps the panel honest about
         // which controls actually do something for the selected engine.
         if (!currentProfile.gearless) {
             SegmentedChoice(
@@ -11318,7 +11322,7 @@ internal fun RestorePickerDialog(
  * state shows the hint-only pill.
  *
  * Garmin limitations text renders below the panel when any Garmin card
- * is present — it's surface-level info, not per-device.
+ * is present, it's surface-level info, not per-device.
  */
 /**
  * "Device" region: a tinted panel containing one compact card per paired
@@ -11334,7 +11338,7 @@ internal fun RestorePickerDialog(
 private fun DeviceRegion(
     surfaces: List<com.eried.eucplanet.data.model.PairedSurface>
 ) {
-    // No outer Surface — cards extend to the same horizontal margin as
+    // No outer Surface, cards extend to the same horizontal margin as
     // the surrounding text, so the "Device" section feels integrated
     // rather than boxed-in. Cards stack vertically with a small gap;
     // each card has its own tinted background.
@@ -11357,7 +11361,7 @@ private fun DeviceRegion(
  */
 /**
  * Generic "Advanced" collapsable card. Same compact collapsible-card pattern
- * as [WatchButtonsCollapsable] but without a leading info box — used by
+ * as [WatchButtonsCollapsable] but without a leading info box, used by
  * tabs that group power-user controls behind a single tap (Watch, Voice,
  * …). Collapsed by default; the [title] is the only thing visible until
  * the rider expands. Includes smart-scroll-into-view on expand so the
@@ -11513,7 +11517,7 @@ private fun WatchButtonsCollapsable(
 private fun DeviceCard(
     surface: com.eried.eucplanet.data.model.PairedSurface
 ) {
-    // No active/idle background tint — the StatusBadge (live dot + label) already
+    // No active/idle background tint, the StatusBadge (live dot + label) already
     // conveys connection state, so every device card uses one neutral surface.
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -11582,7 +11586,7 @@ private fun StatusBadge(active: Boolean) {
 }
 
 /** Compact update-rate indicator: heart-monitor icon + Hz value. The
- *  pulse-on-monitor glyph reads as "live vital signs" — semantically
+ *  pulse-on-monitor glyph reads as "live vital signs", semantically
  *  matches an end-to-end heartbeat better than the earlier signal-bars,
  *  and is clearly a status indicator rather than a tappable button. */
 @Composable
@@ -11667,8 +11671,8 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
         .replace("<b>", "").replace("</b>", "")
     val linkColor = MaterialTheme.colorScheme.primary
     // Mirror the welcome tutorial's link handling (OutroLinkBullet): locate the
-    // URL run by text — not via HtmlCompat bold-span detection, which wasn't
-    // reliably tagging the run, so no clickable link was ever added — and attach
+    // URL run by text, not via HtmlCompat bold-span detection, which wasn't
+    // reliably tagging the run, so no clickable link was ever added, and attach
     // a LinkAnnotation.Url. The https:// prefix is required or ACTION_VIEW has no
     // scheme to launch.
     val annotated = remember(raw, updateUrl, linkColor) {
@@ -11823,7 +11827,7 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
  * HUD companion settings, surfaced as a section at the bottom of the
  * Integration tab next to Flic 2 buttons and Volume keys.
  *
- * Intentionally minimal in v0.1 — one master switch plus the port and a
+ * Intentionally minimal in v0.1, one master switch plus the port and a
  * mirror-navigation toggle. Anything else is wired to the same shared
  * settings the phone already exposes (units, accent, gauge thresholds), so
  * a single source of truth governs phone + watch + HUD.

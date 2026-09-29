@@ -768,7 +768,7 @@ class SyncManager @Inject constructor(
 
     /** Outcome of [ensureRiderIdFile]. */
     enum class RiderFileResult {
-        /** No folder or no registered rider — nothing to do. */
+        /** No folder or no registered rider, nothing to do. */
         SKIPPED,
         /** The file already holds this rider's id. */
         ALREADY_PRESENT,
@@ -864,7 +864,7 @@ class SyncManager @Inject constructor(
      * factory JSON, so [SettingsJson.fromJson] keeps the rider's current
      * pairings, sync folder and backup history while every other field reverts
      * to its default. Custom alarm rules are cleared (a fresh install ships
-     * none). Needs no sync folder — it's a purely local reset.
+     * none). Needs no sync folder, it's a purely local reset.
      */
     suspend fun restoreFactoryDefaults(): Boolean {
         val current = settingsRepository.get()
@@ -1082,7 +1082,7 @@ class SyncManager @Inject constructor(
 
     /** Initial enqueue of the Dropbox sync worker. Retries reschedule
      *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
-     *  the linked state before calling — this is unconditional. */
+     *  the linked state before calling, this is unconditional. */
     /**
      * Push one edited trip to every configured backup, right now, in-process.
      *

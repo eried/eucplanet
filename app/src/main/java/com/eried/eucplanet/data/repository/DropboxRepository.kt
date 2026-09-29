@@ -24,7 +24,7 @@ import org.json.JSONObject
  *
  * We deliberately do NOT pull in the Dropbox Java SDK (~5 MB, mostly
  * classes for endpoints we don't use). Instead we hit Dropbox's REST API
- * v2 directly with OkHttp — a few calls for /oauth2/token,
+ * v2 directly with OkHttp, a few calls for /oauth2/token,
  * /users/get_current_account, /files/upload, /files/download,
  * /files/list_folder.
  *
@@ -272,7 +272,7 @@ class DropboxRepository @Inject constructor(
     /**
      * Upload [bytes] to the App-Folder path [remotePath] (e.g.
      * "/trips/trip_20260622_010203.csv"). Overwrites any existing file
-     * at the same path — caller is responsible for picking a path that
+     * at the same path, caller is responsible for picking a path that
      * doesn't collide with someone else's edit, or for comparing
      * server_modified timestamps first via [listFolder].
      *
@@ -500,7 +500,7 @@ class DropboxRepository @Inject constructor(
     data class RemoteFile(val serverModifiedSec: Long, val size: Long)
 
     /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
-     *  relative). Empty map on "not_found" (folder doesn't exist yet — normal on
+     *  relative). Empty map on "not_found" (folder doesn't exist yet, normal on
      *  first link). Null on auth / network failure so caller can distinguish
      *  "no files" from "couldn't check". */
     /** One page of a folder listing: the files on it, and where to continue. */
@@ -714,7 +714,7 @@ class DropboxRepository @Inject constructor(
         } catch (e: Exception) { null }
     }
 
-    /** Drop the local tokens — does NOT revoke them on Dropbox's side
+    /** Drop the local tokens, does NOT revoke them on Dropbox's side
      *  (which would need another HTTPS call). Future iteration could add
      *  /auth/token/revoke; for now the token simply ages out. */
     suspend fun unlink() {
@@ -839,7 +839,7 @@ class DropboxRepository @Inject constructor(
         }
 
 
-        /** RFC 7636 — 43-128 chars from a fixed unreserved set. */
+        /** RFC 7636, 43-128 chars from a fixed unreserved set. */
         private fun randomCodeVerifier(): String {
             val alphabet = ('A'..'Z') + ('a'..'z') + ('0'..'9') + listOf('-', '.', '_', '~')
             val rnd = java.security.SecureRandom()

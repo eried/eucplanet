@@ -63,7 +63,7 @@ data class ChargingUiState(
     val warmedUp: Boolean = false,
     val minutesToTarget: Float? = null,
     val minutesToFull: Float? = null,
-    /** Smoothed absolute finish times (ms) — count down to these in real time. */
+    /** Smoothed absolute finish times (ms), count down to these in real time. */
     val targetEtaMs: Long? = null,
     val fullEtaMs: Long? = null,
     val estimateToFull: Boolean = false,
@@ -270,7 +270,7 @@ class ChargingMonitorViewModel @Inject constructor(
             seenCurrent = false
         } else {
             if (data.battery1Percent > 0f && data.battery2Percent > 0f) seenPacks = true
-            // Only a real *charge* current latches the Power tab — the V14 reads
+            // Only a real *charge* current latches the Power tab, the V14 reads
             // ~0 A while charging, so it never shows (and never blinks).
             if (charging && abs(data.current) > 0.5f) seenCurrent = true
         }
@@ -304,7 +304,7 @@ class ChargingMonitorViewModel @Inject constructor(
             maxTemp = data.maxTemperature,
             battery1 = data.battery1Percent,
             battery2 = data.battery2Percent,
-            // At 100 % the charge is done — stop reporting a rate (the wheel just
+            // At 100 % the charge is done, stop reporting a rate (the wheel just
             // balances cells, so any residual slope is noise, not charging).
             ratePctPerMin = if (status == ChargeStatus.Full) 0f else est.ratePctPerMin,
             energyWh = snap.sessionEnergyWh,

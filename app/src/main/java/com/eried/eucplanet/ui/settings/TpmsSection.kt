@@ -44,8 +44,8 @@ import com.eried.eucplanet.util.Units
  * TPMS sensors, shown inside the Integration section. The wheel-relayed sensor
  * is rendered as a Watch-style "device" row (icon, name, status subtitle, live
  * dot + reading) so it reads in line with the rest of the app. Direct BLE
- * pairing is stubbed - the scan button stays disabled until a sensor profile
- * is captured.
+ * pairing scans for screw-on caps (see TpmsScanner and its decoders); a
+ * paired cap outranks the wheel's relay through TpmsRepository.
  */
 @Composable
 fun TpmsSection(viewModel: TpmsViewModel = hiltViewModel()) {

@@ -308,7 +308,7 @@ object SettingsJson {
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
         put("watchUpdateRate", s.watchUpdateRate)
-        // Advanced knobs — flat keys (kept stable for back-compat), registry-driven.
+        // Advanced knobs, flat keys (kept stable for back-compat), registry-driven.
         com.eried.eucplanet.data.model.ADVANCED_SPECS.forEach { put(it.id, it.get(s.advanced)) }
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
@@ -747,7 +747,7 @@ object SettingsJson {
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },
-        // Advanced knobs — fold each spec's flat key over the defaults (registry-driven).
+        // Advanced knobs, fold each spec's flat key over the defaults (registry-driven).
         advanced = com.eried.eucplanet.data.model.ADVANCED_SPECS.fold(base.advanced) { a, sp ->
             sp.set(a, j.optInt(sp.id, sp.get(a)))
         },

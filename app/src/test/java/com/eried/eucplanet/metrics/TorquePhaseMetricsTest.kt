@@ -91,9 +91,10 @@ class TorquePhaseMetricsTest {
     @Test fun `both metrics can drive a custom alarm`() {
         assertEquals("Nm", AlarmMetric.TORQUE.unit)
         assertEquals("A", AlarmMetric.PHASE_CURRENT.unit)
-        val engine = src("service/AlarmEngine.kt")
-        assertTrue(engine.contains("AlarmMetric.TORQUE -> data.torque.absoluteValue"))
-        assertTrue(engine.contains("AlarmMetric.PHASE_CURRENT -> data.phaseCurrent.absoluteValue"))
+        // Read by magnitude, so braking torque and regen current alarm too.
+        val braking = WheelData(torque = -12.5f, phaseCurrent = -231f)
+        assertEquals(12.5f, com.eried.eucplanet.service.AlarmWheelPass.metricValue("TORQUE", braking))
+        assertEquals(231f, com.eried.eucplanet.service.AlarmWheelPass.metricValue("PHASE_CURRENT", braking))
     }
 
     // --- Widgets ------------------------------------------------------------

@@ -134,7 +134,7 @@ private fun rawCurrentValueFor(key: String, w: WheelData): Float = when (key) {
  * Unified full-screen metric detail. Renders any list of metric keys
  * as tabs across the top with the selected tab's chart + stats below.
  *
- * A single-metric tap from the dashboard produces a 1-tab list — same
+ * A single-metric tap from the dashboard produces a 1-tab list, same
  * layout as before, just with an inert tab strip. A composite-tile tap
  * produces an N-tab list (one per sub-metric). One control, one route,
  * one mental model.
@@ -246,7 +246,7 @@ fun MetricDetailScreen(
 
                 // Reset footer. Tap = reset active tab's metric history;
                 // long-press = open confirm dialog, then wipe ALL buffers.
-                // The old "Reset all" button is gone — collapsed into a
+                // The old "Reset all" button is gone, collapsed into a
                 // long-press gesture so the toolbar reads cleaner and the
                 // destructive action is harder to fire accidentally.
                 ResetWithLongPressConfirm(
@@ -445,7 +445,7 @@ private fun MetricDetailBody(
 
     Spacer(Modifier.height(8.dp))
 
-    // Stats region — always visible, two rows so the rider sees a
+    // Stats region, always visible, two rows so the rider sees a
     // consistent dashboard regardless of whether the buffer is full.
     // Row 1 = central tendency + extremes; row 2 = percentiles + count
     // + window time. Cells render `--` when the buffer is empty so the
@@ -471,7 +471,7 @@ private fun MetricDetailBody(
         formatDuration((samples.last().timestampMs - samples.first().timestampMs) / 1000)
     } else placeholderStat
 
-    // Primary stats: three accent-tinted pills — Min / Avg / Max.
+    // Primary stats: three accent-tinted pills, Min / Avg / Max.
     // These are the headline numbers a rider cares about most.
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -613,7 +613,7 @@ private fun StatPill(
 }
 
 /**
- * Secondary stats footer — Median / P95 / N samples / time-window. Rendered
+ * Secondary stats footer, Median / P95 / N samples / time-window. Rendered
  * as small label·value chips in a single row so the supporting numbers
  * stay reachable without competing with the three primary pills above.
  */

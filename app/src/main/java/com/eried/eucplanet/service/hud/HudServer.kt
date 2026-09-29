@@ -348,7 +348,7 @@ class HudServer @Inject constructor(
                 }
                 // Rider-configured HUD report interval; sanitized() guarantees a
                 // safe floor so this delay can never spin at 0.
-                delay(settingsRepository.get().hudReportIntervalMs.toLong())
+                delay(settingsRepository.currentOrLoad().hudReportIntervalMs.toLong())
             }
         }
 
@@ -1067,7 +1067,7 @@ class HudServer @Inject constructor(
                         }
                         // Rider-configured HUD report interval; sanitized() guarantees a
                 // safe floor so this delay can never spin at 0.
-                delay(settingsRepository.get().hudReportIntervalMs.toLong())
+                delay(settingsRepository.currentOrLoad().hudReportIntervalMs.toLong())
                     }
                 }
             }
@@ -1131,7 +1131,7 @@ class HudServer @Inject constructor(
         // Let the Wi-Fi-interference advisory decay once the link has been
         // stable for a while (this runs every publish tick, ~5 Hz).
         wifiInterference.onStableTick(System.currentTimeMillis())
-        val s = settingsRepository.get()
+        val s = settingsRepository.currentOrLoad()
         val wd = wheelRepository.wheelData.value
         val state = wheelRepository.connectionState.value
         val nav = navigationEngine.navState.value

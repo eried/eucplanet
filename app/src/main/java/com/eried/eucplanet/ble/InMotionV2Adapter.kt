@@ -185,7 +185,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         if (useP6Protocol) return InMotionV2Commands.getP6Stats()
         val pack = V14_BMS_PACK_ADDRS[v14PackPollIndex and 0x03]
         v14PackPollIndex = (v14PackPollIndex + 1) and 0x03
-        // `aa aa 16 [len=3] 02 [pack=0x24..27] 02 [xor]` — InMotion's per-pack
+        // `aa aa 16 [len=3] 02 [pack=0x24..27] 02 [xor]`, InMotion's per-pack
         // cells query. Uses buildPacket with cmd=0x02 because the wire layout
         // is `flags len cmd data[0]=routing data[1]=pack data[2]=sub`, which
         // happens to fall out of the standard helper when cmd=0x02 and
@@ -429,7 +429,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             query("Q0211", "Total stats", QUERY,
                 InMotionV2Protocol.Command.TOTAL_STATS),
             // Per-pack battery summary. 32-byte response carries 4 records
-            // of 8 bytes (first 2 bytes = pack voltage in cV) — useful for
+            // of 8 bytes (first 2 bytes = pack voltage in cV), useful for
             // verifying the BMS reports per-pack voltages in line with what
             // the rider sees in the official app. NOT individual cells: the
             // InMotion app's per-cell view (32 cells × 4 packs) uses other
@@ -608,7 +608,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 // probe issued from Service Mode (or a future poll change)
                 // gets its response surfaced without needing a per-opcode
                 // case. The InMotion app's per-cell BMS responses (62 / 72
-                // bytes) land here today — those need a richer parser once
+                // bytes) land here today, those need a richer parser once
                 // the right cmd byte has been identified.
                 val body = if (data.size >= 2) data.copyOfRange(2, data.size) else byteArrayOf()
                 val hex = body.joinToString(" ") { "%02x".format(it) }
@@ -626,7 +626,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * summaries (~130 V), not the individual lithium cells the BMS UI
      * expects (3-4.2 V). Per-cell V14 telemetry lives behind a different
      * opcode in the official InMotion app's protocol that we haven't yet
-     * pinned down — see Service Mode probe Q0205 and the catchall logger
+     * pinned down, see Service Mode probe Q0205 and the catchall logger
      * in [decodeP6Extended].
      */
     private fun logBatteryInfo(body: ByteArray, prefix: String) {

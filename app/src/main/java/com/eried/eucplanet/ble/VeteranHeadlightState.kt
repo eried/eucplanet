@@ -11,13 +11,13 @@ internal class VeteranHeadlightState {
 
     @Synchronized
     fun commanded(model: VeteranModel?, on: Boolean) {
-        if (model == VeteranModel.NOSFET_AEON) return
+        if (model?.brandOverride == "NOSFET") return
         snapshot = snapshot.copy(lightOn = on)
     }
 
     @Synchronized
     fun acceptFrame(frame: ByteArray, model: VeteranModel?) {
-        if (model != VeteranModel.NOSFET_AEON) {
+        if (model?.brandOverride != "NOSFET") {
             endReadback()
             return
         }

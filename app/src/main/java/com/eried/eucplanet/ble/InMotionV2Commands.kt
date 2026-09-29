@@ -381,7 +381,7 @@ object InMotionV2Commands {
             Command.CONTROL, byteArrayOf(0x2F, if (on) 0x01 else 0x00)
         )
 
-    /** Transport mode — sub-50W limp limit for moving the wheel (`60 32` + bool). */
+    /** Transport mode, sub-50W limp limit for moving the wheel (`60 32` + bool). */
     internal fun v2SetTransportMode(on: Boolean): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(
             Command.CONTROL, byteArrayOf(0x32, if (on) 0x01 else 0x00)

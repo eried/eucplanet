@@ -30,6 +30,11 @@
     <string name="action_back">Înapoi</string>
     <string name="action_cancel">Anulează</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Înlocuiește</string>
+    <string name="action_continue">Continuă</string>
+    <string name="action_select">Selectează</string>
+    <string name="state_on">Pornit</string>
+    <string name="state_off">Oprit</string>
     <string name="action_done">Gata</string>
     <string name="action_close">Închide</string>
     <string name="crash_log_action_prompt">Ai apăsat lung pe %1$s. Șterge doar acest jurnal sau șterge-le pe toate. Dacă vrei să îl partajezi, atinge Anulează, apoi atinge fișierul.</string>
@@ -69,7 +74,7 @@
     <string name="experimental_dialog_body">Suportul pentru acest monociclu este preliminar, doar familia InMotion V14 / V12 / P6 este verificată de autor. KingSong, Veteran, Begode, Ninebot și modelele InMotion mai vechi sunt în stadiu de previzualizare și au nevoie de teste din partea conducătorilor. Folosește-l cu prudență.\n\nAtingerea acestei bare raportează o problemă, ca autorul să poată repara ce nu funcționează.</string>
     <string name="experimental_dialog_report">Raportează o problemă</string>
     <string name="scan_simulate_title">Monocicluri virtuale</string>
-    <string name="scan_simulate_subtitle">Ocolește BLE, folosește răspunsuri pregătite. Doar în versiunile de depanare.</string>
+    <string name="scan_simulate_subtitle">Ocolește BLE, folosește răspunsuri pregătite. Doar în Mod service.</string>
     <string name="connection_connected">Conectat</string>
     <string name="connection_connecting">Se caută…</string>
     <string name="connection_initializing">Se inițializează…</string>
@@ -224,7 +229,7 @@
     <string name="metric_chip_battery_temp">Temperatura bateriei</string>
     <string name="metric_chip_tire_pressure">Presiunea în anvelopă</string>
     <string name="metric_chip_tire_pressure_tile">Anvelopă</string>
-    <string name="metric_desc_tire_pressure">Presiunea în anvelopă de la senzorul tău sau de la unul retransmis de roată. În unitatea de presiune aleasă.</string>
+    <string name="metric_desc_tire_pressure">Presiunea în anvelopă de la senzorul tău sau de la unul retransmis de monociclu. În unitatea de presiune aleasă.</string>
     <string name="metric_chip_headroom">Rezervă</string>
     <string name="metric_chip_trip_time">Durata cursei</string>
     <string name="metric_chip_trip_max_speed">Maximul cursei</string>
@@ -321,7 +326,7 @@
     <string name="voice_vocab_group_around">În jurul tău</string>
     <string name="voice_listening">Ascult</string>
     <string name="voice_answer_off">%1$s este dezactivat. Îl poți activa din setări.</string>
-    <string name="voice_answer_unsupported">Roata ta nu raportează %1$s.</string>
+    <string name="voice_answer_unsupported">Monociclul tău nu raportează %1$s.</string>
     <string name="voice_answer_nodata">Încă nu există %1$s.</string>
     <string name="voice_state_on">aprinsă</string>
     <string name="voice_state_off">stinsă</string>
@@ -343,7 +348,7 @@
     <string name="voice_stat_answer">%1$s %2$s, %3$s</string>
     <string name="voice_answer_examples">Aceasta este lista cu ce poți spune.</string>
     <string name="voice_special_connected">Conectat la %1$s.</string>
-    <string name="voice_special_not_connected">Nicio roată conectată.</string>
+    <string name="voice_special_not_connected">Niciun monociclu conectat.</string>
     <string name="voice_special_uptime">Conectat de %1$s.</string>
     <string name="voice_special_weather">%1$s. %2$s.</string>
     <string name="voice_special_weather_full">%1$s, scor %2$s. %3$s grade, vânt %4$s, umiditate %5$s la sută</string>
@@ -634,9 +639,9 @@
     <string name="adv_nav_sidebar_min_desc">Ecranele mai înguste de atât păstrează panoul de opriri de jos chiar și în modul peisaj. O valoare prea mică îngroapă harta pe ecranele mici.</string>
     <string name="adv_inmotion_v1_pin">PIN InMotion V5/V8/V10</string>
     <string name="adv_inmotion_v1_pin_desc">PIN-ul de acces pentru monociclurile InMotion V5/V8/V10, trimis la conectare pentru ca monociclul să înceapă să trimită date. Lasă 000000 dacă nu ți-ai setat propriul PIN în aplicația InMotion.</string>
-    <string name="adv_kingsong_unlock_code">Cod de deblocare KingSong</string>
+    <string name="adv_kingsong_unlock_code">Cod deblocare KingSong</string>
     <string name="adv_kingsong_unlock_code_desc">Șase cifre trimise cu comanda de deblocare. Monociclurile testate acceptă orice cifre, așa că lasă 123456 dacă al tău nu îl refuză.</string>
-    <string name="adv_kingsong_password">Parola aplicației KingSong</string>
+    <string name="adv_kingsong_password">Parolă KingSong</string>
     <string name="adv_kingsong_password_desc">Parola din 4 cifre setată în aplicația KingSong, trimisă la conectare și înainte de blocare și deblocare. Lasă 0000 dacă nu ai setat niciodată una.</string>
     <string name="adv_charging_warning">Acestea reglează estimarea timpului până la încărcarea completă. Valorile greșite dau o estimare înșelătoare, dar nu afectează niciodată încărcarea în sine.</string>
     <string name="adv_charging_target_pct">Procentul țintă</string>
@@ -846,6 +851,21 @@
     <string name="phone_show_over_lock">Arată peste ecranul de blocare</string>
     <string name="language">Limbă</string>
     <string name="theme">Temă</string>
+    <string name="theme_editor_widget">Widget de personalizare a temei</string>
+    <string name="theme_unsaved_fmt">%1$s (nesalvat)</string>
+    <string name="theme_editor_save_as">Salvează ca temă nouă</string>
+    <string name="theme_editor_pick_color">Alege o culoare de pe ecran</string>
+    <string name="theme_editor_replay_blink">Repetă clipirea</string>
+    <string name="theme_editor_save_title">Salvează tema</string>
+    <string name="theme_editor_name_label">Nume</string>
+    <string name="theme_editor_replace_title">Înlocuiești tema?</string>
+    <string name="theme_editor_replace_body">Există deja o temă numită \"%1$s\". Salvarea o va înlocui.</string>
+    <string name="theme_editor_discard_title">Renunți la ciorna nesalvată?</string>
+    <string name="theme_editor_discard_body">Această temă are deja o versiune nesalvată. Dacă o editezi din nou, acele modificări se pierd.</string>
+    <string name="theme_editor_no_folder_title">Niciun dosar de backup</string>
+    <string name="theme_editor_no_folder_body">Pentru a salva teme, alege un dosar de backup în %1$s → %2$s.</string>
+    <string name="theme_identify">Identifică</string>
+    <string name="theme_identify_results_title">Rezultatele identificării culorii</string>
     <string name="tts_switch_title">Schimbi vocea în %1$s?</string>
     <string name="tts_switch_body">Vocea actuală de sinteză nu se potrivește cu limba selectată. Schimbi pe o voce %1$s pentru anunțuri?</string>
     <string name="tts_switch_yes">Schimbă vocea</string>
@@ -862,13 +882,14 @@
     <string name="battery_percent_series_cells">Celule în serie</string>
     <string name="battery_capacity_label">Capacitate</string>
     <string name="battery_capacity_desc">Opțional. Setează estimarea autonomiei de la început, pentru indicatorul Autonomie și HUD.</string>
-    <string name="battery_percent_cells_from_wheel">Preluat de la roată: %1$d în serie.</string>
+    <string name="battery_percent_cells_from_wheel">Preluat de la monociclu: %1$d în serie.</string>
     <string name="battery_percent_cells_manual">Transformă tensiunea pachetului în procentul de pe tabloul de bord, în voce și alarme.</string>
     <string name="speed_calibration_label">Abaterea vitezei</string>
     <string name="speed_calibration_caption">Ajustează viteza raportată de monociclu; afectează alarmele, vocea și jurnalul cursei.</string>
     <string name="section_legal_mode_speed">Viteza modului legal</string>
     <string name="legal_mode_caption">Folosită când modul legal este pornit; trebuie să fie mai mică decât tiltback-ul normal.</string>
     <string name="speed_limits_disconnected">Conectează monociclul pentru a edita calibrarea și limitele</string>
+    <string name="speed_limits_unsupported">Limitele acestui monociclu se setează direct pe monociclu</string>
     <string name="speed_tiltback">Viteza de tiltback</string>
     <string name="speed_alarm">Viteza de alarmă</string>
     <string name="speed_legal_tiltback">Tiltback legal</string>
@@ -1270,6 +1291,8 @@
     <string name="recording_summary_battery">Baterie (-%1$d%%)</string>
     <string name="recording_summary_voltage">Tensiune</string>
     <string name="recording_summary_avg_moving">Media în mișcare</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">PWM maxim</string>
@@ -1301,6 +1324,7 @@
     <string name="pip_mode_off">Oprit</string>
     <string name="pip_mode_simple">Simplu</string>
     <string name="pip_mode_dashboard">Tablou de bord</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="phone_hud_section">HUD pe telefon</string>
     <string name="phone_hud_desc">Desenează o aranjare din Overlay Studio peste alte aplicații, ca să îți vezi monociclul în timp ce folosești harta sau muzica.</string>
     <string name="phone_hud_permission_desc">Android cere asta separat. Fără ea, suprapunerea nu poate fi afișată.</string>
@@ -1446,6 +1470,7 @@
     <string name="alarm_label_frequency">Frecvență</string>
     <string name="alarm_beep_advanced">Avansat</string>
     <string name="alarm_beep_gap_label">Durata pauzei</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pauză %2$d ms</string>
     <string name="alarm_beep_volume_label">Volum de bază</string>
     <string name="alarm_beep_studio">Bip adaptiv</string>
     <string name="alarm_studio_test_input">Intrare de test %1$s: %2$s %3$s</string>
@@ -1457,6 +1482,7 @@
     <string name="alarm_studio_stop">Oprește</string>
     <string name="alarm_label_duration">Durată</string>
     <string name="alarm_label_repeats">Repetări</string>
+    <string name="alarm_repeat_toggle">Repetă</string>
     <string name="alarm_label_vibrate_on">Vibrează la</string>
     <string name="alarm_threshold_decrease">Scade pragul</string>
     <string name="alarm_threshold_increase">Crește pragul</string>
@@ -1480,6 +1506,7 @@
     <string name="sources_fresh_just_now">chiar acum</string>
     <string name="sources_fresh_seconds_fmt">acum %1$ds</string>
     <string name="sources_fresh_minutes_fmt">acum %1$dm</string>
+    <string name="sources_delta_avg_fmt">med %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">acum %1$dh</string>
     <string name="sources_sats_fmt">%1$d sateliți</string>
     <string name="sources_other_metrics">Alți indicatori</string>
@@ -1820,6 +1847,10 @@
     <string name="studio_cfg_radar_range">Rază</string>
     <string name="studio_cfg_radar_range_fmt">%1$d m</string>
     <string name="studio_cfg_radar_distance_labels">Etichete de distanță</string>
+    <string name="studio_radar_none">Fără radar</string>
+    <string name="studio_radar_clear">Liber</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_camera_label">Cameră</string>
     <string name="studio_cfg_replace_image">Înlocuiește imaginea</string>
     <string name="studio_cfg_chroma_key">Fă o culoare transparentă</string>
@@ -2127,12 +2158,12 @@
     <string name="weather_breezy">Vânt peste</string>
     <string name="weather_windy">Prea vântos peste</string>
     <string name="weather_source_credit">Prognoza vine de la sursa aleasă și se descarcă doar cât timp este pornit. O fereastră mai scurtă poate veni în pași mai fini, dacă sursa îi oferă.</string>
-    <string name="weather_title_1">Vreme de roată?</string>
+    <string name="weather_title_1">Vreme de monociclu?</string>
     <string name="weather_title_2">E ora de EUC?</string>
     <string name="weather_title_3">E timpul de o tură?</string>
     <string name="weather_title_4">Ne echipăm?</string>
     <string name="weather_title_5">Gata de monociclu?</string>
-    <string name="weather_lvl_awful_1">Groaznic, lasă roata acasă.</string>
+    <string name="weather_lvl_awful_1">Groaznic, lasă monociclul acasă.</string>
     <string name="weather_lvl_awful_2">În niciun caz.</string>
     <string name="weather_lvl_bad_1">Rău, mai gândește-te.</string>
     <string name="weather_lvl_bad_2">E urât afară.</string>
@@ -2371,8 +2402,8 @@
     <string name="backup_status_failed">Backupul a eșuat, atinge pentru a reîncerca</string>
     <string name="lockdown_title">Mod blocare</string>
     <string name="lockdown_action_speed_limit">Limită</string>
-    <string name="lockdown_action_vehicle">Vehicul</string>
-    <string name="lockdown_no_wheel">Nicio roată conectată. Folosește pictograma Bluetooth pentru a conecta.</string>
+    <string name="lockdown_action_vehicle">Monociclu</string>
+    <string name="lockdown_no_wheel">Niciun monociclu conectat. Folosește pictograma Bluetooth pentru a conecta.</string>
     <string name="lockdown_vehicle_name">Nume Bluetooth</string>
     <string name="lockdown_vehicle_brand">Producător</string>
     <string name="lockdown_vehicle_model">Model</string>
@@ -2406,7 +2437,7 @@
     <string name="lockdown_limit_11">Istoricul traseelor, monitorul de baterie, studioul și detaliile valorilor nu pot fi deschise.</string>
     <string name="lockdown_limit_12">Atingerea unei valori nu face nimic.</string>
     <string name="lockdown_limit_13">Anunțurile vocale, rapoartele periodice și măsurătorile de accelerație sunt mute. Alarmele tale funcționează în continuare.</string>
-    <string name="lockdown_limit_14">Roata nu poate fi blocată sau deblocată, iar blocarea automată prin proximitate nu funcționează.</string>
+    <string name="lockdown_limit_14">Monociclul nu poate fi blocat sau deblocat, iar blocarea automată prin proximitate nu funcționează.</string>
     <string name="lockdown_limit_15">Luminile automate și volumul automat funcționează în continuare. Controlul media se oprește.</string>
     <string name="lockdown_limit_16">Notificarea își pierde butoanele.</string>
     <string name="lockdown_limit_17">Numărul versiunii nu mai deschide ecranul Despre.</string>
@@ -2416,9 +2447,9 @@
     <string name="lockdown_tiltback_alarm">Alarmă tiltback</string>
     <string name="lockdown_warning_waits">Modul legal este oprit, deci nu se schimbă nimic încă. Aplicația se va bloca data viitoare când pornești modul legal.</string>
     <string name="lockdown_warning_now">Modul legal este pornit, deci are efect acum și aplicația se blochează imediat.</string>
-    <string name="lockdown_warning_no_wheel">Nicio roată conectată, deci starea modului legal este necunoscută. Aplicația se va bloca data viitoare când modul legal este pornit.</string>
+    <string name="lockdown_warning_no_wheel">Niciun monociclu conectat, deci starea modului legal este necunoscută. Aplicația se va bloca data viitoare când modul legal este pornit.</string>
     <string name="lockdown_continue">Continuă</string>
-    <string name="trip_tools_wheel_none">Această călătorie nu are încă o roată înregistrată.</string>
+    <string name="trip_tools_wheel_none">Această călătorie nu are încă un monociclu înregistrat.</string>
     <string name="backup_conflict_warning">Unele copii de siguranță ale călătoriilor cer o sincronizare manuală: copiile diferă. Apăsați Sincronizare și alegeți partea valabilă.</string>
     <string name="backup_conflict_title">Conflicte de backup</string>
     <!-- Weather widgets -->
@@ -2444,12 +2475,12 @@
     <string name="charge_alert_full_title">Încărcare completă</string>
     <string name="charge_alert_full_text">Încărcat complet, scoate din priză când poți. Unele roți echilibrează celulele acum.</string>
     <!-- Widget names for the picker -->
-    <string name="widget_euc_label">Bord roată</string>
-    <string name="widget_act_1_label">Buton roată 1</string>
-    <string name="widget_act_2_label">Buton roată 2</string>
-    <string name="widget_act_3_label">Buton roată 3</string>
-    <string name="widget_act_12_label">Butoane roată 1 și 2</string>
-    <string name="widget_act_23_label">Butoane roată 2 și 3</string>
+    <string name="widget_euc_label">Bord monociclu</string>
+    <string name="widget_act_1_label">Buton monociclu 1</string>
+    <string name="widget_act_2_label">Buton monociclu 2</string>
+    <string name="widget_act_3_label">Buton monociclu 3</string>
+    <string name="widget_act_12_label">Butoane monociclu 1 și 2</string>
+    <string name="widget_act_23_label">Butoane monociclu 2 și 3</string>
     <string name="widget_weather_score_label">Se poate merge?</string>
     <string name="widget_weather_compact_label">Vreme de mers</string>
     <string name="widget_act_1_short">Acțiune 1</string>

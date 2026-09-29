@@ -2,13 +2,13 @@ package com.eried.eucplanet.data.model
 
 /**
  * UI-layer hooks for the catalog actions that need handles the service-layer
- * [com.eried.eucplanet.flic.FlicManager] doesn't have — navigation, the
+ * [com.eried.eucplanet.flic.FlicManager] doesn't have, navigation, the
  * settings writer, a snackbar. These are exactly the dashboard-only actions
  * (`OPEN_*`, `TOGGLE_UNITS`, `MUTE_ALARMS`, `RESET_TRIP`).
  *
  * Implemented by every surface that lives inside the Compose tree: the
  * dashboard action tiles and the service-mode debug overlay. Physical
- * surfaces (Flic / volume keys / watch) never implement it — they only ever
+ * surfaces (Flic / volume keys / watch) never implement it, they only ever
  * bind eyes-free actions, which route through [dispatchAction]'s `fallback`.
  */
 interface ActionUi {
@@ -29,7 +29,7 @@ interface ActionUi {
 /**
  * The single surface→behavior mapping for catalog actions. Dashboard-only
  * keys are delegated to [ui]; every other key (eyes-free, custom BLE) is
- * handed to [fallback] — the shared physical-surface path that Flic and the
+ * handed to [fallback], the shared physical-surface path that Flic and the
  * volume keys already use ([com.eried.eucplanet.flic.FlicManager.dispatchActionByName]).
  *
  * This replaces the duplicate `when (key)` that used to live in BOTH

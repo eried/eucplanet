@@ -682,7 +682,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
             if (element.showLabel) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = "RADAR",
+                        text = stringResource(R.string.studio_element_radar).uppercase(),
                         color = fg,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = (w * 0.09f).coerceIn(9f, 22f).sp,
@@ -704,7 +704,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                 if (!data.radarConnected) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "No radar",
+                            text = stringResource(R.string.studio_radar_none),
                             color = fg,
                             fontSize = (w * 0.10f).coerceIn(10f, 22f).sp
                         )
@@ -774,7 +774,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                 if (targets.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "CLEAR",
+                            text = stringResource(R.string.studio_radar_clear).uppercase(),
                             color = green,
                             fontWeight = FontWeight.Bold,
                             fontSize = (w * 0.11f).coerceIn(11f, 26f).sp
@@ -811,13 +811,13 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
             Column(Modifier.weight(1.5f), horizontalAlignment = Alignment.CenterHorizontally) {
                 when {
                     !data.radarConnected -> Text(
-                        text = "No radar",
+                        text = stringResource(R.string.studio_radar_none),
                         color = fg,
                         fontSize = (w * 0.07f).coerceIn(10f, 22f).sp,
                         maxLines = 1
                     )
                     closest == null -> Text(
-                        text = "CLEAR",
+                        text = stringResource(R.string.studio_radar_clear).uppercase(),
                         color = green,
                         fontWeight = FontWeight.Bold,
                         fontSize = (w * 0.10f).coerceIn(12f, 30f).sp,
@@ -835,7 +835,7 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
                             maxLines = 1
                         )
                         Text(
-                            text = "m · +${targets.maxOf { it.approachSpeedKmh }} km/h",
+                            text = stringResource(R.string.studio_radar_mirror_closing_fmt, targets.maxOf { it.approachSpeedKmh }),
                             color = markColor,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = (w * 0.055f).coerceIn(9f, 20f).sp,
@@ -887,12 +887,12 @@ private fun RadarMinimal(element: OverlayElement, data: StudioElementData) {
     val line1: String
     val line2: String?
     when {
-        !data.radarConnected -> { dotColor = fg.copy(alpha = 0.4f); line1 = "No radar"; line2 = null }
-        closest == null -> { dotColor = green; line1 = "Clear"; line2 = null }
+        !data.radarConnected -> { dotColor = fg.copy(alpha = 0.4f); line1 = stringResource(R.string.studio_radar_none); line2 = null }
+        closest == null -> { dotColor = green; line1 = stringResource(R.string.studio_radar_clear); line2 = null }
         else -> {
             dotColor = levelColor(maxLevel)
-            line1 = "${closest.distanceM} m"
-            line2 = "+${targets.maxOf { it.approachSpeedKmh }} km/h"
+            line1 = stringResource(R.string.studio_cfg_radar_range_fmt, closest.distanceM)
+            line2 = stringResource(R.string.studio_radar_closing_fmt, targets.maxOf { it.approachSpeedKmh })
         }
     }
     BoxWithConstraints(

@@ -94,11 +94,27 @@ Full detail lives in the theming section of `CLAUDE.md`.
 
 ## 7. Read settings through SettingsRepository
 
-Read settings only via `SettingsRepository.get()` or its `settings` Flow. Both
-pass through `sanitized()`, which clamps every Advanced knob to its spec range, so
-a 0, negative, or absurd value (including one from an imported or synced file)
-can never busy-loop a `delay()`, divide by zero, or starve a loop. Every numeric
+Read settings only through `SettingsRepository`. Every path passes through
+`sanitized()`, which clamps every Advanced knob to its spec range, so a 0,
+negative, or absurd value (including one from an imported or synced file) can
+never busy-loop a `delay()`, divide by zero, or starve a loop. Every numeric
 global must therefore have a spec range. Do not read `SettingsStore` directly.
+
+Pick the read by how often it runs:
+
+| Where | Use | Why |
+| --- | --- | --- |
+| UI, one-shot actions, anything that just wrote | `get()` | Reads the store itself, so it always sees a write that has returned. |
+| Per frame or per tick (telemetry collector, alarm evaluators, watch, HUD and Garmin publish loops) | `currentOrLoad()` | A field read after the first load. `get()` re-parses the whole JSON blob, which those loops did about 35 times a second between them. |
+| Reacting to changes | `settings` Flow, or `current` (a `StateFlow`) | Emits after every write. |
+
+`current` mirrors the `settings` Flow, which re-emits after every write, so it
+is never invalidated by hand and cannot go stale while the app runs. The one
+difference from `get()` is timing: the new value arrives a moment after
+`update()` returns, so code that writes and immediately reads back uses `get()`.
+Before the store has been read once, `current` holds the defaults, which is why
+the loops call `currentOrLoad()`: it waits for that first read, then never
+suspends again.
 
 ## 8. Keep AppSettings under the 255-arg limit
 

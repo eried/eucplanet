@@ -25,7 +25,7 @@ class StubAttestation : Attestation {
 
 // ---------------------------------------------------------------------------
 // Play Integrity implementation (config-gated; used only when a non-zero
-// EUCSTATS_GCP_PROJECT_NUMBER is configured — see DI provider in AppModule).
+// EUCSTATS_GCP_PROJECT_NUMBER is configured, see DI provider in AppModule).
 // ---------------------------------------------------------------------------
 
 class PlayIntegrityAttestation(

@@ -32,6 +32,11 @@
     <string name="action_back">Zurück</string>
     <string name="action_cancel">Abbrechen</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Ersetzen</string>
+    <string name="action_continue">Weiter</string>
+    <string name="action_select">Auswählen</string>
+    <string name="state_on">An</string>
+    <string name="state_off">Aus</string>
     <string name="action_done">Fertig</string>
     <string name="action_close">Schließen</string>
 <string name="crash_log_action_prompt">Du hast %1$s lang gedrückt. Nur diesen Log löschen oder alle. Zum Teilen auf Abbrechen tippen, dann auf die Datei.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuelle Wheels</string>
-    <string name="scan_simulate_subtitle">Umgeht BLE, nutzt vordefinierte Antworten. Nur in Debug-Builds.</string>
+    <string name="scan_simulate_subtitle">Umgeht BLE, nutzt vordefinierte Antworten. Nur im Servicemodus.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Verbunden</string>
@@ -685,6 +690,21 @@
     <string name="phone_show_over_lock">Über Sperrbildschirm anzeigen</string>
     <string name="language">Sprache</string>
     <string name="theme">Design</string>
+    <string name="theme_editor_widget">Widget zur Design-Anpassung</string>
+    <string name="theme_unsaved_fmt">%1$s (ungespeichert)</string>
+    <string name="theme_editor_save_as">Als neues Design speichern</string>
+    <string name="theme_editor_pick_color">Farbe vom Bildschirm aufnehmen</string>
+    <string name="theme_editor_replay_blink">Blinken wiederholen</string>
+    <string name="theme_editor_save_title">Design speichern</string>
+    <string name="theme_editor_name_label">Name</string>
+    <string name="theme_editor_replace_title">Design ersetzen?</string>
+    <string name="theme_editor_replace_body">Ein Design namens \"%1$s\" existiert bereits. Beim Speichern wird es ersetzt.</string>
+    <string name="theme_editor_discard_title">Ungespeicherten Entwurf verwerfen?</string>
+    <string name="theme_editor_discard_body">Dieses Design hat bereits eine ungespeicherte Version. Wird es erneut bearbeitet, gehen diese Änderungen verloren.</string>
+    <string name="theme_editor_no_folder_title">Kein Backup-Ordner</string>
+    <string name="theme_editor_no_folder_body">Um Designs zu speichern, unter %1$s → %2$s einen Backup-Ordner wählen.</string>
+    <string name="theme_identify">Identifizieren</string>
+    <string name="theme_identify_results_title">Ergebnisse der Farberkennung</string>
     <string name="tts_switch_title">Stimme auf %1$s umstellen?</string>
     <string name="tts_switch_body">Die aktuelle TTS-Stimme passt nicht zur gewählten Sprache. Für Ansagen auf eine %1$s-Stimme wechseln?</string>
     <string name="tts_switch_yes">Stimme wechseln</string>
@@ -694,7 +714,7 @@
     <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
     <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
     <string name="section_battery_percent">Batteriekalibrierung</string>
-    <string name="battery_override_label">Prozentwert des Rads überschreiben</string>
+    <string name="battery_override_label">Prozentwert des Wheels überschreiben</string>
     <string name="battery_override_hint">Aus der Packspannung schätzen.</string>
     <string name="battery_percent_custom_floor">Lineare Skala</string>
     <string name="battery_percent_min_cell" formatted="false">Leer bei</string>
@@ -703,13 +723,14 @@
     <string name="battery_percent_series_cells">Zellen in Reihe</string>
     <string name="battery_capacity_label">Kapazität</string>
     <string name="battery_capacity_desc">Optional. Legt die Reichweitenschätzung von Anfang an fest, für die Kachel Reichweite und das HUD.</string>
-    <string name="battery_percent_cells_from_wheel">Vom Rad übernommen: %1$d in Reihe.</string>
+    <string name="battery_percent_cells_from_wheel">Vom Wheel übernommen: %1$d in Reihe.</string>
     <string name="battery_percent_cells_manual">Macht aus der Packspannung den Prozentwert auf dem Dashboard, in Sprache und Alarmen</string>
     <string name="speed_calibration_label">Geschwindigkeitsversatz</string>
     <string name="speed_calibration_caption">Passt die gemeldete Wheel-Geschwindigkeit an; betrifft Alarme, Sprache und Fahrtprotokoll.</string>
     <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>
     <string name="legal_mode_caption">Aktiv im Legal-Modus; muss unter dem normalen Tiltback liegen.</string>
-    <string name="speed_limits_disconnected">Rad verbinden, um Kalibrierung und Grenzen zu bearbeiten</string>
+    <string name="speed_limits_disconnected">Wheel verbinden, um Kalibrierung und Grenzen zu bearbeiten</string>
+    <string name="speed_limits_unsupported">Die Grenzen dieses Wheels stellst du am Wheel selbst ein</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
     <string name="speed_legal_tiltback">Legal-Tiltback</string>
@@ -1073,6 +1094,8 @@
     <string name="recording_summary_battery">Akku (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spannung</string>
     <string name="recording_summary_avg_moving">Schnitt in Fahrt</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Max. PWM</string>
@@ -1165,6 +1188,7 @@
     <string name="alarm_label_frequency">Frequenz</string>
     <string name="alarm_label_duration">Dauer</string>
     <string name="alarm_label_repeats">Wiederholungen</string>
+    <string name="alarm_repeat_toggle">Wiederholen</string>
     <string name="alarm_label_vibrate_on">Vibrieren auf</string>
     <string name="alarm_threshold_decrease">Schwelle senken</string>
     <string name="alarm_threshold_increase">Schwelle erhöhen</string>
@@ -1190,6 +1214,7 @@
     <string name="sources_fresh_just_now">gerade eben</string>
     <string name="sources_fresh_seconds_fmt">vor %1$ds</string>
     <string name="sources_fresh_minutes_fmt">vor %1$dm</string>
+    <string name="sources_delta_avg_fmt">Ø %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">vor %1$dh</string>
     <string name="sources_sats_fmt">%1$d Sat</string>
     <string name="sources_other_metrics">Weitere Messwerte</string>
@@ -1218,7 +1243,7 @@
     <string name="alarm_repeat_label">Auslösung</string>
     <string name="alarm_repeat_single">Einmal</string>
     <string name="alarm_repeat_multi">Mehrfach</string>
-    <string name="alarm_wheel_only_label">Gilt nur für das aktuell verbundene Rad</string>
+    <string name="alarm_wheel_only_label">Gilt nur für das aktuell verbundene Wheel</string>
     <string name="alarm_summary_wheel_fmt">Gilt für: %1$s</string>
     <!-- Dynamische Alarm-Hilfe. In die Zustands-Teilsätze werden der Metrikname
          und die Schwelle-mit-Einheit eingesetzt, danach betten die Hilfssätze
@@ -1306,7 +1331,7 @@
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Verknüpfung aufheben</string>
     <string name="online_unlink_title">Von der Bestenliste trennen?</string>
-    <string name="online_unlink_body">Dieses Handy lädt keine Fahrten mehr hoch. Deine Fahrer-ID bleibt gespeichert, damit du als derselbe Rider wieder beitreten kannst. Deine Statistiken bleiben auf EUC Stats; über Konto löschen kannst du sie entfernen.</string>
+    <string name="online_unlink_body">Dieses Handy lädt keine Fahrten mehr hoch. Deine Rider-ID bleibt gespeichert, damit du als derselbe Rider wieder beitreten kannst. Deine Statistiken bleiben auf EUC Stats; über Konto löschen kannst du sie entfernen.</string>
     <string name="online_unlink_confirm">Trennen</string>
 
     <!-- Online profile (edit/GDPR) -->
@@ -1881,12 +1906,12 @@
     <string name="weather_breezy">Böig über</string>
     <string name="weather_windy">Zu windig über</string>
     <string name="weather_source_credit">Die Vorhersage kommt aus der gewählten Quelle und wird nur abgerufen, solange dies an ist. Ein kürzeres Fenster kann in feineren Schritten kommen, wenn die Quelle sie anbietet.</string>
-    <string name="weather_title_1">Einradwetter?</string>
+    <string name="weather_title_1">Wheel-Wetter?</string>
     <string name="weather_title_2">EUC-Zeit?</string>
     <string name="weather_title_3">Zeit für eine Fahrt?</string>
     <string name="weather_title_4">Ausrüstung anlegen?</string>
     <string name="weather_title_5">Bereit fürs Einrad?</string>
-    <string name="weather_lvl_awful_1">Furchtbar, Rad bleibt daheim.</string>
+    <string name="weather_lvl_awful_1">Furchtbar, das Wheel bleibt daheim.</string>
     <string name="weather_lvl_awful_2">Auf keinen Fall.</string>
     <string name="weather_lvl_bad_1">Übel, überleg es dir.</string>
     <string name="weather_lvl_bad_2">Draußen ist es mies.</string>
@@ -2037,10 +2062,14 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Warte auf Zellspannungsdaten…</string>
     <string name="charging_tab_cells">Zellen</string>
-    <string name="scan_bluetooth_off_body">Bluetooth einschalten, um nach Rädern zu suchen.</string>
+    <string name="scan_bluetooth_off_body">Bluetooth einschalten, um nach Wheels zu suchen.</string>
     <string name="scan_bluetooth_off_title">Bluetooth ist aus</string>
     <string name="scan_enable_bluetooth">Bluetooth einschalten</string>
     <string name="studio_cfg_radar_distance_labels">Entfernungsbeschriftungen</string>
+    <string name="studio_radar_none">Kein Radar</string>
+    <string name="studio_radar_clear">Frei</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Spur</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Spiegel</string>
@@ -2280,6 +2309,7 @@
     <string name="adv_wheel_poll_rate_desc">Beeinflusst, wie frisch die Live-Daten sind und wie schnell Alarme reagieren. Niedriger fragt das Wheel öfter nach Daten. Achtung: sehr niedrige Werte können die Bluetooth-Verbindung überfluten und auf manchen Wheels die Daten blockieren.</string>
     <string name="alarm_beep_advanced">Erweitert</string>
     <string name="alarm_beep_gap_label">Pausendauer</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · Pause %2$d ms</string>
     <string name="alarm_beep_studio">Adaptiver Piepton</string>
     <string name="alarm_beep_volume_label">Basislautstärke</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -2489,6 +2519,7 @@
     <string name="pip_mode_off">Aus</string>
     <string name="pip_mode_simple">Einfach</string>
     <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Startbildschirm-Widget</string>
     <string name="widget_pick_desc">Wähle die %1$d Messwerte und %2$d Tasten, die das Widget zeigt.</string>
     <string name="widget_metric_slot">Messwert %1$d</string>
@@ -2588,7 +2619,7 @@
     <string name="backup_status_failed">Sicherung fehlgeschlagen, zum Wiederholen tippen</string>
     <string name="lockdown_title">Sperrmodus</string>
     <string name="lockdown_action_speed_limit">Tempolimit</string>
-    <string name="lockdown_action_vehicle">Fahrzeug</string>
+    <string name="lockdown_action_vehicle">Wheel</string>
     <string name="lockdown_no_wheel">Kein Wheel verbunden. Zum Verbinden das Bluetooth-Symbol antippen.</string>
     <string name="lockdown_vehicle_name">Bluetooth-Name</string>
     <string name="lockdown_vehicle_brand">Hersteller</string>
@@ -2635,7 +2666,7 @@
     <string name="lockdown_warning_now">Der Legal-Modus ist an, das wirkt also sofort und die App sperrt umgehend.</string>
     <string name="lockdown_warning_no_wheel">Kein Wheel verbunden, der Zustand des Legal-Modus ist also unbekannt. Die App sperrt beim nächsten Einschalten des Legal-Modus.</string>
     <string name="lockdown_continue">Weiter</string>
-    <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Einrad hinterlegt.</string>
+    <string name="trip_tools_wheel_none">Für diese Fahrt ist noch kein Wheel hinterlegt.</string>
     <string name="backup_conflict_warning">Einige Fahrt-Sicherungen brauchen einen manuellen Abgleich: die Kopien unterscheiden sich. Auf Synchronisieren tippen und die gültige Seite wählen.</string>
     <string name="backup_conflict_title">Backup-Konflikte</string>
     <!-- Weather widgets -->

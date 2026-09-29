@@ -336,7 +336,7 @@ private fun ConnectionsView(snapshot: ServiceOverlaySnapshot) {
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = "${selected.label} — ${selected.state}",
+            value = "${selected.label}, ${selected.state}",
             onValueChange = {},
             readOnly = true,
             singleLine = true,
@@ -352,7 +352,7 @@ private fun ConnectionsView(snapshot: ServiceOverlaySnapshot) {
         ) {
             conns.forEachIndexed { i, c ->
                 DropdownMenuItem(
-                    text = { Text("${c.label} — ${c.state}") },
+                    text = { Text("${c.label}, ${c.state}") },
                     onClick = {
                         selectedIdx = i
                         expanded = false
@@ -395,7 +395,7 @@ private fun DetailBox(text: String) {
 }
 
 /**
- * One-line status string for an action — what does the rider see right now?
+ * One-line status string for an action, what does the rider see right now?
  * Delegates to [com.eried.eucplanet.data.model.ActionSpec.statusReader] when
  * the catalog wires one, falling back to a "no resting state" note for
  * one-shot actions (HORN, VOICE_ANNOUNCE, MEDIA_*, RESET_TRIP).
@@ -407,7 +407,7 @@ private fun actionStatusText(key: String, snapshot: ServiceOverlaySnapshot): Str
     return "active=$active"
 }
 
-/** @Composable wrapper for the selected metric's detail — label/description
+/** @Composable wrapper for the selected metric's detail, label/description
  *  (stringResource-backed) + raw value + history stats, then a full reflection
  *  dump of every WheelData field for the "see everything internal" view. */
 @Composable
@@ -481,10 +481,10 @@ private fun rawMetricValue(key: String, wheel: WheelData): String = when (key) {
     "PHASE_CURRENT" -> "%.2f".format(wheel.phaseCurrent)
     "DYN_SPEED_LIMIT" -> "%.2f".format(wheel.dynamicSpeedLimit)
     "DYN_CURRENT_LIMIT" -> "%.2f".format(wheel.dynamicCurrentLimit)
-    "MOTOR_TEMP" -> wheel.temperatures.getOrNull(0)?.let { "%.1f".format(it) } ?: "—"
-    "CONTROLLER_TEMP" -> wheel.temperatures.getOrNull(1)?.let { "%.1f".format(it) } ?: "—"
-    "BATTERY_TEMP" -> wheel.temperatures.getOrNull(2)?.let { "%.1f".format(it) } ?: "—"
-    else -> "—"
+    "MOTOR_TEMP" -> wheel.temperatures.getOrNull(0)?.let { "%.1f".format(it) } ?: "-"
+    "CONTROLLER_TEMP" -> wheel.temperatures.getOrNull(1)?.let { "%.1f".format(it) } ?: "-"
+    "BATTERY_TEMP" -> wheel.temperatures.getOrNull(2)?.let { "%.1f".format(it) } ?: "-"
+    else -> "-"
 }
 
 private fun historyFor(key: String, history: FullMetricHistory): List<MetricSample>? = when (key) {
@@ -505,7 +505,7 @@ private fun historyFor(key: String, history: FullMetricHistory): List<MetricSamp
  * Connections tab.
  */
 fun reflectFields(obj: Any?): String {
-    if (obj == null) return "—"
+    if (obj == null) return "-"
     val fields = obj.javaClass.declaredFields
         .filter { !it.isSynthetic && !java.lang.reflect.Modifier.isStatic(it.modifiers) }
         .sortedBy { it.name }
@@ -519,7 +519,7 @@ fun reflectFields(obj: Any?): String {
 }
 
 private fun formatFieldValue(v: Any?): String = when (v) {
-    null -> "—"
+    null -> "-"
     is Float -> "%.3f".format(v)
     is Double -> "%.3f".format(v)
     is List<*> -> v.joinToString(prefix = "[", postfix = "]") { formatFieldValue(it) }

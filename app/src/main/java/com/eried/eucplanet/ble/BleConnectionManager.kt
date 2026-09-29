@@ -198,7 +198,7 @@ class BleConnectionManager @Inject constructor(
     @Volatile var autoConnectSuppressed: Boolean = false
 
     // True when the current (or most recent) connection was started by
-    // auto-connect — app-start auto-connect or the reconnect loop — rather
+    // auto-connect, app-start auto-connect or the reconnect loop, rather
     // than the rider explicitly picking a wheel on the scan screen. Lets the
     // scan screen drop an auto connection without touching a user-chosen one.
     @Volatile private var currentConnectIsAuto = false

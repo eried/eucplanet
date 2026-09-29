@@ -42,7 +42,7 @@ import kotlin.math.floor
 /**
  * Simple Web-Mercator XYZ tile stitcher.
  *
- * No MapLibre, no Leaflet — we draw a 4×3 (or whatever fits) grid of 256-px
+ * No MapLibre, no Leaflet, we draw a 4×3 (or whatever fits) grid of 256-px
  * raster tiles fetched from the phone's [HudTileCache], centred on the
  * rider's last GPS fix, then stamp a rider marker on top. Pan tracks GPS,
  * UP/DOWN on the remote zoom in/out (driven by [zoom]).

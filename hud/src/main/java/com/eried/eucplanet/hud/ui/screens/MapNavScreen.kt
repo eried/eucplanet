@@ -26,7 +26,7 @@ import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.parseHexColor
 
 /**
- * Combined Map + Navigation screen — the "Garmin dashboard GPS" look. The
+ * Combined Map + Navigation screen, the "Garmin dashboard GPS" look. The
  * map is the always-on base layer (same renderer as [MapScreen]); when
  * `hud.navActive` is true the next-turn glyph + distance + street name
  * overlay as a compact badge at the top of the screen, the way Edge /
@@ -42,8 +42,7 @@ import com.eried.eucplanet.hud.ui.parseHexColor
 @Composable
 fun MapNavScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
     Box(Modifier.fillMaxSize()) {
-        // Base layer is the same MapScreen renderer riders already know —
-        // shares the tile cache, accent colour, contrast/brightness
+        // Base layer is the same MapScreen renderer riders already know, // shares the tile cache, accent colour, contrast/brightness
         // settings, GPS-fix gating. No duplication.
         MapScreen(hud = hud, zoom = zoom, peer = peer, cache = cache)
 
@@ -62,7 +61,7 @@ fun MapNavScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache)
 }
 
 /**
- * Top-centre badge — small turn arrow + distance + next-turn text.
+ * Top-centre badge, small turn arrow + distance + next-turn text.
  * Sized so a long street name like "Karl Johans gate" fits without
  * pushing the badge off the map. Same chrome family as the other HUD
  * overlays (8.dp rounded, semi-opaque black fill).
@@ -103,7 +102,7 @@ private fun BoxScope.NavTurnBadge(hud: HudState) {
 }
 
 /**
- * "Arrived" pill — replaces the turn badge once the route ends. Centred
+ * "Arrived" pill, replaces the turn badge once the route ends. Centred
  * because there's no next-turn to point at, and kept compact so the
  * underlying map (where the rider physically arrived) stays the focus.
  */

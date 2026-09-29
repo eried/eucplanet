@@ -57,8 +57,8 @@ interface TripDao {
      * Persist ONLY the wheel-identity metadata onto a row mid-recording. The full
      * identity is otherwise written just once, at stopRecording(); a ride that is
      * OOM-/force-killed before that runs would recover from its CSV with no wheel
-     * ([finalizeUnfinishedTrips]). Flushing it here — the moment the wheel is
-     * identified — means the row already carries it before any kill, and the
+     * ([finalizeUnfinishedTrips]). Flushing it here, the moment the wheel is
+     * identified, means the row already carries it before any kill, and the
      * recovery sweep preserves it. Single-column update: never disturbs endTime,
      * distance, or upload status.
      */

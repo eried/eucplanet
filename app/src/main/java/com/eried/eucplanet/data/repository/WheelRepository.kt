@@ -30,6 +30,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -61,7 +63,7 @@ data class PredictionSample(
     val fullEtaMs: Long?,
 )
 
-/** Persistent charging-session snapshot — lives in the singleton repository so
+/** Persistent charging-session snapshot, lives in the singleton repository so
  *  the prediction/history survives navigating in and out of the Battery screen. */
 data class ChargingSnapshot(
     val estimate: ChargingEstimate = ChargingEstimate(),
@@ -240,12 +242,12 @@ class WheelRepository @Inject constructor(
         private const val TAG = "WheelRepo"
         // Default wheel-poll interval (ms). Overridden per-rider by
         // AppSettings.wheelPollIntervalMs; this is only the fallback / initial
-        // value. Fully decoupled from the watch feed — watchUpdateRate now paces
+        // value. Fully decoupled from the watch feed, watchUpdateRate now paces
         // WearBridge alone. Only request/response wheels (InMotion, Ninebot)
         // honour this; push-only families ignore it (they free-run).
         private const val POLL_INTERVAL_MS = 250L
         // Default dashboard-chart sampling interval (ms); overridden by
-        // AppSettings.graphSampleIntervalMs. Charts only — not alarms/recording.
+        // AppSettings.graphSampleIntervalMs. Charts only, not alarms/recording.
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
         // Hard 5-minute window on the metric history buffers. Without this,
         // each list grows unbounded at 1 Hz (memory leak) and the chart's
@@ -356,7 +358,12 @@ class WheelRepository @Inject constructor(
     private val _wheelHasLock = MutableStateFlow(false)
     val wheelHasLock: StateFlow<Boolean> = _wheelHasLock.asStateFlow()
 
-    // Charging state — explicit firmware flag (V14/V12/KingSong) when available,
+    /** The connected wheel takes speed limits from the app (tiltback, alarm,
+     *  and so Legal Mode). False while disconnected. */
+    private val _wheelHasSpeedLimit = MutableStateFlow(false)
+    val wheelHasSpeedLimit: StateFlow<Boolean> = _wheelHasSpeedLimit.asStateFlow()
+
+    // Charging state, explicit firmware flag (V14/V12/KingSong) when available,
     // otherwise inferred from sustained negative current. Drives the dashboard
     // spark icon and the Charging Monitor screen.
     private val _chargeStatus = MutableStateFlow(ChargeStatus.Disconnected)
@@ -450,7 +457,7 @@ class WheelRepository @Inject constructor(
     // Stitched smart-BMS state. The Veteran adapter ships BMS sub-frames as
     // DecodeResult.Bms slices covering a 12-15 cell window each; handleDecoded
     // merges successive slices into a full per-pack view. Empty packs list
-    // means "no smart BMS / no data yet" — the Battery monitor's Cells tab
+    // means "no smart BMS / no data yet", the Battery monitor's Cells tab
     // gates on this so non-BMS wheels (older Sherman / KingSong / P6) don't
     // see an empty tab.
     private val _bmsState = MutableStateFlow(com.eried.eucplanet.data.model.BmsState())
@@ -502,7 +509,7 @@ class WheelRepository @Inject constructor(
      * Clears the in-memory rolling history buffer for one metric key.
      * Used by the metric-detail Reset button so the rider can re-seed
      * a clean chart (e.g. after a recovery from a noisy connection).
-     * Settings and trip records are untouched — fresh samples re-seed
+     * Settings and trip records are untouched, fresh samples re-seed
      * the buffer at the next 1Hz tick.
      */
     fun resetHistory(key: String) {
@@ -782,6 +789,9 @@ class WheelRepository @Inject constructor(
         // doesn't flood downstream collectors. A paired external box (RaceBox)
         // is mounted on the wheel, so when the rider has one and "prioritize
         // external" is on, its accelerometer wins over the phone's IMU.
+        // The sensor itself is only held while a wheel is connected or a trip
+        // is recording (see the gate below); with it stopped the IMU flow goes
+        // quiet and this merge stops re-emitting frames for nobody.
         scope.launch {
             phoneSensorRepository.imu.sample(120L).collect { s ->
                 val ext = externalGpsRepository.currentSample.value
@@ -920,14 +930,28 @@ class WheelRepository @Inject constructor(
             }
         }
 
-        // The wheel-data merge needs IMU samples for its lifetime (we feed them
-        // into accelX / accelY / gForce regardless of BLE state, the IMU is
-        // the phone's, not the wheel's). Hold a single start ref forever so
-        // BLE disconnect flaps can't tear the listener down out from under
-        // active consumers like the Overlay Studio. The matching stop() lives
-        // on no code path, this is a singleton, the IMU is cheap, and any
-        // attempt to "balance" this with a stop reintroduces the bug.
-        phoneSensorRepository.start()
+        // Hold the phone IMU only while the g-force it feeds can reach
+        // someone: a connected wheel, or a trip recording without one. Held
+        // forever, the merge above copied and re-emitted the frame ~8 times a
+        // second with no wheel in sight, for every rider, all day. The
+        // sensor is reference counted, so this takes exactly one start() per
+        // rising edge and one stop() per falling edge; the Overlay Studio and
+        // the data-sources sheet keep their own references and are never
+        // touched by a disconnect. The Lazy is read inside the coroutine,
+        // where TripRepository is safe to construct.
+        scope.launch {
+            var held = false
+            combine(
+                bleManager.connectionState,
+                tripRepositoryLazy.get().recording,
+            ) { state, recording ->
+                state == ConnectionState.CONNECTED || recording
+            }.distinctUntilChanged().collect { wanted ->
+                if (wanted == held) return@collect
+                held = wanted
+                if (wanted) phoneSensorRepository.start() else phoneSensorRepository.stop()
+            }
+        }
 
         // React to connection state changes
         scope.launch {
@@ -948,11 +972,10 @@ class WheelRepository @Inject constructor(
                         scope.launch { loadOrSeedWheelProfile() }
                         // Publish per-adapter capabilities now that the BLE
                         // name has resolved which sub-adapter the Composite
-                        // is routing through. Today only `hasLock` drives a
-                        // UI gate (lock button on the dashboard), but the
-                        // pattern is generic enough to grow other gates
-                        // without touching the connection observer.
+                        // is routing through. `hasLock` gates the lock tile,
+                        // `hasMaxSpeed` the speed-limit rows and Legal Mode.
                         _wheelHasLock.value = wheelAdapter.capabilities.hasLock
+                        _wheelHasSpeedLimit.value = wheelAdapter.capabilities.hasMaxSpeed
                     }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
@@ -980,6 +1003,7 @@ class WheelRepository @Inject constructor(
                         // announced even if it matches what we last said.
                         lastAnnouncedLocked = null
                         _wheelHasLock.value = false
+                        _wheelHasSpeedLimit.value = false
                         _wheelSeriesCells.value = null
                         _chargeStatus.value = ChargeStatus.Disconnected
                         chargeInferred = false
@@ -1257,7 +1281,7 @@ class WheelRepository @Inject constructor(
      * the fresh estimate every ~20 s. The step is PROPORTIONAL to the relative
      * error: a badly-wrong prediction (e.g. 12 min showing when it's really 3)
      * corrects within a minute or two, while small frame-to-frame jitter is heavily
-     * damped — so it tracks reality without swinging on noise. Returns (etaMs, anchorMs).
+     * damped, so it tracks reality without swinging on noise. Returns (etaMs, anchorMs).
      */
     private fun commitEta(prevEta: Long?, prevAnchorMs: Long, minutes: Float?, nowMs: Long): Pair<Long?, Long> {
         if (minutes == null || minutes < 0f) return null to 0L
@@ -1489,8 +1513,7 @@ class WheelRepository @Inject constructor(
      * The HUD's fixed ToggleLight/Horn and Garmin's horn/light/safety call
      * these methods directly (bypassing FlicManager.executeAction), and the
      * dashboard buttons land here too. Gate all of them in one place so a
-     * BLE write — or an optimistic state flip like toggleLight's lightOn —
-     * never happens with no wheel connected.
+     * BLE write, or an optimistic state flip like toggleLight's lightOn, * never happens with no wheel connected.
      */
     private fun wheelConnected() = bleManager.connectionState.value == ConnectionState.CONNECTED
 
@@ -1554,7 +1577,7 @@ class WheelRepository @Inject constructor(
             wheelAdapter.familyId
         } else null
 
-    /** Write a custom BLE command's frames verbatim — one BLE write each, in order. */
+    /** Write a custom BLE command's frames verbatim, one BLE write each, in order. */
     fun sendCustomBle(frames: List<ByteArray>) {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
         frames.forEach { if (it.isNotEmpty()) bleManager.writeCommand(it) }
@@ -1786,6 +1809,14 @@ class WheelRepository @Inject constructor(
 
     suspend fun toggleSafetySpeed() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
+        // Legal Mode works by writing lower limits. On a wheel that takes none
+        // the flag would say "limited" while the wheel is not, and legal
+        // lockdown would latch on a promise nobody keeps. Every entry (tile,
+        // Flic, watch, the connect-time enable) lands here, like the lock gate.
+        if (!wheelAdapter.capabilities.hasMaxSpeed) {
+            Log.d(TAG, "toggleSafetySpeed: ${wheelAdapter.familyId} takes no speed limits from the app")
+            return
+        }
         if (_safetyBusy.value) return  // cooldown active, ignore the spam tap (lock parity)
         // Legal Mode Lockdown backstop, for any caller that does not go through
         // FlicManager.executeAction. Turning the limits ON is always allowed,
@@ -2192,7 +2223,7 @@ class WheelRepository @Inject constructor(
                     }
                 }
                 // Never let the charging-session bookkeeping throw out of the
-                // telemetry path — telemetry/dashboard must keep flowing regardless.
+                // telemetry path, telemetry/dashboard must keep flowing regardless.
                 runCatching { updateChargingSession(_wheelData.value, _chargeStatus.value) }
                 // Mirror wheel-reported tilt-back / alarm thresholds into the
                 // app's settings store on adapters that surface them (Veteran),

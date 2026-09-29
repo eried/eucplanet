@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         val s = _settings.value
         val needsServiceForBackgroundFeature = s != null && canStartWheelService() && (
             // Voice loop needs the service alive between rides so the periodic
-            // announcement keeps firing even before a wheel is connected — but
+            // announcement keeps firing even before a wheel is connected, but
             // only in "ALWAYS" mode; the connected/riding modes have nothing to
             // say until a wheel is on the line.
             (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS") ||
@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity() {
         wearBridge.pingWatchToWake()
         garminBridge.pingWatchToWake()
         // Catch permission flips done in Settings while the app was in the
-        // background — the warning indicator auto-clears when the rider
+        // background, the warning indicator auto-clears when the rider
         // returns having granted what was missing.
         reconcilePipWithSystem()
         // A battery-optimisation grant (and some OEM permissions) doesn't always
@@ -624,7 +624,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     val navController = rememberNavController()
                     // Main-thread scope for the service overlay's settings/wheel
-                    // action hooks (toggle units, mute, reset trip) — nav actions
+                    // action hooks (toggle units, mute, reset trip), nav actions
                     // run synchronously on the click thread and don't need it.
                     val overlayScope = androidx.compose.runtime.rememberCoroutineScope()
                     // When a Share-to-app intent dropped a pending stop into
@@ -777,7 +777,7 @@ class MainActivity : AppCompatActivity() {
                             },
                             suppressOnPhone = onMapScreen
                         )
-                        // Service-mode debug overlay — opens on volume key
+                        // Service-mode debug overlay, opens on volume key
                         // when DiagnosticsLogger is enabled. Sits at the
                         // top of the activity composition so it floats
                         // above every screen (dashboard, settings, etc).
@@ -867,7 +867,7 @@ class MainActivity : AppCompatActivity() {
                                 onDismiss = { ServiceOverlayState.dismiss() }
                             )
                         }
-                        // Floating theme editor — only mounted (and so only
+                        // Floating theme editor, only mounted (and so only
                         // costing anything) when the rider enables it in
                         // Settings -> Display -> Theme editor.
                         if (s?.themeEditorEnabled == true) {
@@ -1000,8 +1000,8 @@ class MainActivity : AppCompatActivity() {
                 label = "Wheel (BLE)",
                 state = wheelRepository.connectionState.value.name,
                 detail = buildString {
-                    append("device: ").append(wheelRepository.connectedDeviceName.value ?: "—").append('\n')
-                    append("family: ").append(wheelRepository.connectedFamilyId ?: "—")
+                    append("device: ").append(wheelRepository.connectedDeviceName.value ?: "-").append('\n')
+                    append("family: ").append(wheelRepository.connectedFamilyId ?: "-")
                     append("\n\n── all wheel data ──\n")
                     append(com.eried.eucplanet.diagnostics.reflectFields(wheelRepository.wheelData.value))
                 }

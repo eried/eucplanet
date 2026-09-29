@@ -9,7 +9,7 @@ import kotlin.math.round
  * The wire format ships canonical metric (km/h, °C, km); the HUD converts to
  * the rider's chosen units locally using the codes in [HudState.unitSpeed],
  * [HudState.unitDistance], [HudState.unitTemp]. Mirrors the phone's `Units.kt`
- * but with a much smaller surface — the HUD never needs to format barometric
+ * but with a much smaller surface, the HUD never needs to format barometric
  * pressure or compute energy density, just render the dashboard tiles.
  *
  * Kept here (in the HUD module) on purpose: the phone's `Units.kt` pulls in

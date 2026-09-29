@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
-import android.widget.Toast
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -39,6 +38,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
@@ -57,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
 import com.eried.eucplanet.wear.R
+import com.eried.eucplanet.wear.ui.WatchNotifier
 import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
@@ -108,19 +109,15 @@ internal fun MainScreen(state: WatchState, accent: Color) {
         onButtonTap = { clickAction, holdAction ->
             if (clickAction == "NONE" && holdAction != "NONE") {
                 val label = labelForAction(context, holdAction) ?: holdAction
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.watch_action_long_press_hint, label),
-                    Toast.LENGTH_SHORT,
-                ).show()
+                WatchNotifier.post(context.getString(R.string.watch_action_long_press_hint, label))
             } else {
                 sendDebugEvent(context, "tapButton act=$clickAction")
-                fireAction(context, state, clickAction, showToast = false)
+                fireAction(context, state, clickAction, announce = false)
             }
         },
         onButtonLongPress = { action ->
             sendDebugEvent(context, "holdButton act=$action")
-            fireAction(context, state, action, showToast = true)
+            fireAction(context, state, action, announce = true)
         },
     )
 }
@@ -353,7 +350,7 @@ private fun MainScreenContent(
                             // term and the long-form "Load (PWM):" wasted glance time.
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "PWM: ",
+                                    text = stringResource(R.string.watch_pwm_prefix),
                                     fontSize = pwmNumberSp,
                                     fontWeight = FontWeight.Medium,
                                     color = colors.textSecondary
@@ -688,7 +685,7 @@ private fun fireAction(
     context: Context,
     state: WatchState,
     action: String,
-    showToast: Boolean
+    announce: Boolean
 ) {
     if (action == "NONE") return
     val payload = when (action) {
@@ -698,9 +695,8 @@ private fun fireAction(
     }
     WatchStateRepository.sendControl(context, payload)
     if (state.hapticOnAction) vibrate(context, 50L)
-    if (showToast) {
-        val label = labelForAction(context, action) ?: action
-        Toast.makeText(context, label, Toast.LENGTH_SHORT).show()
+    if (announce) {
+        WatchNotifier.post(labelForAction(context, action) ?: action)
     }
 }
 /**

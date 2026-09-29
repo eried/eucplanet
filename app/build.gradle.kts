@@ -369,7 +369,7 @@ dependencies {
     // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
     // without Robolectric.
     testImplementation("org.json:json:20240303")
-    // MockWebServer for EucStatsApi JVM tests — version must match libs.okhttp (4.12.0)
+    // MockWebServer for EucStatsApi JVM tests, version must match libs.okhttp (4.12.0)
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     // kotlin-reflect for the SettingsJson drift-guard test (walks the AppSettings
     // primary constructor to catch fields missing from the JSON mapper).

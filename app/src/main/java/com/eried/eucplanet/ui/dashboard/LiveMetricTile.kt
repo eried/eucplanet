@@ -54,7 +54,7 @@ fun LiveMetricTile(
     bipolarBaseline: Float = 0f,
     /** Negative-lobe colour for [SparklineStyle.AREA_BIPOLAR]; defaults to a darker [accent]. */
     bipolarNegativeAccent: Color? = null,
-    /** Top-left side readout — label "MIN" / "MAX" / "AVG" / "P75", etc. */
+    /** Top-left side readout, label "MIN" / "MAX" / "AVG" / "P75", etc. */
     cornerLeftLabel: String? = null,
     cornerLeftValue: String? = null,
     /** Top-right side readout, mirror of the left one. */
@@ -65,7 +65,7 @@ fun LiveMetricTile(
      *  corner draws nothing -- the rider asked to reserve the slot. */
     leftReservesSlot: Boolean = false,
     rightReservesSlot: Boolean = false,
-    /** Centre stat tag — rendered inline with [label] when the rider made the
+    /** Centre stat tag, rendered inline with [label] when the rider made the
      *  big number show a non-default aggregation (e.g. "MAX BATTERY  82%"). */
     centerStatLabel: String? = null,
     onClick: (() -> Unit)? = null,
@@ -82,7 +82,7 @@ fun LiveMetricTile(
     // VOLTAGE, CURRENT, LOAD) get their own bespoke disconnected demos
     // from DashboardScreen so cold-boot still has personality; every
     // other catalog metric renders empty until real samples arrive.
-    // An empty tile honestly signals "no data yet" — better than a
+    // An empty tile honestly signals "no data yet", better than a
     // synthetic curve that riders could mistake for telemetry.
     val effectiveSparkData = sparkData
     Box(
@@ -99,7 +99,7 @@ fun LiveMetricTile(
             .then(clickModifier),
         contentAlignment = Alignment.Center
     ) {
-        // Sparkline canvas — drawn whenever the rider has it enabled
+        // Sparkline canvas, drawn whenever the rider has it enabled
         // AND the metric style isn't NONE. effectiveSparkData supplies
         // a decorative sine when real samples haven't arrived yet so
         // every catalog tile looks alive on cold boot.
@@ -189,7 +189,7 @@ fun LiveMetricTile(
                     SparklineStyle.AREA_BIPOLAR -> {
                         val baselineY = yFor(bipolarBaseline)
                         val negAccent = bipolarNegativeAccent ?: accent
-                        // Positive lobe — fill between the line and the
+                        // Positive lobe, fill between the line and the
                         // baseline for samples that sit above baseline.
                         val posFill = Path()
                         posFill.moveTo(0f, baselineY)
@@ -204,7 +204,7 @@ fun LiveMetricTile(
                         posFill.close()
                         drawPath(posFill, color = accent.copy(alpha = 0.18f))
 
-                        // Negative lobe — mirror logic for samples below baseline.
+                        // Negative lobe, mirror logic for samples below baseline.
                         val negFill = Path()
                         negFill.moveTo(0f, baselineY)
                         effectiveSparkData.forEachIndexed { idx, v ->
@@ -233,8 +233,7 @@ fun LiveMetricTile(
         }
 
         // Zone overlay. The centre column ALWAYS centres on the tile
-        // midpoint, regardless of how many side readings are active —
-        // a 2-zone (left+centre) layout used to push the big value off
+        // midpoint, regardless of how many side readings are active, // a 2-zone (left+centre) layout used to push the big value off
         // toward 72% of the tile width via a Row + weights, which read
         // as "the centre is wrong". Now the big value is always at the
         // tile centre and the badges sit at the actual corners. With 0,

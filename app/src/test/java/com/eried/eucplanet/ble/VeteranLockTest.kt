@@ -12,7 +12,7 @@ import java.util.zip.CRC32
  * Decoded from a Lynx S btsnoop on 2026-06-19 where the rider toggled the
  * official LeaperKim app's lock 10 times. Bytes 4..7 of the payload are the
  * rider's local wall clock (day, hour, minute, second) at the moment of the
- * write — the wheel rejects frames whose timestamp doesn't match the live
+ * write, the wheel rejects frames whose timestamp doesn't match the live
  * clock, which is why an earlier hardcoded-constants implementation never
  * actually locked the wheel. Pure-JVM test; pass a fixed [Calendar] so this
  * doesn't drift with the real wall clock.
@@ -93,7 +93,7 @@ class VeteranLockTest {
      * The wheel only accepts the lock frame when it's written as two
      * separate ATT writes (20 + 5 bytes), matching the LeaperKim app's
      * btsnoop. A single 25-byte write is truncated to 20 bytes by the
-     * default ATT MTU and the wheel rejects it on CRC check — the bug
+     * default ATT MTU and the wheel rejects it on CRC check, the bug
      * that made the previous "wall-clock only" fix still appear broken.
      */
     @Test

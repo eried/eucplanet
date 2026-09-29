@@ -107,7 +107,7 @@ class RecordingViewModel @Inject constructor(
                 val settings = settingsRepository.get()
                 // Prereqs gone since the icon was shown (unlinked, deleted,
                 // folder lost). Don't attempt the upload and don't relight the
-                // worker safety net — it would just bail at the gate anyway.
+                // worker safety net, it would just bail at the gate anyway.
                 if (!settings.onlineUploadEnabled || syncManager.riderStoreId.value == null) {
                     _toasts.send(context.getString(R.string.online_upload_sync_nothing))
                     return@launch
@@ -443,7 +443,7 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    /** True while a Dropbox account is linked — toggles the two extra
+    /** True while a Dropbox account is linked, toggles the two extra
      *  options in the trip Share dialog. */
     val dropboxLinked: kotlinx.coroutines.flow.StateFlow<Boolean> =
         dropboxRepository.linked.stateIn(
@@ -497,7 +497,7 @@ class RecordingViewModel @Inject constructor(
     }
 
     /**
-     * Build the eucviewer share URL for [trip] — uploads to Dropbox if needed,
+     * Build the eucviewer share URL for [trip], uploads to Dropbox if needed,
      * swaps the share host to `dl.dropboxusercontent.com` and forces `dl=1` so
      * the URL is a raw CSV download a browser can fetch without CORS pain.
      *
@@ -521,7 +521,7 @@ class RecordingViewModel @Inject constructor(
      *  direct-download URL with `dl=1`. */
     private fun toDropboxDirectUrl(link: String): String {
         // A get_temporary_link result is already a direct download URL on
-        // dl.dropboxusercontent.com — leave it untouched (no dl=1 rewrite).
+        // dl.dropboxusercontent.com, leave it untouched (no dl=1 rewrite).
         if (link.startsWith("https://dl.dropboxusercontent.com/")) return link
         val onDirectHost = link
             .replace("https://www.dropbox.com/", "https://dl.dropboxusercontent.com/")

@@ -3,7 +3,7 @@ using Toybox.Attention;
 
 //! Dispatches the FlicAction-name vocabulary the phone sends in the
 //! stem1/stem2/screen1/screen2 binding fields. The watch never executes the
-//! action itself — it just forwards the intent over the wire and the phone
+//! action itself, it just forwards the intent over the wire and the phone
 //! does the heavy lifting (same pattern as wear/MainActivity.dispatchAction).
 //!
 //! HORN and LIGHT_TOGGLE use the dedicated control strings so an older phone

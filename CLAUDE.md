@@ -27,9 +27,10 @@ These rules are binding. The terse list below is the contract; `CONVENTIONS.md`
 6. **Colors come from the theme.** Read via `MaterialTheme.appColors.*`; reuse an
    existing token before adding one; never hardcode `Color(...)` or use
    `MaterialTheme.colorScheme.*` in feature UI. See the theming section below.
-7. **Read settings through `SettingsRepository`** (`get()` / `settings` Flow) so
-   values pass `sanitized()`. Every numeric global needs a spec range so it is
-   clamped. Never touch `SettingsStore` directly.
+7. **Read settings through `SettingsRepository`** so values pass `sanitized()`:
+   `get()` in UI and after a write, `currentOrLoad()` in per-frame or per-tick
+   loops, the `settings` Flow to react to changes. Every numeric global needs a
+   spec range so it is clamped. Never touch `SettingsStore` directly.
 8. **Keep `AppSettings` under the 255-arg JVM/dex limit.** Nest grouped fields
    (like `AdvancedSettings`) so `copy()` does not exceed the limit and crash with
    an ART VerifyError.

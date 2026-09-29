@@ -139,7 +139,7 @@ class IncomingShareRepository @Inject constructor() {
                 .firstOrNull { it.isNotEmpty() && !it.startsWith("http", ignoreCase = true) }
             if (!nameLine.isNullOrBlank()) return Pending(query = nameLine)
             // 4. Last resort: a shortened maps link (no place name, no
-            //    coords in the URL itself — Google's modern share-sheet
+            //    coords in the URL itself, Google's modern share-sheet
             //    usually sends ONLY the `maps.app.goo.gl/xxx` shortcode).
             //    Pass it back as a query string so the VM can follow the
             //    HTTP redirect and re-parse the expanded URL for coords.

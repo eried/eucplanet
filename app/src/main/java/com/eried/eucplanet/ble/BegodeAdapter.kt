@@ -88,21 +88,18 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
     }
 
     /**
-     * Begode max-speed is a 4-byte W/Y/HL/b sequence; we only return the
-     * first byte here so the existing single-write [WheelAdapter] contract
-     * holds. The follow-up bytes will move into a dedicated
-     * paced-write extension once the connection layer grows one. For now,
-     * the wheel just won't latch the new max-speed without the trailing
-     * bytes, which fails safely (no setting change).
+     * Sends nothing. Begode max-speed is a W/Y/HL/b sequence that wants
+     * ~100-200 ms between steps, which the single-write [WheelAdapter]
+     * contract cannot pace, so the capabilities declare no speed control and
+     * the app hides the controls. Service Mode can still probe the unspaced
+     * single-write form ([BegodeCommands.setMaxSpeedSingleWrite]).
      *
      * `alarmKmh` is ignored: Begode treats `wheelMaxSpeed` as tiltback
      * threshold, with no separate alarm setter on stock FW (open question
      * 9 in spec).
      */
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? {
-        // Returning only the first packet keeps the contract intact; the rest
-        // of the W-prefix sequence is built but not yet plumbed through.
-        // Conservative: don't half-send a control sequence to the wheel.
+        // Conservative: never half-send a control sequence to the wheel.
         return null
     }
 

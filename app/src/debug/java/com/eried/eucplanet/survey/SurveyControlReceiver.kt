@@ -22,8 +22,7 @@ import javax.inject.Inject
  *   - SURVEY_CONNECT_VIRTUAL: start WheelService with VIRTUAL:<id> so there
  *     is live telemetry on the dashboard when the screenshots are captured.
  *
- * Only present in debug builds — never merged into the release manifest —
- * so the production app surface stays unchanged. See the matching debug
+ * Only present in debug builds, never merged into the release manifest, * so the production app surface stays unchanged. See the matching debug
  * AndroidManifest at app/src/debug/AndroidManifest.xml.
  */
 @AndroidEntryPoint
@@ -41,7 +40,7 @@ class SurveyControlReceiver : BroadcastReceiver() {
     }
 
     private fun applyConfig(intent: Intent) {
-        // Optional fields — each one only overwrites if non-null. Lets a
+        // Optional fields, each one only overwrites if non-null. Lets a
         // caller change just the metric order, or just the action layout,
         // without resetting the rest. Values are base64-encoded by the
         // host script to dodge Windows shell quoting eating JSON braces

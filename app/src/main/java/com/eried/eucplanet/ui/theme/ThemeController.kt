@@ -31,7 +31,7 @@ data class ThemeChoices(
  * and the floating editor widget so they never drift.
  *
  * **Persistence model:** settings store only the active theme's *name*
- * ([AppSettings.activeThemeName]). The resolved colors are NOT persisted — they
+ * ([AppSettings.activeThemeName]). The resolved colors are NOT persisted, they
  * live here in memory ([activeColors]) and are re-derived on launch from the
  * name: a built-in from code, or a saved `.json` from the themes folder, falling
  * back to a preset if the file is gone. Nothing theme-related rides along in the
@@ -54,7 +54,7 @@ class ThemeController @Inject constructor(
     @Volatile private var resolved = false
 
     /**
-     * The resolved colors of the active theme — the single render source of
+     * The resolved colors of the active theme, the single render source of
      * truth. Re-derived from the persisted name on launch (see [ensureResolved]).
      */
     private val _activeColors = MutableStateFlow(BuiltInThemes.pureBlack.colors)
@@ -66,7 +66,7 @@ class ThemeController @Inject constructor(
 
     /**
      * Unsaved working drafts, keyed by the base theme they were forked from.
-     * In-memory only — lost on app kill. Re-activating a draft lets the rider
+     * In-memory only, lost on app kill. Re-activating a draft lets the rider
      * switch away to a preset and back without losing edits within a session.
      */
     private val drafts = LinkedHashMap<String, AppThemeColors>()
@@ -183,7 +183,7 @@ class ThemeController @Inject constructor(
     /**
      * Apply an edit. The result becomes the in-memory working draft for the
      * current base theme (creating that draft the first time a clean theme is
-     * edited), so the base — preset or saved — is never mutated.
+     * edited), so the base, preset or saved, is never mutated.
      */
     suspend fun applyColors(colors: AppThemeColors) {
         ensureResolved()

@@ -312,7 +312,7 @@ private fun ActionDropdown(
             onDismissRequest = { expanded = false },
             containerColor = MaterialTheme.appColors.menuBackground
         ) {
-            // "None" is a synthetic first option — represents the
+            // "None" is a synthetic first option, represents the
             // unbound state. The catalog itself doesn't carry a NONE
             // entry because nothing fires it.
             DropdownMenuItem(

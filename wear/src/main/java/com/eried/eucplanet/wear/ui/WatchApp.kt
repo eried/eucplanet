@@ -153,6 +153,10 @@ fun WatchApp() {
                 ) {
                     NavWatchOverlay(state, accent)
                 }
+
+                // Hold-action confirmations and hints ride over whichever page
+                // is showing, in the app palette rather than an OS toast.
+                WatchSnackbarHost(Modifier.align(Alignment.BottomCenter))
             }
         }
     }

@@ -591,7 +591,7 @@ private fun SunScheduleGraph(
     val lightsOffStr = fmt.format(Date(lightsOffMillis))
 
     // Night-mode deep blue: a data-viz fill for the night portion of the
-    // day/night timeline bar, not app chrome — kept as a literal so it
+    // day/night timeline bar, not app chrome, kept as a literal so it
     // doesn't follow the theme's surface tokens. See report.
     val nightColor = Color(0xFF1A237E)
     val dayColor = MaterialTheme.appColors.gaugeWarn.copy(alpha = 0.25f)

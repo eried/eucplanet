@@ -77,7 +77,7 @@ internal fun isLikelyWheelName(name: String): Boolean {
         name.startsWith("Hero", ignoreCase = true) ||
         name.startsWith("T3", ignoreCase = true) || name.startsWith("T4", ignoreCase = true)) return true
     // Veteran (LeaperKim). Match the model tokens AND the brand's own
-    // serial-style BLE prefixes — many wheels advertise as `LK<digits>`
+    // serial-style BLE prefixes, many wheels advertise as `LK<digits>`
     // (the rider's Lynx S showed up as `LK20712`, the Oryx as `LK19957`)
     // with no model token in the name, so the scan filter has to know
     // about the prefixes too. CompositeWheelAdapter.pickAdapter already

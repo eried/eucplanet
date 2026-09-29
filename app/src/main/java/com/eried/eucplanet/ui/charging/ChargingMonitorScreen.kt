@@ -280,7 +280,7 @@ fun ChargingMonitorScreen(
             // charging (idle = just the % over the battery).
             val landscape =
                 LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-            // No decimals at 100 % — it reads a clean "100%".
+            // No decimals at 100 %, it reads a clean "100%".
             val decimalsVisible = charging && state.warmedUp &&
                 state.status != ChargeStatus.Full && state.percent < 99.5f
             if (landscape) {
@@ -480,13 +480,13 @@ private fun PredictionText(state: ChargingUiState, nowMs: Long, clockAt: (Long) 
         val m = totalMin % 60L
         return if (m == 0L) "${h}h" else "${h}h ${m}m"
     }
-    // At 100 % there's nothing to say — the big number means full (the wheel may
+    // At 100 % there's nothing to say, the big number means full (the wheel may
     // even stop reporting "charging"; we just keep showing 100 %). The countdown is
     // dropped here too, so it never reaches 0:00 / goes negative.
     if (state.status == ChargeStatus.Full || state.percent >= 99.5f) return
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         when {
-            // Show ONLY the relevant estimate — to the target until reached, then to
+            // Show ONLY the relevant estimate, to the target until reached, then to
             // 100 %. Hidden once the countdown elapses, or while still warming up.
             !state.estimateToFull && state.targetEtaMs != null && state.targetEtaMs!! - nowMs > 0L -> {
                 val eta = state.targetEtaMs!!
@@ -600,7 +600,7 @@ private fun BatteryScrubOverlay(
 }
 
 /**
- * A smoothly-animated battery percentage — eases toward a projection of the true
+ * A smoothly-animated battery percentage, eases toward a projection of the true
  * value (last reading + rate × elapsed, capped at +[MAX_LEAD]) so it ticks at the
  * charge rate, catches up to fresh readings, never reverses, never stalls. Snaps
  * to the reading when not charging.
@@ -622,7 +622,7 @@ private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging
                 val m = measuredState.value
                 val d = display.floatValue
                 when {
-                    // End of charge — rush hard to 100 % (fast, but not an instant jump).
+                    // End of charge, rush hard to 100 % (fast, but not an instant jump).
                     fullState.value -> {
                         if (dt > 0f) {
                             val v = ((100f - d) * 1.8f).coerceAtLeast(0.8f)
@@ -634,7 +634,7 @@ private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging
                     kotlin.math.abs(m - d) > 3f -> display.floatValue = m
                     dt > 0f -> {
                         // Climb at the charge rate plus a gentle pull toward the true %,
-                        // with the TOTAL speed capped at ~1.6× the rate — so it never
+                        // with the TOTAL speed capped at ~1.6× the rate, so it never
                         // lurches on a stepped reading and eases as it nears the value.
                         val rps = (rateState.value / 60f).coerceAtLeast(0f)
                         val maxV = (rps * 1.6f).coerceAtLeast(0.02f)
@@ -649,7 +649,7 @@ private fun rememberAnimatedPercent(measured: Float, ratePerMin: Float, charging
     return display
 }
 
-/** Battery % → fill fraction (0..1) — linear and precise (46 % = 46 % height). */
+/** Battery % → fill fraction (0..1), linear and precise (46 % = 46 % height). */
 private fun fillFraction(pct: Float): Float = (pct / 100f).coerceIn(0f, 1f)
 
 /**
@@ -676,7 +676,7 @@ private fun BatteryFillGraphic(
     modifier: Modifier = Modifier,
 ) {
     // Green amount: eases in (~4 s) when charging starts and fades out slowly
-    // (~60 s) when it stops — a brief pause keeps the green, a long stop merges
+    // (~60 s) when it stops, a brief pause keeps the green, a long stop merges
     // back to all blue. Drives the fill colour and the dot rise.
     val g = animateFloatAsState(
         if (charging) 1f else 0f,
@@ -860,7 +860,7 @@ private fun BatteryFillGraphic(
         @Suppress("UNUSED_VARIABLE") val tick = clock.floatValue + tiltX.floatValue + gyroKick.floatValue
         val w = size.width
         val h = size.height
-        // Whole-screen battery: the fill IS the background — no frame, edge to edge.
+        // Whole-screen battery: the fill IS the background, no frame, edge to edge.
         val fillLeft = 0f
         val fillRight = w
         val fillTop = 0f
@@ -876,7 +876,7 @@ private fun BatteryFillGraphic(
         val yTop = yFor(curFrac)
         val regionH = (fillBottom - yTop).coerceAtLeast(1f)
         geo[0] = w; geo[1] = h; geo[2] = yTop
-        // Session-start level — frozen so it doesn't jump when charging stops; it
+        // Session-start level, frozen so it doesn't jump when charging stops; it
         // just fades out with gv. Clamped to the current level.
         val startFrac = frozenStart.floatValue.coerceIn(0f, curFrac)
         val yStart = yFor(startFrac)
@@ -904,7 +904,7 @@ private fun BatteryFillGraphic(
             // (else just the empty gauge). The live FX below (glow, splash) stay
             // gated on `connected` so a frozen fill sits still.
             if (connected || frozen) {
-            // Fill — one gradient (no seam): solid green to the start level, a
+            // Fill, one gradient (no seam): solid green to the start level, a
             // narrow green→blue band, then solid blue.
             val denom = (fillBottom - yTop).coerceAtLeast(1f)
             val fStart = ((yStart - yTop) / denom).coerceIn(0.001f, 0.98f)
@@ -977,7 +977,7 @@ private fun BatteryFillGraphic(
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f)),
                 )
             }
-            // Subtle pulsing glow inside the neon (added) segment only — starts at
+            // Subtle pulsing glow inside the neon (added) segment only, starts at
             // the surface and fades downward; never extends above the SOC line.
             if (glowAmt.value > 0.01f && yStart > yTop) {
                 val pulse = 0.5f + 0.5f * sin(clock.floatValue * 2.5f)
@@ -1013,8 +1013,8 @@ private fun InfoTabs(state: ChargingUiState) {
     // history as a tab here. The Charge tab already reuses the same MetricGraph,
     // but the dashboard battery widget's windowed min/max/avg (over the
     // personalization time range) has no equivalent in this connection-scoped
-    // session — revisit if we add a dedicated History tab.
-    // Dynamic tabs — only show what this wheel actually reports.
+    // session, revisit if we add a dedicated History tab.
+    // Dynamic tabs, only show what this wheel actually reports.
     val tabs = buildList {
         add(stringResource(R.string.charging_tab_charge) to "charge")
         if (state.hasPacks) add(stringResource(R.string.charging_tab_packs) to "packs")
@@ -1070,8 +1070,8 @@ private fun InfoTabs(state: ChargingUiState) {
                     "charge" -> {
                         // Charge % (blue, like the battery fill, left scale) +
                         // voltage (green, own scale).
-                        // Two prediction markers — one at the 80 % target and
-                        // one at 100 % — taken from the MOST RECENT prediction
+                        // Two prediction markers, one at the 80 % target and
+                        // one at 100 %, taken from the MOST RECENT prediction
                         // snapshot. Earlier snapshots were also being plotted
                         // (one dot per snapshot at each level) but the cluster
                         // got dense fast on long sessions and obscured the
@@ -1291,7 +1291,7 @@ private fun ChargingChart(
     val chartH = if (LocalConfiguration.current.orientation ==
         Configuration.ORIENTATION_LANDSCAPE) 200.dp else 288.dp
     if (samples.size >= 2) {
-        // Reuse the app's interactive history chart — units, time axis, and
+        // Reuse the app's interactive history chart, units, time axis, and
         // hold-to-scrub, same as the metric graphs elsewhere in the app.
         // Battery charts always run in Clock mode so the 15-min wall-clock
         // gridlines line up with the rider's mental model of "when did this
@@ -1529,7 +1529,7 @@ private fun CellsTabContent(
     val packs = bms.packs.filter { it.knownCells.isNotEmpty() }
     if (packs.isEmpty()) {
         // Smart-BMS wheel just connected and pages 1+2+3 haven't all landed
-        // yet — show the hint instead of an empty surface.
+        // yet, show the hint instead of an empty surface.
         Box(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), contentAlignment = Alignment.Center) {
             Text(
                 stringResource(R.string.charging_cells_waiting),

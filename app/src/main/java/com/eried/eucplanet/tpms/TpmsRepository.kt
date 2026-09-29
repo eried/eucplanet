@@ -18,10 +18,9 @@ import javax.inject.Singleton
  * Sources push in here ([submitWheel], [submitPaired]) and [current] answers.
  * The rules live in [TpmsPolicy] so they are testable without a sensor.
  *
- * Not yet the value the dashboard reads: WheelData still carries the wheel's
- * own field and every tile, alarm, widget and HUD reads that. Moving them over
- * is worth doing when a second source actually exists, so the migration can be
- * checked against a real sensor instead of a guess about one.
+ * This is the value the dashboard reads: WheelRepository submits the wheel's
+ * relayed pressure here on every frame and copies [current] back into
+ * WheelData, so every tile, alarm, widget and HUD sees whichever source won.
  */
 @Singleton
 class TpmsRepository @Inject constructor(

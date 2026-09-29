@@ -58,7 +58,7 @@ class WearBridge @Inject constructor(
         // independent of the wheel BLE poll rate (AppSettings.wheelPollIntervalMs).
         // The watch can't show data fresher than the poll delivers; when the
         // publish rate is faster than the poll, the loop just re-sends the latest
-        // frame — keeps the gauge animating and the freshness signal alive.
+        // frame, keeps the gauge animating and the freshness signal alive.
         private const val DEFAULT_PUBLISH_INTERVAL_MS = 250L
         fun publishIntervalMsFor(rate: String): Long = when (rate) {
             "CONSERVATIVE" -> 750L
@@ -145,7 +145,7 @@ class WearBridge @Inject constructor(
     private var started = false
 
     /**
-     * Names of currently-paired Wear OS nodes — empty when no watch is
+     * Names of currently-paired Wear OS nodes, empty when no watch is
      * paired, otherwise one entry per Wear OS device the phone has
      * connected to (typically one, occasionally more if the rider has both
      * a Galaxy Watch and a Pixel Watch). Polled every 5 s on a background
@@ -290,7 +290,7 @@ class WearBridge @Inject constructor(
                     //   gaugeMax = ((effectiveTiltback / 10) + 1) * 10
                     // where effectiveTiltback is the safety-tiltback when legal mode is
                     // on, normal tiltback otherwise. Mirroring that here.
-                    val s = settingsRepository.get()
+                    val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
                         s.safetyTiltbackKmh else s.tiltbackSpeedKmh
                     // Mirror the phone dashboard's 30 km/h floor so the watch
@@ -306,7 +306,7 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                delay(publishIntervalMsFor(settingsRepository.get().watchUpdateRate))
+                delay(publishIntervalMsFor(settingsRepository.currentOrLoad().watchUpdateRate))
             }
         }
     }

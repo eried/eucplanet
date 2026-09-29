@@ -10,9 +10,9 @@ Aimed at someone porting this surface to a different phone-side
 codebase (the `next-version` branch). The link is fully specified by
 two files in the shared `:hud-protocol` Gradle module:
 
-- `HudWire.kt` — `HudState` (phone → HUD), `HudCommand` (HUD → phone),
+- `HudWire.kt`, `HudState` (phone → HUD), `HudCommand` (HUD → phone),
   `HudDiscovery` (service-discovery constants).
-- `OverlayLayout.kt` — `OverlayPreset` / `OverlayElement` (the embedded
+- `OverlayLayout.kt`, `OverlayPreset` / `OverlayElement` (the embedded
   custom-overlay format inside `HudState.customOverlayJson`).
 
 Both modules consume `:hud-protocol`, so the on-wire JSON cannot drift
@@ -74,7 +74,7 @@ block on outbound TCP from the phone**, which is rare.
 
 The phone never closes the socket on its own except when the rider
 toggles the data link off or the `WheelService` is stopped. The HUD
-never closes the socket — it just keeps accepting whatever frames the
+never closes the socket, it just keeps accepting whatever frames the
 phone sends.
 
 The Ktor server uses `pingPeriodMillis = 15_000`. If the OS can no
@@ -86,7 +86,7 @@ and the dial loop restarts.
 ### 2.1 Network model
 
 Both apps assume they share a single LAN. Anything that works for
-that — phone hotspot, home WiFi, captive AP — works for the link. The
+that, phone hotspot, home WiFi, captive AP, works for the link. The
 phone-as-hotspot setup is the typical deployment because it keeps the
 HUD on a network the rider controls.
 
@@ -97,7 +97,7 @@ doesn't have a working uplink, the HUD's Map screen falls back to a
 checkerboard placeholder; everything else still works.
 
 
-## 3. Service discovery (mDNS) — optional
+## 3. Service discovery (mDNS), optional
 
 The phone tries mDNS only when no manual IP is set in
 `AppSettings.hudIp`. If the rider has typed an IP, that is used
@@ -118,7 +118,7 @@ The phone-side resolver:
 1. Acquires a `WifiManager.MulticastLock` (Android filters multicast
    by default).
 2. Opens a fresh `JmDNS` instance per attempt (binds to current
-   interface — JmDNS does not always rebind cleanly on network change).
+   interface, JmDNS does not always rebind cleanly on network change).
 3. Waits up to 5 s for the first service-resolved event.
 4. Picks the first IPv4 address. Accepts the HUD only when TXT `v` is
    ≤ the phone's known `PROTOCOL_VERSION` (a newer HUD is rejected;
@@ -243,11 +243,11 @@ another is active does not formally interfere, but only the most
 recent socket's frames feed `_state`.
 
 Outbound `HudCommand` messages are buffered in an unbounded `Channel`
-so a button press during a momentary disconnect is not lost — it ships
+so a button press during a momentary disconnect is not lost, it ships
 on the next reconnect.
 
 
-## 5. `HudState` — phone → HUD, every 200 ms
+## 5. `HudState`, phone → HUD, every 200 ms
 
 JSON object, all fields nullable with defaults; decoder runs with
 `ignoreUnknownKeys = true` and `allowSpecialFloatingPointValues = true`
@@ -300,7 +300,7 @@ JSON object, all fields nullable with defaults; decoder runs with
 - **`NaN` means "no value"** for the GPS-derived floats (`gpsSpeedKmh`,
   `gpsHeadingDeg`, `gpsAltitudeM`). Both ends use the
   `allowSpecialFloatingPointValues = true` JSON flag. **Without that
-  flag every frame would fail to serialize** — this was the original
+  flag every frame would fail to serialize**, this was the original
   silent-link bug in `0.1.4`.
 - **`0` is ambiguous on `wheelRollDeg`/`wheelPitchDeg`**: it means
   either "wheel reports 0°" or "wheel doesn't report it". The HUD
@@ -318,7 +318,7 @@ JSON object, all fields nullable with defaults; decoder runs with
 The publish loop runs at 5 Hz (200 ms period). That matches the rate
 the wear bridge uses for the watch face, and is the slowest rate that
 still feels responsive on the speed dial. The HUD does NOT request a
-specific rate — the phone is the timer. The HUD just treats whichever
+specific rate, the phone is the timer. The HUD just treats whichever
 frame is currently in `_state` as the latest.
 
 Frame timestamps bump every tick even when no other field has changed,
@@ -326,7 +326,7 @@ so the HUD can use `timestampMs` as a "freshness" signal independent
 of its own wall clock.
 
 
-## 6. `HudCommand` — HUD → phone, on button press
+## 6. `HudCommand`, HUD → phone, on button press
 
 JSON object, one of four variants. `kotlinx.serialization` polymorphic
 encoding adds a `"type"` discriminator:
@@ -362,7 +362,7 @@ shared LAN.
 
 Commands queue inside an unbounded `Channel` on the HUD side; if the
 WebSocket drops while the queue has pending items, they ship on the
-next reconnect. There is no ACK frame — the HUD assumes successful
+next reconnect. There is no ACK frame, the HUD assumes successful
 delivery once `send()` returns.
 
 
@@ -481,7 +481,7 @@ still see a recognisable version field.
 - Adding a brand-new `HudCommand` variant.
 - Adding a new field to the embedded `customOverlayJson` payload.
 
-Old HUDs ignore the new field — both decoders run with
+Old HUDs ignore the new field, both decoders run with
 `ignoreUnknownKeys = true`. The link keeps working; older HUDs just don't
 render the new feature.
 
@@ -495,9 +495,9 @@ render the new feature.
   (or its successor pinned-snapshot test).
 
 When MAJOR bumps, also reset MINOR to 0 and update both:
-- `hud-protocol/src/test/.../WireFormatTest.kt` — pin the new baseline
+- `hud-protocol/src/test/.../WireFormatTest.kt`, pin the new baseline
   JSON snapshot.
-- `docs/hud/index.html` — note the breaking change in the keeping-in-
+- `docs/hud/index.html`, note the breaking change in the keeping-in-
   sync section.
 
 ### 8.2 Compatibility matrix
@@ -598,7 +598,7 @@ the wire is:
 
 1. Open `ws://<hud-ip>:28080/state`.
 2. Every 200 ms, send a JSON-encoded `HudState` (only the fields you
-   actually have — defaults cover the rest).
+   actually have, defaults cover the rest).
 3. Read incoming text frames and decode as `HudCommand` (4 variants
    covering all rider input).
 

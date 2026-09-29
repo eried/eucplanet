@@ -52,13 +52,15 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.eried.eucplanet.R
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
 /**
- * Tokens whose value matches a sampled screen pixel — how the target tool answers
+ * Tokens whose value matches a sampled screen pixel, how the target tool answers
  * "which class of color is that". Lists EVERY token that exactly produces the
  * sampled color (so e.g. all four near-identical surfaces show up), falling back
  * to the 3 nearest when nothing matches exactly.
@@ -98,7 +100,7 @@ fun ThemeTargetOverlay(
     ring: Offset,
     /** True while the finger is still held on the eyedropper button (live aim). */
     fingerDown: Boolean,
-    /** True when the finger was released OFF the button — sample immediately,
+    /** True when the finger was released OFF the button, sample immediately,
      *  skipping the Identify/Cancel step. */
     autoIdentify: Boolean,
     onRing: (Offset) -> Unit,
@@ -167,7 +169,7 @@ fun ThemeTargetOverlay(
 
     val choosing = candidates != null
     // Aim buttons appear only after a tap-release inside the button (or the auto
-    // path fell through) — never while the finger is down or mid-sample.
+    // path fell through), never while the finger is down or mid-sample.
     val showAimButtons = !choosing && !fingerDown && (!autoIdentify || autoFallback)
     val gestureMode = when {
         fingerDown -> "live"      // eyedropper button owns the gesture; stay passive
@@ -192,7 +194,7 @@ fun ThemeTargetOverlay(
                 }
             }
     ) {
-        // Dim + spotlight + crosshair — always visible (kept while choosing too).
+        // Dim + spotlight + crosshair, always visible (kept while choosing too).
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
@@ -212,7 +214,7 @@ fun ThemeTargetOverlay(
 
         if (showAimButtons) {
             // Identify / Cancel sit below the circle, but flip ABOVE it when there
-            // isn't room below — never overlapping the circle, always on-screen.
+            // isn't room below, never overlapping the circle, always on-screen.
             Row(
                 modifier = Modifier
                     .offset {
@@ -231,10 +233,10 @@ fun ThemeTargetOverlay(
                     .onGloballyPositioned { rowWpx = it.size.width; rowHpx = it.size.height },
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Cancel on the left, primary (Identify) on the right — matches the
+                // Cancel on the left, primary (Identify) on the right, matching the
                 // app's dialog button convention (dismiss left, confirm right).
-                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) { Text("Cancel") }
-                FilledTonalButton(onClick = { sample() }, shape = RoundedCornerShape(12.dp)) { Text("Identify") }
+                TextButton(onClick = onCancel, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_cancel)) }
+                FilledTonalButton(onClick = { sample() }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.theme_identify)) }
             }
         } else if (choosing) {
             // Centered chooser: title + tap-to-blink list (scrolls if many) + buttons.
@@ -252,7 +254,7 @@ fun ThemeTargetOverlay(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        "Color identifier results",
+                        stringResource(R.string.theme_identify_results_title),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(start = 6.dp, bottom = 8.dp)
                     )
@@ -294,12 +296,12 @@ fun ThemeTargetOverlay(
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
                         TextButton(onClick = { candidates = null; chosen = null; onCancel() }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.action_cancel))
                         }
                         TextButton(
                             enabled = chosen != null,
                             onClick = { chosen?.let { candidates = null; onPicked(it) } }
-                        ) { Text("Select") }
+                        ) { Text(stringResource(R.string.action_select)) }
                     }
                 }
             }

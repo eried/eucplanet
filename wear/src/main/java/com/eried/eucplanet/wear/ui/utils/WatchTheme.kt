@@ -129,7 +129,7 @@ internal val GaugeAccentRed = AccentRed
  * reproduce the watch's previous fixed palette so an un-synced watch (or an
  * older phone that doesn't send the string) looks exactly as before.
  *
- * Field order is the wire contract — keep it in lockstep with the phone's
+ * Field order is the wire contract, keep it in lockstep with the phone's
  * `ThemeAccent.packForWatch`.
  */
 data class WatchColors(

@@ -33,11 +33,11 @@ class AdvancedSpecTest {
             assertNotEquals("range too small to test ${spec.id}", cur, probe)
 
             val updated = spec.set(base, probe)
-            assertEquals("${spec.id}: get(set(v)) != v — wrong field in get or set", probe, spec.get(updated))
+            assertEquals("${spec.id}: get(set(v)) != v, wrong field in get or set", probe, spec.get(updated))
 
             for (other in ADVANCED_SPECS) {
                 if (other.id == spec.id) continue
-                assertEquals("setting ${spec.id} changed ${other.id} — set copies the wrong field",
+                assertEquals("setting ${spec.id} changed ${other.id}, set copies the wrong field",
                     other.get(base), other.get(updated))
             }
         }

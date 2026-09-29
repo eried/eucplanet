@@ -366,6 +366,7 @@ class DashboardViewModel @Inject constructor(
      *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
      *  expose lock over BLE today. */
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /** Charging state for the dashboard spark icon (hint + tap-to-open). */
     val chargeStatus: StateFlow<com.eried.eucplanet.data.model.ChargeStatus> =

@@ -53,7 +53,7 @@ object WatchKeys {
     const val UNIT_TEMP = "ut"
     const val ACCENT = "ac"
     /** Packed custom-theme colors ("#"-less AARRGGBB, pipe-separated, fixed
-     *  field order — see WatchColors / ThemeAccent.packForWatch). Lets the watch
+     *  field order, see WatchColors / ThemeAccent.packForWatch). Lets the watch
      *  mirror the phone theme's background, gauge, battery and text colors.
      *  Absent on older phone builds → watch keeps its built-in palette. */
     const val THEME = "thm"
@@ -90,13 +90,13 @@ object WatchKeys {
     const val OPT_GAUGE_RED = "wgr"
 
     // --- Hardware-button bindings (KEYCODE_STEM_1 / STEM_2). Stored as
-    //     FlicAction.name strings; "NONE" disables the binding. ---
+    //     ActionCatalog key strings; "NONE" disables the binding. ---
     const val STEM1_CLICK = "s1c"
     const val STEM1_HOLD = "s1h"
     const val STEM2_CLICK = "s2c"
     const val STEM2_HOLD = "s2h"
 
-    // --- On-screen watch button bindings. Same FlicAction.name vocabulary;
+    // --- On-screen watch button bindings. Same ActionCatalog key vocabulary;
     //     defaults are HORN / LIGHT_TOGGLE on the phone side. ---
     const val SCREEN1_CLICK = "b1c"
     const val SCREEN1_HOLD = "b1h"
@@ -138,7 +138,7 @@ object WatchControl {
     const val LIGHT_ON = "light_on"
     const val LIGHT_OFF = "light_off"
     /**
-     * Generic action passthrough: payload is a [FlicAction] name. Used by
+     * Generic action passthrough: payload is an ActionCatalog key. Used by
      * the watch's stem-button handler when the bound action needs phone
      * routing (LOCK_TOGGLE, SAFETY_TOGGLE, RECORD_TOGGLE, VOICE_ANNOUNCE,
      * MEDIA_*). Horn / light keep their dedicated paths above for back-

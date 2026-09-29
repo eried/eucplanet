@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * "Not supported on this platform" markers — informational badges that flag a
+ * "Not supported on this platform" markers, informational badges that flag a
  * feature/control the active companion can't do (Garmin, HUD). The diagonal
  * slash is the universal "no". Colors come from the theme tokens (ink =
  * secondary text, slash = danger), so they track the active theme.
@@ -30,14 +30,14 @@ import androidx.compose.ui.unit.sp
 /**
  * Text variant: a tiny boxed uppercase platform label (e.g. "GARMIN", "HUD")
  * struck through with a diagonal slash. Used where there's no good platform
- * icon — the label itself names the platform, so it's unambiguous.
+ * icon, the label itself names the platform, so it's unambiguous.
  */
 @Composable
 fun PlatformUnsupportedTextBadge(
     label: String,
     modifier: Modifier = Modifier,
 ) {
-    // One muted "disabled" color for the label, border, and slash — no red.
+    // One muted "disabled" color for the label, border, and slash, no red.
     val ink = MaterialTheme.appColors.textDisabled
     Box(
         modifier = modifier

@@ -186,7 +186,7 @@ reverse-engineered from KS-16X side-by-side captures:
 The KS app uses a flat linear curve between these endpoints across the
 rideable range; the three captures we have line up on this single line to
 within rounding (52% at 73 V / 57% at 74 V / 96-97% at 82.27 V on 20S).
-Apply the same per-cell endpoints to every voltage class — packs share
+Apply the same per-cell endpoints to every voltage class, packs share
 the same 18650/21700 NMC chemistry, only the series count changes.
 
 ### 4.6 CPU and PWM, type `0xF5`
@@ -331,8 +331,7 @@ Power off:
 ## 6.1 Keep-alive + stream start (KS-16X new firmware)
 
 Older KS firmware is push-only: enable notifications on `0xFFE1` and the
-wheel streams `0xA9`/`0xB9` on its own. The **KS-16X new revision does NOT** —
-it stops (or never starts) pushing telemetry unless the app keeps writing to
+wheel streams `0xA9`/`0xB9` on its own. The **KS-16X new revision does NOT**, it stops (or never starts) pushing telemetry unless the app keeps writing to
 it. Two writes are required:
 
 | Command | Offset 16 | Cadence | Effect |
