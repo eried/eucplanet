@@ -7107,9 +7107,9 @@ private fun SpeedTab(
             )
         }
 
-        LegalLockdownSetting(viewModel)
-
         HornSection(settings, viewModel)
+
+        LegalLockdownSetting(viewModel)
     }
 }
 
@@ -7164,35 +7164,34 @@ private fun HornSection(
         current = horn.mode,
         onChange = { viewModel.updateHornMode(it) }
     )
-    HintText(stringResource(R.string.horn_mode_hint), small = true)
     if (horn.mode != com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL) {
-        Text(
-            if (horn.soundName.isNotBlank() && soundReady) horn.soundName
-            else stringResource(R.string.horn_sound_none),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.appColors.textPrimary,
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(
-                onClick = { picker.launch(arrayOf("audio/*")) },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp)
-            ) { Text(stringResource(R.string.horn_sound_choose)) }
-            Button(
-                onClick = { viewModel.playHornSound() },
-                enabled = soundReady,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp)
-            ) { Text(stringResource(R.string.horn_sound_play)) }
+        HintText(stringResource(R.string.horn_mode_hint), small = true)
+        // Same shape as the backup folder row: the chosen sound as a labelled
+        // line with the small preview control beside it, and one browse
+        // button under it. Nothing chosen shows only the browse button.
+        if (horn.soundName.isNotBlank() && soundReady) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    stringResource(R.string.horn_sound_current, horn.soundName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.appColors.primary,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                PlayButton(onClick = { viewModel.playHornSound() })
+            }
         }
+        LeftAlignedScanButton(
+            label = stringResource(R.string.horn_sound_choose),
+            onClick = { picker.launch(arrayOf("audio/*")) }
+        )
         SwitchSetting(
             label = stringResource(R.string.horn_headphones_only),
             checked = horn.headphonesOnly
         ) { viewModel.updateHornHeadphonesOnly(it) }
-        HintText(stringResource(R.string.horn_headphones_only_hint), small = true)
     }
 }
 
