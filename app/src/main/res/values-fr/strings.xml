@@ -2708,7 +2708,7 @@
     <string name="adv_headlight_readback_age_desc">Durée de validité du niveau de phare reçu. Une durée trop longue peut afficher un niveau périmé.</string>
     <string name="horn_headphones_only">Seulement sur casque ou Bluetooth</string>
     <string name="horn_section">Klaxon</string>
-    <string name="horn_mode_label">Son</string>
+    <string name="horn_mode_label">Mode</string>
     <string name="horn_mode_wheel">Par défaut</string>
     <string name="horn_mode_sound">Perso</string>
     <string name="horn_mode_both">Combiné</string>

@@ -2705,7 +2705,7 @@
     <string name="adv_headlight_readback_age_desc">受信したライトの明るさを有効とする時間です。長すぎると古い状態が表示されます。</string>
     <string name="horn_headphones_only">ヘッドフォンまたはBluetoothのみ</string>
     <string name="horn_section">ホーン</string>
-    <string name="horn_mode_label">サウンド</string>
+    <string name="horn_mode_label">モード</string>
     <string name="horn_mode_wheel">標準</string>
     <string name="horn_mode_sound">カスタム</string>
     <string name="horn_mode_both">同時</string>

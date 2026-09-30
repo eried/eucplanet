@@ -7107,9 +7107,9 @@ private fun SpeedTab(
             )
         }
 
-        HornSection(settings, viewModel)
-
         LegalLockdownSetting(viewModel)
+
+        HornSection(settings, viewModel)
     }
 }
 

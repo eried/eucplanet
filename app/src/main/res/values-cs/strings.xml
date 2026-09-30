@@ -2507,7 +2507,7 @@
     <string name="adv_headlight_readback_age_desc">Jak dlouho je hlášená úroveň světla aktuální. Příliš dlouhá doba může zobrazit zastaralou úroveň.</string>
     <string name="horn_headphones_only">Jen na sluchátkách nebo Bluetooth</string>
     <string name="horn_section">Klakson</string>
-    <string name="horn_mode_label">Zvuk</string>
+    <string name="horn_mode_label">Režim</string>
     <string name="horn_mode_wheel">Výchozí</string>
     <string name="horn_mode_sound">Vlastní</string>
     <string name="horn_mode_both">Kombinace</string>

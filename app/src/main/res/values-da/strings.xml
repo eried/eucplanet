@@ -2719,7 +2719,7 @@
     <string name="adv_headlight_readback_age_desc">Hvor længe et rapporteret lysniveau er aktuelt. For lang tid kan vise et forældet niveau.</string>
     <string name="horn_headphones_only">Kun med hovedtelefoner eller Bluetooth</string>
     <string name="horn_section">Horn</string>
-    <string name="horn_mode_label">Lyd</string>
+    <string name="horn_mode_label">Tilstand</string>
     <string name="horn_mode_wheel">Standard</string>
     <string name="horn_mode_sound">Egen</string>
     <string name="horn_mode_both">Kombineret</string>

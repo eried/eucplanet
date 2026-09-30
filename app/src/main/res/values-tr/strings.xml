@@ -2701,7 +2701,7 @@
     <string name="adv_headlight_readback_age_desc">Bildirilen ışık seviyesinin güncel kaldığı süre. Çok uzun bir süre eski bir seviyeyi gösterebilir.</string>
     <string name="horn_headphones_only">Yalnızca kulaklık veya Bluetooth\'ta</string>
     <string name="horn_section">Korna</string>
-    <string name="horn_mode_label">Ses</string>
+    <string name="horn_mode_label">Mod</string>
     <string name="horn_mode_wheel">Varsayılan</string>
     <string name="horn_mode_sound">Özel</string>
     <string name="horn_mode_both">Birlikte</string>

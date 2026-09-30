@@ -2507,7 +2507,7 @@
     <string name="adv_headlight_readback_age_desc">Cât timp nivelul de lumină raportat rămâne actual. O durată prea mare poate afișa un nivel învechit.</string>
     <string name="horn_headphones_only">Doar pe căști sau Bluetooth</string>
     <string name="horn_section">Claxon</string>
-    <string name="horn_mode_label">Sunet</string>
+    <string name="horn_mode_label">Mod</string>
     <string name="horn_mode_wheel">Implicit</string>
     <string name="horn_mode_sound">Propriu</string>
     <string name="horn_mode_both">Combinat</string>

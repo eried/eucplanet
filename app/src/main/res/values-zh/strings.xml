@@ -2571,7 +2571,7 @@
     <string name="adv_headlight_readback_age_desc">上报的灯光亮度保持有效的时间。时间过长可能显示过时的亮度。</string>
     <string name="horn_headphones_only">仅限耳机或蓝牙</string>
     <string name="horn_section">喇叭</string>
-    <string name="horn_mode_label">音效</string>
+    <string name="horn_mode_label">模式</string>
     <string name="horn_mode_wheel">默认</string>
     <string name="horn_mode_sound">自定义</string>
     <string name="horn_mode_both">同时</string>

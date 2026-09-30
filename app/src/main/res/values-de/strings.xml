@@ -2724,7 +2724,7 @@
     <string name="adv_headlight_readback_age_desc">Wie lange eine gemeldete Lichtstufe aktuell bleibt. Ein zu langer Zeitraum kann eine veraltete Stufe anzeigen.</string>
     <string name="horn_headphones_only">Nur über Kopfhörer oder Bluetooth</string>
     <string name="horn_section">Hupe</string>
-    <string name="horn_mode_label">Klang</string>
+    <string name="horn_mode_label">Modus</string>
     <string name="horn_mode_wheel">Standard</string>
     <string name="horn_mode_sound">Eigener</string>
     <string name="horn_mode_both">Kombiniert</string>

@@ -2704,7 +2704,7 @@
     <string name="adv_headlight_readback_age_desc">Hur länge en rapporterad ljusnivå är aktuell. För lång tid kan visa en inaktuell nivå.</string>
     <string name="horn_headphones_only">Endast med hörlurar eller Bluetooth</string>
     <string name="horn_section">Signalhorn</string>
-    <string name="horn_mode_label">Ljud</string>
+    <string name="horn_mode_label">Läge</string>
     <string name="horn_mode_wheel">Standard</string>
     <string name="horn_mode_sound">Eget</string>
     <string name="horn_mode_both">Kombinerat</string>

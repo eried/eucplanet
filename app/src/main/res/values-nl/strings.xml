@@ -2706,7 +2706,7 @@
     <string name="adv_headlight_readback_age_desc">Hoelang een gemelde lichtstand actueel blijft. Een te lange tijd kan een verouderde stand tonen.</string>
     <string name="horn_headphones_only">Alleen bij koptelefoon of Bluetooth</string>
     <string name="horn_section">Claxon</string>
-    <string name="horn_mode_label">Geluid</string>
+    <string name="horn_mode_label">Modus</string>
     <string name="horn_mode_wheel">Standaard</string>
     <string name="horn_mode_sound">Eigen</string>
     <string name="horn_mode_both">Samen</string>

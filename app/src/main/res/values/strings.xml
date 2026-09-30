@@ -2729,7 +2729,7 @@
     <string name="adv_headlight_readback_age_desc">How long a reported light level stays current. Too long can show an outdated level.</string>
     <string name="horn_headphones_only">Only on headphones or Bluetooth</string>
     <string name="horn_section">Horn</string>
-    <string name="horn_mode_label">Sound</string>
+    <string name="horn_mode_label">Mode</string>
     <string name="horn_mode_wheel">Default</string>
     <string name="horn_mode_sound">Custom</string>
     <string name="horn_mode_both">Combined</string>

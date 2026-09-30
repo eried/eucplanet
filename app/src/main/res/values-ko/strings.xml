@@ -2703,7 +2703,7 @@
     <string name="adv_headlight_readback_age_desc">수신한 조명 단계를 최신 상태로 유지하는 시간입니다. 너무 길면 오래된 단계가 표시될 수 있습니다.</string>
     <string name="horn_headphones_only">헤드폰 또는 블루투스에서만</string>
     <string name="horn_section">경적</string>
-    <string name="horn_mode_label">사운드</string>
+    <string name="horn_mode_label">모드</string>
     <string name="horn_mode_wheel">기본</string>
     <string name="horn_mode_sound">사용자</string>
     <string name="horn_mode_both">동시</string>

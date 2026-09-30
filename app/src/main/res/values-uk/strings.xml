@@ -2701,7 +2701,7 @@
     <string name="adv_headlight_readback_age_desc">Як довго отриманий рівень світла вважається актуальним. Надто великий термін може показувати застарілий рівень.</string>
     <string name="horn_headphones_only">Лише через навушники або Bluetooth</string>
     <string name="horn_section">Сигнал</string>
-    <string name="horn_mode_label">Звук</string>
+    <string name="horn_mode_label">Режим</string>
     <string name="horn_mode_wheel">Типовий</string>
     <string name="horn_mode_sound">Свій</string>
     <string name="horn_mode_both">Разом</string>

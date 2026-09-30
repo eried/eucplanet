@@ -2722,7 +2722,7 @@
     <string name="adv_headlight_readback_age_desc">Tiempo durante el cual el nivel de luz informado sigue vigente. Un tiempo excesivo puede mostrar un nivel desactualizado.</string>
     <string name="horn_headphones_only">Solo con auriculares o Bluetooth</string>
     <string name="horn_section">Bocina</string>
-    <string name="horn_mode_label">Sonido</string>
+    <string name="horn_mode_label">Modo</string>
     <string name="horn_mode_wheel">Estándar</string>
     <string name="horn_mode_sound">Propio</string>
     <string name="horn_mode_both">Combinado</string>

@@ -2507,7 +2507,7 @@
     <string name="adv_headlight_readback_age_desc">Kuinka kauan ilmoitettu valotaso on ajantasainen. Liian pitkä aika voi näyttää vanhentuneen tason.</string>
     <string name="horn_headphones_only">Vain kuulokkeilla tai Bluetoothilla</string>
     <string name="horn_section">Äänimerkki</string>
-    <string name="horn_mode_label">Ääni</string>
+    <string name="horn_mode_label">Tila</string>
     <string name="horn_mode_wheel">Oletus</string>
     <string name="horn_mode_sound">Oma</string>
     <string name="horn_mode_both">Yhdistetty</string>

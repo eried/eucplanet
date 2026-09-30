@@ -2507,7 +2507,7 @@
     <string name="adv_headlight_readback_age_desc">Meddig számít aktuálisnak a jelzett fényerőszint. Túl hosszú idő esetén elavult szint jelenhet meg.</string>
     <string name="horn_headphones_only">Csak fejhallgatón vagy Bluetoothon</string>
     <string name="horn_section">Duda</string>
-    <string name="horn_mode_label">Hang</string>
+    <string name="horn_mode_label">Mód</string>
     <string name="horn_mode_wheel">Alap</string>
     <string name="horn_mode_sound">Saját</string>
     <string name="horn_mode_both">Együtt</string>
