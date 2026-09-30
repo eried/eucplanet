@@ -1160,8 +1160,6 @@
     <string name="proximity_unlock_above">Sinyal üstünde</string>
     <string name="proximity_lock_signal_live">Mevcut sinyal: %1$s</string>
     <string name="proximity_lock_hint">Kilitleme canlı bağlantı gerektirir, bu yüzden menzil dışına çıkınca değil, sinyal zayıflarken gerçekleşir.</string>
-    <string name="auto_lock_override_toast">Otomatik kilit açık ve bunu geçersiz kılabilir.</string>
-    <string name="auto_lock_override_action">Ayarla</string>
     <string name="menu_auto_lock_settings">Teker kilidi ayarları</string>
     <string name="menu_auto_lock_on">Otomatik kilidi etkinleştir</string>
     <string name="menu_auto_lock_off">Otomatik kilidi devre dışı bırak</string>
@@ -1171,7 +1169,8 @@
     <string name="auto_midnight_sun_body">Güneş bugün bu enlemde batmıyor, ışıklar KAPALI kalacak.</string>
     <string name="auto_polar_night_title">Kutup Gecesi</string>
     <string name="auto_polar_night_body">Güneş bugün bu enlemde doğmuyor, ışıklar AÇIK kalacak.</string>
-    <string name="auto_lights_suspended">Bu oturum için kullanıcı ışık geçişi nedeniyle askıya alındı. Devam ettirmek için tekeri yeniden bağlayın veya uygulamayı yeniden başlatın</string>
+    <string name="auto_lights_suspended">Bu oturum için duraklatıldı, ışığı elle ayarladın. Dikkat gerekiyor bölümünden düzelt veya tekeri yeniden bağla.</string>
+    <string name="auto_lock_suspended">Bu oturum için duraklatıldı, elle kilitledin veya açtın. Dikkat gerekiyor bölümünden düzelt veya tekeri yeniden bağla.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Her metrik için en uygun alarm otomatik olarak tetiklenir. Listedeki sıra hangisinin tetikleneceğini değiştirmez; sıralama yalnızca düzeni korur.</string>
@@ -1978,6 +1977,10 @@
     <string name="warnings_indicator_desc">Uygulama uyarıları</string>
     <string name="warnings_dialog_title">Dikkat gerekiyor</string>
     <string name="warnings_fix_button">Düzelt</string>
+    <string name="warnings_autolights_title">Otomatik ışık duraklatıldı</string>
+    <string name="warnings_autolights_body">Işığı elle ayarladığın için zamanlama bu oturumda devreye girmez. Düzelt kontrolü geri verir.</string>
+    <string name="warnings_autolock_title">Otomatik kilit duraklatıldı</string>
+    <string name="warnings_autolock_body">Elle kilitleyip açtığın için yakınlık kilidi bu oturumda devreye girmez. Düzelt kontrolü geri verir.</string>
     <string name="warnings_perm_notifications_title">Bildirimler kapalı</string>
     <string name="warnings_perm_notifications_body">Durum çubuğunda sürüş durumunu göremez ve bildirim panelinde sesli uyarı alamazsınız.</string>
     <string name="warnings_perm_location_title">Konum kapalı</string>

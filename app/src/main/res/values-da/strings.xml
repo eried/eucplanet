@@ -1163,8 +1163,6 @@
     <string name="proximity_unlock_above">Signal over</string>
     <string name="proximity_lock_signal_live">Aktuelt signal: %1$s</string>
     <string name="proximity_lock_hint">Låsning kræver en aktiv forbindelse, så den sker, mens signalet svinder, ikke først når du er uden for rækkevidde.</string>
-    <string name="auto_lock_override_toast">Auto-lås er slået til og kan tilsidesætte dette.</string>
-    <string name="auto_lock_override_action">Konfigurer</string>
     <string name="menu_auto_lock_settings">Indstillinger for hjullås</string>
     <string name="menu_auto_lock_on">Slå auto-lås til</string>
     <string name="menu_auto_lock_off">Slå auto-lås fra</string>
@@ -1174,7 +1172,8 @@
     <string name="auto_midnight_sun_body">Solen går ikke ned på denne breddegrad i dag, lyset forbliver slukket.</string>
     <string name="auto_polar_night_title">Mørketid</string>
     <string name="auto_polar_night_body">Solen går ikke op på denne breddegrad i dag, lyset forbliver tændt.</string>
-    <string name="auto_lights_suspended">Sat på pause: du har selv tændt/slukket lyset i denne session. Tilslut hjulet igen eller genstart appen for at fortsætte</string>
+    <string name="auto_lights_suspended">Sat på pause i denne session, du satte lyset manuelt. Ret det fra Kræver opmærksomhed, eller tilslut hjulet igen.</string>
+    <string name="auto_lock_suspended">Sat på pause i denne session, du låste eller låste op manuelt. Ret det fra Kræver opmærksomhed, eller tilslut hjulet igen.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">For hver måling udløses den mest relevante alarm automatisk. Rækkefølgen i listen ændrer ikke hvilken; sorteringen holder den bare ryddelig.</string>
@@ -1990,6 +1989,10 @@
     <string name="warnings_indicator_desc">App-advarsler</string>
     <string name="warnings_dialog_title">Kræver opmærksomhed</string>
     <string name="warnings_fix_button">Ret</string>
+    <string name="warnings_autolights_title">Autolys på pause</string>
+    <string name="warnings_autolights_body">Du satte lyset manuelt, så tidsplanen holder sig væk i denne session. Ret giver den styringen tilbage.</string>
+    <string name="warnings_autolock_title">Autolås på pause</string>
+    <string name="warnings_autolock_body">Du låste eller låste op manuelt, så nærhedslåsen holder sig væk i denne session. Ret giver den styringen tilbage.</string>
     <string name="warnings_perm_notifications_title">Notifikationer slået fra</string>
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i notifikationsskuffen.</string>
     <string name="warnings_perm_location_title">Placering er slået fra</string>

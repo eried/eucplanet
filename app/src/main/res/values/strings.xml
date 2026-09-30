@@ -1617,8 +1617,6 @@
     <string name="proximity_unlock_above">Signal above</string>
     <string name="proximity_lock_signal_live">Current signal: %1$s</string>
     <string name="proximity_lock_hint">Locking needs a live connection, so it happens as the signal fades, not once you are out of range.</string>
-    <string name="auto_lock_override_toast">Auto-lock is on and may override this.</string>
-    <string name="auto_lock_override_action">Configure</string>
     <string name="menu_auto_lock_settings">Wheel lock settings</string>
     <string name="menu_auto_lock_on">Enable auto-lock</string>
     <string name="menu_auto_lock_off">Disable auto-lock</string>
@@ -1627,7 +1625,8 @@
     <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today, lights will stay OFF.</string>
     <string name="auto_polar_night_title">Polar Night</string>
     <string name="auto_polar_night_body">Sun doesn\'t rise at this latitude today, lights will stay ON.</string>
-    <string name="auto_lights_suspended">Suspended due to user light toggle for this session. Reconnect the wheel or restart the app to resume</string>
+    <string name="auto_lights_suspended">Paused for this session, you set the light by hand. Fix it from Needs attention, or reconnect the wheel.</string>
+    <string name="auto_lock_suspended">Paused for this session, you locked or unlocked by hand. Fix it from Needs attention, or reconnect the wheel.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Trigger priority is based on metric groups order below.</string>
@@ -2572,6 +2571,10 @@
     <string name="warnings_indicator_desc">App warnings</string>
     <string name="warnings_dialog_title">Needs attention</string>
     <string name="warnings_fix_button">Fix</string>
+    <string name="warnings_autolights_title">Auto-lights paused</string>
+    <string name="warnings_autolights_body">You set the light by hand, so the schedule stays out of the way for this session. Fix hands it back.</string>
+    <string name="warnings_autolock_title">Auto-lock paused</string>
+    <string name="warnings_autolock_body">You locked or unlocked by hand, so proximity lock stays out of the way for this session. Fix hands it back.</string>
     <string name="warnings_perm_notifications_title">Notifications off</string>
     <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade.</string>
     <string name="warnings_perm_location_title">Location is off</string>

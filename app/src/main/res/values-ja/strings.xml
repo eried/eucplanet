@@ -1160,8 +1160,6 @@
     <string name="proximity_unlock_above">信号 以上</string>
     <string name="proximity_lock_signal_live">現在の信号: %1$s</string>
     <string name="proximity_lock_hint">ロックにはライブ接続が必要なため、範囲外になってからではなく信号が弱まる途中で作動します。</string>
-    <string name="auto_lock_override_toast">自動ロックがオンで、これを上書きする場合があります。</string>
-    <string name="auto_lock_override_action">設定</string>
     <string name="menu_auto_lock_settings">ホイールロック設定</string>
     <string name="menu_auto_lock_on">自動ロックをオン</string>
     <string name="menu_auto_lock_off">自動ロックをオフ</string>
@@ -1171,7 +1169,8 @@
     <string name="auto_midnight_sun_body">この緯度では今日は日没がないため、ライトはオフのままになります。</string>
     <string name="auto_polar_night_title">極夜</string>
     <string name="auto_polar_night_body">この緯度では今日は日の出がないため、ライトはオンのままになります。</string>
-    <string name="auto_lights_suspended">このセッションでユーザーがライトを手動操作したため一時停止中。ホイールを再接続またはアプリを再起動すると再開します</string>
+    <string name="auto_lights_suspended">このセッション中は一時停止中です。ライトを手動で変更しました。注意が必要ですから修正するか、ホイールを再接続してください。</string>
+    <string name="auto_lock_suspended">このセッション中は一時停止中です。手動でロックまたは解除しました。注意が必要ですから修正するか、ホイールを再接続してください。</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">メトリクスごとに最も適切なアラームが自動で発動します。リストの順序で発動するルールが変わることはなく、並び替えは見やすさのためだけです。</string>
@@ -1978,6 +1977,10 @@
     <string name="warnings_indicator_desc">アプリの警告</string>
     <string name="warnings_dialog_title">注意が必要です</string>
     <string name="warnings_fix_button">修正</string>
+    <string name="warnings_autolights_title">自動ライト一時停止中</string>
+    <string name="warnings_autolights_body">ライトを手動で変更したため、このセッション中はスケジュールが介入しません。修正で自動に戻ります。</string>
+    <string name="warnings_autolock_title">自動ロック一時停止中</string>
+    <string name="warnings_autolock_body">手動でロックまたは解除したため、このセッション中は近接ロックが介入しません。修正で自動に戻ります。</string>
     <string name="warnings_perm_notifications_title">通知がオフです</string>
     <string name="warnings_perm_notifications_body">ステータスバーに走行状態が表示されず、通知シェードでの音声アラートも受け取れません。</string>
     <string name="warnings_perm_location_title">位置情報がオフです</string>

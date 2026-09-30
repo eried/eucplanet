@@ -1163,8 +1163,6 @@
     <string name="proximity_unlock_above">Signaal boven</string>
     <string name="proximity_lock_signal_live">Huidig signaal: %1$s</string>
     <string name="proximity_lock_hint">Vergrendelen vereist een actieve verbinding, dus het gebeurt terwijl het signaal wegvalt, niet zodra je buiten bereik bent.</string>
-    <string name="auto_lock_override_toast">Automatisch vergrendelen staat aan en kan dit overschrijven.</string>
-    <string name="auto_lock_override_action">Instellen</string>
     <string name="menu_auto_lock_settings">Instellingen wielvergrendeling</string>
     <string name="menu_auto_lock_on">Automatisch vergrendelen aan</string>
     <string name="menu_auto_lock_off">Automatisch vergrendelen uit</string>
@@ -1174,7 +1172,8 @@
     <string name="auto_midnight_sun_body">De zon gaat vandaag op deze breedtegraad niet onder, het licht blijft UIT.</string>
     <string name="auto_polar_night_title">Poolnacht</string>
     <string name="auto_polar_night_body">De zon komt vandaag op deze breedtegraad niet op, het licht blijft AAN.</string>
-    <string name="auto_lights_suspended">Onderbroken omdat je het licht zelf hebt aan- of uitgezet voor deze sessie. Verbind het wiel opnieuw of herstart de app om door te gaan</string>
+    <string name="auto_lights_suspended">Gepauzeerd voor deze sessie, je hebt het licht met de hand gezet. Herstel het via Vereist aandacht of verbind het wiel opnieuw.</string>
+    <string name="auto_lock_suspended">Gepauzeerd voor deze sessie, je hebt met de hand vergrendeld of ontgrendeld. Herstel het via Vereist aandacht of verbind het wiel opnieuw.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Per metriek vuurt automatisch het meest relevante alarm. De volgorde in de lijst bepaalt niet welke; sorteren houdt het alleen overzichtelijk.</string>
@@ -2014,6 +2013,10 @@
     <string name="warnings_indicator_desc">App-waarschuwingen</string>
     <string name="warnings_dialog_title">Vereist aandacht</string>
     <string name="warnings_fix_button">Oplossen</string>
+    <string name="warnings_autolights_title">Autolicht gepauzeerd</string>
+    <string name="warnings_autolights_body">Je hebt het licht met de hand gezet, dus het schema houdt zich deze sessie afzijdig. Herstellen geeft het weer de leiding.</string>
+    <string name="warnings_autolock_title">Autoslot gepauzeerd</string>
+    <string name="warnings_autolock_body">Je hebt met de hand vergrendeld of ontgrendeld, dus het nabijheidsslot houdt zich deze sessie afzijdig. Herstellen geeft het weer de leiding.</string>
     <string name="warnings_perm_notifications_title">Meldingen uit</string>
     <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel.</string>
     <string name="warnings_perm_location_title">Locatie staat uit</string>

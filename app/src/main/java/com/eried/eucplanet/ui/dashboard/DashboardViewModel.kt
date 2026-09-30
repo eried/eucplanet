@@ -17,7 +17,6 @@ import com.eried.eucplanet.data.model.withUnitsToggled
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
-import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -356,6 +355,55 @@ class DashboardViewModel @Inject constructor(
                     }
                 }
         }
+        // The two session suspensions are fixable problems, so they live in
+        // Needs attention like every other one: the triangle, the count and
+        // the Fix button all come from the same place. Shown only while the
+        // automation is actually on, a suspension under a disabled feature
+        // means nothing.
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                settingsRepository.settings,
+                automationManager.autoLightsSuspended,
+            ) { s, suspended ->
+                suspended && s.lights.applyWhen != com.eried.eucplanet.data.model.ApplyWhenIds.NEVER
+            }.distinctUntilChanged().collect { show ->
+                if (show) {
+                    appHealthRepository.upsert(
+                        com.eried.eucplanet.data.repository.AppWarning(
+                            id = "autolights_paused",
+                            titleRes = com.eried.eucplanet.R.string.warnings_autolights_title,
+                            bodyRes = com.eried.eucplanet.R.string.warnings_autolights_body,
+                            fix = {
+                                automationManager.clearLightsSuspension()
+                                automationManager.triggerImmediateLightEvaluation()
+                            },
+                        )
+                    )
+                } else {
+                    appHealthRepository.dismiss("autolights_paused")
+                }
+            }
+        }
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                settingsRepository.settings,
+                automationManager.autoLockSuspended,
+            ) { s, suspended -> suspended && s.proximityLock.lockEnabled }
+                .distinctUntilChanged().collect { show ->
+                    if (show) {
+                        appHealthRepository.upsert(
+                            com.eried.eucplanet.data.repository.AppWarning(
+                                id = "autolock_paused",
+                                titleRes = com.eried.eucplanet.R.string.warnings_autolock_title,
+                                bodyRes = com.eried.eucplanet.R.string.warnings_autolock_body,
+                                fix = { automationManager.clearLockSuspension() },
+                            )
+                        )
+                    } else {
+                        appHealthRepository.dismiss("autolock_paused")
+                    }
+                }
+        }
     }
 
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
@@ -624,9 +672,10 @@ class DashboardViewModel @Inject constructor(
             settingsRepository.update(current.copy(
                 proximityLock = current.proximityLock.copy(lockEnabled = enabling)
             ))
-            // Switching it on is exactly when the override warning is worth
-            // hearing again; switching it off has nothing left to warn about.
-            if (enabling) AutoLockNotice.rearm() else automationManager.resetProximityLock()
+            // Toggling the automation is a fresh decision, so a manual
+            // suspension from earlier in the session is spent, and the
+            // evaluator starts clean either way.
+            automationManager.clearLockSuspension()
         }
     }
 
@@ -1064,6 +1113,10 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun onLockToggle() {
+        // A hand on the lock wins for the rest of the session: the proximity
+        // automation steps aside instead of fighting the rider's choice, and
+        // Needs attention offers the Fix that resumes it.
+        automationManager.notifyManualLockChange()
         wheelRepository.toggleLock()
     }
 

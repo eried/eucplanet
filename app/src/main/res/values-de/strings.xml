@@ -1159,8 +1159,6 @@
     <string name="proximity_unlock_above">Signal über</string>
     <string name="proximity_lock_signal_live">Aktuelles Signal: %1$s</string>
     <string name="proximity_lock_hint">Sperren braucht eine aktive Verbindung. Es passiert, während das Signal schwächer wird, nicht erst außer Reichweite.</string>
-    <string name="auto_lock_override_toast">Auto-Sperre ist aktiv und kann dies überschreiben.</string>
-    <string name="auto_lock_override_action">Konfigurieren</string>
     <string name="menu_auto_lock_settings">Wheel-Sperre-Einstellungen</string>
     <string name="menu_auto_lock_on">Auto-Sperre aktivieren</string>
     <string name="menu_auto_lock_off">Auto-Sperre deaktivieren</string>
@@ -1170,7 +1168,8 @@
     <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter, das Licht bleibt AUS.</string>
     <string name="auto_polar_night_title">Polarnacht</string>
     <string name="auto_polar_night_body">Die Sonne geht heute an diesem Breitengrad nicht auf, das Licht bleibt AN.</string>
-    <string name="auto_lights_suspended">Pausiert: Du hast das Licht in dieser Sitzung manuell geschaltet. Wheel neu verbinden oder App neu starten, um fortzusetzen</string>
+    <string name="auto_lights_suspended">Für diese Sitzung pausiert, du hast das Licht von Hand gesetzt. Behebe es über Aktion erforderlich oder verbinde das Rad neu.</string>
+    <string name="auto_lock_suspended">Für diese Sitzung pausiert, du hast von Hand gesperrt oder entsperrt. Behebe es über Aktion erforderlich oder verbinde das Rad neu.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Pro Messgröße wird automatisch der passendste Alarm ausgelöst. Die Reihenfolge in der Liste ändert das nicht; das Sortieren sorgt nur für Übersicht.</string>
@@ -1991,6 +1990,10 @@
     <string name="warnings_indicator_desc">App-Warnungen</string>
     <string name="warnings_dialog_title">Aktion erforderlich</string>
     <string name="warnings_fix_button">Beheben</string>
+    <string name="warnings_autolights_title">Autolicht pausiert</string>
+    <string name="warnings_autolights_body">Du hast das Licht von Hand gesetzt, der Zeitplan hält sich diese Sitzung zurück. Beheben gibt ihm die Kontrolle zurück.</string>
+    <string name="warnings_autolock_title">Autosperre pausiert</string>
+    <string name="warnings_autolock_body">Du hast von Hand gesperrt oder entsperrt, die Näherungssperre hält sich diese Sitzung zurück. Beheben gibt ihr die Kontrolle zurück.</string>
     <string name="warnings_perm_notifications_title">Benachrichtigungen aus</string>
     <string name="warnings_perm_notifications_body">Der Fahrstatus erscheint nicht in der Statusleiste und Sprachhinweise tauchen nicht in der Benachrichtigungsleiste auf.</string>
     <string name="warnings_perm_location_title">Standort ist aus</string>

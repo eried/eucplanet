@@ -1163,8 +1163,6 @@
     <string name="proximity_unlock_above">Сигнал выше</string>
     <string name="proximity_lock_signal_live">Текущий сигнал: %1$s</string>
     <string name="proximity_lock_hint">Блокировка требует активного подключения, поэтому срабатывает при ослаблении сигнала, а не при выходе из зоны действия.</string>
-    <string name="auto_lock_override_toast">Автоблокировка включена и может это переопределить.</string>
-    <string name="auto_lock_override_action">Настроить</string>
     <string name="menu_auto_lock_settings">Настройки блокировки колеса</string>
     <string name="menu_auto_lock_on">Включить автоблокировку</string>
     <string name="menu_auto_lock_off">Выключить автоблокировку</string>
@@ -1174,7 +1172,8 @@
     <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится, фары останутся выключенными.</string>
     <string name="auto_polar_night_title">Полярная ночь</string>
     <string name="auto_polar_night_body">Сегодня на этой широте солнце не восходит, фары останутся включёнными.</string>
-    <string name="auto_lights_suspended">Приостановлено: вы вручную переключили свет в этой сессии. Переподключите колесо или перезапустите приложение, чтобы возобновить</string>
+    <string name="auto_lights_suspended">Приостановлено на эту сессию, вы переключили свет вручную. Исправьте в разделе Требует внимания или переподключите колесо.</string>
+    <string name="auto_lock_suspended">Приостановлено на эту сессию, вы заблокировали или разблокировали вручную. Исправьте в разделе Требует внимания или переподключите колесо.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Для каждой метрики автоматически срабатывает наиболее подходящий сигнал. Порядок в списке не влияет на выбор; сортировка нужна лишь для удобства.</string>
@@ -1981,6 +1980,10 @@
     <string name="warnings_indicator_desc">Предупреждения приложения</string>
     <string name="warnings_dialog_title">Требует внимания</string>
     <string name="warnings_fix_button">Исправить</string>
+    <string name="warnings_autolights_title">Автосвет приостановлен</string>
+    <string name="warnings_autolights_body">Вы переключили свет вручную, поэтому расписание не вмешивается в этой сессии. Исправить вернёт ему управление.</string>
+    <string name="warnings_autolock_title">Автоблокировка приостановлена</string>
+    <string name="warnings_autolock_body">Вы заблокировали или разблокировали вручную, поэтому блокировка по близости не вмешивается в этой сессии. Исправить вернёт ей управление.</string>
     <string name="warnings_perm_notifications_title">Уведомления выключены</string>
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке.</string>
     <string name="warnings_perm_location_title">Геолокация выключена</string>

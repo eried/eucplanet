@@ -508,8 +508,6 @@
     <string name="proximity_unlock_above">信号高于</string>
     <string name="proximity_lock_signal_live">当前信号：%1$s</string>
     <string name="proximity_lock_hint">锁定需要保持连接，因此会在信号减弱时触发，而不是在你完全超出范围之后。</string>
-    <string name="auto_lock_override_toast">自动锁定已开启，可能会覆盖此设置。</string>
-    <string name="auto_lock_override_action">设置</string>
     <string name="menu_auto_lock_settings">独轮车锁定设置</string>
     <string name="menu_auto_lock_on">开启自动锁定</string>
     <string name="menu_auto_lock_off">关闭自动锁定</string>
@@ -519,7 +517,8 @@
     <string name="auto_midnight_sun_body">当前纬度今日无日落,大灯将保持关闭。</string>
     <string name="auto_polar_night_title">极夜</string>
     <string name="auto_polar_night_body">当前纬度今日无日出,大灯将保持开启。</string>
-    <string name="auto_lights_suspended">已暂停:本次会话中你手动切换过大灯。请重新连接独轮车或重启应用以恢复</string>
+    <string name="auto_lights_suspended">本次会话已暂停，你手动调整了灯光。请在“需要注意”中修复，或重新连接轮子。</string>
+    <string name="auto_lock_suspended">本次会话已暂停，你手动上锁或解锁。请在“需要注意”中修复，或重新连接轮子。</string>
 
     <string name="alarm_help">每项指标都会自动触发最相关的报警。列表顺序不会改变触发哪一条,排序只是为了让列表更整洁。</string>
     <string name="alarm_empty">暂无报警规则</string>
@@ -1734,6 +1733,10 @@
     <string name="warnings_indicator_desc">应用提示</string>
     <string name="warnings_dialog_title">需要注意</string>
     <string name="warnings_fix_button">修复</string>
+    <string name="warnings_autolights_title">自动灯光已暂停</string>
+    <string name="warnings_autolights_body">你手动调整了灯光，本次会话中计划不再介入。点按修复即可恢复。</string>
+    <string name="warnings_autolock_title">自动锁已暂停</string>
+    <string name="warnings_autolock_body">你手动上锁或解锁，本次会话中距离锁不再介入。点按修复即可恢复。</string>
     <string name="warnings_perm_notifications_title">通知已关闭</string>
     <string name="warnings_perm_notifications_body">状态栏将不显示骑行状态，通知栏也收不到语音提示。</string>
     <string name="warnings_perm_location_title">定位已关闭</string>

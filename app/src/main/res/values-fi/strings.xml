@@ -1444,8 +1444,6 @@
     <string name="proximity_unlock_above">Signaali yli</string>
     <string name="proximity_lock_signal_live">Nykyinen signaali: %1$s</string>
     <string name="proximity_lock_hint">Lukitseminen vaatii aktiivisen yhteyden, joten se tapahtuu signaalin heiketessä, ei vasta kun olet kantaman ulkopuolella.</string>
-    <string name="auto_lock_override_toast">Automaattilukitus on päällä ja voi ohittaa tämän.</string>
-    <string name="auto_lock_override_action">Määritä</string>
     <string name="menu_auto_lock_settings">Yksipyöräisen lukitusasetukset</string>
     <string name="menu_auto_lock_on">Ota automaattilukitus käyttöön</string>
     <string name="menu_auto_lock_off">Poista automaattilukitus käytöstä</string>
@@ -1454,7 +1452,8 @@
     <string name="auto_midnight_sun_body">Aurinko ei laske tällä leveysasteella tänään, valot pysyvät POIS.</string>
     <string name="auto_polar_night_title">Kaamos</string>
     <string name="auto_polar_night_body">Aurinko ei nouse tällä leveysasteella tänään, valot pysyvät PÄÄLLÄ.</string>
-    <string name="auto_lights_suspended">Keskeytetty käyttäjän valonvaihdon vuoksi tälle istunnolle. Yhdistä yksipyöräinen uudelleen tai käynnistä sovellus uudelleen jatkaaksesi</string>
+    <string name="auto_lights_suspended">Keskeytetty täksi istunnoksi, asetit valon käsin. Korjaa se kohdasta Vaatii huomiota tai yhdistä pyörä uudelleen.</string>
+    <string name="auto_lock_suspended">Keskeytetty täksi istunnoksi, lukitsit tai avasit käsin. Korjaa se kohdasta Vaatii huomiota tai yhdistä pyörä uudelleen.</string>
     <string name="alarm_help">Laukaisuprioriteetti perustuu alla olevien mittariryhmien järjestykseen.</string>
     <string name="alarm_empty">Ei vielä hälytyssääntöjä</string>
     <string name="alarm_add">Uusi hälytys</string>
@@ -2312,6 +2311,10 @@
     <string name="warnings_indicator_desc">Sovelluksen varoitukset</string>
     <string name="warnings_dialog_title">Vaatii huomiota</string>
     <string name="warnings_fix_button">Korjaa</string>
+    <string name="warnings_autolights_title">Automaattivalot keskeytetty</string>
+    <string name="warnings_autolights_body">Asetit valon käsin, joten aikataulu pysyy sivussa tämän istunnon ajan. Korjaa palauttaa ohjauksen.</string>
+    <string name="warnings_autolock_title">Automaattilukitus keskeytetty</string>
+    <string name="warnings_autolock_body">Lukitsit tai avasit käsin, joten läheisyyslukitus pysyy sivussa tämän istunnon ajan. Korjaa palauttaa ohjauksen.</string>
     <string name="warnings_perm_notifications_title">Ilmoitukset pois päältä</string>
     <string name="warnings_perm_notifications_body">Et näe ajon tilaa tilapalkissa etkä saa äänihälytyksiä ilmoitusalueella.</string>
     <string name="warnings_perm_location_title">Sijainti on pois päältä</string>

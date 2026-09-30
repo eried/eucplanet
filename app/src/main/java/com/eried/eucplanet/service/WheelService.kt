@@ -453,8 +453,10 @@ class WheelService : LifecycleService() {
 
                     when (state) {
                         ConnectionState.CONNECTED -> {
-                            // Fresh connection: clear any session suspension of auto-lights
+                            // Fresh connection: the session suspensions are spent,
+                            // auto-lights and proximity lock follow their settings again
                             automationManager.clearLightsSuspension()
+                            automationManager.clearLockSuspension()
                             if (settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_connected))
                             }

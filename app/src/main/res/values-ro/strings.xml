@@ -1444,8 +1444,6 @@
     <string name="proximity_unlock_above">Semnal peste</string>
     <string name="proximity_lock_signal_live">Semnal curent: %1$s</string>
     <string name="proximity_lock_hint">Blocarea are nevoie de o conexiune activă, deci se întâmplă pe măsură ce semnalul slăbește, nu după ce ai ieșit din rază.</string>
-    <string name="auto_lock_override_toast">Blocarea automată este pornită și poate suprascrie asta.</string>
-    <string name="auto_lock_override_action">Configurează</string>
     <string name="menu_auto_lock_settings">Setări de blocare a monociclului</string>
     <string name="menu_auto_lock_on">Activează blocarea automată</string>
     <string name="menu_auto_lock_off">Dezactivează blocarea automată</string>
@@ -1454,7 +1452,8 @@
     <string name="auto_midnight_sun_body">Soarele nu apune azi la această latitudine, luminile vor rămâne OPRITE.</string>
     <string name="auto_polar_night_title">Noapte polară</string>
     <string name="auto_polar_night_body">Soarele nu răsare azi la această latitudine, luminile vor rămâne PORNITE.</string>
-    <string name="auto_lights_suspended">Suspendat din cauza schimbării manuale a luminilor pentru această sesiune. Reconectează monociclul sau repornește aplicația pentru a relua</string>
+    <string name="auto_lights_suspended">În pauză pentru această sesiune, ai setat lumina manual. Repară din Necesită atenție sau reconectează roata.</string>
+    <string name="auto_lock_suspended">În pauză pentru această sesiune, ai blocat sau deblocat manual. Repară din Necesită atenție sau reconectează roata.</string>
     <string name="alarm_help">Prioritatea de declanșare se bazează pe ordinea grupurilor de indicatori de mai jos.</string>
     <string name="alarm_empty">Încă nu există reguli de alarmă</string>
     <string name="alarm_add">Alarmă nouă</string>
@@ -2312,6 +2311,10 @@
     <string name="warnings_indicator_desc">Avertismentele aplicației</string>
     <string name="warnings_dialog_title">Necesită atenție</string>
     <string name="warnings_fix_button">Repară</string>
+    <string name="warnings_autolights_title">Lumini automate în pauză</string>
+    <string name="warnings_autolights_body">Ai setat lumina manual, așa că programul stă deoparte în această sesiune. Repară îi redă controlul.</string>
+    <string name="warnings_autolock_title">Blocare automată în pauză</string>
+    <string name="warnings_autolock_body">Ai blocat sau deblocat manual, așa că blocarea prin proximitate stă deoparte în această sesiune. Repară îi redă controlul.</string>
     <string name="warnings_perm_notifications_title">Notificările sunt oprite</string>
     <string name="warnings_perm_notifications_body">Nu vei vedea starea cursei în bara de stare și nu vei primi alerte vocale în zona de notificări.</string>
     <string name="warnings_perm_location_title">Locația este dezactivată</string>

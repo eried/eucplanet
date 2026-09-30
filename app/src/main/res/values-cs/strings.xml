@@ -1444,8 +1444,6 @@
     <string name="proximity_unlock_above">Signál nad</string>
     <string name="proximity_lock_signal_live">Aktuální signál: %1$s</string>
     <string name="proximity_lock_hint">Zamykání vyžaduje živé připojení, takže proběhne, jakmile signál slábne, ne až budete mimo dosah.</string>
-    <string name="auto_lock_override_toast">Automatický zámek je zapnutý a může toto přebít.</string>
-    <string name="auto_lock_override_action">Nastavit</string>
     <string name="menu_auto_lock_settings">Nastavení zámku monokola</string>
     <string name="menu_auto_lock_on">Zapnout automatický zámek</string>
     <string name="menu_auto_lock_off">Vypnout automatický zámek</string>
@@ -1454,7 +1452,8 @@
     <string name="auto_midnight_sun_body">Slunce dnes v této zeměpisné šířce nezapadá, světla zůstanou VYPNUTÁ.</string>
     <string name="auto_polar_night_title">Polární noc</string>
     <string name="auto_polar_night_body">Slunce dnes v této zeměpisné šířce nevychází, světla zůstanou ZAPNUTÁ.</string>
-    <string name="auto_lights_suspended">Pozastaveno kvůli ručnímu přepnutí světel pro tuto relaci. Pro obnovení znovu připojte monokolo nebo restartujte aplikaci</string>
+    <string name="auto_lights_suspended">Pozastaveno pro tuto relaci, světlo jste přepnuli ručně. Opravte to v Vyžaduje pozornost, nebo kolo znovu připojte.</string>
+    <string name="auto_lock_suspended">Pozastaveno pro tuto relaci, zamkli nebo odemkli jste ručně. Opravte to v Vyžaduje pozornost, nebo kolo znovu připojte.</string>
     <string name="alarm_help">Priorita spuštění vychází z pořadí skupin metrik níže.</string>
     <string name="alarm_empty">Zatím žádná pravidla alarmů</string>
     <string name="alarm_add">Nový alarm</string>
@@ -2312,6 +2311,10 @@
     <string name="warnings_indicator_desc">Upozornění aplikace</string>
     <string name="warnings_dialog_title">Vyžaduje pozornost</string>
     <string name="warnings_fix_button">Opravit</string>
+    <string name="warnings_autolights_title">Automatická světla pozastavena</string>
+    <string name="warnings_autolights_body">Světlo jste přepnuli ručně, plán se proto v této relaci drží stranou. Oprava mu řízení vrátí.</string>
+    <string name="warnings_autolock_title">Automatický zámek pozastaven</string>
+    <string name="warnings_autolock_body">Zamkli nebo odemkli jste ručně, zámek podle blízkosti se proto v této relaci drží stranou. Oprava mu řízení vrátí.</string>
     <string name="warnings_perm_notifications_title">Oznámení vypnuta</string>
     <string name="warnings_perm_notifications_body">Neuvidíte stav jízdy ve stavovém řádku ani nedostanete hlasová upozornění v oznámeních.</string>
     <string name="warnings_perm_location_title">Poloha je vypnutá</string>

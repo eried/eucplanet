@@ -134,6 +134,31 @@ class AutomationManager @Inject constructor(
         lightSlowState = HeadlightSlowPolicy.State()
     }
 
+    private val _autoLockSuspended = MutableStateFlow(false)
+    val autoLockSuspended: StateFlow<Boolean> = _autoLockSuspended.asStateFlow()
+
+    /** Called whenever the rider locks or unlocks by hand: their choice stands
+     *  for the rest of the session, the proximity automation steps aside. */
+    @Synchronized
+    fun notifyManualLockChange() {
+        if (legalLockdown.isEngaged()) return
+        if (!_autoLockSuspended.value) {
+            Log.i(TAG, "Proximity lock suspended for this session (manual change)")
+        }
+        _autoLockSuspended.value = true
+    }
+
+    /** Called on wheel reconnect, from the Needs attention Fix, or when the
+     *  proximity-lock settings change: the automation follows them again. */
+    @Synchronized
+    fun clearLockSuspension() {
+        if (_autoLockSuspended.value) {
+            Log.i(TAG, "Proximity lock suspension cleared")
+        }
+        _autoLockSuspended.value = false
+        proximityLock.reset()
+    }
+
     /** Reset the throttle so the next tick re-evaluates immediately. */
     @Synchronized
     fun triggerImmediateLightEvaluation() {
@@ -170,7 +195,7 @@ class AutomationManager @Inject constructor(
         // off - they could see no switch for it and had no way to stop it.
         // Resetting on the off path also covers every route that turns it off
         // (settings, the dashboard long-press, restoring a backup).
-        if (!lockedDown && settings.proximityLock.lockEnabled) evaluateProximityLock(settings)
+        if (!lockedDown && settings.proximityLock.lockEnabled && !_autoLockSuspended.value) evaluateProximityLock(settings)
         else proximityLock.reset()
     }
 

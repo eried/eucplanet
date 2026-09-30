@@ -26,7 +26,6 @@ import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
 import com.eried.eucplanet.service.AutomationManager
-import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
@@ -233,6 +232,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
+    val autoLockSuspended: StateFlow<Boolean> = automationManager.autoLockSuspended
 
     val settings: StateFlow<AppSettings?> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -794,7 +794,10 @@ class SettingsViewModel @Inject constructor(
 
     // Proximity lock (Bluetooth-signal auto lock / unlock)
     fun updateProxLockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(lockEnabled = v)) }
-        .also { if (!v) automationManager.resetProximityLock() else AutoLockNotice.rearm() }
+        // Toggling the feature is a fresh decision, so a manual suspension
+        // from earlier in the session is spent; the clear also resets the
+        // evaluator, covering the old disable-path reset.
+        .also { automationManager.clearLockSuspension() }
     fun updateProxLockBelow(v: Int) =
         update { copy(proximityLock = proximityLock.copy(lockBelowDbm = v.coerceIn(-110, -30))) }
     fun updateProxUnlockWhen(v: String) =
@@ -803,7 +806,6 @@ class SettingsViewModel @Inject constructor(
                 // Changing what an unlock means invalidates any hold or arming
                 // built up under the previous answer.
                 automationManager.resetProximityLock()
-                if (v != ProximityLockSettings.UNLOCK_WHEN_NEVER) AutoLockNotice.rearm()
             }
     fun updateProxUnlockAbove(v: Int) =
         update { copy(proximityLock = proximityLock.copy(unlockAboveDbm = v.coerceIn(-100, -15))) }

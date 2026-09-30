@@ -1163,8 +1163,6 @@
     <string name="proximity_unlock_above">Сигнал вище</string>
     <string name="proximity_lock_signal_live">Поточний сигнал: %1$s</string>
     <string name="proximity_lock_hint">Блокування потребує активного підключення, тож спрацьовує, коли сигнал слабшає, а не після виходу із зони дії.</string>
-    <string name="auto_lock_override_toast">Автоблокування увімкнено і може це перевизначити.</string>
-    <string name="auto_lock_override_action">Налаштувати</string>
     <string name="menu_auto_lock_settings">Налаштування блокування колеса</string>
     <string name="menu_auto_lock_on">Увімкнути автоблокування</string>
     <string name="menu_auto_lock_off">Вимкнути автоблокування</string>
@@ -1174,7 +1172,8 @@
     <string name="auto_midnight_sun_body">Сьогодні на цій широті сонце не заходить, фари залишатимуться ВИМКНЕНИМИ.</string>
     <string name="auto_polar_night_title">Полярна ніч</string>
     <string name="auto_polar_night_body">Сьогодні на цій широті сонце не сходить, фари залишатимуться УВІМКНЕНИМИ.</string>
-    <string name="auto_lights_suspended">Призупинено через ручне перемикання світла в цій сесії. Перепідключи колесо або перезапусти додаток, щоб відновити</string>
+    <string name="auto_lights_suspended">Призупинено на цю сесію, ви перемкнули світло вручну. Виправте в розділі Потрібна увага або перепідключіть колесо.</string>
+    <string name="auto_lock_suspended">Призупинено на цю сесію, ви заблокували чи розблокували вручну. Виправте в розділі Потрібна увага або перепідключіть колесо.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Для кожної метрики автоматично спрацьовує найдоречніша тривога. Порядок у списку не змінює, яка саме; сортування лише підтримує лад.</string>
@@ -2013,6 +2012,10 @@
     <string name="warnings_indicator_desc">Попередження застосунку</string>
     <string name="warnings_dialog_title">Потрібна увага</string>
     <string name="warnings_fix_button">Виправити</string>
+    <string name="warnings_autolights_title">Автосвітло призупинено</string>
+    <string name="warnings_autolights_body">Ви перемкнули світло вручну, тож розклад не втручається цієї сесії. Виправити поверне йому керування.</string>
+    <string name="warnings_autolock_title">Автоблокування призупинено</string>
+    <string name="warnings_autolock_body">Ви заблокували чи розблокували вручну, тож блокування за наближенням не втручається цієї сесії. Виправити поверне йому керування.</string>
     <string name="warnings_perm_notifications_title">Сповіщення вимкнено</string>
     <string name="warnings_perm_notifications_body">Статус поїздки не з\'явиться в рядку стану, голосові сповіщення не з\'являться в шторці.</string>
     <string name="warnings_perm_location_title">Геолокацію вимкнено</string>

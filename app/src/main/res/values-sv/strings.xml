@@ -1159,8 +1159,6 @@
     <string name="proximity_unlock_above">Signal över</string>
     <string name="proximity_lock_signal_live">Aktuell signal: %1$s</string>
     <string name="proximity_lock_hint">Låsning kräver en aktiv anslutning, så den sker medan signalen försvagas, inte först när du är utom räckhåll.</string>
-    <string name="auto_lock_override_toast">Autolås är på och kan åsidosätta detta.</string>
-    <string name="auto_lock_override_action">Konfigurera</string>
     <string name="menu_auto_lock_settings">Inställningar för hjullås</string>
     <string name="menu_auto_lock_on">Slå på autolås</string>
     <string name="menu_auto_lock_off">Stäng av autolås</string>
@@ -1170,7 +1168,8 @@
     <string name="auto_midnight_sun_body">Solen går inte ned här i dag, ljuset hålls släckt.</string>
     <string name="auto_polar_night_title">Polarnatt</string>
     <string name="auto_polar_night_body">Solen går inte upp här i dag, ljuset hålls tänt.</string>
-    <string name="auto_lights_suspended">Pausad: du växlade ljuset manuellt den här sessionen. Anslut hjulet igen eller starta om appen för att återuppta</string>
+    <string name="auto_lights_suspended">Pausad för den här sessionen, du ställde ljuset för hand. Åtgärda det från Kräver uppmärksamhet, eller anslut hjulet igen.</string>
+    <string name="auto_lock_suspended">Pausad för den här sessionen, du låste eller låste upp för hand. Åtgärda det från Kräver uppmärksamhet, eller anslut hjulet igen.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">För varje mätvärde utlöses det mest relevanta larmet automatiskt. Ordningen i listan ändrar inte vilket; sorteringen håller bara ordning.</string>
@@ -1977,6 +1976,10 @@
     <string name="warnings_indicator_desc">App-varningar</string>
     <string name="warnings_dialog_title">Kräver uppmärksamhet</string>
     <string name="warnings_fix_button">Åtgärda</string>
+    <string name="warnings_autolights_title">Autoljus pausat</string>
+    <string name="warnings_autolights_body">Du ställde ljuset för hand, så schemat håller sig undan den här sessionen. Åtgärda ger det kontrollen igen.</string>
+    <string name="warnings_autolock_title">Autolås pausat</string>
+    <string name="warnings_autolock_body">Du låste eller låste upp för hand, så närhetslåset håller sig undan den här sessionen. Åtgärda ger det kontrollen igen.</string>
     <string name="warnings_perm_notifications_title">Aviseringar av</string>
     <string name="warnings_perm_notifications_body">Du ser inte åkstatus i statusfältet och får inga talvarningar i aviseringspanelen.</string>
     <string name="warnings_perm_location_title">Platsåtkomst är av</string>

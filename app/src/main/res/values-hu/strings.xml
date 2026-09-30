@@ -1444,8 +1444,6 @@
     <string name="proximity_unlock_above">Jel felett</string>
     <string name="proximity_lock_signal_live">Jelenlegi jel: %1$s</string>
     <string name="proximity_lock_hint">A zároláshoz élő kapcsolat kell, ezért a jel gyengülésekor történik, nem akkor, amikor már hatótávon kívül vagy.</string>
-    <string name="auto_lock_override_toast">Az automatikus zárolás be van kapcsolva, és felülbírálhatja ezt.</string>
-    <string name="auto_lock_override_action">Beállítás</string>
     <string name="menu_auto_lock_settings">Egykerekű zárolási beállításai</string>
     <string name="menu_auto_lock_on">Automatikus zárolás bekapcsolása</string>
     <string name="menu_auto_lock_off">Automatikus zárolás kikapcsolása</string>
@@ -1454,7 +1452,8 @@
     <string name="auto_midnight_sun_body">A nap ma nem nyugszik le ezen a szélességi fokon, a világítás KIKAPCSOLVA marad.</string>
     <string name="auto_polar_night_title">Sarki éjszaka</string>
     <string name="auto_polar_night_body">A nap ma nem kel fel ezen a szélességi fokon, a világítás BEKAPCSOLVA marad.</string>
-    <string name="auto_lights_suspended">Felfüggesztve a felhasználó világításkapcsolása miatt erre a munkamenetre. A folytatáshoz csatlakoztasd újra az egykerekűt vagy indítsd újra az alkalmazást</string>
+    <string name="auto_lights_suspended">Erre a munkamenetre szünetel, kézzel állítottad a lámpát. Javítsd a(z) Figyelmet igényel panelről, vagy csatlakoztasd újra a kereket.</string>
+    <string name="auto_lock_suspended">Erre a munkamenetre szünetel, kézzel zártál vagy nyitottál. Javítsd a(z) Figyelmet igényel panelről, vagy csatlakoztasd újra a kereket.</string>
     <string name="alarm_help">A kiváltási sorrend az alábbi mérőszámcsoportok sorrendjén alapul.</string>
     <string name="alarm_empty">Még nincsenek riasztási szabályok</string>
     <string name="alarm_add">Új riasztás</string>
@@ -2312,6 +2311,10 @@
     <string name="warnings_indicator_desc">Alkalmazásfigyelmeztetések</string>
     <string name="warnings_dialog_title">Figyelmet igényel</string>
     <string name="warnings_fix_button">Javítás</string>
+    <string name="warnings_autolights_title">Auto lámpa szünetel</string>
+    <string name="warnings_autolights_body">Kézzel állítottad a lámpát, ezért az ütemezés félreáll ebben a munkamenetben. A Javítás visszaadja neki.</string>
+    <string name="warnings_autolock_title">Auto zár szünetel</string>
+    <string name="warnings_autolock_body">Kézzel zártál vagy nyitottál, ezért a közelségi zár félreáll ebben a munkamenetben. A Javítás visszaadja neki.</string>
     <string name="warnings_perm_notifications_title">Az értesítések ki vannak kapcsolva</string>
     <string name="warnings_perm_notifications_body">Nem látod a menet állapotát az állapotsávon, és nem kapsz hangriasztásokat az értesítési felületen.</string>
     <string name="warnings_perm_location_title">A helymeghatározás ki van kapcsolva</string>

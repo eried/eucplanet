@@ -1163,8 +1163,6 @@
     <string name="proximity_unlock_above">Señal sobre</string>
     <string name="proximity_lock_signal_live">Señal actual: %1$s</string>
     <string name="proximity_lock_hint">El bloqueo necesita una conexión activa, así que ocurre mientras la señal se debilita, no cuando ya estás fuera de alcance.</string>
-    <string name="auto_lock_override_toast">El bloqueo automático está activo y puede anular esto.</string>
-    <string name="auto_lock_override_action">Configurar</string>
     <string name="menu_auto_lock_settings">Ajustes de bloqueo de rueda</string>
     <string name="menu_auto_lock_on">Activar bloqueo automático</string>
     <string name="menu_auto_lock_off">Desactivar bloqueo automático</string>
@@ -1174,7 +1172,8 @@
     <string name="auto_midnight_sun_body">El sol no se pone en esta latitud hoy, las luces permanecerán APAGADAS.</string>
     <string name="auto_polar_night_title">Noche polar</string>
     <string name="auto_polar_night_body">El sol no sale en esta latitud hoy, las luces permanecerán ENCENDIDAS.</string>
-    <string name="auto_lights_suspended">Suspendido porque encendiste o apagaste la luz manualmente en esta sesión. Reconecta la rueda o reinicia la app para reanudar</string>
+    <string name="auto_lights_suspended">En pausa durante esta sesión, cambiaste la luz a mano. Corrígelo desde Requiere atención o reconecta la rueda.</string>
+    <string name="auto_lock_suspended">En pausa durante esta sesión, bloqueaste o desbloqueaste a mano. Corrígelo desde Requiere atención o reconecta la rueda.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Para cada métrica se dispara automáticamente la alarma más relevante. El orden en la lista no cambia cuál; ordenar solo sirve para mantenerla prolija.</string>
@@ -1993,6 +1992,10 @@
     <string name="warnings_indicator_desc">Advertencias de la app</string>
     <string name="warnings_dialog_title">Requiere atención</string>
     <string name="warnings_fix_button">Arreglar</string>
+    <string name="warnings_autolights_title">Luces automáticas en pausa</string>
+    <string name="warnings_autolights_body">Cambiaste la luz a mano, así que la programación se aparta durante esta sesión. Corregir se la devuelve.</string>
+    <string name="warnings_autolock_title">Bloqueo automático en pausa</string>
+    <string name="warnings_autolock_body">Bloqueaste o desbloqueaste a mano, así que el bloqueo por proximidad se aparta durante esta sesión. Corregir se lo devuelve.</string>
     <string name="warnings_perm_notifications_title">Notificaciones desactivadas</string>
     <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en las notificaciones.</string>
     <string name="warnings_perm_location_title">La ubicación está desactivada</string>

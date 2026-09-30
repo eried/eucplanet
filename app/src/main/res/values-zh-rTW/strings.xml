@@ -1160,8 +1160,6 @@
     <string name="proximity_unlock_above">訊號高於</string>
     <string name="proximity_lock_signal_live">目前訊號：%1$s</string>
     <string name="proximity_lock_hint">鎖定需要保持連線，因此會在訊號減弱時觸發，而非在您完全超出範圍之後。</string>
-    <string name="auto_lock_override_toast">自動鎖定已開啟，可能會覆蓋此設定。</string>
-    <string name="auto_lock_override_action">設定</string>
     <string name="menu_auto_lock_settings">車輪鎖定設定</string>
     <string name="menu_auto_lock_on">啟用自動鎖定</string>
     <string name="menu_auto_lock_off">停用自動鎖定</string>
@@ -1171,7 +1169,8 @@
     <string name="auto_midnight_sun_body">今日此緯度太陽不落，燈光將保持關閉。</string>
     <string name="auto_polar_night_title">極夜</string>
     <string name="auto_polar_night_body">今日此緯度太陽不升，燈光將保持開啟。</string>
-    <string name="auto_lights_suspended">已因本次工作階段的手動燈光切換而暫停。重新連接車輪或重啟應用程式即可恢復</string>
+    <string name="auto_lights_suspended">本次工作階段已暫停，你手動調整了燈光。請在「需要注意」中修復，或重新連接輪子。</string>
+    <string name="auto_lock_suspended">本次工作階段已暫停，你手動上鎖或解鎖。請在「需要注意」中修復，或重新連接輪子。</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">每個指標會自動觸發最相關的警報。清單中的順序不會改變觸發哪一個，排序只是讓畫面更整齊。</string>
@@ -1978,6 +1977,10 @@
     <string name="warnings_indicator_desc">應用程式警告</string>
     <string name="warnings_dialog_title">需要注意</string>
     <string name="warnings_fix_button">修復</string>
+    <string name="warnings_autolights_title">自動燈光已暫停</string>
+    <string name="warnings_autolights_body">你手動調整了燈光，本次工作階段排程不再介入。點按修復即可恢復。</string>
+    <string name="warnings_autolock_title">自動鎖已暫停</string>
+    <string name="warnings_autolock_body">你手動上鎖或解鎖，本次工作階段距離鎖不再介入。點按修復即可恢復。</string>
     <string name="warnings_perm_notifications_title">通知已關閉</string>
     <string name="warnings_perm_notifications_body">您將無法在狀態列看到騎乘狀態，也無法在通知欄接收語音警報。</string>
     <string name="warnings_perm_location_title">定位已關閉</string>
