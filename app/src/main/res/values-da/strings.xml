@@ -2722,8 +2722,8 @@
     <string name="horn_mode_label">Tilstand</string>
     <string name="horn_mode_wheel">Standard</string>
     <string name="horn_mode_sound">Egen</string>
-    <string name="horn_mode_both">Kombineret</string>
-    <string name="horn_mode_hint">Egen afspiller din lyd på telefonen. Kombineret lægger den oven i hjulets horn, til en ekstern højttaler. Kan telefonen ikke afspille den, lyder hjulets horn i stedet.</string>
+    <string name="horn_mode_both">Miks</string>
+    <string name="horn_mode_hint">Egen afspiller din lyd på telefonen. Miks lægger den oven i hjulets horn, til en ekstern højttaler. Kan telefonen ikke afspille den, lyder hjulets horn i stedet.</string>
     <string name="horn_sound_none">Ingen lyd valgt</string>
     <string name="horn_sound_current">Lyd: %1$s</string>
     <string name="horn_sound_choose">Vælg lyd</string>

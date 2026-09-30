@@ -2709,8 +2709,8 @@
     <string name="horn_mode_label">Modus</string>
     <string name="horn_mode_wheel">Standaard</string>
     <string name="horn_mode_sound">Eigen</string>
-    <string name="horn_mode_both">Samen</string>
-    <string name="horn_mode_hint">Eigen speelt je eigen geluid op de telefoon. Samen voegt het toe aan de claxon van het wiel, voor een externe speaker. Kan de telefoon het niet afspelen, dan klinkt de claxon van het wiel.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Eigen speelt je eigen geluid op de telefoon. Mix voegt het toe aan de claxon van het wiel, voor een externe speaker. Kan de telefoon het niet afspelen, dan klinkt de claxon van het wiel.</string>
     <string name="horn_sound_none">Geen geluid gekozen</string>
     <string name="horn_sound_current">Geluid: %1$s</string>
     <string name="horn_sound_choose">Geluid kiezen</string>

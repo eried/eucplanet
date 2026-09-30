@@ -2612,8 +2612,8 @@
     <string name="horn_mode_label">Modalità</string>
     <string name="horn_mode_wheel">Predefinito</string>
     <string name="horn_mode_sound">Personale</string>
-    <string name="horn_mode_both">Combinato</string>
-    <string name="horn_mode_hint">Personale riproduce il tuo suono sul telefono. Combinato lo aggiunge al clacson della ruota, per una cassa esterna. Se il telefono non può riprodurlo, suona il clacson della ruota.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Personale riproduce il tuo suono sul telefono. Mix lo aggiunge al clacson della ruota, per una cassa esterna. Se il telefono non può riprodurlo, suona il clacson della ruota.</string>
     <string name="horn_sound_none">Nessun suono scelto</string>
     <string name="horn_sound_current">Suono: %1$s</string>
     <string name="horn_sound_choose">Scegli suono</string>

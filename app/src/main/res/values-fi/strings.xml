@@ -2510,8 +2510,8 @@
     <string name="horn_mode_label">Tila</string>
     <string name="horn_mode_wheel">Oletus</string>
     <string name="horn_mode_sound">Oma</string>
-    <string name="horn_mode_both">Yhdistetty</string>
-    <string name="horn_mode_hint">Oma soittaa oman äänesi puhelimessa. Yhdistetty lisää sen yksipyöräisen äänimerkkiin ulkoista kaiutinta varten. Jos puhelin ei voi soittaa sitä, kuuluu yksipyöräisen äänimerkki.</string>
+    <string name="horn_mode_both">Sekoitus</string>
+    <string name="horn_mode_hint">Oma soittaa oman äänesi puhelimessa. Sekoitus lisää sen yksipyöräisen äänimerkkiin ulkoista kaiutinta varten. Jos puhelin ei voi soittaa sitä, kuuluu yksipyöräisen äänimerkki.</string>
     <string name="horn_sound_none">Ääntä ei ole valittu</string>
     <string name="horn_sound_current">Ääni: %1$s</string>
     <string name="horn_sound_choose">Valitse ääni</string>

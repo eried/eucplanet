@@ -2510,8 +2510,8 @@
     <string name="horn_mode_label">Režim</string>
     <string name="horn_mode_wheel">Výchozí</string>
     <string name="horn_mode_sound">Vlastní</string>
-    <string name="horn_mode_both">Kombinace</string>
-    <string name="horn_mode_hint">Vlastní přehraje váš zvuk v telefonu. Kombinace ho přidá ke klaksonu monokola, pro externí reproduktor. Když ho telefon nemůže přehrát, zazní klakson monokola.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Vlastní přehraje váš zvuk v telefonu. Mix ho přidá ke klaksonu monokola, pro externí reproduktor. Když ho telefon nemůže přehrát, zazní klakson monokola.</string>
     <string name="horn_sound_none">Není vybrán žádný zvuk</string>
     <string name="horn_sound_current">Zvuk: %1$s</string>
     <string name="horn_sound_choose">Vybrat zvuk</string>

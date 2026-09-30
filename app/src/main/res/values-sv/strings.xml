@@ -2707,8 +2707,8 @@
     <string name="horn_mode_label">Läge</string>
     <string name="horn_mode_wheel">Standard</string>
     <string name="horn_mode_sound">Eget</string>
-    <string name="horn_mode_both">Kombinerat</string>
-    <string name="horn_mode_hint">Eget spelar ditt ljud i telefonen. Kombinerat lägger det ovanpå hjulets horn, för en extern högtalare. Kan telefonen inte spela det låter hjulets horn i stället.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Eget spelar ditt ljud i telefonen. Mix lägger det ovanpå hjulets horn, för en extern högtalare. Kan telefonen inte spela det låter hjulets horn i stället.</string>
     <string name="horn_sound_none">Inget ljud valt</string>
     <string name="horn_sound_current">Ljud: %1$s</string>
     <string name="horn_sound_choose">Välj ljud</string>

@@ -2727,8 +2727,8 @@
     <string name="horn_mode_label">Modus</string>
     <string name="horn_mode_wheel">Standard</string>
     <string name="horn_mode_sound">Eigener</string>
-    <string name="horn_mode_both">Kombiniert</string>
-    <string name="horn_mode_hint">Eigener spielt deinen Klang am Handy. Kombiniert legt ihn zur Hupe des Wheels, für einen externen Lautsprecher. Kann das Handy ihn nicht spielen, hupt stattdessen das Wheel.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Eigener spielt deinen Klang am Handy. Mix legt ihn zur Hupe des Wheels, für einen externen Lautsprecher. Kann das Handy ihn nicht spielen, hupt stattdessen das Wheel.</string>
     <string name="horn_sound_none">Kein Klang gewählt</string>
     <string name="horn_sound_current">Klang: %1$s</string>
     <string name="horn_sound_choose">Klang wählen</string>

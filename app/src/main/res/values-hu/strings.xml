@@ -2510,8 +2510,8 @@
     <string name="horn_mode_label">Mód</string>
     <string name="horn_mode_wheel">Alap</string>
     <string name="horn_mode_sound">Saját</string>
-    <string name="horn_mode_both">Együtt</string>
-    <string name="horn_mode_hint">A Saját a te hangodat játssza le a telefonon. A Együtt az egykerekű dudája mellé szólaltatja, külső hangszóróhoz. Ha a telefon nem tudja lejátszani, az egykerekű dudája szól.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">A Saját a te hangodat játssza le a telefonon. A Mix az egykerekű dudája mellé szólaltatja, külső hangszóróhoz. Ha a telefon nem tudja lejátszani, az egykerekű dudája szól.</string>
     <string name="horn_sound_none">Nincs kiválasztott hang</string>
     <string name="horn_sound_current">Hang: %1$s</string>
     <string name="horn_sound_choose">Hang kiválasztása</string>

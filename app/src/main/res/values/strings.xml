@@ -2732,8 +2732,8 @@
     <string name="horn_mode_label">Mode</string>
     <string name="horn_mode_wheel">Default</string>
     <string name="horn_mode_sound">Custom</string>
-    <string name="horn_mode_both">Combined</string>
-    <string name="horn_mode_hint">Custom plays your own sound on the phone. Combined adds it to the wheel horn, for an external speaker. If the phone cannot play it, the wheel horn sounds instead.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Custom plays your own sound on the phone. Mix adds it to the wheel horn, for an external speaker. If the phone cannot play it, the wheel horn sounds instead.</string>
     <string name="horn_sound_none">No sound chosen</string>
     <string name="horn_sound_current">Sound: %1$s</string>
     <string name="horn_sound_choose">Choose sound</string>

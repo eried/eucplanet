@@ -2711,8 +2711,8 @@
     <string name="horn_mode_label">Mode</string>
     <string name="horn_mode_wheel">Par défaut</string>
     <string name="horn_mode_sound">Perso</string>
-    <string name="horn_mode_both">Combiné</string>
-    <string name="horn_mode_hint">Perso joue ton son sur le téléphone. Combiné l\'ajoute au klaxon de la roue, pour une enceinte externe. Si le téléphone ne peut pas le jouer, le klaxon de la roue retentit.</string>
+    <string name="horn_mode_both">Mixte</string>
+    <string name="horn_mode_hint">Perso joue ton son sur le téléphone. Mixte l\'ajoute au klaxon de la roue, pour une enceinte externe. Si le téléphone ne peut pas le jouer, le klaxon de la roue retentit.</string>
     <string name="horn_sound_none">Aucun son choisi</string>
     <string name="horn_sound_current">Son: %1$s</string>
     <string name="horn_sound_choose">Choisir un son</string>

@@ -2510,8 +2510,8 @@
     <string name="horn_mode_label">Mod</string>
     <string name="horn_mode_wheel">Implicit</string>
     <string name="horn_mode_sound">Propriu</string>
-    <string name="horn_mode_both">Combinat</string>
-    <string name="horn_mode_hint">Propriu redă sunetul tău pe telefon. Combinat îl adaugă la claxonul monociclului, pentru o boxă externă. Dacă telefonul nu îl poate reda, sună claxonul monociclului.</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Propriu redă sunetul tău pe telefon. Mix îl adaugă la claxonul monociclului, pentru o boxă externă. Dacă telefonul nu îl poate reda, sună claxonul monociclului.</string>
     <string name="horn_sound_none">Niciun sunet ales</string>
     <string name="horn_sound_current">Sunet: %1$s</string>
     <string name="horn_sound_choose">Alege sunet</string>

@@ -2574,8 +2574,8 @@
     <string name="horn_mode_label">模式</string>
     <string name="horn_mode_wheel">默认</string>
     <string name="horn_mode_sound">自定义</string>
-    <string name="horn_mode_both">同时</string>
-    <string name="horn_mode_hint">自定义会在手机播放你的声音。同时会在独轮车喇叭之外同时播放,适合外接音箱。手机无法播放时,改由独轮车喇叭发声。</string>
+    <string name="horn_mode_both">混合</string>
+    <string name="horn_mode_hint">自定义会在手机播放你的声音。混合会在独轮车喇叭之外混合播放,适合外接音箱。手机无法播放时,改由独轮车喇叭发声。</string>
     <string name="horn_sound_none">未选择声音</string>
     <string name="horn_sound_current">音效: %1$s</string>
     <string name="horn_sound_choose">选择声音</string>

@@ -2706,8 +2706,8 @@
     <string name="horn_mode_label">모드</string>
     <string name="horn_mode_wheel">기본</string>
     <string name="horn_mode_sound">사용자</string>
-    <string name="horn_mode_both">동시</string>
-    <string name="horn_mode_hint">사용자는 휴대폰에서 내 소리를 재생합니다. 동시는 외부 스피커용으로 휠 경적에 더해 재생합니다. 휴대폰이 재생할 수 없으면 휠 경적이 울립니다.</string>
+    <string name="horn_mode_both">믹스</string>
+    <string name="horn_mode_hint">사용자는 휴대폰에서 내 소리를 재생합니다. 믹스는 외부 스피커용으로 휠 경적에 더해 재생합니다. 휴대폰이 재생할 수 없으면 휠 경적이 울립니다.</string>
     <string name="horn_sound_none">선택한 소리 없음</string>
     <string name="horn_sound_current">사운드: %1$s</string>
     <string name="horn_sound_choose">소리 선택</string>

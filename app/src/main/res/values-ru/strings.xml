@@ -2707,8 +2707,8 @@
     <string name="horn_mode_label">Режим</string>
     <string name="horn_mode_wheel">Стандарт</string>
     <string name="horn_mode_sound">Свой</string>
-    <string name="horn_mode_both">Вместе</string>
-    <string name="horn_mode_hint">Свой проигрывает ваш звук на телефоне. Вместе добавляет его к сигналу колеса, для внешней колонки. Если телефон не может его проиграть, звучит сигнал колеса.</string>
+    <string name="horn_mode_both">Микс</string>
+    <string name="horn_mode_hint">Свой проигрывает ваш звук на телефоне. Микс добавляет его к сигналу колеса, для внешней колонки. Если телефон не может его проиграть, звучит сигнал колеса.</string>
     <string name="horn_sound_none">Звук не выбран</string>
     <string name="horn_sound_current">Звук: %1$s</string>
     <string name="horn_sound_choose">Выбрать звук</string>

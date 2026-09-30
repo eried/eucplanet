@@ -2708,8 +2708,8 @@
     <string name="horn_mode_label">モード</string>
     <string name="horn_mode_wheel">標準</string>
     <string name="horn_mode_sound">カスタム</string>
-    <string name="horn_mode_both">同時</string>
-    <string name="horn_mode_hint">カスタムは電話で自分の音を鳴らします。同時はホイールのホーンに重ねて鳴らします(外部スピーカー向け)。電話で再生できない場合はホイールのホーンが鳴ります。</string>
+    <string name="horn_mode_both">ミックス</string>
+    <string name="horn_mode_hint">カスタムは電話で自分の音を鳴らします。ミックスはホイールのホーンに重ねて鳴らします(外部スピーカー向け)。電話で再生できない場合はホイールのホーンが鳴ります。</string>
     <string name="horn_sound_none">音が選択されていません</string>
     <string name="horn_sound_current">サウンド: %1$s</string>
     <string name="horn_sound_choose">音を選ぶ</string>

@@ -2725,8 +2725,8 @@
     <string name="horn_mode_label">Modo</string>
     <string name="horn_mode_wheel">Estándar</string>
     <string name="horn_mode_sound">Propio</string>
-    <string name="horn_mode_both">Combinado</string>
-    <string name="horn_mode_hint">Propio reproduce tu sonido en el teléfono. Combinado lo suma a la bocina de la rueda, para un parlante externo. Si el teléfono no puede reproducirlo, suena la bocina de la rueda.</string>
+    <string name="horn_mode_both">Mezcla</string>
+    <string name="horn_mode_hint">Propio reproduce tu sonido en el teléfono. Mezcla lo suma a la bocina de la rueda, para un parlante externo. Si el teléfono no puede reproducirlo, suena la bocina de la rueda.</string>
     <string name="horn_sound_none">Ningún sonido elegido</string>
     <string name="horn_sound_current">Sonido: %1$s</string>
     <string name="horn_sound_choose">Elegir sonido</string>

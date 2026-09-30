@@ -2707,8 +2707,8 @@
     <string name="horn_mode_label">Tryb</string>
     <string name="horn_mode_wheel">Domyślny</string>
     <string name="horn_mode_sound">Własny</string>
-    <string name="horn_mode_both">Razem</string>
-    <string name="horn_mode_hint">Własny odtwarza twój dźwięk w telefonie. Razem dodaje go do klaksonu koła, dla zewnętrznego głośnika. Jeśli telefon nie może go odtworzyć, zabrzmi klakson koła.</string>
+    <string name="horn_mode_both">Miks</string>
+    <string name="horn_mode_hint">Własny odtwarza twój dźwięk w telefonie. Miks dodaje go do klaksonu koła, dla zewnętrznego głośnika. Jeśli telefon nie może go odtworzyć, zabrzmi klakson koła.</string>
     <string name="horn_sound_none">Nie wybrano dźwięku</string>
     <string name="horn_sound_current">Dźwięk: %1$s</string>
     <string name="horn_sound_choose">Wybierz dźwięk</string>
