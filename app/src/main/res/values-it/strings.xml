@@ -2232,7 +2232,7 @@
     <string name="tab_more">Altro</string>
     <string name="welcome_tut_dev_join">Unisciti alle classifiche</string>
     <string name="welcome_tut_dev_joined">Iscritto alle classifiche</string>
-    <string name="welcome_tut_dev_joined_norider">Upload online attivo. Nessun rider trovato nella cartella.</string>
+    <string name="welcome_tut_dev_joined_norider">Ancora nessun rider in questa cartella. Tocca %1$s in %2$s per crearne uno.</string>
     <string name="welcome_tut_dev_restore">Ripristina impostazioni</string>
     <string name="welcome_tut_dev_set_folder">Imposta cartella di backup</string>
     <string name="welcome_tut_dev_sync_trips">Sincronizza viaggi</string>

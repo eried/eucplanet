@@ -2194,7 +2194,7 @@
     <string name="tab_more">更多</string>
     <string name="welcome_tut_dev_join">加入排行榜</string>
     <string name="welcome_tut_dev_joined">已加入排行榜</string>
-    <string name="welcome_tut_dev_joined_norider">在线上传已开启。文件夹中未找到骑手。</string>
+    <string name="welcome_tut_dev_joined_norider">该文件夹中还没有骑手。请在%2$s中点击%1$s创建。</string>
     <string name="welcome_tut_dev_restore">恢复设置</string>
     <string name="welcome_tut_dev_set_folder">设置备份文件夹</string>
     <string name="welcome_tut_dev_sync_trips">同步行程</string>

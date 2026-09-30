@@ -2324,7 +2324,7 @@
     <string name="tab_more">Diğer</string>
     <string name="welcome_tut_dev_join">Lider tablolarına katıl</string>
     <string name="welcome_tut_dev_joined">Lider tablolarına katıldı</string>
-    <string name="welcome_tut_dev_joined_norider">Çevrimiçi yükleme açık. Klasörde sürücü bulunamadı.</string>
+    <string name="welcome_tut_dev_joined_norider">Bu klasörde henüz sürücü yok. Oluşturmak için %2$s içinde %1$s seçeneğine dokunun.</string>
     <string name="welcome_tut_dev_restore">Ayarları geri yükle</string>
     <string name="welcome_tut_dev_set_folder">Yedek klasörü ayarla</string>
     <string name="welcome_tut_dev_sync_trips">Seferleri eşitle</string>

@@ -2327,7 +2327,7 @@
     <string name="tab_more">Meer</string>
     <string name="welcome_tut_dev_join">Deelnemen aan klassementen</string>
     <string name="welcome_tut_dev_joined">Aangemeld voor klassementen</string>
-    <string name="welcome_tut_dev_joined_norider">Online upload aan. Geen rider gevonden in de map.</string>
+    <string name="welcome_tut_dev_joined_norider">Nog geen rider in deze map. Tik op %1$s in %2$s om er een te maken.</string>
     <string name="welcome_tut_dev_restore">Instellingen terugzetten</string>
     <string name="welcome_tut_dev_set_folder">Back-upmap instellen</string>
     <string name="welcome_tut_dev_sync_trips">Ritten synchroniseren</string>

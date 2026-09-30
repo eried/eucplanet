@@ -2326,7 +2326,7 @@
     <string name="tab_more">その他</string>
     <string name="welcome_tut_dev_join">リーダーボードに参加</string>
     <string name="welcome_tut_dev_joined">リーダーボードに参加済み</string>
-    <string name="welcome_tut_dev_joined_norider">オンラインアップロードがオン。フォルダーにライダーが見つかりません。</string>
+    <string name="welcome_tut_dev_joined_norider">このフォルダーにはまだライダーがいません。%2$sの%1$sで作成してください。</string>
     <string name="welcome_tut_dev_restore">設定を復元</string>
     <string name="welcome_tut_dev_set_folder">バックアップフォルダーを設定</string>
     <string name="welcome_tut_dev_sync_trips">トリップを同期</string>

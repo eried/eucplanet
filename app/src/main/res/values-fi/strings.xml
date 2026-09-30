@@ -960,7 +960,7 @@
     <string name="welcome_tut_dev_sync_trips">Synkronoi matkat</string>
     <string name="welcome_tut_dev_syncing">Synkronoidaan matkoja</string>
     <string name="welcome_tut_dev_joined">Liitytty tulostauluihin</string>
-    <string name="welcome_tut_dev_joined_norider">Verkkolähetys päällä. Kansiosta ei löytynyt ajajaa.</string>
+    <string name="welcome_tut_dev_joined_norider">Kansiossa ei ole vielä ajajaa. Luo se napauttamalla %1$s kohdassa %2$s.</string>
     <string name="welcome_tut_bt">Täällä yhdistät ja irrotat yksipyöräisesi</string>
     <string name="welcome_tut_version">Monet yksipyöräiset tarvitsevat vain testaajia tullakseen täysin tuetuiksi, yleensä kyse on helposta korjauksesta. Napauta versiota avataksesi Tietoja ja auttaaksesi</string>
     <string name="welcome_tut_outro_title">Siinä oli kierros!</string>

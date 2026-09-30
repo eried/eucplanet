@@ -953,8 +953,12 @@ class DashboardViewModel @Inject constructor(
     /** Whether the rider has already joined leaderboards (online upload enabled).
      *  Gates the dev wizard's Join button so it greys out and stays greyed once
      *  joined, the same disabled-after-action treatment Sync trips gets. */
-    val leaderboardsJoined: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.onlineUploadEnabled }
+    // Joined means uploads on AND a rider to upload as. Uploads on with no
+    // rider (issue #31, left by earlier builds) is not joined: the tour keeps
+    // offering the button and Settings shows Join again.
+    val leaderboardsJoined: StateFlow<Boolean> = kotlinx.coroutines.flow.combine(
+        settingsRepository.settings, syncManager.riderStoreId
+    ) { s, rider -> s.onlineUploadEnabled && rider != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
@@ -973,19 +977,26 @@ class DashboardViewModel @Inject constructor(
     fun linkDropbox(activityContext: android.content.Context) =
         dropboxRepository.startLinkFlow(activityContext)
 
-    /** Fire-and-forget dev "join leaderboards": recover the rider from the linked
-     *  backup folder if one is there, then enable online upload. The full
-     *  onboarding for a brand-new rider stays in Cloud settings; this is the quick
-     *  path for a dev whose folder already holds their rider. */
+    /** Fire-and-forget dev "join leaderboards": the quick path for a dev whose
+     *  folder already holds their rider. Recovers that rider and turns uploads
+     *  on. A brand-new rider needs consent and a profile, which only the Join
+     *  flow in Settings runs, so with no rider here uploads stay off and the
+     *  message says where to go (issue #31: turning them on anyway uploaded as
+     *  nobody and hid the Settings Join button). */
     fun joinLeaderboards() {
         viewModelScope.launch {
             val hasRider = syncManager.riderStoreId.value != null ||
                 syncManager.findRestorableRider()?.also { syncManager.writeRiderId(it.storeId) } != null
-            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = true))
-            appNotifier.post(context.getString(
-                if (hasRider) R.string.welcome_tut_dev_joined
-                else R.string.welcome_tut_dev_joined_norider
-            ))
+            if (hasRider) {
+                settingsRepository.update { it.copy(onlineUploadEnabled = true) }
+                appNotifier.post(context.getString(R.string.welcome_tut_dev_joined))
+            } else {
+                appNotifier.post(context.getString(
+                    R.string.welcome_tut_dev_joined_norider,
+                    context.getString(R.string.online_upload_join),
+                    context.getString(R.string.settings),
+                ))
+            }
         }
     }
 

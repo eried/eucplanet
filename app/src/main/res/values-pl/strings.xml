@@ -2325,7 +2325,7 @@
     <string name="tab_more">Więcej</string>
     <string name="welcome_tut_dev_join">Dołącz do rankingów</string>
     <string name="welcome_tut_dev_joined">Dołączono do rankingów</string>
-    <string name="welcome_tut_dev_joined_norider">Wysyłanie online włączone. Nie znaleziono ridera w folderze.</string>
+    <string name="welcome_tut_dev_joined_norider">W tym folderze nie ma jeszcze ridera. Stuknij %1$s w %2$s, aby go utworzyć.</string>
     <string name="welcome_tut_dev_restore">Przywróć ustawienia</string>
     <string name="welcome_tut_dev_set_folder">Ustaw folder kopii</string>
     <string name="welcome_tut_dev_sync_trips">Synchronizuj trasy</string>

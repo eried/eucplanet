@@ -2331,7 +2331,7 @@
     <string name="tab_more">Plus</string>
     <string name="welcome_tut_dev_join">Rejoindre les classements</string>
     <string name="welcome_tut_dev_joined">Classements rejoints</string>
-    <string name="welcome_tut_dev_joined_norider">Téléversement en ligne activé. Aucun rider trouvé dans le dossier.</string>
+    <string name="welcome_tut_dev_joined_norider">Pas encore de rider dans ce dossier. Touche %1$s dans %2$s pour en créer un.</string>
     <string name="welcome_tut_dev_restore">Restaurer les réglages</string>
     <string name="welcome_tut_dev_set_folder">Définir le dossier de sauvegarde</string>
     <string name="welcome_tut_dev_sync_trips">Synchroniser les trajets</string>

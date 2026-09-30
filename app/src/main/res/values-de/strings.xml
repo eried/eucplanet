@@ -2347,7 +2347,7 @@
     <string name="tab_more">Mehr</string>
     <string name="welcome_tut_dev_join">Bestenlisten beitreten</string>
     <string name="welcome_tut_dev_joined">Bestenlisten beigetreten</string>
-    <string name="welcome_tut_dev_joined_norider">Online-Upload an. Kein Rider im Ordner gefunden.</string>
+    <string name="welcome_tut_dev_joined_norider">Noch kein Rider in diesem Ordner. Tippe in %2$s auf %1$s, um einen anzulegen.</string>
     <string name="welcome_tut_dev_restore">Einstellungen wiederherstellen</string>
     <string name="welcome_tut_dev_set_folder">Backup-Ordner festlegen</string>
     <string name="welcome_tut_dev_sync_trips">Fahrten synchronisieren</string>

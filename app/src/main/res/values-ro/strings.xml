@@ -960,7 +960,7 @@
     <string name="welcome_tut_dev_sync_trips">Sincronizează cursele</string>
     <string name="welcome_tut_dev_syncing">Se sincronizează cursele</string>
     <string name="welcome_tut_dev_joined">Te-ai alăturat clasamentelor</string>
-    <string name="welcome_tut_dev_joined_norider">Încărcarea online este pornită. Nu s-a găsit niciun conducător în dosar.</string>
+    <string name="welcome_tut_dev_joined_norider">Încă nu există un rider în acest dosar. Atinge %1$s în %2$s pentru a crea unul.</string>
     <string name="welcome_tut_bt">De aici conectezi și deconectezi monociclul</string>
     <string name="welcome_tut_version">Multe monocicluri au nevoie doar de testeri pentru a fi complet acceptate, de obicei e o reparație ușoară. Atinge versiunea pentru a deschide Despre și a da o mână de ajutor</string>
     <string name="welcome_tut_outro_title">Cam asta e turul!</string>

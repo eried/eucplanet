@@ -2327,7 +2327,7 @@
     <string name="tab_more">Mais</string>
     <string name="welcome_tut_dev_join">Entrar nos rankings</string>
     <string name="welcome_tut_dev_joined">Inscrito nos rankings</string>
-    <string name="welcome_tut_dev_joined_norider">Envio online ativado. Nenhum piloto encontrado na pasta.</string>
+    <string name="welcome_tut_dev_joined_norider">Ainda não há piloto nesta pasta. Toque em %1$s em %2$s para criar um.</string>
     <string name="welcome_tut_dev_restore">Restaurar configurações</string>
     <string name="welcome_tut_dev_set_folder">Definir pasta de backup</string>
     <string name="welcome_tut_dev_sync_trips">Sincronizar viagens</string>

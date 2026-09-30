@@ -2324,7 +2324,7 @@
     <string name="tab_more">Más</string>
     <string name="welcome_tut_dev_join">Unirse a clasificaciones</string>
     <string name="welcome_tut_dev_joined">Unido a clasificaciones</string>
-    <string name="welcome_tut_dev_joined_norider">Subida online activada. No se encontró rider en la carpeta.</string>
+    <string name="welcome_tut_dev_joined_norider">Aún no hay ningún rider en esta carpeta. Toca %1$s en %2$s para crearlo.</string>
     <string name="welcome_tut_dev_restore">Restaurar ajustes</string>
     <string name="welcome_tut_dev_set_folder">Definir carpeta de respaldo</string>
     <string name="welcome_tut_dev_sync_trips">Sincronizar viajes</string>

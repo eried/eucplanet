@@ -960,7 +960,7 @@
     <string name="welcome_tut_dev_sync_trips">Synchronizovat jízdy</string>
     <string name="welcome_tut_dev_syncing">Synchronizuji jízdy</string>
     <string name="welcome_tut_dev_joined">Připojeno k žebříčkům</string>
-    <string name="welcome_tut_dev_joined_norider">Online nahrávání zapnuto. Ve složce nebyl nalezen žádný jezdec.</string>
+    <string name="welcome_tut_dev_joined_norider">V této složce zatím není žádný jezdec. Vytvoříte ho klepnutím na %1$s v %2$s.</string>
     <string name="welcome_tut_bt">Zde monokolo připojíte a odpojíte</string>
     <string name="welcome_tut_version">Mnoha monokolům k plné podpoře chybí jen testeři, obvykle jde o snadnou opravu. Klepnutím na verzi otevřete O aplikaci a můžete pomoci</string>
     <string name="welcome_tut_outro_title">A to je celá prohlídka!</string>

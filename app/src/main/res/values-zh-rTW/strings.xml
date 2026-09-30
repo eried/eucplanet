@@ -2326,7 +2326,7 @@
     <string name="tab_more">更多</string>
     <string name="welcome_tut_dev_join">加入排行榜</string>
     <string name="welcome_tut_dev_joined">已加入排行榜</string>
-    <string name="welcome_tut_dev_joined_norider">已開啟線上上傳。資料夾中找不到騎手。</string>
+    <string name="welcome_tut_dev_joined_norider">這個資料夾還沒有騎手。請在%2$s中點選%1$s建立。</string>
     <string name="welcome_tut_dev_restore">還原設定</string>
     <string name="welcome_tut_dev_set_folder">設定備份資料夾</string>
     <string name="welcome_tut_dev_sync_trips">同步行程</string>

@@ -2213,7 +2213,7 @@
     <string name="tab_more">Mer</string>
     <string name="welcome_tut_dev_join">Bli med på resultattavler</string>
     <string name="welcome_tut_dev_joined">Med på resultattavler</string>
-    <string name="welcome_tut_dev_joined_norider">Nettopplasting på. Ingen rider funnet i mappen.</string>
+    <string name="welcome_tut_dev_joined_norider">Ingen rider i mappen ennå. Trykk på %1$s i %2$s for å opprette en.</string>
     <string name="welcome_tut_dev_restore">Gjenopprett innstillinger</string>
     <string name="welcome_tut_dev_set_folder">Angi backup-mappe</string>
     <string name="welcome_tut_dev_sync_trips">Synk turer</string>

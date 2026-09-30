@@ -2327,7 +2327,7 @@
     <string name="tab_more">Ещё</string>
     <string name="welcome_tut_dev_join">Войти в таблицы лидеров</string>
     <string name="welcome_tut_dev_joined">В таблицах лидеров</string>
-    <string name="welcome_tut_dev_joined_norider">Онлайн-загрузка включена. Райдер в папке не найден.</string>
+    <string name="welcome_tut_dev_joined_norider">В папке пока нет райдера. Нажмите %1$s в разделе %2$s, чтобы создать его.</string>
     <string name="welcome_tut_dev_restore">Восстановить настройки</string>
     <string name="welcome_tut_dev_set_folder">Задать папку копий</string>
     <string name="welcome_tut_dev_sync_trips">Синхр. поездки</string>

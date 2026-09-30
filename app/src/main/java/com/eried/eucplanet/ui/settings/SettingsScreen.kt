@@ -9439,7 +9439,11 @@ private fun CloudTab(
         if (settings.syncFolderUri != null) {
             SectionHeader(stringResource(R.string.section_online_stats))
 
-            if (!settings.onlineUploadEnabled) {
+            // Join whenever there is no rider to upload as, not only while
+            // uploads are off: uploads on with no rider (issue #31, left by an
+            // earlier welcome-tour shortcut) otherwise hid both this button and
+            // the profile below. Join runs recover, rejoin or onboarding.
+            if (!settings.onlineUploadEnabled || riderStoreId == null) {
                 val siteUrl = stringResource(R.string.online_upload_site_url)
                 // Caption + inline link (one flowing, naturally-wrapping sentence),
                 // shown ABOVE the Join button.

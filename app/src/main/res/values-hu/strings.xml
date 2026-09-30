@@ -960,7 +960,7 @@
     <string name="welcome_tut_dev_sync_trips">Menetek szinkronizálása</string>
     <string name="welcome_tut_dev_syncing">Menetek szinkronizálása</string>
     <string name="welcome_tut_dev_joined">Csatlakoztál a ranglistákhoz</string>
-    <string name="welcome_tut_dev_joined_norider">Online feltöltés bekapcsolva. Nem található vezető a mappában.</string>
+    <string name="welcome_tut_dev_joined_norider">Ebben a mappában még nincs vezető. Hozz létre egyet: %2$s, %1$s.</string>
     <string name="welcome_tut_bt">Itt csatlakoztathatod és választhatod le az egykerekűdet</string>
     <string name="welcome_tut_version">Sok egykerekűnek csak tesztelőkre van szüksége a teljes támogatáshoz, általában könnyű javításról van szó. Koppints a verzióra a Névjegy megnyitásához, és segíts</string>
     <string name="welcome_tut_outro_title">Ennyi volt a körút!</string>

@@ -2327,7 +2327,7 @@
     <string name="tab_more">Mer</string>
     <string name="welcome_tut_dev_join">Gå med i topplistor</string>
     <string name="welcome_tut_dev_joined">Med i topplistor</string>
-    <string name="welcome_tut_dev_joined_norider">Onlineuppladdning på. Ingen åkare hittades i mappen.</string>
+    <string name="welcome_tut_dev_joined_norider">Ingen åkare i mappen än. Tryck på %1$s i %2$s för att skapa en.</string>
     <string name="welcome_tut_dev_restore">Återställ inställningar</string>
     <string name="welcome_tut_dev_set_folder">Ange backupmapp</string>
     <string name="welcome_tut_dev_sync_trips">Synka turer</string>

@@ -2342,7 +2342,7 @@
     <string name="tab_more">Mere</string>
     <string name="welcome_tut_dev_join">Tilmeld ranglister</string>
     <string name="welcome_tut_dev_joined">Tilmeldt ranglister</string>
-    <string name="welcome_tut_dev_joined_norider">Online-upload til. Ingen rytter fundet i mappen.</string>
+    <string name="welcome_tut_dev_joined_norider">Ingen rytter i mappen endnu. Tryk på %1$s i %2$s for at oprette en.</string>
     <string name="welcome_tut_dev_restore">Gendan indstillinger</string>
     <string name="welcome_tut_dev_set_folder">Vælg backup-mappe</string>
     <string name="welcome_tut_dev_sync_trips">Synk ture</string>
