@@ -21,6 +21,10 @@ name: Branch builds
 # get every companion or none. The phone/wear/HUD APKs still land as workflow
 # artifacts, so a fork without the secret can still test those.
 #
+# Every APK is signed with one shared key (BRANCH_DEBUG_KEYSTORE_B64, the
+# maintainer's local debug keystore) so branch builds update in place and a
+# tester keeps their data (issue #30).
+#
 # Pull-request runs build the APK as a workflow artifact (downloadable from
 # the Actions tab for ~90 days) but do not touch the release list, so PRs
 # from forks can't push tags.
@@ -84,6 +88,35 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Install the shared branch signing key
+        id: branchkey
+        # Issue #30: a runner makes a fresh debug keystore every run, so each
+        # build had a new certificate and Android refused to update in place.
+        # One fixed key (the maintainer's local debug keystore, base64 in the
+        # secret) signs every branch APK, so builds update each other and local
+        # ones. Missing secret fails loudly; a fork PR never gets secrets and
+        # keeps the runner key, nothing is published for it anyway.
+        env:
+          BRANCH_DEBUG_KEYSTORE_B64: ${{ secrets.BRANCH_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$BRANCH_DEBUG_KEYSTORE_B64" ]; then
+            if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+              echo "::notice::Pull request from a fork: no signing secret, the APK uses the runner's own debug key and cannot update a branch build."
+              echo "installed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::error::BRANCH_DEBUG_KEYSTORE_B64 secret missing, branch APKs would not update in place (issue #30)"
+            exit 1
+          fi
+          mkdir -p ~/.android
+          echo "$BRANCH_DEBUG_KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
+          HASH=$(sha256sum ~/.android/debug.keystore | cut -d' ' -f1)
+          if [ "$HASH" != "80ebc5a9cb1893a5a85d9eb0a94a8355b2652ea18c983246268611f42a3a64b3" ]; then
+            echo "::error::branch keystore hash mismatch ($HASH), not the shared key"
+            exit 1
+          fi
+          echo "installed=true" >> "$GITHUB_OUTPUT"
+
       - name: Build debug APKs
         # Build the phone APK on every branch. Build the wear + HUD APKs
         # too when the branch has their modules, so testers can grab the
@@ -114,6 +147,20 @@ jobs:
                "/tmp/out/hud-${{ needs.meta.outputs.suffix }}.apk"
           fi
           ls -la /tmp/out
+
+      - name: Verify every APK carries the shared branch certificate
+        if: steps.branchkey.outputs.installed == 'true'
+        run: |
+          SIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
+          WANT=a68b8bd41ffbc9dc45d9b438698f24e7906769aef08b298e0b5f46f348ba86ac
+          for apk in /tmp/out/*.apk; do
+            GOT=$("$SIGNER" verify --print-certs "$apk" | grep -m1 'SHA-256 digest' | awk '{print $NF}')
+            if [ "$GOT" != "$WANT" ]; then
+              echo "::error::$(basename "$apk") signed with $GOT, not the shared branch key"
+              exit 1
+            fi
+            echo "$(basename "$apk"): shared branch key"
+          done
 
       - name: Upload as workflow artifacts (always)
         uses: actions/upload-artifact@v4
