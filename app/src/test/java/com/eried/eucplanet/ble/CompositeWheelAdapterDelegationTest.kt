@@ -53,6 +53,19 @@ class CompositeWheelAdapterDelegationTest {
     }
 
     @Test
+    fun `the connect-time handshake request reaches the app`() {
+        // Same failure shape as the cell count above, with a worse symptom:
+        // the V6 asks for a handshake right after connect, the composite
+        // answered the interface default, and the repository never ran it.
+        assertTrue(composite().apply { notifyConnectingTo("V6-700326F3") }.requiresConnectAuth())
+        // Families that do not want it still say no. The P6 stays as it
+        // shipped and was verified: no connect handshake.
+        assertFalse(composite().apply { notifyConnectingTo("P6-5678") }.requiresConnectAuth())
+        assertFalse(composite().apply { notifyConnectingTo("V14-ABCD") }.requiresConnectAuth())
+        assertFalse(composite().apply { notifyConnectingTo("KS-18XL") }.requiresConnectAuth())
+    }
+
+    @Test
     fun `the KingSong lock code reaches the family adapter`() {
         // Shipped once without this forward: the interface default swallowed
         // the code and the KingSong adapter behind the composite sent the wheel

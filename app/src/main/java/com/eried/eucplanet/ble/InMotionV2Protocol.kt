@@ -12,6 +12,8 @@ object InMotionV2Protocol {
 
     object Flags {
         const val INITIAL: Byte = 0x11
+        /** Query wrapper the V6 answers; it ignores DEFAULT-flag polls. */
+        const val QUERY13: Byte = 0x13
         const val DEFAULT: Byte = 0x14
         const val EXTENDED: Byte = 0x16 // Official app format with routing bytes
     }
