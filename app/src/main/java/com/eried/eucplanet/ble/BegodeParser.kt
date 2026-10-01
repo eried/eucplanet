@@ -50,8 +50,10 @@ class BegodeParser {
 
     /** True once a 0x07 extras frame carried a non-zero PWM; from then on, we trust 0x07 PWM over 0x00 derivations. */
     @Volatile private var hasExtras: Boolean = false
-    /** True once a 0x07 extras frame carried a non-zero battery current; from then on, we trust it over Live A phase current. */
+    /** True once the 0x07 battery-current field proved itself wired ([EXTRAS_CURRENT_ARM_STREAK] real readings in a row); from then on, we trust it over Live A phase current. */
     @Volatile private var hasExtrasCurrent: Boolean = false
+    /** Consecutive 0x07 frames carrying a real battery-current reading, counted while [hasExtrasCurrent] is still false. */
+    @Volatile private var extrasCurrentStreak: Int = 0
 
     /**
      * True once a Freestyl3r (CF) or SmirnoV (BF) firmware banner identifies
@@ -90,6 +92,7 @@ class BegodeParser {
         lastPcMode = 3
         hasExtras = false
         hasExtrasCurrent = false
+        extrasCurrentStreak = 0
         hwPwmFirmware = false
         wheelInMiles = false
     }
@@ -363,11 +366,20 @@ class BegodeParser {
         // the wheel stands, and the tile must follow it down.
         if (truePwmRaw != 0) hasExtras = true
         if (hasExtras) lastPwmPct = truePwm
-        // Same arming for battery current, on its own flag: a Master v3 on
-        // stock firmware leaves it at 0 too, and emitting that 0 put a blank
-        // AMPS reading and a 0 % PWM on the dashboard every second, between
-        // the 5 Hz Live A frames that carried the real values (issue #26).
-        if (battCurrentRaw != 0f) hasExtrasCurrent = true
+        // Same arming for battery current, on its own flag, but the bar is
+        // higher. This field is in centi-amps, so a single count of ADC
+        // noise or one stray sample reads as "non-zero", and arming on it
+        // locked the latch for the rest of the session: every stock 0x07
+        // frame then pushed its 0 A through at 1 Hz, the same flicker
+        // issue #26 started with, now on the amps tile only (PWM is whole
+        // percent, its zero is noise-free). The channel must prove itself
+        // wired with a streak of real readings before a zero is believed.
+        if (!hasExtrasCurrent) {
+            extrasCurrentStreak =
+                if (kotlin.math.abs(battCurrentRaw) >= EXTRAS_CURRENT_MIN_A) extrasCurrentStreak + 1
+                else 0
+            if (extrasCurrentStreak >= EXTRAS_CURRENT_ARM_STREAK) hasExtrasCurrent = true
+        }
         if (hasExtrasCurrent) lastPhaseCurrent = battCurrentRaw
         val battCurrent = lastPhaseCurrent
 
@@ -465,6 +477,12 @@ class BegodeParser {
         /** Used to de-convert Begode wire values when the wheel's screen is
          *  in imperial mode; see [wheelInMiles]. */
         private const val MILES_TO_KM: Float = 1.609344f
+
+        /** A wired 0x07 current field reads tens of counts; noise on an unwired one reads one or two. */
+        private const val EXTRAS_CURRENT_MIN_A = 0.25f
+
+        /** Readings in a row at [EXTRAS_CURRENT_MIN_A] or more before the 0x07 current channel is trusted. */
+        private const val EXTRAS_CURRENT_ARM_STREAK = 3
 
         /**
          * Per-pack voltage ratio (spec 4.4). Multiplying raw_cV / 100 by this
