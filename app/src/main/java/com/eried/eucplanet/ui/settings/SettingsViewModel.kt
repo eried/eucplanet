@@ -129,6 +129,7 @@ class SettingsViewModel @Inject constructor(
     private val appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository,
     @ApplicationContext private val context: Context,
+    private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
 ) : ViewModel() {
 
     /** Whether Android will honour a picture-in-picture request from us. */
@@ -593,18 +594,36 @@ class SettingsViewModel @Inject constructor(
     }
 
     // Motor sound
-    fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSoundEnabled = v) }
-    fun updateEngineType(v: String) = update { copy(engineType = v) }
-    fun updateEngineVolume(v: Float) = update { copy(engineVolume = v.coerceIn(0f, 1f)) }
-    fun updateEngineVolumeAutoEnabled(v: Boolean) = update { copy(engineVolumeAutoEnabled = v) }
-    fun updateEngineVolumeAutoCurve(curve: String) = update { copy(engineVolumeAutoCurve = curve) }
-    fun updateEngineMuffler(v: String) = update { copy(engineMuffler = v) }
-    fun updateEngineGearbox(v: String) = update { copy(engineGearbox = v) }
-    fun updateEngineIdleBehavior(v: String) = update { copy(engineIdleBehavior = v) }
-    fun updateEngineDecelChar(v: String) = update { copy(engineDecelChar = v) }
-    fun updateEngineBrake(v: String) = update { copy(engineBrake = v) }
-    fun updateEngineDuckOnVoice(v: String) = update { copy(engineDuckOnVoice = v) }
-    fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineHeadphonesOnly = v) }
+    fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSound = engineSound.copy(enabled = v)) }
+    fun updateEngineType(v: String) = update { copy(engineSound = engineSound.copy(type = v)) }
+    fun updateEngineVolume(v: Float) = update { copy(engineSound = engineSound.copy(volume = v.coerceIn(0f, 1f))) }
+    fun updateEngineVolumeAutoEnabled(v: Boolean) = update { copy(engineSound = engineSound.copy(volumeAutoEnabled = v)) }
+    fun updateEngineVolumeAutoCurve(curve: String) = update { copy(engineSound = engineSound.copy(volumeAutoCurve = curve)) }
+    fun updateEngineMuffler(v: String) = update { copy(engineSound = engineSound.copy(muffler = v)) }
+    fun updateEngineGearbox(v: String) = update { copy(engineSound = engineSound.copy(gearbox = v)) }
+    fun updateEngineIdleBehavior(v: String) = update { copy(engineSound = engineSound.copy(idleBehavior = v)) }
+    fun updateEngineDecelChar(v: String) = update { copy(engineSound = engineSound.copy(decelChar = v)) }
+    fun updateEngineBrake(v: String) = update { copy(engineSound = engineSound.copy(brake = v)) }
+    fun updateEngineDuckOnVoice(v: String) = update { copy(engineSound = engineSound.copy(duckOnVoice = v)) }
+    fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineSound = engineSound.copy(headphonesOnly = v)) }
+
+    fun updateHornMode(v: String) = update { copy(horn = horn.copy(mode = v)) }
+    fun updateHornHeadphonesOnly(v: Boolean) = update { copy(horn = horn.copy(headphonesOnly = v)) }
+    val hornSoundReady: Boolean get() = hornPlayer.isReady
+
+    /** Copy the picked clip in; the name is kept for the settings row. */
+    fun importHornSound(uri: android.net.Uri, displayName: String, onResult: (com.eried.eucplanet.audio.HornPlayer.ImportResult) -> Unit) {
+        viewModelScope.launch {
+            val r = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { hornPlayer.import(uri) }
+            if (r == com.eried.eucplanet.audio.HornPlayer.ImportResult.OK) {
+                update { copy(horn = horn.copy(soundName = displayName)) }
+            }
+            onResult(r)
+        }
+    }
+
+    /** Plays the rider's real clip, the same one the horn button uses. */
+    fun playHornSound() { hornPlayer.play() }
 
     fun previewEngine(key: String) {
         viewModelScope.launch {

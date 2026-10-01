@@ -163,6 +163,11 @@ object SettingsJson {
             put("seriesCells", s.batteryPercent.seriesCells)
             put("capacityWh", s.batteryPercent.capacityWh)
         })
+        put("horn", JSONObject().apply {
+            put("mode", s.horn.mode)
+            put("soundName", s.horn.soundName)
+            put("headphonesOnly", s.horn.headphonesOnly)
+        })
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
             put("lockBelowDbm", s.proximityLock.lockBelowDbm)
@@ -589,6 +594,13 @@ object SettingsJson {
                 capacityWh = b.optInt("capacityWh", base.batteryPercent.capacityWh),
             )
         } ?: base.batteryPercent,
+        horn = j.optJSONObject("horn")?.let { h ->
+            base.horn.copy(
+                mode = h.optString("mode", base.horn.mode),
+                soundName = h.optString("soundName", base.horn.soundName),
+                headphonesOnly = h.optBoolean("headphonesOnly", base.horn.headphonesOnly),
+            )
+        } ?: base.horn,
         proximityLock = j.optJSONObject("proximityLock")?.let { p ->
             base.proximityLock.copy(
                 lockEnabled = p.optBoolean("lockEnabled", base.proximityLock.lockEnabled),
@@ -755,18 +767,21 @@ object SettingsJson {
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),
         backButtonAction = j.optString("backButtonAction", base.backButtonAction),
-        engineSoundEnabled = j.optBoolean("engineSoundEnabled", base.engineSoundEnabled),
-        engineType = j.optString("engineType", base.engineType),
-        engineVolume = j.optDouble("engineVolume", base.engineVolume.toDouble()).toFloat(),
-        engineVolumeAutoEnabled = j.optBoolean("engineVolumeAutoEnabled", base.engineVolumeAutoEnabled),
-        engineVolumeAutoCurve = j.optString("engineVolumeAutoCurve", base.engineVolumeAutoCurve),
-        engineMuffler = j.optString("engineMuffler", base.engineMuffler),
-        engineGearbox = j.optString("engineGearbox", base.engineGearbox),
-        engineIdleBehavior = j.optString("engineIdleBehavior", base.engineIdleBehavior),
-        engineDecelChar = j.optString("engineDecelChar", base.engineDecelChar),
-        engineBrake = j.optString("engineBrake", base.engineBrake),
-        engineDuckOnVoice = j.optString("engineDuckOnVoice", base.engineDuckOnVoice),
-        engineHeadphonesOnly = j.optBoolean("engineHeadphonesOnly", base.engineHeadphonesOnly),
+        // Flat engine* keys, read into the nested group so older backups load.
+        engineSound = base.engineSound.copy(
+            enabled = j.optBoolean("engineSoundEnabled", base.engineSoundEnabled),
+            type = j.optString("engineType", base.engineType),
+            volume = j.optDouble("engineVolume", base.engineVolume.toDouble()).toFloat(),
+            volumeAutoEnabled = j.optBoolean("engineVolumeAutoEnabled", base.engineVolumeAutoEnabled),
+            volumeAutoCurve = j.optString("engineVolumeAutoCurve", base.engineVolumeAutoCurve),
+            muffler = j.optString("engineMuffler", base.engineMuffler),
+            gearbox = j.optString("engineGearbox", base.engineGearbox),
+            idleBehavior = j.optString("engineIdleBehavior", base.engineIdleBehavior),
+            decelChar = j.optString("engineDecelChar", base.engineDecelChar),
+            brake = j.optString("engineBrake", base.engineBrake),
+            duckOnVoice = j.optString("engineDuckOnVoice", base.engineDuckOnVoice),
+            headphonesOnly = j.optBoolean("engineHeadphonesOnly", base.engineHeadphonesOnly),
+        ),
         raceboxMapX = j.optString("raceboxMapX", base.raceboxMapX),
         raceboxMapY = j.optString("raceboxMapY", base.raceboxMapY),
         raceboxMapZ = j.optString("raceboxMapZ", base.raceboxMapZ),

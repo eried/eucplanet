@@ -2717,4 +2717,18 @@
     <string name="headlight_state_unknown">Lys: ?</string>
     <string name="adv_headlight_readback_age">Lysstatus gyldighed</string>
     <string name="adv_headlight_readback_age_desc">Hvor længe et rapporteret lysniveau er aktuelt. For lang tid kan vise et forældet niveau.</string>
+    <string name="horn_headphones_only">Kun med hovedtelefoner eller Bluetooth</string>
+    <string name="horn_section">Horn</string>
+    <string name="horn_mode_label">Tilstand</string>
+    <string name="horn_mode_wheel">Standard</string>
+    <string name="horn_mode_sound">Egen</string>
+    <string name="horn_mode_both">Miks</string>
+    <string name="horn_mode_hint">Egen afspiller din lyd på telefonen. Miks lægger den oven i hjulets horn, til en ekstern højttaler. Kan telefonen ikke afspille den, lyder hjulets horn i stedet.</string>
+    <string name="horn_sound_none">Ingen lyd valgt</string>
+    <string name="horn_sound_current">Lyd: %1$s</string>
+    <string name="horn_sound_choose">Vælg lyd</string>
+    <string name="horn_sound_imported">Hornlyd gemt</string>
+    <string name="horn_sound_too_long">Den lyd er længere end 5 sekunder</string>
+    <string name="horn_sound_too_big">Den fil er større end 2 MB</string>
+    <string name="horn_sound_unreadable">Den fil kunne ikke afspilles</string>
 </resources>

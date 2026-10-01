@@ -2701,4 +2701,18 @@
     <string name="headlight_state_unknown">頭燈：?</string>
     <string name="adv_headlight_readback_age">燈光狀態有效期</string>
     <string name="adv_headlight_readback_age_desc">回報的燈光亮度保持有效的時間。時間過長可能顯示過時的亮度。</string>
+    <string name="horn_headphones_only">僅限耳機或藍牙</string>
+    <string name="horn_section">喇叭</string>
+    <string name="horn_mode_label">模式</string>
+    <string name="horn_mode_wheel">預設</string>
+    <string name="horn_mode_sound">自訂</string>
+    <string name="horn_mode_both">混合</string>
+    <string name="horn_mode_hint">自訂會在手機播放你的聲音。混合會在車輪喇叭之外混合播放,適合外接喇叭。手機無法播放時,改由車輪喇叭發聲。</string>
+    <string name="horn_sound_none">尚未選擇聲音</string>
+    <string name="horn_sound_current">音效: %1$s</string>
+    <string name="horn_sound_choose">選擇聲音</string>
+    <string name="horn_sound_imported">已儲存喇叭聲音</string>
+    <string name="horn_sound_too_long">這個聲音超過 5 秒</string>
+    <string name="horn_sound_too_big">這個檔案超過 2 MB</string>
+    <string name="horn_sound_unreadable">無法播放這個檔案</string>
 </resources>

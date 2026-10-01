@@ -131,6 +131,8 @@ data class AppSettings(
     val share: ShareSettings = ShareSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
+    /** What the horn button does: the wheel's horn, the rider's sound, or both. */
+    val horn: HornSettings = HornSettings(),
     /** Weather / ridability module (dashboard icon + forecast flyout). Nested
      *  so the whole feature costs one constructor slot; see rule 8. */
     val weather: WeatherSettings = WeatherSettings(),
@@ -768,44 +770,8 @@ data class AppSettings(
     val hudMapContrastPct: Int = 100,
     val hudMapBrightnessPct: Int = 0,
 
-    // --- Motor Sound generator ---
-    //
-    // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
-    // through the media stream so it mixes with music; the user controls how it
-    // behaves under voice announces via [engineDuckOnVoice].
-    val engineSoundEnabled: Boolean = false,
-    /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
-    val engineType: String = "FOUR_STROKE_SINGLE",
-    /** In-app gain 0..1 over the media stream. */
-    val engineVolume: Float = 0.6f,
-    /**
-     * Legacy. Was a paired "fixed volume" toggle (with [engineVolume] as the slider) that
-     * could disable the speed curve. The current UI always uses the curve so this field
-     * is unused, kept only for backup/sync compatibility with v0.5.x exports.
-     */
-    val engineVolumeAutoEnabled: Boolean = false,
-    /**
-     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
-     * volume, there's no separate fixed-volume slider any more. Format matches
-     * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
-     * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
-     * silent at top.
-     */
-    val engineVolumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
-    /** "OPEN", "HALF", "MUFFLED", controls high-harmonic rolloff. */
-    val engineMuffler: String = "HALF",
-    /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
-    val engineGearbox: String = "FOUR",
-    /** "ALWAYS" (always idling when connected), "FADE" (fade after parked), "MOVING" (only when moving). */
-    val engineIdleBehavior: String = "FADE",
-    /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
-    val engineDecelChar: String = "STANDARD",
-    /** "OFF", "LIGHT", "STRONG", engine-brake whine layered during sustained decel/regen. */
-    val engineBrake: String = "LIGHT",
-    /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
-    val engineDuckOnVoice: String = "DUCK",
-    /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
-    val engineHeadphonesOnly: Boolean = false,
+    // --- Motor Sound generator --- (nested; see EngineSoundSettings)
+    val engineSound: EngineSoundSettings = EngineSoundSettings(),
 
     // --- Overlay Studio replay export ---
     // Output format for the Replay-mode photo / video export. Stored as stable
@@ -1045,6 +1011,18 @@ data class AppSettings(
     val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
     val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
     val inmotionV1Pin: Int get() = advanced.inmotionV1Pin
+    val engineSoundEnabled get() = engineSound.enabled
+    val engineType get() = engineSound.type
+    val engineVolume get() = engineSound.volume
+    val engineVolumeAutoEnabled get() = engineSound.volumeAutoEnabled
+    val engineVolumeAutoCurve get() = engineSound.volumeAutoCurve
+    val engineMuffler get() = engineSound.muffler
+    val engineGearbox get() = engineSound.gearbox
+    val engineIdleBehavior get() = engineSound.idleBehavior
+    val engineDecelChar get() = engineSound.decelChar
+    val engineBrake get() = engineSound.brake
+    val engineDuckOnVoice get() = engineSound.duckOnVoice
+    val engineHeadphonesOnly get() = engineSound.headphonesOnly
     val kingsongUnlockCode: Int get() = advanced.kingsongUnlockCode
     val kingsongPassword: Int get() = advanced.kingsongPassword
 }
@@ -1668,4 +1646,71 @@ fun AppSettings.withUnitsToggled(): AppSettings {
     val isImperial = unitSpeed == "mph" && unitDistance == "mi" && unitTemp == "F"
     return if (isImperial) copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
     else copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
+}
+
+/**
+ * Motor Sound generator settings, one group so they cost AppSettings a
+ * single copy() slot (see AppSettingsArgLimitTest). The backup JSON keeps
+ * the old flat engine* keys, and AppSettings exposes the old names as
+ * getters, so readers and old backups are unaffected.
+ */
+data class EngineSoundSettings(
+    // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
+    // through the media stream so it mixes with music; the user controls how it
+    // behaves under voice announces via [duckOnVoice].
+    val enabled: Boolean = false,
+    /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
+    val type: String = "FOUR_STROKE_SINGLE",
+    /** In-app gain 0..1 over the media stream. */
+    val volume: Float = 0.6f,
+    /**
+     * Legacy. Was a paired "fixed volume" toggle (with [volume] as the slider) that
+     * could disable the speed curve. The current UI always uses the curve so this field
+     * is unused, kept only for backup/sync compatibility with v0.5.x exports.
+     */
+    val volumeAutoEnabled: Boolean = false,
+    /**
+     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
+     * volume, there's no separate fixed-volume slider any more. Format matches
+     * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
+     * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
+     * silent at top.
+     */
+    val volumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
+    /** "OPEN", "HALF", "MUFFLED", controls high-harmonic rolloff. */
+    val muffler: String = "HALF",
+    /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
+    val gearbox: String = "FOUR",
+    /** "ALWAYS" (always idling when connected), "FADE" (fade after parked), "MOVING" (only when moving). */
+    val idleBehavior: String = "FADE",
+    /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
+    val decelChar: String = "STANDARD",
+    /** "OFF", "LIGHT", "STRONG", engine-brake whine layered during sustained decel/regen. */
+    val brake: String = "LIGHT",
+    /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
+    val duckOnVoice: String = "DUCK",
+    /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
+    val headphonesOnly: Boolean = false,
+)
+
+/**
+ * The horn. [mode] WHEEL sends the wheel's own horn (as before), SOUND plays
+ * the rider's imported clip on the phone, BOTH does the two at once for a
+ * rider with an external speaker. [soundName] is the picked file's display
+ * name, "" when none; the clip itself lives in app storage and is not part of
+ * a settings backup, so a restored SOUND setting with no clip falls back to
+ * the wheel's horn rather than going silent.
+ */
+data class HornSettings(
+    val mode: String = MODE_WHEEL,
+    val soundName: String = "",
+    /** Play the phone sound only through headphones or a Bluetooth speaker. */
+    val headphonesOnly: Boolean = false,
+) {
+    companion object {
+        const val MODE_WHEEL = "WHEEL"
+        const val MODE_SOUND = "SOUND"
+        const val MODE_BOTH = "BOTH"
+        val MODES = setOf(MODE_WHEEL, MODE_SOUND, MODE_BOTH)
+    }
 }

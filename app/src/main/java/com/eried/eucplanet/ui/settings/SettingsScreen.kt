@@ -674,6 +674,9 @@ fun SettingsScreen(
         stringResource(R.string.speed_legal_tiltback),
         stringResource(R.string.speed_legal_alarm),
         stringResource(R.string.section_speed_calibration),
+        stringResource(R.string.horn_section),
+        stringResource(R.string.horn_mode_label),
+        stringResource(R.string.horn_headphones_only),
         stringResource(R.string.section_battery_percent),
         stringResource(R.string.battery_override_label),
         stringResource(R.string.battery_percent_min_cell),
@@ -7105,6 +7108,90 @@ private fun SpeedTab(
         }
 
         LegalLockdownSetting(viewModel)
+
+        HornSection(settings, viewModel)
+    }
+}
+
+/**
+ * What the horn button does: the wheel's horn, the rider's own sound played
+ * by the phone, or both at once for a rider with an external speaker. Every
+ * horn trigger (tile, Flic, volume keys, watch, HUD, Garmin, voice) follows it.
+ */
+@Composable
+private fun HornSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val snackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
+    val snackbarScope = com.eried.eucplanet.ui.common.LocalSnackbarScope.current
+    val msgOk = stringResource(R.string.horn_sound_imported)
+    val msgLong = stringResource(R.string.horn_sound_too_long)
+    val msgBig = stringResource(R.string.horn_sound_too_big)
+    val msgBad = stringResource(R.string.horn_sound_unreadable)
+    val horn = settings.horn
+    // Re-read after an import so Play enables without leaving the screen.
+    var soundReady by remember { mutableStateOf(viewModel.hornSoundReady) }
+    val picker = rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val name = runCatching {
+            context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+        }.getOrNull() ?: uri.lastPathSegment.orEmpty()
+        viewModel.importHornSound(uri, name) { r ->
+            soundReady = viewModel.hornSoundReady || r == com.eried.eucplanet.audio.HornPlayer.ImportResult.OK
+            val msg = when (r) {
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.OK -> msgOk
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.TOO_LONG -> msgLong
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.TOO_BIG -> msgBig
+                com.eried.eucplanet.audio.HornPlayer.ImportResult.UNREADABLE -> msgBad
+            }
+            com.eried.eucplanet.ui.common.showSnackbar(snackbar, snackbarScope, msg)
+        }
+    }
+
+    SectionHeader(stringResource(R.string.horn_section))
+    SegmentedChoice(
+        label = stringResource(R.string.horn_mode_label),
+        options = listOf(
+            com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL to stringResource(R.string.horn_mode_wheel),
+            com.eried.eucplanet.data.model.HornSettings.MODE_SOUND to stringResource(R.string.horn_mode_sound),
+            com.eried.eucplanet.data.model.HornSettings.MODE_BOTH to stringResource(R.string.horn_mode_both),
+        ),
+        current = horn.mode,
+        onChange = { viewModel.updateHornMode(it) }
+    )
+    if (horn.mode != com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL) {
+        HintText(stringResource(R.string.horn_mode_hint), small = true)
+        // Same shape as the backup folder row: the chosen sound as a labelled
+        // line with the small preview control beside it, and one browse
+        // button under it. Nothing chosen shows only the browse button.
+        if (horn.soundName.isNotBlank() && soundReady) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    stringResource(R.string.horn_sound_current, horn.soundName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.appColors.primary,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                PlayButton(onClick = { viewModel.playHornSound() })
+            }
+        }
+        LeftAlignedScanButton(
+            label = stringResource(R.string.horn_sound_choose),
+            onClick = { picker.launch(arrayOf("audio/*")) }
+        )
+        SwitchSetting(
+            label = stringResource(R.string.horn_headphones_only),
+            checked = horn.headphonesOnly
+        ) { viewModel.updateHornHeadphonesOnly(it) }
     }
 }
 

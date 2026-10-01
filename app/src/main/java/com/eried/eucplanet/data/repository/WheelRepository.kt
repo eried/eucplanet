@@ -134,50 +134,58 @@ data class FullMetricHistory(
  * Adding a metric here is the only step needed for its tap-to-graph to
  * start working -- no separate buffer or sample-tick code, no schema
  * change to FullMetricHistory.
+ *
+ * Each key reads through [com.eried.eucplanet.data.model.MetricRegistry.read],
+ * so a metric's "no value" sentinel (NaN, 0 dBm, no tyre sensor, an
+ * implausible or missing temperature slot) skips the sample.
  */
-internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float?>> = listOf(
-    "MOTOR_POWER" to { it.motorPower.toFloat() },
-    "BATTERY_POWER" to { it.batteryPower.toFloat() },
-    // POWER is an alias of BATTERY_POWER kept for backwards-compat with
-    // dashboards saved before the catalog rename; same buffer.
-    "POWER" to { it.batteryPower.toFloat() },
-    // The load-free battery line. NaN until the window has enough of the
-     // ride to say anything, and null (skip) keeps that out of the sparkline
-     // rather than plotting a zero the rider never rode.
-    "BATTERY_ENVELOPE" to { it.batteryEnvelope.takeIf { v -> !v.isNaN() } },
-    "BATTERY_1" to { it.battery1Percent },
-    "BATTERY_2" to { it.battery2Percent },
-    "PITCH" to { it.pitchAngle },
-    "ROLL" to { it.rollAngle },
-    "G_FORCE" to { it.gForce },
-    "LATERAL_G" to { it.accelX },
-    // Must match the FORWARD_G value the tile/detail show (forwardGFromSpeed),
-    // not raw accelY, or the sparkline/stats graph a different quantity.
-    "FORWARD_G" to { it.forwardGFromSpeed },
-    "TORQUE" to { it.torque },
-    "PHASE_CURRENT" to { it.phaseCurrent },
-    "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
-    "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
-    // Only record PLAUSIBLE temps (and skip absent sensors) so the stats match
-    // the tile, which hides implausible / missing readings. null -> skip sample.
-    "MOTOR_TEMP" to { it.temperatures.getOrNull(0)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
-    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
-    "BATTERY_TEMP" to { it.temperatures.getOrNull(2)?.takeIf { t -> com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(t) } },
-    // TPMS tire pressure, stored raw in kPa; the detail screen converts to
-    // psi/bar. null (skip) while nothing is measuring, so a wheel without a
-    // sensor stops recording a flat line at zero - and a cap reporting 0 kPa
-    // on a flat tyre IS recorded, because that is a reading.
-    "TIRE_PRESSURE" to { w -> w.tirePressureKpa.takeIf { w.hasTirePressure } },
-    // BLE link RSSI in dBm; null (skip) until the first read so 0 doesn't skew stats.
-    "BT_RSSI" to { it.rssiDbm.takeIf { r -> r != 0 }?.toFloat() },
-    // Ride efficiency and range, both computed over the rider's rolling window
-    // in WheelRepository and published on WheelData. NaN means "not enough to
-    // say yet"; null (skip) keeps that out of the sparkline and the stats
-    // instead of plotting a zero the rider never rode. WH_CONSUMED / REGEN_WH
-    // have no sparkline or stats (catalog), so they need no buffer here.
-    "WH_PER_KM" to { it.whPerKmRecent.takeIf { v -> !v.isNaN() } },
-    "RANGE_ESTIMATE" to { it.rangeKmEstimate.takeIf { v -> !v.isNaN() } }
-)
+internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float?>> =
+    listOf(
+        "MOTOR_POWER",
+        "BATTERY_POWER",
+        // POWER is an alias of BATTERY_POWER kept for backwards-compat with
+        // dashboards saved before the catalog rename; same buffer.
+        "POWER",
+        // The load-free battery line. NaN until the window has enough of the
+        // ride to say anything, and null (skip) keeps that out of the sparkline
+        // rather than plotting a zero the rider never rode.
+        "BATTERY_ENVELOPE",
+        "BATTERY_1",
+        "BATTERY_2",
+        "PITCH",
+        "ROLL",
+        "G_FORCE",
+        "LATERAL_G",
+        // Must match the FORWARD_G value the tile/detail show (forwardGFromSpeed),
+        // not raw accelY, or the sparkline/stats graph a different quantity.
+        "FORWARD_G",
+        "TORQUE",
+        "PHASE_CURRENT",
+        "DYN_SPEED_LIMIT",
+        "DYN_CURRENT_LIMIT",
+        // Only record PLAUSIBLE temps (and skip absent sensors) so the stats match
+        // the tile, which hides implausible / missing readings. null -> skip sample.
+        "MOTOR_TEMP",
+        "CONTROLLER_TEMP",
+        "BATTERY_TEMP",
+        // TPMS tire pressure, stored raw in kPa; the detail screen converts to
+        // psi/bar. null (skip) while nothing is measuring, so a wheel without a
+        // sensor stops recording a flat line at zero - and a cap reporting 0 kPa
+        // on a flat tyre IS recorded, because that is a reading.
+        "TIRE_PRESSURE",
+        // BLE link RSSI in dBm; null (skip) until the first read so 0 doesn't skew stats.
+        "BT_RSSI",
+        // Ride efficiency and range, both computed over the rider's rolling window
+        // in WheelRepository and published on WheelData. NaN means "not enough to
+        // say yet"; null (skip) keeps that out of the sparkline and the stats
+        // instead of plotting a zero the rider never rode. WH_CONSUMED / REGEN_WH
+        // have no sparkline or stats (catalog), so they need no buffer here.
+        "WH_PER_KM",
+        "RANGE_ESTIMATE",
+    ).map { key ->
+        val def = com.eried.eucplanet.data.model.MetricRegistry.def(key)
+        key to { w: com.eried.eucplanet.data.model.WheelData -> def.read(w) }
+    }
 
 /**
  * The six metrics with their own typed buffer on [FullMetricHistory]. Every
@@ -236,7 +244,8 @@ class WheelRepository @Inject constructor(
     // read on the history tick to sample GPS_SPEED / GPS_ALTITUDE /
     // GPS_ACCURACY from the current location fix.
     private val tripRepositoryLazy: dagger.Lazy<TripRepository>,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -883,6 +892,7 @@ class WheelRepository @Inject constructor(
         scope.launch {
             settingsRepository.settings.collect { s ->
                 lockCodeCache = String.format(java.util.Locale.US, "%06d", s.advanced.kingsongUnlockCode)
+                hornCache = s.horn
                 lockPasswordCache = s.advanced.kingsongPassword.let { p ->
                     if (p == 0) "" else String.format(java.util.Locale.US, "%04d", p)
                 }
@@ -1517,8 +1527,28 @@ class WheelRepository @Inject constructor(
      */
     private fun wheelConnected() = bleManager.connectionState.value == ConnectionState.CONNECTED
 
+    /** The horn settings, mirrored so a press never waits on the store. */
+    @Volatile private var hornCache = com.eried.eucplanet.data.model.HornSettings()
+
     fun sendHorn() {
         if (!wheelConnected()) return  // no wheel -> ignore (HUD/Garmin/Flic/UI all land here)
+        val h = hornCache
+        val plan = com.eried.eucplanet.audio.HornPlan.decide(
+            mode = h.mode,
+            soundReady = hornPlayer.isReady,
+            headphonesOnly = h.headphonesOnly,
+            externalOutput = h.headphonesOnly && hornPlayer.externalOutputActive(),
+        )
+        // The wheel first: its command waits in the Bluetooth queue, so the
+        // phone clip started right after still lands within a beat of it.
+        if (plan.wheel) sendWheelHorn()
+        // A clip that fails to start after all (focus refused, pool busy)
+        // must not leave a SOUND-only press silent.
+        if (plan.phoneSound && !hornPlayer.play() && !plan.wheel) sendWheelHorn()
+    }
+
+    /** The wheel's own horn, or the phone beep on families without one. */
+    private fun sendWheelHorn() {
         val cmd = wheelAdapter.horn()
         if (cmd != null) {
             bleManager.writeCommand(cmd)

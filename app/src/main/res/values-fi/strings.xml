@@ -2505,4 +2505,18 @@
     <string name="headlight_state_unknown">Valo: ?</string>
     <string name="adv_headlight_readback_age">Valotiedon voimassaolo</string>
     <string name="adv_headlight_readback_age_desc">Kuinka kauan ilmoitettu valotaso on ajantasainen. Liian pitkä aika voi näyttää vanhentuneen tason.</string>
+    <string name="horn_headphones_only">Vain kuulokkeilla tai Bluetoothilla</string>
+    <string name="horn_section">Äänimerkki</string>
+    <string name="horn_mode_label">Tila</string>
+    <string name="horn_mode_wheel">Oletus</string>
+    <string name="horn_mode_sound">Oma</string>
+    <string name="horn_mode_both">Sekoitus</string>
+    <string name="horn_mode_hint">Oma soittaa oman äänesi puhelimessa. Sekoitus lisää sen yksipyöräisen äänimerkkiin ulkoista kaiutinta varten. Jos puhelin ei voi soittaa sitä, kuuluu yksipyöräisen äänimerkki.</string>
+    <string name="horn_sound_none">Ääntä ei ole valittu</string>
+    <string name="horn_sound_current">Ääni: %1$s</string>
+    <string name="horn_sound_choose">Valitse ääni</string>
+    <string name="horn_sound_imported">Äänimerkin ääni tallennettu</string>
+    <string name="horn_sound_too_long">Ääni on yli 5 sekuntia pitkä</string>
+    <string name="horn_sound_too_big">Tiedosto on yli 2 Mt</string>
+    <string name="horn_sound_unreadable">Tiedostoa ei voitu toistaa</string>
 </resources>

@@ -4,4 +4,4 @@
      and *.mp3 would be stripped and the motor-sound feature would silently
      break. raw/license is referenced directly via R.raw.license and is safe. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@raw/engine_*,@raw/src_*,@raw/sfx_*" />
+    tools:keep="@raw/engine_*,@raw/src_*,@raw/sfx_*,@string/metric_chip_*_tile,@string/engine_preset_*" />

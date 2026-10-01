@@ -2505,4 +2505,18 @@
     <string name="headlight_state_unknown">Fény: ?</string>
     <string name="adv_headlight_readback_age">Lámpaállapot érvényessége</string>
     <string name="adv_headlight_readback_age_desc">Meddig számít aktuálisnak a jelzett fényerőszint. Túl hosszú idő esetén elavult szint jelenhet meg.</string>
+    <string name="horn_headphones_only">Csak fejhallgatón vagy Bluetoothon</string>
+    <string name="horn_section">Duda</string>
+    <string name="horn_mode_label">Mód</string>
+    <string name="horn_mode_wheel">Alap</string>
+    <string name="horn_mode_sound">Saját</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">A Saját a te hangodat játssza le a telefonon. A Mix az egykerekű dudája mellé szólaltatja, külső hangszóróhoz. Ha a telefon nem tudja lejátszani, az egykerekű dudája szól.</string>
+    <string name="horn_sound_none">Nincs kiválasztott hang</string>
+    <string name="horn_sound_current">Hang: %1$s</string>
+    <string name="horn_sound_choose">Hang kiválasztása</string>
+    <string name="horn_sound_imported">Duda hangja mentve</string>
+    <string name="horn_sound_too_long">A hang hosszabb 5 másodpercnél</string>
+    <string name="horn_sound_too_big">A fájl nagyobb 2 MB-nál</string>
+    <string name="horn_sound_unreadable">A fájl nem játszható le</string>
 </resources>

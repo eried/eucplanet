@@ -2505,4 +2505,18 @@
     <string name="headlight_state_unknown">Světlo: ?</string>
     <string name="adv_headlight_readback_age">Platnost stavu světla</string>
     <string name="adv_headlight_readback_age_desc">Jak dlouho je hlášená úroveň světla aktuální. Příliš dlouhá doba může zobrazit zastaralou úroveň.</string>
+    <string name="horn_headphones_only">Jen na sluchátkách nebo Bluetooth</string>
+    <string name="horn_section">Klakson</string>
+    <string name="horn_mode_label">Režim</string>
+    <string name="horn_mode_wheel">Výchozí</string>
+    <string name="horn_mode_sound">Vlastní</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Vlastní přehraje váš zvuk v telefonu. Mix ho přidá ke klaksonu monokola, pro externí reproduktor. Když ho telefon nemůže přehrát, zazní klakson monokola.</string>
+    <string name="horn_sound_none">Není vybrán žádný zvuk</string>
+    <string name="horn_sound_current">Zvuk: %1$s</string>
+    <string name="horn_sound_choose">Vybrat zvuk</string>
+    <string name="horn_sound_imported">Zvuk klaksonu uložen</string>
+    <string name="horn_sound_too_long">Ten zvuk je delší než 5 sekund</string>
+    <string name="horn_sound_too_big">Ten soubor je větší než 2 MB</string>
+    <string name="horn_sound_unreadable">Ten soubor nelze přehrát</string>
 </resources>
