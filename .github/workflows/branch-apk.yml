@@ -115,6 +115,11 @@ jobs:
             echo "::error::branch keystore hash mismatch ($HASH), not the shared key"
             exit 1
           fi
+          # The build tools read ANDROID_USER_HOME (then ANDROID_SDK_HOME)
+          # before the home folder, and a key found there wins. Pin it to the
+          # key above for every later step.
+          echo "Before: ANDROID_USER_HOME=${ANDROID_USER_HOME:-unset} ANDROID_SDK_HOME=${ANDROID_SDK_HOME:-unset} ANDROID_PREFS_ROOT=${ANDROID_PREFS_ROOT:-unset}"
+          echo "ANDROID_USER_HOME=$HOME/.android" >> "$GITHUB_ENV"
           echo "installed=true" >> "$GITHUB_OUTPUT"
 
       - name: Build debug APKs
@@ -153,14 +158,18 @@ jobs:
         run: |
           SIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
           WANT=a68b8bd41ffbc9dc45d9b438698f24e7906769aef08b298e0b5f46f348ba86ac
+          BAD=0
           for apk in /tmp/out/*.apk; do
             GOT=$("$SIGNER" verify --print-certs "$apk" | grep -m1 'SHA-256 digest' | awk '{print $NF}')
             if [ "$GOT" != "$WANT" ]; then
               echo "::error::$(basename "$apk") signed with $GOT, not the shared branch key"
-              exit 1
+              BAD=1
+            else
+              echo "$(basename "$apk"): shared branch key"
             fi
-            echo "$(basename "$apk"): shared branch key"
           done
+          ls -la ~/.android/ "${ANDROID_SDK_HOME:-/nonexistent}/.android" 2>/dev/null || true
+          exit $BAD
 
       - name: Upload as workflow artifacts (always)
         uses: actions/upload-artifact@v4
