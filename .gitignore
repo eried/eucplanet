@@ -20,7 +20,9 @@ play-service-account.json
 # Decompiled / reverse-engineering artifacts
 release/
 /.playwright-mcp
-/.claude
+/.claude/*
+!/.claude/settings.json
+!/.claude/hooks/
 
 # Scratch files (analysis, screenshots, ad-hoc)
 .tmp_*
