@@ -108,8 +108,10 @@ horn can be the wheel's own, a sound you pick played by the phone, or both. Lega
 Mode temporarily reprograms the wheel's tiltback and alarm speeds to a cap you set,
 then restores your normal settings when you switch it off.
 
-**Custom alarms.** Your own thresholds on speed, battery, temperature, PWM, voltage
-or current. Each can beep (custom tone and pitch), speak (`"Battery at {value}%"`),
+**Custom alarms.** Your own thresholds on speed, battery, temperature, PWM, voltage,
+current, tire pressure and more, for every wheel or only the one that is connected.
+Battery (est) is the battery reading with the load sag taken out, so an alarm on it
+does not fire every time you accelerate. Each can beep (custom tone and pitch), speak (`"Battery at {value}%"`),
 and/or vibrate, with cooldowns so they don't nag. Predictive triggers warn you up
 to 3 seconds ahead, and a most-severe-per-metric engine keeps a louder alarm from
 eating a quieter one.
@@ -117,6 +119,12 @@ eating a quieter one.
 **Voice announcements.** Periodic reports at your interval, configurable rate and
 a per-language voice picker, plus event callouts: lock/unlock, lights, GPS fix,
 connection, legal mode, recording.
+
+**Voice commands.** Ask the app instead of looking at it: "battery", "speed", "how
+is the weather", or tell it to sound the horn, switch the lights, lock the wheel or
+start recording. Start listening from the Voice button, a Flic, the volume keys,
+your watch, the HUD or a headset button. It answers in your language, and the
+What can I say list is generated from what it really understands.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. Trips are
@@ -130,6 +138,11 @@ device, nothing is uploaded by default. Optional Dropbox sync mirrors your trips
 settings, themes and overlays into your own private folder so you can restore them
 on another phone, and you can hand a single ride out as a link when you want to.
 You decide what leaves the phone, where it goes, and who sees it.
+
+**Ride together.** Share a ride with a link or a QR code and see your friends live
+on the navigator map, each with a colour and a fading trail. It is end-to-end
+encrypted, the relay only passes sealed packets along, and a web page lets someone
+follow without installing anything.
 
 **Automations.** Headlight control: on before sunset, off after sunrise, from live
 GPS, and it can cut the beam when you slow to walking pace so it is not in the face

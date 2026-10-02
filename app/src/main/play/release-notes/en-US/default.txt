@@ -1,5 +1,9 @@
-Your tire sensor now reaches the whole app: dashboard tile, alarms, trip graphs, overlay and HUD, not only the settings row. A flat tire reads 0 rather than looking like a sensor that stopped, so a low pressure alarm can actually fire.
+Beta 0.22.0
 
-Battery (est) is a dashboard tile too, not just an alarm, and it now follows your percentage override the way every other reading does.
-
-Tire pressure shows in the unit you picked, psi, bar, kPa, kgf/cm2 or MPa, on every screen.
+- Watch map (Wear OS): position, route while navigating, zoom on the dial. Thanks to ZiraiMode.
+- KingSong: lock, unlock and horn, with the app password if you set one.
+- Begode: PWM reads positive under load and no longer flashes to zero.
+- Flic 2 buttons work again.
+- HUD map draws again and follows the map style you pick.
+- Voice: weather with numbers, "What can I say" in three groups.
+- Fixes: shared locations into a closed app, notification after disconnect, alarms in backups.
