@@ -91,6 +91,30 @@ fun ShareQrScannerArea(
     onLink: (ShareLink) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    QrScannerArea(
+        parse = { parseShareText(it) },
+        onFound = onLink,
+        invalidText = stringResource(R.string.share_link_invalid),
+        modifier = modifier,
+    )
+}
+
+/**
+ * The camera square, the permission dance and the decode loop, for any kind of QR.
+ *
+ * Generalised out of the share-link scanner when crews pairing needed the same camera: the
+ * permission handling here is the fiddly part (the rationale flag, the return trip through
+ * system settings, releasing the camera the instant a code lands) and having two copies of it
+ * would mean fixing it twice. Callers supply [parse], which turns decoded text into whatever
+ * they are looking for, or null to keep scanning.
+ */
+@Composable
+fun <T : Any> QrScannerArea(
+    parse: (String) -> T?,
+    onFound: (T) -> Unit,
+    invalidText: String,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -167,7 +191,8 @@ fun ShareQrScannerArea(
             if (granted) {
                 QrCameraPreview(
                     lifecycleOwner = lifecycleOwner,
-                    onLink = onLink,
+                    parse = parse,
+                    onFound = onFound,
                     onUnreadable = {
                         lastInvalidMs.set(System.currentTimeMillis())
                         invalidShown = true
@@ -185,7 +210,7 @@ fun ShareQrScannerArea(
         if (invalidShown) {
             Spacer(Modifier.height(8.dp))
             Text(
-                stringResource(R.string.share_link_invalid),
+                invalidText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.statusDanger,
                 textAlign = TextAlign.Center,
@@ -273,17 +298,19 @@ private fun Context.openAppSettings() {
  * with the dialog closed and the privacy indicator lit.
  */
 @Composable
-private fun QrCameraPreview(
+private fun <T : Any> QrCameraPreview(
     lifecycleOwner: LifecycleOwner,
-    onLink: (ShareLink) -> Unit,
-    /** A frame that decoded to something which is not a share link. Reported
+    parse: (String) -> T?,
+    onFound: (T) -> Unit,
+    /** A frame that decoded to something the caller does not want. Reported
      *  so the tab can say so once, quietly, and carry on scanning. */
     onUnreadable: () -> Unit,
 ) {
     val context = LocalContext.current
-    // Both callbacks are read from the camera's analyzer thread long after
-    // this composition ran, so they are kept fresh rather than captured once.
-    val latestOnLink by rememberUpdatedState(onLink)
+    // All three are read from the camera's analyzer thread long after this
+    // composition ran, so they are kept fresh rather than captured once.
+    val latestOnFound by rememberUpdatedState(onFound)
+    val latestParse by rememberUpdatedState(parse)
     val latestOnUnreadable by rememberUpdatedState(onUnreadable)
     // Built here and handed to AndroidView as it is, so the bind below owns
     // the surface for as long as this composable lives and does not have to
@@ -332,8 +359,8 @@ private fun QrCameraPreview(
             analysis.setAnalyzer(executor) { proxy ->
                 val text = runCatching { proxy.decodeQr(reader) }.getOrNull()
                 proxy.close()
-                val link = text?.let { parseShareText(it) }
-                if (link != null) {
+                val found = text?.let { latestParse(it) }
+                if (found != null) {
                     if (!handled.compareAndSet(false, true)) return@setAnalyzer
                     main.execute {
                         // The scan is over: the camera is released here,
@@ -343,7 +370,7 @@ private fun QrCameraPreview(
                         live.set(false)
                         runCatching { analysis.clearAnalyzer() }
                         runCatching { provider.unbindAll() }
-                        latestOnLink(link)
+                        latestOnFound(found)
                     }
                 } else if (text != null) {
                     // A QR that is not ours: a wifi code, a product barcode.

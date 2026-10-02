@@ -615,6 +615,16 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
+    /**
+     * Allow crews pairing with a server other than the one this build talks to.
+     *
+     * Off, and the rider has to find it. A pairing QR is a thing anybody can print and tape
+     * to a wall, and approving one sends this rider's store_id to whatever server the code
+     * names — so a code pointing anywhere unexpected is refused outright unless the rider has
+     * deliberately turned this on. It costs nothing in the normal case, because the normal
+     * case is a code from the usual server, which never consults this.
+     */
+    val crewsDevServerEnabled: Boolean = false,
     /** Keep the foreground service (ongoing notification) alive even with no wheel
      *  connected, so background trip sync and voice keep running. Default on. */
     val keepAppAlive: Boolean = true,
