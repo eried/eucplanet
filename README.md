@@ -24,15 +24,10 @@ riders who have the wheel.
 
 | Status | Wheels |
 |---|---|
-| **Verified** | InMotion V14 (50GB / 50S) |
-| **Verified** | InMotion P6 |
+| **Verified** | InMotion V14 (50GB / 50S), P6 |
 | **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X, KS-18XL |
-| **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
-| **In test** | LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
-| **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
-| **Waiting to be tested** | InMotion V12 HS / HT / Pro |
-| **Waiting to be tested** | Rest of the InMotion V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 |
-| **Waiting to be tested** | Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
+| **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
+| **Waiting to be tested** | InMotion V12 HS / HT / Pro, and the rest of the V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 · Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
 
 Help with your wheel, check the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
@@ -145,7 +140,8 @@ follow without installing anything.
 GPS, and it can cut the beam when you slow to walking pace so it is not in the face
 of whoever is waiting at the crossing with you, coming back when you ride on.
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Volume
-control scales phone volume with speed. Each one runs never, whenever the wheel is
+control scales phone volume with speed. Wheel lock locks the wheel when you walk
+away and unlocks it when you come back. Each one runs never, whenever the wheel is
 connected, or only while you are actually riding. Charging can tell you when the
 pack passes 80% and when it is full.
 
