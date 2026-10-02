@@ -196,3 +196,26 @@ Before merging anything from outside:
   process-wide subsystem gets its call in `onCreate` and its line in the first
   test. Both tests strip comments first, so commenting a call out is the same
   as deleting it.
+
+## 17. Update BRANCH.md on every push to a branch other than main
+
+`BRANCH.md` is the text of the branch's rolling pre-release, the one place a
+tester learns what changed and what we need from them. It went stale for
+weeks: it kept asking about features long confirmed and never mentioned the
+ones that had just landed.
+
+On every push to `next-experimental`, `next-version` or a feature branch:
+
+- **Worked on:** one line per thing this branch has that the branch below it
+  (next-version, then main) does not. Say what a rider will notice, not the
+  code.
+- **Please test:** grouped by who can check it (a wheel model, or "Any
+  wheel"). One line each: what to do and what we cannot check ourselves.
+- Add lines for what you push, drop lines that are answered or that moved to
+  the next branch down. Short words, no prose, no em-dashes.
+
+The intro paragraph and Reporting back stay as they are. A Claude Code hook
+(`.claude/hooks/branchmd_guard.py`, wired in `.claude/settings.json`) blocks a
+`git push` whose commits do not touch `BRANCH.md`. A push with nothing for
+testers (docs or CI only) adds `BRANCHMD_OK` to the command, for example as a
+trailing `# BRANCHMD_OK` comment.

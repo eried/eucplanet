@@ -60,6 +60,11 @@ These rules are binding. The terse list below is the contract; `CONVENTIONS.md`
     Startup wiring is guarded by `AppStartupTest` and `LifecycleWiringTest`;
     a new process-wide `start()` goes in `EucPlanetApp.onCreate` and in the
     first test's list.
+17. **Update BRANCH.md on every push to a branch other than main.** It is the
+    release text testers read: *Worked on* (what this branch has that the one
+    below lacks) and *Please test* (who, what to do), one short line each.
+    Add what you push, drop what is answered. A hook blocks a push without it;
+    add `BRANCHMD_OK` to the command only when the push has nothing for testers.
 
 ## Theming / colors (read before adding any UI color)
 
