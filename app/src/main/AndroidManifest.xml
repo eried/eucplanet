@@ -143,6 +143,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- Crews pairing. Launched from inside the app, and by the "Open EUC Planet"
+             button on the server's /p/<code> landing page after a camera app scans the
+             QR. The scheme is ours alone, so no autoVerify and no assetlinks file; the
+             link carries only a short-lived pairing code, never an identity. -->
+        <activity
+            android:name=".crews.CrewsPairActivity"
+            android:exported="true"
+            android:label="Crews"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="eucplanet" android:host="pair" />
+            </intent-filter>
+        </activity>
+
 
         <activity
             android:name=".MainActivity"
