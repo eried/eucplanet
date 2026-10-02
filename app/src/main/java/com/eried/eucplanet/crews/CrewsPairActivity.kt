@@ -32,11 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.navigator.QrScannerArea
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
@@ -130,6 +133,11 @@ fun CrewsPairScreen(
 ) {
     val scope = rememberCoroutineScope()
     val devMode = remember { deps.developerMode() }
+    // resolved here, not inside the coroutine: stringResource is a composable call
+    val msgExpired = stringResource(R.string.crews_expired)
+    val msgRate = stringResource(R.string.crews_ratelimited)
+    val msgUnreachTpl = stringResource(R.string.crews_unreachable, "%HOST%")
+    val msgRefusedTpl = stringResource(R.string.crews_refused, 0)
     // keyed on the link, so a fresh one arriving from a new intent resets the screen instead
     // of leaving the previous code on display
     var step by remember(initialLink) {
@@ -148,7 +156,7 @@ fun CrewsPairScreen(
         val offer = deps.api.describe(link)
         val now = step
         if (now is Step.Confirming && now.link == link) {
-            step = if (offer == null) Step.Problem(EXPIRED) else Step.Confirming(link, offer)
+            step = if (offer == null) Step.Problem(msgExpired) else Step.Confirming(link, offer)
         }
     }
 
@@ -160,7 +168,7 @@ fun CrewsPairScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            "Crews",
+            stringResource(R.string.crews_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.appColors.textPrimary,
@@ -169,10 +177,7 @@ fun CrewsPairScreen(
 
         when (val s = step) {
             is Step.Scanning -> {
-                Hint(
-                    "Open eucstats in a browser, pick Crews, and point the camera at the code " +
-                        "it shows. Nothing is typed and your rider id stays on this phone."
-                )
+                Hint(stringResource(R.string.crews_scan_hint))
                 Spacer(Modifier.height(16.dp))
                 QrScannerArea(
                     parse = { PairLink.parse(it) },
@@ -180,30 +185,27 @@ fun CrewsPairScreen(
                         step = if (link.trust(devMode) == PairTrust.REFUSED) Step.Refused(link)
                         else Step.Confirming(link, null)
                     },
-                    invalidText = "That is not an eucstats pairing code.",
+                    invalidText = stringResource(R.string.crews_scan_invalid),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
 
             is Step.Refused -> {
                 Banner(
-                    "This code points somewhere else",
-                    "It wants to pair with ${s.link.host}, which is not the eucstats this app " +
-                        "talks to. Approving it would send your rider id there.\n\n" +
-                        "If you are testing against your own server, turn on developer mode " +
-                        "in Settings first.",
+                    stringResource(R.string.crews_foreign_title),
+                    stringResource(R.string.crews_foreign_body, s.link.host),
                     danger = true,
                 )
                 Spacer(Modifier.height(18.dp))
-                Secondary("Scan something else") { step = Step.Scanning }
-                Secondary("Close", onDone)
+                Secondary(stringResource(R.string.crews_scan_other)) { step = Step.Scanning }
+                Secondary(stringResource(R.string.crews_close), onDone)
             }
 
             is Step.Confirming -> {
                 if (!s.link.isProduction) {
                     Banner(
-                        "Developer mode",
-                        "Pairing with ${s.link.host} instead of the usual server.",
+                        stringResource(R.string.crews_dev_title),
+                        stringResource(R.string.crews_dev_body, s.link.host),
                         danger = false,
                     )
                     Spacer(Modifier.height(14.dp))
@@ -220,44 +222,47 @@ fun CrewsPairScreen(
                 if (s.offer == null) {
                     CircularProgressIndicator(Modifier.height(26.dp))
                 } else {
-                    Hint(
-                        "Sign a browser in as you, for crews only.\n\n" +
-                            "It will be able to create a crew, join one, leave one and act on " +
-                            "members. It cannot upload a ride, rename you, or delete anything " +
-                            "— those stay here on the phone."
-                    )
+                    Hint(stringResource(R.string.crews_grant))
                     Spacer(Modifier.height(18.dp))
                     val storeId = deps.storeId()
                     if (storeId.isNullOrBlank()) {
                         Banner(
-                            "Not registered with eucstats yet",
-                            "Crews are attached to your eucstats rider, and this phone has " +
-                                "not registered one. Set that up in Settings → EUC Stats, " +
-                                "then scan the code again.",
+                            stringResource(R.string.crews_noprofile_title),
+                            stringResource(R.string.crews_noprofile_body),
                             danger = true,
                         )
                         Spacer(Modifier.height(14.dp))
-                        Secondary("Close", onDone)
+                        // A dead end with one Close button is still a dead end. This is the
+                        // only screen in the flow that tells somebody to go and do something
+                        // else, so it takes them there.
+                        val ctx = LocalContext.current
+                        Primary(stringResource(R.string.crews_opensettings)) {
+                            runCatching {
+                                ctx.startActivity(
+                                    Intent(ctx,
+                                           Class.forName("com.eried.eucplanet.MainActivity"))
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                            }
+                            onDone()
+                        }
+                        Secondary(stringResource(R.string.crews_close), onDone)
                     } else {
-                        Primary("Approve") {
+                        Primary(stringResource(R.string.crews_issue)) {
                             step = Step.Sending
                             scope.launch {
                                 step = when (val r = deps.api.confirm(s.link, storeId)) {
                                     is PairResult.Ok -> Step.Done
-                                    is PairResult.Expired -> Step.Problem(EXPIRED)
-                                    is PairResult.RateLimited -> Step.Problem(
-                                        "Too many attempts. Wait a minute and try again."
-                                    )
+                                    is PairResult.Expired -> Step.Problem(msgExpired)
+                                    is PairResult.RateLimited -> Step.Problem(msgRate)
                                     is PairResult.Unreachable -> Step.Problem(
-                                        "Could not reach ${s.link.host}."
-                                    )
+                                        msgUnreachTpl.replace("%HOST%", s.link.host))
                                     is PairResult.Failed -> Step.Problem(
-                                        r.detail ?: "The server refused that (${r.code})."
+                                        r.detail ?: msgRefusedTpl.replace("0", r.code.toString())
                                     )
                                 }
                             }
                         }
-                        Secondary("Not me — cancel", onDone)
+                        Secondary(stringResource(R.string.crews_notme), onDone)
                     }
                 }
             }
@@ -269,24 +274,21 @@ fun CrewsPairScreen(
 
             is Step.Done -> {
                 Spacer(Modifier.height(24.dp))
-                Banner("Approved", "The browser is signed in. You can put the phone down.",
-                    danger = false)
+                Banner(stringResource(R.string.crews_done_title),
+                    stringResource(R.string.crews_done_body), danger = false)
                 Spacer(Modifier.height(18.dp))
-                Primary("Done", onDone)
+                Primary(stringResource(R.string.crews_done), onDone)
             }
 
             is Step.Problem -> {
-                Banner("That did not work", s.message, danger = true)
+                Banner(stringResource(R.string.crews_failed_title), s.message, danger = true)
                 Spacer(Modifier.height(18.dp))
-                Secondary("Try again") { step = Step.Scanning }
-                Secondary("Close", onDone)
+                Secondary(stringResource(R.string.crews_tryagain)) { step = Step.Scanning }
+                Secondary(stringResource(R.string.crews_close), onDone)
             }
         }
     }
 }
-
-private const val EXPIRED =
-    "That code has expired. Codes last three minutes — ask the browser for a new one."
 
 @Composable
 private fun Hint(text: String) {
