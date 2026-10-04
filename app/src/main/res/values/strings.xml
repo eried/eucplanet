@@ -2760,6 +2760,8 @@
     <string name="crews_title">Crews</string>
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows. Nothing to type, nothing to remember.</string>
     <string name="crews_scan_invalid">That\'s not a crew pass code.</string>
+    <string name="crews_type_instead">Type the code instead</string>
+    <string name="crews_code_label">Pass code</string>
     <string name="crews_foreign_title">This code isn\'t from eucstats</string>
     <string name="crews_foreign_body">It points at %1$s, which isn\'t where your rides go. Saying yes would hand your account to whoever runs it.\n\nRunning your own server? Turn on developer mode in Settings first.</string>
     <string name="crews_scan_other">Scan a different code</string>

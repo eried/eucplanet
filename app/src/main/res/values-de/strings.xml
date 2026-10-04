@@ -2752,6 +2752,8 @@
     <string name="crews_title">Crews</string>
     <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und halte das hier auf den Code. Nichts tippen, nichts merken.</string>
     <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>
+    <string name="crews_type_instead">Code eintippen</string>
+    <string name="crews_code_label">Pass-Code</string>
     <string name="crews_foreign_title">Dieser Code kommt nicht von eucstats</string>
     <string name="crews_foreign_body">Er zeigt auf %1$s, und dorthin gehen deine Fahrten nicht. Ja zu sagen gibt dein Konto dem, der das betreibt.\n\nEigener Server? Schalte erst den Entwicklermodus in den Einstellungen ein.</string>
     <string name="crews_scan_other">Anderen Code scannen</string>

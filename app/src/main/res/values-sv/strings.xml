@@ -2732,6 +2732,8 @@
     <string name="crews_title">Crews</string>
     <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews, och rikta den här mot koden som visas. Inget att knappa in, inget att komma ihåg.</string>
     <string name="crews_scan_invalid">Det är ingen crew pass-kod.</string>
+    <string name="crews_type_instead">Knappa in koden</string>
+    <string name="crews_code_label">Nyckelkod</string>
     <string name="crews_foreign_title">Den koden är inte från eucstats</string>
     <string name="crews_foreign_body">Den pekar på %1$s, och dit går inte dina turer. Säger du ja lämnar du över kontot till den som driver det.\n\nKör du en egen server? Slå på utvecklarläge i Inställningar först.</string>
     <string name="crews_scan_other">Skanna en annan kod</string>

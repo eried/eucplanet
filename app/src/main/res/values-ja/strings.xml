@@ -2733,6 +2733,8 @@
     <string name="crews_title">クラン</string>
     <string name="crews_scan_hint">ブラウザで eucstats を開いて Crews を押し、出てきたコードにこれを向けるだけ。入力も暗記もいらない。</string>
     <string name="crews_scan_invalid">これはクランパスのコードじゃない。</string>
+    <string name="crews_type_instead">コードを入力</string>
+    <string name="crews_code_label">パスコード</string>
     <string name="crews_foreign_title">このコードは eucstats のものじゃない</string>
     <string name="crews_foreign_body">%1$s を指している。走行データの行き先はそこじゃない。ここで許すと、そこを動かしている誰かにアカウントを渡すことになる。\n\n自分のサーバーを立てている？まず設定で開発者モードをオンに。</string>
     <string name="crews_scan_other">別のコードを読む</string>

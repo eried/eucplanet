@@ -2731,6 +2731,8 @@
     <string name="crews_title">戰隊</string>
     <string name="crews_scan_hint">在瀏覽器裡打開 eucstats，點 Crews，然後把這個對準出現的碼。不用輸，不用記。</string>
     <string name="crews_scan_invalid">這不是戰隊通行碼。</string>
+    <string name="crews_type_instead">手動輸入代碼</string>
+    <string name="crews_code_label">通行碼</string>
     <string name="crews_foreign_title">這個碼不是 eucstats 的</string>
     <string name="crews_foreign_body">它指向 %1$s，你的騎行並不去那裡。點同意等於把帳號交給開這個站的人。\n\n自己架了伺服器？先去設定裡打開開發者模式。</string>
     <string name="crews_scan_other">掃別的碼</string>

@@ -2736,6 +2736,8 @@
     <string name="crews_title">Crews</string>
     <string name="crews_scan_hint">Ouvre eucstats dans un navigateur, appuie sur Crews, et vise le code qui s\'affiche. Rien à taper, rien à retenir.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de crew pass.</string>
+    <string name="crews_type_instead">Taper le code</string>
+    <string name="crews_code_label">Code du pass</string>
     <string name="crews_foreign_title">Ce code ne vient pas d\'eucstats</string>
     <string name="crews_foreign_body">Il pointe vers %1$s, et ce n\'est pas là que vont tes sorties. Dire oui, c\'est donner ton compte à celui qui gère ça.\n\nTu as ton propre serveur ? Active d\'abord le mode développeur dans les Réglages.</string>
     <string name="crews_scan_other">Scanner un autre code</string>

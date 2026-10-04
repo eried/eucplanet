@@ -6,6 +6,10 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- Crews pairing: scan or type a code from eucstats and the browser flies your colours.
+- It lives in Settings then EUC Stats then Crews, and on the `eucplanet://pair` link.
+- A code from anywhere but eucstats is refused unless you turned developer mode on yourself.
+- Needs eucstats to have crews switched on; the web side says so if it does not.
 - InMotion V6 support: connects, live telemetry, PWM, lights and horn.
 - Writing to the wheel follows what its Bluetooth allows. Mostly the V6.
 - Switch the light or lock by hand and that automation pauses. Fix in Needs attention hands it back.
@@ -20,6 +24,13 @@ only when you can cut the ride short.
 - Customize voice report is two pill lists, Periodic and Trigger. A pill can say Now, Max, Min, Avg or Peak, and Message pills speak your own words.
 
 ## Please test
+
+**Crews pairing**
+- Camera at the QR on the eucstats Crews panel: does the app open on the pass screen?
+- App did not open by itself? Settings, EUC Stats, Crews, type the six characters in.
+- Does the browser flip to your crew within a couple of seconds of you approving?
+- A QR from anywhere else should refuse and name the host it pointed at.
+- The pass screen should say what it grants BEFORE you approve anything.
 
 **InMotion V6**
 - Speed matches GPS? Service Mode on, ride 2 minutes at a steady speed, share the log.

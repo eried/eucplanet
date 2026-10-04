@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -35,6 +38,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -150,6 +155,26 @@ fun CrewsPairScreen(
 
     // Ask the server what the code is for as soon as there is one, so the approve button is
     // never the first thing the rider sees with nothing but "Allow?" above it.
+    // Typing a code, for the case the web copy has always described: the app did not open by
+    // itself, and a phone cannot photograph its own screen. A code with no host means THIS
+    // build's own server -- `PairLink.parseAppScheme` does the same when `host` is absent --
+    // so a typed code cannot aim the phone anywhere else and the trust rules below are
+    // untouched by it.
+    var typing by remember { mutableStateOf(false) }
+    var typed by remember { mutableStateOf("") }
+    var typedBad by remember { mutableStateOf(false) }
+
+    fun submitTyped() {
+        val link = PairLink.parse("eucplanet://pair?code=$typed")
+        if (link == null) {
+            typedBad = true
+            return
+        }
+        typedBad = false
+        step = if (link.trust(devMode) == PairTrust.REFUSED) Step.Refused(link)
+        else Step.Confirming(link, null)
+    }
+
     val pending = (step as? Step.Confirming)?.takeIf { it.offer == null }?.link
     LaunchedEffect(pending) {
         val link = pending ?: return@LaunchedEffect
@@ -188,6 +213,37 @@ fun CrewsPairScreen(
                     invalidText = stringResource(R.string.crews_scan_invalid),
                     modifier = Modifier.fillMaxWidth(),
                 )
+                // You cannot point a phone's camera at its own screen, and eucstats tells
+                // riders in nineteen languages to type the code in if the app did not open
+                // by itself. There was nothing to type it into.
+                Spacer(Modifier.height(14.dp))
+                if (!typing) {
+                    Secondary(stringResource(R.string.crews_type_instead)) { typing = true }
+                } else {
+                    OutlinedTextField(
+                        value = typed,
+                        onValueChange = { typed = it.trim().uppercase().take(12) },
+                        label = { Text(stringResource(R.string.crews_code_label)) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters,
+                            imeAction = ImeAction.Go,
+                        ),
+                        keyboardActions = KeyboardActions(onGo = { submitTyped() }),
+                        isError = typedBad,
+                        supportingText = if (typedBad) {
+                            { Text(stringResource(R.string.crews_scan_invalid)) }
+                        } else null,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Button(
+                        onClick = { submitTyped() },
+                        enabled = typed.isNotBlank(),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                    ) { Text(stringResource(R.string.action_continue)) }
+                }
             }
 
             is Step.Refused -> {

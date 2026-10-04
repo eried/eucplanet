@@ -2732,6 +2732,8 @@
     <string name="crews_title">Ekipy</string>
     <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, kliknij Crews i wyceluj tym w kod, który się pojawi. Nic do wpisywania, nic do zapamiętania.</string>
     <string name="crews_scan_invalid">To nie jest kod przepustki ekipy.</string>
+    <string name="crews_type_instead">Wpisz kod</string>
+    <string name="crews_code_label">Kod przepustki</string>
     <string name="crews_foreign_title">Ten kod nie jest z eucstats</string>
     <string name="crews_foreign_body">Wskazuje na %1$s, a tam twoje przejazdy nie trafiają. Zgoda to oddanie konta temu, kto to prowadzi.\n\nMasz własny serwer? Najpierw włącz tryb dewelopera w Ustawieniach.</string>
     <string name="crews_scan_other">Zeskanuj inny kod</string>

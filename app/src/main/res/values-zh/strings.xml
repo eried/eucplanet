@@ -2599,6 +2599,8 @@
     <string name="crews_title">战队</string>
     <string name="crews_scan_hint">在浏览器里打开 eucstats，点 Crews，然后把这个对准出现的码。不用输，不用记。</string>
     <string name="crews_scan_invalid">这不是战队通行码。</string>
+    <string name="crews_type_instead">手动输入代码</string>
+    <string name="crews_code_label">通行码</string>
     <string name="crews_foreign_title">这个码不是 eucstats 的</string>
     <string name="crews_foreign_body">它指向 %1$s，你的骑行并不去那儿。点同意等于把账号交给开这个站的人。\n\n自己架了服务器？先去设置里打开开发者模式。</string>
     <string name="crews_scan_other">扫别的码</string>

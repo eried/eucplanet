@@ -2731,6 +2731,8 @@
     <string name="crews_title">클랜</string>
     <string name="crews_scan_hint">브라우저에서 eucstats를 열고 Crews를 누른 다음, 뜨는 코드에 이걸 대면 끝. 입력할 것도 외울 것도 없다.</string>
     <string name="crews_scan_invalid">클랜 패스 코드가 아니다.</string>
+    <string name="crews_type_instead">코드 직접 입력</string>
+    <string name="crews_code_label">패스 코드</string>
     <string name="crews_foreign_title">이 코드는 eucstats 것이 아니다</string>
     <string name="crews_foreign_body">%1$s를 가리킨다. 네 주행이 가는 곳이 아니다. 여기서 승인하면 그걸 돌리는 사람에게 계정을 넘기는 셈이다.\n\n직접 서버를 돌리나? 설정에서 개발자 모드부터 켜라.</string>
     <string name="crews_scan_other">다른 코드 스캔</string>

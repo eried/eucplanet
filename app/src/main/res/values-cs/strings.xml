@@ -2535,6 +2535,8 @@
     <string name="crews_title">Crews</string>
     <string name="crews_scan_hint">Otevři eucstats v prohlížeči, klepni na Crews a namiř tohle na kód, co se objeví. Nic se nepíše, nic se nepamatuje.</string>
     <string name="crews_scan_invalid">To není kód crew passu.</string>
+    <string name="crews_type_instead">Zadat kód ručně</string>
+    <string name="crews_code_label">Kód průkazu</string>
     <string name="crews_foreign_title">Tenhle kód není z eucstats</string>
     <string name="crews_foreign_body">Ukazuje na %1$s, a tam tvoje jízdy nejdou. Říct ano znamená dát účet tomu, kdo to provozuje.\n\nMáš vlastní server? Nejdřív zapni vývojářský režim v Nastavení.</string>
     <string name="crews_scan_other">Naskenovat jiný kód</string>

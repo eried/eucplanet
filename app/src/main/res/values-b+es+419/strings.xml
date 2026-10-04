@@ -2750,6 +2750,8 @@
     <string name="crews_title">Bandas</string>
     <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Crews y apunta esto al código que salga. Nada que escribir, nada que recordar.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de banda.</string>
+    <string name="crews_type_instead">Escribí el código</string>
+    <string name="crews_code_label">Código del pase</string>
     <string name="crews_foreign_title">Ese código no es de eucstats</string>
     <string name="crews_foreign_body">Apunta a %1$s, y ahí no van tus salidas. Decir que sí es entregarle tu cuenta a quien lo maneje.\n\n¿Tienes tu propio servidor? Activa antes el modo desarrollador en Ajustes.</string>
     <string name="crews_scan_other">Escanear otro código</string>

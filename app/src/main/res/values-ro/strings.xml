@@ -2535,6 +2535,8 @@
     <string name="crews_title">Crews</string>
     <string name="crews_scan_hint">Deschide eucstats în browser, apasă pe Crews și îndreaptă asta spre codul care apare. Nimic de tastat, nimic de ținut minte.</string>
     <string name="crews_scan_invalid">Ăsta nu e un cod de crew pass.</string>
+    <string name="crews_type_instead">Scrie codul</string>
+    <string name="crews_code_label">Cod de acces</string>
     <string name="crews_foreign_title">Codul ăsta nu e de la eucstats</string>
     <string name="crews_foreign_body">Arată spre %1$s, și turele tale nu ajung acolo. Dacă spui da, îți dai contul celui care îl ține.\n\nAi server propriu? Pornește întâi modul dezvoltator din Setări.</string>
     <string name="crews_scan_other">Scanează alt cod</string>

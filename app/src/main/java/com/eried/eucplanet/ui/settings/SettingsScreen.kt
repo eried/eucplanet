@@ -9415,6 +9415,7 @@ private fun CloudTab(
             }
 
             // Buttons live OUTSIDE the stats card, at the section margin.
+            val crewsCtx = LocalContext.current
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth(),
@@ -9426,7 +9427,28 @@ private fun CloudTab(
                 ) {
                     Text(stringResource(R.string.online_profile_manage))
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                // Crews pairing had no way in from inside the app at all -- the activity was
+                // reachable only by the `eucplanet://pair` deep link, while eucstats told
+                // riders whose app had not opened to come here and type the code. It sits in
+                // this block because this block only renders for a rider who HAS an eucstats
+                // account, which is exactly when a pass is worth issuing.
+                Button(
+                    onClick = {
+                        // Fully qualified, like every other Intent in this file: there is no
+                        // `import android.content.Intent` here and adding one for a single
+                        // call would be the odd line out.
+                        crewsCtx.startActivity(
+                            android.content.Intent(
+                                crewsCtx,
+                                com.eried.eucplanet.crews.CrewsPairActivity::class.java,
+                            ),
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Text(stringResource(R.string.crews_title))
+                }
             }
 
             // "Trip stats uploads" subsection, a title plus a one-line

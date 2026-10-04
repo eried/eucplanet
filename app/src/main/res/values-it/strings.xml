@@ -2637,6 +2637,8 @@
     <string name="crews_title">Squadre</string>
     <string name="crews_scan_hint">Apri eucstats nel browser, tocca Crews e punta questo sul codice che compare. Niente da digitare, niente da ricordare.</string>
     <string name="crews_scan_invalid">Quello non è un codice del pass squadra.</string>
+    <string name="crews_type_instead">Digita il codice</string>
+    <string name="crews_code_label">Codice del pass</string>
     <string name="crews_foreign_title">Quel codice non viene da eucstats</string>
     <string name="crews_foreign_body">Punta a %1$s, e lì i tuoi giri non ci vanno. Dire di sì vuol dire dare il tuo account a chi lo gestisce.\n\nHai un server tuo? Attiva prima la modalità sviluppatore nelle Impostazioni.</string>
     <string name="crews_scan_other">Scansiona un altro codice</string>

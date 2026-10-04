@@ -2732,6 +2732,8 @@
     <string name="crews_title">Кланы</string>
     <string name="crews_scan_hint">Открой eucstats в браузере, нажми Crews и наведи это на код, который появится. Ничего набирать, ничего запоминать.</string>
     <string name="crews_scan_invalid">Это не код клановского пропуска.</string>
+    <string name="crews_type_instead">Ввести код</string>
+    <string name="crews_code_label">Код пропуска</string>
     <string name="crews_foreign_title">Этот код не от eucstats</string>
     <string name="crews_foreign_body">Он ведёт на %1$s, а туда твои поездки не уходят. Сказать да значит отдать аккаунт тому, кто это держит.\n\nСвой сервер? Сначала включи режим разработчика в Настройках.</string>
     <string name="crews_scan_other">Сканировать другой код</string>
