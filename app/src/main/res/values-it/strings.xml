@@ -2635,6 +2635,8 @@
     <string name="voice_stat_avg">Media</string>
     <string name="voice_stat_peak">Picco</string>
     <string name="crews_title">Squadre</string>
+    <string name="crews_settings_title">Squadre</string>
+    <string name="crews_settings_desc">Le squadre girano sul sito eucstats. Scansiona il codice che ti mostra e questa app conferma che l\'account è tuo.</string>
     <string name="crews_pass_action">Pass squadra</string>
     <string name="crews_scan_hint">Apri eucstats nel browser, tocca Crews e punta questo sul codice che compare.</string>
     <string name="crews_scan_invalid">Quello non è un codice del pass squadra.</string>

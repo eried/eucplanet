@@ -2533,6 +2533,8 @@
     <string name="voice_stat_avg">Ka</string>
     <string name="voice_stat_peak">Huippu</string>
     <string name="crews_title">Crewit</string>
+    <string name="crews_settings_title">Crewit</string>
+    <string name="crews_settings_desc">Crewit pyörivät eucstats-sivustolla. Skannaa koodi, jonka se näyttää, niin tämä sovellus vahvistaa tilin olevan sinun.</string>
     <string name="crews_pass_action">Crew-passi</string>
     <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja suuntaa tämä koodiin.</string>
     <string name="crews_scan_invalid">Tuo ei ole crew pass -koodi.</string>

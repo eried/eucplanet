@@ -2597,6 +2597,8 @@
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">峰值</string>
     <string name="crews_title">战队</string>
+    <string name="crews_settings_title">战队</string>
+    <string name="crews_settings_desc">战队在 eucstats 网站上运行。扫一下网站给你的码，这个 App 就能证明账号是你的。</string>
     <string name="crews_pass_action">战队通行证</string>
     <string name="crews_scan_hint">在浏览器里打开 eucstats，点 Crews，然后把这个对准出现的码。</string>
     <string name="crews_scan_invalid">这不是战队通行码。</string>

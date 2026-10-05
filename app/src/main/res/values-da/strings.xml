@@ -2745,6 +2745,8 @@
     <string name="voice_stat_avg">Gns</string>
     <string name="voice_stat_peak">Top</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews kører på eucstats-sitet. Scan koden, det viser dig, så bekræfter appen her, at kontoen er din.</string>
     <string name="crews_pass_action">Crew-nøgle</string>
     <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og hold den her op mod koden.</string>
     <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>

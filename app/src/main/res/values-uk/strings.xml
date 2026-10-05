@@ -2727,6 +2727,8 @@
     <string name="voice_stat_avg">Сер</string>
     <string name="voice_stat_peak">Пік</string>
     <string name="crews_title">Клани</string>
+    <string name="crews_settings_title">Клани</string>
+    <string name="crews_settings_desc">Клани працюють на сайті eucstats. Відскануй код, який він покаже, і цей застосунок підтвердить, що акаунт твій.</string>
     <string name="crews_pass_action">Пропуск клану</string>
     <string name="crews_scan_hint">Відкрий eucstats у браузері, натисни Crews і наведи це на код, що з\'явиться.</string>
     <string name="crews_scan_invalid">Це не код кланового пропуску.</string>

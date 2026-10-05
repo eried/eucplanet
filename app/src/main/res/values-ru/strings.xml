@@ -2730,6 +2730,8 @@
     <string name="voice_stat_avg">Сред</string>
     <string name="voice_stat_peak">Пик</string>
     <string name="crews_title">Кланы</string>
+    <string name="crews_settings_title">Кланы</string>
+    <string name="crews_settings_desc">Кланы живут на сайте eucstats. Отсканируй код, который он покажет, и это приложение подтвердит, что аккаунт твой.</string>
     <string name="crews_pass_action">Пропуск клана</string>
     <string name="crews_scan_hint">Открой eucstats в браузере, нажми Crews и наведи это на код, который появится.</string>
     <string name="crews_scan_invalid">Это не код клановского пропуска.</string>

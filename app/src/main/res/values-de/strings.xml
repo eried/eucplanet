@@ -2750,6 +2750,8 @@
     <string name="voice_stat_avg">Schnitt</string>
     <string name="voice_stat_peak">Spitze</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews laufen auf der eucstats-Website. Scann den Code, den sie dir zeigt, und diese App bestätigt, dass das Konto deins ist.</string>
     <string name="crews_pass_action">Crew-Pass</string>
     <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und halte das hier auf den Code.</string>
     <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>

@@ -2533,6 +2533,8 @@
     <string name="voice_stat_avg">Prům</string>
     <string name="voice_stat_peak">Špička</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews běží na webu eucstats. Naskenuj kód, který ti ukáže, a tahle aplikace potvrdí, že je ten účet tvůj.</string>
     <string name="crews_pass_action">Průkaz crew</string>
     <string name="crews_scan_hint">Otevři eucstats v prohlížeči, klepni na Crews a namiř tohle na kód, co se objeví.</string>
     <string name="crews_scan_invalid">To není kód crew passu.</string>

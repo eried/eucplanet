@@ -2758,6 +2758,8 @@
     <!-- Crews pairing. Kept here rather than in the Kotlin so the 21 locales pick them
          up with everything else; hardcoded strings are strings that never get translated. -->
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews run on the eucstats website. Scan the code it shows you and this app vouches that the account is yours.</string>
     <string name="crews_pass_action">Crew pass</string>
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
     <string name="crews_scan_invalid">That\'s not a crew pass code.</string>

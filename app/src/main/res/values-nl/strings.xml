@@ -2732,6 +2732,8 @@
     <string name="voice_stat_avg">Gem</string>
     <string name="voice_stat_peak">Piek</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews draaien op de eucstats-site. Scan de code die hij laat zien, dan bevestigt deze app dat het account van jou is.</string>
     <string name="crews_pass_action">Crewpas</string>
     <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
     <string name="crews_scan_invalid">Dat is geen crew pass-code.</string>

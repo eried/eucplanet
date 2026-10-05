@@ -2730,6 +2730,8 @@
     <string name="voice_stat_avg">Snitt</string>
     <string name="voice_stat_peak">Topp</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews körs på eucstats-sajten. Skanna koden den visar, så intygar den här appen att kontot är ditt.</string>
     <string name="crews_pass_action">Crew-nyckel</string>
     <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews, och rikta den här mot koden som visas.</string>
     <string name="crews_scan_invalid">Det är ingen crew pass-kod.</string>

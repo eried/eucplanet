@@ -2731,6 +2731,8 @@
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">ピーク</string>
     <string name="crews_title">クラン</string>
+    <string name="crews_settings_title">クラン</string>
+    <string name="crews_settings_desc">クランは eucstats のサイトで動いている。そこに出るコードを読み取れば、このアプリがアカウントは自分のものだと証明する。</string>
     <string name="crews_pass_action">クランパス</string>
     <string name="crews_scan_hint">ブラウザで eucstats を開いて Crews を押し、出てきたコードにこれを向けるだけ。</string>
     <string name="crews_scan_invalid">これはクランパスのコードじゃない。</string>

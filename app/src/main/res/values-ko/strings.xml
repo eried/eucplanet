@@ -2729,6 +2729,8 @@
     <string name="voice_stat_avg">평균</string>
     <string name="voice_stat_peak">피크</string>
     <string name="crews_title">클랜</string>
+    <string name="crews_settings_title">클랜</string>
+    <string name="crews_settings_desc">클랜은 eucstats 사이트에서 돌아간다. 거기 뜨는 코드를 스캔하면 이 앱이 계정이 네 것임을 보증한다.</string>
     <string name="crews_pass_action">클랜 패스</string>
     <string name="crews_scan_hint">브라우저에서 eucstats를 열고 Crews를 누른 다음, 뜨는 코드에 이걸 대면 끝.</string>
     <string name="crews_scan_invalid">클랜 패스 코드가 아니다.</string>

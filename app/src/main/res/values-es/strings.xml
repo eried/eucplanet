@@ -2727,6 +2727,8 @@
     <string name="voice_stat_avg">Prom</string>
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_title">Cuadrillas</string>
+    <string name="crews_settings_title">Cuadrillas</string>
+    <string name="crews_settings_desc">Las cuadrillas funcionan en la web de eucstats. Escanea el código que te enseña y esta app confirma que la cuenta es tuya.</string>
     <string name="crews_pass_action">Pase de cuadrilla</string>
     <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Crews y apunta esto al código que salga.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de cuadrilla.</string>

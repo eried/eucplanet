@@ -2533,6 +2533,8 @@
     <string name="voice_stat_avg">Med</string>
     <string name="voice_stat_peak">Vârf</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews rulează pe site-ul eucstats. Scanează codul pe care ți-l arată, iar aplicația asta confirmă că e contul tău.</string>
     <string name="crews_pass_action">Acces crew</string>
     <string name="crews_scan_hint">Deschide eucstats în browser, apasă pe Crews și îndreaptă asta spre codul care apare.</string>
     <string name="crews_scan_invalid">Ăsta nu e un cod de crew pass.</string>

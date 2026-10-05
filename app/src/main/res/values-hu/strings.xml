@@ -2533,6 +2533,8 @@
     <string name="voice_stat_avg">Átl</string>
     <string name="voice_stat_peak">Csúcs</string>
     <string name="crews_title">Crewk</string>
+    <string name="crews_settings_title">Crewk</string>
+    <string name="crews_settings_desc">A crewk az eucstats oldalon futnak. Olvasd be a kódot, amit mutat, és ez az alkalmazás igazolja, hogy a fiók a tiéd.</string>
     <string name="crews_pass_action">Crew-belépő</string>
     <string name="crews_scan_hint">Nyisd meg az eucstatsot böngészőben, nyomd meg a Crews gombot, és irányítsd ezt a megjelenő kódra.</string>
     <string name="crews_scan_invalid">Ez nem crew pass kód.</string>
