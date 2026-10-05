@@ -2622,5 +2622,5 @@
     <string name="crews_failed_title">没成</string>
     <string name="crews_tryagain">再试一次</string>
     <string name="crews_done">完成</string>
-    <string name="crews_expired">这个码过期了。只活三分钟，去浏览器里要个新的。</string>
+    <string name="crews_expired">这个码过期了。去浏览器里要个新的。</string>
 </resources>

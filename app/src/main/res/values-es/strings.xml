@@ -2752,5 +2752,5 @@
     <string name="crews_failed_title">Eso no ha salido</string>
     <string name="crews_tryagain">Reintentar</string>
     <string name="crews_done">Listo</string>
-    <string name="crews_expired">Ese código ya está rancio. Duran tres minutos, pilla uno nuevo en el navegador.</string>
+    <string name="crews_expired">Ese código ya está rancio. Pilla uno nuevo en el navegador.</string>
 </resources>

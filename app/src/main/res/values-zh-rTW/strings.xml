@@ -2754,5 +2754,5 @@
     <string name="crews_failed_title">沒成</string>
     <string name="crews_tryagain">再試一次</string>
     <string name="crews_done">完成</string>
-    <string name="crews_expired">這個碼過期了。只活三分鐘，去瀏覽器裡要個新的。</string>
+    <string name="crews_expired">這個碼過期了。去瀏覽器裡要個新的。</string>
 </resources>

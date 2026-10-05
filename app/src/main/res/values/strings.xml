@@ -2783,5 +2783,5 @@
     <string name="crews_failed_title">That didn\'t work</string>
     <string name="crews_tryagain">Try again</string>
     <string name="crews_done">Done</string>
-    <string name="crews_expired">That code\'s gone stale. They last three minutes, grab a fresh one from the browser.</string>
+    <string name="crews_expired">That code\'s gone stale. Grab a fresh one from the browser.</string>
 </resources>

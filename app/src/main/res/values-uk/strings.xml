@@ -2752,5 +2752,5 @@
     <string name="crews_failed_title">Не вийшло</string>
     <string name="crews_tryagain">Спробувати ще раз</string>
     <string name="crews_done">Готово</string>
-    <string name="crews_expired">Цей код застарів. Вони живуть три хвилини, візьми свіжий у браузері.</string>
+    <string name="crews_expired">Цей код застарів. Візьми свіжий у браузері.</string>
 </resources>

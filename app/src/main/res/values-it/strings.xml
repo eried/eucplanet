@@ -2660,5 +2660,5 @@
     <string name="crews_failed_title">Non ha funzionato</string>
     <string name="crews_tryagain">Riprova</string>
     <string name="crews_done">Fatto</string>
-    <string name="crews_expired">Quel codice è andato a male. Durano tre minuti, prendine uno fresco dal browser.</string>
+    <string name="crews_expired">Quel codice è andato a male. Prendine uno fresco dal browser.</string>
 </resources>

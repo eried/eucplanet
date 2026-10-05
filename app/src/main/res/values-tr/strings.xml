@@ -2752,5 +2752,5 @@
     <string name="crews_failed_title">Bu olmadı</string>
     <string name="crews_tryagain">Tekrar dene</string>
     <string name="crews_done">Bitti</string>
-    <string name="crews_expired">O kod bayatladı. Üç dakika yaşıyorlar, tarayıcıdan taze bir tane al.</string>
+    <string name="crews_expired">O kod bayatladı. Tarayıcıdan taze bir tane al.</string>
 </resources>

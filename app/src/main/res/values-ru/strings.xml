@@ -2755,5 +2755,5 @@
     <string name="crews_failed_title">Не получилось</string>
     <string name="crews_tryagain">Попробовать снова</string>
     <string name="crews_done">Готово</string>
-    <string name="crews_expired">Этот код протух. Они живут три минуты, возьми свежий в браузере.</string>
+    <string name="crews_expired">Этот код протух. Возьми свежий в браузере.</string>
 </resources>

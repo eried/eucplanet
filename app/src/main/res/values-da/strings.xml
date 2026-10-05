@@ -2770,5 +2770,5 @@
     <string name="crews_failed_title">Det gik ikke</string>
     <string name="crews_tryagain">Prøv igen</string>
     <string name="crews_done">Færdig</string>
-    <string name="crews_expired">Den kode er blevet gammel. De holder tre minutter, hent en frisk i browseren.</string>
+    <string name="crews_expired">Den kode er blevet gammel. Hent en frisk i browseren.</string>
 </resources>

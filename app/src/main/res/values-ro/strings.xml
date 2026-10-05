@@ -2558,5 +2558,5 @@
     <string name="crews_failed_title">Nu a mers</string>
     <string name="crews_tryagain">Încearcă din nou</string>
     <string name="crews_done">Gata</string>
-    <string name="crews_expired">Codul ăla s-a învechit. Țin trei minute, ia unul proaspăt din browser.</string>
+    <string name="crews_expired">Codul ăla s-a învechit. Ia unul proaspăt din browser.</string>
 </resources>

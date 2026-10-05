@@ -2558,5 +2558,5 @@
     <string name="crews_failed_title">Ei onnistunut</string>
     <string name="crews_tryagain">Yritä uudestaan</string>
     <string name="crews_done">Valmis</string>
-    <string name="crews_expired">Tuo koodi on vanhentunut. Ne kestävät kolme minuuttia, hae selaimesta tuore.</string>
+    <string name="crews_expired">Tuo koodi on vanhentunut. Hae selaimesta tuore.</string>
 </resources>

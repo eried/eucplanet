@@ -2643,5 +2643,5 @@
     <string name="crews_failed_title">Det gikk ikke</string>
     <string name="crews_tryagain">Prøv igjen</string>
     <string name="crews_done">Ferdig</string>
-    <string name="crews_expired">Den koden er blitt gammel. De varer tre minutter, hent en fersk i nettleseren.</string>
+    <string name="crews_expired">Den koden er blitt gammel. Hent en fersk i nettleseren.</string>
 </resources>

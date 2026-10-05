@@ -2755,5 +2755,5 @@
     <string name="crews_failed_title">Nie wyszło</string>
     <string name="crews_tryagain">Spróbuj jeszcze raz</string>
     <string name="crews_done">Gotowe</string>
-    <string name="crews_expired">Ten kod się zestarzał. Żyją trzy minuty, weź świeży z przeglądarki.</string>
+    <string name="crews_expired">Ten kod się zestarzał. Weź świeży z przeglądarki.</string>
 </resources>

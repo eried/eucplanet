@@ -2558,5 +2558,5 @@
     <string name="crews_failed_title">Ez nem jött össze</string>
     <string name="crews_tryagain">Újra</string>
     <string name="crews_done">Kész</string>
-    <string name="crews_expired">Ez a kód megavasodott. Három percig élnek, hozz egy frisset a böngészőből.</string>
+    <string name="crews_expired">Ez a kód megavasodott. Hozz egy frisset a böngészőből.</string>
 </resources>

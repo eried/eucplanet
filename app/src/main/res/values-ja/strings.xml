@@ -2756,5 +2756,5 @@
     <string name="crews_failed_title">うまくいかなかった</string>
     <string name="crews_tryagain">もう一度</string>
     <string name="crews_done">完了</string>
-    <string name="crews_expired">そのコードは古くなった。もつのは3分、ブラウザで新しいのを出して。</string>
+    <string name="crews_expired">そのコードは古くなった。ブラウザで新しいのを出して。</string>
 </resources>

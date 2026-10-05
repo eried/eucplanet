@@ -2757,5 +2757,5 @@
     <string name="crews_failed_title">Dat werkte niet</string>
     <string name="crews_tryagain">Opnieuw proberen</string>
     <string name="crews_done">Klaar</string>
-    <string name="crews_expired">Die code is oud geworden. Ze gaan drie minuten mee, haal een verse uit de browser.</string>
+    <string name="crews_expired">Die code is oud geworden. Haal een verse uit de browser.</string>
 </resources>

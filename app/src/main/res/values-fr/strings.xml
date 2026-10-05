@@ -2759,5 +2759,5 @@
     <string name="crews_failed_title">Ça n\'a pas marché</string>
     <string name="crews_tryagain">Réessayer</string>
     <string name="crews_done">Terminé</string>
-    <string name="crews_expired">Ce code a tourné. Ils durent trois minutes, prends-en un frais dans le navigateur.</string>
+    <string name="crews_expired">Ce code a tourné. Prends-en un frais dans le navigateur.</string>
 </resources>
