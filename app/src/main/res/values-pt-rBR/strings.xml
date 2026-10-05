@@ -2732,9 +2732,10 @@
     <string name="voice_stat_avg">Méd</string>
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_title">Turmas</string>
-    <string name="crews_scan_hint">Abre o eucstats no navegador, toca em Crews e aponta isto pro código que aparecer. Nada pra digitar, nada pra decorar.</string>
+    <string name="crews_pass_action">Passe da turma</string>
+    <string name="crews_scan_hint">Abre o eucstats no navegador, toca em Crews e aponta isto pro código que aparecer.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de turma.</string>
-    <string name="crews_type_instead">Digita o código</string>
+    <string name="crews_type_instead">Digitar manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Esse código não é do eucstats</string>
     <string name="crews_foreign_body">Ele aponta pra %1$s, e não é pra lá que vão os teus rolês. Dizer sim é entregar tua conta pra quem cuida disso.\n\nTem servidor próprio? Liga o modo desenvolvedor nas Configurações antes.</string>

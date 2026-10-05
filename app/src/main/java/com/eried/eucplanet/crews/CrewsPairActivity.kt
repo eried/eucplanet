@@ -13,7 +13,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.eried.eucplanet.ui.navigator.ShareDialogCard
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardActions
@@ -185,41 +193,49 @@ fun CrewsPairScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(22.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    // The same window Join group ride uses, rather than a full-screen column with a headline
+    // on it: both are "point this at a code somebody else is showing", and only one of them
+    // looked like it. `ShareDialogCard` brings the header, the divider and the border with it.
+    Dialog(
+        onDismissRequest = onDone,
+        properties = DialogProperties(
+            // A stray tap outside must not drop a half-finished pairing.
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        ),
     ) {
-        Text(
-            stringResource(R.string.crews_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.appColors.textPrimary,
-        )
-        Spacer(Modifier.height(4.dp))
-
+      ShareDialogCard(
+          title = stringResource(R.string.crews_pass_action),
+          icon = Icons.Filled.QrCodeScanner,
+          // The camera square is as tall as the card is wide, so in landscape the body has to
+          // scroll to reach the buttons -- the same reason the join scanner sets it.
+          scrollable = true,
+      ) {
         when (val s = step) {
             is Step.Scanning -> {
-                Hint(stringResource(R.string.crews_scan_hint))
-                Spacer(Modifier.height(16.dp))
-                QrScannerArea(
-                    parse = { PairLink.parse(it) },
-                    onFound = { link ->
-                        step = if (link.trust(devMode) == PairTrust.REFUSED) Step.Refused(link)
-                        else Step.Confirming(link, null)
-                    },
-                    invalidText = stringResource(R.string.crews_scan_invalid),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                // You cannot point a phone's camera at its own screen, and eucstats tells
-                // riders in nineteen languages to type the code in if the app did not open
-                // by itself. There was nothing to type it into.
-                Spacer(Modifier.height(14.dp))
+                // One or the other, never both. This used to show a live camera preview, a
+                // text field and a full-width button stacked together in a card that then had
+                // to scroll; a phone cannot photograph its own screen, so whichever of the two
+                // you are using, the other one is in the way.
                 if (!typing) {
+                    Hint(stringResource(R.string.crews_scan_hint))
+                    Spacer(Modifier.height(16.dp))
+                    QrScannerArea(
+                        parse = { PairLink.parse(it) },
+                        onFound = { link ->
+                            step = if (link.trust(devMode) == PairTrust.REFUSED) Step.Refused(link)
+                            else Step.Confirming(link, null)
+                        },
+                        invalidText = stringResource(R.string.crews_scan_invalid),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    // eucstats tells riders in nineteen languages to type the code in if the
+                    // app did not open by itself. There was nothing to type it into.
+                    Spacer(Modifier.height(14.dp))
                     Secondary(stringResource(R.string.crews_type_instead)) { typing = true }
                 } else {
+                    val focus = remember { FocusRequester() }
+                    LaunchedEffect(Unit) { focus.requestFocus() }
                     OutlinedTextField(
                         value = typed,
                         onValueChange = { typed = it.trim().uppercase().take(12) },
@@ -234,15 +250,23 @@ fun CrewsPairScreen(
                         supportingText = if (typedBad) {
                             { Text(stringResource(R.string.crews_scan_invalid)) }
                         } else null,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focus),
                     )
-                    Spacer(Modifier.height(8.dp))
-                    Button(
-                        onClick = { submitTyped() },
-                        enabled = typed.isNotBlank(),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.action_continue)) }
+                    Spacer(Modifier.height(14.dp))
+                    // The way back is the camera, not a dead end: somebody who opened this by
+                    // mistake, or whose code will not type, has one press to the scanner.
+                    ActionRow {
+                        Primary(
+                            stringResource(R.string.action_continue),
+                            Modifier.weight(1f),
+                        ) { submitTyped() }
+                        Secondary(
+                            stringResource(R.string.crews_scan_other),
+                            Modifier.weight(1f),
+                        ) { typing = false; typed = ""; typedBad = false }
+                    }
                 }
             }
 
@@ -253,8 +277,12 @@ fun CrewsPairScreen(
                     danger = true,
                 )
                 Spacer(Modifier.height(18.dp))
-                Secondary(stringResource(R.string.crews_scan_other)) { step = Step.Scanning }
-                Secondary(stringResource(R.string.crews_close), onDone)
+                ActionRow {
+                    Secondary(stringResource(R.string.crews_scan_other), Modifier.weight(1f)) {
+                        step = Step.Scanning
+                    }
+                    Secondary(stringResource(R.string.crews_close), Modifier.weight(1f), onDone)
+                }
             }
 
             is Step.Confirming -> {
@@ -292,40 +320,59 @@ fun CrewsPairScreen(
                         // only screen in the flow that tells somebody to go and do something
                         // else, so it takes them there.
                         val ctx = LocalContext.current
-                        Primary(stringResource(R.string.crews_opensettings)) {
-                            runCatching {
-                                ctx.startActivity(
-                                    Intent(ctx,
-                                           Class.forName("com.eried.eucplanet.MainActivity"))
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        ActionRow {
+                            Primary(
+                                stringResource(R.string.crews_opensettings),
+                                Modifier.weight(1f),
+                            ) {
+                                runCatching {
+                                    ctx.startActivity(
+                                        Intent(ctx,
+                                               Class.forName("com.eried.eucplanet.MainActivity"))
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                                }
+                                onDone()
                             }
-                            onDone()
+                            Secondary(
+                                stringResource(R.string.crews_close),
+                                Modifier.weight(1f),
+                                onDone,
+                            )
                         }
-                        Secondary(stringResource(R.string.crews_close), onDone)
                     } else {
-                        Primary(stringResource(R.string.crews_issue)) {
-                            step = Step.Sending
-                            scope.launch {
-                                step = when (val r = deps.api.confirm(s.link, storeId)) {
-                                    is PairResult.Ok -> Step.Done
-                                    is PairResult.Expired -> Step.Problem(msgExpired)
-                                    is PairResult.RateLimited -> Step.Problem(msgRate)
-                                    is PairResult.Unreachable -> Step.Problem(
-                                        msgUnreachTpl.replace("%HOST%", s.link.host))
-                                    is PairResult.Failed -> Step.Problem(
-                                        r.detail ?: msgRefusedTpl.replace("0", r.code.toString())
-                                    )
+                        ActionRow {
+                            Primary(
+                                stringResource(R.string.crews_issue),
+                                Modifier.weight(1f),
+                            ) {
+                                step = Step.Sending
+                                scope.launch {
+                                    step = when (val r = deps.api.confirm(s.link, storeId)) {
+                                        is PairResult.Ok -> Step.Done
+                                        is PairResult.Expired -> Step.Problem(msgExpired)
+                                        is PairResult.RateLimited -> Step.Problem(msgRate)
+                                        is PairResult.Unreachable -> Step.Problem(
+                                            msgUnreachTpl.replace("%HOST%", s.link.host))
+                                        is PairResult.Failed -> Step.Problem(
+                                            r.detail ?: msgRefusedTpl.replace("0", r.code.toString())
+                                        )
+                                    }
                                 }
                             }
+                            Secondary(
+                                stringResource(R.string.crews_notme),
+                                Modifier.weight(1f),
+                                onDone,
+                            )
                         }
-                        Secondary(stringResource(R.string.crews_notme), onDone)
                     }
                 }
             }
 
             is Step.Sending -> {
                 Spacer(Modifier.height(30.dp))
-                CircularProgressIndicator()
+                // The old scaffold centred every child; the card's body does not.
+                CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
             }
 
             is Step.Done -> {
@@ -333,16 +380,21 @@ fun CrewsPairScreen(
                 Banner(stringResource(R.string.crews_done_title),
                     stringResource(R.string.crews_done_body), danger = false)
                 Spacer(Modifier.height(18.dp))
-                Primary(stringResource(R.string.crews_done), onDone)
+                Primary(stringResource(R.string.crews_done), onClick = onDone)
             }
 
             is Step.Problem -> {
                 Banner(stringResource(R.string.crews_failed_title), s.message, danger = true)
                 Spacer(Modifier.height(18.dp))
-                Secondary(stringResource(R.string.crews_tryagain)) { step = Step.Scanning }
-                Secondary(stringResource(R.string.crews_close), onDone)
+                ActionRow {
+                    Secondary(stringResource(R.string.crews_tryagain), Modifier.weight(1f)) {
+                        step = Step.Scanning
+                    }
+                    Secondary(stringResource(R.string.crews_close), Modifier.weight(1f), onDone)
+                }
             }
         }
+      }
     }
 }
 
@@ -378,21 +430,39 @@ private fun Banner(title: String, body: String, danger: Boolean) {
 }
 
 @Composable
-private fun Primary(label: String, onClick: () -> Unit) {
+private fun Primary(
+    label: String,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    onClick: () -> Unit,
+) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
     ) { Text(label) }
 }
 
 @Composable
-private fun Secondary(label: String, onClick: () -> Unit) {
+private fun Secondary(
+    label: String,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    onClick: () -> Unit,
+) {
     TextButton(
         onClick = onClick,
         colors = ButtonDefaults.textButtonColors(
             contentColor = MaterialTheme.appColors.textSecondary
         ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
     ) { Text(label) }
+}
+
+/** Two actions, side by side. A yes/no question is one decision, not two stacked bars. */
+@Composable
+private fun ActionRow(content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        content = content,
+    )
 }

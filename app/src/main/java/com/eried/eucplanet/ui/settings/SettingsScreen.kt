@@ -88,6 +88,7 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -9447,7 +9448,16 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.crews_title))
+                    // The icon, because "Crews" beside "Manage profile" reads as a list of
+                    // crews and this opens a camera. The scanner one and not `QrCode2`: that
+                    // is the icon for showing a code, which is what the browser is doing.
+                    Icon(
+                        Icons.Filled.QrCodeScanner,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.crews_pass_action))
                 }
             }
 

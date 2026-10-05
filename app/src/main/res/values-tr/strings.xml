@@ -2727,9 +2727,10 @@
     <string name="voice_stat_avg">Ort</string>
     <string name="voice_stat_peak">Tepe</string>
     <string name="crews_title">Ekipler</string>
-    <string name="crews_scan_hint">eucstats\'i tarayıcıda aç, Crews\'a bas ve bunu çıkan koda tut. Yazacak bir şey yok, akılda tutacak bir şey yok.</string>
+    <string name="crews_pass_action">Ekip geçişi</string>
+    <string name="crews_scan_hint">eucstats\'i tarayıcıda aç, Crews\'a bas ve bunu çıkan koda tut.</string>
     <string name="crews_scan_invalid">Bu bir ekip pası kodu değil.</string>
-    <string name="crews_type_instead">Kodu yaz</string>
+    <string name="crews_type_instead">Elle gir</string>
     <string name="crews_code_label">Geçiş kodu</string>
     <string name="crews_foreign_title">Bu kod eucstats\'ten değil</string>
     <string name="crews_foreign_body">%1$s adresini gösteriyor, turların oraya gitmiyor. Evet demek, hesabını orayı işleten kim ise ona vermek demek.\n\nKendi sunucun mu var? Önce Ayarlar\'dan geliştirici modunu aç.</string>

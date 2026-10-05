@@ -2727,9 +2727,10 @@
     <string name="voice_stat_avg">Сер</string>
     <string name="voice_stat_peak">Пік</string>
     <string name="crews_title">Клани</string>
-    <string name="crews_scan_hint">Відкрий eucstats у браузері, натисни Crews і наведи це на код, що з\'явиться. Нічого набирати, нічого запам\'ятовувати.</string>
+    <string name="crews_pass_action">Пропуск клану</string>
+    <string name="crews_scan_hint">Відкрий eucstats у браузері, натисни Crews і наведи це на код, що з\'явиться.</string>
     <string name="crews_scan_invalid">Це не код кланового пропуску.</string>
-    <string name="crews_type_instead">Ввести код</string>
+    <string name="crews_type_instead">Ввести вручну</string>
     <string name="crews_code_label">Код пропуску</string>
     <string name="crews_foreign_title">Цей код не від eucstats</string>
     <string name="crews_foreign_body">Він веде на %1$s, а туди твої поїздки не йдуть. Сказати так означає віддати акаунт тому, хто це тримає.\n\nСвій сервер? Спершу увімкни режим розробника в Налаштуваннях.</string>

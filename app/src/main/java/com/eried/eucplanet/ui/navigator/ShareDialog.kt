@@ -399,6 +399,10 @@ internal fun parseShareText(raw: String): ShareLink? {
 @Composable
 internal fun ShareDialogCard(
     title: String,
+    /** The header glyph. Defaults to what every share-side caller wants; the crews pairing
+     *  card passes the scanner, because a card about pointing a camera at a code should not
+     *  be headed by the share arrows. */
+    icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Share,
     /** Lets the body scroll under a pinned header. The group view needs it: its
      *  QR is as wide as the dialog, so a long enough rider list would otherwise
      *  push Close and Leave off the bottom of the screen. */
@@ -452,7 +456,7 @@ internal fun ShareDialogCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        Icons.Default.Share,
+                        icon,
                         contentDescription = null,
                         tint = MaterialTheme.appColors.primary,
                         modifier = Modifier.size(18.dp),

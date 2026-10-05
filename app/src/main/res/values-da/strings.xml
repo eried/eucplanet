@@ -2745,9 +2745,10 @@
     <string name="voice_stat_avg">Gns</string>
     <string name="voice_stat_peak">Top</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og hold den her op mod koden. Intet at taste, intet at huske.</string>
+    <string name="crews_pass_action">Crew-nøgle</string>
+    <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og hold den her op mod koden.</string>
     <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>
-    <string name="crews_type_instead">Tast koden i stedet</string>
+    <string name="crews_type_instead">Indtast manuelt</string>
     <string name="crews_code_label">Nøglekode</string>
     <string name="crews_foreign_title">Den kode er ikke fra eucstats</string>
     <string name="crews_foreign_body">Den peger på %1$s, og det er ikke der dine ture havner. Siger du ja, giver du din konto til den der kører det.\n\nKører du din egen server? Slå udviklertilstand til i Indstillinger først.</string>

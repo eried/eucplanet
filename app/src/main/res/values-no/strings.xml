@@ -2618,9 +2618,10 @@
     <string name="voice_stat_avg">Snitt</string>
     <string name="voice_stat_peak">Topp</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk Crews, og hold denne mot koden som dukker opp. Ingenting å taste, ingenting å huske.</string>
+    <string name="crews_pass_action">Crew-nøkkel</string>
+    <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk Crews, og hold denne mot koden som dukker opp.</string>
     <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>
-    <string name="crews_type_instead">Tast koden i stedet</string>
+    <string name="crews_type_instead">Skriv inn manuelt</string>
     <string name="crews_code_label">Nøkkelkode</string>
     <string name="crews_foreign_title">Den koden er ikke fra eucstats</string>
     <string name="crews_foreign_body">Den peker på %1$s, og det er ikke dit turene dine går. Sier du ja, gir du kontoen din til den som driver det.\n\nKjører du din egen server? Slå på utviklermodus i Innstillinger først.</string>

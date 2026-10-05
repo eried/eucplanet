@@ -2732,9 +2732,10 @@
     <string name="voice_stat_avg">Gem</string>
     <string name="voice_stat_peak">Piek</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt. Niets te typen, niets te onthouden.</string>
+    <string name="crews_pass_action">Crewpas</string>
+    <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
     <string name="crews_scan_invalid">Dat is geen crew pass-code.</string>
-    <string name="crews_type_instead">Tik de code in</string>
+    <string name="crews_type_instead">Handmatig invoeren</string>
     <string name="crews_code_label">Pascode</string>
     <string name="crews_foreign_title">Die code komt niet van eucstats</string>
     <string name="crews_foreign_body">Hij wijst naar %1$s, en daar gaan je ritten niet heen. Ja zeggen geeft je account aan wie dat ook draait.\n\nDraai je je eigen server? Zet eerst ontwikkelaarsmodus aan in Instellingen.</string>
