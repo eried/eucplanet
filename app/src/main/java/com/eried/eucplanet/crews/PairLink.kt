@@ -53,10 +53,16 @@ data class PairLink(
         private fun parseAppScheme(rest: String): PairLink? {
             val path = rest.substringBefore('?')
             if (!path.trimEnd('/').equals("pair", ignoreCase = true)) return null
+            // Percent-DECODED. Without this a host written the obvious way by the page that
+            // emits the link -- encodeURIComponent, as every query parameter is -- arrived as
+            // `https%3A%2F%2Feucstats.ried.no`, which does not begin with "http://", so
+            // `looksLikeOrigin()` refused it, the whole link parsed to null, and the pairing
+            // screen fell back to the camera. The one device that cannot scan the code it is
+            // showing was offered a scanner. Erwin hit it on his own phone.
             val params = rest.substringAfter('?', "").split('&')
                 .mapNotNull { kv ->
                     val k = kv.substringBefore('=', "")
-                    if (k.isEmpty()) null else k.lowercase() to kv.substringAfter('=', "")
+                    if (k.isEmpty()) null else k.lowercase() to kv.substringAfter('=', "").urlDecoded()
                 }.toMap()
             val code = params["code"].cleanCode() ?: return null
             val host = params["host"]?.takeIf { it.isNotEmpty() }?.trimEnd('/')
@@ -90,9 +96,22 @@ data class PairLink(
             return if (c.all { it.isLetterOrDigit() }) c else null
         }
 
-        private fun String.looksLikeOrigin(): Boolean =
-            (startsWith("http://") || startsWith("https://")) && length < 200 &&
-                none { it.isWhitespace() }
+        /** Tolerant on purpose: a link we cannot decode is still worth trying as written. */
+        private fun String.urlDecoded(): String =
+            runCatching { java.net.URLDecoder.decode(this, "UTF-8") }.getOrDefault(this)
+
+        private fun String.looksLikeOrigin(): Boolean {
+            if (!(startsWith("http://") || startsWith("https://"))) return false
+            if (length >= 200 || any { it.isWhitespace() }) return false
+            // No userinfo. `https://eucstats.ried.no@attacker.example` reads as the real host
+            // to a person and as the attacker's to a parser -- `parseWebUrl` has refused this
+            // shape since it was written, and this path never did. Nothing reached it while
+            // the host arrived percent-encoded, because the encoding failed the prefix check
+            // one line up; a raw one always could, and once this parser started decoding,
+            // an encoded one could too. Found by the test written for the decoding.
+            val authority = removePrefix("https://").removePrefix("http://").substringBefore('/')
+            return '@' !in authority
+        }
 
         private fun String.equalsOrigin(other: String): Boolean =
             trimEnd('/').equals(other.trimEnd('/'), ignoreCase = true)
