@@ -8136,6 +8136,7 @@ private fun FlicTab(
 
         settingsViewModel.settings.collectAsState().value?.let { s ->
             HudIntegrationSection(settings = s, viewModel = settingsViewModel)
+            AndroidAutoSection(settings = s, viewModel = settingsViewModel)
         }
 
         SectionHeader(stringResource(R.string.section_tpms))
@@ -11927,6 +11928,61 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
  * and on the [com.eried.eucplanet.service.WheelService] being alive; it
  * binds a listening socket only while the rider has the app actively open.
  */
+/**
+ * Android Auto's stat boxes and buttons, picked like the home screen widget's
+ * slots but saved apart: the car and the home screen are different jobs.
+ * Navigate is fixed first in the car's button strip, so only three buttons
+ * are offered here.
+ */
+@Composable
+private fun AndroidAutoSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+) {
+    val aa = com.eried.eucplanet.data.model.AndroidAutoSettings
+    val metricSlots = aa.metricSlots(settings.androidAuto.metrics)
+    val actionSlots = aa.actionSlots(settings.androidAuto.actions)
+    val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
+    val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_android_auto))
+        HintText(stringResource(R.string.android_auto_hint), small = true)
+        metricSlots.indices.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_metric_slot, i + 1),
+                        currentLabel = WidgetMetricType.byKey(metricSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = metricOptions,
+                        onSelect = { viewModel.updateAndroidAutoMetricSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+        HintText(stringResource(R.string.android_auto_navigate_fixed), small = true)
+        actionSlots.indices.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_action_slot, i + 1),
+                        currentLabel = WidgetActionType.byKey(actionSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = actionOptions,
+                        onSelect = { viewModel.updateAndroidAutoActionSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
 @Composable
 private fun HudIntegrationSection(
     settings: com.eried.eucplanet.data.model.AppSettings,

@@ -1031,6 +1031,21 @@ class SettingsViewModel @Inject constructor(
         copy(widget = widget.copy(standaloneActions = slots.joinToString(",")))
     }
 
+    /** Android Auto slots, the same registries as the widget, saved apart. */
+    fun updateAndroidAutoMetricSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
+            .metricSlots(androidAuto.metrics).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(androidAuto = androidAuto.copy(metrics = slots.joinToString(",")))
+    }
+
+    fun updateAndroidAutoActionSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
+            .actionSlots(androidAuto.actions).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(androidAuto = androidAuto.copy(actions = slots.joinToString(",")))
+    }
+
     fun updateHudServerPort(v: Int) = update {
         // Match the dial port range. Below 1024 the HUD's listening socket
         // couldn't bind without root; above 65535 isn't a port.

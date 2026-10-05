@@ -2718,4 +2718,14 @@
     <string name="horn_sound_too_long">這個聲音超過 5 秒</string>
     <string name="horn_sound_too_big">這個檔案超過 2 MB</string>
     <string name="horn_sound_unreadable">無法播放這個檔案</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">在 Android Auto 螢幕上顯示地圖、數據和獨輪車按鈕。自動連線，無需設定 Wi-Fi。</string>
+    <string name="android_auto_navigate_fixed">「導航」永遠是第一個按鈕。</string>
+    <string name="car_waiting">正在等待獨輪車</string>
+    <string name="car_last_battery">上次電量 %1$d%%</string>
+    <string name="car_navigate">導航</string>
+    <string name="car_places_title">導航至</string>
+    <string name="car_place_home">家</string>
+    <string name="car_place_work">公司</string>
+    <string name="car_no_places">請先在路線規劃中儲存家或公司。</string>
 </resources>

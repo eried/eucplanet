@@ -631,8 +631,17 @@ class WheelService : LifecycleService() {
             ACTION_DISCONNECT -> {
                 wheelRepository.disconnect()
             }
-            ACTION_TOGGLE_LIGHT -> wheelRepository.toggleLight()
-            ACTION_TOGGLE_LOCK -> wheelRepository.toggleLock()
+            // A tap from the notification, a widget or the car screen is a hand
+            // on the light or lock like the dashboard's, so the automation steps
+            // aside for the session instead of undoing it on its next tick.
+            ACTION_TOGGLE_LIGHT -> {
+                automationManager.notifyManualLightChange()
+                wheelRepository.toggleLight()
+            }
+            ACTION_TOGGLE_LOCK -> {
+                automationManager.notifyManualLockChange()
+                wheelRepository.toggleLock()
+            }
             ACTION_HORN -> wheelRepository.sendHorn()
             // voiceEnabled, NOT voicePeriodicEnabled. The periodic-report loop
             // gates on voiceEnabled (see the comment there); voicePeriodicEnabled
@@ -1359,30 +1368,8 @@ class WheelService : LifecycleService() {
         val metricKeys = com.eried.eucplanet.data.model.WidgetMetricType.slots(widgetMetricsCached)
         val values = ArrayList<String>(metricKeys.size)
         val captions = ArrayList<String>(metricKeys.size)
-        // A slot's unit depends on what it shows and the rider's preferences,
-        // never on whether a packet just arrived. Deriving it from `data` made
-        // every caption drop its unit the moment telemetry went missing, and a
-        // settings change repaints before the next frame, so tapping a widget
-        // button made "Speed (mph)" flash to "Speed" and back.
-        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String = when (type) {
-            com.eried.eucplanet.data.model.WidgetMetricType.SPEED -> u.speedUnit(this, speedUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.TRIP,
-            com.eried.eucplanet.data.model.WidgetMetricType.ODO -> u.distanceUnit(distUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.BATTERY,
-            com.eried.eucplanet.data.model.WidgetMetricType.PWM,
-            com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY -> "%"
-            com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE -> "V"
-            com.eried.eucplanet.data.model.WidgetMetricType.TEMP -> u.tempUnit(tempUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.CURRENT,
-            com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT -> "A"
-            com.eried.eucplanet.data.model.WidgetMetricType.TORQUE -> "Nm"
-            com.eried.eucplanet.data.model.WidgetMetricType.POWER -> "W"
-            com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED -> "Wh"
-            com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
-                "Wh/" + u.distanceUnit(distUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
-                u.distanceUnit(distUnit)
-        }
+        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String =
+            com.eried.eucplanet.widget.WidgetMetricFormat.unit(this, type, speedUnit, distUnit, tempUnit)
 
         metricKeys.forEach { key ->
             val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
@@ -1398,42 +1385,9 @@ class WheelService : LifecycleService() {
                 captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
                 return@forEach
             }
-            val v = when (type) {
-                com.eried.eucplanet.data.model.WidgetMetricType.SPEED ->
-                    "%.0f".format(u.speed(data.speed, speedUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.TRIP ->
-                    "%.1f".format(u.distance(data.tripDistance, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.ODO ->
-                    "%.0f".format(u.distance(data.totalDistance, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.BATTERY ->
-                    "${data.batteryPercent}"
-                com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE ->
-                    "%.0f".format(data.voltage)
-                com.eried.eucplanet.data.model.WidgetMetricType.TEMP ->
-                    "%.0f".format(u.temperature(data.maxTemperature, tempUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.PWM ->
-                    if (data.pwm.isNaN()) "--" else "%.0f".format(data.pwm)
-                com.eried.eucplanet.data.model.WidgetMetricType.CURRENT ->
-                    "%.0f".format(kotlin.math.abs(data.current))
-                com.eried.eucplanet.data.model.WidgetMetricType.TORQUE ->
-                    "%.1f".format(kotlin.math.abs(data.torque))
-                com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT ->
-                    "%.0f".format(kotlin.math.abs(data.phaseCurrent))
-                com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
-                    "%.0f".format(kotlin.math.abs(data.voltage * data.current))
-                com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED ->
-                    "%.0f".format(data.whConsumed)
-                // Both are NaN until the rolling window has enough distance;
-                // the widget says nothing rather than showing a made-up zero.
-                com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
-                    if (data.whPerKmRecent.isNaN()) "--"
-                    else "%.0f".format(data.whPerKmRecent / u.distance(1f, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
-                    if (data.rangeKmEstimate.isNaN()) "--"
-                    else "%.0f".format(u.distance(data.rangeKmEstimate, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY ->
-                    "$phoneBatteryCached"
-            }
+            val v = com.eried.eucplanet.widget.WidgetMetricFormat.value(
+                type, data, speedUnit, distUnit, tempUnit, phoneBatteryCached
+            )
             values.add(v)
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
         }

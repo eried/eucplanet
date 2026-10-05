@@ -118,6 +118,8 @@ data class AppSettings(
     val voiceReports: VoiceReportSettings = VoiceReportSettings(),
     // Home screen widget layout. Nested for the same reason, see WidgetSettings.
     val widget: WidgetSettings = WidgetSettings(),
+    // Android Auto screen: its own stat and button slots. Nested, see AndroidAutoSettings.
+    val androidAuto: AndroidAutoSettings = AndroidAutoSettings(),
 
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",

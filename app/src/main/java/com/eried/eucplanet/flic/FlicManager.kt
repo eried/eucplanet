@@ -392,7 +392,10 @@ class FlicManager @Inject constructor(
                 if (!legalLockdown.isEngaged()) automationManager.notifyManualLightChange()
                 wheelRepository.toggleLight()
             }
-            "LOCK_TOGGLE" -> wheelRepository.toggleLock()
+            "LOCK_TOGGLE" -> {
+                automationManager.notifyManualLockChange()
+                wheelRepository.toggleLock()
+            }
             "SAFETY_TOGGLE" -> wheelRepository.toggleSafetySpeed()
             "SAFETY_ON" -> wheelRepository.enableSafetySpeed()
             "SAFETY_OFF" -> wheelRepository.disableSafetySpeed()

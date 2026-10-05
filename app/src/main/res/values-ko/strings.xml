@@ -2718,4 +2718,14 @@
     <string name="horn_sound_too_long">소리가 5초보다 깁니다</string>
     <string name="horn_sound_too_big">파일이 2 MB보다 큽니다</string>
     <string name="horn_sound_unreadable">파일을 재생할 수 없습니다</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">지도, 통계, 휠 버튼을 Android Auto 화면에 표시합니다. 자동으로 연결되며 Wi-Fi 설정이 필요 없습니다.</string>
+    <string name="android_auto_navigate_fixed">내비게이션은 항상 첫 번째 버튼입니다.</string>
+    <string name="car_waiting">휠을 기다리는 중</string>
+    <string name="car_last_battery">마지막 배터리 %1$d%%</string>
+    <string name="car_navigate">내비게이션</string>
+    <string name="car_places_title">목적지</string>
+    <string name="car_place_home">집</string>
+    <string name="car_place_work">직장</string>
+    <string name="car_no_places">먼저 경로 빌더에서 집 또는 직장을 저장하세요.</string>
 </resources>

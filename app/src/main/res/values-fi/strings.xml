@@ -2522,4 +2522,14 @@
     <string name="horn_sound_too_long">Ääni on yli 5 sekuntia pitkä</string>
     <string name="horn_sound_too_big">Tiedosto on yli 2 Mt</string>
     <string name="horn_sound_unreadable">Tiedostoa ei voitu toistaa</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Kartta, tiedot ja pyörän painikkeet Android Auto -näytöllä. Yhdistää itse, ei Wi-Fi-asetuksia.</string>
+    <string name="android_auto_navigate_fixed">Navigoi on aina ensimmäinen painike.</string>
+    <string name="car_waiting">Odotetaan pyörää</string>
+    <string name="car_last_battery">Viimeisin akku %1$d%%</string>
+    <string name="car_navigate">Navigoi</string>
+    <string name="car_places_title">Navigoi kohteeseen</string>
+    <string name="car_place_home">Koti</string>
+    <string name="car_place_work">Työ</string>
+    <string name="car_no_places">Tallenna ensin Koti tai Työ reittisuunnittelijassa.</string>
 </resources>

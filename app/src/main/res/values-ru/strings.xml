@@ -2719,4 +2719,14 @@
     <string name="horn_sound_too_long">Звук длиннее 5 секунд</string>
     <string name="horn_sound_too_big">Файл больше 2 МБ</string>
     <string name="horn_sound_unreadable">Не удалось проиграть файл</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Карта, показатели и кнопки колеса на экране Android Auto. Подключается само, без настройки Wi-Fi.</string>
+    <string name="android_auto_navigate_fixed">Навигация всегда первая кнопка.</string>
+    <string name="car_waiting">Ожидание колеса</string>
+    <string name="car_last_battery">Последний заряд %1$d%%</string>
+    <string name="car_navigate">Навигация</string>
+    <string name="car_places_title">Маршрут до</string>
+    <string name="car_place_home">Дом</string>
+    <string name="car_place_work">Работа</string>
+    <string name="car_no_places">Сначала сохраните Дом или Работу в планировщике маршрутов.</string>
 </resources>

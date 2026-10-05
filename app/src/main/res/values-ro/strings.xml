@@ -2522,4 +2522,14 @@
     <string name="horn_sound_too_long">Sunetul durează mai mult de 5 secunde</string>
     <string name="horn_sound_too_big">Fișierul are peste 2 MB</string>
     <string name="horn_sound_unreadable">Fișierul nu poate fi redat</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Harta, statisticile și butoanele roții pe un ecran Android Auto. Se conectează singur, fără setare Wi-Fi.</string>
+    <string name="android_auto_navigate_fixed">Navighează este mereu primul buton.</string>
+    <string name="car_waiting">Se așteaptă roata</string>
+    <string name="car_last_battery">Ultima baterie %1$d%%</string>
+    <string name="car_navigate">Navighează</string>
+    <string name="car_places_title">Navighează spre</string>
+    <string name="car_place_home">Acasă</string>
+    <string name="car_place_work">Serviciu</string>
+    <string name="car_no_places">Salvează mai întâi Acasă sau Serviciu în planificatorul de rute.</string>
 </resources>

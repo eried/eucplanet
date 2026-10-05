@@ -11,6 +11,7 @@ lifecycle = "2.8.7"
 coroutines = "1.9.0"
 navigation = "2.8.5"
 maplibre = "11.5.2"
+carApp = "1.4.0"
 datastore = "1.1.1"
 work = "2.9.1"
 hiltWork = "1.2.0"
@@ -85,6 +86,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 
 # MapLibre
 maplibre = { group = "org.maplibre.gl", name = "android-sdk", version.ref = "maplibre" }
+androidx-car-app = { group = "androidx.car.app", name = "app", version.ref = "carApp" }
+androidx-car-app-projected = { group = "androidx.car.app", name = "app-projected", version.ref = "carApp" }
 
 # DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }

@@ -2721,4 +2721,14 @@
     <string name="horn_sound_too_long">Dat geluid is langer dan 5 seconden</string>
     <string name="horn_sound_too_big">Dat bestand is groter dan 2 MB</string>
     <string name="horn_sound_unreadable">Dat bestand kan niet worden afgespeeld</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Je kaart, statistieken en wielknoppen op een Android Auto-scherm. Verbindt vanzelf, zonder wifi-instelling.</string>
+    <string name="android_auto_navigate_fixed">Navigeren is altijd de eerste knop.</string>
+    <string name="car_waiting">Wachten op het wiel</string>
+    <string name="car_last_battery">Laatste accu %1$d%%</string>
+    <string name="car_navigate">Navigeren</string>
+    <string name="car_places_title">Navigeren naar</string>
+    <string name="car_place_home">Thuis</string>
+    <string name="car_place_work">Werk</string>
+    <string name="car_no_places">Sla eerst Thuis of Werk op in de routeplanner.</string>
 </resources>

@@ -2739,4 +2739,14 @@
     <string name="horn_sound_too_long">Der Klang ist länger als 5 Sekunden</string>
     <string name="horn_sound_too_big">Die Datei ist größer als 2 MB</string>
     <string name="horn_sound_unreadable">Die Datei lässt sich nicht abspielen</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Karte, Werte und Rad-Tasten auf einem Android-Auto-Bildschirm. Verbindet sich selbst, ohne WLAN-Einrichtung.</string>
+    <string name="android_auto_navigate_fixed">Navigieren ist immer die erste Taste.</string>
+    <string name="car_waiting">Warte auf das Rad</string>
+    <string name="car_last_battery">Letzter Akku %1$d%%</string>
+    <string name="car_navigate">Navigieren</string>
+    <string name="car_places_title">Navigieren zu</string>
+    <string name="car_place_home">Zuhause</string>
+    <string name="car_place_work">Arbeit</string>
+    <string name="car_no_places">Speichere zuerst Zuhause oder Arbeit im Routenplaner.</string>
 </resources>

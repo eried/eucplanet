@@ -2744,4 +2744,14 @@
     <string name="horn_sound_too_long">That sound is longer than 5 seconds</string>
     <string name="horn_sound_too_big">That file is larger than 2 MB</string>
     <string name="horn_sound_unreadable">That file could not be played</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Your map, stats and wheel buttons on an Android Auto screen. It connects by itself, no Wi-Fi setup.</string>
+    <string name="android_auto_navigate_fixed">Navigate is always the first button.</string>
+    <string name="car_waiting">Waiting for the wheel</string>
+    <string name="car_last_battery">Last battery %1$d%%</string>
+    <string name="car_navigate">Navigate</string>
+    <string name="car_places_title">Navigate to</string>
+    <string name="car_place_home">Home</string>
+    <string name="car_place_work">Work</string>
+    <string name="car_no_places">Save Home or Work in the route builder first.</string>
 </resources>

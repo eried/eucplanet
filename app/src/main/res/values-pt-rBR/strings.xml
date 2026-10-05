@@ -2721,4 +2721,14 @@
     <string name="horn_sound_too_long">Esse som tem mais de 5 segundos</string>
     <string name="horn_sound_too_big">Esse arquivo tem mais de 2 MB</string>
     <string name="horn_sound_unreadable">Não foi possível tocar esse arquivo</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Seu mapa, estatísticas e botões da roda numa tela Android Auto. Conecta sozinho, sem configurar Wi-Fi.</string>
+    <string name="android_auto_navigate_fixed">Navegar é sempre o primeiro botão.</string>
+    <string name="car_waiting">Aguardando a roda</string>
+    <string name="car_last_battery">Última bateria %1$d%%</string>
+    <string name="car_navigate">Navegar</string>
+    <string name="car_places_title">Navegar até</string>
+    <string name="car_place_home">Casa</string>
+    <string name="car_place_work">Trabalho</string>
+    <string name="car_no_places">Salve Casa ou Trabalho no planejador de rotas primeiro.</string>
 </resources>

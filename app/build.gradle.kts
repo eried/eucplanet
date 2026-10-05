@@ -338,6 +338,9 @@ dependencies {
     // MapLibre - TODO: re-enable when map preview is implemented
     // Disabled for now to avoid 16KB page size compatibility warning on Android 15+
     // implementation(libs.maplibre)
+    // Android Auto: the car screen draws our map and stats (feature/android-auto).
+    implementation(libs.androidx.car.app)
+    implementation(libs.androidx.car.app.projected)
 
     // Flic 2 button SDK
     implementation(libs.flic2)

@@ -2719,4 +2719,14 @@
     <string name="horn_sound_too_long">Ten dźwięk trwa dłużej niż 5 sekund</string>
     <string name="horn_sound_too_big">Ten plik ma więcej niż 2 MB</string>
     <string name="horn_sound_unreadable">Nie można odtworzyć tego pliku</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Mapa, statystyki i przyciski koła na ekranie Android Auto. Łączy się samo, bez konfiguracji Wi-Fi.</string>
+    <string name="android_auto_navigate_fixed">Nawiguj to zawsze pierwszy przycisk.</string>
+    <string name="car_waiting">Czekam na koło</string>
+    <string name="car_last_battery">Ostatnia bateria %1$d%%</string>
+    <string name="car_navigate">Nawiguj</string>
+    <string name="car_places_title">Nawiguj do</string>
+    <string name="car_place_home">Dom</string>
+    <string name="car_place_work">Praca</string>
+    <string name="car_no_places">Najpierw zapisz Dom lub Pracę w planerze tras.</string>
 </resources>

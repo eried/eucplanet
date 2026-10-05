@@ -2522,4 +2522,14 @@
     <string name="horn_sound_too_long">A hang hosszabb 5 másodpercnél</string>
     <string name="horn_sound_too_big">A fájl nagyobb 2 MB-nál</string>
     <string name="horn_sound_unreadable">A fájl nem játszható le</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Térkép, adatok és a kerék gombjai egy Android Auto képernyőn. Magától csatlakozik, Wi-Fi beállítás nélkül.</string>
+    <string name="android_auto_navigate_fixed">A Navigáció mindig az első gomb.</string>
+    <string name="car_waiting">Várakozás a kerékre</string>
+    <string name="car_last_battery">Utolsó akku %1$d%%</string>
+    <string name="car_navigate">Navigáció</string>
+    <string name="car_places_title">Navigáció ide</string>
+    <string name="car_place_home">Otthon</string>
+    <string name="car_place_work">Munka</string>
+    <string name="car_no_places">Előbb mentsd el az Otthon vagy Munka helyet az útvonaltervezőben.</string>
 </resources>

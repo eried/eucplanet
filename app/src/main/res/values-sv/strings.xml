@@ -2719,4 +2719,14 @@
     <string name="horn_sound_too_long">Ljudet är längre än 5 sekunder</string>
     <string name="horn_sound_too_big">Filen är större än 2 MB</string>
     <string name="horn_sound_unreadable">Filen kunde inte spelas upp</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Din karta, statistik och hjulets knappar på en Android Auto-skärm. Ansluter själv, ingen wifi-inställning.</string>
+    <string name="android_auto_navigate_fixed">Navigera är alltid första knappen.</string>
+    <string name="car_waiting">Väntar på hjulet</string>
+    <string name="car_last_battery">Senaste batteri %1$d%%</string>
+    <string name="car_navigate">Navigera</string>
+    <string name="car_places_title">Navigera till</string>
+    <string name="car_place_home">Hem</string>
+    <string name="car_place_work">Jobb</string>
+    <string name="car_no_places">Spara Hem eller Jobb i ruttplaneraren först.</string>
 </resources>

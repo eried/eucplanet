@@ -2734,4 +2734,14 @@
     <string name="horn_sound_too_long">Den lyd er længere end 5 sekunder</string>
     <string name="horn_sound_too_big">Den fil er større end 2 MB</string>
     <string name="horn_sound_unreadable">Den fil kunne ikke afspilles</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Dit kort, statistik og hjulets knapper på en Android Auto-skærm. Forbinder selv, ingen wifi-opsætning.</string>
+    <string name="android_auto_navigate_fixed">Naviger er altid første knap.</string>
+    <string name="car_waiting">Venter på hjulet</string>
+    <string name="car_last_battery">Seneste batteri %1$d%%</string>
+    <string name="car_navigate">Naviger</string>
+    <string name="car_places_title">Naviger til</string>
+    <string name="car_place_home">Hjem</string>
+    <string name="car_place_work">Arbejde</string>
+    <string name="car_no_places">Gem Hjem eller Arbejde i ruteplanlæggeren først.</string>
 </resources>

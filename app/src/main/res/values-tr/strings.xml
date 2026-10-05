@@ -2716,4 +2716,14 @@
     <string name="horn_sound_too_long">Bu ses 5 saniyeden uzun</string>
     <string name="horn_sound_too_big">Bu dosya 2 MB\'tan büyük</string>
     <string name="horn_sound_unreadable">Bu dosya çalınamadı</string>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Haritan, verilerin ve tekerin düğmeleri Android Auto ekranında. Kendiliğinden bağlanır, Wi-Fi ayarı gerekmez.</string>
+    <string name="android_auto_navigate_fixed">Navigasyon her zaman ilk düğmedir.</string>
+    <string name="car_waiting">Teker bekleniyor</string>
+    <string name="car_last_battery">Son pil %%%1$d</string>
+    <string name="car_navigate">Navigasyon</string>
+    <string name="car_places_title">Şuraya git</string>
+    <string name="car_place_home">Ev</string>
+    <string name="car_place_work">İş</string>
+    <string name="car_no_places">Önce rota planlayıcıda Ev veya İş kaydet.</string>
 </resources>
