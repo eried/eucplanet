@@ -2523,6 +2523,8 @@
     <string name="horn_sound_too_big">Tiedosto on yli 2 Mt</string>
     <string name="horn_sound_unreadable">Tiedostoa ei voitu toistaa</string>
     <string name="crews_title">Crewit</string>
+    <string name="crews_settings_title">Crewit</string>
+    <string name="crews_settings_desc">Crewit pyörivät eucstats-sivustolla. Skannaa koodi, jonka se näyttää, niin tämä sovellus vahvistaa tilin olevan sinun.</string>
     <string name="crews_pass_action">Crew-passi</string>
     <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja suuntaa tämä koodiin.</string>
     <string name="crews_scan_invalid">Tuo ei ole crew pass -koodi.</string>

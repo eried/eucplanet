@@ -2523,6 +2523,8 @@
     <string name="horn_sound_too_big">A fájl nagyobb 2 MB-nál</string>
     <string name="horn_sound_unreadable">A fájl nem játszható le</string>
     <string name="crews_title">Crewk</string>
+    <string name="crews_settings_title">Crewk</string>
+    <string name="crews_settings_desc">A crewk az eucstats oldalon futnak. Olvasd be a kódot, amit mutat, és ez az alkalmazás igazolja, hogy a fiók a tiéd.</string>
     <string name="crews_pass_action">Crew-belépő</string>
     <string name="crews_scan_hint">Nyisd meg az eucstatsot böngészőben, nyomd meg a Crews gombot, és irányítsd ezt a megjelenő kódra.</string>
     <string name="crews_scan_invalid">Ez nem crew pass kód.</string>

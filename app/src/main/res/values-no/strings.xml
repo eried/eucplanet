@@ -2608,6 +2608,8 @@
     <string name="horn_sound_too_big">Den filen er større enn 2 MB</string>
     <string name="horn_sound_unreadable">Den filen kunne ikke spilles av</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Crews kjører på eucstats-nettstedet. Skann koden det viser deg, så bekrefter denne appen at kontoen er din.</string>
     <string name="crews_pass_action">Crew-nøkkel</string>
     <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk Crews, og hold denne mot koden som dukker opp.</string>
     <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>

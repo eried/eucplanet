@@ -2724,6 +2724,8 @@
     <string name="horn_sound_too_big">Ce fichier dépasse 2 Mo</string>
     <string name="horn_sound_unreadable">Impossible de lire ce fichier</string>
     <string name="crews_title">Crews</string>
+    <string name="crews_settings_title">Crews</string>
+    <string name="crews_settings_desc">Les crews tournent sur le site eucstats. Scanne le code qu\'il t\'affiche et cette appli confirme que le compte est le tien.</string>
     <string name="crews_pass_action">Pass crew</string>
     <string name="crews_scan_hint">Ouvre eucstats dans un navigateur, appuie sur Crews, et vise le code qui s\'affiche.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de crew pass.</string>
