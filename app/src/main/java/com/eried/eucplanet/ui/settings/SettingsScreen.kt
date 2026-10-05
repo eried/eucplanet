@@ -766,6 +766,8 @@ fun SettingsScreen(
         stringResource(R.string.section_hud_companion),
         stringResource(R.string.hud_server_enabled),
         stringResource(R.string.hud_search_corpus),
+        stringResource(R.string.section_android_auto),
+        stringResource(R.string.android_auto_hint),
         stringResource(R.string.section_tpms),
         stringResource(R.string.tpms_wheel_sensor)
     )
