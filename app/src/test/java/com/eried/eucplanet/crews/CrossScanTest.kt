@@ -1,6 +1,7 @@
 package com.eried.eucplanet.crews
 
 import com.eried.eucplanet.share.ShareLinks
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -65,5 +66,38 @@ class CrossScanTest {
             assertNull("PairLink claimed $junk", PairLink.parse(junk))
             assertNull("ShareLinks claimed $junk", ShareLinks.parse(junk))
         }
+    }
+}
+
+/**
+ * The link the website's "tap the code" actually emits.
+ *
+ * It percent-encodes its query parameters, as a page writing a URL normally does. The parser
+ * split on & and = and never decoded, so the host arrived as `https%3A%2F%2F...`, failed the
+ * "does it start with http://" check, and the whole link parsed to null -- which drops the
+ * pairing screen into the camera, on the one device that cannot scan the code it is showing.
+ */
+class PairLinkEncodingTest {
+
+    @Test
+    fun `an encoded host is decoded, not refused`() {
+        val link = PairLink.parse("eucplanet://pair?code=QCW4GC&host=https%3A%2F%2Feucstats.ried.no")
+        assertNotNull("an encoded host sent the rider to a QR scanner", link)
+        assertEquals("https://eucstats.ried.no", link!!.host)
+        assertEquals("QCW4GC", link.code)
+    }
+
+    @Test
+    fun `a raw host still works, which is what the page sends now`() {
+        val link = PairLink.parse("eucplanet://pair?code=QCW4GC&host=https://eucstats.ried.no")
+        assertNotNull(link)
+        assertEquals("https://eucstats.ried.no", link!!.host)
+    }
+
+    @Test
+    fun `decoding does not let a disguised host through`() {
+        // the userinfo trick, written encoded: decoding must not turn a refusal into a pass
+        assertNull(PairLink.parse(
+            "eucplanet://pair?code=QCW4GC&host=https%3A%2F%2Feucstats.ried.no%40attacker.example"))
     }
 }
