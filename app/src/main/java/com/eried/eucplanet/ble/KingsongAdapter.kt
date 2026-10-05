@@ -104,6 +104,10 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
         // The official app sends the password once per session; a wheel with
         // one set ignores lock and unlock until then (issue #19 capture).
         lockPrelude(),
+        // The lock state never rides the telemetry, so ask for it now. Without
+        // this a wheel locked last session read as unlocked on reconnect and
+        // the tile offered "Lock" (issue #19 follow-up).
+        KingsongCommands.queryLock(),
     )
 
     // Drives the KS-16X keep-alive/kick described above. Per poll tick, in
@@ -114,12 +118,15 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     //      that keeps the wheel pushing telemetry.
     //   4. 0x98 limits retry, only once a frame has been seen (chirp-safe).
     override fun pollRealtime(): ByteArray {
+        // The tick counts every poll, echo or not: a wheel that pushes
+        // settings on each echo would otherwise hold the counter still and
+        // the stream kick and keep-alive below would never fire.
+        pollTick++
         val echo = pendingEcho
         if (echo != null) {
             pendingEcho = null
             return echo
         }
-        pollTick++
         // (2) One-shot stream-start kick, past the post-subscribe drop window.
         if (!streamKicked && pollTick >= STREAM_KICK_TICK) {
             streamKicked = true

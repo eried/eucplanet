@@ -12,6 +12,8 @@ only when you can cut the ride short.
 - Branch builds install over each other. One last uninstall if you have an older one.
 - Service Mode logs GPS speed next to the wheel's.
 - Begode: current no longer gets stuck at 0 A after one noisy reading (#26).
+- KingSong: a wheel locked before power-off shows Locked on reconnect, not Lock (#19).
+- The lock tile's slow-down limit follows Lock max speed in Advanced.
 
 ## Please test
 
@@ -21,6 +23,9 @@ only when you can cut the ride short.
 
 **Begode**
 - Current (A) stays live all ride instead of dropping to 0 A? Master v3 especially.
+
+**KingSong**
+- Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
 
 **Any wheel**
 - Connects and responds like before: lights, horn, lock, alarms.

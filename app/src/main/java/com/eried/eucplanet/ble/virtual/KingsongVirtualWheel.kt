@@ -40,13 +40,18 @@ class KingsongVirtualWheel : VirtualWheel {
     var passwordAccepted = false
         private set
 
-    var locked = false
-        private set
+    /** The real wheel keeps its lock through power-off (it lives in flash,
+     *  not in the BLE session), so the simulator keeps it across instances
+     *  too. That is what lets the emulator walk the issue #19 follow-up:
+     *  lock, disconnect, reconnect, and see what the app shows. */
+    var locked: Boolean
+        get() = lockedInFlash
+        private set(value) { lockedInFlash = value }
     private var lightMode = 1
     private var lastTripTickMs = -1_000L
 
     override fun reset() {
-        locked = false
+        // Session state only; `locked` survives like the real wheel's flash.
         passwordAccepted = false
         lightMode = 1
         lastTripTickMs = -1_000L
@@ -81,7 +86,11 @@ class KingsongVirtualWheel : VirtualWheel {
             0x73 -> { lightMode = (data[2].toInt() and 0xFF) - 0x12; emptyList() }
             0x9B -> listOf(NAME_FRAME.copyOf())
             0x63 -> listOf(SERIAL_FRAME.copyOf())
-            0x98 -> listOf(LIMITS_FRAME.copyOf())
+            // A bare 0x98 asks for the limits; one carrying values is the
+            // app acknowledging a push, which the wheel does not answer.
+            // Answering it looped echo and push forever and starved the
+            // app's poll schedule.
+            0x98 -> if ((2..15).all { data[it].toInt() == 0 }) listOf(LIMITS_FRAME.copyOf()) else emptyList()
             else -> emptyList()
         }
     }
@@ -107,6 +116,14 @@ class KingsongVirtualWheel : VirtualWheel {
     private fun lockStateFrame(): ByteArray = ks(0x5F).also { it[2] = if (locked) 1 else 0 }
 
     companion object {
+        /** Backs [locked] across connections; a fresh instance is built per
+         *  connect (see VirtualWheelRegistry), the flash flag is not. */
+        @Volatile private var lockedInFlash = false
+
+        /** Tests start from an unlocked wheel whatever an earlier test left. */
+        @androidx.annotation.VisibleForTesting
+        internal fun factoryReset() { lockedInFlash = false }
+
         private fun ks(type: Int, payloadHex: String = ""): ByteArray {
             val f = ByteArray(20)
             f[0] = 0xAA.toByte(); f[1] = 0x55

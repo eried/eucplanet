@@ -471,6 +471,13 @@ data class WheelCapabilities(
      * charge - the "Used 4 Wh" a rider saw against +54 % added.
      */
     val reportsChargeCurrent: Boolean = true,
+    /**
+     * The wheel states its lock only in reply to the app asking, never in its
+     * regular telemetry. Until that reply lands after a connect the app does
+     * not know the lock, so the tile waits instead of guessing "unlocked" and
+     * offering to lock a wheel that already is (issue #19, KS-18XL).
+     */
+    val lockStateOnRequestOnly: Boolean = false,
 ) {
     companion object {
         /** V11/V12/V13/V14: full feature set, lock requires password auth. */
@@ -528,7 +535,8 @@ data class WheelCapabilities(
             hasAlarmSpeed = true,
             hasVolume = false,
             hasDRL = false,
-            needsAuthForLock = false
+            needsAuthForLock = false,
+            lockStateOnRequestOnly = true,
         )
 
         /**

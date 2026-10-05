@@ -2362,8 +2362,10 @@ fun DashboardScreen(
                 )
             }
             val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
-            val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
+            val lockMaxSpeedKmh by viewModel.lockMaxSpeedKmh.collectAsState()
+            val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= lockMaxSpeedKmh && !lockAtAnySpeed
             val wheelHasLock by viewModel.wheelHasLock.collectAsState()
+            val lockKnown by viewModel.lockKnown.collectAsState()
             val wheelHasSpeedLimit by viewModel.wheelHasSpeedLimit.collectAsState()
 
             // Portrait: two rows of 3 (today's layout). Landscape: a single row
@@ -2567,7 +2569,7 @@ fun DashboardScreen(
                                     else stringResource(R.string.action_lock_wheel),
                                 active = locked,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
-                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock,
+                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock && lockKnown,
                                 onClick = {
                                     if (lockBlockedBySpeed) {
                                         val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)

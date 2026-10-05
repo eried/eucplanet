@@ -409,11 +409,17 @@ class DashboardViewModel @Inject constructor(
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.proximityLock.lockEnabled }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
+    /** The Advanced "Lock max speed", the same bound the repository enforces,
+     *  so the tile's "slow down" hint and the actual refusal never disagree. */
+    val lockMaxSpeedKmh: StateFlow<Int> = settingsRepository.settings
+        .map { it.lockMaxSpeedKmh }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.lockMaxSpeedKmh)
     /** True when the connected wheel's adapter implements a BLE lock command.
      *  Drives the dashboard lock button to fall back to a "not supported" hint
      *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
      *  expose lock over BLE today. */
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val lockKnown: StateFlow<Boolean> = wheelRepository.lockKnown
     val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /** Charging state for the dashboard spark icon (hint + tap-to-open). */

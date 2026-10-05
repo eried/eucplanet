@@ -22,6 +22,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -656,6 +657,11 @@ class WheelRepository @Inject constructor(
     // *Busy and shows itself disabled until the cooldown elapses.
     private val _lockBusy = MutableStateFlow(false)
     val lockBusy: StateFlow<Boolean> = _lockBusy.asStateFlow()
+    /** False from connect until a wheel that states its lock only on request
+     *  has answered (see [WheelCapabilities.lockStateOnRequestOnly]). */
+    private val _lockKnown = MutableStateFlow(true)
+    val lockKnown: StateFlow<Boolean> = _lockKnown.asStateFlow()
+    private var lockKnownFallbackJob: Job? = null
     private val _lightBusy = MutableStateFlow(false)
     val lightBusy: StateFlow<Boolean> = _lightBusy.asStateFlow()
     // Legal-mode (safety-speed) toggle gets the same treatment as Lock: a brief
@@ -678,6 +684,7 @@ class WheelRepository @Inject constructor(
     // button feel snappy back-to-back. If a wheel reports its lock state slower
     // than this the icon can briefly flicker; nudge back up if that shows.
     private val LOCK_COOLDOWN_MS = 1200L
+    private val LOCK_KNOWN_FALLBACK_MS = 5000L
     private val LIGHT_COOLDOWN_MS = 1500L
     private val SAFETY_COOLDOWN_MS = 1800L
 
@@ -986,6 +993,18 @@ class WheelRepository @Inject constructor(
                         // `hasMaxSpeed` the speed-limit rows and Legal Mode.
                         _wheelHasLock.value = wheelAdapter.capabilities.hasLock
                         _wheelHasSpeedLimit.value = wheelAdapter.capabilities.hasMaxSpeed
+                        lockKnownFallbackJob?.cancel()
+                        if (wheelAdapter.capabilities.lockStateOnRequestOnly) {
+                            _lockKnown.value = false
+                            // A wheel that never answers must not strand the
+                            // tile: after this long the rider gets it back.
+                            lockKnownFallbackJob = scope.launch {
+                                delay(LOCK_KNOWN_FALLBACK_MS)
+                                _lockKnown.value = true
+                            }
+                        } else {
+                            _lockKnown.value = true
+                        }
                     }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
@@ -2243,6 +2262,10 @@ class WheelRepository @Inject constructor(
                 // path does, so a frame from before the wheel acted cannot
                 // overwrite what the rider just asked for.
                 _wheelData.value.lockedReported?.let { reported ->
+                    if (!_lockKnown.value) {
+                        lockKnownFallbackJob?.cancel()
+                        _lockKnown.value = true
+                    }
                     if (System.currentTimeMillis() >= lockCooldownUntilMs &&
                         _locked.value != reported
                     ) {
