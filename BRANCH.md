@@ -1,37 +1,27 @@
-# next-experimental
+# feature/android-auto
 
-New features land here first. They work on the wheels they were written for
-and may not work on yours yet, and settings can move between builds. Ride it
-only when you can cut the ride short.
+EUC Planet on an Android Auto screen. Built on next-experimental, so
+everything in that build is here too. Ride it only when you can cut the ride
+short.
 
 ## Worked on
 
-- InMotion V6 support: connects, live telemetry, PWM, lights and horn.
-- Writing to the wheel follows what its Bluetooth allows. Mostly the V6.
-- Switch the light or lock by hand and that automation pauses. Fix in Needs attention hands it back.
-- Branch builds install over each other. One last uninstall if you have an older one.
-- Service Mode logs GPS speed next to the wheel's.
-- Begode: current no longer gets stuck at 0 A after one noisy reading (#26).
-- KingSong: a wheel locked before power-off shows Locked on reconnect, not Lock (#19).
-- The lock tile's slow-down limit follows Lock max speed in Advanced.
+- Android Auto: the map with your position and route, your stats beside it, and the wheel's buttons.
+- Settings > Integration > Android Auto: pick the four stats and three buttons. Navigate is always first.
+- Navigate offers Home and Work, the places saved in the route builder.
+- Light or lock from the notification, a widget, the car screen or Flic now pauses that automation too.
 
 ## Please test
 
-**InMotion V6**
-- Speed matches GPS? Service Mode on, ride 2 minutes at a steady speed, share the log.
-- Stays connected all ride? Lights and horn work?
-
-**Begode**
-- Current (A) stays live all ride instead of dropping to 0 A? Master v3 especially.
-
-**KingSong**
-- Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
-
-**Any wheel**
-- Connects and responds like before: lights, horn, lock, alarms.
-- Light or lock by hand: the automation stays out until you tap Fix?
+**Android Auto**
+- Test builds are not from the Play Store, so allow them once: open Android Auto settings, tap Version until developer mode is on, then in the menu Developer settings turn on Unknown sources.
+- Does EUC Planet appear on your Android Auto screen and connect by itself?
+- Stats update while riding? Speed, battery and the rest read the same as the phone?
+- Horn, Light and Record work from the car screen?
+- Navigate to Home or Work draws the route and shows the next turn?
+- Night: the panel switches to dark colors with the screen?
 
 ## Reporting back
 
-Open an issue with your wheel model and firmware. A Service Mode log beats a
-description; if it crashed, Share crash log on the About screen.
+Open an issue with your phone, your Android Auto screen model and a photo of
+the car screen. If it crashed, Share crash log on the About screen.
