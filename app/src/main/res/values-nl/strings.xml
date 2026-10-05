@@ -2737,6 +2737,8 @@
     <string name="crews_pass_action">Crewpas</string>
     <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
     <string name="crews_scan_invalid">Dat is geen crew pass-code.</string>
+    <string name="crews_scan_is_share">Dat is een live-locatiecode. Scan hem via Delen op de kaart.</string>
+    <string name="share_scan_is_crewpass">Dat is een crew-pas. Scan hem via Instellingen, onder Crews.</string>
     <string name="crews_type_instead">Handmatig invoeren</string>
     <string name="crews_code_label">Pascode</string>
     <string name="crews_foreign_title">Die code komt niet van eucstats</string>

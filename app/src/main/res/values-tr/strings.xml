@@ -2732,6 +2732,8 @@
     <string name="crews_pass_action">Ekip geçişi</string>
     <string name="crews_scan_hint">eucstats\'i tarayıcıda aç, Crews\'a bas ve bunu çıkan koda tut.</string>
     <string name="crews_scan_invalid">Bu bir ekip pası kodu değil.</string>
+    <string name="crews_scan_is_share">O, canlı konum kodu. Haritadaki Paylaş’tan okut.</string>
+    <string name="share_scan_is_crewpass">O, bir ekip pası. Ayarlar’dan, Ekipler altından okut.</string>
     <string name="crews_type_instead">Elle gir</string>
     <string name="crews_code_label">Geçiş kodu</string>
     <string name="crews_foreign_title">Bu kod eucstats\'ten değil</string>

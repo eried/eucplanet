@@ -2538,6 +2538,8 @@
     <string name="crews_pass_action">Průkaz crew</string>
     <string name="crews_scan_hint">Otevři eucstats v prohlížeči, klepni na Crews a namiř tohle na kód, co se objeví.</string>
     <string name="crews_scan_invalid">To není kód crew passu.</string>
+    <string name="crews_scan_is_share">To je kód sdílení polohy. Načti ho ze Sdílet na mapě.</string>
+    <string name="share_scan_is_crewpass">To je crew pass. Načti ho v Nastavení, pod Crews.</string>
     <string name="crews_type_instead">Zadat ručně</string>
     <string name="crews_code_label">Kód průkazu</string>
     <string name="crews_foreign_title">Tenhle kód není z eucstats</string>

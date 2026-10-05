@@ -2735,6 +2735,8 @@
     <string name="crews_pass_action">Przepustka ekipy</string>
     <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, kliknij Crews i wyceluj tym w kod, który się pojawi.</string>
     <string name="crews_scan_invalid">To nie jest kod przepustki ekipy.</string>
+    <string name="crews_scan_is_share">To jest kod lokalizacji na żywo. Zeskanuj go z Udostępnij na mapie.</string>
+    <string name="share_scan_is_crewpass">To jest przepustka ekipy. Zeskanuj ją w Ustawieniach, w sekcji Ekipy.</string>
     <string name="crews_type_instead">Wpisz ręcznie</string>
     <string name="crews_code_label">Kod przepustki</string>
     <string name="crews_foreign_title">Ten kod nie jest z eucstats</string>

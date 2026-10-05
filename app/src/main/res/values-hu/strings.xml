@@ -2538,6 +2538,8 @@
     <string name="crews_pass_action">Crew-belépő</string>
     <string name="crews_scan_hint">Nyisd meg az eucstatsot böngészőben, nyomd meg a Crews gombot, és irányítsd ezt a megjelenő kódra.</string>
     <string name="crews_scan_invalid">Ez nem crew pass kód.</string>
+    <string name="crews_scan_is_share">Ez egy élő helyzet kód. Olvasd be a térkép Megosztás részéből.</string>
+    <string name="share_scan_is_crewpass">Ez egy crew belépő. Olvasd be a Beállításokban, a Crewk alatt.</string>
     <string name="crews_type_instead">Kézi megadás</string>
     <string name="crews_code_label">Belépőkód</string>
     <string name="crews_foreign_title">Ez a kód nem az eucstatsról jött</string>

@@ -2763,6 +2763,8 @@
     <string name="crews_pass_action">Crew pass</string>
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
     <string name="crews_scan_invalid">That\'s not a crew pass code.</string>
+    <string name="crews_scan_is_share">That is a live-location code. Scan it from Share on the map.</string>
+    <string name="share_scan_is_crewpass">That is a crew pass. Scan it from Settings, under Crews.</string>
     <string name="crews_type_instead">Enter manually</string>
     <string name="crews_code_label">Pass code</string>
     <string name="crews_foreign_title">This code isn\'t from eucstats</string>

@@ -2640,6 +2640,8 @@
     <string name="crews_pass_action">Pass squadra</string>
     <string name="crews_scan_hint">Apri eucstats nel browser, tocca Crews e punta questo sul codice che compare.</string>
     <string name="crews_scan_invalid">Quello non è un codice del pass squadra.</string>
+    <string name="crews_scan_is_share">Quello è un codice di posizione dal vivo. Scansionalo da Condividi sulla mappa.</string>
+    <string name="share_scan_is_crewpass">Quello è un pass della squadra. Scansionalo da Impostazioni, sotto Squadre.</string>
     <string name="crews_type_instead">Inserisci a mano</string>
     <string name="crews_code_label">Codice del pass</string>
     <string name="crews_foreign_title">Quel codice non viene da eucstats</string>

@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.navigator.QrScannerArea
+import com.eried.eucplanet.share.ShareLinks
 import com.eried.eucplanet.ui.theme.EucPlanetTheme
 import com.eried.eucplanet.ui.theme.appColors
 import dagger.hilt.android.AndroidEntryPoint
@@ -147,6 +148,7 @@ fun CrewsPairScreen(
     val scope = rememberCoroutineScope()
     val devMode = remember { deps.developerMode() }
     // resolved here, not inside the coroutine: stringResource is a composable call
+    val shareCode = stringResource(R.string.crews_scan_is_share)
     val msgExpired = stringResource(R.string.crews_expired)
     val msgRate = stringResource(R.string.crews_ratelimited)
     val msgUnreachTpl = stringResource(R.string.crews_unreachable, "%HOST%")
@@ -228,6 +230,11 @@ fun CrewsPairScreen(
                         },
                         invalidText = stringResource(R.string.crews_scan_invalid),
                         modifier = Modifier.fillMaxWidth(),
+                        // The live-location code is the one a rider is most likely to point
+                        // this at by mistake: it is the other QR the app deals in, it is on
+                        // the map a tap away, and it scans perfectly here and means nothing.
+                        // Saying so beats telling them a working code is invalid.
+                        misfit = { if (ShareLinks.parse(it) != null) shareCode else null },
                     )
                     // eucstats tells riders in nineteen languages to type the code in if the
                     // app did not open by itself. There was nothing to type it into.

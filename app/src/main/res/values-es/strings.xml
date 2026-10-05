@@ -2732,6 +2732,8 @@
     <string name="crews_pass_action">Pase de cuadrilla</string>
     <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Crews y apunta esto al código que salga.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de cuadrilla.</string>
+    <string name="crews_scan_is_share">Ese es un código de ubicación en directo. Escanéalo desde Compartir en el mapa.</string>
+    <string name="share_scan_is_crewpass">Ese es un pase de cuadrilla. Escanéalo desde Ajustes, en Cuadrillas.</string>
     <string name="crews_type_instead">Introducir a mano</string>
     <string name="crews_code_label">Código del pase</string>
     <string name="crews_foreign_title">Ese código no es de eucstats</string>

@@ -2735,6 +2735,8 @@
     <string name="crews_pass_action">Пропуск клана</string>
     <string name="crews_scan_hint">Открой eucstats в браузере, нажми Crews и наведи это на код, который появится.</string>
     <string name="crews_scan_invalid">Это не код клановского пропуска.</string>
+    <string name="crews_scan_is_share">Это код трансляции местоположения. Сканируй его из «Поделиться» на карте.</string>
+    <string name="share_scan_is_crewpass">Это пропуск клана. Сканируй его в Настройках, в разделе «Кланы».</string>
     <string name="crews_type_instead">Ввести вручную</string>
     <string name="crews_code_label">Код пропуска</string>
     <string name="crews_foreign_title">Этот код не от eucstats</string>

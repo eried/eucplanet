@@ -2538,6 +2538,8 @@
     <string name="crews_pass_action">Crew-passi</string>
     <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja suuntaa tämä koodiin.</string>
     <string name="crews_scan_invalid">Tuo ei ole crew pass -koodi.</string>
+    <string name="crews_scan_is_share">Tämä on live-sijainnin koodi. Skannaa se kartan Jaa-kohdasta.</string>
+    <string name="share_scan_is_crewpass">Tämä on crew-passi. Skannaa se Asetuksista, kohdasta Crewit.</string>
     <string name="crews_type_instead">Syötä käsin</string>
     <string name="crews_code_label">Passin koodi</string>
     <string name="crews_foreign_title">Tuo koodi ei ole eucstatsista</string>

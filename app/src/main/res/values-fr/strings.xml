@@ -2739,6 +2739,8 @@
     <string name="crews_pass_action">Pass crew</string>
     <string name="crews_scan_hint">Ouvre eucstats dans un navigateur, appuie sur Crews, et vise le code qui s\'affiche.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de crew pass.</string>
+    <string name="crews_scan_is_share">Ça, c’est un code de position en direct. Scanne-le depuis Partager sur la carte.</string>
+    <string name="share_scan_is_crewpass">Ça, c’est un pass de crew. Scanne-le depuis Réglages, dans Crews.</string>
     <string name="crews_type_instead">Saisir manuellement</string>
     <string name="crews_code_label">Code du pass</string>
     <string name="crews_foreign_title">Ce code ne vient pas d\'eucstats</string>

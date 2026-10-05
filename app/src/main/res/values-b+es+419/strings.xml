@@ -2753,6 +2753,8 @@
     <string name="crews_pass_action">Pase de banda</string>
     <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Crews y apunta esto al código que salga.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de banda.</string>
+    <string name="crews_scan_is_share">Ese es un código de ubicación en vivo. Escaneálo desde Compartir en el mapa.</string>
+    <string name="share_scan_is_crewpass">Ese es un pase de banda. Escaneálo desde Ajustes, en Bandas.</string>
     <string name="crews_type_instead">Ingresar manualmente</string>
     <string name="crews_code_label">Código del pase</string>
     <string name="crews_foreign_title">Ese código no es de eucstats</string>

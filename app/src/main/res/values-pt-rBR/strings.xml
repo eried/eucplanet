@@ -2737,6 +2737,8 @@
     <string name="crews_pass_action">Passe da turma</string>
     <string name="crews_scan_hint">Abre o eucstats no navegador, toca em Crews e aponta isto pro código que aparecer.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de turma.</string>
+    <string name="crews_scan_is_share">Esse é um código de localização ao vivo. Escaneia pelo Compartilhar no mapa.</string>
+    <string name="share_scan_is_crewpass">Esse é um passe de turma. Escaneia em Ajustes, em Turmas.</string>
     <string name="crews_type_instead">Digitar manualmente</string>
     <string name="crews_code_label">Código do passe</string>
     <string name="crews_foreign_title">Esse código não é do eucstats</string>

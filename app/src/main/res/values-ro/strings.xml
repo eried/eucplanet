@@ -2538,6 +2538,8 @@
     <string name="crews_pass_action">Acces crew</string>
     <string name="crews_scan_hint">Deschide eucstats în browser, apasă pe Crews și îndreaptă asta spre codul care apare.</string>
     <string name="crews_scan_invalid">Ăsta nu e un cod de crew pass.</string>
+    <string name="crews_scan_is_share">Ăsta e un cod de locație live. Scanează-l din Partajare pe hartă.</string>
+    <string name="share_scan_is_crewpass">Ăsta e un permis de crew. Scanează-l din Setări, la Crews.</string>
     <string name="crews_type_instead">Introdu manual</string>
     <string name="crews_code_label">Cod de acces</string>
     <string name="crews_foreign_title">Codul ăsta nu e de la eucstats</string>

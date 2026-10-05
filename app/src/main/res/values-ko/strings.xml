@@ -2734,6 +2734,8 @@
     <string name="crews_pass_action">클랜 패스</string>
     <string name="crews_scan_hint">브라우저에서 eucstats를 열고 Crews를 누른 다음, 뜨는 코드에 이걸 대면 끝.</string>
     <string name="crews_scan_invalid">클랜 패스 코드가 아니다.</string>
+    <string name="crews_scan_is_share">그건 실시간 위치 코드다. 지도의 공유에서 스캔해라.</string>
+    <string name="share_scan_is_crewpass">그건 클랜 패스다. 설정의 클랜에서 스캔해라.</string>
     <string name="crews_type_instead">직접 입력</string>
     <string name="crews_code_label">패스 코드</string>
     <string name="crews_foreign_title">이 코드는 eucstats 것이 아니다</string>

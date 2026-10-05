@@ -2755,6 +2755,8 @@
     <string name="crews_pass_action">Crew-Pass</string>
     <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und halte das hier auf den Code.</string>
     <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>
+    <string name="crews_scan_is_share">Das ist ein Live-Standort-Code. Scann ihn über Teilen auf der Karte.</string>
+    <string name="share_scan_is_crewpass">Das ist ein Crew-Pass. Scann ihn in den Einstellungen unter Crews.</string>
     <string name="crews_type_instead">Manuell eingeben</string>
     <string name="crews_code_label">Pass-Code</string>
     <string name="crews_foreign_title">Dieser Code kommt nicht von eucstats</string>

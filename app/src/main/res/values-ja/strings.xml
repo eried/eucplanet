@@ -2736,6 +2736,8 @@
     <string name="crews_pass_action">クランパス</string>
     <string name="crews_scan_hint">ブラウザで eucstats を開いて Crews を押し、出てきたコードにこれを向けるだけ。</string>
     <string name="crews_scan_invalid">これはクランパスのコードじゃない。</string>
+    <string name="crews_scan_is_share">それは現在地共有のコード。地図の「共有」から読み取って。</string>
+    <string name="share_scan_is_crewpass">それはクランパス。設定の「クラン」から読み取って。</string>
     <string name="crews_type_instead">手動で入力</string>
     <string name="crews_code_label">パスコード</string>
     <string name="crews_foreign_title">このコードは eucstats のものじゃない</string>

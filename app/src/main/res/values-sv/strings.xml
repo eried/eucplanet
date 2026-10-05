@@ -2735,6 +2735,8 @@
     <string name="crews_pass_action">Crew-nyckel</string>
     <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews, och rikta den här mot koden som visas.</string>
     <string name="crews_scan_invalid">Det är ingen crew pass-kod.</string>
+    <string name="crews_scan_is_share">Det där är en live-position-kod. Skanna den från Dela på kartan.</string>
+    <string name="share_scan_is_crewpass">Det där är ett crew-pass. Skanna det från Inställningar, under Crews.</string>
     <string name="crews_type_instead">Ange manuellt</string>
     <string name="crews_code_label">Nyckelkod</string>
     <string name="crews_foreign_title">Den koden är inte från eucstats</string>

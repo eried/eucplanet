@@ -2734,6 +2734,8 @@
     <string name="crews_pass_action">戰隊通行證</string>
     <string name="crews_scan_hint">在瀏覽器裡打開 eucstats，點 Crews，然後把這個對準出現的碼。</string>
     <string name="crews_scan_invalid">這不是戰隊通行碼。</string>
+    <string name="crews_scan_is_share">那是即時位置的碼。去地圖上的「分享」裡掃。</string>
+    <string name="share_scan_is_crewpass">那是戰隊通行碼。去設定裡的「戰隊」掃。</string>
     <string name="crews_type_instead">手動輸入</string>
     <string name="crews_code_label">通行碼</string>
     <string name="crews_foreign_title">這個碼不是 eucstats 的</string>

@@ -2750,6 +2750,8 @@
     <string name="crews_pass_action">Crew-nøgle</string>
     <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og hold den her op mod koden.</string>
     <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>
+    <string name="crews_scan_is_share">Det er en live-position-kode. Scan den fra Del på kortet.</string>
+    <string name="share_scan_is_crewpass">Det er et crew-pas. Scan det fra Indstillinger, under Crews.</string>
     <string name="crews_type_instead">Indtast manuelt</string>
     <string name="crews_code_label">Nøglekode</string>
     <string name="crews_foreign_title">Den kode er ikke fra eucstats</string>
