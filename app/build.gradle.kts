@@ -340,7 +340,9 @@ dependencies {
     // implementation(libs.maplibre)
     // Android Auto: the car screen draws our map and stats (feature/android-auto).
     implementation(libs.androidx.car.app)
-    implementation(libs.androidx.car.app.projected)
+    // Debug only: lets the x86 Android Automotive emulator host the car
+    // screens, since Android Auto itself does not install on x86 emulators.
+    debugImplementation(libs.androidx.car.app.automotive)
 
     // Flic 2 button SDK
     implementation(libs.flic2)

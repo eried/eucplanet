@@ -87,7 +87,7 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 # MapLibre
 maplibre = { group = "org.maplibre.gl", name = "android-sdk", version.ref = "maplibre" }
 androidx-car-app = { group = "androidx.car.app", name = "app", version.ref = "carApp" }
-androidx-car-app-projected = { group = "androidx.car.app", name = "app-projected", version.ref = "carApp" }
+androidx-car-app-automotive = { group = "androidx.car.app", name = "app-automotive", version.ref = "carApp" }
 
 # DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }

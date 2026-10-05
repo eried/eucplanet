@@ -62,6 +62,12 @@ class CarSurfaceRenderer(
                 it.setViewTreeSavedStateRegistryOwner(o)
             }
             setContentView(view)
+            // A Presentation is a dialog and wraps its content, which left the
+            // full-screen map zero-sized; it has to fill the car display.
+            window?.setLayout(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            )
             try {
                 show()
             } catch (t: Throwable) {

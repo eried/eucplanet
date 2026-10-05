@@ -20,5 +20,21 @@
                 <action android:name="com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL" />
             </intent-filter>
         </receiver>
+
+        <!--
+            Hosts the Android Auto screens on the x86 Android Automotive
+            emulator, where Android Auto itself cannot be installed. Same
+            EucCarAppService, rendered by the car OS. No launcher entry, so a
+            phone's debug build gets no second icon; start it with
+            adb shell am start -n com.eried.eucplanet/androidx.car.app.activity.CarAppActivity
+        -->
+        <activity
+            android:name="androidx.car.app.activity.CarAppActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+            <meta-data android:name="distractionOptimized" android:value="true" />
+        </activity>
     </application>
 </manifest>
