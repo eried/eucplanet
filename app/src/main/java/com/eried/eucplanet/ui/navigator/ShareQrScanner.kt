@@ -59,6 +59,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.eried.eucplanet.R
+import com.eried.eucplanet.crews.PairLink
 import com.eried.eucplanet.share.ShareLink
 import com.eried.eucplanet.ui.theme.appColors
 import com.google.zxing.BarcodeFormat
@@ -91,11 +92,15 @@ fun ShareQrScannerArea(
     onLink: (ShareLink) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val crewPass = stringResource(R.string.share_scan_is_crewpass)
     QrScannerArea(
         parse = { parseShareText(it) },
         onFound = onLink,
         invalidText = stringResource(R.string.share_link_invalid),
         modifier = modifier,
+        // A crew pass scans cleanly and parses to nothing here, so without this it reads as
+        // a broken code rather than as the right code in the wrong place.
+        misfit = { if (PairLink.parse(it) != null) crewPass else null },
     )
 }
 
@@ -114,6 +119,17 @@ fun <T : Any> QrScannerArea(
     onFound: (T) -> Unit,
     invalidText: String,
     modifier: Modifier = Modifier,
+    /**
+     * What to say about a code that IS one of ours but belongs to the other scanner.
+     *
+     * Both scanners refused the wrong code correctly and both said the same unhelpful thing:
+     * that it was not a valid code. It is a perfectly valid code -- it is a crew pass held up
+     * to the live-location scanner, or the other way round -- and the rider is standing there
+     * being told their code is broken. Given the text [parse] rejected, this returns the
+     * sentence that names it, or null for a wifi code or a cereal box, which really is just
+     * not ours.
+     */
+    misfit: (String) -> String? = { null },
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -167,14 +183,18 @@ fun <T : Any> QrScannerArea(
      */
     val lastInvalidMs = remember { AtomicLong(0L) }
     var invalidShown by remember { mutableStateOf(false) }
+    // Set when the rejected code was recognisably the other scanner's. Cleared with the note
+    // itself, so the next unreadable frame does not inherit the last one's explanation.
+    var misfitShown by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(invalidShown) {
-        if (!invalidShown) return@LaunchedEffect
+        if (!invalidShown) { misfitShown = null; return@LaunchedEffect }
         while (true) {
             val left = lastInvalidMs.get() + INVALID_NOTE_MS - System.currentTimeMillis()
             if (left <= 0L) break
             delay(left)
         }
         invalidShown = false
+        misfitShown = null
     }
 
     Column(modifier) {
@@ -193,8 +213,9 @@ fun <T : Any> QrScannerArea(
                     lifecycleOwner = lifecycleOwner,
                     parse = parse,
                     onFound = onFound,
-                    onUnreadable = {
+                    onUnreadable = { text ->
                         lastInvalidMs.set(System.currentTimeMillis())
+                        misfitShown = misfit(text)
                         invalidShown = true
                     },
                 )
@@ -210,7 +231,7 @@ fun <T : Any> QrScannerArea(
         if (invalidShown) {
             Spacer(Modifier.height(8.dp))
             Text(
-                invalidText,
+                misfitShown ?: invalidText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.appColors.statusDanger,
                 textAlign = TextAlign.Center,
@@ -304,7 +325,7 @@ private fun <T : Any> QrCameraPreview(
     onFound: (T) -> Unit,
     /** A frame that decoded to something the caller does not want. Reported
      *  so the tab can say so once, quietly, and carry on scanning. */
-    onUnreadable: () -> Unit,
+    onUnreadable: (String) -> Unit,
 ) {
     val context = LocalContext.current
     // All three are read from the camera's analyzer thread long after this
@@ -375,7 +396,7 @@ private fun <T : Any> QrCameraPreview(
                 } else if (text != null) {
                     // A QR that is not ours: a wifi code, a product barcode.
                     // Scanning carries on, the tab notes it.
-                    main.execute { latestOnUnreadable() }
+                    main.execute { latestOnUnreadable(text) }
                 }
             }
             bound = provider
