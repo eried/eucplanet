@@ -2717,4 +2717,13 @@
     <string name="horn_sound_too_long">Bu ses 5 saniyeden uzun</string>
     <string name="horn_sound_too_big">Bu dosya 2 MB\'tan büyük</string>
     <string name="horn_sound_unreadable">Bu dosya çalınamadı</string>
+    <string name="voice_pill_add">Ekle</string>
+    <string name="voice_pill_message">Mesaj</string>
+    <string name="voice_pill_message_hint">Yazdığın gibi okunur.</string>
+    <string name="voice_pills_empty">Hiçbir şey söylenmez. Ekle\'ye dokun.</string>
+    <string name="voice_stat_now">Şimdi</string>
+    <string name="voice_stat_max">Maks</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Ort</string>
+    <string name="voice_stat_peak">Tepe</string>
 </resources>

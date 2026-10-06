@@ -52,7 +52,10 @@ class VoiceService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
-    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
+    // Lazy: WheelRepository speaks through this service, so a direct
+    // dependency back would be a cycle. Only the stat pills read it.
+    private val wheelRepositoryLazy: dagger.Lazy<com.eried.eucplanet.data.repository.WheelRepository>,
 ) {
     companion object {
         private const val TAG = "VoiceService"
@@ -590,6 +593,20 @@ class VoiceService @Inject constructor(
     }
 
     /**
+     * The announcement as the rider configured it, spoken now, for the
+     * settings Play button. Rule 10: the real pills over the real values.
+     * Where a statistic has no history yet it says so instead of going
+     * silent, which a real announcement would do.
+     */
+    fun previewReport(data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean) {
+        val parts = buildReportParts(data, settings, isRecording, periodic = periodic, preview = true)
+        if (parts.isEmpty()) return
+        Log.i(TAG, "preview (${if (periodic) "periodic" else "trigger"}): \"${parts.joinToString(", ")}\"")
+        speakInternal(parts.joinToString(", "), isTrigger = true,
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
+    }
+
+    /**
      * Answer one report out loud, for a rider who asked for it by name.
      *
      * Separate from [announceTrigger] in one way that matters: it ignores the
@@ -662,6 +679,60 @@ class VoiceService @Inject constructor(
     }
 
     /**
+     * "Max speed, 42 km/h": a statistic over the stats window, from the same
+     * history and the same arithmetic as the dashboard tiles and a spoken
+     * question, in the phrasing a spoken question already uses.
+     */
+    private fun statSentence(pill: VoicePill, settings: AppSettings, vctx: Context, preview: Boolean): String? {
+        val key = VoiceReportPlan.statKey(pill.item) ?: return null
+        val spec = com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key } ?: return null
+        val name = vctx.getString(spec.spokenLabelRes ?: spec.labelRes)
+        val word = vctx.getString(
+            when (pill.stat) {
+                VoicePill.Stat.MAX -> R.string.voice_stat_max_terms
+                VoicePill.Stat.MIN -> R.string.voice_stat_min_terms
+                VoicePill.Stat.AVG -> R.string.voice_stat_avg_terms
+                else -> R.string.voice_stat_peak_terms
+            }
+        ).split(",").first().trim()
+        val h = wheelRepositoryLazy.get().fullHistory.value
+        val samples = when (key) {
+            "BATTERY" -> h.battery
+            "TEMPERATURE" -> h.temperature
+            "VOLTAGE" -> h.voltage
+            "CURRENT" -> h.current
+            "LOAD" -> h.load
+            "SPEED" -> h.speed
+            else -> h.extras[key].orEmpty()
+        }
+        val dashStat = when (pill.stat) {
+            VoicePill.Stat.MAX -> com.eried.eucplanet.ui.settings.DashboardStat.MAX
+            VoicePill.Stat.MIN -> com.eried.eucplanet.ui.settings.DashboardStat.MIN
+            VoicePill.Stat.AVG -> com.eried.eucplanet.ui.settings.DashboardStat.AVG
+            else -> com.eried.eucplanet.ui.settings.DashboardStat.SUSTAINED_PEAK
+        }
+        val raw = samples.takeIf { it.isNotEmpty() }?.let {
+            com.eried.eucplanet.ui.settings.computeDashboardStatValue(dashStat, it, Float.NaN)
+        }?.takeIf { !it.isNaN() }
+            ?: return if (preview) vctx.getString(R.string.voice_answer_nodata, "$word $name") else null
+        val value = com.eried.eucplanet.data.model.MetricValueFormat.format(
+            key = key,
+            raw = raw,
+            speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings),
+            speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
+                vctx, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+            ),
+            tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+            tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(
+                com.eried.eucplanet.util.Units.effectiveTempUnit(settings)
+            ),
+            distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
+            pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+        )
+        return vctx.getString(R.string.voice_stat_answer, word, name, value)
+    }
+
+    /**
      * "Estimated battery, 43%" for a report the metric catalog already knows.
      *
      * Name, value and units all come from the catalog, so the sentence needs
@@ -707,6 +778,8 @@ class VoiceService @Inject constructor(
         data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean,
         /** One report only, for a spoken question. Null keeps the planned set. */
         only: String? = null,
+        /** Settings preview: a statistic with no history says so. */
+        preview: Boolean = false,
     ): List<String> {
         // Which reports, in what order: VoiceReportPlan, so the choice can be
         // tested without a TTS engine. Everything below is formatting.
@@ -723,8 +796,17 @@ class VoiceService @Inject constructor(
         val vctx = spokenContext(settings)
         // A direct question names its own report and bypasses the plan, which
         // is about what an unprompted announcement contains.
-        val planned = if (only != null) listOf(only) else VoiceReportPlan.items(settings, periodic)
-        for (item in planned) {
+        val planned = if (only != null) listOf(VoicePill(only)) else VoiceReportPlan.pills(settings, periodic)
+        for (pill in planned) {
+            if (pill.item == VoicePill.MESSAGE) {
+                if (pill.text.isNotBlank()) parts.add(pill.text)
+                continue
+            }
+            if (pill.stat != VoicePill.Stat.NOW) {
+                statSentence(pill, settings, vctx, preview)?.let { parts.add(it) }
+                continue
+            }
+            val item = pill.item
             run {
 
                 // Convert each value to the user's display unit before

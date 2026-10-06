@@ -1588,6 +1588,22 @@ class SettingsViewModel @Inject constructor(
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
     fun cancelActiveSync() = syncManager.cancelActiveSync()
 
+    /** Save one announcement's pills. The first save ends the carry-over from the switches. */
+    fun setVoicePills(periodic: Boolean, pills: List<com.eried.eucplanet.service.VoicePill>) = update {
+        val enc = com.eried.eucplanet.service.VoicePills.encode(pills)
+        copy(voiceReports = if (periodic) voiceReports.copy(periodicPills = enc)
+            else voiceReports.copy(triggerPills = enc))
+    }
+
+    /** Play: the configured announcement over the live values. */
+    fun previewVoiceReport(periodic: Boolean) {
+        viewModelScope.launch {
+            voiceService.previewReport(
+                wheelData.value, settingsRepository.get(), tripRepository.recording.value, periodic,
+            )
+        }
+    }
+
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
             val current = settingsRepository.get()

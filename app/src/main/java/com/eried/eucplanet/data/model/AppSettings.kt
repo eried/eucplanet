@@ -1427,6 +1427,12 @@ data class VoiceReportSettings(
     val triggerOdometer: Boolean = false,
     val periodicConsumption: Boolean = false,
     val triggerConsumption: Boolean = false,
+    /**
+     * The pill lists, saved by VoicePills. Blank until the rider first edits
+     * one, and until then the switches above decide what is said.
+     */
+    val periodicPills: String = "",
+    val triggerPills: String = "",
 )
 
 /**

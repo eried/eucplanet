@@ -2523,4 +2523,13 @@
     <string name="horn_sound_too_long">A hang hosszabb 5 másodpercnél</string>
     <string name="horn_sound_too_big">A fájl nagyobb 2 MB-nál</string>
     <string name="horn_sound_unreadable">A fájl nem játszható le</string>
+    <string name="voice_pill_add">Hozzáadás</string>
+    <string name="voice_pill_message">Üzenet</string>
+    <string name="voice_pill_message_hint">Úgy hangzik el, ahogy írod.</string>
+    <string name="voice_pills_empty">Nem hangzik el semmi. Koppints a Hozzáadásra.</string>
+    <string name="voice_stat_now">Most</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Átl</string>
+    <string name="voice_stat_peak">Csúcs</string>
 </resources>

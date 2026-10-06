@@ -2720,4 +2720,13 @@
     <string name="horn_sound_too_long">Ljudet är längre än 5 sekunder</string>
     <string name="horn_sound_too_big">Filen är större än 2 MB</string>
     <string name="horn_sound_unreadable">Filen kunde inte spelas upp</string>
+    <string name="voice_pill_add">Lägg till</string>
+    <string name="voice_pill_message">Meddelande</string>
+    <string name="voice_pill_message_hint">Läses upp som du skriver det.</string>
+    <string name="voice_pills_empty">Inget sägs. Tryck på Lägg till.</string>
+    <string name="voice_stat_now">Nu</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Snitt</string>
+    <string name="voice_stat_peak">Topp</string>
 </resources>

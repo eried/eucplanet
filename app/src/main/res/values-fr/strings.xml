@@ -2724,4 +2724,13 @@
     <string name="horn_sound_too_long">Ce son dure plus de 5 secondes</string>
     <string name="horn_sound_too_big">Ce fichier dépasse 2 Mo</string>
     <string name="horn_sound_unreadable">Impossible de lire ce fichier</string>
+    <string name="voice_pill_add">Ajouter</string>
+    <string name="voice_pill_message">Message</string>
+    <string name="voice_pill_message_hint">Lu tel que vous l\'écrivez.</string>
+    <string name="voice_pills_empty">Rien n\'est dit. Touchez Ajouter.</string>
+    <string name="voice_stat_now">Maint.</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Moy</string>
+    <string name="voice_stat_peak">Pic</string>
 </resources>

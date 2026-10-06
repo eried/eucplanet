@@ -17,6 +17,7 @@ only when you can cut the ride short.
 - Stats length below 5 min now works: 30 sec shows 30 sec of stats, not 5 min.
 - Long-press the Speed splits tile to open its settings.
 - Headset voice button is one choice: Listen, Announce (speaks the voice report) or Off.
+- Customize voice report is two pill lists, Periodic and Trigger. A pill can say Now, Max, Min, Avg or Peak, and Message pills speak your own words.
 
 ## Please test
 
@@ -33,6 +34,7 @@ only when you can cut the ride short.
 **Any wheel**
 - Stats length 30 sec or 1 min: tile stats and the detail screen cover only that much?
 - Headset button set to Announce: one press reads the voice report?
+- Voice report: the lists match what you heard before? A Max pill and a Message are spoken where you put them?
 - Connects and responds like before: lights, horn, lock, alarms.
 - Light or lock by hand: the automation stays out until you tap Fix?
 

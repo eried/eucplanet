@@ -2735,4 +2735,13 @@
     <string name="horn_sound_too_long">Den lyd er længere end 5 sekunder</string>
     <string name="horn_sound_too_big">Den fil er større end 2 MB</string>
     <string name="horn_sound_unreadable">Den fil kunne ikke afspilles</string>
+    <string name="voice_pill_add">Tilføj</string>
+    <string name="voice_pill_message">Besked</string>
+    <string name="voice_pill_message_hint">Læses op, som du skriver den.</string>
+    <string name="voice_pills_empty">Intet siges. Tryk på Tilføj.</string>
+    <string name="voice_stat_now">Nu</string>
+    <string name="voice_stat_max">Maks</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Gns</string>
+    <string name="voice_stat_peak">Top</string>
 </resources>

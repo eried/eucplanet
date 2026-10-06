@@ -2717,4 +2717,13 @@
     <string name="horn_sound_too_long">Звук довший за 5 секунд</string>
     <string name="horn_sound_too_big">Файл більший за 2 МБ</string>
     <string name="horn_sound_unreadable">Не вдалося відтворити файл</string>
+    <string name="voice_pill_add">Додати</string>
+    <string name="voice_pill_message">Повідомлення</string>
+    <string name="voice_pill_message_hint">Вимовляється як написано.</string>
+    <string name="voice_pills_empty">Нічого не вимовляється. Торкніться Додати.</string>
+    <string name="voice_stat_now">Зараз</string>
+    <string name="voice_stat_max">Макс</string>
+    <string name="voice_stat_min">Мін</string>
+    <string name="voice_stat_avg">Сер</string>
+    <string name="voice_stat_peak">Пік</string>
 </resources>
