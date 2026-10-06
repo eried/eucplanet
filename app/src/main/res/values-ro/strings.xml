@@ -2523,7 +2523,6 @@
     <string name="horn_sound_too_long">Sunetul durează mai mult de 5 secunde</string>
     <string name="horn_sound_too_big">Fișierul are peste 2 MB</string>
     <string name="horn_sound_unreadable">Fișierul nu poate fi redat</string>
-    <string name="voice_pills_desc">Max, Min, Med și Vârf acoperă durata statisticilor.</string>
     <string name="voice_pill_add">Adaugă</string>
     <string name="voice_pill_message">Mesaj</string>
     <string name="voice_pill_message_hint">Rostit așa cum îl scrii.</string>

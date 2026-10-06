@@ -2523,7 +2523,6 @@
     <string name="horn_sound_too_long">Ääni on yli 5 sekuntia pitkä</string>
     <string name="horn_sound_too_big">Tiedosto on yli 2 Mt</string>
     <string name="horn_sound_unreadable">Tiedostoa ei voitu toistaa</string>
-    <string name="voice_pills_desc">Maks, Min, Ka ja Huippu koskevat tilastojakson pituutta.</string>
     <string name="voice_pill_add">Lisää</string>
     <string name="voice_pill_message">Viesti</string>
     <string name="voice_pill_message_hint">Luetaan niin kuin kirjoitat.</string>

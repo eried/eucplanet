@@ -2717,7 +2717,6 @@
     <string name="horn_sound_too_long">Bu ses 5 saniyeden uzun</string>
     <string name="horn_sound_too_big">Bu dosya 2 MB\'tan büyük</string>
     <string name="horn_sound_unreadable">Bu dosya çalınamadı</string>
-    <string name="voice_pills_desc">Maks, Min, Ort ve Tepe istatistik süresini kapsar.</string>
     <string name="voice_pill_add">Ekle</string>
     <string name="voice_pill_message">Mesaj</string>
     <string name="voice_pill_message_hint">Yazdığın gibi okunur.</string>

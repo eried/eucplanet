@@ -7562,8 +7562,7 @@ private fun VoiceTab(
         ) {
         // Two lists, one per announcement, each its own order: what is worth
         // hearing every few minutes and what a button press should say are
-        // different answers. Max, Min, Avg and Peak cover the stats length.
-        HintText(stringResource(R.string.voice_pills_desc), small = true)
+        // different answers.
         VoicePillList(
             title = stringResource(R.string.col_periodic),
             pills = com.eried.eucplanet.service.VoiceReportPlan.pills(settings, periodic = true),

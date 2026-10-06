@@ -2720,7 +2720,6 @@
     <string name="horn_sound_too_long">Ljudet är längre än 5 sekunder</string>
     <string name="horn_sound_too_big">Filen är större än 2 MB</string>
     <string name="horn_sound_unreadable">Filen kunde inte spelas upp</string>
-    <string name="voice_pills_desc">Max, Min, Snitt och Topp gäller statistiklängden.</string>
     <string name="voice_pill_add">Lägg till</string>
     <string name="voice_pill_message">Meddelande</string>
     <string name="voice_pill_message_hint">Läses upp som du skriver det.</string>

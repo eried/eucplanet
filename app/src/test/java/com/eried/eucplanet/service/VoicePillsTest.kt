@@ -62,6 +62,33 @@ class VoicePillsTest {
         assertTrue(VoicePills.decode("Message:").isEmpty())
     }
 
+    @Test fun `a backup keeps the pill lists`() {
+        val pills = listOf(VoicePill("Speed", VoicePill.Stat.MAX), VoicePill(VoicePill.MESSAGE, text = "Drink water"))
+        val s = defaults.copy(voiceReports = defaults.voiceReports.copy(periodicPills = VoicePills.encode(pills)))
+        val back = com.eried.eucplanet.data.store.SettingsJson.fromJson(
+            org.json.JSONObject(com.eried.eucplanet.data.store.SettingsJson.toJson(s).toString())
+        )
+        assertEquals(pills, VoiceReportPlan.pills(back, periodic = true))
+    }
+
+    @Test fun `a backup from before the pills restores to the same announcement`() {
+        // An older build's backup: switches and order, no pill keys at all.
+        val old = org.json.JSONObject()
+            .put("voiceReportOrder", "Battery,Speed,Time")
+            .put("voiceReportSpeed", false).put("voiceReportBattery", true)
+            .put("triggerReportTime", true)
+        val s = com.eried.eucplanet.data.store.SettingsJson.fromJson(old)
+        val periodic = VoiceReportPlan.pills(s, periodic = true).map { it.item }
+        assertEquals("Battery", periodic.first())
+        assertTrue("speed was switched off in that backup", "Speed" !in periodic)
+        for (periodic in listOf(true, false)) {
+            assertEquals(
+                VoiceReportPlan.items(s, periodic).map { VoicePill(it) },
+                VoiceReportPlan.pills(s, periodic),
+            )
+        }
+    }
+
     @Test fun `every report with history maps to a catalog key that keeps stats`() {
         val catalog = com.eried.eucplanet.data.model.MetricCatalog.all.associateBy { it.key }
         VoiceReportPlan.KNOWN.mapNotNull { VoiceReportPlan.statKey(it) }.forEach { key ->

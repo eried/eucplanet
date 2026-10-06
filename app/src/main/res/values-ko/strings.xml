@@ -2719,7 +2719,6 @@
     <string name="horn_sound_too_long">소리가 5초보다 깁니다</string>
     <string name="horn_sound_too_big">파일이 2 MB보다 큽니다</string>
     <string name="horn_sound_unreadable">파일을 재생할 수 없습니다</string>
-    <string name="voice_pills_desc">최대, 최소, 평균, 피크는 통계 기간 기준입니다.</string>
     <string name="voice_pill_add">추가</string>
     <string name="voice_pill_message">메시지</string>
     <string name="voice_pill_message_hint">쓴 그대로 읽어 줍니다.</string>

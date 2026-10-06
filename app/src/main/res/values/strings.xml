@@ -2745,7 +2745,6 @@
     <string name="horn_sound_too_long">That sound is longer than 5 seconds</string>
     <string name="horn_sound_too_big">That file is larger than 2 MB</string>
     <string name="horn_sound_unreadable">That file could not be played</string>
-    <string name="voice_pills_desc">Max, Min, Avg and Peak cover the stats length.</string>
     <string name="voice_pill_add">Add</string>
     <string name="voice_pill_message">Message</string>
     <string name="voice_pill_message_hint">Spoken as you write it.</string>

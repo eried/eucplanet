@@ -2719,7 +2719,6 @@
     <string name="horn_sound_too_long">這個聲音超過 5 秒</string>
     <string name="horn_sound_too_big">這個檔案超過 2 MB</string>
     <string name="horn_sound_unreadable">無法播放這個檔案</string>
-    <string name="voice_pills_desc">最大、最小、平均與峰值依統計時長計算。</string>
     <string name="voice_pill_add">新增</string>
     <string name="voice_pill_message">訊息</string>
     <string name="voice_pill_message_hint">依你寫的內容朗讀。</string>

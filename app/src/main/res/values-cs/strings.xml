@@ -2523,7 +2523,6 @@
     <string name="horn_sound_too_long">Ten zvuk je delší než 5 sekund</string>
     <string name="horn_sound_too_big">Ten soubor je větší než 2 MB</string>
     <string name="horn_sound_unreadable">Ten soubor nelze přehrát</string>
-    <string name="voice_pills_desc">Max, Min, Prům a Špička platí pro délku statistik.</string>
     <string name="voice_pill_add">Přidat</string>
     <string name="voice_pill_message">Zpráva</string>
     <string name="voice_pill_message_hint">Přečte se tak, jak napíšeš.</string>

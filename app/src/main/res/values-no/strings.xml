@@ -2608,7 +2608,6 @@
     <string name="horn_sound_too_long">Den lyden er lengre enn 5 sekunder</string>
     <string name="horn_sound_too_big">Den filen er større enn 2 MB</string>
     <string name="horn_sound_unreadable">Den filen kunne ikke spilles av</string>
-    <string name="voice_pills_desc">Maks, Min, Snitt og Topp gjelder statistikklengden.</string>
     <string name="voice_pill_add">Legg til</string>
     <string name="voice_pill_message">Melding</string>
     <string name="voice_pill_message_hint">Leses opp slik du skriver den.</string>

@@ -2717,7 +2717,6 @@
     <string name="horn_sound_too_long">Звук довший за 5 секунд</string>
     <string name="horn_sound_too_big">Файл більший за 2 МБ</string>
     <string name="horn_sound_unreadable">Не вдалося відтворити файл</string>
-    <string name="voice_pills_desc">Макс, Мін, Сер і Пік рахуються за тривалість статистики.</string>
     <string name="voice_pill_add">Додати</string>
     <string name="voice_pill_message">Повідомлення</string>
     <string name="voice_pill_message_hint">Вимовляється як написано.</string>

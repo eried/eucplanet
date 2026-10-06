@@ -2721,7 +2721,6 @@
     <string name="horn_sound_too_long">その音は5秒を超えています</string>
     <string name="horn_sound_too_big">そのファイルは2 MBを超えています</string>
     <string name="horn_sound_unreadable">そのファイルは再生できません</string>
-    <string name="voice_pills_desc">最大・最小・平均・ピークは統計の期間で計算します。</string>
     <string name="voice_pill_add">追加</string>
     <string name="voice_pill_message">メッセージ</string>
     <string name="voice_pill_message_hint">書いたとおりに読み上げます。</string>
