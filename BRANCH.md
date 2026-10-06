@@ -1,18 +1,20 @@
 # ci/play-publish
 
-A way to get builds to testers through Play, because Android Auto will not
-accept them any other way.
+Getting builds to riders through Play, because Android Auto will not accept them
+any other way.
 
 ## Worked on
 
-- New `Play publish` workflow. A manual run puts a branch on Play Internal app
-  sharing and prints the install link; a push to next-version goes to the open
-  beta track on its own. Production is not reachable from it.
-- Internal app sharing defaults to the debug build, since it accepts any
-  signing key and that is the build that has actually been run.
+- New `Play publish` workflow. Manual runs go to Internal app sharing (prints
+  the install link) or production (held for a reviewer); beta runs by itself when
+  a version bump lands on next-version.
+- Keyless: no Play credential is stored anywhere. GitHub mints an OIDC token per
+  run and Workload Identity Federation exchanges it, so the org policy that
+  blocks service account keys is respected rather than worked around.
+- `docs/play-publishing.md` says where release notes, listing text and the
+  version live, and what the one-time setup is.
 
 ## Please test
 
-- Nothing for riders. CI only, and it stays dormant until the
-  `PLAY_SERVICE_ACCOUNT` secret exists. The header of
-  `.github/workflows/play-publish.yml` says how to create it.
+- Nothing for riders. CI only, and it stays dormant until the workload identity
+  pool exists. See `docs/play-publishing.md`.
