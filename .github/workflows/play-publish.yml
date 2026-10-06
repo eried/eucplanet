@@ -160,6 +160,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       # Internal app sharing takes an APK, which is what a tester installs by
       # tapping the link. The tracks take a bundle, which is what Play wants for
       # anything it serves itself.
