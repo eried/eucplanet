@@ -46,6 +46,10 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var useP6Protocol: Boolean = false
 
+    /** InMotion X1: V14 realtime, P6 settings page, 56-cell packs. Known
+     *  from its carType (id 171), never from the name. */
+    private val isX1: Boolean get() = detectedModel == InMotionV2Model.X1
+
     /**
      * Use the V6's dialect: P6-style extended routing for realtime and stats,
      * a 0x13-wrapped query for the info bundle, and its own `02 84` realtime
@@ -224,8 +228,10 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         // V6: realtime and totals already cover everything we can parse; the
         // V14 per-pack BMS rotation below would just be ignored noise.
         if (useV6Protocol) return null
-        val pack = V14_BMS_PACK_ADDRS[v14PackPollIndex and 0x03]
-        v14PackPollIndex = (v14PackPollIndex + 1) and 0x03
+        // The X1 has 2 packs (0x24 / 0x25); 0x26 / 0x27 never answer it.
+        val packMask = if (isX1) 0x01 else 0x03
+        val pack = V14_BMS_PACK_ADDRS[v14PackPollIndex and packMask]
+        v14PackPollIndex = (v14PackPollIndex + 1) and packMask
         // `aa aa 16 [len=3] 02 [pack=0x24..27] 02 [xor]`, InMotion's per-pack
         // cells query. Uses buildPacket with cmd=0x02 because the wire layout
         // is `flags len cmd data[0]=routing data[1]=pack data[2]=sub`, which
@@ -274,7 +280,9 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * just means the wheel keeps whatever alarm value it had configured.
      */
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray {
-        if (useP6Protocol) return InMotionV2Commands.setP6MaxSpeed(tiltbackKmh)
+        // The X1's settings page is the P6's, so its speeds go the P6 way:
+        // tiltback alone here, the alarm in its own packet below.
+        if (useP6Protocol || isX1) return InMotionV2Commands.setP6MaxSpeed(tiltbackKmh)
         val m = detectedModel
         return if (m == null || m.maxSpeedHasAlarms) {
             InMotionV2Commands.setMaxSpeedV14(tiltbackKmh, alarmKmh)
@@ -301,7 +309,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
 
     override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray? {
-        if (useP6Protocol) return InMotionV2Commands.setP6AlarmSpeed(alarmKmh)
+        if (useP6Protocol || isX1) return InMotionV2Commands.setP6AlarmSpeed(alarmKmh)
         // V12 HS / HT / Pro use the legacy two-tier alarm packet; V14
         // family carries alarm in the same packet as max-speed and
         // doesn't need a separate commit.
@@ -546,7 +554,8 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         val sub = data[1].toInt() and 0x7F
         return when (sub) {
             0x02 -> {
-                val cells = InMotionV2Parser.parseV14PackCells(data)
+                // X1 packs are 56 cells (a 120-byte frame); V14 packs are 32.
+                val cells = InMotionV2Parser.parseV14PackCells(data, if (isX1) 56 else 32)
                 if (cells != null) {
                     com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
                         "V14 pack%d cells: %s".format(
@@ -722,12 +731,21 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     private fun parseTelemetryForModel(data: ByteArray) = when (detectedModel) {
         InMotionV2Model.V12HS, InMotionV2Model.V12HT, InMotionV2Model.V12PRO ->
             InMotionV2ParserV12.parseTelemetry(data)
+        InMotionV2Model.X1 -> InMotionV2Parser.parseTelemetry(data)?.let { t ->
+            // Sensor slots 2 and 4 (bytes 60 / 62) are empty on the X1:
+            // raw 0x00 (-176 C) and 0xB0 (0 C) in every frame of the capture.
+            val temps = t.temperatures.filterIndexed { i, _ -> i != 2 && i != 4 }
+            t.copy(temperatures = temps, maxTemperature = temps.maxOrNull() ?: 0f)
+        }
         else -> InMotionV2Parser.parseTelemetry(data)
     }
 
     private fun parseSettingsForModel(data: ByteArray) = when (detectedModel) {
         InMotionV2Model.V12HS, InMotionV2Model.V12HT, InMotionV2Model.V12PRO ->
             InMotionV2ParserV12.parseSettings(data)
+        // 51-byte P6 page: tiltback d[8], alarm d[10], PWM limits d[14..19].
+        // The V14 parser reads d[0] there, which is 0 on the X1.
+        InMotionV2Model.X1 -> InMotionV2Parser.parseP6Settings(data)
         else -> InMotionV2Parser.parseSettings(data)
     }
 

@@ -1,4 +1,6 @@
-# next-experimental
+# inmotion-x1
+
+InMotion X1 support, on top of next-experimental. For the X1 tester.
 
 New features land here first. They work on the wheels they were written for
 and may not work on yours yet, and settings can move between builds. Ride it
@@ -6,6 +8,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- InMotion X1: shows its name, reads tiltback and alarms from its own settings page, all 56 cells per pack, 2 packs, no empty temperature sensors.
 - Begode: an Auto off tile counts down to the wheel's auto power-off (m:ss).
 - Fixed a crash on every launch for riders with a backup folder set (a start-up race).
 - Crews pairing: scan or type a code from eucstats and the browser flies your colours.
@@ -34,6 +37,11 @@ only when you can cut the ride short.
 - Fresh rides no longer show "not backed up to Dropbox" when they are.
 
 ## Please test
+
+**InMotion X1**
+- Tiltback and alarm speeds match the InMotion app?
+- Change tiltback in EUC Planet, then check the InMotion app shows the new value.
+- Battery screen: 2 packs of 56 cells, matching the InMotion app?
 
 **Crews pairing**
 - Camera at the QR on the eucstats Crews panel: does the app open on the pass screen?
