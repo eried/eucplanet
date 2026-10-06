@@ -1,42 +1,26 @@
-# next-experimental
+# feature/voice-report-pills
 
-New features land here first. They work on the wheels they were written for
-and may not work on yours yet, and settings can move between builds. Ride it
-only when you can cut the ride short.
+A new editor for what the voice announcements say. Built on
+next-experimental, so everything in that build is here too. Ride it only when
+you can cut the ride short.
 
 ## Worked on
 
-- InMotion V6 support: connects, live telemetry, PWM, lights and horn.
-- Writing to the wheel follows what its Bluetooth allows. Mostly the V6.
-- Switch the light or lock by hand and that automation pauses. Fix in Needs attention hands it back.
-- Branch builds install over each other. One last uninstall if you have an older one.
-- Service Mode logs GPS speed next to the wheel's.
-- Begode: current no longer gets stuck at 0 A after one noisy reading (#26).
-- KingSong: a wheel locked before power-off shows Locked on reconnect, not Lock (#19).
-- The lock tile's slow-down limit follows Lock max speed in Advanced.
-- Stats length below 5 min now works: 30 sec shows 30 sec of stats, not 5 min.
-- Long-press the Speed splits tile to open its settings.
-- Headset voice button is one choice: Listen, Announce (speaks the voice report) or Off.
+- Customize voice report is two lists, Periodic and Trigger, each in its own order.
+- Each report is a pill: drag to reorder, X to remove, Add to put one in.
+- A pill can say Now, Max, Min, Avg or Peak, over the stats length. "Speed" and "max speed" can both be in one list.
+- Message pills speak your own words, like "Drink water".
+- Play speaks the real announcement with the wheel's live values.
+- Your current setup carries over: nothing changes until you edit a list.
 
 ## Please test
 
-**InMotion V6**
-- Speed matches GPS? Service Mode on, ride 2 minutes at a steady speed, share the log.
-- Stays connected all ride? Lights and horn work?
-
-**Begode**
-- Current (A) stays live all ride instead of dropping to 0 A? Master v3 especially.
-
-**KingSong**
-- Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
-
-**Any wheel**
-- Stats length 30 sec or 1 min: tile stats and the detail screen cover only that much?
-- Headset button set to Announce: one press reads the voice report?
-- Connects and responds like before: lights, horn, lock, alarms.
-- Light or lock by hand: the automation stays out until you tap Fix?
+**Voice report**
+- Open Customize voice report: do the lists match what you heard before?
+- Add a Max or Avg pill and press Play: does it say the value you expect?
+- Add a Message and ride with periodic reports on: is it spoken in its place?
 
 ## Reporting back
 
-Open an issue with your wheel model and firmware. A Service Mode log beats a
-description; if it crashed, Share crash log on the About screen.
+Open an issue with what you set up and what you heard. If it crashed, Share
+crash log on the About screen.
