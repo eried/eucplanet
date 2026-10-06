@@ -54,13 +54,6 @@ on:
           - beta
           - production
         default: internal-sharing
-      variant:
-        description: "Which build to share (internal-sharing only; the tracks are always release)"
-        type: choice
-        options:
-          - debug
-          - release
-        default: debug
       announce:
         description: "Post the link to the Telegram releases channel (internal-sharing only)"
         type: boolean
@@ -95,13 +88,10 @@ jobs:
           # A push can only ever mean next-version, which goes to beta.
           if [ "${{ github.event_name }}" = "push" ]; then
             dest="beta"
-            variant="release"
           else
             dest="${{ inputs.destination }}"
-            variant="${{ inputs.variant }}"
           fi
-          echo "dest=${dest}"       >> "$GITHUB_OUTPUT"
-          echo "variant=${variant}" >> "$GITHUB_OUTPUT"
+          echo "dest=${dest}" >> "$GITHUB_OUTPUT"
           echo "::notice::Publishing ${GITHUB_REF##*/} to ${dest}"
 
       - name: Verify signing secrets are configured
@@ -163,26 +153,23 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # Internal app sharing takes an APK, which is what a tester installs by
-      # tapping the link. The tracks take a bundle, which is what Play wants for
-      # anything it serves itself.
+      # Everything uploads the BUNDLE, including internal app sharing, which also
+      # accepts one and lets Play build the install.
       #
-      # Debug is the default variant for sharing, deliberately: the key does not
-      # matter there, so testers can have the build that has actually been run
-      # rather than a release build whose R8 pass a new feature has never been
-      # through. Switch to release when the point of the round IS to rehearse
-      # what beta will ship.
+      # Not a style choice. This module renames its APK outputs to
+      # phone-<buildtype>.apk so the CI artifacts are self-describing, and that
+      # rename leaves the plugin's APK lookup resolving to nothing on a clean
+      # build: uploadReleasePrivateApk dies with "Cannot query the value of this
+      # provider because it has no value available" before it reaches any plugin
+      # code. It only passes on a machine that already has an APK sitting in
+      # build/outputs, which is exactly how it fooled a desk test. The rename
+      # block touches APK outputs only, so the bundle path is unaffected.
       - name: Publish
         run: |
           set -o pipefail
           case "${{ steps.dest.outputs.dest }}" in
             internal-sharing)
-              case "${{ steps.dest.outputs.variant }}" in
-                release) task=":app:uploadReleasePrivateApk" ;;
-                *)       task=":app:uploadDebugPrivateApk" ;;
-              esac
-              args=""
-              ;;
+              task=":app:uploadReleasePrivateBundle"; args="" ;;
             beta)
               task=":app:publishReleaseBundle"; args="--track beta" ;;
             production)
@@ -217,7 +204,6 @@ jobs:
             echo "- Branch: \`${GITHUB_REF##*/}\`"
             echo "- Destination: **${{ steps.dest.outputs.dest }}**"
             if [ "${{ steps.dest.outputs.dest }}" = "internal-sharing" ]; then
-              echo "- Variant: ${{ steps.dest.outputs.variant }}"
               echo "- Link: ${{ steps.link.outputs.url }}"
               echo
               echo "Testers need Internal app sharing switched on first:"

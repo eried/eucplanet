@@ -19,11 +19,13 @@ counts as "installed from Play".
 
 Actions tab, **Play publish**, **Run workflow**, pick a destination.
 
-- **internal-sharing** prints an install link in the run summary. It defaults to
-  the **debug** build on purpose: internal app sharing accepts any signing key,
-  so testers can have the build that has actually been run rather than a release
-  build whose R8 pass a new feature has never been through. Pick `release` when
-  the point of the round is to rehearse what beta will ship.
+- **internal-sharing** prints an install link in the run summary. It uploads the
+  release **bundle**, like the tracks do. That is forced, not chosen: this module
+  renames its APK outputs to `phone-<buildtype>.apk`, and that rename leaves the
+  plugin's APK lookup empty on a clean build, so `uploadReleasePrivateApk` fails
+  with "Cannot query the value of this provider". The rename touches APK outputs
+  only, so the bundle path works. Internal app sharing accepts a bundle and lets
+  Play build the install from it.
 - **beta** also runs by itself when `app/build.gradle.kts` or anything under
   `app/src/main/play/` changes on `next-version`. That filter exists because
   Play rejects a version code it already has, so publishing on every commit
