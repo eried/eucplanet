@@ -189,7 +189,7 @@ jobs:
               task=":app:publishReleaseBundle"; args="--track production" ;;
           esac
           echo "::notice::Running $task $args"
-          ./gradlew "$task" $args --no-daemon 2>&1 | tee gradle.log
+          ./gradlew "$task" $args --no-daemon --stacktrace 2>&1 | tee gradle.log
           grep -q 'BUILD SUCCESSFUL' gradle.log || {
             echo "::error::Gradle did not report BUILD SUCCESSFUL."; exit 1; }
 
