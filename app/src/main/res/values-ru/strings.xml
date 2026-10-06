@@ -353,8 +353,7 @@
     <string name="voice_recognition_desc">Язык, на котором вы говорите. Следует за голосом, если не выбран.</string>
     <string name="voice_recognition_follow">Как у голоса</string>
     <string name="voice_headset_button">Голосовая кнопка гарнитуры</string>
-    <string name="voice_headset_button_desc">Пусть голосовая кнопка Bluetooth-гарнитуры начинает прослушивание. Android спросит, какое приложение отвечает.</string>
-    <string name="voice_headset_press">При нажатии</string>
+    <string name="voice_headset_chooser_hint">Android спросит, какое приложение отвечает.</string>
     <string name="voice_headset_announce">Озвучить</string>
     <string name="voice_act_announce_on_terms">голос включить,объявления включить,включи голос</string>
     <string name="voice_act_announce_off_terms">голос выключить,объявления выключить,выключи голос</string>

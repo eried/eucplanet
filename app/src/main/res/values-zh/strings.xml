@@ -1370,8 +1370,7 @@
     <string name="voice_recognition_desc">你说话使用的语言。未选择时跟随语音。</string>
     <string name="voice_recognition_follow">与语音相同</string>
     <string name="voice_headset_button">耳机语音按键</string>
-    <string name="voice_headset_button_desc">让蓝牙耳机的语音按键开始聆听。Android 会询问由哪个应用响应。</string>
-    <string name="voice_headset_press">按下时</string>
+    <string name="voice_headset_chooser_hint">Android 会询问由哪个应用响应。</string>
     <string name="voice_headset_announce">播报</string>
     <string name="voice_act_announce_on_terms">语音开启,播报开启,打开语音</string>
     <string name="voice_act_announce_off_terms">语音关闭,播报关闭,关闭语音</string>

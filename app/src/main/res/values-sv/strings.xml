@@ -353,8 +353,7 @@
     <string name="voice_recognition_desc">Språket du talar. Följer rösten om du inte väljer ett.</string>
     <string name="voice_recognition_follow">Samma som rösten</string>
     <string name="voice_headset_button">Headsetets röstknapp</string>
-    <string name="voice_headset_button_desc">Låt röstknappen på ett Bluetooth-headset starta lyssningen. Android frågar vilken app som ska svara.</string>
-    <string name="voice_headset_press">Vid tryck</string>
+    <string name="voice_headset_chooser_hint">Android frågar vilken app som ska svara.</string>
     <string name="voice_headset_announce">Läs upp</string>
     <string name="voice_act_announce_on_terms">röst på,meddelanden på,tal på</string>
     <string name="voice_act_announce_off_terms">röst av,meddelanden av,tal av</string>

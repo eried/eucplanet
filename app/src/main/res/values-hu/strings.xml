@@ -316,8 +316,7 @@
     <string name="voice_recognition_desc">A nyelv, amelyen beszélsz. A hangot követi, ha nem választasz.</string>
     <string name="voice_recognition_follow">Mint a hang</string>
     <string name="voice_headset_button">Fejhallgató hanggombja</string>
-    <string name="voice_headset_button_desc">Egy Bluetooth fejhallgató hanggombja indíthatja a figyelést. Az Android megkérdezi, melyik alkalmazás válaszoljon.</string>
-    <string name="voice_headset_press">Megnyomáskor</string>
+    <string name="voice_headset_chooser_hint">Az Android megkérdezi, melyik alkalmazás válaszoljon.</string>
     <string name="voice_headset_announce">Bemondás</string>
     <string name="voice_act_announce_on_terms">hang be,bemondások be,kapcsold be a hangot</string>
     <string name="voice_act_announce_off_terms">hang ki,bemondások ki,kapcsold ki a hangot</string>

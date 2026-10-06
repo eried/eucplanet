@@ -353,8 +353,7 @@
     <string name="voice_recognition_desc">話す言語です。選ばなければ音声に合わせます。</string>
     <string name="voice_recognition_follow">音声と同じ</string>
     <string name="voice_headset_button">ヘッドセットの音声ボタン</string>
-    <string name="voice_headset_button_desc">Bluetoothヘッドセットの音声ボタンで聴取を開始します。どのアプリが応答するかAndroidが尋ねます。</string>
-    <string name="voice_headset_press">押したとき</string>
+    <string name="voice_headset_chooser_hint">どのアプリが応答するかAndroidが尋ねます。</string>
     <string name="voice_headset_announce">読み上げ</string>
     <string name="voice_act_announce_on_terms">音声オン,アナウンスオン,音声をオン</string>
     <string name="voice_act_announce_off_terms">音声オフ,アナウンスオフ,音声をオフ</string>

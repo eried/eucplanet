@@ -353,8 +353,7 @@
     <string name="voice_recognition_desc">De taal waarin je spreekt. Volgt de stem als je niets kiest.</string>
     <string name="voice_recognition_follow">Zelfde als stem</string>
     <string name="voice_headset_button">Spraakknop van headset</string>
-    <string name="voice_headset_button_desc">Laat de spraakknop van een Bluetooth-headset het luisteren starten. Android vraagt welke app moet antwoorden.</string>
-    <string name="voice_headset_press">Bij indrukken</string>
+    <string name="voice_headset_chooser_hint">Android vraagt welke app moet antwoorden.</string>
     <string name="voice_headset_announce">Aankondigen</string>
     <string name="voice_act_announce_on_terms">stem aan,meldingen aan,spraak aan</string>
     <string name="voice_act_announce_off_terms">stem uit,meldingen uit,spraak uit</string>

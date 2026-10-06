@@ -353,8 +353,7 @@
     <string name="voice_recognition_desc">Die Sprache, in der du sprichst. Folgt der Stimme, wenn du keine wählst.</string>
     <string name="voice_recognition_follow">Wie die Stimme</string>
     <string name="voice_headset_button">Sprachtaste am Headset</string>
-    <string name="voice_headset_button_desc">Die Sprachtaste eines Bluetooth-Headsets startet das Zuhören. Android fragt, welche App antworten soll.</string>
-    <string name="voice_headset_press">Beim Drücken</string>
+    <string name="voice_headset_chooser_hint">Android fragt, welche App antworten soll.</string>
     <string name="voice_headset_announce">Ansagen</string>
     <string name="voice_act_announce_on_terms">stimme an,ansagen an,sprachausgabe an</string>
     <string name="voice_act_announce_off_terms">stimme aus,ansagen aus,sprachausgabe aus</string>

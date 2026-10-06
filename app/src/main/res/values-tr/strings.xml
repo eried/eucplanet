@@ -353,8 +353,7 @@
     <string name="voice_recognition_desc">Konuştuğunuz dil. Seçmezseniz sesi izler.</string>
     <string name="voice_recognition_follow">Sesle aynı</string>
     <string name="voice_headset_button">Kulağalığın ses tuşu</string>
-    <string name="voice_headset_button_desc">Bluetooth kulağalığının ses tuşu dinlemeyi başlatabilir. Android hangi uygulamanın yanıt vereceğini sorar.</string>
-    <string name="voice_headset_press">Basınca</string>
+    <string name="voice_headset_chooser_hint">Android hangi uygulamanın yanıt vereceğini sorar.</string>
     <string name="voice_headset_announce">Duyur</string>
     <string name="voice_act_announce_on_terms">ses açık,duyurular açık,sesi aç</string>
     <string name="voice_act_announce_off_terms">ses kapalı,duyurular kapalı,sesi kapat</string>

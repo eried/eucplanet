@@ -1406,8 +1406,7 @@
     <string name="voice_recognition_desc">La lingua in cui parli. Segue la voce se non ne scegli una.</string>
     <string name="voice_recognition_follow">Come la voce</string>
     <string name="voice_headset_button">Tasto vocale delle cuffie</string>
-    <string name="voice_headset_button_desc">Il tasto vocale di cuffie Bluetooth avvia l\'ascolto. Android chiede quale app deve rispondere.</string>
-    <string name="voice_headset_press">Alla pressione</string>
+    <string name="voice_headset_chooser_hint">Android chiede quale app deve rispondere.</string>
     <string name="voice_headset_announce">Annuncia</string>
     <string name="voice_act_announce_on_terms">voce attiva,annunci attivi,attiva la voce</string>
     <string name="voice_act_announce_off_terms">voce disattivata,annunci disattivati,disattiva la voce</string>

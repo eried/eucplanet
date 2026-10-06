@@ -316,8 +316,7 @@
     <string name="voice_recognition_desc">Limba în care vorbești. Urmează vocea dacă nu alegi una.</string>
     <string name="voice_recognition_follow">La fel ca vocea</string>
     <string name="voice_headset_button">Butonul vocal al căștilor</string>
-    <string name="voice_headset_button_desc">Lasă butonul vocal al unor căști Bluetooth să pornească ascultarea. Android întreabă ce aplicație răspunde.</string>
-    <string name="voice_headset_press">La apăsare</string>
+    <string name="voice_headset_chooser_hint">Android întreabă ce aplicație răspunde.</string>
     <string name="voice_headset_announce">Anunță</string>
     <string name="voice_act_announce_on_terms">voce pornită,anunțuri pornite,pornește vocea</string>
     <string name="voice_act_announce_off_terms">voce oprită,anunțuri oprite,oprește vocea</string>

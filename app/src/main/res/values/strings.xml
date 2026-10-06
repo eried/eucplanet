@@ -358,8 +358,7 @@
     <string name="voice_recognition_desc">The language you speak commands in. Follows the voice unless you pick one.</string>
     <string name="voice_recognition_follow">Same as voice</string>
     <string name="voice_headset_button">Headset voice button</string>
-    <string name="voice_headset_button_desc">Let a Bluetooth headset voice button start listening. Android asks which app should answer it.</string>
-    <string name="voice_headset_press">When pressed</string>
+    <string name="voice_headset_chooser_hint">Android asks which app should answer it.</string>
     <string name="voice_headset_announce">Announce</string>
     <string name="voice_act_announce_on_terms">voice on,announcements on,turn on voice</string>
     <string name="voice_act_announce_off_terms">voice off,announcements off,turn off voice,mute voice</string>

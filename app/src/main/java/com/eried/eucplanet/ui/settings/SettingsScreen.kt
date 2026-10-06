@@ -712,7 +712,7 @@ fun SettingsScreen(
         stringResource(R.string.voice_recognition_language),
         stringResource(R.string.voice_recognition_desc),
         stringResource(R.string.voice_headset_button),
-        stringResource(R.string.voice_headset_button_desc),
+        stringResource(R.string.voice_headset_chooser_hint),
         stringResource(R.string.section_report_status),
         stringResource(R.string.report_speed),
         stringResource(R.string.report_battery),
@@ -7475,24 +7475,28 @@ private fun VoiceTab(
         )
         HintText(stringResource(R.string.voice_recognition_desc))
 
-        SwitchSettingWithDesc(
+        // One three-way row, Off last like the two cue rows above it. Off is
+        // the old switch turned off; Listen and Announce turn it on and pick
+        // what the press does.
+        val headsetOff = "OFF"
+        SegmentedChoice(
             label = stringResource(R.string.voice_headset_button),
-            description = stringResource(R.string.voice_headset_button_desc),
-            checked = settings.voiceCommands.headsetButton,
-            onCheckedChange = { viewModel.updateVoiceHeadsetButton(it) },
+            options = listOf(
+                com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
+                    stringResource(R.string.action_chip_voice_listen),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
+                    stringResource(R.string.voice_headset_announce),
+                headsetOff to stringResource(R.string.voice_cue_off),
+            ),
+            current = if (settings.voiceCommands.headsetButton) settings.voiceCommands.headsetAction
+                else headsetOff,
+            onChange = {
+                if (it == headsetOff) viewModel.updateVoiceHeadsetButton(false)
+                else viewModel.updateVoiceHeadsetMode(it)
+            },
         )
         if (settings.voiceCommands.headsetButton) {
-            SegmentedChoice(
-                label = stringResource(R.string.voice_headset_press),
-                options = listOf(
-                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
-                        stringResource(R.string.action_chip_voice_listen),
-                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
-                        stringResource(R.string.voice_headset_announce),
-                ),
-                current = settings.voiceCommands.headsetAction,
-                onChange = { viewModel.updateVoiceHeadsetAction(it) },
-            )
+            HintText(stringResource(R.string.voice_headset_chooser_hint))
         }
 
         if (vocabularyOpen) {

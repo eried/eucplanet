@@ -353,8 +353,7 @@
     <string name="voice_recognition_desc">Det sprog, du taler. Følger stemmen, hvis du ikke vælger et.</string>
     <string name="voice_recognition_follow">Samme som stemmen</string>
     <string name="voice_headset_button">Headsettets taleknap</string>
-    <string name="voice_headset_button_desc">Lad taleknappen på et Bluetooth-headset starte lytningen. Android spørger, hvilken app der skal svare.</string>
-    <string name="voice_headset_press">Ved tryk</string>
+    <string name="voice_headset_chooser_hint">Android spørger, hvilken app der skal svare.</string>
     <string name="voice_headset_announce">Læs op</string>
     <string name="voice_act_announce_on_terms">stemme til,meddelelser til,tale til</string>
     <string name="voice_act_announce_off_terms">stemme fra,meddelelser fra,tale fra</string>
