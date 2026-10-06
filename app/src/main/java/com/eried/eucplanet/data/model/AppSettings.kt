@@ -1474,6 +1474,14 @@ data class VoiceCommandSettings(
      */
     val headsetButton: Boolean = false,
     /**
+     * What that headset button does once it reaches the app: open the
+     * microphone ([HEADSET_LISTEN]) or speak the voice announcement at once
+     * ([HEADSET_ANNOUNCE]), the same report the Voice tile and a Flic bound
+     * to it give. A rider who only ever asks "how am I doing" gets the answer
+     * in one press instead of a press and a sentence.
+     */
+    val headsetAction: String = HEADSET_LISTEN,
+    /**
      * The language the rider speaks commands in, blank to follow the voice.
      *
      * Separate from both the interface language and the speaking voice,
@@ -1494,6 +1502,10 @@ data class VoiceCommandSettings(
         const val UNKNOWN_BEEP = "BEEP"
         const val UNKNOWN_NONE = "NONE"
         val UNKNOWNS = setOf(UNKNOWN_MESSAGE, UNKNOWN_BEEP, UNKNOWN_NONE)
+
+        const val HEADSET_LISTEN = "LISTEN"
+        const val HEADSET_ANNOUNCE = "ANNOUNCE"
+        val HEADSET_ACTIONS = setOf(HEADSET_LISTEN, HEADSET_ANNOUNCE)
     }
 }
 

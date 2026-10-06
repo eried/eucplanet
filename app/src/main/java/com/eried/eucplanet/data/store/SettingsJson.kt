@@ -256,6 +256,7 @@ object SettingsJson {
         put("voicePromptCue", s.voiceCommands.promptCue)
         put("voiceUnknownCue", s.voiceCommands.unknownCue)
         put("voiceHeadsetButton", s.voiceCommands.headsetButton)
+        put("voiceHeadsetAction", s.voiceCommands.headsetAction)
         put("voiceRecognitionLocale", s.voiceCommands.recognitionLocale)
         put("voiceReportBatteryEst", s.voiceReports.periodicBatteryEst)
         put("triggerReportBatteryEst", s.voiceReports.triggerBatteryEst)
@@ -489,6 +490,7 @@ object SettingsJson {
             promptCue = j.optString("voicePromptCue", base.voiceCommands.promptCue),
             unknownCue = j.optString("voiceUnknownCue", base.voiceCommands.unknownCue),
             headsetButton = j.optBoolean("voiceHeadsetButton", base.voiceCommands.headsetButton),
+            headsetAction = j.optString("voiceHeadsetAction", base.voiceCommands.headsetAction),
             recognitionLocale = j.optString("voiceRecognitionLocale", base.voiceCommands.recognitionLocale),
         ),
         voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(

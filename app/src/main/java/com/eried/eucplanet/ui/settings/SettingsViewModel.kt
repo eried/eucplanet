@@ -881,6 +881,9 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceHeadsetButton(v: Boolean) =
         update { copy(voiceCommands = voiceCommands.copy(headsetButton = v)) }
 
+    fun updateVoiceHeadsetAction(v: String) =
+        update { copy(voiceCommands = voiceCommands.copy(headsetAction = v)) }
+
     /**
      * Switch one catalog-backed report on or off.
      *

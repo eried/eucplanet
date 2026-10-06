@@ -354,6 +354,8 @@
     <string name="voice_recognition_follow">與語音相同</string>
     <string name="voice_headset_button">耳機語音按鍵</string>
     <string name="voice_headset_button_desc">讓藍牙耳機的語音按鍵開始聆聽。Android 會詢問由哪個應用程式回應。</string>
+    <string name="voice_headset_press">按下時</string>
+    <string name="voice_headset_announce">播報</string>
     <string name="voice_act_announce_on_terms">語音開啟,播報開啟,打開語音</string>
     <string name="voice_act_announce_off_terms">語音關閉,播報關閉,關閉語音</string>
     <string name="voice_command_vocabulary">我可以說什麼</string>

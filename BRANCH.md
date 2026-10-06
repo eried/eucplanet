@@ -14,6 +14,9 @@ only when you can cut the ride short.
 - Begode: current no longer gets stuck at 0 A after one noisy reading (#26).
 - KingSong: a wheel locked before power-off shows Locked on reconnect, not Lock (#19).
 - The lock tile's slow-down limit follows Lock max speed in Advanced.
+- Stats length below 5 min now works: 30 sec shows 30 sec of stats, not 5 min.
+- Long-press the Speed splits tile to open its settings.
+- Headset voice button can announce the voice report instead of listening.
 
 ## Please test
 
@@ -28,6 +31,8 @@ only when you can cut the ride short.
 - Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
 
 **Any wheel**
+- Stats length 30 sec or 1 min: tile stats and the detail screen cover only that much?
+- Headset button set to Announce: one press reads the voice report?
 - Connects and responds like before: lights, horn, lock, alarms.
 - Light or lock by hand: the automation stays out until you tap Fix?
 

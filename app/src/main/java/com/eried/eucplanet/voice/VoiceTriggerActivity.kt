@@ -34,16 +34,27 @@ class VoiceTriggerActivity : ComponentActivity() {
 
     @Inject lateinit var appNotifier: AppNotifier
 
+    @Inject lateinit var settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository
+
+    @Inject lateinit var actions: com.eried.eucplanet.flic.FlicManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Permission is checked inside listen(), which also raises the
         // dashboard warning and says out loud what is missing. Repeating that
         // here would be a second place to keep the wording right.
         lifecycleScope.launch {
-            // notify = true: nothing on screen said this started. The tile
-            // cue only exists for a rider looking at the dashboard, and this
-            // entry point is for one who is not.
-            voiceCommands.listen(notify = true)
+            val action = settingsRepository.get().voiceCommands.headsetAction
+            if (action == com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE) {
+                // Through the shared dispatcher, so the press meets the same
+                // Legal Mode and connection gates a Flic bound to it does.
+                actions.dispatchActionByName("VOICE_ANNOUNCE")
+            } else {
+                // notify = true: nothing on screen said this started. The tile
+                // cue only exists for a rider looking at the dashboard, and
+                // this entry point is for one who is not.
+                voiceCommands.listen(notify = true)
+            }
         }
         finish()
     }

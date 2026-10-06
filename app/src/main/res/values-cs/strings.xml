@@ -317,6 +317,8 @@
     <string name="voice_recognition_follow">Stejně jako hlas</string>
     <string name="voice_headset_button">Hlasové tlačítko sluchátek</string>
     <string name="voice_headset_button_desc">Nech hlasové tlačítko Bluetooth sluchátek spustit poslech. Android se zeptá, která aplikace má odpovědět.</string>
+    <string name="voice_headset_press">Po stisku</string>
+    <string name="voice_headset_announce">Oznámit</string>
     <string name="voice_act_announce_on_terms">hlas zapnut,hlášení zapnuta,zapni hlas</string>
     <string name="voice_act_announce_off_terms">hlas vypnut,hlášení vypnuta,vypni hlas</string>
     <string name="voice_command_vocabulary">Co mohu říct</string>

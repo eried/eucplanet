@@ -430,6 +430,9 @@ fun SettingsScreen(
     // General section top), so the monitor's Settings link lands right on it.
     val scrollToBattery = initialTab == 9
     val scrollToWeather = initialTab == 11
+    // tab 12 opens Voice at its Speed splits block, for the splits tile's
+    // long-press menu: the block sits below every voice setting.
+    val scrollToSplits = initialTab == 12
     val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
     // expandedSections is rememberSaveable above and only seeds on first ever
     // composition; on subsequent visits the user's saved expansion state can hide
@@ -854,7 +857,11 @@ fun SettingsScreen(
             SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
         },
         SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
-            VoiceTab(settings, viewModel)
+            VoiceTab(
+                settings, viewModel,
+                scrollToSplits = scrollToSplits,
+                onSplitsTop = { y -> targetSectionTop = y },
+            )
         },
         SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpusMotor) {
             EngineSoundSection(settings, viewModel, engineParked)
@@ -1048,7 +1055,8 @@ fun SettingsScreen(
                     val openedByQuery = searching && sec.key == searchScrollKey
                     val isExpanded = explicitlyExpanded || openedByQuery
                     var sectionModifier = if (
-                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather
+                        sec.key == targetSectionKey && !scrollToBattery && !scrollToWeather &&
+                            !scrollToSplits
                     ) {
                         Modifier.onGloballyPositioned {
                             targetSectionTop = it.positionInWindow().y
@@ -1132,6 +1140,8 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     // The weather block lives inside Navigation, so the section is the same
     // as tab 8; scrollToWeather below is what separates the two.
     11 -> "navigator"
+    // Speed splits live inside Voice; scrollToSplits picks the block.
+    12 -> "voice"
     else -> null
 }
 
@@ -7200,7 +7210,9 @@ private fun HornSection(
 @Composable
 private fun VoiceTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    scrollToSplits: Boolean = false,
+    onSplitsTop: (Float) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -7469,6 +7481,19 @@ private fun VoiceTab(
             checked = settings.voiceCommands.headsetButton,
             onCheckedChange = { viewModel.updateVoiceHeadsetButton(it) },
         )
+        if (settings.voiceCommands.headsetButton) {
+            SegmentedChoice(
+                label = stringResource(R.string.voice_headset_press),
+                options = listOf(
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_LISTEN to
+                        stringResource(R.string.action_chip_voice_listen),
+                    com.eried.eucplanet.data.model.VoiceCommandSettings.HEADSET_ANNOUNCE to
+                        stringResource(R.string.voice_headset_announce),
+                ),
+                current = settings.voiceCommands.headsetAction,
+                onChange = { viewModel.updateVoiceHeadsetAction(it) },
+            )
+        }
 
         if (vocabularyOpen) {
             VoiceVocabularyDialog(
@@ -7785,7 +7810,13 @@ private fun VoiceTab(
         }   // end Customize AdvancedCollapsable
 
         // --- Acceleration splits (RaceBox-style) ---
-        SectionHeader(stringResource(R.string.section_accel_splits))
+        Box(
+            modifier = if (scrollToSplits) {
+                Modifier.onGloballyPositioned { onSplitsTop(it.positionInWindow().y) }
+            } else Modifier,
+        ) {
+            SectionHeader(stringResource(R.string.section_accel_splits))
+        }
         val accel = settings.accelSplit
         val ctxAccel = androidx.compose.ui.platform.LocalContext.current
         val accelUnit = Units.speedUnit(ctxAccel, Units.effectiveSpeedUnit(settings))

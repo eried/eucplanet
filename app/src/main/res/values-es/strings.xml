@@ -354,6 +354,8 @@
     <string name="voice_recognition_follow">Igual que la voz</string>
     <string name="voice_headset_button">Botón de voz del casco</string>
     <string name="voice_headset_button_desc">Permite que el botón de voz de unos auriculares Bluetooth inicie la escucha. Android preguntará qué app responde.</string>
+    <string name="voice_headset_press">Al pulsar</string>
+    <string name="voice_headset_announce">Anunciar</string>
     <string name="voice_act_announce_on_terms">voz activada,anuncios activados,activar voz</string>
     <string name="voice_act_announce_off_terms">voz desactivada,anuncios desactivados,desactivar voz,silenciar voz</string>
     <string name="voice_command_vocabulary">Qué puedo decir</string>

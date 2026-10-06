@@ -2856,15 +2856,34 @@ fun DashboardScreen(
                                             // A settings write; arm it in the hall.
                                             isSplits ||
                                             key.startsWith("MEDIA_")
-                                    ActionButton(
-                                        icon = actionSpec?.icon ?: Icons.Default.Campaign,
-                                        label = labelText,
-                                        active = isSplits && splitMode != com.eried.eucplanet.data.model.AccelSplitMode.OFF,
-                                        enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
-                                        onClick = tap,
-                                        modifier = Modifier.weight(1f),
-                                        aspectRatio = actionAspect, heightDp = actionHeight
-                                    )
+                                    if (isSplits) {
+                                        // Long-press opens its settings, which sit
+                                        // far down the Voice tab, like the lock and
+                                        // Legal tiles open theirs.
+                                        ActionTile(
+                                            modifier = Modifier.weight(1f),
+                                            icon = actionSpec?.icon ?: Icons.Default.Campaign,
+                                            label = labelText,
+                                            active = splitMode != com.eried.eucplanet.data.model.AccelSplitMode.OFF,
+                                            onClick = tap,
+                                            aspectRatio = actionAspect, heightDp = actionHeight,
+                                            menu = { dismiss ->
+                                                DropdownMenuItem(
+                                                    text = { Text(stringResource(R.string.section_accel_splits)) },
+                                                    onClick = { dismiss(); onNavigateToSettings(12) }
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        ActionButton(
+                                            icon = actionSpec?.icon ?: Icons.Default.Campaign,
+                                            label = labelText,
+                                            enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
+                                            onClick = tap,
+                                            modifier = Modifier.weight(1f),
+                                            aspectRatio = actionAspect, heightDp = actionHeight
+                                        )
+                                    }
                                 }
                             }
                         }

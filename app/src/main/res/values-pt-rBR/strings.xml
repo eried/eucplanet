@@ -354,6 +354,8 @@
     <string name="voice_recognition_follow">Igual à voz</string>
     <string name="voice_headset_button">Botão de voz do fone</string>
     <string name="voice_headset_button_desc">Deixa o botão de voz de um fone Bluetooth iniciar a escuta. O Android pergunta qual app responde.</string>
+    <string name="voice_headset_press">Ao pressionar</string>
+    <string name="voice_headset_announce">Anunciar</string>
     <string name="voice_act_announce_on_terms">voz ligada,anúncios ligados,ligar a voz</string>
     <string name="voice_act_announce_off_terms">voz desligada,anúncios desligados,desligar a voz</string>
     <string name="voice_command_vocabulary">O que posso dizer</string>

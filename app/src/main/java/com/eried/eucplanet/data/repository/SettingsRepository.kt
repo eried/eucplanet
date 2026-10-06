@@ -139,6 +139,8 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
             ?: VoiceCommandSettings.CUE_BEEP,
         unknownCue = voiceCommands.unknownCue.takeIf { it in VoiceCommandSettings.UNKNOWNS }
             ?: VoiceCommandSettings.UNKNOWN_MESSAGE,
+        headsetAction = voiceCommands.headsetAction.takeIf { it in VoiceCommandSettings.HEADSET_ACTIONS }
+            ?: VoiceCommandSettings.HEADSET_LISTEN,
     ),
     // An imported or Dropbox-synced file can carry an unlockWhen this build
     // does not know. Fall back to never rather than letting an unrecognised

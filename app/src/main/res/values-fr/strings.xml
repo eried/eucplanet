@@ -354,6 +354,8 @@
     <string name="voice_recognition_follow">Comme la voix</string>
     <string name="voice_headset_button">Bouton vocal du casque</string>
     <string name="voice_headset_button_desc">Le bouton vocal du casque Bluetooth démarre l\'écoute. Android demande quelle appli doit répondre.</string>
+    <string name="voice_headset_press">À l\'appui</string>
+    <string name="voice_headset_announce">Annoncer</string>
     <string name="voice_act_announce_on_terms">voix activée,annonces activées,activer la voix</string>
     <string name="voice_act_announce_off_terms">voix désactivée,annonces désactivées,couper la voix</string>
     <string name="voice_command_vocabulary">Que puis-je dire</string>

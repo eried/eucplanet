@@ -354,6 +354,8 @@
     <string name="voice_recognition_follow">음성과 동일</string>
     <string name="voice_headset_button">헤드셋 음성 버튼</string>
     <string name="voice_headset_button_desc">블루투스 헤드셋의 음성 버튼으로 듣기를 시작합니다. 어느 앱이 응답할지 Android가 묻습니다.</string>
+    <string name="voice_headset_press">누르면</string>
+    <string name="voice_headset_announce">안내</string>
     <string name="voice_act_announce_on_terms">음성 켜기,안내 켜기,음성 켜</string>
     <string name="voice_act_announce_off_terms">음성 끄기,안내 끄기,음성 꺼</string>
     <string name="voice_command_vocabulary">무엇을 말할 수 있나요</string>

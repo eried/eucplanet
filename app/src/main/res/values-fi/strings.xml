@@ -317,6 +317,8 @@
     <string name="voice_recognition_follow">Sama kuin ääni</string>
     <string name="voice_headset_button">Kuulokkeiden äänipainike</string>
     <string name="voice_headset_button_desc">Anna Bluetooth-kuulokkeiden äänipainikkeen aloittaa kuuntelu. Android kysyy, mikä sovellus vastaa.</string>
+    <string name="voice_headset_press">Painettaessa</string>
+    <string name="voice_headset_announce">Ilmoita</string>
     <string name="voice_act_announce_on_terms">ääni päälle,kuulutukset päälle,puhe päälle</string>
     <string name="voice_act_announce_off_terms">ääni pois,kuulutukset pois,puhe pois</string>
     <string name="voice_command_vocabulary">Mitä voin sanoa</string>

@@ -354,6 +354,8 @@
     <string name="voice_recognition_follow">Taki jak głos</string>
     <string name="voice_headset_button">Przycisk głosu w słuchawkach</string>
     <string name="voice_headset_button_desc">Pozwól, by przycisk głosu w słuchawkach Bluetooth uruchamiał słuchanie. Android zapyta, która aplikacja ma odpowiedzieć.</string>
+    <string name="voice_headset_press">Po naciśnięciu</string>
+    <string name="voice_headset_announce">Ogłoś</string>
     <string name="voice_act_announce_on_terms">głos włączony,komunikaty włączone,włącz głos</string>
     <string name="voice_act_announce_off_terms">głos wyłączony,komunikaty wyłączone,wyłącz głos</string>
     <string name="voice_command_vocabulary">Co mogę powiedzieć</string>

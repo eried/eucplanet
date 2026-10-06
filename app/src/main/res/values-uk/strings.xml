@@ -354,6 +354,8 @@
     <string name="voice_recognition_follow">Як у голосу</string>
     <string name="voice_headset_button">Голосова кнопка гарнітури</string>
     <string name="voice_headset_button_desc">Хай голосова кнопка Bluetooth-гарнітури починає слухання. Android запитає, який застосунок відповідає.</string>
+    <string name="voice_headset_press">При натисканні</string>
+    <string name="voice_headset_announce">Озвучити</string>
     <string name="voice_act_announce_on_terms">голос увімкнути,оголошення увімкнути,увімкни голос</string>
     <string name="voice_act_announce_off_terms">голос вимкнути,оголошення вимкнути,вимкни голос</string>
     <string name="voice_command_vocabulary">Що можна сказати</string>

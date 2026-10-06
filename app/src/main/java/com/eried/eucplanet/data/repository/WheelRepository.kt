@@ -919,8 +919,8 @@ class WheelRepository @Inject constructor(
                 pollIntervalMs = s.wheelPollIntervalMs.toLong()
                 graphSampleIntervalMs = s.graphSampleIntervalMs.toLong()
                 // Retain at least the rider's dashboard rolling window (up to
-                // 15 min), floored at the 5-min default so detail charts don't
-                // shrink below it when the window is set small.
+                // 15 min), floored at 5 min so a wider window has data at
+                // once; what is published is cut to the window itself.
                 historyWindowMs = maxOf(s.dashboardRollingWindowSeconds * 1000L, HISTORY_WINDOW_MS)
                 rollingWindowMs = s.dashboardRollingWindowSeconds * 1000L
                 lockMaxSpeedKmh = s.lockMaxSpeedKmh.toFloat()
@@ -2323,14 +2323,22 @@ class WheelRepository @Inject constructor(
                     listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
                         .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
                     extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                    // The buffers keep at least 5 min so widening the stats
+                    // length has data at once, but everything that reads them
+                    // (tile stats, sparklines, the detail screen, voice
+                    // answers) sees only the rider's chosen window. Publishing
+                    // the whole buffer made 30 s, 1, 2 and 3 min all read as
+                    // 5 min.
+                    val shownFrom = now - rollingWindowMs
+                    fun List<MetricSample>.shown() = filter { it.timestampMs >= shownFrom }
                     _fullHistory.value = FullMetricHistory(
-                        battery = battHist.toList(),
-                        temperature = tempHist.toList(),
-                        voltage = voltHist.toList(),
-                        current = ampsHist.toList(),
-                        load = loadHist.toList(),
-                        speed = speedHist.toList(),
-                        extras = extrasHist.mapValues { (_, list) -> list.toList() }
+                        battery = battHist.shown(),
+                        temperature = tempHist.shown(),
+                        voltage = voltHist.shown(),
+                        current = ampsHist.shown(),
+                        load = loadHist.shown(),
+                        speed = speedHist.shown(),
+                        extras = extrasHist.mapValues { (_, list) -> list.shown() }
                     )
                 }
                 // Evaluate alarm rules against new telemetry
