@@ -14,7 +14,14 @@ short.
 ## Please test
 
 **Android Auto**
-- Test builds are not from the Play Store, so allow them once: open Android Auto settings, tap Version until developer mode is on, then in the menu Developer settings turn on Unknown sources.
+- **Install from the Play link, not from GitHub.** Android Auto refuses to list a
+  car app that was sideloaded, so the APK on this page will never appear in your
+  car however you set it up. The earlier note here said to turn on Unknown
+  sources: that setting covers media and messaging apps and does nothing for this
+  one, so ignore it. Ask for the internal app sharing link, then on your phone open
+  Play Store, Settings, tap the Play Store version seven times and turn on
+  Internal app sharing, then open the link. Uninstall any sideloaded copy first if
+  the install refuses.
 - Does EUC Planet appear on your Android Auto screen and connect by itself?
 - Stats update while riding? Speed, battery and the rest read the same as the phone?
 - Horn, Light and Record work from the car screen?

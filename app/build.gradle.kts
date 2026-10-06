@@ -402,20 +402,34 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
 }
 
-// Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
+// Gradle Play Publisher. Runs locally and from CI (.github/workflows/play-publish.yml):
 //   ./gradlew :app:publishReleaseBundle                     -> Open testing (beta)
 //   ./gradlew :app:publishReleaseBundle --track production  -> Production
+//   ./gradlew :app:uploadDebugPrivateApk                    -> Internal app sharing
 // Default track is beta; --track overrides per run (also --release-status draft
 // or --user-fraction 0.1 for a held / staged push). releaseStatus = COMPLETED
 // means the upload is sent for review and auto-publishes on approval.
-// Credentials: play-service-account.json at the repo root (gitignored).
-// Release notes come from src/main/play/release-notes/en-US/default.txt, which
-// is rewritten from reviewed text at release time (drafted + approved, never
-// auto-generated from commit messages).
+//
+// Credentials, in order of preference:
+//   1. play-service-account.json at the repo root (gitignored), for local runs.
+//   2. Application Default Credentials. CI has no key to hand it a file: the org
+//      enforces iam.disableServiceAccountKeyCreation, so no service account key
+//      exists to leak. google-github-actions/auth federates the GitHub OIDC token
+//      and writes ADC for play-publisher@euc-planet.iam.gserviceaccount.com, and
+//      this picks it up with nothing stored in GitHub secrets.
+//
+// Release notes come from src/main/play/release-notes/<locale>/<track>.txt, with
+// default.txt covering any track that has no file of its own. They are rewritten
+// from reviewed text at release time (drafted + approved, never auto-generated
+// from commit messages). There is deliberately no listings/ directory: without
+// one the store listing stays whatever Play Console says, so a publish can never
+// overwrite the copy or the screenshots by accident.
 play {
     val playCreds = rootProject.file("play-service-account.json")
     if (playCreds.exists()) {
         serviceAccountCredentials.set(playCreds)
+    } else {
+        useApplicationDefaultCredentials.set(true)
     }
     track.set("beta") // default; override per run with --track production
     defaultToAppBundles.set(true)

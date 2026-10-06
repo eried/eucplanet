@@ -1,0 +1,250 @@
+name: Play publish
+
+# Puts a signed build in front of people through Google Play. For the Android
+# Auto car screen this is not a convenience, it is the only route that exists:
+# Android Auto refuses to list a sideloaded Car App Library app whatever the
+# rider toggles. The "Unknown sources" developer setting covers media, messaging
+# and parked apps and explicitly does not cover template apps, so a GitHub APK
+# can never appear in a car. See https://developer.android.com/training/cars/testing
+#
+# Three destinations:
+#
+#   internal-sharing : Play Internal app sharing. Any signing key, no review, no
+#                      version-code bump, link in minutes, and "anyone with the
+#                      link" so there is nobody to invite. Each upload mints a
+#                      NEW link, capped at 100 downloads and expiring after 60
+#                      days, which is why this is manual: an upload per push
+#                      would hand testers a fresh link nobody told them about.
+#   beta             : the open testing track. Anyone can join from the public
+#                      opt-in page. Runs by itself when app/build.gradle.kts
+#                      changes on next-version, which is the file a version bump
+#                      lands in.
+#   production       : everyone. Manual only, and gated behind the `production`
+#                      GitHub Environment so a human has to approve the run.
+#
+# AUTHENTICATION IS KEYLESS. The org enforces
+# iam.disableServiceAccountKeyCreation, so no service account key exists, which
+# means there is no Play credential in GitHub secrets to leak. Instead GitHub
+# mints a short-lived OIDC token per run, Workload Identity Federation exchanges
+# it for credentials to impersonate the Play service account, and the Gradle
+# plugin reads those as Application Default Credentials. Nothing is stored.
+#
+# One-time setup is in docs/play-publishing.md.
+#
+# Note: workflow_dispatch only appears in the Actions tab when this file is on
+# the default branch, so it has to reach main before the manual run exists.
+
+on:
+  push:
+    branches:
+      - next-version
+    paths:
+      # A version bump lands here. Without this filter every commit on
+      # next-version would try to publish a version code Play already has and
+      # fail noisily.
+      - "app/build.gradle.kts"
+      - "app/src/main/play/**"
+  workflow_dispatch:
+    inputs:
+      destination:
+        description: "Where this build goes"
+        type: choice
+        options:
+          - internal-sharing
+          - beta
+          - production
+        default: internal-sharing
+      variant:
+        description: "Which build to share (internal-sharing only; the tracks are always release)"
+        type: choice
+        options:
+          - debug
+          - release
+        default: debug
+      announce:
+        description: "Post the link to the Telegram releases channel (internal-sharing only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write # required so GitHub will mint the OIDC token for federation
+
+# Two uploads racing each other would mint two links and confuse whoever is
+# waiting for one. Queue instead of cancelling: a half-finished upload is worse
+# than a slow one.
+concurrency:
+  group: play-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Production waits for a reviewer; everything else runs straight through.
+    # The environment also scopes who can approve, see docs/play-publishing.md.
+    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.destination == 'production') && 'production' || 'testing' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Resolve destination
+        id: dest
+        run: |
+          # A push can only ever mean next-version, which goes to beta.
+          if [ "${{ github.event_name }}" = "push" ]; then
+            dest="beta"
+            variant="release"
+          else
+            dest="${{ inputs.destination }}"
+            variant="${{ inputs.variant }}"
+          fi
+          echo "dest=${dest}"       >> "$GITHUB_OUTPUT"
+          echo "variant=${variant}" >> "$GITHUB_OUTPUT"
+          echo "::notice::Publishing ${GITHUB_REF##*/} to ${dest}"
+
+      - name: Verify signing secrets are configured
+        env:
+          RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          missing=()
+          [ -z "$RELEASE_KEYSTORE" ]  && missing+=(RELEASE_KEYSTORE)
+          [ -z "$KEYSTORE_PASSWORD" ] && missing+=(KEYSTORE_PASSWORD)
+          [ -z "$KEY_ALIAS" ]         && missing+=(KEY_ALIAS)
+          [ -z "$KEY_PASSWORD" ]      && missing+=(KEY_PASSWORD)
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Signing secrets missing: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Restore release keystore
+        env:
+          RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+        run: |
+          echo "$RELEASE_KEYSTORE" | base64 -d > release.jks
+          test -s release.jks || {
+            echo "::error::Decoded RELEASE_KEYSTORE is empty."; exit 1; }
+
+      - name: Write keystore.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          cat > keystore.properties <<EOF
+          storeFile=release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      # Exchanges this run's OIDC token for credentials that impersonate the
+      # Play service account, and writes them where Application Default
+      # Credentials will find them. No key, nothing persisted.
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/603782981905/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: play-publisher@euc-planet.iam.gserviceaccount.com
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Internal app sharing takes an APK, which is what a tester installs by
+      # tapping the link. The tracks take a bundle, which is what Play wants for
+      # anything it serves itself.
+      #
+      # Debug is the default variant for sharing, deliberately: the key does not
+      # matter there, so testers can have the build that has actually been run
+      # rather than a release build whose R8 pass a new feature has never been
+      # through. Switch to release when the point of the round IS to rehearse
+      # what beta will ship.
+      - name: Publish
+        run: |
+          set -o pipefail
+          case "${{ steps.dest.outputs.dest }}" in
+            internal-sharing)
+              case "${{ steps.dest.outputs.variant }}" in
+                release) task=":app:uploadReleasePrivateApk" ;;
+                *)       task=":app:uploadDebugPrivateApk" ;;
+              esac
+              args=""
+              ;;
+            beta)
+              task=":app:publishReleaseBundle"; args="--track beta" ;;
+            production)
+              task=":app:publishReleaseBundle"; args="--track production" ;;
+          esac
+          echo "::notice::Running $task $args"
+          ./gradlew "$task" $args --no-daemon 2>&1 | tee gradle.log
+          grep -q 'BUILD SUCCESSFUL' gradle.log || {
+            echo "::error::Gradle did not report BUILD SUCCESSFUL."; exit 1; }
+
+      # The plugin drops the download URL into a JSON file rather than printing
+      # it anywhere a human looks, so dig it out and put it where whoever
+      # triggered the run will see it.
+      - name: Read the sharing link
+        id: link
+        if: steps.dest.outputs.dest == 'internal-sharing'
+        run: |
+          file=$(find app/build/outputs/internal-sharing -name '*.json' 2>/dev/null | head -1)
+          if [ -z "$file" ]; then
+            echo "::warning::No internal-sharing JSON found; check the Gradle log."
+            exit 0
+          fi
+          url=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('downloadUrl',''))" "$file")
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          echo "::notice::Install link: ${url}"
+
+      - name: Summary
+        run: |
+          {
+            echo "## Play publish"
+            echo
+            echo "- Branch: \`${GITHUB_REF##*/}\`"
+            echo "- Destination: **${{ steps.dest.outputs.dest }}**"
+            if [ "${{ steps.dest.outputs.dest }}" = "internal-sharing" ]; then
+              echo "- Variant: ${{ steps.dest.outputs.variant }}"
+              echo "- Link: ${{ steps.link.outputs.url }}"
+              echo
+              echo "Testers need Internal app sharing switched on first:"
+              echo "Play Store, Settings, tap the Play Store version 7 times, Internal app sharing."
+              echo
+              echo "The link allows 100 downloads and expires after 60 days."
+            else
+              echo
+              echo "Live once Play finishes processing. Release notes came from"
+              echo "\`app/src/main/play/release-notes/\`."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Announce on Telegram
+        if: inputs.announce && steps.link.outputs.url != ''
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_RELEASES_CHAT_ID }}
+          THREAD: ${{ secrets.TELEGRAM_RELEASES_THREAD_ID }}
+          URL: ${{ steps.link.outputs.url }}
+        run: |
+          branch="${GITHUB_REF##*/}"
+          text="🚗 <b>${branch}</b> is on Play internal app sharing.%0A%0A"
+          text="${text}1. Play Store, Settings, tap the Play Store version 7 times, turn on Internal app sharing%0A"
+          text="${text}2. Open ${URL}%0A"
+          text="${text}3. Install, then plug into the car%0A%0A"
+          text="${text}Uninstall any sideloaded copy first if the install fails."
+          curl -sS -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            -d "chat_id=${CHAT}" \
+            -d "message_thread_id=${THREAD}" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=true" \
+            --data-urlencode "text=${text}" > /dev/null
