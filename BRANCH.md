@@ -16,7 +16,7 @@ only when you can cut the ride short.
 - The lock tile's slow-down limit follows Lock max speed in Advanced.
 - Stats length below 5 min now works: 30 sec shows 30 sec of stats, not 5 min.
 - Long-press the Speed splits tile to open its settings.
-- Headset voice button can announce the voice report instead of listening.
+- Headset voice button is one choice: Listen, Announce (speaks the voice report) or Off.
 
 ## Please test
 
