@@ -2720,4 +2720,14 @@
     <string name="horn_sound_too_long">Звук длиннее 5 секунд</string>
     <string name="horn_sound_too_big">Файл больше 2 МБ</string>
     <string name="horn_sound_unreadable">Не удалось проиграть файл</string>
+    <string name="voice_pills_desc">Макс, Мин, Сред и Пик считаются за длину статистики.</string>
+    <string name="voice_pill_add">Добавить</string>
+    <string name="voice_pill_message">Сообщение</string>
+    <string name="voice_pill_message_hint">Произносится как написано.</string>
+    <string name="voice_pills_empty">Ничего не произносится. Нажмите Добавить.</string>
+    <string name="voice_stat_now">Сейчас</string>
+    <string name="voice_stat_max">Макс</string>
+    <string name="voice_stat_min">Мин</string>
+    <string name="voice_stat_avg">Сред</string>
+    <string name="voice_stat_peak">Пик</string>
 </resources>

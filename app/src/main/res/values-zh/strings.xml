@@ -2587,4 +2587,14 @@
     <string name="horn_sound_too_long">这个声音超过 5 秒</string>
     <string name="horn_sound_too_big">这个文件超过 2 MB</string>
     <string name="horn_sound_unreadable">无法播放这个文件</string>
+    <string name="voice_pills_desc">最大、最小、平均和峰值按统计时长计算。</string>
+    <string name="voice_pill_add">添加</string>
+    <string name="voice_pill_message">消息</string>
+    <string name="voice_pill_message_hint">按你写的内容朗读。</string>
+    <string name="voice_pills_empty">不会播报任何内容。点按添加。</string>
+    <string name="voice_stat_now">当前</string>
+    <string name="voice_stat_max">最大</string>
+    <string name="voice_stat_min">最小</string>
+    <string name="voice_stat_avg">平均</string>
+    <string name="voice_stat_peak">峰值</string>
 </resources>

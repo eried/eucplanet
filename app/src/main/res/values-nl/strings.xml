@@ -2722,4 +2722,14 @@
     <string name="horn_sound_too_long">Dat geluid is langer dan 5 seconden</string>
     <string name="horn_sound_too_big">Dat bestand is groter dan 2 MB</string>
     <string name="horn_sound_unreadable">Dat bestand kan niet worden afgespeeld</string>
+    <string name="voice_pills_desc">Max, Min, Gem en Piek gelden voor de statistiekduur.</string>
+    <string name="voice_pill_add">Toevoegen</string>
+    <string name="voice_pill_message">Bericht</string>
+    <string name="voice_pill_message_hint">Uitgesproken zoals je het schrijft.</string>
+    <string name="voice_pills_empty">Er wordt niets gezegd. Tik op Toevoegen.</string>
+    <string name="voice_stat_now">Nu</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Gem</string>
+    <string name="voice_stat_peak">Piek</string>
 </resources>

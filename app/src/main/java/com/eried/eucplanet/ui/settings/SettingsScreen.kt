@@ -7514,116 +7514,8 @@ private fun VoiceTab(
         }
 
         // Report status: the periodic-report enable + when/interval, then the
-        // draggable per-metric Periodic/Trigger matrix, all tucked into a
-        // collapsible so the long list no longer dominates the tab.
-        val sSpeedEx = stringResource(R.string.voice_speed_fmt, "35")
-        val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
-        val sPhoneEx = stringResource(R.string.voice_phone_battery_fmt, 57)
-        val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
-        val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
-        val sCurrentEx = stringResource(R.string.voice_current_fmt, "12")
-        val sPowerEx = stringResource(R.string.voice_power_fmt, "980")
-        // Preview must match what the voice actually says, imperial users
-        // get the miles variant so the page can't lie about the format.
-        val sTripEx = stringResource(
-            when (Units.effectiveDistanceUnit(settings)) {
-                "mi" -> R.string.voice_trip_miles_fmt
-                "m" -> R.string.voice_trip_meters_fmt
-                else -> R.string.voice_trip_fmt
-            },
-            if (Units.effectiveDistanceUnit(settings) == "m") "12300" else "12.3"
-        )
-        val sRecOn = stringResource(R.string.voice_recording_on)
-        val sRecOff = stringResource(R.string.voice_recording_off)
-        val ctx = androidx.compose.ui.platform.LocalContext.current
-        val sTimeEx = stringResource(
-            R.string.voice_time_fmt,
-            android.text.format.DateFormat.getTimeFormat(ctx).format(java.util.Date())
-        )
-
-        // The plan's own list, so a report added to the registry appears here
-        // without a second list to remember. It used to be written out again
-        // by hand and was already two items short of the truth.
-        val reportKeys = com.eried.eucplanet.service.VoiceReportPlan.KNOWN
-        val savedReportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
-        // Append known items missing from the saved order (e.g. PhoneBattery) so they
-        // show in the list and preview even before the rider reorders.
-        val reportOrder = savedReportOrder + reportKeys.filter { it !in savedReportOrder }
-
-        val liveData by viewModel.wheelData.collectAsState()
-        val metricCtx = androidx.compose.ui.platform.LocalContext.current
-        fun extraSample(spec: com.eried.eucplanet.service.VoiceReportPlan.MetricReport): String? {
-            val raw = spec.read(liveData)
-            if (raw.isNaN() || (spec.blankAtZero && raw == 0f)) return null
-            val metric = com.eried.eucplanet.data.model.MetricCatalog.all
-                .first { it.key == spec.metricKey }
-            val value = com.eried.eucplanet.data.model.MetricValueFormat.format(
-                key = spec.metricKey,
-                raw = raw,
-                speedUnit = Units.effectiveSpeedUnit(settings),
-                speedUnitLabel = Units.speedUnit(metricCtx, Units.effectiveSpeedUnit(settings)),
-                tempUnit = Units.effectiveTempUnit(settings),
-                tempUnitLabel = Units.tempUnit(Units.effectiveTempUnit(settings)),
-                distanceUnit = Units.effectiveDistanceUnit(settings),
-                pressureUnit = Units.effectivePressureUnit(settings),
-            )
-            return metricCtx.getString(metric.spokenLabelRes ?: metric.labelRes) + ", " + value
-        }
-
-        fun exampleFor(key: String): String? = when (key) {
-            "Speed" -> sSpeedEx
-            "Battery" -> sBatteryEx
-            "PhoneBattery" -> sPhoneEx
-            "Temp" -> sTempEx
-            "PWM" -> sLoadEx
-            "Current" -> sCurrentEx
-            "Power" -> sPowerEx
-            "Distance" -> sTripEx
-            "Recording" -> listOf(sRecOn, sRecOff).random()
-            "Time" -> sTimeEx
-            "Navigation" -> navSample
-            else -> null
-        }
-
-        fun buildPreview(periodic: Boolean): String {
-            val parts = reportOrder.mapNotNull { key ->
-                com.eried.eucplanet.service.VoiceReportPlan.extra(key)?.let { spec ->
-                    return@mapNotNull if (spec.get(settings.voiceReports, periodic)) {
-                        extraSample(spec)
-                    } else null
-                }
-                val enabled = if (periodic) when (key) {
-                    "Speed" -> settings.voiceReportSpeed
-                    "Battery" -> settings.voiceReportBattery
-                    "PhoneBattery" -> settings.voiceReportPhoneBattery
-                    "Temp" -> settings.voiceReportTemp
-                    "PWM" -> settings.voiceReportPwm
-                    "Current" -> settings.voiceReports.periodicCurrent
-                    "Power" -> settings.voiceReports.periodicPower
-                    "Distance" -> settings.voiceReportDistance
-                    "Recording" -> settings.voiceReportRecording
-                    "Time" -> settings.voiceReportTime
-                    "Navigation" -> settings.voiceReportNavigation
-                    else -> false
-                } else when (key) {
-                    "Speed" -> settings.triggerReportSpeed
-                    "Battery" -> settings.triggerReportBattery
-                    "PhoneBattery" -> settings.triggerReportPhoneBattery
-                    "Temp" -> settings.triggerReportTemp
-                    "PWM" -> settings.triggerReportPwm
-                    "Current" -> settings.voiceReports.triggerCurrent
-                    "Power" -> settings.voiceReports.triggerPower
-                    "Distance" -> settings.triggerReportDistance
-                    "Recording" -> settings.triggerReportRecording
-                    "Time" -> settings.triggerReportTime
-                    "Navigation" -> settings.triggerReportNavigation
-                    else -> false
-                }
-                if (enabled) exampleFor(key) else null
-            }
-            return parts.joinToString(", ")
-        }
-
+        // two pill lists, tucked into a collapsible so they do not dominate
+        // the tab.
         SectionHeader(stringResource(R.string.section_report_status))
         // The toggle enables only the periodic loop, so the when/interval
         // controls hide with it. The Customize matrix below stays visible
@@ -7668,149 +7560,23 @@ private fun VoiceTab(
             title = stringResource(R.string.report_contents),
             stateKey = "voice-report-contents"
         ) {
-        // Header: Label | Periodic | arrows | Trigger
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(Modifier.weight(1f))
-            Row(modifier = Modifier.weight(0.55f), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-                Text(stringResource(R.string.col_periodic), style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = {
-                    val text = buildPreview(periodic = true)
-                    if (text.isNotBlank()) viewModel.testSpeak(text)
-                })
-            }
-            Row(modifier = Modifier.weight(0.55f), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-                Text(stringResource(R.string.col_trigger), style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = {
-                    val text = buildPreview(periodic = false)
-                    if (text.isNotBlank()) viewModel.testSpeak(text)
-                })
-            }
-        }
-
-        data class ReportItemConfig(
-            val key: String,
-            val label: String,
-            val periodicChecked: Boolean,
-            val onPeriodicChange: (Boolean) -> Unit,
-            val triggerChecked: Boolean,
-            val onTriggerChange: (Boolean) -> Unit,
-            val testText: String
+        // Two lists, one per announcement, each its own order: what is worth
+        // hearing every few minutes and what a button press should say are
+        // different answers. Max, Min, Avg and Peak cover the stats length.
+        HintText(stringResource(R.string.voice_pills_desc), small = true)
+        VoicePillList(
+            title = stringResource(R.string.col_periodic),
+            pills = com.eried.eucplanet.service.VoiceReportPlan.pills(settings, periodic = true),
+            onChange = { viewModel.setVoicePills(periodic = true, pills = it) },
+            onPlay = { viewModel.previewVoiceReport(periodic = true) },
         )
-
-        val allItems = mapOf(
-            "Speed" to ReportItemConfig("Speed", stringResource(R.string.report_speed),
-                settings.voiceReportSpeed, { viewModel.updateVoiceReportSpeed(it) },
-                settings.triggerReportSpeed, { viewModel.updateTriggerReportSpeed(it) },
-                sSpeedEx),
-            "Battery" to ReportItemConfig("Battery", stringResource(R.string.report_battery),
-                settings.voiceReportBattery, { viewModel.updateVoiceReportBattery(it) },
-                settings.triggerReportBattery, { viewModel.updateTriggerReportBattery(it) },
-                sBatteryEx),
-            "PhoneBattery" to ReportItemConfig("PhoneBattery", stringResource(R.string.report_phone_battery),
-                settings.voiceReportPhoneBattery, { viewModel.updateVoiceReportPhoneBattery(it) },
-                settings.triggerReportPhoneBattery, { viewModel.updateTriggerReportPhoneBattery(it) },
-                sPhoneEx),
-            "Temp" to ReportItemConfig("Temp", stringResource(R.string.report_temp),
-                settings.voiceReportTemp, { viewModel.updateVoiceReportTemp(it) },
-                settings.triggerReportTemp, { viewModel.updateTriggerReportTemp(it) },
-                sTempEx),
-            "PWM" to ReportItemConfig("PWM", stringResource(R.string.report_pwm),
-                settings.voiceReportPwm, { viewModel.updateVoiceReportPwm(it) },
-                settings.triggerReportPwm, { viewModel.updateTriggerReportPwm(it) },
-                sLoadEx),
-            // Current and Power exist for the wheels that never report PWM, so
-            // the rider still has a limit-style reading. Both are spoken as a
-            // recent average, not an instantaneous peak.
-            "Current" to ReportItemConfig("Current", stringResource(R.string.report_current),
-                settings.voiceReports.periodicCurrent, { viewModel.updateVoiceReportCurrent(it) },
-                settings.voiceReports.triggerCurrent, { viewModel.updateTriggerReportCurrent(it) },
-                sCurrentEx),
-            "Power" to ReportItemConfig("Power", stringResource(R.string.report_power),
-                settings.voiceReports.periodicPower, { viewModel.updateVoiceReportPower(it) },
-                settings.voiceReports.triggerPower, { viewModel.updateTriggerReportPower(it) },
-                sPowerEx),
-            "Distance" to ReportItemConfig("Distance", stringResource(R.string.report_distance),
-                settings.voiceReportDistance, { viewModel.updateVoiceReportDistance(it) },
-                settings.triggerReportDistance, { viewModel.updateTriggerReportDistance(it) },
-                sTripEx),
-            "Recording" to ReportItemConfig("Recording", stringResource(R.string.report_recording),
-                settings.voiceReportRecording, { viewModel.updateVoiceReportRecording(it) },
-                settings.triggerReportRecording, { viewModel.updateTriggerReportRecording(it) },
-                listOf(sRecOn, sRecOff).random()),
-            "Time" to ReportItemConfig("Time", stringResource(R.string.report_time),
-                settings.voiceReportTime, { viewModel.updateVoiceReportTime(it) },
-                settings.triggerReportTime, { viewModel.updateTriggerReportTime(it) },
-                sTimeEx),
-            "Navigation" to ReportItemConfig("Navigation", stringResource(R.string.report_navigation),
-                settings.voiceReportNavigation, { viewModel.updateVoiceReportNavigation(it) },
-                settings.triggerReportNavigation, { viewModel.updateTriggerReportNavigation(it) },
-                navSample)
+        Spacer(Modifier.height(8.dp))
+        VoicePillList(
+            title = stringResource(R.string.col_trigger),
+            pills = com.eried.eucplanet.service.VoiceReportPlan.pills(settings, periodic = false),
+            onChange = { viewModel.setVoicePills(periodic = false, pills = it) },
+            onPlay = { viewModel.previewVoiceReport(periodic = false) },
         )
-
-        // The catalog-backed reports, built rather than written out: name from
-        // the metric catalog (already translated), value through the same
-        // formatter the tile uses, both toggles through one view-model method.
-        val extraItems = com.eried.eucplanet.service.VoiceReportPlan.EXTRA.associate { spec ->
-            val metric = com.eried.eucplanet.data.model.MetricCatalog.all
-                .first { it.key == spec.metricKey }
-            spec.key to ReportItemConfig(
-                key = spec.key,
-                // The tile's name, not the spoken one. "Battery (est)" is
-                // what the rider reads on the dashboard and what they are
-                // looking for in this list; "Estimated battery" exists so the
-                // voice does not have to say "est" out loud, which is a
-                // different job and a longer word.
-                label = stringResource(metric.labelRes),
-                periodicChecked = spec.get(settings.voiceReports, true),
-                onPeriodicChange = { viewModel.updateVoiceReportExtra(spec.key, true, it) },
-                triggerChecked = spec.get(settings.voiceReports, false),
-                onTriggerChange = { viewModel.updateVoiceReportExtra(spec.key, false, it) },
-                // Rule 10: the preview speaks the rider's own wheel, and says
-                // so honestly when it has nothing to read yet.
-                // Nothing from the wheel yet is itself the honest preview:
-                // "No estimated battery yet" is what a rider asking right now
-                // would actually hear.
-                testText = extraSample(spec) ?: metricCtx.getString(
-                    R.string.voice_answer_nodata,
-                    stringResource(metric.spokenLabelRes ?: metric.labelRes),
-                ),
-            )
-        }
-        val everyItem = allItems + extraItems
-
-        // Existing users may have a saved order that predates new report items (e.g. "Time").
-        // Append any known items missing from the saved order so they still appear.
-        val orderedItems = (reportOrder.mapNotNull { everyItem[it] } +
-            everyItem.filterKeys { it !in reportOrder }.values).toList()
-
-        val haptic = LocalHapticFeedback.current
-        ReorderableColumn(
-            list = orderedItems,
-            onSettle = { from, to -> viewModel.moveReportItem(from, to) },
-            onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
-            modifier = Modifier.fillMaxWidth()
-        ) { _, item, _ ->
-            key(item.key) {
-                ReportRow(
-                    label = item.label,
-                    periodicChecked = item.periodicChecked,
-                    onPeriodicChange = item.onPeriodicChange,
-                    triggerChecked = item.triggerChecked,
-                    onTriggerChange = item.onTriggerChange,
-                    onTest = { viewModel.testSpeak(item.testText) },
-                    dragHandleModifier = Modifier.draggableHandle()
-                )
-            }
-        }
         }   // end Customize AdvancedCollapsable
 
         // --- Acceleration splits (RaceBox-style) ---
@@ -9741,7 +9507,7 @@ private fun CloudTab(
 // --- Shared components ---
 
 @Composable
-private fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
+internal fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
     IconButton(
         onClick = onClick,
         enabled = enabled,
@@ -9759,49 +9525,6 @@ private fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
     }
 }
 
-@Composable
-private fun ReportRow(
-    label: String,
-    periodicChecked: Boolean,
-    onPeriodicChange: (Boolean) -> Unit,
-    triggerChecked: Boolean,
-    onTriggerChange: (Boolean) -> Unit,
-    onTest: () -> Unit = {},
-    dragHandleModifier: Modifier = Modifier
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            Icons.Default.DragHandle,
-            contentDescription = stringResource(R.string.action_reorder),
-            modifier = dragHandleModifier.size(28.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.width(6.dp))
-        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            // The label yields, the play button does not. Without the weight
-            // the text took its full intrinsic width and left the button the
-            // remainder: "Estimated battery" squeezed it from 126px to 69 and
-            // the glyph inside it from 37 to 12, which is a preview a rider
-            // cannot see, let alone hit.
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            Spacer(Modifier.width(6.dp))
-            PlayButton(onClick = onTest)
-        }
-        Switch(checked = periodicChecked, onCheckedChange = onPeriodicChange,
-            modifier = Modifier.weight(0.55f), colors = themedSwitchColors())
-        Switch(checked = triggerChecked, onCheckedChange = onTriggerChange,
-            modifier = Modifier.weight(0.55f), colors = themedSwitchColors())
-    }
-}
 
 @Composable
 private fun AnnounceSwitchSetting(
@@ -12314,10 +12037,8 @@ private fun HudScreenList(
             // screen -- they need at least one screen on the carousel
             // or the HUD has no content to show.
             val canUncheck = !(isOnlyOneEnabled && checked)
-            // Matches the chrome of [ReportRow] used by the voice
-            // periodic-report list at the top of the Voice tab: drag
-            // handle on the left, label in weighted middle, Material3
-            // Switch on the right. No vertical padding -- the
+            // Drag handle on the left, label in the weighted middle,
+            // Material3 Switch on the right. No vertical padding -- the
             // ReorderableColumn handles spacing between rows.
             Row(
                 modifier = Modifier.fillMaxWidth(),

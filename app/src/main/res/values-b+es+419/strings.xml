@@ -2738,4 +2738,14 @@
     <string name="horn_sound_too_long">Ese sonido dura más de 5 segundos</string>
     <string name="horn_sound_too_big">Ese archivo pesa más de 2 MB</string>
     <string name="horn_sound_unreadable">No se pudo reproducir ese archivo</string>
+    <string name="voice_pills_desc">Máx, Mín, Prom y Pico cubren la duración de estadísticas.</string>
+    <string name="voice_pill_add">Agregar</string>
+    <string name="voice_pill_message">Mensaje</string>
+    <string name="voice_pill_message_hint">Se dice tal como lo escribes.</string>
+    <string name="voice_pills_empty">No se dice nada. Toca Agregar.</string>
+    <string name="voice_stat_now">Ahora</string>
+    <string name="voice_stat_max">Máx</string>
+    <string name="voice_stat_min">Mín</string>
+    <string name="voice_stat_avg">Prom</string>
+    <string name="voice_stat_peak">Pico</string>
 </resources>

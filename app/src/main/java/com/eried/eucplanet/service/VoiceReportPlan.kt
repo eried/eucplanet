@@ -154,7 +154,35 @@ object VoiceReportPlan {
         }
     }
 
-    /** The reports to speak, in order. */
+    /** The reports to speak, in order, from the per-report switches. */
     fun items(s: AppSettings, periodic: Boolean): List<String> =
         order(s.voiceReportOrder).filter { isEnabled(it, s, periodic) }
+
+    /**
+     * The metric-catalog key whose history a statistic reads, or null for a
+     * report that has no history to take a max of (time, recording, trip,
+     * navigation, odometer).
+     */
+    fun statKey(item: String): String? = when (item) {
+        "Speed" -> "SPEED"
+        "Battery" -> "BATTERY"
+        "PhoneBattery" -> "PHONE_BATTERY"
+        "Temp" -> "TEMPERATURE"
+        "PWM" -> "LOAD"
+        "Current" -> "CURRENT"
+        "Power" -> "BATTERY_POWER"
+        "Odometer" -> null
+        else -> extra(item)?.metricKey
+    }
+
+    /**
+     * What an announcement says, as pills. A rider who has never opened the
+     * pill editor hears exactly what the switches gave them before: the list
+     * is built from those until the first edit saves one of its own.
+     */
+    fun pills(s: AppSettings, periodic: Boolean): List<VoicePill> {
+        val saved = if (periodic) s.voiceReports.periodicPills else s.voiceReports.triggerPills
+        return if (saved.isBlank()) items(s, periodic).map { VoicePill(it) }
+        else VoicePills.decode(saved)
+    }
 }
