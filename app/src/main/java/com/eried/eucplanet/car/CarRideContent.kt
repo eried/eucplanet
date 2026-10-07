@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -292,6 +293,13 @@ private fun SpeedOnly(modifier: Modifier, wheel: WheelData, s: AppSettings) {
  * Sized for a glance from a wheel at speed rather than for a desk. The old
  * panel put 12sp labels and 20sp values in a 232dp column, which a tester
  * reported he could barely read standing still.
+ *
+ * Responsive on purpose. Android Auto splits the screen with media and with
+ * other navigation apps, and the same tester found that splitting "just makes
+ * the map smaller, the already too small telemetry window doesn't change". A
+ * fixed two-column grid at 44sp does not survive that: at 620px the units wrap
+ * one letter per line and the tiles clip to a single character. So the column
+ * count and every size come off the width we are actually given.
  */
 @Composable
 private fun BigStats(modifier: Modifier, wheel: WheelData, s: AppSettings, phoneBattery: Int) {
@@ -300,34 +308,63 @@ private fun BigStats(modifier: Modifier, wheel: WheelData, s: AppSettings, phone
     val speedUnit = Units.effectiveSpeedUnit(s)
     val distUnit = Units.effectiveDistanceUnit(s)
     val tempUnit = Units.effectiveTempUnit(s)
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                "%.0f".format(Units.speed(wheel.speed, speedUnit)),
-                color = c.textPrimary, fontSize = 104.sp, fontWeight = FontWeight.Bold,
-            )
-            Text(
-                Units.speedUnit(context, speedUnit),
-                color = c.textSecondary, fontSize = 28.sp,
-                modifier = Modifier.padding(start = 10.dp, bottom = 20.dp),
-            )
-        }
-        AndroidAutoSettings.metricSlots(s.androidAuto.metrics).chunked(2).forEach { pair ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                pair.forEach { key ->
-                    val type = WidgetMetricType.byKey(key)
-                    Column(
-                        Modifier.weight(1f)
-                            .background(c.surfaceVariant, RoundedCornerShape(14.dp))
-                            .padding(vertical = 12.dp, horizontal = 16.dp)
-                    ) {
-                        if (type != null) {
-                            Text(stringResource(type.pickerLabel), color = c.textSecondary, fontSize = 20.sp, maxLines = 1)
-                            Text(
-                                WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) +
-                                    " " + WidgetMetricFormat.unit(context, type, speedUnit, distUnit, tempUnit),
-                                color = c.textPrimary, fontSize = 44.sp, fontWeight = FontWeight.Bold, maxLines = 1,
-                            )
+    BoxWithConstraints(modifier) {
+        // Two columns only when there is genuinely room, which on this template
+        // is rarer than it looks. MapWithContentTemplate always keeps its
+        // content pane, and visibleArea excludes it along with the rest of the
+        // car's chrome, so a 1024dp head unit hands the surface about 330dp.
+        // Measured, after two guessed thresholds (520 then 440) both silently
+        // put a full-size screen into the narrow branch.
+        //
+        // So one column is the normal case, and it is sized to fill rather than
+        // to be safe: the point of this view is a rider reading it at speed.
+        val wide = maxWidth >= 620.dp
+        // Scale off the width we are actually handed rather than off tiers.
+        // 330dp is the reference, the surface a 1024dp head unit leaves once the
+        // content pane and the car's chrome are taken out. Hand-picked tiers got
+        // this wrong three times: they held the structure together but still let
+        // the text clip at the edge ("Temperatu", "102 '"). A ratio cannot.
+        val scale = (maxWidth / 330.dp).coerceIn(0.55f, 1.6f)
+        val speedSize = (if (wide) 104f else 80f * scale).sp
+        val unitSize = (if (wide) 28f else 22f * scale).sp
+        val labelSize = (if (wide) 20f else 16f * scale).sp
+        val valueSize = (if (wide) 44f else 34f * scale).sp
+        val gap = if (wide) 14.dp else (10.dp * scale)
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(gap)) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    "%.0f".format(Units.speed(wheel.speed, speedUnit)),
+                    color = c.textPrimary, fontSize = speedSize, fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+                Text(
+                    Units.speedUnit(context, speedUnit),
+                    color = c.textSecondary, fontSize = unitSize, maxLines = 1, softWrap = false,
+                    modifier = Modifier.padding(start = 8.dp, bottom = if (wide) 20.dp else 10.dp),
+                )
+            }
+            val slots = AndroidAutoSettings.metricSlots(s.androidAuto.metrics)
+            slots.chunked(if (wide) 2 else 1).forEach { group ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap)) {
+                    group.forEach { key ->
+                        val type = WidgetMetricType.byKey(key)
+                        Column(
+                            Modifier.weight(1f)
+                                .background(c.surfaceVariant, RoundedCornerShape(14.dp))
+                                .padding(vertical = if (wide) 12.dp else 6.dp, horizontal = if (wide) 16.dp else 10.dp)
+                        ) {
+                            if (type != null) {
+                                Text(
+                                    stringResource(type.pickerLabel), color = c.textSecondary,
+                                    fontSize = labelSize, maxLines = 1, softWrap = false,
+                                )
+                                Text(
+                                    WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) +
+                                        " " + WidgetMetricFormat.unit(context, type, speedUnit, distUnit, tempUnit),
+                                    color = c.textPrimary, fontSize = valueSize,
+                                    fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false,
+                                )
+                            }
                         }
                     }
                 }

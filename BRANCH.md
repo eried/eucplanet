@@ -11,6 +11,10 @@ short.
   button and no turn card on the car screen.
 - The rider's four metrics moved off our map and into the car's own content
   pane, which the head unit draws large. The map keeps speed alone, at 72sp.
+- The map-off view now survives a split. Josh reported that splitting "just
+  makes the map smaller, the already too small telemetry window doesn't change";
+  at that width the old layout wrapped mph one letter per line and clipped the
+  tiles to a single character. Sizes now scale off the width we are given.
 - New map on/off button on the car's map controls. Map off gives the whole
   screen to the numbers: speed at 104sp, metrics at 44sp. The old panel was
   12sp labels and 20sp values.
