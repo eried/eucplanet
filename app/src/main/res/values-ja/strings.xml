@@ -2760,4 +2760,5 @@
     <string name="crews_done">完了</string>
     <string name="crews_expired">そのコードは古くなった。ブラウザで新しいのを出して。</string>
     <string name="voice_pill_search">検索</string>
+    <string name="voice_volume">音量</string>
 </resources>

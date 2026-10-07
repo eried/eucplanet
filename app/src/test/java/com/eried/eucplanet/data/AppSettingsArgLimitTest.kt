@@ -56,9 +56,11 @@ class AppSettingsArgLimitTest {
         // crash report. 253 was the voice cues nested as one group; 254 is the
         // watch map (PR #25), nested as WatchMapSettings so four fields cost
         // one slot. 243 was the twelve motor sound fields moved out into
-        // EngineSoundSettings, freeing eleven; 244 is the horn group. Keep
-        // nesting: the next group goes in one slot, not one per field.
-        val expectedSlots = 244
+        // EngineSoundSettings, freeing eleven; 244 is the horn group; 245 is
+        // crewsDevServerEnabled and 246 voiceVolumePercent, single flags that
+        // sit beside their neighbours. Keep nesting: the next group goes in
+        // one slot, not one per field.
+        val expectedSlots = 246
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

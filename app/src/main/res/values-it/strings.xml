@@ -2664,4 +2664,5 @@
     <string name="crews_done">Fatto</string>
     <string name="crews_expired">Quel codice è andato a male. Prendine uno fresco dal browser.</string>
     <string name="voice_pill_search">Cerca</string>
+    <string name="voice_volume">Volume</string>
 </resources>

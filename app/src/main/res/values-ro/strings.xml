@@ -2562,4 +2562,5 @@
     <string name="crews_done">Gata</string>
     <string name="crews_expired">Codul ăla s-a învechit. Ia unul proaspăt din browser.</string>
     <string name="voice_pill_search">Caută</string>
+    <string name="voice_volume">Volum</string>
 </resources>

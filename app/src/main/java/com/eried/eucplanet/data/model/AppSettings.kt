@@ -86,6 +86,9 @@ data class AppSettings(
     val voiceAnnounceRequireExternal: Boolean = true,
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
+    /** Speech loudness, 10..100 % of the output channel's volume. Only the
+     *  voice: music, alarms and the auto-volume curve are not touched. */
+    val voiceVolumePercent: Int = 100,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
     // Specific TTS Voice.name within the locale (a language can expose several
     // voices). Empty = let the engine use its default voice for the locale.

@@ -2562,4 +2562,5 @@
     <string name="crews_done">Valmis</string>
     <string name="crews_expired">Tuo koodi on vanhentunut. Hae selaimesta tuore.</string>
     <string name="voice_pill_search">Hae</string>
+    <string name="voice_volume">Äänenvoimakkuus</string>
 </resources>

@@ -91,6 +91,7 @@ class SettingsRepository @Inject constructor(
  * AdvancedSettingsSpecGuardTest can run it without a store.
  */
 internal fun AppSettings.sanitized(): AppSettings = copy(
+    voiceVolumePercent = voiceVolumePercent.coerceIn(10, 100),
     autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
     // Weather comfort thresholds from a synced or hand-edited file: keep
     // the window one of the offered four, the bands ordered and sane.

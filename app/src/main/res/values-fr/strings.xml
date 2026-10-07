@@ -2763,4 +2763,5 @@
     <string name="crews_done">Terminé</string>
     <string name="crews_expired">Ce code a tourné. Prends-en un frais dans le navigateur.</string>
     <string name="voice_pill_search">Rechercher</string>
+    <string name="voice_volume">Volume</string>
 </resources>

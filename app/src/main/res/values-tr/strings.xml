@@ -2756,4 +2756,5 @@
     <string name="crews_done">Bitti</string>
     <string name="crews_expired">O kod bayatladı. Tarayıcıdan taze bir tane al.</string>
     <string name="voice_pill_search">Ara</string>
+    <string name="voice_volume">Ses düzeyi</string>
 </resources>
