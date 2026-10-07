@@ -135,15 +135,32 @@ class EucCarAppService : CarAppService() {
             }
         }
 
+        // PROTOTYPE (proto/aa-category): POI category instead of NAVIGATION, to
+        // find out whether a non-navigation car app can still draw our own
+        // pixels, and how much of the screen it gets when it does.
         override fun onGetTemplate(): Template {
             val nav = navigationEngine.navState.value
-            val builder = NavigationTemplate.Builder().setActionStrip(actionStrip(nav.active))
-            if (nav.active && nav.primaryText.isNotBlank()) {
-                builder.setNavigationInfo(
-                    MessageInfo.Builder(nav.primaryText).setText(nav.distanceText).build()
-                )
-            }
-            return builder.build()
+            val wheel = wheelRepository.wheelData.value
+            val content = androidx.car.app.model.PaneTemplate.Builder(
+                androidx.car.app.model.Pane.Builder()
+                    .addRow(
+                        androidx.car.app.model.Row.Builder()
+                            .setTitle("Speed")
+                            .addText(String.format(java.util.Locale.US, "%.1f km/h", wheel.speed))
+                            .build()
+                    )
+                    .addRow(
+                        androidx.car.app.model.Row.Builder()
+                            .setTitle("Battery")
+                            .addText("${'$'}{wheel.batteryPercent}%")
+                            .build()
+                    )
+                    .build()
+            ).setTitle("EUC Planet").build()
+            return androidx.car.app.navigation.model.MapWithContentTemplate.Builder()
+                .setContentTemplate(content)
+                .setActionStrip(actionStrip(nav.active))
+                .build()
         }
 
         private fun actionStrip(navigating: Boolean): ActionStrip {
