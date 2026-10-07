@@ -14,13 +14,23 @@ import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.ListTemplate
+import androidx.car.app.model.Pane
+import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.NavigationManager
 import androidx.car.app.navigation.NavigationManagerCallback
+import androidx.car.app.navigation.model.MapController
+import androidx.car.app.navigation.model.MapWithContentTemplate
 import androidx.car.app.navigation.model.MessageInfo
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.validation.HostValidator
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.sample
+import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.WidgetMetricType
+import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.widget.WidgetMetricFormat
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.lifecycleScope
@@ -72,6 +82,10 @@ class EucCarAppService : CarAppService() {
             HostValidator.Builder(this).addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample).build()
         }
 
+    /** Map on or off on the car surface. A rider who wants numbers should not
+     *  have to read them off a corner of a map; see the Map action. */
+    private val mapVisible = mutableStateOf(true)
+
     /** Sanitized settings for the templates, which cannot suspend. */
     private lateinit var settingsState: kotlinx.coroutines.flow.StateFlow<com.eried.eucplanet.data.model.AppSettings>
 
@@ -99,7 +113,7 @@ class EucCarAppService : CarAppService() {
                 },
             )
             val renderer = CarSurfaceRenderer(carContext) { area ->
-                CarRideContent(state, dark.value, area)
+                CarRideContent(state, dark.value, area, mapVisible.value)
             }
             carContext.getCarService(AppManager::class.java).setSurfaceCallback(renderer)
             return RideScreen(carContext)
@@ -118,16 +132,25 @@ class EucCarAppService : CarAppService() {
             navManager.setNavigationManagerCallback(object : NavigationManagerCallback {
                 override fun onStopNavigation() = navigationEngine.stop()
             })
-            // Redraw the frame only when something it shows changes: button
-            // labels (light, recording) and the turn card. The live map and
-            // stats repaint on the surface without touching the template.
+            // Redraw the frame when something it shows changes: button labels
+            // (light, recording) and, now that the rider's numbers live in the
+            // content pane rather than on the surface, the numbers themselves.
+            //
+            // The pane is a template, so it only changes when we ask for it.
+            // Telemetry arrives several times a second and the host rate-limits
+            // template updates, so sample it: one refresh a second reads as live
+            // on a car screen and stays well inside what the host will accept.
             lifecycleScope.launch {
                 combine(
                     wheelRepository.wheelData.map { it.lightOn }.distinctUntilChanged(),
                     tripRepository.recording,
                     navigationEngine.navState,
                     settingsRepository.settings.map { it.androidAuto }.distinctUntilChanged(),
-                ) { _, _, nav, _ -> nav.active }
+                    merge(
+                        wheelRepository.connectionState,
+                        wheelRepository.wheelData.sample(1_000L),
+                    ),
+                ) { _, _, nav, _, _ -> nav.active }
                     .collect { active ->
                         if (active) navManager.navigationStarted() else navManager.navigationEnded()
                         invalidate()
@@ -135,16 +158,83 @@ class EucCarAppService : CarAppService() {
             }
         }
 
+        /**
+         * POI, not NAVIGATION, and the rider's numbers live in the car's own
+         * content pane rather than in a corner of our map.
+         *
+         * Two reasons, both from testers. Android Auto runs one navigation app
+         * at a time, so being one meant EUC Planet vanished the moment someone
+         * opened Maps. And the stats drawn on our surface were too small to
+         * read: the host draws a content pane large and legible for free, and
+         * NF-2 wants the surface carrying map content anyway.
+         */
         override fun onGetTemplate(): Template {
-            val nav = navigationEngine.navState.value
-            val builder = NavigationTemplate.Builder().setActionStrip(actionStrip(nav.active))
-            if (nav.active && nav.primaryText.isNotBlank()) {
-                builder.setNavigationInfo(
-                    MessageInfo.Builder(nav.primaryText).setText(nav.distanceText).build()
+            val s = settingsState.value
+            val wheel = wheelRepository.wheelData.value
+            val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+            val pane = Pane.Builder()
+            if (connected) {
+                AndroidAutoSettings.metricSlots(s.androidAuto.metrics).forEach { key ->
+                    val type = WidgetMetricType.byKey(key) ?: return@forEach
+                    pane.addRow(
+                        Row.Builder()
+                            .setTitle(carContext.getString(type.pickerLabel))
+                            .addText(carMetricText(type, wheel, s))
+                            .build()
+                    )
+                }
+            } else {
+                pane.addRow(
+                    Row.Builder().setTitle(carContext.getString(R.string.car_waiting_wheel)).build()
                 )
             }
-            return builder.build()
+            return MapWithContentTemplate.Builder()
+                .setContentTemplate(PaneTemplate.Builder(pane.build()).setTitle(getString(R.string.app_name)).build())
+                .setActionStrip(actionStrip(false))
+                .setMapController(
+                    MapController.Builder().setMapActionStrip(mapActionStrip()).build()
+                )
+                .build()
         }
+
+        /** One metric, formatted exactly as the surface and the widget do. */
+        private fun carMetricText(
+            type: WidgetMetricType,
+            wheel: com.eried.eucplanet.data.model.WheelData,
+            s: com.eried.eucplanet.data.model.AppSettings,
+        ): String {
+            val speedUnit = Units.effectiveSpeedUnit(s)
+            val distUnit = Units.effectiveDistanceUnit(s)
+            val tempUnit = Units.effectiveTempUnit(s)
+            val phoneBattery = getSystemService(BatteryManager::class.java)
+                ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0
+            return WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) +
+                " " + WidgetMetricFormat.unit(carContext, type, speedUnit, distUnit, tempUnit)
+        }
+
+        /**
+         * Map controls get their own strip, so toggling the map never costs the
+         * rider one of their three buttons.
+         *
+         * Icon only, no title. The map strip allows zero titled actions, and a
+         * title here is not a style mistake but a crash: "Action list exceeded
+         * max number of 0 actions with custom titles".
+         */
+        private fun mapActionStrip(): ActionStrip = ActionStrip.Builder()
+            .addAction(
+                Action.Builder()
+                    .setIcon(
+                        CarIcon.Builder(
+                            IconCompat.createWithResource(carContext, R.drawable.ic_car_map)
+                        ).build()
+                    )
+                    .setOnClickListener {
+                        mapVisible.value = !mapVisible.value
+                        invalidate()
+                    }
+                    .build()
+            )
+            .build()
 
         private fun actionStrip(navigating: Boolean): ActionStrip {
             val strip = ActionStrip.Builder()

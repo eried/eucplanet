@@ -48,7 +48,7 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Android Auto: a navigation app that draws its own map and stats. -->
-    <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES" />
+    <uses-permission android:name="androidx.car.app.MAP_TEMPLATES" />
     <uses-permission android:name="androidx.car.app.ACCESS_SURFACE" />
 
     <!-- BLE feature requirement -->
@@ -347,7 +347,7 @@
             android:foregroundServiceType="location">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
-                <category android:name="androidx.car.app.category.NAVIGATION" />
+                <category android:name="androidx.car.app.category.POI" />
             </intent-filter>
         </service>
         <meta-data

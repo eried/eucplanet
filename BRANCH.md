@@ -6,10 +6,18 @@ short.
 
 ## Worked on
 
-- Android Auto: the map with your position and route, your stats beside it, and the wheel's buttons.
-- Settings > Integration > Android Auto: pick the four stats and three buttons. Navigate is always first.
-- Navigate offers Home and Work, the places saved in the route builder.
-- Light or lock from the notification, a widget, the car screen or Flic now pauses that automation too.
+- Android Auto is no longer a navigation app. It is a POI app, so it no longer
+  fights Google Maps for the one navigation slot. The cost is real: no Navigate
+  button and no turn card on the car screen.
+- The rider's four metrics moved off our map and into the car's own content
+  pane, which the head unit draws large. The map keeps speed alone, at 72sp.
+- New map on/off button on the car's map controls. Map off gives the whole
+  screen to the numbers: speed at 104sp, metrics at 44sp. The old panel was
+  12sp labels and 20sp values.
+- Settings > Integration > Android Auto still picks the four stats and the
+  three buttons. Navigate is no longer one of them, so all three are yours.
+- Light or lock from the notification, a widget, the car screen or Flic pauses
+  that automation too.
 
 ## Please test
 

@@ -77,7 +77,7 @@ class CarRideState(
  * and light built-in themes, so the panel reads like the phone app does.
  */
 @Composable
-fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?) {
+fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVisible: Boolean = true) {
     EucPlanetTheme(colors = if (dark) BuiltInThemes.dark.colors else BuiltInThemes.light.colors) {
         val c = MaterialTheme.appColors
         val settings by state.settings.collectAsState()
@@ -104,15 +104,27 @@ fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?) {
         }
 
         Box(Modifier.fillMaxSize().background(c.appBackground).onGloballyPositioned { rootPx = it.size }) {
-            CarMap(state, settings.navMapType, c.primary, c.surface, c.textSecondary, free)
+            if (mapVisible) {
+                CarMap(state, settings.navMapType, c.primary, c.surface, c.textSecondary, free)
+            }
             val panel = Modifier
                 .padding(free)
                 .padding(start = 12.dp, top = 12.dp)
                 .width(232.dp)
                 .background(c.surface.copy(alpha = 0.92f), RoundedCornerShape(16.dp))
                 .padding(14.dp)
-            if (connected) StatsPanel(panel, wheel, settings, state.phoneBattery())
-            else WaitingCard(panel, lastBattery)
+            when {
+                // Map off: the rider asked for numbers, so give them the whole
+                // surface at a size that reads at speed. This is the answer to
+                // "I can barely read it standing still".
+                !mapVisible && connected ->
+                    BigStats(Modifier.padding(free).fillMaxSize().padding(20.dp), wheel, settings, state.phoneBattery())
+                // Map on: the surface carries the map and the one number worth
+                // glancing at. The rest live in the car's own content pane,
+                // which the host draws large and legible for us.
+                connected -> SpeedOnly(panel, wheel, settings)
+                else -> WaitingCard(panel, lastBattery)
+            }
         }
     }
 }
@@ -246,6 +258,75 @@ private fun StatsPanel(modifier: Modifier, wheel: WheelData, s: AppSettings, pho
                                 WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) +
                                     " " + WidgetMetricFormat.unit(context, type, speedUnit, distUnit, tempUnit),
                                 color = c.textPrimary, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, maxLines = 1,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Speed alone, big, over the map. Everything else is in the content pane. */
+@Composable
+private fun SpeedOnly(modifier: Modifier, wheel: WheelData, s: AppSettings) {
+    val c = MaterialTheme.appColors
+    val context = LocalContext.current
+    val unit = Units.effectiveSpeedUnit(s)
+    Row(modifier, verticalAlignment = Alignment.Bottom) {
+        Text(
+            "%.0f".format(Units.speed(wheel.speed, unit)),
+            color = c.textPrimary, fontSize = 72.sp, fontWeight = FontWeight.Bold,
+        )
+        Text(
+            Units.speedUnit(context, unit),
+            color = c.textSecondary, fontSize = 22.sp,
+            modifier = Modifier.padding(start = 8.dp, bottom = 14.dp),
+        )
+    }
+}
+
+/**
+ * The map-off view: speed plus the rider's four metrics, filling the screen.
+ *
+ * Sized for a glance from a wheel at speed rather than for a desk. The old
+ * panel put 12sp labels and 20sp values in a 232dp column, which a tester
+ * reported he could barely read standing still.
+ */
+@Composable
+private fun BigStats(modifier: Modifier, wheel: WheelData, s: AppSettings, phoneBattery: Int) {
+    val c = MaterialTheme.appColors
+    val context = LocalContext.current
+    val speedUnit = Units.effectiveSpeedUnit(s)
+    val distUnit = Units.effectiveDistanceUnit(s)
+    val tempUnit = Units.effectiveTempUnit(s)
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                "%.0f".format(Units.speed(wheel.speed, speedUnit)),
+                color = c.textPrimary, fontSize = 104.sp, fontWeight = FontWeight.Bold,
+            )
+            Text(
+                Units.speedUnit(context, speedUnit),
+                color = c.textSecondary, fontSize = 28.sp,
+                modifier = Modifier.padding(start = 10.dp, bottom = 20.dp),
+            )
+        }
+        AndroidAutoSettings.metricSlots(s.androidAuto.metrics).chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                pair.forEach { key ->
+                    val type = WidgetMetricType.byKey(key)
+                    Column(
+                        Modifier.weight(1f)
+                            .background(c.surfaceVariant, RoundedCornerShape(14.dp))
+                            .padding(vertical = 12.dp, horizontal = 16.dp)
+                    ) {
+                        if (type != null) {
+                            Text(stringResource(type.pickerLabel), color = c.textSecondary, fontSize = 20.sp, maxLines = 1)
+                            Text(
+                                WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) +
+                                    " " + WidgetMetricFormat.unit(context, type, speedUnit, distUnit, tempUnit),
+                                color = c.textPrimary, fontSize = 44.sp, fontWeight = FontWeight.Bold, maxLines = 1,
                             )
                         }
                     }
