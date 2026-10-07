@@ -2563,4 +2563,7 @@
     <string name="crews_expired">Codul ăla s-a învechit. Ia unul proaspăt din browser.</string>
     <string name="voice_pill_search">Caută</string>
     <string name="voice_volume">Volum</string>
+    <string name="beep_volume_by_speed">Volumul bipului după viteză</string>
+    <string name="beep_volume_stopped">Oprit</string>
+    <string name="beep_volume_riding">În mers</string>
 </resources>

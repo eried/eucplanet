@@ -41,6 +41,9 @@ object HeadlightSlowPolicy {
         thresholdKmh: Float,
         nowMs: Long,
         enabled: Boolean,
+        /** How long slow must last before it counts; the beeper volume uses 0
+         *  so it is quiet before the wheel has fully stopped. */
+        holdMs: Long = HOLD_MS,
     ): State {
         if (!enabled) return State()
         if (state.forcedOff) {
@@ -49,7 +52,7 @@ object HeadlightSlowPolicy {
         }
         if (speedKmh >= thresholdKmh) return state.copy(slowSince = 0L)
         val since = if (state.slowSince == 0L) nowMs else state.slowSince
-        return if (nowMs - since >= HOLD_MS) State(forcedOff = true, slowSince = since)
+        return if (nowMs - since >= holdMs) State(forcedOff = true, slowSince = since)
         else state.copy(slowSince = since)
     }
 

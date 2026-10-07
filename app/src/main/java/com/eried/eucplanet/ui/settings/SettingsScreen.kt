@@ -679,6 +679,7 @@ fun SettingsScreen(
         stringResource(R.string.speed_legal_alarm),
         stringResource(R.string.section_speed_calibration),
         stringResource(R.string.horn_section),
+        stringResource(R.string.beep_volume_by_speed),
         stringResource(R.string.horn_mode_label),
         stringResource(R.string.horn_headphones_only),
         stringResource(R.string.section_battery_percent),
@@ -7204,6 +7205,40 @@ private fun HornSection(
             label = stringResource(R.string.horn_headphones_only),
             checked = horn.headphonesOnly
         ) { viewModel.updateHornHeadphonesOnly(it) }
+    }
+    // The wheel's own beeper volume, only for a wheel that takes one (Begode).
+    // Quiet while stopped so power-on and power-off beeps are soft; loud while
+    // riding so the warnings are heard.
+    val hasBeeperVolume by viewModel.wheelHasBeeperVolume.collectAsState()
+    if (hasBeeperVolume) {
+        SwitchSetting(
+            label = stringResource(R.string.beep_volume_by_speed),
+            checked = horn.beepVolumeBySpeed
+        ) { viewModel.updateBeepVolumeBySpeed(it) }
+        if (horn.beepVolumeBySpeed) {
+            val defaults = com.eried.eucplanet.data.model.HornSettings()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberFieldWithDefault(
+                    value = horn.beepVolumeStopped,
+                    default = defaults.beepVolumeStopped,
+                    onValueChange = { viewModel.updateBeepVolumeStopped(it) },
+                    range = 1..9,
+                    label = stringResource(R.string.beep_volume_stopped),
+                    modifier = Modifier.weight(1f),
+                )
+                NumberFieldWithDefault(
+                    value = horn.beepVolumeRiding,
+                    default = defaults.beepVolumeRiding,
+                    onValueChange = { viewModel.updateBeepVolumeRiding(it) },
+                    range = 1..9,
+                    label = stringResource(R.string.beep_volume_riding),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
     }
 }
 

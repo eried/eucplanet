@@ -2627,4 +2627,7 @@
     <string name="crews_expired">这个码过期了。去浏览器里要个新的。</string>
     <string name="voice_pill_search">搜索</string>
     <string name="voice_volume">音量</string>
+    <string name="beep_volume_by_speed">按速度调整蜂鸣音量</string>
+    <string name="beep_volume_stopped">停止</string>
+    <string name="beep_volume_riding">行驶</string>
 </resources>

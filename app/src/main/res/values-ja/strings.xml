@@ -2761,4 +2761,7 @@
     <string name="crews_expired">そのコードは古くなった。ブラウザで新しいのを出して。</string>
     <string name="voice_pill_search">検索</string>
     <string name="voice_volume">音量</string>
+    <string name="beep_volume_by_speed">速度でビープ音量を変える</string>
+    <string name="beep_volume_stopped">停止中</string>
+    <string name="beep_volume_riding">走行中</string>
 </resources>

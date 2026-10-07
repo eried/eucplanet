@@ -2760,4 +2760,7 @@
     <string name="crews_expired">Ten kod się zestarzał. Weź świeży z przeglądarki.</string>
     <string name="voice_pill_search">Szukaj</string>
     <string name="voice_volume">Głośność</string>
+    <string name="beep_volume_by_speed">Głośność sygnału wg prędkości</string>
+    <string name="beep_volume_stopped">Postój</string>
+    <string name="beep_volume_riding">Jazda</string>
 </resources>

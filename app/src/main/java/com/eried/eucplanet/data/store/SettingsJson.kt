@@ -168,6 +168,9 @@ object SettingsJson {
             put("mode", s.horn.mode)
             put("soundName", s.horn.soundName)
             put("headphonesOnly", s.horn.headphonesOnly)
+            put("beepVolumeBySpeed", s.horn.beepVolumeBySpeed)
+            put("beepVolumeStopped", s.horn.beepVolumeStopped)
+            put("beepVolumeRiding", s.horn.beepVolumeRiding)
         })
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
@@ -607,6 +610,9 @@ object SettingsJson {
                 mode = h.optString("mode", base.horn.mode),
                 soundName = h.optString("soundName", base.horn.soundName),
                 headphonesOnly = h.optBoolean("headphonesOnly", base.horn.headphonesOnly),
+                beepVolumeBySpeed = h.optBoolean("beepVolumeBySpeed", base.horn.beepVolumeBySpeed),
+                beepVolumeStopped = h.optInt("beepVolumeStopped", base.horn.beepVolumeStopped),
+                beepVolumeRiding = h.optInt("beepVolumeRiding", base.horn.beepVolumeRiding),
             )
         } ?: base.horn,
         proximityLock = j.optJSONObject("proximityLock")?.let { p ->

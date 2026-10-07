@@ -2757,4 +2757,7 @@
     <string name="crews_expired">O kod bayatladı. Tarayıcıdan taze bir tane al.</string>
     <string name="voice_pill_search">Ara</string>
     <string name="voice_volume">Ses düzeyi</string>
+    <string name="beep_volume_by_speed">Hıza göre bip sesi</string>
+    <string name="beep_volume_stopped">Dururken</string>
+    <string name="beep_volume_riding">Sürüşte</string>
 </resources>

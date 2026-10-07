@@ -148,8 +148,14 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
     // value decide when a wheel unlocks itself.
     // A horn mode this build does not know (a newer backup) falls back to the
     // wheel's own horn, which every build understands.
-    horn = if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
-        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL),
+    horn = (if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
+        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL)).let {
+        // The wheel only knows 1..9; anything else would be refused or worse.
+        it.copy(
+            beepVolumeStopped = it.beepVolumeStopped.coerceIn(1, 9),
+            beepVolumeRiding = it.beepVolumeRiding.coerceIn(1, 9),
+        )
+    },
     proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
         proximityLock
     } else {

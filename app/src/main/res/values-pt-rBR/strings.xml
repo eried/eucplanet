@@ -2762,4 +2762,7 @@
     <string name="crews_expired">Esse código envelheceu. Pega um novo no navegador.</string>
     <string name="voice_pill_search">Pesquisar</string>
     <string name="voice_volume">Volume</string>
+    <string name="beep_volume_by_speed">Volume do bipe pela velocidade</string>
+    <string name="beep_volume_stopped">Parado</string>
+    <string name="beep_volume_riding">Rodando</string>
 </resources>

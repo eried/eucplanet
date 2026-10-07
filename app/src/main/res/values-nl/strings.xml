@@ -2762,4 +2762,7 @@
     <string name="crews_expired">Die code is oud geworden. Haal een verse uit de browser.</string>
     <string name="voice_pill_search">Zoeken</string>
     <string name="voice_volume">Volume</string>
+    <string name="beep_volume_by_speed">Pieptoonvolume per snelheid</string>
+    <string name="beep_volume_stopped">Stilstaand</string>
+    <string name="beep_volume_riding">Rijdend</string>
 </resources>

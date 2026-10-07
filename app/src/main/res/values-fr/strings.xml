@@ -2764,4 +2764,7 @@
     <string name="crews_expired">Ce code a tourné. Prends-en un frais dans le navigateur.</string>
     <string name="voice_pill_search">Rechercher</string>
     <string name="voice_volume">Volume</string>
+    <string name="beep_volume_by_speed">Volume du bip selon la vitesse</string>
+    <string name="beep_volume_stopped">À l\'arrêt</string>
+    <string name="beep_volume_riding">En roulant</string>
 </resources>

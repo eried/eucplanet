@@ -2563,4 +2563,7 @@
     <string name="crews_expired">Ez a kód megavasodott. Hozz egy frisset a böngészőből.</string>
     <string name="voice_pill_search">Keresés</string>
     <string name="voice_volume">Hangerő</string>
+    <string name="beep_volume_by_speed">Sípolás hangereje sebesség szerint</string>
+    <string name="beep_volume_stopped">Álló</string>
+    <string name="beep_volume_riding">Menet közben</string>
 </resources>

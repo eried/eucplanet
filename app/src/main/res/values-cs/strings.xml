@@ -2563,4 +2563,7 @@
     <string name="crews_expired">Ten kód zestárl. Vem si čerstvý z prohlížeče.</string>
     <string name="voice_pill_search">Hledat</string>
     <string name="voice_volume">Hlasitost</string>
+    <string name="beep_volume_by_speed">Hlasitost pípání podle rychlosti</string>
+    <string name="beep_volume_stopped">Stání</string>
+    <string name="beep_volume_riding">Jízda</string>
 </resources>

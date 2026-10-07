@@ -2757,4 +2757,7 @@
     <string name="crews_expired">Ese código ya está rancio. Pilla uno nuevo en el navegador.</string>
     <string name="voice_pill_search">Buscar</string>
     <string name="voice_volume">Volumen</string>
+    <string name="beep_volume_by_speed">Volumen del pitido según velocidad</string>
+    <string name="beep_volume_stopped">Detenido</string>
+    <string name="beep_volume_riding">Rodando</string>
 </resources>

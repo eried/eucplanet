@@ -2780,4 +2780,7 @@
     <string name="crews_expired">Der Code ist abgelaufen. Hol dir im Browser einen frischen.</string>
     <string name="voice_pill_search">Suchen</string>
     <string name="voice_volume">Lautstärke</string>
+    <string name="beep_volume_by_speed">Piepton-Lautstärke nach Tempo</string>
+    <string name="beep_volume_stopped">Im Stand</string>
+    <string name="beep_volume_riding">Beim Fahren</string>
 </resources>

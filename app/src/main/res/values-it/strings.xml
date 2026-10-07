@@ -2665,4 +2665,7 @@
     <string name="crews_expired">Quel codice è andato a male. Prendine uno fresco dal browser.</string>
     <string name="voice_pill_search">Cerca</string>
     <string name="voice_volume">Volume</string>
+    <string name="beep_volume_by_speed">Volume del bip in base alla velocità</string>
+    <string name="beep_volume_stopped">Fermo</string>
+    <string name="beep_volume_riding">In marcia</string>
 </resources>

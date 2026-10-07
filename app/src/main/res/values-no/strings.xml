@@ -2648,4 +2648,7 @@
     <string name="crews_expired">Den koden er blitt gammel. Hent en fersk i nettleseren.</string>
     <string name="voice_pill_search">Søk</string>
     <string name="voice_volume">Volum</string>
+    <string name="beep_volume_by_speed">Pipevolum etter fart</string>
+    <string name="beep_volume_stopped">Stillestående</string>
+    <string name="beep_volume_riding">Under kjøring</string>
 </resources>

@@ -2788,4 +2788,7 @@
     <string name="crews_expired">That code\'s gone stale. Grab a fresh one from the browser.</string>
     <string name="voice_pill_search">Search</string>
     <string name="voice_volume">Volume</string>
+    <string name="beep_volume_by_speed">Beep volume by speed</string>
+    <string name="beep_volume_stopped">Stopped</string>
+    <string name="beep_volume_riding">Riding</string>
 </resources>

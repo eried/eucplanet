@@ -2759,4 +2759,7 @@
     <string name="crews_expired">그 코드는 뭵었다. 브라우저에서 새로 받아라.</string>
     <string name="voice_pill_search">검색</string>
     <string name="voice_volume">음량</string>
+    <string name="beep_volume_by_speed">속도별 비프 음량</string>
+    <string name="beep_volume_stopped">정지</string>
+    <string name="beep_volume_riding">주행</string>
 </resources>

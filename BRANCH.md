@@ -24,6 +24,7 @@ only when you can cut the ride short.
 - Customize voice report is two pill lists, Periodic and Trigger. A pill can say Now, Max, Min, Avg or Peak, and Message pills speak your own words.
 - Add offers every metric the dashboard can show (Phase amps, motor temperature, torque...), in a searchable list.
 - Voice volume, in Voice, Speech, Advanced: only the voice gets quieter, music and alarms keep their level.
+- Begode beep volume by speed, under Horn: quiet when stopped, loud while riding.
 
 ## Please test
 
@@ -40,6 +41,7 @@ only when you can cut the ride short.
 
 **Begode**
 - Current (A) stays live all ride instead of dropping to 0 A? Master v3 especially.
+- Beep volume by speed on: quiet beeps when stopped, loud once riding?
 
 **KingSong**
 - Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?

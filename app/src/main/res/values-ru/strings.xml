@@ -2760,4 +2760,7 @@
     <string name="crews_expired">Этот код протух. Возьми свежий в браузере.</string>
     <string name="voice_pill_search">Поиск</string>
     <string name="voice_volume">Громкость</string>
+    <string name="beep_volume_by_speed">Громкость сигнала по скорости</string>
+    <string name="beep_volume_stopped">Стоя</string>
+    <string name="beep_volume_riding">В движении</string>
 </resources>
