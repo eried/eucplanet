@@ -2626,4 +2626,5 @@
     <string name="crews_done">完成</string>
     <string name="crews_expired">这个码过期了。去浏览器里要个新的。</string>
     <string name="voice_pill_search">搜索</string>
+    <string name="voice_volume">音量</string>
 </resources>

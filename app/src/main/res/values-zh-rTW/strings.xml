@@ -2758,4 +2758,5 @@
     <string name="crews_done">完成</string>
     <string name="crews_expired">這個碼過期了。去瀏覽器裡要個新的。</string>
     <string name="voice_pill_search">搜尋</string>
+    <string name="voice_volume">音量</string>
 </resources>

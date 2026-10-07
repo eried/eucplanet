@@ -515,6 +515,10 @@ class SettingsViewModel @Inject constructor(
         update { copy(voiceSpeechRate = v) }
         previewText?.let { previewVoiceChange(it) }
     }
+    fun updateVoiceVolume(v: Int, previewText: String? = null) {
+        update { copy(voiceVolumePercent = v.coerceIn(10, 100)) }
+        previewText?.let { previewVoiceChange(it) }
+    }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicSpeed = v)) }
     fun updateVoiceReportBattery(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicBattery = v)) }
     fun updateVoiceReportTemp(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicTemp = v)) }

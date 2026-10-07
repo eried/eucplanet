@@ -99,6 +99,7 @@ object SettingsJson {
         put("voiceAnnounceRequireExternal", s.voiceAnnounceRequireExternal)
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
+        put("voiceVolumePercent", s.voiceVolumePercent)
         put("voiceLocale", s.voiceLocale)
         put("voiceName", s.voiceName)
         put("voiceLocaleOverridden", s.voiceLocaleOverridden)
@@ -469,6 +470,7 @@ object SettingsJson {
         ),
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
+        voiceVolumePercent = j.optInt("voiceVolumePercent", base.voiceVolumePercent),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),
         voiceName = j.optString("voiceName", base.voiceName),
         voiceLocaleOverridden = j.optBoolean("voiceLocaleOverridden", base.voiceLocaleOverridden),

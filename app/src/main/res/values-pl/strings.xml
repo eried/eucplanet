@@ -2759,4 +2759,5 @@
     <string name="crews_done">Gotowe</string>
     <string name="crews_expired">Ten kod się zestarzał. Weź świeży z przeglądarki.</string>
     <string name="voice_pill_search">Szukaj</string>
+    <string name="voice_volume">Głośność</string>
 </resources>

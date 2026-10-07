@@ -2756,4 +2756,5 @@
     <string name="crews_done">Listo</string>
     <string name="crews_expired">Ese código ya está rancio. Pilla uno nuevo en el navegador.</string>
     <string name="voice_pill_search">Buscar</string>
+    <string name="voice_volume">Volumen</string>
 </resources>

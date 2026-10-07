@@ -2562,4 +2562,5 @@
     <string name="crews_done">Kész</string>
     <string name="crews_expired">Ez a kód megavasodott. Hozz egy frisset a böngészőből.</string>
     <string name="voice_pill_search">Keresés</string>
+    <string name="voice_volume">Hangerő</string>
 </resources>

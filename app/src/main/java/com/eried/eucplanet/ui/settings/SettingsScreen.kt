@@ -693,6 +693,7 @@ fun SettingsScreen(
         titleVoice,
         stringResource(R.string.section_speech),
         stringResource(R.string.voice_speech_speed),
+        stringResource(R.string.voice_volume),
         stringResource(R.string.voice_audio_focus_label),
         stringResource(R.string.voice_output_channel_label),
         stringResource(R.string.section_announcements),
@@ -7282,7 +7283,18 @@ private fun VoiceTab(
                     parse = { it.toFloatOrNull()?.let { f -> (f * 10).roundToInt() } },
                     allowSign = true,
                 )
-                Spacer(Modifier.weight(1f))
+                // Scales the speech alone, so music, alarms and auto-volume
+                // keep their levels. Changing it speaks at the new level.
+                NumberFieldWithDefault(
+                    value = settings.voiceVolumePercent,
+                    default = SETTINGS_DEFAULTS.voiceVolumePercent,
+                    onValueChange = { viewModel.updateVoiceVolume(it, voiceWelcome) },
+                    range = 10..100,
+                    step = 10,
+                    suffix = "%",
+                    label = stringResource(R.string.voice_volume),
+                    modifier = Modifier.weight(1f),
+                )
             }
 
             AudioFocusSelector(

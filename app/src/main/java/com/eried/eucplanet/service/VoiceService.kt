@@ -61,6 +61,10 @@ class VoiceService @Inject constructor(
         private const val TAG = "VoiceService"
     }
 
+    /** The rider's voice volume, scaling the speech alone (KEY_PARAM_VOLUME is
+     *  per utterance and relative to the stream, so nothing else moves). */
+    @Volatile private var currentVolume = 1f
+
     private var tts: TextToSpeech? = null
     @Volatile private var isReady = false
     private var currentRate: Float = 1.0f
@@ -249,6 +253,7 @@ class VoiceService @Inject constructor(
             // Settings observer may not have emitted yet when welcome fires right after init.
             // Seed the current values so the locale and rate are applied on this first speak.
             currentRate = s.voiceSpeechRate
+            currentVolume = s.voiceVolumePercent / 100f
             currentLocaleTag = s.voiceLocale
             currentVoiceName = s.voiceName
             currentAudioFocus = s.voiceAudioFocus
@@ -266,6 +271,7 @@ class VoiceService @Inject constructor(
         scope.launch {
             settingsRepository.settings.collect { s ->
                 currentRate = s.voiceSpeechRate
+                currentVolume = s.voiceVolumePercent / 100f
                 currentLocaleTag = s.voiceLocale
                 currentVoiceName = s.voiceName
                 currentAudioFocus = s.voiceAudioFocus
@@ -955,7 +961,7 @@ class VoiceService @Inject constructor(
         synchronized(this) { pendingUtterances++ }
         requestAudioFocus()
         val params = android.os.Bundle().apply {
-            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, currentVolume)
         }
         // Previews flush (stop whatever is speaking and play this one now);
         // live announcements queue so they never talk over each other.

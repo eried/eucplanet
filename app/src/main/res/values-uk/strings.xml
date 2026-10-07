@@ -2756,4 +2756,5 @@
     <string name="crews_done">Готово</string>
     <string name="crews_expired">Цей код застарів. Візьми свіжий у браузері.</string>
     <string name="voice_pill_search">Пошук</string>
+    <string name="voice_volume">Гучність</string>
 </resources>
