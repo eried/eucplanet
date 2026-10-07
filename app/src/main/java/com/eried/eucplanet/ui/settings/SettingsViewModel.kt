@@ -249,6 +249,7 @@ class SettingsViewModel @Inject constructor(
         .map { it.rssiDbm }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val wheelHasBeeperVolume: StateFlow<Boolean> = wheelRepository.wheelHasBeeperVolume
     val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /**
@@ -609,6 +610,9 @@ class SettingsViewModel @Inject constructor(
 
     fun updateHornMode(v: String) = update { copy(horn = horn.copy(mode = v)) }
     fun updateHornHeadphonesOnly(v: Boolean) = update { copy(horn = horn.copy(headphonesOnly = v)) }
+    fun updateBeepVolumeBySpeed(v: Boolean) = update { copy(horn = horn.copy(beepVolumeBySpeed = v)) }
+    fun updateBeepVolumeStopped(v: Int) = update { copy(horn = horn.copy(beepVolumeStopped = v.coerceIn(1, 9))) }
+    fun updateBeepVolumeRiding(v: Int) = update { copy(horn = horn.copy(beepVolumeRiding = v.coerceIn(1, 9))) }
     val hornSoundReady: Boolean get() = hornPlayer.isReady
 
     /** Copy the picked clip in; the name is kept for the settings row. */

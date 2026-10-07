@@ -2744,4 +2744,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Gns</string>
     <string name="voice_stat_peak">Top</string>
+    <string name="beep_volume_by_speed">Bip-lydstyrke efter fart</string>
+    <string name="beep_volume_stopped">Stillestående</string>
+    <string name="beep_volume_riding">Under kørsel</string>
 </resources>

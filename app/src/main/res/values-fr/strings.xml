@@ -2733,4 +2733,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Moy</string>
     <string name="voice_stat_peak">Pic</string>
+    <string name="beep_volume_by_speed">Volume du bip selon la vitesse</string>
+    <string name="beep_volume_stopped">À l\'arrêt</string>
+    <string name="beep_volume_riding">En roulant</string>
 </resources>

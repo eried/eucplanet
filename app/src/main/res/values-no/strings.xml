@@ -2617,4 +2617,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Snitt</string>
     <string name="voice_stat_peak">Topp</string>
+    <string name="beep_volume_by_speed">Pipevolum etter fart</string>
+    <string name="beep_volume_stopped">Stillestående</string>
+    <string name="beep_volume_riding">Under kjøring</string>
 </resources>

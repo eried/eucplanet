@@ -2728,4 +2728,7 @@
     <string name="voice_stat_min">최소</string>
     <string name="voice_stat_avg">평균</string>
     <string name="voice_stat_peak">피크</string>
+    <string name="beep_volume_by_speed">속도별 비프 음량</string>
+    <string name="beep_volume_stopped">정지</string>
+    <string name="beep_volume_riding">주행</string>
 </resources>

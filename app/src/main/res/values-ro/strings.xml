@@ -2532,4 +2532,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Med</string>
     <string name="voice_stat_peak">Vârf</string>
+    <string name="beep_volume_by_speed">Volumul bipului după viteză</string>
+    <string name="beep_volume_stopped">Oprit</string>
+    <string name="beep_volume_riding">În mers</string>
 </resources>

@@ -277,6 +277,13 @@ interface WheelAdapter {
      */
     fun resetTripMeter(): ByteArray? = null
 
+    /**
+     * The wheel's own beeper volume, 1..9, as the writes to send in order,
+     * spaced by the repository (see WheelRepository.setBeeperVolume). Null on
+     * families that have none.
+     */
+    fun setBeeperVolume(level: Int): List<ByteArray>? = null
+
     // --- V14-style password auth. Adapters without auth return null. ---
     fun requestAuthKey(): ByteArray?
     fun verifyAuth(encryptedKey: ByteArray): ByteArray?
@@ -478,6 +485,8 @@ data class WheelCapabilities(
      * offering to lock a wheel that already is (issue #19, KS-18XL).
      */
     val lockStateOnRequestOnly: Boolean = false,
+    /** The wheel's beeper volume can be set (1..9), see [WheelAdapter.setBeeperVolume]. */
+    val hasBeeperVolume: Boolean = false,
 ) {
     companion object {
         /** V11/V12/V13/V14: full feature set, lock requires password auth. */
@@ -555,7 +564,8 @@ data class WheelCapabilities(
             hasAlarmSpeed = false,
             hasVolume = false,
             hasDRL = false,
-            needsAuthForLock = false
+            needsAuthForLock = false,
+            hasBeeperVolume = true,
         )
 
         /**

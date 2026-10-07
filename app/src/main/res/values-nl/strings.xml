@@ -2731,4 +2731,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Gem</string>
     <string name="voice_stat_peak">Piek</string>
+    <string name="beep_volume_by_speed">Pieptoonvolume per snelheid</string>
+    <string name="beep_volume_stopped">Stilstaand</string>
+    <string name="beep_volume_riding">Rijdend</string>
 </resources>

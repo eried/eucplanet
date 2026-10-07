@@ -2532,4 +2532,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Ka</string>
     <string name="voice_stat_peak">Huippu</string>
+    <string name="beep_volume_by_speed">Piippauksen voimakkuus nopeuden mukaan</string>
+    <string name="beep_volume_stopped">Paikallaan</string>
+    <string name="beep_volume_riding">Ajossa</string>
 </resources>

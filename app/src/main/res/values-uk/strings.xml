@@ -2726,4 +2726,7 @@
     <string name="voice_stat_min">Мін</string>
     <string name="voice_stat_avg">Сер</string>
     <string name="voice_stat_peak">Пік</string>
+    <string name="beep_volume_by_speed">Гучність сигналу за швидкістю</string>
+    <string name="beep_volume_stopped">Стоячи</string>
+    <string name="beep_volume_riding">У русі</string>
 </resources>

@@ -2731,4 +2731,7 @@
     <string name="voice_stat_min">Mín</string>
     <string name="voice_stat_avg">Méd</string>
     <string name="voice_stat_peak">Pico</string>
+    <string name="beep_volume_by_speed">Volume do bipe pela velocidade</string>
+    <string name="beep_volume_stopped">Parado</string>
+    <string name="beep_volume_riding">Rodando</string>
 </resources>

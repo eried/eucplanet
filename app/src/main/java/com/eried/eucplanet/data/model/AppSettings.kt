@@ -1724,6 +1724,16 @@ data class HornSettings(
     val soundName: String = "",
     /** Play the phone sound only through headphones or a Bluetooth speaker. */
     val headphonesOnly: Boolean = false,
+    /**
+     * The wheel's beeper volume follows speed (Begode): quiet while stopped,
+     * so the power-on and power-off beeps are soft, loud while riding, so the
+     * warnings are heard. Off leaves the wheel's volume alone.
+     */
+    val beepVolumeBySpeed: Boolean = false,
+    /** 1..9, below walking pace. */
+    val beepVolumeStopped: Int = 1,
+    /** 1..9, riding. */
+    val beepVolumeRiding: Int = 9,
 ) {
     companion object {
         const val MODE_WHEEL = "WHEEL"

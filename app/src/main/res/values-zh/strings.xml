@@ -2596,4 +2596,7 @@
     <string name="voice_stat_min">最小</string>
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">峰值</string>
+    <string name="beep_volume_by_speed">按速度调整蜂鸣音量</string>
+    <string name="beep_volume_stopped">停止</string>
+    <string name="beep_volume_riding">行驶</string>
 </resources>

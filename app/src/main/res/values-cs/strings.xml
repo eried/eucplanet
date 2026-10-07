@@ -2532,4 +2532,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Prům</string>
     <string name="voice_stat_peak">Špička</string>
+    <string name="beep_volume_by_speed">Hlasitost pípání podle rychlosti</string>
+    <string name="beep_volume_stopped">Stání</string>
+    <string name="beep_volume_riding">Jízda</string>
 </resources>

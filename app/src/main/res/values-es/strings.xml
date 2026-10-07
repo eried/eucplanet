@@ -2726,4 +2726,7 @@
     <string name="voice_stat_min">Mín</string>
     <string name="voice_stat_avg">Prom</string>
     <string name="voice_stat_peak">Pico</string>
+    <string name="beep_volume_by_speed">Volumen del pitido según velocidad</string>
+    <string name="beep_volume_stopped">Detenido</string>
+    <string name="beep_volume_riding">Rodando</string>
 </resources>

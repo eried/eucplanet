@@ -2532,4 +2532,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Átl</string>
     <string name="voice_stat_peak">Csúcs</string>
+    <string name="beep_volume_by_speed">Sípolás hangereje sebesség szerint</string>
+    <string name="beep_volume_stopped">Álló</string>
+    <string name="beep_volume_riding">Menet közben</string>
 </resources>

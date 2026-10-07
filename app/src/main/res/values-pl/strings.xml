@@ -2729,4 +2729,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Śr</string>
     <string name="voice_stat_peak">Szczyt</string>
+    <string name="beep_volume_by_speed">Głośność sygnału wg prędkości</string>
+    <string name="beep_volume_stopped">Postój</string>
+    <string name="beep_volume_riding">Jazda</string>
 </resources>

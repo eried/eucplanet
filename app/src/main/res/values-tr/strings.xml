@@ -2726,4 +2726,7 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Ort</string>
     <string name="voice_stat_peak">Tepe</string>
+    <string name="beep_volume_by_speed">Hıza göre bip sesi</string>
+    <string name="beep_volume_stopped">Dururken</string>
+    <string name="beep_volume_riding">Sürüşte</string>
 </resources>

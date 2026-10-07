@@ -204,6 +204,7 @@ class CompositeWheelAdapter @Inject constructor(
     override fun provideLockPassword(password: String) = active.provideLockPassword(password)
     override fun lockPrelude(): ByteArray? = active.lockPrelude()
     override fun resetTripMeter(): ByteArray? = active.resetTripMeter()
+    override fun setBeeperVolume(level: Int): List<ByteArray>? = active.setBeeperVolume(level)
 
     override fun requestAuthKey(): ByteArray? = active.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = active.verifyAuth(encryptedKey)

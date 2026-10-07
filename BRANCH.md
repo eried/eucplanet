@@ -1,42 +1,21 @@
-# next-experimental
+# feature/begode-beep-volume
 
-New features land here first. They work on the wheels they were written for
-and may not work on yours yet, and settings can move between builds. Ride it
-only when you can cut the ride short.
+Begode only: the wheel's own beep volume follows your speed. Built on
+next-experimental, so everything in that build is here too. Ride it only when
+you can cut the ride short.
 
 ## Worked on
 
-- InMotion V6 support: connects, live telemetry, PWM, lights and horn.
-- Writing to the wheel follows what its Bluetooth allows. Mostly the V6.
-- Switch the light or lock by hand and that automation pauses. Fix in Needs attention hands it back.
-- Branch builds install over each other. One last uninstall if you have an older one.
-- Service Mode logs GPS speed next to the wheel's.
-- Begode: current no longer gets stuck at 0 A after one noisy reading (#26).
-- KingSong: a wheel locked before power-off shows Locked on reconnect, not Lock (#19).
-- The lock tile's slow-down limit follows Lock max speed in Advanced.
-- Stats length below 5 min now works: 30 sec shows 30 sec of stats, not 5 min.
-- Long-press the Speed splits tile to open its settings.
-- Headset voice button is one choice: Listen, Announce (speaks the voice report) or Off.
-- Customize voice report is two pill lists, Periodic and Trigger. A pill can say Now, Max, Min, Avg or Peak, and Message pills speak your own words.
+- Settings > Wheel parameters > Horn > Beep volume by speed. Shows only while a Begode is connected.
+- Stopped (default 1) below walking pace, Riding (default 9) once you ride on. It goes quiet before the wheel stops, so turning it off beeps softly.
+- Off leaves the wheel's volume alone.
 
 ## Please test
 
-**InMotion V6**
-- Speed matches GPS? Service Mode on, ride 2 minutes at a steady speed, share the log.
-- Stays connected all ride? Lights and horn work?
-
 **Begode**
-- Current (A) stays live all ride instead of dropping to 0 A? Master v3 especially.
-
-**KingSong**
-- Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
-
-**Any wheel**
-- Stats length 30 sec or 1 min: tile stats and the detail screen cover only that much?
-- Headset button set to Announce: one press reads the voice report?
-- Voice report: the lists match what you heard before? A Max pill and a Message are spoken where you put them?
-- Connects and responds like before: lights, horn, lock, alarms.
-- Light or lock by hand: the automation stays out until you tap Fix?
+- Turn it on, ride, stop: are warnings loud while riding and quiet when stopped?
+- Stop, turn the wheel off and on: are the power beeps quiet?
+- Does the volume change without an extra beep? If the wheel does not change volume at all, say which firmware it runs.
 
 ## Reporting back
 
