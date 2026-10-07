@@ -180,7 +180,6 @@ private fun PillPickerDialog(onDismiss: () -> Unit, onPick: (String) -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.voice_pill_add), color = MaterialTheme.appColors.textPrimary) },
         text = {
             Column(Modifier.fillMaxWidth()) {
                 OutlinedTextField(
