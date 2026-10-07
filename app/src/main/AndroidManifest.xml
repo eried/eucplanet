@@ -349,6 +349,8 @@
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
                 <category android:name="androidx.car.app.category.POI" />
+                <!-- PROTOTYPE: does the host accept two categories at once? -->
+                <category android:name="androidx.car.app.category.NAVIGATION" />
             </intent-filter>
         </service>
         <meta-data
