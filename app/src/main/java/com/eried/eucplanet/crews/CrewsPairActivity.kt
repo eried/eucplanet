@@ -285,7 +285,7 @@ fun CrewsPairScreen(
                 )
                 Spacer(Modifier.height(18.dp))
                 ActionRow {
-                    Secondary(stringResource(R.string.crews_scan_other), Modifier.weight(1f)) {
+                    Secondary(stringResource(R.string.crews_scan_switch), Modifier.weight(1f)) {
                         step = Step.Scanning
                     }
                     Secondary(stringResource(R.string.crews_close), Modifier.weight(1f), onDone)
@@ -324,7 +324,13 @@ fun CrewsPairScreen(
                     if (storeId.isNullOrBlank()) {
                         Banner(
                             stringResource(R.string.crews_noprofile_title),
-                            stringResource(R.string.crews_noprofile_body),
+                            // The section's own title, interpolated rather than spelled out, so
+                            // it cannot drift from the settings screen and is translated once.
+                            // ShareDialog says where to go the same way.
+                            stringResource(
+                                R.string.crews_noprofile_body,
+                                stringResource(R.string.tab_cloud),
+                            ),
                             danger = true,
                         )
                         Spacer(Modifier.height(14.dp))
@@ -341,7 +347,13 @@ fun CrewsPairScreen(
                                     ctx.startActivity(
                                         Intent(ctx,
                                                Class.forName("com.eried.eucplanet.MainActivity"))
-                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            .putExtra(
+                                                com.eried.eucplanet.ui.settings
+                                                    .LeaderboardSetupLaunch
+                                                    .EXTRA_OPEN_LEADERBOARD,
+                                                true,
+                                            ))
                                 }
                                 onDone()
                             }
@@ -469,7 +481,15 @@ private fun Secondary(
     ) { Text(label) }
 }
 
-/** Two actions, side by side. A yes/no question is one decision, not two stacked bars. */
+/**
+ * Two actions, side by side. A yes/no question is one decision, not two stacked bars.
+ *
+ * Each button is half the card: 453px on a 1080px/420dpi screen, less 12dp of TextButton
+ * padding either side, so a label has about 390px of ink before it wraps and the two buttons
+ * stop sharing a baseline. Translations of these run up to 1.23x the English (measured: ru and
+ * it against en), so an English label wants to stay under ~317px -- roughly "Use the camera".
+ * "Scan a different code" was over it, and wrapped in Russian and Italian for real.
+ */
 @Composable
 private fun ActionRow(content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit) {
     Row(

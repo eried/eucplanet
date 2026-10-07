@@ -412,6 +412,21 @@ class MainActivity : AppCompatActivity() {
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
+        consumeLeaderboardIntent(intent)
+    }
+
+    /** The crew pass dialog found no leaderboard profile: take the rider to where one is made. */
+    private fun consumeLeaderboardIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(
+                com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.EXTRA_OPEN_LEADERBOARD,
+                false,
+            ) == true
+        ) {
+            com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.request()
+            intent.removeExtra(
+                com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.EXTRA_OPEN_LEADERBOARD
+            )
+        }
     }
 
     /** A charge alert was tapped: go where the number came from. */
@@ -444,6 +459,7 @@ class MainActivity : AppCompatActivity() {
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
+        consumeLeaderboardIntent(intent)
         // requestMissingPermissions() is intentionally NOT called here.
         // On a clean install, asking before setContent runs means the runtime
         // permission dialogs come up over a black activity, the rider thinks
@@ -641,6 +657,22 @@ class MainActivity : AppCompatActivity() {
                             runCatching {
                                 navController.navigate(
                                     com.eried.eucplanet.ui.navigation.Screen.ChargingMonitor.createRoute()
+                                ) { launchSingleTop = true }
+                            }
+                        }
+                    }
+                    // Same road, for a rider sent here by the crew pass dialog with no
+                    // leaderboard profile: open Settings already on the section that makes one.
+                    val pendingLeaderboard by com.eried.eucplanet.ui.settings
+                        .LeaderboardSetupLaunch.pending.collectAsState()
+                    androidx.compose.runtime.LaunchedEffect(pendingLeaderboard) {
+                        if (com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.consume()) {
+                            runCatching {
+                                navController.navigate(
+                                    com.eried.eucplanet.ui.navigation.Screen.Settings.createRoute(
+                                        com.eried.eucplanet.ui.settings
+                                            .LeaderboardSetupLaunch.SETTINGS_TAB_CLOUD
+                                    )
                                 ) { launchSingleTop = true }
                             }
                         }
