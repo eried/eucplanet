@@ -40,7 +40,13 @@ enum class NinebotLegacyVariant(val appAddress: Int) {
 enum class NinebotModel(
     val displayName: String,
     val protocol: NinebotProtocol,
-    val nominalVoltage: Int,
+    /**
+     * Pack voltage at full charge. Null where we have not confirmed it: the
+     * Mini and Mini Pro are scooters rather than wheels and the figure we
+     * carried for them looked like a 3.6 V/cell nominal, which would derive
+     * the wrong number of cells in series.
+     */
+    val nominalVoltage: Int?,
     val maxSpeedKmh: Int,
     val legacyVariant: NinebotLegacyVariant? = null
 ) {
@@ -54,8 +60,8 @@ enum class NinebotModel(
     ONE_E(   "Ninebot One E",     NinebotProtocol.LEGACY, 63, 25, NinebotLegacyVariant.DEFAULT),
     ONE_E_PLUS("Ninebot One E+",  NinebotProtocol.LEGACY, 63, 25, NinebotLegacyVariant.DEFAULT),
     ONE_S2(  "Ninebot One S2",    NinebotProtocol.LEGACY, 63, 30, NinebotLegacyVariant.S2),
-    MINI(    "Ninebot Mini",      NinebotProtocol.LEGACY, 36, 16, NinebotLegacyVariant.MINI),
-    MINI_PRO("Ninebot Mini Pro",  NinebotProtocol.LEGACY, 36, 18, NinebotLegacyVariant.MINI);
+    MINI(    "Ninebot Mini",      NinebotProtocol.LEGACY, null, 16, NinebotLegacyVariant.MINI),
+    MINI_PRO("Ninebot Mini Pro",  NinebotProtocol.LEGACY, null, 18, NinebotLegacyVariant.MINI);
 
     companion object {
         /**

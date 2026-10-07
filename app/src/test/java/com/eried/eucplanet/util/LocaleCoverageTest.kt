@@ -36,6 +36,63 @@ class LocaleCoverageTest {
         assertEquals("supported languages with no strings.xml", emptyList<String>(), missing)
     }
 
+    /** Names declared by `<string-array name="...">` in one strings file. */
+    private fun stringArrayNames(file: File): Set<String> =
+        Regex("""<string-array\s+name="([^"]+)"""")
+            .findAll(file.readText())
+            .map { it.groupValues[1] }
+            .toSet()
+
+    @Test
+    fun `every language translates every string-array`() {
+        // Nothing in this build runs lint, so MissingTranslation never fires
+        // and a <string-array> can be absent from a language for a whole
+        // release without anything complaining. nav_stop_ordinals shipped that way in
+        // Czech, Finnish, Hungarian and Romanian: those riders were read
+        // English stop names by a navigator speaking their own language
+        // everywhere else.
+        val expected = stringArrayNames(res("values/strings.xml"))
+        val gaps = LocaleHelper.SUPPORTED
+            .filter { it.tag != "en" }
+            .mapNotNull { lang ->
+                val file = res("${resFolder(lang.tag)}/strings.xml")
+                if (!file.exists()) return@mapNotNull null  // covered by the test above
+                val missing = expected - stringArrayNames(file)
+                if (missing.isEmpty()) null else "${lang.tag}: $missing"
+            }
+        assertEquals("languages missing a string-array", emptyList<String>(), gaps)
+    }
+
+    /**
+     * Names declared by `<string name="...">`, skipping the ones marked
+     * `translatable="false"` (paths, placeholders, glyphs) that no language
+     * is meant to carry.
+     */
+    private fun translatableStringNames(file: File): Set<String> =
+        Regex("""<string\s+name="([^"]+)"([^>]*)>""")
+            .findAll(file.readText())
+            .filterNot { it.groupValues[2].contains("translatable=\"false\"") }
+            .map { it.groupValues[1] }
+            .toSet()
+
+    @Test
+    fun `every language translates every string`() {
+        // sync_rate_limited shipped in 0.19.0 reading English on all 22
+        // languages. Lint would have caught it, but no Gradle task in this
+        // project runs lint, so the gap was invisible until someone counted
+        // the files by hand. Counting is this test's job now.
+        val expected = translatableStringNames(res("values/strings.xml"))
+        val gaps = LocaleHelper.SUPPORTED
+            .filter { it.tag != "en" }
+            .mapNotNull { lang ->
+                val file = res("${resFolder(lang.tag)}/strings.xml")
+                if (!file.exists()) return@mapNotNull null  // covered above
+                val missing = expected - translatableStringNames(file)
+                if (missing.isEmpty()) null else "${lang.tag}: ${missing.sorted()}"
+            }
+        assertEquals("languages missing a string", emptyList<String>(), gaps)
+    }
+
     @Test
     fun `every translated folder is a supported language`() {
         val known = LocaleHelper.SUPPORTED.map { resFolder(it.tag) }.toSet()

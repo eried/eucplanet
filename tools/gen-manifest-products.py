@@ -60,7 +60,7 @@ def main():
         if parse_ver(ver) < MIN_VERSION:
             continue
         # Some Edge entry-level computers (130 / 130 Plus) only support
-        # `datafield` and `background`, not `watchApp` — they'd fail the
+        # `datafield` and `background`, not `watchApp`, they'd fail the
         # build with "do not support app type 'watch-app'". Skip them so
         # the multi-device .iq still builds.
         types = {t.get("type") for t in obj.get("appTypes", [])}

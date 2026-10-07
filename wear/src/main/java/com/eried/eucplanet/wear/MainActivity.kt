@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -16,9 +17,11 @@ import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
+import com.eried.eucplanet.wear.bridge.WatchMapRepository
 import com.eried.eucplanet.wear.ui.WatchApp
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -66,14 +69,44 @@ class MainActivity : ComponentActivity() {
                     showWheelBattery = intent.getBooleanExtra("showWheelBatt", true),
                     showPhoneBattery = intent.getBooleanExtra("showPhoneBatt", true),
                     showWatchBattery = intent.getBooleanExtra("showWatchBatt", true),
-                    keepScreenOn = intent.getBooleanExtra("keepOn", true)
+                    keepScreenOn = intent.getBooleanExtra("keepOn", true),
+                    // --ez diag true: exercise the Service Mode input-event
+                    // reporting without a live phone pairing.
+                    diagOn = intent.getBooleanExtra("diag", false)
                 )
             )
         }
     }
 
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                Intent.ACTION_SCREEN_ON -> WatchMapRepository.setInteractive(
+                    applicationContext,
+                    true,
+                )
+                Intent.ACTION_SCREEN_OFF -> WatchMapRepository.setInteractive(
+                    applicationContext,
+                    false,
+                )
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WatchMapRepository.hydrateMapConfiguration(applicationContext)
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        WatchMapRepository.setInteractive(applicationContext, powerManager.isInteractive)
+        ContextCompat.registerReceiver(
+            this,
+            screenReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         if (isDebuggable()) {
             ContextCompat.registerReceiver(
                 this,
@@ -83,16 +116,31 @@ class MainActivity : ComponentActivity() {
             )
         }
 
-        // Apply / clear FLAG_KEEP_SCREEN_ON whenever the phone-pushed setting
-        // toggles. The watch's own ambient mode still kicks in if the user
-        // covers the screen, this only blocks the inactivity timeout.
+        // Keep the screen on globally when configured, or briefly while a fresh
+        // navigation hold is arriving from the phone. collectLatest cancels the
+        // freshness timer whenever either source changes.
         lifecycleScope.launch {
-            WatchStateRepository.state
-                .map { it.keepScreenOn }
-                .distinctUntilChanged()
-                .collect { keepOn ->
-                    if (keepOn) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                    else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            combine(
+                WatchStateRepository.state,
+                WatchStateRepository.lastPushAtMs,
+            ) { state, lastPushAtMs -> state to lastPushAtMs }
+                .collectLatest { (state, lastPushAtMs) ->
+                    val ageMs = (System.currentTimeMillis() - lastPushAtMs).coerceAtLeast(0L)
+                    val freshNavigationHold =
+                        state.keepScreenOnForNavigation && lastPushAtMs > 0L && ageMs < 3_000L
+                    when {
+                        state.keepScreenOn -> {
+                            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                        freshNavigationHold -> {
+                            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                            delay(3_000L - ageMs)
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                        else -> {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                    }
                 }
         }
 
@@ -114,6 +162,18 @@ class MainActivity : ComponentActivity() {
         setContent { WatchApp() }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        WatchMapRepository.setInteractive(applicationContext, powerManager.isInteractive)
+        WatchMapRepository.setActivityResumed(applicationContext, true)
+    }
+
+    override fun onPause() {
+        WatchMapRepository.setActivityResumed(applicationContext, false)
+        super.onPause()
+    }
+
     override fun onStart() {
         super.onStart()
         WatchStateRepository.setActivityVisible(true)
@@ -121,14 +181,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         WatchStateRepository.setActivityVisible(false)
+        WatchMapRepository.setActivityResumed(applicationContext, false)
         super.onStop()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        runCatching { unregisterReceiver(screenReceiver) }
         if (isDebuggable()) {
             runCatching { unregisterReceiver(demoReceiver) }
         }
+        super.onDestroy()
     }
 
     /**
@@ -140,6 +202,7 @@ class MainActivity : ComponentActivity() {
      */
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         val state = WatchStateRepository.state.value
+        sendDebugEvent("keyDown code=$keyCode")
         val action = when (keyCode) {
             KeyEvent.KEYCODE_STEM_1 -> state.stem1Click
             KeyEvent.KEYCODE_STEM_2 -> state.stem2Click
@@ -162,6 +225,7 @@ class MainActivity : ComponentActivity() {
             else -> null
         }
         if (action == null || action == "NONE") return super.onKeyLongPress(keyCode, event)
+        sendDebugEvent("keyLongPress code=$keyCode act=$action")
         dispatchAction(action)
         return true
     }
@@ -176,6 +240,7 @@ class MainActivity : ComponentActivity() {
                 val action = if (keyCode == KeyEvent.KEYCODE_STEM_1) state.stem1Click
                              else state.stem2Click
                 if (action != "NONE") {
+                    sendDebugEvent("keyClick code=$keyCode act=$action")
                     dispatchAction(action)
                     return true
                 }
@@ -185,12 +250,22 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Dispatches a [com.eried.eucplanet.data.model.FlicAction] name. HORN and
+     * Dispatches an ActionCatalog key (com.eried.eucplanet.data.model.ActionCatalog). HORN and
      * LIGHT_TOGGLE use the existing dedicated control intents so older watch
      * builds without the action: prefix handler still work; everything else
      * goes through the prefixed passthrough that PhoneWearListenerService
      * forwards to FlicManager.dispatchActionByName().
      */
+    /**
+     * Input-event report for the phone's Service Mode Wearables tab. A no-op
+     * unless the phone flagged diag recording in the state frames, so a
+     * normal ride sends nothing extra over the Data Layer.
+     */
+    private fun sendDebugEvent(msg: String) {
+        if (!WatchStateRepository.state.value.diagOn) return
+        WatchStateRepository.sendControl(this, WatchControl.DEBUG_PREFIX + msg)
+    }
+
     private fun dispatchAction(action: String) {
         val intent = when (action) {
             "HORN" -> WatchControl.HORN
@@ -202,8 +277,7 @@ class MainActivity : ComponentActivity() {
         }
         WatchStateRepository.sendControl(this, intent)
         // Mirror the touch-button path's haptic so the rider's
-        // watchHapticOnAction setting works for hardware buttons too —
-        // previously this path was silent and only on-screen taps
+        // watchHapticOnAction setting works for hardware buttons too, // previously this path was silent and only on-screen taps
         // produced the buzz. Garmin's Actions.mc:dispatch already fires
         // haptic for both press kinds, so this brings Wear OS to parity.
         if (WatchStateRepository.state.value.hapticOnAction) {

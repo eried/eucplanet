@@ -59,8 +59,14 @@ internal fun isV1WheelName(n: String): Boolean {
         var i = 1
         while (i < stripped.length && stripped[i].isDigit()) i++
         val digits = stripped.substring(1, i).toIntOrNull() ?: return false
-        // Pre-V11 V-series is the V1 wire format; V11+ is V2.
-        return digits in 1..10
+        // Pre-V11 V-series is the V1 wire format; V11+ is V2. The 2026 V6
+        // (last-mile wheel, advertises V6-XXXXXXXX) is NOT the old series:
+        // it speaks the V2 family's extended dialect, so 6 routes to V2 and
+        // the InMotionV2Adapter picks its dialect from the same name. A
+        // device named V6 that turns out to be ancient hardware still lands
+        // right: it has no Nordic UART service, and the post-connect
+        // service-based rescue re-routes it to the V1 adapter.
+        return digits in 1..10 && digits != 6
     }
     return false
 }
@@ -118,6 +124,11 @@ class CompositeWheelAdapter @Inject constructor(
     // the detected model) rely on their own getter running.
     override val brand: String get() = active.brand
     override val capabilities: WheelCapabilities get() = active.capabilities
+    // Same reason as `brand`: only the sub-adapter knows which model it
+    // detected. Without this the interface default (null) wins and the rider
+    // is asked for a cell count their wheel could have stated. `seriesCells`
+    // derives from this, so forwarding the voltage covers both.
+    override val nominalPackVoltage: Int? get() = active.nominalPackVoltage
 
     override fun bleProfile(): BleProfile = active.bleProfile()
 
@@ -189,10 +200,19 @@ class CompositeWheelAdapter @Inject constructor(
     override fun setDRL(on: Boolean): ByteArray? = active.setDRL(on)
     override fun setLock(locked: Boolean): ByteArray? = active.setLock(locked)
     override fun setLockFollowup(locked: Boolean): ByteArray? = active.setLockFollowup(locked)
+    override fun provideLockCode(code: String) = active.provideLockCode(code)
+    override fun provideLockPassword(password: String) = active.provideLockPassword(password)
+    override fun lockPrelude(): ByteArray? = active.lockPrelude()
     override fun resetTripMeter(): ByteArray? = active.resetTripMeter()
 
     override fun requestAuthKey(): ByteArray? = active.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = active.verifyAuth(encryptedKey)
+
+    // Without this the composite answered the interface default (false) and
+    // the repository never ran the connect handshake, however loudly the
+    // family adapter asked for it. The P6's control-endpoint priming and the
+    // V6's session keepalive both hang off this flag.
+    override fun requiresConnectAuth(): Boolean = active.requiresConnectAuth()
 
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
         // Post-connect family rescue. Veteran wheels (Sherman / Patton /

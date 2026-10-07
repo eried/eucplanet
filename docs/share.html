@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EUC Planet live share</title>
+<meta name="description" content="Watch riders share their live position. Positions are decrypted in your browser, the relay never sees them.">
+<meta name="theme-color" content="#070a16">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- MapLibre is pinned to an exact version with Subresource Integrity, not a
+     floating "@4" range. This page holds the decryption key from the URL
+     fragment and every rider's plaintext position, so a third party silently
+     shipping a new build into it is a change nobody would notice. The hashes
+     are of maplibre-gl 4.7.1 (the version eucstats runs); a mismatched file is
+     refused by the browser. Regenerate with:
+       curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A -->
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"
+      integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V"
+      crossorigin="anonymous">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Design language shared with eucstats.ried.no and eucplanet.ried.no:
+     dark glass surfaces, one blue accent, Chakra Petch body, Orbitron numerals. */
+  :root {
+    --ink: #eef1fb;
+    --mut: #9aa6c8;
+    --acc: #2ea8ff;
+    --gold: #ffd24a;
+    --line: #33457a;
+    --bg: #070a16;
+    --ok: #39d98a;
+    --bad: #ff5b6e;
+    --surf: linear-gradient(158deg, rgba(34, 52, 100, .82), rgba(9, 14, 30, .85));
+    --glass: rgba(13, 17, 32, .72);
+    --shadow: 0 12px 34px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(130, 170, 255, .14);
+    --num: "Orbitron", ui-sans-serif, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; height: 100dvh; }
+  body {
+    font: 14px/1.45 "Chakra Petch", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* === Map and its controls === */
+  #map { position: fixed; inset: 0; }
+  .maplibregl-ctrl-attrib {
+    background: none !important; box-shadow: none !important; font-size: 9.5px; opacity: .6;
+  }
+  .maplibregl-ctrl-attrib a { color: #7a86ad; text-shadow: 0 1px 2px #000; }
+  /* Buttons and credits both keep out of the notch and the rounded corners. */
+  .maplibregl-ctrl-top-right {
+    top: env(safe-area-inset-top, 0px); right: env(safe-area-inset-right, 0px);
+  }
+  .maplibregl-ctrl-bottom-right {
+    bottom: env(safe-area-inset-bottom, 0px); right: env(safe-area-inset-right, 0px);
+  }
+  .maplibregl-ctrl-group {
+    background: var(--glass) !important; border: 1px solid var(--line) !important;
+    border-radius: 9px !important; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .maplibregl-ctrl-group button { background: transparent !important; width: 32px; height: 32px; }
+  .maplibregl-ctrl-group button + button { border-top: 1px solid var(--line) !important; }
+  .maplibregl-ctrl-group button:hover { background: rgba(46, 168, 255, .14) !important; }
+  .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(72%) brightness(1.05); }
+  .maplibregl-ctrl-group button:hover:not(:disabled) .maplibregl-ctrl-icon { filter: invert(100%); }
+  .maplibregl-ctrl-group button:disabled .maplibregl-ctrl-icon { opacity: .28; }
+  .maplibregl-ctrl-group button svg {
+    width: 17px; height: 17px; display: block; margin: auto; color: var(--mut);
+  }
+  .maplibregl-ctrl-group button:hover svg { color: var(--acc); }
+
+  /* === Map style switcher (Dark / Light / Satellite, like the layers button in the app) === */
+  .stylectl { position: relative; }
+  .stylemenu {
+    position: absolute; top: 0; right: 38px; display: none; flex-direction: column; min-width: 122px;
+    background: var(--glass); backdrop-filter: blur(12px);
+    border: 1px solid var(--line); border-radius: 9px; box-shadow: var(--shadow); overflow: hidden;
+  }
+  .stylectl.open .stylemenu { display: flex; }
+  .stylemenu button {
+    display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+    background: transparent; border: 0; cursor: pointer; text-align: left;
+    color: var(--ink); font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px;
+  }
+  .stylemenu button + button { border-top: 1px solid var(--line); }
+  .stylemenu button:hover { background: rgba(46, 168, 255, .14); color: var(--acc); }
+  .stylemenu button::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none;
+    background: transparent; border: 1px solid var(--line);
+  }
+  .stylemenu button.on { color: var(--acc); }
+  .stylemenu button.on::before { background: var(--acc); border-color: var(--acc); box-shadow: 0 0 8px var(--acc); }
+
+  /* === One floating panel: the title bar IS the rider list header === */
+  #dock {
+    position: fixed; z-index: 6;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    left: calc(env(safe-area-inset-left, 0px) + 12px);
+    width: 320px; max-width: calc(100vw - 24px);
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surf); backdrop-filter: blur(14px);
+    border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
+  }
+  #dock.hide { display: none; }
+  #dockHead {
+    display: flex; align-items: center; gap: 7px; padding: 10px 12px;
+    background: rgba(11, 15, 28, .5); border-bottom: 1px solid var(--line);
+    color: var(--mut);
+  }
+  #dock.shut #dockHead { border-bottom: 0; }
+  /* The same 28 px circle as a rider's avatar in the list below, for uniformity. */
+  #dockHead .brand { flex: none; display: inline-flex; line-height: 0; border-radius: 50%; overflow: hidden; }
+  #dockHead .brand img { width: 28px; height: 28px; display: block; }
+  #dockHead .brand:hover { box-shadow: 0 0 0 1px var(--acc); }
+  /* The toggle is a real <button>, so the brand link (invalid inside a
+     native button) sits beside it rather than nested inside it. It fills
+     the rest of the header row, exactly where the old whole-row toggle did. */
+  #dockToggle {
+    flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 7px;
+    background: transparent; border: 0; margin: 0; padding: 0; font: inherit; color: inherit;
+    text-align: left; cursor: pointer; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* The rider summary sits on the right of the same row, so the panel reads as
+     one thing: who is here, and whether the feed is still live. */
+  #headMeta { flex: 0 1 auto; min-width: 0; margin-left: auto; display: flex; align-items: center; gap: 7px; }
+  /* The rider count and the state pill compete for the same sliver of space
+     on the fixed 320px desktop dock. Both get a shrink floor and their own
+     ellipsis, with the count weighted to keep more of its width, so a long
+     word like "Reconnecting" crowds the pill first instead of erasing the
+     count outright (it used to shrink all the way to 0). */
+  #count {
+    flex: 1 1 28px; min-width: 28px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 11.5px; font-weight: 600; color: var(--ink);
+  }
+  #statusText {
+    flex: 0 1 auto; min-width: 22px; overflow: hidden; text-overflow: ellipsis;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px 2px 6px; border-radius: 999px; white-space: nowrap;
+    background: rgba(0, 0, 0, .25); border: 1px solid var(--line);
+    font-size: 9.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+    color: var(--mut);
+  }
+  #dock[data-state="live"] #statusText { color: var(--ok); border-color: rgba(57, 217, 138, .5); }
+  #dock[data-state="warn"] #statusText { color: var(--gold); border-color: rgba(255, 210, 74, .5); }
+  #dock[data-state="err"]  #statusText { color: var(--bad); border-color: rgba(255, 91, 110, .5); }
+  #dockHead .chev {
+    flex: none; width: 15px; height: 15px; color: var(--mut); transition: transform .25s;
+  }
+  #dock.shut #dockHead .chev { transform: rotate(180deg); }
+  .led { width: 7px; height: 7px; border-radius: 50%; background: var(--mut); flex: none; }
+  /* No riders: nothing to expand, so the chevron goes and the panel stays shut. */
+  #dock.empty #dockHead .chev { display: none; }
+  #dock.empty #panel { max-height: 0; overflow: hidden; }
+  #dock.empty #dockToggle { cursor: default; }
+  @keyframes ledpulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  #dock[data-state="live"] .led {
+    background: var(--ok); box-shadow: 0 0 9px var(--ok); animation: ledpulse 2.2s ease-in-out infinite;
+  }
+  #dock[data-state="warn"] .led { background: var(--gold); }
+  #dock[data-state="err"]  .led { background: var(--bad); }
+
+  /* The list is capped so the panel never swallows the map, and scrolls itself. */
+  #panel {
+    max-height: 40dvh; overflow-y: auto; transition: max-height .26s ease;
+    scrollbar-width: thin; scrollbar-color: rgba(130, 170, 255, .3) transparent;
+  }
+  #dock.shut #panel { max-height: 0; overflow: hidden; }
+  #panel::-webkit-scrollbar { width: 6px; }
+  #panel::-webkit-scrollbar-thumb { background: rgba(130, 170, 255, .3); border-radius: 3px; }
+
+  .row {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+    cursor: pointer; border-bottom: 1px solid rgba(51, 69, 122, .5);
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: rgba(46, 168, 255, .10); }
+  /* Avatar: a round window with the picture inside it, one rule for the list
+     row and the map marker alike (see setAvatar). The picture is an <img> that
+     fills the circle and is centred. It used to be a background image, and an
+     inline "background: colour" shorthand reset background-size back to auto,
+     which is what left the list avatars showing a zoomed corner of the photo. */
+  .avatar {
+    width: 28px; height: 28px; flex: none; border-radius: 50%; overflow: hidden;
+    border: 2px solid #fff; background: var(--c, #1E88E5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+  }
+  .avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .row .who { min-width: 0; flex: 1; }
+  .row .nm {
+    font-size: 13px; font-weight: 600; color: var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .row .st {
+    margin-top: 2px; font-family: var(--num); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .3px; color: var(--acc); font-variant-numeric: tabular-nums;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* Age of the last position, in plain words and the body font: an Orbitron
+     "31s" next to a name reads like a code or a ping, which it is not. */
+  .row .age {
+    flex: none; font-size: 11px; font-weight: 500; color: var(--mut);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .row .age.stale { color: var(--gold); }
+  /* Lost (and left) stay muted, the same as the app's textSecondary: this is
+     a rider gone quiet, not a fault in the page. Red is reserved for a
+     genuine error, like the relay itself being unreachable. */
+  .row .age.lost { color: var(--mut); }
+  .row.dim { opacity: .55; }
+
+  /* === Open in EUC Planet (Android only): the bottom-centre pill === */
+  /* === Bottom row: settings cog (left), Open in EUC Planet (centre), fit all
+     (right). One 40 px baseline; the cog and its panel are the eucstats ones. === */
+  :root { --row-b: calc(env(safe-area-inset-bottom, 0px) + 18px); --row-h: 40px; }
+  #gear, #recenter, #openApp {
+    position: fixed; z-index: 6; height: var(--row-h); box-sizing: border-box;
+    background: var(--surf); backdrop-filter: blur(14px);
+    border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow);
+    bottom: var(--row-b);
+  }
+  #gear { left: calc(env(safe-area-inset-left, 0px) + 18px); width: var(--row-h); padding: 0;
+    display: flex; align-items: center; justify-content: center; color: var(--mut); cursor: pointer; transition: color .2s; }
+  #gear:hover, #gear[aria-expanded="true"] { color: var(--acc); }
+  #gear svg { width: 18px; height: 18px; }
+  .cfgpop { position: fixed; left: calc(env(safe-area-inset-left, 0px) + 18px); bottom: calc(var(--row-b) + var(--row-h) + 8px);
+    z-index: 900; display: none; flex-direction: column; gap: 12px; min-width: 264px; max-width: calc(100vw - 36px);
+    background: linear-gradient(158deg, rgba(26,40,78,.86), rgba(8,12,26,.87)); backdrop-filter: blur(16px);
+    border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 24px 70px rgba(0,0,0,.6); padding: 14px; }
+  .cfgpop.open { display: flex; }
+  .crow { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 10px;
+    font: 500 12px/1.2 "Chakra Petch", sans-serif; color: var(--mut); letter-spacing: .4px; }
+  .crow > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,.28);
+    border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+  .seg button { background: transparent; border: 0; color: var(--mut); border-radius: 6px; padding: 5px 9px;
+    font: 600 11px/1.2 "Chakra Petch", sans-serif; cursor: pointer; }
+  .seg button.on { background: var(--acc); color: #04101f; font-weight: 700; }
+  .csel { background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 8px; color: var(--ink);
+    font: 500 12px/1.2 "Chakra Petch", sans-serif; padding: 6px 8px; cursor: pointer; width: 100%; }
+  #recenter { right: calc(env(safe-area-inset-right, 0px) + 18px); width: var(--row-h); padding: 0; }
+  #recenter button { width: 100%; height: 100%; background: transparent; border: 0; cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center; color: var(--ink); border-radius: 9px; }
+  #recenter button svg { width: 18px; height: 18px; display: block; }
+  #recenter button:hover { color: var(--acc); background: rgba(46, 168, 255, .14); }
+  #openApp { left: 50%; transform: translateX(-50%); display: flex; align-items: center;
+    padding: 0 15px; cursor: pointer; text-decoration: none;
+    color: var(--ink); font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px; }
+  #openApp:hover { color: var(--acc); border-color: var(--acc); }
+  #openApp.hide { display: none; }
+  /* The attribution leaves the bottom row to the controls. */
+  .maplibregl-ctrl-top-right { top: calc(env(safe-area-inset-top, 0px) + 64px); }
+  /* On a phone the centre pill cannot centre on the screen without running
+     into the side pills: it fills the gap between them instead. */
+  @media (max-width: 640px) {
+    /* Centred in the gap between the cog and the frame button, at its own width. */
+    #openApp { left: calc(env(safe-area-inset-left, 0px) + 18px + var(--row-h) + 10px);
+      right: calc(env(safe-area-inset-right, 0px) + 18px + var(--row-h) + 10px);
+      transform: none; width: max-content; max-width: 100%; margin: 0 auto; }
+  }
+
+
+  /* === Map marker (mirrors the in-app look, readable over satellite too) === */
+  /* MapLibre gives everything inside the map its own Helvetica stack, and a
+     marker is inside the map, so the label states the page font itself. */
+  .pin {
+    position: relative; width: 30px; height: 30px; cursor: pointer;
+    font-family: "Chakra Petch", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  .pin .dot {
+    width: 30px; height: 30px;
+    box-shadow: 0 2px 9px rgba(0, 0, 0, .7), 0 0 0 1px rgba(0, 0, 0, .45);
+  }
+  .pin .arrow {
+    position: absolute; inset: 0; margin: auto; width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-bottom: 9px solid var(--c, #1E88E5);
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, .8));
+    transform-origin: 50% 50%; display: none;
+  }
+  .pin.has-heading .arrow { display: block; }
+  .pin .tag {
+    position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+    padding: 3px 8px; border-radius: 999px; white-space: nowrap;
+    background: var(--glass); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0, 0, 0, .55);
+    color: var(--ink); font-size: 11px; font-weight: 600; letter-spacing: .2px;
+  }
+  .pin .tag .age { font-size: 10px; font-weight: 500; color: var(--mut); }
+  .pin .tag .age.stale { color: var(--gold); }
+  .pin .tag .age.lost { color: var(--mut); }
+  .pin.stale { opacity: .55; }
+
+  /* === Full page message (invalid link, self test, join a ride) === */
+  #msg {
+    position: fixed; inset: 0; z-index: 20; display: none; overflow-y: auto;
+    align-items: center; justify-content: center; padding: 24px;
+    background: rgba(7, 10, 22, .9); backdrop-filter: blur(6px);
+  }
+  #msg.show { display: flex; }
+  #msgStack {
+    display: flex; flex-direction: column; align-items: stretch; gap: 16px;
+    width: min(94vw, 30rem); margin: auto;
+  }
+  #msg .card {
+    width: 100%; text-align: center; padding: 26px 24px;
+    background: var(--surf); backdrop-filter: blur(14px);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  }
+  #msg h1 {
+    margin: 0 0 11px; font-family: var(--num); font-size: 16px; font-weight: 700;
+    letter-spacing: .8px; color: var(--ink);
+  }
+  #msg p { margin: 0; color: var(--mut); font-size: 13.5px; line-height: 1.6; }
+  #msg code {
+    display: block; margin-top: 4px; padding: 10px 11px; text-align: left;
+    background: rgba(0, 0, 0, .3); border: 1px solid var(--line); border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px; line-height: 1.7; color: var(--acc); word-break: break-all;
+  }
+  .hide { display: none !important; }
+
+  /* === Join a ride card: paste a link or scan its QR code === */
+  #joinCard .jc-sub { margin: 0 0 16px; text-align: center; }
+  .jc-row { display: flex; gap: 8px; }
+  #joinInput {
+    flex: 1; min-width: 0; padding: 11px 12px; border-radius: 9px;
+    background: rgba(0, 0, 0, .28); border: 1px solid var(--line); color: var(--ink);
+    font: 600 13px/1.2 "Chakra Petch", sans-serif; letter-spacing: .2px;
+  }
+  #joinInput::placeholder { color: var(--mut); }
+  #joinInput:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 2px rgba(46, 168, 255, .25); }
+  #joinBtn {
+    flex: none; padding: 0 18px; border-radius: 9px; cursor: pointer;
+    background: rgba(46, 168, 255, .16); border: 1px solid var(--acc); color: var(--acc);
+    font: 700 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .5px;
+  }
+  #joinBtn:hover { background: rgba(46, 168, 255, .3); }
+  .jc-err {
+    min-height: 15px; margin-top: 8px; text-align: left;
+    color: var(--bad); font-size: 12px; line-height: 1.4;
+  }
+  .jc-divider {
+    display: flex; align-items: center; gap: 10px; margin: 16px 0;
+    color: var(--mut); font-size: 11px; letter-spacing: .6px; text-transform: uppercase;
+  }
+  .jc-divider::before, .jc-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  #scanBtn {
+    width: 100%; padding: 11px; border-radius: 9px; cursor: pointer;
+    background: transparent; border: 1px solid var(--line); color: var(--ink);
+    font: 600 12.5px/1 "Chakra Petch", sans-serif; letter-spacing: .4px;
+  }
+  #scanBtn:hover { color: var(--acc); border-color: var(--acc); }
+  #scanBtn:disabled { opacity: .5; cursor: default; }
+  #scanView video {
+    display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
+    border-radius: 10px; border: 1px solid var(--line); background: #000;
+  }
+  .jc-caption { margin: 10px 0; text-align: center; }
+  #scanCancel {
+    width: 100%; padding: 10px; border-radius: 9px; cursor: pointer;
+    background: transparent; border: 1px solid var(--line); color: var(--mut);
+    font: 600 12px/1 "Chakra Petch", sans-serif; letter-spacing: .4px;
+  }
+  #scanCancel:hover { color: var(--bad); border-color: var(--bad); }
+
+  /* === Phone: the panel spans the top, the map controls move out of its way === */
+  @media (max-width: 640px) {
+    #dock {
+      left: calc(env(safe-area-inset-left, 0px) + 12px);
+      right: calc(env(safe-area-inset-right, 0px) + 12px);
+      width: auto; max-width: none;
+    }
+    #dockHead { padding: 11px 12px; }
+    /* Zoom and layers ride in the bottom right corner here. The panel owns the
+       full width at the top and grows when it is opened, so there is no room
+       for them up there, and the credits (a licence term of CARTO, OpenStreetMap
+       and Esri alike) keep the corner below them, always visible. */
+    .maplibregl-ctrl-top-right {
+      top: auto;
+      right: calc(env(safe-area-inset-right, 0px) + 2px);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 44px);
+    }
+    .maplibregl-ctrl-top-right .stylemenu { top: auto; bottom: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- One panel: the EUC PLANET title bar doubles as the rider list header, so a
+     phone shows a single floating card instead of a title up top and a sheet at
+     the bottom fighting the rounded corners of the screen. -->
+<div id="dock" data-state="">
+  <div id="dockHead">
+    <a class="brand" href="https://eucplanet.ried.no" target="_blank" rel="noopener" title="EUC Planet" aria-label="EUC Planet"><img src="icon.png" alt="" width="28" height="28"></a>
+    <button id="dockToggle" type="button" aria-expanded="true" aria-controls="panel">
+      <span id="headMeta">
+        <span id="count">No riders yet</span>
+        <span id="statusText"><span class="led"></span><span id="statusLabel">Connecting</span></span>
+      </span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    </button>
+  </div>
+  <div id="panel"></div>
+</div>
+
+<button id="gear" type="button" title="Settings" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
+<div id="cfg" class="cfgpop" role="dialog" aria-label="Settings">
+  <div class="crow"><span>Units</span><div class="seg"><button type="button" data-u="kmh">Metric</button><button type="button" data-u="mph">Imperial</button></div></div>
+  <div class="crow"><span>Map</span><select id="mapsel" class="csel"></select></div>
+</div>
+<div id="recenter" title="Fit all riders"><button type="button" aria-label="Fit all riders"></button></div>
+<a id="openApp" class="hide" rel="noopener">Open in EUC Planet</a>
+
+<div id="msg">
+  <div id="msgStack">
+    <div class="card" id="infoCard">
+      <h1 id="msgTitle"></h1>
+      <p id="msgBody"></p>
+    </div>
+    <div class="card hide" id="joinCard">
+      <h1>Join a ride</h1>
+      <p class="jc-sub">Paste a ride link, or scan its QR code.</p>
+      <div id="joinForm">
+        <form id="joinFormEl" autocomplete="off">
+          <div class="jc-row">
+            <input id="joinInput" type="text" inputmode="text" autocomplete="off"
+                   autocapitalize="off" autocorrect="off" spellcheck="false"
+                   placeholder="Paste the ride link">
+            <button id="joinBtn" type="submit">Join</button>
+          </div>
+        </form>
+        <p class="jc-err" id="joinErr"></p>
+        <div class="jc-divider"><span>or</span></div>
+        <button id="scanBtn" type="button">Scan QR</button>
+        <p class="jc-err" id="camErr"></p>
+      </div>
+      <div id="scanView" class="hide">
+        <video id="scanVideo" playsinline muted></video>
+        <button id="scanCancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- jsQR, vendored (docs/jsqr.min.js): this page holds room decryption keys
+     in the URL fragment, so QR decoding must not depend on a CDN at runtime.
+     See the header comment in that file for the pinned version and license. -->
+<script src="jsqr.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"
+        integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj"
+        crossorigin="anonymous"></script>
+<script>
+"use strict";
+/*
+ * EUC Planet live share, watch only web viewer.
+ *
+ * The relay is a blind pipe: it forwards opaque blobs and never holds the key.
+ * The key lives only in the URL fragment, which browsers never send to a server,
+ * so decryption happens here. This page NEVER writes to the socket.
+ *
+ * Contract shared byte for byte with the Android app (see ShareCrypto.kt):
+ *   key  = HKDF-SHA256(rawKey, salt "eucshare-v1", info "aes-256-gcm", 32 bytes)
+ *   blob = nonce(12) || AES-256-GCM(plaintext, aad = roomId)
+ */
+
+/* ------------------------------------------------------------------ *
+ * Constants (must match the app)
+ * ------------------------------------------------------------------ */
+var RELAY_BASE   = "wss://eucshare.ried.no/ws/";
+var HKDF_SALT    = "eucshare-v1";
+var HKDF_INFO    = "aes-256-gcm";
+var RECONNECT_MS = 3000;
+var FRESH_MS     = 15000;
+var STALE_MS     = 120000;
+var TRAIL_MS     = 5 * 60 * 1000;
+var TICK_MS      = 1000;
+var LOST_COLOR   = "#9E9E9E";
+var LOST_TRAIL_FACTOR = 0.35;
+// Palette contract, shared with the app: index 0 = first arrival in relay order,
+// index 1 = second, and so on, and a peer keeps its colour for the session. The
+// app assigns peers the same way, and a phone paints its own rider yellow,
+// PALETTE[11], so the local rider never clashes with an early arrival.
+var PALETTE = ["#E53935", "#1E88E5", "#43A047", "#FB8C00", "#8E24AA", "#00ACC1",
+               "#F4511E", "#3949AB", "#7CB342", "#D81B60", "#00897B", "#FDD835"];
+
+var FRESH = "FRESH", STALE = "STALE", LOST = "LOST";
+
+/* Basemaps, the same three the app offers behind its layers button. */
+var STYLES = {
+  // The same seven layers eucviewer offers, as raster styles.
+  standard:  raster("Standard",     ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors", true),
+  cyclosm:   raster("CyclOSM",      ["https://a.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png","https://b.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png","https://c.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors, CyclOSM", true),
+  topo:      raster("OpenTopoMap",  ["https://a.tile.opentopomap.org/{z}/{x}/{y}.png","https://b.tile.opentopomap.org/{z}/{x}/{y}.png","https://c.tile.opentopomap.org/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors, SRTM, OpenTopoMap (CC-BY-SA)", true),
+  hot:       raster("Humanitarian", ["https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png","https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"], "&copy; OpenStreetMap contributors, HOT", true),
+  streets:   raster("Streets",      ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"], "Tiles &copy; Esri", true),
+  dark:      raster("Dark",         ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"], "Tiles &copy; Esri", false),
+  satellite: raster("Satellite",    ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"], "Tiles &copy; Esri", false),
+};
+function raster(label, tiles, attribution, light) {
+  return { label: label, light: light, style: { version: 8,
+    sources: { base: { type: "raster", tiles: tiles, tileSize: 256, attribution: attribution, maxzoom: 19 } },
+    layers: [{ id: "base", type: "raster", source: "base" }] } };
+}
+var STYLE_KEY = "eucshare_style";
+
+/* ------------------------------------------------------------------ *
+ * Small helpers
+ * ------------------------------------------------------------------ */
+function $(id) { return document.getElementById(id); }
+function utf8(s) { return new TextEncoder().encode(s); }
+
+function b64uToBytes(s) {
+  var pad = (4 - (s.length % 4)) % 4;
+  var bin = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat(pad));
+  var out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function hex(bytes) {
+  return Array.prototype.map.call(bytes, function (b) {
+    return b.toString(16).padStart(2, "0");
+  }).join("");
+}
+
+// Only ever load avatars over https or as inline images. A peer-supplied URL
+// is untrusted; anything else (http, javascript, file, blob, arbitrary schemes)
+// is dropped so a room member cannot make viewers fetch an arbitrary resource.
+function safeAvatarUrl(u) {
+  if (typeof u !== "string") return null;
+  if (/^https:\/\/[^\s"'()]+$/i.test(u)) return u;
+  if (/^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/i.test(u)) return u;
+  return null;
+}
+
+function showMessage(title, body, html) {
+  $("msgTitle").textContent = title;
+  if (html) $("msgBody").innerHTML = html; else $("msgBody").textContent = body || "";
+  $("infoCard").classList.remove("hide");
+  $("joinCard").classList.add("hide");
+  $("msg").classList.add("show");
+  $("dock").classList.add("hide");
+}
+
+// Shown when the fragment is missing or does not parse: a "Join a ride" card
+// so the visitor can recover by pasting a link or scanning its QR code. When
+// title is given the malformed-link message stays visible above the card
+// (there was something there, it just was not usable); a fresh visit with no
+// fragment at all skips straight to the card.
+function showJoinCard(title, body) {
+  if (title) {
+    $("msgTitle").textContent = title;
+    $("msgBody").textContent = body || "";
+    $("infoCard").classList.remove("hide");
+  } else {
+    $("infoCard").classList.add("hide");
+  }
+  $("joinErr").textContent = "";
+  $("camErr").textContent = "";
+  $("joinForm").classList.remove("hide");
+  $("scanView").classList.add("hide");
+  $("joinCard").classList.remove("hide");
+  $("msg").classList.add("show");
+  $("dock").classList.add("hide");
+}
+
+/*
+ * The header pill and the LED beside the title show one thing: is what you
+ * are looking at current. That is the socket state, downgraded to "Stale"
+ * while the socket is up but no rider in the room has reported a fresh
+ * position, which is the case a plain "Live" would misreport.
+ */
+var statusBase = "Connecting";
+var statusCls = "";
+var ridersStale = false;
+
+var relayBusyUntil = 0;
+function setStatus(text, cls) {
+  statusBase = text;
+  statusCls = cls || "";
+  paintStatus();
+}
+
+function paintStatus() {
+  var stale = ridersStale && statusCls === "live";
+  $("statusLabel").textContent = stale ? "Stale" : statusBase;
+  $("dock").dataset.state = stale ? "warn" : statusCls;
+}
+
+/*
+ * The rider list folds away under the title bar. A phone starts folded, so
+ * the map is not covered before anyone has joined; a wider screen has the
+ * room and starts open. Either way the viewer's own choice is what sticks.
+ */
+var PANEL_KEY = "eucshare_panel";
+var PHONE_MAX = 640;
+
+function initialPanelOpen() {
+  try {
+    var saved = localStorage.getItem(PANEL_KEY);
+    if (saved === "open") return true;
+    if (saved === "closed") return false;
+  } catch (e) {
+    // Private modes can refuse storage, the size default still works.
+  }
+  return window.innerWidth > PHONE_MAX;
+}
+
+function setPanelOpen(open, remember) {
+  $("dock").classList.toggle("shut", !open);
+  $("dockToggle").setAttribute("aria-expanded", open ? "true" : "false");
+  if (remember) {
+    try { localStorage.setItem(PANEL_KEY, open ? "open" : "closed"); } catch (e) {}
+  }
+}
+
+function togglePanel() {
+  if ($("dock").classList.contains("empty")) return;
+  setPanelOpen($("dock").classList.contains("shut"), true);
+}
+
+/* ------------------------------------------------------------------ *
+ * 1. Hash parsing: #<roomId>.<key>, both 22 char base64url of 16 bytes
+ * ------------------------------------------------------------------ */
+var ID_RE = /^[A-Za-z0-9_-]{22}$/;
+
+function parseShareHash(hash) {
+  var frag = hash.charAt(0) === "#" ? hash.slice(1) : hash;
+  var parts = frag.split(".");
+  if (parts.length !== 2 || !ID_RE.test(parts[0]) || !ID_RE.test(parts[1])) return null;
+  try {
+    var rawKey = b64uToBytes(parts[1]);
+    if (rawKey.length !== 16) return null;
+    return { roomId: parts[0], rawKey: rawKey };
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Join a ride: paste a link or scan its QR code (jsQR, vendored, see
+ * jsqr.min.js). Only reachable from the "no fragment / invalid fragment"
+ * card built by showJoinCard(); a valid fragment never shows this UI.
+ * ------------------------------------------------------------------ */
+var scanStream = null;
+var scanRAF = null;
+var scanCanvas = null, scanCtx = null;
+// Set synchronously at the top of startScan(), before getUserMedia is even
+// called: getUserMedia is async, so a second tap that lands before the first
+// call resolves would otherwise pass the scanStream check (still null) and
+// open a second camera stream, orphaning the first one's tracks.
+var scanStarting = false;
+
+// A pasted value may be the bare "roomId.key" or a full share URL; either
+// way the part that matters is whatever follows the last '#', same as what
+// ends up in location.hash.
+function extractFragment(raw) {
+  var s = (raw || "").trim();
+  if (!s) return "";
+  var i = s.indexOf("#");
+  return i === -1 ? s : s.slice(i + 1);
+}
+
+function goToLink(frag) {
+  var parts = frag.split(".");
+  var link = parseShareHash(frag);
+  if (!link || parts.length !== 2) return false;
+  stopScan();
+  // hashchange -> reload picks the room up from here.
+  location.hash = "#" + link.roomId + "." + parts[1];
+  return true;
+}
+
+function tryJoin(raw) {
+  if (goToLink(extractFragment(raw))) {
+    $("joinErr").textContent = "";
+    return;
+  }
+  $("joinErr").textContent = "That does not look like a ride link.";
+}
+
+// The exact frame-decode call the live scanner uses in scanTick(), split out
+// so a test can drive it with a still image without a camera.
+function decodeImageData(imageData, w, h) {
+  return (window.jsQR && jsQR(imageData.data, w, h)) || null;
+}
+
+// Exposed only for automated testing: lets a test feed a still image (an
+// <img> holding a QR code) through the same draw-to-canvas-then-jsQR path
+// scanTick() runs on live video frames, without needing a real camera.
+window.__decodeQrTestHook = function (imgEl) {
+  var w = imgEl.naturalWidth || imgEl.width;
+  var h = imgEl.naturalHeight || imgEl.height;
+  if (!scanCanvas) {
+    scanCanvas = document.createElement("canvas");
+    scanCtx = scanCanvas.getContext("2d", { willReadFrequently: true });
+  }
+  scanCanvas.width = w;
+  scanCanvas.height = h;
+  scanCtx.drawImage(imgEl, 0, 0, w, h);
+  var code = decodeImageData(scanCtx.getImageData(0, 0, w, h), w, h);
+  return code ? code.data : null;
+};
+
+function stopScan() {
+  if (scanRAF !== null) { cancelAnimationFrame(scanRAF); scanRAF = null; }
+  if (scanStream) {
+    scanStream.getTracks().forEach(function (t) { t.stop(); });
+    scanStream = null;
+  }
+  var video = $("scanVideo");
+  if (video) video.srcObject = null;
+  $("scanView").classList.add("hide");
+  $("joinForm").classList.remove("hide");
+}
+
+function scanTick() {
+  if (!scanStream) return;
+  var video = $("scanVideo");
+  if (video.readyState >= video.HAVE_CURRENT_DATA && video.videoWidth) {
+    if (!scanCanvas) {
+      scanCanvas = document.createElement("canvas");
+      scanCtx = scanCanvas.getContext("2d", { willReadFrequently: true });
+    }
+    var w = video.videoWidth, h = video.videoHeight;
+    scanCanvas.width = w;
+    scanCanvas.height = h;
+    scanCtx.drawImage(video, 0, 0, w, h);
+    var code = decodeImageData(scanCtx.getImageData(0, 0, w, h), w, h);
+    if (code && code.data && goToLink(extractFragment(code.data))) return;
+  }
+  scanRAF = requestAnimationFrame(scanTick);
+}
+
+function startScan() {
+  // Checked and set before anything async runs, so a rapid second click
+  // during the getUserMedia round-trip is a no-op instead of a second
+  // camera request.
+  if (scanStream || scanStarting) return;
+  scanStarting = true;
+  var btn = $("scanBtn");
+  if (btn) btn.disabled = true;
+  $("camErr").textContent = "";
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    scanStarting = false;
+    if (btn) btn.disabled = false;
+    $("camErr").textContent = "Camera access is needed to scan a QR code.";
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } })
+    .then(function (stream) {
+      scanStarting = false;
+      if (btn) btn.disabled = false;
+      scanStream = stream;
+      var video = $("scanVideo");
+      video.srcObject = stream;
+      $("joinForm").classList.add("hide");
+      $("scanView").classList.remove("hide");
+      video.play().catch(function () {});
+      scanRAF = requestAnimationFrame(scanTick);
+    })
+    .catch(function () {
+      scanStarting = false;
+      if (btn) btn.disabled = false;
+      $("camErr").textContent = "Camera access is needed to scan a QR code.";
+    });
+}
+
+/* ------------------------------------------------------------------ *
+ * 2. Crypto: HKDF-SHA256 then AES-256-GCM, aad = roomId
+ * ------------------------------------------------------------------ */
+function deriveAesKey(rawKey) {
+  return crypto.subtle.importKey("raw", rawKey, "HKDF", false, ["deriveKey"]).then(function (base) {
+    return crypto.subtle.deriveKey(
+      { name: "HKDF", hash: "SHA-256", salt: utf8(HKDF_SALT), info: utf8(HKDF_INFO) },
+      base,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["decrypt"]
+    );
+  });
+}
+
+/** The same derivation exposed as raw bytes, used only by the self test. */
+function deriveAesKeyBytes(rawKey) {
+  return crypto.subtle.importKey("raw", rawKey, "HKDF", false, ["deriveBits"]).then(function (base) {
+    return crypto.subtle.deriveBits(
+      { name: "HKDF", hash: "SHA-256", salt: utf8(HKDF_SALT), info: utf8(HKDF_INFO) }, base, 256);
+  }).then(function (bits) { return new Uint8Array(bits); });
+}
+
+function decryptBlob(key, roomId, blob) {
+  return crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: blob.slice(0, 12), additionalData: utf8(roomId), tagLength: 128 },
+    key,
+    blob.slice(12)
+  ).then(function (plain) { return new TextDecoder().decode(plain); });
+}
+
+/* ------------------------------------------------------------------ *
+ * 3. Self test (#selftest): the Kotlin interop vector, no socket, no map
+ * ------------------------------------------------------------------ */
+var SELFTEST = {
+  roomId: "AAAAAAAAAAAAAAAAAAAAAA",
+  rawKey: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
+  blob: "AAAAAAAAAAAAAAAA3XcJbTvCEWy-_Cezzo2ZLA6C",
+  keyHex: "127d30588b8b9efd214c54b706d030b524b76f2fb63617e1113f3571212bc582",
+  plain: "hi"
+};
+
+function runSelfTest() {
+  var lines = [];
+  var gotHex = "";
+  return deriveAesKeyBytes(SELFTEST.rawKey).then(function (bytes) {
+    gotHex = hex(bytes);
+    lines.push("derived key: " + gotHex);
+    lines.push("expected:    " + SELFTEST.keyHex);
+    return deriveAesKey(SELFTEST.rawKey);
+  }).then(function (key) {
+    return decryptBlob(key, SELFTEST.roomId, b64uToBytes(SELFTEST.blob));
+  }).then(function (text) {
+    lines.push("plaintext:   " + JSON.stringify(text));
+    return gotHex === SELFTEST.keyHex && text === SELFTEST.plain;
+  }).catch(function (e) {
+    lines.push("error: " + (e && e.message ? e.message : String(e)));
+    return false;
+  }).then(function (ok) {
+    document.title = ok ? "SELFTEST_OK" : "SELFTEST_FAIL";
+    // Printed as well as shown, so a headless run can read the verdict.
+    console.log(document.title);
+    showMessage(document.title, null, "<code>" + lines.join("<br>") + "</code>");
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ * 4. Peer state
+ * ------------------------------------------------------------------ */
+/*
+ * Keyed by the relay sender id, because the peers and left control frames
+ * address peers that way. Display fields come from the decrypted payload.
+ */
+var peers = new Map();
+var joinCount = 0;
+var map = null;
+var mapReady = false;
+var userMoved = false;
+var everFitted = false;
+
+function peerFor(senderId) {
+  var p = peers.get(senderId);
+  if (!p) {
+    p = {
+      senderId: senderId,
+      joinIndex: joinCount,
+      // Arrival order decides the colour: the first peer seen takes PALETTE[0].
+      color: PALETTE[joinCount % PALETTE.length],
+      name: senderId.slice(0, 6),
+      flag: null, avatarUrl: null, icon: null, mode: null,
+      lat: null, lng: null, heading: null,
+      stats: null,
+      lastSeenMs: Date.now(),
+      relayAgeMs: null, relayStampMs: 0,
+      left: false,
+      removeTimer: null,
+      trail: [],
+      marker: null, el: null
+    };
+    joinCount++;
+    peers.set(senderId, p);
+  }
+  return p;
+}
+
+/*
+ * A rider who left stays on the map and in the list, greyed, for as long as
+ * their trail still fades (TRAIL_MS), then there is nothing left to show them
+ * relative to, so the marker, row and peer entry are dropped for good. If the
+ * same sender sends a fresh position before then (they rejoin), the pending
+ * removal is cancelled, same as any other update.
+ */
+function cancelRemoval(p) {
+  if (p.removeTimer) {
+    clearTimeout(p.removeTimer);
+    p.removeTimer = null;
+  }
+}
+
+function scheduleRemoval(senderId, p) {
+  cancelRemoval(p);
+  p.removeTimer = setTimeout(function () {
+    if (p.marker) p.marker.remove();
+    peers.delete(senderId);
+    render();
+  }, TRAIL_MS);
+}
+
+/*
+ * Age in ms: the local clock since the last decrypted frame, cross checked with
+ * the relay reported age (the larger wins, so a stale peer cannot look fresh).
+ */
+function ageMsOf(p, now) {
+  var local = now - p.lastSeenMs;
+  if (p.relayAgeMs === null) return local;
+  var relay = p.relayAgeMs + (now - p.relayStampMs);
+  return Math.max(local, relay);
+}
+
+function freshnessOf(ageMs) {
+  if (ageMs < FRESH_MS) return FRESH;
+  if (ageMs < STALE_MS) return STALE;
+  return LOST;
+}
+
+// Two-letter country code -> regional-indicator flag emoji (the app shows the
+// same emoji). Anything that is not exactly two ASCII letters comes back as is.
+function flagEmoji(code) {
+  if (!code || !/^[A-Za-z]{2}$/.test(code)) return code || "";
+  var u = code.toUpperCase();
+  return String.fromCodePoint(0x1F1E6 + u.charCodeAt(0) - 65, 0x1F1E6 + u.charCodeAt(1) - 65);
+}
+
+function applyPayload(senderId, payload, first) {
+  if (!payload || payload.v !== 1) return;      // unknown schema, ignore
+  // A peer without a usable position has nothing to place on the map.
+  if (typeof payload.lat !== "number" || typeof payload.lng !== "number" ||
+      !isFinite(payload.lat) || !isFinite(payload.lng)) return;
+  var p = peerFor(senderId);
+  p.name = payload.name || p.name;
+  p.mode = payload.mode || null;
+  p.icon = payload.icon || null;
+  p.avatarUrl = payload.avatarUrl || null;
+  p.flag = payload.flag || null;
+  p.lat = payload.lat;
+  p.lng = payload.lng;
+  p.heading = (typeof payload.heading === "number") ? payload.heading : null;
+  p.stats = payload.stats || null;
+  p.left = false;
+  cancelRemoval(p);      // a fresh position from a peer marked "left" is a rejoin
+  p.lastSeenMs = Date.now();
+  // The relay hands a viewer that just connected each rider's last payload,
+  // which can be minutes old. A rider's FIRST frame on a connection is dated
+  // by their own stamp so someone who stopped riding long ago is not drawn
+  // live at a stale spot; every later frame really did just arrive, and the
+  // relay's peers frame cross-checks both within 10 s. A stamp from the
+  // future (a wrong sender clock) falls back to "just now".
+  var seedAge = 0;
+  if (first && typeof payload.t === "number") {
+    seedAge = Math.max(0, p.lastSeenMs - payload.t);
+  }
+  p.relayAgeMs = seedAge;
+  p.relayStampMs = p.lastSeenMs;
+  // Never interpolate or dead reckon: the trail only grows on a real position.
+  var t = (typeof payload.t === "number") ? payload.t : Date.now();
+  p.trail.push({ lat: payload.lat, lng: payload.lng, t: t });
+  trimTrail(p, Date.now());
+}
+
+function trimTrail(p, now) {
+  while (p.trail.length && now - p.trail[0].t > TRAIL_MS) p.trail.shift();
+}
+
+/* ------------------------------------------------------------------ *
+ * 5. Socket: read only, reconnect every 3 s
+ * ------------------------------------------------------------------ */
+function connect(roomId, key) {
+  // Reset per connection: the replayed payloads arrive again on a reconnect.
+  var seenOnSocket = {};
+  var ws;
+  try {
+    ws = new WebSocket(RELAY_BASE + roomId);
+  } catch (e) {
+    setStatus("Reconnecting", "warn");
+    setTimeout(function () { connect(roomId, key); }, Math.max(RECONNECT_MS, relayBusyUntil - Date.now()));
+    return;
+  }
+
+  ws.onopen = function () { setStatus("Live", "live"); };
+
+  ws.onmessage = function (ev) {
+    var frame;
+    try { frame = JSON.parse(ev.data); } catch (e) { return; }
+    if (!frame) return;
+
+    if (frame.type === "peers" && frame.seen) {
+      var now = Date.now();
+      Object.keys(frame.seen).forEach(function (id) {
+        var p = peers.get(id);      // ids we never decrypted carry no position
+        if (!p) return;
+        p.relayAgeMs = Math.max(0, Number(frame.seen[id]) * 1000);
+        p.relayStampMs = now;
+      });
+      render();
+      return;
+    }
+
+    if (frame.type === "left" && frame.from) {
+      var gone = peers.get(frame.from);
+      if (gone) {
+        gone.left = true;
+        scheduleRemoval(frame.from, gone);
+        render();
+      }
+      return;
+    }
+
+    if (frame.from && frame.ct) {
+      var firstOnSocket = !seenOnSocket[frame.from];
+      seenOnSocket[frame.from] = true;
+      decryptBlob(key, roomId, b64uToBytes(frame.ct)).then(function (json) {
+        applyPayload(frame.from, JSON.parse(json), firstOnSocket);
+        render();
+      }).catch(function () {
+        // Wrong key, tampered blob or a foreign schema: drop it silently.
+      });
+    }
+  };
+
+  ws.onclose = function (ev) {
+    // 1013 is the relay refusing the socket (room full, or too many sockets
+    // from this address): say so, and wait longer before trying again.
+    if (ev && ev.code === 1013) { setStatus("Relay busy", "warn"); relayBusyUntil = Date.now() + 10000; }
+    else setStatus("Reconnecting", "warn");
+    setTimeout(function () { connect(roomId, key); }, Math.max(RECONNECT_MS, relayBusyUntil - Date.now()));
+  };
+
+  ws.onerror = function () { try { ws.close(); } catch (e) {} };
+  // Watch only: there is deliberately no ws.send anywhere in this page.
+}
+
+/* ------------------------------------------------------------------ *
+ * 6. Map
+ * ------------------------------------------------------------------ */
+var mapStyle = "dark";
+
+function readStoredStyle() {
+  try {
+    var saved = localStorage.getItem(STYLE_KEY);
+    if (saved && STYLES[saved]) mapStyle = saved;
+  } catch (e) {
+    // Private modes can refuse storage, the default style still works.
+  }
+}
+
+function markActiveStyle() {
+  var sel = $("mapsel");
+  if (sel && sel.value !== mapStyle) sel.value = mapStyle;
+}
+function setupCog() {
+  var gear = $("gear"), cfg = $("cfg"), sel = $("mapsel");
+  if (!gear || !cfg) return;
+  Object.keys(STYLES).forEach(function (k) {
+    var o = document.createElement("option"); o.value = k; o.textContent = STYLES[k].label; sel.appendChild(o);
+  });
+  sel.addEventListener("change", function () { setMapStyle(sel.value); });
+  Array.prototype.forEach.call(cfg.querySelectorAll("button[data-u]"), function (b) {
+    b.addEventListener("click", function () { setUnits(b.getAttribute("data-u")); });
+  });
+  function close() { cfg.classList.remove("open"); gear.setAttribute("aria-expanded", "false"); }
+  gear.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+    var open = !cfg.classList.contains("open");
+    cfg.classList.toggle("open", open); gear.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  cfg.addEventListener("click", function (ev) { ev.stopPropagation(); });
+  document.addEventListener("click", close);
+  markActiveStyle(); markActiveUnits();
+}
+
+function setMapStyle(key) {
+  if (!STYLES[key]) return;
+  if (key !== mapStyle) {
+    mapStyle = key;
+    try { localStorage.setItem(STYLE_KEY, key); } catch (e) {}
+    if (map) {
+      mapReady = false;              // the trail source is rebuilt on the new style
+      map.setStyle(STYLES[key].style);
+    }
+  }
+  markActiveStyle();
+}
+
+
+/** Layers button, sits under the zoom control and looks like the rest of them. */
+
+
+/*
+ * Trails are drawn twice: a dark casing underneath so a bright trail still
+ * reads over satellite imagery, then the coloured line on top.
+ */
+function ensureTrailLayers() {
+  if (!map || !map.isStyleLoaded()) return false;
+  if (map.getSource("trails")) return true;
+  try {
+    map.addSource("trails", { type: "geojson", data: emptyFc() });
+    map.addLayer({
+      id: "trails-casing",
+      type: "line",
+      source: "trails",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": "#05070f",
+        "line-width": 7,
+        "line-blur": 0.6,
+        "line-opacity": ["*", ["get", "opacity"], 0.55]
+      }
+    });
+    map.addLayer({
+      id: "trails",
+      type: "line",
+      source: "trails",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": ["get", "color"],
+        "line-width": 4,
+        "line-opacity": ["get", "opacity"]
+      }
+    });
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
+function initMap() {
+  map = new maplibregl.Map({
+    container: "map",
+    style: STYLES[mapStyle].style,
+    center: [0, 20],
+    zoom: 1.4
+  });
+  // Fit all riders: a fixed button in the bottom row, not a map control.
+  (function () {
+    var b = document.querySelector("#recenter button");
+    if (!b) return;
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"></path></svg>';
+    b.addEventListener("click", function () { userMoved = false; fitAll(null); });
+  })();
+
+  // Fires on the first style and again after every switch, so the trail layers
+  // come back with the new basemap.
+  map.on("styledata", function () {
+    mapReady = ensureTrailLayers();
+    if (mapReady) render();
+  });
+  map.on("load", function () {
+    mapReady = ensureTrailLayers();
+    render();
+  });
+
+  // Once the viewer pans or zooms, stop stealing the viewport.
+  map.on("movestart", function (e) {
+    if (e && e.originalEvent) { userMoved = true; var rc = $("recenter"); if (rc) rc.style.display = "block"; }
+  });
+}
+
+function emptyFc() { return { type: "FeatureCollection", features: [] }; }
+
+/* ------------------------------------------------------------------ *
+ * 7. Render
+ * ------------------------------------------------------------------ */
+/*
+ * How old the last position is, in words. A fresh rider says nothing at all:
+ * the row is simply current, and a number there only invites the question of
+ * what it counts. Past that it is "31 s ago" then "2 min ago", written out in
+ * the body font, because an Orbitron "31s" beside a name reads like a code.
+ */
+function ageText(p, ageMs, fresh) {
+  if (p.left) return "left";
+  if (fresh === LOST) return "lost";
+  if (fresh === FRESH) return "";
+  // Word for word what the app prints (ShareDialog.kt), down to the cut at
+  // a minute and the rounding, so the same rider reads the same on both.
+  if (ageMs < 60000) return Math.floor(ageMs / 1000) + " s ago";
+  return Math.floor(ageMs / 60000) + " min ago";
+}
+
+function ageClass(grey, fresh) {
+  return grey ? "lost" : (fresh === STALE ? "stale" : "live");
+}
+
+// Units: the eucstats rule. The default follows where the rider IS (their
+// timezone), never the browser language. Only four countries use imperial
+// road units: the US and Liberia (miles, °F), the UK and Myanmar (miles on
+// the road, °C for everything else), so "imperial" is per quantity. Every
+// other or unknown zone is metric. The rider's own choice, once made, wins.
+var UNITS_KEY = "eucshare_units";
+var US_TZ_RE = new RegExp("^(?:" +
+  "America/(?:Adak|Anchorage|Boise|Chicago|Denver|Detroit|Indiana/[^/]+|Juneau|Kentucky/[^/]+|Los_Angeles|Menominee|Metlakatla|New_York|Nome|North_Dakota/[^/]+|Phoenix|Puerto_Rico|Sitka|St_Thomas|Yakutat)" +
+  "|Pacific/(?:Honolulu|Pago_Pago|Guam|Saipan|Midway|Wake))$");
+var GB_TZ = { "Europe/London": 1, "Europe/Belfast": 1, "Europe/Guernsey": 1, "Europe/Isle_of_Man": 1, "Europe/Jersey": 1 };
+var UNIT_PROFILES = { kmh: { d: 0, t: 0 }, mph: { d: 1, t: 1 }, road: { d: 1, t: 0 } };
+function homeProfile() {
+  try {
+    var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").trim();
+    if (US_TZ_RE.test(tz) || tz === "Africa/Monrovia") return "mph";
+    if (GB_TZ[tz] || tz === "Asia/Yangon" || tz === "Asia/Rangoon") return "road";
+  } catch (e) {}
+  return "kmh";
+}
+function unitsChoice() {
+  try { var force = new URLSearchParams(location.search).get("units"); if (force === "imperial") return "mph"; if (force === "metric") return "kmh"; } catch (e) {}
+  try { var v = localStorage.getItem(UNITS_KEY); if (UNIT_PROFILES[v]) return v; } catch (e) {}
+  return homeProfile();
+}
+function buildUnits() {
+  var u = UNIT_PROFILES[unitsChoice()] || UNIT_PROFILES.kmh;
+  return {
+    speed: function (k) { return u.d ? k * 0.621371 : k; }, speedUnit: u.d ? "mph" : "km/h",
+    temp: function (c) { return u.t ? c * 9 / 5 + 32 : c; }, tempUnit: u.t ? "\u00b0F" : "\u00b0C"
+  };
+}
+var UNITS = buildUnits();
+function setUnits(profile) {
+  try { localStorage.setItem(UNITS_KEY, profile); } catch (e) {}
+  UNITS = buildUnits();
+  markActiveUnits();
+  if (typeof render === "function") render();
+}
+function markActiveUnits() {
+  var c = unitsChoice();
+  Array.prototype.forEach.call(document.querySelectorAll("#cfg button[data-u]"), function (b) {
+    var on = b.getAttribute("data-u") === "kmh" ? c === "kmh" : c !== "kmh";
+    b.classList.toggle("on", on); b.setAttribute("aria-checked", on ? "true" : "false");
+  });
+}
+
+function statsText(s) {
+  if (!s) return "";
+  var parts = [];
+  if (typeof s.speedKmh === "number") parts.push(UNITS.speed(s.speedKmh).toFixed(1) + " " + UNITS.speedUnit);
+  if (typeof s.batteryPct === "number") parts.push(Math.round(s.batteryPct) + "%");
+  if (typeof s.tempC === "number") parts.push(Math.round(UNITS.temp(s.tempC)) + UNITS.tempUnit);
+  return parts.join(" · ");
+}
+
+/*
+ * The rider picture, drawn the same way in the list and on the map: an <img>
+ * that fills the round window and is centred, so both show the same face.
+ * A picture that fails to load is dropped back to the plain colour circle.
+ */
+function setAvatar(el, url) {
+  var img = el.querySelector("img");
+  if (!url) {
+    if (img) el.removeChild(img);
+    return;
+  }
+  if (!img) {
+    img = document.createElement("img");
+    img.alt = "";
+    img.decoding = "async";
+    img.addEventListener("error", function () {
+      if (img.parentNode) img.parentNode.removeChild(img);
+    });
+    el.appendChild(img);
+  }
+  if (img.getAttribute("src") !== url) img.setAttribute("src", url);
+}
+
+function makeMarkerEl(p) {
+  var el = document.createElement("div");
+  el.className = "pin";
+  el.innerHTML = '<div class="arrow"></div><div class="dot avatar"></div><div class="tag"></div>';
+  el.addEventListener("click", function () { flyTo(p); });
+  return el;
+}
+
+function flyTo(p) {
+  if (!map || p.lat === null) return;
+  userMoved = true;
+  var rc2 = $("recenter"); if (rc2) rc2.style.display = "block";
+  map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 15), speed: 1.2 });
+}
+
+function render() {
+  var now = Date.now();
+  var rows = [];
+  var features = [];
+  var positioned = [];
+  var anyFresh = false;
+
+  if (map && !mapReady) mapReady = ensureTrailLayers();
+
+  // A rider who went silent stays as a greyed last known position (a fall,
+  // a dead battery is exactly when it matters). Only a rider who said they
+  // left fades out with their trail. A phone that rejoins keeps its sender
+  // id in the room, so it replaces its own ghost instead of adding one.
+  var gone = [];
+  peers.forEach(function (p, senderId) {
+    if (p.left && ageMsOf(p, now) > TRAIL_MS) gone.push(senderId);
+  });
+  gone.forEach(function (senderId) {
+    var p = peers.get(senderId);
+    if (!p) return;
+    cancelRemoval(p);
+    if (p.marker) p.marker.remove();
+    peers.delete(senderId);
+  });
+
+  peers.forEach(function (p) {
+    trimTrail(p, now);
+    var age = ageMsOf(p, now);
+    var fresh = p.left ? LOST : freshnessOf(age);
+    var grey = p.left || fresh === LOST;
+    var color = grey ? LOST_COLOR : p.color;
+    var label = ageText(p, age, fresh);
+    if (!p.left && fresh === FRESH) anyFresh = true;
+
+    if (p.lat !== null && map) {
+      if (!p.marker) {
+        p.el = makeMarkerEl(p);
+        p.marker = new maplibregl.Marker({ element: p.el }).setLngLat([p.lng, p.lat]).addTo(map);
+      } else {
+        p.marker.setLngLat([p.lng, p.lat]);
+      }
+      var dot = p.el.querySelector(".dot");
+      var tag = p.el.querySelector(".tag");
+      p.el.style.setProperty("--c", color);
+      setAvatar(dot, grey ? null : safeAvatarUrl(p.avatarUrl));
+      p.el.classList.toggle("stale", fresh === STALE && !grey);
+      p.el.classList.toggle("has-heading", p.heading !== null && !grey);
+      if (p.heading !== null) {
+        p.el.querySelector(".arrow").style.transform =
+          "rotate(" + p.heading + "deg) translateY(-21px)";
+      }
+      tag.textContent = (p.flag ? flagEmoji(p.flag) + " " : "") + p.name + (label ? " " : "");
+      if (p.flag) tag.title = p.flag;
+      if (label) {
+        var ageSpan = document.createElement("span");
+        ageSpan.className = "age " + ageClass(grey, fresh);
+        ageSpan.textContent = label;
+        tag.appendChild(ageSpan);
+      }
+      positioned.push(p);
+    }
+
+    // Trail: one feature per hop, so every segment carries its own opacity.
+    var pts = p.trail;
+    var n = pts.length;
+    for (var i = 0; i < n - 1; i++) {
+      var frac = (i + 1) / (n - 1);                 // 0 oldest hop .. 1 newest hop
+      var opacity = 0.15 + 0.85 * frac;
+      if (grey) opacity *= LOST_TRAIL_FACTOR;
+      features.push({
+        type: "Feature",
+        properties: { color: color, opacity: Math.round(opacity * 1000) / 1000 },
+        geometry: {
+          type: "LineString",
+          coordinates: [[pts[i].lng, pts[i].lat], [pts[i + 1].lng, pts[i + 1].lat]]
+        }
+      });
+    }
+
+    rows.push({ p: p, color: color, label: label, grey: grey, fresh: fresh });
+  });
+
+  if (mapReady) {
+    var src = map.getSource("trails");
+    if (src) src.setData({ type: "FeatureCollection", features: features });
+  }
+
+  renderPanel(rows);
+  ridersStale = rows.length > 0 && !anyFresh;
+  paintStatus();
+
+  if (!everFitted && !userMoved && mapReady && positioned.length) {
+    fitAll(positioned);
+    everFitted = true;
+  }
+}
+
+function fitAll(list) {
+  var withPos = list;
+  if (!withPos) {
+    withPos = [];
+    peers.forEach(function (p) { if (p.lat !== null) withPos.push(p); });
+  }
+  if (!withPos.length || !map) return;
+  var b = new maplibregl.LngLatBounds();
+  withPos.forEach(function (p) { b.extend([p.lng, p.lat]); });
+  map.fitBounds(b, { padding: 90, maxZoom: 15, duration: 600 });
+}
+
+function renderPanel(rows) {
+  var panel = $("panel");
+  panel.textContent = "";
+  rows.sort(function (a, b) { return a.p.joinIndex - b.p.joinIndex; });
+  $("count").textContent = rows.length
+    ? (rows.length + (rows.length === 1 ? " rider" : " riders"))
+    : "No riders yet";
+
+  $("dock").classList.toggle("empty", peers.size === 0);
+  rows.forEach(function (r) {
+    var row = document.createElement("div");
+    row.className = "row" + (r.grey ? " dim" : "");
+    row.addEventListener("click", function () { flyTo(r.p); });
+
+    var sw = document.createElement("div");
+    sw.className = "avatar";
+    sw.style.setProperty("--c", r.color);
+    setAvatar(sw, r.grey ? null : safeAvatarUrl(r.p.avatarUrl));
+
+    var who = document.createElement("div");
+    who.className = "who";
+    var nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = (r.p.flag ? flagEmoji(r.p.flag) + " " : "") + r.p.name;
+    if (r.p.flag) nm.title = r.p.flag;
+    who.appendChild(nm);
+    var st = statsText(r.p.stats);
+    if (st) {
+      var stEl = document.createElement("div");
+      stEl.className = "st";
+      stEl.textContent = st;
+      who.appendChild(stEl);
+    }
+
+    row.appendChild(sw);
+    row.appendChild(who);
+    if (r.label) {
+      var age = document.createElement("div");
+      age.className = "age " + ageClass(r.grey, r.fresh);
+      age.textContent = r.label;
+      row.appendChild(age);
+    }
+    panel.appendChild(row);
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ * 8. Boot
+ * ------------------------------------------------------------------ */
+function boot() {
+  readStoredStyle();
+  setupCog();
+
+  $("joinFormEl").addEventListener("submit", function (e) {
+    e.preventDefault();
+    tryJoin($("joinInput").value);
+  });
+  $("scanBtn").addEventListener("click", startScan);
+  $("scanCancel").addEventListener("click", stopScan);
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) stopScan();
+  });
+  window.addEventListener("pagehide", stopScan);
+  // The toggle button is a real <button>, so the brand link is a sibling
+  // beside it in the header rather than nested inside it (an <a> is not
+  // valid content inside a native <button>).
+  setPanelOpen(initialPanelOpen(), false);
+  $("dockToggle").addEventListener("click", togglePanel);
+  $("dockToggle").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter" || ev.key === " ") {
+      ev.preventDefault();
+      togglePanel();
+    }
+  });
+
+  if (location.hash === "#selftest") {
+    setStatus("Self test", "");
+    runSelfTest();
+    return;
+  }
+
+  var link = parseShareHash(location.hash || "");
+  // Android only: a typed or pasted URL stays in the browser, so offer the
+  // app explicitly. Chrome resolves intent: URLs on the device, so the key
+  // travels in the intent path and never reaches any server; without the
+  // app installed it falls back to the Play listing.
+  (function(){
+    var a = document.getElementById("openApp");
+    if (!a || !link || !/Android/i.test(navigator.userAgent)) return;
+    var frag = (location.hash || "").replace(/^#/, "");
+    a.href = "intent://eucplanet.ried.no/share/" + frag +
+      "#Intent;scheme=https;package=com.eried.eucplanet;S.browser_fallback_url=" +
+      encodeURIComponent("https://play.google.com/store/apps/details?id=com.eried.eucplanet") + ";end";
+    a.classList.remove("hide");
+  })();
+  if (!link) {
+    // No fragment at all (a bare visit to the page) just needs the join
+    // card; a fragment that is present but does not parse is worth telling
+    // the visitor about, with the join card underneath so they can recover.
+    if (!location.hash || location.hash === "#") {
+      setStatus("Join a ride", "");
+      showJoinCard();
+    } else {
+      setStatus("Invalid link", "err");
+      showJoinCard("This share link has expired or is invalid.",
+        "Ask the rider for a fresh link. The key lives in the part of the address after the #, so a link loses it when it is retyped or trimmed.");
+    }
+    return;
+  }
+
+  if (!window.crypto || !crypto.subtle) {
+    setStatus("Not secure", "err");
+    showMessage("This browser cannot decrypt the ride.",
+      "Open the link over https, the page needs the browser crypto API.");
+    return;
+  }
+
+  if (typeof maplibregl === "undefined") {
+    setStatus("Map unavailable", "err");
+    showMessage("The map could not load.", "Check your connection and reload the page.");
+    return;
+  }
+
+  initMap();
+  setStatus("Connecting", "");
+
+  deriveAesKey(link.rawKey).then(function (key) {
+    connect(link.roomId, key);
+    setInterval(render, TICK_MS);       // reclassify freshness once a second
+  }).catch(function () {
+    setStatus("Invalid link", "err");
+    showMessage("This share link has expired or is invalid.",
+      "The key in the link could not be used.");
+  });
+}
+
+// A new link pasted into the same tab only changes the fragment, which does not
+// reload the document. Start over so the new room is the one being watched.
+window.addEventListener("hashchange", function () { location.reload(); });
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>

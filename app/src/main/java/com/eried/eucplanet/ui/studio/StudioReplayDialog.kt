@@ -275,7 +275,14 @@ fun StudioReplayDialog(
                     )
                 }
             }
-            2 -> Column {
+            2 -> Column(
+                // Same cap + scroll as the trip picker above: in the Studio's
+                // landscape mode the panel is short, and an unbounded 9-row
+                // list ran its tail (32x, 64x) off the edge with no way to
+                // reach them. Scrolling keeps every speed reachable in any
+                // orientation.
+                Modifier.heightIn(max = 200.dp).verticalScroll(rememberScrollState())
+            ) {
                 replaySpeeds.forEach { s ->
                     Text(
                         speedLabel(s),

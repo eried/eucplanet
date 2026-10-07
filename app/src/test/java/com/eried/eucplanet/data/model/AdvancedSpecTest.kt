@@ -1,10 +1,11 @@
 package com.eried.eucplanet.data.model
 
+import com.eried.eucplanet.data.store.SettingsJson
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-
 /**
  * Drift guard for the [ADVANCED_SPECS] registry. The specs each carry a
  * hand-written get/set lambda, so the real risk is a copy-paste error
@@ -32,15 +33,32 @@ class AdvancedSpecTest {
             assertNotEquals("range too small to test ${spec.id}", cur, probe)
 
             val updated = spec.set(base, probe)
-            assertEquals("${spec.id}: get(set(v)) != v — wrong field in get or set", probe, spec.get(updated))
+            assertEquals("${spec.id}: get(set(v)) != v, wrong field in get or set", probe, spec.get(updated))
 
             for (other in ADVANCED_SPECS) {
                 if (other.id == spec.id) continue
-                assertEquals("setting ${spec.id} changed ${other.id} — set copies the wrong field",
+                assertEquals("setting ${spec.id} changed ${other.id}, set copies the wrong field",
                     other.get(base), other.get(updated))
             }
         }
     }
+    @Test
+    fun `all advanced specs survive one JSON round trip`() {
+        val candidate = ADVANCED_SPECS.fold(AdvancedSettings()) { settings, spec ->
+            val current = spec.get(settings)
+            val probe = (current + spec.step).coerceIn(spec.range).let {
+                if (it != current) it else (current - spec.step).coerceIn(spec.range)
+            }
+            spec.set(settings, probe)
+        }
+        val restored = SettingsJson.fromJson(
+            JSONObject(SettingsJson.toJson(AppSettings(advanced = candidate)).toString()),
+        ).advanced
+        ADVANCED_SPECS.forEach { spec ->
+            assertEquals(spec.id, spec.get(candidate), spec.get(restored))
+        }
+    }
+
 
     @Test
     fun `defaults are within their spec range`() {

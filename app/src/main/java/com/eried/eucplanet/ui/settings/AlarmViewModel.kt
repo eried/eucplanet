@@ -7,6 +7,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.groupKey
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.TonePlayer
@@ -32,7 +33,8 @@ class AlarmViewModel @Inject constructor(
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
     private val voiceService: VoiceService,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    bleConnectionManager: com.eried.eucplanet.ble.BleConnectionManager
 ) : ViewModel() {
 
     companion object {
@@ -54,6 +56,12 @@ class AlarmViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 
+    /** "psi" or "bar", following the rider's distance unit, for the tire
+     *  pressure threshold. */
+    val pressureUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectivePressureUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "bar")
+
     /**
      * The rider's chosen voice locale, fed to the alarm editor so a newly
      * created alarm's default voice template is in the language the TTS
@@ -64,6 +72,21 @@ class AlarmViewModel @Inject constructor(
     val voiceLocale: StateFlow<String> = settingsRepository.settings
         .map { it.voiceLocale }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en_US")
+
+    /**
+     * The connected wheel as (address, display name), or null while no wheel
+     * is fully connected. Drives the editor's "Only this wheel" switch and
+     * the graying of bound rules in the list.
+     */
+    val connectedWheel: StateFlow<Pair<String, String>?> = combine(
+        bleConnectionManager.connectionState,
+        bleConnectionManager.connectedAddress,
+        bleConnectionManager.connectedDeviceName
+    ) { state, addr, name ->
+        if (state == com.eried.eucplanet.ble.ConnectionState.CONNECTED && addr != null)
+            addr to (name ?: addr)
+        else null
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
 
     private val vibratorHelper = VibratorHelper(context)
@@ -87,11 +110,21 @@ class AlarmViewModel @Inject constructor(
     /** Group rules by metric (most-severe first inside each); order the groups by
      *  priority = the lowest sortOrder in each group (what the rider dragged).
      *  This is both the display order and the engine's group-priority order. */
+    /**
+     * The family a rule belongs to, falling back to its own metric name for
+     * anything the enum does not recognise.
+     */
+    private fun familyOf(metricName: String): String =
+        runCatching { AlarmMetric.valueOf(metricName).groupKey }.getOrDefault(metricName)
+
     private fun buildGroups(list: List<AlarmRule>): List<MetricGroup> =
-        list.groupBy { it.metric }
-            .map { (metric, rs) -> metric to rs.sortedWith(severityComparator()) }
+        // Grouped by FAMILY, not by metric. Battery and Battery (est) measure
+        // the same thing two ways and read as one heading with two rules
+        // under it, rather than two headings a word apart.
+        list.groupBy { familyOf(it.metric) }
+            .map { (family, rs) -> family to rs.sortedWith(severityComparator()) }
             .sortedBy { (_, rs) -> rs.minOf { it.sortOrder } }
-            .map { (metric, rs) -> MetricGroup(metric, rs) }
+            .map { (family, rs) -> MetricGroup(family, rs) }
 
     val groupedRules: StateFlow<List<MetricGroup>> = rules
         .map { buildGroups(it) }
@@ -105,7 +138,13 @@ class AlarmViewModel @Inject constructor(
      */
     private fun sortComparator(): Comparator<AlarmRule> {
         val metricOrder = AlarmMetric.entries.withIndex().associate { (i, m) -> m.name to i }
-        return compareBy<AlarmRule> { metricOrder[it.metric] ?: Int.MAX_VALUE }
+        // Sort by family first so auto-sort cannot split one apart, then by
+        // the metric's own position inside it.
+        val familyOrder = AlarmMetric.entries
+            .groupBy { it.groupKey }
+            .mapValues { (_, ms) -> ms.minOf { AlarmMetric.entries.indexOf(it) } }
+        return compareBy<AlarmRule> { familyOrder[familyOf(it.metric)] ?: Int.MAX_VALUE }
+            .thenBy { metricOrder[it.metric] ?: Int.MAX_VALUE }
             .thenByDescending { severityOf(it) }
     }
 

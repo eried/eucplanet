@@ -72,7 +72,7 @@ class WheelIdentityTest {
         assertEquals("Master", JSONObject(id.toJson()!!).getString("model"))
     }
 
-    /** Each ride starts fresh — one trip must never inherit the previous wheel. */
+    /** Each ride starts fresh, one trip must never inherit the previous wheel. */
     @Test
     fun clear_resetsForTheNextTrip() {
         val id = WheelIdentity()

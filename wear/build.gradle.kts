@@ -15,18 +15,29 @@ val keystoreProps = Properties().apply {
 }
 
 android {
+    androidResources {
+        // Keep only this module's own languages from library resources
+        // (about 1 MB on the phone, 0.2 MB on the watch and HUD). Derived
+        // from the values-* folders that hold a strings.xml, so a new
+        // translation is picked up without touching this list.
+        localeFilters += listOf("en") + (file("src/main/res").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("values-") && it.resolve("strings.xml").exists() }
+            .map { it.name.removePrefix("values-") }
+    }
     namespace = "com.eried.eucplanet.wear"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.eried.eucplanet"
         minSdk = 30
-        targetSdk = 35
-        // Wear OS variant rides on the same package as the phone, so we offset
-        // its versionCode by 100000 to keep them distinct in Play Console while
-        // preserving the phone-side numbering (37 -> 100037).
-        versionCode = 100260
-        versionName = "0.15.0"
+        targetSdk = 36
+        // The wear APK shares the phone's applicationId, so Play needs its
+        // versionCode unique within the package and higher than the last wear
+        // upload. It is its own 1002xx series and does not track the phone's
+        // number: always increase it, never lower it to match, a lower code
+        // is a downgrade Play rejects.
+        versionCode = 100268
+        versionName = "0.22.0-beta1"
     }
 
     signingConfigs {
@@ -47,6 +58,9 @@ android {
             // proguard-rules.pro keeps the Data Layer bridge classes the
             // companion phone app sends messages to via reflection-y APIs.
             isMinifyEnabled = true
+            // Drop resources the shrunk code no longer references. Nothing in
+            // this module loads a resource by name (checked 2026-09-29).
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -83,6 +97,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":hud-protocol"))
+
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
@@ -106,4 +122,5 @@ dependencies {
     implementation(libs.coroutines.android)
 
     implementation(libs.play.services.wearable)
+    testImplementation(libs.junit)
 }

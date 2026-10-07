@@ -4,12 +4,14 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
@@ -19,16 +21,18 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.WbCloudy
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
 
 /**
- * Action layer — single source of truth for every rider-triggerable command.
+ * Action layer, single source of truth for every rider-triggerable command.
  *
  * Surfaces that can bind an action (Flic, volume keys, watch, dashboard tile,
  * future alarm-triggers, voice shortcuts, etc.) all query this catalog
  * instead of maintaining their own list. Adding a new action means adding
- * one entry to [ActionCatalog.all] — no other file should need to grow a
+ * one entry to [ActionCatalog.all], no other file should need to grow a
  * new branch.
  *
  * The discriminator that picks which surfaces an action lands on is the
@@ -78,7 +82,7 @@ enum class ActionSurface {
 /**
  * Read-only snapshot of the running app state, passed to
  * [ActionSpec.statusReader] so it can decide whether the action's effect
- * is currently active. Carrier-only — no Hilt scope, no flows; the caller
+ * is currently active. Carrier-only, no Hilt scope, no flows; the caller
  * builds a snapshot per dispatch from whatever sources it has.
  *
  * Fields are nullable / unknown-default to avoid forcing callers to plumb
@@ -91,10 +95,12 @@ data class StatusContext(
     val tripRecording: Boolean = false,
     /** Imperial-unit toggle state from settings. */
     val imperialUnits: Boolean = false,
-    /** Alarms-muted flag from settings. Not yet wired upstream — defaults false. */
+    /** Alarms-muted flag from settings. Not yet wired upstream, defaults false. */
     val alarmsMuted: Boolean = false,
     /** True when the wheel is currently in safety / legal mode. */
     val safetyActive: Boolean = false,
+    /** True while speed splits are on in any direction (see [AccelSplitMode]). */
+    val speedSplitsOn: Boolean = false,
     /** True when a wheel is connected over BLE. Consumed by [ActionSpec.enabledReader]
      *  to gate actions that write to the wheel. Defaults false so existing
      *  construction sites that don't plumb it keep compiling. */
@@ -130,7 +136,7 @@ data class ActionSpec(
      * - Returns false → surfaces must NOT fire it (and may grey it out).
      * Set on actions that write BLE to the wheel so every eyes-free surface
      * (Flic, volume, watch, HUD, Garmin) is gated consistently when no wheel
-     * is connected — instead of each surface re-implementing the check.
+     * is connected, instead of each surface re-implementing the check.
      */
     val enabledReader: ((StatusContext) -> Boolean)? = null
 )
@@ -184,7 +190,7 @@ object ActionCatalog {
             labelRes = R.string.action_chip_safety_on,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
-            // Highlight when ALREADY in safety mode — pressing this is a
+            // Highlight when ALREADY in safety mode, pressing this is a
             // no-op in that case, so the active state warns the rider.
             statusReader = { it.safetyActive },
             enabledReader = { it.connected }
@@ -194,9 +200,18 @@ object ActionCatalog {
             labelRes = R.string.action_chip_safety_off,
             icon = Icons.Filled.Shield,
             isEyesFreeSafe = true,
-            // Mirror of SAFETY_ON — highlight when already off.
+            // Mirror of SAFETY_ON, highlight when already off.
             statusReader = { !it.safetyActive },
             enabledReader = { it.connected }
+        ),
+        ActionSpec(
+            // Opens the microphone for a spoken question. Eyes-free by
+            // definition: the whole point is that the rider does not have to
+            // look, so every physical surface picks it up from here.
+            key = "VOICE_LISTEN",
+            labelRes = R.string.action_chip_voice_listen,
+            icon = Icons.Filled.Mic,
+            isEyesFreeSafe = true
         ),
         ActionSpec(
             key = "VOICE_ANNOUNCE",
@@ -273,22 +288,47 @@ object ActionCatalog {
             icon = Icons.AutoMirrored.Filled.List
         ),
         ActionSpec(
+            key = "OPEN_WEATHER",
+            labelRes = R.string.action_chip_open_weather,
+            icon = Icons.Filled.WbCloudy
+        ),
+        ActionSpec(
+            key = "OPEN_CHARGING",
+            labelRes = R.string.action_chip_open_charging,
+            icon = Icons.Filled.BatteryChargingFull
+        ),
+        ActionSpec(
             key = "MUTE_ALARMS",
             labelRes = R.string.action_chip_mute_alarms,
             icon = Icons.AutoMirrored.Filled.VolumeOff,
             statusReader = { it.alarmsMuted }
         ),
         ActionSpec(
+            // Key kept from when this only cleared the wheel's trip meter: it
+            // is persisted in dashboard layouts and physical-button bindings,
+            // and renaming it would unbind every rider who customised one.
             key = "RESET_TRIP",
-            labelRes = R.string.action_chip_reset_trip,
+            labelRes = R.string.action_chip_reset_metrics,
             icon = Icons.Filled.Restore,
-            enabledReader = { it.connected }
+            // No wheel needed any more. The trip meter and the metric history
+            // are the app's own, and clearing yesterday's numbers before
+            // setting off is a reasonable thing to do with the wheel still in
+            // the hall.
         ),
         ActionSpec(
             key = "TOGGLE_UNITS",
             labelRes = R.string.action_chip_toggle_units,
             icon = Icons.Filled.SwapHoriz,
             statusReader = { it.imperialUnits }
+        ),
+        ActionSpec(
+            // Cycles off, accel, brake, both: see AccelSplitMode. Screen-only,
+            // because a four-way cycle needs the rider to see where it landed;
+            // the tile's label says which.
+            key = "SPEED_SPLITS",
+            labelRes = R.string.section_accel_splits,
+            icon = Icons.Filled.Timer,
+            statusReader = { it.speedSplitsOn }
         )
     )
 

@@ -3,7 +3,7 @@ package com.eried.eucplanet.data.model
 /**
  * Aggregated smart-BMS state, stitched together from multiple BMS sub-frames
  * over time (each sub-frame carries only a 12-15 cell window plus a temp /
- * current header). One [PackState] per physical pack — single-pack wheels
+ * current header). One [PackState] per physical pack, single-pack wheels
  * (Lynx, Sherman L, NOSFET Apex) report one pack; the Oryx reports two.
  *
  * Empty list means "no smart-BMS wheel connected / no BMS data received yet".

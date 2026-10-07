@@ -29,6 +29,28 @@ class EucPlanetView extends WatchUi.View {
     //! Drawn in drawHornLight / drawBatteryRow.
     private var _iconHorn as WatchUi.BitmapResource? = null;
     private var _iconLight as WatchUi.BitmapResource? = null;
+
+    //! Which touch slot (1 or 2, 0 = none) was just tapped, for the ~300 ms
+    //! press flash. Riding gloves and sun glare make it impossible to tell a
+    //! missed tap from a dead binding without visible confirmation.
+    private var _pressedSlot as Lang.Number = 0;
+    private var _pressTimer as Timer.Timer? = null;
+
+    //! Delegate calls this on a recognised touch-slot tap/hold. Flashes the
+    //! button face so the rider sees the press landed (haptic covers feel,
+    //! this covers sight).
+    function notifyTouch(slot as Lang.Number) as Void {
+        _pressedSlot = slot;
+        WatchUi.requestUpdate();
+        if (_pressTimer == null) { _pressTimer = new Timer.Timer(); }
+        _pressTimer.stop();
+        _pressTimer.start(method(:onPressFlashEnd), 300, /* repeat = */ false);
+    }
+
+    function onPressFlashEnd() as Void {
+        _pressedSlot = 0;
+        WatchUi.requestUpdate();
+    }
     private var _iconWheel as WatchUi.BitmapResource? = null;
     private var _iconPhone as WatchUi.BitmapResource? = null;
     private var _iconWatch as WatchUi.BitmapResource? = null;
@@ -138,18 +160,23 @@ class EucPlanetView extends WatchUi.View {
     //! Self-exit fallback for "Auto-stop on watch". Fires ONLY when the rider
     //! enabled the toggle (s.closeOnExit, pushed from the phone) AND we had a
     //! live phone link (phoneSynced) that has now gone silent for well past the
-    //! 10 s "Disconnected" window. 20 s here so a brief BLE blip mid-ride shows
-    //! the placeholder but never closes the app. If the toggle is off we never
-    //! self-exit -- the dial just keeps waiting for the phone to come back
-    //! (unchanged behaviour). The phone normally closes us promptly via an
-    //! explicit KIND_QUIT; this only matters when that QUIT never arrived
-    //! (phone crashed / was killed before it could send).
+    //! 10 s "Disconnected" window. If the toggle is off we never self-exit --
+    //! the dial just keeps waiting for the phone to come back (unchanged
+    //! behaviour). The phone normally closes us promptly via an explicit
+    //! KIND_QUIT; this only matters when that QUIT never arrived (phone
+    //! crashed / was killed before it could send).
+    //!
+    //! 60 s, not the original 20 s. A congested link can stall the phone feed
+    //! for tens of seconds mid-ride, and at 20 s that stall closed the app on
+    //! the rider's wrist, indistinguishable from a real quit (field report
+    //! 2026-09-02). A missed QUIT is rare and closing a minute later costs
+    //! nothing; closing during a ride costs the rider their dial.
     function maybeAutoClose() as Void {
         var s = WatchState.snapshot;
         if (!s.closeOnExit) { return; }
         if (!s.phoneSynced) { return; }
         if (s.lastUpdateMs <= 0) { return; }
-        if ((System.getTimer() - s.lastUpdateMs) > 20000) {
+        if ((System.getTimer() - s.lastUpdateMs) > 60000) {
             System.exit();
         }
     }
@@ -159,6 +186,16 @@ class EucPlanetView extends WatchUi.View {
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {
+        // A draw that throws (unexpected value, resource hiccup) would otherwise
+        // crash the whole dial. Contain it: the frame is skipped and the next
+        // redraw (phone frame or the 1 s tick) recovers.
+        try {
+            drawFrame(dc);
+        } catch (e) {
+        }
+    }
+
+    function drawFrame(dc as Graphics.Dc) as Void {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
 
@@ -173,7 +210,7 @@ class EucPlanetView extends WatchUi.View {
 
         // Only two placeholder branches: no phone yet, or stale (phone
         // went away). When the phone IS publishing but no wheel is
-        // connected, render the dial with zeroed telemetry — matches the
+        // connected, render the dial with zeroed telemetry, matches the
         // Wear OS dial, which shows the full layout with "0" speed and
         // dashes for battery / voltage rather than a placeholder text.
         // Horn / light buttons stay drawn but greyed so the rider can
@@ -202,7 +239,7 @@ class EucPlanetView extends WatchUi.View {
             drawPwmBadge(dc, s);
         }
         drawBatteryRow(dc, s);
-        // Buttons greyed when no wheel is connected — same UX as the Wear OS
+        // Buttons greyed when no wheel is connected, same UX as the Wear OS
         // dial: dial stays visible, controls show but read as inactive.
         drawHornLight(dc, s, /* enabled = */ s.connected);
 
@@ -452,36 +489,67 @@ class EucPlanetView extends WatchUi.View {
     //! inside each circle. Tap targets handled in the Delegate via `onTap`
     //! over the same fractional regions; keep both in sync.
     //!
-    //! Button radius is 7% of width so on small MIP watches (Fenix 8 Solar
-    //! 240x240, Fenix 6X Pro 280x280) the buttons stay clear of the
-    //! battery row above. On larger AMOLED panels the buttons still read
-    //! as deliberate touch targets.
+    //! Button radius is 10% of width - the previous 7% was ~3 mm on a Fenix,
+    //! unusable with riding gloves. Centred at 84% height so the circle
+    //! stays on the round glass on small MIP faces (Fenix 8 Solar 240x240)
+    //! while clearing the battery row above.
     private function drawHornLight(dc as Graphics.Dc, s as WatchSnapshot, enabled as Lang.Boolean) as Void {
         var w = dc.getWidth();
         var h = dc.getHeight();
-        var btnY = (h * 86) / 100;
-        var btnR = (w * 7) / 100;
+        // 84% height + 10% radius (was 86% + 7%): a 7% circle is ~3 mm on a
+        // Fenix - unhittable with gloves - and at 86% the lower arc started
+        // clipping off the round glass on small faces.
+        var btnY = (h * 84) / 100;
+        var btnR = (w * 10) / 100;
         var leftX = (w * 36) / 100;
         var rightX = (w * 64) / 100;
 
-        var hornBg = enabled ? 0x29B6F6 : 0x1A1A1A;
-        var lightBg = (s.lightOn && enabled) ? 0xFFB400 : (enabled ? 0x444444 : 0x1A1A1A);
-        var iconSize = 24;
-        var iconOffset = iconSize / 2;
+        // A button shows whenever its slot is bound, and its face follows the
+        // BINDING: horn / light keep their icons, anything else shows the
+        // slot's numeral - the same "Button 1 / Button 2" the phone Settings
+        // names. The old fixed horn+light faces made a rebound slot invisible:
+        // a Fenix 8 rider bound Lock to touch Button 1, saw only a horn, and
+        // concluded touch didn't work at all.
+        drawTouchButton(dc, s, enabled, leftX, btnY, btnR, s.screen1Click, s.screen1Hold, 1);
+        drawTouchButton(dc, s, enabled, rightX, btnY, btnR, s.screen2Click, s.screen2Hold, 2);
+    }
 
-        if (s.hasHorn) {
-            dc.setColor(hornBg, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(leftX, btnY, btnR);
-            if (_iconHorn != null) {
-                dc.drawBitmap(leftX - iconOffset, btnY - iconOffset, _iconHorn);
-            }
+    //! One touch button face. [click]/[hold] are the slot's bindings; the
+    //! button is hidden only when both are NONE (slot fully unbound).
+    //! (Max 9 params on older CIQ targets - the numeral derives from [slot].)
+    private function drawTouchButton(
+        dc as Graphics.Dc, s as WatchSnapshot, enabled as Lang.Boolean,
+        x as Lang.Number, y as Lang.Number, r as Lang.Number,
+        click as Lang.String, hold as Lang.String, slot as Lang.Number
+    ) as Void {
+        var bound = !(click.equals("NONE") && hold.equals("NONE"));
+        if (!bound) { return; }
+        var iconOffset = 24 / 2;
+
+        var bg;
+        var icon = null;
+        if (click.equals("LIGHT_TOGGLE")) {
+            bg = (s.lightOn && enabled) ? 0xFFB400 : (enabled ? 0x444444 : 0x1A1A1A);
+            icon = _iconLight;
+        } else if (click.equals("HORN")) {
+            bg = enabled ? 0x29B6F6 : 0x1A1A1A;
+            icon = _iconHorn;
+        } else {
+            bg = enabled ? 0x29B6F6 : 0x1A1A1A;
         }
-        if (s.hasLight) {
-            dc.setColor(lightBg, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(rightX, btnY, btnR);
-            if (_iconLight != null) {
-                dc.drawBitmap(rightX - iconOffset, btnY - iconOffset, _iconLight);
-            }
+        // Press flash: invert to white for ~300 ms so the rider SEES the tap
+        // landed. Gloves mute the haptic and glare hides subtle changes.
+        var pressed = _pressedSlot == slot;
+        if (pressed) { bg = 0xFFFFFF; }
+        dc.setColor(bg, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, r);
+        if (icon != null && !pressed) {
+            dc.drawBitmap(x - iconOffset, y - iconOffset, icon);
+        } else {
+            dc.setColor(pressed ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE,
+                        Graphics.COLOR_TRANSPARENT);
+            dc.drawText(x, y, Graphics.FONT_TINY, slot.toString(),
+                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
     }
 

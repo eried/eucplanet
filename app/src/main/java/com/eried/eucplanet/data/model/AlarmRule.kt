@@ -105,8 +105,26 @@ data class AlarmRule(
      * Only triggers while moving toward the threshold; a flat or retreating
      * value never fires predictively. See [com.eried.eucplanet.service.AlarmEngine].
      */
-    val leadTimeMs: Int = 0
+    val leadTimeMs: Int = 0,
+
+    // Wheel binding
+    /**
+     * When set, the rule fires ONLY while this wheel (its BLE address, or a
+     * virtual wheel's pseudo-address) is the connected one. Null keeps the
+     * classic behaviour: the rule applies to whatever wheel is connected.
+     * Stamped from the live connection when the rider enables "Only this
+     * wheel" in the editor's Advanced section.
+     */
+    val wheelAddress: String? = null,
+    /**
+     * Display name of the bound wheel, captured at bind time so the rule row
+     * can say which wheel it belongs to even while that wheel is away.
+     */
+    val wheelName: String? = null
 )
+
+/** The family a metric is filed under: its own name unless it shares one. */
+val AlarmMetric.groupKey: String get() = groupOf ?: name
 
 enum class AlarmMetric(
     val labelRes: Int,
@@ -121,14 +139,105 @@ enum class AlarmMetric(
      *  - >= (too high): speed, PWM, temperature, current, approach speed
      *  - <  (too low / too close): battery, voltage, car distance
      */
-    val defaultComparator: AlarmComparator = AlarmComparator.GREATER_EQUAL
+    val defaultComparator: AlarmComparator = AlarmComparator.GREATER_EQUAL,
+    /**
+     * Name in the LIST of choices, where there is room to spell it out.
+     *
+     * [labelRes] is what the field shows once the metric is chosen and has to
+     * fit; this is what the rider reads while deciding. Most metrics want the
+     * same string for both, which is the default.
+     */
+    val longLabelRes: Int = labelRes,
+    /**
+     * Which family this metric is filed under in the rule list.
+     *
+     * Its own name for almost everything. Two metrics that measure the same
+     * quantity a different way share one, so a rider sees one heading with
+     * both rules under it rather than two headings saying nearly the same
+     * word.
+     */
+    val groupOf: String? = null,
 ) {
     SPEED(R.string.alarm_metric_speed, "km/h"),
     BATTERY(R.string.alarm_metric_battery, "%", defaultComparator = AlarmComparator.LESS_THAN),
+    /**
+     * Battery percent with the load taken out of it.
+     *
+     * Watched from below, like BATTERY, and the reason to prefer it: on an
+     * 84 V pack the raw percentage dives under acceleration and recovers on
+     * the overrun, so a rule on the raw value either cries wolf on every hill
+     * or is set so low it fires too late to matter. The envelope only moves
+     * when the charge moved, so the threshold means what the rider thinks it
+     * means.
+     *
+     * Shown as "Battery (est)" rather than "Battery envelope": two words did
+     * not fit the metric field and wrapped onto a second line, and "envelope"
+     * is the name of the technique rather than of the thing a rider wants.
+     * What they want is the battery, estimated properly.
+     */
+    BATTERY_ENVELOPE(
+        R.string.alarm_metric_battery_envelope,
+        "%",
+        // Spoken as "battery". The reading IS the battery; the envelope is
+        // only how it was measured, and a rider does not want the word
+        // estimate read at them every time it fires.
+        voiceLabelRes = R.string.alarm_metric_battery,
+        defaultComparator = AlarmComparator.LESS_THAN,
+        longLabelRes = R.string.alarm_metric_battery_envelope_long,
+        groupOf = "BATTERY",
+    ),
     TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
     PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
     VOLTAGE(R.string.alarm_metric_voltage, "V", defaultComparator = AlarmComparator.LESS_THAN),
     CURRENT(R.string.alarm_metric_current, "A"),
+    TORQUE(R.string.alarm_metric_torque, "Nm"),
+    PHASE_CURRENT(R.string.alarm_metric_phase_current, "A", R.string.alarm_metric_phase_current_voice),
+    /**
+     * The three temperature sensors on their own, where [TEMPERATURE] is only
+     * the hottest of them. A rider who wants "tell me when the BATTERY is
+     * warm" could not say it: the pack could sit at 50 while the controller
+     * ran hotter and swallowed the alarm.
+     */
+    MOTOR_TEMP(R.string.alarm_metric_motor_temp, "\u00b0C"),
+    CONTROLLER_TEMP(R.string.alarm_metric_controller_temp, "\u00b0C"),
+    BATTERY_TEMP(R.string.alarm_metric_battery_temp, "\u00b0C"),
+    /**
+     * Total and lateral acceleration. Worth an alarm for the rider who wants
+     * to know they are cornering harder than they meant to, and as a crude
+     * impact signal.
+     */
+    G_FORCE(R.string.alarm_metric_g_force, "g"),
+    LATERAL_G(R.string.alarm_metric_lateral_g, "g"),
+    /**
+     * BLE link strength, in dBm and therefore negative: -50 is a good link,
+     * -95 is one about to drop. Watched from below so the rule reads the way
+     * the numbers do.
+     */
+    BT_RSSI(R.string.alarm_metric_bt_rssi, "dBm", defaultComparator = AlarmComparator.LESS_THAN),
+    /**
+     * TPMS tire pressure, held in kPa like [WheelData.tirePressureKpa] and
+     * shown in the rider's psi or bar. Watched from below: a tyre losing air
+     * is the thing worth being told about, and it is the failure a rider
+     * cannot feel until it is already bad.
+     */
+    TIRE_PRESSURE(
+        R.string.alarm_metric_tire_pressure,
+        "kPa",
+        defaultComparator = AlarmComparator.LESS_THAN,
+    ),
+    /** Energy spent this ride, for a rider who plans by Wh rather than percent. */
+    WH_CONSUMED(R.string.alarm_metric_wh_consumed, "Wh"),
+    /**
+     * Consumption over the rolling window. Watched high: it climbing is the
+     * early warning that the way home will not go as far as the way out.
+     */
+    WH_PER_KM(R.string.alarm_metric_wh_per_km, "Wh/km"),
+    /** Range left at the current rate. Watched low, like battery. */
+    RANGE_ESTIMATE(
+        R.string.alarm_metric_range,
+        "km",
+        defaultComparator = AlarmComparator.LESS_THAN,
+    ),
 
     /**
      * Speed from the phone's own GPS in km/h. Evaluated off the phone location
@@ -136,6 +245,14 @@ enum class AlarmMetric(
      * it works with no wheel connected. Only checked on a fresh location fix.
      */
     GPS_SPEED(R.string.alarm_metric_gps_speed, "km/h"),
+
+    /**
+     * Altitude above sea level in metres, off the same phone fix as
+     * [GPS_SPEED]. Watched upwards by default: the rider climbing past a
+     * height is the alarm worth having, and a low-altitude one is rarely
+     * meaningful when sea level is the floor.
+     */
+    GPS_ALTITUDE(R.string.alarm_metric_gps_altitude, "m"),
 
     /**
      * Speed from the paired external GPS box (RaceBox / Dragy) in km/h.

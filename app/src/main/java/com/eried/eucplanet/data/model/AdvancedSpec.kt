@@ -9,7 +9,7 @@ import com.eried.eucplanet.R
  * Each tunable is declared once as an [AdvancedSpec]; the UI, the clamping in
  * SettingsRepository.sanitized(), JSON (de)serialization, the per-setting update,
  * and the restore-default affordance all iterate this list instead of repeating
- * 46 hand-written rows / functions / clamp lines. Adding a knob = one field on
+ * a hand-written row / function / clamp line per knob. Adding a knob = one field on
  * [AdvancedSettings] + one spec entry + two strings.
  *
  * Mirrors the project's existing `ThemeTokens.specs` registry pattern.
@@ -34,7 +34,9 @@ enum class AdvGroup(
     RADAR_CLASS(R.string.adv_group_radar_class, warningRes = R.string.adv_radar_warning),
     CHARGING(R.string.adv_group_charging, warningRes = R.string.adv_charging_warning),
     GEOMETRY(R.string.adv_group_geometry),
+    MAP_CACHE(R.string.adv_group_map_cache),
     CONTROLS(R.string.adv_group_controls),
+    WEATHER(R.string.adv_group_weather),
 }
 
 data class AdvancedSpec(
@@ -60,7 +62,7 @@ val taperParse: (String) -> Int? = { it.toFloatOrNull()?.let { f -> Math.round(f
 val pinFormat: (Int) -> String = { String.format(java.util.Locale.US, "%06d", it) }
 val pinParse: (String) -> Int? = { it.toIntOrNull() }
 
-/** Canonical defaults — one allocation, reused for resets, JSON fallback, etc. */
+/** Canonical defaults, one allocation, reused for resets, JSON fallback, etc. */
 val ADVANCED_DEFAULTS = AdvancedSettings()
 
 /** A spec's default value = the matching field on [ADVANCED_DEFAULTS]. */
@@ -80,6 +82,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         15..360, 15, unit = "min", get = { it.pendingUploadIntervalMin }, set = { s, v -> s.copy(pendingUploadIntervalMin = v) }),
     AdvancedSpec("tripFinalizeGraceMs", AdvGroup.RATES, R.string.adv_trip_finalize_grace, R.string.adv_trip_finalize_grace_desc,
         5000..60000, 1000, get = { it.tripFinalizeGraceMs }, set = { s, v -> s.copy(tripFinalizeGraceMs = v) }),
+    AdvancedSpec("voiceListenWindowSec", AdvGroup.CONTROLS, R.string.adv_voice_listen_window, R.string.adv_voice_listen_window_desc,
+        3..30, 1, unit = "s", get = { it.voiceListenWindowSec }, set = { s, v -> s.copy(voiceListenWindowSec = v) }),
     AdvancedSpec("lockMaxSpeedKmh", AdvGroup.CONTROLS, R.string.adv_lock_max_speed, R.string.adv_lock_max_speed_desc,
         0..20, 1, unit = "km/h", get = { it.lockMaxSpeedKmh }, set = { s, v -> s.copy(lockMaxSpeedKmh = v) }),
     AdvancedSpec("phoneGpsIntervalMs", AdvGroup.RATES, R.string.adv_phone_gps_interval, R.string.adv_phone_gps_interval_desc,
@@ -94,6 +98,11 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         50..2000, 25, get = { it.hudReportIntervalMs }, set = { s, v -> s.copy(hudReportIntervalMs = v) }),
     AdvancedSpec("garminReportIntervalMs", AdvGroup.RATES, R.string.adv_garmin_report_interval, R.string.adv_garmin_report_interval_desc,
         100..2000, 25, get = { it.garminReportIntervalMs }, set = { s, v -> s.copy(garminReportIntervalMs = v) }),
+
+    AdvancedSpec("headlightReadbackMaxAgeMs", AdvGroup.CONTROLS,
+        R.string.adv_headlight_readback_age, R.string.adv_headlight_readback_age_desc,
+        1000..30000, 1000, get = { it.headlightReadbackMaxAgeMs },
+        set = { s, v -> s.copy(headlightReadbackMaxAgeMs = v) }),
 
     // --- Navigation timing ---
     AdvancedSpec("navOffRouteGraceMs", AdvGroup.NAV_TIMING, R.string.adv_nav_offroute_grace, R.string.adv_nav_offroute_grace_desc,
@@ -229,6 +238,12 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("navSidebarMinScreenDp", AdvGroup.GEOMETRY, R.string.adv_nav_sidebar_min, R.string.adv_nav_sidebar_min_desc,
         400..900, 20, unit = "dp", get = { it.navSidebarMinScreenDp }, set = { s, v -> s.copy(navSidebarMinScreenDp = v) }),
 
+    // --- Map cache budgets ---
+    AdvancedSpec("mapEncodedCacheMiB", AdvGroup.MAP_CACHE, R.string.adv_map_encoded_cache, R.string.adv_map_encoded_cache_desc,
+        1..32, 1, unit = "MiB", get = { it.mapEncodedCacheMiB }, set = { s, v -> s.copy(mapEncodedCacheMiB = v) }),
+    AdvancedSpec("mapHttpCacheMiB", AdvGroup.MAP_CACHE, R.string.adv_map_http_cache, R.string.adv_map_http_cache_desc,
+        16..256, 16, unit = "MiB", get = { it.mapHttpCacheMiB }, set = { s, v -> s.copy(mapHttpCacheMiB = v) }),
+
     // --- Wheel access ---
     // InMotion V1 (V5/V8/V10/L6) BLE PIN. Typed 6-digit field; factory default
     // 000000. The +/- steppers are incidental (you type the PIN); NumberUpDown
@@ -236,4 +251,32 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
     AdvancedSpec("inmotionV1Pin", AdvGroup.CONTROLS, R.string.adv_inmotion_v1_pin, R.string.adv_inmotion_v1_pin_desc,
         0..999999, 1, unit = "", get = { it.inmotionV1Pin }, set = { s, v -> s.copy(inmotionV1Pin = v) },
         format = pinFormat, parse = pinParse),
+    AdvancedSpec("kingsongUnlockCode", AdvGroup.CONTROLS, R.string.adv_kingsong_unlock_code, R.string.adv_kingsong_unlock_code_desc,
+        0..999999, 1, unit = "", get = { it.kingsongUnlockCode }, set = { s, v -> s.copy(kingsongUnlockCode = v) },
+        format = pinFormat, parse = pinParse),
+    AdvancedSpec("kingsongPassword", AdvGroup.CONTROLS, R.string.adv_kingsong_password, R.string.adv_kingsong_password_desc,
+        0..9999, 1, unit = "", get = { it.kingsongPassword }, set = { s, v -> s.copy(kingsongPassword = v) },
+        format = { String.format(java.util.Locale.US, "%04d", it) }, parse = pinParse),
+
+    // --- Weather score thresholds ---
+    // The comfort numbers behind the ridability score; the riding
+    // preferences in Navigation & weather say HOW each condition counts,
+    // these say WHEN it applies. Ids double as the JSON keys the values used
+    // to live under inside WeatherSettings, so tuned setups carry over.
+    AdvancedSpec("weatherColdC", AdvGroup.WEATHER, R.string.weather_cold, R.string.adv_weather_cold_desc,
+        -30..25, 1, unit = "°C", allowSign = true,
+        get = { it.weatherColdC }, set = { s, v -> s.copy(weatherColdC = v) }),
+    AdvancedSpec("weatherHotC", AdvGroup.WEATHER, R.string.weather_hot, R.string.adv_weather_hot_desc,
+        -29..55, 1, unit = "°C", allowSign = true,
+        get = { it.weatherHotC }, set = { s, v -> s.copy(weatherHotC = v) }),
+    AdvancedSpec("weatherBreezyTenthsMs", AdvGroup.WEATHER, R.string.weather_breezy, R.string.adv_weather_breezy_desc,
+        0..200, 5, unit = "m/s", allowSign = true,
+        get = { it.weatherBreezyTenthsMs }, set = { s, v -> s.copy(weatherBreezyTenthsMs = v) },
+        format = { String.format(java.util.Locale.US, "%.1f", it / 10f) },
+        parse = { it.replace(',', '.').toFloatOrNull()?.let { f -> Math.round(f * 10f) } }),
+    AdvancedSpec("weatherWindyTenthsMs", AdvGroup.WEATHER, R.string.weather_windy, R.string.adv_weather_windy_desc,
+        5..400, 5, unit = "m/s", allowSign = true,
+        get = { it.weatherWindyTenthsMs }, set = { s, v -> s.copy(weatherWindyTenthsMs = v) },
+        format = { String.format(java.util.Locale.US, "%.1f", it / 10f) },
+        parse = { it.replace(',', '.').toFloatOrNull()?.let { f -> Math.round(f * 10f) } }),
 )

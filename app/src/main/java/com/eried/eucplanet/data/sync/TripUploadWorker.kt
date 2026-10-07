@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.sync
 
+import kotlinx.coroutines.flow.first
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
@@ -27,18 +28,58 @@ class TripUploadWorker @AssistedInject constructor(
 
     companion object { private const val TAG = "TripUploadWorker" }
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = syncManager.withUploadPass {
         val settings = settingsRepository.get()
         if (settings.syncFolderUri == null) {
             Log.i(TAG, "No sync folder configured, skipping")
-            return Result.success()
+            return@withUploadPass Result.success()
         }
 
         val pending = tripDao.getPendingUploads()
-        if (pending.isEmpty()) return Result.success()
+
+        // One listing for the whole pass. Asking the folder about each trip in
+        // turn is what made mirroring a restored library crawl.
+        val folderSizes = syncManager.listFolderTripSizes(settings)
+        val knownNames = folderSizes?.keys
+
+        // The queue, plus everything the folder is missing. This worker used
+        // to walk only its queue while the Dropbox worker compares every
+        // local file against the remote listing on every pass - so Dropbox
+        // was a mirror and the folder was a mailbox, and trips older than the
+        // folder (or files deleted from it behind the app's back) stayed
+        // missing forever, surfacing only as the warning in Backups. Same
+        // rule as everything else in this pass: skip-if-present, so a copy
+        // the folder already holds is never overwritten.
+        val reconcile = if (knownNames == null) emptyList() else {
+            val queued = pending.map { it.fileName.lowercase() }.toHashSet()
+            tripRepository.allTrips.first().filter { t ->
+                t.endTime != null && t.fileName.lowercase() !in queued &&
+                    t.fileName !in knownNames
+            }
+        }
+        // Conflicts: both sides have the file, with different bytes. The
+        // sweep must not touch those - overwriting either direction destroys
+        // somebody's copy - so they are counted and told to the dashboard,
+        // whose warning sends the rider to the sync conflict dialog. Counted
+        // on every pass, so fixing them (or deleting a side) clears the
+        // warning without anyone tapping anything.
+        if (folderSizes != null) {
+            val conflicts = tripRepository.allTrips.first().count { t ->
+                if (t.endTime == null) return@count false
+                val folderLen = folderSizes[t.fileName] ?: return@count false
+                val local = tripRepository.getTripFile(t)
+                local.exists() && local.length() != folderLen
+            }
+            if (settings.folderConflictCount != conflicts) {
+                settingsRepository.update { it.copy(folderConflictCount = conflicts) }
+            }
+        }
+
+        if (pending.isEmpty() && reconcile.isEmpty()) return@withUploadPass Result.success()
+        if (reconcile.isNotEmpty()) Log.i(TAG, "Reconcile: folder is missing ${reconcile.size} trip(s)")
 
         var anyFailed = false
-        for (trip in pending) {
+        for (trip in pending + reconcile.map { it.copy(uploadStatus = 4) }) {
             val file = tripRepository.getTripFile(trip)
             if (!file.exists()) {
                 // Mark as uploaded anyway so it stops retrying forever
@@ -46,7 +87,13 @@ class TripUploadWorker @AssistedInject constructor(
                 continue
             }
 
-            val ok = syncManager.uploadCsv(settings, file)
+            // Status 4 came from Dropbox: mirror it in, but never over a file
+            // the folder already holds.
+            val ok = syncManager.uploadCsv(
+                settings, file,
+                skipIfPresent = trip.uploadStatus == 4,
+                knownNames = knownNames,
+            )
             if (ok) {
                 tripDao.update(trip.copy(
                     uploadStatus = 2,
@@ -66,6 +113,6 @@ class TripUploadWorker @AssistedInject constructor(
             Log.i(TAG, "Scheduling retry attempt $next in ${SyncManager.delayForAttempt(next)}s")
             syncManager.scheduleTripUploadAttempt(next)
         }
-        return Result.success()
+        return@withUploadPass Result.success()
     }
 }

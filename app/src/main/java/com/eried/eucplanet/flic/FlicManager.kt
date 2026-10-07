@@ -38,7 +38,9 @@ class FlicManager @Inject constructor(
     private val tripRepository: TripRepository,
     private val voiceService: VoiceService,
     private val automationManager: AutomationManager,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
+    private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController
 ) {
     companion object {
         private const val TAG = "FlicManager"
@@ -273,11 +275,11 @@ class FlicManager @Inject constructor(
     /**
      * Executes the action identified by [key]. Unknown / blank / "NONE" keys
      * are no-ops. The dispatch table below is the SINGLE source of behavior
-     * for every physical surface (Flic, volume key, watch) — adding a new
+     * for every physical surface (Flic, volume key, watch), adding a new
      * action means:
      *   1. Append to [com.eried.eucplanet.data.model.ActionCatalog.all] (metadata)
      *   2. Add a branch here (behavior)
-     * That's it — no other file in the action layer needs to grow.
+     * That's it, no other file in the action layer needs to grow.
      *
      * Dashboard-only actions (OPEN_*, MUTE_ALARMS, RESET_TRIP, TOGGLE_UNITS)
      * route through a different executor in the UI layer because they need
@@ -317,10 +319,41 @@ class FlicManager @Inject constructor(
         wheelRepository.sendCustomBle(cmd.frames)
     }
 
+    /**
+     * Run a catalog action from somewhere that is not a button.
+     *
+     * Voice goes through here rather than calling the repositories itself, so
+     * a spoken "lights" is gated by exactly what a Flic press is gated by:
+     * legal-mode lockdown first, then the catalog's own precondition. A
+     * second path would be a second place for those rules to be forgotten.
+     */
+    suspend fun runAction(key: String) {
+        executeAction(key, settingsRepository.get())
+    }
+
     private suspend fun executeAction(key: String, settings: AppSettings) {
         if (key.isEmpty() || key == "NONE") return
         _lastActionAt.value = System.currentTimeMillis()
         Log.d(TAG, "executeAction key=$key")
+
+        // Legal Mode Lockdown, checked first and before anything else.
+        //
+        // Every eyes-free surface (Flic, volume keys, the watch through
+        // PhoneWearListenerService, the HUD through HudCommandSink) and the
+        // dashboard tiles funnel through this function, so one allowlist here
+        // covers all of them. It sits above the custom-BLE branch because a
+        // rider's own raw frames could carry a speed-limit write, and above
+        // the catalog precondition because the lock can be armed with no wheel
+        // connected: checked after it, a legal-mode hotkey press with no wheel
+        // present would give silence instead of the dialog that explains the
+        // way out.
+        if (legalLockdown.isEngaged() && !LockdownGate.isAllowed(key)) {
+            if (LockdownGate.raisesUnlockPrompt(key)) {
+                com.eried.eucplanet.ui.lockdown.LockdownPromptBus.request()
+            }
+            Log.i(TAG, "action $key blocked: legal mode lockdown armed")
+            return
+        }
 
         // Shared precondition gate (chokepoint A). Every eyes-free surface
         // funnels here, so this single check covers Flic, volume keys, the
@@ -353,13 +386,27 @@ class FlicManager @Inject constructor(
         when (key) {
             "HORN" -> wheelRepository.sendHorn()
             "LIGHT_TOGGLE" -> {
-                automationManager.notifyManualLightChange()
+                // While locked down the light button must not suspend
+                // auto-lights. The mode is temporary, and the rider is never
+                // told an automation was overridden by it.
+                if (!legalLockdown.isEngaged()) automationManager.notifyManualLightChange()
                 wheelRepository.toggleLight()
             }
             "LOCK_TOGGLE" -> wheelRepository.toggleLock()
             "SAFETY_TOGGLE" -> wheelRepository.toggleSafetySpeed()
             "SAFETY_ON" -> wheelRepository.enableSafetySpeed()
             "SAFETY_OFF" -> wheelRepository.disableSafetySpeed()
+            "VOICE_LISTEN" -> {
+                // Legal Mode already refused above, for every surface at once.
+                // What is left is the microphone: without it there is nothing
+                // to listen with, and a rider pressing a button deserves to be
+                // told that rather than to hear silence.
+                if (!voiceCommands.hasMicPermission()) {
+                    appNotifier.post(context.getString(R.string.voice_answer_no_mic_permission))
+                } else {
+                    voiceCommands.listen()
+                }
+            }
             "VOICE_ANNOUNCE" -> {
                 voiceService.announceTrigger(
                     wheelRepository.wheelData.value, settings,
@@ -393,4 +440,23 @@ class FlicManager @Inject constructor(
         audioManager.dispatchMediaKeyEvent(downEvent)
         audioManager.dispatchMediaKeyEvent(upEvent)
     }
+}
+
+/**
+ * What may still fire while Legal Mode Lockdown is armed.
+ *
+ * An allowlist, not a blocklist, on purpose: an action added to ActionCatalog
+ * later is blocked by default rather than silently becoming a hole in the lock.
+ */
+object LockdownGate {
+
+    /** The two buttons the locked screen offers. Nothing else runs. */
+    val ALLOWED_ACTIONS: Set<String> = setOf("HORN", "LIGHT_TOGGLE")
+
+    private val LEGAL_MODE_ACTIONS = setOf("SAFETY_TOGGLE", "SAFETY_ON", "SAFETY_OFF")
+
+    fun isAllowed(key: String): Boolean = key in ALLOWED_ACTIONS
+
+    /** A blocked legal-mode press shows the rider the way out instead of doing nothing. */
+    fun raisesUnlockPrompt(key: String): Boolean = key in LEGAL_MODE_ACTIONS
 }

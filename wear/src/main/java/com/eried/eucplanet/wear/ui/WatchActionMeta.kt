@@ -23,7 +23,7 @@ import com.eried.eucplanet.wear.R
  * `app` module. The catalog is the single source of truth for which keys
  * are eyes-free-safe (i.e. WATCH-bindable). The watch lives in its own
  * Gradle module without an `app/` dependency, so this file maintains its
- * own mapping — but the mapping is now consolidated into one table so the
+ * own mapping, but the mapping is now consolidated into one table so the
  * icon and label entries can never drift out of sync key-wise (adding an
  * entry covers both). Labels stay watch-specific (`watch_action_*`) because
  * the watch screen needs shorter strings than the phone's `action_chip_*`.

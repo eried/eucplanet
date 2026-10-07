@@ -48,6 +48,32 @@
     font-family: "SFMono-Regular", Consolas, Menlo, monospace;
     font-size: 13px;
   }
+  /* Troubleshooting is folded away so the page reads as three steps. */
+  details {
+    margin-top: 22px;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    background: #10151c;
+  }
+  summary {
+    cursor: pointer;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #c9d1d9;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: #6e7681; font-weight: 400; font-size: 18px; }
+  details[open] summary::after { content: "\2212"; }
+  details[open] summary { border-bottom: 1px solid #21262d; }
+  li > details { margin: 8px 0 2px; }
+  .details-body { padding: 14px; }
+  .details-body p:first-child { margin-top: 0; }
+  .details-body p:last-child { margin-bottom: 0; }
   footer {
     text-align: center;
     color: #6e7681;
@@ -104,11 +130,25 @@
 <section>
   <h2>Pair</h2>
   <ol>
-    <li>Turn on the phone's hotspot. Connect the HUD to it.</li>
-    <li>Launch the HUD app. It shows its IP on the splash.</li>
-    <li>On the phone, open <em>Settings → Integrations → MotoEye HUD</em>, enter that IP, toggle the link on.</li>
+    <li>Turn on the phone's hotspot and connect the HUD to it, or put both on the same WiFi.</li>
+    <li>Launch the HUD app.</li>
+    <li>On the phone, open <em>Settings → Integrations → Motoeye HUD</em> and turn on <em>Enable data link</em>.
+    <details>
+      <summary>How it finds the HUD</summary>
+      <div class="details-body">
+        <p>The phone tries four channels in order, and the settings screen names the one that worked:</p>
+        <ol>
+          <li><strong>UDP beacon</strong> from the HUD. The most reliable, and the only one that survives a hotspot that blocks multicast.</li>
+          <li><strong>mDNS</strong>, browsing for <code>_eucplanet._tcp.local.</code></li>
+          <li><strong>Last known address</strong>, kept as a hint from the previous session rather than as the only truth.</li>
+          <li><strong>Subnet scan</strong> of the phone's own network, which takes a few seconds and only runs once the first three come up empty.</li>
+        </ol>
+        <p>If all four fail, turn off <em>Discover link address automatically</em> and type the IP the HUD shows on its splash screen. Keep both sides on matching versions.</p>
+      </div>
+    </details>
+    </li>
   </ol>
-  <p>Telemetry starts within a second. Use matching versions on both sides.</p>
+  <p>That is the whole setup. The phone finds the HUD by itself and telemetry starts within a second or two. There is no IP to type.</p>
 </section>
 
 <footer>

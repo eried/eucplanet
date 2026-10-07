@@ -116,12 +116,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.settings.NumberUpDown
 import com.eried.eucplanet.ui.settings.RestoreChip
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.MapTraceMode
 import com.eried.eucplanet.hud.protocol.ReplaySourceType
 import com.eried.eucplanet.hud.protocol.ViewportConfig
 import com.eried.eucplanet.hud.protocol.ViewportLayout
@@ -789,6 +791,7 @@ fun SavePresetDialog(
     var name by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnClickOutside = false),
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text(stringResource(R.string.studio_save_preset_title)) },
         text = {
@@ -1294,7 +1297,7 @@ private fun ReplayBackgroundEditor(face: ViewportReplayFace, onChange: (Viewport
 /** Upper bound for the replay-video offset field (24h in ms) - well past any ride. */
 private const val MAX_VIDEO_OFFSET_MS = 86_400_000
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun ReplayVideoEditor(
     face: ViewportReplayFace,
@@ -1358,7 +1361,8 @@ private fun ReplayVideoEditor(
     val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
     val fitContain = stringResource(R.string.studio_cfg_fit_contain)
     val fitCenter = stringResource(R.string.studio_cfg_fit_center)
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Wraps: translated labels can outgrow the sheet.
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
             "STRETCH" to fitStretch, "CROP" to fitCrop, "FIT" to fitContain, "CENTER" to fitCenter
         ).forEach { (key, lbl) ->
@@ -1507,14 +1511,15 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
  * Crop / Fit / Center chips controlling how the camera frame or source image
  * fills its viewport. Shown for any source that draws visual content.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun FitModePicker(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
     Text(stringResource(R.string.studio_cfg_fit), fontWeight = FontWeight.SemiBold)
     val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
     val fitContain = stringResource(R.string.studio_cfg_fit_contain)
     val fitCenter = stringResource(R.string.studio_cfg_fit_center)
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Wraps: translated labels can outgrow the sheet.
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
             "CROP" to fitCrop, "FIT" to fitContain, "CENTER" to fitCenter
         ).forEach { (key, lbl) ->
@@ -2090,14 +2095,20 @@ fun ElementConfigSheet(
 
             if (element.type == OverlayElementType.MAP) {
                 Text(stringResource(R.string.studio_cfg_map_style), fontWeight = FontWeight.SemiBold)
-                val mapStreet = stringResource(R.string.studio_cfg_map_street)
-                val mapDark = stringResource(R.string.studio_cfg_map_dark)
-                val mapSatellite = stringResource(R.string.studio_cfg_map_satellite)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(
-                        "STREET" to mapStreet, "DARK" to mapDark,
-                        "SATELLITE" to mapSatellite
-                    ).forEach { (key, lbl) ->
+                // Same seven as the navigator, trip details and eucviewer, in
+                // the same order. STREET is this screen's long-standing id for
+                // plain OSM, kept so existing presets keep their style.
+                val layers = listOf(
+                    "STREET" to stringResource(R.string.nav_layer_osm),
+                    "CYCLOSM" to stringResource(R.string.nav_layer_cyclosm),
+                    "TOPO" to stringResource(R.string.nav_layer_topo),
+                    "HUMANITARIAN" to stringResource(R.string.nav_layer_humanitarian),
+                    "LIGHT" to stringResource(R.string.nav_layer_light),
+                    "DARK" to stringResource(R.string.nav_layer_dark),
+                    "SATELLITE" to stringResource(R.string.nav_layer_satellite),
+                )
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    layers.forEach { (key, lbl) ->
                         FilterChip(
                             selected = element.mapStyle == key,
                             onClick = { onChange(element.copy(mapStyle = key)) },
@@ -2105,6 +2116,28 @@ fun ElementConfigSheet(
                             colors = themedFilterChipColors(),
                         )
                     }
+                }
+                // These three are served by volunteers and donations, and an
+                // export pulls a tile burst per frame. Say so where the choice
+                // is made rather than letting a rider find out by being
+                // rate-limited mid-render.
+                if (element.mapStyle in setOf("CYCLOSM", "TOPO", "HUMANITARIAN")) {
+                    Text(
+                        stringResource(R.string.studio_cfg_map_style_community),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.statusWarn,
+                    )
+                }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_map_attribution),
+                    element.mapAttribution
+                ) { onChange(element.copy(mapAttribution = it)) }
+                if (!element.mapAttribution) {
+                    Text(
+                        stringResource(R.string.studio_cfg_map_attribution_off),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.statusWarn,
+                    )
                 }
                 LabeledSlider(
                     stringResource(R.string.studio_cfg_map_zoom),
@@ -2115,10 +2148,27 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_map_rotate),
                     element.mapRotateWithHeading
                 ) { onChange(element.copy(mapRotateWithHeading = it)) }
-                ToggleRow(
+                Text(
                     stringResource(R.string.studio_cfg_map_trace),
-                    element.mapTrace
-                ) { onChange(element.copy(mapTrace = it)) }
+                    fontWeight = FontWeight.SemiBold
+                )
+                val traceNone = stringResource(R.string.studio_cfg_map_trace_none)
+                val traceProgress = stringResource(R.string.studio_cfg_map_trace_progress)
+                val traceFull = stringResource(R.string.studio_cfg_map_trace_full)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        MapTraceMode.NONE to traceNone,
+                        MapTraceMode.PROGRESS to traceProgress,
+                        MapTraceMode.FULL to traceFull
+                    ).forEach { (mode, lbl) ->
+                        FilterChip(
+                            selected = element.mapTraceMode == mode,
+                            onClick = { onChange(element.copy(mapTraceMode = mode)) },
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
+                        )
+                    }
+                }
                 // Custom-marker preference. Only meaningful when the rider
                 // has set a photo in the Navigator; until then we show a
                 // hint instead of a dead toggle so it's obvious where to go.
@@ -2490,6 +2540,7 @@ internal fun ColorPickerDialog(
     val color = Color.hsv(hue.coerceIn(0f, 360f), sat, value, alpha)
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnClickOutside = false),
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text(stringResource(R.string.studio_colour_picker_title)) },
         text = {

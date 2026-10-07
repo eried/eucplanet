@@ -12,12 +12,16 @@ import com.eried.eucplanet.data.model.WheelProfile
  * `reverseSpeedDirection` flag for Begode / Veteran wheels with inverted
  * motor wiring. v48 adds the per-alarm `leadTimeMs` for predictive alarms.
  * Room is reserved for trips, alarm rules and per-wheel profiles, which
- * change shape rarely and get explicit migrations.
+ * change shape rarely and get explicit migrations. v61 adds the per-alarm
+ * wheel binding (`wheelAddress` / `wheelName`).
+ *
+ * The schema of each version is exported to `app/schemas` (committed) so
+ * MigrationAllTest can validate every migration against the real shape.
  */
 @Database(
     entities = [TripRecord::class, AlarmRule::class, WheelProfile::class],
-    version = 55,
-    exportSchema = false
+    version = 61,
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao

@@ -154,17 +154,48 @@ at offset 46 (`pnum`) that tells you which slice you got.
 | 1, 5   | cells 0..14  | 15 i16 BE values starting at offset 53, each / 1000 = volts per cell |
 | 2, 6   | cells 15..29 | 15 u16 BE values starting at offset 53, each / 1000 = volts per cell |
 | 3, 7   | cells 30..41 + temps | up to 12 cells starting at offset 59. Six temps at offsets 47, 49, 51, 53, 55, 57 (each i16 BE / 100 = degrees C) |
-| 8      | reserved | newer packet type, contents not yet decoded |
+| 8      | settings | configuration readback (75 bytes, offsets 47..70 carry active settings; see 5.1) |
 
 Even values of `pnum` belong to BMS pack 1, odd values to BMS pack 2 (`pnum < 4` is
 pack 1, `pnum >= 4` is pack 2 on dual-BMS wheels).
+
+### 5.1 Page 8 configuration settings frame
+
+Modern firmwares (including Lynx, Sherman L, Patton, and NOSFET models) emit a
+75-byte frame with `LEN = 71` (0x47) and `pageId = 8` (offset 46) carrying active
+wheel settings.
+
+Unsupported or unpopulated fields report sentinel `0x80` (128 unsigned / -128 signed)
+and must not be zero-filled.
+
+| Offset | Type | Field | Scale / units |
+|-------:|------|-------|---------------|
+| 46     | u8   | pageId | Constant `0x08` |
+| 47     | u8   | headlight mode | 0 = off, 1 = low, 2 = medium, 3 = high |
+| 50     | u8   | pedal hardness | 0..100% continuous |
+| 52     | u8   | tiltback speed | 10..120 km/h (200 = disabled) |
+| 53     | u8   | PWM tiltback | 30..100% duty (200 = disabled) |
+| 54     | u8   | alarm speed | 10..120 km/h |
+| 55     | u8   | display brightness | 0..100% backlight |
+| 56     | u8   | gyro calibration | 0..2 |
+| 57     | u8   | transport mode | 0 = disabled, 1 = enabled |
+| 58     | u8   | display units | 0 = km/h (metric), 1 = mph (imperial) |
+| 59     | i8   | voltage adjustment | signed -15..+15 (tenths of a percent) |
+| 60     | u8   | low battery mode | 0 = disabled, 1 = enabled |
+| 61     | u8   | high speed mode | 0 = disabled, 1 = enabled |
+| 63     | u8   | key tone volume | 0..100% button buzzer sound (SND) |
+| 64     | u8   | charge voltage limit | raw scalar (0..120), offset by base voltage |
+| 65     | u8   | voltage base | pack base reference (e.g. 145 on 36S, 121 on 30S) |
+| 66     | u8   | dynamic assist | 0..100% acceleration assistance (ANG%) |
+| 68     | u8   | pedal dip compensation | 0..100% recenter rate (ANG TLT) |
+| 71..74 | u32 BE | CRC32 | Checksum over bytes 0..70 |
 
 Cell counts per model:
 
 | Model              | Cells |
 |--------------------|------:|
 | Sherman, Abrams, Sherman S | 24 |
-| Patton, Patton S, Nosfet Aero | 30 |
+| Patton, Patton S, Nosfet Aero, Nosfet Xeno | 30 |
 | Lynx, Lynx S, Sherman L, Nosfet Apex, Nosfet Aeon | 36 |
 | Oryx               | 42 |
 
@@ -229,8 +260,8 @@ Known sub-frames, all observed in a single captured session:
 | Angle adjustment | LkAp  | 16        | `01 80 80 80 80 80 <i8>`                 | i8 in tenths of a degree (e.g. `0xDC` = -36 → -3.6°) |
 | Ride mode        | LdAp  | 15        | `01 02 80 80 80 <u8>`                    | u8 ride-mode scalar (observed range 30..100, slider labels match raw value) |
 | PWM%             | LdAp  | 18        | `01 02 80 80 80 80 80 80 <u8>`           | u8 PWM percent (observed 53, 64) |
-| Horn (frame 1)   | LkAp  | 14        | `00 80 80 80 01`                         | n/a — one-shot trigger; MUST be sent with frame 2 |
-| Horn (frame 2)   | LdAp  | 14        | `00 00 80 80 01`                         | n/a — companion; without it Lynx-class firmware stays silent |
+| Horn (frame 1)   | LkAp  | 14        | `00 80 80 80 01`                         | n/a, one-shot trigger; MUST be sent with frame 2 |
+| Horn (frame 2)   | LdAp  | 14        | `00 00 80 80 01`                         | n/a, companion; without it Lynx-class firmware stays silent |
 | High beam on/off | LkAp + LdAp | 13   | `01 80 80 <0\|1>` then `01 00 80 <0\|1>` | u8 boolean, last byte `01`=on / `00`=off. Separate from the ASCII `SetLightON/OFF` low beam. |
 | Software lock    | LdAp  | 25        | `00 05 1a 06 11 0f 0a <ctr> 02 04 0c ab <state> 00 00 00` | `<state>` = `01` lock / `00` unlock. `<ctr>` is an opaque session byte; reference capture used `0x09` lock / `0x0E` unlock and any value works as long as the CRC matches. No PIN handshake. Captured from a Lynx S, June 2026. |
 
@@ -243,16 +274,16 @@ Notes:
   The Java `zlib.CRC32` is byte-identical to what the LeaperKim app emits.
 - Each command is two back-to-back frames in the byte stream: the `LkAp` frame
   immediately followed by an `LdAp` companion of the same length. They are NOT a
-  fragmented single GATT operation — they are two distinct vendor frames the wheel
+  fragmented single GATT operation, they are two distinct vendor frames the wheel
   reassembles by magic (the app streams the ~28-byte pair as 20 + 8 byte ATT writes
   purely because of the 20-byte MTU).
   - For the **value settings** (tilt-back, alarm, …) the `LkAp` frame alone is
     sufficient: the wheel reflects the new value on the next realtime frame
     (offsets 24/26), so the `LdAp` companion looks like a redundant echo.
-  - The **horn is the exception** — a one-shot with no readback. The wheel only
+  - The **horn is the exception**, a one-shot with no readback. The wheel only
     beeps when the `LkAp` frame (`00 80 80 80 01`) is followed by its `LdAp`
-    companion (`00 00 80 80 01`). Sending the `LkAp` blob alone — as some
-    apps and pre-fix EUC Planet builds did — reaches the wheel with a valid
+    companion (`00 00 80 80 01`). Sending the `LkAp` blob alone, as some
+    apps and pre-fix EUC Planet builds did, reaches the wheel with a valid
     CRC but produces no sound (verified on a Lynx S btsnoop: four `LkAp`-only
     writes, zero beeps; the official app sends both frames on every press).
 - We currently surface only tilt-back and alarm in `VeteranCommands`; the other
@@ -291,6 +322,7 @@ revision = ver % 100
 | 42      | Nosfet Apex | 36    | 11902 .. 14805 |
 | 43      | Nosfet Aero | 30    | 9918 .. 12337 |
 | 44      | Nosfet Aeon | 36    | 11902 .. 14805 |
+| 45      | Nosfet Xeno | 30    | 9918 .. 12337 |
 
 Battery percent (linear curve, simple variant):
 
@@ -339,7 +371,7 @@ For our `WheelCapabilities` record:
 | `hasAlarmSpeed`  | read-only     | same as above |
 | `hasVolume`      | false         | no command known |
 | `hasDRL`         | false         | no separate DRL command |
-| `needsAuthForLock` | false       | no PIN handshake — wheel CRC-validates the frame and locks |
+| `needsAuthForLock` | false       | no PIN handshake, wheel CRC-validates the frame and locks |
 
 Additional booleans worth tracking:
 
@@ -359,8 +391,8 @@ Additional booleans worth tracking:
 - The 14-byte horn blob for `model >= 3`: meaning of bytes 4..13 not understood.
   Possibly a session-randomized auth tag or a feature negotiation. Replay works in
   practice; treat as opaque.
-- `pnum == 8` smart-BMS frame: unrecognized in current research, may carry charge
-  cycles or balancer status.
+- `pnum == 8` settings frame: decoded as the 75-byte configuration settings frame
+  (section 5.1).
 - Older Sherman firmwares (pre-2020) reportedly used a shorter 24-byte payload
   without offsets 28..35 populated. If you see `LEN < 38`, fall back to: parse
   voltage / speed / distance / current / temp only and treat `model = 0`.

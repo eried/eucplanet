@@ -16,6 +16,7 @@ import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONObject
 
 /**
@@ -23,7 +24,7 @@ import org.json.JSONObject
  *
  * We deliberately do NOT pull in the Dropbox Java SDK (~5 MB, mostly
  * classes for endpoints we don't use). Instead we hit Dropbox's REST API
- * v2 directly with OkHttp — a few calls for /oauth2/token,
+ * v2 directly with OkHttp, a few calls for /oauth2/token,
  * /users/get_current_account, /files/upload, /files/download,
  * /files/list_folder.
  *
@@ -38,17 +39,134 @@ import org.json.JSONObject
  *   3. Tokens land in [SettingsRepository]; from then on [linked] is true.
  */
 @Singleton
+/**
+ * What a Dropbox move did, rather than just whether it worked.
+ *
+ * A caller archiving a trip has to be able to undo its own half-finished work,
+ * and [Moved.toPath] is where the file really went - move_v2 renames on a
+ * collision, so it is not always the path that was asked for. [Absent] is a
+ * file that was never on Dropbox, which for archiving is the state we wanted
+ * anyway and not an error.
+ */
+sealed interface MoveOutcome {
+    data class Moved(val toPath: String) : MoveOutcome
+    data object Absent : MoveOutcome
+    data object Failed : MoveOutcome
+}
+
 class DropboxRepository @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
 ) {
 
-    private val http = OkHttpClient()
+    /**
+     * Every Dropbox request goes through here, which is the point: a refusal
+     * has to be noticed wherever it lands, not only at the call that happened
+     * to be first. Scattering the check over a dozen response handlers would
+     * mean the one that was missed is the one that loops.
+     */
+    private val http = OkHttpClient.Builder()
+        .addInterceptor { chain ->
+            chain.proceed(chain.request()).also { resp ->
+                if (resp.code == 403) {
+                    refused = true
+                    Log.w("DBXSHARE", "refused by Dropbox (403): " +
+                        chain.request().url.encodedPath)
+                }
+            }
+        }
+        .build()
 
-    /** Set by [startLinkFlow], read by [handleAuthCallback]. The verifier
-     *  has to survive the trip out to Dropbox and back, but lives only in
-     *  memory — losing it on process death just forces the rider to tap
-     *  Link again, which is fine. */
-    @Volatile private var pendingVerifier: String? = null
+    /**
+     * True when Dropbox last answered 429 and the retries did not clear it.
+     *
+     * Dropbox rate-limits per account, not per file, so a rider pulling a
+     * library of two thousand trips can hit it partway through - and every
+     * limited request looked exactly like a missing file: a null, a skipped
+     * trip, and a sync that reported a number without a reason. The sync reads
+     * this to tell the rider what actually happened.
+     */
+    @Volatile
+    var rateLimited: Boolean = false
+        private set
+
+    /**
+     * Dropbox refused us outright, rather than asking us to slow down.
+     *
+     * Their edge answers 403 with a `.tag` of "other" when it cuts a client
+     * off - every endpoint at once, including reading the account. It is not a
+     * 429 and carries no retry_after, so the sync read it as an ordinary
+     * failure and came straight back a minute later, which is the surest way
+     * to stay cut off. Seen for real: an hour of one refused list_folder a
+     * minute, all night, with nothing said to the rider.
+     */
+    @Volatile
+    var refused: Boolean = false
+        private set
+
+    /** Cleared at the start of a sync, so the flags describe this run. */
+    fun clearRateLimited() { rateLimited = false; refused = false }
+
+
+    /**
+     * Run [attempt] and, when Dropbox says it is rate limited, wait the number
+     * of seconds it asks for and try again.
+     *
+     * Dropbox sends retry_after in the body and in a header. Honouring it is
+     * the difference between a sync that pauses for a second and one that
+     * silently drops a trip: the API is telling us exactly when it will answer.
+     */
+    private fun <T> withRateLimitRetry(what: String, attempt: () -> Pair<Response, T?>): T? {
+        var wait = 0L
+        repeat(RATE_LIMIT_TRIES) { round ->
+            if (wait > 0) Thread.sleep(wait)
+            val (resp, value) = attempt()
+            if (resp.code != 429) return value
+            wait = retryAfterMs(resp)
+            Log.w("DBXSHARE", "$what rate limited, waiting ${wait}ms (attempt ${round + 1})")
+            resp.close()
+        }
+        rateLimited = true
+        Log.w("DBXSHARE", "$what still rate limited after $RATE_LIMIT_TRIES attempts")
+        return null
+    }
+
+    /** How long Dropbox asked us to wait, from the header or the body. */
+    private fun retryAfterMs(resp: Response): Long {
+        val header = resp.header("Retry-After")?.toLongOrNull()
+        if (header != null) return (header * 1000L).coerceIn(500L, 30_000L)
+        val body = runCatching { resp.peekBody(512).string() }.getOrNull().orEmpty()
+        // Dropbox puts it inside the error object:
+        //   {"error":{"reason":{...},"retry_after":1},"error_summary":""}
+        val secs = runCatching {
+            JSONObject(body).optJSONObject("error")?.optLong("retry_after")
+        }.getOrNull()?.takeIf { it > 0 }
+        return ((secs ?: 2L) * 1000L).coerceIn(500L, 30_000L)
+    }
+
+    /**
+     * Set by [startLinkFlow], read by [handleAuthCallback].
+     *
+     * Kept on disk, not in memory. The rider leaves the app to authorise in a
+     * browser, which is exactly when Android is most willing to reclaim it, and
+     * a verifier lost that way cannot be recovered: the callback arrives at a
+     * fresh process, the exchange fails, and all the rider sees is that linking
+     * "failed" - again on every retry, since each one loses it the same way.
+     *
+     * Its own small file rather than AppSettings: it is scratch state for one
+     * link attempt, not a setting, and it is cleared the moment it is used.
+     */
+    private val linkPrefs by lazy {
+        context.getSharedPreferences("dropbox_link", Context.MODE_PRIVATE)
+    }
+
+    private var pendingVerifier: String?
+        get() = linkPrefs.getString("verifier", null)
+        set(value) {
+            linkPrefs.edit().apply {
+                if (value == null) remove("verifier") else putString("verifier", value)
+            }.apply()
+        }
 
     val linked: Flow<Boolean> =
         settingsRepository.settings.map { it.dropboxAccessToken.isNotBlank() }
@@ -96,8 +214,17 @@ class DropboxRepository @Inject constructor(
      * success so the caller (MainActivity) can surface a snackbar.
      */
     suspend fun handleAuthCallback(uri: Uri): Boolean = withContext(Dispatchers.IO) {
-        val code = uri.getQueryParameter("code") ?: return@withContext false
-        val verifier = pendingVerifier ?: return@withContext false
+        val code = uri.getQueryParameter("code")
+        if (code == null) {
+            Log.w("DBXSHARE", "link callback carried no code")
+            return@withContext false
+        }
+        val verifier = pendingVerifier
+        if (verifier == null) {
+            // The app was reclaimed while the rider was in the browser.
+            Log.w("DBXSHARE", "link callback arrived with no verifier stored")
+            return@withContext false
+        }
         pendingVerifier = null
         val body = FormBody.Builder()
             .add("code", code)
@@ -112,9 +239,16 @@ class DropboxRepository @Inject constructor(
             .build()
         try {
             http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext false
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "token exchange HTTP " + resp.code + ": " +
+                        resp.body?.string()?.take(300))
+                    return@withContext false
+                }
                 val json = JSONObject(resp.body?.string().orEmpty())
-                val access = json.optString("access_token").ifBlank { return@withContext false }
+                val access = json.optString("access_token").ifBlank {
+                    Log.w("DBXSHARE", "token exchange returned no access_token")
+                    return@withContext false
+                }
                 val refresh = json.optString("refresh_token", "")
                 val ttlSec = json.optLong("expires_in", 14400L)
                 val expiresAt = System.currentTimeMillis() + ttlSec * 1000L
@@ -130,6 +264,7 @@ class DropboxRepository @Inject constructor(
                 true
             }
         } catch (e: Exception) {
+            Log.w("DBXSHARE", "token exchange failed: " + e.message)
             false
         }
     }
@@ -137,14 +272,25 @@ class DropboxRepository @Inject constructor(
     /**
      * Upload [bytes] to the App-Folder path [remotePath] (e.g.
      * "/trips/trip_20260622_010203.csv"). Overwrites any existing file
-     * at the same path — caller is responsible for picking a path that
+     * at the same path, caller is responsible for picking a path that
      * doesn't collide with someone else's edit, or for comparing
      * server_modified timestamps first via [listFolder].
      *
      * Returns true on success.
      */
-    suspend fun uploadFile(remotePath: String, bytes: ByteArray): Boolean = withContext(Dispatchers.IO) {
-        val token = activeAccessToken() ?: return@withContext false
+    suspend fun uploadFile(remotePath: String, bytes: ByteArray): Boolean =
+        uploadFileStamped(remotePath, bytes) != null
+
+    /**
+     * Upload, and report the timestamp Dropbox stored it under, in seconds.
+     *
+     * The caller stamps the local file with it, so a file that has not been
+     * touched since it was synced carries Dropbox's own timestamp rather than
+     * the phone's. "Changed since we synced it" is then a comparison of a
+     * value against itself, and does not care whether the two clocks agree.
+     */
+    suspend fun uploadFileStamped(remotePath: String, bytes: ByteArray): Long? = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext null
         val args = JSONObject().apply {
             put("path", remotePath)
             put("mode", "overwrite")
@@ -159,14 +305,154 @@ class DropboxRepository @Inject constructor(
             .addHeader("Dropbox-API-Arg", args.toString())
             .post(okhttp3.RequestBody.create(mediaOctet, bytes))
             .build()
+        withRateLimitRetry("upload $remotePath") {
+            try {
+                val resp = http.newCall(req).execute()
+                if (resp.code == 429) return@withRateLimitRetry resp to null
+                resp.use {
+                    val text = it.body?.string().orEmpty()
+                    if (!it.isSuccessful) {
+                        Log.w("DBXSHARE", "upload HTTP ${it.code}: ${text.take(300)}")
+                        return@use it to null
+                    }
+                    val sec = try {
+                        java.time.OffsetDateTime
+                            .parse(JSONObject(text).optString("server_modified")).toEpochSecond()
+                    } catch (_: Exception) { 0L }
+                    it to sec
+                }
+            } catch (e: Exception) {
+                Log.w("DBXSHARE", "upload exception: ${e.message}")
+                errorResponse(req) to null
+            }
+        }
+    }
+
+    /** A stand-in response for a request that never reached Dropbox, so the
+     *  retry helper can treat it as a plain failure rather than a rate limit. */
+    private fun errorResponse(req: Request): Response = Response.Builder()
+        .request(req).protocol(okhttp3.Protocol.HTTP_1_1).code(599).message("no response").build()
+
+    /**
+     * Move [from] to [to] inside the App Folder.
+     *
+     * Used to archive a trip whose data now lives inside another one: a piece
+     * that was extended into a longer ride, or the original a split replaced.
+     * Deleting it would be the obvious move and the wrong one - the rider may
+     * still want the raw ride - so it goes to a subfolder instead, which also
+     * takes it out of the /trips listing the sync walks, so it stops coming
+     * back down on the next sync.
+     *
+     * autorename, because a later combine can produce a file named like one
+     * already archived and the archive must never overwrite itself.
+     *
+     * A file that is not there is reported as done: it means the trip never
+     * reached Dropbox, which is the state archiving was trying to arrive at.
+     */
+    suspend fun moveFile(from: String, to: String): MoveOutcome = withContext(Dispatchers.IO) {
+        val token = activeAccessToken() ?: return@withContext MoveOutcome.Failed
+        val body = JSONObject().apply {
+            put("from_path", from)
+            put("to_path", to)
+            put("autorename", true)
+            put("allow_ownership_transfer", false)
+        }
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/files/move_v2")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
         try {
             http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) {
-                    Log.w("DBXSHARE", "upload HTTP ${resp.code}: ${resp.body?.string()?.take(300)}")
+                val text = resp.body?.string().orEmpty()
+                if (resp.isSuccessful) {
+                    // autorename means the file may not have landed at [to],
+                    // and the caller needs where it actually went to be able
+                    // to put it back.
+                    val landed = runCatching {
+                        JSONObject(text).optJSONObject("metadata")?.optString("path_display")
+                    }.getOrNull()?.ifBlank { null } ?: to
+                    return@use MoveOutcome.Moved(landed)
                 }
-                resp.isSuccessful
+                if (resp.code == 409 && text.contains("not_found")) {
+                    Log.i("DBXSHARE", "move: $from is not on Dropbox, nothing to archive")
+                    return@use MoveOutcome.Absent
+                }
+                Log.w("DBXSHARE", "move HTTP ${resp.code}: ${text.take(300)}")
+                MoveOutcome.Failed
             }
-        } catch (e: Exception) { Log.w("DBXSHARE", "upload exception: ${e.message}"); false }
+        } catch (e: Exception) {
+            Log.w("DBXSHARE", "move exception: ${e.message}")
+            MoveOutcome.Failed
+        }
+    }
+
+    /**
+     * Move many files in one go, for archiving a whole library at once.
+     *
+     * "Delete all" over a rider with two thousand trips is two thousand round
+     * trips one at a time, which is minutes of waiting and a rate limit
+     * waiting at the end of it. move_batch_v2 takes up to a thousand entries
+     * per call and hands back a job to poll, so the same work is a handful of
+     * requests.
+     *
+     * @return true when every entry moved (or was already gone)
+     */
+    suspend fun moveFilesBatch(pairs: List<Pair<String, String>>): Boolean =
+        withContext(Dispatchers.IO) {
+            if (pairs.isEmpty()) return@withContext true
+            val token = activeAccessToken() ?: return@withContext false
+            pairs.chunked(BATCH_MAX).all { chunk -> moveChunk(token, chunk) }
+        }
+
+    private fun moveChunk(token: String, chunk: List<Pair<String, String>>): Boolean {
+        val body = JSONObject().apply {
+            put("autorename", true)
+            put("entries", org.json.JSONArray().apply {
+                chunk.forEach { (from, to) ->
+                    put(JSONObject().apply { put("from_path", from); put("to_path", to) })
+                }
+            })
+        }
+        val started = postJson(token, "files/move_batch_v2", body) ?: return false
+        // Small batches come back done; larger ones hand over a job id.
+        if (started.optString(".tag") == "complete") return true
+        val job = started.optString("async_job_id").ifBlank { return false }
+        // check_v2, not check: a v2 batch job polled through the v1 endpoint
+        // answers internal_error, which reads as a failed move even though
+        // Dropbox has already done it - the files end up archived there while
+        // the phone still holds its copies.
+        repeat(POLL_TRIES) {
+            Thread.sleep(POLL_WAIT_MS)
+            val check = postJson(token, "files/move_batch/check_v2",
+                JSONObject().apply { put("async_job_id", job) }) ?: return false
+            when (check.optString(".tag")) {
+                "complete" -> return true
+                "failed" -> return false
+            }
+        }
+        Log.w("DBXSHARE", "move_batch still running after ${POLL_TRIES * POLL_WAIT_MS} ms")
+        return false
+    }
+
+    private fun postJson(token: String, endpoint: String, body: JSONObject): JSONObject? {
+        val req = Request.Builder()
+            .url("https://api.dropboxapi.com/2/$endpoint")
+            .addHeader("Authorization", "Bearer $token")
+            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+            .build()
+        return try {
+            http.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) {
+                    Log.w("DBXSHARE", "$endpoint HTTP ${resp.code}: ${text.take(300)}")
+                    null
+                } else JSONObject(text)
+            }
+        } catch (e: Exception) {
+            Log.w("DBXSHARE", "$endpoint exception: ${e.message}")
+            null
+        }
     }
 
     /**
@@ -182,55 +468,94 @@ class DropboxRepository @Inject constructor(
             .addHeader("Dropbox-API-Arg", args.toString())
             .post(okhttp3.RequestBody.create(null, ByteArray(0)))
             .build()
-        try {
-            http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext null
-                resp.body?.bytes()
+        withRateLimitRetry("download $remotePath") {
+            try {
+                val resp = http.newCall(req).execute()
+                if (resp.code == 429) return@withRateLimitRetry resp to null
+                resp.use {
+                    if (!it.isSuccessful) {
+                        Log.w("DBXSHARE", "download HTTP ${it.code} for $remotePath")
+                        it to null
+                    } else it to it.body?.bytes()
+                }
+            } catch (e: Exception) {
+                Log.w("DBXSHARE", "download exception: ${e.message}")
+                // No response to inspect: report it as a non-429 failure.
+                errorResponse(req) to null
             }
-        } catch (e: Exception) { null }
+        }
     }
 
     /** Metadata for one remote file from a folder listing. [size] is the byte
      *  count Dropbox holds, the stable signal for "already uploaded" (a trip
      *  CSV's modified-time can be bumped locally, its content-length cannot). */
-    data class RemoteFile(val serverModified: Long, val size: Long)
+    /**
+     * A file as Dropbox describes it. The timestamp is in SECONDS, which the
+     * name now says out loud: it was called serverModified, and comparing it
+     * against a millisecond timestamp is a comparison that is simply never
+     * true. That silently disabled a guard against overwriting remote edits,
+     * and read as working in every test that checked the code rather than ran
+     * it.
+     */
+    data class RemoteFile(val serverModifiedSec: Long, val size: Long)
 
     /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
-     *  relative). Empty map on "not_found" (folder doesn't exist yet — normal on
+     *  relative). Empty map on "not_found" (folder doesn't exist yet, normal on
      *  first link). Null on auth / network failure so caller can distinguish
      *  "no files" from "couldn't check". */
+    /** One page of a folder listing: the files on it, and where to continue. */
+    internal data class ListPage(
+        val files: Map<String, RemoteFile>,
+        val cursor: String?,
+        val hasMore: Boolean,
+    )
+
     suspend fun listFolder(remoteFolder: String): Map<String, RemoteFile>? = withContext(Dispatchers.IO) {
         val token = activeAccessToken() ?: return@withContext null
-        val body = JSONObject().apply {
-            put("path", remoteFolder)
-            put("recursive", false)
-            put("include_deleted", false)
-        }
-        val req = Request.Builder()
-            .url("https://api.dropboxapi.com/2/files/list_folder")
-            .addHeader("Authorization", "Bearer $token")
-            .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
-            .build()
-        try {
-            http.newCall(req).execute().use { resp ->
-                if (resp.code == 409) return@withContext emptyMap()  // folder absent
-                if (!resp.isSuccessful) return@withContext null
-                val json = JSONObject(resp.body?.string().orEmpty())
-                val entries = json.optJSONArray("entries") ?: return@withContext emptyMap()
-                val out = mutableMapOf<String, RemoteFile>()
-                for (i in 0 until entries.length()) {
-                    val e = entries.getJSONObject(i)
-                    if (e.optString(".tag") != "file") continue
-                    val name = e.optString("name")
-                    val mod = e.optString("server_modified")  // ISO-8601
-                    val epoch = try {
-                        java.time.OffsetDateTime.parse(mod).toEpochSecond()
-                    } catch (_: Exception) { 0L }
-                    if (name.isNotBlank()) out[name] = RemoteFile(epoch, e.optLong("size", -1L))
+        var absent = false
+        val all = collectPages(warn = { Log.w("DBXSHARE", it) }) { cursor ->
+            val (url, body) = if (cursor == null) {
+                "https://api.dropboxapi.com/2/files/list_folder" to JSONObject().apply {
+                    put("path", remoteFolder)
+                    put("recursive", false)
+                    put("include_deleted", false)
+                    // A hint only: Dropbox may return fewer, and says so. The
+                    // loop is what actually gets every entry.
+                    put("limit", PAGE_LIMIT)
                 }
-                out
+            } else {
+                "https://api.dropboxapi.com/2/files/list_folder/continue" to JSONObject().apply {
+                    put("cursor", cursor)
+                }
             }
-        } catch (e: Exception) { null }
+            val req = Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer $token")
+                .post(okhttp3.RequestBody.create("application/json".toMediaTypeOrNull(), body.toString()))
+                .build()
+            try {
+                http.newCall(req).execute().use { resp ->
+                    // 409 on the first call is "folder doesn't exist yet", which
+                    // is normal before the first upload. On a continue it means
+                    // the cursor went stale, which is a failed listing, not an
+                    // empty one.
+                    if (resp.code == 409 && cursor == null) {
+                        absent = true
+                        return@use null
+                    }
+                    if (!resp.isSuccessful) {
+                        val text = resp.body?.string().orEmpty()
+                        Log.w("DBXSHARE", "list_folder HTTP ${resp.code}: ${text.take(300)}")
+                        return@use null
+                    }
+                    parseListPage(JSONObject(resp.body?.string().orEmpty()))
+                }
+            } catch (e: Exception) {
+                Log.w("DBXSHARE", "list_folder exception: ${e.message}")
+                null
+            }
+        }
+        if (absent) emptyMap() else all
     }
 
     /**
@@ -389,7 +714,7 @@ class DropboxRepository @Inject constructor(
         } catch (e: Exception) { null }
     }
 
-    /** Drop the local tokens — does NOT revoke them on Dropbox's side
+    /** Drop the local tokens, does NOT revoke them on Dropbox's side
      *  (which would need another HTTPS call). Future iteration could add
      *  /auth/token/revoke; for now the token simply ages out. */
     suspend fun unlink() {
@@ -431,10 +756,90 @@ class DropboxRepository @Inject constructor(
     }
 
     companion object {
+        /** move_batch_v2 takes at most this many entries per call. */
+        private const val BATCH_MAX = 1000
+        /** How many times to wait out a 429 before giving up on a file. */
+        private const val RATE_LIMIT_TRIES = 4
+        private const val POLL_TRIES = 60
+        private const val POLL_WAIT_MS = 500L
+
         const val APP_KEY = "5auhxf7gswy7j54"
         const val REDIRECT_URI = "db-$APP_KEY://1/connect"
 
-        /** RFC 7636 — 43-128 chars from a fixed unreserved set. */
+        /** Page size asked for. Dropbox treats it as approximate and can return
+         *  fewer, so it saves round trips on a big folder and nothing more. */
+        private const val PAGE_LIMIT = 2000
+
+        /** Runaway guard. At [PAGE_LIMIT] a folder would have to hold millions
+         *  of trips to reach this, so hitting it means something is wrong with
+         *  the cursor rather than with the rider's collection. */
+        private const val MAX_LIST_PAGES = 500
+
+        /**
+         * Walk every page of a listing.
+         *
+         * Dropbox pages this endpoint and decides the page size itself: it is not
+         * documented, not guaranteed, and `limit` is only approximate. A client that
+         * reads the first page and stops sees a folder that ends early, which this
+         * one did. The damage is not only missing downloads: the sync treats a local
+         * file whose remote twin is past the last visible page as local-only and
+         * uploads it again on every single sync, forever, because uploading cannot
+         * bring it into view. One rider had 22 trips doing exactly that.
+         *
+         * [fetch] returns null for a failed page. A failure returns null overall
+         * rather than the pages gathered so far: a partial listing is
+         * indistinguishable from a smaller folder to every caller, and would set off
+         * that same re-upload of everything missing from it.
+         */
+        internal suspend fun collectPages(
+                maxPages: Int = MAX_LIST_PAGES,
+                warn: (String) -> Unit = {},
+                fetch: suspend (cursor: String?) -> ListPage?,
+            ): Map<String, RemoteFile>? {
+            val out = mutableMapOf<String, RemoteFile>()
+            var cursor: String? = null
+            var pages = 0
+            while (true) {
+                val page = fetch(cursor) ?: return null
+                out.putAll(page.files)
+                pages++
+                if (!page.hasMore) break
+                cursor = page.cursor ?: return null  // more to come but nowhere to go
+                if (pages >= maxPages) {
+                    // Better to report "couldn't check" than to hand back a folder
+                    // that stops in the middle.
+                    warn("list_folder stopped after $maxPages pages (${out.size} entries)")
+                    return null
+                }
+            }
+                if (pages > 1) warn("list_folder walked $pages pages, ${out.size} entries")
+                return out
+        }
+
+        /** Files on one listing page, plus the cursor for the next. Folders and
+         *  deleted entries are skipped: callers only ever want files. */
+        internal fun parseListPage(json: JSONObject): ListPage {
+            val entries = json.optJSONArray("entries")
+            val files = mutableMapOf<String, RemoteFile>()
+            for (i in 0 until (entries?.length() ?: 0)) {
+                val e = entries!!.getJSONObject(i)
+                if (e.optString(".tag") != "file") continue
+                val name = e.optString("name")
+                if (name.isBlank()) continue
+                val epoch = try {
+                    java.time.OffsetDateTime.parse(e.optString("server_modified")).toEpochSecond()
+                } catch (_: Exception) { 0L }
+                files[name] = RemoteFile(epoch, e.optLong("size", -1L))
+            }
+            return ListPage(
+                files = files,
+                cursor = json.optString("cursor").ifBlank { null },
+                hasMore = json.optBoolean("has_more", false),
+            )
+        }
+
+
+        /** RFC 7636, 43-128 chars from a fixed unreserved set. */
         private fun randomCodeVerifier(): String {
             val alphabet = ('A'..'Z') + ('a'..'z') + ('0'..'9') + listOf('-', '.', '_', '~')
             val rnd = java.security.SecureRandom()

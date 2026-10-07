@@ -105,6 +105,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -122,6 +123,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.groupKey
 import com.eried.eucplanet.service.AlarmLogic
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
@@ -146,26 +148,117 @@ private var suppressConstantTonePrompt = false
 private fun leadSeconds(ms: Int): String =
     String.format(java.util.Locale.US, "%.1f", ms / 1000f).removeSuffix(".0")
 
-private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
+/**
+ * Metrics whose useful range is too short for whole numbers are edited in
+ * tenths.
+ *
+ * The stepper holds an Int. A tyre runs about 1 to 4 bar and g-force about 0
+ * to 3, so whole units would offer a rider four settings across the entire
+ * range they care about. For those the displayed number is ten times the
+ * reading and [NumberUpDown]'s format/parse put the point back. psi is 15 to
+ * 60 and needs no help, which is why pressure's scale depends on the unit and
+ * g-force's does not.
+ */
+internal fun displayScale(metric: AlarmMetric, pressureUnit: String): Float = when (metric) {
+    // Each pressure unit needs its own scale, not just bar. A tyre tops out
+    // near 5 bar, 5.1 kgf/cm2 or 0.5 MPa, so in MPa whole numbers gave the
+    // rider a range of nought to nought and a stepper that would not move at
+    // all. The scale is whatever it takes to keep the useful range about fifty
+    // steps wide.
+    AlarmMetric.TIRE_PRESSURE -> when (pressureUnit) {
+        "bar", "kgf" -> 10f
+        "mpa" -> 100f
+        else -> 1f      // psi and kPa are already wide enough
+    }
+    AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G -> 10f
+    else -> 1f
+}
+
+/** Decimals implied by [displayScale], for formatting and parsing. */
+internal fun displayDecimals(metric: AlarmMetric, pressureUnit: String): Int =
+    when (displayScale(metric, pressureUnit)) {
+        100f -> 2
+        10f -> 1
+        else -> 0
+    }
+
+/**
+ * The threshold as the rider reads it, decimals and all.
+ *
+ * The list rows used to print the raw scaled integer, so a three bar rule read
+ * "< 30bar" and a 1.5 g rule read the same way. The scale is an editing
+ * device, never something to show.
+ */
+internal fun formatThreshold(
+    metric: AlarmMetric,
+    valueInternal: Float,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): String {
+    val shown = displayThreshold(metric, valueInternal, speedUnit, tempUnit, pressureUnit) /
+        displayScale(metric, pressureUnit)
+    val decimals = displayDecimals(metric, pressureUnit)
+    return if (decimals == 0) shown.roundToInt().toString()
+    else String.format(java.util.Locale.US, "%.${decimals}f", shown)
+}
+
+internal fun displayThreshold(
+    metric: AlarmMetric,
+    valueInternal: Float,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): Float =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speed(valueInternal, speedUnit)
-        AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, tempUnit)
+        // The three sensors convert exactly like the metric they were hiding in.
+        AlarmMetric.TEMPERATURE,
+        AlarmMetric.MOTOR_TEMP,
+        AlarmMetric.CONTROLLER_TEMP,
+        AlarmMetric.BATTERY_TEMP -> Units.temperature(valueInternal, tempUnit)
+        AlarmMetric.TIRE_PRESSURE ->
+            Units.pressure(valueInternal, pressureUnit) * displayScale(metric, pressureUnit)
+        AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G ->
+            valueInternal * displayScale(metric, pressureUnit)
         else -> valueInternal
     }
 
-private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedUnit: String, tempUnit: String): Float =
+internal fun internalThreshold(
+    metric: AlarmMetric,
+    valueDisplayed: Float,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): Float =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
-        AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
+        AlarmMetric.TEMPERATURE,
+        AlarmMetric.MOTOR_TEMP,
+        AlarmMetric.CONTROLLER_TEMP,
+        AlarmMetric.BATTERY_TEMP -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
+        AlarmMetric.TIRE_PRESSURE ->
+            Units.pressureToKpa(valueDisplayed / displayScale(metric, pressureUnit), pressureUnit)
+        AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G ->
+            valueDisplayed / displayScale(metric, pressureUnit)
         else -> valueDisplayed
     }
 
 @androidx.compose.runtime.Composable
-private fun displayUnit(metric: AlarmMetric, speedUnit: String, tempUnit: String): String =
+private fun displayUnit(
+    metric: AlarmMetric,
+    speedUnit: String,
+    tempUnit: String,
+    pressureUnit: String,
+): String =
     when (metric) {
         AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED ->
             Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
-        AlarmMetric.TEMPERATURE -> Units.tempUnit(tempUnit)
+        AlarmMetric.TEMPERATURE,
+        AlarmMetric.MOTOR_TEMP,
+        AlarmMetric.CONTROLLER_TEMP,
+        AlarmMetric.BATTERY_TEMP -> Units.tempUnit(tempUnit)
+        AlarmMetric.TIRE_PRESSURE -> Units.pressureUnit(pressureUnit)
         else -> metric.unit
     }
 
@@ -177,11 +270,14 @@ fun AlarmSettingsContent(
     val groups by viewModel.groupedRules.collectAsState()
     val studioPlaying by viewModel.studioPlaying.collectAsState()
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-    // Alarm thresholds only span speed and temperature; distance has no alarm metric.
+    // Alarm thresholds span speed, temperature and tire pressure; distance
+    // still has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val pressureUnit by viewModel.pressureUnit.collectAsState()
     val voiceLocale by viewModel.voiceLocale.collectAsState()
     val showRadarMetrics by viewModel.showRadarMetrics.collectAsState()
+    val connectedWheel by viewModel.connectedWheel.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
@@ -227,7 +323,15 @@ fun AlarmSettingsContent(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) { _, group, _ ->
             key(group.metric) {
-                val groupMetric = try { AlarmMetric.valueOf(group.metric) } catch (_: Exception) { AlarmMetric.SPEED }
+                // A family is named after the metric that heads it, so the
+                // Battery family reads "Battery" whichever of its two members
+                // the rider added first.
+                val groupMetric = AlarmMetric.entries
+                    .firstOrNull { it.groupKey == group.metric }
+                    ?: runCatching { AlarmMetric.valueOf(group.metric) }.getOrDefault(AlarmMetric.SPEED)
+                // With more than one metric under one heading, a rule reading
+                // just "< 20%" would not say WHICH battery it watches.
+                val familyIsMixed = group.rules.map { it.metric }.distinct().size > 1
                 val accent = metricAccent(groupMetric)
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     // Coloured band names the metric once (big); the rules below
@@ -260,6 +364,9 @@ fun AlarmSettingsContent(
                                 rule = rule,
                                 speedUnit = speedUnit,
                                 tempUnit = tempUnit,
+                                pressureUnit = pressureUnit,
+                                connectedAddress = connectedWheel?.first,
+                                showMetricName = familyIsMixed,
                                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
                                 onEdit = { editingRule = rule; showEditor = true },
                             )
@@ -271,16 +378,13 @@ fun AlarmSettingsContent(
 
         Spacer(Modifier.height(8.dp))
 
-        // New alarm: natural (content) width, left-aligned - not stretched to a
-        // fixed fraction of the row.
-        Button(
+        // New alarm: same half-width, left-aligned action button as every other
+        // settings section (Start scan, Reorganize, Scan for sensors).
+        LeftAlignedScanButton(
+            label = stringResource(R.string.alarm_add),
+            leadingIcon = Icons.Default.Add,
             onClick = { editingRule = null; showEditor = true },
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(stringResource(R.string.alarm_add))
-        }
+        )
 
         Spacer(Modifier.height(16.dp))
     }
@@ -296,8 +400,10 @@ fun AlarmSettingsContent(
             rule = editingRule,
             speedUnit = speedUnit,
             tempUnit = tempUnit,
+            pressureUnit = pressureUnit,
             defaultVoiceText = defaultVoiceText,
             showRadarMetrics = showRadarMetrics,
+            connectedWheel = connectedWheel,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -342,13 +448,35 @@ fun AlarmSettingsContent(
 private fun metricAccent(metric: AlarmMetric): androidx.compose.ui.graphics.Color = when (metric) {
     AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
     AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
+    // The same accent as BATTERY: it is the same quantity, read honestly.
+    AlarmMetric.BATTERY_ENVELOPE -> MaterialTheme.appColors.statusGood
     AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
     AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
     AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
-    AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.CURRENT,
+    AlarmMetric.TORQUE,
+    AlarmMetric.PHASE_CURRENT -> MaterialTheme.appColors.metricPosition
     AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> MaterialTheme.appColors.statusWarn
+    // Altitude shares the position accent: both are "where you are" readings,
+    // and the palette has no altitude token to reuse.
+    AlarmMetric.GPS_ALTITUDE -> MaterialTheme.appColors.metricPosition
     AlarmMetric.EXTERNAL_GPS_BATTERY -> MaterialTheme.appColors.statusGood
+    // Energy readings share the battery accent: all three are the same
+    // question, how much is left and how fast it is going.
+    AlarmMetric.WH_CONSUMED,
+    AlarmMetric.WH_PER_KM,
+    AlarmMetric.RANGE_ESTIMATE -> MaterialTheme.appColors.statusGood
     AlarmMetric.RADAR_DISTANCE, AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
+    // A soft tyre is a grip problem before it is anything else, which is the
+    // same family of trouble the danger accent already marks.
+    AlarmMetric.TIRE_PRESSURE -> MaterialTheme.appColors.statusDanger
+    // The three sensors join the temperature they were hiding inside.
+    AlarmMetric.MOTOR_TEMP,
+    AlarmMetric.CONTROLLER_TEMP,
+    AlarmMetric.BATTERY_TEMP -> MaterialTheme.appColors.statusDanger
+    // Acceleration is a "how are you riding" reading, like position.
+    AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G -> MaterialTheme.appColors.metricPosition
+    AlarmMetric.BT_RSSI -> MaterialTheme.appColors.metricVoltage
 }
 
 @Composable
@@ -356,6 +484,16 @@ private fun AlarmRuleCard(
     rule: AlarmRule,
     speedUnit: String,
     tempUnit: String,
+    pressureUnit: String,
+    connectedAddress: String?,
+    /**
+     * True when this rule's heading covers more than one metric.
+     *
+     * The band normally names the metric so a rule can read just "condition
+     * threshold unit". With a family under one heading, two rules could both
+     * read "< 20%" with nothing saying which battery each watches.
+     */
+    showMetricName: Boolean = false,
     onToggle: (Boolean) -> Unit,
     onEdit: () -> Unit,
 ) {
@@ -365,14 +503,18 @@ private fun AlarmRuleCard(
     // Readable on-colour for the condition text -- the coloured group band above
     // already carries the metric's accent, and some accents (e.g. PWM's gauge-warn
     // yellow) are fill colours that read poorly as text on the card surface.
-    val color = if (!rule.enabled)
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-    else MaterialTheme.colorScheme.onSurface
+    // A rule bound to a wheel other than the connected one (or bound while no
+    // wheel is connected) grays out like a disabled rule, because it will not
+    // fire right now, but it stays fully toggleable / editable / deletable.
+    val boundElsewhere = rule.wheelAddress != null && rule.wheelAddress != connectedAddress
+    val color = if (!rule.enabled || boundElsewhere)
+        MaterialTheme.appColors.textSecondary.copy(alpha = 0.5f)
+    else MaterialTheme.appColors.textPrimary
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (rule.enabled) MaterialTheme.colorScheme.surfaceVariant
-            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = if (rule.enabled && !boundElsewhere) MaterialTheme.appColors.surfaceVariant
+            else MaterialTheme.appColors.surfaceVariant.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -391,12 +533,16 @@ private fun AlarmRuleCard(
                     .clickable { onEdit() }
                     .padding(vertical = 12.dp)
             ) {
-                val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).roundToInt()
-                val shownUnit = displayUnit(metric, speedUnit, tempUnit)
+                val shownThresh = formatThreshold(metric, rule.threshold, speedUnit, tempUnit, pressureUnit)
+                val shownUnit = displayUnit(metric, speedUnit, tempUnit, pressureUnit)
                 // The coloured group band already names the metric, so a rule
                 // reads just "condition threshold unit" (e.g. "≥ 32 km/h").
+                val condition = "${comp.symbol} ${shownThresh}${shownUnit}"
                 Text(
-                    rule.name.ifBlank { "${comp.symbol} ${shownThresh}${shownUnit}" },
+                    rule.name.ifBlank {
+                        if (showMetricName) "${stringResource(metric.labelRes)}  $condition"
+                        else condition
+                    },
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
                     color = color
@@ -434,6 +580,14 @@ private fun AlarmRuleCard(
                         color = color
                     )
                 }
+                if (rule.wheelAddress != null) {
+                    Text(
+                        stringResource(R.string.alarm_summary_wheel_fmt, rule.wheelName ?: rule.wheelAddress),
+                        fontSize = 11.sp,
+                        fontStyle = FontStyle.Italic,
+                        color = color
+                    )
+                }
             }
             Switch(checked = rule.enabled, onCheckedChange = onToggle, colors = themedSwitchColors())
         }
@@ -446,8 +600,10 @@ private fun AlarmRuleEditorDialog(
     rule: AlarmRule?,
     speedUnit: String,
     tempUnit: String,
+    pressureUnit: String,
     defaultVoiceText: String,
     showRadarMetrics: Boolean,
+    connectedWheel: Pair<String, String>?,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
@@ -466,6 +622,10 @@ private fun AlarmRuleEditorDialog(
     var metric by remember { mutableStateOf(initial.metric) }
     var comparator by remember { mutableStateOf(initial.comparator) }
     var threshold by remember { mutableFloatStateOf(initial.threshold) }
+
+    // Wheel binding ("Only this wheel"): address + name move together.
+    var wheelAddress by remember { mutableStateOf(initial.wheelAddress) }
+    var wheelName by remember { mutableStateOf(initial.wheelName) }
 
     var beepEnabled by remember { mutableStateOf(initial.beepEnabled) }
     var beepFrequency by remember { mutableIntStateOf(initial.beepFrequency) }
@@ -520,16 +680,16 @@ private fun AlarmRuleEditorDialog(
         val clamped = threshold.coerceIn(thresholdRangeInternal)
         if (clamped != threshold) threshold = clamped
     }
-    val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
-    val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
-        displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, speedUnit, tempUnit)
-    val displayedUnit = displayUnit(selectedMetric, speedUnit, tempUnit)
+    val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit, pressureUnit)
+    val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit, pressureUnit)..
+        displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, speedUnit, tempUnit, pressureUnit)
+    val displayedUnit = displayUnit(selectedMetric, speedUnit, tempUnit, pressureUnit)
 
     if (showStudio) {
         BeepStudioDialog(
             metric = selectedMetric,
             unit = displayedUnit,
-            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit) },
+            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit, pressureUnit) },
             comparator = comparator,
             threshold = threshold,
             baseFreq = beepFrequency,
@@ -614,7 +774,7 @@ private fun AlarmRuleEditorDialog(
                                 Text(stringResource(R.string.alarm_constant_body))
                                 if (changes.isNotEmpty()) {
                                     Spacer(Modifier.height(8.dp))
-                                    changes.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
+                                    changes.forEach { com.eried.eucplanet.ui.common.BulletPoint(it) }
                                 }
                             }
                         },
@@ -671,7 +831,9 @@ private fun AlarmRuleEditorDialog(
                 )
                 val metricOptions = AlarmMetric.entries
                     .filter { showRadarMetrics || it.name !in radarMetricNames || it.name == metric }
-                    .map { it.name to stringResource(it.labelRes) }
+                    // Spelled out while choosing; the field shows the short
+                    // name once chosen.
+                    .map { it.name to stringResource(it.longLabelRes) }
                 val selectedComp = AlarmComparator.parse(comparator)
                 val comparatorOptions = AlarmComparator.entries.map { entry ->
                     entry.name to stringResource(entry.labelRes)
@@ -718,12 +880,35 @@ private fun AlarmRuleEditorDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // The one numeric field in Settings with no restore chip,
+                    // deliberately: a new rule's threshold is 30, which is a
+                    // speed. Offered as the default on a tyre-pressure alarm it
+                    // reads "30 bar", and on a temperature alarm "30 degrees".
+                    // A default that is wrong for most metrics is worse than no
+                    // default, and a per-metric one is a table nobody asked for.
                     NumberUpDown(
                         value = displayedThreshold.roundToInt(),
                         onValueChange = { newDisp ->
-                            threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit)
+                            threshold = internalThreshold(selectedMetric, newDisp.toFloat(), speedUnit, tempUnit, pressureUnit)
                                 .coerceIn(thresholdRangeInternal)
                         },
+                        // Tenths where the range is too short for whole
+                        // numbers (bar, g-force); plain integers elsewhere.
+                        format = { v ->
+                            val scale = displayScale(selectedMetric, pressureUnit)
+                            val decimals = displayDecimals(selectedMetric, pressureUnit)
+                            if (decimals > 0)
+                                String.format(java.util.Locale.US, "%.${decimals}f", v / scale)
+                            else v.toString()
+                        },
+                        parse = { text ->
+                            val scale = displayScale(selectedMetric, pressureUnit)
+                            if (displayDecimals(selectedMetric, pressureUnit) > 0)
+                                text.replace(',', '.').toFloatOrNull()?.let { (it * scale).roundToInt() }
+                            else text.toIntOrNull()
+                        },
+                        // dBm is negative, so the field has to accept a minus.
+                        allowSign = displayedRange.start < 0f,
                         range = displayedRange.start.roundToInt()..displayedRange.endInclusive.roundToInt(),
                         suffix = displayedUnit,
                         label = stringResource(R.string.alarm_threshold_label),
@@ -759,15 +944,17 @@ private fun AlarmRuleEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = beepFrequency,
+                            default = NEW_RULE.beepFrequency,
                             onValueChange = { beepFrequency = it },
                             range = 200..3000, step = 100, suffix = "Hz",
                             label = stringResource(R.string.alarm_label_frequency),
                             modifier = Modifier.weight(1f),
                         )
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = beepCount,
+                            default = NEW_RULE.beepCount,
                             onValueChange = { beepCount = it },
                             range = 1..5, step = 1, suffix = "x",
                             label = stringResource(R.string.alarm_label_repeats),
@@ -791,8 +978,9 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepDurationMs,
+                                default = NEW_RULE.beepDurationMs,
                                 onValueChange = { beepDurationMs = it },
                                 // Floor 30 ms: shorter tones read as a click rather than a
                                 // pitched beep and can fall under the audio route's start
@@ -802,8 +990,9 @@ private fun AlarmRuleEditorDialog(
                                 label = stringResource(R.string.alarm_label_duration),
                                 modifier = Modifier.weight(1f),
                             )
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepGapMs,
+                                default = NEW_RULE.beepGapMs,
                                 onValueChange = {
                                     val wasZero = beepGapMs == 0
                                     beepGapMs = it
@@ -822,8 +1011,9 @@ private fun AlarmRuleEditorDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepVolume,
+                                default = NEW_RULE.beepVolume,
                                 onValueChange = { beepVolume = it },
                                 range = 0..100, step = 5, suffix = "%",
                                 label = stringResource(R.string.alarm_beep_volume_label),
@@ -832,8 +1022,9 @@ private fun AlarmRuleEditorDialog(
                             // Attack/release ramp as % of duration: 0 = crisp beep,
                             // 50 = a soft swell. Higher smooths the up/down; gap 0 makes
                             // it one continuous tone.
-                            NumberUpDown(
+                            NumberFieldWithDefault(
                                 value = beepTransitionPct,
+                                default = NEW_RULE.beepTransitionPct,
                                 onValueChange = { beepTransitionPct = it },
                                 range = 0..50, step = 4, suffix = "%",
                                 label = stringResource(R.string.alarm_beep_transition_label),
@@ -953,8 +1144,9 @@ private fun AlarmRuleEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = vibrateDurationMs,
+                            default = NEW_RULE.vibrateDurationMs,
                             onValueChange = { vibrateDurationMs = it },
                             range = 100..2000, step = 100, suffix = "ms",
                             label = stringResource(R.string.alarm_label_duration),
@@ -1037,8 +1229,9 @@ private fun AlarmRuleEditorDialog(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.Top
                     ) {
-                        NumberUpDown(
+                        NumberFieldWithDefault(
                             value = cooldownSeconds,
+                            default = NEW_RULE.cooldownSeconds,
                             onValueChange = { cooldownSeconds = it },
                             range = 0..120,
                             suffix = "s",
@@ -1124,6 +1317,29 @@ private fun AlarmRuleEditorDialog(
                             stringResource(R.string.alarm_predict_help_lead, leadSeconds(leadTimeMs), triggeredPhrase),
                         small = true
                     )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Wheel binding: OFF = the classic any-wheel rule; ON stamps
+                    // the connected wheel so the rule fires only on that wheel.
+                    // Binding needs a live wheel (otherwise we cannot know which
+                    // wheel the rider means); unbinding is always allowed.
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(stringResource(R.string.alarm_wheel_only_label), fontSize = 13.sp)
+                        Switch(
+                            checked = wheelAddress != null,
+                            enabled = connectedWheel != null || wheelAddress != null,
+                            onCheckedChange = { on ->
+                                if (on) connectedWheel?.let { wheelAddress = it.first; wheelName = it.second }
+                                else { wheelAddress = null; wheelName = null }
+                            },
+                            colors = themedSwitchColors(),
+                        )
+                    }
                 }
                 } // end scrollable middle
 
@@ -1181,7 +1397,9 @@ private fun AlarmRuleEditorDialog(
                                         vibrateTarget = vibrateTarget,
                                         cooldownSeconds = cooldownSeconds,
                                         repeatWhileActive = repeatWhileActive,
-                                        leadTimeMs = leadTimeMs
+                                        leadTimeMs = leadTimeMs,
+                                        wheelAddress = wheelAddress,
+                                        wheelName = wheelName
                                     )
                                 )
                             }
@@ -1291,8 +1509,9 @@ private fun BeepStudioDialog(
                 // Pitch + volume FACTOR (numeric) -- just below the title.
                 Spacer(Modifier.height(10.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NumberUpDown(
+                    NumberFieldWithDefault(
                         value = pitchFactor,
+                        default = NEW_RULE.beepModulationReachPct,
                         onValueChange = { pitchFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },
@@ -1300,8 +1519,9 @@ private fun BeepStudioDialog(
                         label = stringResource(R.string.alarm_studio_pitch_factor),
                         modifier = Modifier.weight(1f),
                     )
-                    NumberUpDown(
+                    NumberFieldWithDefault(
                         value = volFactor,
+                        default = NEW_RULE.beepVolumeReachPct,
                         onValueChange = { volFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },
@@ -1334,7 +1554,7 @@ private fun BeepStudioDialog(
                         // it run forever (onTogglePlay stops when already playing).
                         if (!it && playing) onTogglePlay(false)
                     }) {
-                        Icon(Icons.Default.Repeat, contentDescription = "Repeat",
+                        Icon(Icons.Default.Repeat, contentDescription = stringResource(R.string.alarm_repeat_toggle),
                             tint = when {
                                 gapMs <= 0 -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                                 repeat -> MaterialTheme.appColors.statusWarn
@@ -1412,6 +1632,7 @@ private fun BeepTimeline(
     val grid = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
     val labelColor = MaterialTheme.appColors.fieldLabel
     val txt = with(LocalDensity.current) { 10.sp.toPx() }
+    val footer = stringResource(R.string.alarm_beep_timeline_fmt, count, gapMs)
     Canvas(modifier) {
         val w = size.width; val h = size.height
         val nv = drawContext.canvas.nativeCanvas
@@ -1451,7 +1672,7 @@ private fun BeepTimeline(
             val px = triggerX + f.coerceIn(0f, 1f) * avail
             drawLine(markerCol, Offset(px, ty0 - 8f), Offset(px, ty1 + 8f), 3f)
         }
-        nv.drawText("${count}× · gap ${gapMs} ms", 4f, h - 3f, pLbl)
+        nv.drawText(footer, 4f, h - 3f, pLbl)
     }
 }
 
@@ -1565,6 +1786,15 @@ private fun SectionTitleWithPreview(
         }
     }
 }
+
+/**
+ * What a freshly created alarm rule is worth.
+ *
+ * The alarm editor's numbers are per-alarm by design (rule 1), so their
+ * default is not an app setting: it is whatever a new rule ships with. Read
+ * from the model so the restore chips cannot drift from it.
+ */
+private val NEW_RULE = com.eried.eucplanet.data.model.AlarmRule()
 
 /**
  * Numeric up/down as one cohesive pill: a borderless centered number with its

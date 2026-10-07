@@ -50,21 +50,17 @@ class AppSettingsArgLimitTest {
     }
 
     @Test fun theRemainingHeadroomIsStatedOutLoud() {
-        // Not a correctness check: a deliberate tripwire. AppSettings had been
-        // sitting ON the limit, so anyone adding a field should have to look at
-        // this number and decide consciously rather than discovering it in a
-        // crash report. Moving the voice report flags into VoiceReportSettings
-        // bought back 17 slots. Update this when the usage genuinely changes,
-        // and prefer nesting over spending the headroom.
-        // 246: the ENGO glasses HUD added one field, engoHud: EngoHudSettings -
-        // nested, so its flags (and future ones) cost a single top-level slot.
-        // 245: merged next-experimental brought the auto-volume connected flag,
-        // on top of the PIP mode field.
-        // 242: the Phone HUD added an enable flag plus the preset name and its
-        // cached JSON. 239 before that.
-        // 239: the widget's nested settings added a field, which also crossed a
-        // 32-property boundary and so cost a second bitmask slot.
-        val expectedSlots = 246
+        // Not a correctness check: a deliberate tripwire. AppSettings sits ONE
+        // slot under the JVM's 255, so anyone adding a field has to look at
+        // this number and decide consciously rather than discover it in a
+        // crash report. 253 was the voice cues nested as one group; 254 is the
+        // watch map (PR #25), nested as WatchMapSettings so four fields cost
+        // one slot. 243 was the twelve motor sound fields moved out into
+        // EngineSoundSettings, freeing eleven; 244 is the horn group; 245 is
+        // crewsDevServerEnabled and 246 voiceVolumePercent, single flags that
+        // sit beside their neighbours; 247 the ENGO glasses HUD group. Keep nesting: the next group goes in
+        // one slot, not one per field.
+        val expectedSlots = 247
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

@@ -3,6 +3,7 @@ package com.eried.eucplanet.wear
 import android.util.Log
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.flic.FlicManager
+import com.eried.eucplanet.hud.protocol.WatchMapProtocol
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,13 +31,19 @@ class PhoneWearListenerService : WearableListenerService() {
         private const val CMD_LIGHT_ON = "light_on"
         private const val CMD_LIGHT_OFF = "light_off"
         private const val ACTION_PREFIX = "action:"
+        // Input-event report; the watch only sends these while Service Mode
+        // is recording (the diag flag rides the state frames).
+        private const val DEBUG_PREFIX = "debug:"
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
     @Inject lateinit var flicManager: FlicManager
+    @Inject lateinit var wearMapBridge: WearMapBridge
 
     override fun onMessageReceived(event: MessageEvent) {
         when (event.path) {
+            WatchMapProtocol.PRESENCE_PATH ->
+                wearMapBridge.onPresence(event.sourceNodeId, event.data)
             PATH_CONTROL -> handleControl(String(event.data))
             PATH_WATCH_INFO -> {
                 // Watch sends this once per launch with its own Build /
@@ -58,6 +65,11 @@ class PhoneWearListenerService : WearableListenerService() {
                 wheelRepository.toggleLight()
             command.startsWith(ACTION_PREFIX) ->
                 flicManager.dispatchActionByName(command.removePrefix(ACTION_PREFIX))
+            command.startsWith(DEBUG_PREFIX) -> {
+                // The Service Mode Filter tab surfaces these via this note.
+                val ev = command.removePrefix(DEBUG_PREFIX)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("wearos input: $ev")
+            }
             else -> Log.w(TAG, "unknown control: $command")
         }
     }

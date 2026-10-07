@@ -10,7 +10,7 @@ import com.eried.eucplanet.hud.protocol.HudCommand
  * UI navigation state for the HUD's four-screen carousel.
  *
  * Held by the Activity (not a ViewModel) because the HUD app never undergoes
- * configuration change — screen is locked landscape, there's no rotation, no
+ * configuration change, screen is locked landscape, there's no rotation, no
  * dark/light mode toggle, no font-scale toggle from the OS. Keeping it here
  * keeps the screen carousel deterministic between key events.
  *

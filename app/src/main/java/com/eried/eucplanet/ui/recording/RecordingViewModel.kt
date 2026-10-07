@@ -64,6 +64,10 @@ data class TripDataPoint(
     val current: Float = Float.NaN,
     /** PWM / motor load in percent. NaN when the trip's CSV predates the column or the cell is blank. */
     val pwm: Float = Float.NaN,
+    /** Motor torque in Nm, signed. NaN when the trip's CSV predates the column or the cell is blank. */
+    val torque: Float = Float.NaN,
+    /** Motor phase current in amps, signed. NaN when the trip's CSV predates the column or the cell is blank. */
+    val phaseCurrent: Float = Float.NaN,
     /** Raw Extra-column event ("wheel.name=KS-16SZ", "wheel.disconnected=1", ...). Empty on normal rows. */
     val extra: String = ""
 )
@@ -103,7 +107,7 @@ class RecordingViewModel @Inject constructor(
                 val settings = settingsRepository.get()
                 // Prereqs gone since the icon was shown (unlinked, deleted,
                 // folder lost). Don't attempt the upload and don't relight the
-                // worker safety net — it would just bail at the gate anyway.
+                // worker safety net, it would just bail at the gate anyway.
                 if (!settings.onlineUploadEnabled || syncManager.riderStoreId.value == null) {
                     _toasts.send(context.getString(R.string.online_upload_sync_nothing))
                     return@launch
@@ -125,6 +129,26 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Re-ask the server what a held trip's verdict is now.
+     *
+     * A hold is not a failure and not something the rider can fix: re-uploading returns the
+     * same verdict from the server's dedupe, so asking is the only thing that can clear the
+     * icon. Reports the answer either way, so a tap never looks like it did nothing.
+     */
+    fun recheckHeldTrip(trip: TripRecord) {
+        viewModelScope.launch {
+            _toasts.send(context.getString(R.string.online_status_checking))
+            val msg = when (runCatching { eucStatsRepository.refreshTripVerdict(trip) }.getOrNull()) {
+                "validated" -> context.getString(R.string.online_status_shared)
+                "rejected" -> context.getString(R.string.online_status_rejected)
+                "flagged" -> context.getString(R.string.online_status_flagged_why)
+                else -> context.getString(R.string.online_status_check_failed)
+            }
+            _toasts.send(msg)
+        }
+    }
+
     val recording: StateFlow<Boolean> = tripRepository.recording
 
     val speedUnit: StateFlow<String> = settingsRepository.settings
@@ -134,6 +158,23 @@ class RecordingViewModel @Inject constructor(
     val distanceUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "km")
+
+    /** Whether a backup folder is set, so a row only reports on destinations
+     *  the rider actually has: a cloud that can never go green because nothing
+     *  was configured is just a complaint. Dropbox already has [dropboxLinked]
+     *  below. */
+    val folderConfigured: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.syncFolderUri != null }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
+
+    /**
+     * Whether there are backup copies for the archive choice to act on:
+     * Dropbox linked, or a backup folder chosen. With neither, the row would
+     * offer to do something to files that do not exist.
+     */
+    val canArchiveTrips: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.dropboxAccessToken.isNotBlank() || it.syncFolderUri != null }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
 
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
@@ -187,6 +228,12 @@ class RecordingViewModel @Inject constructor(
         .map { csvToList(it.tripExtraCharts).toSet() }
         .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
 
+    /** Extra stat tiles the rider switched on (start battery, energy, consumption).
+     *  Empty = the original tiles only. */
+    val tripExtraTiles: StateFlow<Set<String>> = settingsRepository.settings
+        .map { csvToList(it.tripExtraTiles).toSet() }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptySet())
+
     /** Show or hide a stat tile, persisting the compact hidden-keys CSV. */
     fun setTileHidden(key: String, hidden: Boolean) {
         viewModelScope.launch {
@@ -224,6 +271,19 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
+    /** Switch an opt-in extra stat tile on or off. Same inverted store as
+     *  [setExtraChart]: these ship OFF, so the set records only what was
+     *  switched ON. */
+    fun setExtraTile(key: String, enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                val cur = csvToList(s.tripExtraTiles).toMutableSet()
+                if (enabled) cur.add(key) else cur.remove(key)
+                s.copy(tripExtraTiles = cur.joinToString(","))
+            }
+        }
+    }
+
     /** Persist the rider's stat-tile display order as a compact CSV of tile keys. */
     fun setTileOrder(order: List<String>) {
         viewModelScope.launch {
@@ -248,6 +308,7 @@ class RecordingViewModel @Inject constructor(
                     tripHiddenTiles = "",
                     tripHiddenCharts = "",
                     tripExtraCharts = "",
+                    tripExtraTiles = "",
                     tripTileOrder = "",
                     tripChartOrder = "",
                 )
@@ -351,8 +412,21 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    fun deleteTrip(trip: TripRecord) {
-        viewModelScope.launch { tripRepository.deleteTrip(trip) }
+    /**
+     * Delete [trip] from this phone, and optionally from the backups too.
+     *
+     * Both syncs treat a file the phone does not have as one to fetch, so a
+     * deleted trip is handed straight back on the next sync and the rider has
+     * to delete it again. [archiveBackups] moves the file into the archive on
+     * Dropbox and in the backup folder first, which takes it out of the
+     * listings the syncs walk. Off by default, because the app promises that
+     * clearing here only removes the copies on the phone.
+     */
+    fun deleteTrip(trip: TripRecord, archiveBackups: Boolean = false) {
+        viewModelScope.launch {
+            if (archiveBackups) tripRepository.archiveTrips(listOf(trip))
+            else tripRepository.deleteTrip(trip)
+        }
     }
 
     fun shareTrip(trip: TripRecord) {
@@ -369,7 +443,7 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    /** True while a Dropbox account is linked — toggles the two extra
+    /** True while a Dropbox account is linked, toggles the two extra
      *  options in the trip Share dialog. */
     val dropboxLinked: kotlinx.coroutines.flow.StateFlow<Boolean> =
         dropboxRepository.linked.stateIn(
@@ -423,7 +497,7 @@ class RecordingViewModel @Inject constructor(
     }
 
     /**
-     * Build the eucviewer share URL for [trip] — uploads to Dropbox if needed,
+     * Build the eucviewer share URL for [trip], uploads to Dropbox if needed,
      * swaps the share host to `dl.dropboxusercontent.com` and forces `dl=1` so
      * the URL is a raw CSV download a browser can fetch without CORS pain.
      *
@@ -447,7 +521,7 @@ class RecordingViewModel @Inject constructor(
      *  direct-download URL with `dl=1`. */
     private fun toDropboxDirectUrl(link: String): String {
         // A get_temporary_link result is already a direct download URL on
-        // dl.dropboxusercontent.com — leave it untouched (no dl=1 rewrite).
+        // dl.dropboxusercontent.com, leave it untouched (no dl=1 rewrite).
         if (link.startsWith("https://dl.dropboxusercontent.com/")) return link
         val onDirectHost = link
             .replace("https://www.dropbox.com/", "https://dl.dropboxusercontent.com/")
@@ -639,7 +713,7 @@ class RecordingViewModel @Inject constructor(
         id["firmware"]?.let { pairs.add("wheel.firmware=$it") }
 
         val sb = StringBuilder(text.length)
-        sb.append("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Extra\n")
+        sb.append("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra\n")
         var out = 0
         for (i in 1 until lines.size) {
             val line = lines[i].trim('\r')
@@ -659,7 +733,7 @@ class RecordingViewModel @Inject constructor(
                 .append(cell(iMil)).append(',')
                 .append(cell(iGps)).append(',')
                 .append(cell(iCur))
-                .append(",,,,,") // empty PWM, G-Force, G-Force X, G-Force Y, then Extra
+                .append(",,,,,,,") // empty PWM, G-Forces, Torque, Phase current, then Extra
                 .append(if (out < pairs.size) pairs[out] else "")
                 .append('\n')
             out++
@@ -749,9 +823,27 @@ class RecordingViewModel @Inject constructor(
 
     // --- Clear all ---
 
-    fun clearAllTrips(onDone: () -> Unit) {
+    /**
+     * Clear the trip list, keeping the files when [archive] is set.
+     *
+     * Archiving a whole library is the one case where doing it a file at a
+     * time would be felt: the repository batches the Dropbox side, and the
+     * folder side is a rename rather than a copy, so a big library is seconds
+     * rather than minutes.
+     */
+    fun clearAllTrips(archive: Boolean, onDone: () -> Unit) {
         viewModelScope.launch {
-            tripRepository.clearAll()
+            if (archive) {
+                val n = tripRepository.archiveAllTrips()
+                _toasts.send(
+                    if (n > 0) context.getString(R.string.trip_tools_archived, n)
+                    else context.getString(R.string.trip_tools_archive_failed)
+                )
+                // Whatever could not be archived stays: the rider asked to
+                // keep the files, so nothing goes without its copy being safe.
+            } else {
+                tripRepository.clearAll()
+            }
             onDone()
         }
     }
@@ -766,14 +858,33 @@ class RecordingViewModel @Inject constructor(
      * [com.eried.eucplanet.data.repository.TripDerive].
      */
     /** BLE names of every wheel the rider has a profile for, for the wheel picker. */
-    suspend fun knownWheelNames(): List<String> = tripRepository.knownWheelNames()
+    suspend fun knownWheels(): List<com.eried.eucplanet.data.repository.WheelChoice> =
+        tripRepository.knownWheels()
 
     /** Reassign a trip's wheel, rewriting both the row and the CSV. */
-    fun changeTripWheel(trip: TripRecord, bleName: String) {
+    fun changeTripWheel(trip: TripRecord, wheel: com.eried.eucplanet.data.repository.WheelChoice) {
         viewModelScope.launch {
-            tripRepository.changeTripWheel(trip, bleName, mac = null)
-            _toasts.send(context.getString(R.string.trip_tools_wheel_changed, bleName))
+            tripRepository.changeTripWheel(trip, wheel)
+            _toasts.send(context.getString(R.string.trip_tools_wheel_changed, wheel.label))
         }
+    }
+
+    /** Rename a trip (blank clears it). Writes the name into the CSV and DB and
+     *  re-syncs the file to the folder / Dropbox. */
+    fun renameTrip(trip: TripRecord, name: String) {
+        viewModelScope.launch {
+            tripRepository.renameTrip(trip, name)
+            // No toast. The rename is already visible - the row is showing the
+            // new name - so a message saying so tells the rider nothing, and
+            // then vanishes before the part they actually care about: whether
+            // the new name reached their backups. The row's cloud says that,
+            // and keeps saying it.
+        }
+    }
+
+    /** Send a trip to the backups again, from the row's cloud icon. */
+    fun retryBackup(trip: TripRecord) {
+        viewModelScope.launch { tripRepository.resyncTrip(trip.id) }
     }
 
     /**
@@ -826,7 +937,11 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    fun splitTrip(trip: TripRecord, cuts: List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>) {
+    fun splitTrip(
+        trip: TripRecord,
+        cuts: List<com.eried.eucplanet.data.repository.TripSplitDetector.Cut>,
+        archiveSource: Boolean = false,
+    ) {
         viewModelScope.launch {
             val base = withContext(Dispatchers.IO) {
                 readTripData(trip).firstNotNullOfOrNull { TripCsv.parseDate(it.date) }
@@ -840,6 +955,9 @@ class RecordingViewModel @Inject constructor(
                 if (pieces.isEmpty()) context.getString(R.string.trip_tools_split_failed)
                 else context.getString(R.string.trip_tools_split_done, pieces.size)
             )
+            // Only once there are pieces to replace it with: a failed split
+            // that archived its source would leave the rider with neither.
+            if (archiveSource && pieces.isNotEmpty()) archive(listOf(trip))
             flashTrips(pieces.map { it.id }.toSet())
         }
     }
@@ -849,7 +967,7 @@ class RecordingViewModel @Inject constructor(
      * alone. [range] is already the full inclusive span the rider chose,
      * including anything that fell between the two ends.
      */
-    fun combineRange(range: List<TripRecord>) {
+    fun combineRange(range: List<TripRecord>, archiveSources: Boolean = false) {
         viewModelScope.launch {
             val made = tripRepository.combineTrips(range)
             _toasts.send(
@@ -861,8 +979,18 @@ class RecordingViewModel @Inject constructor(
             // a combine, but a split cannot open its several results, and one
             // behaviour across both tools beats a better one that only half of
             // them can use.
+            if (archiveSources && made != null) archive(range)
             made?.let { flashTrips(setOf(it.id)) }
         }
+    }
+
+    /** Move superseded sources into the archive and say how many went. */
+    private suspend fun archive(sources: List<TripRecord>) {
+        val n = tripRepository.archiveTrips(sources)
+        _toasts.send(
+            if (n == sources.size) context.getString(R.string.trip_tools_archived, n)
+            else context.getString(R.string.trip_tools_archive_failed)
+        )
     }
 
     fun saveTripSection(trip: TripRecord, startMs: Long, endMs: Long) {
@@ -904,6 +1032,8 @@ class RecordingViewModel @Inject constructor(
             // recorder's "Extra" wheel-identity column (from multi-wheel-record).
             val iCurrent = TripCsv.Columns.current(headers)
             val iPwm = TripCsv.Columns.pwm(headers)
+            val iTorque = TripCsv.Columns.torque(headers)
+            val iPhase = TripCsv.Columns.phaseCurrent(headers)
             val iExtra = headers.indexOfFirst { it == "extra" }
 
             var line = reader.readLine()
@@ -924,6 +1054,12 @@ class RecordingViewModel @Inject constructor(
                         val pwm = if (iPwm >= 0)
                             parts.getOrNull(iPwm)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
                         else Float.NaN
+                        val torque = if (iTorque >= 0)
+                            parts.getOrNull(iTorque)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
+                        else Float.NaN
+                        val phase = if (iPhase >= 0)
+                            parts.getOrNull(iPhase)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
+                        else Float.NaN
                         points.add(
                             TripDataPoint(
                                 date = parts[0],
@@ -939,6 +1075,8 @@ class RecordingViewModel @Inject constructor(
                                 extGpsSpeed = extSpeed,
                                 current = current,
                                 pwm = pwm,
+                                torque = torque,
+                                phaseCurrent = phase,
                                 extra = if (iExtra >= 0) parts.getOrNull(iExtra)?.trim() ?: "" else ""
                             )
                         )

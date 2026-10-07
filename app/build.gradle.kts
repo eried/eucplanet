@@ -21,33 +21,53 @@ val keystoreProps = Properties().apply {
     }
 }
 
+// Runs git at configuration time through the provider API: the configuration
+// cache records the call and re-checks its output on the next build, where a
+// bare ProcessBuilder is rejected as an untracked external process. Empty when
+// git is missing or the command fails.
+fun git(vararg args: String): String = runCatching {
+    providers.exec {
+        commandLine("git", *args)
+        workingDir = projectDir
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+}.getOrDefault("")
+
 android {
+    androidResources {
+        // Keep only this module's own languages from library resources
+        // (about 1 MB on the phone, 0.2 MB on the watch and HUD). Derived
+        // from the values-* folders that hold a strings.xml, so a new
+        // translation is picked up without touching this list.
+        localeFilters += listOf("en") + (file("src/main/res").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("values-") && it.resolve("strings.xml").exists() }
+            .map { it.name.removePrefix("values-") }
+    }
     namespace = "com.eried.eucplanet"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
-        targetSdk = 35
-        versionCode = 260
-        versionName = "0.15.0"
+        targetSdk = 36
+        versionCode = 281
+        versionName = "0.22.0-beta8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // The stamp is the HEAD commit time, not the wall clock: a clock stamp
+        // changed every minute, which rewrote BuildConfig and recompiled the
+        // app on every build. Wall clock only when git is unavailable.
+        val commitEpoch = git("log", "-1", "--format=%ct").toLongOrNull()
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
-            .format(Date())
+            .format(if (commitEpoch != null) Date(commitEpoch * 1000) else Date())
         buildConfigField("String", "BUILD_STAMP", "\"$buildStamp\"")
 
         // Current git branch, baked in at build time so the About dialog can
         // show which branch a build came from. Empty when git isn't available;
         // the UI hides the tag for "main" / detached HEAD.
-        val gitBranch = try {
-            val process = ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD").start()
-            val out = process.inputStream.bufferedReader().use { it.readText().trim() }
-            process.waitFor()
-            if (process.exitValue() == 0) out else ""
-        } catch (e: Exception) { "" }
+        val gitBranch = git("rev-parse", "--abbrev-ref", "HEAD")
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
 
         // A "dev" build is any branch build other than main. Same signal the
@@ -98,6 +118,14 @@ android {
             }
         }
         release {
+            // A release build is NEVER a dev build, whatever branch it was cut
+            // from. The defaultConfig heuristic (branch != main) is only meant
+            // for debug/branch tester APKs; a release AAB submitted to Play from
+            // next-version must not inherit it, or dev-only surfaces (the welcome
+            // wizard's backup/restore tools, etc.) leak into production. This
+            // overrides the computed value so it can't depend on remembering
+            // -Pprod. Debug builds keep the branch heuristic.
+            buildConfigField("boolean", "IS_DEV", "false")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -132,6 +160,38 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    lint {
+        // Lint never ran here, so its default severities never mattered:
+        // sync_rate_limited reached 0.19.0 reading English on every language.
+        // checkOnly keeps this to the resource checks that put the wrong words
+        // in front of a rider, so the task stays fast and its failures stay
+        // worth reading. Widen it deliberately, not by turning on everything
+        // at once. LocaleCoverageTest covers the same ground in the unit
+        // tests; this catches the cases a name-by-name comparison cannot, like
+        // a format argument that changed meaning in one language only.
+        checkOnly += setOf(
+            "MissingTranslation",
+            "ExtraTranslation",
+            "MissingQuantity",
+            "ImpliedQuantity",
+            "StringFormatCount",
+            "StringFormatMatches",
+            "StringFormatInvalid",
+        )
+        abortOnError = true
+        warningsAsErrors = true
+    }
+
+    testOptions {
+        unitTests {
+            // JVM tests that exercise plain logic still cross an `android.util.Log`
+            // call on the way in, and the stub android.jar throws on every method
+            // by default. Returning defaults makes logging a no-op in tests
+            // instead of a failure, which is the only reason to touch it here.
+            isReturnDefaultValues = true
+        }
     }
 
     // Output APKs as phone-<buildtype>.apk (phone-debug.apk / phone-release.apk)
@@ -302,10 +362,12 @@ dependencies {
     // only need the encoder side.
     implementation(libs.zxing.core)
 
-    // CameraX: Overlay Studio camera viewports
+    // CameraX: Overlay Studio camera viewports, plus the PreviewView the
+    // share dialog's QR scanner draws its live camera feed into.
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
 
     // Play Integrity API (Standard Integrity Manager for request-hash-bound tokens)
     implementation("com.google.android.play:integrity:1.4.0")
@@ -316,7 +378,7 @@ dependencies {
     // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
     // without Robolectric.
     testImplementation("org.json:json:20240303")
-    // MockWebServer for EucStatsApi JVM tests — version must match libs.okhttp (4.12.0)
+    // MockWebServer for EucStatsApi JVM tests, version must match libs.okhttp (4.12.0)
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     // kotlin-reflect for the SettingsJson drift-guard test (walks the AppSettings
     // primary constructor to catch fields missing from the JSON mapper).
@@ -327,6 +389,12 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
+    // Compose gesture tests: the trip charts juggle a long-press scrub, a
+    // two-finger zoom and the page scroll on the same canvas, and multitouch
+    // cannot be driven from adb, so those rules are pinned on-device.
+    androidTestImplementation(composeBom)
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 // Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
@@ -347,4 +415,19 @@ play {
     track.set("beta") // default; override per run with --track production
     defaultToAppBundles.set(true)
     releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
+}
+
+// LocaleCoverageTest reads the strings files and locales_config.xml straight off
+// disk, so Gradle cannot see them as inputs on its own. Removing a translation
+// changes no generated code - the R class only carries the default folder's IDs
+// - so the test task stayed UP-TO-DATE and the drift guard was quietly skipped
+// on exactly the change it exists to catch. Declaring them makes any edit to a
+// translation re-run the guard.
+tasks.withType<Test>().configureEach {
+    inputs.files(
+        fileTree("src/main/res") {
+            include("**/strings.xml")
+            include("**/locales_config.xml")
+        }
+    ).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("translationFiles")
 }

@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/branchmd_guard.py\"",
+            "timeout": 20,
+            "statusMessage": "Checking BRANCH.md (rule 17)"
+          }
+        ]
+      }
+    ]
+  }
+}

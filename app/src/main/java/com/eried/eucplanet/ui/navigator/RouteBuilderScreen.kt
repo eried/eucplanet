@@ -13,6 +13,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +36,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -58,14 +61,21 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import coil.compose.AsyncImage
@@ -74,6 +84,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -110,6 +121,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -121,6 +133,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.TravelMode
+import com.eried.eucplanet.share.Freshness
+import com.eried.eucplanet.share.Identity
+import com.eried.eucplanet.share.PeerState
+import com.eried.eucplanet.share.ShareLink
+import com.eried.eucplanet.share.ShareState
+import com.eried.eucplanet.share.ShareStats
+import com.eried.eucplanet.share.TrailBands
+import com.eried.eucplanet.share.activePeers
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -130,9 +150,14 @@ import com.eried.eucplanet.nav.OcmCharger
 import com.eried.eucplanet.nav.PoiKind
 import com.eried.eucplanet.nav.PointOfInterest
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 import sh.calvin.reorderable.ReorderableColumn
+import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.appColors
@@ -234,7 +259,7 @@ fun RouteBuilderScreen(
     }
 
     // Backgrounding the app dismisses any pending "Add shared destination?"
-    // dialog — matches the rider's mental model that walking away from the
+    // dialog - matches the rider's mental model that walking away from the
     // prompt cancels it, and avoids a stale dialog reappearing days later.
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -249,9 +274,44 @@ fun RouteBuilderScreen(
     val pendingShare by viewModel.pendingShare.collectAsState()
     val focusManager = LocalFocusManager.current
     val density = androidx.compose.ui.platform.LocalDensity.current
+    // The Share button's long press confirms itself with a tick, the way
+    // every other long press in the app does.
+    val haptic = LocalHapticFeedback.current
     var menuOpen by remember { mutableStateOf(false) }
+    // --- Live location share ------------------------------------------
+    val shareState by viewModel.shareState.collectAsState()
+    // A share link the rider opened from outside the app, waiting on an
+    // answer (see MainActivity's App Link handling).
+    val pendingJoin by viewModel.pendingJoin.collectAsState()
+    // The ride the rider last left, if any: the start dialog offers it back.
+    val shareSpeedUnit by viewModel.speedUnit.collectAsState()
+    val shareTempUnit by viewModel.tempUnit.collectAsState()
+    val shareRelayHost by viewModel.relayHost.collectAsState()
+    // The Share button, not in a ride: a menu of the four things the icon can
+    // mean. Two of them are finished inside the menu (a Maps link, the
+    // coordinates on the clipboard); the other two open one of the windows
+    // below.
+    var shareMenuOpen by remember { mutableStateOf(false) }
+    // The camera, and the ride it read. The link is held rather than joined on
+    // sight: the rider still has to say how they want to appear.
+    var shareScannerOpen by remember { mutableStateOf(false) }
+    var scannedLink by remember { mutableStateOf<ShareLink?>(null) }
+    // The identity form for a ride the rider is starting themselves.
+    var shareStartOpen by remember { mutableStateOf(false) }
+    // The group view. Set when the rider taps Share while in a ride, and by
+    // the two paths into one, so the window that opens is the group they just
+    // entered.
+    var shareGroupOpen by remember { mutableStateOf(false) }
+    // Resolved off the tap: both reach for the settings store, and the
+    // profile identity also hits the network.
+    var shareIdentity by remember { mutableStateOf<Identity?>(null) }
+    var shareHasProfile by remember { mutableStateOf(false) }
+    // Set once the rider has agreed to drop the group they are in for the
+    // one the incoming link points at.
+    var shareSwitchConfirmed by remember { mutableStateOf(false) }
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+    var showLayerSheet by remember { mutableStateOf(false) }
     // The bottom stops panel's measured height in pixels, used to offset
     // recenter / tap-stop centring so the target lands in the centre of
     // the VISIBLE map area rather than behind the panel. Updated via
@@ -450,6 +510,72 @@ fun RouteBuilderScreen(
             wv.evaluateJavascript("nativeSetUserStill();", null)
         }
         lastSentMoving = newMoving
+    }
+
+    // The map's "lost" badge is the one piece of peer chrome drawn by the
+    // page rather than by Compose, so its label is pushed in once. It cannot
+    // ride inside the per-peer JSON: that shape is a wire contract shared
+    // with the web viewer.
+    LaunchedEffect(pageReady) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript(
+            "nativeSetPeerLabels(${jsString(context.getString(R.string.share_lost))});", null
+        )
+    }
+
+    // Friends' markers + fading trails. Re-pushed on every share-state
+    // change: a new position, a freshness tick, or someone leaving. The units
+    // are keys too: a rider who switches to mph while a group is running has
+    // to see the tapped marker's label change with the group list's rows.
+    LaunchedEffect(pageReady, shareState, shareSpeedUnit, shareTempUnit) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        val joined = shareState as? ShareState.Joined
+        // The session's own tick clock, so the ages the map draws match the
+        // ones the group list shows for the same state.
+        val now = joined?.nowMs ?: System.currentTimeMillis()
+        // The tapped-marker label is written here rather than in the page, so
+        // it reads in the rider's own units and word for word the same as the
+        // group list's row for the same friend.
+        val statsText: (ShareStats) -> String = { s ->
+            shareStatsLine(context, s, shareSpeedUnit, shareTempUnit)
+        }
+        val json = when {
+            joined == null -> "[]"
+            // A big group means a lot of trail points; keep that off the
+            // frame the map is drawing on.
+            joined.peers.size > 10 ->
+                withContext(Dispatchers.Default) {
+                    sharePeersJson(joined.peers, now, statsText)
+                }
+            else -> sharePeersJson(joined.peers, now, statsText)
+        }
+        wv.evaluateJavascript("nativeSetPeers(${JSONObject.quote(json)});", null)
+    }
+
+    // Freshness is measured against the clock, so the markers and the group
+    // list need a heartbeat even while nothing new arrives.
+    val shareJoined = shareState is ShareState.Joined
+    LaunchedEffect(shareJoined) {
+        if (!shareJoined) return@LaunchedEffect
+        while (true) {
+            delay(1_000)
+            viewModel.ageTick()
+        }
+    }
+
+    // The identity form opens on the rider's remembered identity. Resolving it
+    // reads the settings store (and the network for a profile), so it is done
+    // once, and already on the menu tap: the form is one tap further on, and
+    // starting the read there means it is usually answered before the form is
+    // asked for.
+    LaunchedEffect(shareMenuOpen, shareStartOpen, scannedLink, pendingJoin) {
+        if (!shareMenuOpen && !shareStartOpen && scannedLink == null && pendingJoin == null) {
+            return@LaunchedEffect
+        }
+        shareHasProfile = viewModel.hasProfile()
+        shareIdentity = viewModel.defaultIdentity()
     }
 
     // First load: frame the map on the rider instead of the whole world.
@@ -669,6 +795,78 @@ fun RouteBuilderScreen(
                     )
                 },
                 actions = {
+                    // Live location share. Green while a group is running,
+                    // with a badge counting the riders in it, the rider
+                    // themself included, the same number the group dialog's
+                    // "Connected (N)" tab shows. A peer who left or aged out
+                    // to LOST is still in the map (the group list keeps
+                    // showing them, greyed, by design) but is not "in it";
+                    // activePeers is the one definition of that.
+                    val joinedShare = shareState as? ShareState.Joined
+                    val sharePeers = joinedShare?.let { it.activePeers.size + 1 } ?: 0
+                    BadgedBox(
+                        badge = {
+                            // Never below 1 while a group is running: you are
+                            // in it, so the badge doubles as the "you are
+                            // sharing" signal without ever reading 0.
+                            if (joinedShare != null) {
+                                Badge(
+                                    containerColor = MaterialTheme.appColors.primary,
+                                    contentColor = MaterialTheme.appColors.onPrimary
+                                ) { Text(sharePeers.toString()) }
+                            }
+                        }
+                    ) {
+                        // A Box with combinedClickable rather than an
+                        // IconButton: the button needs a long press, and the
+                        // 48 dp target, the ripple, the Button role and the
+                        // icon's own content description are all still here,
+                        // so TalkBack announces the same button plus the
+                        // second action it now has.
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .combinedClickable(
+                                    role = Role.Button,
+                                    // In a ride the icon has one meaning, so a
+                                    // tap goes straight to the group rather
+                                    // than through a list asking what the
+                                    // rider wants.
+                                    onClick = {
+                                        if (joinedShare != null) shareGroupOpen = true
+                                        else shareMenuOpen = true
+                                    },
+                                    onLongClickLabel = stringResource(
+                                        R.string.share_button_long
+                                    ),
+                                    // ...and holding it mid-ride is how the
+                                    // rider still reaches a Maps pin or the
+                                    // coordinates without leaving the group.
+                                    // Out of a ride a tap already opens that
+                                    // list, so there is nothing to hold for.
+                                    onLongClick = if (joinedShare != null) {
+                                        {
+                                            haptic.performHapticFeedback(
+                                                HapticFeedbackType.LongPress
+                                            )
+                                            shareMenuOpen = true
+                                        }
+                                    } else null,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                Icons.Default.Share,
+                                stringResource(R.string.share_button),
+                                tint = if (joinedShare != null) {
+                                    MaterialTheme.appColors.statusGood
+                                } else {
+                                    MaterialTheme.appColors.textPrimary
+                                }
+                            )
+                        }
+                    }
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
                             Icon(Icons.Default.MoreVert, stringResource(R.string.nav_menu))
@@ -882,7 +1080,8 @@ fun RouteBuilderScreen(
                                         markerMenuOffset = DpOffset(x.dp, y.dp)
                                     }
                                 },
-                                poiTapped = { id -> viewModel.onPoiTapped(id) }
+                                poiTapped = { id -> viewModel.onPoiTapped(id) },
+                                bearingChanged = { deg -> viewModel.setMapBearing(deg) }
                             ),
                             "AndroidNav"
                         )
@@ -964,6 +1163,41 @@ fun RouteBuilderScreen(
                         }
                     }
                 }
+            }
+
+            // --- Reset to north ---------------------------------------------
+            // Top right, clear of the bottom stack: that side keeps gaining
+            // buttons (chargers, places, and more to come) and a compass that
+            // only appears sometimes would keep shuffling them around.
+            // Always present, and faded rather than removed once the map is
+            // square to north: appearing and vanishing on a twist made it
+            // flicker, and a button that comes and goes is one the rider has
+            // to hunt for. Dimmed it reads as "nothing to reset" while still
+            // showing which way the map is turned.
+            val mapBearing by viewModel.mapBearing.collectAsState()
+            val pointingNorth = mapBearing <= 2f || mapBearing >= 358f
+            val compassAlpha by animateFloatAsState(
+                targetValue = if (pointingNorth) 0.35f else 1f,
+                animationSpec = tween(durationMillis = 450),
+                label = "compassAlpha",
+            )
+            run {
+                OverlayFab(
+                    active = false,
+                    loading = false,
+                    icon = Icons.Default.Explore,
+                    contentDescription = stringResource(R.string.nav_reset_north),
+                    onClick = { webView?.evaluateJavascript("nativeResetNorth();", null) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = padding.calculateTopPadding())
+                        .padding(end = 16.dp, top = 12.dp)
+                        .alpha(compassAlpha),
+                    // Needle points where the map is turned, so it reads as a
+                    // compass. On the modifier this span the whole button and
+                    // tilted its housing with it.
+                    iconRotation = -mapBearing
+                )
             }
 
             // --- Search results overlay ---
@@ -1087,36 +1321,86 @@ fun RouteBuilderScreen(
                 // map features are on. The icon stays visible while loading (a
                 // ring overlays it) so the button is always tappable, and the
                 // spinner only shows on the layer(s) actually being fetched.
-                if (advancedMap) {
+                // One button for everything that changes what the map draws:
+                // the basemap and the overlays on top of it. It used to be
+                // three (chargers, attractions, layers) stacked above the
+                // recentre button, which in landscape left almost no map. This
+                // is the Google Maps arrangement and it frees the column for
+                // the buttons that actually need to be one tap away.
+                Box(modifier = Modifier.align(Alignment.End)) {
                     OverlayFab(
-                        active = showChargers,
-                        loading = chargerLoading,
-                        icon = Icons.Default.EvStation,
-                        contentDescription = stringResource(R.string.nav_show_chargers),
-                        onClick = { viewModel.toggleChargers() },
-                        // Long-press jumps to Navigation settings (where the
-                        // Open Charge Map / charger community key lives).
-                        onLongClick = { onOpenNavSettings() },
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(end = 16.dp, bottom = 12.dp)
+                        // Only lit when something is actually on the map. With
+                        // advanced map features off the overlays are not
+                        // fetched or drawn, so a lit button would be claiming
+                        // something that is not there.
+                        active = advancedMap && (showChargers || showPlaces),
+                        loading = chargerLoading || placeLoading,
+                        icon = Icons.Default.Layers,
+                        contentDescription = stringResource(R.string.nav_map_style),
+                        onClick = { showLayerSheet = true },
+                        modifier = Modifier.padding(end = 16.dp, bottom = 12.dp)
                     )
-                    Box(modifier = Modifier.align(Alignment.End)) {
-                        var placesMenu by remember { mutableStateOf(false) }
-                        OverlayFab(
-                            active = showPlaces,
-                            loading = placeLoading,
-                            icon = Icons.Default.Explore,
-                            contentDescription = stringResource(R.string.nav_show_places),
-                            onClick = { viewModel.togglePlaces() },
-                            onLongClick = { placesMenu = true },
-                            modifier = Modifier.padding(end = 16.dp, bottom = 12.dp)
+                    DropdownMenu(
+                        expanded = showLayerSheet,
+                        onDismissRequest = { showLayerSheet = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
+                    ) {
+                        Text(
+                            stringResource(R.string.nav_map_style),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
                         )
-                        DropdownMenu(
-                            expanded = placesMenu,
-                            onDismissRequest = { placesMenu = false },
-                            containerColor = MaterialTheme.appColors.menuBackground
-                        ) {
+                        RouteBuilderViewModel.MAP_LAYERS.forEach { layer ->
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    RadioButton(
+                                        selected = layer.id == mapType,
+                                        onClick = {
+                                            viewModel.setMapTypePublic(layer.id)
+                                            showLayerSheet = false
+                                        }
+                                    )
+                                },
+                                text = { Text(stringResource(layer.labelRes)) },
+                                onClick = {
+                                    viewModel.setMapTypePublic(layer.id)
+                                    showLayerSheet = false
+                                }
+                            )
+                        }
+                        // Overlays stay open on tap: turning on chargers and
+                        // two place kinds is one trip into the menu, not three.
+                        if (advancedMap) {
+                            HorizontalDivider()
+                            Text(
+                                stringResource(R.string.nav_overlays),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp)
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        if (showChargers) Icons.Default.CheckBox
+                                        else Icons.Default.CheckBoxOutlineBlank,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = { Text(stringResource(R.string.nav_show_chargers)) },
+                                onClick = { viewModel.toggleChargers() }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        if (showPlaces) Icons.Default.CheckBox
+                                        else Icons.Default.CheckBoxOutlineBlank,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = { Text(stringResource(R.string.nav_show_places)) },
+                                onClick = { viewModel.togglePlaces() }
+                            )
                             PoiKind.PLACES.forEach { kind ->
                                 val on = kind in placeCats
                                 DropdownMenuItem(
@@ -1124,7 +1408,8 @@ fun RouteBuilderScreen(
                                         Icon(
                                             if (on) Icons.Default.CheckBox
                                             else Icons.Default.CheckBoxOutlineBlank,
-                                            contentDescription = null
+                                            contentDescription = null,
+                                            modifier = Modifier.padding(start = 16.dp)
                                         )
                                     },
                                     text = { Text(stringResource(placeCategoryLabel(kind))) },
@@ -1134,42 +1419,70 @@ fun RouteBuilderScreen(
                         }
                     }
                 }
-                FloatingActionButton(
-                    onClick = { viewModel.cycleMapType() },
+                // The location button, with a long press as a bonus: frame
+                // everyone on the map while a group is live, or the rider and
+                // the stops otherwise. A FAB has no long press, so this is
+                // the same 56 dp surface with a combinedClickable inside.
+                val recenterHaptic = LocalHapticFeedback.current
+                Surface(
                     modifier = Modifier
                         .align(Alignment.End)
                         .padding(end = 16.dp, bottom = 12.dp),
-                    containerColor = MaterialTheme.colorScheme.surface
+                    shape = FloatingActionButtonDefaults.shape,
+                    color = MaterialTheme.appColors.surface,
+                    contentColor = MaterialTheme.appColors.textPrimary,
+                    shadowElevation = 6.dp,
                 ) {
-                    Icon(Icons.Default.Layers, stringResource(R.string.nav_map_style))
-                }
-                FloatingActionButton(
-                    onClick = {
-                        val l = viewModel.recenterOnUser()
-                        if (l != null) {
-                            // Tell the JS how much of the map's bottom is
-                            // occluded by the stops panel so the rider's pin
-                            // ends up in the middle of the VISIBLE map area,
-                            // not buried under the dock. Expanded panel ≈
-                            // 300 dp; collapsed (just the header row) ≈ 80 dp.
-                            webView?.evaluateJavascript(
-                                "nativeRecenter(${l.latitude},${l.longitude},16,$recenterOffsetPx);",
-                                null
-                            )
-                        } else {
-                            scope.launch {
-                                snackbarHost.showSnackbar(
-                                    context.getString(R.string.nav_no_location)
-                                )
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(end = 16.dp, bottom = 12.dp),
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) {
-                    Icon(Icons.Default.MyLocation, stringResource(R.string.nav_my_location))
+                    Box(
+                        Modifier
+                            .size(56.dp)
+                            .combinedClickable(
+                                role = Role.Button,
+                                onClickLabel = stringResource(R.string.nav_my_location),
+                                onLongClickLabel = stringResource(R.string.nav_fit_all),
+                                onClick = {
+                                    val l = viewModel.recenterOnUser()
+                                    if (l != null) {
+                                        // Tell the JS how much of the map's bottom is
+                                        // occluded by the stops panel so the rider's pin
+                                        // ends up in the middle of the VISIBLE map area,
+                                        // not buried under the dock. Expanded panel is
+                                        // about 300 dp; collapsed (just the header row)
+                                        // about 80 dp.
+                                        webView?.evaluateJavascript(
+                                            "nativeRecenter(${l.latitude},${l.longitude},16,$recenterOffsetPx);",
+                                            null
+                                        )
+                                    } else {
+                                        scope.launch {
+                                            snackbarHost.showSnackbar(
+                                                context.getString(R.string.nav_no_location)
+                                            )
+                                        }
+                                    }
+                                },
+                                onLongClick = {
+                                    val pts = mutableListOf<Pair<Double, Double>>()
+                                    mapAnchor?.let { pts += it.latitude to it.longitude }
+                                    val live = shareState as? ShareState.Joined
+                                    if (live != null) {
+                                        live.activePeers.forEach { pts += it.last.lat to it.last.lng }
+                                    } else {
+                                        waypoints.forEach { pts += it.lat to it.lng }
+                                    }
+                                    if (pts.size >= 2) {
+                                        recenterHaptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        val json = JSONArray(pts.map { JSONArray(listOf(it.first, it.second)) }).toString()
+                                        webView?.evaluateJavascript(
+                                            "nativeFitPoints(${JSONObject.quote(json)},$recenterOffsetPx);", null
+                                        )
+                                    }
+                                },
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Default.MyLocation, stringResource(R.string.nav_my_location))
+                    }
                 }
             }
             // The route/stops panel. Always expanded in landscape (the sidebar
@@ -1443,7 +1756,7 @@ fun RouteBuilderScreen(
             }
 
             // A Share-to-app intent landed on a route that already has
-            // stops. Ask before stomping on the rider's current route —
+            // stops. Ask before stomping on the rider's current route -
             // "New route" wipes stops then drops the shared point, "Add
             // as next" appends. Dismissing (back / outside tap) cancels
             // the share; the lifecycle observer also clears it on app
@@ -1487,6 +1800,196 @@ fun RouteBuilderScreen(
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
+                )
+            }
+
+            // Live location share. The Share icon opens one of these. In
+            // order: an incoming link that needs a "leave the group you are
+            // in?" answer, the identity form for that link, the camera, the
+            // identity form for a ride the rider scanned or is starting, the
+            // group view, and last the Share button's own list of options.
+            val joinLink = pendingJoin
+            val joinedGroup = shareState as? ShareState.Joined
+            when {
+                // The link points at the group the rider is already in.
+                joinLink != null && joinedGroup != null &&
+                    joinedGroup.link.roomId == joinLink.roomId -> {
+                    LaunchedEffect(joinLink) { viewModel.dismissJoin() }
+                }
+
+                joinLink != null && joinedGroup != null && !shareSwitchConfirmed -> {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = { viewModel.dismissJoin() },
+                        title = { Text(stringResource(R.string.share_join_title)) },
+                        text = { Text(stringResource(R.string.share_switch_group)) },
+                        confirmButton = {
+                            TextButton(
+                                onClick = { shareSwitchConfirmed = true },
+                                shape = RoundedCornerShape(12.dp)
+                            ) { Text(stringResource(R.string.share_join_title)) }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { viewModel.dismissJoin() },
+                                shape = RoundedCornerShape(12.dp)
+                            ) { Text(stringResource(R.string.action_cancel)) }
+                        }
+                    )
+                }
+
+                joinLink != null -> shareIdentity?.let { def ->
+                    ShareIdentityDialog(
+                        titleRes = R.string.share_join_title,
+                        default = def,
+                        hasProfile = shareHasProfile,
+                        resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
+                        resolveProfile = { viewModel.profileIdentity() },
+                        onConfirm = { identity ->
+                            shareSwitchConfirmed = false
+                            // Land in the group view so the rider sees who
+                            // they just joined, and drop the other two forms'
+                            // flags: whichever of them was open, this link
+                            // answered it.
+                            shareStartOpen = false
+                            scannedLink = null
+                            // Arriving through a link: the riders are the
+                            // point, the QR is for whoever started the group.
+                            viewModel.shareGroupTab = GroupTab.CONNECTED
+                            shareGroupOpen = true
+                            viewModel.joinShare(joinLink, identity)
+                        },
+                        onDismiss = {
+                            shareSwitchConfirmed = false
+                            viewModel.dismissJoin()
+                        },
+                        confirmLabelRes = R.string.share_join
+                    )
+                }
+
+                // The camera. It closes itself on the first frame that reads a
+                // share link, and the identity form for that ride opens next.
+                shareScannerOpen -> ShareScannerDialog(
+                    onLink = { link ->
+                        shareScannerOpen = false
+                        scannedLink = link
+                    },
+                    onDismiss = { shareScannerOpen = false }
+                )
+
+                // Only until the room answers: once the rider is in, the
+                // group view below owns the window. Without the guard this
+                // branch outranked it forever and the Share button could not
+                // get past the form.
+                scannedLink != null && joinedGroup == null -> shareIdentity?.let { def ->
+                    val link = scannedLink
+                    ShareIdentityDialog(
+                        titleRes = R.string.share_join_title,
+                        default = def,
+                        hasProfile = shareHasProfile,
+                        resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
+                        resolveProfile = { viewModel.profileIdentity() },
+                        onConfirm = { identity ->
+                            // The scanned link is spent here: the next window
+                            // is the group view, and a link left set kept this
+                            // branch winning over it, stranding the rider on a
+                            // confirm button that spun for good.
+                            scannedLink = null
+                            viewModel.shareGroupTab = GroupTab.CONNECTED
+                            shareGroupOpen = true
+                            if (link != null) viewModel.joinShare(link, identity)
+                        },
+                        onDismiss = { scannedLink = null },
+                        confirmLabelRes = R.string.share_join
+                    )
+                }
+
+                shareStartOpen && joinedGroup == null -> shareIdentity?.let { def ->
+                    ShareIdentityDialog(
+                        titleRes = R.string.share_title_live,
+                        default = def,
+                        hasProfile = shareHasProfile,
+                        resolveIdentity = { m, n, s -> viewModel.identityFor(m, n, s) },
+                        resolveProfile = { viewModel.profileIdentity() },
+                        // The form has said its piece, so its flag is
+                        // dropped and the group view takes the window. A flag
+                        // left set is not harmless: end the share from
+                        // anywhere else (Stop All calls leave()) and this
+                        // branch matches again, popping the form back open
+                        // over a map the rider was reading.
+                        onConfirm = { identity ->
+                            shareStartOpen = false
+                            // Starting a group: the QR is what to show first.
+                            viewModel.shareGroupTab = GroupTab.QR
+                            shareGroupOpen = true
+                            viewModel.startShare(identity)
+                        },
+                        onDismiss = { shareStartOpen = false },
+                    )
+                }
+
+                shareGroupOpen && joinedGroup != null -> ShareGroupDialog(
+                    state = joinedGroup,
+                    relayHost = shareRelayHost,
+                    speedUnit = shareSpeedUnit,
+                    tempUnit = shareTempUnit,
+                    // The flow itself: the group dialog collects it, so the
+                    // navigator does not recompose on every telemetry tick
+                    // with the dialog closed.
+                    myStats = viewModel.myShareStats,
+                    onGoToPeer = { id, lat, lng ->
+                        // Exactly the move the "my location" button makes, to
+                        // someone else: same zoom, same bottom offset, so the
+                        // friend lands in the middle of the map the rider can
+                        // actually see rather than behind the stops panel.
+                        webView?.evaluateJavascript(
+                            "nativeRecenter($lat,$lng,16,$recenterOffsetPx);", null
+                        )
+                        // ...and their marker opens the same label a tap on it
+                        // would, so arriving at a friend answers "who is this
+                        // and how are they doing" without a second tap.
+                        webView?.evaluateJavascript(
+                            "nativeExpandPeer(${jsString(id)});", null
+                        )
+                    },
+                    onGoToMe = {
+                        shareGroupOpen = false
+                        mapAnchor?.let { loc ->
+                            webView?.evaluateJavascript(
+                                "nativeRecenter(${loc.latitude},${loc.longitude},16,$recenterOffsetPx);", null
+                            )
+                        }
+                    },
+                    initialTab = viewModel.shareGroupTab,
+                    onTabChange = { viewModel.shareGroupTab = it },
+                    onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
+                    onLeave = {
+                        shareGroupOpen = false
+                        shareStartOpen = false
+                        scannedLink = null
+                        viewModel.leaveShare()
+                    },
+                    onDismiss = {
+                        shareGroupOpen = false
+                        shareStartOpen = false
+                        scannedLink = null
+                    }
+                )
+
+                // The Share button itself, when the rider is not in a ride.
+                // Last, so an incoming link or the group view wins over it.
+                shareMenuOpen -> ShareMenuDialog(
+                    // The live fix, so the two one-shot items copy and send
+                    // where the rider is right now, and say they are waiting
+                    // when there is no fix yet.
+                    fixLat = userLocation?.latitude,
+                    fixLng = userLocation?.longitude,
+                    // Reached by holding the Share button while in a group:
+                    // the two group rows are then a leave away and say so.
+                    inGroup = joinedGroup != null,
+                    onDismiss = { shareMenuOpen = false },
+                    onScan = { shareScannerOpen = true },
+                    onStartGroup = { shareStartOpen = true },
+                    onNotify = { msg -> scope.launch { snackbarHost.showSnackbar(msg) } },
                 )
             }
         }
@@ -1892,8 +2395,18 @@ private fun BottomPanel(
                             TravelMode.DRIVING  -> Color(0xFFFB8C00)
                             TravelMode.STRAIGHT -> Color(0xFF42A5F5)
                         }
+                        val selected = travelMode == mode
+                        // The selected mode is filled with its own colour and
+                        // its icon goes white. A tinted icon on the theme's
+                        // pale selected fill was near-invisible next to three
+                        // tinted icons on the pale unselected fill. White is a
+                        // literal on purpose: the four mode fills are fixed,
+                        // saturated colours in every theme, so the glyph's
+                        // contrast is against them, not against the theme.
+                        val onSelected = Color.White
+                        val glyphTint = if (selected) onSelected else modeColor
                         SegmentedButton(
-                            selected = travelMode == mode,
+                            selected = selected,
                             onClick = { onModeChange(mode) },
                             enabled = !modesLocked,
                             shape = SegmentedButtonDefaults.itemShape(
@@ -1901,7 +2414,18 @@ private fun BottomPanel(
                                 baseShape = RoundedCornerShape(12.dp)
                             ),
                             icon = {},
-                            colors = themedSegmentedColors(),
+                            colors = themedSegmentedColors().copy(
+                                activeContainerColor = modeColor,
+                                activeContentColor = onSelected,
+                            ),
+                            // A stroke the eye can find. The default outline is
+                            // so close to the panel that the selector read as
+                            // its 1 dp-inset fill, a few dp shorter than the
+                            // solid Start button beside it - though both boxes
+                            // are exactly 40 dp. Same box, now visibly so.
+                            border = SegmentedButtonDefaults.borderStroke(
+                                MaterialTheme.appColors.textSecondary.copy(alpha = 0.55f)
+                            ),
                         ) {
                             if (!solveFullPath && mode != TravelMode.STRAIGHT) {
                                 // Next segment + routed mode: icon with a
@@ -1916,7 +2440,7 @@ private fun BottomPanel(
                                     Icon(
                                         icon,
                                         contentDescription = stringResource(labelRes),
-                                        tint = modeColor,
+                                        tint = glyphTint,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(Modifier.height(3.dp))
@@ -1926,7 +2450,7 @@ private fun BottomPanel(
                                                 modifier = Modifier
                                                     .width(4.dp)
                                                     .height(2.dp)
-                                                    .background(modeColor, RoundedCornerShape(1.dp))
+                                                    .background(glyphTint, RoundedCornerShape(1.dp))
                                             )
                                         }
                                     }
@@ -1935,7 +2459,7 @@ private fun BottomPanel(
                                 Icon(
                                     icon,
                                     contentDescription = stringResource(labelRes),
-                                    tint = modeColor,
+                                    tint = glyphTint,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -2528,6 +3052,9 @@ private fun OverlayFab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
+    /** Turns the glyph inside, not the button. The compass needle has to point
+     *  where the map is turned while its housing stays square to the screen. */
+    iconRotation: Float = 0f,
 ) {
     val onColor = if (active) MaterialTheme.colorScheme.onPrimary
     else MaterialTheme.colorScheme.onSurface
@@ -2541,7 +3068,12 @@ private fun OverlayFab(
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription, tint = onColor)
+            Icon(
+                icon,
+                contentDescription,
+                tint = onColor,
+                modifier = if (iconRotation != 0f) Modifier.rotate(iconRotation) else Modifier
+            )
             if (loading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(40.dp),
@@ -2611,9 +3143,16 @@ private class NavJsBridge(
     private val mapViewChanged: (Double, Double, Float) -> Unit,
     private val mapBoundsChanged: (Double, Double, Double, Double) -> Unit,
     private val tilesLoaded: () -> Unit,
-    private val poiTapped: (Long) -> Unit
+    private val poiTapped: (Long) -> Unit,
+    private val bearingChanged: (Float) -> Unit
 ) {
     private val main = Handler(Looper.getMainLooper())
+
+    @JavascriptInterface
+    fun onBearingChanged(deg: Double) {
+        // Drives the reset-to-north button's visibility and needle angle.
+        main.post { bearingChanged(deg.toFloat()) }
+    }
 
     @JavascriptInterface
     fun onMapClick(lat: Double, lng: Double) {
@@ -2668,6 +3207,78 @@ private class NavJsBridge(
         val parsed = id.toLongOrNull() ?: return
         main.post { poiTapped(parsed) }
     }
+}
+
+/**
+ * The friend list the map draws: one entry per peer with their palette
+ * colour, freshness and the fading trail behind them. The field names are
+ * the wire contract with `nativeSetPeers`, so they are spelled out here
+ * rather than derived from the model.
+ *
+ * Each trail point carries `[lat, lng, alpha, band]`. The band is the page's
+ * whole trail story ([TrailBands]) and is stamped here because the ages are
+ * measured against the session's own clock; the bands are fractions of the
+ * trail's own length, so a rider who set one minute or thirty gets the same
+ * four-step fade rather than one flat line or one long faint one. `alpha` is
+ * the older per-hop fade and is kept in the tuple so the shape does not change
+ * under anything else reading it.
+ *
+ * [statsText] writes a friend's stats the way the group list writes them, in
+ * the rider's own units, so the label a tapped marker opens cannot disagree
+ * with the row for the same friend.
+ */
+private fun sharePeersJson(
+    peers: Map<String, PeerState>,
+    now: Long,
+    statsText: (ShareStats) -> String,
+): String {
+    val arr = JSONArray()
+    peers.forEach { (senderId, p) ->
+        val trail = JSONArray()
+        // Trail itself serialises add / points, so the race is handled at
+        // the source. This stays as a last-resort net: one frame without a
+        // rider's trail beats taking the map down.
+        runCatching { p.trail.points(now) }.getOrDefault(emptyList()).forEach { pt ->
+            // A sender whose clock runs fast would stamp a point in the
+            // future; coerced, it lands in the newest band rather than
+            // producing a negative one the page would have to guess at.
+            val band = TrailBands.of((now - pt.t).coerceAtLeast(0L), p.trail.maxAgeMs)
+            trail.put(
+                JSONArray().put(pt.lat).put(pt.lng).put(pt.alpha.toDouble()).put(band)
+            )
+        }
+        arr.put(
+            JSONObject().apply {
+                // The RELAY sender id, not the id inside the decrypted body:
+                // the sender id is unique by construction, while the body's is
+                // whatever the other client put there, and two riders claiming
+                // one id would collapse into a single marker. It is also what
+                // the group list hands to nativeExpandPeer, so the two agree
+                // on which marker is which.
+                put("id", senderId)
+                put("name", p.last.name)
+                put("color", p.last.color)
+                put("lat", p.last.lat)
+                put("lng", p.last.lng)
+                put("heading", p.last.heading?.toDouble() ?: JSONObject.NULL)
+                // A rider who left is drawn like one whose signal we lost.
+                put("freshness", if (p.left) Freshness.LOST.name else p.freshness.name)
+                put("ageS", (now - p.lastSeenMs) / 1000L)
+                put("avatarUrl", p.last.avatarUrl ?: JSONObject.NULL)
+                put("flag", p.last.flag ?: JSONObject.NULL)
+                // The same flag the group list draws, resolved here so the
+                // page has nothing to decide: the emoji when the code is a
+                // real one, the code itself otherwise.
+                put(
+                    "flagText",
+                    p.last.flag?.let { flagEmoji(it).ifEmpty { it } } ?: JSONObject.NULL
+                )
+                put("statsText", p.last.stats?.let(statsText) ?: JSONObject.NULL)
+                put("trail", trail)
+            }
+        )
+    }
+    return arr.toString()
 }
 
 /** Wraps a string as a safely-escaped JavaScript single-quoted literal. */

@@ -155,7 +155,6 @@ private fun tutorialSteps(): List<TutorialStep> = listOf(
         TutorialTarget.ACTIONS,
         stringResource(
             R.string.welcome_tut_actions,
-            stringResource(R.string.tab_dashboard),
             stringResource(R.string.dashboard_section_actions)
         )
     ),

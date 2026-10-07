@@ -4,18 +4,25 @@ import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.util.MetricSanity
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.util.VibratorHelper
 import com.eried.eucplanet.wear.WatchVibrator
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -33,6 +40,8 @@ class AlarmEngine @Inject constructor(
     private val watchVibrator: WatchVibrator,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository,
+    // Which wheel is live right now, for rules bound to a single wheel.
+    private val bleConnectionManager: com.eried.eucplanet.ble.BleConnectionManager,
     // Lazy so the Trip <-> ExternalGps <-> Alarm provider chain can't form a
     // Hilt cycle. Supplies the phone location stream for the GPS_SPEED metric.
     private val tripRepositoryProvider: javax.inject.Provider<com.eried.eucplanet.data.repository.TripRepository>
@@ -54,6 +63,25 @@ class AlarmEngine @Inject constructor(
     // state and per-metric trend history; unit-tested in AlarmEvaluatorTest.
     private val evaluator = AlarmEvaluator()
 
+    // Completed by Room's first answer, so the first tick after start waits
+    // for the rider's rules rather than evaluating an empty list.
+    private val rulesLoaded = CompletableDeferred<Unit>()
+
+    // Enabled rules, kept warm. Every evaluate path ran a Room query per
+    // frame, which was most of the wheel path's cost at telemetry rate. Room
+    // re-emits on any change to the table, so a rule saved in the editor
+    // lands here at once; a save in the same instant as a tick shows up one
+    // emission later. Declared before init so the collectors it launches
+    // can never see this uninitialised.
+    private val enabledRules: StateFlow<List<AlarmRule>> = alarmDao.observeEnabled()
+        .onEach { rulesLoaded.complete(Unit) }
+        .stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    private suspend fun currentEnabledRules(): List<AlarmRule> {
+        if (!rulesLoaded.isCompleted) rulesLoaded.await()
+        return enabledRules.value
+    }
+
     // The rule id whose CONSTANT tone is currently streaming, or null. A "constant"
     // beep alarm (beep on + Many + cooldown 0) doesn't re-fire a discrete beep each
     // tick; it holds ONE continuous streaming tone (via TonePlayer's stream) that
@@ -67,6 +95,13 @@ class AlarmEngine @Inject constructor(
      *  at Many + cooldown 0, so only an explicit gap-0 alarm streams. */
     private fun AlarmRule.isConstantTone() =
         beepEnabled && beepGapMs == 0 && repeatWhileActive && cooldownSeconds == 0
+
+    /** True when the rule runs against the currently connected wheel: unbound
+     *  rules always apply; a bound rule only while its wheel is the live one.
+     *  Applied by EVERY evaluate path (wheel, radar, external GPS, phone GPS)
+     *  so a bound rule is silent whenever its wheel is away. */
+    private fun AlarmRule.appliesTo(connectedAddress: String?) =
+        AlarmWheelPass.applies(this, connectedAddress)
 
     init {
         // Push the rider's predictive-alarm tuning into the evaluator whenever
@@ -85,20 +120,14 @@ class AlarmEngine @Inject constructor(
         // fixes with a speed reading tick the evaluator.
         scope.launch {
             tripRepositoryProvider.get().currentLocation.collect { loc ->
-                if (loc != null && loc.hasSpeed()) evaluateGpsSpeed(loc)
+                // Altitude comes off the same fix, so a fix carrying only one
+                // of the two still ticks the evaluator for that one.
+                if (loc != null && (loc.hasSpeed() || loc.hasAltitude())) evaluateGpsSpeed(loc)
             }
         }
     }
 
-    private fun AlarmRule.toEvaluatorRule() = AlarmEvaluator.Rule(
-        id = id,
-        metric = metric,
-        comparator = comparator,
-        threshold = threshold,
-        cooldownSeconds = cooldownSeconds,
-        repeatWhileActive = repeatWhileActive,
-        leadTimeMs = leadTimeMs,
-    )
+    private fun AlarmRule.toEvaluatorRule() = AlarmWheelPass.toEvaluatorRule(this)
 
     /**
      * Called on each telemetry update. Evaluates alarm rules against current data.
@@ -119,24 +148,18 @@ class AlarmEngine @Inject constructor(
             evalMutex.withLock {
             // Persisted session mute, set by the dashboard's MUTE_ALARMS action.
             // Read inside the launch so we always see the latest store value.
-            if (settingsRepository.get().alarmsMuted) { stopConstantTone(); return@withLock }
-            val rules = alarmDao.getEnabled()
-            val now = System.currentTimeMillis()
-
-            // Group priority = the order metrics first appear when rules are sorted
-            // by sortOrder (the list order the rider drags). Highest-priority group
-            // first; only its ready alarm sounds, lower ones fill its cooldown gaps.
-            val metricPriority = rules.sortedBy { it.sortOrder }.map { it.metric }.distinct()
-            val fired = evaluator.evaluate(
-                rules.map { it.toEvaluatorRule() },
-                now,
-                AlarmEvaluator.NoReading.SKIP,
-                metricPriority,
-            ) { metric ->
-                // Radar metrics report null here -- they're driven by
-                // [evaluateRadar] off the radar frame, not wheel telemetry.
-                getMetricValue(metric, data)
-            }
+            if (settingsRepository.currentOrLoad().alarmsMuted) { stopConstantTone(); return@withLock }
+            // Rules bound to a specific wheel only run while THAT wheel is the
+            // connected one; unbound rules behave exactly as before.
+            val pass = AlarmWheelPass.evaluate(
+                evaluator,
+                currentEnabledRules(),
+                data,
+                bleConnectionManager.connectedAddressOrNull(),
+                System.currentTimeMillis(),
+            )
+            val rules = pass.rules
+            val fired = pass.fired
 
             val byId = rules.associateBy { it.id }
             // Constant-tone alarms are handled EVERY tick (even when `fired` is empty)
@@ -144,7 +167,7 @@ class AlarmEngine @Inject constructor(
             handleConstantTone(fired, byId)
 
             if (fired.isNotEmpty()) {
-                val s = settingsRepository.get()
+                val s = settingsRepository.currentOrLoad()
                 val su = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 val du = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 val tu = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
@@ -154,6 +177,10 @@ class AlarmEngine @Inject constructor(
                     // discrete beep/voice so it doesn't machine-gun while the value is held.
                     if (rule.isConstantTone()) continue
                     Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value}, lead=${rule.leadTimeMs}ms)")
+                    DiagnosticsLogger.note(
+                        "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} value=${f.value}" +
+                            (rule.wheelAddress?.let { " wheel=${rule.wheelName ?: it}" } ?: "")
+                    )
                     executeActions(rule, data, f.value, su, du, tu)
                 }
             }
@@ -166,29 +193,6 @@ class AlarmEngine @Inject constructor(
             )
             }
         }
-    }
-
-    private fun getMetricValue(metric: String, data: WheelData): Float? {
-        return try {
-            when (AlarmMetric.valueOf(metric)) {
-                AlarmMetric.SPEED -> data.speed.absoluteValue
-                AlarmMetric.BATTERY -> data.batteryPercent.toFloat()
-                AlarmMetric.TEMPERATURE -> data.maxTemperature
-                AlarmMetric.PWM -> data.pwm.absoluteValue
-                AlarmMetric.VOLTAGE -> data.voltage
-                AlarmMetric.CURRENT -> data.current.absoluteValue
-                // Radar + external-GPS metrics are evaluated via their own
-                // entry points ([evaluateRadar] off RadarRepository,
-                // [evaluateExternalGps] off ExternalGpsRepository), not the
-                // wheel telemetry loop. Returning null here ensures the wheel
-                // evaluator never fires one of them with stale/absent data.
-                AlarmMetric.RADAR_DISTANCE,
-                AlarmMetric.RADAR_APPROACH_SPEED,
-                AlarmMetric.GPS_SPEED,
-                AlarmMetric.EXTERNAL_GPS_SPEED,
-                AlarmMetric.EXTERNAL_GPS_BATTERY -> null
-            }
-        } catch (_: Exception) { null }
     }
 
     /**
@@ -247,9 +251,11 @@ class AlarmEngine @Inject constructor(
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
-                val rules = alarmDao.getEnabled().filter {
-                    it.metric == AlarmMetric.RADAR_DISTANCE.name ||
-                        it.metric == AlarmMetric.RADAR_APPROACH_SPEED.name
+                val wheelAddr = bleConnectionManager.connectedAddressOrNull()
+                val rules = currentEnabledRules().filter {
+                    (it.metric == AlarmMetric.RADAR_DISTANCE.name ||
+                        it.metric == AlarmMetric.RADAR_APPROACH_SPEED.name) &&
+                        it.appliesTo(wheelAddr)
                 }
                 if (rules.isEmpty()) return@withLock
                 val now = System.currentTimeMillis()
@@ -267,6 +273,7 @@ class AlarmEngine @Inject constructor(
                     for (f in fired) {
                         val rule = byId[f.ruleId] ?: continue
                         Log.i(TAG, "Radar alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        DiagnosticsLogger.note("Radar alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} value=${f.value}")
                         executeRadarActions(rule, frame, f.value)
                     }
                 }
@@ -287,10 +294,12 @@ class AlarmEngine @Inject constructor(
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
-                if (settingsRepository.get().alarmsMuted) return@withLock
-                val rules = alarmDao.getEnabled().filter {
-                    it.metric == AlarmMetric.EXTERNAL_GPS_BATTERY.name ||
-                        it.metric == AlarmMetric.EXTERNAL_GPS_SPEED.name
+                if (settingsRepository.currentOrLoad().alarmsMuted) return@withLock
+                val wheelAddr = bleConnectionManager.connectedAddressOrNull()
+                val rules = currentEnabledRules().filter {
+                    (it.metric == AlarmMetric.EXTERNAL_GPS_BATTERY.name ||
+                        it.metric == AlarmMetric.EXTERNAL_GPS_SPEED.name) &&
+                        it.appliesTo(wheelAddr)
                 }
                 if (rules.isEmpty()) return@withLock
                 val now = System.currentTimeMillis()
@@ -305,6 +314,7 @@ class AlarmEngine @Inject constructor(
                     for (f in fired) {
                         val rule = byId[f.ruleId] ?: continue
                         Log.i(TAG, "External-GPS alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        DiagnosticsLogger.note("External-GPS alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} value=${f.value}")
                         executeExternalGpsActions(rule, f.value)
                     }
                 }
@@ -323,30 +333,43 @@ class AlarmEngine @Inject constructor(
     }
 
     /**
-     * Phone-GPS-speed evaluator. Driven by the location stream (see init), so a
-     * GPS_SPEED alarm works with no wheel connected. Mirrors [evaluateRadar]:
-     * its own rule filter + value resolver, SKIP on a missing reading.
+     * Phone-location evaluator. Driven by the location stream (see init), so a
+     * GPS_SPEED or GPS_ALTITUDE alarm works with no wheel connected. Mirrors
+     * [evaluateRadar]: its own rule filter + value resolver, SKIP on a missing
+     * reading, which is what a fix without one of the two resolves to.
      */
     fun evaluateGpsSpeed(location: android.location.Location) {
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
-                if (settingsRepository.get().alarmsMuted) return@withLock
-                val rules = alarmDao.getEnabled().filter { it.metric == AlarmMetric.GPS_SPEED.name }
+                if (settingsRepository.currentOrLoad().alarmsMuted) return@withLock
+                val locationMetrics = setOf(AlarmMetric.GPS_SPEED.name, AlarmMetric.GPS_ALTITUDE.name)
+                val wheelAddr = bleConnectionManager.connectedAddressOrNull()
+                val rules = currentEnabledRules().filter {
+                    it.metric in locationMetrics && it.appliesTo(wheelAddr)
+                }
                 if (rules.isEmpty()) return@withLock
                 val now = System.currentTimeMillis()
-                val kmh = location.speed * 3.6f
+                val kmh = if (location.hasSpeed()) location.speed * 3.6f else null
+                val altitudeM = if (location.hasAltitude()) location.altitude.toFloat() else null
                 val fired = evaluator.evaluate(
                     rules.map { it.toEvaluatorRule() },
                     now,
                     AlarmEvaluator.NoReading.SKIP,
-                ) { metric -> if (metric == AlarmMetric.GPS_SPEED.name) kmh else null }
+                ) { metric ->
+                    when (metric) {
+                        AlarmMetric.GPS_SPEED.name -> kmh
+                        AlarmMetric.GPS_ALTITUDE.name -> altitudeM
+                        else -> null
+                    }
+                }
 
                 if (fired.isNotEmpty()) {
                     val byId = rules.associateBy { it.id }
                     for (f in fired) {
                         val rule = byId[f.ruleId] ?: continue
                         Log.i(TAG, "GPS-speed alarm fired: '${rule.name}' ${rule.comparator} ${rule.threshold} (value=${f.value})")
+                        DiagnosticsLogger.note("GPS alarm fired: '${rule.name}' ${rule.comparator} ${rule.threshold} value=${f.value}")
                         executeExternalGpsActions(rule, f.value)
                     }
                 }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Avaa EUC Planet\npuhelimessa</string>
+    <string name="watch_waiting_wheel">Yhdistä yksipyöräinen\nEUC Planetissa</string>
+    <string name="watch_disconnected">Ei yhteyttä</string>
+    <string name="watch_horn">Äänimerkki</string>
+    <string name="watch_light">Valo</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_speed_unit_ms" translatable="false">m/s</string>
+    <string name="watch_speed_unit_kn" translatable="false">kn</string>
+    <string name="watch_battery_label">Akku</string>
+    <string name="watch_voltage_label">Jännite</string>
+    <string name="watch_current_label">Virta</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">Teho</string>
+    <string name="watch_temp_label">Lämpö</string>
+    <string name="watch_trip_label">Matka</string>
+    <string name="watch_torque_label">Vääntö</string>
+    <string name="watch_action_failed">Puhelinta ei tavoitettu</string>
+    <string name="watch_gps_label">GPS-nopeus</string>
+    <string name="watch_gps_permission">Salli GPS napauttamalla</string>
+    <string name="watch_gps_waiting">Odotetaan paikannusta…</string>
+    <string name="watch_action_horn">Äänimerkki</string>
+    <string name="watch_action_light">Valo</string>
+    <string name="watch_action_lock">Lukitse yksipyöräinen</string>
+    <string name="watch_action_safety">Laillinen tila</string>
+    <string name="watch_action_safety_on">Laillinen tila päällä</string>
+    <string name="watch_action_safety_off">Laillinen tila pois</string>
+    <string name="watch_action_voice">Ääniraportti</string>
+    <string name="watch_action_record">Tallennus</string>
+    <string name="watch_action_record_start">Tallennus aloitettu</string>
+    <string name="watch_action_record_stop">Tallennus lopetettu</string>
+    <string name="watch_action_media_play">Toista / tauko</string>
+    <string name="watch_action_media_next">Seuraava kappale</string>
+    <string name="watch_action_media_prev">Edellinen kappale</string>
+    <string name="watch_action_long_press_hint">Pitkä painallus: %1$s</string>
+    <string name="watch_map_phone_disconnected">Ei puhelinta</string>
+    <string name="watch_map_gps_permission">Salli GPS</string>
+    <string name="watch_map_gps_stale">GPS vanhentunut</string>
+    <string name="watch_map_route_loading">Ladataan reittiä</string>
+    <string name="watch_map_route_unavailable">Ei reittiä</string>
+    <string name="watch_map_loading">Ladataan karttaa</string>
+    <string name="watch_map_unavailable">Ei karttaa</string>
+    <string name="watch_map_zoom_in">Lähennä</string>
+    <string name="watch_map_zoom_out">Loitonna</string>
+    <string name="watch_map_open_phone">Avaa puhelimessa</string>
+    <string name="watch_map_waiting_gps">Odotetaan GPS:ää</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, nopeus %2$s, jännite %3$s.</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
+</resources>

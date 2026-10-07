@@ -55,7 +55,11 @@ sealed class Screen(val route: String) {
         fun createRoute(metric: String) = "metric_detail/$metric"
     }
     data object TripMeterDetail : Screen("trip_meter_detail")
-    data object ChargingMonitor : Screen("charging_monitor")
+    data object ChargingMonitor : Screen("charging_monitor?details={details}") {
+        /** details = true opens the screen with its details flyout already up. */
+        fun createRoute(details: Boolean = false) =
+            if (details) "charging_monitor?details=true" else "charging_monitor"
+    }
 }
 
 @Composable
@@ -101,7 +105,10 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigateSingle(Screen.MetricDetail.createRoute(metric))
                 },
                 onNavigateToCharging = {
-                    navController.navigateSingle(Screen.ChargingMonitor.route)
+                    navController.navigateSingle(Screen.ChargingMonitor.createRoute())
+                },
+                onNavigateToChargingDetails = {
+                    navController.navigateSingle(Screen.ChargingMonitor.createRoute(details = true))
                 },
                 onNavigateToTripMeter = {
                     navController.navigateSingle(Screen.TripMeterDetail.route)
@@ -243,7 +250,7 @@ fun NavGraph(navController: NavHostController) {
                 //   "SPEED,BATTERY,POWER|2"    → 3 tabs, pre-select POWER
                 // The "|<index>" suffix is optional and lets the composite
                 // tile side-tap pre-select a specific tab WITHOUT changing
-                // the tab order — riders see the same strip regardless of
+                // the tab order, riders see the same strip regardless of
                 // which sub-tile they tapped on the dashboard.
                 val (keysPart, idxPart) = metricName.split("|", limit = 2)
                     .let { if (it.size == 2) it[0] to it[1] else metricName to "0" }
@@ -261,8 +268,15 @@ fun NavGraph(navController: NavHostController) {
                 onBack = { navController.popSingle() }
             )
         }
-        composable(Screen.ChargingMonitor.route) {
+        composable(
+            Screen.ChargingMonitor.route,
+            arguments = listOf(navArgument("details") {
+                type = NavType.BoolType
+                defaultValue = false
+            })
+        ) { backStackEntry ->
             ChargingMonitorScreen(
+                initialDetailsOpen = backStackEntry.arguments?.getBoolean("details") == true,
                 onBack = { navController.popSingle() },
                 onOpenHistory = { navController.navigateSingle(Screen.MetricDetail.createRoute("BATTERY")) },
                 onOpenSettings = { navController.navigateSingle(Screen.Settings.createRoute(9)) }

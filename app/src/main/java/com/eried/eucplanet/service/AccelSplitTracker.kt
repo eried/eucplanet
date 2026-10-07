@@ -40,6 +40,22 @@ class AccelSplitTracker(
     private var trackAccel: Boolean = true,
     private var trackDecel: Boolean = false,
 ) {
+    /** One step's times this session: the best, and the last completed run's. */
+    data class StepTime(
+        val fromSpeed: Int,
+        val toSpeed: Int,
+        val bestSeconds: Double,
+        val lastSeconds: Double?,
+    )
+
+    /** Everything the session has recorded, accelerating and braking apart. */
+    data class Session(
+        val accel: List<StepTime> = emptyList(),
+        val brake: List<StepTime> = emptyList(),
+    ) {
+        val isEmpty: Boolean get() = accel.isEmpty() && brake.isEmpty()
+    }
+
     /** One completed step, e.g. 20 -> 30 (accel) or 40 -> 30 (decel) in 1.21 s. */
     data class Split(
         val fromSpeed: Int,
@@ -84,7 +100,35 @@ class AccelSplitTracker(
         havePrev = false
     }
 
-    /** Full reset including session history. Call on disconnect / new session. */
+    /**
+     * Stop tracking without forgetting the session.
+     *
+     * Drops the run in flight and the last sample, so when samples resume
+     * after a gap the first one cannot be paired with a sample from before
+     * the pause and read as one very slow step. The previous-run and best
+     * times stay, which is the point: switching the splits off for a stretch
+     * of road is not the same as finishing the ride.
+     */
+    fun pause() {
+        running = false
+        direction = 0
+        currentRun.clear()
+        havePrev = false
+    }
+
+    /** The session's times, for a screen to show. Accelerating steps rise
+     *  through the grid, braking steps fall through it, each in ride order. */
+    fun snapshot(): Session = Session(
+        accel = bestUp.keys.sorted().map { from ->
+            StepTime(from, from + increment, bestUp.getValue(from), previousUp[from])
+        },
+        brake = bestDown.keys.sortedDescending().map { from ->
+            StepTime(from, from - increment, bestDown.getValue(from), previousDown[from])
+        },
+    )
+
+    /** Full reset including session history: the rider asked, or a
+     *  different wheel connected. */
     fun hardReset() {
         running = false
         direction = 0

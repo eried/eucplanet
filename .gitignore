@@ -20,7 +20,9 @@ play-service-account.json
 # Decompiled / reverse-engineering artifacts
 release/
 /.playwright-mcp
-/.claude
+/.claude/*
+!/.claude/settings.json
+!/.claude/hooks/
 
 # Scratch files (analysis, screenshots, ad-hoc)
 .tmp_*
@@ -91,3 +93,6 @@ test-out/
 play-*.png
 open-testing-state.md
 .superpowers/
+
+# Kotlin compiler daemon session scratch
+.kotlin/

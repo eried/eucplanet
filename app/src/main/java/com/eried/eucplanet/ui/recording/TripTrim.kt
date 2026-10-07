@@ -52,6 +52,19 @@ object TripTrim {
         return points.filterIndexed { i, _ -> elapsed[i] in range }
     }
 
+    /**
+     * Index into the full point list of the first sample [apply] keeps.
+     *
+     * Trimming re-bases the chart's sample indices, so anything holding an
+     * index across a trim change - the scrub cursor above all - has to be
+     * re-expressed against the new list, or it quietly starts pointing at a
+     * different moment of the ride.
+     */
+    fun startIndex(elapsed: LongArray, range: LongRange?): Int {
+        if (range == null) return 0
+        return elapsed.indexOfFirst { it in range }.coerceAtLeast(0)
+    }
+
     /** How many samples fall inside [range]. Drives the dialog's Apply gate. */
     fun countInRange(elapsed: LongArray, range: LongRange): Int =
         elapsed.count { it in range }

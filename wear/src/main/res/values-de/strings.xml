@@ -14,6 +14,7 @@
     <string name="watch_voltage_label">Spannung</string>
     <string name="watch_current_label">Strom</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Leistung</string>
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Trip</string>
@@ -23,7 +24,7 @@
     <string name="watch_gps_permission">Tippen für GPS</string>
     <string name="watch_gps_waiting">Warte auf Fix…</string>
 
-    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Hupe</string>
     <string name="watch_action_light">Licht</string>
     <string name="watch_action_lock">Wheel sperren</string>
@@ -38,4 +39,19 @@
     <string name="watch_action_media_next">Nächster Titel</string>
     <string name="watch_action_media_prev">Vorheriger Titel</string>
     <string name="watch_action_long_press_hint">Lang drücken für %1$s</string>
+    <string name="watch_map_phone_disconnected">Kein Handy</string>
+    <string name="watch_map_gps_permission">GPS erlauben</string>
+    <string name="watch_map_gps_stale">GPS veraltet</string>
+    <string name="watch_map_route_loading">Route wird geladen</string>
+    <string name="watch_map_route_unavailable">Keine Route</string>
+    <string name="watch_map_loading">Karte wird geladen</string>
+    <string name="watch_map_unavailable">Keine Karte</string>
+    <string name="watch_map_zoom_in">Vergrößern</string>
+    <string name="watch_map_zoom_out">Verkleinern</string>
+    <string name="watch_map_open_phone">Handy-App öffnen</string>
+    <string name="watch_map_waiting_gps">Warte auf GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, Geschwindigkeit %2$s, Spannung %3$s.</string>
 </resources>

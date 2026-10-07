@@ -1,4 +1,4 @@
-# Garmin support — setup
+# Garmin support, setup
 
 EUC Planet exposes the same wrist dial on Garmin Connect IQ devices that it
 does on Wear OS. The two surfaces share settings, share the wire vocabulary,
@@ -30,8 +30,8 @@ Phone-side:
   …), same publish cadence (5 Hz), same farewell-on-stop semantics.
 
 Watch-side:
-- `wear/` — Kotlin + Jetpack Compose for Wear OS.
-- `garmin-watch-app/` — Monkey C for Garmin Connect IQ. Same wire keys, same
+- `wear/`, Kotlin + Jetpack Compose for Wear OS.
+- `garmin-watch-app/`, Monkey C for Garmin Connect IQ. Same wire keys, same
   visual language, same FlicAction binding vocabulary.
 
 Because the rider's "Watch" settings drive both bridges, the phone has a
@@ -49,7 +49,7 @@ You need:
 
 The Connect IQ Mobile SDK is on Maven Central
 (`com.garmin.connectiq:ciq-companion-app-sdk:2.4.0`), so nothing to download
-manually — Gradle pulls it in on first build.
+manually, Gradle pulls it in on first build.
 
 ```bash
 ./gradlew :app:assembleDebug
@@ -73,17 +73,20 @@ real Garmin device.
    `garmin-watch-app/manifest.xml` must have a matching device installed in
    the SDK Manager or `monkeyc` skips it at build time.
 
-### 3. Generate a developer key
+### 3. Restore THE developer key (never generate one)
 
-```bash
-openssl genrsa -out developer_key.pem 4096
-openssl pkcs8 -topk8 -inform PEM -outform DER \
-    -in developer_key.pem -out developer_key.der -nocrypt
-```
+Do NOT generate a key. EUC Planet has exactly one Connect IQ signing key,
+forever: restore it from the signing vault
+(`OneDrive\Projects\EUC\signing\garmin\garmin_developer_key.der`) to
+`garmin-watch-app/developer_key.der`. Its sha256 is
+`afcae9eca4bf8fc332df61cb789daf7fc38987a7da84c77dba3aa9f08252720e` -
+verify after restoring. The file is in `.gitignore` and never commits.
 
-Point the Garmin tools at `developer_key.der`. The same key signs every
-build until you publish; treat it like any other signing key. The file is
-in `.gitignore` and never commits.
+The Connect IQ store binds a listing to the key that signed its first
+version, with no reset and no recovery - two listings have already been
+lost to builds signed with generated one-off keys. CI signs with this same
+key via the `GARMIN_DEV_KEY_B64` repo secret and fails the build on any
+other key, so every `.iq` that exists is store-valid.
 
 ### 4. Build the watch app
 
@@ -132,7 +135,7 @@ The fastest path for one-off testing on a real watch:
 
 The watch app talks to the phone through Garmin Connect Mobile (on the
 phone), which routes messages over Bluetooth to the watch. There's no direct
-phone→watch BT connection — Connect Mobile is the broker.
+phone→watch BT connection, Connect Mobile is the broker.
 
 ## Shared settings between Wear OS and Garmin
 
@@ -161,8 +164,7 @@ single source of truth is `SettingsRepository`. Bridges read these fields:
 
 When the rider has both a Wear OS watch and a Garmin watch paired, both
 receive every telemetry frame at 5 Hz. The phone is the source of truth;
-each surface renders independently. There's no cross-watch coordination —
-both watches show the same speed at the same moment because both subscribe
+each surface renders independently. There's no cross-watch coordination, both watches show the same speed at the same moment because both subscribe
 to the same `WheelRepository` flow.
 
 ## Auto-launch on phone open
@@ -170,7 +172,7 @@ to the same `WheelRepository` flow.
 Opening the EUC Planet phone app launches the watch app for you, via Connect
 IQ's `openApplication()` (called from `GarminBridge.pingWatchToWake()` on every
 `onResume`, gated by the **Auto-start** toggle). The **first** time, the watch
-shows a one-time "Launch EUC Planet?" prompt — tap **Always**, and from then on
+shows a one-time "Launch EUC Planet?" prompt, tap **Always**, and from then on
 it opens automatically at the start of each trip. A few Edge units on old
 firmware render a black dialog instead of the prompt (a known Garmin bug); on
 those, open the app manually as before.
@@ -180,8 +182,8 @@ those, open the app manually as before.
 These don't carry over from Wear OS to Garmin yet, and are tracked as
 follow-up work:
 
-- **Per-locale strings**: Wear OS ships in 16 languages; the Garmin app
-  starts with English only. Porting the strings is mechanical — copy from
+- **Per-locale strings**: Wear OS ships in 22 languages; the Garmin app
+  starts with English only. Porting the strings is mechanical, copy from
   `wear/src/main/res/values-XX/strings.xml` into
   `garmin-watch-app/resources-XX/strings.xml`.
 - **Accent colour**: the gauge defaults to safe-green when the color band is

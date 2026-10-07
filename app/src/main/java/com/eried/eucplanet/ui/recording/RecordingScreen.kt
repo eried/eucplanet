@@ -30,9 +30,9 @@ import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.Pending
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
@@ -64,6 +64,8 @@ import com.eried.eucplanet.ui.common.LocalSnackbar
 import com.eried.eucplanet.ui.common.LocalSnackbarScope
 import com.eried.eucplanet.ui.common.showSnackbar as showSnackbarLocal
 import kotlinx.coroutines.launch
+import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -104,6 +106,8 @@ fun RecordingScreen(
     val importing by viewModel.importing.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val liveTripKm by viewModel.liveTripDistanceKm.collectAsState()
+    val folderConfigured by viewModel.folderConfigured.collectAsState()
+    val dropboxLinked by viewModel.dropboxLinked.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val gpsFix by viewModel.gpsFix.collectAsState()
@@ -120,11 +124,13 @@ fun RecordingScreen(
     var tripToDelete by remember { mutableStateOf<TripRecord?>(null) }
     // Trip whose tools sheet is open, and which tool it drilled into.
     var tripForTools by remember { mutableStateOf<TripRecord?>(null) }
+    var renameToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var wheelToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var splitToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var combineToolTrip by remember { mutableStateOf<TripRecord?>(null) }
     var tripToShare by remember { mutableStateOf<TripRecord?>(null) }
     val highlightedTripIds by viewModel.highlightedTripIds.collectAsState()
+    val canArchiveTrips by viewModel.canArchiveTrips.collectAsState()
     val listState = rememberLazyListState()
 
     // Shared snackbar host so status icons / ViewModel auto-stop toasts use
@@ -174,14 +180,38 @@ fun RecordingScreen(
     }
 
     if (showClearDialog) {
+        var archiveAll by remember(showClearDialog) { mutableStateOf(true) }
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.recording_clear_all_title)) },
-            text = { Text(stringResource(R.string.recording_clear_all_body)) },
+            text = {
+                Column {
+                    // The warning has to match the box below it: with
+                    // archiving on, nothing is destroyed and "cannot be
+                    // undone" would be a lie.
+                    Text(
+                        stringResource(
+                            if (archiveAll) R.string.recording_clear_all_body_archive
+                            else R.string.recording_clear_all_body
+                        )
+                    )
+                    if (canArchiveTrips) {
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(color = MaterialTheme.appColors.divider)
+                    Spacer(Modifier.height(4.dp))
+                    ArchiveChoiceRow(
+                        checked = archiveAll,
+                        title = stringResource(R.string.recording_delete_archive),
+                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        onCheckedChange = { archiveAll = it },
+                    )
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.clearAllTrips { showClearDialog = false }
+                    viewModel.clearAllTrips(archiveAll) { showClearDialog = false }
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
@@ -207,27 +237,36 @@ fun RecordingScreen(
         TripToolsDialog(
             trip = trip,
             onDismiss = { tripForTools = null },
+            onRename = { renameToolTrip = trip },
             onChangeWheel = { wheelToolTrip = trip },
             onSplit = { splitToolTrip = trip },
             onCombine = { combineToolTrip = trip },
         )
     }
 
+    renameToolTrip?.let { trip ->
+        RenameTripDialog(
+            currentName = trip.customName,
+            onConfirm = { name ->
+                viewModel.renameTrip(trip, name)
+                renameToolTrip = null
+            },
+            onDismiss = { renameToolTrip = null },
+        )
+    }
+
     wheelToolTrip?.let { trip ->
         // Loaded on open rather than held in state: the picker is rare and the
         // list is tiny, so there is nothing to gain from keeping it warm.
-        var known by remember(trip.id) { mutableStateOf<List<String>?>(null) }
-        LaunchedEffect(trip.id) { known = viewModel.knownWheelNames() }
+        var known by remember(trip.id) {
+            mutableStateOf<List<com.eried.eucplanet.data.repository.WheelChoice>?>(null)
+        }
+        LaunchedEffect(trip.id) { known = viewModel.knownWheels() }
         ChangeWheelDialog(
             knownWheels = known.orEmpty(),
-            currentWheel = trip.wheelMetaJson
-                ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
-                ?.takeIf { it.isNotBlank() },
-            // Status 2 means the ride is already on the leaderboard, where the
-            // old wheel stays. The rider chose to be warned rather than blocked.
-            alreadyUploaded = trip.eucstatsStatus == 2,
-            onConfirm = { name ->
-                viewModel.changeTripWheel(trip, name)
+            currentWheel = com.eried.eucplanet.data.repository.WheelChoice.fromJson(trip.wheelMetaJson),
+            onConfirm = { wheel ->
+                viewModel.changeTripWheel(trip, wheel)
                 wheelToolTrip = null
             },
             onDismiss = { wheelToolTrip = null },
@@ -246,8 +285,9 @@ fun RecordingScreen(
                 cuts = found,
                 formatElapsed = { com.eried.eucplanet.util.Units.humanDuration(it / 1000) },
                 tripStartMs = trip.startTime,
-                onConfirm = { chosen ->
-                    viewModel.splitTrip(trip, chosen)
+                canArchive = canArchiveTrips,
+                onConfirm = { chosen, archiveSource ->
+                    viewModel.splitTrip(trip, chosen, archiveSource)
                     splitToolTrip = null
                 },
                 onDismiss = { splitToolTrip = null },
@@ -256,7 +296,7 @@ fun RecordingScreen(
     }
 
     combineToolTrip?.let { trip ->
-        val dateFmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+        val dateFmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
         CombineTripsDialog(
             anchor = trip,
             // Finished trips only: a recording still being written has no end and
@@ -274,8 +314,9 @@ fun RecordingScreen(
                 t.wheelMetaJson
                     ?.let { runCatching { org.json.JSONObject(it).optString("ble_name") }.getOrNull() }
             },
-            onConfirm = { chosen ->
-                viewModel.combineRange(chosen)
+            canArchive = canArchiveTrips,
+            onConfirm = { chosen, archiveSources ->
+                viewModel.combineRange(chosen, archiveSources)
                 combineToolTrip = null
             },
             onDismiss = { combineToolTrip = null },
@@ -283,14 +324,44 @@ fun RecordingScreen(
     }
 
     if (tripToDelete != null) {
+        // A destination existing is not the same as this ride having a copy in
+        // it. Deleting inside the grace period, before the first upload, the
+        // row offered to archive a file that was never written. The choice
+        // only appears when there is something to move.
+        val thisTripHasBackup = hasBackupCopy(tripToDelete!!)
+        val offerArchive = canArchiveTrips && thisTripHasBackup
+        var archiveBackups by remember(tripToDelete) { mutableStateOf(true) }
         AlertDialog(
             onDismissRequest = { tripToDelete = null },
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.recording_delete_trip_title)) },
-            text = { Text(stringResource(R.string.recording_delete_trip_body)) },
+            text = {
+                Column {
+                    // Same rule as delete-all: the question has to match the
+                    // box under it, or it reads as if the backup goes too.
+                    Text(
+                        stringResource(
+                            if (offerArchive && archiveBackups)
+                                R.string.recording_delete_trip_body_archive
+                            else R.string.recording_delete_trip_body
+                        )
+                    )
+                    if (offerArchive) {
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(color = MaterialTheme.appColors.divider)
+                    Spacer(Modifier.height(4.dp))
+                    ArchiveChoiceRow(
+                        checked = archiveBackups,
+                        title = stringResource(R.string.recording_delete_archive),
+                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        onCheckedChange = { archiveBackups = it },
+                    )
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.deleteTrip(tripToDelete!!)
+                    viewModel.deleteTrip(tripToDelete!!, offerArchive && archiveBackups)
                     tripToDelete = null
                 }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
@@ -535,7 +606,11 @@ fun RecordingScreen(
                             onTools = { tripForTools = trip },
                             onShare = { tripToShare = trip },
                             onDelete = { tripToDelete = trip },
-                            onRetryOnline = { viewModel.retryOnlineUploads() }
+                            onRetryOnline = { viewModel.retryOnlineUploads() },
+                            onRecheckOnline = { viewModel.recheckHeldTrip(it) },
+                            folderConfigured = folderConfigured,
+                            dropboxLinked = dropboxLinked,
+                            onRetryBackup = { viewModel.retryBackup(it) },
                         )
                     }
                 }
@@ -568,10 +643,16 @@ private fun TripCard(
     onTools: () -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit,
-    onRetryOnline: () -> Unit = {}
+    onRetryOnline: () -> Unit = {},
+    /** Re-ask the server for a held trip's verdict (it can change after upload). */
+    onRecheckOnline: (TripRecord) -> Unit = {},
+    /** Which backups the rider actually has, so the row only reports on those. */
+    folderConfigured: Boolean = false,
+    dropboxLinked: Boolean = false,
+    onRetryBackup: (TripRecord) -> Unit = {},
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
-    val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+    val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
     val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
 
     // Live ticking elapsed time for the recording trip
@@ -616,7 +697,9 @@ private fun TripCard(
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    dateFormat.format(Date(trip.startTime)),
+                    // Rider's custom name when set, otherwise the ride's date.
+                    trip.customName?.takeIf { it.isNotBlank() }
+                        ?: dateFormat.format(Date(trip.startTime)),
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isRecording) MaterialTheme.appColors.statusDanger else MaterialTheme.colorScheme.onSurface
                 )
@@ -654,9 +737,12 @@ private fun TripCard(
             when {
                 isRecording -> {}                                                   // no status while recording
                 isPending -> PendingStatusIcon()                                    // discard-grace window
-                trip.eucstatsStatus != 0 -> OnlineStatusIcon(trip, onRetryOnline)   // shared / uploading / failed
-                trip.uploadStatus == 1 -> PendingStatusIcon()                       // folder backup in flight
-                trip.uploadStatus == 2 -> UploadStatusIcon(trip)                    // saved locally only
+                else -> TripStatusIcon(
+                    trip, folderConfigured, dropboxLinked,
+                    onRetryBackup = { onRetryBackup(trip) },
+                    onRetryOnline = onRetryOnline,
+                    onRecheckOnline = { onRecheckOnline(trip) },
+                )
             }
             // Tools. This slot used to hold a "view" eye, which did exactly what
             // tapping the row already does, so it was a second door to the same
@@ -696,65 +782,153 @@ private fun PendingStatusIcon() {
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
     IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
-        Icon(Icons.Default.Pending, contentDescription = msg, tint = MaterialTheme.appColors.statusWarn,
+        // Three plain dots. The filled Pending circle read as one more cloud
+        // state; Erwin picked this from the full candidate lineup instead.
+        Icon(Icons.Default.MoreHoriz, contentDescription = msg, tint = MaterialTheme.appColors.statusWarn,
             modifier = Modifier.size(20.dp))
     }
 }
 
+/**
+ * One icon for everything that happens to a trip after it is saved: the
+ * rider's own backups (folder, Dropbox) and the public leaderboard.
+ *
+ * One, deliberately. The first version gave backups their own icon next to
+ * the leaderboard's, and the row grew a second cloud - a control for every
+ * destination instead of an answer to the rider's actual question, which is
+ * "is this trip taken care of?". Red if anything failed (tap fixes it),
+ * orange if anything is still moving (tap nudges it), green when everything
+ * this trip is meant to reach has it. Tapping green says where it stands,
+ * backup time and leaderboard verdict together, in one message.
+ *
+ * Failures outrank progress, and the tap acts on the worst thing showing.
+ */
+/**
+ * Whether a backup anywhere actually holds this trip.
+ *
+ * Status 2 is uploaded and 4 is a trip that came FROM Dropbox, which a backup
+ * holds by definition. A timestamp means one landed. Anything else - never
+ * sent, in flight, failed - means there is no copy to archive and nothing for
+ * the cloud to promise.
+ */
+private fun hasBackupCopy(trip: TripRecord): Boolean =
+    trip.uploadStatus == 2 || trip.uploadStatus == 4 ||
+        trip.dropboxStatus == 2 ||
+        trip.uploadedAt != null || trip.dropboxUploadedAt != null
+
 @Composable
-private fun UploadStatusIcon(trip: TripRecord) {
-    val fmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
+private fun TripStatusIcon(
+    trip: TripRecord,
+    folderConfigured: Boolean,
+    dropboxLinked: Boolean,
+    onRetryBackup: () -> Unit,
+    onRetryOnline: () -> Unit,
+    onRecheckOnline: () -> Unit,
+) {
+    val fmt = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault()) }
 
-    val uploadedAtText = trip.uploadedAt?.let { fmt.format(Date(it)) }
-    val msg = uploadedAtText?.let {
-        stringResource(R.string.cloud_uploaded_on, it)
-    } ?: stringResource(R.string.cloud_not_uploaded)
+    // The rider's own backups. These, and only these, pick the icon's color:
+    // the question the cloud answers is "is this ride safe", and a ride is
+    // safe when a backup holds it. The leaderboard has its own opinions - a
+    // months-old "held for review" among them - and letting those tint the
+    // icon painted whole pages of properly backed-up trips orange.
+    val backupFailed = (folderConfigured && trip.uploadStatus == 3) ||
+        (dropboxLinked && trip.dropboxStatus == 3)
+    // Only an active upload counts as waiting. uploadStatus 4 is a trip that
+    // CAME from Dropbox: a backup already holds it by definition, and the
+    // folder mirror catching up quietly is not something to warn about.
+    val backupWaiting = (folderConfigured && trip.uploadStatus == 1) ||
+        (dropboxLinked && trip.dropboxStatus == 1)
+    val backupAt = (trip.dropboxUploadedAt ?: trip.uploadedAt)?.let { fmt.format(Date(it)) }
+    val backupHeld = hasBackupCopy(trip)
 
-    val snackbar = LocalSnackbar.current
-    val scope = LocalSnackbarScope.current
-    IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
-        Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = MaterialTheme.appColors.statusGood,
-            modifier = Modifier.size(20.dp))
-    }
-}
+    // The leaderboard used to drive message and tap behaviour only. It now
+    // picks between two GREENS, which keeps the original rule intact: the
+    // colour still answers "is this ride safe", and a backed-up ride is green
+    // either way. The shade is the second question, whether the leaderboard
+    // took it, and a shade cannot make a safe ride look unsafe.
+    val settled = trip.eucstatsStatus == 2
+    val flagged = settled && trip.eucstatsValidation == "flagged"
+    val rejected = settled && trip.eucstatsValidation == "rejected"
+    val onlineDone = settled && !flagged && !rejected
 
-/** eucstats online status: green cloud = shared, warn cloud = under review / uploading,
- *  red cloud-off = failed (tap to retry). Old/imported trips have eucstatsStatus 0 and
- *  never reach here, so they keep the local disk tick. */
-@Composable
-private fun OnlineStatusIcon(trip: TripRecord, onRetry: () -> Unit) {
-    val snackbar = LocalSnackbar.current
-    val scope = LocalSnackbarScope.current
-    val flagged = trip.eucstatsStatus == 2 && trip.eucstatsValidation == "flagged"
-    val isRetry = trip.eucstatsStatus == 3
+    // Nothing configured, nothing sent, nothing to say.
+    if (!folderConfigured && !dropboxLinked && trip.eucstatsStatus == 0 && !backupHeld) return
+
+    // Green is a promise - a backup HOLDS this trip - so it is only shown
+    // when one does. The first cut fell through to green whenever nothing was
+    // failing or in flight, which put a green cloud on trips whose own tap
+    // message said "Not backed up yet". A trip in that state gets a muted
+    // cloud instead, and tapping it starts the backup.
+    // The leaderboard's two FINAL bad endings warrant a color of their own:
+    // a failed upload (the tap retries it) and a rejection. Yellow, not red -
+    // the ride itself is safe in a backup, something just wants attention.
+    // Interim pipeline states still color nothing.
+    // A leaderboard that has not taken the ride is no longer a warning. It was
+    // painting orange on rides sitting safely in a backup, which is the exact
+    // complaint this file already records about letting the leaderboard tint
+    // the icon. Orange means a backup problem again. The unaccepted states
+    // keep their own SHAPE, a plain cloud rather than a ticked one, so the
+    // difference survives for anyone who cannot separate the two greens.
+    val onlineProblem = trip.eucstatsStatus == 3 || rejected
     val icon = when {
-        isRetry -> Icons.Default.CloudOff
-        trip.eucstatsStatus == 2 && !flagged -> Icons.Default.CloudDone
-        flagged -> Icons.Default.Cloud
-        else -> Icons.Default.CloudQueue   // 1 = pending / uploading
+        backupFailed -> Icons.Default.CloudOff
+        backupWaiting -> Icons.Default.CloudQueue
+        backupHeld && onlineDone -> Icons.Default.CloudDone
+        backupHeld -> Icons.Default.Cloud
+        else -> Icons.Default.Cloud
     }
     val tint = when {
-        isRetry -> MaterialTheme.appColors.statusDanger
-        trip.eucstatsStatus == 2 && !flagged -> MaterialTheme.appColors.statusGood
-        else -> MaterialTheme.appColors.statusWarn
+        backupFailed -> MaterialTheme.appColors.statusDanger
+        backupWaiting -> MaterialTheme.appColors.statusWarn
+        // Lighter green: a backup holds it AND the leaderboard took it.
+        backupHeld && onlineDone -> MaterialTheme.appColors.statusGood
+        // Darker green: safe in a backup, the leaderboard has not accepted it
+        // (never sent, still deciding, flagged, rejected, or upload failed).
+        backupHeld -> MaterialTheme.appColors.cloudBackupOnly
+        else -> MaterialTheme.appColors.textSecondary
     }
-    val msg = when {
-        isRetry -> stringResource(R.string.online_status_failed)
-        trip.eucstatsStatus == 2 && !flagged -> stringResource(R.string.online_status_shared)
-        flagged -> stringResource(R.string.online_status_flagged)
-        else -> stringResource(R.string.online_status_pending)
+    // The whole story in one message: each part only speaks when it has
+    // something to say, so a trip with no leaderboard life reads as before.
+    val parts = mutableListOf<String>()
+    parts += when {
+        backupFailed -> stringResource(R.string.backup_status_failed)
+        backupWaiting -> stringResource(R.string.backup_status_pending)
+        backupAt != null -> stringResource(R.string.cloud_uploaded_on, backupAt)
+        else -> stringResource(R.string.cloud_not_uploaded)
     }
-    // Tapping a flagged trip explains why it's held, rather than just repeating
-    // the short status label.
-    val flaggedWhy = stringResource(R.string.online_status_flagged_why)
+    // Final leaderboard states only. "Uploading" and "held for automated
+    // check" are the pipeline's business, not the rider's: a hold months old
+    // reads as a problem when it is just a verdict nobody re-asked for.
+    // Tapping a held trip still re-asks silently, so stale holds clear
+    // themselves without ever being announced.
+    when {
+        rejected -> parts += stringResource(R.string.online_status_rejected)
+        trip.eucstatsStatus == 3 -> parts += stringResource(R.string.online_status_failed)
+        onlineDone -> parts += stringResource(R.string.online_status_shared)
+    }
+    val msg = parts.joinToString(separator = "\n")
+
+    val snackbar = LocalSnackbar.current
+    val scope = LocalSnackbarScope.current
     IconButton(onClick = {
         when {
-            isRetry -> onRetry()
-            flagged -> showSnackbarLocal(snackbar, scope, flaggedWhy)
-            trip.eucstatsStatus == 1 -> onRetry()
+            // A backup problem is the rider's to fix, so the tap acts on it.
+            // "Not backed up yet" is one of those problems: the tap sends it.
+            backupFailed || backupWaiting -> onRetryBackup()
+            !backupHeld && (folderConfigured || dropboxLinked) -> onRetryBackup()
+            // A failed leaderboard upload of an original ride can be retried.
+            trip.eucstatsStatus == 3 -> onRetryOnline()
+            // One tap, one toast. The recheck that used to ride along here
+            // posted two more toasts of its own ("Checking with the
+            // leaderboard...", then the verdict), so tapping a held trip
+            // produced a three-message sequence about a pipeline the rider
+            // never asked after. A stale hold can stay stale; it colors
+            // nothing and says nothing.
             else -> showSnackbarLocal(snackbar, scope, msg)
         }
     }) {
         Icon(icon, contentDescription = msg, tint = tint, modifier = Modifier.size(20.dp))
     }
 }
+

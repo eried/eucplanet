@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -68,9 +69,14 @@ class DashboardViewModel @Inject constructor(
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
+    private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
     private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
+    private val metricsReset: com.eried.eucplanet.data.repository.MetricsReset,
+    private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val dropboxRepository: com.eried.eucplanet.data.repository.DropboxRepository,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
+    private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -80,16 +86,232 @@ class DashboardViewModel @Inject constructor(
     val warnings: StateFlow<List<com.eried.eucplanet.data.repository.AppWarning>> =
         appHealthRepository.warnings
 
-    companion object {
-        private const val SPARKLINE_SIZE = 300  // 5 minutes at 1 sample/sec
-    }
-
     // Synchronous initial settings read so StateFlows start with the user's persisted values
     // instead of hardcoded defaults (prevents a visible flash on app open).
     private val initialSettings: com.eried.eucplanet.data.model.AppSettings =
         runBlocking(Dispatchers.IO) { settingsRepository.get() }
 
+    // ---- Weather / ridability ----------------------------------------------
+
+    val weatherSettings: StateFlow<com.eried.eucplanet.data.model.WeatherSettings> =
+        settingsRepository.settings
+            .map { it.weather }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.weather)
+
+    val weatherRefreshing: StateFlow<Boolean> = weatherRepository.refreshing
+    val weatherError: StateFlow<String?> = weatherRepository.error
+    val weatherFetchedAt: StateFlow<Long?> = weatherRepository.forecast
+        .map { it?.fetchedAtMs }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Display units for the flyout detail charts: Fahrenheit?, mph? */
+    val weatherUnits: StateFlow<Pair<Boolean, Boolean>> =
+        settingsRepository.settings
+            .map { (it.unitTemp == "F") to (it.unitSpeed == "mph") }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false to false)
+
+    /** The navigator's final stop while a route is active: the destination
+     *  the flyout can forecast instead of here. */
+    val weatherDest: StateFlow<com.eried.eucplanet.data.model.Waypoint?> =
+        navigationEngine.activeLeg
+            .map { it?.waypoints?.lastOrNull() }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Which location the flyout forecasts: false = here, true = destination.
+     *  Plain app state, resets with the process. */
+    val weatherUseDest = kotlinx.coroutines.flow.MutableStateFlow(false)
+
+    /** Reverse-geocoded name of the current forecast cell, chip-sized. */
+    val weatherPlace = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+
+    val weatherDestHours: StateFlow<List<ScoredHour>> =
+        kotlinx.coroutines.flow.combine(weatherRepository.destForecast, settingsRepository.settings) { f, st ->
+            val w = st.weather
+            val a = st.advanced
+            f?.hours.orEmpty().map { h ->
+                ScoredHour(
+                    h.timeMs,
+                    com.eried.eucplanet.weather.RidabilityScore.score(
+                        h,
+                        coldC = a.weatherColdC.toFloat(),
+                        hotC = a.weatherHotC.toFloat(),
+                        breezyMs = a.weatherBreezyTenthsMs / 10f,
+                        windyMs = a.weatherWindyTenthsMs / 10f,
+                        prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
+                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight, w.prefGolden,
+                        ),
+                    ),
+                    h,
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    fun toggleWeatherSource() {
+        val turningOn = !weatherUseDest.value
+        if (turningOn && weatherDest.value == null) return
+        weatherUseDest.value = turningOn
+        refreshWeather()
+    }
+
+    private var placeCacheKey: String? = null
+    private fun updateWeatherPlace(lat: Double, lon: Double) {
+        val key = "%.2f,%.2f".format(java.util.Locale.US, lat, lon)
+        if (key == placeCacheKey) return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                @Suppress("DEPRECATION")
+                val a = android.location.Geocoder(context, java.util.Locale.getDefault())
+                    .getFromLocation(lat, lon, 1)?.firstOrNull()
+                // A PLACE, never a house number. featureName and even
+                // subLocality come back as the street number from some
+                // providers, which is how a rider on number 168 ended up with
+                // a chip that just said "168". Anything without a letter in it
+                // is not a place name, so it is skipped, and the city is
+                // preferred over the street: this labels a forecast, which is
+                // a city-scale thing.
+                val name = listOfNotNull(
+                    a?.locality, a?.subLocality, a?.subAdminArea,
+                    a?.thoroughfare, a?.adminArea, a?.featureName,
+                ).firstOrNull { it.isNotBlank() && it.any { c -> c.isLetter() } }
+                placeCacheKey = key
+                if (!name.isNullOrBlank()) weatherPlace.value = name
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /** The cached forecast week, scored with the rider's comfort thresholds.
+     *  The flyout slices this per window, so switching windows never fetches. */
+    val weatherHours: StateFlow<List<ScoredHour>> =
+        kotlinx.coroutines.flow.combine(weatherRepository.forecast, settingsRepository.settings) { f, st ->
+            val w = st.weather
+            val a = st.advanced
+            f?.hours.orEmpty().map { h ->
+                ScoredHour(
+                    h.timeMs,
+                    com.eried.eucplanet.weather.RidabilityScore.score(
+                        h,
+                        coldC = a.weatherColdC.toFloat(),
+                        hotC = a.weatherHotC.toFloat(),
+                        breezyMs = a.weatherBreezyTenthsMs / 10f,
+                        windyMs = a.weatherWindyTenthsMs / 10f,
+                        prefs = com.eried.eucplanet.weather.RidabilityScore.prefsOf(
+                            w.prefHot, w.prefCold, w.prefRain, w.prefSnow, w.prefWind, w.prefNight, w.prefGolden,
+                        ),
+                    ),
+                    h,
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Fetch if stale (or [force]); needs a location fix of any age - the
+     *  forecast cell is kilometres wide, so a stale fix is still the right
+     *  weather. No fix at all leaves the flyout to say so. */
+    /** Whether to ask for 15-minute steps: only worth it on a short window,
+     *  where hourly dots leave the curve looking blocky, and only out to
+     *  where the providers publish them. */
+    private fun fineDetail(windowHours: Int): Boolean = windowHours <= 12
+
+    fun refreshWeather(force: Boolean = false) {
+        // No location, nothing to ask about. Returning quietly left the panel
+        // reading "Fetching..." forever with nothing in flight, which is the
+        // one failure a rider cannot wait out: it needs the phone's location
+        // switch or the permission, not patience.
+        val loc = tripRepository.currentLocation.value
+            ?: tripRepository.lastKnownLocation.value
+            ?: run {
+                weatherRepository.reportNoLocation(
+                    context.getString(R.string.weather_error_no_location)
+                )
+                return
+            }
+        val w = weatherSettings.value
+        val dest = weatherDest.value
+        if (dest != null && weatherUseDest.value) {
+            viewModelScope.launch {
+                weatherRepository.ensureFreshDest(
+                    dest.lat, dest.lng,
+                    com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
+                    fine = fineDetail(w.windowHours),
+                )
+            }
+        }
+        updateWeatherPlace(loc.latitude, loc.longitude)
+        viewModelScope.launch {
+            weatherRepository.ensureFresh(
+                loc.latitude, loc.longitude,
+                com.eried.eucplanet.weather.WeatherSource.byId(w.source), force,
+                fine = fineDetail(w.windowHours),
+            )
+        }
+    }
+
+    init {
+        // Whatever the panel fetches, the home screen widgets get too. A
+        // background worker refreshes them on its own hourly cadence, but it
+        // can only ask about a place it already knows, so the app opening the
+        // panel is what teaches it where the rider is. Does nothing when no
+        // widget is placed.
+        //
+        // Below weatherPlace, and it has to stay there: init blocks run in
+        // declaration order, so collecting a field declared further down means
+        // collecting null, which took the whole dashboard down on launch.
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                weatherRepository.forecast,
+                settingsRepository.settings,
+                weatherPlace,
+            ) { forecast, settings, place -> Triple(forecast, settings, place) }
+                .collect { (forecast, settings, place) ->
+                    if (forecast != null) {
+                        com.eried.eucplanet.widget.WeatherWidgetPublisher.publish(
+                            context, forecast, settings, place,
+                        )
+                    }
+                }
+        }
+    }
+
+    init {
+        // Prefetch on a 30-minute cadence while the module is enabled, so the
+        // flyout opens with the curve already drawn.
+        viewModelScope.launch {
+            weatherSettings.map { it.enabled }.distinctUntilChanged()
+                .collectLatest { on ->
+                    if (!on) return@collectLatest
+                    while (true) {
+                        refreshWeather()
+                        kotlinx.coroutines.delay(30 * 60_000L)
+                    }
+                }
+        }
+    }
+
+    companion object {
+        private const val SPARKLINE_SIZE = 300  // 5 minutes at 1 sample/sec
+    }
+
     val wheelData: StateFlow<com.eried.eucplanet.data.model.WheelData> = wheelRepository.wheelData
+
+    /**
+     * Wall-clock time of the last frame that showed the wheel moving.
+     *
+     * The charging auto-open reads it to make sure the wheel has really
+     * stopped. Kept here behind one collector rather than a screen effect
+     * keyed on the speed, which restarted a coroutine on every change at
+     * telemetry rate. distinctUntilChanged is the same trigger that key had.
+     */
+    @Volatile
+    var lastMovingAtMs: Long = System.currentTimeMillis()
+        private set
+
+    init {
+        viewModelScope.launch {
+            wheelData.map { it.speed }.distinctUntilChanged().collect { speed ->
+                if (kotlin.math.abs(speed) >= 0.5f) lastMovingAtMs = System.currentTimeMillis()
+            }
+        }
+    }
 
     val connectionState: StateFlow<ConnectionState> = wheelRepository.connectionState
 
@@ -107,14 +329,98 @@ class DashboardViewModel @Inject constructor(
     val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
     // Proximity auto-lock automation on? Long-pressing the dashboard lock button
     // toggles it - a quick shortcut without opening Settings.
+    init {
+        // Trips whose file differs between phone and backup folder; only the
+        // rider can pick a side, in the sync conflict dialog. Set by the
+        // folder worker on every pass, cleared the same way. Registered in
+        // Needs attention with every other fixable problem - not as a
+        // one-off dashboard banner - so the triangle, the count and the Fix
+        // button all come from the same place.
+        viewModelScope.launch {
+            settingsRepository.settings
+                .map { it.folderConflictCount }
+                .distinctUntilChanged()
+                .collect { conflicts ->
+                    if (conflicts > 0) {
+                        appHealthRepository.upsert(
+                            com.eried.eucplanet.data.repository.AppWarning(
+                                id = "backup_conflicts",
+                                titleRes = com.eried.eucplanet.R.string.backup_conflict_title,
+                                bodyRes = com.eried.eucplanet.R.string.backup_conflict_warning,
+                                settingsTab = 4,
+                            )
+                        )
+                    } else {
+                        appHealthRepository.dismiss("backup_conflicts")
+                    }
+                }
+        }
+        // The two session suspensions are fixable problems, so they live in
+        // Needs attention like every other one: the triangle, the count and
+        // the Fix button all come from the same place. Shown only while the
+        // automation is actually on, a suspension under a disabled feature
+        // means nothing.
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                settingsRepository.settings,
+                automationManager.autoLightsSuspended,
+            ) { s, suspended ->
+                suspended && s.lights.applyWhen != com.eried.eucplanet.data.model.ApplyWhenIds.NEVER
+            }.distinctUntilChanged().collect { show ->
+                if (show) {
+                    appHealthRepository.upsert(
+                        com.eried.eucplanet.data.repository.AppWarning(
+                            id = "autolights_paused",
+                            titleRes = com.eried.eucplanet.R.string.warnings_autolights_title,
+                            bodyRes = com.eried.eucplanet.R.string.warnings_autolights_body,
+                            fix = {
+                                automationManager.clearLightsSuspension()
+                                automationManager.triggerImmediateLightEvaluation()
+                            },
+                        )
+                    )
+                } else {
+                    appHealthRepository.dismiss("autolights_paused")
+                }
+            }
+        }
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                settingsRepository.settings,
+                automationManager.autoLockSuspended,
+            ) { s, suspended -> suspended && s.proximityLock.lockEnabled }
+                .distinctUntilChanged().collect { show ->
+                    if (show) {
+                        appHealthRepository.upsert(
+                            com.eried.eucplanet.data.repository.AppWarning(
+                                id = "autolock_paused",
+                                titleRes = com.eried.eucplanet.R.string.warnings_autolock_title,
+                                bodyRes = com.eried.eucplanet.R.string.warnings_autolock_body,
+                                fix = { automationManager.clearLockSuspension() },
+                            )
+                        )
+                    } else {
+                        appHealthRepository.dismiss("autolock_paused")
+                    }
+                }
+        }
+    }
+
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.proximityLock.lockEnabled }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
+    /** The Advanced "Lock max speed", the same bound the repository enforces,
+     *  so the tile's "slow down" hint and the actual refusal never disagree. */
+    val lockMaxSpeedKmh: StateFlow<Int> = settingsRepository.settings
+        .map { it.lockMaxSpeedKmh }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.lockMaxSpeedKmh)
     /** True when the connected wheel's adapter implements a BLE lock command.
      *  Drives the dashboard lock button to fall back to a "not supported" hint
      *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
      *  expose lock over BLE today. */
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val lockKnown: StateFlow<Boolean> = wheelRepository.lockKnown
+    val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /** Charging state for the dashboard spark icon (hint + tap-to-open). */
     val chargeStatus: StateFlow<com.eried.eucplanet.data.model.ChargeStatus> =
@@ -244,6 +550,12 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly,
             com.eried.eucplanet.util.Units.effectiveDistanceUnit(initialSettings))
 
+    /** The rider's own pressure unit, for the tyre-pressure tile and stats. */
+    val pressureUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectivePressureUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            com.eried.eucplanet.util.Units.effectivePressureUnit(initialSettings))
+
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly,
@@ -293,6 +605,22 @@ class DashboardViewModel @Inject constructor(
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.voiceEnabled }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voiceEnabled)
+
+    /**
+     * The language the spoken-command list should be written in.
+     *
+     * The rider's own choice, or the speaking voice when they have not made
+     * one. Needed here because "what can I say" opens the same list from the
+     * dashboard as the settings screen does, and a list of words in the wrong
+     * language is a list of words that will not work.
+     */
+    val voiceCommandLanguage: StateFlow<String> = settingsRepository.settings
+        .map { it.voiceCommands.recognitionLocale.ifBlank { it.voiceLocale } }
+        .stateIn(
+            viewModelScope, SharingStarted.Eagerly,
+            initialSettings.voiceCommands.recognitionLocale
+                .ifBlank { initialSettings.voiceLocale },
+        )
 
     /** Whether the dashboard top-bar Battery-monitor (spark) icon renders at all. */
     val chargingDashboardIcon: StateFlow<Boolean> = settingsRepository.settings
@@ -346,9 +674,14 @@ class DashboardViewModel @Inject constructor(
     fun toggleAutoLock() {
         viewModelScope.launch {
             val current = settingsRepository.get()
+            val enabling = !current.proximityLock.lockEnabled
             settingsRepository.update(current.copy(
-                proximityLock = current.proximityLock.copy(lockEnabled = !current.proximityLock.lockEnabled)
+                proximityLock = current.proximityLock.copy(lockEnabled = enabling)
             ))
+            // Toggling the automation is a fresh decision, so a manual
+            // suspension from earlier in the session is spent, and the
+            // evaluator starts clean either way.
+            automationManager.clearLockSuspension()
         }
     }
 
@@ -534,6 +867,22 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /** Which of the four speed-split states the settings are in, for the tile. */
+    val accelSplitMode: StateFlow<com.eried.eucplanet.data.model.AccelSplitMode> = settingsRepository.settings
+        .map { com.eried.eucplanet.data.model.AccelSplitMode.of(it.accelSplit) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            com.eried.eucplanet.data.model.AccelSplitMode.of(initialSettings.accelSplit))
+
+    /** Off, accel, brake, both, and round again. The service re-reads the
+     *  settings on every frame, so the tracker follows at once. */
+    fun cycleSpeedSplits() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val next = com.eried.eucplanet.data.model.AccelSplitMode.of(current.accelSplit).next()
+            settingsRepository.update(current.copy(accelSplit = next.applyTo(current.accelSplit)))
+        }
+    }
+
     /** Flip the persisted alarm mute. AlarmEngine reads this on every
      *  evaluate() so the change takes effect on the next telemetry frame. */
     fun toggleAlarmsMuted() {
@@ -593,13 +942,29 @@ class DashboardViewModel @Inject constructor(
 
     /** Whether a trip sync is running (disables the dev wizard's Sync button while
      *  it works). */
-    val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
+    /**
+     * A sync is happening, whether or not it is the one on screen.
+     *
+     * syncManager.syncRunning only knows about a foreground pass. Linking
+     * Dropbox now hands the fetch to the background worker, and during that the
+     * wizard's Sync buttons would have stayed enabled, inviting a rider to
+     * start a second one over the top of it.
+     */
+    val syncRunning: StateFlow<Boolean> = combine(
+        syncManager.syncRunning,
+        settingsRepository.settings.map { it.dropboxSyncPending },
+    ) { foreground, background -> foreground || background }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     /** Whether the rider has already joined leaderboards (online upload enabled).
      *  Gates the dev wizard's Join button so it greys out and stays greyed once
      *  joined, the same disabled-after-action treatment Sync trips gets. */
-    val leaderboardsJoined: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.onlineUploadEnabled }
+    // Joined means uploads on AND a rider to upload as. Uploads on with no
+    // rider (issue #31, left by earlier builds) is not joined: the tour keeps
+    // offering the button and Settings shows Join again.
+    val leaderboardsJoined: StateFlow<Boolean> = kotlinx.coroutines.flow.combine(
+        settingsRepository.settings, syncManager.riderStoreId
+    ) { s, rider -> s.onlineUploadEnabled && rider != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
@@ -618,19 +983,26 @@ class DashboardViewModel @Inject constructor(
     fun linkDropbox(activityContext: android.content.Context) =
         dropboxRepository.startLinkFlow(activityContext)
 
-    /** Fire-and-forget dev "join leaderboards": recover the rider from the linked
-     *  backup folder if one is there, then enable online upload. The full
-     *  onboarding for a brand-new rider stays in Cloud settings; this is the quick
-     *  path for a dev whose folder already holds their rider. */
+    /** Fire-and-forget dev "join leaderboards": the quick path for a dev whose
+     *  folder already holds their rider. Recovers that rider and turns uploads
+     *  on. A brand-new rider needs consent and a profile, which only the Join
+     *  flow in Settings runs, so with no rider here uploads stay off and the
+     *  message says where to go (issue #31: turning them on anyway uploaded as
+     *  nobody and hid the Settings Join button). */
     fun joinLeaderboards() {
         viewModelScope.launch {
             val hasRider = syncManager.riderStoreId.value != null ||
                 syncManager.findRestorableRider()?.also { syncManager.writeRiderId(it.storeId) } != null
-            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = true))
-            appNotifier.post(context.getString(
-                if (hasRider) R.string.welcome_tut_dev_joined
-                else R.string.welcome_tut_dev_joined_norider
-            ))
+            if (hasRider) {
+                settingsRepository.update { it.copy(onlineUploadEnabled = true) }
+                appNotifier.post(context.getString(R.string.welcome_tut_dev_joined))
+            } else {
+                appNotifier.post(context.getString(
+                    R.string.welcome_tut_dev_joined_norider,
+                    context.getString(R.string.online_upload_join),
+                    context.getString(R.string.settings),
+                ))
+            }
         }
     }
 
@@ -640,8 +1012,10 @@ class DashboardViewModel @Inject constructor(
      * family until a documented reset command is added. Callers should
      * snackbar the result so riders know whether the tap took effect.
      */
-    suspend fun resetWheelTrip(): Boolean =
-        kotlinx.coroutines.withContext(Dispatchers.IO) { wheelRepository.resetTripMeter() }
+    /** Clears the trip meter and the metric history, and the wheel's own trip
+     *  odometer where the family supports it. See [MetricsReset]. */
+    suspend fun resetMetrics(): com.eried.eucplanet.data.repository.MetricsReset.Result =
+        metricsReset.resetAll()
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 
@@ -723,6 +1097,8 @@ class DashboardViewModel @Inject constructor(
                     // finish before we SIGKILL. sendCloseToWatchBlocking now
                     // actually blocks until the SDK reports the send.
                     garminBridge.sendCloseToWatchBlocking()
+                    // Amazfit polls, so the QUIT waits (briefly) to be fetched.
+                    amazfitBridge.sendCloseToWatchBlocking()
                 }
             } catch (_: Exception) { /* best effort */ }
             // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
@@ -754,12 +1130,47 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun onLockToggle() {
+        // A hand on the lock wins for the rest of the session: the proximity
+        // automation steps aside instead of fighting the rider's choice, and
+        // Needs attention offers the Fix that resumes it.
+        automationManager.notifyManualLockChange()
         wheelRepository.toggleLock()
     }
 
     fun onSafetySpeedToggle() {
         viewModelScope.launch {
             wheelRepository.toggleSafetySpeed()
+        }
+    }
+
+    /** What a listening session is doing, for the tile and the transcript. */
+    val voiceCommandState = voiceCommands.state
+
+    /** Asking out loud what can be said puts the list on screen. */
+    val showVocabulary = voiceCommands.showVocabulary
+
+    fun onVoiceListen() {
+        // The tile lights up, so it does not also need a snackbar saying so.
+        voiceCommands.listen(notify = false)
+    }
+
+    /**
+     * Swap which of the two voice tiles owns this dashboard slot.
+     *
+     * The pair shares one slot and one icon, so this is a single entry in
+     * dashboardActionOrder changing. Per slot rather than global: a rider with
+     * two voice tiles gets to keep them different.
+     */
+    fun switchVoiceTile(from: String, to: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val order = current.dashboardActionOrder.split(",").map { it.trim() }
+            val at = order.indexOf(from)
+            if (at < 0) return@launch
+            val swapped = order.toMutableList().also { it[at] = to }
+            settingsRepository.update(
+                current.copy(dashboardActionOrder = swapped.joinToString(","))
+            )
         }
     }
 

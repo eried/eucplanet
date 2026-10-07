@@ -11,7 +11,7 @@
     android:targetCellHeight="1"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_euc_action_single"
-    android:previewLayout="@layout/widget_euc_action_single"
+    android:previewLayout="@layout/widget_act_2_preview"
     android:description="@string/widget_act_2_desc"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen" />

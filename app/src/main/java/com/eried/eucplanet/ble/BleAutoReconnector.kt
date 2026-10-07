@@ -98,7 +98,7 @@ class BleAutoReconnector(
      */
     fun onUnexpectedDisconnect(status: Int) {
         val address = target ?: return
-        if (!shouldReconnect || status == 0) return
+        if (!ReconnectPolicy.shouldRetryAfterDisconnect(shouldReconnect, target, status)) return
         scope.launch {
             delay(2000)
             if (eligible(address)) scanThenConnect(address)
@@ -115,11 +115,13 @@ class BleAutoReconnector(
         }
     }
 
-    private fun eligible(address: String): Boolean =
-        shouldReconnect &&
-            target == address &&
-            !isConnected() &&
-            bluetoothManager.adapter?.isEnabled == true
+    private fun eligible(address: String): Boolean = ReconnectPolicy.eligible(
+        armed = shouldReconnect,
+        target = target,
+        address = address,
+        connected = isConnected(),
+        adapterOn = bluetoothManager.adapter?.isEnabled == true,
+    )
 
     private fun scanThenConnect(address: String) {
         val scanner = bluetoothManager.adapter?.bluetoothLeScanner

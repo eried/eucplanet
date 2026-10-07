@@ -18,9 +18,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CallMerge
 import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -39,12 +41,13 @@ import java.util.Locale
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.data.repository.ExtendPlan
 import com.eried.eucplanet.data.repository.TripSplitDetector
+import com.eried.eucplanet.ui.common.ToolRow
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 
@@ -65,6 +68,7 @@ import com.eried.eucplanet.ui.theme.themedFieldColors
 fun TripToolsDialog(
     trip: TripRecord,
     onDismiss: () -> Unit,
+    onRename: () -> Unit,
     onChangeWheel: () -> Unit,
     onSplit: () -> Unit,
     onCombine: () -> Unit,
@@ -72,9 +76,13 @@ fun TripToolsDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = { Text(stringResource(R.string.trip_tools_title)) },
         text = {
             Column {
+                ToolRow(
+                    Icons.Default.Edit,
+                    stringResource(R.string.trip_tools_rename),
+                    stringResource(R.string.trip_tools_rename_desc),
+                ) { onDismiss(); onRename() }
                 ToolRow(
                     // Not a vehicle glyph. This tool changes a LABEL, and the
                     // repo's terminology rule is that the device is a wheel,
@@ -105,6 +113,68 @@ fun TripToolsDialog(
 }
 
 /**
+ * Give a trip a name. Blank clears it, and the trip falls back to its date.
+ * The name is capped at 60 chars to match the CSV reader (and eucviewer).
+ */
+@Composable
+fun RenameTripDialog(
+    currentName: String?,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var text by remember { mutableStateOf(currentName.orEmpty()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
+        title = { Text(stringResource(R.string.trip_tools_rename)) },
+        text = {
+            Column {
+                Text(
+                    stringResource(R.string.trip_tools_rename_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.appColors.textSecondary,
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it.take(60) },
+                    singleLine = true,
+                    colors = themedFieldColors(),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            // Reset sits alone on the far left, apart from Cancel/Save: it is
+            // the one action that destroys something (the rider's name), and
+            // distance is what keeps it from being hit while reaching for
+            // Save. No other dialog has a third action yet; this is the
+            // pattern when one does.
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                // One tap back to the date: clears the name AND accepts. Only
+                // offered while there is a name to clear - on an unnamed trip
+                // it would just be a second Cancel.
+                if (!currentName.isNullOrBlank()) {
+                    TextButton(onClick = { onConfirm("") }, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.action_reset))
+                    }
+                } else {
+                    Spacer(Modifier.width(1.dp))
+                }
+                Row {
+                    TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                    TextButton(onClick = { onConfirm(text.trim()) }, shape = RoundedCornerShape(12.dp)) {
+                        Text(stringResource(R.string.action_save))
+                    }
+                }
+            }
+        }
+    )
+}
+
+/**
  * Pick which wheel a trip was ridden on.
  *
  * [knownWheels] comes from two places: the rider's saved wheel profiles, and the
@@ -113,27 +183,37 @@ fun TripToolsDialog(
  * exactly when a rider is most likely to be fixing a wrong label. A free-text
  * field still covers a wheel neither source has heard of.
  *
- * [alreadyUploaded] shows the warning the rider agreed to: the leaderboard entry
- * keeps the old wheel and cannot be corrected from the app.
+ * No leaderboard warning here on purpose: the wheel label is for the rider's
+ * own organisation (and eucviewer's wheel selector). An edited trip is never
+ * resubmitted, so the change cannot touch the leaderboard either way.
  */
 @Composable
 fun ChangeWheelDialog(
-    knownWheels: List<String>,
-    currentWheel: String?,
-    alreadyUploaded: Boolean,
-    onConfirm: (String) -> Unit,
+    knownWheels: List<com.eried.eucplanet.data.repository.WheelChoice>,
+    currentWheel: com.eried.eucplanet.data.repository.WheelChoice?,
+    onConfirm: (com.eried.eucplanet.data.repository.WheelChoice) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    // The trip's own wheel leads the list and starts selected, even when it has
-    // no saved profile. Showing the picker with nothing chosen, or with someone
-    // else's wheel chosen, invites a rider to apply a change they never meant.
+    // Every wheel is a whole identity, labelled the way eucviewer labels it,
+    // so picking one here files the trip where eucviewer files it. The
+    // trip's own wheel leads the list and starts selected, even when it has
+    // no saved profile; a trip with no wheel starts with nothing selected,
+    // because starting on someone else's wheel invites a change the rider
+    // never meant.
     val options = remember(currentWheel, knownWheels) {
-        (listOfNotNull(currentWheel?.takeIf { it.isNotBlank() }) + knownWheels).distinct()
+        val all = listOfNotNull(currentWheel) + knownWheels
+        all.distinctBy { it.key }
     }
-    var picked by remember(options) { mutableStateOf(currentWheel ?: options.firstOrNull() ?: "") }
+    var picked by remember(options) { mutableStateOf(currentWheel?.key.orEmpty()) }
     var custom by remember { mutableStateOf("") }
     var usingCustom by remember(options) { mutableStateOf(options.isEmpty()) }
-    val chosen = if (usingCustom) custom.trim() else picked
+    // A known pick carries the whole identity - name, MAC, brand, model,
+    // serial - exactly as eucviewer copies it. "Another wheel" is a name and
+    // nothing else, exactly as eucviewer's custom entry is.
+    val chosen: com.eried.eucplanet.data.repository.WheelChoice? =
+        if (usingCustom) custom.trim().takeIf { it.isNotEmpty() }
+            ?.let { com.eried.eucplanet.data.repository.WheelChoice(name = it) }
+        else options.firstOrNull { it.key == picked }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -141,32 +221,42 @@ fun ChangeWheelDialog(
         title = { Text(stringResource(R.string.trip_tools_change_wheel)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                if (alreadyUploaded) {
+                // A trip with no wheel recorded says so, instead of quietly
+                // preselecting whatever wheel happened to lead the list.
+                if (currentWheel == null) {
                     Text(
-                        stringResource(R.string.trip_tools_wheel_uploaded_warning),
+                        stringResource(R.string.trip_tools_wheel_none),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.statusWarn,
+                        color = MaterialTheme.appColors.textSecondary,
                     )
                     Spacer(Modifier.width(8.dp))
                 }
-                options.forEach { name ->
+                options.forEach { wheel ->
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .clickable { usingCustom = false; picked = name }
+                            .clickable { usingCustom = false; picked = wheel.key }
                             .padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
-                            selected = !usingCustom && picked == name,
-                            onClick = { usingCustom = false; picked = name },
+                            selected = !usingCustom && picked == wheel.key,
+                            onClick = { usingCustom = false; picked = wheel.key },
                         )
                         Spacer(Modifier.width(8.dp))
                         Column {
-                            Text(name, color = MaterialTheme.appColors.textPrimary)
+                            Text(wheel.label, color = MaterialTheme.appColors.textPrimary)
+                            // The advertised name, when the label came from
+                            // brand/model and differs from it: it is how the
+                            // wheel shows up when pairing, and how two of the
+                            // same model are told apart.
+                            wheel.name?.takeIf { it != wheel.label }?.let {
+                                Text(it, style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.appColors.textSecondary)
+                            }
                             // Says which one the trip already has, so applying
                             // without changing anything is obviously a no-op.
-                            if (name == currentWheel) {
+                            if (wheel.key == currentWheel?.key) {
                                 Text(
                                     stringResource(R.string.trip_tools_wheel_current),
                                     style = MaterialTheme.typography.bodySmall,
@@ -204,8 +294,8 @@ fun ChangeWheelDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { if (chosen.isNotBlank()) onConfirm(chosen) },
-                enabled = chosen.isNotBlank(),
+                onClick = { chosen?.let(onConfirm) },
+                enabled = chosen != null,
                 shape = RoundedCornerShape(12.dp),
             ) { Text(stringResource(R.string.action_apply)) }
         },
@@ -230,11 +320,15 @@ fun SplitTripDialog(
     /** The ride's first sample, so a cut can be named by clock time and not
      *  only by how far into the ride it falls. */
     tripStartMs: Long,
-    onConfirm: (List<TripSplitDetector.Cut>) -> Unit,
+    /** Whether there are backup copies to archive: Dropbox linked, or a backup
+     *  folder chosen. With neither the row would act on nothing. */
+    canArchive: Boolean,
+    onConfirm: (List<TripSplitDetector.Cut>, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val clockFmt = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
     val selected = remember { mutableStateOf(cuts.map { it.index }.toSet()) }
+    var archiveSource by remember { mutableStateOf(true) }
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
@@ -326,7 +420,19 @@ fun SplitTripDialog(
                             }
                         }
                     }
-
+                    // A rule, because this is a different kind of thing from
+                    // the cuts above it: what to do afterwards, not where to cut.
+                    if (canArchive) {
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(color = MaterialTheme.appColors.divider)
+                    Spacer(Modifier.height(4.dp))
+                    ArchiveChoiceRow(
+                        checked = archiveSource,
+                        title = stringResource(R.string.recording_delete_archive),
+                        desc = stringResource(R.string.recording_delete_archive_desc),
+                        onCheckedChange = { archiveSource = it },
+                    )
+                    }
                 }
             }
         },
@@ -336,7 +442,7 @@ fun SplitTripDialog(
             if (cuts.isNotEmpty()) {
                 val chosen = cuts.filter { it.index in selected.value }
                 TextButton(
-                    onClick = { onConfirm(chosen) },
+                    onClick = { onConfirm(chosen, archiveSource) },
                     enabled = chosen.isNotEmpty(),
                     shape = RoundedCornerShape(12.dp),
                 ) { Text(stringResource(R.string.action_apply)) }
@@ -352,6 +458,45 @@ fun SplitTripDialog(
             }
         }
     )
+}
+
+/**
+ * The backup choice, shared by every action that takes a trip off the list:
+ * extend, split, delete, and delete all.
+ *
+ * The phone's copy always goes - that is what these actions are. The question
+ * is what happens to the copies in the backup folder and on Dropbox: ticked,
+ * they move to an archive folder there, which is also what stops the sync
+ * handing the trip back; unticked, they are left exactly as they are.
+ *
+ * On by default, since a rider taking a ride off the list rarely means "and
+ * put it back tomorrow". Shown only when there is a backup to act on.
+ */
+@Composable
+internal fun ArchiveChoiceRow(
+    checked: Boolean,
+    title: String,
+    desc: String,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Spacer(Modifier.width(4.dp))
+        Column {
+            Text(title, color = MaterialTheme.appColors.textPrimary)
+            Text(
+                desc,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+            )
+        }
+    }
 }
 
 /**
@@ -382,7 +527,10 @@ fun CombineTripsDialog(
     trips: List<TripRecord>,
     label: (TripRecord) -> String,
     wheelOf: (TripRecord) -> String?,
-    onConfirm: (List<TripRecord>) -> Unit,
+    /** Whether there are backup copies to archive: Dropbox linked, or a backup
+     *  folder chosen. With neither the row would act on nothing. */
+    canArchive: Boolean,
+    onConfirm: (List<TripRecord>, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     // Chronological, because the span only means anything in time order.
@@ -395,11 +543,20 @@ fun CombineTripsDialog(
     // nothing until the rider actually reaches out.
     var fromIdx by remember(ordered) { mutableStateOf(anchorIdx) }
     var toIdx by remember(ordered) { mutableStateOf(anchorIdx) }
+    var archiveSources by remember { mutableStateOf(true) }
 
-    val range = remember(fromIdx, toIdx, ordered) {
-        if (anchorIdx < 0) emptyList()
-        else ordered.subList(fromIdx.coerceAtMost(anchorIdx), toIdx.coerceAtLeast(anchorIdx) + 1).toList()
+    // Which trips this extend may reach, and what a chosen span would really
+    // merge, both from ExtendPlan so the rules can be tested without Compose.
+    val reach = remember(ordered, anchorIdx) { ExtendPlan.reach(ordered, anchor) }
+    val backIdx = reach.back
+    val fwdIdx = reach.forward
+    val nothingReachable = reach.isDeadEnd
+
+    val merge = remember(fromIdx, toIdx, ordered) {
+        ExtendPlan.merge(ordered, anchor, fromIdx, toIdx)
     }
+    val range = merge.trips
+    val skipped = merge.skipped
     val mixedWheels = remember(range) {
         range.mapNotNull { wheelOf(it)?.takeIf { w -> w.isNotBlank() } }.distinct().size > 1
     }
@@ -410,9 +567,14 @@ fun CombineTripsDialog(
         title = { Text(stringResource(R.string.trip_tools_extend)) },
         text = {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
-                if (ordered.size < 2) {
+                if (ordered.size < 2 || nothingReachable) {
                     Text(
-                        stringResource(R.string.trip_tools_combine_none),
+                        stringResource(
+                            // Different dead ends: nothing else recorded, or
+                            // everything nearby is already part of this trip.
+                            if (ordered.size < 2) R.string.trip_tools_combine_none
+                            else R.string.trip_tools_extend_all_inside
+                        ),
                         color = MaterialTheme.appColors.textSecondary,
                     )
                 } else {
@@ -423,29 +585,30 @@ fun CombineTripsDialog(
                     )
                     Spacer(Modifier.height(12.dp))
 
-                    // Earlier end: the anchor plus the nearest trips before it.
-                    TripPicker(
-                        title = stringResource(R.string.trip_tools_extend_from),
-                        options = ((anchorIdx - EXTEND_REACH).coerceAtLeast(0)..anchorIdx).toList(),
-                        selectedIdx = fromIdx,
-                        optionLabel = { i ->
-                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
-                            else label(ordered[i])
-                        },
-                        onSelect = { fromIdx = it },
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    // Later end: the anchor plus the nearest trips after it.
+                    // Later end first: the trips after this one are the ones a
+                    // rider reaches for, since an extend usually follows a ride
+                    // that got split a moment ago.
                     TripPicker(
                         title = stringResource(R.string.trip_tools_extend_to),
-                        options = (anchorIdx..(anchorIdx + EXTEND_REACH).coerceAtMost(ordered.size - 1))
-                            .toList(),
+                        options = listOf(anchorIdx) + fwdIdx,
                         selectedIdx = toIdx,
                         optionLabel = { i ->
                             if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
                             else label(ordered[i])
                         },
                         onSelect = { toIdx = it },
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    // Earlier end: the anchor plus the nearest trips before it.
+                    TripPicker(
+                        title = stringResource(R.string.trip_tools_extend_from),
+                        options = backIdx + listOf(anchorIdx),
+                        selectedIdx = fromIdx,
+                        optionLabel = { i ->
+                            if (i == anchorIdx) stringResource(R.string.trip_tools_extend_none)
+                            else label(ordered[i])
+                        },
+                        onSelect = { fromIdx = it },
                     )
 
                     Spacer(Modifier.height(12.dp))
@@ -456,6 +619,14 @@ fun CombineTripsDialog(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.appColors.textPrimary,
                     )
+                    if (skipped > 0) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            stringResource(R.string.trip_tools_extend_skipped, skipped),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    }
                     if (mixedWheels) {
                         Spacer(Modifier.height(4.dp))
                         Text(
@@ -464,13 +635,26 @@ fun CombineTripsDialog(
                             color = MaterialTheme.appColors.statusWarn,
                         )
                     }
+                    // Only once the rider has reached out to something: with
+                    // nothing selected there are no sources to archive.
+                    if (canArchive && range.size >= 2) {
+                        Spacer(Modifier.height(8.dp))
+                        HorizontalDivider(color = MaterialTheme.appColors.divider)
+                        Spacer(Modifier.height(4.dp))
+                        ArchiveChoiceRow(
+                            checked = archiveSources,
+                            title = stringResource(R.string.recording_delete_archive),
+                            desc = stringResource(R.string.recording_delete_archive_desc),
+                            onCheckedChange = { archiveSources = it },
+                        )
+                    }
                 }
             }
         },
         confirmButton = {
-            if (ordered.size >= 2) {
+            if (ordered.size >= 2 && !nothingReachable) {
                 TextButton(
-                    onClick = { onConfirm(range) },
+                    onClick = { onConfirm(range, archiveSources) },
                     enabled = range.size >= 2,
                     shape = RoundedCornerShape(12.dp),
                 ) { Text(stringResource(R.string.action_apply)) }
@@ -480,7 +664,9 @@ fun CombineTripsDialog(
             TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
                 Text(
                     stringResource(
-                        if (ordered.size < 2) R.string.action_close else R.string.action_cancel
+                        // A dead end has nothing to cancel, so it offers Close.
+                        if (ordered.size < 2 || nothingReachable) R.string.action_close
+                        else R.string.action_cancel
                     )
                 )
             }
@@ -541,31 +727,6 @@ private fun TripPicker(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ToolRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.width(16.dp))
-        Column {
-            Text(title, style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.appColors.textPrimary)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary)
         }
     }
 }

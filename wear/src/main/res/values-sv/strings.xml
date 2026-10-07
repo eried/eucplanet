@@ -14,6 +14,7 @@
     <string name="watch_voltage_label">Spänning</string>
     <string name="watch_current_label">Ström</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Effekt</string>
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Tur</string>
@@ -23,7 +24,7 @@
     <string name="watch_gps_permission">Tryck för att tillåta GPS</string>
     <string name="watch_gps_waiting">Väntar på fix…</string>
 
-    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Tuta</string>
     <string name="watch_action_light">Ljus</string>
     <string name="watch_action_lock">Lås hjul</string>
@@ -38,4 +39,19 @@
     <string name="watch_action_media_next">Nästa spår</string>
     <string name="watch_action_media_prev">Föregående spår</string>
     <string name="watch_action_long_press_hint">Håll inne för %1$s</string>
+    <string name="watch_map_phone_disconnected">Ingen telefon</string>
+    <string name="watch_map_gps_permission">Tillåt GPS</string>
+    <string name="watch_map_gps_stale">GPS inaktuell</string>
+    <string name="watch_map_route_loading">Laddar rutt</string>
+    <string name="watch_map_route_unavailable">Ingen rutt</string>
+    <string name="watch_map_loading">Laddar karta</string>
+    <string name="watch_map_unavailable">Ingen karta</string>
+    <string name="watch_map_zoom_in">Zooma in</string>
+    <string name="watch_map_zoom_out">Zooma ut</string>
+    <string name="watch_map_open_phone">Öppna telefonappen</string>
+    <string name="watch_map_waiting_gps">Väntar på GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s V</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, hastighet %2$s, spänning %3$s.</string>
 </resources>

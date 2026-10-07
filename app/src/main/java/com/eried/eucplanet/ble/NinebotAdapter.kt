@@ -33,6 +33,8 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var detectedModel: NinebotModel? = null
 
+    override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
+
     /**
      * Active protocol family. Defaults to Z so the BLE profile getter has
      * something to return when the dispatcher asks before [notifyConnectingTo]

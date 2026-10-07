@@ -1,0 +1,260 @@
+package com.eried.eucplanet.tpms
+
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * The one place that knows the tyre's pressure, whoever measured it.
+ *
+ * Pressure used to have exactly one producer: [com.eried.eucplanet.ble
+ * .InMotionV2Parser] reading the P6's realtime frame, straight onto WheelData
+ * where every surface picked it up. That works until there are two sources,
+ * and then "the tire pressure" needs somewhere to be decided rather than being
+ * whatever wrote last.
+ *
+ * Sources push in here ([submitWheel], [submitPaired]) and [current] answers.
+ * The rules live in [TpmsPolicy] so they are testable without a sensor.
+ *
+ * This is the value the dashboard reads: WheelRepository submits the wheel's
+ * relayed pressure here on every frame and copies [current] back into
+ * WheelData, so every tile, alarm, widget and HUD sees whichever source won.
+ */
+@Singleton
+class TpmsRepository @Inject constructor(
+    private val pairing: TpmsPairingStore,
+) {
+
+    /** For tests, which want the rules without a settings store behind them. */
+    constructor() : this(TpmsPairingStore.None)
+
+    // Written from the BLE callback thread, read from wherever recompute
+    // happens to run.
+    @Volatile private var wheelReading: TpmsReading? = null
+    @Volatile private var pairedReading: TpmsReading? = null
+
+    private val _pairedAddress = MutableStateFlow<String?>(null)
+
+    /**
+     * The sensor the rider owns, kept so the section has something to show and
+     * something to remove. One at a time: a wheel has one tyre, and two would
+     * leave "the tire pressure" meaning whichever spoke last.
+     */
+    val pairedAddress: StateFlow<String?> = _pairedAddress.asStateFlow()
+
+    @Synchronized
+    fun adopt(address: String) {
+        if (_sensors.value.any { it.address == address }) return
+        _sensors.value = _sensors.value + SensorState(address)
+        _pairedAddress.value = _sensors.value.firstOrNull()?.address
+        pairing.saveAll(_sensors.value.map { it.address })
+    }
+
+    /** Forget one cap, leaving the rider's other wheels alone. */
+    @Synchronized
+    fun forget(address: String, nowMs: Long = System.currentTimeMillis()) {
+        _sensors.value = _sensors.value.filterNot { it.address == address }
+        // Clear the last addressless reading too, or recompute's fallback
+        // resurrects the cap that was just deleted and keeps publishing its
+        // pressure.
+        if (_sensors.value.isEmpty()) pairedReading = null
+        _pairedAddress.value = _sensors.value.firstOrNull()?.address
+        pairing.saveAll(_sensors.value.map { it.address })
+        // The clock is passed in like everywhere else here, so the handover
+        // back to the wheel can be argued with in a test instead of depending
+        // on what time it happens to be.
+        recompute(nowMs)
+    }
+
+    private val _current = MutableStateFlow<TpmsReading?>(null)
+
+    /** The reading to show, or null when nothing fresh is reporting. */
+    val current: StateFlow<TpmsReading?> = _current.asStateFlow()
+
+    /**
+     * Everything one cap is currently saying.
+     *
+     * Temperature and battery sit beside the pressure rather than folded into
+     * it: a cap measures the air it sits in, so a hot tyre reads high, and a
+     * rider looking at a pressure that drifted wants to know whether the tyre
+     * or the weather moved.
+     *
+     * [kpa] is null until the sensor has spoken since the app started. That is
+     * not a fault: these caps transmit when the pressure moves and stay quiet
+     * on a settled tyre, so a fresh app legitimately has a paired sensor and
+     * no number for it.
+     */
+    data class SensorState(
+        val address: String,
+        val kpa: Float? = null,
+        val tempC: Float? = null,
+        val volts: Float? = null,
+        /** What the cap says it is doing; only leakage and inflation matter. */
+        val state: LyTpmsDecoder.State? = null,
+        val atMs: Long = 0L,
+    )
+
+    private val _sensors = MutableStateFlow<List<SensorState>>(emptyList())
+
+    /** Every paired cap, in the order the rider added them. */
+    val sensors: StateFlow<List<SensorState>> = _sensors.asStateFlow()
+
+    init {
+        // Below _pairedAddress on purpose: initialisers run in declaration
+        // order, so loading from up beside the constructor read a field that
+        // did not exist yet and threw the moment a store answered straight
+        // away.
+        //
+        // A sensor paired on a previous run is still the rider's sensor. Only
+        // taken if nothing has been adopted since, so a scan that found one
+        // while this was still loading is not overwritten by an older answer.
+        pairing.load { saved ->
+            // Merged, not "only if empty". The read comes back on an IO
+            // thread and a scan can adopt before it lands, and the old rule
+            // then dropped every stored cap on the floor.
+            if (saved.isNotEmpty()) {
+                val known = _sensors.value.map { it.address }.toSet()
+                _sensors.value = _sensors.value + saved.filterNot { it in known }.map { SensorState(it) }
+                _pairedAddress.value = _sensors.value.firstOrNull()?.address
+            }
+        }
+    }
+
+    @Synchronized
+    private fun mutate(address: String, block: (SensorState) -> SensorState) {
+        val list = _sensors.value
+        val i = list.indexOfFirst { it.address == address }
+        _sensors.value =
+            if (i >= 0) list.toMutableList().also { it[i] = block(it[i]) }
+            else list + block(SensorState(address))
+    }
+
+    fun submitPairedTemp(address: String, celsius: Float?) {
+        if (celsius != null) mutate(address) { it.copy(tempC = celsius) }
+    }
+
+    fun submitPairedVolts(address: String, volts: Float?) {
+        if (volts != null) mutate(address) { it.copy(volts = volts) }
+    }
+
+    fun submitPairedState(address: String, state: LyTpmsDecoder.State?) {
+        if (state != null) mutate(address) { it.copy(state = state) }
+    }
+
+    /** Convenience for the surfaces that only want a number; 0 when silent. */
+    val pressureKpa: StateFlow<Float>
+        get() = _pressureKpa.asStateFlow()
+    private val _pressureKpa = MutableStateFlow(0f)
+
+    /** The wheel relayed a value from a sensor bound to it. */
+    fun submitWheel(kpa: Float, nowMs: Long = System.currentTimeMillis()) {
+        wheelReading = TpmsPolicy.readingOf(kpa, TpmsSource.WHEEL, nowMs) ?: wheelReading
+        recompute(nowMs)
+    }
+
+    /** A directly paired sensor reported. */
+    /**
+     * A sensor reported. The first one seen becomes the rider's; after that
+     * only that one is listened to.
+     *
+     * It used to take whichever packet arrived, so two caps in range - a
+     * second tyre, a neighbour's car - traded the reading back and forth and
+     * the pressure looked wrong because it was two tyres at once.
+     */
+    fun submitPaired(kpa: Float, address: String? = null, nowMs: Long = System.currentTimeMillis()) {
+        if (address != null) {
+            // Every paired cap is heard, not just the first one. A rider with
+            // three wheels has three caps, and the one that just spoke is the
+            // one with something to say.
+            if (_sensors.value.none { it.address == address }) adopt(address)
+            mutate(address) { it.copy(kpa = kpa, atMs = nowMs) }
+        }
+        pairedReading = TpmsPolicy.readingOf(kpa, TpmsSource.PAIRED, nowMs) ?: pairedReading
+        recompute(nowMs)
+    }
+
+    /**
+     * Forget a paired sensor, so the wheel's own is believed again.
+     *
+     * Unpairing is the one thing that should fall back, because the rider
+     * asked for it. A paired sensor going quiet must not.
+     */
+    fun forgetPaired(nowMs: Long = System.currentTimeMillis()) {
+        pairedReading = null
+        _sensors.value = emptyList()
+        _pairedAddress.value = null
+        // Forgetting has to outlive the app too, or a deleted sensor comes
+        // back on the next launch.
+        pairing.saveAll(emptyList())
+        recompute(nowMs)
+    }
+
+    /**
+     * Re-evaluate without new data, so a sensor that stopped reporting stops
+     * being shown. Called on a tick by whoever is watching.
+     */
+    fun refresh(nowMs: Long = System.currentTimeMillis()) = recompute(nowMs)
+
+    /**
+     * The sensor currently speaking for the tyre: a cap's address, or null
+     * when it is the wheel's own relayed reading (or nothing at all).
+     */
+    private val _activeAddress = MutableStateFlow<String?>(null)
+    val activeAddress: StateFlow<String?> = _activeAddress.asStateFlow()
+
+    /** True while the wheel's own reading is the one being shown. */
+    private val _wheelIsActive = MutableStateFlow(false)
+    val wheelIsActive: StateFlow<Boolean> = _wheelIsActive.asStateFlow()
+
+    /**
+     * What the wheel itself is reporting, whether or not it is the one being
+     * believed.
+     *
+     * Separate from [current] because the settings section has to draw the
+     * wheel's own row - and whether to draw it at all - while a paired cap is
+     * the one answering. Reading the merged value there would put the cap's
+     * pressure on the wheel's row, on a wheel with no sensor in it.
+     */
+    private val _wheelSensor = MutableStateFlow<TpmsReading?>(null)
+    val wheelSensor: StateFlow<TpmsReading?> = _wheelSensor.asStateFlow()
+
+    private fun recompute(nowMs: Long) {
+        // Which source speaks for the tyre. Sticky on purpose: see
+        // TpmsPolicy.pickActive.
+        val capCandidates = _sensors.value
+            .filter { it.kpa != null }
+            .map { TpmsPolicy.Candidate(it.address, TpmsSource.PAIRED, it.atMs) }
+            // A reading submitted without an address still counts as external.
+            // Not every caller has one, and dropping it here would quietly
+            // hand the tyre back to the wheel.
+            .ifEmpty {
+                listOfNotNull(
+                    pairedReading?.let { TpmsPolicy.Candidate(null, TpmsSource.PAIRED, it.atMs) }
+                )
+            }
+        val candidates = capCandidates +
+            listOfNotNull(wheelReading?.let { TpmsPolicy.Candidate(null, TpmsSource.WHEEL, it.atMs) })
+        val active = TpmsPolicy.pickActive(candidates, nowMs, _activeAddress.value)
+        _activeAddress.value = active?.address
+        _wheelIsActive.value = active?.source == TpmsSource.WHEEL
+
+        // The published reading follows whichever sensor is active, so every
+        // surface agrees with the badge in settings.
+        val picked = when {
+            active == null -> null
+            active.source == TpmsSource.WHEEL -> wheelReading
+            active.address == null -> pairedReading
+            else -> _sensors.value.firstOrNull { it.address == active.address }
+                ?.let { s -> s.kpa?.let { TpmsReading(it, TpmsSource.PAIRED, s.atMs) } }
+        }
+        _current.value = picked
+        _pressureKpa.value = picked?.kpa ?: 0f
+        // Aged by the same rule, so a wheel that stopped reporting stops
+        // having a row rather than freezing one.
+        _wheelSensor.value = wheelReading?.takeIf {
+            nowMs - it.atMs < TpmsPolicy.STALE_AFTER_MS
+        }
+    }
+}

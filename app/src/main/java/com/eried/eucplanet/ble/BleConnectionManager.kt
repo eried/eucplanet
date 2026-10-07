@@ -21,11 +21,13 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -78,6 +80,23 @@ class BleConnectionManager @Inject constructor(
          *  data) never trips it; any real frame resets the timer. */
         private const val NO_DATA_TIMEOUT_MS = 15000L
 
+        /** How long a connect attempt may sit with NO GATT callback at all
+         *  before we give up on it. Some stacks (Samsung with the screen off,
+         *  most visibly) quietly drop a background connectGatt without ever
+         *  delivering onConnectionStateChange; the state machine then wedges
+         *  in CONNECTING and every reconnect path - all gated on DISCONNECTED -
+         *  stops until the rider turns the screen on. Slightly above the
+         *  stack's own 30 s supervision window so a legitimately slow callback
+         *  still wins. */
+        private const val CONNECT_NO_CALLBACK_TIMEOUT_MS = 35_000L
+        /** One reconnect-scan window. Bounded so a LOW_LATENCY scan is never
+         *  held open forever (Android downgrades or blocks abusive scanners). */
+        private const val RECONNECT_SCAN_WINDOW_MS = 60_000L
+        /** Pauses between re-armed reconnect-scan cycles. Grows so a wheel
+         *  that is genuinely gone (powered off, left at home) costs little
+         *  battery, while one that comes back mid-ride is still caught. */
+        private val RECONNECT_SCAN_PAUSES_MS = longArrayOf(5_000L, 15_000L, 30_000L, 60_000L)
+
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
@@ -93,6 +112,20 @@ class BleConnectionManager @Inject constructor(
      *  the UI only reads it while [connectionState] is CONNECTED. */
     private val _connectedDeviceName = MutableStateFlow<String?>(null)
     val connectedDeviceName: StateFlow<String?> = _connectedDeviceName.asStateFlow()
+
+    /**
+     * Address of the wheel behind the current connect target (virtual wheels
+     * use their pseudo-address); null after an explicit disconnect. Set as
+     * soon as a connect is requested, so pair it with [connectionState] ==
+     * CONNECTED (or use [connectedAddressOrNull]) to know which wheel is
+     * actually live. Drives the per-wheel alarm binding.
+     */
+    private val _connectedAddress = MutableStateFlow<String?>(null)
+    val connectedAddress: StateFlow<String?> = _connectedAddress.asStateFlow()
+
+    /** The connected wheel's address, or null while not fully connected. */
+    fun connectedAddressOrNull(): String? =
+        if (_connectionState.value == ConnectionState.CONNECTED) _connectedAddress.value else null
 
     /** Brand of the connected wheel, from the active adapter. Set on connect. */
     private val _connectedBrand = MutableStateFlow<String?>(null)
@@ -127,6 +160,17 @@ class BleConnectionManager @Inject constructor(
     @Volatile private var lastDataMs = 0L
     @Volatile private var connectedAtMs = 0L
 
+    private val _connectedSinceMs = MutableStateFlow(0L)
+
+    /**
+     * When the current connection went CONNECTED, or 0 when there is none.
+     *
+     * Already tracked for the stale-data check; exposed because "how long has
+     * the wheel been connected" is a question a rider asks out loud when the
+     * dashboard looks frozen and they want to know whether to trust it.
+     */
+    val connectedSinceMs: StateFlow<Long> = _connectedSinceMs.asStateFlow()
+
     // Poll the link RSSI once a second while connected so the BT dBm metric and
     // the proximity-lock feature stay snappy. A no-op on virtual connections.
     private val rssiJob = scope.launch {
@@ -140,6 +184,21 @@ class BleConnectionManager @Inject constructor(
         }
     }
     private var rxCharacteristic: BluetoothGattCharacteristic? = null
+
+    /**
+     * Write type forced by what the wheel's write characteristic actually
+     * supports, overriding the profile's choice. Null means "use the profile".
+     *
+     * A characteristic that advertises only WRITE_NO_RESPONSE cannot accept a
+     * write-with-response: the write never reaches the firmware, so the wheel
+     * answers nothing and every ACK wait burns its full timeout. The InMotion
+     * V6 is exactly that case - its Nordic UART RX characteristic is
+     * no-response only, while the V11-V14 and P6 firmware accepts both - so
+     * the family profile alone cannot get this right. Decided per connection
+     * from the discovered properties; wheels that support write-with-response
+     * keep the profile's setting, so no other family changes behaviour.
+     */
+    @Volatile private var forcedWriteType: Int? = null
     private var currentAddress: String? = null
     /** BLE advertised name from the most recent connect call, kept across reconnects. */
     private var currentName: String? = null
@@ -154,7 +213,7 @@ class BleConnectionManager @Inject constructor(
     @Volatile var autoConnectSuppressed: Boolean = false
 
     // True when the current (or most recent) connection was started by
-    // auto-connect — app-start auto-connect or the reconnect loop — rather
+    // auto-connect, app-start auto-connect or the reconnect loop, rather
     // than the rider explicitly picking a wheel on the scan screen. Lets the
     // scan screen drop an auto connection without touching a user-chosen one.
     @Volatile private var currentConnectIsAuto = false
@@ -164,9 +223,69 @@ class BleConnectionManager @Inject constructor(
     // so a new attempt gets a full budget; capped so it can't spin forever.
     @Volatile private var manualRetryCount = 0
 
-    // Write serialization - only one BLE write at a time
-    private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
+    // Monotonic id of the newest connectGatt attempt. The no-callback watchdog
+    // captures it at arm time and stands down if a newer attempt has started.
+    @Volatile private var connectAttemptSeq = 0
+
+    // Completed reconnect-scan windows since the link was last up. Indexes into
+    // RECONNECT_SCAN_PAUSES_MS; reset when the wheel is seen or connects.
+    @Volatile private var reconnectScanCycle = 0
+
+    // Write serialization - only one BLE write at a time.
+    //
+    // Two lanes, not one FIFO: a rider's horn must not queue behind a wall of
+    // telemetry polls and then be dropped by the rule that drops a poll. See
+    // [BleWriteQueue].
+    private val writeQueue = BleWriteQueue()
+    private val writeQueueLock = Any()
+    /** Signalled whenever something is offered, so the worker can wait rather
+     *  than spin. */
+    private val writeSignal = Channel<Unit>(Channel.CONFLATED)
     private var writeReady = false
+
+    /**
+     * Completed by `onCharacteristicWrite` for the write currently in flight.
+     *
+     * The link used to pace itself by assuming a write had landed 200 ms after
+     * the stack accepted it. On a wheel that answers every poll with eight
+     * notification fragments the write-response routinely takes longer than
+     * that, so the next write went out while the stack still had one in hand
+     * and came back `code=201` busy: 2403 times in one rider's twenty-minute
+     * log, with 390 writes given up on entirely. Waiting for the callback is
+     * the whole difference.
+     */
+    @Volatile private var pendingAck: CompletableDeferred<Unit>? = null
+
+    /** What the GATT layer did with one write attempt. */
+    private enum class WriteOutcome { ACCEPTED, REJECTED, CONNECTION_LOST }
+
+    /**
+     * How many times a rejected write is re-offered before it is given up on.
+     *
+     * The queue below assumes a write succeeded once 200 ms have passed with no
+     * callback, because some stacks never deliver one. On a slow phone the
+     * callback can arrive later than that, so the next write lands while the
+     * previous is still in flight and the stack answers 201 (write busy). That
+     * used to be logged and thrown away: a rider's lock command simply never
+     * left the phone, which reads as the button doing nothing.
+     */
+    /**
+     * Backstop for a write-response that never arrives, on the families that
+     * write WITH one. Generous on purpose: it is not the pacing, the callback
+     * is. A rider's log showed the stack busy for up to about 300 ms at a time
+     * while it streamed a reply, so anything near that turns the backstop back
+     * into the pacing and brings the collisions with it.
+     */
+    private val WRITE_ACK_TIMEOUT_MS = 1_500L
+
+    /**
+     * The same backstop on a no-response profile, where the callback is a
+     * courtesy rather than a contract. HM-10 modules (KingSong, Begode,
+     * Veteran) are on that profile precisely because they do not ack
+     * reliably, so waiting on one is how a link that used to work stalls a
+     * second and a half per write. Short enough to be the old behaviour.
+     */
+    private val WRITE_ACK_NO_RESPONSE_MS = 200L
 
     // Active virtual wheel when in demo mode (address starts with "VIRTUAL:").
     // When non-null, writes are routed to the simulator instead of GATT and the
@@ -208,11 +327,14 @@ class BleConnectionManager @Inject constructor(
         Log.i(TAG, "Bluetooth turned off; forcing disconnect")
         // Keep shouldReconnect / currentAddress so onBluetoothOn() can re-arm.
         rxCharacteristic = null
+        forcedWriteType = null
         writeReady = false
+        synchronized(writeQueueLock) { writeQueue.clear() }
         gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
         gatt = null
         wheelAdapter.onDisconnect()
         _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
     }
 
     private fun onBluetoothOn() {
@@ -265,6 +387,7 @@ class BleConnectionManager @Inject constructor(
         val cb = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 Log.i(TAG, "Reconnect scan found $address; connecting")
+                reconnectScanCycle = 0
                 stopReconnectScan()
                 connect(address, name, isAuto = true)
             }
@@ -283,16 +406,30 @@ class BleConnectionManager @Inject constructor(
             connect(address, name, isAuto = true)
             return
         }
-        // Don't scan forever: if the wheel never shows (off / out of range),
-        // stop after a while and leave it to the next disconnect/BT event.
+        // Bound each scan window, then re-arm after a growing pause instead of
+        // going dead. The old "stop and leave it to the next disconnect/BT
+        // event" was a dead end for the pocket-mid-ride case: the wheel comes
+        // back in range at minute 3, no event ever fires, and the app sits
+        // disconnected until the rider opens it.
         scope.launch {
-            delay(60_000)
-            if (reconnectScanCallback === cb) {
-                Log.i(TAG, "Reconnect scan timed out for $address")
-                stopReconnectScan()
-                if (_connectionState.value == ConnectionState.SCANNING) {
-                    _connectionState.value = ConnectionState.DISCONNECTED
-                }
+            delay(RECONNECT_SCAN_WINDOW_MS)
+            if (reconnectScanCallback !== cb) return@launch
+            Log.i(TAG, "Reconnect scan window over for $address (cycle $reconnectScanCycle)")
+            stopReconnectScan()
+            if (_connectionState.value == ConnectionState.SCANNING) {
+                _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
+            }
+            val pause = RECONNECT_SCAN_PAUSES_MS[
+                minOf(reconnectScanCycle, RECONNECT_SCAN_PAUSES_MS.lastIndex)
+            ]
+            reconnectScanCycle++
+            delay(pause)
+            if (shouldReconnect && !autoConnectSuppressed &&
+                currentAddress == address &&
+                _connectionState.value == ConnectionState.DISCONNECTED
+            ) {
+                reconnectViaScan(address, name)
             }
         }
     }
@@ -326,8 +463,12 @@ class BleConnectionManager @Inject constructor(
         }
         currentConnectIsAuto = isAuto
         // A fresh rider tap starts a new status-133 retry budget (see the
-        // manual-retry branch in onConnectionStateChange).
-        if (!isAuto) manualRetryCount = 0
+        // manual-retry branch in onConnectionStateChange) and a fresh
+        // reconnect-scan backoff.
+        if (!isAuto) {
+            manualRetryCount = 0
+            reconnectScanCycle = 0
+        }
         // Demo / simulator mode: VIRTUAL:<id> bypasses GATT and connects to a fake wheel.
         val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
         if (virtualId != null) {
@@ -344,13 +485,16 @@ class BleConnectionManager @Inject constructor(
         if (bluetoothManager.adapter?.isEnabled != true) {
             Log.i(TAG, "connect($address) deferred: Bluetooth is off")
             currentAddress = address
+            _connectedAddress.value = address
             currentName = name ?: currentName
             shouldReconnect = true
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
 
         currentAddress = address
+        _connectedAddress.value = address
         // Hold on to the name so the auto-reconnect path keeps the same hint;
         // otherwise a P6 that briefly drops would come back as an unknown wheel.
         currentName = name ?: currentName
@@ -383,6 +527,42 @@ class BleConnectionManager @Inject constructor(
         // connect (30s status-147 timeout) or autoConnect=true (slow/flaky on
         // some stacks).
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+        armConnectCallbackWatchdog()
+    }
+
+    /**
+     * Watchdog for the connect attempt just fired: if NO GATT callback of any
+     * kind arrives within [CONNECT_NO_CALLBACK_TIMEOUT_MS], release the handle
+     * and put the state machine back in DISCONNECTED. Without this, a silently
+     * dropped background connectGatt (screen-off Samsung, most visibly) wedges
+     * us in CONNECTING forever: every retry path checks for DISCONNECTED first,
+     * so nothing ever fires again until the rider opens the app - "HUD showed
+     * zeros for minutes, reconnected seconds after I opened the app".
+     *
+     * An auto attempt re-enters through [reconnectViaScan] so the next connect
+     * only fires once the wheel is actually seen advertising. A manual attempt
+     * just releases to DISCONNECTED - the rider is looking at the screen and
+     * their next tap starts a fresh budget.
+     */
+    private fun armConnectCallbackWatchdog() {
+        val seq = ++connectAttemptSeq
+        scope.launch {
+            delay(CONNECT_NO_CALLBACK_TIMEOUT_MS)
+            if (connectAttemptSeq != seq) return@launch
+            if (_connectionState.value != ConnectionState.CONNECTING) return@launch
+            Log.w(TAG, "No GATT callback ${CONNECT_NO_CALLBACK_TIMEOUT_MS} ms after connect; releasing")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Connect attempt got no callback in ${CONNECT_NO_CALLBACK_TIMEOUT_MS / 1000}s - releasing"
+            )
+            gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
+            gatt = null
+            _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
+            val addr = currentAddress
+            if (shouldReconnect && currentConnectIsAuto && addr != null && !autoConnectSuppressed) {
+                reconnectViaScan(addr, currentName)
+            }
+        }
     }
 
     /**
@@ -398,12 +578,14 @@ class BleConnectionManager @Inject constructor(
         val address = currentAddress ?: return
         if (bluetoothManager.adapter?.isEnabled != true) {
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
         _connectionState.value = ConnectionState.CONNECTING
         val device = bluetoothManager.adapter.getRemoteDevice(address)
         gatt?.let { g -> try { g.close() } catch (_: Exception) {} }
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+        armConnectCallbackWatchdog()
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Retry manual connect #$manualRetryCount to $address (status-133 recovery)"
         )
@@ -450,12 +632,16 @@ class BleConnectionManager @Inject constructor(
             return
         }
         Log.i(TAG, "Connecting to virtual wheel: ${wheel.displayName}")
+        // Invalidate any pending no-callback watchdog from a prior real
+        // attempt so it can't fire into this session's CONNECTING blip.
+        connectAttemptSeq++
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Connect requested: virtual id=$id name=${wheel.bleName.ifEmpty { "(none)" }} display=\"${wheel.displayName}\""
         )
         wheel.reset()
         virtualWheel = wheel
         currentAddress = VirtualWheelRegistry.pseudoAddress(id)
+        _connectedAddress.value = currentAddress
         currentName = wheel.bleName.takeIf { it.isNotEmpty() }
         _connectedDeviceName.value = "${wheel.displayName} (virtual)"
         shouldReconnect = false
@@ -516,9 +702,12 @@ class BleConnectionManager @Inject constructor(
         shouldReconnect = false
         stopReconnectScan()
         currentAddress = null
+        _connectedAddress.value = null
         currentName = null
         rxCharacteristic = null
+        forcedWriteType = null
         writeReady = false
+        synchronized(writeQueueLock) { writeQueue.clear() }
 
         // Virtual wheel: just drop the reference; no GATT to tear down.
         if (virtualWheel != null) {
@@ -527,12 +716,14 @@ class BleConnectionManager @Inject constructor(
             wheelAdapter.onDisconnect()
             virtualWheel = null
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
 
         val g = gatt
         if (g == null) {
             _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             return
         }
         // Request clean GATT teardown; close() runs in the STATE_DISCONNECTED callback
@@ -551,11 +742,20 @@ class BleConnectionManager @Inject constructor(
                 try { still.close() } catch (_: Exception) {}
                 gatt = null
                 _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
             }
         }
     }
 
-    fun writeCommand(data: ByteArray) {
+    /**
+     * Queue one write.
+     *
+     * [kind] is what the link falls back on when it cannot send everything:
+     * a poll is replaced by the next poll and barely retried, a command is
+     * queued ahead of polls and retried hard. Defaults to COMMAND so anything
+     * that is not explicitly routine keeps the careful treatment.
+     */
+    fun writeCommand(data: ByteArray, kind: BleWriteQueue.Kind = BleWriteQueue.Kind.COMMAND) {
         // Push-only adapters (Begode, Veteran, KingSong) return an empty
         // array from poll* to signal "nothing to send; just wait for the
         // wheel's notifications". Drop those on the floor instead of
@@ -563,12 +763,29 @@ class BleConnectionManager @Inject constructor(
         if (data.isEmpty()) return
         Log.d(TAG, "Queuing write: ${data.joinToString(" ") { "%02x".format(it) }}")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.tx(data)
-        writeChannel.trySend(data)
+        val accepted = synchronized(writeQueueLock) { writeQueue.offer(kind, data) }
+        // A command only fails to queue on a link that has been stuck long
+        // enough to fill it. Say so: the log already showed the bytes as sent,
+        // and a command that never went anywhere must not read as one the
+        // wheel ignored.
+        if (!accepted) {
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Write DROPPED (${data.size}B) - the command queue is full"
+            )
+        }
+        writeSignal.trySend(Unit)
     }
 
     @SuppressLint("MissingPermission")
     private suspend fun processWriteQueue() {
-        for (data in writeChannel) {
+        while (true) {
+            val entry = synchronized(writeQueueLock) { writeQueue.take() }
+            if (entry == null) {
+                writeSignal.receive()
+                continue
+            }
+            val data = entry.data
+
             // Virtual mode: hand the write to the simulator and feed any responses
             // back through the adapter pipeline. No GATT, no writeReady gating.
             val virtual = virtualWheel
@@ -581,68 +798,130 @@ class BleConnectionManager @Inject constructor(
                 continue
             }
 
-            writeReady = false
-            val characteristic = rxCharacteristic ?: continue
-            val g = gatt ?: continue
-
-            // Pick the write type from the active adapter's profile. HM-10
-            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
-            // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
-            // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT.
-            val writeType = wheelAdapter.bleProfile().writeType
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val result = g.writeCharacteristic(characteristic, data, writeType)
-                    Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
-                    // Diagnostic: a non-SUCCESS code means the stack REJECTED the
-                    // write - it never went over the air. If the tester's
-                    // "connected but wheel never acks" failures show these, the
-                    // writes are dying on the phone (GATT-layer), not lost to RF.
-                    if (result != android.bluetooth.BluetoothStatusCodes.SUCCESS) {
-                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                            "Write REJECTED by BLE stack: code=$result (${data.size}B) - not sent over the air"
-                        )
-                    }
-                } else {
-                    @Suppress("DEPRECATION")
-                    characteristic.value = data
-                    @Suppress("DEPRECATION")
-                    characteristic.writeType = writeType
-                    @Suppress("DEPRECATION")
-                    val result = g.writeCharacteristic(characteristic)
-                    Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
-                    if (!result) {
-                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                            "Write REJECTED by BLE stack (${data.size}B) - not sent over the air"
-                        )
+            var connectionLost = false
+            var accepted = false
+            val maxAttempts = BleWriteQueue.maxAttempts(entry.kind)
+            for (attempt in 1..maxAttempts) {
+                writeReady = false
+                when (attemptWrite(data)) {
+                    WriteOutcome.ACCEPTED -> { accepted = true; break }
+                    WriteOutcome.CONNECTION_LOST -> { connectionLost = true; break }
+                    WriteOutcome.REJECTED -> {
+                        // The stack refused it, so nothing is in flight from us.
+                        writeReady = true
+                        if (attempt == maxAttempts) {
+                            // A poll giving up is routine, and saying so at the
+                            // same volume as a lost command buries the one that
+                            // matters under thousands that do not.
+                            if (entry.kind == BleWriteQueue.Kind.COMMAND) {
+                                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                                    "Write DROPPED after $maxAttempts attempts (${data.size}B) - " +
+                                        "the stack stayed busy"
+                                )
+                            }
+                        } else {
+                            delay(BleWriteQueue.retryDelayMs(attempt))
+                        }
                     }
                 }
-            } catch (e: Exception) {
-                // The GATT binder can die mid-write - Bluetooth toggled off, or
-                // the wheel dropping out of range - and writeCharacteristic
-                // surfaces that as a DeadObjectException wrapped in a
-                // RuntimeException. It is not a checked throw, so an uncaught one
-                // crashes the whole app from this background coroutine. Treat it
-                // as a lost connection: drop the dead GATT and fall back to
-                // DISCONNECTED so the normal disconnect/reconnect path recovers.
-                Log.w(TAG, "writeCharacteristic threw; connection lost, tearing down", e)
-                if (gatt === g) {
-                    rxCharacteristic = null
-                    try { g.close() } catch (_: Exception) {}
-                    gatt = null
-                    wheelAdapter.onDisconnect()
-                    _connectionState.value = ConnectionState.DISCONNECTED
-                }
-                writeReady = true
-                continue
             }
+            if (connectionLost || !accepted) continue
 
-            // Wait for write callback or timeout
-            delay(20)
-            if (!writeReady) {
-                delay(180) // longer wait for write-with-response
-                writeReady = true // assume success after timeout
+            // Wait for the stack to say the write actually went, rather than
+            // assuming it after a fixed pause and starting the next one on top
+            // of it. The timeout is the backstop for a callback that never
+            // arrives, not the normal path.
+            val ack = pendingAck
+            if (ack != null) {
+                val budget =
+                    if (effectiveWriteType() ==
+                        BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                    ) WRITE_ACK_NO_RESPONSE_MS else WRITE_ACK_TIMEOUT_MS
+                if (withTimeoutOrNull(budget) { ack.await() } == null &&
+                    budget == WRITE_ACK_TIMEOUT_MS
+                ) {
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "Write ACK timed out after $budget ms (${data.size}B)"
+                    )
+                }
             }
+            writeReady = true
+        }
+    }
+
+    /** The profile's write type, unless this wheel's characteristic forced another. */
+    private fun effectiveWriteType(): Int =
+        forcedWriteType ?: wheelAdapter.bleProfile().writeType
+
+    /**
+     * One pass at handing [data] to the GATT layer. Separate from the queue so
+     * a rejection can simply be retried; see [BleWriteQueue.maxAttempts].
+     */
+    @SuppressLint("MissingPermission")
+    private fun attemptWrite(data: ByteArray): WriteOutcome {
+        val characteristic = rxCharacteristic ?: return WriteOutcome.CONNECTION_LOST
+        val g = gatt ?: return WriteOutcome.CONNECTION_LOST
+
+        // Pick the write type from the active adapter's profile. HM-10
+        // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE
+        // because those modules don't reliably ACK WRITE_TYPE_DEFAULT
+        // writes. InMotion V2 / V1 stay on the safer WRITE_TYPE_DEFAULT,
+        // unless this wheel's characteristic cannot accept one.
+        val writeType = effectiveWriteType()
+        return try {
+            val accepted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val result = g.writeCharacteristic(characteristic, data, writeType)
+                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                // A non-SUCCESS code means the stack REJECTED the write - it
+                // never went over the air. Kept in the diagnostics log even
+                // though we now retry, because a burst of these is the
+                // signature of a phone whose write callbacks run late.
+                if (result != android.bluetooth.BluetoothStatusCodes.SUCCESS) {
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "Write REJECTED by BLE stack: code=$result (${data.size}B) - not sent over the air"
+                    )
+                }
+                result == android.bluetooth.BluetoothStatusCodes.SUCCESS
+            } else {
+                @Suppress("DEPRECATION")
+                characteristic.value = data
+                @Suppress("DEPRECATION")
+                characteristic.writeType = writeType
+                @Suppress("DEPRECATION")
+                val result = g.writeCharacteristic(characteristic)
+                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
+                if (!result) {
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "Write REJECTED by BLE stack (${data.size}B) - not sent over the air"
+                    )
+                }
+                result
+            }
+            if (accepted) {
+                // Arm the ack the worker waits on before it sends anything else.
+                pendingAck = CompletableDeferred()
+                WriteOutcome.ACCEPTED
+            } else WriteOutcome.REJECTED
+        } catch (e: Exception) {
+            // The GATT binder can die mid-write - Bluetooth toggled off, or
+            // the wheel dropping out of range - and writeCharacteristic
+            // surfaces that as a DeadObjectException wrapped in a
+            // RuntimeException. It is not a checked throw, so an uncaught one
+            // crashes the whole app from this background coroutine. Treat it
+            // as a lost connection: drop the dead GATT and fall back to
+            // DISCONNECTED so the normal disconnect/reconnect path recovers.
+            Log.w(TAG, "writeCharacteristic threw; connection lost, tearing down", e)
+            if (gatt === g) {
+                rxCharacteristic = null
+                forcedWriteType = null
+                try { g.close() } catch (_: Exception) {}
+                gatt = null
+                wheelAdapter.onDisconnect()
+                _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
+            }
+            writeReady = true
+            WriteOutcome.CONNECTION_LOST
         }
     }
 
@@ -653,6 +932,7 @@ class BleConnectionManager @Inject constructor(
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
                     Log.i(TAG, "Connected to GATT server")
+                    reconnectScanCycle = 0
                     _connectionState.value = ConnectionState.INITIALIZING
                     // (Removed the InMotion V1 requestConnectionPriority(HIGH)
                     // experiment: the tester's failure logs show a RX-perfect /
@@ -682,7 +962,12 @@ class BleConnectionManager @Inject constructor(
                         "Disconnected: name=${currentName ?: "(unknown)"} status=$status reconnect=$shouldReconnect"
                     )
                     rxCharacteristic = null
+                    forcedWriteType = null
                     writeReady = false
+                    // A write queued against a link that has just dropped is
+                    // stale: the rider's horn belongs to the ride they were on,
+                    // not to whatever the next connection turns out to be.
+                    synchronized(writeQueueLock) { writeQueue.clear() }
                     // Reset adapter framing state for the next connection
                     wheelAdapter.onDisconnect()
                     // Close the GATT here so the underlying connection is fully torn down
@@ -691,6 +976,7 @@ class BleConnectionManager @Inject constructor(
                         this@BleConnectionManager.gatt = null
                     }
                     _connectionState.value = ConnectionState.DISCONNECTED
+        _connectedSinceMs.value = 0L
 
                     if (shouldReconnect && status != 0 && !currentConnectIsAuto &&
                         manualRetryCount < MAX_MANUAL_CONNECT_RETRIES) {
@@ -726,7 +1012,16 @@ class BleConnectionManager @Inject constructor(
                                 currentAddress == reconnectAddress &&
                                 _connectionState.value == ConnectionState.DISCONNECTED
                             ) {
-                                connect(reconnectAddress, isAuto = true)
+                                // Scan-first, not a blind connectGatt: a wheel
+                                // that just dropped takes seconds to resume
+                                // advertising, and a blind background connect is
+                                // exactly what some stacks quietly defer with
+                                // the screen off. The address-filtered scan is
+                                // allowed to deliver screen-off results, so the
+                                // direct connect only fires once the wheel is
+                                // actually back.
+                                currentConnectIsAuto = true
+                                reconnectViaScan(reconnectAddress, currentName)
                             }
                         }
                     }
@@ -793,6 +1088,29 @@ class BleConnectionManager @Inject constructor(
                 return
             }
 
+            // Honour what the write characteristic actually supports; see
+            // BleProfile.writeTypeFor. Always logged: which write type a wheel
+            // got is the first thing to check when it connects but says
+            // nothing, and inferring it from the family costs a tester round
+            // trip.
+            val props = rxCharacteristic?.properties ?: 0
+            val resolvedWriteType = BleProfile.writeTypeFor(profile.writeType, props)
+            forcedWriteType = resolvedWriteType.takeIf { it != profile.writeType }
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Write characteristic props=0x${"%02x".format(props)}" +
+                    " (" + buildString {
+                        if (props and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) append("write ")
+                        if (props and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0) {
+                            append("write-no-response")
+                        }
+                    }.trim().ifEmpty { "none" } + ")" +
+                    ", using " +
+                    (if (resolvedWriteType == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
+                        "write-no-response"
+                    } else "write-with-response") +
+                    (if (forcedWriteType != null) " (switched from the family default)" else "")
+            )
+
             // Enable notifications on TX. The CCCD descriptor write is what
             // actually subscribes us to the wheel's push stream; it completes
             // asynchronously via onDescriptorWrite. We must NOT go CONNECTED
@@ -831,6 +1149,13 @@ class BleConnectionManager @Inject constructor(
                     kotlinx.coroutines.delay(4000L)
                     if (_connectionState.value == ConnectionState.INITIALIZING) {
                         Log.w(TAG, "CCCD onDescriptorWrite not seen, forcing connect")
+                        // Connecting anyway is right (some stacks never call
+                        // back), but it means the subscription is unconfirmed:
+                        // say so, or a wheel that answers into an unopened
+                        // pipe reads exactly like a wheel that never answered.
+                        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                            "Notification subscribe never confirmed - connecting anyway"
+                        )
                         markReadyAndConnected()
                     }
                 }
@@ -882,6 +1207,13 @@ class BleConnectionManager @Inject constructor(
             // the init sequence start writing.
             if (descriptor.uuid == CCCD_UUID) {
                 Log.i(TAG, "CCCD notification-enable confirmed (status=$status)")
+                // Whether we are actually subscribed decides how to read a
+                // silent wheel: unsubscribed, it may be answering perfectly
+                // into a pipe we never opened.
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    if (status == BluetoothGatt.GATT_SUCCESS) "Subscribed to wheel notifications"
+                    else "Notification subscribe FAILED (status=$status) - replies cannot reach us"
+                )
                 markReadyAndConnected()
             }
         }
@@ -892,6 +1224,22 @@ class BleConnectionManager @Inject constructor(
             status: Int
         ) {
             Log.d(TAG, "onCharacteristicWrite status=$status")
+            // A non-zero status means the wheel refused the write: the bytes
+            // never reached the firmware. It still releases the worker below,
+            // so without this line a refused write is indistinguishable from a
+            // delivered one and the log shows a healthy-looking stream of
+            // sends that the wheel never received. Status 3 is
+            // GATT_WRITE_NOT_PERMITTED, what a characteristic answers when the
+            // write type is one it does not accept.
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "Write REFUSED by the wheel (status=$status" +
+                        (if (status == 3) ", write not permitted" else "") + ")"
+                )
+            }
+            // Releases the worker: the stack has finished with this write, so
+            // the next one can go without colliding with it.
+            pendingAck?.complete(Unit)
             writeReady = true
         }
 
@@ -975,6 +1323,7 @@ class BleConnectionManager @Inject constructor(
         // rider power-cycles the wheel and reconnects. Any real frame resets the
         // timer, so a slow-streaming wheel is never dropped.
         connectedAtMs = System.currentTimeMillis()
+        _connectedSinceMs.value = connectedAtMs
         val watchdogGatt = gatt
         scope.launch {
             delay(NO_DATA_TIMEOUT_MS)

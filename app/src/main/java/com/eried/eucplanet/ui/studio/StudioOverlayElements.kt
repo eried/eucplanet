@@ -92,9 +92,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
+import com.eried.eucplanet.hud.protocol.WebMercator
+import com.eried.eucplanet.map.MapTileCache
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.MapTraceMode
 import com.eried.eucplanet.data.model.WheelData
 import kotlinx.coroutines.launch
 
@@ -104,10 +107,19 @@ data class StudioElementData(
     val wheelName: String,
     val connected: Boolean,
     val history: List<StudioSample>,
+    /**
+     * The whole trip's telemetry rows, used only by a MAP element in
+     * [MapTraceMode.FULL] to draw the entire route start-to-end. Populated
+     * in Overlay Studio replay (the full trip is known); empty live, where
+     * FULL falls back to [history] - the ride so far.
+     */
+    val fullTrace: List<WheelData> = emptyList(),
     val cameraHub: com.eried.eucplanet.ui.studio.camera.StudioCameraHub,
     val speedUnit: String,
     val distanceUnit: String,
     val tempUnit: String,
+    /** The rider's pressure unit; blank follows the distance unit. */
+    val pressureUnit: String = "",
     /** Wall-clock millis a CLOCK element shows: live now, or the replay row. */
     val clockTimeMs: Long = System.currentTimeMillis(),
     /** Elapsed millis for a CLOCK in STOPWATCH style. */
@@ -670,7 +682,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
             if (element.showLabel) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = "RADAR",
+                        text = stringResource(R.string.studio_element_radar).uppercase(),
                         color = fg,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = (w * 0.09f).coerceIn(9f, 22f).sp,
@@ -692,7 +704,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                 if (!data.radarConnected) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "No radar",
+                            text = stringResource(R.string.studio_radar_none),
                             color = fg,
                             fontSize = (w * 0.10f).coerceIn(10f, 22f).sp
                         )
@@ -762,7 +774,7 @@ private fun RadarLane(element: OverlayElement, data: StudioElementData) {
                 if (targets.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "CLEAR",
+                            text = stringResource(R.string.studio_radar_clear).uppercase(),
                             color = green,
                             fontWeight = FontWeight.Bold,
                             fontSize = (w * 0.11f).coerceIn(11f, 26f).sp
@@ -799,13 +811,13 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
             Column(Modifier.weight(1.5f), horizontalAlignment = Alignment.CenterHorizontally) {
                 when {
                     !data.radarConnected -> Text(
-                        text = "No radar",
+                        text = stringResource(R.string.studio_radar_none),
                         color = fg,
                         fontSize = (w * 0.07f).coerceIn(10f, 22f).sp,
                         maxLines = 1
                     )
                     closest == null -> Text(
-                        text = "CLEAR",
+                        text = stringResource(R.string.studio_radar_clear).uppercase(),
                         color = green,
                         fontWeight = FontWeight.Bold,
                         fontSize = (w * 0.10f).coerceIn(12f, 30f).sp,
@@ -823,7 +835,7 @@ private fun RadarMirror(element: OverlayElement, data: StudioElementData) {
                             maxLines = 1
                         )
                         Text(
-                            text = "m · +${targets.maxOf { it.approachSpeedKmh }} km/h",
+                            text = stringResource(R.string.studio_radar_mirror_closing_fmt, targets.maxOf { it.approachSpeedKmh }),
                             color = markColor,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = (w * 0.055f).coerceIn(9f, 20f).sp,
@@ -875,12 +887,12 @@ private fun RadarMinimal(element: OverlayElement, data: StudioElementData) {
     val line1: String
     val line2: String?
     when {
-        !data.radarConnected -> { dotColor = fg.copy(alpha = 0.4f); line1 = "No radar"; line2 = null }
-        closest == null -> { dotColor = green; line1 = "Clear"; line2 = null }
+        !data.radarConnected -> { dotColor = fg.copy(alpha = 0.4f); line1 = stringResource(R.string.studio_radar_none); line2 = null }
+        closest == null -> { dotColor = green; line1 = stringResource(R.string.studio_radar_clear); line2 = null }
         else -> {
             dotColor = levelColor(maxLevel)
-            line1 = "${closest.distanceM} m"
-            line2 = "+${targets.maxOf { it.approachSpeedKmh }} km/h"
+            line1 = stringResource(R.string.studio_cfg_radar_range_fmt, closest.distanceM)
+            line2 = stringResource(R.string.studio_radar_closing_fmt, targets.maxOf { it.approachSpeedKmh })
         }
     }
     BoxWithConstraints(
@@ -1197,7 +1209,7 @@ private fun FreeTextElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
     val rendered = remember(
         element.text, data.wheelData, data.wheelName,
-        data.speedUnit, data.distanceUnit, data.tempUnit
+        data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
     ) { renderTextTemplate(element.text, data, context) }
     BoxWithConstraints(
         Modifier
@@ -1231,10 +1243,10 @@ private fun renderTextTemplate(
         val token = "{${m.key.lowercase()}}"
         if (s.contains(token, ignoreCase = true)) {
             val value = m.formatted(
-                data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+                data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
             )
             val unit = m.unitText(
-                context, data.speedUnit, data.distanceUnit, data.tempUnit
+                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
             )
             s = s.replace(
                 token,
@@ -1366,10 +1378,10 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
             }
             Row(verticalAlignment = Alignment.Bottom) {
                 val unit = metric.unitText(
-                    context, data.speedUnit, data.distanceUnit, data.tempUnit
+                    context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                 )
                 val valueText = metric.formatted(
-                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                 )
                 val unitOnLeft = element.unitPosition == "LEFT"
                 if (unit.isNotEmpty() && unitOnLeft) {
@@ -1421,7 +1433,7 @@ private fun DataGraphElement(element: OverlayElement, data: StudioElementData) {
             .filter { it.timeMs >= now - windowMs }
             .map {
                 it.timeMs to metric.displayValue(
-                    it.data, data.speedUnit, data.distanceUnit, data.tempUnit
+                    it.data, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                 )
             }
     }
@@ -1480,7 +1492,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
-        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
     )
     val fraction = (value / element.gaugeMax.coerceAtLeast(1f)).coerceIn(0f, 1f)
     val fill = Color(element.foreground)
@@ -1746,7 +1758,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
         ) {
             androidx.compose.material3.Text(
                 text = metric.formatted(
-                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                 ),
                 color = fill,
                 fontWeight = FontWeight.Bold,
@@ -1754,7 +1766,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                 maxLines = 1
             )
             val unit = metric.unitText(
-                context, data.speedUnit, data.distanceUnit, data.tempUnit
+                context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
             ).ifEmpty { metric.displayName() }
             androidx.compose.material3.Text(
                 text = unit,
@@ -1771,7 +1783,7 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
     val context = LocalContext.current
     val metric = StudioMetric.fromKey(element.metric)
     val value = metric.displayValue(
-        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
     )
     val fraction = (value / element.gaugeMax.coerceAtLeast(1f)).coerceIn(0f, 1f)
     val fill = Color(element.foreground)
@@ -1796,11 +1808,11 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
                 }
                 if (element.barShowValue) {
                     val unit = metric.unitText(
-                        context, data.speedUnit, data.distanceUnit, data.tempUnit
+                        context, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                     )
                     androidx.compose.material3.Text(
                         text = metric.formatted(
-                            data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+                            data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit, data.pressureUnit
                         ) + if (unit.isEmpty()) "" else " $unit",
                         color = fill,
                         fontWeight = FontWeight.Bold,
@@ -1914,74 +1926,42 @@ private fun ImageElement(element: OverlayElement) {
 /** Side of a single map tile, in pixels (standard slippy-map tile size). */
 private const val MAP_TILE_SIZE = 256
 
-/** Most recent trace points to draw, keeps the polyline cheap on long trips. */
-private const val MAP_TRACE_CAP = 400
+/** Point budget for a drawn trace (both PROGRESS and FULL). High enough that a
+ *  long route keeps its shape, low enough to stroke in one frame; the source is
+ *  decimated evenly to this many points. */
+private const val MAP_TRACE_CAP = 1200
 
-/**
- * Process-wide raster tile cache + async loader. Tiles are immutable for a
- * given (style, z, x, y), so one shared LRU serves every MAP element.
- */
-private object MapTileCache {
-    // ~64 tiles ≈ 16 MB of ARGB_8888 bitmaps; plenty for a 3x3 view plus pans.
-    private val cache = android.util.LruCache<String, ImageBitmap>(64)
-    // URLs currently being fetched, so two recompositions don't double-load.
-    private val inFlight = java.util.Collections.synchronizedSet(HashSet<String>())
-
-    fun get(url: String): ImageBitmap? = cache.get(url)
-
-    fun isLoading(url: String): Boolean = inFlight.contains(url)
-
-    /** Loads [url] off the main thread; returns true once a bitmap is cached. */
-    suspend fun load(url: String): Boolean {
-        if (cache.get(url) != null) return true
-        if (!inFlight.add(url)) return false
-        return try {
-            val bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                runCatching {
-                    val conn = (java.net.URL(url).openConnection()
-                        as java.net.HttpURLConnection).apply {
-                        // Tile servers (OSM in particular) reject blank UAs.
-                        setRequestProperty("User-Agent", "EUC Planet")
-                        connectTimeout = 8000
-                        readTimeout = 8000
-                    }
-                    conn.inputStream.use { android.graphics.BitmapFactory.decodeStream(it) }
-                }.getOrNull()
-            }
-            if (bmp != null) {
-                cache.put(url, bmp.asImageBitmap())
-                true
-            } else false
-        } finally {
-            inFlight.remove(url)
-        }
+/** Sample [pts] down to at most [cap] points, evenly across the list and always
+ *  keeping the first and last so the route's endpoints stay put. */
+private fun decimateTrace(pts: List<WheelData>, cap: Int): List<WheelData> {
+    if (pts.size <= cap) return pts
+    val out = ArrayList<WheelData>(cap)
+    val step = (pts.size - 1).toDouble() / (cap - 1)
+    var i = 0
+    while (i < cap) {
+        out.add(pts[(i * step).toInt().coerceAtMost(pts.size - 1)])
+        i++
     }
+    return out
 }
 
-/** Tile URL for a style + z/x/y. */
-private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String = when (style) {
-    "DARK" -> "https://basemaps.cartocdn.com/dark_all/$z/$x/$y.png"
-    "SATELLITE" ->
-        "https://server.arcgisonline.com/ArcGIS/rest/services/" +
-            "World_Imagery/MapServer/tile/$z/$y/$x"
-    else -> "https://tile.openstreetmap.org/$z/$x/$y.png"
-}
 
-/** Fractional tile X for a longitude at [zoom] (slippy-map / Web Mercator). */
-private fun lonToTileX(lon: Double, zoom: Int): Double =
-    (lon + 180.0) / 360.0 * (1 shl zoom)
+/** Tile URL for a style + z/x/y, from the registry every map screen shares. */
+private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String =
+    com.eried.eucplanet.hud.protocol.MapLayers.tileUrl(style, z, x, y)
 
-/** Fractional tile Y for a latitude at [zoom] (slippy-map / Web Mercator). */
-private fun latToTileY(lat: Double, zoom: Int): Double {
-    val rad = Math.toRadians(lat)
-    return (1.0 - kotlin.math.ln(
-        kotlin.math.tan(rad) + 1.0 / kotlin.math.cos(rad)
-    ) / Math.PI) / 2.0 * (1 shl zoom)
-}
 
 @Composable
 private fun MapElement(element: OverlayElement, data: StudioElementData) {
-    val zoom = element.mapZoom.coerceIn(10, 19)
+    val wantedZoom = element.mapZoom.coerceIn(10, 19)
+    // Tiles come no deeper than the provider renders (Esri Canvas stops at
+    // 16 and answers deeper requests with a "Map data not yet available"
+    // tile); past that depth the last real tiles are drawn scaled up.
+    val zoom = wantedZoom.coerceAtMost(
+        com.eried.eucplanet.hud.protocol.MapLayers.byId(element.mapStyle).maxNativeZoom
+    )
+    val tilePx = MAP_TILE_SIZE shl (wantedZoom - zoom)
+    val context = LocalContext.current
 
     // GPS drops constantly on a real ride: a tunnel, a built-up street, a
     // momentary loss. The live sample then carries 0,0 and the map used to fall
@@ -2001,16 +1981,26 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
     // nowhere to point the map.
     val hasFix = centerLat != 0.0 || centerLon != 0.0
 
-    // Trace points with a real fix, capped to the most recent stretch. Built
-    // from history so it works identically for live recording and replay.
-    val trace = remember(data.history, element.mapTrace) {
-        if (!element.mapTrace) emptyList()
-        else data.history
-            .asSequence()
-            .map { it.data }
-            .filter { it.latitude != 0.0 || it.longitude != 0.0 }
-            .toList()
-            .takeLast(MAP_TRACE_CAP)
+    // Trace points with a real fix. NONE draws nothing. PROGRESS is the path
+    // travelled up to now: in replay that is the whole route from the start to
+    // the scrub cursor (history is pre-trimmed to the cursor), live it is the
+    // retained rolling window (the ride so far). FULL draws the entire trip
+    // start-to-end from fullTrace when replay supplies it; live has no full
+    // trip, so FULL falls back to the same history as PROGRESS. Both are
+    // decimated evenly so a long ride stays cheap to stroke.
+    val trace = remember(data.history, data.fullTrace, element.mapTraceMode) {
+        fun withFix(pts: List<WheelData>) =
+            pts.filter { it.latitude != 0.0 || it.longitude != 0.0 }
+        when (element.mapTraceMode) {
+            MapTraceMode.NONE -> emptyList()
+            MapTraceMode.PROGRESS ->
+                decimateTrace(withFix(data.history.map { it.data }), MAP_TRACE_CAP)
+            MapTraceMode.FULL -> {
+                val src = if (data.fullTrace.isNotEmpty()) data.fullTrace
+                          else data.history.map { it.data }
+                decimateTrace(withFix(src), MAP_TRACE_CAP)
+            }
+        }
     }
 
     Box(
@@ -2035,8 +2025,8 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
         }
 
         // Fractional tile coordinates of the centre at this zoom.
-        val centerTx = lonToTileX(centerLon, zoom)
-        val centerTy = latToTileY(centerLat, zoom)
+        val centerTx = WebMercator.tileX(centerLon, zoom)
+        val centerTy = WebMercator.tileY(centerLat, zoom)
         val maxTile = (1 shl zoom) - 1
 
         // Which tiles are needed: enough rings around the centre tile to cover
@@ -2066,7 +2056,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 tileKeys.forEach { (_, _, url) ->
                     if (MapTileCache.get(url) == null) {
                         launch {
-                            if (MapTileCache.load(url)) tilesReady++
+                            if (MapTileCache.load(context, url)) tilesReady++
                         }
                     }
                 }
@@ -2130,8 +2120,8 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             // Project a (lat, lon) to canvas pixels: pixel offset from centre
             // tile coords, scaled by the tile size.
             fun project(lat: Double, lon: Double): Offset {
-                val px = (lonToTileX(lon, zoom) - centerTx) * MAP_TILE_SIZE
-                val py = (latToTileY(lat, zoom) - centerTy) * MAP_TILE_SIZE
+                val px = (WebMercator.tileX(lon, zoom) - centerTx) * tilePx
+                val py = (WebMercator.tileY(lat, zoom) - centerTy) * tilePx
                 return Offset(cx + px.toFloat(), cy + py.toFloat())
             }
 
@@ -2141,21 +2131,19 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 // Tiles: top-left of each tile is its (tileX - centerTx) offset.
                 tileKeys.forEach { (tx, ty, url) ->
                     val bmp = MapTileCache.get(url) ?: return@forEach
-                    val left = cx + ((tx - centerTx) * MAP_TILE_SIZE).toFloat()
-                    val top = cy + ((ty - centerTy) * MAP_TILE_SIZE).toFloat()
+                    val left = cx + ((tx - centerTx) * tilePx).toFloat()
+                    val top = cy + ((ty - centerTy) * tilePx).toFloat()
                     drawImage(
                         image = bmp,
                         dstOffset = androidx.compose.ui.unit.IntOffset(
                             left.roundToInt(), top.roundToInt()
                         ),
-                        dstSize = androidx.compose.ui.unit.IntSize(
-                            MAP_TILE_SIZE, MAP_TILE_SIZE
-                        )
+                        dstSize = androidx.compose.ui.unit.IntSize(tilePx, tilePx)
                     )
                 }
 
                 // Trace polyline.
-                if (element.mapTrace && trace.size >= 2) {
+                if (element.mapTraceMode != MapTraceMode.NONE && trace.size >= 2) {
                     val path = androidx.compose.ui.graphics.Path()
                     trace.forEachIndexed { i, p ->
                         val o = project(p.latitude, p.longitude)
@@ -2242,6 +2230,40 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                     color = Color.Black, radius = headR,
                     center = Offset(cx, cy),
                     style = Stroke(width = borderW)
+                )
+            }
+
+            // The credit, last so nothing covers it, and outside the rotation
+            // so it stays level however the map is turned. An exported video
+            // travels with no interface attached, so this is the only place the
+            // provider can be credited, and the map licences require it.
+            if (element.mapAttribution) {
+                val layer = com.eried.eucplanet.hud.protocol.MapLayers.byId(element.mapStyle)
+                val textSize = (size.minDimension * 0.055f).coerceIn(9f, 22f)
+                val pad = textSize * 0.35f
+                val paint = android.graphics.Paint().apply {
+                    isAntiAlias = true
+                    this.textSize = textSize
+                    color = android.graphics.Color.WHITE
+                    // A shadow rather than a plate: it stays legible over
+                    // satellite and over pale topo without boxing off the map.
+                    setShadowLayer(textSize * 0.35f, 0f, 0f, android.graphics.Color.BLACK)
+                }
+                // A clipped credit credits nobody, and a map element is often a
+                // thumbnail. Use the full string when it fits, the short one
+                // when it does not, and shrink the type only as a last resort.
+                val room = size.width - pad * 2
+                var text = layer.attribution
+                if (paint.measureText(text) > room) text = layer.attributionShort
+                while (paint.measureText(text) > room && paint.textSize > 7f) {
+                    paint.textSize = paint.textSize - 0.5f
+                }
+                val width = paint.measureText(text)
+                drawContext.canvas.nativeCanvas.drawText(
+                    text,
+                    (size.width - width - pad).coerceAtLeast(pad),
+                    size.height - pad,
+                    paint
                 )
             }
         }

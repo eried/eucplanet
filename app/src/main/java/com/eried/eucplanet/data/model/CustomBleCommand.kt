@@ -14,7 +14,7 @@ import org.json.JSONObject
  * mirroring the `dashboardCustomTiles` ("C:<uuid>") pattern. The id also appears
  * in `dashboardActionOrder` like a built-in action key.
  *
- * Frames are sent verbatim (one BLE write each, in order) — the user pastes
+ * Frames are sent verbatim (one BLE write each, in order), the user pastes
  * complete frames, typically copied from a btsnoop, so any required CRC is
  * already baked in. See docs/superpowers/specs/2026-06-01-custom-ble-action-design.md.
  */

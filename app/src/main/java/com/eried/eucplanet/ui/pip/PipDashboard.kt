@@ -160,6 +160,10 @@ private fun pipMetricValue(
     tempUnit: String,
 ): Pair<String, String> = when (key.uppercase()) {
     "BATTERY" -> "${d.batteryPercent}" to "%"
+    // The picture-in-picture window follows the dashboard's own metric order,
+    // so a tile the rider put there has to read here too.
+    "BATTERY_ENVELOPE" ->
+        (if (d.batteryEnvelope.isNaN()) "--" else "%.0f".format(d.batteryEnvelope)) to "%"
     "TEMPERATURE" -> "%.0f".format(Units.temperature(d.maxTemperature, tempUnit)) to
         Units.tempUnit(tempUnit)
     "VOLTAGE" -> "%.0f".format(d.voltage) to "V"

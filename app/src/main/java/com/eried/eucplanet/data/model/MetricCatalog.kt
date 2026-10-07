@@ -10,7 +10,7 @@ import com.eried.eucplanet.ui.theme.AccentPink
 import com.eried.eucplanet.ui.theme.AccentPurple
 
 /**
- * Metric layer — single source of truth for every metric the dashboard
+ * Metric layer, single source of truth for every metric the dashboard
  * editor catalogues, the live dashboard renders, and the debug overlay
  * reflects on. Mirrors [ActionCatalog]: adding a new metric is one entry
  * in [MetricCatalog.all]; the editor / live dashboard / debug overlay
@@ -20,7 +20,7 @@ import com.eried.eucplanet.ui.theme.AccentPurple
  * sparkline style, supports-stats flag) but NOT raw value extraction or
  * unit conversion. Those stay in the live dashboard because they need
  * AppSettings (for imperial/metric) and WheelData (for the wheel
- * snapshot) — keeping the catalog free of those references means it
+ * snapshot), keeping the catalog free of those references means it
  * stays a pure metadata declaration that compiles with no dependencies
  * beyond Compose colour primitives.
  *
@@ -34,7 +34,7 @@ import com.eried.eucplanet.ui.theme.AccentPurple
 /**
  * How the rolling sparkline behind a metric tile should be drawn. The
  * live dashboard reads this when [MetricSlotStats.sparkline] is enabled.
- * Choosing a style is purely visual — corner stats (min/max/avg) compute
+ * Choosing a style is purely visual, corner stats (min/max/avg) compute
  * from the same history regardless of the style picked, and remain
  * computable even when the rider hides the sparkline.
  */
@@ -45,7 +45,7 @@ enum class SparklineStyle {
     /** Thin stroke connecting samples. */
     LINE,
 
-    /** Stroke with a Catmull-Rom-ish smoothing pass — softer for slow-moving metrics. */
+    /** Stroke with a Catmull-Rom-ish smoothing pass, softer for slow-moving metrics. */
     SMOOTH_LINE,
 
     /** Stroke + faint fill underneath; the dashboard's default treatment historically. */
@@ -63,13 +63,25 @@ enum class SparklineStyle {
 /**
  * Metadata for a single dashboard metric. Catalog declares one of these
  * per static metric key. Dynamic instances (`M:uuid` composites, `C:uuid`
- * custom tiles) don't have entries here — they pull cells from the
+ * custom tiles) don't have entries here, they pull cells from the
  * catalog at render time but have their own per-instance state.
  */
 data class MetricSpec(
     /** Stable identifier persisted in settings (composites/custom tiles reference these by key too). */
     val key: String,
     @StringRes val labelRes: Int,
+    /**
+     * What to call this out loud, when the tile label is an abbreviation.
+     *
+     * Tile labels are sized for a dashboard cell: "Phase A", "BT signal",
+     * "Battery (est)". Voice takes the labels as the words a rider says, so
+     * those became things nobody says, and "Phase A" is worse than unsayable:
+     * the "A" is a single letter, which the matcher requires to be spoken
+     * exactly, so "phase amps" missed it and landed on Amps instead.
+     *
+     * Null for the great majority, whose label is already a word.
+     */
+    @StringRes val spokenLabelRes: Int? = null,
     /** Optional explainer surfaced in the slot-sheet info box. */
     @StringRes val descriptionRes: Int? = null,
     /** Accent colour the tile's value text + sparkline tint pick up. */
@@ -84,7 +96,7 @@ data class MetricSpec(
      */
     val supportsStats: Boolean = true,
     /**
-     * Baseline for [SparklineStyle.AREA_BIPOLAR]. Usually 0 — separates
+     * Baseline for [SparklineStyle.AREA_BIPOLAR]. Usually 0, separates
      * the positive lobe (drawn in [accent]) from the negative lobe
      * (drawn in [bipolarNegativeAccent], or a darker tint of [accent]
      * if null).
@@ -103,6 +115,19 @@ object MetricCatalog {
             labelRes = R.string.metric_chip_battery,
             accent = AccentGreen,
             sparkline = SparklineStyle.AREA
+        ),
+        MetricSpec(
+            key = "BATTERY_ENVELOPE",
+            labelRes = R.string.metric_chip_battery_envelope,
+            spokenLabelRes = R.string.metric_spoken_battery_envelope,
+            descriptionRes = R.string.metric_desc_battery_envelope,
+            // The trip chart's envelope colour, not the battery tile's green.
+            // Same family, different reading, and two greens side by side read
+            // as one number printed twice.
+            accent = AccentBlue,
+            // Not smoothed. This only moves when the charge moved, so a curve
+            // would draw motion that did not happen.
+            sparkline = SparklineStyle.LINE
         ),
         MetricSpec(
             key = "TEMPERATURE",
@@ -234,6 +259,7 @@ object MetricCatalog {
         MetricSpec(
             key = "PHASE_CURRENT",
             labelRes = R.string.metric_chip_phase_current,
+            spokenLabelRes = R.string.metric_spoken_phase_current,
             accent = AccentBlue,
             sparkline = SparklineStyle.AREA_BIPOLAR,
             bipolarNegativeAccent = AccentGreen
@@ -307,6 +333,7 @@ object MetricCatalog {
         MetricSpec(
             key = "AVG_TRIP_SPEED",
             labelRes = R.string.metric_chip_avg_trip_speed,
+            spokenLabelRes = R.string.metric_spoken_avg_trip_speed,
             descriptionRes = R.string.metric_desc_avg_trip_speed,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
@@ -418,6 +445,7 @@ object MetricCatalog {
         MetricSpec(
             key = "BT_RSSI",
             labelRes = R.string.metric_chip_bt_rssi,
+            spokenLabelRes = R.string.metric_spoken_bt_rssi,
             descriptionRes = R.string.metric_desc_bt_rssi,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
@@ -431,6 +459,7 @@ object MetricCatalog {
         MetricSpec(
             key = "LAT_LONG",
             labelRes = R.string.metric_chip_lat_long,
+            spokenLabelRes = R.string.metric_spoken_lat_long,
             accent = AccentBlue,
             sparkline = SparklineStyle.NONE,
             supportsStats = false
@@ -459,6 +488,13 @@ object MetricCatalog {
         MetricSpec(
             key = "LIGHT_ON",
             labelRes = R.string.metric_chip_light_on,
+            // The tile says "Light" because it sits under a number that is
+            // the answer. Spoken, the bare word is what a rider says when
+            // they want the light switched, so the reading has to ask for
+            // itself by a longer name. The matcher prefers the longest match,
+            // which is what keeps "light status" off the toggle and off the
+            // "status" report.
+            spokenLabelRes = R.string.metric_spoken_light_on,
             accent = AccentGreen,
             sparkline = SparklineStyle.NONE,
             supportsStats = false

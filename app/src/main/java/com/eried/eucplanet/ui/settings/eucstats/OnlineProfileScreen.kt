@@ -462,7 +462,7 @@ fun OnlineProfileDialog(
                         )
                     }
 
-                    // One consolidated "locked until" line — the server locks the
+                    // One consolidated "locked until" line, the server locks the
                     // fields together, so a separate caption per field just looked
                     // messy. Shown once when anything is on cooldown.
                     val anyLocked = !nameEditable || !flagEditable || !avatarEditable

@@ -23,6 +23,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import com.eried.eucplanet.ui.common.rememberScanStarter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,18 +59,16 @@ fun RadarSection(
     val scanResults by viewModel.scanResults.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
     val frame by viewModel.currentFrame.collectAsState()
-    val bluetoothOff by viewModel.bluetoothOff.collectAsState()
+    // Scans ask to turn Bluetooth on rather than reporting that it is off.
+    val startScan = rememberScanStarter()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (pairedAddress == null) {
             HintText(stringResource(R.string.radar_caption), small = true)
-            if (bluetoothOff) {
-                HintText(stringResource(R.string.scan_bluetooth_off_title), small = true)
-            }
             UnpairedRadarCard(
                 scanning = scanning,
                 results = scanResults,
-                onStartScan = { viewModel.startScan() },
+                onStartScan = { startScan { viewModel.startScan() } },
                 onStopScan = { viewModel.stopScan() },
                 onPick = { viewModel.pair(it) }
             )

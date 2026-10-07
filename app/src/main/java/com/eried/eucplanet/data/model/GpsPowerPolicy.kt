@@ -20,10 +20,17 @@ enum class GpsSignalEvent { ACQUIRED, LOST }
  *
  * The rule (rider-specified):
  *  - Recording or navigating always needs precise 1 Hz.
+ *  - Sharing a live location is the same kind of promise: friends are watching
+ *    this rider's dot, so it stays 1 Hz whatever the app is doing. A rider who
+ *    opens the web viewer to look at the group backgrounds the app, and with no
+ *    wheel connected that used to drop GPS to OFF, freezing their own dot for
+ *    everyone else while their phone said Connected.
+ *  - A visible watch map needs the same precise 1 Hz stream while the phone is
+ *    backgrounded.
  *  - App not visible (screen off / backgrounded): high accuracy only while a
  *    wheel is connected (riding with the phone pocketed); otherwise fully OFF.
- *    Background + disconnected + not recording/navigating is the pure-idle state
- *    that should cost nothing (ultra battery saving).
+ *    Background + disconnected + not recording/navigating/sharing and no
+ *    visible watch map is the pure-idle state that should cost nothing.
  *  - App visible but idle: balanced is enough to show a position and keep a fix
  *    warm without spinning the GPS chip at full rate.
  *
@@ -37,8 +44,10 @@ object GpsPowerPolicy {
         navigating: Boolean,
         connected: Boolean,
         appVisible: Boolean,
+        sharing: Boolean = false,
+        watchMapVisible: Boolean = false,
     ): GpsTier = when {
-        recording || navigating -> GpsTier.HIGH
+        recording || navigating || sharing || watchMapVisible -> GpsTier.HIGH
         !appVisible -> if (connected) GpsTier.HIGH else GpsTier.OFF
         else -> GpsTier.BALANCED
     }

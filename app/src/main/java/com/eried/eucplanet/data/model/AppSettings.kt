@@ -3,6 +3,24 @@ package com.eried.eucplanet.data.model
 import com.eried.eucplanet.R
 
 /**
+ * How the phone finds the network HUD. Three modes so the rider controls
+ * whether the saved [AppSettings.hudIp] is ever used:
+ *  - [AUTO]  discovery only (UDP beacon / mDNS / subnet probe); the saved
+ *            IP is never touched, so a stale address from another network
+ *            can't capture the connection.
+ *  - [FIXED] the saved IP/port only, no discovery.
+ *  - [BOTH]  discovery, with the saved IP/port as a last-resort fallback hint.
+ * FIXED and BOTH use the IP/port; AUTO does not. Value strings are stored, so
+ * "HYBRID" from an earlier build is normalised to [BOTH] on read.
+ */
+object HudDiscoveryMode {
+    const val AUTO = "AUTO"
+    const val FIXED = "FIXED"
+    const val BOTH = "BOTH"
+    val VALUES = setOf(AUTO, FIXED, BOTH)
+}
+
+/**
  * The full set of rider preferences. Lives in DataStore as one JSON blob
  * ([com.eried.eucplanet.data.store.SettingsStore]) so adding a new field is
  * just a one-line data-class change, no DB migration, no risk of losing
@@ -68,6 +86,9 @@ data class AppSettings(
     val voiceAnnounceRequireExternal: Boolean = true,
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
+    /** Speech loudness, 10..100 % of the output channel's volume. Only the
+     *  voice: music, alarms and the auto-volume curve are not touched. */
+    val voiceVolumePercent: Int = 100,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
     // Specific TTS Voice.name within the locale (a language can expose several
     // voices). Empty = let the engine use its default voice for the locale.
@@ -87,6 +108,10 @@ data class AppSettings(
     val voiceAudioFocus: String = "DUCK",
     // Where to route the voice: "MEDIA" (music slider), "NOTIFICATION" (ring slider), "ALARM" (alarm slider, loudest)
     val voiceOutputChannel: String = "MEDIA",
+    /** Voice commands, nested rather than four more slots. See rule 8: this
+     *  class is one field away from the 255-argument limit where copy() stops
+     *  verifying and the app dies at runtime. */
+    val voiceCommands: VoiceCommandSettings = VoiceCommandSettings(),
     // Periodic and on-trigger voice report toggles, NESTED. These used to be 18
     // top-level flags, which had AppSettings' copy$default sitting right on the
     // JVM's 255-parameter-slot limit with no room for another report type. Read
@@ -105,8 +130,17 @@ data class AppSettings(
     val accelSplit: AccelSplitSettings = AccelSplitSettings(),
     // Speed-driven media (music / podcast) pause & resume - see MediaControlSettings.
     val mediaControl: MediaControlSettings = MediaControlSettings(),
+    // Live location share (navigator Share button) - see ShareSettings. Nested: one arg slot.
+    val share: ShareSettings = ShareSettings(),
     // Bluetooth-signal proximity lock / unlock - see ProximityLockSettings.
     val proximityLock: ProximityLockSettings = ProximityLockSettings(),
+    /** What the horn button does: the wheel's horn, the rider's sound, or both. */
+    val horn: HornSettings = HornSettings(),
+    /** Weather / ridability module (dashboard icon + forecast flyout). Nested
+     *  so the whole feature costs one constructor slot; see rule 8. */
+    val weather: WeatherSettings = WeatherSettings(),
+    val tpms: TpmsSettings = TpmsSettings(),
+    val batteryPercent: BatteryPercentSettings = BatteryPercentSettings(),
 
     // Special announcements (event-driven). All silent by default; the welcome
     // wizard's first step offers a single toggle that flips this whole block on
@@ -167,20 +201,21 @@ data class AppSettings(
     val flicShowOnDashboard: Boolean = true,
 
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
-    val autoLightsEnabled: Boolean = false,
-    val autoLightsOnMinutesBefore: Int = 30,   // minutes before sunset to turn lights ON
-    val autoLightsOffMinutesAfter: Int = 30,   // minutes after sunrise to turn lights OFF
+    val lights: LightsSettings = LightsSettings(),
 
     // Speed-based volume boost. Multiplier curve maps speed to 1×–2× of the user's baseline volume.
     // 1× = no boost (baseline), 2× = double the baseline (capped at 100% by the system).
     // 4 control points at 0/25/50/75 km/h. 0 km/h is locked at 1× (no boost at standstill).
     // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
     // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
-    val autoVolumeEnabled: Boolean = false,
+
     // Only adjust the media volume while a wheel is connected (i.e. actually
     // riding). On by default so auto-volume never touches the phone's volume
     // when the app is used without a wheel.
-    val autoVolumeOnlyWhenConnected: Boolean = true,
+    /** When the speed-driven automations may act: "NEVER" (no condition),
+     *  "CONNECTED" (a wheel is linked) or "RIDING" (linked and moving). See
+     *  [com.eried.eucplanet.service.ApplyWhen]. */
+    val autoVolumeApplyWhen: String = ApplyWhenIds.NEVER,
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
 
@@ -246,6 +281,10 @@ data class AppSettings(
     // extra graph keys that were switched ON. Empty = none, the original six
     // charts only.
     val tripExtraCharts: String = "",
+    // Same inverted store for stat tiles that ship OFF (start battery, energy,
+    // consumption): lists the extra tile keys the rider switched ON, so a new
+    // optional tile never appears for everyone on upgrade. Empty = none.
+    val tripExtraTiles: String = "",
 
     // Screen geometry. Compact mode is the tiny dashboard (speedo + one
     // swipeable buttons/metrics area) used on flip cover screens; it reuses
@@ -302,7 +341,7 @@ data class AppSettings(
     // --- Custom theme system ---
     /**
      * Name of the active theme: a built-in (Light / Dark / Pure Black) or a saved
-     * custom. This is the ONLY theme state that is persisted — the resolved colors
+     * custom. This is the ONLY theme state that is persisted, the resolved colors
      * are re-derived from it on launch (see ui/theme/ThemeController), a built-in
      * from code or a saved `.json` from the themes folder, falling back to a preset
      * if the file is gone. The dirty flag and unsaved working drafts are in-memory
@@ -399,8 +438,7 @@ data class AppSettings(
     /** Overpass (chargers / stations POI source) endpoint, overridable for self-hosting. */
     val navOverpassUrl: String = "https://overpass-api.de/api/interpreter",
     /**
-     * Open Charge Map API key (free, from openchargemap.org). Blank by default —
-     * when set, the charger flyout enriches with OCM community data (rating,
+     * Open Charge Map API key (free, from openchargemap.org). Blank by default, * when set, the charger flyout enriches with OCM community data (rating,
      * comments, connectors, photos). Only used in advanced map mode for chargers.
      */
     val navOcmApiKey: String = "",
@@ -412,7 +450,9 @@ data class AppSettings(
     //    (com.eried.eucplanet.data.store.NavMarkerStore); survives app updates but
     //    not a full uninstall / new device (never recovered).
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
-    val navMapType: String = "LIGHT",
+    /** Route Builder base layer. Plain OSM, which draws paths and tracks;
+     *  the Carto styles mute them by design, so trails read as missing. */
+    val navMapType: String = "OSM",
     /**
      * When true (the default) the route builder solves the WHOLE multi-stop
      * tour in one routing request -- a single solid line, a whole-tour distance
@@ -491,7 +531,7 @@ data class AppSettings(
     /**
      * Hardware-button bindings on the watch (Galaxy Watch Ultra exposes the
      * orange Action button as STEM_1 and the bottom side button as STEM_2;
-     * Pixel Watch only has one). Stored as the [FlicAction] enum name so the
+     * Pixel Watch only has one). Stored as an [ActionCatalog] key so the
      * picker can reuse the same UI/string set as Flic and Volume keys. The
      * Wear OS side reads these via the Data Layer publish, intercepts
      * KEYCODE_STEM_* in MainActivity, and either fires a local control
@@ -500,12 +540,16 @@ data class AppSettings(
     val watchStem1Click: String = "NONE",
     val watchStem1Hold: String = "NONE",
     val watchStem2Click: String = "NONE",
+    // Third hardware button. Garmin only (the Down key); Wear watches have
+    // two stems, so the wear bridge never sends it. Click only: the watch
+    // system can claim Down's long press for its own shortcut.
+    val watchStem3Click: String = "NONE",
     val watchStem2Hold: String = "NONE",
 
     /**
      * On-screen watch button bindings. Two configurable buttons; tap fires the
-     * "click" action, long-press fires the "hold" action. Same FlicAction
-     * vocabulary as Flic / Volume / Stem buttons. Defaults match the wheel's
+     * "click" action, long-press fires the "hold" action. Same [ActionCatalog]
+     * key vocabulary as Flic / Volume / Stem buttons. Defaults match the wheel's
      * most-used controls (Horn, Light) so out-of-the-box behavior matches
      * the previous hardcoded buttons.
      */
@@ -546,6 +590,7 @@ data class AppSettings(
      * as the only glance surface.
      */
     val watchShowNavigation: Boolean = true,
+    val watchMap: WatchMapSettings = WatchMapSettings(),
 
     // --- HUD companion (paired by typing the HUD IP, see HudServer) ---
     /**
@@ -561,8 +606,7 @@ data class AppSettings(
      *
      * Default: false in release, true in debug builds. Debug-only opt-in
      * by default means a fresh sideload-for-testing install dials the HUD
-     * immediately without the rider having to find the toggle in Settings —
-     * which is exactly the flow the dev loop runs every reinstall. Release
+     * immediately without the rider having to find the toggle in Settings, * which is exactly the flow the dev loop runs every reinstall. Release
      * users still see it disabled so a HUDless rider doesn't burn battery
      * on a dial loop they'll never use.
      */
@@ -578,6 +622,16 @@ data class AppSettings(
     // network HUD above. Nested (rule 8: keep AppSettings under the 255-arg dex
     // limit) so future Engo options don't each spend a top-level slot.
     val engoHud: EngoHudSettings = EngoHudSettings(),
+    /**
+     * Allow crews pairing with a server other than the one this build talks to.
+     *
+     * Off, and the rider has to find it. A pairing QR is a thing anybody can print and tape
+     * to a wall, and approving one sends this rider's store_id to whatever server the code
+     * names — so a code pointing anywhere unexpected is refused outright unless the rider has
+     * deliberately turned this on. It costs nothing in the normal case, because the normal
+     * case is a code from the usual server, which never consults this.
+     */
+    val crewsDevServerEnabled: Boolean = false,
     /** Keep the foreground service (ongoing notification) alive even with no wheel
      *  connected, so background trip sync and voice keep running. Default on. */
     val keepAppAlive: Boolean = true,
@@ -615,15 +669,15 @@ data class AppSettings(
      */
     val hudIp: String = "",
     /**
-     * When ON (default), the phone runs a 4-layer discovery chain to find
-     * the HUD's IP automatically: UDP beacon → mDNS browse → manual hint
-     * (whatever is in [hudIp]) → subnet probe of the phone's own /24. The
-     * winning channel is published on the HUD-settings status line so the
-     * rider can see how the link was established. When OFF, only [hudIp]
-     * is tried -- legacy behaviour, retained as an escape hatch for cases
-     * where every auto path is broken (very rare).
+     * How the phone finds the HUD (see [HudDiscoveryMode]). AUTO (default)
+     * races UDP beacon, mDNS browse and a subnet probe of its own /24 and
+     * never touches [hudIp] - the settings row that holds it is hidden, so
+     * nothing is dialled that the rider cannot see. BOTH adds the saved
+     * [hudIp] as a fallback hint in that race. FIXED uses only [hudIp] - the
+     * escape hatch for when every auto path is broken. The winning channel is
+     * published on the HUD-settings status line so the rider sees how it linked.
      */
-    val hudAutoDiscover: Boolean = true,
+    val hudDiscoveryMode: String = HudDiscoveryMode.AUTO,
     /**
      * Name of the Overlay Studio preset the rider chose to mirror on the
      * HUD as a "Custom" screen. Empty = no custom overlay configured.
@@ -710,13 +764,13 @@ data class AppSettings(
      */
     val hudScreensOrder: String = "",
     /**
-     * Which CartoCDN raster style the HUD should use for its Map screen
+     * Which raster map style the HUD should use for its Map screen
      * and the MAP element inside a Custom overlay. Empty = the HUD picks
-     * its compiled-in default (currently "voyager", neutral parchment
-     * background). Other supported codes: "dark_matter",
-     * "dark_matter_nolabels", "voyager", "light_all", "positron".
-     * Anything else falls back to the HUD's compiled default so the
-     * rider doesn't get a blank map if they pick something we removed.
+     * its compiled-in default (a light basemap). Supported codes: "osm",
+     * "cyclosm", "topo", "hot", "satellite", "light", "dark"; legacy Carto
+     * slugs riders have saved ("voyager", "dark_all", ...) still resolve
+     * to the matching Esri style, and anything else falls back to light so
+     * the rider never gets a blank map.
      */
     val hudMapStyle: String = "",
     /**
@@ -733,44 +787,8 @@ data class AppSettings(
     val hudMapContrastPct: Int = 100,
     val hudMapBrightnessPct: Int = 0,
 
-    // --- Motor Sound generator ---
-    //
-    // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
-    // through the media stream so it mixes with music; the user controls how it
-    // behaves under voice announces via [engineDuckOnVoice].
-    val engineSoundEnabled: Boolean = false,
-    /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
-    val engineType: String = "FOUR_STROKE_SINGLE",
-    /** In-app gain 0..1 over the media stream. */
-    val engineVolume: Float = 0.6f,
-    /**
-     * Legacy. Was a paired "fixed volume" toggle (with [engineVolume] as the slider) that
-     * could disable the speed curve. The current UI always uses the curve so this field
-     * is unused, kept only for backup/sync compatibility with v0.5.x exports.
-     */
-    val engineVolumeAutoEnabled: Boolean = false,
-    /**
-     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
-     * volume, there's no separate fixed-volume slider any more. Format matches
-     * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
-     * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
-     * silent at top.
-     */
-    val engineVolumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
-    /** "OPEN", "HALF", "MUFFLED", controls high-harmonic rolloff. */
-    val engineMuffler: String = "HALF",
-    /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
-    val engineGearbox: String = "FOUR",
-    /** "ALWAYS" (always idling when connected), "FADE" (fade after parked), "MOVING" (only when moving). */
-    val engineIdleBehavior: String = "FADE",
-    /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
-    val engineDecelChar: String = "STANDARD",
-    /** "OFF", "LIGHT", "STRONG", engine-brake whine layered during sustained decel/regen. */
-    val engineBrake: String = "LIGHT",
-    /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
-    val engineDuckOnVoice: String = "DUCK",
-    /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
-    val engineHeadphonesOnly: Boolean = false,
+    // --- Motor Sound generator --- (nested; see EngineSoundSettings)
+    val engineSound: EngineSoundSettings = EngineSoundSettings(),
 
     // --- Overlay Studio replay export ---
     // Output format for the Replay-mode photo / video export. Stored as stable
@@ -813,7 +831,7 @@ data class AppSettings(
      * Composite metric definitions as a JSON object keyed by synthetic ID
      * (`M:<uuid>`). Each value is `{ "layout": "ROW2"|"COL2"|"COL3", "cells":
      * [<metric_key>, ...] }`. Composite IDs appear in [dashboardMetricOrder]
-     * alongside regular metric keys — a single grid slot renders the composite
+     * alongside regular metric keys, a single grid slot renders the composite
      * as a multi-cell tile instead of one metric. Empty object `"{}"` means
      * the rider hasn't dragged the `+ Stack` template onto the grid yet.
      */
@@ -833,7 +851,7 @@ data class AppSettings(
      * is `{ "text": <label>, "icon": <icon_key>, "action": <type>, "url": <url> }`.
      * Action types: NONE (display-only label), OPEN_URL (tap opens default
      * browser), SHOW_QR (tap shows a QR-code popup so other riders can scan
-     * and visit the URL — e.g. Instagram handle, club page). Custom tile IDs
+     * and visit the URL, e.g. Instagram handle, club page). Custom tile IDs
      * appear in [dashboardMetricOrder] alongside regular metrics.
      */
     val dashboardCustomTiles: String = "{}",
@@ -844,7 +862,7 @@ data class AppSettings(
      * "frames": [<hex>, ...] }`. Frames are written verbatim (one BLE write each,
      * in order) to the connected wheel, but only when its family matches; the id
      * appears in [dashboardActionOrder] like a built-in action key. Opt-in for
-     * advanced users — empty object until a rider drags the CUSTOM BLE template.
+     * advanced users, empty object until a rider drags the CUSTOM BLE template.
      * See [com.eried.eucplanet.data.model.CustomBleCommand].
      */
     val dashboardCustomBle: String = "{}",
@@ -853,7 +871,7 @@ data class AppSettings(
      * Per-metric corner-stat configuration as a JSON object. Each known metric
      * key maps to a config object with five stat slots (center, top-left,
      * top-right, bottom-left, bottom-right) and a sparkline flag. Defaults are
-     * applied at read time when an entry is missing — empty object means every
+     * applied at read time when an entry is missing, empty object means every
      * metric uses center=CURRENT, others=NONE, sparkline=true. Persisted as a
      * single string so we don't need to grow AppSettings each time a new stat
      * lands.
@@ -867,6 +885,12 @@ data class AppSettings(
 
     /** Battery screen: estimate straight to 100 % instead of stopping at 80 %. */
     val chargingEstimateToFull: Boolean = false,
+    /** Tell the rider when the pack passes 80%, the mark riders unplug at for
+     *  pack life, and when it finishes. Both off: a notification nobody asked
+     *  for is worse than no feature. Local to the charging monitor rather than
+     *  Advanced settings, like [chargingEstimateToFull] beside them. */
+    val chargingNotify80: Boolean = false,
+    val chargingNotifyFull: Boolean = false,
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
@@ -893,9 +917,29 @@ data class AppSettings(
     /** Number of trips still to upload to Dropbox; drives the "Syncing N trips…"
      *  indicator, decrementing live as each upload lands. */
     val dropboxPendingCount: Int = 0,
+    // Trips whose file exists on both the phone and the backup folder with
+    // different content. The folder worker counts them each pass; the
+    // dashboard shows the warning while it is non-zero.
+    val folderConflictCount: Int = 0,
     /** Trips in the current sync batch, so the pending indicator can show
      *  "X of Y" like the foreground sync (done = total - pending). 0 = no batch. */
-    val dropboxSyncTotal: Int = 0
+    val dropboxSyncTotal: Int = 0,
+    /**
+     * The rider asked for their Dropbox trips to come down, and some are still
+     * missing.
+     *
+     * Downloading is never something the app decides on its own: it is a lot of
+     * data and a lot of battery, and a rider who links Dropbox to back trips
+     * *up* should not find a library arriving unasked. So the background worker
+     * only pulls while this is set - by pressing Sync all, or by linking, which
+     * is a rider saying "bring my trips over".
+     *
+     * It survives the app being killed, which is the point: a big library takes
+     * the better part of an hour, and the phone goes in a pocket long before
+     * that. Cleared when nothing is left to fetch, or the moment the rider
+     * cancels.
+     */
+    val dropboxPullRequested: Boolean = false
 ) {
     // Delegating getters so reads like `settings.wheelPollIntervalMs` keep working
     // after the 46 advanced fields moved into the nested [AdvancedSettings] (which
@@ -929,6 +973,7 @@ data class AppSettings(
     val pendingUploadIntervalMin: Int get() = advanced.pendingUploadIntervalMin
     val tripFinalizeGraceMs: Int get() = advanced.tripFinalizeGraceMs
     val lockMaxSpeedKmh: Int get() = advanced.lockMaxSpeedKmh
+    val voiceListenWindowSec: Int get() = advanced.voiceListenWindowSec
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
     val phoneGpsIdleIntervalMs: Int get() = advanced.phoneGpsIdleIntervalMs
     val gpsIdleOffDelaySec: Int get() = advanced.gpsIdleOffDelaySec
@@ -983,7 +1028,28 @@ data class AppSettings(
     val chargingSanityCapMinutes: Int get() = advanced.chargingSanityCapMinutes
     val chargingMedianFilterSize: Int get() = advanced.chargingMedianFilterSize
     val inmotionV1Pin: Int get() = advanced.inmotionV1Pin
+    val engineSoundEnabled get() = engineSound.enabled
+    val engineType get() = engineSound.type
+    val engineVolume get() = engineSound.volume
+    val engineVolumeAutoEnabled get() = engineSound.volumeAutoEnabled
+    val engineVolumeAutoCurve get() = engineSound.volumeAutoCurve
+    val engineMuffler get() = engineSound.muffler
+    val engineGearbox get() = engineSound.gearbox
+    val engineIdleBehavior get() = engineSound.idleBehavior
+    val engineDecelChar get() = engineSound.decelChar
+    val engineBrake get() = engineSound.brake
+    val engineDuckOnVoice get() = engineSound.duckOnVoice
+    val engineHeadphonesOnly get() = engineSound.headphonesOnly
+    val kingsongUnlockCode: Int get() = advanced.kingsongUnlockCode
+    val kingsongPassword: Int get() = advanced.kingsongPassword
 }
+/** Watch map display settings, grouped to preserve AppSettings copy() headroom. */
+data class WatchMapSettings(
+    val enabled: Boolean = false,
+    val headingUp: Boolean = false,
+    val keepScreenOnDuringNavigation: Boolean = false,
+    val showTelemetry: Boolean = true,
+)
 
 /**
  * The rider's Settings-screen arrangement.
@@ -1034,6 +1100,39 @@ data class AccelSplitSettings(
  * this feature itself paused, so speeding up never blasts music the rider had
  * deliberately stopped.
  */
+/**
+ * Headlight control: when the automation may act, the sun schedule it follows,
+ * and the walking-pace cut-off.
+ *
+ * Nested rather than flat because it is five fields: AppSettings sits near the
+ * JVM/dex 255-argument limit, and a group like this belongs in one slot.
+ */
+data class LightsSettings(
+    /** NEVER is off; the other two are on, with the condition they name. */
+    val applyWhen: String = ApplyWhenIds.NEVER,
+    /** Minutes before sunset to turn the light on. */
+    val onMinutesBefore: Int = 30,
+    /** Minutes after sunrise to turn it off. */
+    val offMinutesAfter: Int = 30,
+    /** Cut the light when the rider slows to a walk, and restore it when they
+     *  ride on. Independent of the sun schedule, which stays in charge of
+     *  whether a light is wanted at all. */
+    val offWhenSlow: Boolean = false,
+    /** Walking pace, stored metric like every other speed. Five is the figure
+     *  walking speed is normally quoted at; four was low enough that a rider
+     *  rolling gently up to a crossing stayed above it and kept the beam on,
+     *  which is the case the whole cutoff exists for. */
+    val offBelowKmh: Float = 5f,
+)
+
+/** Values for the "apply when" gate shared by the speed-driven automations. */
+object ApplyWhenIds {
+    const val NEVER = "NEVER"
+    const val CONNECTED = "CONNECTED"
+    const val RIDING = "RIDING"
+    val ALL = listOf(NEVER, CONNECTED, RIDING)
+}
+
 data class MediaControlSettings(
     val pauseEnabled: Boolean = false,
     // Pause when speed is at or below this (km/h).
@@ -1045,7 +1144,39 @@ data class MediaControlSettings(
     // (headphones / Bluetooth / wired / USB), never the phone speaker. Pausing is
     // never gated on the route. Only meaningful with resume on. On by default.
     val requireExternalOutput: Boolean = true,
+    // --- Media speed control ---
+    // Playback rate follows speed, on the same "speed:value" curve shape
+    // auto-volume uses, so the same editor drives it. Needs notification
+    // access (see MediaAccessService) and a player that accepts a rate.
+    /** NEVER is off; the other two are on, with the condition they name. */
+    val rateApplyWhen: String = ApplyWhenIds.NEVER,
+    val rateCurve: String = "0:1.0,25:1.15,50:1.30,75:1.45",
 )
+
+/** Live location share. Feature-local, nested so AppSettings.copy() stays under the dex 255-arg limit. */
+data class ShareSettings(
+    val trailMinutes: Int = 5,                // 1..30, how long a friend's fading trail is
+    val shareStatsDefault: Boolean = true,    // default for the "Share my stats" toggle
+    val lastIdentityMode: String = "ANON",    // ANON | SESSION | PROFILE, remembered per rider
+    val lastSessionName: String = "",
+    val relayUrl: String = DEFAULT_RELAY_URL,
+    /** Per-device random secret, generated on first share. The rider's sender
+     *  id in a room is HMAC(secret, roomId): stable for this phone in that room
+     *  (a rejoin replaces its own ghost instead of adding one), different in
+     *  every room (the relay cannot link rooms), and never copied to another
+     *  device (two phones with one secret would collide as one rider). */
+    val deviceSecret: String = "",
+) {
+    companion object {
+        const val DEFAULT_RELAY_URL = "wss://eucshare.ried.no"
+        /** A relay URL is opened as a WebSocket, so anything that is not a
+         *  ws / wss URL cannot work. A synced or hand-edited file carrying
+         *  something else is reset to the default rather than thrown at
+         *  OkHttp, which answers a malformed URL with an exception. */
+        fun isValidRelayUrl(url: String): Boolean =
+            url.startsWith("ws://") || url.startsWith("wss://")
+    }
+}
 
 /**
  * Bluetooth-signal proximity lock / unlock. Locks the wheel as the rider walks
@@ -1058,17 +1189,125 @@ data class MediaControlSettings(
  * condition a few seconds before acting. Locking needs a live BLE link, so it
  * fires while the signal is fading, not after a full disconnect.
  */
+/**
+ * How the battery percentage on screen is worked out.
+ *
+ * Some wheels report a percentage that disagrees with their own display, so
+ * this estimates it from pack voltage instead. Display only: nothing here is
+ * ever sent to the wheel, and no firmware limit is touched. The wheel's own
+ * protection is unaffected either way, and so is the reading the wheel makes
+ * its own decisions on.
+ *
+ * The curve is battery chemistry, not a brand, so it works on any wheel. Cells
+ * in series come from the charged pack voltage the wheel's own model states,
+ * which every family records; [seriesCells] is asked of the rider only when the
+ * model is unrecognised, since a live pack voltage alone cannot distinguish a
+ * 20S from a 30S.
+ */
+/**
+ * Everything the voice-command area configures.
+ *
+ * A group rather than three fields on [AppSettings], because that class sits
+ * one field short of the 255-argument JVM limit: past it, `copy()` fails
+ * verification and the app dies at runtime rather than at build time (rule 8).
+ */
+data class BatteryPercentSettings(
+    /**
+     * Where the percentage on screen comes from. One answer to one question,
+     * so it is one control: two switches read as independent when they are
+     * not, and the older pair had the custom floor quietly overriding the
+     * curve whenever both were on.
+     */
+    val mode: String = MODE_WHEEL,
+    /** Lower endpoint of the custom scale, in millivolts per cell. */
+    val minimumCellVoltageMv: Int = 3300,
+    /** Upper endpoint of the custom scale (full), in millivolts per cell. Lets
+     *  the custom scale fit non-Li-ion packs (LFP full ~3.65 V) instead of the
+     *  fixed 4.20 V the curve assumes. */
+    val maximumCellVoltageMv: Int = 4200,
+    /**
+     * Cells in series, for wheels whose model does not state it. Ignored when
+     * the connected wheel's model knows its own. Saved per wheel: it belongs
+     * to the pack, not to the app, so [WheelProfile] carries it across
+     * connects the same way the speed calibration offset does.
+     */
+    val seriesCells: Int = 20,
+    /**
+     * Pack energy in watt-hours, or 0 when the rider has not said. Never
+     * reported by any wheel and carried in no model table, so it is asked of
+     * the rider and saved per wheel on [WheelProfile]. Seeds the range estimate
+     * from the first km (capacity / 100 = Wh per percent) until the ride learns
+     * a truer rate; 0 leaves the estimate blind until then, as before.
+     */
+    val capacityWh: Int = 0,
+) {
+    companion object {
+        /** The wheel's own number, untouched. */
+        const val MODE_WHEEL = "WHEEL"
+        /**
+         * A lithium pack's discharge shape: flat below 3.20 V per cell, steep
+         * through the 3.20 to 3.40 V knee where a pack empties quickly, then
+         * shallow to 4.175 V. The number falls at a rate that matches what the
+         * rider feels.
+         */
+        const val MODE_CURVE = "CURVE"
+        /** A straight line from [minimumCellVoltageMv] to [maximumCellVoltageMv]. */
+        const val MODE_CUSTOM = "CUSTOM"
+        val MODE_VALUES = setOf(MODE_WHEEL, MODE_CURVE, MODE_CUSTOM)
+
+        const val MIN_CELL_MV = 2500
+        const val MAX_CELL_MV = 4000
+        // "Full at" endpoint. LFP packs top out near 3.65 V/cell, standard
+        // Li-ion near 4.20 V, a few high-voltage packs reach 4.35 V.
+        const val MIN_FULL_MV = 3400
+        const val MAX_FULL_MV = 4350
+        // Pack energy. 0 = unset. The largest EUC packs are ~3600 Wh today, so
+        // the ceiling is headroom rather than a real limit.
+        const val MAX_CAPACITY_WH = 6000
+        val SERIES_RANGE = 1..60
+    }
+}
+
 data class ProximityLockSettings(
     val lockEnabled: Boolean = false,
     // Lock when the signal is at or below this (dBm) - the rider is walking away.
     // Default tuned to a real reading (near ~-59, 4 steps ~-65, 9 steps ~-79):
     // -68 locks at roughly 5 steps, only ~6 dBm below unlock so it feels snappy.
     val lockBelowDbm: Int = -68,
-    val unlockEnabled: Boolean = false,
     // Unlock when the signal is at or above this (dBm) - the rider is back close.
     // -62 unlocks within ~2-3 steps; must stay reachable (near maxes out ~-59).
     val unlockAboveDbm: Int = -62,
-)
+    /**
+     * When, if ever, the wheel unlocks itself again.
+     *
+     * "NEVER" (default): the automation only ever locks. Nothing unlocks the
+     * wheel but the rider.
+     *
+     * "RETURN": only after the signal actually faded first, so the wheel has to
+     * have been left behind. A lock the rider made by hand while standing next
+     * to the wheel is theirs to undo - the automation treats it as deliberate
+     * and keeps its hands off until they have walked away and come back.
+     *
+     * "NEAR": a strong signal is enough on its own, whatever locked the wheel.
+     * Symmetric with the lock half, and what a rider means by "when I am next
+     * to my wheel it should be unlocked" - at the cost of undoing a lock they
+     * just made by hand.
+     *
+     * All three are defensible and two testers wanted different ones, which is
+     * why this is a choice rather than a judgement call baked into the code.
+     * One control rather than a switch plus a mode: "off" is just a third way
+     * of answering the same question.
+     */
+    val unlockWhen: String = UNLOCK_WHEN_NEVER,
+) {
+    companion object {
+        const val UNLOCK_WHEN_NEVER = "NEVER"
+        const val UNLOCK_WHEN_RETURN = "RETURN"
+        const val UNLOCK_WHEN_NEAR = "NEAR"
+        val UNLOCK_WHEN_VALUES =
+            setOf(UNLOCK_WHEN_NEVER, UNLOCK_WHEN_RETURN, UNLOCK_WHEN_NEAR)
+    }
+}
 
 /**
  * ENGO 2 / 3 ActiveLook glasses HUD settings. Nested so the flags (and future
@@ -1100,6 +1339,77 @@ data class EngoHudSettings(
  * momentary peak tells a rider nothing useful about how hard the wheel is
  * working.
  */
+/**
+ * The weather module's own knobs. Disabled by default: enabling it adds the
+ * weather icon above the dashboard's map button. Comfort thresholds are the
+ * rider's, stored metric (°C and tenths of m/s so the shared NumberUpDown
+ * stepper can drive them as Ints); display follows the unit settings.
+ */
+/**
+ * The rider's tire-pressure sensor and how pressure is shown.
+ *
+ * [pairedAddress] is a sensor the rider adopted by scanning. One at a time: a
+ * wheel has one tyre, and two paired sensors would leave "the tire pressure"
+ * meaning whichever spoke last. Pairing another replaces it, which is also
+ * what the section has always said about replacing the wheel's own.
+ */
+data class TpmsSettings(
+    /**
+     * Kept so a rider downgrading still finds their first sensor. New code
+     * reads [pairedAddresses].
+     */
+    val pairedAddress: String? = null,
+    /**
+     * Every cap the rider has added, one per wheel.
+     *
+     * A single slot was the original rule, on the reasoning that a wheel has
+     * one tyre. It does, but a rider has more than one wheel, and the second
+     * cap was dropped before it could even be listed.
+     */
+    val pairedAddresses: List<String> = emptyList(),
+    /**
+     * "psi", "bar", "kPa", or blank to follow the unit system.
+     *
+     * Blank by default, and blank means Imperial gets psi and Metric gets bar
+     * without anyone being asked. Storing a concrete default instead was worse
+     * than deriving it: an existing rider on Imperial kept whatever the
+     * default happened to be, and nothing could tell "they chose bar" from
+     * "they never chose". A rider who picks one gets it everywhere, which is
+     * the part deriving alone could not do - psi in a tyre on a phone that
+     * measures everything else in kilometres.
+     */
+    val pressureUnit: String = "",
+) {
+    companion object {
+        /** Every unit [Units.pressure] can convert to; blank means derive. */
+        val PRESSURE_UNIT_VALUES = setOf("", "psi", "bar", "kpa", "kgf", "mpa")
+    }
+}
+
+data class WeatherSettings(
+    val enabled: Boolean = true,
+    /** How many hours ahead the panel shows, 2..168. Free-form rather than
+     *  four presets: a rider who wants "the rest of my afternoon" was
+     *  choosing between 6 and 24. The dashboard menu still offers presets,
+     *  but those are a temporary view, not this. */
+    val windowHours: Int = 8,
+    /** Open the panel with its detail charts already unfolded. */
+    val openExpanded: Boolean = false,
+    /** [com.eried.eucplanet.weather.WeatherSource] id. */
+    val source: String = "OPEN_METEO",
+    // Riding preferences: how each condition should count for this rider.
+    // "DISLIKE" | "NEUTRAL" | "LIKE"; the comfort thresholds (Advanced
+    // settings, Weather score group) say when a condition applies, these say
+    // how it scores. Rain, snow and wind ship disliked; the rest neutral.
+    val prefHot: String = "NEUTRAL",
+    val prefCold: String = "NEUTRAL",
+    val prefRain: String = "DISLIKE",
+    val prefSnow: String = "DISLIKE",
+    val prefWind: String = "DISLIKE",
+    val prefNight: String = "NEUTRAL",
+    val prefGolden: String = "NEUTRAL",
+)
+
 data class VoiceReportSettings(
     // Periodic report.
     val periodicSpeed: Boolean = true,
@@ -1127,7 +1437,110 @@ data class VoiceReportSettings(
     val triggerNavigation: Boolean = false,
     val triggerPhoneBattery: Boolean = false,
     val triggerRecording: Boolean = true,
+    // The catalog-backed reports. Off on both sides: they are additions, and a
+    // rider who had their announcement the way they liked it should not find
+    // it five items longer after an update.
+    //
+    // Flat pairs rather than another level of nesting, because this class is
+    // already the nesting: it exists so AppSettings stays under the 255-slot
+    // limit, and it has the room.
+    val periodicBatteryEst: Boolean = false,
+    val triggerBatteryEst: Boolean = false,
+    val periodicRange: Boolean = false,
+    val triggerRange: Boolean = false,
+    val periodicVoltage: Boolean = false,
+    val triggerVoltage: Boolean = false,
+    val periodicOdometer: Boolean = false,
+    val triggerOdometer: Boolean = false,
+    val periodicConsumption: Boolean = false,
+    val triggerConsumption: Boolean = false,
+    /**
+     * The pill lists, saved by VoicePills. Blank until the rider first edits
+     * one, and until then the switches above decide what is said.
+     */
+    val periodicPills: String = "",
+    val triggerPills: String = "",
 )
+
+/**
+ * How listening announces itself, and who is allowed to start it.
+ *
+ * Nested for rule 8: AppSettings sits one field from the 255-argument limit,
+ * and four more top-level flags would take copy() past the point where it
+ * stops verifying and every settings write crashes at runtime.
+ *
+ * These are choices about noise and language rather than tuning numbers, so
+ * they live in the Voice commands section where a rider meets the feature,
+ * not in Advanced. The one number the feature has, the listen window, is in
+ * Advanced where numbers belong.
+ */
+data class VoiceCommandSettings(
+    /**
+     * What plays when the microphone opens, and when the session closes.
+     *
+     * [CUE_BEEP] is the pair of chirps, rising to open and falling to close.
+     * [CUE_VOICE] says a word instead, for a rider who would rather be told
+     * than beeped at. [CUE_NONE] is silence at both ends, which is what a
+     * headset with its own tone needs: two devices announcing the same
+     * microphone is one announcement too many.
+     */
+    val promptCue: String = CUE_BEEP,
+    /**
+     * What happens when nothing matched.
+     *
+     * [UNKNOWN_MESSAGE] says so and points at the help phrase, which is right
+     * the first few times and tiring by the twentieth. [UNKNOWN_BEEP] is a
+     * low two-note fall that carries the same fact in half a second.
+     * [UNKNOWN_NONE] says nothing: the rider heard the closing cue and no
+     * answer, and that is already the whole message.
+     */
+    val unknownCue: String = UNKNOWN_MESSAGE,
+    /**
+     * Whether a Bluetooth headset's voice button reaches the app.
+     *
+     * Off by default, and deliberately so. Turning it on makes the app
+     * declare itself a handler for the system voice-command intent, which
+     * puts it in Android's "open with" chooser for every press of that
+     * button, including presses by a rider who wanted their assistant. That
+     * is a change to a device-wide gesture, so it is opted into rather than
+     * shipped switched on.
+     */
+    val headsetButton: Boolean = false,
+    /**
+     * What that headset button does once it reaches the app: open the
+     * microphone ([HEADSET_LISTEN]) or speak the voice announcement at once
+     * ([HEADSET_ANNOUNCE]), the same report the Voice tile and a Flic bound
+     * to it give. A rider who only ever asks "how am I doing" gets the answer
+     * in one press instead of a press and a sentence.
+     */
+    val headsetAction: String = HEADSET_LISTEN,
+    /**
+     * The language the rider speaks commands in, blank to follow the voice.
+     *
+     * Separate from both the interface language and the speaking voice,
+     * because they are three different questions and riders do not answer
+     * them the same way. Someone can run the app in English, be understood in
+     * Russian and be answered in Russian, which was impossible while the
+     * command words came from whatever the interface happened to be set to.
+     */
+    val recognitionLocale: String = "",
+) {
+    companion object {
+        const val CUE_BEEP = "BEEP"
+        const val CUE_VOICE = "VOICE"
+        const val CUE_NONE = "NONE"
+        val CUES = setOf(CUE_BEEP, CUE_VOICE, CUE_NONE)
+
+        const val UNKNOWN_MESSAGE = "MESSAGE"
+        const val UNKNOWN_BEEP = "BEEP"
+        const val UNKNOWN_NONE = "NONE"
+        val UNKNOWNS = setOf(UNKNOWN_MESSAGE, UNKNOWN_BEEP, UNKNOWN_NONE)
+
+        const val HEADSET_LISTEN = "LISTEN"
+        const val HEADSET_ANNOUNCE = "ANNOUNCE"
+        val HEADSET_ACTIONS = setOf(HEADSET_LISTEN, HEADSET_ANNOUNCE)
+    }
+}
 
 /**
  * Power-user "Advanced" timing / threshold settings. Nested under
@@ -1135,6 +1548,13 @@ data class VoiceReportSettings(
  * JVM/dex 255-argument limit. All clamped in SettingsRepository.sanitized().
  */
 data class AdvancedSettings(
+    // Weather score thresholds (see the WEATHER spec group): when an hour
+    // reads too cold / too hot (°C) and where wind starts to bite / gets
+    // genuinely hard (tenths of m/s).
+    val weatherColdC: Int = 14,
+    val weatherHotC: Int = 31,
+    val weatherBreezyTenthsMs: Int = 20,
+    val weatherWindyTenthsMs: Int = 45,
     val wheelPollIntervalMs: Int = 250,
     val graphSampleIntervalMs: Int = 1000,
     // Window, in samples, for the smoothed Trip Details graphs and the smoothed
@@ -1150,6 +1570,15 @@ data class AdvancedSettings(
     val tripFinalizeGraceMs: Int = 15000,
     // Speed (km/h) above which a lock command is refused, for safety.
     val lockMaxSpeedKmh: Int = 5,
+    val headlightReadbackMaxAgeMs: Int = 8000,
+    /**
+     * Seconds the microphone stays open having heard nothing.
+     *
+     * Rule 1: a global tunable belongs here rather than in its own section.
+     * It lived in the voice section while that section was being designed,
+     * and every other number in the app that behaves like this one is here.
+     */
+    val voiceListenWindowSec: Int = 6,
     val phoneGpsIntervalMs: Int = 1000,
     // Slow "keep-warm" GPS interval used when nothing needs the 1 Hz active
     // stream (idle balanced / low-power tiers). See GpsPowerPolicy.
@@ -1226,10 +1655,23 @@ data class AdvancedSettings(
     val simpleSpeedoScalePct: Int = 62,
     val navSidebarWidthDp: Int = 400,
     val navSidebarMinScreenDp: Int = 600,
+    val mapEncodedCacheMiB: Int = 32,
+    val mapHttpCacheMiB: Int = 64,
     // InMotion V1 (V5 / V8 / V10 / L6) BLE access PIN, stored as the 6-digit
     // number (0 = "000000", the factory default). Sent on connect so the wheel
     // leaves its identity-only wait and streams; wheels with no PIN ignore it.
     val inmotionV1Pin: Int = 0,
+    // KingSong unlock code, the six digits the unlock command carries (0x5D,
+    // ASCII at bytes 10..15), stored as a number like the V1 PIN. 123456 is
+    // what a wheel reports when the rider never set a code in the KingSong app,
+    // and such a wheel accepts any six digits (two KS-18XL captures, issue
+    // #19). Only a rider who set their own code needs to change it.
+    val kingsongUnlockCode: Int = 123456,
+    // The KingSong app password, four digits stored as a number, 0 for none.
+    // A wheel with one set ignores lock and unlock until the app has sent it
+    // (0x41) in the session, so it goes out on connect and before every lock
+    // action (issue #19 capture, 2026-09-22).
+    val kingsongPassword: Int = 0,
 )
 
 // FlicAction enum removed (2026-05). Replaced by
@@ -1249,4 +1691,71 @@ fun AppSettings.withUnitsToggled(): AppSettings {
     val isImperial = unitSpeed == "mph" && unitDistance == "mi" && unitTemp == "F"
     return if (isImperial) copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
     else copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
+}
+
+/**
+ * Motor Sound generator settings, one group so they cost AppSettings a
+ * single copy() slot (see AppSettingsArgLimitTest). The backup JSON keeps
+ * the old flat engine* keys, and AppSettings exposes the old names as
+ * getters, so readers and old backups are unaffected.
+ */
+data class EngineSoundSettings(
+    // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
+    // through the media stream so it mixes with music; the user controls how it
+    // behaves under voice announces via [duckOnVoice].
+    val enabled: Boolean = false,
+    /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
+    val type: String = "FOUR_STROKE_SINGLE",
+    /** In-app gain 0..1 over the media stream. */
+    val volume: Float = 0.6f,
+    /**
+     * Legacy. Was a paired "fixed volume" toggle (with [volume] as the slider) that
+     * could disable the speed curve. The current UI always uses the curve so this field
+     * is unused, kept only for backup/sync compatibility with v0.5.x exports.
+     */
+    val volumeAutoEnabled: Boolean = false,
+    /**
+     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
+     * volume, there's no separate fixed-volume slider any more. Format matches
+     * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
+     * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
+     * silent at top.
+     */
+    val volumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
+    /** "OPEN", "HALF", "MUFFLED", controls high-harmonic rolloff. */
+    val muffler: String = "HALF",
+    /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
+    val gearbox: String = "FOUR",
+    /** "ALWAYS" (always idling when connected), "FADE" (fade after parked), "MOVING" (only when moving). */
+    val idleBehavior: String = "FADE",
+    /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
+    val decelChar: String = "STANDARD",
+    /** "OFF", "LIGHT", "STRONG", engine-brake whine layered during sustained decel/regen. */
+    val brake: String = "LIGHT",
+    /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
+    val duckOnVoice: String = "DUCK",
+    /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
+    val headphonesOnly: Boolean = false,
+)
+
+/**
+ * The horn. [mode] WHEEL sends the wheel's own horn (as before), SOUND plays
+ * the rider's imported clip on the phone, BOTH does the two at once for a
+ * rider with an external speaker. [soundName] is the picked file's display
+ * name, "" when none; the clip itself lives in app storage and is not part of
+ * a settings backup, so a restored SOUND setting with no clip falls back to
+ * the wheel's horn rather than going silent.
+ */
+data class HornSettings(
+    val mode: String = MODE_WHEEL,
+    val soundName: String = "",
+    /** Play the phone sound only through headphones or a Bluetooth speaker. */
+    val headphonesOnly: Boolean = false,
+) {
+    companion object {
+        const val MODE_WHEEL = "WHEEL"
+        const val MODE_SOUND = "SOUND"
+        const val MODE_BOTH = "BOTH"
+        val MODES = setOf(MODE_WHEEL, MODE_SOUND, MODE_BOTH)
+    }
 }

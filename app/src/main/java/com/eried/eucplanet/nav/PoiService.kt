@@ -17,7 +17,7 @@ import kotlin.math.min
 
 /**
  * A category of place along the route. **CHARGER means electric charging only**
- * — a dedicated charging station OR a fuel station that also offers electricity
+ *, a dedicated charging station OR a fuel station that also offers electricity
  * (`fuel:electricity=yes`). A plain (petrol/diesel) fuel station is **not** a
  * charger; it falls into [STORE] with the other "stop" places (shops). The
  * non-charger kinds ([STORE], [FOOD], [REST], [SIGHTS]) are the grouped "places"
@@ -137,7 +137,7 @@ class PoiService @Inject constructor() {
         /**
          * Overpass node selectors per category. Note CHARGER pulls dedicated
          * charging stations AND fuel stations tagged with electricity, while
-         * STORE pulls the *non-electric* fuel stations plus shops — so a petrol
+         * STORE pulls the *non-electric* fuel stations plus shops, so a petrol
          * station shows under "places", an EV-capable one under "charging".
          */
         private val CATEGORY_FILTERS: Map<PoiKind, List<String>> = mapOf(

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">EUC Planet</string>
     <string name="notification_channel_name">Hjulforbindelse</string>
-    <string name="notification_channel_description">Viser forbindelsesstatus og telemetri fra hjulet</string>
+    <string name="notification_channel_description">Viser forbindelsesstatus og telemetri fra hjulet.</string>
 
     <!-- Notification quick actions -->
     <string name="notif_actions_section">Tilpas</string>
@@ -32,6 +32,11 @@
     <string name="action_back">Tilbage</string>
     <string name="action_cancel">Annuller</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Erstat</string>
+    <string name="action_continue">Fortsæt</string>
+    <string name="action_select">Vælg</string>
+    <string name="state_on">Til</string>
+    <string name="state_off">Fra</string>
     <string name="action_done">Færdig</string>
     <string name="action_close">Luk</string>
 <string name="crash_log_action_prompt">Du holdt %1$s nede. Slet kun denne log eller slet alle. Tryk Annuller og derefter på filen for at dele den.</string>
@@ -62,10 +67,10 @@
 
     <!-- Permissions -->
     <string name="scan_permission_needed">Tilladelse kræves</string>
-    <string name="scan_permission_body">For at finde dit hjul skal appen bruge Bluetooth og adgang til placering</string>
+    <string name="scan_permission_body">For at finde dit hjul skal appen bruge Bluetooth og adgang til placering.</string>
     <string name="scan_permission_body_settings">Tilladelsen blev afvist. Åbn systemindstillinger for at tillade Bluetooth og placering</string>
     <string name="recording_location_permission_needed">Placering kræves</string>
-    <string name="recording_location_permission_body">Turoptagelse gemmer GPS-punkter, så du kan se ruten på kortet. Giv adgang til placering for at fortsætte</string>
+    <string name="recording_location_permission_body">Turoptagelse gemmer GPS-punkter, så du kan se ruten på kortet. Giv adgang til placering for at fortsætte.</string>
 
     <!-- Experimental banner -->
     <string name="experimental_banner">Foreløbigt understøttet hjul. Tryk for at rapportere problemer.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuelle hjul</string>
-    <string name="scan_simulate_subtitle">Springer BLE over og bruger prædefinerede svar. Kun i debug-builds.</string>
+    <string name="scan_simulate_subtitle">Springer BLE over og bruger prædefinerede svar. Kun i servicetilstand.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Forbundet</string>
@@ -131,7 +136,7 @@
     <string name="dashboard_section_metrics">Målinger</string>
     <string name="dashboard_section_actions">Handlingsknapper</string>
     <string name="dashboard_columns">Kolonner</string>
-    <string name="dashboard_grid_hint">Hold for at trække, tryk for at redigere</string>
+    <string name="dashboard_grid_hint">Hold for at trække, tryk for at redigere.</string>
     <string name="dashboard_pool_metrics">Tilgængelige målinger</string>
     <string name="dashboard_pool_actions">Tilgængelige handlinger</string>
     <string name="dashboard_pool_tap_toast">Hold og træk til en plads ovenfor for at bruge</string>
@@ -225,6 +230,8 @@
     <string name="metric_chip_odometer">Kilometertæller</string>
     <string name="metric_chip_motor_power">Motoreffekt</string>
     <string name="metric_chip_battery_power">Batterieffekt</string>
+    <string name="metric_chip_battery_envelope">Batteri (est)</string>
+    <string name="metric_desc_battery_envelope">Batteriprocent uden belastningen. Mere stabil end det rå tal, der dykker, når du accelererer.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Hældning</string>
@@ -234,6 +241,11 @@
     <string name="metric_chip_forward_g">Frem-g</string>
     <string name="metric_chip_torque">Moment</string>
     <string name="metric_chip_phase_current">Fase A</string>
+    <string name="metric_spoken_phase_current">Fasestrøm</string>
+    <string name="metric_spoken_battery_envelope">Anslået batteri</string>
+    <string name="metric_spoken_bt_rssi">Bluetooth-signal</string>
+    <string name="metric_spoken_avg_trip_speed">Gennemsnitsfart</string>
+    <string name="metric_spoken_lat_long">Position</string>
     <string name="metric_chip_dyn_speed_limit">Dynamisk fartgrænse</string>
     <string name="metric_chip_dyn_current_limit">Dynamisk strømgrænse</string>
     <string name="metric_chip_motor_temp">Motortemperatur</string>
@@ -241,7 +253,7 @@
     <string name="metric_chip_battery_temp">Batteritemperatur</string>
     <string name="metric_chip_tire_pressure">Dæktryk</string>
     <string name="metric_chip_tire_pressure_tile">Dæk</string>
-    <string name="metric_desc_tire_pressure">Dæktryk fra en tilknyttet TPMS-sensor (InMotion P6). Vises i psi eller bar.</string>
+    <string name="metric_desc_tire_pressure">Dæktryk fra din egen sensor eller en, hjulet videresender. Vises i den trykenhed, du har valgt.</string>
     <string name="studio_metric_tire_pressure">Dæktryk</string>
     <string name="metric_chip_headroom">Margen</string>
     <string name="metric_chip_trip_time">Trip-tid</string>
@@ -249,7 +261,7 @@
     <string name="metric_chip_avg_trip_speed">Gns. fart</string>
     <string name="metric_chip_wh_consumed">Energi</string>
     <string name="metric_chip_range_estimate">Rækkevidde</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Forbrug</string>
     <string name="metric_chip_phone_battery">Telefonbatteri</string>
     <string name="metric_chip_gps_altitude">Højde</string>
     <string name="metric_chip_gps_speed">GPS-fart</string>
@@ -267,6 +279,7 @@
     <string name="metric_chip_wheel_alarm_speed">Hjul-alarm</string>
     <string name="metric_chip_pc_mode">Køremodus</string>
     <string name="metric_chip_light_on">Lys</string>
+    <string name="metric_spoken_light_on">lysstatus</string>
 
     <!-- Short variants for the dashboard tile face. When present, the tile
          shows this; the slot editor sheet keeps showing the full
@@ -319,6 +332,113 @@
     <string name="action_chip_horn">Horn</string>
     <string name="action_chip_light">Lys</string>
     <string name="action_chip_voice">Tale</string>
+    <string name="action_chip_voice_listen">Lyt</string>
+    <string name="menu_voice_ask">Lyt efter stemmekommando</string>
+    <string name="menu_voice_speak_report">Afspil stemmebesked</string>
+    <string name="voice_split_term">Sidste split</string>
+    <string name="menu_switch_to_voice_command">Skift til stemmekommando</string>
+    <string name="menu_switch_to_voice_report">Skift til stemmebesked</string>
+    <string name="voice_commands_title">Stemmekommandoer</string>
+    <string name="voice_commands_enable_desc">Brug din stemme i appen. Hold stemmeknappen på dashboardet nede, og vælg Lyt efter stemmekommando.</string>
+    <string name="voice_commands_bind_desc">Bind lytning til en Flic, lydstyrketasterne, dit ur eller HUD.</string>
+    <string name="voice_prompt_cue">Signal ved lytning</string>
+    <string name="voice_prompt_cue_desc">Slå det fra, hvis dit headset har sin egen tone.</string>
+    <string name="voice_cue_beep">Bip</string>
+    <string name="voice_cue_spoken">Stemme</string>
+    <string name="voice_cue_off">Fra</string>
+    <string name="voice_cue_listening">Jeg lytter</string>
+    <string name="voice_unknown_cue">Når intet forstås</string>
+    <string name="voice_unknown_message">Besked</string>
+    <string name="voice_recognition_language">Kommandosprog</string>
+    <string name="voice_recognition_desc">Det sprog, du taler. Følger stemmen, hvis du ikke vælger et.</string>
+    <string name="voice_recognition_follow">Samme som stemmen</string>
+    <string name="voice_headset_button">Headsettets taleknap</string>
+    <string name="voice_headset_chooser_hint">Android spørger, hvilken app der skal svare.</string>
+    <string name="voice_headset_announce">Læs op</string>
+    <string name="voice_act_announce_on_terms">stemme til,meddelelser til,tale til</string>
+    <string name="voice_act_announce_off_terms">stemme fra,meddelelser fra,tale fra</string>
+    <string name="voice_command_vocabulary">Hvad kan jeg sige</string>
+    <string name="voice_command_vocabulary_tap">Sig et navn alene eller i et spørgsmål.</string>
+    <string name="voice_vocab_group_wheel">Hjul</string>
+    <string name="voice_vocab_group_actions">Handlinger</string>
+    <string name="voice_vocab_group_around">Omkring dig</string>
+    <string name="voice_listening">Lytter</string>
+    <string name="voice_answer_off">%1$s er slået fra. Du kan slå det til i indstillingerne.</string>
+    <string name="voice_answer_unsupported">Dit hjul rapporterer ikke %1$s.</string>
+    <string name="voice_answer_nodata">Ingen %1$s endnu.</string>
+    <string name="voice_state_on">tændt</string>
+    <string name="voice_state_off">slukket</string>
+    <string name="voice_mode_lock">låst</string>
+    <string name="voice_mode_drive">kørsel</string>
+    <string name="voice_mode_shutdown">slukket</string>
+    <string name="voice_mode_idle">tomgang</string>
+    <string name="voice_answer_setup">%1$s skal sættes op først.</string>
+    <string name="voice_answer_no_mic_permission">Jeg har brug for tilladelse til mikrofonen.</string>
+    <string name="voice_mic_grant">Tillad mikrofon</string>
+    <string name="warnings_perm_mic_title">Mikrofon ikke tilladt</string>
+    <string name="warnings_perm_mic_body">Stemmekommandoer kan ikke lytte, før appen må bruge mikrofonen.</string>
+    <string name="voice_answer_unknown">Det fangede jeg ikke. Sig %1$s for hjælp.</string>
+    <string name="voice_help_terms">hvad kan jeg sige,hjælp,hvad kan jeg spørge om</string>
+    <string name="voice_stat_max_terms">maksimum,maks,højeste</string>
+    <string name="voice_stat_min_terms">minimum,min,laveste</string>
+    <string name="voice_stat_avg_terms">gennemsnit,gennemsnitlig</string>
+    <string name="voice_stat_peak_terms">top,vedvarende</string>
+    <string name="voice_stat_answer">%1$s %2$s, %3$s</string>
+    <string name="voice_answer_examples">Her er listen over, hvad du kan sige.</string>
+    <string name="voice_special_connected">Forbundet til %1$s.</string>
+    <string name="voice_special_not_connected">Intet wheel forbundet.</string>
+    <string name="voice_special_uptime">Forbundet i %1$s.</string>
+    <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, score %2$s. %3$s grader, vind %4$s, luftfugtighed %5$s procent</string>
+    <string name="voice_weather_checking">Jeg tjekker vejret.</string>
+    <string name="voice_sp_air_temp_terms">udetemperatur,lufttemperatur,hvor koldt er der</string>
+    <string name="voice_sp_wind_terms">vind,vindhastighed,hvor blæsende</string>
+    <string name="voice_sp_humidity_terms">luftfugtighed,hvor fugtigt</string>
+    <string name="voice_sp_air_temp_answer">%1$s grader udenfor.</string>
+    <string name="voice_sp_wind_answer">Vind %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Vind %1$s, vindstød %2$s.</string>
+    <string name="voice_sp_humidity_answer">Luftfugtighed %1$s procent.</string>
+    <string name="voice_weather_great">Fremragende kørevejr</string>
+    <string name="voice_weather_good">Godt kørevejr</string>
+    <string name="voice_weather_ok">Til at køre i</string>
+    <string name="voice_weather_poor">Dårligt kørevejr</string>
+    <string name="voice_weather_bad">Meget dårligt kørevejr</string>
+    <string name="voice_weather_snow">Sne</string>
+    <string name="voice_weather_rain">Regn</string>
+    <string name="voice_weather_wind">Blæst</string>
+    <string name="voice_weather_cold">Koldt</string>
+    <string name="voice_weather_hot">Varmt</string>
+    <string name="voice_weather_night">Mørkt</string>
+    <string name="voice_special_dark">Det er allerede mørkt.</string>
+    <string name="voice_special_daylight">%1$s dagslys tilbage.</string>
+    <string name="voice_special_daylight_all_day">Lyst hele dagen.</string>
+    <string name="voice_special_nav">%1$s, %2$s.</string>
+    <string name="voice_special_nav_none">Ingen rute.</string>
+    <string name="voice_special_last_trip">Seneste tur %1$s, %2$s.</string>
+    <string name="voice_special_no_trips">Ingen ture endnu.</string>
+    <string name="voice_duration_h_m">%1$s t %2$s min</string>
+    <string name="voice_duration_m">%1$s min</string>
+    <string name="voice_sp_weather_terms">vejr,god dag at køre</string>
+    <string name="voice_sp_daylight_terms">dagslys,solnedgang,hvor længe til det bliver mørkt</string>
+    <string name="voice_sp_connected_terms">forbundet,er wheelet forbundet</string>
+    <string name="voice_sp_uptime_terms">hvor længe forbundet,forbundet siden</string>
+    <string name="voice_sp_nav_terms">navigation,hvad er det næste,gentag</string>
+    <string name="voice_sp_last_trip_terms">seneste tur,forrige tur</string>
+    <string name="voice_sp_report_terms">rapport,status,stemmerapport</string>
+    <string name="voice_action_confirm">%1$s? Sig ja for at bekræfte.</string>
+    <string name="voice_action_cancelled">Annulleret.</string>
+    <string name="voice_yes_terms">ja,bekræft,gør det</string>
+    <string name="voice_act_light_on_terms">lys tændt,tænd lyset</string>
+    <string name="voice_act_light_off_terms">lys slukket,sluk lyset</string>
+    <string name="voice_act_light_toggle_terms">lys,lygte,skift lys</string>
+    <string name="voice_act_lock_terms">lås,lås wheelet</string>
+    <string name="voice_act_unlock_terms">lås op,lås wheelet op</string>
+    <string name="voice_act_horn_terms">horn,bip</string>
+    <string name="voice_act_record_start_terms">start optagelse,optag</string>
+    <string name="voice_act_record_stop_terms">stop optagelse</string>
+    <string name="voice_act_reset_trip_terms">nulstil tur</string>
+    <string name="voice_answer_mic_busy">Noget andet bruger mikrofonen.</string>
+    <string name="voice_answer_which">Mente du %1$s eller %2$s?</string>
     <string name="action_chip_safety">Legal-tilstand</string>
     <string name="action_chip_lock">Lås hjul</string>
     <string name="action_chip_record">Optager</string>
@@ -334,17 +454,18 @@
     <string name="action_chip_open_about">Om</string>
     <string name="action_chip_open_service">Servicetilstand</string>
     <string name="action_chip_open_trips">Ture</string>
+    <string name="action_chip_open_charging">Batteriovervågning</string>
+    <string name="action_chip_open_weather">Vejr</string>
     <string name="action_chip_mute_alarms">Sluk alarmer</string>
-    <string name="action_chip_reset_trip">Nulstil trip</string>
     <string name="action_chip_toggle_units">Skift enheder</string>
-    <string name="action_unsupported_on_wheel">Understøttes ikke på dette hjul</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Enheder</string>
     <string name="watch_paired_none">Ingen ure parret</string>
-    <string name="watch_paired_none_desc">Installer EUC Planet-følgeappen på et Wear OS- eller Garmin-ur for at begynde at modtage urskiven her</string>
+    <string name="watch_paired_none_desc">Installer EUC Planet-følgeappen på et Wear OS-, Garmin- eller Amazfit-ur for at begynde at modtage urskiven her.</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inaktiv</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
@@ -352,12 +473,13 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Aktivér datalink</string>
     <string name="hud_ip_label">Enheds-IP</string>
+    <string name="hud_ip_incomplete">Indtast en fuld adresse, f.eks. 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Enheds-IP (automatisk)</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_off_hint">Telefonens hotspot er slukket. Sørg for, at HUD\'en og telefonen er på samme WiFi-netværk.</string>
+    <string name="hud_hotspot_unknown_hint">Sørg for, at HUD\'en og telefonen er på samme WiFi-netværk. Hvis du bruger telefonens hotspot, skal du tænde det først.</string>
     <string name="hud_hotspot_on_hint">Telefonens hotspot sender. Tilslut HUD\'en til denne telefons WiFi for at aktivere forbindelsen.</string>
     <string name="hud_overlay_subsection">Eget overlay</string>
-    <string name="hud_overlay_subsection_desc">Importér en Overlay Studio-skabelon til HUDens Custom-skærm uden baggrunde. Skabelonen kopieres hertil, så senere ændringer i studiet ændrer ikke HUDen, før du importerer igen</string>
+    <string name="hud_overlay_subsection_desc">Importér en Overlay Studio-skabelon til HUDens Custom-skærm uden baggrunde. Skabelonen kopieres hertil, så senere ændringer i studiet ændrer ikke HUDen, før du importerer igen.</string>
     <string name="hud_overlay_select_preset">Importér skabelon</string>
     <string name="hud_overlay_current_preset">Nuværende: %1$s</string>
     <string name="hud_custom_overlay_none">Ingen</string>
@@ -405,16 +527,25 @@
     <string name="section_watch_advanced">Avanceret</string>
     <string name="section_voice_advanced">Avanceret</string>
     <string name="watch_keep_on">Hold skærmen tændt</string>
-    <string name="watch_keep_on_desc">Hold uret vågent, mens appen er åben</string>
+    <string name="watch_keep_on_desc">Hold uret vågent, mens appen er åben.</string>
     <string name="watch_update_rate">Opdateringshastighed</string>
-    <string name="watch_update_rate_desc">Langsommere opdateringer sparer batteri på telefon og ur</string>
+    <string name="watch_update_rate_desc">Langsommere opdateringer sparer batteri på telefon og ur.</string>
+    <string name="watch_map_enabled">Kort på uret</string>
+    <string name="watch_map_enabled_desc">Viser position og rute fra telefonen. En notifikation forbliver aktiv, så den kan køre i baggrunden.</string>
+    <string name="watch_map_orientation">Kortretning</string>
+    <string name="watch_map_north_up">Nord op</string>
+    <string name="watch_map_heading_up">Køreretning op</string>
+    <string name="watch_keep_on_navigation">Hold tændt under navigation</string>
+    <string name="watch_keep_on_navigation_desc">Holder urets skærm tændt under navigation. Bruger mere batteri.</string>
+    <string name="watch_map_telemetry">Korttelemetri</string>
+    <string name="watch_map_telemetry_desc">Viser PWM, hastighed og spænding langs den øverste kant.</string>
     <string name="watch_update_conservative">Konservativ</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Hurtig</string>
     <string name="watch_auto_start">Start automatisk på uret</string>
-    <string name="watch_auto_start_desc">Åbn ur-appen sammen med telefon-appen</string>
+    <string name="watch_auto_start_desc">Åbn ur-appen sammen med telefon-appen.</string>
     <string name="watch_close_on_exit">Auto-stop på uret</string>
-    <string name="watch_close_on_exit_desc">Stop ur-appen ved Stop alle</string>
+    <string name="watch_close_on_exit_desc">Stop ur-appen ved Stop alle.</string>
     <string name="watch_show_wheel_battery">Vis hjulbatteri</string>
     <string name="watch_show_phone_battery">Vis telefonbatteri</string>
     <string name="watch_show_watch_battery">Vis ur-batteri</string>
@@ -423,9 +554,9 @@
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_pwm_both">Begge</string>
     <string name="watch_show_speed_unit">Enhedslabel for hastighed</string>
-    <string name="watch_show_speed_unit_desc">Vis enhedslabel ved siden af det store hastighedstal</string>
+    <string name="watch_show_speed_unit_desc">Vis enhedslabel ved siden af det store hastighedstal.</string>
     <string name="watch_prioritize_pwm">Prioritér PWM</string>
-    <string name="watch_prioritize_pwm_desc">Gør PWM-bjælken og -tallet større end farten</string>
+    <string name="watch_prioritize_pwm_desc">Gør PWM-bjælken og -tallet større end farten.</string>
     <string name="watch_dial_rotation">Urskivens rotation</string>
 
     <!-- Watch hardware buttons -->
@@ -438,8 +569,10 @@
     <string name="section_watch_buttons">Knapper</string>
     <string name="watch_hardware_button_1">Knap 1</string>
     <string name="watch_hardware_button_2">Knap 2</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: orange Action-knap</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Op (langt tryk) · Galaxy Watch Ultra: nederste sideknap</string>
+    <string name="watch_hardware_button_3">Knap 3</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: orange Action-knap · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Op · Galaxy Watch Ultra: nederste sideknap · Amazfit: Op</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Ned · Amazfit: Ned · findes ikke på Wear OS-ure</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
@@ -447,11 +580,11 @@
     <string name="watch_screen_button_1">Knap 1</string>
     <string name="watch_screen_button_2">Knap 2</string>
     <string name="watch_haptic_on_action">Vibrér ved handling</string>
-    <string name="watch_haptic_on_action_desc">Kort vibration ved hvert tryk, hvis understøttet</string>
+    <string name="watch_haptic_on_action_desc">Kort vibration ved hvert tryk, hvis understøttet.</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Din backup-mappe til ture, indstillinger, temaer og overlays</string>
+    <string name="cloud_caption">Din backup-mappe til ture, indstillinger, temaer og overlays.</string>
     <string name="cloud_choose_folder">Vælg mappe</string>
     <string name="cloud_change_folder">Skift mappe</string>
     <string name="cloud_remove_folder">Frakobl</string>
@@ -459,6 +592,7 @@
     <string name="section_cloud_settings">Backup af indstillinger</string>
     <string name="cloud_backup_now">Tag backup</string>
     <string name="cloud_restore">Gendan</string>
+    <string name="cloud_settings_backup_desc">Alt, du har sat op i appen, gemt i eucplanet_settings.json i din backupmappe. Hold knappen nede for at gemme en navngivet kopi. Ture sikkerhedskopieres separat.</string>
     <string name="cloud_last_backup">Seneste backup: %1$s</string>
 <string name="cloud_last_backup_named">Seneste backup: %1$s som \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ingen backup endnu</string>
@@ -468,11 +602,12 @@
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Turene bliver på denne telefon og synkroniseres automatisk til din backup-mappe. Rydning her sletter kun kopierne på telefonen, ikke din backup.</string>
+    <string name="cloud_trips_caption">Ture bliver på denne telefon og synkroniseres automatisk til din backupmappe. Rydning sletter turene i appen, ikke dem i backupmappen.</string>
     <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d af %2$d</string>
     <string name="sync_no_folder">Vælg en backup-mappe først</string>
+    <string name="sync_rate_limited">Dropbox begrænser denne konto. %1$d af %2$d ture synkroniseret, resten prøves igen.</string>
     <string name="sync_finished">%1$d ture synkroniseret</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
     <string name="sync_conflict_body">%1$d ture findes på begge sider.</string>
@@ -490,11 +625,14 @@
     <string name="sync_checking">Tjekker backup-mappen…</string>
     <string name="action_restore">Gendan</string>
     <string name="action_overwrite">Overskriv</string>
-    <string name="cloud_backup_long_press_hint">Hold inde for flere valgmuligheder</string>
+    <string name="cloud_backup_long_press_hint">Hold inde for flere valgmuligheder.</string>
     <string name="cloud_backup_name_label">Backup-navn</string>
     <string name="cloud_backup_overwrite_title">Overskriv \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">Der findes allerede en backup med dette navn i din mappe.</string>
-    <string name="cloud_restore_picker_default">(standard)</string>
+    <string name="cloud_backup_replace_title">Erstat din gemte backup?</string>
+    <string name="cloud_backup_replace_body">Indstillingsbackuppen i din mappe bliver overskrevet med dine nuværende indstillinger.</string>
+    <string name="cloud_backup_replace_body_dated">Backuppen gemt %1$s bliver overskrevet med dine nuværende indstillinger.</string>
+    <string name="cloud_restore_picker_default">(din backup)</string>
     <string name="cloud_restore_picker_factory">(fabrik)</string>
     <string name="cloud_restore_picker_empty">Ingen backups fundet i backup-mappen</string>
     <string name="cloud_factory_confirm_title">Nulstil til fabriksindstillinger?</string>
@@ -507,9 +645,9 @@
     <string name="section_connection">Forbindelse</string>
     <string name="section_display">Skærm</string>
     <string name="auto_record_on_start">Optag automatisk ved start</string>
-    <string name="auto_record_caption">Optager en tur, når hjulet er forbundet</string>
+    <string name="auto_record_caption">Optager en tur, når hjulet er forbundet.</string>
     <string name="auto_record_start_in_motion">Start optagelse ved bevægelse</string>
-    <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper ved inaktivitet, starter igen ved næste tur</string>
+    <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper ved inaktivitet, starter igen ved næste tur.</string>
     <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
     <string name="wheel_name_display">Hjulnavn</string>
@@ -519,7 +657,7 @@
     <string name="last_device">Seneste enhed: %1$s</string>
     <string name="section_application">App</string>
     <string name="back_button_action">Tilbage-handling</string>
-    <string name="back_button_action_desc">Hvad der sker, når du swiper eller trykker tilbage fra dashboardet</string>
+    <string name="back_button_action_desc">Hvad der sker, når du swiper eller trykker tilbage fra dashboardet.</string>
     <string name="back_button_action_ask">Spørg</string>
     <string name="back_button_action_background">Baggrund</string>
     <string name="back_button_action_stop">Stop alle</string>
@@ -529,6 +667,13 @@
     <string name="units_custom">Tilpasset</string>
     <string name="units_temperature">Temperatur</string>
     <string name="units_speed">Hastighed</string>
+    <string name="tpms_forget">Glem</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Dæktryk</string>
     <string name="units_distance">Distance</string>
     <string name="units_speed_kmh">km/t</string>
     <string name="units_speed_mph">mph</string>
@@ -546,6 +691,21 @@
     <string name="phone_show_over_lock">Vis over låseskærmen</string>
     <string name="language">Sprog</string>
     <string name="theme">Tema</string>
+    <string name="theme_editor_widget">Widget til tematilpasning</string>
+    <string name="theme_unsaved_fmt">%1$s (ikke gemt)</string>
+    <string name="theme_editor_save_as">Gem som nyt tema</string>
+    <string name="theme_editor_pick_color">Vælg en farve fra skærmen</string>
+    <string name="theme_editor_replay_blink">Gentag blink</string>
+    <string name="theme_editor_save_title">Gem tema</string>
+    <string name="theme_editor_name_label">Navn</string>
+    <string name="theme_editor_replace_title">Erstat tema?</string>
+    <string name="theme_editor_replace_body">Der findes allerede et tema ved navn \"%1$s\". Det bliver erstattet, når du gemmer.</string>
+    <string name="theme_editor_discard_title">Kassér den ugemte kladde?</string>
+    <string name="theme_editor_discard_body">Dette tema har allerede en ugemt version. Redigerer du det igen, går de ugemte ændringer tabt.</string>
+    <string name="theme_editor_no_folder_title">Ingen backupmappe</string>
+    <string name="theme_editor_no_folder_body">Vælg en backupmappe under %1$s → %2$s for at gemme temaer.</string>
+    <string name="theme_identify">Identificér</string>
+    <string name="theme_identify_results_title">Resultater fra farveidentifikation</string>
     <string name="tts_switch_title">Skift stemme til %1$s?</string>
     <string name="tts_switch_body">Den aktuelle tekst-til-tale-stemme passer ikke til det valgte sprog. Skift til en %1$s stemme til annonceringer?</string>
     <string name="tts_switch_yes">Skift stemme</string>
@@ -554,11 +714,24 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Hastighedsgrænser</string>
     <string name="section_speed_calibration">Hastighedskalibrering</string>
+    <string name="section_battery_percent">Batterikalibrering</string>
+    <string name="battery_override_label">Tilsidesæt hjulets procent</string>
+    <string name="battery_override_hint">Estimér den ud fra pakkespændingen.</string>
+    <string name="battery_percent_custom_floor">Lineær skala</string>
+    <string name="battery_percent_min_cell" formatted="false">Tom ved</string>
+    <string name="battery_percent_max_cell" formatted="false">Fuld ved</string>
+    <string name="battery_percent_cell_range_desc">Spænding pr. celle for tom og fuld.</string>
+    <string name="battery_percent_series_cells">Celler i serie</string>
+    <string name="battery_capacity_label">Kapacitet</string>
+    <string name="battery_capacity_desc">Valgfrit. Sætter rækkevidde-estimatet fra start, til feltet Rækkevidde og HUD.</string>
+    <string name="battery_percent_cells_from_wheel">Hentet fra hjulet: %1$d i serie.</string>
+    <string name="battery_percent_cells_manual">Laver pakkespændingen om til procenten på dashboardet, i tale og alarmer</string>
     <string name="speed_calibration_label">Hastighedsjustering</string>
-    <string name="speed_calibration_caption">Justerer hjulets rapporterede hastighed; påvirker alarmer, tale og turloggen</string>
+    <string name="speed_calibration_caption">Justerer hjulets rapporterede hastighed; påvirker alarmer, tale og turloggen.</string>
     <string name="section_legal_mode_speed">Hastighed i legal-tilstand</string>
-    <string name="legal_mode_caption">Bruges når legal-tilstand er til; skal være lavere end normal tiltback</string>
-    <string name="speed_limits_disconnected">Forbind hjulet for at ændre hastighedsgrænser</string>
+    <string name="legal_mode_caption">Bruges når legal-tilstand er til; skal være lavere end normal tiltback.</string>
+    <string name="speed_limits_disconnected">Forbind hjulet for at ændre kalibrering og grænser</string>
+    <string name="speed_limits_unsupported">Dette hjuls grænser indstilles på selve hjulet</string>
     <string name="speed_tiltback">Tiltback-hastighed</string>
     <string name="speed_alarm">Alarmhastighed</string>
     <string name="speed_legal_tiltback">Legal tiltback</string>
@@ -594,7 +767,7 @@
     <string name="welcome_tut_done">Færdig</string>
     <string name="welcome_tut_step">%1$d / %2$d</string>
     <string name="welcome_tut_skip_title">Spring velkomstturen over?</string>
-    <string name="welcome_tut_skip_body">Den vises ikke igen</string>
+    <string name="welcome_tut_skip_body">Den vises ikke igen.</string>
     <string name="welcome_tut_skip_yes">Spring over alligevel</string>
     <string name="welcome_tut_welcome">Velkommen til EUC Planet, en ligetil open source-app til elektriske ethjulinger</string>
     <string name="welcome_tut_bt">Tilslut og afbryd dit hjul her</string>
@@ -607,8 +780,8 @@
     <string name="welcome_tut_outro_end">Hold øjnene på vejen og væk fra denne app, mens du kører ethjulet!</string>
     <string name="welcome_tut_speed">Din aktuelle fart. Skift enheder under Indstillinger → %1$s</string>
     <string name="welcome_tut_metrics">Live batteri, temperatur, spænding og mere. Omarranger dem under Indstillinger → %1$s</string>
-    <string name="welcome_tut_actions">Hurtige kontroller. Tilpas dem samme sted under %2$s</string>
-    <string name="welcome_tut_map">Åbn navigatoren for at planlægge ruter og få sving-for-sving-vejledning</string>
+    <string name="welcome_tut_actions">Hurtige kontroller. Tilpas dem samme sted under %1$s</string>
+    <string name="welcome_tut_map">Åbn navigatoren for at planlægge ruter, få sving-for-sving-vejledning eller dele din liveposition på en gruppetur</string>
     <string name="welcome_tut_gps">Tryk for at se live data her, du kan endda kalibrere hjulets hastighed ud fra GPS-farten. Tjek kalibreringen senere under Indstillinger → %1$s</string>
     <string name="welcome_tut_camera">Optag video med live telemetri-overlay. Lav dine egne overlays og eksportér dem til egne videoer med data fra tidligere ture</string>
     <string name="welcome_tut_pd">Viser Park eller Drive. Tryk for at indstille din %1$s</string>
@@ -627,7 +800,7 @@
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
     <string name="engine_sound_enabled">Motorlyd</string>
-    <string name="engine_sound_enabled_hint">Styrer motoromdrejninger live fra fart og motorbelastning</string>
+    <string name="engine_sound_enabled_hint">Styrer motoromdrejninger live fra fart og motorbelastning.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>
@@ -657,7 +830,7 @@
     <string name="engine_duck_pause">Pause</string>
     <string name="engine_duck_mix">Miks</string>
     <string name="engine_headphones_only">Kun med høretelefoner</string>
-    <string name="engine_headphones_only_hint">Springer telefonhøjttaleren over. Motor spiller kun med kablet eller Bluetooth-lyd</string>
+    <string name="engine_headphones_only_hint">Springer telefonhøjttaleren over. Motor spiller kun med kablet eller Bluetooth-lyd.</string>
     <!-- Engine preset names -->
     <string name="engine_preset_two_stroke">Totakt</string>
     <string name="engine_preset_four_stroke_single">Firtakt encylindret</string>
@@ -709,7 +882,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2-knapper</string>
     <string name="flic_show_on_dashboard">Hurtig adgang på dashboardet</string>
-    <string name="flic_scan_hint">Hold Flic 2-knappen i 6 sekunder for parringstilstand, tryk derefter Scan</string>
+    <string name="flic_scan_hint">Hold Flic 2-knappen i 6 sekunder for parringstilstand, tryk derefter Scan.</string>
     <string name="flic_stop_scan">Stop scanning</string>
     <string name="flic_start_scan">Start scanning</string>
     <string name="flic_forget">Glem</string>
@@ -722,13 +895,12 @@
     <string name="section_external_gps">GPS og sensorer</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS-sensorer</string>
-    <string name="tpms_caption">Dæktryk fra en sensor på hjulet, som InMotion P6.</string>
     <string name="tpms_wheel_sensor">Hjulets dæktryk</string>
-    <string name="tpms_wheel_sensor_desc">Videresendt fra en tilknyttet sensor</string>
-    <string name="tpms_idle">Ingen sensor rapporterer endnu</string>
-    <string name="tpms_pair_title">Tilføj en anden sensor</string>
-    <string name="tpms_pair_replaces">En ekstra sensor erstatter hjulets indbyggede, hvis der er en.</string>
+    <string name="tpms_wheel_sensor_desc">Videresendt fra en tilknyttet sensor.</string>
     <string name="tpms_scan">Søg efter sensorer</string>
+    <string name="tpms_scan_stop">Stop scanning</string>
+    <string name="tpms_none_yet">Ingen dæktryksensor fundet eller tilføjet manuelt.</string>
+    <string name="tpms_wheel_sensor_replaced">Erstattet af din parrede sensor</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="external_gps_pair_button">Start scanning</string>
     <string name="external_gps_pair_action">Par</string>
@@ -741,7 +913,7 @@
     <string name="external_gps_disconnect">Afbryd</string>
     <string name="external_gps_unpair">Glem enhed</string>
     <string name="external_gps_axes_title">Akse-orientering</string>
-    <string name="external_gps_axes_desc">Omfordelér hver output-akse til en rå akse på enheden</string>
+    <string name="external_gps_axes_desc">Omfordelér hver output-akse til en rå akse på enheden.</string>
     <string name="external_gps_map_x">Output X</string>
     <string name="external_gps_map_y">Output Y</string>
     <string name="external_gps_map_z">Output Z</string>
@@ -759,7 +931,7 @@
     <string name="external_gps_autodetect_next">Næste</string>
     <string name="gps_prioritize_external">Prioritér ekstern GPS</string>
     <string name="gps_show_on_dashboard">Vis fart på dashboardet</string>
-    <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien</string>
+    <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien.</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
     <string name="volume_keys_caption">Brug telefonens lydstyrketaster som genveje (kun når appen er synlig)</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
@@ -817,11 +989,25 @@
     <string name="alarm_metric_speed">Hastighed</string>
     <string name="alarm_metric_battery">Batteri</string>
     <string name="alarm_metric_temperature">Temperatur</string>
+    <string name="alarm_metric_tire_pressure">Dæktryk</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth-signal</string>
+    <string name="alarm_metric_lateral_g">Sidevejs G</string>
+    <string name="alarm_metric_g_force">G-kraft</string>
+    <string name="alarm_metric_battery_temp">Batteritemp.</string>
+    <string name="alarm_metric_controller_temp">Controllertemp.</string>
+    <string name="alarm_metric_motor_temp">Motortemp.</string>
     <string name="alarm_metric_pwm">Belastning (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spænding</string>
     <string name="alarm_metric_current">Strøm</string>
+    <string name="alarm_metric_torque">Moment</string>
+    <string name="alarm_metric_phase_current">Fasestrøm</string>
+    <string name="alarm_metric_phase_current_voice">faseampere</string>
+    <string name="alarm_metric_wh_consumed">Energi</string>
+    <string name="alarm_metric_wh_per_km">Forbrug</string>
+    <string name="alarm_metric_range">Rækkevidde</string>
     <string name="alarm_metric_gps_speed">GPS-hastighed</string>
+    <string name="alarm_metric_gps_altitude">Højde</string>
     <string name="alarm_metric_external_gps_speed">Ekstern GPS-hastighed</string>
     <string name="alarm_metric_external_gps_battery">Ekstern GPS-batteri</string>
     <string name="alarm_metric_external_gps_speed_short">Ext GPS-hast.</string>
@@ -862,7 +1048,7 @@
     <string name="scan_scanning">Søger…</string>
     <string name="scan_start">Start scanning</string>
     <string name="scan_show_all_title">Vis alle enheder</string>
-    <string name="scan_show_all_subtitle">Slå til, hvis dit hjul ikke vises</string>
+    <string name="scan_show_all_subtitle">Slå til, hvis dit hjul ikke vises.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">Historik</string>
@@ -907,40 +1093,60 @@
     <string name="recording_route">Rute</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Varighed</string>
-    <string name="recording_summary_points">Punkter</string>
+    <string name="recording_summary_points">Rækker</string>
     <string name="recording_summary_top_speed">Tophastighed</string>
     <string name="recording_summary_avg_speed">Gns. hastighed</string>
     <string name="recording_summary_battery">Batteri (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spænding</string>
     <string name="recording_summary_avg_moving">Gns. i bevægelse</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ekst</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Maks. PWM</string>
     <string name="recording_summary_max_current">Maks. strøm</string>
     <string name="recording_summary_max_power">Maks. effekt</string>
+    <string name="recording_summary_max_torque">Maks. moment</string>
+    <string name="recording_summary_max_phase_current">Maks fase-A</string>
     <string name="recording_summary_max_temp">Maks. temp</string>
+    <string name="recording_summary_energy">Energi</string>
+    <string name="recording_summary_consumption">Forbrug</string>
     <string name="recording_chart_speed">Fart (%1$s)</string>
-    <string name="recording_chart_battery">Batteri (%)</string>
+    <string name="recording_chart_battery" formatted="false">Batteri (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Batteri-envelope (%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
     <string name="recording_chart_voltage">Spænding (V)</string>
     <string name="recording_chart_current">Strøm (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
-    <string name="recording_chart_battery_smooth">Batteri, gennemsnit (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
+    <string name="recording_chart_torque">Moment (Nm)</string>
+    <string name="recording_chart_phase_current">Fasestrøm (A)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Batteri, gennemsnit (%)</string>
     <string name="recording_chart_speed_smooth">Hastighed, gennemsnit (%1$s)</string>
     <string name="recording_chart_current_smooth">Strøm, gennemsnit (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, gennemsnit (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, gennemsnit (%)</string>
     <string name="recording_chart_power">Effekt (W)</string>
     <string name="recording_chart_altitude">Højde (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Lys</string>
-    <string name="auto_lights_desc">Tænd og sluk forlygten efter solopgang og solnedgang</string>
-    <string name="auto_lights_on_before_sunset">Tænd lys før solnedgang</string>
-    <string name="auto_lights_off_after_sunrise">Sluk lys efter solopgang</string>
+    <string name="auto_lights_title">Lygtestyring</string>
+    <string name="auto_lights_when">Følg solen når</string>
+    <string name="auto_lights_off_slow">Sluk lygten ved opbremsning</string>
+    <string name="auto_lights_off_below">Sluk under</string>
+    <string name="auto_lights_desc">Tænd og sluk forlygten efter solopgang og solnedgang.</string>
+    <string name="auto_lights_on_before_sunset">Lys TIL før</string>
+    <string name="auto_lights_off_after_sunrise">Lys FRA efter</string>
     <string name="auto_waiting_gps">Venter på GPS-position…</string>
     <string name="auto_volume_title">Lydstyrke</string>
-    <string name="auto_volume_desc">Øg musikkens lydstyrke efter farten</string>
-    <string name="media_control_title">Mediestyring</string>
+    <string name="auto_volume_desc">Øg musikkens lydstyrke efter farten.</string>
+    <string name="auto_volume_when">Hæv lydstyrken når</string>
+    <string name="media_rate_when">Ændr afspilningshastighed når</string>
+    <string name="media_rate_permission_desc">Android beder om det separat. Uden det kan afspilningshastigheden ikke ændres.</string>
+    <string name="media_rate_note">Afspilleren bestemmer selv, om den tager imod en hastighed udefra. Podcast-apps gør det som regel, nogle musik-apps ikke.</string>
+    <string name="media_control_title">Afspilningsstyring</string>
+    <string name="media_rate_title">Afspilningshastighed</string>
+    <string name="media_rate_grant">Tillad</string>
+    <string name="warnings_media_access_title">Notifikationsadgang er slået fra</string>
+    <string name="warnings_media_access_body">Uden den kan afspilningshastigheden ikke følge din fart. Tryk for at tillade.</string>
     <string name="media_control_desc">Sætter musikken på pause, når du sætter farten ned, og genoptager den, når du sætter farten op.</string>
     <string name="media_control_pause">Pause når jeg sætter farten ned</string>
     <string name="media_control_pause_below">Pause ved eller under</string>
@@ -950,27 +1156,28 @@
     <string name="proximity_lock_title">Hjullås</string>
     <string name="proximity_lock_desc">Lås hjulet, når du går væk, og lås det op, når du kommer tilbage, ved hjælp af Bluetooth-signalstyrken.</string>
     <string name="proximity_lock_enable">Lås, når jeg går væk</string>
-    <string name="proximity_lock_below">Lås under</string>
-    <string name="proximity_unlock_enable">Lås op, når jeg vender tilbage</string>
-    <string name="proximity_unlock_above">Lås op over</string>
-    <string name="proximity_lock_signal_live">Aktuelt signal: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Forbind dit hjul for at se det aktuelle signal her.</string>
+    <string name="proximity_lock_below">Signal under</string>
+    <string name="proximity_unlock_when">Lås op automatisk</string>
+    <string name="proximity_unlock_when_never">Aldrig</string>
+    <string name="proximity_unlock_when_return">Jeg kommer tilbage</string>
+    <string name="proximity_unlock_when_near">Jeg er tæt på</string>
+    <string name="proximity_unlock_above">Signal over</string>
+    <string name="proximity_lock_signal_live">Aktuelt signal: %1$s</string>
     <string name="proximity_lock_hint">Låsning kræver en aktiv forbindelse, så den sker, mens signalet svinder, ikke først når du er uden for rækkevidde.</string>
-    <string name="auto_lock_override_toast">Auto-lås er slået til og kan tilsidesætte dette.</string>
-    <string name="auto_lock_override_action">Konfigurer</string>
     <string name="menu_auto_lock_settings">Indstillinger for hjullås</string>
     <string name="menu_auto_lock_on">Slå auto-lås til</string>
     <string name="menu_auto_lock_off">Slå auto-lås fra</string>
     <string name="action_retry">Prøv igen</string>
     <string name="auto_sunrise_sunset">Solopgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnatssol</string>
-    <string name="auto_midnight_sun_body">Solen går ikke ned på denne breddegrad i dag, lyset forbliver slukket</string>
+    <string name="auto_midnight_sun_body">Solen går ikke ned på denne breddegrad i dag, lyset forbliver slukket.</string>
     <string name="auto_polar_night_title">Mørketid</string>
-    <string name="auto_polar_night_body">Solen går ikke op på denne breddegrad i dag, lyset forbliver tændt</string>
-    <string name="auto_lights_suspended">Sat på pause: du har selv tændt/slukket lyset i denne session. Tilslut hjulet igen eller genstart appen for at fortsætte</string>
+    <string name="auto_polar_night_body">Solen går ikke op på denne breddegrad i dag, lyset forbliver tændt.</string>
+    <string name="auto_lights_suspended">Sat på pause i denne session, du satte lyset manuelt. Ret det fra Kræver opmærksomhed, eller tilslut hjulet igen.</string>
+    <string name="auto_lock_suspended">Sat på pause i denne session, du låste eller låste op manuelt. Ret det fra Kræver opmærksomhed, eller tilslut hjulet igen.</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">For hver måling udløses den mest relevante alarm automatisk. Rækkefølgen i listen ændrer ikke hvilken; sorteringen holder den bare ryddelig</string>
+    <string name="alarm_help">For hver måling udløses den mest relevante alarm automatisk. Rækkefølgen i listen ændrer ikke hvilken; sorteringen holder den bare ryddelig.</string>
     <string name="alarm_empty">Ingen alarmregler endnu</string>
     <string name="alarm_add">Ny alarm</string>
     <string name="alarm_summary_predict_fmt">forudser %1$s s i forvejen</string>
@@ -985,6 +1192,7 @@
     <string name="alarm_label_frequency">Frekvens</string>
     <string name="alarm_label_duration">Varighed</string>
     <string name="alarm_label_repeats">Gentagelser</string>
+    <string name="alarm_repeat_toggle">Gentag</string>
     <string name="alarm_label_vibrate_on">Vibrér på</string>
     <string name="alarm_threshold_decrease">Sænk tærskel</string>
     <string name="alarm_threshold_increase">Hæv tærskel</string>
@@ -1012,6 +1220,7 @@
     <string name="sources_fresh_just_now">lige nu</string>
     <string name="sources_fresh_seconds_fmt">%1$ds siden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm siden</string>
+    <string name="sources_delta_avg_fmt">gns %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$dt siden</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Andre målinger</string>
@@ -1040,6 +1249,8 @@
     <string name="alarm_repeat_label">Udløser</string>
     <string name="alarm_repeat_single">Engang</string>
     <string name="alarm_repeat_multi">Mange</string>
+    <string name="alarm_wheel_only_label">Gælder kun det aktuelt forbundne hjul</string>
+    <string name="alarm_summary_wheel_fmt">Gælder: %1$s</string>
     <string name="alarm_repeat_help_once">Én advarsel når %1$s. Klargøres igen når %2$s, efter pausen på %3$d s.</string>
     <string name="alarm_repeat_help_many">Advarer igen hver %1$d s mens %2$s.</string>
     <string name="alarm_repeat_help_once_instant">Én advarsel når %1$s. Klargøres igen så snart %2$s.</string>
@@ -1085,7 +1296,7 @@
     <string name="online_upload_profile_country_label">Land</string>
     <string name="online_upload_profile_country_select">Vælg dit land</string>
     <string name="online_upload_country_search">Søg lande</string>
-    <string name="online_upload_profile_avatar_hint">Tryk for at tilføje et billede</string>
+    <string name="online_upload_profile_avatar_hint">Tryk for at tilføje et billede.</string>
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Registrér</string>
     <string name="online_upload_register_error">Registrering mislykkedes. Tjek din forbindelse og prøv igen.</string>
@@ -1098,7 +1309,7 @@
     <string name="online_upload_card_unavailable">Kunne ikke indlæses</string>
     <string name="online_profile_retry">Prøv igen</string>
     <string name="online_upload_card_missing">Denne telefons ranglisteprofil findes ikke længere på serveren, så nye uploads afvises. Kontakt ranglistens administrator, hvis det er uventet.</string>
-    <string name="online_upload_actions_caption">Turstatistik-uploads</string>
+    <string name="online_upload_actions_caption">Turstatistik-uploads.</string>
     <string name="online_upload_actions_desc">Send ture, der endnu ikke er uploadet til ranglisten.</string>
     <string name="online_upload_sync_nothing">Intet at synkronisere</string>
     <string name="online_upload_sync_done">Synkroniserede %1$d ture</string>
@@ -1114,8 +1325,11 @@
     <string name="online_status_flagged">Delt, under gennemgang</string>
     <string name="online_status_pending">Uploader til ranglisten…</string>
     <string name="online_status_failed">Online upload fejlede, tryk for at prøve igen</string>
-    <string name="online_upload_join_caption">Tilmeld dig for at sende dine statistikker og ture til den offentlige rangliste på</string>
-    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på</string>
+    <string name="online_status_checking">Tjekker med ranglisten…</string>
+    <string name="online_status_check_failed">Kunne ikke tjekke lige nu, prøv igen senere</string>
+    <string name="online_status_rejected">Ikke godkendt til ranglisten</string>
+    <string name="online_upload_join_caption">Tilmeld dig for at sende dine statistikker og ture til den offentlige rangliste på.</string>
+    <string name="online_upload_linked_caption">Dine statistikker og ture vises på den offentlige rangliste på.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Frakobl</string>
@@ -1142,13 +1356,13 @@
     <string name="online_rejoin_title">Genaktiver profil</string>
     <string name="online_rejoin_body">Backup-mappen indeholder en profil, der blev brugt til ranglisten.\n\nRytter-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Batterioptimering er slået til</string>
-    <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i baggrunden og afbryde en optagelse midt i turen. Tillad appen at køre uden begrænsninger</string>
+    <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i baggrunden og afbryde en optagelse midt i turen. Tillad appen at køre uden begrænsninger.</string>
     <string name="warnings_hud_blocked_title">Telefon-HUD kan ikke tegne</string>
-    <string name="warnings_hud_blocked_body">Tilladelsen til at tegne over andre apps blev fjernet, så overlayet vises ikke oven på kort eller musik</string>
+    <string name="warnings_hud_blocked_body">Tilladelsen til at tegne over andre apps blev fjernet, så overlayet vises ikke oven på kort eller musik.</string>
     <string name="warnings_no_backup_title">Ture sikkerhedskopieres ikke</string>
-    <string name="warnings_no_backup_body">De findes kun på denne telefon. Vælg en backupmappe, så en mistet eller nulstillet telefon ikke tager dine ture med sig</string>
+    <string name="warnings_no_backup_body">De findes kun på denne telefon. Vælg en backupmappe, så en mistet eller nulstillet telefon ikke tager dine ture med sig.</string>
     <string name="warnings_pip_blocked_title">Billede i billede er blokeret</string>
-    <string name="warnings_pip_blocked_body">Android er indstillet til at afvise det for EUC Planet, så det flydende vindue vises ikke, når du forlader appen</string>
+    <string name="warnings_pip_blocked_body">Android er indstillet til at afvise det for EUC Planet, så det flydende vindue vises ikke, når du forlader appen.</string>
     <string name="online_rejoin_confirm">Tilmeld igen</string>
 
     <!-- ==== Overlay Studio ==== -->
@@ -1215,10 +1429,10 @@
 
     <!-- Studio: save preset dialog -->
     <string name="studio_save_preset_title">Gem preset</string>
-    <string name="studio_save_preset_body">Presets gemmes som individuelle .json-filer i din backup-mappe under overlays/</string>
+    <string name="studio_save_preset_body">Presets gemmes som individuelle .json-filer i din backup-mappe under overlays/.</string>
     <string name="studio_save_preset_name_label">Preset-navn</string>
     <string name="studio_save_btn">Gem</string>
-    <string name="studio_no_folder_body">Vælg en backup-mappe for at indlæse og gemme presets</string>
+    <string name="studio_no_folder_body">Vælg en backup-mappe for at indlæse og gemme presets.</string>
 
     <!-- Studio: load preset sheet -->
     <string name="studio_load_preset_title">Indlæs preset</string>
@@ -1349,10 +1563,16 @@
     <string name="studio_cfg_map_dark">Mørk</string>
     <string name="studio_cfg_map_satellite">Satellit</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Vis kortkredit</string>
+    <string name="studio_cfg_map_attribution_off">Kortlicensen kræver denne kredit på alt, du deler. At slå den fra er dit valg.</string>
+    <string name="studio_cfg_map_style_community">Fliser drevet af frivillige. En lang eksport henter tusindvis på én gang, hvilket disse servere beder apps om at undgå.</string>
     <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
-    <string name="studio_cfg_map_trace">Vis spor</string>
+    <string name="studio_cfg_map_trace">Spor</string>
+    <string name="studio_cfg_map_trace_none">Ingen</string>
+    <string name="studio_cfg_map_trace_progress">Så langt</string>
+    <string name="studio_cfg_map_trace_full">Hele turen</string>
     <string name="studio_cfg_map_use_custom_marker">Foretræk tilpasset markør</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">Indstil dit foto under Navigator → Tilpas min markør</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Indstil dit foto under Navigator → Tilpas min markør.</string>
     <string name="studio_cfg_camera_label">Kamera</string>
     <string name="studio_cfg_replace_image">Erstat billede</string>
     <string name="studio_cfg_chroma_key">Gør en farve gennemsigtig</string>
@@ -1412,6 +1632,7 @@
     <string name="studio_metric_voltage">Spænding</string>
     <string name="studio_metric_current">Strøm</string>
     <string name="studio_metric_phase_current">Fasestrøm</string>
+    <string name="studio_metric_torque">Moment</string>
     <string name="studio_metric_power">Effekt</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Tripdistance</string>
@@ -1422,6 +1643,7 @@
     <string name="studio_metric_external_gps_battery">Ekst. GPS-batteri</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-fart</string>
     <string name="studio_metric_gps_speed">GPS-fart</string>
+    <string name="studio_metric_gps_altitude">Højde</string>
     <string name="metric_chip_trip_meter">Triptæller</string>
     <string name="trip_meter_detail_title">Triptæller</string>
     <string name="trip_meter_tab_speed">Fart</string>
@@ -1440,6 +1662,9 @@
     <string name="trip_meter_col_max">Maks</string>
     <string name="trip_meter_col_batt">Bat</string>
     <string name="studio_metric_trip_meter">Triptæller</string>
+    <string name="studio_metric_wh_consumed">Energi</string>
+    <string name="studio_metric_wh_per_km">Forbrug</string>
+    <string name="studio_metric_range">Rækkevidde</string>
     <string name="studio_metric_gps">GPS-koordinater</string>
 
     <!-- Navigator -->
@@ -1482,6 +1707,15 @@
     <string name="nav_last_stop">Sidste stop</string>
     <string name="nav_need_destination">Tilføj en destination først</string>
     <string name="nav_map_style">Kortstil</string>
+    <string name="nav_overlays">Lag ovenpå</string>
+    <string name="nav_reset_north">Vend mod nord</string>
+    <string name="nav_layer_dark">Esri Dark</string>
+    <string name="nav_layer_light">Esri Light</string>
+    <string name="nav_layer_satellite">Satellit</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Første stop</item>
         <item>Andet stop</item>
@@ -1493,9 +1727,10 @@
         <item>Ottende stop</item>
     </string-array>
     <string name="nav_my_location">Min position</string>
+    <string name="nav_fit_all">Vis alle</string>
     <string name="nav_no_location">Venter på GPS-fix…</string>
     <string name="nav_too_far_to_start">Første stop er for langt væk. Hold Start nede for at navigere alligevel.</string>
-    <string name="nav_empty_hint">Tryk på kortet, søg, eller indlæs en GPX-fil</string>
+    <string name="nav_empty_hint">Tryk på kortet, søg, eller indlæs en GPX-fil.</string>
     <string name="nav_route_failed">Rutetjeneste utilgængelig, bruger lige linjer</string>
     <string name="nav_cant_add_while_running">Kan ikke tilføje et stop, mens navigation kører</string>
     <string name="nav_search_no_results">Ingen resultater for den adresse</string>
@@ -1511,6 +1746,55 @@
     <string name="nav_arrived">Du er fremme</string>
     <string name="nav_arrived_goal">Mål %1$d nået</string>
     <string name="nav_end_title">Afslut navigation?</string>
+    <!-- ==== Live location share (navigator) ==== -->
+    <string name="share_button">Delingsmuligheder</string>
+    <string name="share_button_long">Del min position</string>
+    <string name="share_leave_first">Forlad den aktuelle gruppe først</string>
+    <string name="share_join_title">Deltag i gruppe</string>
+    <string name="share_identity_anon">Anonym</string>
+    <string name="share_identity_session">Egen</string>
+    <string name="share_identity_profile">Profil</string>
+    <string name="share_name_label">Navn</string>
+    <string name="share_start">Start deling</string>
+    <string name="share_join">Deltag</string>
+    <string name="share_connected">Forbundet</string>
+    <string name="share_reconnecting">Genopretter forbindelse…</string>
+    <string name="share_leave">Forlad gruppen</string>
+    <string name="share_left">forlod</string>
+    <string name="share_lost">mistet signal</string>
+    <string name="share_age_seconds">for %1$d s siden</string>
+    <string name="share_age_minutes">for %1$d min siden</string>
+    <string name="share_relay_caption">Relæ: %1$s</string>
+    <string name="share_link_invalid">Dette delelink er udløbet eller ugyldigt.</string>
+    <string name="share_room_full">Denne gruppe er fuld.</string>
+    <string name="share_switch_group">Forlad nuværende gruppe og deltag i denne?</string>
+    <string name="share_cannot_reach">Kan ikke oprette forbindelse til delingstjenesten</string>
+    <string name="share_profile_missing">Ingen leaderboard-profil endnu. Opret en under %1$s.</string>
+    <string name="share_profile_loading">Indlæser profil…</string>
+    <string name="share_camera_needed">Der skal bruges adgang til kameraet for at scanne en QR-kode.</string>
+    <string name="share_invite_text">Vær med på min tur på EUC Planet: %1$s</string>
+    <string name="share_invite_subject">Vær med på min tur</string>
+    <string name="share_copied">Kopieret</string>
+    <string name="share_camera_allow">Tillad kamera</string>
+    <string name="share_alone">Der er ingen andre her endnu.</string>
+    <string name="share_open">Åbn</string>
+    <string name="share_copy">Kopiér</string>
+    <string name="share_menu_join">Deltag i gruppetur</string>
+    <string name="share_menu_join_desc">Scan en QR-kode.</string>
+    <string name="share_menu_live">Del min position</string>
+    <string name="share_menu_live_desc">Start en gruppetur.</string>
+    <string name="share_menu_static">Send min position</string>
+    <string name="share_menu_static_desc">Google Maps-link.</string>
+    <string name="share_menu_copy">Kopiér koordinater</string>
+    <string name="share_waiting_gps">Venter på GPS</string>
+    <string name="share_identity_label">Andre ser mig som</string>
+    <string name="share_stats_label">Vis fart og batteri</string>
+    <string name="share_tab_qr">QR-kode</string>
+    <string name="share_tab_connected">Tilsluttet (%1$d)</string>
+    <string name="share_title_group">Gruppetur</string>
+    <string name="share_title_live">Del min position</string>
+    <string name="share_static_subject">Min position</string>
+    <string name="share_you">Mig</string>
     <string name="nav_end_body">Stop vejledningen for den aktive rute?</string>
     <string name="nav_end_confirm">Afslut</string>
     <string name="nav_minimize">Minimér</string>
@@ -1571,25 +1855,108 @@
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Stemmevejledning</string>
     <string name="nav_setting_arrival_radius">Ankomstradius</string>
-    <string name="nav_setting_arrival_radius_desc">Hvor tæt på der tæller som at have nået et stop</string>
+    <string name="nav_setting_arrival_radius_desc">Hvor tæt på der tæller som at have nået et stop.</string>
     <string name="nav_setting_offroute">Tolerance uden for ruten</string>
-    <string name="nav_setting_offroute_desc">Hvor langt fra ruten før advarslen om afvigelse udløses</string>
+    <string name="nav_setting_offroute_desc">Hvor langt fra ruten før advarslen om afvigelse udløses.</string>
     <string name="nav_setting_default_mode">Standard rejsemåde</string>
-    <string name="nav_setting_params">Navigationsindstillinger</string>
+    <string name="nav_setting_params">Navigation og vejr</string>
+    <string name="weather_section">Vejr</string>
+    <string name="weather_icon_desc">Vejrudsigt</string>
+    <string name="weather_now">Nu</string>
+    <string name="weather_fetching">Henter udsigt…</string>
+    <string name="weather_refresh">Opdater udsigt</string>
+    <string name="weather_error">Udsigt fejlede: %1$s</string>
+    <string name="weather_window_8h">Næste 8 timer</string>
+    <string name="weather_win_hours_fmt">%1$d t</string>
+    <string name="weather_win_days_fmt">%1$d d</string>
+    <string name="weather_window_hours_suffix">t</string>
+    <string name="weather_open_expanded">Åbn med alle detaljer</string>
+    <string name="weather_window_24h">Næste 24 timer</string>
+    <string name="weather_window_3d">Næste 3 dage</string>
+    <string name="weather_window_1w">Næste 7 dage</string>
+    <string name="weather_settings_entry">Vejrindstillinger</string>
+    <string name="weather_enable">Hurtig adgang på dashboardet</string>
+    <string name="weather_enable_desc">Tilføjer et vejrikon over kortknappen: tryk for en kørbarhedsprognose.</string>
+    <string name="weather_window_label">Udsigtsvindue</string>
+    <string name="weather_source_label">Udsigtskilde</string>
+    <string name="weather_comfort_desc">Komforttærskler for scoren. Temperatur følger dine enheder; vind følger fartenheden.</string>
+    <string name="weather_cold">For koldt under</string>
+    <string name="weather_hot">For varmt over</string>
+    <string name="weather_breezy">Blæsende over</string>
+    <string name="weather_windy">For blæsende over</string>
+    <string name="weather_source_credit">Prognosen kommer fra den valgte kilde og hentes kun, mens dette er slået til. Et kortere vindue kan komme i finere trin, hvis kilden har dem.</string>
+    <string name="weather_title_1">Hjulvejr i dag?</string>
+    <string name="weather_title_2">EUC-tid?</string>
+    <string name="weather_title_3">Tid til en tur?</string>
+    <string name="weather_title_4">Skal vi i udstyret?</string>
+    <string name="weather_title_5">Klar til hjulet?</string>
+    <string name="weather_lvl_awful_1">Forfærdeligt, lad hjulet stå.</string>
+    <string name="weather_lvl_awful_2">Absolut ikke.</string>
+    <string name="weather_lvl_bad_1">Skidt, tænk dig om.</string>
+    <string name="weather_lvl_bad_2">Dårligt derude.</string>
+    <string name="weather_lvl_notworst_1">Ikke det værste.</string>
+    <string name="weather_lvl_notworst_2">Tvivlsomt, men muligt.</string>
+    <string name="weather_lvl_meh_1">Meh, det kan køres.</string>
+    <string name="weather_lvl_meh_2">Ikke noget særligt.</string>
+    <string name="weather_lvl_ok_1">Fint, værd en tur.</string>
+    <string name="weather_lvl_ok_2">Slet ikke dårligt.</string>
+    <string name="weather_lvl_good_1">Godt, af sted.</string>
+    <string name="weather_lvl_good_2">Dejligt kørevejr.</string>
+    <string name="weather_lvl_prime_1">Perfekt, fuld fart!</string>
+    <string name="weather_lvl_prime_2">Førsteklasses svævevejr!</string>
+    <string name="weather_expand">Detaljer</string>
+    <string name="weather_chart_temp">Temp., fugt og nedbør</string>
+    <string name="weather_chart_precip">Nedbør</string>
+    <string name="weather_chart_wind">Vind og stød</string>
+    <string name="weather_adv_snow_now">Det sner nu, grebet er væk.</string>
+    <string name="weather_adv_snow_in">Sne ventes om %1$s.</string>
+    <string name="weather_adv_rain_now">Det regner, brems tidligt og læn mindre.</string>
+    <string name="weather_adv_rain_in">Regn ventes om %1$s.</string>
+    <string name="weather_adv_gusts">Kraftige vindstød, pas på broer og åbne veje.</string>
+    <string name="weather_adv_freeze">Nær frysepunktet, pas på glatte pletter.</string>
+    <string name="weather_adv_clear">Helt klart, bare kør.</string>
+    <string name="weather_adv_heat">Varm periode, hold øje med controllerens temperatur på stigninger.</string>
+    <string name="weather_adv_golden">Gylden time om %1$s.</string>
+    <string name="weather_in_min">%1$d min</string>
+    <string name="weather_in_h">%1$d t</string>
+    <string name="weather_src_current">Nuværende</string>
+    <string name="weather_src_destination">Destination</string>
+    <string name="weather_swap_src">Skift sted</string>
+    <string name="weather_pref_label">Komfortpræferencer</string>
+    <string name="weather_pref_desc">Dine præferencer tilpasser scoren til dig. Reelle farer trækker den stadig i bund.</string>
+    <string name="weather_pref_dislike">Ugerne</string>
+    <string name="weather_pref_neutral">Neutral</string>
+    <string name="weather_pref_like">Gerne</string>
+    <string name="weather_cond_hot">Varme</string>
+    <string name="weather_cond_cold">Kulde</string>
+    <string name="weather_cond_rain">Regn</string>
+    <string name="weather_cond_snow">Sne og is</string>
+    <string name="weather_cond_wind">Vind</string>
+    <string name="weather_cond_night">Nat</string>
+    <string name="weather_cond_golden">Gyldne time</string>
+    <string name="weather_face_clear">Klart - kør.</string>
+    <string name="weather_face_meh">Kan køres, men vær skarp.</string>
+    <string name="weather_face_rain">Våd asfalt - læn blidt, brems tidligt.</string>
+    <string name="weather_face_snow">Sne eller slud - intet greb, gå hellere.</string>
+    <string name="weather_face_wind">Stødvis vind - vær løs, forvent skub.</string>
+    <string name="weather_face_night">Mørkt - lys på, sæt farten ned.</string>
+    <string name="weather_face_cold">Koldt - mindre greb, svagt batteri, klæd dig på.</string>
+    <string name="weather_face_hot">Varmt - hold øje med controlleren på stigninger.</string>
+    <string name="weather_face_golden">Gylden time, smuk tur, snart lys på.</string>
     <string name="nav_setting_full_path">Beregn altid hele ruten</string>
-    <string name="nav_setting_full_path_desc">Fra beregner kun næste stop og viser resten som stiplet forhåndsvisning</string>
+    <string name="nav_setting_full_path_desc">Fra beregner kun næste stop og viser resten som stiplet forhåndsvisning.</string>
     <string name="nav_setting_endpoints">Rutetjenester</string>
-    <string name="nav_setting_endpoints_hint">Gratis OpenStreetMap som standard; skift for at bruge din egen server</string>
+    <string name="nav_setting_endpoints_hint">Gratis OpenStreetMap som standard; skift for at bruge din egen server.</string>
     <string name="nav_setting_geocoder_url">URL til adressesøgning</string>
     <string name="nav_setting_router_url">URL til ruteberegning</string>
     <string name="watch_show_navigation">Vis navigation</string>
-    <string name="watch_show_navigation_desc">Spejl svingpilen og afstanden på uret under navigation</string>
+    <string name="watch_show_navigation_desc">Spejl svingpilen og afstanden på uret under navigation.</string>
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Del fil</string>
-    <string name="trip_action_share_file_desc">Send turens CSV til en anden app</string>
+    <string name="trip_action_share_file_desc">Send turens CSV til en anden app.</string>
     <string name="trip_action_view_online">Vis online</string>
     <string name="trip_action_replay">Afspil i Studio</string>
-    <string name="trip_action_replay_desc">Scrub turen med live data-overlays</string>
+    <string name="trip_action_replay_desc">Scrub turen med live data-overlays.</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">Vis videogalleri</string>
     <string name="dash_view_photo_gallery">Vis fotogalleri</string>
@@ -1600,14 +1967,14 @@
     <string name="studio_cfg_border_colour">Kantfarve</string>
     <string name="studio_cfg_border_width">Kanttykkelse</string>
     <string name="studio_cfg_g_scale">Skala</string>
-    <string name="studio_export_force_opaque_hint">Formater uden gennemsigtighed bruger chroma key-farven; kan se mærkeligt ud på halvgennemsigtige lag</string>
+    <string name="studio_export_force_opaque_hint">Formater uden gennemsigtighed bruger chroma key-farven; kan se mærkeligt ud på halvgennemsigtige lag.</string>
     <string name="studio_cfg_filter_vivid">Levende</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Indstillinger for ekstern GPS</string>
-    <string name="external_gps_caption">Tænd enheden og tryk Par; fart og G-kraft fødes ind live og gemmes i tur-CSV</string>
-    <string name="gps_prioritize_external_desc">Foretræk tilsluttet enhed frem for telefonen til fart, position og G-kraft</string>
+    <string name="external_gps_caption">Tænd enheden og tryk Par; fart og G-kraft fødes ind live og gemmes i tur-CSV.</string>
+    <string name="gps_prioritize_external_desc">Foretræk tilsluttet enhed frem for telefonen til fart, position og G-kraft.</string>
     <string name="studio_cfg_show_value">Vis værdi</string>
     <string name="studio_cfg_unit_position">Enhed</string>
     <string name="studio_cfg_unit_left">Før</string>
@@ -1623,8 +1990,17 @@
     <string name="warnings_indicator_desc">App-advarsler</string>
     <string name="warnings_dialog_title">Kræver opmærksomhed</string>
     <string name="warnings_fix_button">Ret</string>
+    <string name="warnings_autolights_title">Autolys på pause</string>
+    <string name="warnings_autolights_body">Du satte lyset manuelt, så tidsplanen holder sig væk i denne session. Ret giver den styringen tilbage.</string>
+    <string name="warnings_autolock_title">Autolås på pause</string>
+    <string name="warnings_autolock_body">Du låste eller låste op manuelt, så nærhedslåsen holder sig væk i denne session. Ret giver den styringen tilbage.</string>
     <string name="warnings_perm_notifications_title">Notifikationer slået fra</string>
-    <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i notifikationsskuffen</string>
+    <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i notifikationsskuffen.</string>
+    <string name="warnings_perm_location_title">Placering er slået fra</string>
+    <string name="warnings_perm_location_body">Ture optager ingen rute, og GPS-hastighed og kalibrering virker ikke. Tryk for at tillade.</string>
+    <string name="weather_error_no_location">Ingen placering at spå ud fra</string>
+    <string name="warnings_location_services_body">EUC Planet har lov, men telefonen har placering slået fra for alt. Tryk for at slå den til.</string>
+    <string name="warnings_location_services_title">Placering er slået fra på telefonen</string>
 
     <!-- HUD Overlay / Personalize / Map / Versions (added) -->
 
@@ -1651,7 +2027,7 @@
     <string name="charging_details">Detaljer</string>
     <string name="charging_tab_charge">Opladning</string>
     <string name="charging_tab_packs">Pakker</string>
-    <string name="charging_estimate_to_full">Beregn altid til 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Beregn altid til 100%</string>
     <string name="charging_options">Valg</string>
     <string name="charging_tab_power">Effekt</string>
     <string name="charging_stat_added">Tilføjet</string>
@@ -1665,7 +2041,7 @@
     <string name="battery_history">Batterihistorik</string>
     <string name="setting_charging_auto_open">Åbn ved opladning</string>
     <string name="hud_joystick_title">Knaphandlinger</string>
-    <string name="hud_joystick_desc">Tryk to gange på en HUD-knap for at køre en handling. Et enkelt tryk skifter stadig skærm</string>
+    <string name="hud_joystick_desc">Tryk to gange på en HUD-knap for at køre en handling. Et enkelt tryk skifter stadig skærm.</string>
     <string name="hud_joystick_up">Op (dobbelttryk)</string>
     <string name="hud_joystick_down">Ned (dobbelttryk)</string>
     <string name="hud_joystick_left">Venstre (dobbelttryk)</string>
@@ -1685,12 +2061,14 @@
     <string name="charging_cells_pack_n">Pakke %1$d</string>
     <string name="charging_cells_waiting">Venter på cellespændingsdata…</string>
     <string name="charging_tab_cells">Celler</string>
-    <string name="hud_auto_discover">Find linkadressen automatisk</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Tænd Bluetooth for at scanne efter hjul.</string>
     <string name="scan_bluetooth_off_title">Bluetooth er slukket</string>
     <string name="scan_enable_bluetooth">Tænd Bluetooth</string>
     <string name="studio_cfg_radar_distance_labels">Afstandsmærker</string>
+    <string name="studio_radar_none">Ingen radar</string>
+    <string name="studio_radar_clear">Fri</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Vognbane</string>
     <string name="studio_cfg_radar_minimal">Minimal</string>
     <string name="studio_cfg_radar_mirror">Spejl</string>
@@ -1703,7 +2081,7 @@
     <string name="studio_save_keep_both">Behold begge</string>
     <string name="welcome_tut_voice_desc">Du kan aktivere eller deaktivere enkelte stemmebeskeder senere i Indstillinger → Stemme og meddelelser.</string>
     <string name="welcome_tut_voice_title">Aktivér stemmebeskeder</string>
-    <string name="dropbox_section_caption">Online-sikkerhedskopi til Dropbox</string>
+    <string name="dropbox_section_caption">Online-sikkerhedskopi til Dropbox.</string>
     <string name="dropbox_section_desc">Ture kan også åbnes på %1$s når Dropbox er forbundet.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Tilknyt Dropbox</string>
@@ -1717,9 +2095,9 @@
     <string name="dropbox_link_ok">Dropbox tilknyttet</string>
     <string name="dropbox_link_failed">Kunne ikke tilknytte Dropbox. Tjek din forbindelse og prøv igen</string>
     <string name="trip_action_share_dropbox">Del via Dropbox</string>
-    <string name="trip_action_share_dropbox_desc">Upload til din Dropbox-mappe og del det offentlige link</string>
+    <string name="trip_action_share_dropbox_desc">Upload til din Dropbox-mappe og del det offentlige link.</string>
     <string name="trip_action_inspect_online">Inspicér online</string>
-    <string name="trip_action_inspect_online_desc">Del et eucviewer.ried.no-link for at se denne tur online</string>
+    <string name="trip_action_inspect_online_desc">Del et eucviewer.ried.no-link for at se denne tur online.</string>
     <string name="trip_action_dropbox_disabled">Forbind Dropbox i indstillinger for at aktivere</string>
 
     <!-- Map: chargers (Open Charge Map) and places (OpenStreetMap) -->
@@ -1757,13 +2135,13 @@
     <string name="nav_poi_website">Websted</string>
     <string name="nav_pois_failed">Kunne ikke indlæse steder. Tjek din forbindelse</string>
     <string name="nav_pois_none">Intet fundet nær denne rute</string>
-    <string name="nav_pois_places_hint">Tip: hold denne knap nede for at vælge, hvilke steder der vises</string>
+    <string name="nav_pois_places_hint">Tip: hold denne knap nede for at vælge, hvilke steder der vises.</string>
     <string name="nav_setting_advanced_map">Avancerede kortfunktioner</string>
-    <string name="nav_setting_advanced_map_desc">Vis ladere og steder langs ruten</string>
+    <string name="nav_setting_advanced_map_desc">Vis ladere og steder langs ruten.</string>
     <string name="nav_setting_avoid">Undgå ved ruteplanlægning</string>
     <string name="nav_setting_avoid_ferries">Undgå færger</string>
     <string name="nav_setting_avoid_highways">Undgå motorveje</string>
-    <string name="nav_setting_avoid_hint">Undgåelser bruger en anden rutetjeneste og gælder, hvor rejsemåden understøtter dem</string>
+    <string name="nav_setting_avoid_hint">Undgåelser bruger en anden rutetjeneste og gælder, hvor rejsemåden understøtter dem.</string>
     <string name="nav_setting_avoid_tolls">Undgå betalingsveje</string>
     <string name="nav_setting_avoid_unpaved">Undgå grusveje</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-nøgle</string>
@@ -1829,7 +2207,14 @@
     <string name="adv_group_radar_class">Radarklassificering</string>
     <string name="adv_group_rates">Data- og rapporteringshastigheder</string>
     <string name="adv_group_controls">Hjulstyring</string>
+    <string name="adv_group_weather">Vejrscore</string>
+    <string name="adv_weather_cold_desc">Under dette er timen for kold.</string>
+    <string name="adv_weather_hot_desc">Over dette er timen for varm.</string>
+    <string name="adv_weather_breezy_desc">Her begynder vinden at bide.</string>
+    <string name="adv_weather_windy_desc">Forbi dette bliver kørslen svær.</string>
     <string name="adv_lock_max_speed">Maks. låsehastighed</string>
+    <string name="adv_voice_listen_window">Lyttevindue</string>
+    <string name="adv_voice_listen_window_desc">Hvor længe mikrofonen er åben efter signalet, uden at høre noget.</string>
     <string name="adv_lock_max_speed_desc">Påvirker den hastighed, over hvilken låsning af hjulet afvises. Fare: for højt lader en låsning udløse, mens du stadig ruller.</string>
     <string name="adv_hud_backoff_max">Genforbindelsespause (maks)</string>
     <string name="adv_hud_backoff_max_desc">Påvirker den længste ventetid mellem forsøg på at genforbinde HUD. Fare: for højt er langsomt at komme sig.</string>
@@ -1923,6 +2308,7 @@
     <string name="adv_wheel_poll_rate_desc">Påvirker hvor friske live-data er, og hvor hurtigt alarmer reagerer. Lavere beder hjulet om data oftere. Fare: meget lave værdier kan overbelaste Bluetooth-forbindelsen og få data til at gå i stå på nogle hjul.</string>
     <string name="alarm_beep_advanced">Avanceret</string>
     <string name="alarm_beep_gap_label">Pausevarighed</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pause %2$d ms</string>
     <string name="alarm_beep_studio">Adaptivt bip</string>
     <string name="alarm_beep_volume_label">Basisvolumen</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -1957,7 +2343,7 @@
     <string name="tab_more">Mere</string>
     <string name="welcome_tut_dev_join">Tilmeld ranglister</string>
     <string name="welcome_tut_dev_joined">Tilmeldt ranglister</string>
-    <string name="welcome_tut_dev_joined_norider">Online-upload til. Ingen rytter fundet i mappen.</string>
+    <string name="welcome_tut_dev_joined_norider">Ingen rytter i mappen endnu. Tryk på %1$s i %2$s for at oprette en.</string>
     <string name="welcome_tut_dev_restore">Gendan indstillinger</string>
     <string name="welcome_tut_dev_set_folder">Vælg backup-mappe</string>
     <string name="welcome_tut_dev_sync_trips">Synk ture</string>
@@ -1972,6 +2358,7 @@
     <string name="sync_stopping">Stopper…</string>
     <string name="charging_stat_used">Brugt</string>
     <string name="charging_stat_charged">Opladet</string>
+    <string name="charging_stat_charged_est">Opladet (est.)</string>
     <string name="voice_quality_high">høj kvalitet</string>
     <string name="voice_quality_low">enkel</string>
     <string name="voice_sample_default">Dette er standardstemmen for dette sprog</string>
@@ -2010,6 +2397,11 @@
     <string name="side_left">Venstre</string>
     <string name="side_right">Højre</string>
     <string name="adv_group_geometry">Variabler for skærmgeometri</string>
+    <string name="adv_group_map_cache">Mapcache</string>
+    <string name="adv_map_encoded_cache">Cache for kodede fliser</string>
+    <string name="adv_map_encoded_cache_desc">PNG-fliser gemt til uret. Højere værdier bruger mere telefonhukommelse.</string>
+    <string name="adv_map_http_cache">Cache for hentede fliser</string>
+    <string name="adv_map_http_cache_desc">Hentede kortfliser gemt på telefonen. Højere værdier bruger mere lagerplads.</string>
     <string name="adv_compact_max_screen">Grænse for kompakt skærm</string>
     <string name="adv_compact_max_screen_desc">Skærme med begge sider under dette skifter til det kompakte dashboard, når Kompakt dashboard er sat til Små skærme.</string>
     <string name="adv_cover_cutout_inset">Størrelse på kameraudskæring</string>
@@ -2018,6 +2410,10 @@
     <string name="adv_nav_sidebar_min_desc">Smallere skærme beholder det nederste stoppanel selv i liggende retning. For lavt skjuler kortet på små skærme.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Adgangs-PIN til InMotion V5/V8/V10 hjul, sendes ved tilslutning så hjulet begynder at sende data. Lad 000000 stå, medmindre du har angivet din egen PIN i InMotion-appen.</string>
+    <string name="adv_kingsong_unlock_code">KingSong oplåsningskode</string>
+    <string name="adv_kingsong_unlock_code_desc">Seks cifre der sendes med oplåsningskommandoen. Testede hjul accepterer alle cifre, så lad 123456 stå, medmindre dit afviser det.</string>
+    <string name="adv_kingsong_password">KingSong-adgangskode</string>
+    <string name="adv_kingsong_password_desc">Den 4-cifrede adgangskode sat i KingSong-appen, sendt ved tilslutning og før låsning og oplåsning. Lad 0000 stå, hvis du aldrig har sat en.</string>
     <string name="adv_nav_sidebar_width">Bredde på stoppanel</string>
     <string name="adv_nav_sidebar_width_desc">Bredden på det liggende stopsidepanel. For bredt efterlader lidt kort.</string>
     <string name="adv_simple_speedo_scale">Størrelse på simpelt speedometer</string>
@@ -2055,6 +2451,16 @@
     <string name="accel_splits_dir_both">Begge</string>
     <string name="accel_splits_compare_previous">Sammenlign med forrige forsøg</string>
     <string name="accel_splits_compare_best">Sammenlign med sessionens bedste</string>
+    <string name="action_splits_off">Splits fra</string>
+    <string name="action_splits_accel">Splits: accel.</string>
+    <string name="action_splits_brake">Splits: bremse</string>
+    <string name="action_splits_both">Splits: begge</string>
+    <string name="accel_splits_session">Denne tur</string>
+    <string name="accel_splits_session_empty">Ingen splits endnu. Kør gennem et trin for at måle et.</string>
+    <string name="accel_splits_session_row">%1$d til %2$d</string>
+    <string name="accel_splits_session_best">bedst %1$s s</string>
+    <string name="accel_splits_session_last">sidst %1$s s</string>
+    <string name="accel_splits_reset">Nulstil</string>
     <string name="accel_split_time_fmt">fra %1$d til %2$d, %3$s sekunder</string>
     <string name="accel_split_faster_prev">, %1$s sekunder hurtigere end forrige</string>
     <string name="accel_split_slower_prev">, %1$s sekunder langsommere end forrige</string>
@@ -2072,15 +2478,12 @@
     <string name="widget_disconnected">Intet hjul</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Målinger og hurtige handlinger</string>
-    <string name="trip_action_save_section">Gem udsnit som ny tur</string>
-    <string name="trip_action_save_section_desc">Beholder denne tur og tilfojer den beskarne del. Sikkerhedskopieres, sendes aldrig til ranglisten.</string>
     <string name="trip_section_saved">Udsnit gemt som ny tur</string>
     <string name="trip_section_failed">Kunne ikke gemme udsnittet</string>
-    <string name="trip_tools_title">Turvaerktoj</string>
+    <string name="trip_tools_title">Turværktøj</string>
     <string name="trip_tools_change_wheel">Skift hjul</string>
-    <string name="trip_tools_change_wheel_desc">Ret hvilket hjul turen var pa. Opdaterer turen og dens fil.</string>
+    <string name="trip_tools_change_wheel_desc">Ret hvilket hjul turen var på. Opdaterer turen og dens fil.</string>
     <string name="trip_tools_wheel_other">Et andet hjul</string>
-    <string name="trip_tools_wheel_uploaded_warning">Denne tur er allerede pa ranglisten. Posten der beholder det gamle hjul og kan ikke rettes herfra.</string>
     <string name="trip_tools_split">Opdel tur</string>
     <string name="trip_tools_split_desc">Find hjulskift, lange pauser og huller i optagelsen, og klip turen der.</string>
     <string name="trip_tools_split_none">Intet at opdele. Ingen hjulskift, lange pauser eller huller i optagelsen blev fundet.</string>
@@ -2089,20 +2492,17 @@
     <string name="trip_split_reason_stopped">Stoppet i lang tid</string>
     <string name="trip_tools_combine">Kombiner ture</string>
     <string name="trip_tools_combine_desc">Flet andre ture ind i denne som en ny tur, og behold originalerne.</string>
-    <string name="trip_tools_combine_none">Ingen andre faerdige ture at kombinere med.</string>
-    <string name="trip_tools_combine_mixed_wheels">Nogle af disse blev kort pa et andet hjul. Distance og energi bliver lagt sammen.</string>
+    <string name="trip_tools_combine_none">Ingen andre færdige ture at kombinere med.</string>
+    <string name="trip_tools_combine_mixed_wheels">Nogle af disse blev kørt på et andet hjul. Distance og energi bliver lagt sammen.</string>
     <string name="trip_tools_wheel_changed">Hjul sat til %1$s</string>
         <string name="trip_split_lasted">varede %1$s</string>
     <string name="trip_tools_split_pick">Vælg mindst ét sted at klippe.</string>
-<string name="trip_tools_split_hint">Vaelg hvor der skal klippes. Dette laver %1$d ture og beholder originalen.</string>
+<string name="trip_tools_split_hint">Vælg hvor der skal klippes. Dette laver %1$d ture og beholder originalen.</string>
     <string name="trip_tools_split_done">Opdelt i %1$d ture</string>
     <string name="trip_tools_split_failed">Kunne ikke opdele denne tur</string>
     <string name="trip_tools_combine_done">Ture kombineret til en ny</string>
     <string name="trip_tools_combine_failed">Kunne ikke kombinere de ture</string>
-    <string name="trip_tools_wheel_current">Nuvaerende</string>
-    <string name="trip_tools_combine_pick">Vaelg hvor langt der skal kombineres. Alt derimellem tages med.</string>
-    <string name="trip_tools_combine_this">Denne tur</string>
-    <string name="trip_tools_combine_between">Ligger imellem, tages med</string>
+    <string name="trip_tools_wheel_current">Nuværende</string>
     <string name="trip_tools_combine_summary">Kombinerer %1$d ture til en ny tur.</string>
     <string name="phone_hud_desc">Tegn et Overlay Studio-layout oven på andre apps, så du kan se dit hjul mens du bruger kort eller musik.</string>
     <string name="phone_hud_permission_desc">Android spørger separat om dette. Uden det kan overlayet ikke vises.</string>
@@ -2113,11 +2513,12 @@
     <string name="section_surfaces">Live-visninger</string>
     <string name="surface_notification">Notifikation</string>
     <string name="pip_section">Billede i billede</string>
-    <string name="pip_desc">Skrumper til et flydende vindue, når du forlader appen under en tur.</string>
+    <string name="pip_desc">Skrumper til et flydende vindue, når du forlader appen.</string>
     <string name="pip_mode_label">PIP-tilstand</string>
     <string name="pip_mode_off">Fra</string>
     <string name="pip_mode_simple">Enkel</string>
     <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Widget pa startskaerm</string>
     <string name="widget_pick_desc">Vælg de %1$d målinger og %2$d knapper, widgetten viser.</string>
     <string name="widget_metric_slot">Måling %1$d</string>
@@ -2131,21 +2532,26 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Strom</string>
     <string name="widget_metric_power">Effekt</string>
+    <string name="widget_metric_wh_consumed">Energi</string>
+    <string name="widget_metric_wh_per_km">Forbrug</string>
+    <string name="widget_metric_range">Rækkevidde</string>
     <string name="widget_metric_phone_battery">Telefonbatteri</string>
+    <string name="widget_metric_torque">Moment</string>
+    <string name="widget_metric_phase_current">Fasestrøm</string>
     <string name="widget_action_voice">Tale</string>
-    <string name="widget_button_unset">Vaelg en knap i Indstillinger</string>
-    <string name="trip_tools_extend">Forlaeng tur</string>
-    <string name="trip_tools_extend_desc">Optag turene for eller efter denne i en ny, laengere tur.</string>
-    <string name="trip_tools_extend_hint">Raek tilbage og frem sa langt du vil. Alt derimellem foelger med.</string>
+    <string name="widget_button_unset">Vælg en knap i Indstillinger</string>
+    <string name="trip_tools_extend">Forlæng tur</string>
+    <string name="trip_tools_extend_desc">Optag turene før eller efter denne i en ny, længere tur.</string>
+    <string name="trip_tools_extend_hint">Ræk tilbage og frem så langt du vil. Alt derimellem følger med.</string>
     <string name="trip_tools_extend_from">Start fra</string>
     <string name="trip_tools_extend_to">Slut ved</string>
     <string name="trip_tools_extend_none">Denne tur</string>
-    <string name="trip_tools_extend_pick_one">Vaelg en tidligere eller senere tur at forlaenge ind i.</string>
-    <string name="widget_act_1_desc">Knap 1</string>
-    <string name="widget_act_2_desc">Knap 2</string>
-    <string name="widget_act_3_desc">Knap 3</string>
-    <string name="widget_act_12_desc">Knapper 1 og 2</string>
-    <string name="widget_act_23_desc">Knapper 2 og 3</string>
+    <string name="trip_tools_extend_pick_one">Vælg en tidligere eller senere tur at forlænge ind i.</string>
+    <string name="widget_act_1_desc">Vælg handlingen i appen</string>
+    <string name="widget_act_2_desc">Vælg handlingen i appen</string>
+    <string name="widget_act_3_desc">Vælg handlingen i appen</string>
+    <string name="widget_act_12_desc">Vælg handlingerne i appen</string>
+    <string name="widget_act_23_desc">Vælg handlingerne i appen</string>
     <string name="widget_standalone_desc">Handlinger for knap-widgetterne, uafhængigt af rækken ovenfor.</string>
     <string name="widget_standalone_slot">Enkeltknap %1$d</string>
         <string name="widget_customize">Tilpas</string>
@@ -2189,5 +2595,185 @@
     <string name="trip_map_ride_end">Tur slut</string>
     <string name="adv_smoothing_window">Udjævningsvindue</string>
     <string name="adv_smoothing_window_desc">Antal målinger, der midles af \"gennemsnits\"-turgraferne og de udjævnede stemmerapporter. Ture logges cirka én gang i sekundet, så det læses som sekunder. Fare: høje værdier skjuler korte udsving.</string>
-    <string name="auto_volume_only_connected">Kun når et hjul er forbundet</string>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Begge</string>
+    <string name="hud_discovery_desc">Auto finder HUD\'en selv. Fast bruger kun adressen nedenfor.</string>
+    <string name="hud_discovery_fixed">Fast</string>
+    <string name="hud_discovery_mode">Søgetilstand</string>
+    <string name="metric_chip_battery_range">Batteri start → slut</string>
+    <string name="recording_summary_battery_range">Start→slut (-%1$d%%)</string>
+    <string name="trip_tools_rename">Omdøb tur</string>
+    <string name="trip_tools_rename_desc">Giv turen et navn. Gemmes i dens fil, så det følger med eksport og synk.</string>
+    <string name="trip_tools_rename_hint">Lad stå tomt for at bruge datoen.</string>
+    <string name="trip_tools_renamed">Tur omdøbt</string>
+    <string name="trip_tools_archived">Arkiveret: %1$d</string>
+    <string name="trip_tools_archive_failed">Nogle ture kunne ikke arkiveres og er her stadig</string>
+    <string name="recording_delete_archive">Arkivér kopierne i backuppen</string>
+    <string name="recording_delete_archive_desc">Flytter dem til en arkivmappe.</string>
+    <string name="trip_tools_extend_all_inside">Turene omkring denne er allerede en del af den.</string>
+    <string name="trip_tools_extend_skipped">Springer %1$d ture over, der allerede er inde i denne.</string>
+    <string name="recording_clear_all_body_archive">Dette sletter turene fra denne telefon. Kopierne i backuppen flyttes til en arkivmappe.</string>
+    <string name="recording_delete_trip_body_archive">Slet denne tur fra telefonen? Kopien i backuppen flyttes til en arkivmappe.</string>
+    <string name="backup_status_pending">Sikkerhedskopierer…</string>
+    <string name="backup_status_failed">Sikkerhedskopiering mislykkedes, tryk for at prøve igen</string>
+    <string name="lockdown_title">Låsetilstand</string>
+    <string name="lockdown_action_speed_limit">Grænse</string>
+    <string name="lockdown_action_vehicle">Hjul</string>
+    <string name="lockdown_no_wheel">Intet wheel forbundet. Brug Bluetooth-ikonet for at forbinde.</string>
+    <string name="lockdown_vehicle_name">Bluetooth-navn</string>
+    <string name="lockdown_vehicle_brand">Producent</string>
+    <string name="lockdown_vehicle_model">Model</string>
+    <string name="lockdown_vehicle_max_speed">Højeste hastighedsgrænse</string>
+    <string name="lockdown_vehicle_alarm">Alarm</string>
+    <string name="lockdown_vehicle_odometer">Kilometerstand</string>
+    <string name="lockdown_speed_limit_title">Grænser</string>
+    <string name="lockdown_unlock_prompt">Producentkode</string>
+    <string name="lockdown_unlock">Lås op</string>
+    <string name="lockdown_connect">Forbind</string>
+    <string name="lockdown_setting_label">Låsetilstand</string>
+    <string name="lockdown_setting_desc">Låser appen til en enkel skærm.</string>
+    <string name="lockdown_set_code">Angiv producentkoden</string>
+    <string name="lockdown_confirm_code">Gentag koden</string>
+    <string name="lockdown_code_hint">4 til 8 cifre</string>
+    <string name="lockdown_code_mismatch">De to koder er ikke ens</string>
+    <string name="lockdown_code_invalid">Koden skal have 4 til 8 cifre</string>
+    <string name="lockdown_arm">Slå til</string>
+    <string name="lockdown_trip_saved">Tur gemt. Optagelse stoppet.</string>
+    <string name="lockdown_warning_intro">Dette skifter appen til en enkel, låst skærm. Så længe den er slået til:</string>
+    <string name="lockdown_limit_1">Hastighedsgrænserne i Legal-tilstand er tvunget til og kan ikke slås fra, hverken fra skærmen, en Flic-knap, lydstyrketasterne, uret eller HUD-en.</string>
+    <string name="lockdown_limit_2">Legal tiltback og legal alarm kan ikke ændres.</string>
+    <string name="lockdown_limit_3">Turoptagelse stopper, og autooptagelse starter ingen nye ture.</string>
+    <string name="lockdown_limit_4">Navigationen stopper, og ruter kan ikke startes.</string>
+    <string name="lockdown_limit_5">Den flydende overlejring skjules.</string>
+    <string name="lockdown_limit_6">Widgets på startskærmen holder op med at opdatere.</string>
+    <string name="lockdown_limit_7">Servicetilstand og diagnostikoptagelse stopper.</string>
+    <string name="lockdown_limit_8">Instrumentpanelet erstattes af en fast skærm: speedometer, seks værdier, fire knapper.</string>
+    <string name="lockdown_limit_9">Skærmen roterer ikke.</string>
+    <string name="lockdown_limit_10">Indstillingerne kan ikke åbnes.</string>
+    <string name="lockdown_limit_11">Turhistorik, batterimonitoren, studiet og værdidetaljer kan ikke åbnes.</string>
+    <string name="lockdown_limit_12">At trykke på en værdi gør ingenting.</string>
+    <string name="lockdown_limit_13">Talemeddelelser, periodiske rapporter og accelerationsmålinger er tavse. Dine alarmer virker stadig.</string>
+    <string name="lockdown_limit_14">Wheelet kan ikke låses eller låses op, og nærhedslåsen kører ikke.</string>
+    <string name="lockdown_limit_15">Autolys og autolydstyrke virker fortsat. Mediestyringen stopper.</string>
+    <string name="lockdown_limit_16">Notifikationen mister sine knapper.</string>
+    <string name="lockdown_limit_17">Versionsnummeret åbner ikke længere Om.</string>
+    <string name="lockdown_limit_18">Denne tilstand indgår ikke i sikkerhedskopierne af indstillingerne.</string>
+    <string name="lockdown_warning_settings_safe">Dine indstillinger ændres ikke. Alt kommer tilbage præcis som nu, når du låser op.</string>
+    <string name="lockdown_warning_recovery">Eneste vej ud er producentkoden, via knappen Hastighedsgrænse. Mister du den kode, er den eneste måde at få appen tilbage på at afinstallere og installere den igen.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback-alarm</string>
+    <string name="lockdown_warning_waits">Legal-tilstand er slået fra, så der ændres ikke noget endnu. Appen låser næste gang du slår Legal-tilstand til.</string>
+    <string name="lockdown_warning_now">Legal-tilstand er slået til, så det gælder nu, og appen låser med det samme.</string>
+    <string name="lockdown_warning_no_wheel">Intet wheel forbundet, så Legal-tilstandens tilstand er ukendt. Appen låser næste gang Legal-tilstand slås til.</string>
+    <string name="lockdown_continue">Fortsæt</string>
+    <string name="trip_tools_wheel_none">Der er endnu ikke registreret et hjul for denne tur.</string>
+    <string name="backup_conflict_warning">Nogle tursikkerhedskopier kræver manuel synkronisering: kopierne er forskellige. Tryk Synkroniser og vælg hvilken side der gælder.</string>
+    <string name="backup_conflict_title">Backupkonflikter</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Køre?</string>
+    <string name="widget_weather_score_desc">Kørevejret, lige nu.</string>
+    <string name="widget_weather_compact_desc">Hvor godt vejret er at køre i, nu og i de kommende timer. Gør større for timer, temperatur og vind.</string>
+    <string name="widget_weather_graph_desc">Hvor godt vejret er at køre i, over prognoseperioden</string>
+    <string name="widget_weather_refresh_desc">Opdatér prognosen</string>
+    <string name="widget_weather_never">Ingen prognose endnu. Åbn appen én gang, eller tryk på opdatér.</string>
+    <string name="widget_weather_never_short">Aldrig</string>
+    <string name="widget_weather_refreshing">Opdaterer…</string>
+    <string name="widget_weather_now">Lige nu</string>
+    <string name="widget_weather_min_fmt">for %1$d min siden</string>
+    <string name="widget_weather_hour_fmt">for %1$d t siden</string>
+    <string name="widget_weather_window_fmt">næste %1$d t</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80" formatted="false">Giv besked ved 80 %</string>
+    <string name="charging_notify_full" formatted="false">Giv besked ved 100 %</string>
+    <string name="charge_alert_channel_name">Opladningsbeskeder</string>
+    <string name="charge_alert_channel_description" formatted="false">Når batteriet passerer 80 % eller er færdigt.</string>
+    <string name="charge_alert_80_title" formatted="false">Batteri på 80 %</string>
+    <string name="charge_alert_80_text">Nok til de fleste ture, og som regel mere skånsomt for batteriet.</string>
+    <string name="charge_alert_full_title">Opladning færdig</string>
+    <string name="charge_alert_full_text">Fuldt opladt, tag den ud når du kan. Nogle hjul balancerer cellerne nu.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Hjul-dashboard</string>
+    <string name="widget_act_1_label">Hjulknap 1</string>
+    <string name="widget_act_2_label">Hjulknap 2</string>
+    <string name="widget_act_3_label">Hjulknap 3</string>
+    <string name="widget_act_12_label">Hjulknapper 1 og 2</string>
+    <string name="widget_act_23_label">Hjulknapper 2 og 3</string>
+    <string name="widget_weather_score_label">Køredag?</string>
+    <string name="widget_weather_compact_label">Kørevejr</string>
+    <string name="widget_act_1_short">Handling 1</string>
+    <string name="widget_act_2_short">Handling 2</string>
+    <string name="widget_act_3_short">Handling 3</string>
+    <string name="action_chip_reset_metrics">Nulstil målinger</string>
+    <string name="action_reset_metrics_done">Målinger nulstillet</string>
+    <string name="action_reset_metrics_wheel_done">Målinger nulstillet, hjulets triptæller ryddet</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Venter på data</string>
+    <string name="status_live">Live</string>
+    <string name="status_idle">Inaktiv</string>
+    <string name="tpms_state_leaking">Taber luft</string>
+    <string name="tpms_state_inflating">Pumper op</string>
+    <string name="alarm_metric_battery_envelope">Batteri (est)</string>
+    <string name="alarm_metric_battery_envelope_long">Batterikurve (skøn uden belastning)</string>
+
+    <string name="headlight_state_off">Lys: slukket</string>
+    <string name="headlight_state_low">Lys: lavt</string>
+    <string name="headlight_state_medium">Lys: mellem</string>
+    <string name="headlight_state_high">Lys: højt</string>
+    <string name="headlight_state_unknown">Lys: ?</string>
+    <string name="adv_headlight_readback_age">Lysstatus gyldighed</string>
+    <string name="adv_headlight_readback_age_desc">Hvor længe et rapporteret lysniveau er aktuelt. For lang tid kan vise et forældet niveau.</string>
+    <string name="horn_headphones_only">Kun med hovedtelefoner eller Bluetooth</string>
+    <string name="horn_section">Horn</string>
+    <string name="horn_mode_label">Tilstand</string>
+    <string name="horn_mode_wheel">Standard</string>
+    <string name="horn_mode_sound">Egen</string>
+    <string name="horn_mode_both">Miks</string>
+    <string name="horn_mode_hint">Egen afspiller din lyd på telefonen. Miks lægger den oven i hjulets horn, til en ekstern højttaler. Kan telefonen ikke afspille den, lyder hjulets horn i stedet.</string>
+    <string name="horn_sound_none">Ingen lyd valgt</string>
+    <string name="horn_sound_current">Lyd: %1$s</string>
+    <string name="horn_sound_choose">Vælg lyd</string>
+    <string name="horn_sound_imported">Hornlyd gemt</string>
+    <string name="horn_sound_too_long">Den lyd er længere end 5 sekunder</string>
+    <string name="horn_sound_too_big">Den fil er større end 2 MB</string>
+    <string name="horn_sound_unreadable">Den fil kunne ikke afspilles</string>
+    <string name="voice_pill_add">Tilføj</string>
+    <string name="voice_pill_message">Besked</string>
+    <string name="voice_pill_message_hint">Læses op, som du skriver den.</string>
+    <string name="voice_pills_empty">Intet siges. Tryk på Tilføj.</string>
+    <string name="voice_stat_now">Nu</string>
+    <string name="voice_stat_max">Maks</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Gns</string>
+    <string name="voice_stat_peak">Top</string>
+    <string name="crews_title">Crews</string>
+    <string name="crews_pass_action">Crew-nøgle</string>
+    <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og hold den her op mod koden.</string>
+    <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>
+    <string name="crews_scan_is_share">Det er en live-position-kode. Scan den fra Del på kortet.</string>
+    <string name="share_scan_is_crewpass">Det er et crew-pas. Scan det fra Indstillinger, under Crews.</string>
+    <string name="crews_type_instead">Indtast manuelt</string>
+    <string name="crews_code_label">Nøglekode</string>
+    <string name="crews_foreign_title">Den kode er ikke fra eucstats</string>
+    <string name="crews_foreign_body">Den peger på %1$s, og det er ikke der dine ture havner. Siger du ja, giver du din konto til den der kører det.\n\nKører du din egen server? Slå udviklertilstand til i Indstillinger først.</string>
+    <string name="crews_scan_switch">Scan i stedet</string>
+    <string name="crews_close">Luk</string>
+    <string name="crews_opensettings">Åbn indstillinger</string>
+    <string name="crews_dev_title">Udviklertilstand</string>
+    <string name="crews_dev_body">Snakker med %1$s i stedet for den sædvanlige server.</string>
+    <string name="crews_grant">Lad den browser køre i dine farver.\n\nDen kan starte et crew, gå med i et, gå ud af et, og styre medlemmer. Den kan ikke sende ture op, omdøbe dig eller slette noget, det bliver på telefonen.</string>
+    <string name="crews_noprofile_title">Join ranglisten først</string>
+    <string name="crews_noprofile_body">Crews hænger på din ranglisteprofil, og den har telefonen ikke sat op. Join under %1$s, og scan igen.</string>
+    <string name="crews_issue">Udsted passet</string>
+    <string name="crews_notme">Ikke mig</string>
+    <string name="crews_ratelimited">For mange forsøg. Vent et minut og prøv igen.</string>
+    <string name="crews_unreachable">Kunne ikke nå %1$s.</string>
+    <string name="crews_refused">Serveren afviste det (%1$d).</string>
+    <string name="crews_done_title">Pas udstedt</string>
+    <string name="crews_done_body">Den browser kører i dine farver. Læg telefonen fra dig.</string>
+    <string name="crews_failed_title">Det gik ikke</string>
+    <string name="crews_tryagain">Prøv igen</string>
+    <string name="crews_done">Færdig</string>
+    <string name="crews_expired">Den kode er blevet gammel. Hent en frisk i browseren.</string>
+    <string name="voice_pill_search">Søg</string>
+    <string name="voice_volume">Lydstyrke</string>
+    <string name="engo_hud_enabled">ENGO-brille-HUD</string>
 </resources>

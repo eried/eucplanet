@@ -83,6 +83,15 @@ class FakeEucStatsApi : EucStatsApiContract {
         uploadCalls += metaJson to gzippedCsv
         return if (uploadResultQueue.isNotEmpty()) uploadResultQueue.removeAt(0) else uploadResult
     }
+
+    /** Verdict a re-check reads back. null = server unreachable or unreadable. */
+    var tripStatusResult: TripStatus? = null
+    val tripStatusCalls = mutableListOf<String>()
+
+    override fun getTripStatus(tripUuid: String): TripStatus? {
+        tripStatusCalls += tripUuid
+        return tripStatusResult
+    }
 }
 
 /** In-memory fake for EucStatsSettingsPort. The rider id is held separately
@@ -132,6 +141,34 @@ class FakeTripDao : TripDao {
         if (idx >= 0) trips[idx] = trips[idx].copy(wheelMetaJson = json)
     }
 
+    override suspend fun updateCustomName(id: Long, name: String?) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(customName = name)
+    }
+
+    override suspend fun markPendingFolderUpload(id: Long) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 1)
+    }
+
+    override suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?) {
+        val idx = trips.indexOfFirst { it.fileName == fileName }
+        if (idx >= 0) trips[idx] = trips[idx].copy(dropboxStatus = status, dropboxUploadedAt = at)
+    }
+
+    override suspend fun tripsWithoutWheelMeta(): List<TripRecord> =
+        trips.filter { it.wheelMetaJson == null && it.endTime != null }
+
+    override suspend fun setDropboxStatus(id: Long, status: Int) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(dropboxStatus = status)
+    }
+
+    override suspend fun markMirrorIfAbsent(id: Long) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 4)
+    }
+
     override suspend fun allWheelMeta(): List<String> = trips.mapNotNull { it.wheelMetaJson }
     override suspend fun getUnfinished(): List<TripRecord> = trips.filter { it.endTime == null }
     override suspend fun findByFileName(name: String): TripRecord? =
@@ -139,6 +176,10 @@ class FakeTripDao : TripDao {
     override suspend fun allFileNames(): List<String> = trips.map { it.fileName }
     override suspend fun getPendingEucstatsUploads(): List<TripRecord> =
         trips.filter { it.endTime != null && it.tripUuid != null && it.eucstatsStatus in listOf(1, 3) }
+    override suspend fun getHeldEucstatsTrips(limit: Int): List<TripRecord> =
+        trips.filter { it.tripUuid != null && it.eucstatsStatus == 2 && it.eucstatsValidation == "flagged" }
+            .sortedByDescending { it.startTime }
+            .take(limit)
     override suspend fun resetUnfinishedEucstatsStatuses() {
         for (i in trips.indices) {
             if (trips[i].eucstatsStatus in listOf(1, 3)) trips[i] = trips[i].copy(eucstatsStatus = 0)
@@ -288,7 +329,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — Ok
+    // uploadTrip(), Ok
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_okSetsStatus2AndReturnsUploaded() = runBlocking {
@@ -317,7 +358,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — PermanentFailure
+    // uploadTrip(), PermanentFailure
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_permanentFailureSetsStatus3() = runBlocking {
@@ -333,7 +374,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — Retry
+    // uploadTrip(), Retry
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_retryLeavesStatusUnchangedAndReturnsNeedsRetry() = runBlocking {
@@ -352,7 +393,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — AuthFailure → re-mint once
+    // uploadTrip(), AuthFailure → re-mint once
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_authFailureRemintsTokenOnce() = runBlocking {
@@ -383,7 +424,7 @@ class EucStatsRepositoryTest {
     }
 
     // -----------------------------------------------------------------------
-    // uploadTrip() — meta attestation object verification
+    // uploadTrip(), meta attestation object verification
     // -----------------------------------------------------------------------
 
     @Test fun uploadTrip_postedMetaContainsAttestationWithCorrectRequestHash() = runBlocking {
@@ -398,7 +439,7 @@ class EucStatsRepositoryTest {
         assertTrue("meta must contain attestation", meta.has("attestation"))
         val att = meta.getJSONObject("attestation")
 
-        // Strip attestation from meta and recompute hash — must match the sent request_hash.
+        // Strip attestation from meta and recompute hash, must match the sent request_hash.
         val metaWithoutAtt = JSONObject(metaJson).also { it.remove("attestation") }
         val expectedHash = CanonicalJson.requestHash(metaWithoutAtt)
         assertEquals(expectedHash, att.getString("request_hash"))

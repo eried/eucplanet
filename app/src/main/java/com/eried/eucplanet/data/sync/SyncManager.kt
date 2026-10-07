@@ -14,12 +14,14 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
+import com.eried.eucplanet.util.LocaleHelper
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.DropboxRepository
+import com.eried.eucplanet.data.repository.MoveOutcome
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.store.SettingsJson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -28,12 +30,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.eried.eucplanet.util.TripCsv
@@ -98,8 +102,20 @@ class SyncManager @Inject constructor(
         // back home. A 5m ceiling means a stranded trip catches up within minutes.
         // The workers no-op once nothing is pending, so a tighter cap costs
         // nothing in the common case.
+        /** Attempt number for the watchdog queued when a foreground sync
+         *  starts: far enough up the backoff curve to sit ~5 minutes behind
+         *  it, so it only ever runs if the foreground pass stopped. */
+        const val WATCHDOG_ATTEMPT = 8
         private const val BACKOFF_BASE_SECONDS = 15L
         private const val BACKOFF_MAX_SECONDS = 300L
+
+        /**
+         * How long to leave Dropbox alone after it refuses us outright.
+         *
+         * Long on purpose: a refusal is not a hiccup, and retrying into one
+         * every minute is what earns a longer one.
+         */
+        const val REFUSED_RETRY_SECONDS = 30L * 60
 
         fun delayForAttempt(attempt: Int): Long {
             if (attempt <= 0) return 0L
@@ -212,6 +228,13 @@ class SyncManager @Inject constructor(
         _syncCancelling.value = true
         conflictChoice?.complete(SyncChoice.CANCEL)
         activeSyncJob?.cancel()
+        // The Dropbox pass queues a watchdog run behind itself in case Android
+        // takes the app away mid-sync. A rider who cancels wants it stopped,
+        // not resumed five minutes later, so the queued run goes too.
+        if (_activeSyncKind.value == SyncConflictKind.DROPBOX) {
+            WorkManager.getInstance(context).cancelUniqueWork(DROPBOX_SYNC_WORK_NAME)
+            scope.launch { settingsRepository.update { it.copy(dropboxPullRequested = false) } }
+        }
     }
 
     fun startSync() {
@@ -231,7 +254,17 @@ class SyncManager @Inject constructor(
         }
     }
 
-    private suspend fun runSync() {
+    /**
+     * Takes the same pass lock as the upload worker.
+     *
+     * Both write into the trips folder, and the app runs this on launch, which
+     * is exactly when a worker mirroring a restored library is busy. Two of
+     * them creating one file does not fail: the document provider renames the
+     * loser, leaving "trip (1) (1).csv" beside the backup. Seen happening.
+     */
+    private suspend fun runSync() = withUploadPass { runSyncPass() }
+
+    private suspend fun runSyncPass() {
         val settings = settingsRepository.get()
         if (settings.syncFolderUri == null) {
             _syncResult.value = SyncResult.NoFolder
@@ -245,6 +278,8 @@ class SyncManager @Inject constructor(
 
         val dbTrips = tripDao.observeAll().first()
         val folderByLower = folderNames.associateBy { it.lowercase() }
+        // Handed to uploadCsv so it does not re-list the folder per trip.
+        val folderNameSet = folderNames.toSet()
         val dbByLower = dbTrips.associateBy { it.fileName.lowercase() }
 
         val conflictKeys = folderByLower.keys intersect dbByLower.keys
@@ -289,7 +324,7 @@ class SyncManager @Inject constructor(
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val file = File(getTripsDir(), trip.fileName)
             if (file.exists()) {
-                val ok = uploadCsv(settings, file)
+                val ok = uploadCsv(settings, file, knownNames = folderNameSet)
                 if (ok) {
                     tripDao.update(trip.copy(
                         uploadStatus = 2,
@@ -315,6 +350,11 @@ class SyncManager @Inject constructor(
                         startTime = meta.startTime,
                         endTime = meta.endTime,
                         distanceKm = meta.distanceKm,
+                        // Take the file's name when it has one, and keep the
+                        // rider's when it does not: an older copy without the
+                        // Extra cell must not wipe a name set on this phone.
+                        customName = meta.name ?: existing.customName,
+                        wheelMetaJson = meta.wheelJson ?: existing.wheelMetaJson,
                         uploadStatus = 2,
                         uploadedAt = System.currentTimeMillis()
                     ))
@@ -324,6 +364,10 @@ class SyncManager @Inject constructor(
                         endTime = meta.endTime,
                         fileName = fileName,
                         distanceKm = meta.distanceKm,
+                        // The file carries the rider's name for it; a downloaded
+                        // trip used to arrive nameless and show its date instead.
+                        customName = meta.name,
+                        wheelMetaJson = meta.wheelJson,
                         uploadStatus = 2,
                         uploadedAt = System.currentTimeMillis()
                     ))
@@ -347,12 +391,127 @@ class SyncManager @Inject constructor(
         return dir
     }
 
-    private data class CsvMeta(val startTime: Long, val endTime: Long, val distanceKm: Float)
+    private data class CsvMeta(
+        val startTime: Long,
+        val endTime: Long,
+        val distanceKm: Float,
+        /**
+         * The rider's name for the trip, carried in the CSV's Extra column as
+         * `trip.name=`.
+         *
+         * A rename writes it into the file precisely so it survives export and
+         * Dropbox, but nothing ever read it back: a trip arriving by download
+         * was inserted nameless and shown as its date. Rename a trip, let it
+         * sync, come back to it on a new phone or after a restore, and the
+         * name was gone - the file had it all along.
+         */
+        val name: String? = null,
+        /**
+         * The wheel identity the file carries (wheel.name= / wheel.mac= rows
+         * in the Extra column), as the same JSON shape TripRecord caches.
+         * Same story as the trip name: the file always had it - eucviewer
+         * reads exactly these rows - and every download dropped it, so the
+         * change-wheel picker on a restored library offered nothing.
+         */
+        val wheelJson: String? = null,
+    )
+
+    /**
+     * Pull the trips Dropbox has and this phone does not, for up to [budgetMs].
+     *
+     * The background worker owns the upload half; this is the download half it
+     * never had. A rider setting up a new phone from a big Dropbox library could
+     * only get it through the foreground sync, which at real-world speed runs
+     * for the better part of an hour - so it only finished if they sat and
+     * watched it, and nothing continued once Android reclaimed the app.
+     *
+     * Time-bounded rather than count-bounded, because WorkManager gives a job
+     * about ten minutes: take what fits, report what is left, and let the
+     * worker be run again. Already-downloaded trips are skipped, so each run
+     * picks up where the last one stopped.
+     *
+     * @return how many trips are still missing when the budget ran out
+     */
+    suspend fun downloadMissingTrips(budgetMs: Long, isStopped: () -> Boolean): Int {
+        val settings = settingsRepository.get()
+        if (settings.dropboxAccessToken.isBlank()) return 0
+        // Only ever finishing a pull the rider asked for. Downloading on the
+        // app's own initiative would spend a rider's data on a library they may
+        // have linked Dropbox only to back up.
+        if (!settings.dropboxPullRequested) return 0
+        val remote = dropboxRepository.listFolder("/trips") ?: return 0
+        val tripsDir = getTripsDir()
+        val localLower = tripsDir.listFiles { f -> f.isFile }
+            ?.map { it.name.lowercase() }?.toHashSet().orEmpty()
+        val missing = remote.keys.filter { it.lowercase() !in localLower }
+        if (missing.isEmpty()) {
+            // Nothing left to bring over: the request is finished.
+            settingsRepository.update { it.copy(dropboxPullRequested = false) }
+            return 0
+        }
+
+        val deadline = System.currentTimeMillis() + budgetMs
+        var left = missing.size
+        // The rider sees the same persistent indicator a foreground pass puts
+        // up. Without it a background download is invisible: trips appear in
+        // the list with nothing to say where they came from or how many are
+        // still on the way.
+        settingsRepository.update {
+            it.copy(
+                dropboxSyncPending = true,
+                dropboxPendingCount = missing.size,
+                dropboxSyncTotal = missing.size,
+            )
+        }
+        for (name in missing) {
+            if (isStopped() || System.currentTimeMillis() > deadline) break
+            val bytes = dropboxRepository.downloadFile("/trips/$name") ?: continue
+            val dest = File(tripsDir, name)
+            dest.outputStream().use { it.write(bytes) }
+            // Same reason as the foreground pass: a file wearing this moment's
+            // timestamp reads as edited here, and a whole pulled library would
+            // be uploaded straight back.
+            remote[name]?.let { dest.setLastModified(it.serverModifiedSec * 1000L) }
+            if (tripDao.findByFileName(name) == null) {
+                val meta = parseCsvMeta(dest)
+                tripDao.insert(TripRecord(
+                    startTime = meta.startTime,
+                    endTime = meta.endTime,
+                    fileName = name,
+                    distanceKm = meta.distanceKm,
+                    // The file carries the rider's name for it; a downloaded
+                    // trip used to arrive nameless and show its date instead.
+                    customName = meta.name,
+                        wheelMetaJson = meta.wheelJson,
+                    // Pending when a backup folder exists, so the folder worker
+                    // mirrors it: same rule as the foreground pass.
+                    uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
+                ))
+            }
+            left--
+            settingsRepository.update { it.copy(dropboxPendingCount = left) }
+        }
+        if (left < missing.size && settings.syncFolderUri != null) enqueueTripUpload(settings)
+        settingsRepository.update {
+            it.copy(
+                dropboxSyncPending = left > 0,
+                dropboxPendingCount = left,
+                dropboxSyncTotal = if (left > 0) it.dropboxSyncTotal else 0,
+                dropboxPullRequested = left > 0,
+            )
+        }
+        return left
+    }
 
     private fun parseCsvMeta(file: File): CsvMeta {
         var startTime = System.currentTimeMillis()
         var endTime = startTime
         var gpsDistanceKm = 0.0
+        var tripName: String? = null
+        var wheelName: String? = null
+        var wheelMac: String? = null
+        var wheelBrand: String? = null
+        var wheelModel: String? = null
         var lastLat = Double.NaN
         var lastLon = Double.NaN
         var minMileage = Float.MAX_VALUE
@@ -363,6 +522,7 @@ class SyncManager @Inject constructor(
             file.bufferedReader().use { reader ->
                 val headerLine = reader.readLine() ?: return CsvMeta(startTime, endTime, 0f)
                 val header = headerLine.lowercase().split(",").map { it.trim() }
+                val extraIdx = header.indexOf("extra")
                 val dateIdx = TripCsv.Columns.date(header).takeIf { it >= 0 } ?: 0
                 val latIdx = TripCsv.Columns.latitude(header).takeIf { it >= 0 } ?: 6
                 val lonIdx = TripCsv.Columns.longitude(header).takeIf { it >= 0 } ?: 7
@@ -376,6 +536,22 @@ class SyncManager @Inject constructor(
                     if (line.isEmpty()) return@forEachLine
                     val parts = line.split(",")
                     if (parts.size < 2) return@forEachLine
+                    if (extraIdx >= 0) {
+                        val cell = parts.getOrNull(extraIdx)?.trim().orEmpty()
+                        if (tripName == null && cell.startsWith("trip.name=", ignoreCase = true)) {
+                            tripName = cell.substringAfter('=').trim().take(60)
+                                .takeIf { it.isNotEmpty() }
+                        }
+                        if (cell.startsWith("wheel.", ignoreCase = true)) {
+                            val v = cell.substringAfter('=').trim().take(80)
+                            if (v.isNotEmpty()) when {
+                                cell.startsWith("wheel.name=", true) -> wheelName = wheelName ?: v
+                                cell.startsWith("wheel.mac=", true) -> wheelMac = wheelMac ?: v
+                                cell.startsWith("wheel.brand=", true) -> wheelBrand = wheelBrand ?: v
+                                cell.startsWith("wheel.model=", true) -> wheelModel = wheelModel ?: v
+                            }
+                        }
+                    }
                     TripCsv.parseDate(parts.getOrNull(dateIdx)?.trim())?.let { t ->
                         if (first) { startTime = t; first = false }
                         endTime = t
@@ -403,7 +579,14 @@ class SyncManager @Inject constructor(
             minMileage != Float.MAX_VALUE && maxMileage > minMileage -> maxMileage - minMileage
             else -> 0f
         }
-        return CsvMeta(startTime, endTime, distance)
+        val wheelJson = if (wheelName == null && wheelMac == null) null else
+            org.json.JSONObject().apply {
+                wheelName?.let { put("ble_name", it) }
+                wheelMac?.let { put("ble_mac", it) }
+                wheelBrand?.let { put("brand", it) }
+                wheelModel?.let { put("model", it) }
+            }.toString()
+        return CsvMeta(startTime, endTime, distance, tripName, wheelJson)
     }
 
     /**
@@ -501,7 +684,7 @@ class SyncManager @Inject constructor(
         val existing = folder.findFile(fileName)
         if (existing != null && !overwrite) return BackupOutcome.AlreadyExists
         val payload = SettingsJson.toJson(SettingsJson.stripDeviceBindings(current)).apply {
-            put("alarms", alarmsToJson(alarmDao.getAll()))
+            put("alarms", AlarmBackupJson.alarmsToJson(alarmDao.getAll()))
         }
         val json = payload.toString(2)
         return try {
@@ -585,7 +768,7 @@ class SyncManager @Inject constructor(
 
     /** Outcome of [ensureRiderIdFile]. */
     enum class RiderFileResult {
-        /** No folder or no registered rider — nothing to do. */
+        /** No folder or no registered rider, nothing to do. */
         SKIPPED,
         /** The file already holds this rider's id. */
         ALREADY_PRESENT,
@@ -626,19 +809,24 @@ class SyncManager @Inject constructor(
             // never swap in a (possibly stale or blank) token. fromJson now
             // reads these from the JSON like any other field, so re-apply the
             // current values here.
-            val restored = SettingsJson.fromJson(json, current).copy(
+            val parsed = SettingsJson.fromJson(json, current)
+            val restored = parsed.copy(
                 dropboxAccessToken = current.dropboxAccessToken,
                 dropboxRefreshToken = current.dropboxRefreshToken,
                 dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
                 dropboxAccountLabel = current.dropboxAccountLabel,
                 dropboxLastSyncAt = current.dropboxLastSyncAt,
+                // The share secret is this phone's identity in a group: never
+                // taken from a backup, or two phones would ride as one rider.
+                share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
             )
             settingsRepository.update(restored)
+            applyRestoredLanguage(restored.language)
             // Replace alarm rules wholesale only if the backup contains an
             // "alarms" array. Older backups (pre-v0.4.3) keep the user's
             // current rules untouched.
             if (json.has("alarms")) {
-                val rules = jsonToAlarms(json.optJSONArray("alarms"))
+                val rules = AlarmBackupJson.jsonToAlarms(json.optJSONArray("alarms"))
                 alarmDao.deleteAll()
                 rules.forEach { alarmDao.insert(it.copy(id = 0)) }
             }
@@ -650,13 +838,33 @@ class SyncManager @Inject constructor(
     }
 
     /**
+     * Put the restored language into effect, not just into the settings row.
+     *
+     * Language is the one setting the app does not own: the picker writes the
+     * row and hands the tag to the system, which is what actually decides
+     * which strings load. A restore wrote the row alone, so the app carried on
+     * in whatever language the phone is set to, and the next launch overwrote
+     * the restored row to match - the rider's choice arrived and was thrown
+     * away, twice over. Reinstall then restore is exactly when the row and the
+     * system disagree, since a fresh install has no app locale at all.
+     */
+    private suspend fun applyRestoredLanguage(tag: String) {
+        if (tag.isBlank()) return
+        val applied = LocaleHelper.normalizeToSupportedTag(LocaleHelper.current())
+        // Setting the same locale again would restart the activity for
+        // nothing, and a restore that changes no language should not blink.
+        if (applied == tag) return
+        withContext(Dispatchers.Main) { LocaleHelper.apply(tag) }
+    }
+
+    /**
      * Reset rider configuration to factory defaults. Reuses the file-restore
      * merge with an in-memory [AppSettings] snapshot instead of a backup file:
      * [SettingsJson.stripDeviceBindings] drops the device + sync fields from the
      * factory JSON, so [SettingsJson.fromJson] keeps the rider's current
      * pairings, sync folder and backup history while every other field reverts
      * to its default. Custom alarm rules are cleared (a fresh install ships
-     * none). Needs no sync folder — it's a purely local reset.
+     * none). Needs no sync folder, it's a purely local reset.
      */
     suspend fun restoreFactoryDefaults(): Boolean {
         val current = settingsRepository.get()
@@ -664,12 +872,14 @@ class SyncManager @Inject constructor(
             val factoryJson = SettingsJson.toJson(SettingsJson.stripDeviceBindings(AppSettings()))
             // Factory reset keeps device bindings (pairings, sync folder) and
             // the live Dropbox link, same as the restore path above.
-            val reset = SettingsJson.fromJson(factoryJson, current).copy(
+            val parsedReset = SettingsJson.fromJson(factoryJson, current)
+            val reset = parsedReset.copy(
                 dropboxAccessToken = current.dropboxAccessToken,
                 dropboxRefreshToken = current.dropboxRefreshToken,
                 dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
                 dropboxAccountLabel = current.dropboxAccountLabel,
                 dropboxLastSyncAt = current.dropboxLastSyncAt,
+                share = parsedReset.share.copy(deviceSecret = current.share.deviceSecret),
             )
             settingsRepository.update(reset)
             alarmDao.deleteAll()
@@ -872,7 +1082,53 @@ class SyncManager @Inject constructor(
 
     /** Initial enqueue of the Dropbox sync worker. Retries reschedule
      *  themselves via [scheduleDropboxSyncAttempt]. Caller should check
-     *  the linked state before calling — this is unconditional. */
+     *  the linked state before calling, this is unconditional. */
+    /**
+     * Push one edited trip to every configured backup, right now, in-process.
+     *
+     * The rider who renames a trip is looking at the row while it says
+     * "Backing up", and that promise used to be handed to WorkManager -
+     * which is free to sit on the job for minutes even with the network up
+     * (seen on a Pixel: renamed trip parked at "Backing up", JobScheduler
+     * holding the job on an unsatisfied network bit, on AC power with wifi).
+     * The app is in the foreground with the network right there; use it.
+     * The workers stay behind this as the retry net for everything that
+     * fails or happens with the app gone.
+     *
+     * Overwrites the Dropbox copy without asking who changed it last, which
+     * is correct here and only here: the rider has just edited this trip on
+     * this phone, so this copy is the newest by definition.
+     */
+    fun pushEditedTripNow(tripId: Long) {
+        scope.launch {
+            val settings = settingsRepository.get()
+            val trip = tripDao.getById(tripId) ?: return@launch
+            val file = File(getTripsDir(), trip.fileName)
+            if (!file.exists()) return@launch
+            if (settings.syncFolderUri != null) {
+                val ok = runCatching { withUploadPass { uploadCsv(settings, file) } }
+                    .getOrDefault(false)
+                tripDao.update((tripDao.getById(tripId) ?: return@launch).copy(
+                    uploadStatus = if (ok) 2 else 3,
+                    uploadedAt = if (ok) System.currentTimeMillis() else trip.uploadedAt,
+                ))
+                if (!ok) scheduleTripUploadAttempt(1)
+            }
+            if (settings.dropboxAccessToken.isNotBlank()) {
+                tripDao.setDropboxStatusByName(trip.fileName, 1, null)
+                val sec = dropboxRepository.uploadFileStamped(
+                    "/trips/${trip.fileName}", file.readBytes())
+                if (sec != null) {
+                    if (sec > 0L) file.setLastModified(sec * 1000L)
+                    tripDao.setDropboxStatusByName(trip.fileName, 2, System.currentTimeMillis())
+                } else {
+                    tripDao.setDropboxStatusByName(trip.fileName, 3, null)
+                    scheduleDropboxSyncAttempt(1)
+                }
+            }
+        }
+    }
+
     fun enqueueDropboxSync() {
         // Do NOT set the pending flag here. This runs on every app start
         // (TripRepository reconcile) whenever Dropbox is linked, so flipping it
@@ -935,9 +1191,32 @@ class SyncManager @Inject constructor(
      * then upload / download to reconcile. Runs in the app-scoped coroutine
      * so leaving Settings does NOT cancel a half-finished reconcile.
      */
+    /**
+     * Ask for the Dropbox library to come down, without taking over the screen.
+     *
+     * For linking, where the rider has just said "bring my trips over" but is
+     * still in the middle of setting the app up. The worker does the fetching:
+     * it takes what it can in the time it is given, leaves anything the phone
+     * already has alone, and comes back for the rest.
+     */
+    fun requestDropboxPull() {
+        scope.launch {
+            settingsRepository.update { it.copy(dropboxPullRequested = true) }
+            enqueueDropboxSync()
+        }
+    }
+
     fun startDropboxSync() {
         if (!_syncRunning.compareAndSet(false, true)) return
         _activeSyncKind.value = SyncConflictKind.DROPBOX
+        // A safety net for the pass about to start. Pulling a big library takes
+        // the better part of an hour, and the rider will put the phone in a
+        // pocket long before that: Android reclaims the app, the coroutine dies
+        // mid-loop, and the code that would have scheduled a retry never runs.
+        // WorkManager outlives the process, so this is queued up front. If the
+        // foreground pass finishes, the worker wakes to nothing left to do.
+        scope.launch { settingsRepository.update { it.copy(dropboxPullRequested = true) } }
+        scheduleDropboxSyncAttempt(WATCHDOG_ATTEMPT)
         activeSyncJob = scope.launch {
             try {
                 // A manual sync is starting: mark trips as pending so the
@@ -962,6 +1241,7 @@ class SyncManager @Inject constructor(
             _syncResult.value = SyncResult.NoFolder
             return
         }
+        dropboxRepository.clearRateLimited()
         val remote = dropboxRepository.listFolder("/trips")
         if (remote == null) {
             // Auth or network failed: same UX as "no folder" since the rider
@@ -1040,11 +1320,18 @@ class SyncManager @Inject constructor(
 
         for (file in toUpload) {
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
-            if (dropboxRepository.uploadFile("/trips/${file.name}", file.readBytes())) {
+            tripDao.setDropboxStatusByName(file.name, 1, null)
+            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/${file.name}", file.readBytes())
+            if (storedAtSec != null) {
+                if (storedAtSec > 0L) file.setLastModified(storedAtSec * 1000L)
+                tripDao.setDropboxStatusByName(file.name, 2, System.currentTimeMillis())
                 settingsRepository.update {
                     it.copy(dropboxPendingCount = (it.dropboxPendingCount - 1).coerceAtLeast(0))
                 }
-            } else failed++
+            } else {
+                tripDao.setDropboxStatusByName(file.name, 3, null)
+                failed++
+            }
             done++
             _syncProgress.value = done to total
         }
@@ -1056,17 +1343,52 @@ class SyncManager @Inject constructor(
             if (bytes != null) {
                 val dest = File(tripsDir, name)
                 dest.outputStream().use { it.write(bytes) }
+                // Carry Dropbox's timestamp on to the file. Without it every
+                // trip just pulled down looks like it was written on this phone
+                // a moment ago, and the next pass sends the whole library
+                // straight back up.
+                remoteMetaByLower[name.lowercase()]?.let {
+                    dest.setLastModified(it.serverModifiedSec * 1000L)
+                }
                 // Mirror the SAF path: if the file is not yet known to Room,
                 // insert a row so it shows up in the trips list.
                 val existing = tripDao.findByFileName(name)
+                val meta = parseCsvMeta(dest)
                 if (existing == null) {
-                    val meta = parseCsvMeta(dest)
                     tripDao.insert(TripRecord(
                         startTime = meta.startTime,
                         endTime = meta.endTime,
                         fileName = name,
                         distanceKm = meta.distanceKm,
-                        uploadStatus = 0,
+                        // The file carries the rider's name for it; a downloaded
+                        // trip used to arrive nameless and show its date instead.
+                        customName = meta.name,
+                        wheelMetaJson = meta.wheelJson,
+                        // It came from Dropbox, so that is where it already is.
+                        dropboxStatus = 2,
+                        dropboxUploadedAt = System.currentTimeMillis(),
+                        // Mirror it into the backup folder, but only where the
+                        // folder has nothing by that name: a download is not the
+                        // authority on a file the rider already has there.
+                        uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
+                    ))
+                } else {
+                    // The rider reached this file by answering "keep Dropbox's
+                    // copy" at the conflict prompt, and the bytes on disk have
+                    // just been replaced. The row has to follow, or the list
+                    // goes on showing what the old copy said - which is how a
+                    // rename made in another tool arrived on the phone and was
+                    // still displayed under its old name.
+                    tripDao.update(existing.copy(
+                        startTime = meta.startTime,
+                        endTime = meta.endTime,
+                        distanceKm = meta.distanceKm,
+                        // A copy with no name in it does not erase one set here.
+                        customName = meta.name ?: existing.customName,
+                        wheelMetaJson = meta.wheelJson ?: existing.wheelMetaJson,
+                        // The backup folder now holds the copy the rider chose
+                        // against, so send this one over it.
+                        uploadStatus = if (settings.syncFolderUri != null) 1 else existing.uploadStatus,
                     ))
                 }
             }
@@ -1105,6 +1427,26 @@ class SyncManager @Inject constructor(
             // moved, say "already up to date" instead of "0 trips".
             _syncResult.value =
                 if (total == 0) SyncResult.UpToDate else SyncResult.Finished(total)
+            if (settings.syncFolderUri != null) enqueueTripUpload(settings)
+            settingsRepository.update { it.copy(dropboxPullRequested = false) }
+        } else if (dropboxRepository.refused) {
+            // Dropbox has cut us off rather than asked us to wait. Coming back
+            // in a minute, as an ordinary failure would, is what keeps us cut
+            // off - so wait properly. The rider is told the same thing either
+            // way: Dropbox is limiting us and their trips are not lost.
+            _syncResult.value = SyncResult.RateLimited(total - failed, total)
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = true, dropboxPendingCount = failed)
+            }
+            scheduleDropboxSyncAttempt(0, delaySeconds = REFUSED_RETRY_SECONDS)
+        } else if (dropboxRepository.rateLimited) {
+            // Say which it was. The retry worker still picks the rest up, but
+            // the rider is owed the reason their library stopped halfway.
+            _syncResult.value = SyncResult.RateLimited(total - failed, total)
+            settingsRepository.update {
+                it.copy(dropboxSyncPending = true, dropboxPendingCount = failed)
+            }
+            scheduleDropboxSyncAttempt(0)
         } else {
             // Hand the skipped trips to the retry worker (missing/newer only), so
             // they upload once the network is back instead of being silently lost.
@@ -1134,7 +1476,7 @@ class SyncManager @Inject constructor(
                     if (!doc.isFile) continue
                     val name = doc.name ?: continue
                     val localMod = doc.lastModified() / 1000L
-                    if (remote[name]?.let { it.serverModified >= localMod } == true) continue
+                    if (remote[name]?.let { it.serverModifiedSec >= localMod } == true) continue
                     val bytes = try {
                         context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
                     } catch (e: Exception) { null } ?: continue
@@ -1147,7 +1489,170 @@ class SyncManager @Inject constructor(
         return count
     }
 
-    fun scheduleDropboxSyncAttempt(attempt: Int) {
+    /**
+     * Move a trip's file out of the way on every destination it reached.
+     *
+     * A trip that was extended into a longer one, or split into pieces, still
+     * has its own file sitting in Dropbox and in the backup folder. Leave it
+     * there and the same ride is stored twice, and the copy comes back down
+     * the next time the rider syncs on another phone. Archiving moves it into
+     * an "archive" subfolder on both: out of the listing the sync walks, but
+     * still the rider's data.
+     *
+     * Best effort per destination. Dropbox reports a missing file as done,
+     * since a trip that never got there needs no archiving.
+     */
+    /**
+     * Move a trip's file out of the way on every destination that has it.
+     *
+     * A trip that was extended into a longer one, split into pieces, or that
+     * the rider deleted and meant it, still has its own file in Dropbox and in
+     * the backup folder. Both syncs treat a file the phone does not have as one
+     * to fetch, so leaving it there hands the trip straight back. Archiving
+     * moves it into an "archive" subfolder on each: out of the listings the
+     * syncs walk, still the rider's data, and undeletable by us.
+     *
+     * Order is the whole design. Dropbox goes first because it is the step that
+     * needs the network and therefore the step that fails, and failing there
+     * has touched nothing yet. The backup folder goes second, and if it fails
+     * the Dropbox move is put back, so a half-archived trip never exists. The
+     * phone's copy goes last of all: while it is here the rider can try again,
+     * and deleting it while a backup still holds the file is what produces a
+     * trip that keeps coming back.
+     *
+     * @return true only when the file is archived everywhere it existed
+     */
+    suspend fun archiveTripFile(fileName: String): Boolean {
+        val settings = settingsRepository.get()
+        val moved = if (settings.dropboxAccessToken.isNotBlank()) {
+            dropboxRepository.moveFile("/trips/$fileName", "/trips/archive/$fileName")
+        } else null
+        val folderOk = moved !is MoveOutcome.Failed && archiveInBackupFolder(settings, fileName)
+        val decision = ArchivePolicy.decide(moved, folderOk)
+        if (decision.rollback && moved is MoveOutcome.Moved) {
+            // Best effort: if putting it back also fails, the phone still has
+            // the trip and the next sync re-uploads it, so the rider loses
+            // nothing either way.
+            dropboxRepository.moveFile(moved.toPath, "/trips/$fileName")
+        }
+        return decision.archived
+    }
+
+    /**
+     * A name nothing in [archive] is using yet: "trip.csv", then "trip (1).csv".
+     *
+     * The same shape Dropbox's autorename produces, so a rider looking at the
+     * two archives sees the same thing in both.
+     */
+    private fun freeArchiveName(archive: DocumentFile, fileName: String): String {
+        if (archive.findFile(fileName) == null) return fileName
+        val stem = fileName.substringBeforeLast('.', fileName)
+        val ext = fileName.substringAfterLast('.', "")
+        val suffix = if (ext.isEmpty()) "" else ".$ext"
+        var n = 1
+        while (n < 1000) {
+            val candidate = "$stem ($n)$suffix"
+            if (archive.findFile(candidate) == null) return candidate
+            n++
+        }
+        return fileName
+    }
+
+    /**
+     * Archive many trips at once, for "delete all".
+     *
+     * Same rule as the single-file path - Dropbox first, folder second, and
+     * the caller only drops its phone copies for the names that come back -
+     * but in batches, because a rider with two thousand trips would otherwise
+     * wait out two thousand round trips.
+     *
+     * All or nothing per destination rather than per file: a batch either goes
+     * through or it does not, and a partly-moved batch is put back the same
+     * way the single move is.
+     *
+     * @return the file names that are now archived everywhere they existed
+     */
+    suspend fun archiveTripFiles(fileNames: List<String>): Set<String> {
+        if (fileNames.isEmpty()) return emptySet()
+        if (fileNames.size == 1) {
+            return if (archiveTripFile(fileNames.first())) fileNames.toSet() else emptySet()
+        }
+        val settings = settingsRepository.get()
+        val dropboxLinked = settings.dropboxAccessToken.isNotBlank()
+        if (dropboxLinked) {
+            val pairs = fileNames.map { "/trips/$it" to "/trips/archive/$it" }
+            if (!dropboxRepository.moveFilesBatch(pairs)) {
+                // A batch that reports failure may still have moved some of it:
+                // the job runs on Dropbox's side and the answer can be lost on
+                // the way back. Ask for the reverse before giving up, so the
+                // two sides cannot be left disagreeing. Entries that never
+                // moved simply are not found, which the batch tolerates.
+                dropboxRepository.moveFilesBatch(
+                    fileNames.map { "/trips/archive/$it" to "/trips/$it" }
+                )
+                return emptySet()
+            }
+        }
+        val accepted = fileNames.filterTo(HashSet()) { archiveInBackupFolder(settings, it) }
+        val (done, putBack) = ArchivePolicy.decideBatch(fileNames, dropboxOk = true, folderAccepted = accepted)
+        if (dropboxLinked && putBack.isNotEmpty()) {
+            // Whatever the folder would not take goes back to /trips, so the
+            // two sides never disagree about where a trip lives.
+            dropboxRepository.moveFilesBatch(putBack.map { "/trips/archive/$it" to "/trips/$it" })
+        }
+        return done
+    }
+
+    /**
+     * Move [fileName] into trips/archive inside the backup folder.
+     *
+     * Trips live in the folder's trips/ subdirectory, the same place
+     * listFolderTripNames and downloadCsv read them from, so the archive sits
+     * beside them rather than at the root next to themes/ and overlays/.
+     *
+     * @return true when the file was moved, or when there was nothing to move
+     */
+    private fun archiveInBackupFolder(settings: AppSettings, fileName: String): Boolean {
+        val tripsDir = getSyncFolder(settings)
+            ?.findFile(TRIPS_SUBFOLDER)?.takeIf { it.isDirectory }
+            ?: return true
+        return try {
+            val doc = tripsDir.findFile(fileName)?.takeIf { it.isFile } ?: return true
+            val archive = tripsDir.findFile("archive")?.takeIf { it.isDirectory }
+                ?: tripsDir.createDirectory("archive") ?: return false
+            // An archive never destroys: a name already in there is an earlier
+            // ride the rider archived, and a second one of the same name - the
+            // same library restored and cleared again - has to sit beside it,
+            // not on top of it. Dropbox does this for us with autorename; here
+            // it has to be worked out, so the two sides behave the same way.
+            val free = freeArchiveName(archive, fileName)
+            // A provider-side move is a rename: no bytes read, no bytes
+            // written. Only usable when the name is untaken, since the move
+            // cannot rename as it goes. Every provider is allowed to refuse it,
+            // so the copy below stays as the fallback.
+            if (free == fileName) {
+                val moved = runCatching {
+                    android.provider.DocumentsContract.moveDocument(
+                        context.contentResolver, doc.uri, tripsDir.uri, archive.uri
+                    )
+                }.getOrNull()
+                if (moved != null) return true
+            }
+            val bytes = context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() }
+                ?: return false
+            val dest = archive.createFile("text/csv", free) ?: return false
+            val wrote = runCatching {
+                context.contentResolver.openOutputStream(dest.uri, "wt")?.use { it.write(bytes) }
+                true
+            }.getOrDefault(false)
+            if (wrote) doc.delete() else false
+        } catch (e: Exception) {
+            Log.w(TAG, "archive in backup folder failed for $fileName: ${e.message}")
+            false
+        }
+    }
+
+    fun scheduleDropboxSyncAttempt(attempt: Int, delaySeconds: Long? = null) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -1155,7 +1660,7 @@ class SyncManager @Inject constructor(
         val request = OneTimeWorkRequestBuilder<DropboxSyncWorker>()
             .setConstraints(constraints)
             .setInputData(data)
-            .setInitialDelay(delayForAttempt(attempt), TimeUnit.SECONDS)
+            .setInitialDelay(delaySeconds ?: delayForAttempt(attempt), TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             DROPBOX_SYNC_WORK_NAME,
@@ -1224,14 +1729,38 @@ class SyncManager @Inject constructor(
      * List CSV filenames in the trips subfolder. Returns null if the folder
      * is unavailable, empty list if the folder exists but has no trips yet.
      */
-    fun listFolderTripNames(settings: AppSettings): List<String>? {
+    fun listFolderTripNames(settings: AppSettings): List<String>? =
+        listFolderTripSizes(settings)?.keys?.toList()
+
+    /** CSV name -> byte size for the trips subfolder, in one directory walk.
+     *  Sizes are what tell an already-backed-up trip from a conflict: same
+     *  name, different bytes means the two sides disagree and neither may be
+     *  overwritten without the rider choosing. */
+    fun listFolderTripSizes(settings: AppSettings): Map<String, Long>? {
         val root = getSyncFolder(settings) ?: return null
-        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyList()
-        return trips.listFiles().mapNotNull { doc ->
-            val name = doc.name ?: return@mapNotNull null
-            if (doc.isFile && name.endsWith(".csv", ignoreCase = true)) name else null
+        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyMap()
+        val out = LinkedHashMap<String, Long>()
+        for (doc in trips.listFiles()) {
+            val name = doc.name ?: continue
+            if (doc.isFile && name.endsWith(".csv", ignoreCase = true)) out[name] = doc.length()
         }
+        return out
     }
+
+    /**
+     * Serialises folder-upload passes.
+     *
+     * The one-time upload worker and the periodic one are separate unique work
+     * names, so WorkManager is free to run both at once, and both walk the same
+     * pending list. Two passes creating the same file is not a harmless race:
+     * the document provider renames the loser rather than refusing it, leaving
+     * "trip (1).csv" beside the real backup. They share a process, so a lock is
+     * all it takes.
+     */
+    private val uploadPassLock = kotlinx.coroutines.sync.Mutex()
+
+    suspend fun <T> withUploadPass(block: suspend () -> T): T =
+        uploadPassLock.withLock { block() }
 
     /** Copy a folder CSV into destFile. */
     fun downloadCsv(settings: AppSettings, fileName: String, destFile: File): Boolean {
@@ -1253,13 +1782,40 @@ class SyncManager @Inject constructor(
      * Write a single CSV file to trips subfolder, returning true on success.
      * Called from the worker.
      */
-    fun uploadCsv(settings: AppSettings, localFile: java.io.File): Boolean {
+    fun uploadCsv(
+        settings: AppSettings,
+        localFile: java.io.File,
+        /** Leave a file of the same name alone instead of replacing it. Set for
+         *  trips that came down from Dropbox: the folder's copy may be a
+         *  different version and is not ours to overwrite unasked. */
+        skipIfPresent: Boolean = false,
+        /**
+         * The names the folder already held when the pass started, if the
+         * caller has them.
+         *
+         * findFile lists the whole directory to answer one question, so a
+         * caller looping over a library pays that once per trip: with 2000
+         * trips backed up it slowed to eight files a minute and got slower as
+         * the folder filled. A caller that already enumerated the folder can
+         * hand the names over, and the common case - a name the folder does
+         * not have - then costs nothing.
+         */
+        knownNames: Set<String>? = null,
+    ): Boolean {
         val root = getSyncFolder(settings) ?: return false
         val tripsFolder = root.findFile(TRIPS_SUBFOLDER)
             ?: root.createDirectory(TRIPS_SUBFOLDER)
             ?: return false
         return try {
-            tripsFolder.findFile(localFile.name)?.delete()
+            val knownHas = knownNames?.contains(localFile.name)
+            // Nothing to do, and the caller's listing already proves it. Going
+            // to the folder to confirm costs a full directory listing, which is
+            // the whole reason mirroring a restored library crawled: most of
+            // those trips are already backed up.
+            if (knownHas == true && skipIfPresent) return true
+            val existing = if (knownHas == false) null else tripsFolder.findFile(localFile.name)
+            if (existing != null && skipIfPresent) return true
+            existing?.delete()
             val dest = tripsFolder.createFile("text/csv", localFile.name) ?: return false
             context.contentResolver.openOutputStream(dest.uri)?.use { out ->
                 localFile.inputStream().use { it.copyTo(out) }
@@ -1270,9 +1826,16 @@ class SyncManager @Inject constructor(
             false
         }
     }
+}
 
-
-    private fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {
+/**
+ * Alarm rules as they travel inside the settings backup. Kept outside
+ * [SyncManager] so a JVM test can round-trip a rule without building the
+ * whole manager. Every [AlarmRule] field except the row id must appear in
+ * BOTH halves; the drift-guard test fails on the first one that does not.
+ */
+internal object AlarmBackupJson {
+    fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {
         rules.forEach { r ->
             put(JSONObject().apply {
                 put("name", r.name)
@@ -1287,6 +1850,9 @@ class SyncManager @Inject constructor(
                 put("beepCount", r.beepCount)
                 put("beepModulation", r.beepModulation)
                 put("beepGapMs", r.beepGapMs)
+                put("beepTransitionPct", r.beepTransitionPct)
+                put("beepWaveform", r.beepWaveform)
+                put("beepEffect", r.beepEffect)
                 put("beepVolume", r.beepVolume)
                 put("beepVolumeModulation", r.beepVolumeModulation)
                 put("beepModulationReachPct", r.beepModulationReachPct)
@@ -1299,11 +1865,13 @@ class SyncManager @Inject constructor(
                 put("cooldownSeconds", r.cooldownSeconds)
                 put("repeatWhileActive", r.repeatWhileActive)
                 put("leadTimeMs", r.leadTimeMs)
+                r.wheelAddress?.let { put("wheelAddress", it) }
+                r.wheelName?.let { put("wheelName", it) }
             })
         }
     }
 
-    private fun jsonToAlarms(arr: JSONArray?): List<AlarmRule> {
+    fun jsonToAlarms(arr: JSONArray?): List<AlarmRule> {
         if (arr == null) return emptyList()
         val out = mutableListOf<AlarmRule>()
         val default = AlarmRule()
@@ -1322,6 +1890,10 @@ class SyncManager @Inject constructor(
                 beepCount = o.optInt("beepCount", default.beepCount),
                 beepModulation = o.optInt("beepModulation", default.beepModulation),
                 beepGapMs = o.optInt("beepGapMs", default.beepGapMs),
+                // Absent in backups written before the timbre controls: entity defaults.
+                beepTransitionPct = o.optInt("beepTransitionPct", default.beepTransitionPct),
+                beepWaveform = o.optInt("beepWaveform", default.beepWaveform),
+                beepEffect = o.optInt("beepEffect", default.beepEffect),
                 beepVolume = o.optInt("beepVolume", default.beepVolume),
                 beepVolumeModulation = o.optInt("beepVolumeModulation", default.beepVolumeModulation),
                 beepModulationReachPct = o.optInt("beepModulationReachPct", default.beepModulationReachPct),
@@ -1333,7 +1905,10 @@ class SyncManager @Inject constructor(
                 vibrateTarget = o.optString("vibrateTarget", default.vibrateTarget),
                 cooldownSeconds = o.optInt("cooldownSeconds", default.cooldownSeconds),
                 repeatWhileActive = o.optBoolean("repeatWhileActive", default.repeatWhileActive),
-                leadTimeMs = o.optInt("leadTimeMs", default.leadTimeMs)
+                leadTimeMs = o.optInt("leadTimeMs", default.leadTimeMs),
+                // Absent in older backups -> null -> the classic any-wheel rule.
+                wheelAddress = o.optString("wheelAddress").takeIf { it.isNotEmpty() },
+                wheelName = o.optString("wheelName").takeIf { it.isNotEmpty() }
             )
         }
         return out

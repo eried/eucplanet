@@ -52,10 +52,22 @@ class HudSubnetProbe @Inject constructor(
         // HUD sitting on the 192.168.x AP interface. Enumerating interfaces
         // catches the AP (and any real WiFi) subnet too.
         val cidrs = candidateIpv4Cidrs()
-        if (cidrs.isEmpty()) return@withContext null
+        if (cidrs.isEmpty()) {
+            // No WiFi and no hotspot: nothing the HUD could be on. Worth saying
+            // out loud, because every channel goes quiet and the capture would
+            // otherwise look like the HUD was missing rather than the network.
+            hudLinkNote(TAG, "Subnet probe: no local IPv4 interface (no WiFi, no hotspot)")
+            return@withContext null
+        }
         val candidates = cidrs.flatMap { expandSubnetIpv4(it) ?: emptyList() }.distinct()
-        if (candidates.isEmpty()) return@withContext null
-        Log.i(TAG, "probing ${candidates.size} hosts across ${cidrs.size} subnet(s) $cidrs:$port")
+        if (candidates.isEmpty()) {
+            hudLinkNote(TAG, "Subnet probe: interfaces $cidrs expand to no hosts")
+            return@withContext null
+        }
+        // The one line that says which network the phone was actually on when
+        // discovery ran. Without it, a failed capture cannot tell a HUD that
+        // wandered off to another AP from one that is simply out of radio range.
+        hudLinkNote(TAG, "Subnet probe: ${candidates.size} hosts across ${cidrs.size} subnet(s) $cidrs:$port")
         // Bound the in-flight connects so the scan doesn't flood the Wi-Fi radio
         // and starve mDNS discovery running in parallel.
         val gate = Semaphore(MAX_CONCURRENT)
@@ -83,7 +95,7 @@ class HudSubnetProbe @Inject constructor(
      * Cellular / virtual interfaces are skipped by name so we don't waste a
      * 254-host sweep on a carrier subnet the HUD can't be on.
      */
-    private fun candidateIpv4Cidrs(): List<String> {
+    internal fun candidateIpv4Cidrs(): List<String> {
         val out = LinkedHashSet<String>()
 
         runCatching {
@@ -114,7 +126,7 @@ class HudSubnetProbe @Inject constructor(
                     }
                 }
             }
-        }.onFailure { Log.w(TAG, "interface enumeration failed: ${it.message}") }
+        }.onFailure { hudLinkNote(TAG, "interface enumeration failed: ${it.message}") }
 
         return out.toList()
     }

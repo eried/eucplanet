@@ -49,7 +49,8 @@ class WearBridge @Inject constructor(
     private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     private val tripRepository: com.eried.eucplanet.data.repository.TripRepository,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
-    private val themeController: com.eried.eucplanet.ui.theme.ThemeController
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
+    private val wearMapBridge: WearMapBridge,
 ) {
     companion object {
         private const val TAG = "WearBridge"
@@ -57,7 +58,7 @@ class WearBridge @Inject constructor(
         // independent of the wheel BLE poll rate (AppSettings.wheelPollIntervalMs).
         // The watch can't show data fresher than the poll delivers; when the
         // publish rate is faster than the poll, the loop just re-sends the latest
-        // frame — keeps the gauge animating and the freshness signal alive.
+        // frame, keeps the gauge animating and the freshness signal alive.
         private const val DEFAULT_PUBLISH_INTERVAL_MS = 250L
         fun publishIntervalMsFor(rate: String): Long = when (rate) {
             "CONSERVATIVE" -> 750L
@@ -102,6 +103,9 @@ class WearBridge @Inject constructor(
         private const val K_GPS_SOURCE = "gsr"
         // Watch-display option keys mirror WatchKeys.OPT_* on the wear side.
         private const val K_OPT_KEEP_ON = "wko"
+        private const val K_OPT_KEEP_ON_NAV = "wkn"
+        private const val K_MAP_ENABLED = "wme"
+        private const val K_MAP_SHOW_TELEMETRY = "wmt"
         private const val K_OPT_SHOW_WHEEL_BATT = "wsb"
         private const val K_OPT_SHOW_PHONE_BATT = "wpb"
         private const val K_OPT_SHOW_WATCH_BATT = "wwb"
@@ -121,6 +125,9 @@ class WearBridge @Inject constructor(
         private const val K_SCREEN2_CLICK = "b2c"
         private const val K_SCREEN2_HOLD = "b2h"
         private const val K_HAPTIC_ON_ACTION = "hap"
+        // True while Service Mode is recording: the watch reports its input
+        // events back ("debug:" control) only then. Same key as Garmin's.
+        private const val K_DIAG = "dg"
         // Navigation mirror, only populated when the rider opted in via the
         // Watch settings. K_NAV_ACTIVE already folds in that toggle and the
         // phone popup's minimized state, so the watch just shows/hides on it.
@@ -138,7 +145,7 @@ class WearBridge @Inject constructor(
     private var started = false
 
     /**
-     * Names of currently-paired Wear OS nodes — empty when no watch is
+     * Names of currently-paired Wear OS nodes, empty when no watch is
      * paired, otherwise one entry per Wear OS device the phone has
      * connected to (typically one, occasionally more if the rider has both
      * a Galaxy Watch and a Pixel Watch). Polled every 5 s on a background
@@ -237,6 +244,7 @@ class WearBridge @Inject constructor(
         if (started) return
         started = true
         Log.i(TAG, "Wear bridge starting (publish follows watchUpdateRate tier)")
+        wearMapBridge.start()
 
         // NO wake here on purpose. start() runs from EucPlanetApp.onCreate,
         // which fires on EVERY phone process start -- including background wakes
@@ -275,13 +283,14 @@ class WearBridge @Inject constructor(
         // the watch's freshness signal alive without per-emission complexity.
         scope.launch {
             while (true) {
+                wearMapBridge.onPublisherTick()
                 try {
                     // Watch gauge max must match the phone dashboard gauge max so the
                     // two dials show the same range. Dashboard computes:
                     //   gaugeMax = ((effectiveTiltback / 10) + 1) * 10
                     // where effectiveTiltback is the safety-tiltback when legal mode is
                     // on, normal tiltback otherwise. Mirroring that here.
-                    val s = settingsRepository.get()
+                    val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
                         s.safetyTiltbackKmh else s.tiltbackSpeedKmh
                     // Mirror the phone dashboard's 30 km/h floor so the watch
@@ -297,7 +306,7 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
                 }
-                delay(publishIntervalMsFor(settingsRepository.get().watchUpdateRate))
+                delay(publishIntervalMsFor(settingsRepository.currentOrLoad().watchUpdateRate))
             }
         }
     }
@@ -310,6 +319,7 @@ class WearBridge @Inject constructor(
         settings: AppSettings
     ) {
         try {
+            val nav = navigationEngine.navState.value
             val request = PutDataMapRequest.create(PATH_STATE).apply {
                 dataMap.putBoolean(K_CONNECTED, state == ConnectionState.CONNECTED)
                 dataMap.putString(K_WHEEL_NAME, name ?: "")
@@ -354,6 +364,12 @@ class WearBridge @Inject constructor(
                     )
                 )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
+                dataMap.putBoolean(
+                    K_OPT_KEEP_ON_NAV,
+                    settings.watchMap.keepScreenOnDuringNavigation && nav.active,
+                )
+                dataMap.putBoolean(K_MAP_ENABLED, settings.watchMap.enabled)
+                dataMap.putBoolean(K_MAP_SHOW_TELEMETRY, settings.watchMap.showTelemetry)
                 dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
                 dataMap.putBoolean(K_OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)
                 dataMap.putBoolean(K_OPT_SHOW_WATCH_BATT, settings.watchShowWatchBattery)
@@ -373,6 +389,10 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_SCREEN2_CLICK, settings.watchScreen2Click)
                 dataMap.putString(K_SCREEN2_HOLD, settings.watchScreen2Hold)
                 dataMap.putBoolean(K_HAPTIC_ON_ACTION, settings.watchHapticOnAction)
+                dataMap.putBoolean(
+                    K_DIAG,
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.value
+                )
                 // GPS extra speed: computed exactly like DashboardViewModel.
                 // gpsExtraSpeed so the watch mirrors the phone dashboard.
                 val gps = computeGpsExtraSpeed(settings)
@@ -387,7 +407,6 @@ class WearBridge @Inject constructor(
                 // and clearing them mid-fade would swap the Flag icon back to
                 // a Navigation arrow and blank the "You have arrived" text
                 // while the popup is still on screen visibly fading out.
-                val nav = navigationEngine.navState.value
                 // cueVisible folds in the phone popup's transient timeout, so
                 // the watch shows nav only while the phone's popup is on screen.
                 val navShow = nav.active && !nav.minimized && nav.cueVisible &&

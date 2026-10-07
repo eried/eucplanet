@@ -49,6 +49,7 @@ class WireFormatTest {
             wheelName = "InMotion V14",
             speedKmh = 42.5f,
             batteryPercent = 73,
+            batteryEnvelope = 71.5f,
             voltage = 95.2f,
             current = 8.1f,
             pwm = 65.4f,
@@ -89,13 +90,17 @@ class WireFormatTest {
         val original = HudState(
             gpsSpeedKmh = Float.NaN,
             gpsHeadingDeg = Float.NaN,
-            gpsAltitudeM = Float.NaN
+            gpsAltitudeM = Float.NaN,
+            // The battery envelope is NaN too, for the first half minute of
+            // every ride rather than only when a receiver is missing.
+            batteryEnvelope = Float.NaN,
         )
         val encoded = json.encodeToString(original)
         val decoded = json.decodeFromString<HudState>(encoded)
         assertTrue("gpsSpeedKmh should be NaN", decoded.gpsSpeedKmh.isNaN())
         assertTrue("gpsHeadingDeg should be NaN", decoded.gpsHeadingDeg.isNaN())
         assertTrue("gpsAltitudeM should be NaN", decoded.gpsAltitudeM.isNaN())
+        assertTrue("batteryEnvelope should be NaN", decoded.batteryEnvelope.isNaN())
     }
 
     @Test fun frozen_v1_0_baseline_still_decodes() {

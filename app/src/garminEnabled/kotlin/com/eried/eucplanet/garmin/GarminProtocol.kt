@@ -31,6 +31,10 @@ internal object GarminKeys {
     const val UNIT_TEMP = "ut"
     const val ACCENT = "ac"
     const val TIMESTAMP = "ts"
+    // Per-device STATE sequence number. The watch echoes the last one it
+    // received on its ALIVE heartbeat ("alive:<seq>") so the phone can cap how
+    // far ahead of the watch it publishes, bounding end-to-end lag.
+    const val SEQ = "sq"
 
     const val GPS_SPEED = "gs"
     const val GPS_SOURCE = "gsr"
@@ -59,6 +63,8 @@ internal object GarminKeys {
     const val STEM1_HOLD = "s1h"
     const val STEM2_CLICK = "s2c"
     const val STEM2_HOLD = "s2h"
+    /** Garmin-only third hardware button (the Down key), click only. */
+    const val STEM3_CLICK = "s3c"
 
     const val SCREEN1_CLICK = "b1c"
     const val SCREEN1_HOLD = "b1h"
@@ -66,6 +72,11 @@ internal object GarminKeys {
     const val SCREEN2_HOLD = "b2h"
 
     const val HAPTIC_ON_ACTION = "hap"
+
+    /** True while the phone's Service Mode is recording. The watch reports
+     *  its input events (debug: prefix) only while this is set, so riders
+     *  who never open Service Mode get zero extra watch->phone traffic. */
+    const val DIAG = "dg"
 
     const val NAV_ACTIVE = "na"
     const val NAV_ANGLE = "ng"
@@ -97,7 +108,7 @@ internal object GarminControl {
     const val ACTION_PREFIX = "action:"
     /** Watch tells phone its build info on app launch, mirrors `/euc/watch_info`. */
     const val WATCH_INFO_PREFIX = "info:"
-    /** Heartbeat from the watch — sent every 5 s while the dial is on-screen.
+    /** Heartbeat from the watch, sent every 5 s while the dial is on-screen.
      *  The bridge uses these (not sendMessage success callbacks) to drive
      *  the Live indicator + delivery-rate badge: in TETHERED mode the SDK
      *  reports send-success on writes into a half-dead local socket, so
@@ -105,6 +116,10 @@ internal object GarminControl {
      *  frames. After 30 s without an ack the bridge resets the CIQ
      *  transport so a fresh socket can land. */
     const val ALIVE = "alive"
+    /** Input-event report from the watch (tap coords, key codes, which
+     *  binding fired). Only sent while [GarminKeys.DIAG] is true in the
+     *  state frames, i.e. while Service Mode is recording. */
+    const val DEBUG_PREFIX = "debug:"
     /** Dictionary key for incoming control payloads from the watch. */
     const val PAYLOAD_KEY = "cmd"
 }

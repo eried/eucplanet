@@ -32,6 +32,8 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
 
     @Volatile private var detectedModel: InMotionV1Model? = null
 
+    override val nominalPackVoltage: Int? get() = detectedModel?.nominalVoltage
+
     /**
      * 6-digit PIN for the V1 auth handshake (spec section 7). null means "use
      * the factory default" ([DEFAULT_PIN]); a future "Saved PINs" preference

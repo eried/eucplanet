@@ -1,13 +1,24 @@
 package com.eried.eucplanet.data.repository
 
 import com.eried.eucplanet.data.model.ADVANCED_SPECS
+import com.eried.eucplanet.data.model.BatteryPercentSettings
+import com.eried.eucplanet.data.model.ProximityLockSettings
+import com.eried.eucplanet.data.model.TpmsSettings
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.VoiceCommandSettings
+import com.eried.eucplanet.data.model.HudDiscoveryMode
+import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.store.SettingsStore
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,18 +33,44 @@ class SettingsRepository @Inject constructor(
 
     val settings: Flow<AppSettings> = store.settings.map { it.sanitized() }
 
+    // Completed by the store's first emission. DataStore has no synchronous
+    // read, so until then [current] can only hold the defaults.
+    private val firstLoad = CompletableDeferred<Unit>()
+
+    /**
+     * The latest sanitized settings, kept warm.
+     *
+     * [get] re-parses the whole JSON blob on every call, which the telemetry,
+     * alarm, watch, HUD and Garmin loops were doing several times a second
+     * between them. Reads here cost a field load. A write that lands in the
+     * same instant shows up one emission later, which those loops tolerate.
+     *
+     * Holds the defaults until the store has been read once; a loop that
+     * starts at process birth should use [currentOrLoad] so its first tick
+     * does not act on them.
+     */
+    val current: StateFlow<AppSettings> = settings
+        .onEach { firstLoad.complete(Unit) }
+        .stateIn(scope, SharingStarted.Eagerly, AppSettings().sanitized())
+
+    /** [current] once the store has been read at least once. Free after that. */
+    suspend fun currentOrLoad(): AppSettings {
+        if (!firstLoad.isCompleted) firstLoad.await()
+        return current.value
+    }
+
     suspend fun get(): AppSettings = store.get().sanitized()
 
     suspend fun update(settings: AppSettings) {
         store.update(settings)
     }
 
-    /** Read-modify-write wrapper for callers that only want to change a
-     *  field or two without echoing the whole [AppSettings] copy. Single
-     *  read + write inside the same coroutine, so there's no torn-write
-     *  window against the StateFlow. */
+    /** Read-modify-write for callers that only want to change a field or two.
+     *  The read happens inside the store's transaction, so two changes made in
+     *  the same breath (a text field writing per keystroke, two toggles tapped
+     *  quickly) cannot overwrite each other's fields. */
     suspend fun update(transform: (AppSettings) -> AppSettings) {
-        update(transform(get()))
+        store.update { current -> transform(current.sanitized()) }
     }
 
     suspend fun updateLastDevice(address: String, name: String) {
@@ -46,14 +83,98 @@ class SettingsRepository @Inject constructor(
     fun updateLastDeviceAsync(address: String, name: String) {
         scope.launch { updateLastDevice(address, name) }
     }
-
-    private fun AppSettings.sanitized(): AppSettings = copy(
-        autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
-        // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
-        // value (from an imported or Dropbox-synced settings file, not just the
-        // steppers) can never busy-loop a delay(), divide by zero, or starve the
-        // BLE/IO loops. Every settings read — get() and the settings Flow —
-        // passes through here, so consumers never see an unsafe value.
-        advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
-    )
 }
+
+/**
+ * Every settings read passes through here, so no consumer ever sees a value
+ * outside what the UI would let a rider pick. Top level and internal so
+ * AdvancedSettingsSpecGuardTest can run it without a store.
+ */
+internal fun AppSettings.sanitized(): AppSettings = copy(
+    voiceVolumePercent = voiceVolumePercent.coerceIn(10, 100),
+    autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
+    // Weather comfort thresholds from a synced or hand-edited file: keep
+    // the window one of the offered four, the bands ordered and sane.
+    weather = weather.copy(
+        // Any number of hours now, clamped rather than snapped to a preset.
+        // Two is the shortest that draws a curve; a week is where every
+        // source runs out.
+        windowHours = weather.windowHours.coerceIn(2, 168),
+        prefHot = weather.prefHot.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+        prefCold = weather.prefCold.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+        prefRain = weather.prefRain.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+        prefSnow = weather.prefSnow.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+        prefWind = weather.prefWind.takeIf { it in PREF_VALUES } ?: "DISLIKE",
+        prefNight = weather.prefNight.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+        prefGolden = weather.prefGolden.takeIf { it in PREF_VALUES } ?: "NEUTRAL",
+    ),
+    // Clamp every Advanced knob to its spec range so a 0 / negative / absurd
+    // value (from an imported or Dropbox-synced settings file, not just the
+    // steppers) can never busy-loop a delay(), divide by zero, or starve the
+    // BLE/IO loops. Every settings read, get() and the settings Flow, // passes through here, so consumers never see an unsafe value.
+    advanced = ADVANCED_SPECS.fold(advanced) { a, s -> s.set(a, s.get(a).coerceIn(s.range)) },
+    // A hand-edited or synced file could carry a floor above full charge, or
+    // a cell count that makes every pack read 100%. Clamped here so the
+    // estimate never sees a value the UI would not let a rider pick.
+    batteryPercent = batteryPercent.copy(
+        // Same rule as unlockWhen below: a mode this build does not know
+        // falls back to the wheel's own number rather than to a guess.
+        mode = batteryPercent.mode.takeIf { it in BatteryPercentSettings.MODE_VALUES }
+            ?: BatteryPercentSettings.MODE_WHEEL,
+        minimumCellVoltageMv = batteryPercent.minimumCellVoltageMv.coerceIn(
+            BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV),
+        maximumCellVoltageMv = batteryPercent.maximumCellVoltageMv.coerceIn(
+            BatteryPercentSettings.MIN_FULL_MV, BatteryPercentSettings.MAX_FULL_MV),
+        seriesCells = batteryPercent.seriesCells.coerceIn(
+            BatteryPercentSettings.SERIES_RANGE.first,
+            BatteryPercentSettings.SERIES_RANGE.last),
+        capacityWh = batteryPercent.capacityWh.coerceIn(
+            0, BatteryPercentSettings.MAX_CAPACITY_WH),
+    ),
+    // A cue or an unknown-reply this build does not know would fall
+    // through every when() to silence, which is the one behaviour a rider
+    // cannot tell apart from the feature being broken. Fall back to the
+    // defaults instead, so an unrecognised value is merely ignored.
+    voiceCommands = voiceCommands.copy(
+        promptCue = voiceCommands.promptCue.takeIf { it in VoiceCommandSettings.CUES }
+            ?: VoiceCommandSettings.CUE_BEEP,
+        unknownCue = voiceCommands.unknownCue.takeIf { it in VoiceCommandSettings.UNKNOWNS }
+            ?: VoiceCommandSettings.UNKNOWN_MESSAGE,
+        headsetAction = voiceCommands.headsetAction.takeIf { it in VoiceCommandSettings.HEADSET_ACTIONS }
+            ?: VoiceCommandSettings.HEADSET_LISTEN,
+    ),
+    // An imported or Dropbox-synced file can carry an unlockWhen this build
+    // does not know. Fall back to never rather than letting an unrecognised
+    // value decide when a wheel unlocks itself.
+    // A horn mode this build does not know (a newer backup) falls back to the
+    // wheel's own horn, which every build understands.
+    horn = if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
+        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL),
+    proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
+        proximityLock
+    } else {
+        proximityLock.copy(unlockWhen = ProximityLockSettings.UNLOCK_WHEN_NEVER)
+    },
+    // A pressure unit this build cannot convert would fall through the
+    // formatter to kPa, changing every pressure in the app by a factor of
+    // a hundred without saying so. Blank is the documented "follow the
+    // unit system" value, so an unrecognised one lands there.
+    tpms = tpms.copy(
+        pressureUnit = tpms.pressureUnit.takeIf {
+            it in TpmsSettings.PRESSURE_UNIT_VALUES
+        } ?: "",
+    ),
+    // An unknown discovery mode (hand-edited or newer file) falls back to
+    // AUTO, which never uses the saved IP.
+    hudDiscoveryMode = hudDiscoveryMode.takeIf { it in HudDiscoveryMode.VALUES }
+        ?: HudDiscoveryMode.AUTO,
+    // The share relay is dialled as a WebSocket. A file carrying an http
+    // URL, a hostname, or junk would fail at the OkHttp request builder,
+    // inside the coroutine that opens a group, so it is reset here instead.
+    share = share.copy(
+        relayUrl = share.relayUrl.takeIf { ShareSettings.isValidRelayUrl(it) }
+            ?: ShareSettings.DEFAULT_RELAY_URL
+    ),
+)
+
+private val PREF_VALUES = setOf("DISLIKE", "NEUTRAL", "LIKE")

@@ -102,6 +102,12 @@ object Units {
     fun pressure(kpa: Float, unit: String): Float = when (unit) {
         "psi" -> kpa * 0.145038f
         "bar" -> kpa / 100f
+        // Both are bar in disguise, and both are printed on real gauges:
+        // kgf/cm2 sits beside psi on a lot of them, and MPa is what Asian
+        // gauges and most EUC pumps read in. 1 bar is 1.0197 kgf/cm2 and
+        // exactly 0.1 MPa.
+        "kgf" -> kpa / 98.0665f
+        "mpa" -> kpa / 1000f
         else -> kpa
     }
 
@@ -112,10 +118,53 @@ object Units {
     fun pressurePsiFloored(kpa: Float): Float =
         kotlin.math.floor(pressure(kpa, "psi") * 10f) / 10f
 
+    /** Back to kPa from the rider's pressure unit, for a threshold they typed. */
+    fun pressureToKpa(value: Float, unit: String): Float = when (unit) {
+        "psi" -> value / 0.145038f
+        "bar" -> value * 100f
+        // Both were added to pressure() and forgotten here, so a threshold
+        // typed in kgf/cm2 or MPa was stored as though it had been kPa: a
+        // 2.5 kgf alarm became 2.5 kPa and never fired.
+        "kgf" -> value * 98.0665f
+        "mpa" -> value * 1000f
+        else -> value
+    }
+
+    /**
+     * How many decimals a pressure needs to be readable in [unit].
+     *
+     * Not a constant, because the units are three orders of magnitude apart.
+     * Two decimals is right for bar and kgf/cm2, meaningless for kPa, and too
+     * coarse for MPa: a whole bar of air is 0.1 MPa, so two decimals would
+     * hide a pump stroke.
+     */
+    fun pressureDecimals(unit: String): Int = when (unit) {
+        "psi" -> 1
+        "bar", "kgf" -> 2
+        "mpa" -> 3
+        else -> 0
+    }
+
+    /**
+     * A pressure written the way the rider's own gauge reads, unit included.
+     *
+     * The one place that does this. Four screens used to each write their own
+     * and disagree: two of them knew about kgf/cm2 and MPa, and two silently
+     * printed bar instead.
+     */
+    fun formatPressure(kpa: Float, unit: String): String {
+        // psi is floored rather than rounded, to match the number the wheel
+        // shows on its own display. See pressurePsiFloored.
+        val value = if (unit == "psi") pressurePsiFloored(kpa) else pressure(kpa, unit)
+        return "%.${pressureDecimals(unit)}f %s".format(value, pressureUnit(unit))
+    }
+
     /** Tire-pressure unit symbol for "psi" or "bar" (kPa otherwise). */
     fun pressureUnit(unit: String): String = when (unit) {
         "psi" -> "psi"
         "bar" -> "bar"
+        "kgf" -> "kgf/cm\u00B2"
+        "mpa" -> "MPa"
         else -> "kPa"
     }
 
@@ -124,8 +173,19 @@ object Units {
      * follows the rider's distance unit: imperial (mi) -> psi, everything else
      * -> bar. A standalone pressure-unit picker can be added later.
      */
+    /**
+     * The rider's pressure unit.
+     *
+     * A setting now, not a guess. It used to be derived from the distance
+     * unit, which got the common case wrong: EUC riders run psi in a tyre
+     * while measuring everything else in kilometres, and there is no
+     * relationship between the two beyond an assumption that was usually
+     * false.
+     */
     fun effectivePressureUnit(s: AppSettings): String =
-        if (effectiveDistanceUnit(s) == "mi") "psi" else "bar"
+        s.tpms.pressureUnit.ifBlank {
+            if (effectiveDistanceUnit(s) == "mi") "psi" else "bar"
+        }
 
     /** The three top-level measurement-unit modes. CUSTOM is a derived label. */
     enum class UnitSystem { METRIC, IMPERIAL, CUSTOM }

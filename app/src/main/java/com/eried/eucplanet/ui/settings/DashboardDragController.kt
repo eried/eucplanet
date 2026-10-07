@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.IntSize
  * Drag-and-drop coordinator for the dashboard layout editor. Owns the active-
  * drag state (which item, source kind, current pointer position) and the
  * registered drop targets. Backed entirely by Compose pointer input so we can
- * animate the floating preview's size / alpha during the drag — something
+ * animate the floating preview's size / alpha during the drag, something
  * Compose's built-in `dragAndDropSource` (which uses the View-level system
  * drag shadow) doesn't allow.
  *
@@ -77,7 +77,7 @@ class DashboardDragController {
 
     /**
      * Latched preview size for the floating drag overlay. Updates only when
-     * the pointer enters a registered drop target or hint region — never on
+     * the pointer enters a registered drop target or hint region, never on
      * pointer-exit. This implements the "once it grew, keep it grown until I
      * drag it back to the pool" behaviour: the preview holds its last
      * recognised size as the rider sweeps through empty space, and only
@@ -270,7 +270,7 @@ fun Modifier.dashboardDragSource(
  * Attaches drop-target behaviour. The target's bounds are tracked via
  * `onGloballyPositioned` so the controller can hit-test the pointer at any
  * moment. [expectedSizePx] is the size the floating preview animates to when
- * hovering this target — pass the slot's measured size so a pool pill that's
+ * hovering this target, pass the slot's measured size so a pool pill that's
  * being promoted to the grid visibly grows.
  */
 fun Modifier.dashboardDropTarget(
@@ -284,7 +284,7 @@ fun Modifier.dashboardDropTarget(
      * If non-null, the drag preview shrinks/grows to this size while hovering
      * the target instead of matching the target's own measured size. Pool
      * trash targets pass `poolPillSizePx` so a composite tile dragged over
-     * them previews at pill size — signalling "release = delete (back to
+     * them previews at pill size, signalling "release = delete (back to
      * pool)" rather than "release = land here at full grid size".
      */
     overrideExpectedSizePx: IntSize? = null
@@ -360,7 +360,7 @@ fun DashboardDragPreviewOverlay(
     val target = controller.hoveredTarget
 
     // Only flag as a discard when the tile actually shrinks into the
-    // pool — i.e. the drag started on a big grid tile. A pool pill
+    // pool, i.e. the drag started on a big grid tile. A pool pill
     // dragged up and back down again returns home (no slot is lost, no
     // definition gets deleted), so the red wash would be misleading.
     // Compare source size to the target's expected size: shrink == big

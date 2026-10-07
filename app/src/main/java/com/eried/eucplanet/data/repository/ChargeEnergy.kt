@@ -43,11 +43,20 @@ object ChargeEnergy {
      * decides the riding case, where consumption and regen both occur and only
      * the sign separates them.
      *
+     * [measuresChargeCurrent] is the other half of that rule. Both InMotion
+     * families keep reporting the board's own idle draw while the charger works,
+     * so there is no charge current on the wire to integrate. Filing that draw as
+     * energy either way is worse than filing nothing: it read as "Used 4 Wh"
+     * against +54 % added on a V8S, which is the wheel's standby consumption
+     * presented as what the charge did. Charged energy for those wheels comes
+     * from the percentage and the pack size instead.
+     *
      * @param prevPowerW  V x I at the previous sample, in the wheel's own sign
      * @param nowPowerW   V x I at this sample, in the wheel's own sign
      * @param dtMs        elapsed since the previous sample
      * @param dischargeIsPositivePower  true for InMotion V1, false elsewhere
      * @param charging    the wheel reports itself charging right now
+     * @param measuresChargeCurrent  the wheel puts a real charge current on the wire
      */
     fun stepWh(
         prevPowerW: Float,
@@ -55,10 +64,77 @@ object ChargeEnergy {
         dtMs: Long,
         dischargeIsPositivePower: Boolean,
         charging: Boolean = false,
+        measuresChargeCurrent: Boolean = true,
     ): Float {
         if (dtMs <= 0L || dtMs > MAX_GAP_MS) return 0f
+        if (charging && !measuresChargeCurrent) return 0f
         val raw = ((prevPowerW + nowPowerW) * 0.5f) * (dtMs / 3_600_000f)
         if (charging) return kotlin.math.abs(raw)
         return if (dischargeIsPositivePower) -raw else raw
+    }
+
+    /**
+     * Charged Wh worked out from the percentage a charge added and the pack's
+     * rated size, for the wheels [stepWh] has no charge current to integrate.
+     *
+     * Rough on purpose, and labelled as an estimate on screen: it is only as
+     * good as the wheel's own percentage, and a real pack sags below its
+     * nameplate. It is still the only figure those wheels can give, and a rider
+     * watching +54 % go by is better served by "about 540 Wh" than by silence.
+     *
+     * [sawCharge] is what keeps it honest. [addedPercent] is measured from the
+     * session's low, and on a pack whose percentage is worked out from voltage
+     * that reads several points on any ride: the pack sags under a pull and
+     * comes back at a standstill. Without the gate, a rider mid-trip was told
+     * their wheel had charged 50 Wh.
+     *
+     * 0 means there is nothing to show: no charge this session, no capacity
+     * entered, or nothing added.
+     */
+    fun chargedWhFromPercent(
+        addedPercent: Float,
+        capacityWh: Int,
+        sawCharge: Boolean = true,
+    ): Float =
+        if (sawCharge && addedPercent > 0f && capacityWh > 0) addedPercent / 100f * capacityWh
+        else 0f
+
+    /** Energy over a whole ride, split the way the live buckets are. */
+    data class RideEnergy(val outWh: Float, val regenWh: Float) {
+        /** What the pack actually lost, which is what a rider means by "used". */
+        val netWh: Float get() = outWh - regenWh
+    }
+
+    /**
+     * Integrate a recorded ride's energy from its samples, using the same step
+     * as the live path so a trip's figure and the dashboard's cannot drift.
+     *
+     * [samples] are (timestamp ms, volts, amps) in recording order. Rows with no
+     * voltage or current are skipped rather than read as zero power, which would
+     * integrate a phantom idle stretch across them.
+     *
+     * The family's sign convention is not recorded in the CSV, so it is inferred:
+     * integrating both ways, the orientation that produces net consumption is the
+     * right one, because a ride always spends more than it regenerates. A trip
+     * with no usable rows returns zeroes.
+     */
+    fun rideEnergy(samples: List<Triple<Long, Float, Float>>): RideEnergy {
+        val usable = samples.filter { (_, v, a) -> !v.isNaN() && !a.isNaN() && v > 0f }
+        if (usable.size < 2) return RideEnergy(0f, 0f)
+
+        fun integrate(dischargeIsPositivePower: Boolean): RideEnergy {
+            var out = 0f
+            var regen = 0f
+            for (i in 1 until usable.size) {
+                val (prevMs, prevV, prevA) = usable[i - 1]
+                val (nowMs, nowV, nowA) = usable[i]
+                val step = stepWh(prevV * prevA, nowV * nowA, nowMs - prevMs, dischargeIsPositivePower)
+                if (step >= 0f) regen += step else out -= step
+            }
+            return RideEnergy(out, regen)
+        }
+
+        val asNegative = integrate(dischargeIsPositivePower = false)
+        return if (asNegative.netWh >= 0f) asNegative else integrate(dischargeIsPositivePower = true)
     }
 }

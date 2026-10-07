@@ -48,6 +48,36 @@ data class WheelProfile(
     @ColumnInfo(defaultValue = "0")
     val reverseSpeedDirection: Boolean = false,
 
+    /**
+     * Cells in series in this wheel's pack, used to turn pack voltage into a
+     * per-cell voltage for the display-only battery estimate.
+     *
+     * Per wheel rather than app-wide because it describes the pack, not a
+     * preference: a rider with two wheels would otherwise carry one wheel's
+     * count over to the other and read a confident, wrong percentage. Only
+     * consulted for wheels whose model does not state its own pack voltage;
+     * when the model states one, the wheel wins and this is left alone.
+     */
+    @ColumnInfo(defaultValue = "20")
+    val seriesCells: Int = 20,
+
+    /**
+     * Whether the on-screen percentage for this wheel is overridden with the
+     * voltage-based estimate. Per wheel so a calibration set for one pack never
+     * carries to another; a wheel we've never calibrated shows its own number.
+     * Mirrors BatteryPercentSettings.mode: "WHEEL" off, "CURVE" / "CUSTOM" on.
+     */
+    @ColumnInfo(defaultValue = "WHEEL")
+    val batteryMode: String = "WHEEL",
+
+    /**
+     * Pack energy in watt-hours for this wheel, or 0 when unset. Per wheel so a
+     * two-pack rider's range estimate seeds from the right size on each; 0 keeps
+     * the estimate learning from the ride alone, as before.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val batteryCapacityWh: Int = 0,
+
     /** Wall-clock of the last connect to this wheel. Used to keep the most
      *  recently used profile easy to find if we ever expose a profile list. */
     val lastConnectedAt: Long = System.currentTimeMillis()

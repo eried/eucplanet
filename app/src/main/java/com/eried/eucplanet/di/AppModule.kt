@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.AppDatabase
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.store.SettingsJson
+import com.eried.eucplanet.data.store.LegalLockdownStore
 import com.eried.eucplanet.data.store.SettingsStore
 import dagger.Module
 import dagger.Provides
@@ -18,6 +19,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Singleton
 
 @Module
@@ -38,6 +43,12 @@ object AppModule {
         runBlocking { store.seedDefaultsIfAbsent() }
         return store
     }
+
+    /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
+    @Provides
+    @Singleton
+    fun provideLegalLockdownStore(@ApplicationContext context: Context): LegalLockdownStore =
+        LegalLockdownStore(context)
 
     @Provides
     @Singleton
@@ -188,12 +199,81 @@ object AppModule {
         }
     }
 
+    // Custom trip name (null = fall back to the date). The name also travels
+    // inside the CSV Extra column as trip.name=, so this DB copy is just a fast
+    // cache for the list and detail title without reparsing the file.
+    private val MIGRATION_55_56 = object : Migration(55, 56) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE trips ADD COLUMN customName TEXT")
+        }
+    }
+
     /**
-     * Build the Room database with the v44->v45 migration. If the open still
-     * fails (e.g. a future identity-hash mismatch from a forgotten migration),
-     * wipe the DB file and rebuild, trip / alarm / profile loss is regrettable
-     * but better than an unrecoverable crash on every cold start. Settings
-     * stay safe in DataStore regardless.
+     * v56 -> v57: per-wheel cells in series, for the display-only battery
+     * estimate on wheels whose model does not state its own pack voltage. The
+     * default matches the settings default, so an existing profile reads the
+     * same as it did before. (Was authored as 55->56 on its own branch;
+     * renumbered here because trip-details' customName migration already claimed
+     * 55->56 when both merged into next-experimental.)
+     */
+    private val MIGRATION_56_57 = object : Migration(56, 57) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE wheel_profile ADD COLUMN seriesCells INTEGER NOT NULL DEFAULT 20")
+        }
+    }
+
+    /**
+     * v57 -> v58: per-wheel battery-calibration state ("WHEEL" off, "CURVE" /
+     * "CUSTOM" on). Stored on the profile so an override set for one pack never
+     * carries to another wheel.
+     */
+    private val MIGRATION_57_58 = object : Migration(57, 58) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE wheel_profile ADD COLUMN batteryMode TEXT NOT NULL DEFAULT 'WHEEL'")
+        }
+    }
+
+    private val MIGRATION_58_59 = object : Migration(58, 59) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE wheel_profile ADD COLUMN batteryCapacityWh INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+    // Per-trip Dropbox backup state. The folder had uploadStatus and Dropbox
+    // had nothing, so the trip list could not say whether a rename had reached
+    // Dropbox, let alone offer to send it again.
+    private val MIGRATION_59_60 = object : Migration(59, 60) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE trips ADD COLUMN dropboxStatus INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE trips ADD COLUMN dropboxUploadedAt INTEGER")
+        }
+    }
+
+    // Per-alarm wheel binding: a rule stamped with a wheel address fires only
+    // while that wheel is the connected one. NULL (every existing rule) keeps
+    // the classic any-wheel behaviour.
+    private val MIGRATION_60_61 = object : Migration(60, 61) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN wheelAddress TEXT")
+            db.execSQL("ALTER TABLE alarm_rules ADD COLUMN wheelName TEXT")
+        }
+    }
+
+    /** Every migration, oldest first. Internal so MigrationAllTest can run them one at a time. */
+    internal val ALL_MIGRATIONS: Array<Migration> = arrayOf(
+        MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49,
+        MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53, MIGRATION_53_54,
+        MIGRATION_54_55, MIGRATION_55_56, MIGRATION_56_57, MIGRATION_57_58, MIGRATION_58_59,
+        MIGRATION_59_60, MIGRATION_60_61,
+    )
+
+    /**
+     * Build the Room database and open it. If the open fails (a broken
+     * migration, an identity-hash mismatch from a forgotten one, a corrupt
+     * file), the file is copied next to itself as `<db>.corrupt-<stamp>` and
+     * only then deleted and rebuilt, so a rider's trips, alarms and profiles
+     * can still be pulled off the device instead of being wiped on the spot.
+     * Settings stay safe in DataStore regardless.
      */
     private fun openOrRecover(context: Context): AppDatabase {
         val first = buildDb(context)
@@ -201,8 +281,10 @@ object AppModule {
             first.openHelper.writableDatabase
             first
         } catch (t: Throwable) {
-            Log.w(TAG, "DB open failed, wiping and rebuilding: ${t.message}")
+            Log.e(TAG, "DB open failed, keeping a copy of $DB_NAME before rebuilding", t)
             runCatching { first.close() }
+            runCatching { keepCorruptCopy(context.getDatabasePath(DB_NAME)) }
+                .onFailure { Log.e(TAG, "Could not copy the unreadable database", it) }
             runCatching { context.deleteDatabase(DB_NAME) }
             val rebuilt = buildDb(context)
             runCatching { rebuilt.openHelper.writableDatabase }
@@ -210,9 +292,36 @@ object AppModule {
         }
     }
 
+    /** How many `.corrupt-*` copies to keep; older ones are deleted. */
+    private const val CORRUPT_COPIES_KEPT = 2
+    private val SIDE_FILES = listOf("-wal", "-shm")
+
+    /**
+     * Copy [dbFile] and its -wal / -shm to `<name>.corrupt-<yyyyMMdd-HHmmss>`
+     * (the side files keep their suffix after the stamp so SQLite still pairs
+     * them with the copy), then drop all but the newest [CORRUPT_COPIES_KEPT].
+     */
+    private fun keepCorruptCopy(dbFile: File) {
+        if (!dbFile.exists()) return
+        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+        val copy = File(dbFile.parentFile, "${dbFile.name}.corrupt-$stamp")
+        dbFile.copyTo(copy, overwrite = true)
+        for (suffix in SIDE_FILES) {
+            val side = File(dbFile.path + suffix)
+            if (side.exists()) side.copyTo(File(copy.path + suffix), overwrite = true)
+        }
+        Log.e(TAG, "Unreadable database kept at ${copy.path}")
+        val prefix = "${dbFile.name}.corrupt-"
+        dbFile.parentFile
+            ?.listFiles { f -> f.name.startsWith(prefix) && SIDE_FILES.none { f.name.endsWith(it) } }
+            ?.sortedByDescending { it.name } // the stamp sorts newest first
+            ?.drop(CORRUPT_COPIES_KEPT)
+            ?.forEach { old -> (listOf("") + SIDE_FILES).forEach { File(old.path + it).delete() } }
+    }
+
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .addMigrations(MIGRATION_44_45, MIGRATION_45_46, MIGRATION_46_47, MIGRATION_47_48, MIGRATION_48_49, MIGRATION_49_50, MIGRATION_50_51, MIGRATION_51_52, MIGRATION_52_53, MIGRATION_53_54, MIGRATION_54_55)
+            .addMigrations(*ALL_MIGRATIONS)
             .build()
 
     @Provides

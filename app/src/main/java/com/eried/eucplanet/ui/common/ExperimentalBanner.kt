@@ -186,6 +186,8 @@ private val VERIFIED_WHEEL_TOKENS = listOf(
     "Oryx", "Lynx S",            // Veteran (rider-tested)
     "Mten3", "EX30", "E20",      // Begode (rider-tested)
     "16X",                       // KingSong KS-16X (rider-tested)
+    "18L", "18XL",               // KingSong KS-18XL (rider-tested, issue #19); it
+                                 // reports itself as KS-18L, same board as the 18L
 )
 
 /**

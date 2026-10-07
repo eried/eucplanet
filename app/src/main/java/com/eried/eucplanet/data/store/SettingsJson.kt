@@ -1,6 +1,10 @@
 package com.eried.eucplanet.data.store
 
+import com.eried.eucplanet.data.model.BatteryPercentSettings
+import com.eried.eucplanet.data.model.ProximityLockSettings
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.HudDiscoveryMode
 import org.json.JSONObject
 
 /**
@@ -24,6 +28,7 @@ object SettingsJson {
      * folder picker, paired Flic addresses, etc. survive an app restart.
      */
     fun stripDeviceBindings(s: AppSettings): AppSettings = s.copy(
+        share = s.share.copy(deviceSecret = ""),
         lastDeviceAddress = null,
         lastDeviceName = null,
         flic1Address = null,
@@ -36,6 +41,11 @@ object SettingsJson {
         radarAddress = null,
         radarName = null,
         radarVendor = null,
+        // A rider's tyre caps are their hardware, like their Flics and their
+        // radar. A settings file shared with someone else must not carry the
+        // addresses, and a backup restored on a second phone must not pair it
+        // to sensors that are not on that phone's wheel.
+        tpms = s.tpms.copy(pairedAddress = null, pairedAddresses = emptyList()),
         syncFolderUri = null,
         lastSettingsBackupAt = null,
         lastSettingsBackupName = null,
@@ -89,6 +99,7 @@ object SettingsJson {
         put("voiceAnnounceRequireExternal", s.voiceAnnounceRequireExternal)
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
+        put("voiceVolumePercent", s.voiceVolumePercent)
         put("voiceLocale", s.voiceLocale)
         put("voiceName", s.voiceName)
         put("voiceLocaleOverridden", s.voiceLocaleOverridden)
@@ -127,12 +138,42 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
+            put("rateApplyWhen", s.mediaControl.rateApplyWhen)
+            put("rateCurve", s.mediaControl.rateCurve)
+        })
+        put("share", JSONObject().apply {
+            put("trailMinutes", s.share.trailMinutes); put("shareStatsDefault", s.share.shareStatsDefault)
+            put("lastIdentityMode", s.share.lastIdentityMode); put("lastSessionName", s.share.lastSessionName)
+            put("relayUrl", s.share.relayUrl)
+            put("deviceSecret", s.share.deviceSecret)
+        })
+        put("tpms", JSONObject().apply {
+            // Never written until now, so a paired sensor was forgotten on
+            // every restart and a rider who picked psi got it back as bar. The
+            // fields existed on the model and the model was simply not on this
+            // list, which is the one way a setting can look wired up and still
+            // go nowhere.
+            put("pairedAddress", s.tpms.pairedAddress)
+            put("pairedAddresses", org.json.JSONArray(s.tpms.pairedAddresses))
+            put("pressureUnit", s.tpms.pressureUnit)
+        })
+        put("batteryPercent", JSONObject().apply {
+            put("mode", s.batteryPercent.mode)
+            put("minimumCellVoltageMv", s.batteryPercent.minimumCellVoltageMv)
+            put("maximumCellVoltageMv", s.batteryPercent.maximumCellVoltageMv)
+            put("seriesCells", s.batteryPercent.seriesCells)
+            put("capacityWh", s.batteryPercent.capacityWh)
+        })
+        put("horn", JSONObject().apply {
+            put("mode", s.horn.mode)
+            put("soundName", s.horn.soundName)
+            put("headphonesOnly", s.horn.headphonesOnly)
         })
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
             put("lockBelowDbm", s.proximityLock.lockBelowDbm)
-            put("unlockEnabled", s.proximityLock.unlockEnabled)
             put("unlockAboveDbm", s.proximityLock.unlockAboveDbm)
+            put("unlockWhen", s.proximityLock.unlockWhen)
         })
         put("announceWheelLock", s.announceWheelLock)
         put("announceLights", s.announceLights)
@@ -162,11 +203,14 @@ object SettingsJson {
         put("flic4DoubleClick", s.flic4DoubleClick)
         put("flic4Hold", s.flic4Hold)
         put("flicShowOnDashboard", s.flicShowOnDashboard)
-        put("autoLightsEnabled", s.autoLightsEnabled)
-        put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
-        put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
-        put("autoVolumeEnabled", s.autoVolumeEnabled)
-        put("autoVolumeOnlyWhenConnected", s.autoVolumeOnlyWhenConnected)
+        put("lights", JSONObject().apply {
+            put("applyWhen", s.lights.applyWhen)
+            put("onMinutesBefore", s.lights.onMinutesBefore)
+            put("offMinutesAfter", s.lights.offMinutesAfter)
+            put("offWhenSlow", s.lights.offWhenSlow)
+            put("offBelowKmh", s.lights.offBelowKmh.toDouble())
+        })
+        put("autoVolumeApplyWhen", s.autoVolumeApplyWhen)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("alarmsMuted", s.alarmsMuted)
@@ -189,11 +233,44 @@ object SettingsJson {
         put("tripChartOrder", s.tripChartOrder)
         put("tripHiddenCharts", s.tripHiddenCharts)
         put("tripExtraCharts", s.tripExtraCharts)
+        put("tripExtraTiles", s.tripExtraTiles)
         put("widgetMetrics", s.widget.metrics)
         put("widgetActions", s.widget.actions)
         put("widgetStandaloneActions", s.widget.standaloneActions)
         // Nested voice extras, written as flat keys so the file stays readable
         // and a future move back to top level would not break existing saves.
+        put("weatherEnabled", s.weather.enabled)
+        put("weatherWindowHours", s.weather.windowHours)
+        put("weatherOpenExpanded", s.weather.openExpanded)
+        put("weatherSource", s.weather.source)
+        put("weatherPrefHot", s.weather.prefHot)
+        put("weatherPrefCold", s.weather.prefCold)
+        put("weatherPrefRain", s.weather.prefRain)
+        put("weatherPrefSnow", s.weather.prefSnow)
+        put("weatherPrefWind", s.weather.prefWind)
+        put("weatherPrefNight", s.weather.prefNight)
+        put("weatherPrefGolden", s.weather.prefGolden)
+        // Flat keys for a nested group, same as the report toggles above: the
+        // file is read by hand and synced between builds, and a nested object
+        // would make every older build drop the lot rather than the one key it
+        // does not know.
+        put("voicePromptCue", s.voiceCommands.promptCue)
+        put("voiceUnknownCue", s.voiceCommands.unknownCue)
+        put("voiceHeadsetButton", s.voiceCommands.headsetButton)
+        put("voiceHeadsetAction", s.voiceCommands.headsetAction)
+        put("voiceRecognitionLocale", s.voiceCommands.recognitionLocale)
+        put("voiceReportBatteryEst", s.voiceReports.periodicBatteryEst)
+        put("triggerReportBatteryEst", s.voiceReports.triggerBatteryEst)
+        put("voiceReportRange", s.voiceReports.periodicRange)
+        put("triggerReportRange", s.voiceReports.triggerRange)
+        put("voiceReportVoltage", s.voiceReports.periodicVoltage)
+        put("triggerReportVoltage", s.voiceReports.triggerVoltage)
+        put("voiceReportOdometer", s.voiceReports.periodicOdometer)
+        put("triggerReportOdometer", s.voiceReports.triggerOdometer)
+        put("voiceReportConsumption", s.voiceReports.periodicConsumption)
+        put("triggerReportConsumption", s.voiceReports.triggerConsumption)
+        put("periodicReportPills", s.voiceReports.periodicPills)
+        put("triggerReportPills", s.voiceReports.triggerPills)
         put("voiceReportCurrent", s.voiceReports.periodicCurrent)
         put("voiceReportPower", s.voiceReports.periodicPower)
         put("triggerReportCurrent", s.voiceReports.triggerCurrent)
@@ -232,6 +309,7 @@ object SettingsJson {
         put("watchStem1Click", s.watchStem1Click)
         put("watchStem1Hold", s.watchStem1Hold)
         put("watchStem2Click", s.watchStem2Click)
+        put("watchStem3Click", s.watchStem3Click)
         put("watchStem2Hold", s.watchStem2Hold)
         put("watchScreen1Click", s.watchScreen1Click)
         put("watchScreen1Hold", s.watchScreen1Hold)
@@ -239,7 +317,7 @@ object SettingsJson {
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
         put("watchUpdateRate", s.watchUpdateRate)
-        // Advanced knobs — flat keys (kept stable for back-compat), registry-driven.
+        // Advanced knobs, flat keys (kept stable for back-compat), registry-driven.
         com.eried.eucplanet.data.model.ADVANCED_SPECS.forEach { put(it.id, it.get(s.advanced)) }
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
@@ -283,6 +361,12 @@ object SettingsJson {
         put("navAvoidFerries", s.navAvoidFerries)
         put("navAvoidUnpaved", s.navAvoidUnpaved)
         put("watchShowNavigation", s.watchShowNavigation)
+        put("watchMap", JSONObject().apply {
+            put("enabled", s.watchMap.enabled)
+            put("headingUp", s.watchMap.headingUp)
+            put("keepScreenOnDuringNavigation", s.watchMap.keepScreenOnDuringNavigation)
+            put("showTelemetry", s.watchMap.showTelemetry)
+        })
         put("hudServerEnabled", s.hudServerEnabled)
         put("engoHud", JSONObject().apply {
             put("enabled", s.engoHud.enabled)
@@ -297,7 +381,10 @@ object SettingsJson {
         put("hudActionRight", s.hudActionRight)
         put("hudServerPort", s.hudServerPort)
         put("hudIp", s.hudIp)
-        put("hudAutoDiscover", s.hudAutoDiscover)
+        put("hudDiscoveryMode", s.hudDiscoveryMode)
+        // Downgrade hint: an older build reads only this boolean. Anything but
+        // FIXED behaved like the old "auto-discover on".
+        put("hudAutoDiscover", s.hudDiscoveryMode != HudDiscoveryMode.FIXED)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
         put("hudCustomOverlayJson", s.hudCustomOverlayJson)
         put("phoneHudEnabled", s.phoneHudEnabled)
@@ -327,6 +414,8 @@ object SettingsJson {
         put("settingsSectionOrder", s.settingsLayout.order.joinToString(","))
         put("settingsSectionHidden", s.settingsLayout.hidden.joinToString(","))
         put("chargingEstimateToFull", s.chargingEstimateToFull)
+        put("chargingNotify80", s.chargingNotify80)
+        put("chargingNotifyFull", s.chargingNotifyFull)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
         put("dropboxAccessToken", s.dropboxAccessToken)
@@ -335,7 +424,9 @@ object SettingsJson {
         put("dropboxAccountLabel", s.dropboxAccountLabel)
         put("dropboxLastSyncAt", s.dropboxLastSyncAt)
         put("dropboxSyncPending", s.dropboxSyncPending)
+        put("dropboxPullRequested", s.dropboxPullRequested)
         put("dropboxPendingCount", s.dropboxPendingCount)
+        put("folderConflictCount", s.folderConflictCount)
         put("dropboxSyncTotal", s.dropboxSyncTotal)
     }
 
@@ -383,14 +474,47 @@ object SettingsJson {
         ),
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
+        voiceVolumePercent = j.optInt("voiceVolumePercent", base.voiceVolumePercent),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),
         voiceName = j.optString("voiceName", base.voiceName),
         voiceLocaleOverridden = j.optBoolean("voiceLocaleOverridden", base.voiceLocaleOverridden),
         voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
         voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
         // Flat JSON keys preserved for back-compat; the fields now live nested.
+        weather = com.eried.eucplanet.data.model.WeatherSettings(
+            enabled = j.optBoolean("weatherEnabled", base.weather.enabled),
+            windowHours = j.optInt("weatherWindowHours", base.weather.windowHours),
+            openExpanded = j.optBoolean("weatherOpenExpanded", base.weather.openExpanded),
+            source = j.optString("weatherSource", base.weather.source),
+            prefHot = j.optString("weatherPrefHot", base.weather.prefHot),
+            prefCold = j.optString("weatherPrefCold", base.weather.prefCold),
+            prefRain = j.optString("weatherPrefRain", base.weather.prefRain),
+            prefSnow = j.optString("weatherPrefSnow", base.weather.prefSnow),
+            prefWind = j.optString("weatherPrefWind", base.weather.prefWind),
+            prefNight = j.optString("weatherPrefNight", base.weather.prefNight),
+            prefGolden = j.optString("weatherPrefGolden", base.weather.prefGolden),
+        ),
+        voiceCommands = com.eried.eucplanet.data.model.VoiceCommandSettings(
+            promptCue = j.optString("voicePromptCue", base.voiceCommands.promptCue),
+            unknownCue = j.optString("voiceUnknownCue", base.voiceCommands.unknownCue),
+            headsetButton = j.optBoolean("voiceHeadsetButton", base.voiceCommands.headsetButton),
+            headsetAction = j.optString("voiceHeadsetAction", base.voiceCommands.headsetAction),
+            recognitionLocale = j.optString("voiceRecognitionLocale", base.voiceCommands.recognitionLocale),
+        ),
         voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(
             periodicSpeed = j.optBoolean("voiceReportSpeed", base.voiceReports.periodicSpeed),
+            periodicBatteryEst = j.optBoolean("voiceReportBatteryEst", base.voiceReports.periodicBatteryEst),
+            triggerBatteryEst = j.optBoolean("triggerReportBatteryEst", base.voiceReports.triggerBatteryEst),
+            periodicRange = j.optBoolean("voiceReportRange", base.voiceReports.periodicRange),
+            triggerRange = j.optBoolean("triggerReportRange", base.voiceReports.triggerRange),
+            periodicVoltage = j.optBoolean("voiceReportVoltage", base.voiceReports.periodicVoltage),
+            triggerVoltage = j.optBoolean("triggerReportVoltage", base.voiceReports.triggerVoltage),
+            periodicOdometer = j.optBoolean("voiceReportOdometer", base.voiceReports.periodicOdometer),
+            triggerOdometer = j.optBoolean("triggerReportOdometer", base.voiceReports.triggerOdometer),
+            periodicConsumption = j.optBoolean("voiceReportConsumption", base.voiceReports.periodicConsumption),
+            triggerConsumption = j.optBoolean("triggerReportConsumption", base.voiceReports.triggerConsumption),
+            periodicPills = j.optString("periodicReportPills", base.voiceReports.periodicPills),
+            triggerPills = j.optString("triggerReportPills", base.voiceReports.triggerPills),
             periodicBattery = j.optBoolean("voiceReportBattery", base.voiceReports.periodicBattery),
             periodicTemp = j.optBoolean("voiceReportTemp", base.voiceReports.periodicTemp),
             periodicPwm = j.optBoolean("voiceReportPwm", base.voiceReports.periodicPwm),
@@ -438,14 +562,74 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
+                rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
+                rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
+        share = j.optJSONObject("share")?.let { m -> base.share.copy(
+            trailMinutes = m.optInt("trailMinutes", base.share.trailMinutes).coerceIn(1, 30),
+            shareStatsDefault = m.optBoolean("shareStatsDefault", base.share.shareStatsDefault),
+            lastIdentityMode = m.optString("lastIdentityMode", base.share.lastIdentityMode),
+            lastSessionName = m.optString("lastSessionName", base.share.lastSessionName),
+            relayUrl = m.optString("relayUrl", base.share.relayUrl),
+            deviceSecret = m.optString("deviceSecret", base.share.deviceSecret),
+        ) } ?: base.share,
+        tpms = j.optJSONObject("tpms")?.let { t ->
+            base.tpms.copy(
+                // optString turns a JSON null into the string "null", which
+                // would pair the rider to a sensor at address "null".
+                pairedAddress = t.optString("pairedAddress", "").ifBlank { null }
+                    ?.takeIf { it != "null" },
+                pairedAddresses = t.optJSONArray("pairedAddresses")?.let { arr ->
+                    (0 until arr.length()).mapNotNull { arr.optString(it).takeIf { s -> s.isNotBlank() } }
+                } ?: base.tpms.pairedAddresses,
+                pressureUnit = t.optString("pressureUnit", base.tpms.pressureUnit),
+            )
+        } ?: base.tpms,
+        batteryPercent = j.optJSONObject("batteryPercent")?.let { b ->
+            base.batteryPercent.copy(
+                // A file written before the two switches became one choice
+                // still restores: the custom floor was the one that won when
+                // both were set.
+                mode = b.optString("mode", null) ?: when {
+                    b.optBoolean("useCustomMinimumVoltage", false) ->
+                        BatteryPercentSettings.MODE_CUSTOM
+                    b.optBoolean("useWheelLogEnhanced", false) ->
+                        BatteryPercentSettings.MODE_CURVE
+                    else -> base.batteryPercent.mode
+                },
+                minimumCellVoltageMv =
+                    b.optInt("minimumCellVoltageMv", base.batteryPercent.minimumCellVoltageMv),
+                maximumCellVoltageMv =
+                    b.optInt("maximumCellVoltageMv", base.batteryPercent.maximumCellVoltageMv),
+                seriesCells = b.optInt("seriesCells", base.batteryPercent.seriesCells),
+                capacityWh = b.optInt("capacityWh", base.batteryPercent.capacityWh),
+            )
+        } ?: base.batteryPercent,
+        horn = j.optJSONObject("horn")?.let { h ->
+            base.horn.copy(
+                mode = h.optString("mode", base.horn.mode),
+                soundName = h.optString("soundName", base.horn.soundName),
+                headphonesOnly = h.optBoolean("headphonesOnly", base.horn.headphonesOnly),
+            )
+        } ?: base.horn,
         proximityLock = j.optJSONObject("proximityLock")?.let { p ->
             base.proximityLock.copy(
                 lockEnabled = p.optBoolean("lockEnabled", base.proximityLock.lockEnabled),
                 lockBelowDbm = p.optInt("lockBelowDbm", base.proximityLock.lockBelowDbm),
-                unlockEnabled = p.optBoolean("unlockEnabled", base.proximityLock.unlockEnabled),
                 unlockAboveDbm = p.optInt("unlockAboveDbm", base.proximityLock.unlockAboveDbm),
+                // Settings written before the unlock became a three-way carry
+                // a boolean instead. Read it so an existing rider - or a
+                // restored backup - keeps the auto-unlock they had rather than
+                // silently losing it to the new default of never.
+                unlockWhen = p.optString(
+                    "unlockWhen",
+                    if (p.optBoolean("unlockEnabled", false)) {
+                        ProximityLockSettings.UNLOCK_WHEN_RETURN
+                    } else {
+                        base.proximityLock.unlockWhen
+                    }
+                ),
             )
         } ?: base.proximityLock,
         announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),
@@ -479,11 +663,38 @@ object SettingsJson {
         flic4DoubleClick = j.optString("flic4DoubleClick", base.flic4DoubleClick),
         flic4Hold = j.optString("flic4Hold", base.flic4Hold),
         flicShowOnDashboard = j.optBoolean("flicShowOnDashboard", base.flicShowOnDashboard),
-        autoLightsEnabled = j.optBoolean("autoLightsEnabled", base.autoLightsEnabled),
-        autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
-        autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
-        autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
-        autoVolumeOnlyWhenConnected = j.optBoolean("autoVolumeOnlyWhenConnected", base.autoVolumeOnlyWhenConnected),
+        // Nested now, but a backup written before that is three flat keys.
+        // Read the group when it is there, else fold the old keys in: the
+        // enable switch decides off or on, and on means Connected, which is
+        // what it always was (the light lives on the wheel).
+        lights = j.optJSONObject("lights")?.let { l ->
+            base.lights.copy(
+                applyWhen = l.optString("applyWhen", base.lights.applyWhen),
+                onMinutesBefore = l.optInt("onMinutesBefore", base.lights.onMinutesBefore),
+                offMinutesAfter = l.optInt("offMinutesAfter", base.lights.offMinutesAfter),
+                offWhenSlow = l.optBoolean("offWhenSlow", base.lights.offWhenSlow),
+                offBelowKmh = l.optDouble("offBelowKmh", base.lights.offBelowKmh.toDouble()).toFloat(),
+            )
+        } ?: base.lights.copy(
+            applyWhen = if (j.has("autoLightsEnabled")) {
+                if (j.optBoolean("autoLightsEnabled", false)) ApplyWhenIds.CONNECTED
+                else ApplyWhenIds.NEVER
+            } else base.lights.applyWhen,
+            onMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.lights.onMinutesBefore),
+            offMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.lights.offMinutesAfter),
+        ),
+        // Migrated, not defaulted. Two old keys fold into one: the feature
+        // switch decides off or on, and the connected-only boolean decided
+        // the condition. A rider who had it on keeps it on, gated the way it
+        // was; a rider who had it off stays off. Nobody is moved to Riding
+        // behind their back, and nobody's volume starts moving on its own.
+        autoVolumeApplyWhen = j.optString(
+            "autoVolumeApplyWhen",
+            if (j.has("autoVolumeEnabled")) {
+                if (!j.optBoolean("autoVolumeEnabled", false)) ApplyWhenIds.NEVER
+                else ApplyWhenIds.CONNECTED
+            } else base.autoVolumeApplyWhen
+        ),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         alarmsMuted = j.optBoolean("alarmsMuted", base.alarmsMuted),
@@ -506,6 +717,7 @@ object SettingsJson {
         tripChartOrder = j.optString("tripChartOrder", base.tripChartOrder),
         tripHiddenCharts = j.optString("tripHiddenCharts", base.tripHiddenCharts),
         tripExtraCharts = j.optString("tripExtraCharts", base.tripExtraCharts),
+        tripExtraTiles = j.optString("tripExtraTiles", base.tripExtraTiles),
         widget = com.eried.eucplanet.data.model.WidgetSettings(
             metrics = j.optString("widgetMetrics", base.widget.metrics),
             actions = j.optString("widgetActions", base.widget.actions),
@@ -545,6 +757,7 @@ object SettingsJson {
         watchStem1Click = j.optString("watchStem1Click", base.watchStem1Click),
         watchStem1Hold = j.optString("watchStem1Hold", base.watchStem1Hold),
         watchStem2Click = j.optString("watchStem2Click", base.watchStem2Click),
+        watchStem3Click = j.optString("watchStem3Click", base.watchStem3Click),
         watchStem2Hold = j.optString("watchStem2Hold", base.watchStem2Hold),
         watchScreen1Click = j.optString("watchScreen1Click", base.watchScreen1Click),
         watchScreen1Hold = j.optString("watchScreen1Hold", base.watchScreen1Hold),
@@ -558,7 +771,7 @@ object SettingsJson {
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },
-        // Advanced knobs — fold each spec's flat key over the defaults (registry-driven).
+        // Advanced knobs, fold each spec's flat key over the defaults (registry-driven).
         advanced = com.eried.eucplanet.data.model.ADVANCED_SPECS.fold(base.advanced) { a, sp ->
             sp.set(a, j.optInt(sp.id, sp.get(a)))
         },
@@ -566,18 +779,21 @@ object SettingsJson {
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),
         backButtonAction = j.optString("backButtonAction", base.backButtonAction),
-        engineSoundEnabled = j.optBoolean("engineSoundEnabled", base.engineSoundEnabled),
-        engineType = j.optString("engineType", base.engineType),
-        engineVolume = j.optDouble("engineVolume", base.engineVolume.toDouble()).toFloat(),
-        engineVolumeAutoEnabled = j.optBoolean("engineVolumeAutoEnabled", base.engineVolumeAutoEnabled),
-        engineVolumeAutoCurve = j.optString("engineVolumeAutoCurve", base.engineVolumeAutoCurve),
-        engineMuffler = j.optString("engineMuffler", base.engineMuffler),
-        engineGearbox = j.optString("engineGearbox", base.engineGearbox),
-        engineIdleBehavior = j.optString("engineIdleBehavior", base.engineIdleBehavior),
-        engineDecelChar = j.optString("engineDecelChar", base.engineDecelChar),
-        engineBrake = j.optString("engineBrake", base.engineBrake),
-        engineDuckOnVoice = j.optString("engineDuckOnVoice", base.engineDuckOnVoice),
-        engineHeadphonesOnly = j.optBoolean("engineHeadphonesOnly", base.engineHeadphonesOnly),
+        // Flat engine* keys, read into the nested group so older backups load.
+        engineSound = base.engineSound.copy(
+            enabled = j.optBoolean("engineSoundEnabled", base.engineSoundEnabled),
+            type = j.optString("engineType", base.engineType),
+            volume = j.optDouble("engineVolume", base.engineVolume.toDouble()).toFloat(),
+            volumeAutoEnabled = j.optBoolean("engineVolumeAutoEnabled", base.engineVolumeAutoEnabled),
+            volumeAutoCurve = j.optString("engineVolumeAutoCurve", base.engineVolumeAutoCurve),
+            muffler = j.optString("engineMuffler", base.engineMuffler),
+            gearbox = j.optString("engineGearbox", base.engineGearbox),
+            idleBehavior = j.optString("engineIdleBehavior", base.engineIdleBehavior),
+            decelChar = j.optString("engineDecelChar", base.engineDecelChar),
+            brake = j.optString("engineBrake", base.engineBrake),
+            duckOnVoice = j.optString("engineDuckOnVoice", base.engineDuckOnVoice),
+            headphonesOnly = j.optBoolean("engineHeadphonesOnly", base.engineHeadphonesOnly),
+        ),
         raceboxMapX = j.optString("raceboxMapX", base.raceboxMapX),
         raceboxMapY = j.optString("raceboxMapY", base.raceboxMapY),
         raceboxMapZ = j.optString("raceboxMapZ", base.raceboxMapZ),
@@ -604,6 +820,17 @@ object SettingsJson {
         navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),
         navAvoidUnpaved = j.optBoolean("navAvoidUnpaved", base.navAvoidUnpaved),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
+        watchMap = j.optJSONObject("watchMap")?.let { w ->
+            base.watchMap.copy(
+                enabled = w.optBoolean("enabled", base.watchMap.enabled),
+                headingUp = w.optBoolean("headingUp", base.watchMap.headingUp),
+                keepScreenOnDuringNavigation = w.optBoolean(
+                    "keepScreenOnDuringNavigation",
+                    base.watchMap.keepScreenOnDuringNavigation,
+                ),
+                showTelemetry = w.optBoolean("showTelemetry", base.watchMap.showTelemetry),
+            )
+        } ?: base.watchMap,
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
         engoHud = j.optJSONObject("engoHud")?.let { e ->
             base.engoHud.copy(
@@ -620,7 +847,17 @@ object SettingsJson {
         hudActionRight = j.optString("hudActionRight", base.hudActionRight),
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         hudIp = j.optString("hudIp", base.hudIp),
-        hudAutoDiscover = j.optBoolean("hudAutoDiscover", base.hudAutoDiscover),
+        // Migrate the old boolean: on (auto, saved IP not used) -> AUTO, off
+        // (manual only) -> FIXED. BOTH is a new opt-in that nothing migrates
+        // to. A file with neither key keeps the default. An earlier build's
+        // "HYBRID" value is normalised to BOTH (same mode, renamed).
+        hudDiscoveryMode = j.optString("hudDiscoveryMode", null)?.takeIf { it.isNotBlank() }
+            ?.let { if (it == "HYBRID") HudDiscoveryMode.BOTH else it }
+            ?: when {
+                !j.has("hudAutoDiscover") -> base.hudDiscoveryMode
+                j.optBoolean("hudAutoDiscover", true) -> HudDiscoveryMode.AUTO
+                else -> HudDiscoveryMode.FIXED
+            },
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
         hudCustomOverlayJson = j.optString("hudCustomOverlayJson", base.hudCustomOverlayJson),
         phoneHudEnabled = j.optBoolean("phoneHudEnabled", base.phoneHudEnabled),
@@ -659,6 +896,8 @@ object SettingsJson {
                 .split(",").filter { it.isNotBlank() },
         ),
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
+        chargingNotify80 = j.optBoolean("chargingNotify80", base.chargingNotify80),
+        chargingNotifyFull = j.optBoolean("chargingNotifyFull", base.chargingNotifyFull),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
         // Dropbox link + sync state is device-bound, but it still has to round-
@@ -676,7 +915,9 @@ object SettingsJson {
         dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
         dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt),
         dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
+        dropboxPullRequested = j.optBoolean("dropboxPullRequested", base.dropboxPullRequested),
         dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
+        folderConflictCount = j.optInt("folderConflictCount", base.folderConflictCount),
         dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )
 

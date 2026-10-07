@@ -86,11 +86,58 @@ object TripDerive {
      * the app. Rows carrying `wheel.name=` or `wheel.mac=` get the new value;
      * everything else is copied byte for byte.
      *
-     * @return rows rewritten. 0 means the file records no wheel identity at all,
-     *   which is normal for an imported foreign CSV.
+     * When the file records no wheel at all - a GPS-only ride, or a foreign
+     * import - the pair is placed into the first rows with an empty Extra cell,
+     * the same way a trip name is. Without that, assigning a wheel to such a
+     * trip lived only in the database: it survived in the app and vanished the
+     * moment the file was shared, synced or re-imported.
+     *
+     * @return rows rewritten, 0 when the file has no Extra column to carry it.
      */
-    fun rewriteWheelIdentity(source: File, dest: File, name: String, mac: String?): Int {
+    fun rewriteWheelIdentity(source: File, dest: File, name: String, mac: String?): Int =
+        rewriteWheelIdentity(source, dest, linkedMapOf<String, String>().apply {
+            if (name.isNotBlank()) put("name", name)
+            mac?.takeIf { it.isNotBlank() }?.let { put("mac", it) }
+        })
+
+    /**
+     * Replace the wheel identity a file carries with [identity]: keys are the
+     * Extra-column fields (name, mac, brand, model, serial), values the new
+     * ones. Every wheel.* line the file has is rewritten to the new identity
+     * or cleared if the new identity has no such field; fields the file never
+     * carried are placed into free Extra cells. Mirrors eucviewer: picking a
+     * known wheel copies the whole identity, a custom name is one line, and
+     * nothing of the old wheel survives either way - eucviewer labels by
+     * brand/model before name, so a stale wheel.model= would keep a
+     * reassigned trip filed under the old wheel there.
+     *
+     * @return rows rewritten, 0 when the file has no Extra column to carry it.
+     */
+    fun rewriteWheelIdentity(source: File, dest: File, identity: Map<String, String>): Int {
         if (!source.exists()) return 0
+        val clean = identity.mapValues { (k, v) ->
+            val one = v.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
+            if (k == "mac") one.replace(":", "").replace("-", "").uppercase() else one
+        }.filterValues { it.isNotEmpty() }
+        val known = listOf("name", "mac", "brand", "model", "serial", "firmware")
+
+        // Pass 1: which identity fields does the file already carry?
+        val present = HashSet<String>()
+        source.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return 0
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return 0
+            while (true) {
+                val line = reader.readLine() ?: break
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("wheel.")) {
+                    val f = cell.substringAfter("wheel.").substringBefore('=')
+                    if (f in known) present += f
+                }
+            }
+        }
+        val toPlace = ArrayDeque(clean.keys.filter { it !in present })
+
         var changed = 0
         source.bufferedReader().use { reader ->
             val headerLine = reader.readLine() ?: return 0
@@ -103,10 +150,23 @@ object TripDerive {
                     if (extraIdx < 0) { out.write(line); out.newLine(); continue }
                     val cells = line.split(",")
                     val cell = cells.getOrNull(extraIdx)?.trim().orEmpty()
-                    val replacement = when {
-                        cell.startsWith("wheel.name=") -> "wheel.name=$name"
-                        cell.startsWith("wheel.mac=") && mac != null ->
-                            "wheel.mac=" + mac.replace(":", "").replace("-", "").uppercase()
+                    val replacement: String? = when {
+                        cell.startsWith("wheel.") -> {
+                            val f = cell.substringAfter("wheel.").substringBefore('=')
+                            when {
+                                f !in known -> null
+                                // A field the new identity has: rewrite every
+                                // occurrence (reconnects re-emit the block).
+                                clean.containsKey(f) -> "wheel.$f=" + clean.getValue(f)
+                                // A field it lacks belongs to the old wheel.
+                                else -> ""
+                            }
+                        }
+                        // Nothing recorded this field: the first free cell takes it.
+                        cell.isEmpty() && extraIdx < cells.size && toPlace.isNotEmpty() -> {
+                            val f = toPlace.removeFirst()
+                            "wheel.$f=" + clean.getValue(f)
+                        }
                         else -> null
                     }
                     if (replacement == null) { out.write(line); out.newLine(); continue }
@@ -122,6 +182,72 @@ object TripDerive {
     }
 
     /**
+     * Upsert a rider-set trip name into the CSV Extra column as a single
+     * `trip.name=<name>` pair, so a rename survives export and a Dropbox
+     * round-trip with no sidecar file (the same convention eucviewer reads).
+     *
+     * A blank [name] removes the pair (the reader then falls back to the date).
+     * The name is sanitised like any Extra cell (commas / quotes / newlines
+     * collapse to a space) and capped at 60 chars to match the reader.
+     *
+     * Placement: the first existing `trip.name=` cell is rewritten (and any
+     * further duplicates cleared) so the reader, which takes the first hit,
+     * always sees the new value. If none exists, the pair is dropped into the
+     * first row whose Extra cell is empty - the same place wheel.* pairs ride,
+     * a normal telemetry row, never a fabricated one.
+     *
+     * @return 1 if the name was written/updated/removed, 0 if the file has no
+     *   Extra column (a foreign import) or no slot was available.
+     */
+    fun rewriteTripName(source: File, dest: File, name: String): Int {
+        if (!source.exists()) return 0
+        // Collapse commas / quotes / any whitespace run to a single space so the
+        // name can't break CSV framing and reads cleanly. Capped to match reader.
+        val clean = name.replace(Regex("[,\"\\s]+"), " ").trim().take(60)
+        // Pass 1: is there already a trip.name= row to overwrite in place?
+        var hasExisting = false
+        source.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return 0
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return 0
+            while (true) {
+                val line = reader.readLine() ?: break
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("trip.name=", ignoreCase = true)) { hasExisting = true; break }
+            }
+        }
+        var wrote = 0
+        var placed = false
+        source.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return 0
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            dest.bufferedWriter().use { out ->
+                out.write(header); out.newLine()
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    if (idx < 0) { out.write(line); out.newLine(); continue }
+                    val cells = line.split(",").toMutableList()
+                    val cell = cells.getOrNull(idx)?.trim().orEmpty()
+                    val newCell: String? = when {
+                        cell.startsWith("trip.name=", ignoreCase = true) ->
+                            if (!placed && clean.isNotEmpty()) { placed = true; "trip.name=$clean" }
+                            else "" // clear duplicates, or blank the name entirely
+                        !placed && !hasExisting && clean.isNotEmpty() && cell.isEmpty() &&
+                            idx < cells.size -> { placed = true; "trip.name=$clean" }
+                        else -> null
+                    }
+                    if (newCell == null) { out.write(line); out.newLine(); continue }
+                    cells[idx] = newCell
+                    out.write(cells.joinToString(","))
+                    out.newLine()
+                    wrote = 1
+                }
+            }
+        }
+        return wrote
+    }
+
+    /**
      * Concatenate [sources] into [dest], oldest first, keeping one header.
      *
      * Each source's header is read and discarded rather than assumed identical:
@@ -132,6 +258,34 @@ object TripDerive {
      *
      * @return rows written, excluding the header.
      */
+    /**
+     * Make a freshly derived file (a split piece, a join) describe itself.
+     *
+     * A piece cut from the second half of a ride carried no wheel at all:
+     * the recorder writes the identity once, near the top, so everything
+     * after the cut was anonymous and eucviewer filed it as a generic wheel.
+     * The identity is re-emitted into the piece from the source trip.
+     *
+     * And a piece or a join inherited whatever trip.name= row it happened to
+     * contain, while the app lists derived trips by date: the file said
+     * "test 3" to eucviewer and the phone said Aug 19. Derived trips start
+     * nameless in the file too, so the two agree until the rider names it.
+     *
+     * @return false when the file has no Extra column to carry any of it.
+     */
+    fun stampDerived(file: File, identity: Map<String, String>): Boolean {
+        val tmp = File(file.parentFile, file.name + ".rewrite")
+        fun swapIn(): Boolean {
+            if (!tmp.exists() || tmp.length() == 0L) { runCatching { tmp.delete() }; return false }
+            return file.delete() && tmp.renameTo(file)
+        }
+        if (rewriteTripName(file, tmp, "") < 0) return false
+        if (!swapIn()) return false
+        if (identity.isEmpty()) return true
+        rewriteWheelIdentity(file, tmp, identity)
+        return swapIn()
+    }
+
     fun writeJoined(sources: List<File>, dest: File): Int {
         val present = sources.filter { it.exists() }
         if (present.isEmpty()) return 0

@@ -2,10 +2,12 @@ package com.eried.eucplanet.service
 
 import android.content.Context
 import android.media.AudioManager
+import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import com.eried.eucplanet.audio.AudioOutput
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -27,27 +29,14 @@ class AutomationManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val wheelRepository: WheelRepository,
     private val tripRepository: TripRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 ) {
     companion object {
         private const val TAG = "AutomationManager"
         // Below this multiplier we treat manual volume changes as direct baseline edits
         // (avoids divide-by-near-zero amplification when standing still).
         private const val MIN_REBASE_MULTIPLIER = 0.05f
-        // Media control: the speed condition must hold this long before we act, so a
-        // momentary GPS / speed blip doesn't pause or resume playback.
-        private const val MEDIA_CONTROL_HOLD_MS = 3000L
-        // Minimum dead-band (km/h) enforced between the pause and resume speeds even
-        // if the rider set them equal - guarantees the anti-thrash gap always exists.
-        private const val MEDIA_CONTROL_MIN_GAP_KMH = 2
-        // Proximity lock: RSSI must hold past the threshold this long before we act.
-        // Kept equal to MEDIA_CONTROL_HOLD_MS so both automations feel consistent; the
-        // dead-band gap is what actually prevents flip-flop between lock and unlock.
-        private const val PROX_HOLD_MS = 3000L
-        // Minimum dead-band (dBm) kept between the lock and unlock thresholds. Small,
-        // so the two can sit close for a snappy transition; the hold above soaks up
-        // the RSSI jitter that such a tight gap would otherwise let flip-flop.
-        private const val PROX_MIN_GAP_DBM = 2
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -69,12 +58,24 @@ class AutomationManager @Inject constructor(
     // timestamps implement the "hold past the line" debounce (0 = the condition is
     // not currently met).
     @Volatile private var mediaAutoPaused: Boolean = false
-    private var mediaPauseCandidateSinceMs: Long = 0L
-    private var mediaResumeCandidateSinceMs: Long = 0L
+    // The rules themselves live in MediaControlPolicy, where they are tested.
+    private var mediaState = MediaControlPolicy.State()
+    private var rateState = PlaybackRatePolicy.State()
+    private var lightSlowState = HeadlightSlowPolicy.State()
 
-    // Proximity-lock "hold past the line" timestamps (0 = condition not currently met).
-    private var proxLockCandidateSinceMs: Long = 0L
-    private var proxUnlockCandidateSinceMs: Long = 0L
+    /** True once the rider has actually ridden since connecting. Keeps the
+     *  headlight automation alive while they are stopped; see
+     *  [ApplyWhenGate.allowsSticky]. Cleared on disconnect. */
+    private var rodeThisSession = false
+
+    /** Last answer from the sun schedule. Cached because that calculation is
+     *  the expensive part and only changes across minutes, while the slow
+     *  cutoff has to be judged on every telemetry frame. */
+    private var lastDarkEnough: Boolean? = null
+
+
+    /** Proximity lock / unlock decisions. See [ProximityLockEvaluator]. */
+    private val proximityLock = ProximityLockEvaluator()
 
     /**
      * Put the media volume back to the rider's baseline - the level it was at
@@ -82,7 +83,15 @@ class AutomationManager @Inject constructor(
      * disconnect / Stop All / when the feature is disabled, so the app never
      * leaves STREAM_MUSIC turned down after the rider stops (they were having to
      * manually raise it every time). No-op if we never touched the volume.
+     *
+     * Every non-suspending step here and below is synchronized: [evaluate]
+     * runs on the telemetry collector's worker thread while these resets
+     * arrive from the main thread (disconnect, Stop All, Settings) and from
+     * the Flic callback thread, and the policy state is plain fields. The
+     * lock makes each step atomic against them, which is what running on the
+     * main thread used to guarantee. Nothing under it blocks.
      */
+    @Synchronized
     fun restoreBaselineVolume() {
         if (lastWrittenSystemVol == -1) return
         lastWrittenSystemVol = -1            // stop tracking; next enable re-initialises
@@ -99,7 +108,12 @@ class AutomationManager @Inject constructor(
     val autoLightsSuspended: StateFlow<Boolean> = _autoLightsSuspended.asStateFlow()
 
     /** Called from the UI / Flic paths whenever the user toggles the light manually. */
+    @Synchronized
     fun notifyManualLightChange() {
+        // Legal Mode Lockdown is temporary, so its light button must not leave
+        // auto-lights suspended for the rest of the session. Guarded here so
+        // every caller is covered, not just the two we know about today.
+        if (legalLockdown.isEngaged()) return
         if (!_autoLightsSuspended.value) {
             Log.i(TAG, "Auto-lights suspended for this session (manual change)")
         }
@@ -107,33 +121,86 @@ class AutomationManager @Inject constructor(
     }
 
     /** Called on wheel reconnect or when the auto-lights setting is toggled. */
+    @Synchronized
     fun clearLightsSuspension() {
         if (_autoLightsSuspended.value) {
             Log.i(TAG, "Auto-lights suspension cleared")
         }
         _autoLightsSuspended.value = false
         lastKnownLightOn = null
+        // A new session starts with the beam under the schedule's control. A
+        // cutoff left engaged from the last ride would otherwise keep the
+        // light off until this one passed the rearm speed.
+        lightSlowState = HeadlightSlowPolicy.State()
+    }
+
+    private val _autoLockSuspended = MutableStateFlow(false)
+    val autoLockSuspended: StateFlow<Boolean> = _autoLockSuspended.asStateFlow()
+
+    /** Called whenever the rider locks or unlocks by hand: their choice stands
+     *  for the rest of the session, the proximity automation steps aside. */
+    @Synchronized
+    fun notifyManualLockChange() {
+        if (legalLockdown.isEngaged()) return
+        if (!_autoLockSuspended.value) {
+            Log.i(TAG, "Proximity lock suspended for this session (manual change)")
+        }
+        _autoLockSuspended.value = true
+    }
+
+    /** Called on wheel reconnect, from the Needs attention Fix, or when the
+     *  proximity-lock settings change: the automation follows them again. */
+    @Synchronized
+    fun clearLockSuspension() {
+        if (_autoLockSuspended.value) {
+            Log.i(TAG, "Proximity lock suspension cleared")
+        }
+        _autoLockSuspended.value = false
+        proximityLock.reset()
     }
 
     /** Reset the throttle so the next tick re-evaluates immediately. */
+    @Synchronized
     fun triggerImmediateLightEvaluation() {
         lastLightCheckMs = 0L
+        lastDarkEnough = null
     }
 
     /**
      * Called every telemetry tick (~250ms). Evaluates automation rules.
      */
     suspend fun evaluate(settings: AppSettings) {
+        // Legal Mode Lockdown stops media control and proximity auto-lock.
+        // Auto lights and auto volume keep running: lights are a safety
+        // behaviour and the light button is on the locked screen anyway.
+        val lockedDown = legalLockdown.isEngaged()
+        val connectedNow = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+        if (!connectedNow) rodeThisSession = false
+        else if (wheelRepository.wheelData.value.speed.absoluteValue >= ApplyWhenGate.RIDING_KMH) {
+            rodeThisSession = true
+        }
         detectManualLightChange(settings)
-        if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
-        if (settings.autoVolumeEnabled) evaluateVolume(settings)
+        if (!_autoLightsSuspended.value) evaluateLights(settings)
+        evaluateVolume(settings)
         val mc = settings.mediaControl
-        if (mc.pauseEnabled || mc.resumeEnabled) evaluateMediaControl(settings)
-        val pl = settings.proximityLock
-        if (pl.lockEnabled || pl.unlockEnabled) evaluateProximityLock(settings)
+        if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
+        // Media speed control is parked: it needs notification access the app
+        // no longer asks for, and most players ignored the rate anyway. The
+        // evaluation below is left intact for whoever revives it.
+        // if (!lockedDown) evaluatePlaybackRate(settings)
+        // lockEnabled is the whole feature's switch; unlockEnabled is a
+        // sub-option of it, and the settings screen only draws the unlock
+        // switch while this one is on. Gating on either used to keep the
+        // unlock half running invisibly after the rider switched the feature
+        // off - they could see no switch for it and had no way to stop it.
+        // Resetting on the off path also covers every route that turns it off
+        // (settings, the dashboard long-press, restoring a backup).
+        if (!lockedDown && settings.proximityLock.lockEnabled && !_autoLockSuspended.value) evaluateProximityLock(settings)
+        else proximityLock.reset()
     }
 
     /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */
+    @Synchronized
     private fun detectManualLightChange(settings: AppSettings) {
         val current = wheelRepository.wheelData.value.lightOn
         val previous = lastKnownLightOn
@@ -146,32 +213,65 @@ class AutomationManager @Inject constructor(
         }
     }
 
+    @Synchronized
     private fun evaluateLights(settings: AppSettings) {
         val now = System.currentTimeMillis()
         val location = tripRepository.currentLocation.value
+
+        // Only the sun calculation is throttled, and its answer is cached for
+        // the frames in between. The cutoff has to be judged on every frame:
+        // under the throttle, a minute by default, its three second hold could
+        // never be satisfied and the light stayed on all the way to the
+        // crossing. A long cycle is right for the sun and wrong for this.
         val interval = if (location == null) settings.autoLightNoGpsRetryMs.toLong()
                        else settings.automationLightCheckIntervalMs.toLong()
-        if (now - lastLightCheckMs < interval) return
-        lastLightCheckMs = now
-
-        if (location == null) return  // will retry in 2s
-
-        val lat = location.latitude
-        val lon = location.longitude
-
-        val shouldBeOn = when (val r = SunCalculator.calculateState(lat, lon, TimeZone.getDefault())) {
-            is SunCalculator.SunResult.Normal -> {
-                val lightsOnTime = r.sunsetMillis - settings.autoLightsOnMinutesBefore * 60_000L
-                val lightsOffTime = r.sunriseMillis + settings.autoLightsOffMinutesAfter * 60_000L
-                now >= lightsOnTime || now <= lightsOffTime
+        if (now - lastLightCheckMs >= interval) {
+            lastLightCheckMs = now
+            if (location != null) {
+                lastDarkEnough = when (
+                    val r = SunCalculator.calculateState(
+                        location.latitude, location.longitude, TimeZone.getDefault(),
+                    )
+                ) {
+                    is SunCalculator.SunResult.Normal -> {
+                        val onAt = r.sunsetMillis - settings.lights.onMinutesBefore * 60_000L
+                        val offAt = r.sunriseMillis + settings.lights.offMinutesAfter * 60_000L
+                        now >= onAt || now <= offAt
+                    }
+                    SunCalculator.SunResult.PolarNight -> true
+                    SunCalculator.SunResult.MidnightSun -> false
+                }
             }
-            SunCalculator.SunResult.PolarNight -> true
-            SunCalculator.SunResult.MidnightSun -> false
         }
 
+        val decision = HeadlightRules.decide(
+            slow = lightSlowState,
+            input = HeadlightRules.Input(
+                applyWhen = settings.lights.applyWhen,
+                connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+                rodeThisSession = rodeThisSession,
+                offWhenSlow = settings.lights.offWhenSlow,
+                thresholdKmh = settings.lights.offBelowKmh,
+                speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+                darkEnough = lastDarkEnough,
+                nowMs = now,
+            ),
+        )
+        lightSlowState = decision.slow
+        val shouldBeOn = decision.beamOn ?: return
+
         val currentLightOn = wheelRepository.wheelData.value.lightOn
-        if (shouldBeOn != currentLightOn) {
-            Log.i(TAG, "Auto-lights: turning ${if (shouldBeOn) "ON" else "OFF"} (lat=$lat, lon=$lon)")
+        // The decision runs on every telemetry frame now, so a wheel that does
+        // not act on the command must not be asked several times a second.
+        // Families with no BLE light command return early inside toggleLight
+        // without changing the reported state or starting its own cooldown, so
+        // this window is ours to hold. It is the same one the manual-change
+        // detector uses, so an automatic toggle is never read as the rider's.
+        val settled = now - lastAutoToggleMs >= settings.autoToggleGraceMs.toLong()
+        if (shouldBeOn != currentLightOn && settled) {
+            val what = if (shouldBeOn) "ON" else "OFF"
+            Log.i(TAG, "Auto-lights: turning " + what +
+                " (dark=" + lastDarkEnough + ", slowOff=" + lightSlowState.forcedOff + ")")
             wheelRepository.toggleLight()
             lastAutoToggleMs = now
         }
@@ -186,13 +286,7 @@ class AutomationManager @Inject constructor(
      * movements rebase the baseline so what they set is always the floor.
      */
     private suspend fun evaluateVolume(settings: AppSettings) {
-        // Gated by default: only touch the media volume while a wheel is
-        // connected, so auto-volume never moves the phone's volume with no
-        // wheel to ride.
-        if (settings.autoVolumeOnlyWhenConnected &&
-            wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
-            return
-        }
+        if (!applyWhenAllows(settings.autoVolumeApplyWhen)) return
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         if (maxVol <= 0) return
 
@@ -254,57 +348,46 @@ class AutomationManager @Inject constructor(
      * below [MediaControlSettings.pauseBelowKmh] and resumes it when they speed up to
      * or above [MediaControlSettings.resumeAboveKmh]. The gap between the two is a
      * dead-band that prevents rapid flipping; on top of that the speed must hold past
-     * the line for [MEDIA_CONTROL_HOLD_MS] before we act, so a brief GPS / speed blip
+     * the line for [MediaControlPolicy.HOLD_MS] before we act, so a brief GPS / speed blip
      * is ignored. Resume only ever restarts playback THIS feature paused
      * ([mediaAutoPaused]), so speeding up never starts music the rider deliberately
      * stopped.
      */
+    @Synchronized
     private fun evaluateMediaControl(settings: AppSettings) {
         // Only act on a live wheel connection. A disconnected wheel reports 0 speed,
         // which would otherwise pause your music the moment you walk off with the phone.
         if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) {
-            mediaPauseCandidateSinceMs = 0L
-            mediaResumeCandidateSinceMs = 0L
+            mediaState = mediaState.copy(pauseSince = 0L, resumeSince = 0L)
             return
         }
         val mc = settings.mediaControl
-        val speed = wheelRepository.wheelData.value.speed.absoluteValue
-        val now = System.currentTimeMillis()
-        val pauseAt = mc.pauseBelowKmh
-        // Always keep the resume threshold above the pause one so a dead-band exists.
-        val resumeAt = maxOf(mc.resumeAboveKmh, pauseAt + MEDIA_CONTROL_MIN_GAP_KMH)
-
-        // Pause when slow (only if we haven't already auto-paused).
-        if (mc.pauseEnabled && !mediaAutoPaused && speed <= pauseAt) {
-            if (mediaPauseCandidateSinceMs == 0L) mediaPauseCandidateSinceMs = now
-            if (now - mediaPauseCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+        val step = MediaControlPolicy.step(
+            state = mediaState,
+            speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+            nowMs = System.currentTimeMillis(),
+            pauseEnabled = mc.pauseEnabled,
+            pauseBelowKmh = mc.pauseBelowKmh,
+            resumeEnabled = mc.resumeEnabled,
+            resumeAboveKmh = mc.resumeAboveKmh,
+            // Polled only when a resume is otherwise due: the policy short-
+            // circuits on it last, and the poll is the expensive part.
+            externalOk = !mc.requireExternalOutput ||
+                (mediaState.autoPaused && AudioOutput.isExternalActive(audioManager)),
+            connected = true,
+        )
+        mediaState = step.state
+        mediaAutoPaused = step.state.autoPaused
+        when (step.action) {
+            MediaControlPolicy.Action.PAUSE -> {
                 sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
-                mediaAutoPaused = true
-                mediaPauseCandidateSinceMs = 0L
-                Log.i(TAG, "Media control: paused (speed=${speed.roundToInt()} <= $pauseAt km/h)")
+                Log.i(TAG, "Media control: paused (<= ${mc.pauseBelowKmh} km/h)")
             }
-        } else {
-            mediaPauseCandidateSinceMs = 0L
-        }
-
-        // Resume when moving again - only what we paused, and (if the rider asked)
-        // only while audio is on an external output. Pausing is deliberately NOT
-        // gated on the route: slowing down near people should always hush the music,
-        // whatever it is playing on. Resuming is the risky half (it could blast the
-        // phone speaker), so that is the half the headphones/Bluetooth check guards.
-        // The isExternalActive poll is short-circuited to fire only when a resume is
-        // otherwise due.
-        if (mc.resumeEnabled && mediaAutoPaused && speed >= resumeAt &&
-            (!mc.requireExternalOutput || AudioOutput.isExternalActive(audioManager))) {
-            if (mediaResumeCandidateSinceMs == 0L) mediaResumeCandidateSinceMs = now
-            if (now - mediaResumeCandidateSinceMs >= MEDIA_CONTROL_HOLD_MS) {
+            MediaControlPolicy.Action.PLAY -> {
                 sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
-                mediaAutoPaused = false
-                mediaResumeCandidateSinceMs = 0L
-                Log.i(TAG, "Media control: resumed (speed=${speed.roundToInt()} >= $resumeAt km/h)")
+                Log.i(TAG, "Media control: resumed")
             }
-        } else {
-            mediaResumeCandidateSinceMs = 0L
+            MediaControlPolicy.Action.NONE -> {}
         }
     }
 
@@ -312,6 +395,91 @@ class AutomationManager @Inject constructor(
      * Dispatch a media-button key (down+up) to whatever app owns the active media
      * session - the same mechanism the Flic / notification action buttons use.
      */
+    /**
+     * Playback rate follows speed, for players that accept one.
+     *
+     * Two things can silently make this a no-op and neither is our doing: the
+     * rider may not have granted notification access (without it the session
+     * list is empty), and the player may not implement a rate at all. Spotify
+     * does not; most Media3 apps do. A session that does advertises
+     * ACTION_SET_PLAYBACK_SPEED, so only those are touched, and only while
+     * they are actually playing - setting a rate on a paused session changes
+     * nothing the rider can hear and wakes its UI for no reason.
+     */
+    /** The shared gate, reading this manager's live wheel state. The decision
+     *  itself lives in [ApplyWhenGate] so it can be tested without a wheel. */
+    private fun applyWhenAllows(mode: String): Boolean = ApplyWhenGate.allows(
+        mode = mode,
+        connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+        speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+    )
+
+    private fun evaluatePlaybackRate(settings: AppSettings) {
+        if (!applyWhenAllows(settings.mediaControl.rateApplyWhen)) return
+        val curve = parseVolumeCurve(settings.mediaControl.rateCurve)
+        if (curve.isEmpty()) return
+        val speed = wheelRepository.wheelData.value.speed.absoluteValue
+        val target = pchipInterpolate(curve, speed)
+        val step = PlaybackRatePolicy.step(rateState, target, System.currentTimeMillis())
+        val rate = step.rate ?: return
+        rateState = step.state
+        applyPlaybackRate(rate)
+    }
+
+    /** Sends [rate] to every playing session that accepts one; returns how many. */
+    private fun applyPlaybackRate(rate: Float): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
+        val mgr = runCatching {
+            context.getSystemService(android.media.session.MediaSessionManager::class.java)
+        }.getOrNull() ?: return 0
+        val listener = android.content.ComponentName(
+            context, com.eried.eucplanet.service.MediaAccessService::class.java
+        )
+        // Throws SecurityException when notification access is not granted,
+        // which is the normal state until the rider grants it.
+        val sessions = runCatching { mgr.getActiveSessions(listener) }.getOrNull() ?: return 0
+        var sent = 0
+        for (c in sessions) {
+            val st = c.playbackState ?: continue
+            if (st.state != android.media.session.PlaybackState.STATE_PLAYING) continue
+            // Advertising ACTION_SET_PLAYBACK_SPEED is a manual step the app
+            // has to remember, and some that implement the callback never do
+            // it. Sending anyway costs nothing - a session that does not
+            // handle it simply ignores the call - so the flag is used to
+            // explain what happened, not to decide whether to try.
+            val advertises = (st.actions and
+                android.media.session.PlaybackState.ACTION_SET_PLAYBACK_SPEED) != 0L
+            runCatching { c.transportControls.setPlaybackSpeed(rate) }
+                .onSuccess {
+                    sent++
+                    Log.i(
+                        TAG,
+                        "Media speed: sent ${"%.2f".format(java.util.Locale.US, rate)}x to " +
+                            "${c.packageName} (advertised=$advertises, reported=${st.playbackSpeed})",
+                    )
+                }
+                .onFailure { Log.w(TAG, "setPlaybackSpeed failed for ${c.packageName}", it) }
+        }
+        if (sessions.isNotEmpty() && sent == 0) {
+            Log.i(TAG, "Media speed: nothing playing among ${sessions.map { it.packageName }}")
+        }
+        return sent
+    }
+
+    /**
+     * Back to normal speed, once.
+     *
+     * Without this a rider who ends a ride at 1.3x keeps listening at 1.3x
+     * for the rest of the day and has to hunt for the control in their
+     * player. Called wherever media state is reset.
+     */
+    fun resetPlaybackRate() {
+        if (rateState.lastSent > 0f && rateState.lastSent != PlaybackRatePolicy.NORMAL) {
+            applyPlaybackRate(PlaybackRatePolicy.NORMAL)
+        }
+        rateState = PlaybackRatePolicy.State()
+    }
+
     private fun sendMediaKey(keyCode: Int) {
         runCatching {
             audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
@@ -324,60 +492,55 @@ class AutomationManager @Inject constructor(
      * do NOT auto-resume here - playback is left wherever it is (the rider can press
      * play) rather than risk blasting audio when a ride ends.
      */
+    @Synchronized
     fun resetMediaControl() {
         mediaAutoPaused = false
-        mediaPauseCandidateSinceMs = 0L
-        mediaResumeCandidateSinceMs = 0L
+        mediaState = MediaControlPolicy.State()
+        resetPlaybackRate()
     }
 
     /**
-     * Bluetooth-signal proximity lock / unlock. While connected, locks the wheel
-     * when the RSSI drops to/below [ProximityLockSettings.lockBelowDbm] (the rider
-     * is walking away, still just in range) and unlocks it when the RSSI rises
-     * to/above [ProximityLockSettings.unlockAboveDbm] (the rider is back close).
-     * The gap between the two is a dead-band; the reading must also hold past the
-     * line for [PROX_HOLD_MS] before acting, because RSSI is noisy. Only ever locks
-     * an unlocked wheel and unlocks a locked one, so it can't fight the rider or
-     * itself. Locking needs a live link, so this runs while the signal is fading -
-     * a full disconnect leaves nothing to send over (documented limitation).
+     * Bluetooth-signal proximity lock / unlock. The decision lives in
+     * [ProximityLockEvaluator]; this only supplies the reading and carries out
+     * the answer. Locking needs a live link, so it runs while the signal is
+     * fading - a full disconnect leaves nothing to send over (documented
+     * limitation).
      */
+    @Synchronized
     private fun evaluateProximityLock(settings: AppSettings) {
         if (wheelRepository.connectionState.value != ConnectionState.CONNECTED) return
-        val pl = settings.proximityLock
         val rssi = wheelRepository.wheelData.value.rssiDbm
-        if (rssi == 0) return  // no RSSI reading yet
-        val locked = wheelRepository.locked.value
-        val now = System.currentTimeMillis()
-        val lockAt = pl.lockBelowDbm
-        // Unlock threshold always kept stronger than lock, so a dead-band exists.
-        val unlockAt = maxOf(pl.unlockAboveDbm, lockAt + PROX_MIN_GAP_DBM)
-
-        // Walking away: weak signal, still connected, currently unlocked -> lock.
-        if (pl.lockEnabled && !locked && rssi <= lockAt) {
-            if (proxLockCandidateSinceMs == 0L) proxLockCandidateSinceMs = now
-            if (now - proxLockCandidateSinceMs >= PROX_HOLD_MS) {
+        when (
+            proximityLock.evaluate(
+                nowMs = System.currentTimeMillis(),
+                rssiDbm = rssi,
+                locked = wheelRepository.locked.value,
+                settings = settings.proximityLock
+            )
+        ) {
+            ProximityLockEvaluator.Action.LOCK -> {
                 wheelRepository.setLock(true)
-                proxLockCandidateSinceMs = 0L
-                Log.i(TAG, "Proximity: locking (rssi=$rssi <= $lockAt dBm)")
+                Log.i(TAG, "Proximity: locking (rssi=$rssi dBm)")
             }
-        } else proxLockCandidateSinceMs = 0L
-
-        // Returning: strong signal, currently locked -> unlock.
-        if (pl.unlockEnabled && locked && rssi >= unlockAt) {
-            if (proxUnlockCandidateSinceMs == 0L) proxUnlockCandidateSinceMs = now
-            if (now - proxUnlockCandidateSinceMs >= PROX_HOLD_MS) {
+            ProximityLockEvaluator.Action.UNLOCK -> {
                 wheelRepository.setLock(false)
-                proxUnlockCandidateSinceMs = 0L
-                Log.i(TAG, "Proximity: unlocking (rssi=$rssi >= $unlockAt dBm)")
+                Log.i(TAG, "Proximity: unlocking (rssi=$rssi dBm)")
             }
-        } else proxUnlockCandidateSinceMs = 0L
+            ProximityLockEvaluator.Action.NONE -> Unit
+        }
     }
 
-    /** Clear proximity-lock hold state on disconnect / Stop All / disable. */
-    fun resetProximityLock() {
-        proxLockCandidateSinceMs = 0L
-        proxUnlockCandidateSinceMs = 0L
-    }
+    /** Clear proximity-lock state entirely, for Stop All and for disable. */
+    @Synchronized
+    fun resetProximityLock() = proximityLock.reset()
+
+    /**
+     * The wheel disconnected. Keeps the arming so a rider who walked out of
+     * range and came back still gets the auto-unlock; see
+     * [ProximityLockEvaluator.onLinkLost].
+     */
+    @Synchronized
+    fun onProximityLinkLost() = proximityLock.onLinkLost()
 }
 
 /**

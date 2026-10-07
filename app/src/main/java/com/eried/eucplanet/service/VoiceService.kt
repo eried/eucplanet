@@ -51,11 +51,19 @@ class VoiceService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
+    // Lazy: WheelRepository speaks through this service, so a direct
+    // dependency back would be a cycle. Only the stat pills read it.
+    private val wheelRepositoryLazy: dagger.Lazy<com.eried.eucplanet.data.repository.WheelRepository>,
 ) {
     companion object {
         private const val TAG = "VoiceService"
     }
+
+    /** The rider's voice volume, scaling the speech alone (KEY_PARAM_VOLUME is
+     *  per utterance and relative to the stream, so nothing else moves). */
+    @Volatile private var currentVolume = 1f
 
     private var tts: TextToSpeech? = null
     @Volatile private var isReady = false
@@ -245,6 +253,7 @@ class VoiceService @Inject constructor(
             // Settings observer may not have emitted yet when welcome fires right after init.
             // Seed the current values so the locale and rate are applied on this first speak.
             currentRate = s.voiceSpeechRate
+            currentVolume = s.voiceVolumePercent / 100f
             currentLocaleTag = s.voiceLocale
             currentVoiceName = s.voiceName
             currentAudioFocus = s.voiceAudioFocus
@@ -262,6 +271,7 @@ class VoiceService @Inject constructor(
         scope.launch {
             settingsRepository.settings.collect { s ->
                 currentRate = s.voiceSpeechRate
+                currentVolume = s.voiceVolumePercent / 100f
                 currentLocaleTag = s.voiceLocale
                 currentVoiceName = s.voiceName
                 currentAudioFocus = s.voiceAudioFocus
@@ -420,6 +430,29 @@ class VoiceService @Inject constructor(
         }
     }
 
+    /**
+     * Stop talking now, keeping the engine alive.
+     *
+     * The microphone cannot politely wait for a report to finish: a rider who
+     * presses listen while the app is mid-announcement wants to ask something,
+     * and leaving the speech running means the recogniser hears the app rather
+     * than the rider, which is the one way this feature reliably fails.
+     * Shutting down would have worked too and would have cost a re-init before
+     * the answer could be spoken.
+     */
+    fun stopSpeaking() {
+        try {
+            tts?.stop()
+        } catch (_: Exception) {
+        }
+        synchronized(pendingBeforeReady) { pendingBeforeReady.clear() }
+        synchronized(this) {
+            pendingUtterances = 0
+            triggerInFlight = false
+        }
+        abandonAudioFocus()
+    }
+
     fun shutdown() {
         tts?.stop()
         tts?.shutdown()
@@ -491,20 +524,58 @@ class VoiceService @Inject constructor(
     }
 
     fun announceStatus(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
+        // Legal Mode Lockdown silences app chatter, including anything that
+        // would say "legal mode" or "recording". AlarmEngine speaks through
+        // speak() instead, so the rider's own alarms still fire.
+        if (legalLockdown.isEngaged()) return
         val parts = buildReportParts(data, settings, isRecording, periodic = true)
         if (parts.isEmpty()) return
+        // What the announcement actually said. The spoken-question path has
+        // logged this all along and this one never did, so "it announced the
+        // wrong thing" left us guessing between a report being off, a value
+        // being wrong and a sentence being built wrong.
+        announced(parts, periodic = true)
         speakInternal(parts.joinToString(", "), isTrigger = false,
             rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
     }
 
     fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
+        // Legal Mode Lockdown silences app chatter, including anything that
+        // would say "legal mode" or "recording". AlarmEngine speaks through
+        // speak() instead, so the rider's own alarms still fire.
+        if (legalLockdown.isEngaged()) return
         warnIfLowVolume(settings.voiceOutputChannel)
         // Drop immediately if a trigger is already in flight/queued; never queue more than one.
         if (triggerInFlight) return
         val parts = buildReportParts(data, settings, isRecording, periodic = false)
         if (parts.isEmpty()) return
+        announced(parts, periodic = false)
         speakInternal(parts.joinToString(", "), isTrigger = true,
             rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
+    }
+
+    /**
+     * Strings in the language the voice speaks, whatever the app is set to.
+     *
+     * Blank or matching the interface language costs nothing: the same
+     * Context comes straight back, so the common case allocates nothing.
+     */
+    private fun spokenContext(settings: AppSettings): Context {
+        val tag = settings.voiceLocale
+        if (tag.isBlank()) return context
+        val locale = Locale.forLanguageTag(tag.replace("_", "-"))
+        if (locale.language == context.resources.configuration.locales[0].language) return context
+        val cfg = android.content.res.Configuration(context.resources.configuration)
+            .apply { setLocale(locale) }
+        return context.createConfigurationContext(cfg)
+    }
+
+    /** One line per announcement, for the log and the diagnostics panel. */
+    private fun announced(parts: List<String>, periodic: Boolean) {
+        val what = parts.joinToString(", ")
+        val kind = if (periodic) "periodic" else "trigger"
+        Log.i(TAG, "announced ($kind): \"$what\"")
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("Voice: announced ($kind) \"$what\"")
     }
 
     private fun streamTypeFor(channel: String): Int = when (channel) {
@@ -527,47 +598,246 @@ class VoiceService @Inject constructor(
         }
     }
 
+    /**
+     * The announcement as the rider configured it, spoken now, for the
+     * settings Play button. Rule 10: the real pills over the real values.
+     * Where a statistic has no history yet it says so instead of going
+     * silent, which a real announcement would do.
+     */
+    fun previewReport(data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean) {
+        val parts = buildReportParts(data, settings, isRecording, periodic = periodic, preview = true)
+        if (parts.isEmpty()) return
+        Log.i(TAG, "preview (${if (periodic) "periodic" else "trigger"}): \"${parts.joinToString(", ")}\"")
+        speakInternal(parts.joinToString(", "), isTrigger = true,
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
+    }
+
+    /**
+     * Answer one report out loud, for a rider who asked for it by name.
+     *
+     * Separate from [announceTrigger] in one way that matters: it ignores the
+     * per-report enable flags. Those say what a periodic announcement or a
+     * button press should contain, which is a different question from what a
+     * rider just asked for. Someone who says "PWM" wants PWM, whether or not
+     * they wanted it read out every two minutes.
+     *
+     * Returns false when there is nothing to say, so the caller can fall back
+     * to explaining why rather than going silent.
+     */
+    /**
+     * What a report would say right now, or null when it has nothing to say.
+     *
+     * Split out of [answerReport] because a spoken answer needs the sentence,
+     * not just the fact that one was spoken: the rider sees it in the
+     * transcript, and the controller has to be able to tell "the wheel has no
+     * reading for this" from "the report said it" before it decides what to
+     * speak. Returning a Boolean made those two indistinguishable, and every
+     * report-backed question answered "no data yet" with the value on screen.
+     */
+    fun reportText(
+        report: String,
+        data: WheelData,
+        settings: AppSettings,
+        isRecording: Boolean = false,
+    ): String? {
+        if (legalLockdown.isEngaged()) return null
+        val parts = buildReportParts(data, settings, isRecording, periodic = false, only = report)
+        if (parts.isEmpty()) return null
+        return parts.joinToString(", ")
+    }
+
+    /**
+     * The whole on-demand report as one sentence, for a rider who asked.
+     *
+     * The trigger set, not the periodic one. Those are configured separately
+     * on purpose: a periodic announcement says only what matters while moving
+     * and a triggered one tends to say everything, and a rider who asks out
+     * loud has asked, the same as pressing the dashboard button.
+     *
+     * Returns the text rather than speaking it, so the spoken-question path
+     * can put it on the tile and log it the way it does every other answer,
+     * instead of a second voice starting underneath the first.
+     */
+    fun triggerReportText(
+        data: WheelData,
+        settings: AppSettings,
+        isRecording: Boolean = false,
+    ): String? {
+        if (legalLockdown.isEngaged()) return null
+        val parts = buildReportParts(data, settings, isRecording, periodic = false)
+        if (parts.isEmpty()) return null
+        return parts.joinToString(", ")
+    }
+
+    fun answerReport(
+        report: String,
+        data: WheelData,
+        settings: AppSettings,
+        isRecording: Boolean = false,
+    ): Boolean {
+        val text = reportText(report, data, settings, isRecording) ?: return false
+        speakInternal(
+            text, isTrigger = true,
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale,
+            voiceName = settings.voiceName,
+        )
+        return true
+    }
+
+    /**
+     * "Phase amps, 42 A" for a catalog metric with no report of its own: the
+     * value a spoken question reads, in the tile's units. Null, and so left
+     * out, when the wheel has sent nothing for it (a wheel with no tyre
+     * sensor, a temperature slot it does not fill).
+     */
+    private fun catalogSentence(key: String, data: WheelData, settings: AppSettings, vctx: Context): String? {
+        val read = com.eried.eucplanet.voice.EXTRACTORS[key]
+            ?: { w: WheelData -> com.eried.eucplanet.data.model.MetricRegistry.read(key, w) }
+        val raw = read(data)?.takeIf { !it.isNaN() } ?: return null
+        val spec = com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key } ?: return null
+        val name = vctx.getString(spec.spokenLabelRes ?: spec.labelRes)
+        return "$name, ${formatCatalogValue(key, raw, settings, vctx)}"
+    }
+
+    private fun formatCatalogValue(key: String, raw: Float, settings: AppSettings, vctx: Context): String =
+        com.eried.eucplanet.data.model.MetricValueFormat.format(
+            key = key,
+            raw = raw,
+            speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings),
+            speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
+                vctx, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+            ),
+            tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+            tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(
+                com.eried.eucplanet.util.Units.effectiveTempUnit(settings)
+            ),
+            distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
+            pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+        )
+
+    /**
+     * "Max speed, 42 km/h": a statistic over the stats window, from the same
+     * history and the same arithmetic as the dashboard tiles and a spoken
+     * question, in the phrasing a spoken question already uses.
+     */
+    private fun statSentence(pill: VoicePill, settings: AppSettings, vctx: Context, preview: Boolean): String? {
+        val key = VoiceReportPlan.statKey(pill.item) ?: return null
+        val spec = com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key } ?: return null
+        val name = vctx.getString(spec.spokenLabelRes ?: spec.labelRes)
+        val word = vctx.getString(
+            when (pill.stat) {
+                VoicePill.Stat.MAX -> R.string.voice_stat_max_terms
+                VoicePill.Stat.MIN -> R.string.voice_stat_min_terms
+                VoicePill.Stat.AVG -> R.string.voice_stat_avg_terms
+                else -> R.string.voice_stat_peak_terms
+            }
+        ).split(",").first().trim()
+        val h = wheelRepositoryLazy.get().fullHistory.value
+        val samples = when (key) {
+            "BATTERY" -> h.battery
+            "TEMPERATURE" -> h.temperature
+            "VOLTAGE" -> h.voltage
+            "CURRENT" -> h.current
+            "LOAD" -> h.load
+            "SPEED" -> h.speed
+            else -> h.extras[key].orEmpty()
+        }
+        val dashStat = when (pill.stat) {
+            VoicePill.Stat.MAX -> com.eried.eucplanet.ui.settings.DashboardStat.MAX
+            VoicePill.Stat.MIN -> com.eried.eucplanet.ui.settings.DashboardStat.MIN
+            VoicePill.Stat.AVG -> com.eried.eucplanet.ui.settings.DashboardStat.AVG
+            else -> com.eried.eucplanet.ui.settings.DashboardStat.SUSTAINED_PEAK
+        }
+        val raw = samples.takeIf { it.isNotEmpty() }?.let {
+            com.eried.eucplanet.ui.settings.computeDashboardStatValue(dashStat, it, Float.NaN)
+        }?.takeIf { !it.isNaN() }
+            ?: return if (preview) vctx.getString(R.string.voice_answer_nodata, "$word $name") else null
+        val value = formatCatalogValue(key, raw, settings, vctx)
+        return vctx.getString(R.string.voice_stat_answer, word, name, value)
+    }
+
+    /**
+     * "Estimated battery, 43%" for a report the metric catalog already knows.
+     *
+     * Name, value and units all come from the catalog, so the sentence needs
+     * no format string of its own in twenty-three languages and cannot drift
+     * from the tile. Null when the wheel has sent nothing usable: a row is
+     * skipped rather than announcing a confident zero, the same rule the
+     * hand-written load reports follow.
+     */
+    private fun metricSentence(
+        report: VoiceReportPlan.MetricReport,
+        data: WheelData,
+        settings: AppSettings,
+        vctx: Context,
+    ): String? {
+        val raw = report.read(data)
+        // NaN is always nothing. Zero is nothing only for the fields that use
+        // it as their unset value: treating every zero as missing would
+        // swallow a real 0% battery, which is the reading that matters most.
+        if (raw.isNaN() || (report.blankAtZero && raw == 0f)) return null
+        val spec = com.eried.eucplanet.data.model.MetricCatalog.all
+            .firstOrNull { it.key == report.metricKey } ?: return null
+        // The spoken name here, not the tile's: this one is said out loud,
+        // and "Battery (est)" read aloud is "battery est".
+        val name = vctx.getString(spec.spokenLabelRes ?: spec.labelRes)
+        val value = com.eried.eucplanet.data.model.MetricValueFormat.format(
+            key = report.metricKey,
+            raw = raw,
+            speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings),
+            speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
+                vctx, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+            ),
+            tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+            tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(
+                com.eried.eucplanet.util.Units.effectiveTempUnit(settings)
+            ),
+            distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
+            pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+        )
+        return "$name, $value"
+    }
+
     private fun buildReportParts(
-        data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean
+        data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean,
+        /** One report only, for a spoken question. Null keeps the planned set. */
+        only: String? = null,
+        /** Settings preview: a statistic with no history says so. */
+        preview: Boolean = false,
     ): List<String> {
-        // Append any known items missing from the saved order (e.g. PhoneBattery
-        // added after the rider's order was saved) so new report types still speak.
-        val known = listOf("Speed", "Battery", "PhoneBattery", "Temp", "PWM", "Current", "Power", "Distance", "Recording", "Time", "Navigation")
+        // Which reports, in what order: VoiceReportPlan, so the choice can be
+        // tested without a TTS engine. Everything below is formatting.
         // Window the load-style reports average over. The advanced setting is in
         // samples for the ~1 Hz trip graphs, which makes it seconds here.
         val loadWindowMs = settings.smoothingWindowSamples.coerceAtLeast(1) * 1000L
-        val saved = settings.voiceReportOrder.split(",").map { it.trim() }.filter { it in known }
-        val order = saved + known.filter { it !in saved }
         val parts = mutableListOf<String>()
-        for (item in order) {
-            val enabled = if (periodic) when (item) {
-                "Speed" -> settings.voiceReportSpeed
-                "Battery" -> settings.voiceReportBattery
-                "Temp" -> settings.voiceReportTemp
-                "PWM" -> settings.voiceReportPwm
-                "Current" -> settings.voiceReports.periodicCurrent
-                "Power" -> settings.voiceReports.periodicPower
-                "Distance" -> settings.voiceReportDistance
-                "Recording" -> settings.voiceReportRecording
-                "Time" -> settings.voiceReportTime
-                "Navigation" -> settings.voiceReportNavigation
-                "PhoneBattery" -> settings.voiceReportPhoneBattery
-                else -> false
-            } else when (item) {
-                "Speed" -> settings.triggerReportSpeed
-                "Battery" -> settings.triggerReportBattery
-                "Temp" -> settings.triggerReportTemp
-                "PWM" -> settings.triggerReportPwm
-                "Current" -> settings.voiceReports.triggerCurrent
-                "Power" -> settings.voiceReports.triggerPower
-                "Distance" -> settings.triggerReportDistance
-                "Recording" -> settings.triggerReportRecording
-                "Time" -> settings.triggerReportTime
-                "Navigation" -> settings.triggerReportNavigation
-                "PhoneBattery" -> settings.triggerReportPhoneBattery
-                else -> false
+        // The announcement is read out by a voice the rider picked, which is
+        // not always the language the app is in. Resolving these against the
+        // interface language meant an English sentence read aloud by a Russian
+        // voice: the same mismatch a tester reported for spoken questions,
+        // living here too and never noticed because both settings usually
+        // agree.
+        val vctx = spokenContext(settings)
+        // A direct question names its own report and bypasses the plan, which
+        // is about what an unprompted announcement contains.
+        val planned = if (only != null) listOf(VoicePill(only)) else VoiceReportPlan.pills(settings, periodic)
+        for (pill in planned) {
+            if (pill.item == VoicePill.MESSAGE) {
+                if (pill.text.isNotBlank()) parts.add(pill.text)
+                continue
             }
-            if (enabled) {
+            if (pill.stat != VoicePill.Stat.NOW) {
+                statSentence(pill, settings, vctx, preview)?.let { parts.add(it) }
+                continue
+            }
+            if (pill.item.startsWith(VoiceReportPlan.CATALOG_PREFIX)) {
+                catalogSentence(pill.item.removePrefix(VoiceReportPlan.CATALOG_PREFIX), data, settings, vctx)
+                    ?.let { parts.add(it) }
+                continue
+            }
+            val item = pill.item
+            run {
+
                 // Convert each value to the user's display unit before
                 // formatting. The "kilometers / miles" wording in
                 // voice_trip_fmt also switches via the distance-imperial variant.
@@ -577,11 +847,21 @@ class VoiceService @Inject constructor(
                 val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, speedUnit)
                 val displayTemp = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, tempUnit)
                 val displayTrip = com.eried.eucplanet.util.Units.distance(data.tripDistance, distanceUnit)
+                // The catalog-backed reports: name and value both come from
+                // the same place the tile reads, so a spoken odometer cannot
+                // disagree with the one on screen. Said as "name, value"
+                // because that is how a spoken question is already answered,
+                // and a rider hearing both should hear one voice.
+                val extra = com.eried.eucplanet.service.VoiceReportPlan.extra(item)
+                if (extra != null) {
+                    metricSentence(extra, data, settings, vctx)?.let { parts.add(it) }
+                    return@run
+                }
                 when (item) {
-                    "Speed" -> parts.add(context.getString(R.string.voice_speed_fmt, "%.0f".format(displaySpeed)))
-                    "Battery" -> parts.add(context.getString(R.string.voice_battery_fmt, data.batteryPercent))
-                    "PhoneBattery" -> parts.add(context.getString(R.string.voice_phone_battery_fmt, readPhoneBatteryPercent()))
-                    "Temp" -> parts.add(context.getString(R.string.voice_temp_fmt, "%.0f".format(displayTemp)))
+                    "Speed" -> parts.add(vctx.getString(R.string.voice_speed_fmt, "%.0f".format(displaySpeed)))
+                    "Battery" -> parts.add(vctx.getString(R.string.voice_battery_fmt, data.batteryPercent))
+                    "PhoneBattery" -> parts.add(vctx.getString(R.string.voice_phone_battery_fmt, readPhoneBatteryPercent()))
+                    "Temp" -> parts.add(vctx.getString(R.string.voice_temp_fmt, "%.0f".format(displayTemp)))
                     // Load-style reports speak the recent average, not the
                     // instant reading. Falling back to the live value keeps the
                     // report working before any history has built up. A row is
@@ -589,17 +869,17 @@ class VoiceService @Inject constructor(
                     // rather than announcing a confident zero.
                     "PWM" -> {
                         val v = smoothed(loadWindowMs) { it.pwm } ?: data.pwm
-                        if (!v.isNaN()) parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(v)))
+                        if (!v.isNaN()) parts.add(vctx.getString(R.string.voice_load_fmt, "%.0f".format(v)))
                     }
                     "Current" -> {
                         val v = smoothed(loadWindowMs) { it.current } ?: data.current
-                        if (!v.isNaN()) parts.add(context.getString(R.string.voice_current_fmt, "%.0f".format(abs(v))))
+                        if (!v.isNaN()) parts.add(vctx.getString(R.string.voice_current_fmt, "%.0f".format(abs(v))))
                     }
                     "Power" -> {
                         val v = smoothed(loadWindowMs) { it.powerW } ?: (data.voltage * data.current)
-                        if (!v.isNaN()) parts.add(context.getString(R.string.voice_power_fmt, "%.0f".format(abs(v))))
+                        if (!v.isNaN()) parts.add(vctx.getString(R.string.voice_power_fmt, "%.0f".format(abs(v))))
                     }
-                    "Distance" -> parts.add(context.getString(
+                    "Distance" -> parts.add(vctx.getString(
                         when (distanceUnit) {
                             "mi" -> R.string.voice_trip_miles_fmt
                             "m" -> R.string.voice_trip_meters_fmt
@@ -608,9 +888,9 @@ class VoiceService @Inject constructor(
                         if (distanceUnit == "m") "%.0f".format(displayTrip)
                         else String.format(Locale.US, "%.1f", displayTrip)
                     ))
-                    "Recording" -> parts.add(context.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
-                    "Time" -> parts.add(context.getString(R.string.voice_time_fmt,
-                        android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date())))
+                    "Recording" -> parts.add(vctx.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
+                    "Time" -> parts.add(vctx.getString(R.string.voice_time_fmt,
+                        android.text.format.DateFormat.getTimeFormat(vctx).format(java.util.Date())))
                     // The cue is pushed in by NavigationEngine when nav is live;
                     // null when there is nothing to say, in which case the row
                     // is silently skipped.
@@ -637,6 +917,10 @@ class VoiceService @Inject constructor(
     }
 
     fun announceEvent(text: String) {
+        // Legal Mode Lockdown silences app chatter, including anything that
+        // would say "legal mode" or "recording". AlarmEngine speaks through
+        // speak() instead, so the rider's own alarms still fire.
+        if (legalLockdown.isEngaged()) return
         speak(text)
     }
 
@@ -677,7 +961,7 @@ class VoiceService @Inject constructor(
         synchronized(this) { pendingUtterances++ }
         requestAudioFocus()
         val params = android.os.Bundle().apply {
-            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, currentVolume)
         }
         // Previews flush (stop whatever is speaking and play this one now);
         // live announcements queue so they never talk over each other.

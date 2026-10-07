@@ -16,6 +16,15 @@ val keystoreProps = Properties().apply {
 }
 
 android {
+    androidResources {
+        // Keep only this module's own languages from library resources
+        // (about 1 MB on the phone, 0.2 MB on the watch and HUD). Derived
+        // from the values-* folders that hold a strings.xml, so a new
+        // translation is picked up without touching this list.
+        localeFilters += listOf("en") + (file("src/main/res").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("values-") && it.resolve("strings.xml").exists() }
+            .map { it.name.removePrefix("values-") }
+    }
     namespace = "com.eried.eucplanet.hud"
     compileSdk = 35
 
@@ -38,8 +47,8 @@ android {
         // Offset by 300000 so the HUD APK's version line never collides with
         // the phone (1..99999) or the wear companion (100000-prefixed) when
         // both are visible in the same release notes.
-        versionCode = 300013
-        versionName = "0.1.12"
+        versionCode = 300015
+        versionName = "0.1.14"
     }
 
     signingConfigs {
@@ -65,6 +74,9 @@ android {
             // lets the verifier accept the result -- the screens then
             // run cleanly on the JIT.
             isMinifyEnabled = true
+            // Drop resources the shrunk code no longer references. Nothing in
+            // this module loads a resource by name (checked 2026-09-29).
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -116,6 +128,11 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
 
     implementation(libs.coroutines.core)
+
+    // The HUD keeps its own copy of the unit conversions, because the phone's
+    // pull in string resources it has no use for. Copies drift, so they get a
+    // test.
+    testImplementation(libs.junit)
     implementation(libs.coroutines.android)
 
     implementation(libs.kotlinx.serialization.json)

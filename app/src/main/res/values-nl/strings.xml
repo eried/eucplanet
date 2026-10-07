@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">EUC Planet</string>
     <string name="notification_channel_name">Wielverbinding</string>
-    <string name="notification_channel_description">Toont verbindingsstatus en telemetrie van het wiel</string>
+    <string name="notification_channel_description">Toont verbindingsstatus en telemetrie van het wiel.</string>
 
     <!-- Notification quick actions -->
     <string name="notif_actions_section">Aanpassen</string>
@@ -32,6 +32,11 @@
     <string name="action_back">Terug</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_ok">OK</string>
+    <string name="action_replace">Vervangen</string>
+    <string name="action_continue">Doorgaan</string>
+    <string name="action_select">Selecteren</string>
+    <string name="state_on">Aan</string>
+    <string name="state_off">Uit</string>
     <string name="action_done">Klaar</string>
     <string name="action_close">Sluiten</string>
 <string name="crash_log_action_prompt">Je hebt %1$s lang ingedrukt. Verwijder alleen dit log, of alles. Tik op Annuleren en dan op het bestand om het te delen.</string>
@@ -62,10 +67,10 @@
 
     <!-- Permissions -->
     <string name="scan_permission_needed">Toestemming nodig</string>
-    <string name="scan_permission_body">Om je wiel te vinden heeft de app Bluetooth- en locatietoegang nodig</string>
+    <string name="scan_permission_body">Om je wiel te vinden heeft de app Bluetooth- en locatietoegang nodig.</string>
     <string name="scan_permission_body_settings">Toestemming geweigerd. Open de systeeminstellingen om Bluetooth en locatietoegang toe te staan</string>
     <string name="recording_location_permission_needed">Locatie nodig</string>
-    <string name="recording_location_permission_body">De ritopname slaat GPS-punten op zodat je je route op een kaart kunt zien. Geef locatietoegang om door te gaan</string>
+    <string name="recording_location_permission_body">De ritopname slaat GPS-punten op zodat je je route op een kaart kunt zien. Geef locatietoegang om door te gaan.</string>
 
     <!-- Experimental banner -->
     <string name="experimental_banner">Voorlopig ondersteund wiel. Tik om problemen te melden.</string>
@@ -75,7 +80,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuele wielen</string>
-    <string name="scan_simulate_subtitle">Omzeilt BLE en gebruikt voorgekookte antwoorden. Alleen in debug-builds.</string>
+    <string name="scan_simulate_subtitle">Omzeilt BLE en gebruikt voorgekookte antwoorden. Alleen in Servicemodus.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Verbonden</string>
@@ -131,7 +136,7 @@
     <string name="dashboard_section_metrics">Metrieken</string>
     <string name="dashboard_section_actions">Actieknoppen</string>
     <string name="dashboard_columns">Kolommen</string>
-    <string name="dashboard_grid_hint">Lang indrukken om te slepen, tikken om te bewerken</string>
+    <string name="dashboard_grid_hint">Lang indrukken om te slepen, tikken om te bewerken.</string>
     <string name="dashboard_pool_metrics">Beschikbare metrieken</string>
     <string name="dashboard_pool_actions">Beschikbare acties</string>
     <string name="dashboard_pool_tap_toast">Lang indrukken en naar een vak hierboven slepen</string>
@@ -225,6 +230,8 @@
     <string name="metric_chip_odometer">Kilometerstand</string>
     <string name="metric_chip_motor_power">Motorvermogen</string>
     <string name="metric_chip_battery_power">Accuvermogen</string>
+    <string name="metric_chip_battery_envelope">Accu (schat)</string>
+    <string name="metric_desc_battery_envelope">Accupercentage zonder de belasting. Stabieler dan de ruwe waarde, die daalt bij accelereren.</string>
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_pitch">Pitch</string>
@@ -234,6 +241,11 @@
     <string name="metric_chip_forward_g">Voorwaartse g</string>
     <string name="metric_chip_torque">Koppel</string>
     <string name="metric_chip_phase_current">Fase A</string>
+    <string name="metric_spoken_phase_current">Fasestroom</string>
+    <string name="metric_spoken_battery_envelope">Geschatte accu</string>
+    <string name="metric_spoken_bt_rssi">Bluetooth-signaal</string>
+    <string name="metric_spoken_avg_trip_speed">Gemiddelde snelheid</string>
+    <string name="metric_spoken_lat_long">Positie</string>
     <string name="metric_chip_dyn_speed_limit">Dynamische snelheidslimiet</string>
     <string name="metric_chip_dyn_current_limit">Dynamische stroomlimiet</string>
     <string name="metric_chip_motor_temp">Motortemperatuur</string>
@@ -241,7 +253,7 @@
     <string name="metric_chip_battery_temp">Accutemperatuur</string>
     <string name="metric_chip_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_tire_pressure_tile">Band</string>
-    <string name="metric_desc_tire_pressure">Bandenspanning van een gekoppelde TPMS-sensor (InMotion P6). Getoond in psi of bar.</string>
+    <string name="metric_desc_tire_pressure">Bandenspanning van je eigen sensor of een die het wiel doorgeeft. In de drukeenheid die je koos.</string>
     <string name="studio_metric_tire_pressure">Bandenspanning</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_trip_time">Triptime</string>
@@ -249,7 +261,7 @@
     <string name="metric_chip_avg_trip_speed">Gem. snelheid</string>
     <string name="metric_chip_wh_consumed">Energie</string>
     <string name="metric_chip_range_estimate">Bereik</string>
-    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wh_per_km">Verbruik</string>
     <string name="metric_chip_phone_battery">Telefoonaccu</string>
     <string name="metric_chip_gps_altitude">Hoogte</string>
     <string name="metric_chip_gps_speed">GPS-snelheid</string>
@@ -267,6 +279,7 @@
     <string name="metric_chip_wheel_alarm_speed">Wielalarm</string>
     <string name="metric_chip_pc_mode">Rijmodus</string>
     <string name="metric_chip_light_on">Licht</string>
+    <string name="metric_spoken_light_on">lichtstatus</string>
 
     <!-- Short variants for the dashboard tile face. When present, the tile
          shows this; the slot editor sheet keeps showing the full
@@ -319,6 +332,113 @@
     <string name="action_chip_horn">Toeter</string>
     <string name="action_chip_light">Licht</string>
     <string name="action_chip_voice">Stem</string>
+    <string name="action_chip_voice_listen">Luisteren</string>
+    <string name="menu_voice_ask">Luisteren naar spraakopdracht</string>
+    <string name="menu_voice_speak_report">Spraakmelding afspelen</string>
+    <string name="voice_split_term">Laatste split</string>
+    <string name="menu_switch_to_voice_command">Naar spraakopdracht wisselen</string>
+    <string name="menu_switch_to_voice_report">Wisselen naar spraakmelding</string>
+    <string name="voice_commands_title">Spraakopdrachten</string>
+    <string name="voice_commands_enable_desc">Gebruik je stem in de app. Houd de spraakknop op het dashboard ingedrukt en kies Luisteren naar spraakopdracht.</string>
+    <string name="voice_commands_bind_desc">Koppel luisteren aan een Flic, de volumeknoppen, je horloge of de HUD.</string>
+    <string name="voice_prompt_cue">Signaal bij luisteren</string>
+    <string name="voice_prompt_cue_desc">Zet het uit als je headset een eigen toon heeft.</string>
+    <string name="voice_cue_beep">Piep</string>
+    <string name="voice_cue_spoken">Stem</string>
+    <string name="voice_cue_off">Uit</string>
+    <string name="voice_cue_listening">Ik luister</string>
+    <string name="voice_unknown_cue">Als iets niet begrepen is</string>
+    <string name="voice_unknown_message">Bericht</string>
+    <string name="voice_recognition_language">Taal van de opdrachten</string>
+    <string name="voice_recognition_desc">De taal waarin je spreekt. Volgt de stem als je niets kiest.</string>
+    <string name="voice_recognition_follow">Zelfde als stem</string>
+    <string name="voice_headset_button">Spraakknop van headset</string>
+    <string name="voice_headset_chooser_hint">Android vraagt welke app moet antwoorden.</string>
+    <string name="voice_headset_announce">Aankondigen</string>
+    <string name="voice_act_announce_on_terms">stem aan,meldingen aan,spraak aan</string>
+    <string name="voice_act_announce_off_terms">stem uit,meldingen uit,spraak uit</string>
+    <string name="voice_command_vocabulary">Wat kan ik zeggen</string>
+    <string name="voice_command_vocabulary_tap">Zeg een naam los of in een vraag.</string>
+    <string name="voice_vocab_group_wheel">Wiel</string>
+    <string name="voice_vocab_group_actions">Acties</string>
+    <string name="voice_vocab_group_around">Om je heen</string>
+    <string name="voice_listening">Luisteren</string>
+    <string name="voice_answer_off">%1$s staat uit. Je kunt het aanzetten in de instellingen.</string>
+    <string name="voice_answer_unsupported">Je wiel rapporteert %1$s niet.</string>
+    <string name="voice_answer_nodata">Nog geen %1$s.</string>
+    <string name="voice_state_on">aan</string>
+    <string name="voice_state_off">uit</string>
+    <string name="voice_mode_lock">vergrendeld</string>
+    <string name="voice_mode_drive">rijden</string>
+    <string name="voice_mode_shutdown">uit</string>
+    <string name="voice_mode_idle">inactief</string>
+    <string name="voice_answer_setup">%1$s moet eerst worden ingesteld.</string>
+    <string name="voice_answer_no_mic_permission">Ik heb toestemming nodig voor de microfoon.</string>
+    <string name="voice_mic_grant">Microfoon toestaan</string>
+    <string name="warnings_perm_mic_title">Microfoon niet toegestaan</string>
+    <string name="warnings_perm_mic_body">Spraakopdrachten kunnen niet luisteren zolang de app de microfoon niet mag gebruiken.</string>
+    <string name="voice_answer_unknown">Ik heb dat niet verstaan. Zeg %1$s voor hulp.</string>
+    <string name="voice_help_terms">wat kan ik zeggen,help,wat kan ik vragen</string>
+    <string name="voice_stat_max_terms">maximum,max,hoogste</string>
+    <string name="voice_stat_min_terms">minimum,min,laagste</string>
+    <string name="voice_stat_avg_terms">gemiddelde,gemiddeld</string>
+    <string name="voice_stat_peak_terms">piek,aanhoudend</string>
+    <string name="voice_stat_answer">%1$s %2$s, %3$s</string>
+    <string name="voice_answer_examples">Dit is de lijst met wat je kunt zeggen.</string>
+    <string name="voice_special_connected">Verbonden met %1$s.</string>
+    <string name="voice_special_not_connected">Geen wheel verbonden.</string>
+    <string name="voice_special_uptime">Verbonden sinds %1$s.</string>
+    <string name="voice_special_weather">%1$s. %2$s.</string>
+    <string name="voice_special_weather_full">%1$s, score %2$s. %3$s graden, wind %4$s, luchtvochtigheid %5$s procent</string>
+    <string name="voice_weather_checking">Ik check het weer.</string>
+    <string name="voice_sp_air_temp_terms">buitentemperatuur,luchttemperatuur,hoe koud is het</string>
+    <string name="voice_sp_wind_terms">wind,windsnelheid,hoe winderig</string>
+    <string name="voice_sp_humidity_terms">luchtvochtigheid,hoe vochtig</string>
+    <string name="voice_sp_air_temp_answer">%1$s graden buiten.</string>
+    <string name="voice_sp_wind_answer">Wind %1$s.</string>
+    <string name="voice_sp_wind_gust_answer">Wind %1$s, uitschieters %2$s.</string>
+    <string name="voice_sp_humidity_answer">Luchtvochtigheid %1$s procent.</string>
+    <string name="voice_weather_great">Prima rijweer</string>
+    <string name="voice_weather_good">Goed rijweer</string>
+    <string name="voice_weather_ok">Rijdbaar</string>
+    <string name="voice_weather_poor">Slecht rijweer</string>
+    <string name="voice_weather_bad">Heel slecht rijweer</string>
+    <string name="voice_weather_snow">Sneeuw</string>
+    <string name="voice_weather_rain">Regen</string>
+    <string name="voice_weather_wind">Wind</string>
+    <string name="voice_weather_cold">Koud</string>
+    <string name="voice_weather_hot">Warm</string>
+    <string name="voice_weather_night">Donker</string>
+    <string name="voice_special_dark">Het is al donker.</string>
+    <string name="voice_special_daylight">Nog %1$s daglicht.</string>
+    <string name="voice_special_daylight_all_day">De hele dag licht.</string>
+    <string name="voice_special_nav">%1$s, %2$s.</string>
+    <string name="voice_special_nav_none">Geen route.</string>
+    <string name="voice_special_last_trip">Laatste rit %1$s, %2$s.</string>
+    <string name="voice_special_no_trips">Nog geen ritten.</string>
+    <string name="voice_duration_h_m">%1$s u %2$s min</string>
+    <string name="voice_duration_m">%1$s min</string>
+    <string name="voice_sp_weather_terms">weer,goede dag om te rijden</string>
+    <string name="voice_sp_daylight_terms">daglicht,zonsondergang,hoe lang tot het donker is</string>
+    <string name="voice_sp_connected_terms">verbonden,is het wheel verbonden</string>
+    <string name="voice_sp_uptime_terms">hoe lang verbonden,verbonden sinds</string>
+    <string name="voice_sp_nav_terms">navigatie,wat komt er nu,herhaal</string>
+    <string name="voice_sp_last_trip_terms">laatste rit,vorige rit</string>
+    <string name="voice_sp_report_terms">rapport,status,spraakrapport</string>
+    <string name="voice_action_confirm">%1$s? Zeg ja om te bevestigen.</string>
+    <string name="voice_action_cancelled">Geannuleerd.</string>
+    <string name="voice_yes_terms">ja,bevestigen,doe maar</string>
+    <string name="voice_act_light_on_terms">licht aan,lichten aan</string>
+    <string name="voice_act_light_off_terms">licht uit,lichten uit</string>
+    <string name="voice_act_light_toggle_terms">licht,lichten,licht wisselen</string>
+    <string name="voice_act_lock_terms">vergrendel,vergrendel het wheel</string>
+    <string name="voice_act_unlock_terms">ontgrendel,ontgrendel het wheel</string>
+    <string name="voice_act_horn_terms">claxon,toeter</string>
+    <string name="voice_act_record_start_terms">start opname,opnemen</string>
+    <string name="voice_act_record_stop_terms">stop opname</string>
+    <string name="voice_act_reset_trip_terms">reset rit</string>
+    <string name="voice_answer_mic_busy">Iets anders gebruikt de microfoon.</string>
+    <string name="voice_answer_which">Bedoelde je %1$s of %2$s?</string>
     <string name="action_chip_safety">Legale modus</string>
     <string name="action_chip_lock">Wiel vergrendelen</string>
     <string name="action_chip_record">Recorder</string>
@@ -334,17 +454,18 @@
     <string name="action_chip_open_about">Info</string>
     <string name="action_chip_open_service">Servicemodus</string>
     <string name="action_chip_open_trips">Ritten</string>
+    <string name="action_chip_open_charging">Accumonitor</string>
+    <string name="action_chip_open_weather">Weer</string>
     <string name="action_chip_mute_alarms">Alarmen dempen</string>
-    <string name="action_chip_reset_trip">Trip resetten</string>
     <string name="action_chip_toggle_units">Eenheden wisselen</string>
-    <string name="action_unsupported_on_wheel">Niet ondersteund op dit wiel</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
     <string name="section_watch_device">Apparaten</string>
     <string name="watch_paired_none">Geen horloges gekoppeld</string>
-    <string name="watch_paired_none_desc">Installeer de EUC Planet-companion op een Wear OS- of Garmin-horloge om de wijzerplaat hier te ontvangen</string>
+    <string name="watch_paired_none_desc">Installeer de EUC Planet-companion-app op een Wear OS-, Garmin- of Amazfit-horloge om hier de wijzerplaat te ontvangen.</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_kind_amazfit">Amazfit (Zepp OS)</string>
     <string name="watch_paired_active">Live</string>
     <string name="watch_paired_idle">Inactief</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
@@ -352,12 +473,13 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Gegevenslink inschakelen</string>
     <string name="hud_ip_label">Apparaat-IP</string>
+    <string name="hud_ip_incomplete">Voer een volledig adres in, bijvoorbeeld 192.168.43.42</string>
     <string name="hud_ip_label_autodetect">Apparaat-IP (automatisch)</string>
     <string name="hud_server_port">Poort</string>
-    <string name="hud_hotspot_off_hint">Telefoon-hotspot is uit. Zorg dat de HUD en de telefoon op hetzelfde wifi-netwerk zitten.</string>
+    <string name="hud_hotspot_unknown_hint">Zorg dat de HUD en de telefoon op hetzelfde wifi-netwerk zitten. Gebruik je de telefoon-hotspot, zet die dan eerst aan.</string>
     <string name="hud_hotspot_on_hint">Telefoon-hotspot zendt uit. Verbind de HUD met de wifi van deze telefoon om de link te activeren.</string>
     <string name="hud_overlay_subsection">Eigen overlay</string>
-    <string name="hud_overlay_subsection_desc">Importeer een Overlay Studio-preset op het Custom-scherm van de HUD, zonder achtergrond. De preset wordt hier gekopieerd, dus latere wijzigingen in de studio veranderen de HUD pas als je opnieuw importeert</string>
+    <string name="hud_overlay_subsection_desc">Importeer een Overlay Studio-preset op het Custom-scherm van de HUD, zonder achtergrond. De preset wordt hier gekopieerd, dus latere wijzigingen in de studio veranderen de HUD pas als je opnieuw importeert.</string>
     <string name="hud_overlay_select_preset">Preset importeren</string>
     <string name="hud_overlay_current_preset">Huidig: %1$s</string>
     <string name="hud_custom_overlay_none">Wissen</string>
@@ -405,16 +527,25 @@
     <string name="section_watch_advanced">Geavanceerd</string>
     <string name="section_voice_advanced">Geavanceerd</string>
     <string name="watch_keep_on">Scherm aan houden</string>
-    <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is</string>
+    <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is.</string>
     <string name="watch_update_rate">Verversingssnelheid</string>
-    <string name="watch_update_rate_desc">Langzamere updates besparen batterij op telefoon en horloge</string>
+    <string name="watch_update_rate_desc">Langzamere updates besparen batterij op telefoon en horloge.</string>
+    <string name="watch_map_enabled">Kaart op horloge</string>
+    <string name="watch_map_enabled_desc">Toont de positie en route vanaf de telefoon. Er blijft een melding staan voor werking op de achtergrond.</string>
+    <string name="watch_map_orientation">Kaartoriëntatie</string>
+    <string name="watch_map_north_up">Noorden boven</string>
+    <string name="watch_map_heading_up">Rijrichting boven</string>
+    <string name="watch_keep_on_navigation">Aan tijdens navigatie</string>
+    <string name="watch_keep_on_navigation_desc">Houdt het horlogescherm aan tijdens navigatie. Gebruikt meer batterij.</string>
+    <string name="watch_map_telemetry">Kaarttelemetrie</string>
+    <string name="watch_map_telemetry_desc">Toont PWM, snelheid en spanning langs de bovenrand.</string>
     <string name="watch_update_conservative">Zuinig</string>
     <string name="watch_update_normal">Normaal</string>
     <string name="watch_update_fast">Snel</string>
     <string name="watch_auto_start">Automatisch starten op horloge</string>
-    <string name="watch_auto_start_desc">Open de horloge-app samen met de telefoon-app</string>
+    <string name="watch_auto_start_desc">Open de horloge-app samen met de telefoon-app.</string>
     <string name="watch_close_on_exit">Automatisch stoppen op horloge</string>
-    <string name="watch_close_on_exit_desc">Stop de horloge-app bij Alles stoppen</string>
+    <string name="watch_close_on_exit_desc">Stop de horloge-app bij Alles stoppen.</string>
     <string name="watch_show_wheel_battery">Accustand wiel tonen</string>
     <string name="watch_show_phone_battery">Accustand telefoon tonen</string>
     <string name="watch_show_watch_battery">Accustand horloge tonen</string>
@@ -423,9 +554,9 @@
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_pwm_both">Beide</string>
     <string name="watch_show_speed_unit">Snelheidseenheid</string>
-    <string name="watch_show_speed_unit_desc">Toon het eenheidlabel naast het grote snelheidsgetal</string>
+    <string name="watch_show_speed_unit_desc">Toon het eenheidlabel naast het grote snelheidsgetal.</string>
     <string name="watch_prioritize_pwm">PWM prioriteit geven</string>
-    <string name="watch_prioritize_pwm_desc">Maakt de PWM-balk en het getal groter dan de snelheid</string>
+    <string name="watch_prioritize_pwm_desc">Maakt de PWM-balk en het getal groter dan de snelheid.</string>
     <string name="watch_dial_rotation">Wijzerplaatrotatie</string>
 
     <!-- Watch hardware buttons -->
@@ -438,8 +569,10 @@
     <string name="section_watch_buttons">Knoppen</string>
     <string name="watch_hardware_button_1">Knop 1</string>
     <string name="watch_hardware_button_2">Knop 2</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oranje Action-knop</string>
-    <string name="watch_hardware_button_2_subtitle">Garmin: Omhoog (lang indrukken) · Galaxy Watch Ultra: onderste zijknop</string>
+    <string name="watch_hardware_button_3">Knop 3</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oranje Action-knop · Amazfit: Select</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Omhoog · Galaxy Watch Ultra: onderste zijknop · Amazfit: Omhoog</string>
+    <string name="watch_hardware_button_3_subtitle">Garmin: Omlaag · Amazfit: Omlaag · niet op Wear OS-horloges</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
@@ -447,11 +580,11 @@
     <string name="watch_screen_button_1">Knop 1</string>
     <string name="watch_screen_button_2">Knop 2</string>
     <string name="watch_haptic_on_action">Trillen bij actie</string>
-    <string name="watch_haptic_on_action_desc">Korte trilling bij elke druk, indien ondersteund</string>
+    <string name="watch_haptic_on_action_desc">Korte trilling bij elke druk, indien ondersteund.</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Back-upmap</string>
-    <string name="cloud_caption">Je back-upmap voor ritten, instellingen, thema\'s en overlays</string>
+    <string name="cloud_caption">Je back-upmap voor ritten, instellingen, thema\'s en overlays.</string>
     <string name="cloud_choose_folder">Map kiezen</string>
     <string name="cloud_change_folder">Map wijzigen</string>
     <string name="cloud_remove_folder">Ontkoppelen</string>
@@ -459,6 +592,7 @@
     <string name="section_cloud_settings">Back-up van instellingen</string>
     <string name="cloud_backup_now">Back-up</string>
     <string name="cloud_restore">Terugzetten</string>
+    <string name="cloud_settings_backup_desc">Alles wat je in de app hebt ingesteld, opgeslagen in eucplanet_settings.json in je back-upmap. Houd de knop ingedrukt om een kopie met naam op te slaan. Ritten worden apart geback-upt.</string>
     <string name="cloud_last_backup">Laatste back-up: %1$s</string>
 <string name="cloud_last_backup_named">Laatste back-up: %1$s als \"%2$s\"</string>
     <string name="cloud_last_backup_never">Nog geen back-up</string>
@@ -468,11 +602,12 @@
     <string name="cloud_restore_success">Instellingen teruggezet</string>
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
     <string name="section_cloud_trips">Back-up van ritten</string>
-    <string name="cloud_trips_caption">Ritten blijven op deze telefoon en synchroniseren automatisch met je back-upmap. Hier wissen verwijdert alleen de kopieën op de telefoon, niet je back-up.</string>
+    <string name="cloud_trips_caption">Ritten blijven op deze telefoon en synchroniseren vanzelf naar je back-upmap. Wissen verwijdert de ritten in de app, niet die in je back-upmap.</string>
     <string name="cloud_retry_now">Alles synchr.</string>
     <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
     <string name="sync_no_folder">Kies eerst een back-upmap</string>
+    <string name="sync_rate_limited">Dropbox beperkt dit account. %1$d van %2$d ritten gesynchroniseerd, de rest wordt opnieuw geprobeerd.</string>
     <string name="sync_finished">%1$d ritten gesynchroniseerd</string>
     <string name="sync_conflict_title">Synchronisatieconflict</string>
     <string name="sync_conflict_body">%1$d ritten staan aan beide kanten.</string>
@@ -490,11 +625,14 @@
     <string name="sync_checking">Back-upmap controleren…</string>
     <string name="action_restore">Terugzetten</string>
     <string name="action_overwrite">Overschrijven</string>
-    <string name="cloud_backup_long_press_hint">Lang indrukken voor meer opties</string>
+    <string name="cloud_backup_long_press_hint">Lang indrukken voor meer opties.</string>
     <string name="cloud_backup_name_label">Back-upnaam</string>
     <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
     <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
-    <string name="cloud_restore_picker_default">(standaard)</string>
+    <string name="cloud_backup_replace_title">Je opgeslagen back-up vervangen?</string>
+    <string name="cloud_backup_replace_body">De instellingenback-up in je map wordt overschreven met je huidige instellingen.</string>
+    <string name="cloud_backup_replace_body_dated">De back-up van %1$s wordt overschreven met je huidige instellingen.</string>
+    <string name="cloud_restore_picker_default">(jouw back-up)</string>
     <string name="cloud_restore_picker_factory">(fabrieksinstellingen)</string>
     <string name="cloud_restore_picker_empty">Geen back-ups in de map</string>
     <string name="cloud_factory_confirm_title">Terugzetten naar fabrieksinstellingen?</string>
@@ -507,9 +645,9 @@
     <string name="section_connection">Verbinding</string>
     <string name="section_display">Weergave</string>
     <string name="auto_record_on_start">Automatisch opnemen bij verbinden</string>
-    <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is</string>
+    <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is.</string>
     <string name="auto_record_start_in_motion">Opname starten bij beweging</string>
-    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit</string>
+    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
     <string name="wheel_name_display">Wielnaam</string>
@@ -519,7 +657,7 @@
     <string name="last_device">Laatste apparaat: %1$s</string>
     <string name="section_application">Toepassing</string>
     <string name="back_button_action">Terug-actie</string>
-    <string name="back_button_action_desc">Wat er gebeurt als je terugveegt of op terug drukt vanuit het dashboard</string>
+    <string name="back_button_action_desc">Wat er gebeurt als je terugveegt of op terug drukt vanuit het dashboard.</string>
     <string name="back_button_action_ask">Vragen</string>
     <string name="back_button_action_background">Achtergrond</string>
     <string name="back_button_action_stop">Alles stoppen</string>
@@ -529,6 +667,13 @@
     <string name="units_custom">Aangepast</string>
     <string name="units_temperature">Temperatuur</string>
     <string name="units_speed">Snelheid</string>
+    <string name="tpms_forget">Vergeten</string>
+    <string name="units_pressure_kpa">kPa</string>
+    <string name="units_pressure_mpa">MPa</string>
+    <string name="units_pressure_kgf">kgf/cm²</string>
+    <string name="units_pressure_bar">bar</string>
+    <string name="units_pressure_psi">psi</string>
+    <string name="units_pressure">Bandenspanning</string>
     <string name="units_distance">Afstand</string>
     <string name="units_speed_kmh">km/u</string>
     <string name="units_speed_mph">mph</string>
@@ -546,6 +691,21 @@
     <string name="phone_show_over_lock">Boven vergrendelscherm tonen</string>
     <string name="language">Taal</string>
     <string name="theme">Thema</string>
+    <string name="theme_editor_widget">Widget voor thema-aanpassing</string>
+    <string name="theme_unsaved_fmt">%1$s (niet opgeslagen)</string>
+    <string name="theme_editor_save_as">Opslaan als nieuw thema</string>
+    <string name="theme_editor_pick_color">Kleur van het scherm kiezen</string>
+    <string name="theme_editor_replay_blink">Knipperen herhalen</string>
+    <string name="theme_editor_save_title">Thema opslaan</string>
+    <string name="theme_editor_name_label">Naam</string>
+    <string name="theme_editor_replace_title">Thema vervangen?</string>
+    <string name="theme_editor_replace_body">Er bestaat al een thema met de naam \"%1$s\". Opslaan vervangt het.</string>
+    <string name="theme_editor_discard_title">Niet-opgeslagen concept verwijderen?</string>
+    <string name="theme_editor_discard_body">Dit thema heeft al een niet-opgeslagen versie. Als je het opnieuw bewerkt, gaan die wijzigingen verloren.</string>
+    <string name="theme_editor_no_folder_title">Geen back-upmap</string>
+    <string name="theme_editor_no_folder_body">Kies een back-upmap onder %1$s → %2$s om thema\'s op te slaan.</string>
+    <string name="theme_identify">Identificeren</string>
+    <string name="theme_identify_results_title">Resultaten kleuridentificatie</string>
     <string name="tts_switch_title">Stem omschakelen naar %1$s?</string>
     <string name="tts_switch_body">De huidige tekst-naar-spraakstem komt niet overeen met de gekozen taal. Overschakelen naar een %1$s stem voor meldingen?</string>
     <string name="tts_switch_yes">Stem wisselen</string>
@@ -554,11 +714,24 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Snelheidslimieten</string>
     <string name="section_speed_calibration">Snelheidskalibratie</string>
+    <string name="section_battery_percent">Batterijkalibratie</string>
+    <string name="battery_override_label">Percentage van het wiel overschrijven</string>
+    <string name="battery_override_hint">Schat het uit de pakspanning.</string>
+    <string name="battery_percent_custom_floor">Lineaire schaal</string>
+    <string name="battery_percent_min_cell" formatted="false">Leeg bij</string>
+    <string name="battery_percent_max_cell" formatted="false">Vol bij</string>
+    <string name="battery_percent_cell_range_desc">Spanning per cel voor leeg en vol.</string>
+    <string name="battery_percent_series_cells">Cellen in serie</string>
+    <string name="battery_capacity_label">Capaciteit</string>
+    <string name="battery_capacity_desc">Optioneel. Zet de bereikschatting vanaf het begin, voor de tegel Bereik en de HUD.</string>
+    <string name="battery_percent_cells_from_wheel">Overgenomen van het wiel: %1$d in serie.</string>
+    <string name="battery_percent_cells_manual">Maakt van de pakspanning het percentage op het dashboard, in spraak en alarmen</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>
-    <string name="speed_calibration_caption">Past de door het wiel gerapporteerde snelheid aan; beïnvloedt alarmen, spraak en het ritlog</string>
+    <string name="speed_calibration_caption">Past de door het wiel gerapporteerde snelheid aan; beïnvloedt alarmen, spraak en het ritlog.</string>
     <string name="section_legal_mode_speed">Snelheid voor Legal Mode</string>
-    <string name="legal_mode_caption">Gebruikt in Legal Mode; moet lager zijn dan de normale tiltback</string>
-    <string name="speed_limits_disconnected">Verbind je wiel om snelheidslimieten te bewerken</string>
+    <string name="legal_mode_caption">Gebruikt in Legal Mode; moet lager zijn dan de normale tiltback.</string>
+    <string name="speed_limits_disconnected">Verbind je wiel om kalibratie en limieten te bewerken</string>
+    <string name="speed_limits_unsupported">De limieten van dit wiel stel je op het wiel zelf in</string>
     <string name="speed_tiltback">Tiltback-snelheid</string>
     <string name="speed_alarm">Alarmsnelheid</string>
     <string name="speed_legal_tiltback">Legal Tiltback</string>
@@ -594,7 +767,7 @@
     <string name="welcome_tut_done">Klaar</string>
     <string name="welcome_tut_step">%1$d / %2$d</string>
     <string name="welcome_tut_skip_title">Welkomstrondleiding overslaan?</string>
-    <string name="welcome_tut_skip_body">Hij wordt niet opnieuw getoond</string>
+    <string name="welcome_tut_skip_body">Hij wordt niet opnieuw getoond.</string>
     <string name="welcome_tut_skip_yes">Toch overslaan</string>
     <string name="welcome_tut_welcome">Welkom bij EUC Planet, een no-nonsense, opensource-app voor elektrische eenwielers</string>
     <string name="welcome_tut_bt">Verbind en verbreek hier de verbinding met je wiel</string>
@@ -607,8 +780,8 @@
     <string name="welcome_tut_outro_end">Houd je ogen op de weg en niet op deze app tijdens het rijden!</string>
     <string name="welcome_tut_speed">Je actuele snelheid. Wijzig de eenheden in Instellingen → %1$s</string>
     <string name="welcome_tut_metrics">Live accu, temperatuur, spanning en meer. Herschik ze in Instellingen → %1$s</string>
-    <string name="welcome_tut_actions">Snelle bediening. Pas ze aan op dezelfde plek, onder %2$s</string>
-    <string name="welcome_tut_map">Open de navigator om routes te plannen en bochtsgewijze begeleiding te krijgen</string>
+    <string name="welcome_tut_actions">Snelle bediening. Pas ze aan op dezelfde plek, onder %1$s</string>
+    <string name="welcome_tut_map">Open de navigator om routes te plannen, stap-voor-stap aanwijzingen te krijgen of je live locatie te delen voor een groepsrit</string>
     <string name="welcome_tut_gps">Tik hier voor de live-dataweergave; je kunt je wielsnelheid ook kalibreren op basis van de gps-snelheid. Controleer de kalibratie later via Instellingen → %1$s</string>
     <string name="welcome_tut_camera">Neem video op met een live telemetrie-overlay. Maak eigen overlays en exporteer ze voor video\'s met data van eerdere ritten</string>
     <string name="welcome_tut_pd">Toont Park of Drive. Tik erop om je %1$s in te stellen</string>
@@ -627,7 +800,7 @@
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorgeluid</string>
     <string name="engine_sound_enabled">Motorgeluid</string>
-    <string name="engine_sound_enabled_hint">Stuurt het motortoerental live op wielsnelheid en motorbelasting</string>
+    <string name="engine_sound_enabled_hint">Stuurt het motortoerental live op wielsnelheid en motorbelasting.</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
@@ -657,7 +830,7 @@
     <string name="engine_duck_pause">Pauzeren</string>
     <string name="engine_duck_mix">Mengen</string>
     <string name="engine_headphones_only">Alleen met koptelefoon</string>
-    <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motorgeluid klinkt alleen met bedrade of Bluetooth-audio</string>
+    <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motorgeluid klinkt alleen met bedrade of Bluetooth-audio.</string>
     <!-- Engine preset names -->
     <string name="engine_preset_two_stroke">Tweetakt</string>
     <string name="engine_preset_four_stroke_single">Viertakt eencilinder</string>
@@ -709,7 +882,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2-knoppen</string>
     <string name="flic_show_on_dashboard">Snelle toegang op dashboard</string>
-    <string name="flic_scan_hint">Houd de Flic 2-knop 6 seconden vast voor koppelmodus, tik dan op Scannen</string>
+    <string name="flic_scan_hint">Houd de Flic 2-knop 6 seconden vast voor koppelmodus, tik dan op Scannen.</string>
     <string name="flic_stop_scan">Scannen stoppen</string>
     <string name="flic_start_scan">Scannen starten</string>
     <string name="flic_forget">Vergeten</string>
@@ -722,13 +895,12 @@
     <string name="section_external_gps">GPS en sensoren</string>
     <!-- TPMS sensors -->
     <string name="section_tpms">TPMS-sensoren</string>
-    <string name="tpms_caption">Bandenspanning van een sensor op het wiel, zoals de InMotion P6.</string>
     <string name="tpms_wheel_sensor">Bandenspanning van het wiel</string>
-    <string name="tpms_wheel_sensor_desc">Doorgestuurd vanaf een gekoppelde sensor</string>
-    <string name="tpms_idle">Nog geen sensor meldt gegevens</string>
-    <string name="tpms_pair_title">Andere sensor koppelen</string>
-    <string name="tpms_pair_replaces">Een extra sensor vervangt de ingebouwde van het wiel, indien aanwezig.</string>
+    <string name="tpms_wheel_sensor_desc">Doorgestuurd vanaf een gekoppelde sensor.</string>
     <string name="tpms_scan">Zoek naar sensoren</string>
+    <string name="tpms_scan_stop">Scannen stoppen</string>
+    <string name="tpms_none_yet">Geen bandenspanningssensor gevonden of handmatig toegevoegd.</string>
+    <string name="tpms_wheel_sensor_replaced">Vervangen door je gekoppelde sensor</string>
     <string name="external_gps_device_title">Externe GPS</string>
     <string name="external_gps_pair_button">Scannen starten</string>
     <string name="external_gps_pair_action">Koppelen</string>
@@ -741,7 +913,7 @@
     <string name="external_gps_disconnect">Verbinding verbreken</string>
     <string name="external_gps_unpair">Apparaat vergeten</string>
     <string name="external_gps_axes_title">Asoriëntatie</string>
-    <string name="external_gps_axes_desc">Wijs elke uitgangsas toe aan een ruwe as op de box</string>
+    <string name="external_gps_axes_desc">Wijs elke uitgangsas toe aan een ruwe as op de box.</string>
     <string name="external_gps_map_x">Uitgang X</string>
     <string name="external_gps_map_y">Uitgang Y</string>
     <string name="external_gps_map_z">Uitgang Z</string>
@@ -759,7 +931,7 @@
     <string name="external_gps_autodetect_next">Volgende</string>
     <string name="gps_prioritize_external">Externe GPS prioriteit geven</string>
     <string name="gps_show_on_dashboard">Snelheid op dashboard tonen</string>
-    <string name="gps_show_on_dashboard_desc">Zet een gekleurde stip op de snelheidsmeter met de GPS-waarde</string>
+    <string name="gps_show_on_dashboard_desc">Zet een gekleurde stip op de snelheidsmeter met de GPS-waarde.</string>
     <string name="section_volume_keys">Volumeknoppen</string>
     <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen (alleen als de app zichtbaar is)</string>
     <string name="volume_keys_enable">Volumeknopacties inschakelen</string>
@@ -817,11 +989,25 @@
     <string name="alarm_metric_speed">Snelheid</string>
     <string name="alarm_metric_battery">Accu</string>
     <string name="alarm_metric_temperature">Temperatuur</string>
+    <string name="alarm_metric_tire_pressure">Bandenspanning</string>
+    <string name="alarm_metric_bt_rssi">Bluetooth-signaal</string>
+    <string name="alarm_metric_lateral_g">Laterale G</string>
+    <string name="alarm_metric_g_force">G-kracht</string>
+    <string name="alarm_metric_battery_temp">Accutemp.</string>
+    <string name="alarm_metric_controller_temp">Controllertemp.</string>
+    <string name="alarm_metric_motor_temp">Motortemp.</string>
     <string name="alarm_metric_pwm">Belasting (PWM)</string>
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Spanning</string>
     <string name="alarm_metric_current">Stroom</string>
+    <string name="alarm_metric_torque">Koppel</string>
+    <string name="alarm_metric_phase_current">Fasestroom</string>
+    <string name="alarm_metric_phase_current_voice">fase-ampère</string>
+    <string name="alarm_metric_wh_consumed">Energie</string>
+    <string name="alarm_metric_wh_per_km">Verbruik</string>
+    <string name="alarm_metric_range">Bereik</string>
     <string name="alarm_metric_gps_speed">GPS-snelheid</string>
+    <string name="alarm_metric_gps_altitude">Hoogte</string>
     <string name="alarm_metric_external_gps_speed">Externe GPS-snelheid</string>
     <string name="alarm_metric_external_gps_battery">Externe GPS-accu</string>
     <string name="alarm_metric_external_gps_speed_short">Ext GPS-snelh.</string>
@@ -862,7 +1048,7 @@
     <string name="scan_scanning">Zoeken…</string>
     <string name="scan_start">Scan starten</string>
     <string name="scan_show_all_title">Alle apparaten tonen</string>
-    <string name="scan_show_all_subtitle">Schakel in als je wiel niet verschijnt</string>
+    <string name="scan_show_all_subtitle">Schakel in als je wiel niet verschijnt.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">Geschiedenis</string>
@@ -907,40 +1093,60 @@
     <string name="recording_route">Route</string>
     <string name="recording_summary_distance">Afstand</string>
     <string name="recording_summary_duration">Duur</string>
-    <string name="recording_summary_points">Punten</string>
+    <string name="recording_summary_points">Rijen</string>
     <string name="recording_summary_top_speed">Topsnelheid</string>
     <string name="recording_summary_avg_speed">Gem. snelheid</string>
     <string name="recording_summary_battery">Accu (-%1$d%%)</string>
     <string name="recording_summary_voltage">Spanning</string>
     <string name="recording_summary_avg_moving">Gem. rijdend</string>
+    <string name="trip_chart_legend_gps">GPS</string>
+    <string name="trip_chart_legend_ext">Ext</string>
     <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
     <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
     <string name="recording_summary_max_pwm">Max. PWM</string>
     <string name="recording_summary_max_current">Max. stroom</string>
     <string name="recording_summary_max_power">Max. vermogen</string>
+    <string name="recording_summary_max_torque">Max koppel</string>
+    <string name="recording_summary_max_phase_current">Max fase-A</string>
     <string name="recording_summary_max_temp">Max. temp</string>
+    <string name="recording_summary_energy">Energie</string>
+    <string name="recording_summary_consumption">Verbruik</string>
     <string name="recording_chart_speed">Snelheid (%1$s)</string>
-    <string name="recording_chart_battery">Accu (%)</string>
+    <string name="recording_chart_battery" formatted="false">Accu (%)</string>
+    <string name="recording_chart_battery_envelope" formatted="false">Accu-omhullende (%)</string>
     <string name="recording_chart_temp">Temperatuur (%1$s)</string>
     <string name="recording_chart_voltage">Spanning (V)</string>
     <string name="recording_chart_current">Stroom (A)</string>
-    <string name="recording_chart_pwm">PWM (%)</string>
-    <string name="recording_chart_battery_smooth">Accu, gemiddeld (%)</string>
+    <string name="recording_chart_pwm" formatted="false">PWM (%)</string>
+    <string name="recording_chart_torque">Koppel (Nm)</string>
+    <string name="recording_chart_phase_current">Fasestroom (A)</string>
+    <string name="recording_chart_battery_smooth" formatted="false">Accu, gemiddeld (%)</string>
     <string name="recording_chart_speed_smooth">Snelheid, gemiddeld (%1$s)</string>
     <string name="recording_chart_current_smooth">Stroom, gemiddeld (A)</string>
-    <string name="recording_chart_pwm_smooth">PWM, gemiddeld (%)</string>
+    <string name="recording_chart_pwm_smooth" formatted="false">PWM, gemiddeld (%)</string>
     <string name="recording_chart_power">Vermogen (W)</string>
     <string name="recording_chart_altitude">Hoogte (m)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Licht</string>
-    <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang</string>
-    <string name="auto_lights_on_before_sunset">Licht AAN voor zonsondergang</string>
-    <string name="auto_lights_off_after_sunrise">Licht UIT na zonsopkomst</string>
+    <string name="auto_lights_title">Koplampbediening</string>
+    <string name="auto_lights_when">Zon volgen wanneer</string>
+    <string name="auto_lights_off_slow">Licht uit bij vertragen</string>
+    <string name="auto_lights_off_below">Uit onder</string>
+    <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang.</string>
+    <string name="auto_lights_on_before_sunset">Licht AAN voor</string>
+    <string name="auto_lights_off_after_sunrise">Licht UIT na</string>
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
-    <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Muziekvolume verhogen op basis van snelheid</string>
-    <string name="media_control_title">Mediabediening</string>
+    <string name="auto_volume_title">Volumeregeling</string>
+    <string name="auto_volume_desc">Muziekvolume verhogen op basis van snelheid.</string>
+    <string name="auto_volume_when">Volume verhogen wanneer</string>
+    <string name="media_rate_when">Afspeelsnelheid aanpassen wanneer</string>
+    <string name="media_rate_permission_desc">Android vraagt hier apart om. Zonder dit kan de afspeelsnelheid niet worden gewijzigd.</string>
+    <string name="media_rate_note">De speler bepaalt zelf of hij een snelheid van buitenaf aanneemt. Podcast-apps meestal wel, sommige muziek-apps niet.</string>
+    <string name="media_control_title">Afspeelbediening</string>
+    <string name="media_rate_title">Afspeelsnelheid</string>
+    <string name="media_rate_grant">Toestaan</string>
+    <string name="warnings_media_access_title">Meldingstoegang staat uit</string>
+    <string name="warnings_media_access_body">Zonder dit kan de afspeelsnelheid je snelheid niet volgen. Tik om toe te staan.</string>
     <string name="media_control_desc">Pauzeert de muziek als je vaart mindert en hervat als je sneller gaat.</string>
     <string name="media_control_pause">Pauzeren als ik vaart minder</string>
     <string name="media_control_pause_below">Pauzeren op of onder</string>
@@ -950,24 +1156,25 @@
     <string name="proximity_lock_title">Wiel vergrendelen</string>
     <string name="proximity_lock_desc">Vergrendelt het wiel als je wegloopt en ontgrendelt het als je terugkomt, op basis van de Bluetooth-signaalsterkte.</string>
     <string name="proximity_lock_enable">Vergrendelen als ik wegloop</string>
-    <string name="proximity_lock_below">Vergrendelen onder</string>
-    <string name="proximity_unlock_enable">Ontgrendelen als ik terugkom</string>
-    <string name="proximity_unlock_above">Ontgrendelen boven</string>
-    <string name="proximity_lock_signal_live">Huidig signaal: %1$d dBm</string>
-    <string name="proximity_lock_signal_none">Verbind je wiel om hier het live signaal te lezen.</string>
+    <string name="proximity_lock_below">Signaal onder</string>
+    <string name="proximity_unlock_when">Automatisch ontgrendelen</string>
+    <string name="proximity_unlock_when_never">Nooit</string>
+    <string name="proximity_unlock_when_return">Ik terugkom</string>
+    <string name="proximity_unlock_when_near">Ik dichtbij ben</string>
+    <string name="proximity_unlock_above">Signaal boven</string>
+    <string name="proximity_lock_signal_live">Huidig signaal: %1$s</string>
     <string name="proximity_lock_hint">Vergrendelen vereist een actieve verbinding, dus het gebeurt terwijl het signaal wegvalt, niet zodra je buiten bereik bent.</string>
-    <string name="auto_lock_override_toast">Automatisch vergrendelen staat aan en kan dit overschrijven.</string>
-    <string name="auto_lock_override_action">Instellen</string>
     <string name="menu_auto_lock_settings">Instellingen wielvergrendeling</string>
     <string name="menu_auto_lock_on">Automatisch vergrendelen aan</string>
     <string name="menu_auto_lock_off">Automatisch vergrendelen uit</string>
     <string name="action_retry">Opnieuw</string>
     <string name="auto_sunrise_sunset">Zonsopkomst en zonsondergang</string>
     <string name="auto_midnight_sun_title">Middernachtzon</string>
-    <string name="auto_midnight_sun_body">De zon gaat vandaag op deze breedtegraad niet onder, het licht blijft UIT</string>
+    <string name="auto_midnight_sun_body">De zon gaat vandaag op deze breedtegraad niet onder, het licht blijft UIT.</string>
     <string name="auto_polar_night_title">Poolnacht</string>
-    <string name="auto_polar_night_body">De zon komt vandaag op deze breedtegraad niet op, het licht blijft AAN</string>
-    <string name="auto_lights_suspended">Onderbroken omdat je het licht zelf hebt aan- of uitgezet voor deze sessie. Verbind het wiel opnieuw of herstart de app om door te gaan</string>
+    <string name="auto_polar_night_body">De zon komt vandaag op deze breedtegraad niet op, het licht blijft AAN.</string>
+    <string name="auto_lights_suspended">Gepauzeerd voor deze sessie, je hebt het licht met de hand gezet. Herstel het via Vereist aandacht of verbind het wiel opnieuw.</string>
+    <string name="auto_lock_suspended">Gepauzeerd voor deze sessie, je hebt met de hand vergrendeld of ontgrendeld. Herstel het via Vereist aandacht of verbind het wiel opnieuw.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Per metriek vuurt automatisch het meest relevante alarm. De volgorde in de lijst bepaalt niet welke; sorteren houdt het alleen overzichtelijk.</string>
@@ -985,6 +1192,7 @@
     <string name="alarm_label_frequency">Frequentie</string>
     <string name="alarm_label_duration">Duur</string>
     <string name="alarm_label_repeats">Herhalingen</string>
+    <string name="alarm_repeat_toggle">Herhalen</string>
     <string name="alarm_label_vibrate_on">Trillen op</string>
 
     <!-- Live data sources bottom sheet -->
@@ -1008,6 +1216,7 @@
     <string name="sources_fresh_just_now">zojuist</string>
     <string name="sources_fresh_seconds_fmt">%1$ds geleden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm geleden</string>
+    <string name="sources_delta_avg_fmt">gem %1$+.1f%2$s</string>
     <string name="sources_fresh_hours_fmt">%1$du geleden</string>
     <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_other_metrics">Andere gegevens</string>
@@ -1038,6 +1247,8 @@
     <string name="alarm_repeat_label">Trigger</string>
     <string name="alarm_repeat_single">1×</string>
     <string name="alarm_repeat_multi">Steeds</string>
+    <string name="alarm_wheel_only_label">Geldt alleen voor het momenteel verbonden wiel</string>
+    <string name="alarm_summary_wheel_fmt">Geldt voor: %1$s</string>
     <string name="alarm_predict_label">Voorspellende trigger</string>
     <string name="alarm_predict_realtime">Nu</string>
     <string name="alarm_state_atleast">%1$s is %2$s of meer</string>
@@ -1083,7 +1294,7 @@
     <string name="online_upload_profile_country_label">Land</string>
     <string name="online_upload_profile_country_select">Selecteer je land</string>
     <string name="online_upload_country_search">Landen zoeken</string>
-    <string name="online_upload_profile_avatar_hint">Tik om een foto toe te voegen</string>
+    <string name="online_upload_profile_avatar_hint">Tik om een foto toe te voegen.</string>
     <!-- Registration outcome -->
     <string name="online_upload_register_action">Registreren</string>
     <string name="online_upload_register_error">Registratie mislukt. Controleer je verbinding en probeer opnieuw.</string>
@@ -1096,7 +1307,7 @@
     <string name="online_upload_card_unavailable">Kan niet laden</string>
     <string name="online_profile_retry">Opnieuw</string>
     <string name="online_upload_card_missing">Het klassementprofiel van deze telefoon bestaat niet meer op de server, dus nieuwe uploads worden geweigerd. Als dit onverwacht is, neem dan contact op met de klassementbeheerder.</string>
-    <string name="online_upload_actions_caption">Uploads van ritstatistieken</string>
+    <string name="online_upload_actions_caption">Uploads van ritstatistieken.</string>
     <string name="online_upload_actions_desc">Stuur alle ritten die nog niet naar het klassement zijn geüpload.</string>
     <string name="online_upload_sync_nothing">Niets te synchroniseren</string>
     <string name="online_upload_sync_done">%1$d ritten gesynchroniseerd</string>
@@ -1112,8 +1323,11 @@
     <string name="online_status_flagged">Gedeeld, wordt beoordeeld</string>
     <string name="online_status_pending">Uploaden naar klassement…</string>
     <string name="online_status_failed">Upload mislukt, tik om opnieuw te proberen</string>
-    <string name="online_upload_join_caption">Meld je aan om je statistieken en ritten op het openbare klassement te zetten op</string>
-    <string name="online_upload_linked_caption">Je statistieken en ritten verschijnen op het openbare klassement op</string>
+    <string name="online_status_checking">Controleren bij het klassement…</string>
+    <string name="online_status_check_failed">Kon nu niet controleren, probeer het later opnieuw</string>
+    <string name="online_status_rejected">Niet geaccepteerd voor het klassement</string>
+    <string name="online_upload_join_caption">Meld je aan om je statistieken en ritten op het openbare klassement te zetten op.</string>
+    <string name="online_upload_linked_caption">Je statistieken en ritten verschijnen op het openbare klassement op.</string>
     <string name="online_upload_site_label">eucstats.ried.no</string>
     <string name="online_upload_site_url">https://eucstats.ried.no/</string>
     <string name="online_upload_unlink">Ontkoppelen</string>
@@ -1140,13 +1354,13 @@
     <string name="online_rejoin_title">Profiel reactiveren</string>
     <string name="online_rejoin_body">De back-upmap bevat een profiel dat voor het klassement gebruikt werd.\n\nRijders-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Batterijoptimalisatie staat aan</string>
-    <string name="warnings_battery_opt_body">Android kan EUC Planet op de achtergrond stoppen en een opname midden in de rit afbreken. Sta onbeperkt draaien toe</string>
+    <string name="warnings_battery_opt_body">Android kan EUC Planet op de achtergrond stoppen en een opname midden in de rit afbreken. Sta onbeperkt draaien toe.</string>
     <string name="warnings_hud_blocked_title">Telefoon-HUD kan niet tekenen</string>
-    <string name="warnings_hud_blocked_body">De toestemming om over andere apps te tekenen is ingetrokken, dus de overlay verschijnt niet boven kaarten of muziek</string>
+    <string name="warnings_hud_blocked_body">De toestemming om over andere apps te tekenen is ingetrokken, dus de overlay verschijnt niet boven kaarten of muziek.</string>
     <string name="warnings_no_backup_title">Ritten worden niet geback-upt</string>
-    <string name="warnings_no_backup_body">Ze staan alleen op deze telefoon. Kies een back-upmap zodat een verloren of gewiste telefoon je ritten niet meeneemt</string>
+    <string name="warnings_no_backup_body">Ze staan alleen op deze telefoon. Kies een back-upmap zodat een verloren of gewiste telefoon je ritten niet meeneemt.</string>
     <string name="warnings_pip_blocked_title">Beeld-in-beeld is geblokkeerd</string>
-    <string name="warnings_pip_blocked_body">Android is ingesteld om het te weigeren voor EUC Planet, dus het zwevende venster verschijnt niet als je de app verlaat</string>
+    <string name="warnings_pip_blocked_body">Android is ingesteld om het te weigeren voor EUC Planet, dus het zwevende venster verschijnt niet als je de app verlaat.</string>
     <string name="online_rejoin_confirm">Opnieuw deelnemen</string>
 
     <!-- Battery / Charging screen -->
@@ -1159,7 +1373,7 @@
     <string name="charging_details">Details</string>
     <string name="charging_tab_charge">Laden</string>
     <string name="charging_tab_packs">Packs</string>
-    <string name="charging_estimate_to_full">Altijd schatten tot 100%</string>
+    <string name="charging_estimate_to_full" formatted="false">Altijd schatten tot 100%</string>
     <string name="charging_options">Opties</string>
     <string name="charging_tab_power">Vermogen</string>
     <string name="charging_stat_added">Toegevoegd</string>
@@ -1236,10 +1450,10 @@
 
     <!-- Studio: save preset dialog -->
     <string name="studio_save_preset_title">Preset opslaan</string>
-    <string name="studio_save_preset_body">Presets worden opgeslagen als losse .json-bestanden in je back-upmap, onder overlays/</string>
+    <string name="studio_save_preset_body">Presets worden opgeslagen als losse .json-bestanden in je back-upmap, onder overlays/.</string>
     <string name="studio_save_preset_name_label">Presetnaam</string>
     <string name="studio_save_btn">Opslaan</string>
-    <string name="studio_no_folder_body">Stel een back-upmap in om presets te laden en op te slaan</string>
+    <string name="studio_no_folder_body">Stel een back-upmap in om presets te laden en op te slaan.</string>
 
     <!-- Studio: load preset sheet -->
     <string name="studio_load_preset_title">Preset laden</string>
@@ -1374,10 +1588,16 @@
     <string name="studio_cfg_map_dark">Donker</string>
     <string name="studio_cfg_map_satellite">Satelliet</string>
     <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_attribution">Kaartvermelding tonen</string>
+    <string name="studio_cfg_map_attribution_off">De kaartlicentie vereist deze vermelding op alles wat je deelt. Uitzetten is jouw keuze.</string>
+    <string name="studio_cfg_map_style_community">Tegels door vrijwilligers gehost. Een lange export haalt er duizenden tegelijk op, wat deze servers apps vragen niet te doen.</string>
     <string name="studio_cfg_map_rotate">Meedraaien met beweging</string>
-    <string name="studio_cfg_map_trace">Route tonen</string>
+    <string name="studio_cfg_map_trace">Spoor</string>
+    <string name="studio_cfg_map_trace_none">Geen</string>
+    <string name="studio_cfg_map_trace_progress">Voortgang</string>
+    <string name="studio_cfg_map_trace_full">Hele rit</string>
     <string name="studio_cfg_map_use_custom_marker">Voorkeur voor eigen marker</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">Stel je foto in via Navigator → Mijn marker aanpassen</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Stel je foto in via Navigator → Mijn marker aanpassen.</string>
     <string name="studio_cfg_camera_label">Camera</string>
     <string name="studio_cfg_replace_image">Afbeelding vervangen</string>
     <string name="studio_cfg_chroma_key">Een kleur transparant maken</string>
@@ -1448,6 +1668,7 @@
     <string name="studio_metric_voltage">Spanning</string>
     <string name="studio_metric_current">Stroom</string>
     <string name="studio_metric_phase_current">Fasestroom</string>
+    <string name="studio_metric_torque">Koppel</string>
     <string name="studio_metric_power">Vermogen</string>
     <string name="studio_metric_pwm">PWM</string>
     <string name="studio_metric_trip_distance">Ritafstand</string>
@@ -1458,6 +1679,7 @@
     <string name="studio_metric_external_gps_battery">Ext. GPS-accu</string>
     <string name="studio_metric_external_gps_speed">Ext. GPS-snelheid</string>
     <string name="studio_metric_gps_speed">GPS-snelheid</string>
+    <string name="studio_metric_gps_altitude">Hoogte</string>
     <string name="metric_chip_trip_meter">Tripteller</string>
     <string name="trip_meter_detail_title">Tripteller</string>
     <string name="trip_meter_tab_speed">Snelheid</string>
@@ -1476,6 +1698,9 @@
     <string name="trip_meter_col_max">Max</string>
     <string name="trip_meter_col_batt">Accu</string>
     <string name="studio_metric_trip_meter">Tripteller</string>
+    <string name="studio_metric_wh_consumed">Energie</string>
+    <string name="studio_metric_wh_per_km">Verbruik</string>
+    <string name="studio_metric_range">Bereik</string>
     <string name="studio_metric_gps">GPS-coördinaten</string>
 
     <!-- Studio: misc -->
@@ -1483,7 +1708,7 @@
     <string name="studio_overwrite_title">Preset overschrijven?</string>
     <string name="studio_overwrite_body">Er bestaat al een preset met de naam \"%1$s\".</string>
     <string name="studio_overwrite_confirm">Overschrijven</string>
-    <string name="studio_export_force_opaque_hint">Formaten zonder transparantie gebruiken de chromakey-kleur; kan storend zijn op semi-transparante lagen</string>
+    <string name="studio_export_force_opaque_hint">Formaten zonder transparantie gebruiken de chromakey-kleur; kan storend zijn op semi-transparante lagen.</string>
     <string name="studio_group_data">Gegevens</string>
     <string name="studio_group_text">Tekst &amp; info</string>
     <string name="studio_group_media">Camera &amp; afbeeldingen</string>
@@ -1528,6 +1753,15 @@
     <string name="nav_last_stop">Laatste stop</string>
     <string name="nav_need_destination">Voeg eerst een bestemming toe</string>
     <string name="nav_map_style">Kaartstijl</string>
+    <string name="nav_overlays">Lagen</string>
+    <string name="nav_reset_north">Noord boven</string>
+    <string name="nav_layer_dark">Esri Dark</string>
+    <string name="nav_layer_light">Esri Light</string>
+    <string name="nav_layer_satellite">Satelliet</string>
+    <string name="nav_layer_osm">Standard (OSM)</string>
+    <string name="nav_layer_cyclosm">CyclOSM</string>
+    <string name="nav_layer_topo">OpenTopoMap</string>
+    <string name="nav_layer_humanitarian">Humanitarian</string>
     <string-array name="nav_stop_ordinals">
         <item>Eerste stop</item>
         <item>Tweede stop</item>
@@ -1539,9 +1773,10 @@
         <item>Achtste stop</item>
     </string-array>
     <string name="nav_my_location">Mijn locatie</string>
+    <string name="nav_fit_all">Iedereen in beeld</string>
     <string name="nav_no_location">Wachten op een GPS-fix…</string>
     <string name="nav_too_far_to_start">De eerste stop is te ver weg. Houd Start ingedrukt om toch te navigeren.</string>
-    <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand</string>
+    <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand.</string>
     <string name="nav_route_failed">Routeringsservice niet beschikbaar, rechte lijnen gebruikt</string>
     <string name="nav_cant_add_while_running">Kan geen stop toevoegen terwijl navigatie loopt</string>
     <string name="nav_search_no_results">Geen resultaten voor dat adres</string>
@@ -1557,6 +1792,55 @@
     <string name="nav_arrived">Je bent aangekomen</string>
     <string name="nav_arrived_goal">Doel %1$d bereikt</string>
     <string name="nav_end_title">Navigatie beëindigen?</string>
+    <!-- ==== Live location share (navigator) ==== -->
+    <string name="share_button">Deelopties</string>
+    <string name="share_button_long">Mijn locatie delen</string>
+    <string name="share_leave_first">Verlaat eerst de huidige groep</string>
+    <string name="share_join_title">Deelnemen aan groep</string>
+    <string name="share_identity_anon">Anoniem</string>
+    <string name="share_identity_session">Eigen</string>
+    <string name="share_identity_profile">Profiel</string>
+    <string name="share_name_label">Naam</string>
+    <string name="share_start">Delen starten</string>
+    <string name="share_join">Deelnemen</string>
+    <string name="share_connected">Verbonden</string>
+    <string name="share_reconnecting">Opnieuw verbinden…</string>
+    <string name="share_leave">Groep verlaten</string>
+    <string name="share_left">heeft de groep verlaten</string>
+    <string name="share_lost">signaal verloren</string>
+    <string name="share_age_seconds">%1$d s geleden</string>
+    <string name="share_age_minutes">%1$d min geleden</string>
+    <string name="share_relay_caption">Relay: %1$s</string>
+    <string name="share_link_invalid">Deze deellink is verlopen of ongeldig.</string>
+    <string name="share_room_full">Deze groep is vol.</string>
+    <string name="share_switch_group">Huidige groep verlaten en aan deze deelnemen?</string>
+    <string name="share_cannot_reach">Kan de deelservice niet bereiken</string>
+    <string name="share_profile_missing">Nog geen ranglijstprofiel. Maak er een aan onder %1$s.</string>
+    <string name="share_profile_loading">Profiel laden…</string>
+    <string name="share_camera_needed">Cameratoegang is nodig om een QR-code te scannen.</string>
+    <string name="share_invite_text">Doe mee met mijn rit op EUC Planet: %1$s</string>
+    <string name="share_invite_subject">Doe mee met mijn rit</string>
+    <string name="share_copied">Gekopieerd</string>
+    <string name="share_camera_allow">Camera toestaan</string>
+    <string name="share_alone">Hier is nog niemand anders.</string>
+    <string name="share_open">Openen</string>
+    <string name="share_copy">Kopiëren</string>
+    <string name="share_menu_join">Deelnemen aan groepsrit</string>
+    <string name="share_menu_join_desc">Scan een QR-code.</string>
+    <string name="share_menu_live">Live locatie delen</string>
+    <string name="share_menu_live_desc">Start een groepsrit.</string>
+    <string name="share_menu_static">Locatie versturen</string>
+    <string name="share_menu_static_desc">Google Maps-link.</string>
+    <string name="share_menu_copy">Coördinaten kopiëren</string>
+    <string name="share_waiting_gps">Wachten op gps</string>
+    <string name="share_identity_label">Anderen zien mij als</string>
+    <string name="share_stats_label">Toon snelheid en accu</string>
+    <string name="share_tab_qr">QR-code</string>
+    <string name="share_tab_connected">Verbonden (%1$d)</string>
+    <string name="share_title_group">Groepsrit</string>
+    <string name="share_title_live">Live locatie delen</string>
+    <string name="share_static_subject">Mijn locatie</string>
+    <string name="share_you">Ik</string>
     <string name="nav_end_body">De begeleiding voor de actieve route stoppen?</string>
     <string name="nav_end_confirm">Beëindigen</string>
     <string name="nav_minimize">Minimaliseren</string>
@@ -1617,40 +1901,132 @@
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Gesproken begeleiding</string>
     <string name="nav_setting_arrival_radius">Aankomstradius</string>
-    <string name="nav_setting_arrival_radius_desc">Hoe dichtbij telt als het bereiken van een stop</string>
+    <string name="nav_setting_arrival_radius_desc">Hoe dichtbij telt als het bereiken van een stop.</string>
     <string name="nav_setting_offroute">Tolerantie buiten route</string>
-    <string name="nav_setting_offroute_desc">Hoe ver van de route voordat de melding "buiten route" verschijnt</string>
+    <string name="nav_setting_offroute_desc">Hoe ver van de route voordat de melding "buiten route" verschijnt.</string>
     <string name="nav_setting_default_mode">Standaard reismodus</string>
-    <string name="nav_setting_params">Navigatie-instellingen</string>
+    <string name="nav_setting_params">Navigatie en weer</string>
+    <string name="weather_section">Weer</string>
+    <string name="weather_icon_desc">Weersvoorspelling</string>
+    <string name="weather_now">Nu</string>
+    <string name="weather_fetching">Voorspelling ophalen…</string>
+    <string name="weather_refresh">Voorspelling verversen</string>
+    <string name="weather_error">Voorspelling mislukt: %1$s</string>
+    <string name="weather_window_8h">Komende 8 uur</string>
+    <string name="weather_win_hours_fmt">%1$d u</string>
+    <string name="weather_win_days_fmt">%1$d d</string>
+    <string name="weather_window_hours_suffix">u</string>
+    <string name="weather_open_expanded">Openen met alle details</string>
+    <string name="weather_window_24h">Komende 24 uur</string>
+    <string name="weather_window_3d">Komende 3 dagen</string>
+    <string name="weather_window_1w">Komende 7 dagen</string>
+    <string name="weather_settings_entry">Weerinstellingen</string>
+    <string name="weather_enable">Snelle toegang op dashboard</string>
+    <string name="weather_enable_desc">Zet een weericoon boven de kaartknop: tik erop voor een rijdbaarheidsverwachting.</string>
+    <string name="weather_window_label">Voorspellingsvenster</string>
+    <string name="weather_source_label">Voorspellingsbron</string>
+    <string name="weather_comfort_desc">Comfortdrempels voor de score. Temperatuur volgt je eenheden; wind volgt je snelheidseenheid.</string>
+    <string name="weather_cold">Te koud onder</string>
+    <string name="weather_hot">Te warm boven</string>
+    <string name="weather_breezy">Winderig boven</string>
+    <string name="weather_windy">Te winderig boven</string>
+    <string name="weather_source_credit">De verwachting komt van de gekozen bron en wordt alleen opgehaald zolang dit aanstaat. Een korter venster kan in fijnere stappen komen, als de bron die heeft.</string>
+    <string name="weather_title_1">Wielweer?</string>
+    <string name="weather_title_2">EUC-tijd?</string>
+    <string name="weather_title_3">Tijd voor een rit?</string>
+    <string name="weather_title_4">Bescherming aan?</string>
+    <string name="weather_title_5">Klaar voor de eenwieler?</string>
+    <string name="weather_lvl_awful_1">Vreselijk, laat het wiel thuis.</string>
+    <string name="weather_lvl_awful_2">Echt niet.</string>
+    <string name="weather_lvl_bad_1">Slecht, denk twee keer na.</string>
+    <string name="weather_lvl_bad_2">Het is bar buiten.</string>
+    <string name="weather_lvl_notworst_1">Niet het ergste.</string>
+    <string name="weather_lvl_notworst_2">Twijfelachtig, maar het kan.</string>
+    <string name="weather_lvl_meh_1">Meh, rijdbaar.</string>
+    <string name="weather_lvl_meh_2">Niets bijzonders.</string>
+    <string name="weather_lvl_ok_1">Prima, een rondje waard.</string>
+    <string name="weather_lvl_ok_2">Helemaal niet slecht.</string>
+    <string name="weather_lvl_good_1">Goed, rijden maar.</string>
+    <string name="weather_lvl_good_2">Lekker rijweer.</string>
+    <string name="weather_lvl_prime_1">Perfect, gaan!</string>
+    <string name="weather_lvl_prime_2">Topdag om te zweven!</string>
+    <string name="weather_expand">Details</string>
+    <string name="weather_chart_temp">Temp., vocht en neerslag</string>
+    <string name="weather_chart_precip">Neerslag</string>
+    <string name="weather_chart_wind">Wind en stoten</string>
+    <string name="weather_adv_snow_now">Het sneeuwt, grip is weg.</string>
+    <string name="weather_adv_snow_in">Sneeuw verwacht over %1$s.</string>
+    <string name="weather_adv_rain_now">Het regent, rem vroeg en leun minder.</string>
+    <string name="weather_adv_rain_in">Regen verwacht over %1$s.</string>
+    <string name="weather_adv_gusts">Sterke windstoten, let op bruggen en open wegen.</string>
+    <string name="weather_adv_freeze">Rond het vriespunt, pas op gladde plekken.</string>
+    <string name="weather_adv_clear">Alles vrij, gewoon rijden.</string>
+    <string name="weather_adv_heat">Hete periode, let op de controllertemperatuur bij klimmen.</string>
+    <string name="weather_adv_golden">Gouden uur over %1$s.</string>
+    <string name="weather_in_min">%1$d min</string>
+    <string name="weather_in_h">%1$d u</string>
+    <string name="weather_src_current">Huidig</string>
+    <string name="weather_src_destination">Bestemming</string>
+    <string name="weather_swap_src">Wissel locatie</string>
+    <string name="weather_pref_label">Comfortvoorkeuren</string>
+    <string name="weather_pref_desc">Je voorkeuren stemmen de score op jou af. Echte gevaren trekken hem alsnog omlaag.</string>
+    <string name="weather_pref_dislike">Vermijd</string>
+    <string name="weather_pref_neutral">Neutraal</string>
+    <string name="weather_pref_like">Graag</string>
+    <string name="weather_cond_hot">Hitte</string>
+    <string name="weather_cond_cold">Kou</string>
+    <string name="weather_cond_rain">Regen</string>
+    <string name="weather_cond_snow">Sneeuw en ijs</string>
+    <string name="weather_cond_wind">Wind</string>
+    <string name="weather_cond_night">Nacht</string>
+    <string name="weather_cond_golden">Gouden uur</string>
+    <string name="weather_face_clear">Helder - gassen.</string>
+    <string name="weather_face_meh">Rijdbaar, maar blijf scherp.</string>
+    <string name="weather_face_rain">Nat wegdek - zacht leunen, eerder remmen.</string>
+    <string name="weather_face_snow">Sneeuw of ijzel - geen grip, beter lopen.</string>
+    <string name="weather_face_wind">Vlagerig - blijf los, verwacht duwen.</string>
+    <string name="weather_face_night">Donker - licht aan, rustiger aan.</string>
+    <string name="weather_face_cold">Koud - minder grip, zwakke accu, kleed je warm.</string>
+    <string name="weather_face_hot">Heet - let op de controller bij klimmen.</string>
+    <string name="weather_face_golden">Gouden uur, mooi licht, straks lampen aan.</string>
     <string name="nav_setting_full_path">Altijd de hele route berekenen</string>
-    <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview</string>
+    <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview.</string>
     <string name="nav_setting_endpoints">Routeringsservices</string>
-    <string name="nav_setting_endpoints_hint">Standaard openbaar OpenStreetMap; wijzig voor eigen server</string>
+    <string name="nav_setting_endpoints_hint">Standaard openbaar OpenStreetMap; wijzig voor eigen server.</string>
     <string name="nav_setting_geocoder_url">URL voor adreszoeken</string>
     <string name="nav_setting_router_url">Routerings-URL</string>
     <string name="watch_show_navigation">Navigatie tonen</string>
-    <string name="watch_show_navigation_desc">Toon de afslagpijl en afstand op het horloge tijdens het navigeren</string>
+    <string name="watch_show_navigation_desc">Toon de afslagpijl en afstand op het horloge tijdens het navigeren.</string>
     <!-- ==== Trip share / actions ==== -->
     <string name="trip_action_share_file">Bestand delen</string>
-    <string name="trip_action_share_file_desc">Stuur de rit-CSV naar een andere app</string>
+    <string name="trip_action_share_file_desc">Stuur de rit-CSV naar een andere app.</string>
     <string name="trip_action_view_online">Online bekijken</string>
     <string name="trip_action_replay">Afspelen in Studio</string>
-    <string name="trip_action_replay_desc">Scrubt de rit met live data-overlays</string>
+    <string name="trip_action_replay_desc">Scrubt de rit met live data-overlays.</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">Videogalerij openen</string>
     <string name="dash_view_photo_gallery">Fotogalerij openen</string>
     <string name="dash_no_gallery_app">Geen galerij-app gevonden</string>
     <string name="dash_external_gps_settings">Instellingen externe GPS</string>
-    <string name="external_gps_caption">Schakel het apparaat in en tik op Koppelen; snelheid en G-kracht voeden de app live en worden in de trip-CSV opgeslagen</string>
-    <string name="gps_prioritize_external_desc">Geef voorrang aan het verbonden apparaat boven de telefoon voor snelheid, positie en G-kracht</string>
+    <string name="external_gps_caption">Schakel het apparaat in en tik op Koppelen; snelheid en G-kracht voeden de app live en worden in de trip-CSV opgeslagen.</string>
+    <string name="gps_prioritize_external_desc">Geef voorrang aan het verbonden apparaat boven de telefoon voor snelheid, positie en G-kracht.</string>
 
     <string name="warnings_indicator_desc">App-waarschuwingen</string>
     <string name="warnings_dialog_title">Vereist aandacht</string>
     <string name="warnings_fix_button">Oplossen</string>
+    <string name="warnings_autolights_title">Autolicht gepauzeerd</string>
+    <string name="warnings_autolights_body">Je hebt het licht met de hand gezet, dus het schema houdt zich deze sessie afzijdig. Herstellen geeft het weer de leiding.</string>
+    <string name="warnings_autolock_title">Autoslot gepauzeerd</string>
+    <string name="warnings_autolock_body">Je hebt met de hand vergrendeld of ontgrendeld, dus het nabijheidsslot houdt zich deze sessie afzijdig. Herstellen geeft het weer de leiding.</string>
     <string name="warnings_perm_notifications_title">Meldingen uit</string>
-    <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel</string>
+    <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel.</string>
+    <string name="warnings_perm_location_title">Locatie staat uit</string>
+    <string name="warnings_perm_location_body">Ritten leggen geen route vast en GPS-snelheid en kalibratie werken niet. Tik om toe te staan.</string>
+    <string name="weather_error_no_location">Geen locatie voor de verwachting</string>
+    <string name="warnings_location_services_body">EUC Planet mag het, maar de telefoon heeft locatie voor alles uitgeschakeld. Tik om het aan te zetten.</string>
+    <string name="warnings_location_services_title">Locatie staat uit op de telefoon</string>
     <string name="hud_joystick_title">Knopacties</string>
-    <string name="hud_joystick_desc">Tik twee keer op een HUD-knop om een actie uit te voeren. Een enkele tik wisselt nog steeds van scherm</string>
+    <string name="hud_joystick_desc">Tik twee keer op een HUD-knop om een actie uit te voeren. Een enkele tik wisselt nog steeds van scherm.</string>
     <string name="hud_joystick_up">Omhoog (dubbele tik)</string>
     <string name="hud_joystick_down">Omlaag (dubbele tik)</string>
     <string name="hud_joystick_left">Links (dubbele tik)</string>
@@ -1670,12 +2046,14 @@
     <string name="charging_cells_pack_n">Pack %1$d</string>
     <string name="charging_cells_waiting">Wachten op celspanningsdata…</string>
     <string name="charging_tab_cells">Cellen</string>
-    <string name="hud_auto_discover">Linkadres automatisch detecteren</string>
-    <string name="hud_auto_discover_desc"></string>
     <string name="scan_bluetooth_off_body">Schakel Bluetooth in om naar wielen te zoeken.</string>
     <string name="scan_bluetooth_off_title">Bluetooth is uit</string>
     <string name="scan_enable_bluetooth">Bluetooth inschakelen</string>
     <string name="studio_cfg_radar_distance_labels">Afstandslabels</string>
+    <string name="studio_radar_none">Geen radar</string>
+    <string name="studio_radar_clear">Vrij</string>
+    <string name="studio_radar_closing_fmt">+%1$d km/h</string>
+    <string name="studio_radar_mirror_closing_fmt">m · +%1$d km/h</string>
     <string name="studio_cfg_radar_lane">Rijstrook</string>
     <string name="studio_cfg_radar_minimal">Minimaal</string>
     <string name="studio_cfg_radar_mirror">Spiegel</string>
@@ -1688,7 +2066,7 @@
     <string name="studio_save_keep_both">Beide bewaren</string>
     <string name="welcome_tut_voice_desc">Je kunt individuele spraakberichten later aan- of uitzetten in Instellingen → Spraak en aankondigingen.</string>
     <string name="welcome_tut_voice_title">Spraakwaarschuwingen inschakelen</string>
-    <string name="dropbox_section_caption">Online back-up naar Dropbox</string>
+    <string name="dropbox_section_caption">Online back-up naar Dropbox.</string>
     <string name="dropbox_section_desc">Ritten zijn ook te openen op %1$s wanneer Dropbox is gekoppeld.</string>
     <string name="dropbox_section_desc_url">eucviewer.ried.no</string>
     <string name="dropbox_link">Dropbox koppelen</string>
@@ -1700,9 +2078,9 @@
     <string name="dropbox_email_unverified">Verifieer je Dropbox-e-mailadres en probeer opnieuw te delen</string>
     <string name="dropbox_preparing">Link wordt voorbereid…</string>
     <string name="trip_action_share_dropbox">Delen via Dropbox</string>
-    <string name="trip_action_share_dropbox_desc">Upload naar je Dropbox-map en deel de openbare link</string>
+    <string name="trip_action_share_dropbox_desc">Upload naar je Dropbox-map en deel de openbare link.</string>
     <string name="trip_action_inspect_online">Online inspecteren</string>
-    <string name="trip_action_inspect_online_desc">Deel een eucviewer.ried.no-link om deze rit online te bekijken</string>
+    <string name="trip_action_inspect_online_desc">Deel een eucviewer.ried.no-link om deze rit online te bekijken.</string>
     <string name="trip_action_dropbox_disabled">Koppel Dropbox in instellingen om dit in te schakelen</string>
 
     <!-- Map: chargers (Open Charge Map) and places (OpenStreetMap) -->
@@ -1740,13 +2118,13 @@
     <string name="nav_poi_website">Website</string>
     <string name="nav_pois_failed">Plaatsen konden niet geladen worden. Controleer je verbinding</string>
     <string name="nav_pois_none">Niets gevonden in de buurt van deze route</string>
-    <string name="nav_pois_places_hint">Tip: houd deze knop ingedrukt om te kiezen welke plaatsen je wilt tonen</string>
+    <string name="nav_pois_places_hint">Tip: houd deze knop ingedrukt om te kiezen welke plaatsen je wilt tonen.</string>
     <string name="nav_setting_advanced_map">Geavanceerde kaartfuncties</string>
-    <string name="nav_setting_advanced_map_desc">Toon laadpunten en plaatsen langs de route</string>
+    <string name="nav_setting_advanced_map_desc">Toon laadpunten en plaatsen langs de route.</string>
     <string name="nav_setting_avoid">Vermijden bij routering</string>
     <string name="nav_setting_avoid_ferries">Veerboten vermijden</string>
     <string name="nav_setting_avoid_highways">Snelwegen vermijden</string>
-    <string name="nav_setting_avoid_hint">Vermijdingen gebruiken een andere routeringsservice en gelden waar de reismodus ze ondersteunt</string>
+    <string name="nav_setting_avoid_hint">Vermijdingen gebruiken een andere routeringsservice en gelden waar de reismodus ze ondersteunt.</string>
     <string name="nav_setting_avoid_tolls">Tolwegen vermijden</string>
     <string name="nav_setting_avoid_unpaved">Onverharde wegen vermijden</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-sleutel</string>
@@ -1814,7 +2192,14 @@
     <string name="adv_group_radar_class">Radarclassificatie</string>
     <string name="adv_group_rates">Data- en rapportagesnelheden</string>
     <string name="adv_group_controls">Wielbediening</string>
+    <string name="adv_group_weather">Weerscore</string>
+    <string name="adv_weather_cold_desc">Hieronder telt het uur als te koud.</string>
+    <string name="adv_weather_hot_desc">Hierboven telt het uur als te heet.</string>
+    <string name="adv_weather_breezy_desc">Hier begint de wind te storen.</string>
+    <string name="adv_weather_windy_desc">Voorbij dit wordt rijden echt lastig.</string>
     <string name="adv_lock_max_speed">Max. vergrendelsnelheid</string>
+    <string name="adv_voice_listen_window">Luistervenster</string>
+    <string name="adv_voice_listen_window_desc">Hoe lang de microfoon open blijft na het signaal als er niets te horen is.</string>
     <string name="adv_lock_max_speed_desc">Bepaalt de snelheid waarboven het vergrendelen van het wiel wordt geweigerd. Let op: te hoog laat een vergrendeling activeren terwijl je nog rijdt.</string>
     <string name="adv_hud_backoff_max">Herverbind-backoff (max)</string>
     <string name="adv_hud_backoff_max_desc">Bepaalt de langste wachttijd tussen HUD-herverbindpogingen. Let op: te hoog herstelt traag.</string>
@@ -1908,6 +2293,7 @@
     <string name="adv_wheel_poll_rate_desc">Bepaalt hoe vers de live data is en hoe snel alarmen reageren. Lager vraagt het wiel vaker om data. Let op: zeer lage waarden kunnen de Bluetooth-link overspoelen en data op sommige wielen blokkeren.</string>
     <string name="alarm_beep_advanced">Geavanceerd</string>
     <string name="alarm_beep_gap_label">Pauzeduur</string>
+    <string name="alarm_beep_timeline_fmt">%1$d× · pauze %2$d ms</string>
     <string name="alarm_beep_studio">Adaptieve piep</string>
     <string name="alarm_beep_volume_label">Basisvolume</string>
     <string name="alarm_studio_now">%1$d Hz · %2$d%%</string>
@@ -1942,7 +2328,7 @@
     <string name="tab_more">Meer</string>
     <string name="welcome_tut_dev_join">Deelnemen aan klassementen</string>
     <string name="welcome_tut_dev_joined">Aangemeld voor klassementen</string>
-    <string name="welcome_tut_dev_joined_norider">Online upload aan. Geen rider gevonden in de map.</string>
+    <string name="welcome_tut_dev_joined_norider">Nog geen rider in deze map. Tik op %1$s in %2$s om er een te maken.</string>
     <string name="welcome_tut_dev_restore">Instellingen terugzetten</string>
     <string name="welcome_tut_dev_set_folder">Back-upmap instellen</string>
     <string name="welcome_tut_dev_sync_trips">Ritten synchroniseren</string>
@@ -1957,6 +2343,7 @@
     <string name="sync_stopping">Stoppen…</string>
     <string name="charging_stat_used">Gebruikt</string>
     <string name="charging_stat_charged">Geladen</string>
+    <string name="charging_stat_charged_est">Geladen (schatting)</string>
     <string name="voice_quality_high">hoge kwaliteit</string>
     <string name="voice_quality_low">basis</string>
     <string name="voice_sample_default">Dit is de standaardstem voor deze taal</string>
@@ -1995,6 +2382,11 @@
     <string name="side_left">Links</string>
     <string name="side_right">Rechts</string>
     <string name="adv_group_geometry">Variabelen voor schermgeometrie</string>
+    <string name="adv_group_map_cache">Kaartcache</string>
+    <string name="adv_map_encoded_cache">Cache voor gecodeerde tegels</string>
+    <string name="adv_map_encoded_cache_desc">PNG-tegels voor het horloge. Hogere waarden gebruiken meer telefoongeheugen.</string>
+    <string name="adv_map_http_cache">Cache voor gedownloade tegels</string>
+    <string name="adv_map_http_cache_desc">Gedownloade kaarttegels op de telefoon. Hogere waarden gebruiken meer opslagruimte.</string>
     <string name="adv_compact_max_screen">Limiet compact scherm</string>
     <string name="adv_compact_max_screen_desc">Schermen met beide zijden hieronder schakelen naar het compacte dashboard als Compact dashboard op Kleine schermen staat.</string>
     <string name="adv_cover_cutout_inset">Grootte camera-uitsparing</string>
@@ -2003,6 +2395,10 @@
     <string name="adv_nav_sidebar_min_desc">Smallere schermen houden het stopspaneel onderaan, ook liggend. Te laag verstopt de kaart op kleine schermen.</string>
     <string name="adv_inmotion_v1_pin">InMotion V5/V8/V10 PIN</string>
     <string name="adv_inmotion_v1_pin_desc">Toegangs-PIN voor InMotion V5/V8/V10 wielen, wordt bij verbinden verstuurd zodat het wiel data gaat sturen. Laat 000000 staan, tenzij je een eigen PIN hebt ingesteld in de InMotion-app.</string>
+    <string name="adv_kingsong_unlock_code">KingSong-ontgrendelcode</string>
+    <string name="adv_kingsong_unlock_code_desc">Zes cijfers die met het ontgrendelcommando worden verstuurd. Geteste wielen accepteren elk cijfer, dus laat 123456 staan tenzij het jouwe het weigert.</string>
+    <string name="adv_kingsong_password">KingSong-app wachtwoord</string>
+    <string name="adv_kingsong_password_desc">Het 4-cijferige wachtwoord uit de KingSong-app, verstuurd bij verbinden en voor vergrendelen en ontgrendelen. Laat 0000 staan als je er nooit een instelde.</string>
     <string name="adv_nav_sidebar_width">Breedte stopspaneel</string>
     <string name="adv_nav_sidebar_width_desc">Breedte van de liggende stopszijbalk. Te breed laat weinig kaart over.</string>
     <string name="adv_simple_speedo_scale">Grootte eenvoudige snelheidsmeter</string>
@@ -2042,6 +2438,16 @@
     <string name="accel_splits_dir_both">Beide</string>
     <string name="accel_splits_compare_previous">Vergelijk met vorige rit</string>
     <string name="accel_splits_compare_best">Vergelijk met sessierecord</string>
+    <string name="action_splits_off">Splits uit</string>
+    <string name="action_splits_accel">Splits: accel.</string>
+    <string name="action_splits_brake">Splits: remmen</string>
+    <string name="action_splits_both">Splits: beide</string>
+    <string name="accel_splits_session">Deze rit</string>
+    <string name="accel_splits_session_empty">Nog geen splits. Rijd door een stap om er een vast te leggen.</string>
+    <string name="accel_splits_session_row">%1$d tot %2$d</string>
+    <string name="accel_splits_session_best">beste %1$s s</string>
+    <string name="accel_splits_session_last">laatste %1$s s</string>
+    <string name="accel_splits_reset">Resetten</string>
     <string name="accel_split_time_fmt">%1$d naar %2$d, %3$s seconden</string>
     <string name="accel_split_faster_prev">, %1$s seconden sneller dan vorige</string>
     <string name="accel_split_slower_prev">, %1$s seconden langzamer dan vorige</string>
@@ -2059,15 +2465,12 @@
     <string name="widget_disconnected">Geen wiel</string>
     <string name="widget_placeholder_value">--</string>
     <string name="widget_description">Metingen en snelle acties</string>
-    <string name="trip_action_save_section">Deel opslaan als rit</string>
-    <string name="trip_action_save_section_desc">Behoudt deze rit en voegt het bijgesneden deel toe. Wordt geback-upt, nooit naar de ranglijst gestuurd.</string>
     <string name="trip_section_saved">Deel opgeslagen als nieuwe rit</string>
     <string name="trip_section_failed">Kon het deel niet opslaan</string>
     <string name="trip_tools_title">Ritgereedschap</string>
     <string name="trip_tools_change_wheel">Wiel wijzigen</string>
     <string name="trip_tools_change_wheel_desc">Corrigeert op welk wiel deze rit was. Werkt rit en bestand bij.</string>
     <string name="trip_tools_wheel_other">Een ander wiel</string>
-    <string name="trip_tools_wheel_uploaded_warning">Deze rit staat al op de ranglijst. Die vermelding houdt het oude wiel en kan hier niet worden gecorrigeerd.</string>
     <string name="trip_tools_split">Rit splitsen</string>
     <string name="trip_tools_split_desc">Zoekt wielwissels, lange pauzes en opnamegaten en knipt daar.</string>
     <string name="trip_tools_split_none">Niets te splitsen. Geen wielwissels, lange pauzes of opnamegaten gevonden.</string>
@@ -2087,9 +2490,6 @@
     <string name="trip_tools_combine_done">Ritten samengevoegd tot een nieuwe</string>
     <string name="trip_tools_combine_failed">Kon die ritten niet samenvoegen</string>
     <string name="trip_tools_wheel_current">Huidig</string>
-    <string name="trip_tools_combine_pick">Kies tot hoever je combineert. Alles ertussen wordt meegenomen.</string>
-    <string name="trip_tools_combine_this">Deze rit</string>
-    <string name="trip_tools_combine_between">Ertussen, meegenomen</string>
     <string name="trip_tools_combine_summary">Voegt %1$d ritten samen tot een nieuwe rit.</string>
     <string name="phone_hud_desc">Tekent een Overlay Studio-indeling over andere apps, zodat je je wiel ziet tijdens kaarten of muziek.</string>
     <string name="phone_hud_permission_desc">Android vraagt hier apart om. Zonder dit kan de overlay niet worden getoond.</string>
@@ -2100,11 +2500,12 @@
     <string name="section_surfaces">Live-weergaven</string>
     <string name="surface_notification">Melding</string>
     <string name="pip_section">Beeld-in-beeld</string>
-    <string name="pip_desc">Krimpt tot een zwevend venster als je de app verlaat tijdens een rit.</string>
+    <string name="pip_desc">Krimpt tot een zwevend venster als je de app verlaat.</string>
     <string name="pip_mode_label">PIP-modus</string>
     <string name="pip_mode_off">Uit</string>
     <string name="pip_mode_simple">Eenvoudig</string>
     <string name="pip_mode_dashboard">Dashboard</string>
+    <string name="pip_label_pwm" formatted="false">pwm %</string>
     <string name="widget_section">Startscherm-widget</string>
     <string name="widget_pick_desc">Kies de %1$d metingen en %2$d knoppen die de widget toont.</string>
     <string name="widget_metric_slot">Meting %1$d</string>
@@ -2118,7 +2519,12 @@
     <string name="widget_metric_pwm">PWM</string>
     <string name="widget_metric_current">Stroom</string>
     <string name="widget_metric_power">Vermogen</string>
+    <string name="widget_metric_wh_consumed">Energie</string>
+    <string name="widget_metric_wh_per_km">Verbruik</string>
+    <string name="widget_metric_range">Bereik</string>
     <string name="widget_metric_phone_battery">Telefoonaccu</string>
+    <string name="widget_metric_torque">Koppel</string>
+    <string name="widget_metric_phase_current">Fasestroom</string>
     <string name="widget_action_voice">Spraak</string>
     <string name="widget_button_unset">Kies een knop in Instellingen</string>
     <string name="trip_tools_extend">Rit verlengen</string>
@@ -2128,11 +2534,11 @@
     <string name="trip_tools_extend_to">Eindigen bij</string>
     <string name="trip_tools_extend_none">Deze rit</string>
     <string name="trip_tools_extend_pick_one">Kies een eerdere of latere rit om naartoe uit te breiden.</string>
-    <string name="widget_act_1_desc">Knop 1</string>
-    <string name="widget_act_2_desc">Knop 2</string>
-    <string name="widget_act_3_desc">Knop 3</string>
-    <string name="widget_act_12_desc">Knoppen 1 en 2</string>
-    <string name="widget_act_23_desc">Knoppen 2 en 3</string>
+    <string name="widget_act_1_desc">Stel de actie in de app in</string>
+    <string name="widget_act_2_desc">Stel de actie in de app in</string>
+    <string name="widget_act_3_desc">Stel de actie in de app in</string>
+    <string name="widget_act_12_desc">Stel de acties in de app in</string>
+    <string name="widget_act_23_desc">Stel de acties in de app in</string>
     <string name="widget_standalone_desc">Acties voor de knop-widgets, los van de rij hierboven.</string>
     <string name="widget_standalone_slot">Losse knop %1$d</string>
         <string name="widget_customize">Aanpassen</string>
@@ -2176,6 +2582,185 @@
     <string name="trip_map_ride_end">Einde rit</string>
     <string name="adv_smoothing_window">Afvlakkingsvenster</string>
     <string name="adv_smoothing_window_desc">Metingen die worden gemiddeld door de \"gemiddelde\" ritgrafieken en de afgevlakte gesproken meldingen. Ritten worden ongeveer één keer per seconde vastgelegd, dus deze waarde komt overeen met seconden. Gevaar: hoge waarden verbergen korte pieken.</string>
-    <string name="auto_volume_only_connected">Alleen wanneer een wiel is verbonden</string>
-</resources>
+    <string name="hud_discovery_auto">Auto</string>
+    <string name="hud_discovery_both">Beide</string>
+    <string name="hud_discovery_desc">Auto vindt de HUD zelf. Vast gebruikt alleen het adres hieronder.</string>
+    <string name="hud_discovery_fixed">Vast</string>
+    <string name="hud_discovery_mode">Zoekmodus</string>
+    <string name="metric_chip_battery_range">Accu begin → eind</string>
+    <string name="recording_summary_battery_range">Begin→eind (-%1$d%%)</string>
+    <string name="trip_tools_rename">Rit hernoemen</string>
+    <string name="trip_tools_rename_desc">Geef deze rit een naam. Staat in het bestand, dus gaat mee met export en synchronisatie.</string>
+    <string name="trip_tools_rename_hint">Laat leeg om de datum te gebruiken.</string>
+    <string name="trip_tools_renamed">Rit hernoemd</string>
+    <string name="trip_tools_archived">%1$d gearchiveerd</string>
+    <string name="trip_tools_archive_failed">Sommige ritten konden niet worden gearchiveerd en staan er nog</string>
+    <string name="recording_delete_archive">Back-upkopieën archiveren</string>
+    <string name="recording_delete_archive_desc">Verplaatst ze naar een archiefmap.</string>
+    <string name="trip_tools_extend_all_inside">De ritten eromheen zitten al in deze rit.</string>
+    <string name="trip_tools_extend_skipped">Slaat %1$d ritten over die al in deze zitten.</string>
+    <string name="recording_clear_all_body_archive">Dit verwijdert de ritten van deze telefoon. De back-upkopieën gaan naar een archiefmap.</string>
+    <string name="recording_delete_trip_body_archive">Deze rit van de telefoon verwijderen? De back-upkopie gaat naar een archiefmap.</string>
+    <string name="backup_status_pending">Back-up bezig…</string>
+    <string name="backup_status_failed">Back-up mislukt, tik om opnieuw te proberen</string>
+    <string name="lockdown_title">Vergrendelmodus</string>
+    <string name="lockdown_action_speed_limit">Limiet</string>
+    <string name="lockdown_action_vehicle">Wiel</string>
+    <string name="lockdown_no_wheel">Geen wheel verbonden. Gebruik het Bluetooth-icoon om te verbinden.</string>
+    <string name="lockdown_vehicle_name">Bluetooth-naam</string>
+    <string name="lockdown_vehicle_brand">Fabrikant</string>
+    <string name="lockdown_vehicle_model">Model</string>
+    <string name="lockdown_vehicle_max_speed">Max. snelheidslimiet</string>
+    <string name="lockdown_vehicle_alarm">Alarm</string>
+    <string name="lockdown_vehicle_odometer">Kilometerstand</string>
+    <string name="lockdown_speed_limit_title">Limieten</string>
+    <string name="lockdown_unlock_prompt">Fabrikantcode</string>
+    <string name="lockdown_unlock">Ontgrendelen</string>
+    <string name="lockdown_connect">Verbinden</string>
+    <string name="lockdown_setting_label">Vergrendelmodus</string>
+    <string name="lockdown_setting_desc">Zet de app vast op een eenvoudig scherm.</string>
+    <string name="lockdown_set_code">Stel de fabrikantcode in</string>
+    <string name="lockdown_confirm_code">Herhaal de code</string>
+    <string name="lockdown_code_hint">4 tot 8 cijfers</string>
+    <string name="lockdown_code_mismatch">De twee codes komen niet overeen</string>
+    <string name="lockdown_code_invalid">De code moet 4 tot 8 cijfers hebben</string>
+    <string name="lockdown_arm">Inschakelen</string>
+    <string name="lockdown_trip_saved">Rit opgeslagen. Opname gestopt.</string>
+    <string name="lockdown_warning_intro">Hiermee schakelt de app over naar een eenvoudig, vergrendeld scherm. Zolang dit aan staat:</string>
+    <string name="lockdown_limit_1">De snelheidslimieten van de Legal-modus staan verplicht aan en kunnen niet worden uitgezet, niet vanaf het scherm, niet met een Flic-knop, de volumetoetsen, het horloge of de HUD.</string>
+    <string name="lockdown_limit_2">De legal tiltback en het legal alarm kunnen niet worden gewijzigd.</string>
+    <string name="lockdown_limit_3">Ritopname stopt, en automatisch opnemen start geen nieuwe ritten.</string>
+    <string name="lockdown_limit_4">Navigatie stopt en routes kunnen niet worden gestart.</string>
+    <string name="lockdown_limit_5">De zwevende overlay wordt verborgen.</string>
+    <string name="lockdown_limit_6">Widgets op het startscherm worden niet meer bijgewerkt.</string>
+    <string name="lockdown_limit_7">Servicemodus en diagnose-opname stoppen.</string>
+    <string name="lockdown_limit_8">Het dashboard wordt vervangen door een vast scherm: snelheidsmeter, zes waarden, vier knoppen.</string>
+    <string name="lockdown_limit_9">Het scherm draait niet mee.</string>
+    <string name="lockdown_limit_10">Instellingen kunnen niet worden geopend.</string>
+    <string name="lockdown_limit_11">Ritgeschiedenis, de accumonitor, de studio en waardedetails kunnen niet worden geopend.</string>
+    <string name="lockdown_limit_12">Op een waarde tikken doet niets.</string>
+    <string name="lockdown_limit_13">Spraakmeldingen, periodieke rapporten en versnellingssplits zijn stil. Je alarmen blijven werken.</string>
+    <string name="lockdown_limit_14">Het wheel kan niet worden vergrendeld of ontgrendeld, en automatisch vergrendelen op nabijheid werkt niet.</string>
+    <string name="lockdown_limit_15">Automatisch licht en automatisch volume blijven werken. Mediabediening stopt.</string>
+    <string name="lockdown_limit_16">De melding verliest zijn knoppen.</string>
+    <string name="lockdown_limit_17">Het versienummer opent Over niet meer.</string>
+    <string name="lockdown_limit_18">Deze modus zit niet in de back-ups van de instellingen.</string>
+    <string name="lockdown_warning_settings_safe">Je instellingen worden niet gewijzigd. Bij het ontgrendelen komt alles precies terug zoals het nu is.</string>
+    <string name="lockdown_warning_recovery">De enige uitweg is de fabrikantcode, via de knop Snelheidslimiet. Als je die code kwijtraakt, is de app alleen te herstellen door hem te verwijderen en opnieuw te installeren.</string>
+    <string name="lockdown_tiltback_alarm">Tiltback-alarm</string>
+    <string name="lockdown_warning_waits">De Legal-modus staat uit, er verandert dus nog niets. De app vergrendelt de volgende keer dat je de Legal-modus aanzet.</string>
+    <string name="lockdown_warning_now">De Legal-modus staat aan, dit werkt dus meteen en de app vergrendelt direct.</string>
+    <string name="lockdown_warning_no_wheel">Geen wheel verbonden, de staat van de Legal-modus is dus onbekend. De app vergrendelt de volgende keer dat de Legal-modus wordt aangezet.</string>
+    <string name="lockdown_continue">Doorgaan</string>
+    <string name="trip_tools_wheel_none">Voor deze rit is nog geen wiel vastgelegd.</string>
+    <string name="backup_conflict_warning">Sommige ritback-ups hebben een handmatige synchronisatie nodig: de kopieën verschillen. Druk op Synchroniseren en kies welke kant telt.</string>
+    <string name="backup_conflict_title">Back-upconflicten</string>
+    <!-- Weather widgets -->
+    <string name="widget_weather_question">Rijden?</string>
+    <string name="widget_weather_score_desc">Het rijweer, op dit moment.</string>
+    <string name="widget_weather_compact_desc">Hoe goed het weer is om te rijden, nu en de komende uren. Vergroot voor uren, temperatuur en wind.</string>
+    <string name="widget_weather_graph_desc">Hoe goed het weer is om te rijden, over de voorspelde periode</string>
+    <string name="widget_weather_refresh_desc">Voorspelling verversen</string>
+    <string name="widget_weather_never">Nog geen voorspelling. Open de app één keer of tik op verversen.</string>
+    <string name="widget_weather_never_short">Nooit</string>
+    <string name="widget_weather_refreshing">Verversen…</string>
+    <string name="widget_weather_now">Zojuist</string>
+    <string name="widget_weather_min_fmt">%1$d min geleden</string>
+    <string name="widget_weather_hour_fmt">%1$d u geleden</string>
+    <string name="widget_weather_window_fmt">komende %1$d u</string>
+    <!-- Charge alerts -->
+    <string name="charging_notify_80" formatted="false">Waarschuw me bij 80 %</string>
+    <string name="charging_notify_full" formatted="false">Waarschuw me bij 100 %</string>
+    <string name="charge_alert_channel_name">Laadmeldingen</string>
+    <string name="charge_alert_channel_description" formatted="false">Wanneer het pakket boven 80 % komt of klaar is met laden.</string>
+    <string name="charge_alert_80_title" formatted="false">Accu op 80 %</string>
+    <string name="charge_alert_80_text">Genoeg voor de meeste ritten, en meestal beter voor de accu.</string>
+    <string name="charge_alert_full_title">Opladen klaar</string>
+    <string name="charge_alert_full_text">Volledig geladen, haal hem eraf wanneer het kan. Sommige wheels balanceren nu de cellen.</string>
+    <!-- Widget names for the picker -->
+    <string name="widget_euc_label">Wieldashboard</string>
+    <string name="widget_act_1_label">Wielknop 1</string>
+    <string name="widget_act_2_label">Wielknop 2</string>
+    <string name="widget_act_3_label">Wielknop 3</string>
+    <string name="widget_act_12_label">Wielknoppen 1 en 2</string>
+    <string name="widget_act_23_label">Wielknoppen 2 en 3</string>
+    <string name="widget_weather_score_label">Rijden vandaag?</string>
+    <string name="widget_weather_compact_label">Rijweer</string>
+    <string name="widget_act_1_short">Actie 1</string>
+    <string name="widget_act_2_short">Actie 2</string>
+    <string name="widget_act_3_short">Actie 3</string>
+    <string name="action_chip_reset_metrics">Meters resetten</string>
+    <string name="action_reset_metrics_done">Meters gereset</string>
+    <string name="action_reset_metrics_wheel_done">Meters gereset, ritteller van het wiel gewist</string>
+    <string name="tpms_paired_sensor_fmt">%1$s (%2$s)</string>
+    <string name="tpms_waiting">Wacht op gegevens</string>
+    <string name="status_live">Live</string>
+    <string name="status_idle">Inactief</string>
+    <string name="tpms_state_leaking">Verliest lucht</string>
+    <string name="tpms_state_inflating">Oppompen</string>
+    <string name="alarm_metric_battery_envelope">Accu (schat)</string>
+    <string name="alarm_metric_battery_envelope_long">Accu-omhullende (schatting zonder belasting)</string>
 
+    <string name="headlight_state_off">Licht: uit</string>
+    <string name="headlight_state_low">Licht: laag</string>
+    <string name="headlight_state_medium">Licht: midden</string>
+    <string name="headlight_state_high">Licht: hoog</string>
+    <string name="headlight_state_unknown">Licht: ?</string>
+    <string name="adv_headlight_readback_age">Geldigheid lichtstatus</string>
+    <string name="adv_headlight_readback_age_desc">Hoelang een gemelde lichtstand actueel blijft. Een te lange tijd kan een verouderde stand tonen.</string>
+    <string name="horn_headphones_only">Alleen bij koptelefoon of Bluetooth</string>
+    <string name="horn_section">Claxon</string>
+    <string name="horn_mode_label">Modus</string>
+    <string name="horn_mode_wheel">Standaard</string>
+    <string name="horn_mode_sound">Eigen</string>
+    <string name="horn_mode_both">Mix</string>
+    <string name="horn_mode_hint">Eigen speelt je eigen geluid op de telefoon. Mix voegt het toe aan de claxon van het wiel, voor een externe speaker. Kan de telefoon het niet afspelen, dan klinkt de claxon van het wiel.</string>
+    <string name="horn_sound_none">Geen geluid gekozen</string>
+    <string name="horn_sound_current">Geluid: %1$s</string>
+    <string name="horn_sound_choose">Geluid kiezen</string>
+    <string name="horn_sound_imported">Claxongeluid opgeslagen</string>
+    <string name="horn_sound_too_long">Dat geluid is langer dan 5 seconden</string>
+    <string name="horn_sound_too_big">Dat bestand is groter dan 2 MB</string>
+    <string name="horn_sound_unreadable">Dat bestand kan niet worden afgespeeld</string>
+    <string name="voice_pill_add">Toevoegen</string>
+    <string name="voice_pill_message">Bericht</string>
+    <string name="voice_pill_message_hint">Uitgesproken zoals je het schrijft.</string>
+    <string name="voice_pills_empty">Er wordt niets gezegd. Tik op Toevoegen.</string>
+    <string name="voice_stat_now">Nu</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Gem</string>
+    <string name="voice_stat_peak">Piek</string>
+    <string name="crews_title">Crews</string>
+    <string name="crews_pass_action">Crewpas</string>
+    <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
+    <string name="crews_scan_invalid">Dat is geen crew pass-code.</string>
+    <string name="crews_scan_is_share">Dat is een live-locatiecode. Scan hem via Delen op de kaart.</string>
+    <string name="share_scan_is_crewpass">Dat is een crew-pas. Scan hem via Instellingen, onder Crews.</string>
+    <string name="crews_type_instead">Handmatig invoeren</string>
+    <string name="crews_code_label">Pascode</string>
+    <string name="crews_foreign_title">Die code komt niet van eucstats</string>
+    <string name="crews_foreign_body">Hij wijst naar %1$s, en daar gaan je ritten niet heen. Ja zeggen geeft je account aan wie dat ook draait.\n\nDraai je je eigen server? Zet eerst ontwikkelaarsmodus aan in Instellingen.</string>
+    <string name="crews_scan_switch">Liever scannen</string>
+    <string name="crews_close">Sluiten</string>
+    <string name="crews_opensettings">Instellingen openen</string>
+    <string name="crews_dev_title">Ontwikkelaarsmodus</string>
+    <string name="crews_dev_body">Praat met %1$s in plaats van de gewone server.</string>
+    <string name="crews_grant">Laat die browser in jouw kleuren rijden.\n\nHij kan een crew starten, bij een crew gaan, eruit stappen, en leden regelen. Hij kan geen ritten versturen, je geen andere naam geven en niets verwijderen, dat blijft allemaal op deze telefoon.</string>
+    <string name="crews_noprofile_title">Doe eerst mee aan het klassement</string>
+    <string name="crews_noprofile_body">Crews hangen aan je klassementsprofiel en die heeft deze telefoon niet aangemaakt. Doe mee bij %1$s, en scan opnieuw.</string>
+    <string name="crews_issue">Pas uitgeven</string>
+    <string name="crews_notme">Ik niet</string>
+    <string name="crews_ratelimited">Te veel pogingen. Wacht een minuut en probeer opnieuw.</string>
+    <string name="crews_unreachable">Kon %1$s niet bereiken.</string>
+    <string name="crews_refused">De server weigerde dat (%1$d).</string>
+    <string name="crews_done_title">Pas uitgegeven</string>
+    <string name="crews_done_body">Die browser rijdt in jouw kleuren. Leg de telefoon weg.</string>
+    <string name="crews_failed_title">Dat werkte niet</string>
+    <string name="crews_tryagain">Opnieuw proberen</string>
+    <string name="crews_done">Klaar</string>
+    <string name="crews_expired">Die code is oud geworden. Haal een verse uit de browser.</string>
+    <string name="voice_pill_search">Zoeken</string>
+    <string name="voice_volume">Volume</string>
+    <string name="engo_hud_enabled">ENGO-bril-HUD</string>
+</resources>

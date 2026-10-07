@@ -29,8 +29,7 @@ import com.eried.eucplanet.R
 /**
  * Chooser shown when the rider taps Share on a trip. Items: Share file, Share
  * via Dropbox, Inspect online (shares the eucviewer link), Replay. The two
- * Dropbox-dependent items stay visible even when Dropbox is not linked —
- * they're greyed and their subtitle becomes "Link Dropbox in settings to
+ * Dropbox-dependent items stay visible even when Dropbox is not linked, * they're greyed and their subtitle becomes "Link Dropbox in settings to
  * enable this" so the rider sees the feature exists and how to turn it on.
  */
 @Composable

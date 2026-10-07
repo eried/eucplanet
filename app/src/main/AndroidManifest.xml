@@ -71,15 +71,96 @@
         android:name="android.hardware.microphone"
         android:required="false" />
 
+    <!-- Package visibility (Android 11+) for handing the live-share link to a
+         browser. The share URL is our own verified App Link, so a plain
+         ACTION_VIEW comes straight back to this app and the rider sees
+         nothing; the Open button addresses a browser package instead, which
+         needs both of these to be visible. -->
+    <queries>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+        <!-- Both resolveBrowserPackage's probes in ShareDialog.kt
+             (PackageManager.resolveActivity and queryIntentActivities on the
+             same https VIEW+BROWSABLE intent) go blind to every browser
+             package on API 30+ without this entry, and Open silently
+             degrades to a Custom Tab. Keep it even though the app never
+             sends this exact intent itself. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <application
         android:name=".EucPlanetApp"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:localeConfig="@xml/locales_config"
         android:theme="@style/Theme.EucPlanet">
+
+        <!-- The headset voice button.
+
+             A Bluetooth headset raises recognition over the hands-free
+             profile and Android turns that into VOICE_COMMAND; ASSIST and
+             SEARCH_LONG_PRESS are the other two a button on a helmet or an
+             earcup can land on, depending on the device. Declaring all three
+             costs nothing and covers the ways the same press arrives.
+
+             Transparent and no-history: it starts listening and finishes, so
+             it never appears in the recents list or covers the dashboard.
+
+             Declared disabled. Enabled here means the app joins Android's
+             chooser for that button on every install, including riders who
+             never wanted it and pressed it meaning to reach their assistant:
+             a device-wide gesture is not ours to claim by shipping an update.
+             VoiceTriggerGate switches the component on for the rider who asks
+             for it in settings. -->
+        <activity
+            android:name=".voice.VoiceTriggerActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH_LONG_PRESS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- Crews pairing. Launched from inside the app, and by the "Open EUC Planet"
+             button on the server's /p/<code> landing page after a camera app scans the
+             QR. The scheme is ours alone, so no autoVerify and no assetlinks file; the
+             link carries only a short-lived pairing code, never an identity. -->
+        <activity
+            android:name=".crews.CrewsPairActivity"
+            android:exported="true"
+            android:label="Crews"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="eucplanet" android:host="pair" />
+            </intent-filter>
+        </activity>
+
 
         <activity
             android:name=".MainActivity"
@@ -109,6 +190,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="geo" />
             </intent-filter>
+            <!-- Live location share link (also served as a web page for riders
+                 without the app). autoVerify needs /.well-known/assetlinks.json
+                 on eucplanet.ried.no. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="eucplanet.ried.no" android:pathPrefix="/share" />
+            </intent-filter>
             <!-- Dropbox OAuth (PKCE) redirect. App-key-prefixed scheme is
                  the Dropbox-recommended way to bounce the consent page back
                  into the app. See DropboxRepository.REDIRECT_URI. -->
@@ -119,6 +209,28 @@
                 <data android:scheme="db-5auhxf7gswy7j54" />
             </intent-filter>
         </activity>
+
+        <!-- Notification access, PARKED along with media speed control.
+             It existed purely so MediaSessionManager.getActiveSessions() would
+             answer, which is the only route to another app's playback rate.
+             Nothing was ever read from notifications.
+
+             Declaring a NotificationListenerService makes the app appear in
+             the system's notification access list, which is a heavy thing to
+             ask of a rider for a feature most players ignore, so it is gone
+             while the feature is parked. Uncomment this with the section in
+             AutomationsContent to bring both back. -->
+        <!--
+        <service
+            android:name=".service.MediaAccessService"
+            android:exported="false"
+            android:label="@string/media_rate_title"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+        -->
 
         <service
             android:name=".service.WheelService"
@@ -146,8 +258,33 @@
         </provider>
 
         <!-- Home screen widget. Not exported: only the system needs to reach it. -->
+        <!--
+          Weather on the home screen: one cell for the answer, and the
+          forecast at whatever size it is dragged to. Both paint the same
+          snapshot. Not exported: the only broadcast they answer is our own
+          refresh action, sent from the widgets themselves.
+        -->
+        <receiver android:name=".widget.WeatherScoreWidget"
+            android:label="@string/widget_weather_score_label" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_score_info" />
+        </receiver>
+        <receiver android:name=".widget.WeatherCompactWidget"
+            android:label="@string/widget_weather_compact_label" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.eried.eucplanet.widget.WEATHER_REFRESH" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_compact_info" />
+        </receiver>
+
         <receiver
             android:name=".widget.EucWidget"
+            android:label="@string/widget_euc_label"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -164,35 +301,40 @@
           rider should be able to drop "the horn button" on a home screen
           without answering a dialog first.
         -->
-        <receiver android:name=".widget.EucButtonWidget" android:exported="false">
+        <receiver android:name=".widget.EucButtonWidget"
+            android:label="@string/widget_act_1_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_1_info" />
         </receiver>
-        <receiver android:name=".widget.EucButton2Widget" android:exported="false">
+        <receiver android:name=".widget.EucButton2Widget"
+            android:label="@string/widget_act_2_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_2_info" />
         </receiver>
-        <receiver android:name=".widget.EucButton3Widget" android:exported="false">
+        <receiver android:name=".widget.EucButton3Widget"
+            android:label="@string/widget_act_3_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_3_info" />
         </receiver>
-        <receiver android:name=".widget.EucButtons12Widget" android:exported="false">
+        <receiver android:name=".widget.EucButtons12Widget"
+            android:label="@string/widget_act_12_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget_act_12_info" />
         </receiver>
-        <receiver android:name=".widget.EucButtons23Widget" android:exported="false">
+        <receiver android:name=".widget.EucButtons23Widget"
+            android:label="@string/widget_act_23_label" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

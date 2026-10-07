@@ -3,6 +3,7 @@ package com.eried.eucplanet.ble
 import android.bluetooth.BluetoothGattCharacteristic
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
+import com.eried.eucplanet.util.BatteryPercentEstimator
 import java.util.UUID
 
 /**
@@ -42,6 +43,33 @@ data class BleProfile(
     val effectiveWriteServiceUuid: UUID get() = writeServiceUuid ?: serviceUuid
 
     companion object {
+        /**
+         * The write type to really use, given what the wheel's discovered
+         * write characteristic supports.
+         *
+         * A characteristic advertising only WRITE_NO_RESPONSE cannot take a
+         * write-with-response: the bytes never reach the firmware, so the
+         * wheel stays silent and every ACK wait runs out. The InMotion V6 is
+         * that wheel - its Nordic UART RX is no-response only, while the
+         * V11-V14 and P6 firmware accepts both - which is why the profile
+         * alone cannot decide this. Only a characteristic that genuinely
+         * cannot do write-with-response is switched, so families that need
+         * the ATT retransmit (InMotion V1) keep their profile setting.
+         *
+         * [charProperties] of 0 means the properties are unknown; the
+         * profile's choice stands.
+         */
+        fun writeTypeFor(profileWriteType: Int, charProperties: Int): Int {
+            val canWrite = charProperties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0
+            val canWriteNoResponse =
+                charProperties and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE != 0
+            return if (!canWrite && canWriteNoResponse) {
+                BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+            } else {
+                profileWriteType
+            }
+        }
+
         /** Nordic UART used by the InMotion V2 family (V11/V12/V13/V14). */
         val NORDIC_UART = BleProfile(
             serviceUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"),
@@ -218,18 +246,34 @@ interface WheelAdapter {
      * whose lock fits in one packet. Veteran (Lynx-class, 25-byte LdAp lock
      * frame) returns the trailing 5 bytes (valueByte + CRC32) here; without
      * the split the wheel only receives the first 20 bytes and the CRC check
-     * fails on the wheel side, so the lock silently no-ops — the exact
+     * fails on the wheel side, so the lock silently no-ops, the exact
      * symptom users reported.
      */
     fun setLockFollowup(locked: Boolean): ByteArray? = null
+
+    /** Hand the adapter the unlock code before a lock command. Only KingSong
+     *  uses one (six digits, from Advanced settings; the unlock frame carries it). */
+    fun provideLockCode(code: String) {}
+
+    /** Hand the adapter the wheel's app password, "" for none. Only KingSong
+     *  uses one: with a password set the wheel ignores lock and unlock until
+     *  it has been sent in the session. */
+    fun provideLockPassword(password: String) {}
+
+    /** A frame to write right before a lock or unlock command, or null. The
+     *  repository writes it on every lock action and the adapter may also put
+     *  it in its init sequence; cheap to repeat, fatal to forget. */
+    fun lockPrelude(): ByteArray? = null
 
     /**
      * Resets the wheel's onboard trip meter (the field reported as
      * [com.eried.eucplanet.data.model.WheelData.tripDistance]) by sending the
      * family-specific reset command. Returns null on wheels where the
-     * protocol has no documented reset command; the dashboard's RESET_TRIP
-     * action surfaces a "not supported on this wheel" snackbar in that case.
-     * Veteran is the only family with a public command today (CLEARMETER).
+     * protocol has no documented reset command, and Veteran is the only family
+     * with a public one today (CLEARMETER). That is no longer a dead end for
+     * anyone else: the Reset metrics action clears the app's trip meter and
+     * metric history regardless, and only mentions the wheel's own odometer
+     * when a command actually went out.
      */
     fun resetTripMeter(): ByteArray? = null
 
@@ -292,6 +336,31 @@ interface WheelAdapter {
      * what's actually connected. Defaults to [familyId].
      */
     val familyDisplayName: String get() = familyId
+
+    /**
+     * Pack voltage at full charge for the connected wheel, in volts, once the
+     * family has identified a model. Null until then, and for families whose
+     * model table does not record it.
+     *
+     * Every family already keeps this number for its own models, so each
+     * adapter just points at the one it detected rather than answering a
+     * battery-specific question of its own.
+     */
+    val nominalPackVoltage: Int? get() = null
+
+    /**
+     * Cells in series for the connected wheel, derived from
+     * [nominalPackVoltage] at 4.2 V per cell.
+     *
+     * Used to turn pack voltage into a per-cell voltage for the display-only
+     * battery estimate; null means the rider's own setting is used instead,
+     * because a live pack voltage alone cannot separate a 20S from a 30S.
+     * Never sent to the wheel.
+     */
+    val seriesCells: Int?
+        get() = nominalPackVoltage
+            ?.takeIf { it > 0 }
+            ?.let { BatteryPercentEstimator.seriesCellsFor(it) }
 
     /**
      * Brand the connected wheel belongs to, e.g. "InMotion" / "Begode".
@@ -390,6 +459,25 @@ data class WheelCapabilities(
     val hasVolume: Boolean = false,
     val hasDRL: Boolean = false,
     val needsAuthForLock: Boolean = false,
+    /**
+     * The wheel puts a real charge current on the wire, so plugging it in shows
+     * up as a signed current the app can both detect and integrate.
+     *
+     * Both InMotion families report nothing useful: the board keeps reporting
+     * its own idle draw (a V8S sits around +0.02 A through a three-hour charge)
+     * and the charger's current never appears. Charge detection there falls back
+     * to the percentage climbing, and charged energy to the pack size, because
+     * integrating that idle draw yields the board's own consumption filed as a
+     * charge - the "Used 4 Wh" a rider saw against +54 % added.
+     */
+    val reportsChargeCurrent: Boolean = true,
+    /**
+     * The wheel states its lock only in reply to the app asking, never in its
+     * regular telemetry. Until that reply lands after a connect the app does
+     * not know the lock, so the tile waits instead of guessing "unlocked" and
+     * offering to lock a wheel that already is (issue #19, KS-18XL).
+     */
+    val lockStateOnRequestOnly: Boolean = false,
 ) {
     companion object {
         /** V11/V12/V13/V14: full feature set, lock requires password auth. */
@@ -401,7 +489,10 @@ data class WheelCapabilities(
             hasAlarmSpeed = true,
             hasVolume = true,
             hasDRL = true,
-            needsAuthForLock = true
+            needsAuthForLock = true,
+            // V14 and P6 both read ~0 A while charging: the charge flag says
+            // they are charging, the current never does.
+            reportsChargeCurrent = false,
         )
 
         /**
@@ -427,31 +518,41 @@ data class WheelCapabilities(
             hasVolume = true,
             hasDRL = true,
             needsAuthForLock = false,
+            // No charge flag and no charge current: a V8S on the charger keeps
+            // reporting the board's own idle draw, so only the percentage
+            // climbing says it is charging.
+            reportsChargeCurrent = false,
         )
 
         /** KingSong KS-* wheels: no software lock, no volume control. */
         val KINGSONG = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
-            hasLock = false,
+            // 0x5D lock / unlock-with-code, 0x5E ask, 0x5F state: from the
+            // KS-18XL capture in issue #19 (2026-09-16), see KingsongCommands.
+            hasLock = true,
             hasMaxSpeed = true,
             hasAlarmSpeed = true,
             hasVolume = false,
             hasDRL = false,
-            needsAuthForLock = false
+            needsAuthForLock = false,
+            lockStateOnRequestOnly = true,
         )
 
         /**
          * Begode/Gotway: no software lock (dismount only), no native
          * volume control. Light is a 3-state (off/dim/full); the adapter
-         * collapses dim to off for the on/off toggle.
+         * collapses dim to off for the on/off toggle. No speed limits from
+         * the app yet: the W/Y/HL/b sequence exists (BegodeCommands) but is
+         * not sent outside Service Mode, so the rider sets them on the wheel
+         * and the app does not offer controls that would do nothing.
          */
         val BEGODE = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
             hasLock = false,
-            hasMaxSpeed = true,
-            hasAlarmSpeed = true,
+            hasMaxSpeed = false,
+            hasAlarmSpeed = false,
             hasVolume = false,
             hasDRL = false,
             needsAuthForLock = false
@@ -459,7 +560,7 @@ data class WheelCapabilities(
 
         /**
          * Veteran: rich telemetry (cells, BMS) plus the LeaperKim-decoded
-         * write set — horn, low + high beam, pedal stiffness, reset trip,
+         * write set, horn, low + high beam, pedal stiffness, reset trip,
          * tiltback / alarm speed, and the 25-byte LdAp software-lock frame
          * captured from a Lynx S btsnoop in June 2026.
          */

@@ -217,6 +217,8 @@ object TripCsv {
         fun voltage(h: List<String>) = columnIndex(h, "voltage")
         fun current(h: List<String>) = columnIndex(h, "current")
         fun pwm(h: List<String>) = columnIndex(h, "pwm")
+        fun torque(h: List<String>) = columnIndex(h, "torque")
+        fun phaseCurrent(h: List<String>) = columnIndex(h, "phase current", "phase_current")
         fun temperature(h: List<String>) = columnIndex(h, "temperature", "temp")
         fun altitude(h: List<String>) = columnIndex(h, "altitude", "gps_alt")
         fun latitude(h: List<String>) = columnIndex(h, "latitude", "gps_lat")

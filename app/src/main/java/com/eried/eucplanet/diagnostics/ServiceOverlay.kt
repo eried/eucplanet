@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import com.eried.eucplanet.data.model.ActionCatalog
 import com.eried.eucplanet.data.model.ActionSpec
 import com.eried.eucplanet.data.model.ActionSurface
+import com.eried.eucplanet.data.model.MetricRegistry
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.FullMetricHistory
 import com.eried.eucplanet.data.repository.MetricSample
@@ -84,6 +85,8 @@ data class ServiceOverlaySnapshot(
     val safetyActive: Boolean = false,
     /** True when the alarms-muted setting is on. */
     val alarmsMuted: Boolean = false,
+    /** True while speed splits are on, in any direction. */
+    val speedSplitsOn: Boolean = false,
     /** Per-transport connection status for the Connections tab. */
     val connections: List<ConnectionInfo> = emptyList()
 ) {
@@ -94,7 +97,8 @@ data class ServiceOverlaySnapshot(
             tripRecording = tripRecording,
             imperialUnits = imperialUnits,
             alarmsMuted = alarmsMuted,
-            safetyActive = safetyActive
+            safetyActive = safetyActive,
+            speedSplitsOn = speedSplitsOn,
         )
 }
 
@@ -333,7 +337,7 @@ private fun ConnectionsView(snapshot: ServiceOverlaySnapshot) {
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = "${selected.label} — ${selected.state}",
+            value = "${selected.label}, ${selected.state}",
             onValueChange = {},
             readOnly = true,
             singleLine = true,
@@ -349,7 +353,7 @@ private fun ConnectionsView(snapshot: ServiceOverlaySnapshot) {
         ) {
             conns.forEachIndexed { i, c ->
                 DropdownMenuItem(
-                    text = { Text("${c.label} — ${c.state}") },
+                    text = { Text("${c.label}, ${c.state}") },
                     onClick = {
                         selectedIdx = i
                         expanded = false
@@ -392,7 +396,7 @@ private fun DetailBox(text: String) {
 }
 
 /**
- * One-line status string for an action — what does the rider see right now?
+ * One-line status string for an action, what does the rider see right now?
  * Delegates to [com.eried.eucplanet.data.model.ActionSpec.statusReader] when
  * the catalog wires one, falling back to a "no resting state" note for
  * one-shot actions (HORN, VOICE_ANNOUNCE, MEDIA_*, RESET_TRIP).
@@ -404,7 +408,7 @@ private fun actionStatusText(key: String, snapshot: ServiceOverlaySnapshot): Str
     return "active=$active"
 }
 
-/** @Composable wrapper for the selected metric's detail — label/description
+/** @Composable wrapper for the selected metric's detail, label/description
  *  (stringResource-backed) + raw value + history stats, then a full reflection
  *  dump of every WheelData field for the "see everything internal" view. */
 @Composable
@@ -455,33 +459,43 @@ private val serviceMetricKeys: List<String> = listOf(
     "BT_RSSI"
 )
 
-private fun rawMetricValue(key: String, wheel: WheelData): String = when (key) {
-    "BATTERY" -> wheel.batteryPercent.toString()
-    "TEMPERATURE" -> "%.1f".format(wheel.maxTemperature)
-    "VOLTAGE" -> "%.2f".format(wheel.voltage)
-    "CURRENT" -> "%.2f".format(wheel.current)
-    "LOAD" -> "%.1f".format(wheel.pwm)
-    "TRIP" -> "%.3f".format(wheel.tripDistance)
-    "SPEED" -> "%.2f".format(wheel.speed)
-    "POWER" -> "${wheel.batteryPower}"
-    "ODOMETER" -> "%.3f".format(wheel.totalDistance)
-    "MOTOR_POWER" -> "${wheel.motorPower}"
-    "BATTERY_POWER" -> "${wheel.batteryPower}"
-    "BATTERY_1" -> "%.1f".format(wheel.battery1Percent)
-    "BATTERY_2" -> "%.1f".format(wheel.battery2Percent)
-    "PITCH" -> "%.2f".format(wheel.pitchAngle)
-    "ROLL" -> "%.2f".format(wheel.rollAngle)
-    "G_FORCE" -> "%.3f".format(wheel.gForce)
-    "LATERAL_G" -> "%.3f".format(wheel.accelX)
-    "FORWARD_G" -> "%.3f".format(wheel.forwardGFromSpeed)
-    "TORQUE" -> "%.2f".format(wheel.torque)
-    "PHASE_CURRENT" -> "%.2f".format(wheel.phaseCurrent)
-    "DYN_SPEED_LIMIT" -> "%.2f".format(wheel.dynamicSpeedLimit)
-    "DYN_CURRENT_LIMIT" -> "%.2f".format(wheel.dynamicCurrentLimit)
-    "MOTOR_TEMP" -> wheel.temperatures.getOrNull(0)?.let { "%.1f".format(it) } ?: "—"
-    "CONTROLLER_TEMP" -> wheel.temperatures.getOrNull(1)?.let { "%.1f".format(it) } ?: "—"
-    "BATTERY_TEMP" -> wheel.temperatures.getOrNull(2)?.let { "%.1f".format(it) } ?: "—"
-    else -> "—"
+/**
+ * The overlay's raw readout for [key]. Float fields read through
+ * [MetricRegistry.readRaw] (as held, no plausibility filter); a missing
+ * temperature slot prints "-". The Int fields stay direct reads, because the
+ * registry holds them as Float and printing that would add ".0".
+ */
+internal fun rawMetricValue(key: String, wheel: WheelData): String {
+    fun fmt(pattern: String): String =
+        MetricRegistry.readRaw(key, wheel)?.let { pattern.format(it) } ?: "-"
+    return when (key) {
+        "BATTERY" -> wheel.batteryPercent.toString()
+        "TEMPERATURE" -> fmt("%.1f")
+        "VOLTAGE" -> fmt("%.2f")
+        "CURRENT" -> fmt("%.2f")
+        "LOAD" -> fmt("%.1f")
+        "TRIP" -> fmt("%.3f")
+        "SPEED" -> fmt("%.2f")
+        "POWER" -> "${wheel.batteryPower}"
+        "ODOMETER" -> fmt("%.3f")
+        "MOTOR_POWER" -> "${wheel.motorPower}"
+        "BATTERY_POWER" -> "${wheel.batteryPower}"
+        "BATTERY_1" -> fmt("%.1f")
+        "BATTERY_2" -> fmt("%.1f")
+        "PITCH" -> fmt("%.2f")
+        "ROLL" -> fmt("%.2f")
+        "G_FORCE" -> fmt("%.3f")
+        "LATERAL_G" -> fmt("%.3f")
+        "FORWARD_G" -> fmt("%.3f")
+        "TORQUE" -> fmt("%.2f")
+        "PHASE_CURRENT" -> fmt("%.2f")
+        "DYN_SPEED_LIMIT" -> fmt("%.2f")
+        "DYN_CURRENT_LIMIT" -> fmt("%.2f")
+        "MOTOR_TEMP" -> fmt("%.1f")
+        "CONTROLLER_TEMP" -> fmt("%.1f")
+        "BATTERY_TEMP" -> fmt("%.1f")
+        else -> "-"
+    }
 }
 
 private fun historyFor(key: String, history: FullMetricHistory): List<MetricSample>? = when (key) {
@@ -502,7 +516,7 @@ private fun historyFor(key: String, history: FullMetricHistory): List<MetricSamp
  * Connections tab.
  */
 fun reflectFields(obj: Any?): String {
-    if (obj == null) return "—"
+    if (obj == null) return "-"
     val fields = obj.javaClass.declaredFields
         .filter { !it.isSynthetic && !java.lang.reflect.Modifier.isStatic(it.modifiers) }
         .sortedBy { it.name }
@@ -516,7 +530,7 @@ fun reflectFields(obj: Any?): String {
 }
 
 private fun formatFieldValue(v: Any?): String = when (v) {
-    null -> "—"
+    null -> "-"
     is Float -> "%.3f".format(v)
     is Double -> "%.3f".format(v)
     is List<*> -> v.joinToString(prefix = "[", postfix = "]") { formatFieldValue(it) }

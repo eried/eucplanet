@@ -14,7 +14,7 @@ name: Release Motoeye preview
 # tell from the download alone whether they grabbed the right one.
 #
 # Phone APK uses the DEBUG variant (this matches what we shipped in preview-2
-# and earlier — installing a release phone APK on top of a debug install
+# and earlier, installing a release phone APK on top of a debug install
 # requires uninstall first because signatures differ).
 #
 # HUD APK uses the RELEASE variant with R8 minification on. R8 dead-strips

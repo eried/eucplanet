@@ -14,6 +14,9 @@ data class WheelData(
     val voltage: Float = 0f,
     val current: Float = 0f,
     val batteryPercent: Int = 0,
+    /** Battery percent with the load taken out of it, NaN before the first
+     *  half minute of a ride. Fed from HudState.batteryEnvelope. */
+    val batteryEnvelope: Float = Float.NaN,
     val battery1Percent: Float = 0f,
     val battery2Percent: Float = 0f,
     val pwm: Float = 0f,

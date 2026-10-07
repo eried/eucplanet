@@ -19,6 +19,21 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
     ROUTE_BUILDER_HTML
         .replace("__INITIAL_MAP_TYPE__", mapType)
         .replace("__INITIAL_BG__", mapTypeInitialBg(mapType))
+        .replace("__LAYERS_JSON__", mapLayersJson())
+
+/**
+ * The shared layer registry as JSON for the Leaflet side.
+ *
+ * Built from [com.eried.eucplanet.hud.protocol.MapLayers] rather than written
+ * out again here, so a layer cannot exist on one map screen and not another,
+ * and cannot be drawn anywhere without the credit its licence requires.
+ */
+internal fun mapLayersJson(): String =
+    com.eried.eucplanet.hud.protocol.MapLayers.ALL.joinToString(",", "{", "}") { l ->
+        val esc = l.attribution.replace("\\", "\\\\").replace("'", "\'")
+        "'${l.id}':{url:'${l.urlTemplate}',ref:'${l.refUrlTemplate}',attr:'$esc'," +
+            "maxNative:${l.maxNativeZoom},subs:'${l.subdomains}',retina:${l.detectRetina}}"
+    }
 
 /**
  * The self-contained HTML document for the Route Builder's Leaflet map.
@@ -68,6 +83,33 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   /* On-map controls (zoom +/-, recenter) follow the rider's theme accent,
      pushed from native via nativeSetAccent -> the --accent CSS variable. */
   .leaflet-bar a, .leaflet-control a { color: var(--accent, #4FC3F7) !important; }
+  /* The credit has to be readable, not prominent, and the bottom-right corner
+     it defaults to is the one place it cannot live here: the stop list covers
+     the bottom and the controls own the right. Stood up along the left edge it
+     stays visible and lands in the same place in both orientations, since that
+     edge is the one nothing else uses. */
+  .leaflet-control-attribution {
+    position: fixed !important;
+    left: 0 !important;
+    top: 50% !important;
+    margin: 0 !important;
+    /* vertical-rl runs the text downward, which is the way to tilt the phone
+       to read it: turn it clockwise and the credit comes up level, the same
+       turn as reading a book spine on a shelf. */
+    writing-mode: vertical-rl !important;
+    transform: translateY(-50%) !important;
+    /* No plate behind it: a dark halo carries the text over both a pale
+       street map and dark satellite imagery, the way map labels do, and
+       nothing rectangular sits over the tiles. */
+    background: transparent !important;
+    color: rgba(255,255,255,0.92) !important;
+    text-shadow: 0 0 2px rgba(0,0,0,0.95), 0 0 5px rgba(0,0,0,0.75) !important;
+    font-size: 8px !important;
+    padding: 7px 3px !important;
+    line-height: 1 !important;
+    pointer-events: none;
+  }
+  .leaflet-control-attribution a { color: rgba(255,255,255,0.92) !important; }
   .leaflet-tile-container { transition: none !important; }
   .leaflet-fade-anim .leaflet-tile { opacity: 1 !important; }
   /* Force GPU compositing on the panes we animate. Without explicit
@@ -185,6 +227,42 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     font:600 13px sans-serif;background:rgba(25,25,25,0.45);
     opacity:0.6;box-shadow:0 1px 3px rgba(0,0,0,0.4);
   }
+  /* Live location share: a friend on the map is a coloured dot (their flag or
+     avatar inside it) with their name on a plate underneath. Fixed colours,
+     these sit over map tiles rather than over a themed app surface. */
+  .peer{display:flex;flex-direction:column;align-items:center}
+  /* The dot is exactly the diameter of the rider's OWN plain marker head
+     (buildUserIcon's headPx, 26), and box-sizing puts its ring inside that,
+     so a friend's dot and the rider's own read as the same size on screen.
+     PEER_DOT_PX in the script below has to move with this number: it drives
+     the divIcon's box and the avatar inside the ring. */
+  .peer-dot{
+    width:26px;height:26px;border-radius:50%;border:2px solid #fff;
+    box-sizing:border-box;
+    box-shadow:0 1px 4px rgba(0,0,0,.5);display:flex;align-items:center;
+    justify-content:center;font-size:13px;overflow:hidden;
+  }
+  .peer-name{
+    font:600 11px sans-serif;color:#fff;background:rgba(0,0,0,.55);
+    padding:1px 5px;border-radius:6px;margin-top:2px;white-space:nowrap;
+  }
+  .peer-name i{font-style:normal;opacity:.8}
+  /* The tapped state of the same plate: the name keeps its line, and the
+     stats and age get one each under it. Capped in width so a long name plus
+     a stats line cannot stretch the plate across the whole map, and the lines
+     are centred under the dot the way the collapsed name is.
+
+     width:max-content is what makes that work. The plate is a flex item in a
+     26 px wide column (the dot's box), so a plate that is allowed to wrap
+     otherwise shrinks to those 26 px and breaks "Rider #9832" across two
+     lines. The collapsed plate never hit this because it is nowrap; this one
+     asks for its content's width first and only then wraps at the cap. */
+  .peer-name-open{
+    white-space:normal;text-align:center;line-height:1.35;
+    width:max-content;max-width:190px;
+    padding:3px 7px;
+  }
+  .peer-name-open .peer-sub{font-weight:400;opacity:.85}
 </style>
 </head><body>
 <div id="map"></div>
@@ -196,7 +274,11 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // rotated, in which case we pause the auto-follow for a few seconds.
   var map = L.map('map', {
     zoomControl: false,
-    attributionControl: false,
+    // Required by the tile providers and by ODbL on the OSM data underneath,
+    // so it is on. Leaflet's own "Leaflet" prefix is dropped below: it is an
+    // advert, not a licence term, and the space is better spent on the credit
+    // that actually has to be there.
+    attributionControl: true,
     rotate: true,
     touchRotate: true,
     bearing: 0,
@@ -224,6 +306,10 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     zoomAnimation: false,
     markerZoomAnimation: false
   });
+  var MAP_LAYERS = __LAYERS_JSON__;
+  var refLayer = null;
+  // "Leaflet" is an advert; the provider credit beside it is a licence term.
+  map.attributionControl.setPrefix('');
   var tileLayer = null;
 
   // --- Auto-orient: snap the map's bearing to follow the rider's heading,
@@ -263,6 +349,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (routeLine) routeLine.redraw();
     rings.forEach(function(r){ r.redraw(); });
     if (connector) connector.redraw();
+    // Rider trails live on one canvas; one redraw request per frame repaints
+    // them all, so they track a pinch or a rotate like the route does.
+    if (typeof peerRedrawTrails === 'function') peerRedrawTrails();
   }
   mapEl.addEventListener('touchmove', function(e){
     // ANY touch movement (single or two-finger) counts as the rider
@@ -527,6 +616,75 @@ private const val ROUTE_BUILDER_HTML_1: String = """
 
   // Swappable base map: dark / light streets / satellite imagery, all key-less.
   var currentMapType = '';
+  // Reset-to-north. Two-finger rotate is easy to trigger by accident while
+  // pinching or dragging, and once the map sits at 7 degrees off there is no
+  // way back to square except rotating it by hand. The screen shows a compass
+  // button whenever the map is off north; this is what it calls.
+  var northEase = null;
+  window.nativeResetNorth = function(){
+    // Stop auto-follow fighting the reset: mid-ride the heading tween would
+    // otherwise pull the map straight back off north. This is the same hold
+    // a two-finger twist takes, so the behaviour matches the gesture.
+    lastManualRotateMs = Date.now();
+    bearingEase = null;
+    var current = map.getBearing();
+    var delta = ((0 - current + 540) % 360) - 180;
+    if (Math.abs(delta) < 0.2) { map.setBearing(0); reportBearing(true); return; }
+    northEase = {from: current, delta: delta, startMs: Date.now()};
+    requestAnimationFrame(tickNorthEase);
+  };
+  function tickNorthEase(){
+    if (!northEase) return;
+    var p = (Date.now() - northEase.startMs) / 450;
+    if (p >= 1) {
+      map.setBearing(0);
+      northEase = null;
+      reportBearing(true);
+      return;
+    }
+    var eased = p * p * p * (p * (p * 6 - 15) + 10);
+    map.setBearing(northEase.from + northEase.delta * eased);
+    reportBearing(false);
+    requestAnimationFrame(tickNorthEase);
+  }
+
+  // Tell the screen which way the map is facing, so it can show or hide the
+  // compass. Throttled and only on real change: the heading tween moves the
+  // bearing every frame while riding, and a bridge call per frame is a lot of
+  // traffic for a button that only needs to know "off north or not".
+  var lastReportedBearing = 999;
+  var lastBearingReportMs = 0;
+  var bearingSettleTimer = null;
+  function reportBearing(force){
+    if (!window.AndroidNav || !AndroidNav.onBearingChanged) return;
+    var b = ((map.getBearing() % 360) + 360) % 360;
+    var now = Date.now();
+    var moved = Math.abs(((b - lastReportedBearing + 540) % 360) - 180);
+    // The throttle is right for the frames in the middle of a turn and wrong
+    // for the last one, which is the report that says where the map came to
+    // rest. Dropping it left the screen believing the map was still off north
+    // - the compass stayed lit with nothing left to reset - so the callers
+    // that know a turn has finished send theirs with force.
+    if (!force && (moved < 1 || now - lastBearingReportMs < 200)) return;
+    lastReportedBearing = b;
+    lastBearingReportMs = now;
+    AndroidNav.onBearingChanged(b);
+  }
+  // A two-finger twist ends wherever the rider lifts their fingers, and the
+  // last degrees of it fall inside the throttle just as the reset does. There
+  // is no rotateend event to hang this on (the plugin only fires 'rotate'), so
+  // a short settle timer stands in for one.
+  function scheduleBearingSettle(){
+    if (bearingSettleTimer) clearTimeout(bearingSettleTimer);
+    bearingSettleTimer = setTimeout(function(){
+      bearingSettleTimer = null;
+      reportBearing(true);
+    }, 220);
+  }
+  // Wrapped rather than passed straight to on(): the handler is called with
+  // the event object, which would arrive as a truthy force on every frame.
+  map.on('rotate', function(){ reportBearing(false); scheduleBearingSettle(); });
+
   window.nativeSetMapType = function(type){
     // Idempotent: a redundant call for the same type (the screen's
     // pageReady-triggered LaunchedEffect fires nativeSetMapType after
@@ -552,18 +710,23 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     // map keeps zooming past it on upscaled tiles rather than refusing to zoom
     // and leaving the rider stuck at street level.
     var common = {keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
-    if (type === 'SATELLITE'){
-      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      opts = Object.assign({maxNativeZoom:19, maxZoom:21}, common);
-    } else if (type === 'LIGHT'){
-      url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
-    } else {
-      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      opts = Object.assign({maxNativeZoom:20, maxZoom:21, subdomains:'abcd'}, common);
-    }
+    // Table injected from the shared Kotlin registry, so the layers, their
+    // zoom ceilings and their credits are defined once for the whole app.
+    var layer = MAP_LAYERS[type] || MAP_LAYERS['OSM'];
+    url = layer.url;
+    opts = Object.assign({
+      maxNativeZoom: layer.maxNative,
+      maxZoom: 21,
+      attribution: layer.attr
+    }, common);
+    if (layer.subs) opts.subdomains = layer.subs;
+    if (layer.retina) opts.detectRetina = true;
     if (tileLayer){ map.removeLayer(tileLayer); }
+    if (refLayer){ map.removeLayer(refLayer); refLayer = null; }
     tileLayer = L.tileLayer(url, opts).addTo(map);
+    // Esri Canvas labels ride on a separate reference layer. Same options,
+    // and Leaflet collapses the duplicate attribution string.
+    if (layer.ref){ refLayer = L.tileLayer(layer.ref, opts).addTo(map); }
     // Tell the screen as soon as the first ring of tiles has actually
     // rendered, so the locating cover can fade out only once the map
     // looks like a map. We pass through to the native bridge only on
@@ -1537,6 +1700,318 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     if (userMarker) userMarker.setIcon(buildUserIcon());
   };
 
+  // --- Live location share: friends' markers + fading trails -------------
+  // Everything in a peer record (name, flag, colour, avatar) comes from
+  // ANOTHER rider over the relay, so all of it is escaped / validated before
+  // it goes near innerHTML. This page holds the AndroidNav bridge, and an
+  // unescaped name would be a script-injection route straight into it.
+  var peerLayer = L.layerGroup().addTo(map);
+  // Localized "lost" badge, pushed once from Kotlin (the per-peer JSON shape
+  // is a fixed wire contract shared with the web viewer, so the label rides
+  // alongside it rather than inside it).
+  var peerLostLabel = 'lost';
+  window.nativeSetPeerLabels = function(lost){ peerLostLabel = lost || 'lost'; };
+  function peerEsc(s){
+    return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function peerColor(c){ return /^#[0-9A-Fa-f]{6}$/.test(c || '') ? c : '#9E9E9E'; }
+  // Must equal the .peer-dot width in the stylesheet, and that in turn is the
+  // rider's own plain marker head (buildUserIcon's headPx). The two markers
+  // being the same size is the point: a friend's dot used to be four pixels
+  // wider than the rider's own and read as "closer" on a busy map.
+  var PEER_DOT_PX = 26;
+  // The dot's ring is 2 px, drawn inside the box, so an avatar fills what is
+  // left of it.
+  var PEER_AVATAR_PX = PEER_DOT_PX - 4;
+  // How long a tapped label stays open. Long enough to read a name, a stats
+  // line and an age; short enough that a rider who tapped by accident does not
+  // have to tap again to tidy it up.
+  var PEER_EXPAND_MS = 5000;
+  // Four bands of trail age, newest first, and the opacity each is drawn at.
+  // The Kotlin side stamps every trail point with its band, so this table is
+  // the only thing the page knows about trail age. The buckets are fractions
+  // of the rider's own trail length (the first 20%, then 40%, then 70%, then
+  // the rest), which at the default five minutes is 0-1, 1-2, 2-3.5, 3.5-5.
+  var PEER_TRAIL_OPACITY = [1.0, 0.7, 0.45, 0.2];
+  // One live record per peer, keyed by their id, so a push can update what
+  // changed instead of rebuilding the world. This runs once a SECOND (the age
+  // labels count up even when no new position arrived), so nothing here tears
+  // down and re-adds what did not change: the trail is four polylines that are
+  // rebuilt only when a point crosses a band boundary or a new hop lands, and
+  // the icon's DOM node is replaced only when its text or dimming changes.
+  var peerObjs = {};
+  // Open-label countdowns, by peer id, so a second tap or a rider leaving can
+  // cancel one instead of letting it fire against a marker that is gone.
+  var peerExpandTimers = {};
+  function peerClearTimer(id){
+    if (peerExpandTimers[id]) { clearTimeout(peerExpandTimers[id]); delete peerExpandTimers[id]; }
+  }
+  function peerRemove(id, rec){
+    peerClearTimer(id);
+    if (rec.marker) peerLayer.removeLayer(rec.marker);
+    for (var i = 0; i < rec.lines.length; i++) if (rec.lines[i]) peerLayer.removeLayer(rec.lines[i]);
+    rec.lines = [];
+  }
+
+  // The label under the dot: one line with the name, or the tapped state with
+  // the flag, the stats line and the age under it. Everything in here came off
+  // the relay from another rider, so every piece goes through peerEsc.
+  function peerLabelHtml(rec){
+    var p = rec.data;
+    var lost = p.freshness === 'LOST';
+    var age = p.freshness === 'FRESH' ? '' : (lost ? peerLostLabel : (p.ageS | 0) + 's');
+    if (!rec.expanded){
+      var flagLead = (typeof p.flagText === 'string' && p.flagText) ? peerEsc(p.flagText) + ' ' : '';
+      return '<div class="peer-name">' + flagLead + peerEsc(p.name) +
+        (age ? ' <i>' + peerEsc(age) + '</i>' : '') + '</div>';
+    }
+    // The stats line is formatted in Kotlin and pushed as finished text, so
+    // the map says "23 km/h" exactly when the group list does, in the rider's
+    // own units. Absent when the friend is not broadcasting stats.
+    var stats = typeof p.statsText === 'string' ? p.statsText : '';
+    // flagText, not flag: Kotlin sends the flag the group list draws (the
+    // emoji, falling back to the two-letter code), so the plate a tapped
+    // marker opens and the row for the same rider say the same thing. The dot
+    // itself keeps the code: a coloured flag inside a coloured 26 px circle
+    // is a badge fighting a badge.
+    var flagSrc = typeof p.flagText === 'string' && p.flagText ? p.flagText : p.flag;
+    var flag = flagSrc ? peerEsc(flagSrc) + ' ' : '';
+    return '<div class="peer-name peer-name-open">' +
+      '<div>' + flag + peerEsc(p.name) + '</div>' +
+      (stats ? '<div class="peer-sub">' + peerEsc(stats) + '</div>' : '') +
+      (age ? '<div class="peer-sub">' + peerEsc(age) + '</div>' : '') +
+      '</div>';
+  }
+
+  // First character of the name, upper-cased, surrogate pairs kept whole so an
+  // emoji name gets a real glyph instead of half of one.
+  function peerInitial(name){
+    var t = String(name || '').trim();
+    if (!t) return '?';
+    var first = Array.from(t)[0];
+    return first.toUpperCase();
+  }
+
+  function peerHtml(rec){
+    var p = rec.data;
+    var lost = p.freshness === 'LOST';
+    var dim = p.freshness === 'FRESH' ? 1 : (p.freshness === 'STALE' ? 0.5 : 0.3);
+    var bg = lost ? '#9E9E9E' : peerColor(p.color);
+    var avatar = (typeof p.avatarUrl === 'string' &&
+      /^https:\/\/[^"'<>\s]+$/.test(p.avatarUrl)) ? p.avatarUrl : null;
+    var inner = avatar
+      ? '<img src="' + peerEsc(avatar) + '" style="width:' + PEER_AVATAR_PX +
+        'px;height:' + PEER_AVATAR_PX + 'px;border-radius:50%;object-fit:cover">'
+      // The dot carries the rider's initial, like their row in the group
+      // list; the flag goes with the name, not in the dot.
+      : '<span>' + peerEsc(peerInitial(p.name)) + '</span>';
+    return '<div class="peer" style="opacity:' + dim + '">' +
+      '<div class="peer-dot" style="background:' + bg + '">' + inner + '</div>' +
+      peerLabelHtml(rec) + '</div>';
+  }
+
+  function peerIcon(html){
+    return L.divIcon({
+      className: '', html: html,
+      iconSize: [PEER_DOT_PX, PEER_DOT_PX],
+      iconAnchor: [PEER_DOT_PX / 2, PEER_DOT_PX / 2]
+    });
+  }
+
+  // Rebuild this peer's icon, but only when its markup actually changed:
+  // setIcon replaces the marker's DOM node, and this is reached once a second
+  // for every rider in the room.
+  function peerApplyIcon(rec){
+    if (!rec.marker || !rec.data) return;
+    var html = peerHtml(rec);
+    if (html === rec.html) return;
+    rec.marker.setIcon(peerIcon(html));
+    rec.html = html;
+  }
+
+  // Open or close one peer's label. An open label is raised above the others
+  // so a second rider's dot cannot sit on top of the lines being read.
+  function peerHasMore(rec){
+    var p = rec && rec.data; if (!p) return false;
+    var st = p.stats;
+    var hasStats = !!(st && (st.speedKmh != null || st.batteryPct != null || st.tempC != null));
+    return hasStats || (p.freshness && p.freshness !== 'FRESH');
+  }
+
+  function peerSetExpanded(id, open){
+    var rec = peerObjs[id];
+    if (!rec) return;
+    peerClearTimer(id);
+    rec.expanded = !!open;
+    if (rec.marker) rec.marker.setZIndexOffset(rec.expanded ? 1200 : 900);
+    peerApplyIcon(rec);
+    if (!rec.expanded) return;
+    peerExpandTimers[id] = setTimeout(function(){
+      delete peerExpandTimers[id];
+      var r = peerObjs[id];
+      if (!r || !r.expanded) return;
+      r.expanded = false;
+      if (r.marker) r.marker.setZIndexOffset(900);
+      peerApplyIcon(r);
+    }, PEER_EXPAND_MS);
+  }
+
+  // The group list's "fly to this rider" opens the same label the rider would
+  // get by tapping the dot, so arriving at a friend and tapping them look the
+  // same. Called right after nativeRecenter, from Kotlin.
+  //
+  // A rider can be in the list before their marker is on the map: the list is
+  // drawn from the session state and the markers arrive on their own
+  // once-a-second push. Rather than doing nothing, the id is remembered and
+  // opened by the next push that carries it. Once only: a rider who is still
+  // missing after that has left, and a label that opened a minute later would
+  // be a mystery.
+  var peerPendingExpand = null;
+  window.nativeExpandPeer = function(id){
+    var key = String(id === null || id === undefined ? '' : id);
+    peerPendingExpand = null;
+    if (peerObjs[key]) { if (peerHasMore(peerObjs[key])) peerSetExpanded(key, true); }
+    else peerPendingExpand = key;
+  };
+
+  /**
+   * The trail behind one rider, as FOUR polylines instead of one per hop.
+   *
+   * A hop is a few metres, and five minutes of them is around a hundred
+   * polylines per rider: a hundred SVG paths that Leaflet has to re-project on
+   * every zoom frame, which is what made a trail lag behind the map during a
+   * pinch. Four paths, banded by age, draw the same fading tail and cost the
+   * renderer almost nothing.
+   *
+   * Points arrive oldest first with their band already stamped by Kotlin, so
+   * the bands are contiguous runs and each one only has to reach forward to
+   * the next newer run's first point to keep the line unbroken.
+   */
+  // One shared canvas for every trail: a canvas renderer paints all of them in
+  // a single pass per frame, where SVG paths are one DOM node each that Leaflet
+  // has to touch one by one. The four band polylines per rider are created
+  // once and only get new points afterwards, so a tick never churns the DOM.
+  var peerTrailRenderer = L.canvas({ padding: 0.5 });
+  function peerRedrawTrails(){
+    for (var id in peerObjs) {
+      var lines = peerObjs[id] && peerObjs[id].lines;
+      if (!lines) continue;
+      for (var i = 0; i < lines.length; i++) if (lines[i]) lines[i].redraw();
+    }
+  }
+  function peerBuildTrail(rec, trail, col, lost){
+    var bands = [[], [], [], []];
+    for (var i = 0; i < trail.length; i++) {
+      var b = trail[i][3] | 0;
+      if (b < 0) b = 0; else if (b > 3) b = 3;
+      bands[b].push([trail[i][0], trail[i][1]]);
+    }
+    // Bridge each band to the next newer one that has points, so the tail is
+    // one continuous line that changes opacity rather than four with gaps.
+    for (var b1 = 3; b1 >= 1; b1--) {
+      if (!bands[b1].length) continue;
+      for (var b2 = b1 - 1; b2 >= 0; b2--) {
+        if (bands[b2].length) { bands[b1].push(bands[b2][0]); break; }
+      }
+    }
+    if (!rec.lines || rec.lines.length !== 4) {
+      if (rec.lines) for (var k = 0; k < rec.lines.length; k++) if (rec.lines[k]) peerLayer.removeLayer(rec.lines[k]);
+      rec.lines = [null, null, null, null];
+    }
+    for (var b3 = 3; b3 >= 0; b3--) {
+      var pts = bands[b3].length >= 2 ? bands[b3] : [];
+      var op = PEER_TRAIL_OPACITY[b3] * (lost ? 0.35 : 1);
+      var line = rec.lines[b3];
+      if (!line) {
+        rec.lines[b3] = L.polyline(pts, {
+          color: col, weight: 4, interactive: false, opacity: op, renderer: peerTrailRenderer
+        }).addTo(peerLayer);
+      } else {
+        line.setLatLngs(pts);
+        if (line.options.color !== col || line.options.opacity !== op) line.setStyle({ color: col, opacity: op });
+      }
+    }
+  }
+
+  window.nativeSetPeers = function(json){
+    var peers;
+    try { peers = JSON.parse(json); } catch(e){ peers = []; }
+    var alive = {};
+    peers.forEach(function(p){
+      var id = String(p.id === null || p.id === undefined ? '' : p.id);
+      alive[id] = true;
+      var col = peerColor(p.color);
+      var trail = p.trail || [];
+      var lost = p.freshness === 'LOST';
+      var rec = peerObjs[id];
+      if (!rec) {
+        rec = peerObjs[id] = {
+          marker: null, lines: [], sig: null, html: null, data: null, expanded: false
+        };
+      }
+      rec.data = p;
+
+      // Trails only get rebuilt when the picture would actually change. The
+      // signature is the cheapest thing that moves when any drawn segment
+      // does: a new hop (length), the newest hop's position, the colour, the
+      // LOST dimming, and how the points are spread over the four age bands
+      // (which is what changes as a tail ages with no new fix arriving).
+      var last = trail.length ? trail[trail.length - 1] : null;
+      var counts = [0, 0, 0, 0];
+      for (var c = 0; c < trail.length; c++) {
+        var cb = trail[c][3] | 0;
+        if (cb < 0) cb = 0; else if (cb > 3) cb = 3;
+        counts[cb]++;
+      }
+      var sig = trail.length + ':' + (last ? last[0] + ',' + last[1] : '') +
+        ':' + col + ':' + (lost ? '1' : '0') + ':' + counts.join(',');
+      if (sig !== rec.sig) {
+        peerBuildTrail(rec, trail, col, lost);
+        rec.sig = sig;
+      }
+
+      if (!rec.marker) {
+        rec.html = peerHtml(rec);
+        rec.marker = L.marker([p.lat, p.lng], {
+          icon: peerIcon(rec.html),
+          // Tappable now: a tap opens the rider's stats under their name.
+          // Leaflet still lets a drag that starts on a marker pan the map, so
+          // this does not put a dead spot on the map.
+          interactive: true, keyboard: false, zIndexOffset: 900
+        }).addTo(peerLayer);
+        rec.marker.on('click', (function(peerId){
+          return function(){
+            var r = peerObjs[peerId];
+            // Nothing beyond the name to show (no stats, still fresh):
+            // the tap does nothing rather than growing the label by a hair.
+            if (r && (r.expanded || peerHasMore(r))) peerSetExpanded(peerId, !r.expanded);
+          };
+        })(id));
+      } else {
+        var at = rec.marker.getLatLng();
+        if (at.lat !== p.lat || at.lng !== p.lng) rec.marker.setLatLng([p.lat, p.lng]);
+        peerApplyIcon(rec);
+      }
+    });
+    // A tap on a rider whose marker had not been pushed yet: this is the push
+    // that brought it, so the label opens now. Cleared either way.
+    if (peerPendingExpand) {
+      var want = peerPendingExpand;
+      peerPendingExpand = null;
+      if (peerObjs[want]) peerSetExpanded(want, true);
+    }
+    // Whoever is no longer in the push has left the room or the share ended.
+    for (var gone in peerObjs) {
+      if (Object.prototype.hasOwnProperty.call(peerObjs, gone) && !alive[gone]) {
+        peerRemove(gone, peerObjs[gone]);
+        delete peerObjs[gone];
+      }
+    }
+  };
+
+
   // Compute the map-center latlng that puts a TARGET latlng at the centre
   // of the VISIBLE area. The caller passes the NET screen-pixel offset
   // by which the rider should appear ABOVE the WebView's geometric centre
@@ -1562,6 +2037,17 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     pt.y += screenOffsetPx * Math.cos(rad);
     return map.unproject(pt, zoom);
   }
+
+  // Frame a set of points above the dock: the rider with everyone in the
+  // group, or the rider with the stops. One point just centres on it.
+  window.nativeFitPoints = function(json, bottomOffsetPx){
+    var pts; try { pts = JSON.parse(json); } catch (e) { return; }
+    if (!pts || !pts.length) return;
+    if (pts.length === 1) { map.setView(pts[0], Math.max(map.getZoom(), 15)); return; }
+    map.fitBounds(L.latLngBounds(pts).pad(0.15), {
+      paddingTopLeft: [24, 24], paddingBottomRight: [24, 24 + (bottomOffsetPx || 0)], maxZoom: 17
+    });
+  };
 
   window.nativeRecenter = function(lat, lng, zoom, bottomOffsetPx){
     // Re-check the container size first so the target really lands centred

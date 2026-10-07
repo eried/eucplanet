@@ -47,6 +47,11 @@ data class HudState(
     // --- Live telemetry (canonical metric) ---
     val speedKmh: Float = 0f,
     val batteryPercent: Int = 0,
+    /** Battery percent with the load taken out of it, NaN before the first
+     *  half minute of a ride. The raw percentage on an 84 V pack swings
+     *  several points under acceleration, so this is the one worth reading
+     *  while moving. Added at PROTOCOL_MINOR 19; an older HUD ignores it. */
+    val batteryEnvelope: Float = Float.NaN,
     val voltage: Float = 0f,
     val current: Float = 0f,
     val pwm: Float = 0f,
@@ -82,6 +87,10 @@ data class HudState(
     val unitSpeed: String = "kmh",
     val unitDistance: String = "km",
     val unitTemp: String = "C",
+    /** psi | bar | kpa | kgf | mpa. Its own setting, not derived from
+     *  [unitDistance]: a rider on kilometres can still run psi in the tyre.
+     *  Defaulted so an older phone leaves the HUD reading bar as before. */
+    val unitPressure: String = "bar",
 
     /** Accent colour as an `#AARRGGBB` hex string from phone settings. */
     val accentArgb: String = "#FF00C853",
@@ -134,6 +143,23 @@ data class HudState(
      *  fallback), so the minor bump is what lets the phone flag "update your HUD"
      *  instead of the skew being silent. */
     val tripMeterKm: Float = -1f,
+
+    /** Energy drawn from the pack since connect, in Wh. A running total, so it
+     *  only climbs within a session. 0 before the first integration tick.
+     *  Wired in protocol minor 16. */
+    val whConsumed: Float = 0f,
+    /** Net consumption over the phone's rolling window, in Wh per km. A rate,
+     *  not a total: it answers what the ride is costing right now, and it moves
+     *  when the road tilts. NaN until the window holds enough distance to
+     *  divide by, which the HUD must render as "no reading" rather than 0.
+     *  Always per km on the wire; the HUD converts for its own unit setting.
+     *  Wired in protocol minor 16. */
+    val whPerKm: Float = Float.NaN,
+    /** Remaining range in km at that rate, or NaN while the phone cannot say.
+     *  Derived from energy-per-percent learned during the ride, so it is only
+     *  ever as good as the wheel's own battery percentage.
+     *  Wired in protocol minor 16. */
+    val rangeKm: Float = Float.NaN,
 
     /** Wheel roll (lean) in degrees, +right. From wheel BLE telemetry
      *  (InMotion / Begode / KingSong all report it). 0 when the wheel
@@ -289,8 +315,27 @@ data class HudState(
          *    [HudState.phoneGpsSpeedKmh] / [HudState.externalGpsSpeedKmh] so a HUD
          *    can show phone AND external GPS speed at once. Older HUDs default
          *    these and fall back to the prior single-source behaviour.
+         * 16: added [HudState.whConsumed], [HudState.whPerKm] and
+         *    [HudState.rangeKm] AND the WH_CONSUMED / WH_PER_KM /
+         *    RANGE_ESTIMATE custom-overlay metric keys. An older HUD ignores the
+         *    fields and renders such an element as SPEED, so the minor bump is
+         *    what surfaces the "update your HUD" hint. Note whPerKm and rangeKm
+         *    use NaN, not 0, for "nothing to say yet".
+         * 17: [HudState.hudMapStyle] may now carry non-Carto codes - "osm",
+         *    "cyclosm", "topo", "hot", "satellite" - alongside the Carto raster
+         *    slugs it has always carried. A HUD older than this treats every
+         *    code as a Carto slug and would request a URL that does not exist,
+         *    leaving the map blank, so the minor bump is what tells the rider to
+         *    update rather than leaving them staring at an empty map.
+         * 18: [HudState.unitPressure] carries the rider's own tyre-pressure
+         *    unit. Older HUDs ignore it and keep deriving one from the
+         *    distance unit, which is what every HUD did until now, so a stale
+         *    HUD reads bar rather than something wrong.
+         * 19: [HudState.batteryEnvelope], the load-free battery line, so the
+         *    overlay can show the number that only moves when the charge
+         *    moved. An older HUD never draws the element.
          */
-        const val PROTOCOL_MINOR: Int = 15
+        const val PROTOCOL_MINOR: Int = 19
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -435,6 +480,24 @@ object HudDiscovery {
     const val SERVICE_TYPE: String = "_eucplanet._tcp.local."
     /** Default port; overridable per phone if 28080 collides on the LAN. */
     const val DEFAULT_PORT: Int = 28080
+    /**
+     * True when [text] is a complete dotted-quad IPv4 address.
+     *
+     * The manual-IP field is saved on every keystroke, so a rider who typed
+     * half an address and stopped left a half address behind: a real capture
+     * carried `10.240.` for months. Nothing checked it, so discovery dialled
+     * it every cycle, failed to resolve it as a hostname, and backed off five
+     * seconds - beating a HUD that had already announced itself on the LAN.
+     */
+    fun isValidIpv4(text: String): Boolean {
+        val parts = text.trim().split('.')
+        if (parts.size != 4) return false
+        return parts.all { part ->
+            part.isNotEmpty() && part.length <= 3 && part.all(Char::isDigit) &&
+                (part.toIntOrNull() ?: -1) in 0..255
+        }
+    }
+
     /** TXT-record key for the wire protocol version. HUD refuses to pair
      *  against a phone advertising a higher major version than it speaks. */
     const val TXT_VERSION: String = "v"

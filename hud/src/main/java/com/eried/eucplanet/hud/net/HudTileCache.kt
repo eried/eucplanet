@@ -6,6 +6,7 @@ import android.util.LruCache
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import com.eried.eucplanet.hud.protocol.MapLayers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,9 +19,10 @@ import java.util.concurrent.TimeUnit
 /**
  * HUD-side tile fetch + cache.
  *
- * Talks directly to a CartoCDN raster basemap. The HUD has its own wifi
+ * Talks directly to the tile provider of the rider's layer, from the
+ * [MapLayers] registry every map surface shares. The HUD has its own wifi
  * adapter and is generally on the rider's hotspot (or an external AP),
- * so it hits the CDN directly without routing through the phone.
+ * so it hits the provider directly without routing through the phone.
  *
  * Style is picked by the rider on the phone side and shipped over the
  * wire as [com.eried.eucplanet.hud.protocol.HudState.hudMapStyle]; the
@@ -36,44 +38,11 @@ import java.util.concurrent.TimeUnit
 class HudTileCache {
 
     companion object {
-        private val SHARDS = arrayOf("a", "b", "c", "d")
         private const val USER_AGENT = "eucplanet-hud/1"
 
-        /** Default style when the rider hasn't picked one yet. Voyager
-         *  reads as a neutral parchment chart -- more contrast than
-         *  light_all, more legible than dark_matter on the prism in low
-         *  ambient light. */
-        const val DEFAULT_STYLE = "voyager"
-
-        /** Map a stored style code to the CartoCDN raster path slug.
-         *  The stored code IS the slug (e.g. "light_all", "dark_nolabels",
-         *  "voyager") -- we just prefix the voyager-family with the
-         *  "rastertiles/" path the CDN puts them under. A small set of
-         *  legacy aliases ("positron", "dark_matter", "light_all" without
-         *  prefix) are still accepted so older saved AppSettings keep
-         *  rendering after the rename. Unknown / empty codes fall through
-         *  to [DEFAULT_STYLE]. */
-        private fun pathFor(code: String): String = when (code) {
-            "" -> "rastertiles/voyager"
-            // Voyager family lives under rastertiles/ on the CDN.
-            "voyager",
-            "voyager_nolabels",
-            "voyager_labels_under",
-            "voyager_only_labels" -> "rastertiles/$code"
-            // Carto's flat-slug families: light_* (Positron) and dark_*
-            // (Dark Matter). Pass straight through.
-            "light_all",
-            "light_nolabels",
-            "light_only_labels",
-            "dark_all",
-            "dark_nolabels",
-            "dark_only_labels" -> code
-            // Legacy aliases shipped before this rename.
-            "positron" -> "light_all"
-            "dark_matter" -> "dark_all"
-            "dark_matter_nolabels" -> "dark_nolabels"
-            else -> "rastertiles/voyager"
-        }
+        /** What the HUD draws before the phone has said which layer the rider
+         *  picked: the same light chart the phone's picker defaults to. */
+        const val DEFAULT_STYLE = MapLayers.LIGHT
     }
 
     private val client = OkHttpClient.Builder()
@@ -90,9 +59,16 @@ class HudTileCache {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    /** Currently active CartoCDN path slug, used to build per-tile URLs. */
+    /** The layer whose tiles we fetch. Resolved through [MapLayers.byId], so
+     *  the phone's seven picker codes and the CARTO slugs older phones still
+     *  send all land on a real entry instead of one hardcoded chart. */
     @Volatile
-    private var stylePath: String = pathFor(DEFAULT_STYLE)
+    private var layer: MapLayers.Layer = MapLayers.byId(DEFAULT_STYLE)
+
+    /** How deep the current provider renders. Esri's Canvas charts stop at
+     *  16 and answer deeper requests with a "Map data not yet available"
+     *  tile, so a map screen must fetch at most this zoom and scale up. */
+    val maxNativeZoom: Int get() = layer.maxNativeZoom
 
     /** Compose-observable version counter bumped on every style swap. Map
      *  callers key their LaunchedEffect on this so a style change triggers
@@ -106,9 +82,9 @@ class HudTileCache {
      *  we clear the bitmap cache so the next frame's tile lookups all
      *  miss and trigger refetches in the new style. */
     fun applyStyle(code: String) {
-        val newPath = pathFor(code)
-        if (newPath == stylePath) return
-        stylePath = newPath
+        val next = MapLayers.byId(code.ifBlank { DEFAULT_STYLE })
+        if (next.id == layer.id) return
+        layer = next
         cache.evictAll()
         inflight.clear()
         _styleVersionState++
@@ -124,11 +100,10 @@ class HudTileCache {
         val k = key(z, x, y)
         if (cache.get(k) != null) return
         if (!inflight.add(k)) return
-        val pathAtStart = stylePath
+        val layerAtStart = layer
         scope.launch {
             try {
-                val shard = SHARDS[(x + y) % SHARDS.size]
-                val url = "https://$shard.basemaps.cartocdn.com/$pathAtStart/$z/$x/$y.png"
+                val url = MapLayers.tileUrl(layerAtStart.id, z, x, y)
                 val req = Request.Builder()
                     .url(url)
                     .header("User-Agent", USER_AGENT)
@@ -136,11 +111,34 @@ class HudTileCache {
                 client.newCall(req).execute().use { resp ->
                     if (!resp.isSuccessful) return@launch
                     val bytes = resp.body?.bytes() ?: return@launch
-                    val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@launch
+                    var bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@launch
+                    // Esri Canvas keeps its labels on a separate reference
+                    // layer named by the base URL; composite it on top. A
+                    // failed label fetch still shows the base tile.
+                    val refUrl = MapLayers.refTileUrl(layerAtStart.id, z, x, y)
+                    if (refUrl != null) {
+                        runCatching {
+                            val refReq = Request.Builder()
+                                .url(refUrl)
+                                .header("User-Agent", USER_AGENT)
+                                .build()
+                            client.newCall(refReq).execute().use { refResp ->
+                                if (refResp.isSuccessful) {
+                                    refResp.body?.bytes()?.let { rb ->
+                                        BitmapFactory.decodeByteArray(rb, 0, rb.size)?.let { ref ->
+                                            val out = bmp.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+                                            android.graphics.Canvas(out).drawBitmap(ref, 0f, 0f, null)
+                                            bmp = out
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // If the rider switched styles while we were
                     // mid-fetch, drop the late tile on the floor instead
                     // of poisoning the new-style cache.
-                    if (pathAtStart == stylePath) {
+                    if (layerAtStart.id == layer.id) {
                         cache.put(k, bmp)
                         onLoaded()
                     }

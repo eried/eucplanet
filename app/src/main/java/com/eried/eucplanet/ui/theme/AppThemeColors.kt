@@ -54,6 +54,14 @@ data class AppThemeColors(
     val statusGood: Color,
     val statusWarn: Color,
     val statusDanger: Color,
+    /**
+     * The deeper green for a ride that a backup holds but the leaderboard has
+     * not accepted. Pairs with [statusGood], which marks the one that both
+     * hold, so the cloud reads as safe either way and the shade carries the
+     * second question. Derived by darkening [statusGood] when a theme does not
+     * set it, so every theme including a rider's own gets a coherent pair.
+     */
+    val cloudBackupOnly: Color = Color.Unspecified,
 
     // Metric palette
     val metricVoltage: Color,
@@ -90,6 +98,20 @@ data class AppThemeColors(
     val sectionHeader: Color = Color.Unspecified,
     val link: Color = Color.Unspecified,
     val hint: Color = Color.Unspecified,
+    /** Battery envelope trip graph: distinct from the raw battery line. */
+    val chartEnvelope: Color = Color.Unspecified,
+    /** Ridability forecast: the good end of the score scale (light blue). */
+    val weatherGood: Color = Color.Unspecified,
+    /** Ridability forecast: the bad end of the score scale (magenta). */
+    val weatherBad: Color = Color.Unspecified,
+    /** The forecast panel's detail series. Their own tokens rather than
+     *  borrowed metric ones: humidity used to share a token with the
+     *  precipitation bars drawn under it, and its default was the same blue
+     *  the score curve uses for a perfect hour. */
+    val weatherTemp: Color = Color.Unspecified,
+    val weatherHumidity: Color = Color.Unspecified,
+    val weatherPrecip: Color = Color.Unspecified,
+    val weatherWind: Color = Color.Unspecified,
     val tileLabel: Color = Color.Unspecified,
     // Small MIN/MAX/AVG stat caption on metric tiles. Its own token so it can be
     // recolored (e.g. pure black) without dragging every other piece of
@@ -153,9 +175,30 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     sectionHeader = sectionHeader.takeOrElse { textSecondary },
     link = link.takeOrElse { primary },
     hint = hint.takeOrElse { textSecondary },
+    chartEnvelope = chartEnvelope.takeOrElse { Color(0xFF40C4FF) },
+    weatherGood = weatherGood.takeOrElse { Color(0xFF40C4FF) },
+    weatherBad = weatherBad.takeOrElse { Color(0xFFE040FB) },
+    // Temp and wind follow the theme's own metric hues, so a custom theme
+    // stays coherent. Humidity is teal: the palette's remaining cool hue,
+    // clear of the score's sky blue and of the rain bars beneath it. Rain
+    // keeps the blue riders already read as rain.
+    weatherTemp = weatherTemp.takeOrElse { metricTemp },
+    weatherHumidity = weatherHumidity.takeOrElse { Color(0xFF26C6DA) },
+    weatherPrecip = weatherPrecip.takeOrElse { Color(0xFF40C4FF) },
+    weatherWind = weatherWind.takeOrElse { metricPosition },
     tileLabel = tileLabel.takeOrElse { textSecondary },
     cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
     dashIcon = dashIcon.takeOrElse { statusGood },
+    // Two thirds of the way to black keeps it unmistakably the same hue while
+    // separating clearly from statusGood at icon size.
+    cloudBackupOnly = cloudBackupOnly.takeOrElse {
+        Color(
+            red = statusGood.red * 0.62f,
+            green = statusGood.green * 0.62f,
+            blue = statusGood.blue * 0.62f,
+            alpha = statusGood.alpha,
+        )
+    },
     fieldBackground = fieldBackground.takeOrElse { surface },
     fieldText = fieldText.takeOrElse { textPrimary },
     fieldLabel = fieldLabel.takeOrElse { textSecondary },
@@ -201,7 +244,7 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
  */
 fun AppThemeColors.toColorScheme(): ColorScheme {
     val base = if (isLight) lightColorScheme() else darkColorScheme()
-    // Map EVERY Material slot from a token — the unmapped *container / inverse /
+    // Map EVERY Material slot from a token, the unmapped *container / inverse /
     // tint* slots used to fall back to Material's default purple, which is why
     // things like the segmented selector's selected text weren't following the
     // theme. The "container" slots stay subtle (surfaceVariant fill + accent
@@ -236,6 +279,26 @@ fun AppThemeColors.toColorScheme(): ColorScheme {
         outline = outline,
         outlineVariant = outline,
         scrim = scrim,
+        // The surfaceContainer family, which the comment above claimed was
+        // already covered and was not. Material3 paints its own components from
+        // these rather than from `surface`, so every AlertDialog in the app was
+        // coming out in Material's pale lavender no matter what theme the rider
+        // had chosen, and the only ones that looked right were those that had
+        // been overridden by hand at the call site.
+        //
+        // Mapped to the token that matches each component's job, so a dialog
+        // takes the dialog colour, a dropdown the menu colour and a bottom
+        // sheet the sheet colour, without any of them having to ask:
+        //   surfaceContainerHigh   AlertDialog
+        //   surfaceContainer       DropdownMenu, NavigationBar
+        //   surfaceContainerLow    ModalBottomSheet
+        surfaceBright = surface,
+        surfaceDim = appBackground,
+        surfaceContainerLowest = appBackground,
+        surfaceContainerLow = sheetBackground,
+        surfaceContainer = menuBackground,
+        surfaceContainerHigh = dialog,
+        surfaceContainerHighest = surfaceVariant,
     )
 }
 
@@ -286,12 +349,20 @@ object ThemeTokens {
         ThemeTokenSpec("statusGood", "Good / safe", GROUP_STATUS, { it.statusGood }, { c, v -> c.copy(statusGood = v) }),
         ThemeTokenSpec("statusWarn", "Warning", GROUP_STATUS, { it.statusWarn }, { c, v -> c.copy(statusWarn = v) }),
         ThemeTokenSpec("statusDanger", "Danger / error", GROUP_STATUS, { it.statusDanger }, { c, v -> c.copy(statusDanger = v) }),
+        ThemeTokenSpec("cloudBackupOnly", "Backed up, not on leaderboard", GROUP_STATUS, { it.cloudBackupOnly }, { c, v -> c.copy(cloudBackupOnly = v) }),
 
         ThemeTokenSpec("metricVoltage", "Voltage", GROUP_METRIC, { it.metricVoltage }, { c, v -> c.copy(metricVoltage = v) }),
         ThemeTokenSpec("metricBattery", "Battery / speed", GROUP_METRIC, { it.metricBattery }, { c, v -> c.copy(metricBattery = v) }),
         ThemeTokenSpec("metricTemp", "Temp / power", GROUP_METRIC, { it.metricTemp }, { c, v -> c.copy(metricTemp = v) }),
         ThemeTokenSpec("metricPosition", "Position", GROUP_METRIC, { it.metricPosition }, { c, v -> c.copy(metricPosition = v) }),
         ThemeTokenSpec("metricAccel", "Acceleration", GROUP_METRIC, { it.metricAccel }, { c, v -> c.copy(metricAccel = v) }),
+        ThemeTokenSpec("chartEnvelope", "Battery envelope", GROUP_METRIC, { it.chartEnvelope }, { c, v -> c.copy(chartEnvelope = v) }),
+        ThemeTokenSpec("weatherGood", "Ridability good", GROUP_METRIC, { it.weatherGood }, { c, v -> c.copy(weatherGood = v) }),
+        ThemeTokenSpec("weatherBad", "Ridability bad", GROUP_METRIC, { it.weatherBad }, { c, v -> c.copy(weatherBad = v) }),
+        ThemeTokenSpec("weatherTemp", "Weather temperature", GROUP_METRIC, { it.weatherTemp }, { c, v -> c.copy(weatherTemp = v) }),
+        ThemeTokenSpec("weatherHumidity", "Weather humidity", GROUP_METRIC, { it.weatherHumidity }, { c, v -> c.copy(weatherHumidity = v) }),
+        ThemeTokenSpec("weatherPrecip", "Weather precipitation", GROUP_METRIC, { it.weatherPrecip }, { c, v -> c.copy(weatherPrecip = v) }),
+        ThemeTokenSpec("weatherWind", "Weather wind", GROUP_METRIC, { it.weatherWind }, { c, v -> c.copy(weatherWind = v) }),
 
         ThemeTokenSpec("gaugeTrack", "Gauge track", GROUP_GAUGE, { it.gaugeTrack }, { c, v -> c.copy(gaugeTrack = v) }),
         ThemeTokenSpec("gaugeFill", "Gauge fill", GROUP_GAUGE, { it.gaugeFill }, { c, v -> c.copy(gaugeFill = v) }),
@@ -423,7 +494,7 @@ object ThemeJson {
 
 /**
  * The active theme's tokens, provided once at the app root. Static because the
- * value is a stable immutable object while the editor is closed — readers don't
+ * value is a stable immutable object while the editor is closed, readers don't
  * recompose unless the whole theme actually changes.
  */
 val LocalAppColors = staticCompositionLocalOf { BuiltInThemes.pureBlack.colors }
@@ -432,7 +503,7 @@ val LocalAppColors = staticCompositionLocalOf { BuiltInThemes.pureBlack.colors }
  * Ergonomic accessor so app-specific tokens read just like the Material roles:
  * `MaterialTheme.appColors.statusGood` sits right next to
  * `MaterialTheme.colorScheme.primary` and autocompletes the same way. New code
- * never hardcodes a color — it reaches for a colorScheme role or an appColors
+ * never hardcodes a color, it reaches for a colorScheme role or an appColors
  * token, and is themed (and editable by the target tool) for free.
  */
 val MaterialTheme.appColors: AppThemeColors

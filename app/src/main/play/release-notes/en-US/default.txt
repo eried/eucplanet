@@ -1,8 +1,9 @@
-✨ New this release:
+Beta 0.22.0
 
-🔒 Wheel lock by proximity: locks as you walk away and unlocks as you return, using the Bluetooth signal.
-🎵 Media control: pause music when you slow down, resume it when you speed up.
-🔊 Auto-volume boost now goes up to 3x with speed.
-📡 More reliable Bluetooth, with a fix for the "connected but no data" drop.
-🗺️ Trip viewer keeps one colour per wheel across reconnects.
-🛞 InMotion V1 / V8S support and many wheel fixes.
+- Watch map (Wear OS): position, route while navigating, zoom on the dial. Thanks to ZiraiMode.
+- KingSong: lock, unlock and horn, with the app password if you set one.
+- Begode: PWM reads positive under load and no longer flashes to zero.
+- Flic 2 buttons work again.
+- HUD map draws again and follows the map style you pick.
+- Voice: weather with numbers, "What can I say" in three groups.
+- Fixes: shared locations into a closed app, notification after disconnect, alarms in backups.

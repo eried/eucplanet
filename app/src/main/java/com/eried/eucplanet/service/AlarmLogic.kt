@@ -2,6 +2,7 @@ package com.eried.eucplanet.service
 
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
+import com.eried.eucplanet.data.model.WheelData
 
 /**
  * Pure, Android-free decision math for the alarm engine, split out so the
@@ -23,6 +24,25 @@ object AlarmLogic {
     const val SLOPE_MIN_SAMPLES = 3
     const val SLOPE_MIN_SPAN_MS = 300L
     const val BUFFER_MAX_MS = 2500L
+
+    /**
+     * The tyre pressure a rule should be evaluated against, or null to skip.
+     *
+     * Two failures a low-pressure alarm can have, and they pull in opposite
+     * directions:
+     *
+     *  - A wheel with no sensor reports nothing, and a rule evaluated against
+     *    that would sit permanently under any threshold a rider set, alarming
+     *    forever about a tyre nobody is measuring. Null skips the rule.
+     *  - A cap on a FLAT tyre reports exactly 0 kPa. That is the alarm the
+     *    rider bought the sensor for, and the old rule - skip anything not
+     *    above zero - threw it away.
+     *
+     * Which is why the reading and the presence of a sensor are two fields:
+     * zero is an answer, not a silence.
+     */
+    fun tirePressureForAlarm(data: WheelData): Float? =
+        data.tirePressureKpa.takeIf { data.hasTirePressure }
 
     /** Does [value] satisfy the rule's threshold right now? */
     fun matchesNow(value: Float, comparator: String, threshold: Float): Boolean =
@@ -145,6 +165,8 @@ object AlarmLogic {
         AlarmMetric.TEMPERATURE.name -> -10f
         AlarmMetric.VOLTAGE.name -> 10f
         AlarmMetric.RADAR_DISTANCE.name -> 5f
+        // dBm is negative all the way down; -100 is past any usable link.
+        AlarmMetric.BT_RSSI.name -> -100f
         else -> 0f   // speed, battery, pwm, current, approach-speed
     }
 
@@ -153,12 +175,27 @@ object AlarmLogic {
         AlarmMetric.GPS_SPEED.name -> 150f
         AlarmMetric.EXTERNAL_GPS_SPEED.name -> 150f
         AlarmMetric.BATTERY.name -> 100f
+        // Stated rather than inherited from the default, so a change to the
+        // default cannot quietly move a battery threshold.
+        AlarmMetric.BATTERY_ENVELOPE.name -> 100f
         AlarmMetric.PWM.name -> 100f
         AlarmMetric.TEMPERATURE.name -> 90f
         AlarmMetric.VOLTAGE.name -> 480f
         AlarmMetric.CURRENT.name -> 200f
         AlarmMetric.RADAR_DISTANCE.name -> 140f
         AlarmMetric.RADAR_APPROACH_SPEED.name -> 150f
+        // 500 kPa is about 72 psi / 5 bar: past any EUC tyre, and low enough
+        // that the editor's steps stay useful across the range riders use.
+        AlarmMetric.TIRE_PRESSURE.name -> 500f
+        // Motors and controllers run hotter than the pack does, and
+        // TEMPERATURE's 90 would clip a motor alarm a rider legitimately
+        // wants at 110. The battery keeps 90: past that it is not a warning.
+        AlarmMetric.MOTOR_TEMP.name, AlarmMetric.CONTROLLER_TEMP.name -> 150f
+        AlarmMetric.BATTERY_TEMP.name -> 90f
+        // 3 g is a crash, not a corner. Edited in tenths.
+        AlarmMetric.G_FORCE.name, AlarmMetric.LATERAL_G.name -> 3f
+        // The top of the dBm scale; the useful settings live near the bottom.
+        AlarmMetric.BT_RSSI.name -> 0f
         else -> 100f
     }
 

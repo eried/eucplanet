@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,7 +53,17 @@ class TripRepository @Inject constructor(
     private val voiceService: VoiceService,
     private val settingsRepository: SettingsRepository,
     private val syncManager: SyncManager,
-    private val externalGpsRepository: ExternalGpsRepository
+    private val externalGpsRepository: ExternalGpsRepository,
+    private val legalLockdown: LegalLockdownController,
+    /**
+     * Injected as a Provider because [com.eried.eucplanet.share.ShareSession]
+     * takes this repository (it publishes [currentLocation]). A Provider breaks
+     * the construction cycle: the instance is only asked for from a coroutine,
+     * once, after both singletons exist. That coroutine runs on [scope], which
+     * is Dispatchers.IO, so this never runs inline on the constructing thread;
+     * a Provider alone does not guarantee that, the dispatcher does.
+     */
+    private val shareSession: javax.inject.Provider<com.eried.eucplanet.share.ShareSession>
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -111,6 +122,10 @@ class TripRepository @Inject constructor(
     val allTrips: Flow<List<TripRecord>> = tripDao.observeAll()
     val tripCount: Flow<Int> = tripDao.observeCount()
 
+    /** Every trip file this phone holds, for comparing against a backup. */
+    suspend fun allTripFileNames(): List<String> =
+        tripDao.observeAll().first().map { it.fileName }
+
     private var csvWriter: CsvWriter? = null
     private var currentTrip: TripRecord? = null
     private var recordJob: kotlinx.coroutines.Job? = null
@@ -120,7 +135,7 @@ class TripRepository @Inject constructor(
 
     // The wheel's identity for the active recording, accumulated while it is still
     // connected. Snapshotting only at stop loses it whenever the rider powers the wheel
-    // off to end the ride — see [WheelIdentity].
+    // off to end the ride - see [WheelIdentity].
     private val wheelIdentity = WheelIdentity()
 
     // Last identity JSON already flushed to the current row, so the mid-ride persist
@@ -139,10 +154,15 @@ class TripRepository @Inject constructor(
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
-    // from recording / navigating / wheel-connected / app-visible so it never
-    // burns the 1 Hz high-accuracy stream when nothing needs it.
+    // from recording / navigating / sharing / a visible watch map /
+    // wheel-connected / app-visible so it never burns the 1 Hz high-accuracy
+    // stream when nothing needs it.
     @Volatile private var gpsStreamRequested = false
     @Volatile private var gpsNavigating = false
+    // Live location share is running: friends are watching this rider's dot, so
+    // GPS stays at 1 Hz even with the app backgrounded and no wheel connected.
+    @Volatile private var gpsSharing = false
+    @Volatile private var gpsWatchMapVisible = false
     @Volatile private var currentGpsTier: GpsTier? = null
     // Pending fully-off after the idle grace (gpsIdleOffDelaySec); cancelled the
     // moment any input changes, since recompute re-decides.
@@ -187,6 +207,10 @@ class TripRepository @Inject constructor(
         scope.launch { _recording.collect { recomputeGpsTier() } }
         scope.launch { wheelRepository.connectionState.collect { recomputeGpsTier() } }
         scope.launch { AppForeground.isForeground.collect { recomputeGpsTier() } }
+        // Joining or leaving a group changes the tier the same way navigation
+        // does. Resolved here, off the constructor thread, so the Provider
+        // above never re-enters this repository's own construction.
+        scope.launch { shareSession.get().sharing.collect { gpsSharing = it; recomputeGpsTier() } }
     }
 
     // The just-stopped trip waiting for grace-period finalization, plus the job
@@ -202,6 +226,14 @@ class TripRepository @Inject constructor(
         scope.launch {
             runCatching { finalizeUnfinishedTrips() }
             runCatching { adoptOrphanCsvs() }
+            // Then read the wheel out of any file that has never been asked.
+            // Old rows predate the wheelMetaJson column and restored trips
+            // arrived before downloads captured it, so the change-wheel picker
+            // sat empty while every CSV named its wheel. One streaming read
+            // per file, once ever: files with no wheel rows are stamped "{}"
+            // so they are never opened again. A 352-trip library takes a few
+            // seconds in the background; even thousands stay under a minute.
+            runCatching { backfillWheelMetaFromFiles() }
         }
         // App-start recovery sweep. Both workers also pick up orphaned/failed
         // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
@@ -306,7 +338,8 @@ class TripRepository @Inject constructor(
     /**
      * Ensure the demand-driven GPS stream is running. Callers no longer force a
      * power level - the tier is picked by [recomputeGpsTier] from what actually
-     * needs a position (recording / navigating / connected / app-visible), so a
+     * needs a position (recording / navigating / sharing / connected /
+     * app-visible), so a
      * bare "be ready" call from a UI screen costs a low-power keep-warm fix, not
      * the full 1 Hz stream.
      */
@@ -343,6 +376,12 @@ class TripRepository @Inject constructor(
         recomputeGpsTier()
     }
 
+    fun setWatchMapVisible(visible: Boolean) {
+        gpsWatchMapVisible = visible
+        if (visible) startLocationUpdates()
+        recomputeGpsTier()
+    }
+
     /** Pick the GPS tier for the current demand and (re)issue the fused request. */
     private fun recomputeGpsTier() {
         if (!gpsStreamRequested || !hasLocationPermission()) return
@@ -352,6 +391,8 @@ class TripRepository @Inject constructor(
             navigating = gpsNavigating,
             connected = connected,
             appVisible = AppForeground.isForeground.value,
+            sharing = gpsSharing,
+            watchMapVisible = gpsWatchMapVisible,
         )
         if (tier == GpsTier.OFF) {
             // Already off, or an off-grace already pending: stay put. Do NOT
@@ -489,6 +530,7 @@ class TripRepository @Inject constructor(
         fusedLocationClient.removeLocationUpdates(locationCallback)
         locationUpdatesActive = false
         gpsStreamRequested = false
+        gpsWatchMapVisible = false
         currentGpsTier = null
         Log.i(TAG, "Location updates stopped (received $locationFixCount fixes this session)")
     }
@@ -514,6 +556,9 @@ class TripRepository @Inject constructor(
         Log.i(TAG, "adoptOrphanCsvs: dir=${dir.absolutePath} csv=${csvs.size}")
         if (csvs.isEmpty()) return
         val known = tripDao.allFileNames().toHashSet()
+        val settings = runCatching { settingsRepository.get() }.getOrNull()
+        val hasFolder = settings?.syncFolderUri != null
+        var adopted = 0
         for (f in csvs) {
             if (f.name in known) continue
             val text = runCatching { f.readText() }.getOrNull() ?: continue
@@ -527,16 +572,30 @@ class TripRepository @Inject constructor(
                     endTime = if (m.valid) m.endMs else null,
                     distanceKm = m.distanceKm,
                     sampleCount = rows,
-                    // A derived file (a saved section, a join) must not gain an
-                    // upload identity just because the database was rebuilt. The
-                    // name is the only marker that survives, which is why
-                    // TripDerive puts it there.
-                    tripUuid = if (TripDerive.isDerived(f.name)) null
-                               else java.util.UUID.randomUUID().toString()
+                    // ALWAYS null. A uuid is this device's claim that it
+                    // recorded the ride itself, and it is what makes a trip
+                    // eligible for an eucstats upload; adoption is finding a
+                    // file, which is not a recording. Minting one here handed
+                    // that claim to imported CSVs, files restored from a
+                    // backup, and anything a rider dropped in the folder, and
+                    // the upload sweep has no age limit, so a whole back
+                    // catalogue went to the leaderboard at once. Live
+                    // recording mints its own at save time (see startTrip).
+                    tripUuid = null,
+                    // The file's own name, the way every other road in reads
+                    // it. Ten real files adopted on the emulator showed "test
+                    // 3" to eucviewer and a date to the phone.
+                    customName = runCatching { readTripNameFromCsv(f) }.getOrNull(),
+                    // Queued for the folder like a recorded trip. Adopted files
+                    // stayed at status 0, which no worker walks, so they never
+                    // reached the backup folder until a manual sync.
+                    uploadStatus = if (hasFolder) 1 else 0,
                 )
             )
+            adopted++
             Log.i(TAG, "Adopted orphan trip CSV ${f.name} ($rows rows, ${m.distanceKm} km)")
         }
+        if (adopted > 0 && hasFolder && settings != null) syncManager.enqueueTripUpload(settings)
     }
 
     /** Header-driven extraction of (date, lat, lon, mileage) rows for metrics. */
@@ -616,11 +675,11 @@ class TripRepository @Inject constructor(
 
     /**
      * Flush the accumulated wheel identity onto the current row the first time it
-     * becomes known (and again only if it grows) — gated on change, so a whole ride
+     * becomes known (and again only if it grows). Gated on change, so a whole ride
      * costs about one extra write, not one per tick. This is what makes the identity
      * survive an OOM/force-kill: [finalizeUnfinishedTrips] recovers a killed row from
      * its CSV and [finalizedTripOrNull] copies wheelMetaJson through untouched, so a
-     * row that already carries the wheel keeps it. Best-effort — a DB hiccup here must
+     * row that already carries the wheel keeps it. Best-effort - a DB hiccup here must
      * never disturb recording. Targets the row by id, and stopRecording() rewrites the
      * same accumulator value, so the two can never disagree.
      */
@@ -632,7 +691,22 @@ class TripRepository @Inject constructor(
         runCatching { tripDao.updateWheelMeta(id, json) }
     }
 
+    init {
+        // Lockdown can engage long after it was armed, the moment legal mode
+        // comes on, so a ride may already be in progress. Finalise and save it
+        // rather than leaving a partial trip open behind a locked screen.
+        scope.launch {
+            legalLockdown.engaged.collect { engaged ->
+                if (engaged && _recording.value) stopRecording()
+            }
+        }
+    }
+
     suspend fun startRecording() {
+        // Legal Mode Lockdown stops the recorders. Auto-record reaches this same
+        // function, so gating here covers the policy too.
+        if (legalLockdown.isEngaged()) return
+
         // Back off briefly after a failed start. evaluateAutoRecordOnTelemetry
         // calls this on every moving packet (~10/s); without this it would spin
         // retrying a doomed file open.
@@ -827,19 +901,24 @@ class TripRepository @Inject constructor(
             return
         }
 
-        val data = wheelRepository.wheelData.value
-        // Wheel distance is the per-segment accumulator (immune to mid-ride
-        // wheel switches and to pre-recording session distance); the raw
-        // session counter and GPS distance remain as fallbacks for rides
-        // where the loop never saw a connected tick.
-        val distance = when {
-            tripWheelKmAccum > 0f -> tripWheelKmAccum
-            data.tripDistance > 0f -> data.tripDistance
-            else -> gpsDistanceKm.toFloat()
-        }
+        // Wheel distance is the per-segment accumulator: only forward,
+        // plausible per-tick steps, baseline reset across disconnects. Zero
+        // from it is an ANSWER, not a failure - a recording where the wheel
+        // never moved really is zero km.
+        //
+        // It used to fall through to data.tripDistance, the wheel's own trip
+        // meter, which is an absolute counter running since the rider last
+        // cleared it and has nothing to do with when recording started. A
+        // rider stopped a recording after eight stationary seconds and got
+        // 6 km: their earlier riding that day, borrowed. The fallback claimed
+        // to be for rides "where the loop never saw a connected tick", but it
+        // fired whenever the wheel simply had not moved, which is exactly when
+        // the honest answer is zero. GPS is the only other thing that measured
+        // THIS ride, so it is the only fallback left.
+        val distance = if (tripWheelKmAccum > 0f) tripWheelKmAccum else gpsDistanceKm.toFloat()
         val capturedMock = tripHadMockFix
         // A last look in case the wheel is still connected, then use what the ride
-        // accumulated — by now a powered-off wheel reads back as all-nulls, which merge
+        // accumulated - by now a powered-off wheel reads back as all-nulls, which merge
         // ignores rather than letting it erase what we already know.
         captureWheelIdentity()
         val wheelMeta = wheelIdentity.toJson()
@@ -1023,6 +1102,7 @@ class TripRepository @Inject constructor(
             runCatching { destFile.delete() }
             return null
         }
+        stampDerived(destFile, source.wheelMetaJson)
         val metrics = TripCsv.metricsFrom(readQuads(destFile))
         val record = TripRecord(
             fileName = destName,
@@ -1036,6 +1116,33 @@ class TripRepository @Inject constructor(
         )
         val id = tripDao.insert(record)
         return record.copy(id = id)
+    }
+
+    /** The wheel the trip row knows, written into a derived file; see
+     *  [TripDerive.stampDerived]. Best effort: a file that cannot carry it
+     *  is still a valid trip. */
+    private fun stampDerived(file: File, wheelJson: String?) {
+        val identity = WheelChoice.fromJson(wheelJson)?.extraFields().orEmpty()
+        runCatching { TripDerive.stampDerived(file, identity) }
+            .onFailure { Log.w(TAG, "Could not stamp derived ${file.name}", it) }
+    }
+
+    /** First trip.name= in the Extra column, the way the sync parser reads it. */
+    private fun readTripNameFromCsv(file: File): String? {
+        file.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return null
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return null
+            while (true) {
+                val line = reader.readLine() ?: break
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("trip.name=", ignoreCase = true)) {
+                    val v = cell.substringAfter('=').trim().take(60)
+                    if (v.isNotEmpty()) return v
+                }
+            }
+        }
+        return null
     }
 
     /** Date, lat, lon and odometer per row, for metric recomputation. */
@@ -1083,22 +1190,72 @@ class TripRepository @Inject constructor(
      * only ever arrived as an imported CSV, which is exactly the case where the
      * rider is most likely to be correcting a wrong label.
      */
-    suspend fun knownWheelNames(): List<String> {
-        val fromProfiles = runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
-        val fromTrips = runCatching {
-            tripDao.allWheelMeta().mapNotNull { json ->
-                runCatching { org.json.JSONObject(json).optString("ble_name") }
-                    .getOrNull()?.takeIf { it.isNotBlank() }
-            }
-        }.getOrDefault(emptyList())
-        return (fromProfiles + fromTrips).distinct().sorted()
+    private suspend fun backfillWheelMetaFromFiles() {
+        for (trip in tripDao.tripsWithoutWheelMeta()) {
+            val file = getTripFile(trip)
+            if (!file.exists()) continue
+            val json = runCatching { readWheelJsonFromCsv(file) }.getOrNull()
+            // "{}" = looked, nothing there. Distinguishable from NULL (never
+            // looked) so the sweep converges instead of re-reading forever.
+            tripDao.updateWheelMeta(trip.id, json ?: "{}")
+        }
     }
 
-    suspend fun changeTripWheel(trip: TripRecord, bleName: String, mac: String?): Boolean {
+    /** First wheel.name= / wheel.mac= / brand / model in the Extra column,
+     *  as the same JSON shape the recorder caches. Streams; a long ride
+     *  never sits in memory. */
+    private fun readWheelJsonFromCsv(file: java.io.File): String? {
+        var name: String? = null; var mac: String? = null
+        var brand: String? = null; var model: String? = null
+        file.bufferedReader().use { reader ->
+            val header = reader.readLine() ?: return null
+            val idx = header.lowercase().split(",").map { it.trim() }.indexOf("extra")
+            if (idx < 0) return null
+            reader.forEachLine { line ->
+                val cell = line.split(",").getOrNull(idx)?.trim().orEmpty()
+                if (cell.startsWith("wheel.", ignoreCase = true)) {
+                    val v = cell.substringAfter('=').trim().take(80)
+                    if (v.isNotEmpty()) when {
+                        cell.startsWith("wheel.name=", true) -> name = name ?: v
+                        cell.startsWith("wheel.mac=", true) -> mac = mac ?: v
+                        cell.startsWith("wheel.brand=", true) -> brand = brand ?: v
+                        cell.startsWith("wheel.model=", true) -> model = model ?: v
+                    }
+                }
+            }
+        }
+        if (name == null && mac == null) return null
+        return org.json.JSONObject().apply {
+            name?.let { put("ble_name", it) }
+            mac?.let { put("ble_mac", it) }
+            brand?.let { put("brand", it) }
+            model?.let { put("model", it) }
+        }.toString()
+    }
+
+    suspend fun knownWheels(): List<WheelChoice> {
+        val fromProfiles = runCatching { wheelProfileDao.allNames() }.getOrDefault(emptyList())
+            .map { WheelChoice(name = it) }
+        val fromTrips = runCatching {
+            tripDao.allWheelMeta().mapNotNull { WheelChoice.fromJson(it) }
+        }.getOrDefault(emptyList())
+        // Distinct the way eucviewer groups: label plus serial or MAC. A
+        // profile that only knows a name folds into a trip identity with the
+        // same label once one exists, so the list does not show a wheel twice.
+        val byKey = LinkedHashMap<String, WheelChoice>()
+        for (w in fromTrips + fromProfiles) {
+            if (w.isEmpty) continue
+            if (byKey.values.any { it.label == w.label && (w.mac == null || it.mac == w.mac) }) continue
+            byKey.putIfAbsent(w.key, w)
+        }
+        return byKey.values.sortedBy { it.label.lowercase() }
+    }
+
+    suspend fun changeTripWheel(trip: TripRecord, wheel: WheelChoice): Boolean {
         val file = getTripFile(trip)
         if (file.exists()) {
             val tmp = File(file.parentFile, file.name + ".rewrite")
-            val ok = runCatching { TripDerive.rewriteWheelIdentity(file, tmp, bleName, mac) >= 0 }
+            val ok = runCatching { TripDerive.rewriteWheelIdentity(file, tmp, wheel.extraFields()) >= 0 }
                 .getOrElse { e ->
                     Log.e(TAG, "Wheel rewrite failed for ${trip.fileName}", e)
                     runCatching { tmp.delete() }
@@ -1117,17 +1274,79 @@ class TripRepository @Inject constructor(
                 }
             }
         }
-        val meta = org.json.JSONObject().apply {
-            trip.wheelMetaJson?.let { existing ->
-                runCatching { org.json.JSONObject(existing) }.getOrNull()?.let { old ->
-                    old.keys().forEach { k -> put(k, old.get(k)) }
+        // The cache is replaced, not merged: merging kept the old wheel's
+        // brand and model under the new name, the same stale identity the
+        // file rewrite above now clears.
+        tripDao.updateWheelMeta(trip.id, wheel.toJson())
+        resyncEditedTrip(trip.id)
+        return true
+    }
+
+    /**
+     * Give a trip a rider-set name (blank clears it, falling back to the date).
+     *
+     * The name is written into the CSV Extra column as `trip.name=` so it
+     * survives export and a Dropbox round-trip with no sidecar file, and cached
+     * on the DB row for a fast list / title. Same atomic .rewrite -> .bak swap
+     * as [changeTripWheel] so a mid-write kill can never leave the rider with
+     * neither file. Re-syncs afterwards.
+     */
+    suspend fun renameTrip(trip: TripRecord, name: String): Boolean {
+        val clean = name.trim().take(60)
+        val file = getTripFile(trip)
+        if (file.exists()) {
+            val tmp = File(file.parentFile, file.name + ".rewrite")
+            val ok = runCatching { TripDerive.rewriteTripName(file, tmp, clean) >= 0 }
+                .getOrElse { e ->
+                    Log.e(TAG, "Trip name rewrite failed for ${trip.fileName}", e)
+                    runCatching { tmp.delete() }
+                    false
+                }
+            if (ok && tmp.exists()) {
+                val bak = File(file.parentFile, file.name + ".bak")
+                runCatching { bak.delete() }
+                if (file.renameTo(bak) && tmp.renameTo(file)) {
+                    runCatching { bak.delete() }
+                } else {
+                    runCatching { if (!file.exists()) bak.renameTo(file) }
+                    runCatching { tmp.delete() }
+                    Log.e(TAG, "Could not swap in the renamed ${trip.fileName}")
                 }
             }
-            put("ble_name", bleName)
-            mac?.let { put("ble_mac", it.replace(":", "").replace("-", "").uppercase()) }
         }
-        tripDao.updateWheelMeta(trip.id, meta.toString())
+        tripDao.updateCustomName(trip.id, clean.ifBlank { null })
+        resyncEditedTrip(trip.id)
         return true
+    }
+
+    /**
+     * Push a trip whose file was edited in place (rename / change wheel) back to
+     * the backup folder and Dropbox. The folder worker only walks uploadStatus
+     * 1/3, so the row is re-flagged first; Dropbox re-uploads on a size change.
+     * Best-effort and gated on the rider having each destination configured.
+     */
+    /** Dropbox backup state for one trip, by file name. */
+    suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?) =
+        tripDao.setDropboxStatusByName(fileName, status, at)
+
+    /** Public door to [resyncEditedTrip], for the rider tapping a failed
+     *  backup in the trip list. */
+    suspend fun resyncTrip(tripId: Long) = resyncEditedTrip(tripId)
+
+    private suspend fun resyncEditedTrip(tripId: Long) {
+        val appSettings = settingsRepository.get()
+        val hasFolder = appSettings.syncFolderUri != null
+        val hasDropbox = appSettings.dropboxAccessToken.isNotBlank()
+        if (!hasFolder && !hasDropbox) return
+        // Mark both destinations before anything runs, so the row shows the
+        // upload starting the moment the rider makes the edit.
+        if (hasFolder) runCatching { tripDao.markPendingFolderUpload(tripId) }
+        if (hasDropbox) runCatching { tripDao.setDropboxStatus(tripId, 1) }
+        // Then upload right now, in-process. WorkManager only backstops the
+        // failures: handed the whole job, it parked a rename at "Backing up"
+        // for minutes while the rider watched (JobScheduler holding the job on
+        // a network constraint it would not call satisfied).
+        runCatching { syncManager.pushEditedTripNow(tripId) }
     }
 
     /**
@@ -1152,6 +1371,11 @@ class TripRepository @Inject constructor(
             val piece = saveSectionInternal(source, srcFile, from, to, index = i + 1)
             if (piece != null) out.add(piece)
         }
+        // A piece is a new file in the trips folder, which the folder worker
+        // and the Dropbox sync would both pick up eventually - but only at
+        // their next run. A rename pushes straight away, and a rider who just
+        // cut a ride in three has the same expectation.
+        out.forEach { resyncEditedTrip(it.id) }
         return out
     }
 
@@ -1175,6 +1399,7 @@ class TripRepository @Inject constructor(
             return null
         }
         if (rows <= 0) { runCatching { destFile.delete() }; return null }
+        stampDerived(destFile, ordered.first().wheelMetaJson)
         val metrics = TripCsv.metricsFrom(readQuads(destFile))
         val record = TripRecord(
             fileName = destName,
@@ -1185,8 +1410,41 @@ class TripRepository @Inject constructor(
             tripUuid = null,
             wheelMetaJson = ordered.first().wheelMetaJson,
         )
-        return record.copy(id = tripDao.insert(record))
+        return record.copy(id = tripDao.insert(record)).also { resyncEditedTrip(it.id) }
     }
+
+    /**
+     * Delete [trips] from this phone, moving their backup copies into the
+     * archive first.
+     *
+     * For a source that an extend or a split has replaced. Its samples now live
+     * inside another trip, so keeping it means the same ride is counted twice
+     * in any listing, and on the next sync it would come back down to a phone
+     * that had already merged it away.
+     *
+     * @return how many were archived and removed
+     */
+    suspend fun archiveTrips(trips: List<TripRecord>): Int {
+        if (trips.isEmpty()) return 0
+        // Only drop the phone's copies once the files are out of the way in
+        // the backups, otherwise the next sync hands them straight back and
+        // the rider is left doing this again.
+        val archived = runCatching { syncManager.archiveTripFiles(trips.map { it.fileName }) }
+            .getOrDefault(emptySet())
+        var done = 0
+        for (t in trips) {
+            if (t.fileName !in archived) {
+                Log.w(TAG, "Could not archive ${t.fileName}, leaving the trip alone")
+                continue
+            }
+            deleteTrip(t)
+            done++
+        }
+        return done
+    }
+
+    /** Delete every trip here, archiving the backup copies as it goes. */
+    suspend fun archiveAllTrips(): Int = archiveTrips(tripDao.observeAll().first())
 
     suspend fun insertTrip(trip: TripRecord): Long = tripDao.insert(trip)
 
@@ -1219,14 +1477,14 @@ internal fun isMockLocation(loc: Location): Boolean =
  * Accumulates the connected wheel's identity over the course of a ride.
  *
  * Model, serial and firmware live in [WheelRepository] StateFlows that are nulled the
- * moment BLE drops, and the normal way to end a ride is to power the wheel off — so
+ * moment BLE drops, and the normal way to end a ride is to power the wheel off, so
  * reading them once at stop hands back nulls, the upload carries no serial or MAC, and
  * eucstats has nothing to key the wheel on. Such a trip still counts for the rider but
  * reaches no wheel or brand board at all.
  *
  * Merging as the ride runs fixes that: once a field is known it stays known, because a
  * later blank is ignored. A real value still replaces an earlier real value (identity
- * trickles in — the MAC at connect, the serial only once the wheel answers).
+ * trickles in - the MAC at connect, the serial only once the wheel answers).
  */
 class WheelIdentity {
     private val fields = java.util.concurrent.ConcurrentHashMap<String, String>()
@@ -1264,7 +1522,7 @@ class WheelIdentity {
         return out
     }
 
-    /** Same shape and blank-handling as [buildWheelMetaJson] — it delegates to it. */
+    /** Same shape and blank-handling as [buildWheelMetaJson] - it delegates to it. */
     fun toJson(): String? = buildWheelMetaJson(
         brand = fields["brand"],
         model = fields["model"],

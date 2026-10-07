@@ -33,8 +33,22 @@ interface TripDao {
      * Trips that still need to be uploaded (pending or failed, and recording finished).
      * Returned newest-first so a single pass starts with the trip just completed.
      */
-    @Query("SELECT * FROM trips WHERE endTime IS NOT NULL AND uploadStatus IN (1, 3) ORDER BY startTime DESC")
+    @Query("SELECT * FROM trips WHERE endTime IS NOT NULL AND uploadStatus IN (1, 3, 4) ORDER BY startTime DESC")
     suspend fun getPendingUploads(): List<TripRecord>
+
+    /**
+     * Status 4: mirror this into the backup folder, but never over something
+     * already there.
+     *
+     * For a trip that arrived from Dropbox. The usual mirror overwrites,
+     * because a locally recorded or edited trip is the authority on its own
+     * file - but a download is not: if the folder already holds that name, its
+     * copy could be a different version, and quietly replacing it would lose
+     * whatever the rider had. Those are left for an explicit sync, where the
+     * rider is asked which side wins.
+     */
+    @Query("UPDATE trips SET uploadStatus = 4 WHERE id = :id")
+    suspend fun markMirrorIfAbsent(id: Long)
 
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?
@@ -43,18 +57,42 @@ interface TripDao {
      * Persist ONLY the wheel-identity metadata onto a row mid-recording. The full
      * identity is otherwise written just once, at stopRecording(); a ride that is
      * OOM-/force-killed before that runs would recover from its CSV with no wheel
-     * ([finalizeUnfinishedTrips]). Flushing it here — the moment the wheel is
-     * identified — means the row already carries it before any kill, and the
+     * ([finalizeUnfinishedTrips]). Flushing it here, the moment the wheel is
+     * identified, means the row already carries it before any kill, and the
      * recovery sweep preserves it. Single-column update: never disturbs endTime,
      * distance, or upload status.
      */
     @Query("UPDATE trips SET wheelMetaJson = :json WHERE id = :id")
     suspend fun updateWheelMeta(id: Long, json: String?)
 
+    /** Set (or clear, with null) the rider's custom trip name. Single-column
+     *  update so it never disturbs upload status or timings. */
+    @Query("UPDATE trips SET customName = :name WHERE id = :id")
+    suspend fun updateCustomName(id: Long, name: String?)
+
+    /** Re-flag a trip for folder upload after its file was edited in place
+     *  (rename / change wheel). The folder worker only walks uploadStatus 1/3,
+     *  so an already-uploaded (2) trip would otherwise never re-sync. */
+    @Query("UPDATE trips SET uploadStatus = 1 WHERE id = :id")
+    suspend fun markPendingFolderUpload(id: Long)
+
+    /** Dropbox state by file name: the sync works in files, not row ids. */
+    @Query("UPDATE trips SET dropboxStatus = :status, dropboxUploadedAt = :at WHERE fileName = :fileName")
+    suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?)
+
+    @Query("UPDATE trips SET dropboxStatus = :status WHERE id = :id")
+    suspend fun setDropboxStatus(id: Long, status: Int)
+
     /** Every wheel identity any trip carries. Feeds the trip-tools wheel picker
      *  so a wheel that was only ever imported, never paired, is still offered. */
     @Query("SELECT wheelMetaJson FROM trips WHERE wheelMetaJson IS NOT NULL")
     suspend fun allWheelMeta(): List<String>
+
+    /** Finished trips whose wheel has never been read out of their file.
+     *  Feeds the one-time backfill; rows it finds nothing in are stamped
+     *  "{}" so they are never opened again. */
+    @Query("SELECT * FROM trips WHERE wheelMetaJson IS NULL AND endTime IS NOT NULL")
+    suspend fun tripsWithoutWheelMeta(): List<TripRecord>
 
     /** Live-recorded trips with no end time. Normally just the one currently
      *  recording, but at cold start any left here are recordings a previous
@@ -93,6 +131,32 @@ interface TripDao {
             "ORDER BY startTime DESC"
     )
     suspend fun getPendingEucstatsUploads(): List<TripRecord>
+
+    /**
+     * Trips the server accepted but is still holding for review.
+     *
+     * The verdict is not final at upload: a held trip becomes "validated" once a human
+     * approves it, and the upload response was our only look at it. Without re-reading
+     * these, the rider keeps an "under review" cloud forever on a ride that is already
+     * counting on the leaderboard.
+     *
+     * Green (validated) and still-uploading trips are excluded: only a held verdict can
+     * change behind the app's back, so only these are worth asking about.
+     *
+     * [limit] bounds the cost, newest first. One check is a ~150 byte response, but a rider
+     * whose trips are never reviewed would otherwise re-ask about all of them on every
+     * background sweep. The explicit "Sync all" passes no meaningful bound, because the
+     * rider asked for it.
+     */
+    @Query(
+        "SELECT * FROM trips " +
+            "WHERE tripUuid IS NOT NULL " +
+            "AND eucstatsStatus = 2 " +
+            "AND eucstatsValidation = 'flagged' " +
+            "ORDER BY startTime DESC " +
+            "LIMIT :limit"
+    )
+    suspend fun getHeldEucstatsTrips(limit: Int): List<TripRecord>
 
     /** Clear unfinished eucstats statuses (pending / failed). Used when online
      *  uploads are toggled off or the sync folder is unlinked, so the orange /

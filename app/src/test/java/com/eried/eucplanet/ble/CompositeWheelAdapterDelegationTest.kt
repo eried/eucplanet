@@ -1,0 +1,89 @@
+package com.eried.eucplanet.ble
+
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
+import org.junit.Test
+
+/**
+ * Guards that a recognised wheel's cell count survives the trip through
+ * [CompositeWheelAdapter].
+ *
+ * The composite is what the repository holds; the family adapters sit behind
+ * it, and every member it does not forward falls back to the interface default.
+ * That is how `nominalPackVoltage` first shipped: each family answered
+ * correctly, the composite dropped the answer on the floor, and riders were
+ * asked to count cells their wheel had already stated. Nothing about it looked
+ * broken, which is why it needs a test.
+ *
+ * A structural check cannot catch this: the compiler emits a stub for every
+ * interface member on every implementing class, so a missing override is
+ * invisible to reflection. Only asking the composite for the value works.
+ */
+class CompositeWheelAdapterDelegationTest {
+
+    private fun composite() = CompositeWheelAdapter(
+        InMotionV2Adapter(),
+        InMotionV1Adapter(),
+        KingsongAdapter(),
+        BegodeAdapter(),
+        VeteranAdapter(),
+        NinebotAdapter(),
+    )
+
+    private fun cellsAfterConnecting(deviceName: String?): Int? =
+        composite().apply { notifyConnectingTo(deviceName) }.seriesCells
+
+    @Test
+    fun `every family's cell count reaches the app`() {
+        // One recognised wheel per family, with the count its charged pack
+        // voltage gives: 126 V is 30S, 134 V is 32S, 100 V is 24S, 84 V is 20S.
+        val expected = mapOf(
+            "KS-S22-1234" to 30,
+            "Begode Master" to 32,
+            "Sherman" to 24,
+            "Ninebot Z10" to 20,
+            "V8F" to 20,
+        )
+        for ((name, cells) in expected) {
+            assertEquals(name, cells, cellsAfterConnecting(name))
+        }
+    }
+
+    @Test
+    fun `the connect-time handshake request reaches the app`() {
+        // Same failure shape as the cell count above, with a worse symptom:
+        // the V6 asks for a handshake right after connect, the composite
+        // answered the interface default, and the repository never ran it.
+        assertTrue(composite().apply { notifyConnectingTo("V6-700326F3") }.requiresConnectAuth())
+        // Families that do not want it still say no. The P6 stays as it
+        // shipped and was verified: no connect handshake.
+        assertFalse(composite().apply { notifyConnectingTo("P6-5678") }.requiresConnectAuth())
+        assertFalse(composite().apply { notifyConnectingTo("V14-ABCD") }.requiresConnectAuth())
+        assertFalse(composite().apply { notifyConnectingTo("KS-18XL") }.requiresConnectAuth())
+    }
+
+    @Test
+    fun `the KingSong lock code reaches the family adapter`() {
+        // Shipped once without this forward: the interface default swallowed
+        // the code and the KingSong adapter behind the composite sent the wheel
+        // default for a rider who had set their own.
+        val c = composite().apply { notifyConnectingTo("KS-18XL") }
+        c.provideLockCode("509540")
+        assertArrayEquals(KingsongCommands.unlock("509540"), c.setLock(false))
+        assertNull("no password, nothing before the lock frame", c.lockPrelude())
+        c.provideLockPassword("9111")
+        assertArrayEquals(KingsongCommands.password("9111"), c.lockPrelude())
+        assertArrayEquals(KingsongCommands.lock(), c.setLock(true))
+    }
+
+    @Test
+    fun `an unrecognised wheel leaves the count to the rider`() {
+        // Null is what makes the repository fall back to the rider's setting,
+        // so a guess is never presented as the wheel's own answer.
+        assertNull(cellsAfterConnecting("RW"))
+        assertNull(cellsAfterConnecting(null))
+    }
+}

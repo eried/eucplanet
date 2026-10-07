@@ -12,17 +12,23 @@ import com.eried.eucplanet.data.store.SettingsJson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.json.JSONObject
+import kotlinx.coroutines.flow.first
 import java.io.File
 
 /**
  * Mirror local trips + settings into the linked Dropbox App Folder.
  *
  * Comparison-based rather than per-file-status: list both sides, upload
- * anything that's newer locally or missing remote. No download in this
- * pass (Phase 3 brings the conflict dialog + restore flow). Skipping the
- * Room migration for a status column keeps Phase 2 short; the trade-off
- * is an extra /files/list_folder round-trip per sync, which is cheap
- * compared to the upload bodies themselves.
+ * anything that's newer locally or missing remote, then pull down what
+ * Dropbox has and this phone does not.
+ *
+ * The download half matters for a rider setting a new phone up from a big
+ * library. It used to exist only in the foreground sync, which takes the
+ * better part of an hour for a couple of thousand trips - so it finished only
+ * if they sat and watched, and nothing carried on when Android reclaimed the
+ * app. Here it is bounded by the time WorkManager gives a job, and whatever is
+ * left schedules another run, so a library arrives across several passes
+ * without anyone watching.
  */
 @HiltWorker
 class DropboxSyncWorker @AssistedInject constructor(
@@ -34,7 +40,24 @@ class DropboxSyncWorker @AssistedInject constructor(
     private val syncManager: SyncManager,
 ) : CoroutineWorker(context, params) {
 
-    companion object { private const val TAG = "DropboxSyncWorker" }
+    companion object {
+        private const val TAG = "DropboxSyncWorker"
+
+        /**
+         * How far Dropbox's copy must be ahead of this phone's before it counts
+         * as someone else's edit rather than clock skew.
+         *
+         * In seconds, matching what Dropbox reports. Dropbox stamps with its
+         * clock and the filesystem with the phone's, so a little slack is
+         * needed. Not much: an edit made in another tool is
+         * hours or days later, and slack this small still keeps a local change
+         * winning when the two happen close together.
+         */
+        private const val EDIT_GRACE_SEC = 2L * 60
+        /** Leaves room inside WorkManager's ~10 minute window for the upload
+         *  half and the folder mirror that run before it. */
+        private const val DOWNLOAD_BUDGET_MS = 6 * 60_000L
+    }
 
     override suspend fun doWork(): Result {
         val settings = settingsRepository.get()
@@ -51,6 +74,17 @@ class DropboxSyncWorker @AssistedInject constructor(
         // --- Trips: upload anything local that's missing or newer on Dropbox.
         val remoteTrips = dropboxRepository.listFolder("/trips")
         if (remoteTrips == null) {
+            // A refusal fails here, at the first call of the pass, so this is
+            // the return that ran once a minute all night. WorkManager's retry
+            // would do the same again; hand it a long delay instead.
+            if (dropboxRepository.refused) {
+                syncManager.scheduleDropboxSyncAttempt(
+                    0, delaySeconds = SyncManager.REFUSED_RETRY_SECONDS
+                )
+                Log.w(TAG, "Dropbox refused us; backing off " +
+                    "${SyncManager.REFUSED_RETRY_SECONDS / 60} min")
+                return Result.success()
+            }
             Log.w(TAG, "list_folder failed, will retry")
             return Result.retry()
         }
@@ -62,6 +96,10 @@ class DropboxSyncWorker @AssistedInject constructor(
         val localFiles = tripRepository.getTripsDir()
             .listFiles { f -> f.isFile && f.name.endsWith(".csv", ignoreCase = true) }
             ?.toList().orEmpty()
+        // Current per-trip Dropbox state, to mark verified backups without
+        // rewriting rows that already say so on every pass.
+        val knownStatus = tripRepository.allTrips.first()
+            .associate { it.fileName.lowercase() to it.dropboxStatus }
         var anyFailed = false
         var uploaded = 0
         // How many trips still need uploading. A trip is "already up" when Dropbox
@@ -73,7 +111,16 @@ class DropboxSyncWorker @AssistedInject constructor(
         // of the needed uploads never made it this pass.
         fun needsUpload(f: File): Boolean {
             val remote = remoteTrips[f.name]
-            return remote == null || remote.size != f.length()
+            val up = UploadPolicy.needsUpload(
+                remoteSize = remote?.size,
+                remoteModifiedSec = remote?.serverModifiedSec ?: 0L,
+                localSize = f.length(),
+                localModifiedMs = f.lastModified(),
+            )
+            if (!up && remote != null && remote.size != f.length()) {
+                Log.i(TAG, "${f.name} changed on Dropbox since this phone wrote it; not overwriting")
+            }
+            return up
         }
         val needUpload = localFiles.count { needsUpload(it) }
         settingsRepository.update {
@@ -89,9 +136,32 @@ class DropboxSyncWorker @AssistedInject constructor(
             // and leave the flag/count alone - stopDropboxSync already cleared them.
             if (isStopped) return Result.success()
             val name = file.name
-            if (!needsUpload(file)) continue
-            val ok = dropboxRepository.uploadFile("/trips/$name", file.readBytes())
-            if (ok) {
+            if (!needsUpload(file)) {
+                // Not uploading because Dropbox already holds this trip - an
+                // identical copy, or a newer one edited elsewhere. That is a
+                // verified backup, so record it, with Dropbox's own date. The
+                // rows this fills are the old library: trips that were synced
+                // long before per-trip Dropbox state existed showed "not
+                // backed up yet" although the check right here had proved
+                // otherwise on every pass, and the answer was thrown away.
+                val known = knownStatus[name.lowercase()]
+                val remote = remoteTrips[name]
+                if (remote != null && known != null && known != 2) {
+                    tripRepository.setDropboxStatusByName(
+                        name, 2, remote.serverModifiedSec * 1000L)
+                }
+                continue
+            }
+            tripRepository.setDropboxStatusByName(name, 1, null)
+            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/$name", file.readBytes())
+            if (storedAtSec != null) {
+                tripRepository.setDropboxStatusByName(name, 2, System.currentTimeMillis())
+                // Wear Dropbox's timestamp, so an untouched file matches the
+                // copy it was sent as. Anything that rewrites the file after
+                // this - a rename, a wheel change - moves it off that mark, and
+                // that is what the next pass looks for, rather than a change in
+                // the file's length that an edit need not produce.
+                if (storedAtSec > 0L) file.setLastModified(storedAtSec * 1000L)
                 uploaded++
                 // Decrement live so the indicator reflects trips remaining.
                 settingsRepository.update {
@@ -99,6 +169,7 @@ class DropboxSyncWorker @AssistedInject constructor(
                 }
                 Log.i(TAG, "Uploaded $name")
             } else {
+                tripRepository.setDropboxStatusByName(name, 3, null)
                 anyFailed = true
                 failedTrips++
                 Log.w(TAG, "Upload failed for $name")
@@ -113,7 +184,7 @@ class DropboxSyncWorker @AssistedInject constructor(
         val settingsJson = SettingsJson.toJson(settings).toString().toByteArray(Charsets.UTF_8)
         val now = System.currentTimeMillis()
         val rootList = dropboxRepository.listFolder("")
-        val remoteSettingsMod = rootList?.get("settings.json")?.serverModified
+        val remoteSettingsMod = rootList?.get("settings.json")?.serverModifiedSec
         val lastSync = settings.dropboxLastSyncAt / 1000L
         if (remoteSettingsMod == null || remoteSettingsMod < lastSync) {
             val ok = dropboxRepository.uploadFile("/settings.json", settingsJson)
@@ -135,7 +206,7 @@ class DropboxSyncWorker @AssistedInject constructor(
                         if (!doc.isFile) continue
                         val name = doc.name ?: continue
                         val localMod = doc.lastModified() / 1000L
-                        if (remoteSub[name]?.let { it.serverModified >= localMod } == true) continue
+                        if (remoteSub[name]?.let { it.serverModifiedSec >= localMod } == true) continue
                         val bytes = try {
                             applicationContext.contentResolver
                                 .openInputStream(doc.uri)?.use { it.readBytes() }
@@ -167,10 +238,34 @@ class DropboxSyncWorker @AssistedInject constructor(
             )
         }
 
-        if (anyFailed) {
+        // --- Trips Dropbox has that this phone does not. Bounded, because a
+        //     job gets about ten minutes; the rest comes on the next run.
+        // Never alongside a foreground pass: both would pull the same files.
+        val stillMissing = if (syncManager.syncRunning.value) {
+            Log.i(TAG, "Foreground sync is running, leaving the download to it")
+            0
+        } else syncManager.downloadMissingTrips(
+            budgetMs = DOWNLOAD_BUDGET_MS,
+            isStopped = { isStopped },
+        )
+        if (stillMissing > 0) Log.i(TAG, "$stillMissing trips still to come down")
+
+        // Dropbox refusing us is not a transient failure to retry through. Its
+        // edge cuts a client off wholesale, and the ordinary backoff starts at
+        // a minute, so the app spends the outage knocking once a minute and
+        // earning more of it. Leave it alone for half an hour instead.
+        if (dropboxRepository.refused) {
+            syncManager.scheduleDropboxSyncAttempt(
+                0, delaySeconds = SyncManager.REFUSED_RETRY_SECONDS
+            )
+            Log.w(TAG, "Dropbox refused us; backing off " +
+                "${SyncManager.REFUSED_RETRY_SECONDS / 60} min")
+            return Result.success()
+        }
+        if (anyFailed || stillMissing > 0) {
             val attempt = inputData.getInt(SyncManager.KEY_ATTEMPT, 0)
             syncManager.scheduleDropboxSyncAttempt(attempt + 1)
-            Log.i(TAG, "Some uploads failed; retry scheduled (uploaded $uploaded)")
+            Log.i(TAG, "Retry scheduled (uploaded $uploaded, $stillMissing left to download)")
         } else {
             Log.i(TAG, "Sync OK (uploaded $uploaded)")
         }

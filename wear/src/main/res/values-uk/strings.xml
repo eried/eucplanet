@@ -14,6 +14,7 @@
     <string name="watch_voltage_label">Напруга</string>
     <string name="watch_current_label">Струм</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_pwm_prefix">"PWM: "</string>
     <string name="watch_power_label">Потужн.</string>
     <string name="watch_temp_label">Темп</string>
     <string name="watch_trip_label">Поїздка</string>
@@ -23,7 +24,7 @@
     <string name="watch_gps_permission">Торкнись для GPS</string>
     <string name="watch_gps_waiting">Чекаємо сигнал…</string>
 
-    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <!-- Labels for hold-action triggers, shown in the watch's transient pill. Short so they fit. -->
     <string name="watch_action_horn">Сигнал</string>
     <string name="watch_action_light">Світло</string>
     <string name="watch_action_lock">Заблокувати колесо</string>
@@ -38,4 +39,19 @@
     <string name="watch_action_media_next">Наступний трек</string>
     <string name="watch_action_media_prev">Попередній трек</string>
     <string name="watch_action_long_press_hint">Утримуй для %1$s</string>
+    <string name="watch_map_phone_disconnected">Немає телефону</string>
+    <string name="watch_map_gps_permission">Дозволити GPS</string>
+    <string name="watch_map_gps_stale">GPS застарів</string>
+    <string name="watch_map_route_loading">Завантаження маршруту</string>
+    <string name="watch_map_route_unavailable">Немає маршруту</string>
+    <string name="watch_map_loading">Завантаження карти</string>
+    <string name="watch_map_unavailable">Немає карти</string>
+    <string name="watch_map_zoom_in">Збільшити</string>
+    <string name="watch_map_zoom_out">Зменшити</string>
+    <string name="watch_map_open_phone">Відкрити на телефоні</string>
+    <string name="watch_map_waiting_gps">Очікування GPS</string>
+    <string name="watch_map_pwm_value">%1$s%%</string>
+    <string name="watch_map_speed_value">%1$s %2$s</string>
+    <string name="watch_map_voltage_value">%1$s В</string>
+    <string name="watch_map_telemetry_description">PWM %1$s, швидкість %2$s, напруга %3$s.</string>
 </resources>

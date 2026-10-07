@@ -32,6 +32,11 @@ class MetricDetailViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 
+    /** The rider's own pressure unit, for the tyre-pressure graph and stats. */
+    val pressureUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectivePressureUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "bar")
+
     /** Wipe this metric's rolling history; new samples re-seed at the next 1Hz tick. */
     fun resetHistory(key: String) = wheelRepository.resetHistory(key)
 

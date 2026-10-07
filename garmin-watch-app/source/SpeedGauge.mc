@@ -16,7 +16,7 @@ module SpeedGauge {
 
     //! Draws the gauge centered on the Dc. Speed text + unit are drawn last
     //! so they win over the arc.
-    //! Older CIQ runtimes (3.1.6 era — Fenix 5/5s/5x) cap method arity
+    //! Older CIQ runtimes (3.1.6 era, Fenix 5/5s/5x) cap method arity
     //! at 9, so the snapshot is passed in whole instead of unpacked into
     //! individual params. Reads every field it needs from `s` directly.
     function draw(
@@ -45,7 +45,7 @@ module SpeedGauge {
 
         // Wear OS Canvas uses 0°=East, clockwise-positive, startAngle=140°,
         // sweep=260°. That traces from lower-left, UP through the top, to
-        // lower-right — opening at the bottom (the 100° gap between angles
+        // lower-right, opening at the bottom (the 100° gap between angles
         // 40° and 140° in Wear coords).
         //
         // CIQ uses 0°=East, counter-clockwise-positive (math convention).
@@ -137,7 +137,7 @@ module SpeedGauge {
         // FONT_NUMBER_HOT is the right "speedometer" size on 416-px
         // watches. When the rider has [prioritizePwm] on, drop two font
         // tiers (HOT → MILD) so the speed becomes a small caption and
-        // PWM becomes the focal element below — mirrors the Wear OS
+        // PWM becomes the focal element below, mirrors the Wear OS
         // dial's prioritize-PWM size swap.
         var speedFont = prioritizePwm
             ? Graphics.FONT_NUMBER_MILD

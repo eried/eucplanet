@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/github/license/eried/eucplanet)](LICENSE)
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
 [![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71)
+[![Amazfit Zepp OS](https://img.shields.io/badge/Zepp_OS-EUC_Planet-FF6D00?logo=amazfit&logoColor=white)](docs/AMAZFIT_SETUP.md)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
 [![Leaderboard](https://img.shields.io/badge/Leaderboard-eucstats.ried.no-FF8F00)](https://eucstats.ried.no/)
 [![Trip Viewer](https://img.shields.io/badge/Trip_Viewer-eucviewer.ried.no-2b6fd6)](https://eucviewer.ried.no/)
@@ -23,16 +24,18 @@ riders who have the wheel.
 
 | Status | Wheels |
 |---|---|
-| **Verified** | InMotion V14 (50GB / 50S) |
-| **Verified** | InMotion P6 |
-| **Rider-tested** | LeaperKim Lynx S, Oryx · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X |
-| **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
-| **In test** | LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
-| **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
-| **Waiting to be tested** | InMotion V12 HS / HT / Pro |
-| **Waiting to be tested** | InMotion V1 family: V5, V8, V8F, V8S, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 |
-| **Waiting to be tested** | Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
+| **Verified** | InMotion V14 (50GB / 50S), P6 |
+| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X, KS-18XL |
+| **In test** | InMotion V6 · Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
+| **Waiting to be tested** | InMotion V12 HS / HT / Pro, and the rest of the V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 · Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
+
+**NOSFET Apex, Aero or Xeno rider?** Your wheel now gets the same light and
+headlight handling as the Aeon, and the Aero gets its speed alarm the Aeon
+way. Please try the light tile and the speed alarm and tell us if they do what
+the app says. Apex riders: the speed alarm stays on the older command until
+someone captures it, because on some wheels that setting slot is tiltback.
+[Open an issue](https://github.com/eried/eucplanet/issues) with your model and firmware.
 
 Help with your wheel, check the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
 Already connects but a reading looks wrong? See the [in-app diagnostics guide](docs/DIAGNOSTICS_GUIDE.md).
@@ -85,17 +88,30 @@ footage from another camera. It's not only for recording and replay: the same
 editor designs your **MotoEye / Android HUD** layout, so the visor shows exactly
 the tiles and gauges you arranged.
 
+**Weather.** A score for how the next hours look for riding, from rain, wind and
+gusts, cold, heat, night and golden hour, each weighted by how much you mind it.
+Drag the curve to read any hour, with temperature, wind and humidity underneath.
+Pick the window (next 8 hours, tomorrow, the week), the source, and your comfort
+thresholds.
+
+**Home screen widgets.** Wheel metrics and one-tap buttons, plus two for the
+weather: one cell for right now, and a resizable forecast that shows more as you
+make it bigger.
+
 **Charging monitor.** A live charge curve with a scrubbable prediction line,
 energy split into used and charged, and a per-cell BMS view (Cells tab) for
 smart-BMS wheels (Veteran, KingSong and others) showing individual cell voltages,
 pack imbalance and temperatures so you can spot a weak cell early.
 
-**Wheel control.** Horn, lights, lock, voice announcements, all one tap away. Legal
+**Wheel control.** Horn, lights, lock, voice announcements, all one tap away. The
+horn can be the wheel's own, a sound you pick played by the phone, or both. Legal
 Mode temporarily reprograms the wheel's tiltback and alarm speeds to a cap you set,
 then restores your normal settings when you switch it off.
 
-**Custom alarms.** Your own thresholds on speed, battery, temperature, PWM, voltage
-or current. Each can beep (custom tone and pitch), speak (`"Battery at {value}%"`),
+**Custom alarms.** Your own thresholds on speed, battery, temperature, PWM, voltage,
+current, tire pressure and more, for every wheel or only the one that is connected.
+Battery (est) is the battery reading with the load sag taken out, so an alarm on it
+does not fire every time you accelerate. Each can beep (custom tone and pitch), speak (`"Battery at {value}%"`),
 and/or vibrate, with cooldowns so they don't nag. Predictive triggers warn you up
 to 3 seconds ahead, and a most-severe-per-metric engine keeps a louder alarm from
 eating a quieter one.
@@ -103,6 +119,12 @@ eating a quieter one.
 **Voice announcements.** Periodic reports at your interval, configurable rate and
 a per-language voice picker, plus event callouts: lock/unlock, lights, GPS fix,
 connection, legal mode, recording.
+
+**Voice commands.** Ask the app instead of looking at it: "battery", "speed", "how
+is the weather", or tell it to sound the horn, switch the lights, lock the wheel or
+start recording. Start listening from the Voice button, a Flic, the volume keys,
+your watch, the HUD or a headset button. It answers in your language, and the
+What can I say list is generated from what it really understands.
 
 **Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
 live track preview, and a trip list with quick export and share. Trips are
@@ -117,9 +139,20 @@ settings, themes and overlays into your own private folder so you can restore th
 on another phone, and you can hand a single ride out as a link when you want to.
 You decide what leaves the phone, where it goes, and who sees it.
 
-**Automations.** Auto Lights on before sunset, off after sunrise, from live GPS.
-Handles midnight sun and polar night (I live in the arctic circle 🧐). Auto Volume
-scales phone volume with speed.
+**Ride together.** Share a ride with a link or a QR code and see your friends live
+on the navigator map, each with a colour and a fading trail. It is end-to-end
+encrypted, the relay only passes sealed packets along, and a web page lets someone
+follow without installing anything.
+
+**Automations.** Headlight control: on before sunset, off after sunrise, from live
+GPS, and it can cut the beam when you slow to walking pace so it is not in the face
+of whoever is waiting at the crossing with you, coming back when you ride on.
+Handles midnight sun and polar night (I live in the arctic circle 🧐). Volume
+control scales phone volume with speed. Wheel lock locks the wheel when you walk
+away and unlocks it when you come back. Switch the light or lock by hand and that
+automation steps aside until you hand it back. Each one runs never, whenever the wheel is
+connected, or only while you are actually riding. Charging can tell you when the
+pack passes 80% and when it is full.
 
 **Helmet HUD.** Sideload the small HUD companion on a MotoEye E6 or any
 Android-based head-up display and the dashboard mirrors live to your visor
@@ -134,17 +167,35 @@ Garmin watches (135+ devices). Get it on the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71),
 or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 
+**Amazfit (Zepp OS) watches.** The same wrist dial on Amazfit watches: speed
+gauge, PWM, three batteries, horn/light remotes, navigation mirror, physical
+buttons. Tested on the T-Rex 3, built for the Balance too. Setup and sideload
+steps in [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
+
 **Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and see
 approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or
 vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists
 already trust, now on your EUC.
+
+**Tire pressure (TPMS).** Read the pressure your wheel already knows: an
+InMotion P6 relays its bound sensor and the app shows it live, graphs it, puts
+it on the HUD and in the overlay, and will warn you about it - a slow puncture
+is exactly the thing you notice too late. For wheels with no sensor of their
+own, a screw-on [valve-cap
+sensor](https://s.click.aliexpress.com/e/_c2xLwuvt) broadcasts pressure,
+temperature and battery, and the app listens for it: the Wicarlink family, sold
+as LY TPMS, ITPMS and unbranded, whose format is written up in
+[docs/protocols/wicarlink-tpms.md](docs/protocols/wicarlink-tpms.md). Add one
+cap per wheel. Set a low-pressure alarm in psi or bar and the app tells you
+before the tyre does.
 
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
 external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
 without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
 companion (speed dial, three batteries, horn/light remotes, navigation mirror,
 Touch / Physical buttons split; tested on Galaxy Watch Ultra, works on any
-Wear OS 5+ watch).
+Wear OS 5+ watch). For the developer architecture, see
+[docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
 
 **Advanced settings.** A dedicated Advanced panel exposes the knobs behind every
 feature: poll and refresh rates, chart history windows, HUD discovery timings,
@@ -152,7 +203,9 @@ screen geometry, alarm and charging tuning, and more. Each has a sensible defaul
 a valid range, and a one-tap restore, so you can tune deeply without breaking
 anything.
 
-**Multi-language support.** Full UI localisation, at parity across all of them.
+**Multi-language support.** Full UI localisation in 22 languages, at parity across
+all of them. The exceptions are English-only by design: the Garmin and Amazfit
+dials, the helmet HUD, and Service Mode.
 
 ---
 
@@ -165,6 +218,7 @@ free and sideload it. Same app either way.
 
 On a Garmin watch or Edge, install the EUC Planet data field straight from the
 [Connect IQ Store](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71).
+On an Amazfit watch, follow [docs/AMAZFIT_SETUP.md](docs/AMAZFIT_SETUP.md).
 
 Build from source:
 
@@ -218,15 +272,29 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 
 | Who | For |
 | --- | --- |
-| Gio (Wheel In Motion) | Promotion, suggestions and P6 testing |
+| [Gio (Wheel In Motion)](https://www.youtube.com/@RealWheelInMotion) | Promotion, suggestions and P6 testing |
 | FlyboyEUC (Adam) | Mten3, E20 and EX30 testing |
 | Soolek | KS-16X testing |
 | Jonathan Wiesner | LeaperKim Lynx S testing |
 | Felix K | LeaperKim Oryx testing |
 | Bearkat713 | Motoeye E6 testing |
+| [PhilDaintree](https://github.com/PhilDaintree) | KS-18XL testing and the BLE captures behind the KingSong lock and horn |
+| [elektro-NIK](https://github.com/elektro-NIK) | Garmin watch testing across nine builds, with the logs that pinned the pacing bug |
+| [jeronimo701](https://github.com/jeronimo701) | KingSong S22 report and patch that led to battery percent from voltage |
+| [jforssblad](https://github.com/jforssblad) | NOSFET Aeon cell-voltage testing |
+| [Dubardo](https://github.com/Dubardo) | Odometer-in-trip bug report |
+| [Amoenus](https://github.com/Amoenus) | NOSFET Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures and contributed with tests and protocol notes. The first code contributed from outside. |
+| [ZiraiMode](https://github.com/ZiraiMode) | The Wear OS map: tile streaming from the phone and the watch-side drawing, tested on a Galaxy Watch 5 Pro with a Lynx S |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
 | [WheelLog community](https://github.com/Wheellog/wheellog.android) | Open-source (GPLv3) reverse-engineering of the EUC BLE protocols, used as the reference for every wheel adapter (KingSong, Begode, Veteran, Ninebot, InMotion). No WheelLog code is reused. |
+| [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) | The map data under every layer in the app (ODbL) |
+| [CyclOSM](https://www.cyclosm.org/) | Cycle and trail style, tiles served by OpenStreetMap France |
+| [OpenTopoMap](https://opentopomap.org/) | Topographic style with contours (CC-BY-SA) |
+| [Humanitarian OSM Team](https://www.hotosm.org/) | HOT style, tiles served by OpenStreetMap France |
+| [CARTO](https://carto.com/attributions) | Voyager and Dark basemaps |
+| [Esri](https://www.esri.com/) | World Imagery satellite tiles (Esri, Maxar, Earthstar Geographics) |
+| [Leaflet](https://leafletjs.com/) | The map component every in-app map is drawn with (BSD-2) |
 
 ## License
 

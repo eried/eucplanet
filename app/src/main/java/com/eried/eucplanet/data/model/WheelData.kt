@@ -37,7 +37,12 @@ data class WheelData(
      *  Distinct from externalGpsSpeedKmh (a paired box); merged in like lat/long
      *  so an overlay / HUD element can show the phone GPS speed. */
     val gpsSpeedKmh: Float = -1f,
-    /** Running trip-meter distance in km (the connect-scoped car odometer), or -1
+    /** Altitude in metres above sea level from the PHONE's fused GPS, or NaN
+     *  when there is no fix or the fix carries no altitude. Merged in beside
+     *  lat/long and gpsSpeedKmh, and NaN rather than -1 because a rider below
+     *  sea level is a real reading, not a missing one. */
+    val gpsAltitudeM: Float = Float.NaN,
+    /** Running trip-meter distance in km (the connect-scoped trip odometer), or -1
      *  when not merged in. Not wheel telemetry, so it stays -1 on the plain wheel
      *  stream; the Overlay Studio / HUD merge it in like gpsSpeedKmh so an overlay
      *  number can show it. */
@@ -48,7 +53,7 @@ data class WheelData(
     val accelX: Float = 0f,
     /** Phone IMU forward acceleration in g (+forward). 0 for trips recorded before this. */
     val accelY: Float = 0f,
-    /** Forward G estimated from wheel-speed change (dv/dt / g) — orientation-independent,
+    /** Forward G estimated from wheel-speed change (dv/dt / g), orientation-independent:
      *  unlike the IMU axes above. Drives the FORWARD_G dashboard metric. */
     val forwardGFromSpeed: Float = 0f,
     val batteryPower: Int = 0,
@@ -61,18 +66,70 @@ data class WheelData(
     /** Wh returned to the battery since connect (regen / charge integral). Backs
      *  the REGEN_WH "Regen" tile. */
     val whRegen: Float = 0f,
+    /**
+     * Net Wh per km over the rider's dashboard rolling window: energy out minus
+     * regen, divided by the distance covered in that same window. Both ends come
+     * from the same two cumulative series, so the numerator and denominator
+     * cannot describe different stretches of road. NaN until the window holds
+     * enough distance to divide by. Backs WH_PER_KM.
+     *
+     * A rate, unlike [whConsumed], which is a running total. The two do not
+     * reconcile by division and are not meant to: this one answers what the
+     * ride is costing right now, and it moves when the road tilts.
+     */
+    val whPerKmRecent: Float = Float.NaN,
+    /**
+     * Remaining range in km at the recent consumption rate, or NaN while either
+     * that rate or the pack's Wh-per-percent is still unknown. Backs
+     * RANGE_ESTIMATE.
+     *
+     * Wh-per-percent is learned from this ride rather than from a pack size we
+     * do not know: energy spent against battery percent dropped. It needs a few
+     * percent of drop before it says anything, and it is only ever as good as
+     * the wheel's own percentage.
+     */
+    val rangeKmEstimate: Float = Float.NaN,
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,
+    val headlightReadback: HeadlightReadback? = null,
     /** True when the wheel reports it is charging via an explicit firmware flag
      *  (InMotion V14/V12 state-byte bit 7, KingSong 0xB9). Inference-only
      *  families (Begode/Veteran/Ninebot/InMotion V1) leave this false; charging
      *  for them is derived from sustained negative current in WheelRepository. */
     val charging: Boolean = false,
-    /** Tire pressure in kPa from a bound TPMS sensor the wheel relays (InMotion
-     *  P6: realtime 0x87 frame, u16le at body[78]). 0 = no sensor / not reported.
-     *  Display converts: psi = kPa x 0.145038, bar = kPa / 100. */
+    /**
+     * Battery percent with the load taken out of it, or NaN before the first
+     * half minute of a ride.
+     *
+     * The raw percentage on an 84 V pack swings several points every time the
+     * rider accelerates and hands them back when they coast, so there is no
+     * way to read the real charge until they stop. This is the number that
+     * only moves when the charge moved, which is the one an alarm can be set
+     * against. See [com.eried.eucplanet.util.LiveBatteryEnvelope].
+     */
+    val batteryEnvelope: Float = Float.NaN,
+    /**
+     * Tyre pressure in kPa from whichever sensor is speaking for the tyre.
+     *
+     * Either a cap the rider screwed onto the valve or one the wheel relays
+     * (InMotion P6: realtime 0x87 frame, u16le at body[78]); which of them
+     * wins is decided in [com.eried.eucplanet.tpms.TpmsPolicy], not here.
+     *
+     * Only meaningful while [hasTirePressure] is true. Display converts:
+     * psi = kPa x 0.145038, bar = kPa / 100.
+     */
     val tirePressureKpa: Float = 0f,
+    /**
+     * Whether anything is currently measuring the tyre.
+     *
+     * Zero is a pressure, not an absence: a cap on a flat tyre reports exactly
+     * 0 kPa, and that is the one reading a low-pressure alarm exists for.
+     * While the number alone carried both meanings, every consumer had to
+     * guard on `> 0f` and so could never fire on a flat tyre, the failure the
+     * sensor was bought to catch.
+     */
+    val hasTirePressure: Boolean = false,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
     /**
      * Lock state as the wheel reports it in its own telemetry, or null when the
@@ -96,4 +153,29 @@ data class WheelData(
      *  telemetry). 0 = unknown / not yet read. Backs the BT_RSSI metric. */
     val rssiDbm: Int = 0,
     val timestamp: Long = System.currentTimeMillis()
-)
+) {
+    /**
+     * Carry the fields no wheel reports across a telemetry frame.
+     *
+     * A decoded frame is built from what the parser returned, so every field the
+     * parser does not fill arrives at its default. Most of those are wheel
+     * fields the wheel simply did not send, and a default is the honest answer.
+     * These are not: they are worked out on the phone, by loops in
+     * WheelRepository that run on their own cadence, so a frame that resets them
+     * is throwing away the only copy.
+     *
+     * That is what emptied the dashboard's CONSUMPTION and RANGE tiles. The
+     * ride-efficiency loop wrote them once a second and the next frame, 250 ms
+     * later on an InMotion V1, put NaN back, so the tiles answered for an
+     * instant a few times a ride and read blank the rest of the time. The
+     * g-force fields sit behind the same defect at 8 and 10 Hz.
+     */
+    fun carryPhoneSideFrom(previous: WheelData): WheelData = copy(
+        gForce = previous.gForce,
+        accelX = previous.accelX,
+        accelY = previous.accelY,
+        forwardGFromSpeed = previous.forwardGFromSpeed,
+        whPerKmRecent = previous.whPerKmRecent,
+        rangeKmEstimate = previous.rangeKmEstimate,
+    )
+}

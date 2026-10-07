@@ -9,6 +9,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
@@ -50,6 +51,8 @@ class CompositionEnginePlayer(private val context: Context) {
     @Volatile private var lastIdleVol: Float = -1f
     @Volatile private var lastRevVol: Float = -1f
     @Volatile private var lastSpeed: Float = -1f
+    @Volatile private var lastRate: Float = -1f
+
     // Smoothed actual volumes, drives engine-start fade-in plus the idle ↔ rev
     // crossfade. Alpha 0.15 ≈ ~85 ms time constant at ~100 Hz telemetry.
     @Volatile private var smoothedIdleVol: Float = 0f
@@ -111,6 +114,7 @@ class CompositionEnginePlayer(private val context: Context) {
 
         lastIdleVol = -1f
         lastRevVol = -1f
+        lastRate = -1f
         lastSpeed = -1f
         smoothedIdleVol = 0f
         smoothedRevVol = 0f
@@ -135,11 +139,21 @@ class CompositionEnginePlayer(private val context: Context) {
             rev?.setVolume(smoothedRevVol); lastRevVol = smoothedRevVol
         }
 
-        // Playback speed stays at 1.0×, ExoPlayer's Sonic time-stretch was painting
-        // audible artifacts over every loop iteration. The natural idle ↔ rev crossfade
-        // (above) handles the perceived "going faster" without touching pitch.
-        // Variable speed left for a future profile-level opt-in only if a clip really
-        // demands it.
+        // The loops also change rate with RPM, pitch riding along. Riders
+        // heard the crossfade-only design as broken - "constantly loops the
+        // idle sound, doesn't respond to acceleration" - because two
+        // constant-pitch clips trading volume do not read as revving; the
+        // synth and the old single-sample path both sweep pitch. The earlier
+        // attempt at this used setPlaybackSpeed, which is pitch-PRESERVING
+        // time-stretch, and Sonic's stretching painted artifacts over every
+        // loop; matched speed and pitch below is plain resampling - the tape
+        // effect the old MediaPlayer path had - which Sonic handles cleanly.
+        val rate = 0.9f + 0.5f * lastRpmNorm
+        if (abs(rate - lastRate) > 0.01f) {
+            idle?.setRate(rate)
+            rev?.setRate(rate)
+            lastRate = rate
+        }
     }
 
     fun fireDecel() {
@@ -238,6 +252,15 @@ private class SectionPlayer(
     fun setSpeed(s: Float) = postToMain {
         if (released) return@postToMain
         try { player.setPlaybackSpeed(s.coerceIn(0.5f, 2.0f)) } catch (_: Throwable) {}
+    }
+
+    /** Rate with pitch riding along - plain resampling, the tape effect an
+     *  engine wants. setPlaybackSpeed alone is pitch-preserving time-stretch,
+     *  whose artifacts are why variable speed was abandoned the first time. */
+    fun setRate(r: Float) = postToMain {
+        if (released) return@postToMain
+        val c = r.coerceIn(0.5f, 2.0f)
+        try { player.playbackParameters = PlaybackParameters(c, c) } catch (_: Throwable) {}
     }
 
     fun release() {

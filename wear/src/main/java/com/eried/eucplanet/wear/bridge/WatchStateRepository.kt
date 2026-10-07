@@ -80,6 +80,18 @@ object WatchStateRepository {
     }
 
     /**
+     * Restores only persisted map configuration. This deliberately does not
+     * touch [lastPushAtMs], so cached configuration cannot make telemetry look
+     * live after a process restart.
+     */
+    fun hydrateMapConfiguration(enabled: Boolean, showTelemetry: Boolean) {
+        _state.value = _state.value.copy(
+            watchMapEnabled = enabled,
+            mapShowTelemetry = showTelemetry,
+        )
+    }
+
+    /**
      * Send a one-shot control intent to the phone. Picks the first connected
      * "phone" node (typically there's only one) and sends a Message. We don't
      * wait for ack: the phone's WearBridge has the authoritative state anyway,

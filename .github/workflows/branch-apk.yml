@@ -13,11 +13,17 @@ name: Branch builds
 #   hud-<branch>-<short_sha>.apk
 #   garmin-<branch>-<short_sha>.iq         (multi-device Connect IQ bundle)
 #   garmin-<branch>-<short_sha>-prgs.zip   (per-device .prg files bundled)
+#   amazfit-<branch>-<short_sha>.zab       (Zepp OS mini program bundle)
 #
-# Garmin CI is opt-in: set the GARMIN_SDK_BUNDLE_URL repo secret to a stable
-# download URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1.
-# Without that secret, the garmin job exits as `skipped` and the phone/wear
-# jobs keep working.
+# Garmin CI needs the GARMIN_SDK_BUNDLE_URL repo secret: a stable download
+# URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1. Without it
+# the garmin job fails and the rolling pre-release is not touched, so testers
+# get every companion or none. The phone/wear/HUD APKs still land as workflow
+# artifacts, so a fork without the secret can still test those.
+#
+# Every APK is signed with one shared key (BRANCH_DEBUG_KEYSTORE_B64, the
+# maintainer's local debug keystore) so branch builds update in place and a
+# tester keeps their data (issue #30).
 #
 # Pull-request runs build the APK as a workflow artifact (downloadable from
 # the Actions tab for ~90 days) but do not touch the release list, so PRs
@@ -82,6 +88,40 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Install the shared branch signing key
+        id: branchkey
+        # Issue #30: a runner makes a fresh debug keystore every run, so each
+        # build had a new certificate and Android refused to update in place.
+        # One fixed key (the maintainer's local debug keystore, base64 in the
+        # secret) signs every branch APK, so builds update each other and local
+        # ones. Missing secret fails loudly; a fork PR never gets secrets and
+        # keeps the runner key, nothing is published for it anyway.
+        env:
+          BRANCH_DEBUG_KEYSTORE_B64: ${{ secrets.BRANCH_DEBUG_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$BRANCH_DEBUG_KEYSTORE_B64" ]; then
+            if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+              echo "::notice::Pull request from a fork: no signing secret, the APK uses the runner's own debug key and cannot update a branch build."
+              echo "installed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::error::BRANCH_DEBUG_KEYSTORE_B64 secret missing, branch APKs would not update in place (issue #30)"
+            exit 1
+          fi
+          mkdir -p ~/.android
+          echo "$BRANCH_DEBUG_KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
+          HASH=$(sha256sum ~/.android/debug.keystore | cut -d' ' -f1)
+          if [ "$HASH" != "80ebc5a9cb1893a5a85d9eb0a94a8355b2652ea18c983246268611f42a3a64b3" ]; then
+            echo "::error::branch keystore hash mismatch ($HASH), not the shared key"
+            exit 1
+          fi
+          # The build tools read ANDROID_USER_HOME (then ANDROID_SDK_HOME)
+          # before the home folder, and a key found there wins. Pin it to the
+          # key above for every later step.
+          echo "Before: ANDROID_USER_HOME=${ANDROID_USER_HOME:-unset} ANDROID_SDK_HOME=${ANDROID_SDK_HOME:-unset} ANDROID_PREFS_ROOT=${ANDROID_PREFS_ROOT:-unset}"
+          echo "ANDROID_USER_HOME=$HOME/.android" >> "$GITHUB_ENV"
+          echo "installed=true" >> "$GITHUB_OUTPUT"
+
       - name: Build debug APKs
         # Build the phone APK on every branch. Build the wear + HUD APKs
         # too when the branch has their modules, so testers can grab the
@@ -94,7 +134,7 @@ jobs:
           if [ -f hud/build.gradle.kts ]; then
             targets="$targets :hud:assembleDebug"
           fi
-          ./gradlew :app:testDebugUnitTest :hud-protocol:test $targets --no-daemon --stacktrace
+          ./gradlew :app:testDebugUnitTest :app:lintDebug :hud-protocol:test $targets --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
 
@@ -112,6 +152,24 @@ jobs:
                "/tmp/out/hud-${{ needs.meta.outputs.suffix }}.apk"
           fi
           ls -la /tmp/out
+
+      - name: Verify every APK carries the shared branch certificate
+        if: steps.branchkey.outputs.installed == 'true'
+        run: |
+          SIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
+          WANT=a68b8bd41ffbc9dc45d9b438698f24e7906769aef08b298e0b5f46f348ba86ac
+          BAD=0
+          for apk in /tmp/out/*.apk; do
+            GOT=$("$SIGNER" verify --print-certs "$apk" | grep -m1 'SHA-256 digest' | awk '{print $NF}')
+            if [ "$GOT" != "$WANT" ]; then
+              echo "::error::$(basename "$apk") signed with $GOT, not the shared branch key"
+              BAD=1
+            else
+              echo "$(basename "$apk"): shared branch key"
+            fi
+          done
+          ls -la ~/.android/ "${ANDROID_SDK_HOME:-/nonexistent}/.android" 2>/dev/null || true
+          exit $BAD
 
       - name: Upload as workflow artifacts (always)
         uses: actions/upload-artifact@v4
@@ -131,36 +189,43 @@ jobs:
   garmin:
     runs-on: ubuntu-latest
     needs: meta
-    # Skip cleanly when the bundle URL secret isn't set, so the rest of the
-    # workflow still works on forks / first-time setups. Note: secrets can't
-    # be referenced directly in `if:`, so we route through an env var.
+    # Secrets can't be referenced in a job-level `if:`, so the first step
+    # reads the env var and fails loudly when the bundle URL is missing.
     env:
       GARMIN_SDK_BUNDLE_URL: ${{ secrets.GARMIN_SDK_BUNDLE_URL }}
     steps:
-      - name: Skip if bundle URL not configured
-        id: precheck
+      - name: Verify the CIQ SDK bundle URL is configured
+        id: sdk
+        # A missing secret used to turn this job into a silent skip that still
+        # counted as success, so a release could go out without its Garmin
+        # files. Fail instead: publish requires this job to succeed. The one
+        # exception is a pull request from a fork, where GitHub never passes
+        # secrets and nothing is published anyway: skip with a notice there.
         run: |
-          if [ -z "$GARMIN_SDK_BUNDLE_URL" ]; then
-            echo "::notice::GARMIN_SDK_BUNDLE_URL secret not set; skipping Garmin build."
-            echo "::notice::See tools/bundle-ciq-sdk-for-ci.ps1 to enable."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+          if [ -n "$GARMIN_SDK_BUNDLE_URL" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "::notice::Pull request from a fork: GitHub withholds secrets, so the Garmin build is skipped. Nothing is published for PRs."
+            echo "run=false" >> "$GITHUB_OUTPUT"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "::error::GARMIN_SDK_BUNDLE_URL secret not set; the Garmin build cannot run, so nothing will be published."
+            echo "::error::See tools/bundle-ciq-sdk-for-ci.ps1 to create the bundle and set the secret."
+            exit 1
           fi
 
       - name: Checkout
-        if: steps.precheck.outputs.skip == 'false'
+        if: steps.sdk.outputs.run == 'true'
         uses: actions/checkout@v4
 
       - name: Set up JDK 17 (monkeyc runs on a JRE)
-        if: steps.precheck.outputs.skip == 'false'
+        if: steps.sdk.outputs.run == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Download CIQ SDK bundle
-        if: steps.precheck.outputs.skip == 'false'
+        if: steps.sdk.outputs.run == 'true'
         run: |
           mkdir -p /tmp/ciq
           # GH release URLs are public for public repos; if you host on a
@@ -170,26 +235,39 @@ jobs:
           unzip -q /tmp/ciq/bundle.zip -d /tmp/ciq
           test -x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc || chmod +x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc /tmp/ciq/ciq-bundle/sdk/bin/monkeydo
           # monkeyc hard-codes ~/.Garmin/ConnectIQ/Devices as the device-
-          # profile root — symlink the bundled devices there so monkeyc
+          # profile root, symlink the bundled devices there so monkeyc
           # finds every manifest entry. Otherwise it errors with "Device
           # ids ... not recognized" for everything in manifest.xml.
           mkdir -p "$HOME/.Garmin/ConnectIQ"
           ln -sfn /tmp/ciq/ciq-bundle/devices "$HOME/.Garmin/ConnectIQ/Devices"
           ls /tmp/ciq/ciq-bundle/devices | head -5
 
-      - name: Generate one-off developer key
-        if: steps.precheck.outputs.skip == 'false'
-        # The developer key only identifies the build to the CIQ Store; for
-        # sideloads (which is all CI produces) a fresh per-run key works fine
-        # and avoids checking the real key into secrets. The store-submission
-        # build still happens locally with the user's persistent key.
+      - name: Install the permanent CIQ signing key
+        if: steps.sdk.outputs.run == 'true'
+        # THE ONLY key allowed to sign .iq/.prg output, ever. The Connect IQ
+        # store binds a listing to its first key forever, and two listings
+        # were already burned by throwaway-signed uploads (2026-07-06 and
+        # 2026-08-26 incidents in the signing vault README). The secret is
+        # the base64 of signing/garmin/garmin_developer_key.der; the hash
+        # check makes a wrong or missing secret fail LOUDLY instead of
+        # shipping a file that can never reach the store.
+        env:
+          GARMIN_DEV_KEY_B64: ${{ secrets.GARMIN_DEV_KEY_B64 }}
         run: |
           /tmp/ciq/ciq-bundle/sdk/bin/monkeybrains.jar 2>/dev/null || true
-          openssl genrsa -out /tmp/ciq/dev_key.pem 4096
-          openssl pkcs8 -topk8 -inform PEM -outform DER -in /tmp/ciq/dev_key.pem -out /tmp/ciq/dev_key.der -nocrypt
+          if [ -z "$GARMIN_DEV_KEY_B64" ]; then
+            echo "::error::GARMIN_DEV_KEY_B64 secret missing - refusing to sign with any other key"
+            exit 1
+          fi
+          echo "$GARMIN_DEV_KEY_B64" | base64 -d > /tmp/ciq/dev_key.der
+          HASH=$(sha256sum /tmp/ciq/dev_key.der | cut -d' ' -f1)
+          if [ "$HASH" != "afcae9eca4bf8fc332df61cb789daf7fc38987a7da84c77dba3aa9f08252720e" ]; then
+            echo "::error::dev key hash mismatch ($HASH) - not the permanent key"
+            exit 1
+          fi
 
       - name: Build .iq (multi-device bundle)
-        if: steps.precheck.outputs.skip == 'false'
+        if: steps.sdk.outputs.run == 'true'
         run: |
           mkdir -p /tmp/out
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
@@ -208,7 +286,7 @@ jobs:
           ls -la "$OUT"
 
       - name: Build per-device .prg files
-        if: steps.precheck.outputs.skip == 'false'
+        if: steps.sdk.outputs.run == 'true'
         run: |
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
           export CIQ_HOME=/tmp/ciq/ciq-bundle/sdk
@@ -218,24 +296,28 @@ jobs:
           # release used to carry 135 individual .prg files alongside the
           # .iq, which buried the .iq under a wall of asset rows. The .iq
           # is the universal artifact (multi-device, Connect IQ Store
-          # format); .prgs are advanced-sideload-only — bundling them keeps
+          # format); .prgs are advanced-sideload-only, bundling them keeps
           # the release page scannable.
           mkdir -p /tmp/prgs
-          for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8solar47mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
+          for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8pro47mm fenix8solar47mm fenix8solar51mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
             OUT="/tmp/prgs/garmin-${{ needs.meta.outputs.suffix }}-${d}.prg"
             echo "--- building $d ---"
+            # Warn-and-continue: a device profile missing from the hosted
+            # bundle must cost that one .prg, not the whole zip. Real
+            # compile errors still fail the .iq step above, which builds
+            # every manifest device.
             monkeyc \
               -f garmin-watch-app/monkey.jungle \
               -o "$OUT" \
               -y /tmp/ciq/dev_key.der \
               -d "$d" \
-              -w
+              -w || { echo "::warning::$d PRG failed (profile missing from bundle?)"; continue; }
           done
           (cd /tmp/prgs && zip -q "/tmp/out/garmin-${{ needs.meta.outputs.suffix }}-prgs.zip" *.prg)
           ls -la /tmp/out
 
       - name: Upload as workflow artifacts (always)
-        if: steps.precheck.outputs.skip == 'false'
+        if: steps.sdk.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: garmin-${{ needs.meta.outputs.short_sha }}
@@ -243,18 +325,60 @@ jobs:
           retention-days: 90
 
       - name: Stage for release
-        if: steps.precheck.outputs.skip == 'false' && github.event_name != 'pull_request'
+        if: steps.sdk.outputs.run == 'true' && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: stage-garmin-${{ needs.meta.outputs.short_sha }}
           path: /tmp/out/*
           retention-days: 1
 
+  amazfit:
+    runs-on: ubuntu-latest
+    needs: meta
+    # The Zepp OS mini program builds with the zeus CLI from npm; no SDK
+    # download, no secrets. Produces the .zab store-submission bundle.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build .zab
+        run: |
+          npm i -g @zeppos/zeus-cli
+          cd amazfit-watch-app
+          npm ci --no-audit --no-fund
+          zeus build
+          mkdir -p /tmp/out
+          zab=$(ls dist/*.zab | head -1)
+          test -n "$zab"
+          cp "$zab" "/tmp/out/amazfit-${{ needs.meta.outputs.suffix }}.zab"
+          ls -la /tmp/out
+
+      - name: Upload as workflow artifacts (always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: amazfit-${{ needs.meta.outputs.short_sha }}
+          path: /tmp/out/*
+          retention-days: 90
+
+      - name: Stage for release
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-amazfit-${{ needs.meta.outputs.short_sha }}
+          path: /tmp/out/*
+          retention-days: 1
+
   publish:
     runs-on: ubuntu-latest
-    needs: [meta, android, garmin]
-    # Run even if garmin was skipped, but not for PRs.
-    if: always() && github.event_name != 'pull_request' && needs.android.result == 'success'
+    needs: [meta, android, garmin, amazfit]
+    # Same parity rule as the release workflow: the rolling pre-release is
+    # replaced only when every companion built, and never for PRs.
+    if: github.event_name != 'pull_request' && needs.android.result == 'success' && needs.garmin.result == 'success' && needs.amazfit.result == 'success'
     steps:
       - name: Checkout (for release body)
         uses: actions/checkout@v4
@@ -313,7 +437,7 @@ jobs:
           tag="${{ needs.meta.outputs.tag }}"
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release view "$tag" --json assets \
-              --jq '.assets[] | select(.name | test("\\.(apk|aab|iq|prg|zip)$")) | .name' \
+              --jq '.assets[] | select(.name | test("\\.(apk|aab|iq|prg|zip|zab)$")) | .name' \
             | while read -r asset; do
                 [ -n "$asset" ] && gh release delete-asset "$tag" "$asset" --yes || true
               done
@@ -354,7 +478,7 @@ jobs:
           text="🔨 <b>Build</b> on <code>$(esc "$BRANCH")</code> @ <code>$(esc "$SHORT_SHA")</code>
           $(esc "$subject")
 
-          ⬇️ Latest build (phone, Wear OS, HUD, Garmin):
+          ⬇️ Latest build (phone, Wear OS, HUD, Garmin, Amazfit):
           ${url}"
           curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${CHAT_ID}" \

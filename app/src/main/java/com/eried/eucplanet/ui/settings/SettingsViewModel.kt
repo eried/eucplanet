@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import android.content.Context
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.BatteryPercentSettings
+import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.AdvancedSettings
 import com.eried.eucplanet.data.model.AdvancedSpec
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.model.SettingsLayout
@@ -29,6 +32,8 @@ import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,16 +58,17 @@ import javax.inject.Inject
  * [DASHBOARD_METRIC_ALIASES] so the drift-guard tolerates them.
  */
 internal val KNOWN_DASHBOARD_METRICS = listOf(
-    // Currently active by default — keep these 6 first so a fresh install
+    // Currently active by default, keep these 6 first so a fresh install
     // mirrors the hard-coded layout byte-for-byte.
     "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
-    // Pool — already-buffered or simple-to-derive metrics.
+    // Pool, already-buffered or simple-to-derive metrics.
     // (No "POWER": it was a deprecated duplicate of BATTERY_POWER, removed from
     // MetricCatalog, so it rendered as the raw uppercase key with a placeholder
     // value. Riders use Motor power / Battery power instead.)
     "SPEED", "ODOMETER", "TRIP_METER",
     "MOTOR_POWER", "BATTERY_POWER",
-    "BATTERY_1", "BATTERY_2",
+    // The load-free battery line, beside the packs it is derived from.
+    "BATTERY_ENVELOPE", "BATTERY_1", "BATTERY_2",
     "PITCH", "ROLL",
     "G_FORCE", "LATERAL_G", "FORWARD_G",
     "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
@@ -72,13 +78,13 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
     // once Phase 3 aggregation lands).
     "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
     "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
-    // Phone + GPS feeds — sourced outside WheelData.
+    // Phone + GPS feeds, sourced outside WheelData.
     "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
     "GPS_ACCURACY", "EXTERNAL_GPS_BATTERY",
-    // Derived motion + pack health — slope/altitude integration and
+    // Derived motion + pack health, slope/altitude integration and
     // wheel-firmware fields some boards expose.
     "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
-    // Connectivity diagnostic — useful when debugging dropouts.
+    // Connectivity diagnostic, useful when debugging dropouts.
     "BT_RSSI",
     // Extras targeted at composite-tile cells (small text, no
     // sparkline) -- they also render fine as standalone tiles.
@@ -100,12 +106,17 @@ internal val DASHBOARD_METRIC_ALIASES = emptySet<String>()
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
+    private val accelSplitRepository: com.eried.eucplanet.data.repository.AccelSplitRepository,
+    val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
     private val voiceService: VoiceService,
+    private val tonePlayer: com.eried.eucplanet.service.TonePlayer,
+    private val voiceCommands: com.eried.eucplanet.voice.VoiceCommandController,
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
     private val automationManager: AutomationManager,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
+    private val amazfitBridge: com.eried.eucplanet.amazfit.AmazfitBridge,
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
@@ -117,6 +128,7 @@ class SettingsViewModel @Inject constructor(
     private val appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository,
     @ApplicationContext private val context: Context,
+    private val hornPlayer: com.eried.eucplanet.audio.HornPlayer,
 ) : ViewModel() {
 
     /** Whether Android will honour a picture-in-picture request from us. */
@@ -220,6 +232,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
+    val autoLockSuspended: StateFlow<Boolean> = automationManager.autoLockSuspended
 
     val settings: StateFlow<AppSettings?> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -236,10 +249,21 @@ class SettingsViewModel @Inject constructor(
         .map { it.rssiDbm }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /**
-     * Unified view of every paired companion device — Wear OS + Garmin —
-     * for the Settings "Device" region. Bridges expose raw name lists and
+     * The live packet, for the report previews.
+     *
+     * Rule 10: the play button beside a report row speaks the rider's own
+     * wheel, not an invented number. The catalog-backed reports have no
+     * hand-written example sentence to fall back on, so they read the same
+     * values the tiles do.
+     */
+    val wheelData: StateFlow<com.eried.eucplanet.data.model.WheelData> =
+        wheelRepository.wheelData
+
+    /**
+     * Unified view of every paired companion device, Wear OS + Garmin, * for the Settings "Device" region. Bridges expose raw name lists and
      * delivery-rate flows; we combine, tag with [PairedSurface.Kind], and
      * stamp each entry with the surface's current update rate so the UI
      * card can show what the rider's actual frame rate looks like on the
@@ -252,13 +276,19 @@ class SettingsViewModel @Inject constructor(
             garminBridge.pairedDevices,
             settingsRepository.settings,
             garminBridge.deliveryRateHz,
-            garminBridge.lastSuccessAtMs
+            garminBridge.lastSuccessAtMs,
+            amazfitBridge.pairedDevices,
+            amazfitBridge.deliveryRateHz,
+            amazfitBridge.lastSuccessAtMs
         ) { args ->
             @Suppress("UNCHECKED_CAST") val wear = args[0] as List<String>
             @Suppress("UNCHECKED_CAST") val garmin = args[1] as List<String>
             val settings = args[2] as AppSettings?
             val garminHz = args[3] as Double
             val lastGarminMs = args[4] as Long
+            @Suppress("UNCHECKED_CAST") val amazfit = args[5] as List<String>
+            val amazfitHz = args[6] as Double
+            val lastAmazfitMs = args[7] as Long
             val wearHz = settings?.let { wearRateHzFor(it.watchUpdateRate) } ?: 5.0
             // "Active" = the bridge has delivered a frame in the last 3 s.
             // Reading the timestamp (not the rolling rate) avoids the
@@ -267,12 +297,18 @@ class SettingsViewModel @Inject constructor(
             val garminActive = lastGarminMs > 0L &&
                 (System.currentTimeMillis() - lastGarminMs) < 3_000L
             val wearActive = wear.isNotEmpty()
+            // Amazfit polls the phone; a poll in the last 3 s means Live.
+            val amazfitActive = lastAmazfitMs > 0L &&
+                (System.currentTimeMillis() - lastAmazfitMs) < 3_000L
             buildList {
                 wear.forEach { name ->
                     add(PairedSurface(PairedSurface.Kind.WEAR_OS, name, wearActive, wearHz))
                 }
                 garmin.forEach { name ->
                     add(PairedSurface(PairedSurface.Kind.GARMIN, name, garminActive, garminHz))
+                }
+                amazfit.forEach { name ->
+                    add(PairedSurface(PairedSurface.Kind.AMAZFIT, name, amazfitActive, amazfitHz))
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -303,12 +339,22 @@ class SettingsViewModel @Inject constructor(
             .map { it.isNotEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /** True while an Amazfit (Zepp OS) watch is polling the phone. The Watch
+     *  tab uses this to show the rows the Amazfit dial honours (keep-on, update
+     *  rate) and to badge the ones it cannot do (auto-start, dial rotation). */
+    val hasAmazfitPaired: StateFlow<Boolean> =
+        amazfitBridge.pairedDevices
+            .map { it.isNotEmpty() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     /**
      * True when at least one paired surface has bindable hardware buttons:
      *  - Any Garmin device (every Garmin watch ships ≥2 physical buttons,
      *    and our CIQ Delegate maps the universal Start + Up-hold pair to
      *    `stem1` and `stem2`).
-     *  - A Galaxy Watch Ultra on Wear OS — the only Wear OS device that
+     *  - Any Amazfit (Zepp OS) watch: the dial maps Select to `stem1`, Up to
+     *    `stem2` and Down to `stem3`, the same layout as the Garmin model.
+     *  - A Galaxy Watch Ultra on Wear OS, the only Wear OS device that
      *    delivers `KEYCODE_STEM_1` (orange Action) and `KEYCODE_STEM_2`
      *    (bottom side) to third-party apps. Detected by friendly-name
      *    containing "Ultra" (case-insensitive); Pixel Watch / Galaxy
@@ -319,8 +365,13 @@ class SettingsViewModel @Inject constructor(
      * that wouldn't do anything.
      */
     val hasHardwareButtonCapableWatch: StateFlow<Boolean> =
-        wearBridge.pairedNodes.combine(garminBridge.pairedDevices) { wear, garmin ->
-            garmin.isNotEmpty() || wear.any { it.contains("Ultra", ignoreCase = true) }
+        combine(
+            wearBridge.pairedNodes,
+            garminBridge.pairedDevices,
+            amazfitBridge.pairedDevices
+        ) { wear, garmin, amazfit ->
+            garmin.isNotEmpty() || amazfit.isNotEmpty() ||
+                wear.any { it.contains("Ultra", ignoreCase = true) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
@@ -341,8 +392,13 @@ class SettingsViewModel @Inject constructor(
 
     private fun update(transform: AppSettings.() -> AppSettings) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            settingsRepository.update(current.transform())
+            // One coroutine per call, so a text field writing on every keystroke
+            // has a dozen of these in flight at once. Reading the settings here
+            // and writing the whole object back made them clobber each other:
+            // the value that stuck was whichever coroutine finished last, not
+            // whichever the rider typed last. Hand the transform to the store so
+            // the read happens inside its transaction.
+            settingsRepository.update { it.transform() }
         }
     }
 
@@ -371,14 +427,61 @@ class SettingsViewModel @Inject constructor(
             wheelRepository.setSpeed(s.tiltbackSpeedKmh.coerceAtLeast(value), value)
         }
     }
+    /**
+     * Arms Legal Mode Lockdown. Order matters: the rider's in-progress trip is
+     * finalised and saved BEFORE the recorder gate goes up, otherwise the
+     * partial ride is stranded by TripRepository.startRecording's own guard.
+     *
+     * Returns false on an invalid code, having changed nothing. Nothing here
+     * writes an AppSettings field: the lock lives in its own store, so the
+     * rider's configuration is untouched by arming.
+     */
+    /** Whether a trip is recording right now, read before arming so the dialog
+     *  can say the trip was saved rather than guessing. */
+    fun isRecordingNow(): Boolean = tripRepository.recording.value
+
+    /** Legal mode's live state, so the arming dialog can warn that the lock
+     *  will take effect immediately instead of waiting. */
+    val legalModeActive: kotlinx.coroutines.flow.StateFlow<Boolean> =
+        wheelRepository.safetySpeedActive
+
+    /**
+     * Arms lockdown mode.
+     *
+     * This does NOT switch legal mode on. Arming is the resident half: if legal
+     * mode is off the mode simply waits, and engages the next time the rider
+     * turns legal mode on. When legal mode is already on there is nothing to
+     * wait for, so it engages at once.
+     *
+     * Nothing here writes an AppSettings field: the lock lives in its own store,
+     * so the rider's configuration is untouched by arming.
+     */
+    suspend fun armLockdown(pin: String): Boolean {
+        if (!com.eried.eucplanet.data.repository.LegalLockdownCode.isValidPin(pin)) return false
+        return legalLockdown.arm(pin, engageNow = wheelRepository.safetySpeedActive.value)
+    }
+
+    /** Switches the resident setting back off. Only possible before it engages. */
+    fun disarmLockdown() {
+        viewModelScope.launch { legalLockdown.disarmIfNotEngaged() }
+    }
+
     fun updateSafetyTiltback(value: Float) {
+        // Legal Mode Lockdown: raising the legal limit would be the bypass.
+        if (legalLockdown.isEngaged()) return
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val capped = value.coerceAtMost((current.tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
-            val cappedAlarm = current.safetyAlarmKmh.coerceAtMost(capped)
-            settingsRepository.update(
+            // Read and write in one transaction: this sits behind a NumberUpDown
+            // whose hold-to-repeat fires several of these a second, and reading
+            // outside meant a slower coroutine could write back a value computed
+            // from a stale cap. The HUD address that started all this was the
+            // same shape.
+            var capped = 0f
+            var cappedAlarm = 0f
+            settingsRepository.update { current ->
+                capped = value.coerceAtMost((current.tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
+                cappedAlarm = current.safetyAlarmKmh.coerceAtMost(capped)
                 current.copy(safetyTiltbackKmh = capped, safetyAlarmKmh = cappedAlarm)
-            )
+            }
             // If Legal mode is currently on, push the new legal limit to the wheel
             // so it follows the slider. Otherwise the wheel keeps the old legal
             // value and the confirm-from-readback would think Legal turned off (it
@@ -390,12 +493,14 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun updateSafetyAlarm(value: Float) {
+        // Legal Mode Lockdown: raising the legal limit would be the bypass.
+        if (legalLockdown.isEngaged()) return
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val newTilt = current.safetyTiltbackKmh.coerceAtLeast(value)
-            settingsRepository.update(
+            var newTilt = 0f
+            settingsRepository.update { current ->
+                newTilt = current.safetyTiltbackKmh.coerceAtLeast(value)
                 current.copy(safetyAlarmKmh = value, safetyTiltbackKmh = newTilt)
-            )
+            }
             if (wheelRepository.safetySpeedActive.value) {
                 wheelRepository.setSpeed(newTilt, value)
             }
@@ -408,6 +513,10 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
     fun updateVoiceSpeechRate(v: Float, previewText: String? = null) {
         update { copy(voiceSpeechRate = v) }
+        previewText?.let { previewVoiceChange(it) }
+    }
+    fun updateVoiceVolume(v: Int, previewText: String? = null) {
+        update { copy(voiceVolumePercent = v.coerceIn(10, 100)) }
         previewText?.let { previewVoiceChange(it) }
     }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicSpeed = v)) }
@@ -434,6 +543,12 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportPower(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerPower = v)) }
     // Acceleration splits (RaceBox-style). Feature-local nested group.
     fun updateAccelSplitEnabled(v: Boolean) = update { copy(accelSplit = accelSplit.copy(enabled = v)) }
+
+    /** The session's split times, best and last per step, for the section to show. */
+    val splitSession: StateFlow<com.eried.eucplanet.service.AccelSplitTracker.Session> = accelSplitRepository.session
+
+    /** Clear the session's split times. Switching the splits off does not. */
+    fun resetSplits() = accelSplitRepository.reset()
     fun updateAccelSplitIncrement(v: Int) =
         update { copy(accelSplit = accelSplit.copy(increment = v.coerceIn(1, 50))) }
     fun updateAccelSplitMinSpeed(v: Int) =
@@ -483,18 +598,36 @@ class SettingsViewModel @Inject constructor(
     }
 
     // Motor sound
-    fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSoundEnabled = v) }
-    fun updateEngineType(v: String) = update { copy(engineType = v) }
-    fun updateEngineVolume(v: Float) = update { copy(engineVolume = v.coerceIn(0f, 1f)) }
-    fun updateEngineVolumeAutoEnabled(v: Boolean) = update { copy(engineVolumeAutoEnabled = v) }
-    fun updateEngineVolumeAutoCurve(curve: String) = update { copy(engineVolumeAutoCurve = curve) }
-    fun updateEngineMuffler(v: String) = update { copy(engineMuffler = v) }
-    fun updateEngineGearbox(v: String) = update { copy(engineGearbox = v) }
-    fun updateEngineIdleBehavior(v: String) = update { copy(engineIdleBehavior = v) }
-    fun updateEngineDecelChar(v: String) = update { copy(engineDecelChar = v) }
-    fun updateEngineBrake(v: String) = update { copy(engineBrake = v) }
-    fun updateEngineDuckOnVoice(v: String) = update { copy(engineDuckOnVoice = v) }
-    fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineHeadphonesOnly = v) }
+    fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSound = engineSound.copy(enabled = v)) }
+    fun updateEngineType(v: String) = update { copy(engineSound = engineSound.copy(type = v)) }
+    fun updateEngineVolume(v: Float) = update { copy(engineSound = engineSound.copy(volume = v.coerceIn(0f, 1f))) }
+    fun updateEngineVolumeAutoEnabled(v: Boolean) = update { copy(engineSound = engineSound.copy(volumeAutoEnabled = v)) }
+    fun updateEngineVolumeAutoCurve(curve: String) = update { copy(engineSound = engineSound.copy(volumeAutoCurve = curve)) }
+    fun updateEngineMuffler(v: String) = update { copy(engineSound = engineSound.copy(muffler = v)) }
+    fun updateEngineGearbox(v: String) = update { copy(engineSound = engineSound.copy(gearbox = v)) }
+    fun updateEngineIdleBehavior(v: String) = update { copy(engineSound = engineSound.copy(idleBehavior = v)) }
+    fun updateEngineDecelChar(v: String) = update { copy(engineSound = engineSound.copy(decelChar = v)) }
+    fun updateEngineBrake(v: String) = update { copy(engineSound = engineSound.copy(brake = v)) }
+    fun updateEngineDuckOnVoice(v: String) = update { copy(engineSound = engineSound.copy(duckOnVoice = v)) }
+    fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineSound = engineSound.copy(headphonesOnly = v)) }
+
+    fun updateHornMode(v: String) = update { copy(horn = horn.copy(mode = v)) }
+    fun updateHornHeadphonesOnly(v: Boolean) = update { copy(horn = horn.copy(headphonesOnly = v)) }
+    val hornSoundReady: Boolean get() = hornPlayer.isReady
+
+    /** Copy the picked clip in; the name is kept for the settings row. */
+    fun importHornSound(uri: android.net.Uri, displayName: String, onResult: (com.eried.eucplanet.audio.HornPlayer.ImportResult) -> Unit) {
+        viewModelScope.launch {
+            val r = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { hornPlayer.import(uri) }
+            if (r == com.eried.eucplanet.audio.HornPlayer.ImportResult.OK) {
+                update { copy(horn = horn.copy(soundName = displayName)) }
+            }
+            onResult(r)
+        }
+    }
+
+    /** Plays the rider's real clip, the same one the horn button uses. */
+    fun playHornSound() { hornPlayer.play() }
 
     fun previewEngine(key: String) {
         viewModelScope.launch {
@@ -566,6 +699,33 @@ class SettingsViewModel @Inject constructor(
     fun updateBlockUpsideDown(v: Boolean) = update { copy(blockUpsideDown = v) }
     fun updateIgnoreSystemRotateLock(v: Boolean) = update { copy(ignoreSystemRotateLock = v) }
     fun updateNavStopsSide(v: String) = update { copy(navStopsSide = v) }
+    /** Null when the connected wheel's family cannot state its pack layout, in
+     *  which case the rider supplies the count. */
+    val detectedSeriesCells: StateFlow<Int?> = wheelRepository.wheelSeriesCells
+
+    fun updateBatteryPercentMode(v: String) =
+        update { copy(batteryPercent = batteryPercent.copy(mode = v)) }
+    fun updateBatteryPercentMinimumMv(v: Int) = update {
+        copy(batteryPercent = batteryPercent.copy(
+            minimumCellVoltageMv = v.coerceIn(
+                BatteryPercentSettings.MIN_CELL_MV, BatteryPercentSettings.MAX_CELL_MV)))
+    }
+    fun updateBatteryPercentMaximumMv(v: Int) = update {
+        copy(batteryPercent = batteryPercent.copy(
+            maximumCellVoltageMv = v.coerceIn(
+                BatteryPercentSettings.MIN_FULL_MV, BatteryPercentSettings.MAX_FULL_MV)))
+    }
+    fun updateBatteryPercentCapacityWh(v: Int) = update {
+        copy(batteryPercent = batteryPercent.copy(
+            capacityWh = v.coerceIn(0, BatteryPercentSettings.MAX_CAPACITY_WH)))
+    }
+    fun updateBatteryPercentSeriesCells(v: Int) = update {
+        copy(batteryPercent = batteryPercent.copy(
+            seriesCells = v.coerceIn(
+                BatteryPercentSettings.SERIES_RANGE.first,
+                BatteryPercentSettings.SERIES_RANGE.last)))
+    }
+
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,
         // backup JSON, and per-wheel profile storage.
@@ -581,21 +741,48 @@ class SettingsViewModel @Inject constructor(
         update { copy(raceboxMapX = mapX, raceboxMapY = mapY, raceboxMapZ = mapZ) }
 
     // Automations
-    fun updateAutoLightsEnabled(v: Boolean) {
-        update { copy(autoLightsEnabled = v) }
-        // Toggling the setting itself clears any session-level suspension
+    fun updateAutoLightsApplyWhen(v: String) {
+        update { copy(lights = lights.copy(applyWhen = v)) }
+        // Touching the setting clears any session-level suspension
         automationManager.clearLightsSuspension()
         // Apply the correct state immediately instead of waiting for the next 60s tick
-        if (v) automationManager.triggerImmediateLightEvaluation()
+        if (v != ApplyWhenIds.NEVER) automationManager.triggerImmediateLightEvaluation()
     }
-    fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
-    fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
-    fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }
-        .also { if (!v) automationManager.restoreBaselineVolume() }
-    fun updateAutoVolumeOnlyWhenConnected(v: Boolean) =
-        update { copy(autoVolumeOnlyWhenConnected = v) }
-            .also { if (v) automationManager.restoreBaselineVolume() }
+    fun updateAutoLightsOnMinutes(v: Int) = update { copy(lights = lights.copy(onMinutesBefore = v)) }
+    fun updateAutoLightsOffMinutes(v: Int) = update { copy(lights = lights.copy(offMinutesAfter = v)) }
+    fun updateAutoLightsOffWhenSlow(v: Boolean) =
+        update { copy(lights = lights.copy(offWhenSlow = v)) }
+            // Switching it off hands the beam straight back to the schedule.
+            .also { automationManager.triggerImmediateLightEvaluation() }
+    fun updateAutoLightsOffBelowKmh(v: Float) =
+        update { copy(lights = lights.copy(offBelowKmh = v)) }
+
+    fun updateAutoVolumeApplyWhen(v: String) =
+        update { copy(autoVolumeApplyWhen = v) }
+            // Any narrowing can leave the volume raised with nothing to lower
+            // it again, so hand the rider's baseline back on every change.
+            .also { automationManager.restoreBaselineVolume() }
     fun updateAutoVolumeCurve(curve: String) = update { copy(autoVolumeCurve = curve) }
+
+    fun updateMediaRateApplyWhenPicked(v: String) = update {
+        copy(mediaControl = mediaControl.copy(rateApplyWhen = v))
+    }.also {
+        // Raise (or clear) the dashboard warning now rather than at the next
+        // activity resume: moving between settings screens is not a resume,
+        // so a rider who switches this on and never leaves the app would see
+        // no sign that the grant it needs is missing.
+        appHealthRepository.refreshPermissionWarnings(
+            mediaRateRequested = v != ApplyWhenIds.NEVER
+        )
+    }
+    fun updateMediaRateCurve(curve: String) = update {
+        copy(mediaControl = mediaControl.copy(rateCurve = curve))
+    }
+
+
+    /** Notification access, which the rate feature needs and nothing else does. */
+    fun notificationAccessAllowed(): Boolean = appHealthRepository.notificationAccessAllowed()
+    fun openNotificationAccessSettings() = appHealthRepository.openNotificationAccessSettings()
 
     // Media control (speed-driven music/podcast pause & resume)
     fun updateMediaPauseEnabled(v: Boolean) = update { copy(mediaControl = mediaControl.copy(pauseEnabled = v)) }
@@ -611,11 +798,19 @@ class SettingsViewModel @Inject constructor(
 
     // Proximity lock (Bluetooth-signal auto lock / unlock)
     fun updateProxLockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(lockEnabled = v)) }
-        .also { if (!v) automationManager.resetProximityLock() }
+        // Toggling the feature is a fresh decision, so a manual suspension
+        // from earlier in the session is spent; the clear also resets the
+        // evaluator, covering the old disable-path reset.
+        .also { automationManager.clearLockSuspension() }
     fun updateProxLockBelow(v: Int) =
         update { copy(proximityLock = proximityLock.copy(lockBelowDbm = v.coerceIn(-110, -30))) }
-    fun updateProxUnlockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(unlockEnabled = v)) }
-        .also { if (!v) automationManager.resetProximityLock() }
+    fun updateProxUnlockWhen(v: String) =
+        update { copy(proximityLock = proximityLock.copy(unlockWhen = v)) }
+            .also {
+                // Changing what an unlock means invalidates any hold or arming
+                // built up under the previous answer.
+                automationManager.resetProximityLock()
+            }
     fun updateProxUnlockAbove(v: Int) =
         update { copy(proximityLock = proximityLock.copy(unlockAboveDbm = v.coerceIn(-100, -15))) }
 
@@ -639,20 +834,99 @@ class SettingsViewModel @Inject constructor(
     fun updateAnnounceSafetyMode(v: Boolean) = update { copy(announceSafetyMode = v) }
     fun updateAnnounceWelcome(v: Boolean) = update { copy(announceWelcome = v) }
 
+    /**
+     * Pick a cue and hear it, because picking is the only reason to be here.
+     *
+     * The row used to carry a small play button beside its label. It was a
+     * second thing to find and press for something the choice itself can
+     * answer, and a rider comparing three options wants to hear each as they
+     * touch it rather than choose blind and then hunt for a button.
+     *
+     * The chosen value is played, not the stored one: the write is
+     * asynchronous, so reading the setting back here would play whatever was
+     * selected a moment ago.
+     */
+    fun updateVoicePromptCue(v: String, spokenWord: String) {
+        update { copy(voiceCommands = voiceCommands.copy(promptCue = v)) }
+        viewModelScope.launch {
+            when (v) {
+                // The opening note only. The falling one means "the window
+                // closed", which is a thing a session says and this is not a
+                // session: back to back here they just sound like one longer
+                // cue that is not the one being chosen.
+                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_BEEP -> tonePlayer.playPrompt()
+                com.eried.eucplanet.data.model.VoiceCommandSettings.CUE_VOICE -> {
+                    val s = settingsRepository.get()
+                    voiceService.testSpeak(spokenWord, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
+                }
+                else -> {}
+            }
+        }
+    }
+
+    /** The same, for what a rider hears when nothing matched. */
+    fun updateVoiceUnknownCue(v: String, sentence: String) {
+        update { copy(voiceCommands = voiceCommands.copy(unknownCue = v)) }
+        viewModelScope.launch {
+            when (v) {
+                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_MESSAGE -> {
+                    val s = settingsRepository.get()
+                    voiceService.testSpeak(sentence, s.voiceSpeechRate, s.voiceLocale, s.voiceName)
+                }
+                com.eried.eucplanet.data.model.VoiceCommandSettings.UNKNOWN_BEEP -> tonePlayer.playErrorPrompt()
+                else -> {}
+            }
+        }
+    }
+
+    fun updateVoiceRecognitionLocale(v: String) =
+        update { copy(voiceCommands = voiceCommands.copy(recognitionLocale = v)) }
+
+    fun updateVoiceHeadsetButton(v: Boolean) =
+        update { copy(voiceCommands = voiceCommands.copy(headsetButton = v)) }
+
+    /** Listen or Announce: the headset button on, doing that. */
+    fun updateVoiceHeadsetMode(v: String) =
+        update { copy(voiceCommands = voiceCommands.copy(headsetButton = true, headsetAction = v)) }
+
+    /**
+     * Switch one catalog-backed report on or off.
+     *
+     * One method for all of them, rather than the two-per-report pattern the
+     * hand-written eleven use. Twenty-two more named methods to add five
+     * reports is the boilerplate the registry exists to stop.
+     */
+    fun updateVoiceReportExtra(key: String, periodic: Boolean, on: Boolean) {
+        val spec = com.eried.eucplanet.service.VoiceReportPlan.extra(key) ?: return
+        update { copy(voiceReports = spec.set(voiceReports, periodic, on)) }
+    }
+
     fun updateVoiceReportOrder(order: String) = update { copy(voiceReportOrder = order) }
+
+    // Voice commands. The window and the prompt are clamped in
+    // SettingsRepository.sanitized(), so a synced file cannot leave the
+    // segmented row with nothing selected.
 
     // Measurement units: speed, distance and temperature are independently
     // selectable. Metric/Imperial/Custom is a derived label (see Units.unitSystemOf).
     fun setUnitSpeed(v: String) = update { copy(unitSpeed = v) }
+    fun setUnitPressure(v: String) = update { copy(tpms = tpms.copy(pressureUnit = v)) }
     fun setUnitDistance(v: String) = update { copy(unitDistance = v) }
     fun setUnitTemp(v: String) = update { copy(unitTemp = v) }
 
-    /** Sets all three per-unit fields at once from the Metric/Imperial preset. */
+    /**
+     * Sets every per-unit field at once from the Metric/Imperial preset.
+     *
+     * Pressure included. It was left out when it stopped being derived from
+     * distance, so picking Metric moved speed, distance and temperature and
+     * left the tyre reading in psi, which is not what Metric means.
+     */
     fun applyUnitPreset(imperial: Boolean) = update {
         copy(
             unitSpeed = if (imperial) "mph" else "kmh",
             unitDistance = if (imperial) "mi" else "km",
-            unitTemp = if (imperial) "F" else "C"
+            unitTemp = if (imperial) "F" else "C",
+            tpms = tpms.copy(pressureUnit = if (imperial) "psi" else "bar"),
         )
     }
 
@@ -683,6 +957,7 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchStem1Click(action: String) = update { copy(watchStem1Click = action) }
     fun updateWatchStem1Hold(action: String) = update { copy(watchStem1Hold = action) }
     fun updateWatchStem2Click(action: String) = update { copy(watchStem2Click = action) }
+    fun updateWatchStem3Click(action: String) = update { copy(watchStem3Click = action) }
     fun updateWatchStem2Hold(action: String) = update { copy(watchStem2Hold = action) }
     fun updateWatchScreen1Click(action: String) = update { copy(watchScreen1Click = action) }
     fun updateWatchScreen1Hold(action: String) = update { copy(watchScreen1Hold = action) }
@@ -705,6 +980,14 @@ class SettingsViewModel @Inject constructor(
         update { copy(settingsLayout = layout) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
+    fun updateWatchMapEnabled(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(enabled = v)) }
+    fun updateWatchMapHeadingUp(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(headingUp = v)) }
+    fun updateWatchKeepScreenOnDuringNavigation(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(keepScreenOnDuringNavigation = v)) }
+    fun updateWatchMapShowTelemetry(v: Boolean) =
+        update { copy(watchMap = watchMap.copy(showTelemetry = v)) }
 
     fun updateKeepAppAlive(v: Boolean) {
         update { copy(keepAppAlive = v) }
@@ -763,7 +1046,7 @@ class SettingsViewModel @Inject constructor(
         copy(hudServerPort = v.coerceIn(1024, 65535))
     }
     fun updateHudIp(v: String) = update { copy(hudIp = v.trim()) }
-    fun updateHudAutoDiscover(v: Boolean) = update { copy(hudAutoDiscover = v) }
+    fun updateHudDiscoveryMode(v: String) = update { copy(hudDiscoveryMode = v) }
 
     // HUD joystick long-press action bindings (UP / DOWN / LEFT / RIGHT). Same
     // ActionCatalog vocabulary as Flic / Volume keys; "NONE" = unbound.
@@ -871,17 +1154,19 @@ class SettingsViewModel @Inject constructor(
      *  one enabled screen so the carousel can't be emptied. */
     fun setHudScreenEnabled(id: String, enabled: Boolean) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val set = parseEnabledSet(current.hudScreensEnabled).toMutableSet()
-            if (enabled) {
-                set.add(id)
-            } else {
-                if (set.size <= 1 && id in set) return@launch // keep one
-                set.remove(id)
-            }
-            settingsRepository.update(
+            settingsRepository.update { current ->
+                val set = parseEnabledSet(current.hudScreensEnabled).toMutableSet()
+                if (enabled) {
+                    set.add(id)
+                } else {
+                    // Keep one. Returning the settings unchanged is the
+                    // in-transaction way to say "no", now that the early
+                    // return would leave the transform half-applied.
+                    if (set.size <= 1 && id in set) return@update current
+                    set.remove(id)
+                }
                 current.copy(hudScreensEnabled = set.joinToString(","))
-            )
+            }
         }
     }
 
@@ -890,20 +1175,41 @@ class SettingsViewModel @Inject constructor(
      *  which is what the Personalize ReorderableColumn renders. */
     fun moveHudScreen(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val order = parseOrder(current.hudScreensOrder).toMutableList()
-            if (fromIndex in order.indices && toIndex in order.indices) {
-                val item = order.removeAt(fromIndex)
-                order.add(toIndex, item)
-                settingsRepository.update(
+            // A single drag settles several times, each landing here. Reading
+            // outside the transaction let two of them start from the same order
+            // and the last to finish decide, so a drag across a few rows could
+            // settle somewhere the rider did not drop it.
+            settingsRepository.update { current ->
+                val order = parseOrder(current.hudScreensOrder).toMutableList()
+                if (fromIndex in order.indices && toIndex in order.indices) {
+                    val item = order.removeAt(fromIndex)
+                    order.add(toIndex, item)
                     current.copy(hudScreensOrder = order.joinToString(","))
-                )
+                } else {
+                    current
+                }
             }
         }
     }
 
     // Navigator
     fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }
+    fun updateWeatherEnabled(v: Boolean) = update { copy(weather = weather.copy(enabled = v)) }
+    fun updateWeatherWindow(v: Int) = update { copy(weather = weather.copy(windowHours = v)) }
+    fun updateWeatherSource(v: String) = update { copy(weather = weather.copy(source = v)) }
+    fun updateWeatherOpenExpanded(v: Boolean) =
+        update { copy(weather = weather.copy(openExpanded = v)) }
+    fun updateWeatherPref(which: String, v: String) = update {
+        copy(weather = when (which) {
+            "hot" -> weather.copy(prefHot = v)
+            "cold" -> weather.copy(prefCold = v)
+            "rain" -> weather.copy(prefRain = v)
+            "snow" -> weather.copy(prefSnow = v)
+            "wind" -> weather.copy(prefWind = v)
+            "golden" -> weather.copy(prefGolden = v)
+            else -> weather.copy(prefNight = v)
+        })
+    }
     fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }
     fun updateNavOffRouteTolerance(v: Int) = update { copy(navOffRouteToleranceM = v.coerceIn(15, 150)) }
     fun updateNavSolveFullPath(v: Boolean) = update { copy(navSolveFullPath = v) }
@@ -1226,6 +1532,8 @@ class SettingsViewModel @Inject constructor(
                     is SyncResult.NoFolder -> CloudEvent.SyncNoFolder
                     is SyncResult.Finished -> CloudEvent.SyncFinished(result.count)
                     is SyncResult.UpToDate -> CloudEvent.SyncUpToDate
+                    is SyncResult.RateLimited ->
+                        CloudEvent.SyncRateLimited(result.done, result.total)
                 }
                 syncManager.consumeSyncResult()
             }
@@ -1253,9 +1561,53 @@ class SettingsViewModel @Inject constructor(
     val hasLocalTrips: StateFlow<Boolean> = tripRepository.tripCount
         .map { it > 0 }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    /**
+     * How many trips are on the phone but not in the backup folder.
+     *
+     * The folder only keeps in step with trips the app puts there itself. A
+     * rider who set the folder up after riding for a while, or who imported a
+     * library, has trips the folder has never seen - and nothing in the app
+     * ever said so, because the sync is silent about what it has not been
+     * asked to do. This is what the hint beside Sync all reports.
+     */
+    private val _tripsMissingFromFolder = MutableStateFlow(0)
+    val tripsMissingFromFolder: StateFlow<Int> = _tripsMissingFromFolder
+
+    /** Recount, cheap enough to run whenever the Backups section is opened. */
+    fun refreshFolderGap() {
+        viewModelScope.launch {
+            val settings = settingsRepository.get()
+            if (settings.syncFolderUri == null) {
+                _tripsMissingFromFolder.value = 0
+                return@launch
+            }
+            val inFolder = withContext(Dispatchers.IO) {
+                syncManager.listFolderTripNames(settings)?.map { it.lowercase() }?.toHashSet()
+            } ?: return@launch
+            val local = tripRepository.allTripFileNames()
+            _tripsMissingFromFolder.value = local.count { it.lowercase() !in inFolder }
+        }
+    }
     fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
     fun cancelActiveSync() = syncManager.cancelActiveSync()
+
+    /** Save one announcement's pills. The first save ends the carry-over from the switches. */
+    fun setVoicePills(periodic: Boolean, pills: List<com.eried.eucplanet.service.VoicePill>) = update {
+        val enc = com.eried.eucplanet.service.VoicePills.encode(pills)
+        copy(voiceReports = if (periodic) voiceReports.copy(periodicPills = enc)
+            else voiceReports.copy(triggerPills = enc))
+    }
+
+    /** Play: the configured announcement over the live values. */
+    fun previewVoiceReport(periodic: Boolean) {
+        viewModelScope.launch {
+            voiceService.previewReport(
+                wheelData.value, settingsRepository.get(), tripRepository.recording.value, periodic,
+            )
+        }
+    }
 
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
@@ -1303,8 +1655,7 @@ class SettingsViewModel @Inject constructor(
     //   5. When the dashboard renderer (DashboardScreen.kt) is wired in
     //      phase 2, also surface the metric there.
     //
-    // To add a new ACTION: see the comment on knownDashboardActions below —
-    // multiple files need touching because Flic / volume keys / WearOS have
+    // To add a new ACTION: see the comment on knownDashboardActions below, // multiple files need touching because Flic / volume keys / WearOS have
     // their own definitions today (see audit comment there).
     //
     // Saved orders are sanitized against the catalog so unknown tokens
@@ -1315,7 +1666,7 @@ class SettingsViewModel @Inject constructor(
     val knownDashboardMetrics = KNOWN_DASHBOARD_METRICS
     /**
      * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a
-     * new action is a single entry in `ActionCatalog.all` — no edit here.
+     * new action is a single entry in `ActionCatalog.all`, no edit here.
      *
      * The dashboard surface accepts every action regardless of
      * [ActionSpec.isEyesFreeSafe]; physical surfaces (Flic / volume key /
@@ -1331,7 +1682,7 @@ class SettingsViewModel @Inject constructor(
      * Per-slot default layout for the action grid's "Restore slot": the shipped
      * default order ([AppSettings.dashboardActionOrder]) leads, then the rest of
      * the catalog. Mirrors how knownDashboardMetrics' first entries ARE the
-     * metric default — knownDashboardActions is raw catalog declaration order,
+     * metric default, knownDashboardActions is raw catalog declaration order,
      * which didn't match the shipped grid, so restoring by catalog index put the
      * wrong action in slots 2/4/5. Restore uses this so slot N gets the action
      * that actually ships there.
@@ -1353,7 +1704,7 @@ class SettingsViewModel @Inject constructor(
             .filter { it.isNotEmpty() && (it == EMPTY_SLOT_KEY || it in known || it in dynamic) }
         // Append known keys that aren't already in the saved order so the pool
         // surfaces new defaults after an app upgrade. Dynamic IDs are NOT
-        // auto-added — they only exist while the rider has them on the grid
+        // auto-added, they only exist while the rider has them on the grid
         // or until they delete the underlying composite/group definition.
         return s + known.filter { it !in s }
     }
@@ -1752,7 +2103,7 @@ class SettingsViewModel @Inject constructor(
      * Demotes an active-grid metric to the pool and spawns a new empty
      * custom tile in the slot it vacated. The rider then taps the new tile
      * to fill in their text / URL / QR. No-op when [metricKey] isn't in the
-     * active portion of the grid — dragging a pool pill back to the pool
+     * active portion of the grid, dragging a pool pill back to the pool
      * shouldn't create custom tiles.
      */
     fun demoteMetricToCustomTile(metricKey: String) {
@@ -1815,7 +2166,7 @@ class SettingsViewModel @Inject constructor(
      * Catalog-model copy: write [key] into grid slot [slotIndex], leaving
      * the pool catalog untouched. Used when the drag source is a pool
      * pill (i.e. `sourceFromGrid = false` on the controller). Whatever
-     * was at [slotIndex] is discarded — for dynamic instances (composite
+     * was at [slotIndex] is discarded, for dynamic instances (composite
      * / custom tile) the definition is deleted too. The displaced static
      * metric is NOT added to the pool because the pool is the always-
      * present catalog of known metrics.
@@ -1861,7 +2212,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Catalog-model copy for actions — symmetric counterpart to
+     * Catalog-model copy for actions, symmetric counterpart to
      * [setDashboardMetricAtIndex]. Deletes the displaced action group's
      * definition if any.
      */
@@ -1913,7 +2264,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val current = settingsRepository.get()
             // Pass composite + custom-tile IDs as `dynamic` so sanitize keeps
-            // them in the order list — otherwise a stack or custom-link tile
+            // them in the order list, otherwise a stack or custom-link tile
             // dragged between slots would silently vanish from the persisted
             // layout.
             val items = sanitize(
@@ -1996,8 +2347,7 @@ class SettingsViewModel @Inject constructor(
             val needsReorder = currentOccupant != naturalKey
 
             if (needsReorder && occupantIsDynamic) {
-                // Dynamic occupant (composite / custom tile) gets deleted —
-                // the rider's "restore this slot" intent doesn't preserve
+                // Dynamic occupant (composite / custom tile) gets deleted, // the rider's "restore this slot" intent doesn't preserve
                 // dynamic instances. Remove it from the order, then move
                 // the natural metric into slotIndex (closing any gap).
                 items.removeAt(slotIndex)
@@ -2005,7 +2355,7 @@ class SettingsViewModel @Inject constructor(
                 if (naturalIdx >= 0) items.removeAt(naturalIdx)
                 items.add(slotIndex.coerceAtMost(items.size), naturalKey)
             } else if (needsReorder) {
-                // Static occupant — swap with the natural metric's current
+                // Static occupant, swap with the natural metric's current
                 // position so neither static metric is lost.
                 val naturalIdx = items.indexOf(naturalKey)
                 if (naturalIdx >= 0) {
@@ -2067,7 +2417,7 @@ class SettingsViewModel @Inject constructor(
 
     /**
      * Restore the action slot at [slotIndex] to `knownDashboardActions[slotIndex]`
-     * — symmetric counterpart to [resetDashboardMetricAtIndex]. Cleans up any
+     *, symmetric counterpart to [resetDashboardMetricAtIndex]. Cleans up any
      * action-group definitions pushed past the active region.
      */
     fun resetDashboardActionAtIndex(slotIndex: Int) {
@@ -2219,7 +2569,7 @@ class SettingsViewModel @Inject constructor(
             dashboardMetricsColumns = 2,
             dashboardMetricOrder = knownDashboardMetrics.joinToString(","),
             dashboardRollingWindowSeconds = ROLLING_WINDOW_DEFAULT_SECONDS,
-            // Wipe composite + custom-tile definitions too — the rider's
+            // Wipe composite + custom-tile definitions too, the rider's
             // reset action is a "back to defaults" signal, which includes
             // any custom stacks and personal-link tiles they had.
             dashboardCompositeMetrics = "{}",
@@ -2249,7 +2599,7 @@ class SettingsViewModel @Inject constructor(
      *  and fall back to a short "couldn't load" line when the card is still null. */
     val onlineUploadCardLoaded: StateFlow<Boolean> = eucStatsRepository.cardLoaded
 
-    /** True when the backend says this rider no longer exists (404) — the UI then
+    /** True when the backend says this rider no longer exists (404), the UI then
      *  offers to re-register instead of a generic "couldn't load". */
     val onlineUploadCardMissing: StateFlow<Boolean> = eucStatsRepository.cardMissing
 
@@ -2276,7 +2626,7 @@ class SettingsViewModel @Inject constructor(
 
     /**
      * Enable online upload. Silently skipped when a sync folder or store_id is
-     * absent — the UI routes the rider through onboarding first. (Disabling is
+     * absent, the UI routes the rider through onboarding first. (Disabling is
      * done by [unlinkOnline].)
      */
     fun enableOnlineUpload() {
@@ -2328,7 +2678,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** Manual "Sync all" — runs the foreground bidirectional reconcile
+    /** Manual "Sync all", runs the foreground bidirectional reconcile
      *  with the same conflict dialog the SAF folder sync uses. Distinct
      *  from the background DropboxSyncWorker that fires on trip-end /
      *  settings-save; that one is upload-only and skips the prompt. */
@@ -2416,11 +2766,15 @@ class SettingsViewModel @Inject constructor(
             _eucstatsSyncProgress.value = null
             _eucstatsSyncRunning.value = false
             _cloudEvent.value = when {
-                result.total == 0 -> CloudEvent.EucstatsNothingToSync
-                result.allFailed -> CloudEvent.EucstatsSyncFailed
-                else -> CloudEvent.EucstatsSyncFinished(result.uploaded)
+                // `cleared` counts held trips whose verdict moved, usually because a
+                // moderator approved them. Those are not uploads, but they are real work
+                // the rider can see, so a sync that only cleared verdicts must not report
+                // "nothing to sync".
+                result.total == 0 && result.cleared == 0 -> CloudEvent.EucstatsNothingToSync
+                result.allFailed && result.cleared == 0 -> CloudEvent.EucstatsSyncFailed
+                else -> CloudEvent.EucstatsSyncFinished(result.uploaded + result.cleared)
             }
-            if (result.uploaded > 0) refreshOnlineUploadCard()
+            if (result.uploaded > 0 || result.cleared > 0) refreshOnlineUploadCard()
         }
     }
 
@@ -2494,7 +2848,7 @@ const val ROLLING_WINDOW_DEFAULT_SECONDS: Int = 300
  * those values stack inside a single grid tile.
  */
 enum class CompositeLayout(val cellCount: Int) {
-    /** Two cells stacked top/bottom — best for long values with units. */
+    /** Two cells stacked top/bottom, best for long values with units. */
     ROW2(2),
     /** Two cells side-by-side. */
     COL2(2),
@@ -2505,14 +2859,14 @@ enum class CompositeLayout(val cellCount: Int) {
 /**
  * Definition of a single composite metric instance. Stored in
  * [AppSettings.dashboardCompositeMetrics] as `{ id: { layout, cells } }`.
- * Sub-metric stats (min/max/avg) are intentionally NOT supported here — a
+ * Sub-metric stats (min/max/avg) are intentionally NOT supported here, a
  * composite always shows current values for each sub-metric.
  */
 data class MetricComposite(
     val layout: CompositeLayout = CompositeLayout.ROW2,
     val cells: List<String> = listOf("SPEED", "BATTERY"),
     /**
-     * Per-cell stat selector — what each cell displays. Parallel to
+     * Per-cell stat selector, what each cell displays. Parallel to
      * [cells]. Defaults to [DashboardStat.CURRENT] (live value) so
      * existing composites and freshly-spawned ones look the same as
      * before. The rider can change it per cell in the composite edit
@@ -2556,8 +2910,7 @@ const val CUSTOM_TILE_DEFAULT_ICON = "INFO"
  * [AppSettings.dashboardActionGroups] as `{ id: { name, icon, actions } }`.
  * Up to 4 sub-actions; the rider can intentionally duplicate an action
  * (e.g. two `RECORD_TOGGLE` entries if they want it twice in the popover).
- * [icon] is a stable key from a curated set rendered by `groupIconFor` —
- * not a raw image vector, so the storage stays JSON-stable across icon-set
+ * [icon] is a stable key from a curated set rendered by `groupIconFor`, * not a raw image vector, so the storage stays JSON-stable across icon-set
  * upgrades.
  */
 data class ActionGroup(
@@ -2572,8 +2925,7 @@ const val GROUP_DEFAULT_ICON = "FOLDER"
 
 /** Curated icon keys the rider can pick from in the group edit sheet and
  *  the custom-tile edit sheet. The list lives here (not in the screen) so
- *  the icon picker and the tile renderer share a single source of truth —
- *  adding a new entry shows up everywhere automatically. */
+ *  the icon picker and the tile renderer share a single source of truth, *  adding a new entry shows up everywhere automatically. */
 val GROUP_ICON_CHOICES: List<String> = listOf(
     "FOLDER", "STAR", "BOLT", "FAVORITE", "DASHBOARD",
     "EXTENSION", "TUNE", "WIDGETS", "APPS", "BUILD",
@@ -2635,7 +2987,7 @@ const val PICKER_DIVIDER_SENTINEL = "__DIVIDER__"
 /**
  * Sentinel key for an intentionally-blank top-level grid slot. Different from
  * COMPOSITE_CELL_EMPTY (which is the sub-cell placeholder inside a MULTI tile)
- * — this one occupies a row in dashboardMetricOrder / dashboardActionOrder
+ *, this one occupies a row in dashboardMetricOrder / dashboardActionOrder
  * so positions are preserved when the rider drags a tile out of a slot with
  * "move + leave source empty" semantics. Renderers map this key to a blank
  * Box; the pool catalog is the source-of-truth for re-adding the metric.
@@ -2663,7 +3015,7 @@ fun textCellContent(key: String): String = when {
 fun wrapAsTextCell(content: String): String = COMPOSITE_TEXT_PREFIX + content
 
 // Stats are listed in dropdown order. SUSTAINED_PEAK sits next to MAX because
-// it's a softer "Peak ignoring spikes shorter than 2s" companion — the same
+// it's a softer "Peak ignoring spikes shorter than 2s" companion, the same
 // reading Inmotion shows as "Sustained peak". Percentiles ascend so the
 // picker reads: None / Now / Min / Max / Sustained peak / Avg / Median (P50)
 // / P75 / P95 / P99.
@@ -2718,6 +3070,10 @@ sealed interface CloudEvent {
     data class SyncFinished(val count: Int) : CloudEvent
     /** A sync ran but nothing needed transferring (everything already backed up). */
     data object SyncUpToDate : CloudEvent
+
+    /** Dropbox asked the account to slow down and kept asking, so the sync
+     *  stopped partway. The rest is queued for the retry worker. */
+    data class SyncRateLimited(val done: Int, val total: Int) : CloudEvent
     data object EucstatsNothingToSync : CloudEvent
     data class EucstatsSyncFinished(val count: Int) : CloudEvent
     /** A sync ran with trips to upload but every attempt failed (network down,

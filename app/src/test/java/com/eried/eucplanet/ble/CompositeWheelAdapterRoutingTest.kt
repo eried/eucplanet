@@ -20,14 +20,21 @@ class CompositeWheelAdapterRoutingTest {
         WheelFamily.INMOTION_V1 to listOf(
             "V5-x", "V8", "V10F", "L6-22", "Lively1", "Glide3", "Solowheel-X",
             "IM8123", "inmotion-v8", "inmotion-v10f",
-            // Pre-V11 V-series numbers we didn't explicitly list before. The
-            // real-world regression: a V6 wheel (BLE `V6-800679D7`) routed to
-            // the V2 default and showed no stats.
-            "V6-800679D7", "V7-1", "V9-x", "inmotion-v6",
+            // Pre-V11 V-series numbers we didn't explicitly list before,
+            // EXCEPT 6: that number was reused by the 2026 V6, which speaks
+            // the V2 family's extended dialect, so v6 names route to V2 now
+            // (see below). An elderly V6-named wheel that really is V1
+            // hardware has no Nordic UART service and the post-connect
+            // service rescue re-routes it to this family.
+            "V7-1", "V9-x",
         ),
         WheelFamily.INMOTION_V2 to listOf(
             // V11+ share the V<digits> shape but are V2; plus the explicit V2 names.
             "V11-ABC", "V12HS-1", "V13Pro-9", "V14-1", "InMotionV12", "Adventure-1234", "P6-5678",
+            // The 2026 V6 (its disconnect loop was exactly this mis-route
+            // plus the missing dialect): decided by the name, refined by the
+            // service rescue for old hardware.
+            "V6-700326F3", "inmotion-v6",
         ),
         WheelFamily.KINGSONG to listOf(
             "KS-S22", "KS S18", "KingSong18XL", "S22-001", "S20", "S18-x", "F18P", "F22P",

@@ -28,6 +28,32 @@ text. Use a comma, a parenthetical, " - ", or a second sentence. Keep
 user-facing copy short: state what the setting affects, then the danger of a bad
 value, in as few words as read cleanly.
 
+### Terminal punctuation and paths
+
+A descriptive string that is a sentence explaining something ends with a full
+stop. Japanese and Chinese take their own full-width stop, not a Latin dot.
+These are exempt, and the exemption is by name in
+`HelperCopyPunctuationTest.exempt` so the reasoning stays readable:
+
+- text-field placeholders and terse field hints ("4 to 8 digits")
+- lists of values ("Garmin: Start / Amazfit: Select")
+- anything ending in a URL, a format argument or markup, where a stop would
+  read as part of the address or the value
+- widget-surface strings, where the character is not worth the space
+
+The rule follows the string's job, not its key, but the key is how the guard
+finds it: `_desc`, `_description`, `_help`, `_hint`, `_subtitle`, `_body`,
+`_explain`, `_note` and `_caption` are helper copy. A `_title` is a heading and
+a `_toast` / `_failed` / `_error` is a transient message; neither is a sentence
+of explanation, so neither takes a stop.
+
+A navigation path uses an arrow, not an angle quote: "Settings -> Voice and
+announcements", "Apps -> EUC Planet". Display copy names a site bare
+(`eucstats.ried.no`); a full `https://` URL belongs only in a string that is
+handed to an intent, and that string is `translatable="false"`.
+
+`HelperCopyPunctuationTest` enforces the stop across all 23 languages.
+
 ## 3. Modern toast only
 
 Every transient, user-facing message is a Material 3 Snackbar. From Compose use
@@ -68,11 +94,27 @@ Full detail lives in the theming section of `CLAUDE.md`.
 
 ## 7. Read settings through SettingsRepository
 
-Read settings only via `SettingsRepository.get()` or its `settings` Flow. Both
-pass through `sanitized()`, which clamps every Advanced knob to its spec range, so
-a 0, negative, or absurd value (including one from an imported or synced file)
-can never busy-loop a `delay()`, divide by zero, or starve a loop. Every numeric
+Read settings only through `SettingsRepository`. Every path passes through
+`sanitized()`, which clamps every Advanced knob to its spec range, so a 0,
+negative, or absurd value (including one from an imported or synced file) can
+never busy-loop a `delay()`, divide by zero, or starve a loop. Every numeric
 global must therefore have a spec range. Do not read `SettingsStore` directly.
+
+Pick the read by how often it runs:
+
+| Where | Use | Why |
+| --- | --- | --- |
+| UI, one-shot actions, anything that just wrote | `get()` | Reads the store itself, so it always sees a write that has returned. |
+| Per frame or per tick (telemetry collector, alarm evaluators, watch, HUD and Garmin publish loops) | `currentOrLoad()` | A field read after the first load. `get()` re-parses the whole JSON blob, which those loops did about 35 times a second between them. |
+| Reacting to changes | `settings` Flow, or `current` (a `StateFlow`) | Emits after every write. |
+
+`current` mirrors the `settings` Flow, which re-emits after every write, so it
+is never invalidated by hand and cannot go stale while the app runs. The one
+difference from `get()` is timing: the new value arrives a moment after
+`update()` returns, so code that writes and immediately reads back uses `get()`.
+Before the store has been read once, `current` holds the defaults, which is why
+the loops call `currentOrLoad()`: it waits for that first read, then never
+suspends again.
 
 ## 8. Keep AppSettings under the 255-arg limit
 
@@ -130,3 +172,50 @@ failed build can look like it passed.
 Rules and repo-wide docs (`CLAUDE.md`, this file) land on every long-lived branch:
 `main`, `next-version`, and `next-experimental`. New features are developed on
 `next-experimental` first.
+
+## 16. Merging a PR: account for every deleted line, then run every surface
+
+The watch-map PR (#25) replaced the line `flicManager.initialize()` in
+`EucPlanetApp.onCreate` with `MapTileCache.start(...)`. It compiled, every test
+passed, and Flic buttons were dead: no scan, no forget, no presses, and not one
+log line, because every Flic call sits behind a `?: return` on a manager that
+was never created. The review read the diff as an addition.
+
+Before merging anything from outside:
+
+- Take the diff and list every non-comment line it deletes, per file. For each
+  one write down where it moved or why it should go. A refactor moves hundreds
+  of lines and is fine; one lost line in a file the feature does not own is
+  the thing to find. `git diff base..head | grep '^-'` is the starting point.
+- Run every surface the PR could touch, live, not just the compile: phone on
+  the emulator, watch on the paired Wear emulator, HUD on its emulator. Open
+  the screens the PR changed and look at them.
+- The suite guards the wiring: `AppStartupTest` pins the start list in
+  `EucPlanetApp.onCreate`, and `LifecycleWiringTest` fails when any
+  `@Singleton` with a `start()` or `initialize()` is called by nobody. A new
+  process-wide subsystem gets its call in `onCreate` and its line in the first
+  test. Both tests strip comments first, so commenting a call out is the same
+  as deleting it.
+
+## 17. Update BRANCH.md on every push to a branch other than main
+
+`BRANCH.md` is the text of the branch's rolling pre-release, the one place a
+tester learns what changed and what we need from them. It went stale for
+weeks: it kept asking about features long confirmed and never mentioned the
+ones that had just landed.
+
+On every push to `next-experimental`, `next-version` or a feature branch:
+
+- **Worked on:** one line per thing this branch has that the branch below it
+  (next-version, then main) does not. Say what a rider will notice, not the
+  code.
+- **Please test:** grouped by who can check it (a wheel model, or "Any
+  wheel"). One line each: what to do and what we cannot check ourselves.
+- Add lines for what you push, drop lines that are answered or that moved to
+  the next branch down. Short words, no prose, no em-dashes.
+
+The intro paragraph and Reporting back stay as they are. A Claude Code hook
+(`.claude/hooks/branchmd_guard.py`, wired in `.claude/settings.json`) blocks a
+`git push` whose commits do not touch `BRANCH.md`. A push with nothing for
+testers (docs or CI only) adds `BRANCHMD_OK` to the command, for example as a
+trailing `# BRANCHMD_OK` comment.
