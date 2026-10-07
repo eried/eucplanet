@@ -2739,6 +2739,7 @@
     <string name="crews_foreign_title">Цей код не від eucstats</string>
     <string name="crews_foreign_body">Він веде на %1$s, а туди твої поїздки не йдуть. Сказати так означає віддати акаунт тому, хто це тримає.\n\nСвій сервер? Спершу увімкни режим розробника в Налаштуваннях.</string>
     <string name="crews_scan_other">Сканувати інший код</string>
+    <string name="crews_scan_switch">QR-сканер</string>
     <string name="crews_close">Закрити</string>
     <string name="crews_opensettings">Відкрити EUC Planet</string>
     <string name="crews_dev_title">Режим розробника</string>

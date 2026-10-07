@@ -2762,6 +2762,7 @@
     <string name="crews_foreign_title">Dieser Code kommt nicht von eucstats</string>
     <string name="crews_foreign_body">Er zeigt auf %1$s, und dorthin gehen deine Fahrten nicht. Ja zu sagen gibt dein Konto dem, der das betreibt.\n\nEigener Server? Schalte erst den Entwicklermodus in den Einstellungen ein.</string>
     <string name="crews_scan_other">Anderen Code scannen</string>
+    <string name="crews_scan_switch">QR-Scanner</string>
     <string name="crews_close">Schließen</string>
     <string name="crews_opensettings">EUC Planet öffnen</string>
     <string name="crews_dev_title">Entwicklermodus</string>

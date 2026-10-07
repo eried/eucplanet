@@ -2630,6 +2630,7 @@
     <string name="crews_foreign_title">Den koden er ikke fra eucstats</string>
     <string name="crews_foreign_body">Den peker på %1$s, og det er ikke dit turene dine går. Sier du ja, gir du kontoen din til den som driver det.\n\nKjører du din egen server? Slå på utviklermodus i Innstillinger først.</string>
     <string name="crews_scan_other">Skann en annen kode</string>
+    <string name="crews_scan_switch">QR-skanner</string>
     <string name="crews_close">Lukk</string>
     <string name="crews_opensettings">Åpne EUC Planet</string>
     <string name="crews_dev_title">Utviklermodus</string>

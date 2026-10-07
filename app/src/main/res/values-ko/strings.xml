@@ -2741,6 +2741,7 @@
     <string name="crews_foreign_title">이 코드는 eucstats 것이 아니다</string>
     <string name="crews_foreign_body">%1$s를 가리킨다. 네 주행이 가는 곳이 아니다. 여기서 승인하면 그걸 돌리는 사람에게 계정을 넘기는 셈이다.\n\n직접 서버를 돌리나? 설정에서 개발자 모드부터 켜라.</string>
     <string name="crews_scan_other">다른 코드 스캔</string>
+    <string name="crews_scan_switch">QR 스캐너</string>
     <string name="crews_close">닫기</string>
     <string name="crews_opensettings">EUC Planet 열기</string>
     <string name="crews_dev_title">개발자 모드</string>

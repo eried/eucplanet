@@ -2545,6 +2545,7 @@
     <string name="crews_foreign_title">Tenhle kód není z eucstats</string>
     <string name="crews_foreign_body">Ukazuje na %1$s, a tam tvoje jízdy nejdou. Říct ano znamená dát účet tomu, kdo to provozuje.\n\nMáš vlastní server? Nejdřív zapni vývojářský režim v Nastavení.</string>
     <string name="crews_scan_other">Naskenovat jiný kód</string>
+    <string name="crews_scan_switch">QR skener</string>
     <string name="crews_close">Zavřít</string>
     <string name="crews_opensettings">Otevřít EUC Planet</string>
     <string name="crews_dev_title">Vývojářský režim</string>

@@ -2739,6 +2739,7 @@
     <string name="crews_foreign_title">Bu kod eucstats\'ten değil</string>
     <string name="crews_foreign_body">%1$s adresini gösteriyor, turların oraya gitmiyor. Evet demek, hesabını orayı işleten kim ise ona vermek demek.\n\nKendi sunucun mu var? Önce Ayarlar\'dan geliştirici modunu aç.</string>
     <string name="crews_scan_other">Başka kod tara</string>
+    <string name="crews_scan_switch">QR tarayıcı</string>
     <string name="crews_close">Kapat</string>
     <string name="crews_opensettings">EUC Planet\'i aç</string>
     <string name="crews_dev_title">Geliştirici modu</string>

@@ -2744,6 +2744,7 @@
     <string name="crews_foreign_title">Die code komt niet van eucstats</string>
     <string name="crews_foreign_body">Hij wijst naar %1$s, en daar gaan je ritten niet heen. Ja zeggen geeft je account aan wie dat ook draait.\n\nDraai je je eigen server? Zet eerst ontwikkelaarsmodus aan in Instellingen.</string>
     <string name="crews_scan_other">Scan een andere code</string>
+    <string name="crews_scan_switch">QR-scanner</string>
     <string name="crews_close">Sluiten</string>
     <string name="crews_opensettings">EUC Planet openen</string>
     <string name="crews_dev_title">Ontwikkelaarsmodus</string>

@@ -2545,6 +2545,7 @@
     <string name="crews_foreign_title">Codul ăsta nu e de la eucstats</string>
     <string name="crews_foreign_body">Arată spre %1$s, și turele tale nu ajung acolo. Dacă spui da, îți dai contul celui care îl ține.\n\nAi server propriu? Pornește întâi modul dezvoltator din Setări.</string>
     <string name="crews_scan_other">Scanează alt cod</string>
+    <string name="crews_scan_switch">Scaner QR</string>
     <string name="crews_close">Închide</string>
     <string name="crews_opensettings">Deschide EUC Planet</string>
     <string name="crews_dev_title">Mod dezvoltator</string>

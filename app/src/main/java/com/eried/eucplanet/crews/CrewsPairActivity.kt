@@ -270,7 +270,7 @@ fun CrewsPairScreen(
                             Modifier.weight(1f),
                         ) { submitTyped() }
                         Secondary(
-                            stringResource(R.string.crews_scan_other),
+                            stringResource(R.string.crews_scan_switch),
                             Modifier.weight(1f),
                         ) { typing = false; typed = ""; typedBad = false }
                     }
@@ -301,13 +301,18 @@ fun CrewsPairScreen(
                     )
                     Spacer(Modifier.height(14.dp))
                 }
+                // The card's body aligns its children to the start, so the code sat against
+                // the left edge under a centred header. It is the one thing on this screen the
+                // rider is checking against the browser, so it goes in the middle.
                 Text(
                     s.link.code,
                     fontFamily = FontFamily.Monospace,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 8.sp,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.appColors.textPrimary,
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(12.dp))
                 if (s.offer == null) {

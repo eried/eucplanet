@@ -2739,6 +2739,7 @@
     <string name="crews_foreign_title">Ese código no es de eucstats</string>
     <string name="crews_foreign_body">Apunta a %1$s, y ahí no van tus rutas. Decir que sí es entregarle tu cuenta a quien lo lleve.\n\n¿Tienes tu propio servidor? Activa antes el modo desarrollador en Ajustes.</string>
     <string name="crews_scan_other">Escanear otro código</string>
+    <string name="crews_scan_switch">Escáner QR</string>
     <string name="crews_close">Cerrar</string>
     <string name="crews_opensettings">Abrir EUC Planet</string>
     <string name="crews_dev_title">Modo desarrollador</string>

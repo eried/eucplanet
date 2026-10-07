@@ -2744,6 +2744,7 @@
     <string name="crews_foreign_title">Esse código não é do eucstats</string>
     <string name="crews_foreign_body">Ele aponta pra %1$s, e não é pra lá que vão os teus rolês. Dizer sim é entregar tua conta pra quem cuida disso.\n\nTem servidor próprio? Liga o modo desenvolvedor nas Configurações antes.</string>
     <string name="crews_scan_other">Escanear outro código</string>
+    <string name="crews_scan_switch">Leitor de QR</string>
     <string name="crews_close">Fechar</string>
     <string name="crews_opensettings">Abrir EUC Planet</string>
     <string name="crews_dev_title">Modo desenvolvedor</string>

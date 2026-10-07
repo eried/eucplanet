@@ -2746,6 +2746,7 @@
     <string name="crews_foreign_title">Ce code ne vient pas d\'eucstats</string>
     <string name="crews_foreign_body">Il pointe vers %1$s, et ce n\'est pas là que vont tes sorties. Dire oui, c\'est donner ton compte à celui qui gère ça.\n\nTu as ton propre serveur ? Active d\'abord le mode développeur dans les Réglages.</string>
     <string name="crews_scan_other">Scanner un autre code</string>
+    <string name="crews_scan_switch">Scanner QR</string>
     <string name="crews_close">Fermer</string>
     <string name="crews_opensettings">Ouvrir EUC Planet</string>
     <string name="crews_dev_title">Mode développeur</string>

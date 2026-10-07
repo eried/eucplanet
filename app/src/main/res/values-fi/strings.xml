@@ -2545,6 +2545,7 @@
     <string name="crews_foreign_title">Tuo koodi ei ole eucstatsista</string>
     <string name="crews_foreign_body">Se osoittaa osoitteeseen %1$s, eivätkä ajosi mene sinne. Jos sanot kyllä, annat tilisi sen pyörittäjälle.\n\nPyöritätkö omaa palvelinta? Laita ensin kehittäjätila päälle Asetuksista.</string>
     <string name="crews_scan_other">Skannaa toinen koodi</string>
+    <string name="crews_scan_switch">QR-skanneri</string>
     <string name="crews_close">Sulje</string>
     <string name="crews_opensettings">Avaa EUC Planet</string>
     <string name="crews_dev_title">Kehittäjätila</string>

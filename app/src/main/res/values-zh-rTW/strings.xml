@@ -2741,6 +2741,7 @@
     <string name="crews_foreign_title">這個碼不是 eucstats 的</string>
     <string name="crews_foreign_body">它指向 %1$s，你的騎行並不去那裡。點同意等於把帳號交給開這個站的人。\n\n自己架了伺服器？先去設定裡打開開發者模式。</string>
     <string name="crews_scan_other">掃別的碼</string>
+    <string name="crews_scan_switch">QR 掃描器</string>
     <string name="crews_close">關閉</string>
     <string name="crews_opensettings">打開 EUC Planet</string>
     <string name="crews_dev_title">開發者模式</string>

@@ -2770,6 +2770,7 @@
     <string name="crews_foreign_title">This code isn\'t from eucstats</string>
     <string name="crews_foreign_body">It points at %1$s, which isn\'t where your rides go. Saying yes would hand your account to whoever runs it.\n\nRunning your own server? Turn on developer mode in Settings first.</string>
     <string name="crews_scan_other">Scan a different code</string>
+    <string name="crews_scan_switch">QR scanner</string>
     <string name="crews_close">Close</string>
     <string name="crews_opensettings">Open EUC Planet</string>
     <string name="crews_dev_title">Developer mode</string>

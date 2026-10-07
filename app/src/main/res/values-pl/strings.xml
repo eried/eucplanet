@@ -2742,6 +2742,7 @@
     <string name="crews_foreign_title">Ten kod nie jest z eucstats</string>
     <string name="crews_foreign_body">Wskazuje na %1$s, a tam twoje przejazdy nie trafiają. Zgoda to oddanie konta temu, kto to prowadzi.\n\nMasz własny serwer? Najpierw włącz tryb dewelopera w Ustawieniach.</string>
     <string name="crews_scan_other">Zeskanuj inny kod</string>
+    <string name="crews_scan_switch">Skaner QR</string>
     <string name="crews_close">Zamknij</string>
     <string name="crews_opensettings">Otwórz EUC Planet</string>
     <string name="crews_dev_title">Tryb dewelopera</string>

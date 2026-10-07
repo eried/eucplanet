@@ -2647,6 +2647,7 @@
     <string name="crews_foreign_title">Quel codice non viene da eucstats</string>
     <string name="crews_foreign_body">Punta a %1$s, e lì i tuoi giri non ci vanno. Dire di sì vuol dire dare il tuo account a chi lo gestisce.\n\nHai un server tuo? Attiva prima la modalità sviluppatore nelle Impostazioni.</string>
     <string name="crews_scan_other">Scansiona un altro codice</string>
+    <string name="crews_scan_switch">Scanner QR</string>
     <string name="crews_close">Chiudi</string>
     <string name="crews_opensettings">Apri EUC Planet</string>
     <string name="crews_dev_title">Modalità sviluppatore</string>

@@ -2742,6 +2742,7 @@
     <string name="crews_foreign_title">Den koden är inte från eucstats</string>
     <string name="crews_foreign_body">Den pekar på %1$s, och dit går inte dina turer. Säger du ja lämnar du över kontot till den som driver det.\n\nKör du en egen server? Slå på utvecklarläge i Inställningar först.</string>
     <string name="crews_scan_other">Skanna en annan kod</string>
+    <string name="crews_scan_switch">QR-skanner</string>
     <string name="crews_close">Stäng</string>
     <string name="crews_opensettings">Öppna EUC Planet</string>
     <string name="crews_dev_title">Utvecklarläge</string>

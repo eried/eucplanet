@@ -2545,6 +2545,7 @@
     <string name="crews_foreign_title">Ez a kód nem az eucstatsról jött</string>
     <string name="crews_foreign_body">A %1$s címre mutat, és nem oda mennek a túráid. Ha igent mondasz, odaadod a fiókodat annak, aki üzemelteti.\n\nSaját szervered van? Előbb kapcsold be a fejlesztői módot a Beállításokban.</string>
     <string name="crews_scan_other">Másik kód beolvasása</string>
+    <string name="crews_scan_switch">QR-olvasó</string>
     <string name="crews_close">Bezárás</string>
     <string name="crews_opensettings">EUC Planet megnyitása</string>
     <string name="crews_dev_title">Fejlesztői mód</string>

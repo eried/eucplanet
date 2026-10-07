@@ -2743,6 +2743,7 @@
     <string name="crews_foreign_title">このコードは eucstats のものじゃない</string>
     <string name="crews_foreign_body">%1$s を指している。走行データの行き先はそこじゃない。ここで許すと、そこを動かしている誰かにアカウントを渡すことになる。\n\n自分のサーバーを立てている？まず設定で開発者モードをオンに。</string>
     <string name="crews_scan_other">別のコードを読む</string>
+    <string name="crews_scan_switch">QRスキャナー</string>
     <string name="crews_close">閉じる</string>
     <string name="crews_opensettings">EUC Planet を開く</string>
     <string name="crews_dev_title">開発者モード</string>
