@@ -2773,4 +2773,5 @@
     <string name="crews_tryagain">Prøv igen</string>
     <string name="crews_done">Færdig</string>
     <string name="crews_expired">Den kode er blevet gammel. Hent en frisk i browseren.</string>
+    <string name="voice_pill_search">Søg</string>
 </resources>

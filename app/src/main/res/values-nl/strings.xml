@@ -2760,4 +2760,5 @@
     <string name="crews_tryagain">Opnieuw proberen</string>
     <string name="crews_done">Klaar</string>
     <string name="crews_expired">Die code is oud geworden. Haal een verse uit de browser.</string>
+    <string name="voice_pill_search">Zoeken</string>
 </resources>

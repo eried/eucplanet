@@ -2757,4 +2757,5 @@
     <string name="crews_tryagain">다시 시도</string>
     <string name="crews_done">완료</string>
     <string name="crews_expired">그 코드는 뭵었다. 브라우저에서 새로 받아라.</string>
+    <string name="voice_pill_search">검색</string>
 </resources>

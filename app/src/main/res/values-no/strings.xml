@@ -2646,4 +2646,5 @@
     <string name="crews_tryagain">Prøv igjen</string>
     <string name="crews_done">Ferdig</string>
     <string name="crews_expired">Den koden er blitt gammel. Hent en fersk i nettleseren.</string>
+    <string name="voice_pill_search">Søk</string>
 </resources>

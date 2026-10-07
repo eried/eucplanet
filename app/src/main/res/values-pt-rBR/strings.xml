@@ -2760,4 +2760,5 @@
     <string name="crews_tryagain">Tentar de novo</string>
     <string name="crews_done">Pronto</string>
     <string name="crews_expired">Esse código envelheceu. Pega um novo no navegador.</string>
+    <string name="voice_pill_search">Pesquisar</string>
 </resources>

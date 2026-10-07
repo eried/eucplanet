@@ -679,6 +679,37 @@ class VoiceService @Inject constructor(
     }
 
     /**
+     * "Phase amps, 42 A" for a catalog metric with no report of its own: the
+     * value a spoken question reads, in the tile's units. Null, and so left
+     * out, when the wheel has sent nothing for it (a wheel with no tyre
+     * sensor, a temperature slot it does not fill).
+     */
+    private fun catalogSentence(key: String, data: WheelData, settings: AppSettings, vctx: Context): String? {
+        val read = com.eried.eucplanet.voice.EXTRACTORS[key]
+            ?: { w: WheelData -> com.eried.eucplanet.data.model.MetricRegistry.read(key, w) }
+        val raw = read(data)?.takeIf { !it.isNaN() } ?: return null
+        val spec = com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key } ?: return null
+        val name = vctx.getString(spec.spokenLabelRes ?: spec.labelRes)
+        return "$name, ${formatCatalogValue(key, raw, settings, vctx)}"
+    }
+
+    private fun formatCatalogValue(key: String, raw: Float, settings: AppSettings, vctx: Context): String =
+        com.eried.eucplanet.data.model.MetricValueFormat.format(
+            key = key,
+            raw = raw,
+            speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings),
+            speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
+                vctx, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+            ),
+            tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+            tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(
+                com.eried.eucplanet.util.Units.effectiveTempUnit(settings)
+            ),
+            distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
+            pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+        )
+
+    /**
      * "Max speed, 42 km/h": a statistic over the stats window, from the same
      * history and the same arithmetic as the dashboard tiles and a spoken
      * question, in the phrasing a spoken question already uses.
@@ -715,20 +746,7 @@ class VoiceService @Inject constructor(
             com.eried.eucplanet.ui.settings.computeDashboardStatValue(dashStat, it, Float.NaN)
         }?.takeIf { !it.isNaN() }
             ?: return if (preview) vctx.getString(R.string.voice_answer_nodata, "$word $name") else null
-        val value = com.eried.eucplanet.data.model.MetricValueFormat.format(
-            key = key,
-            raw = raw,
-            speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings),
-            speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
-                vctx, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
-            ),
-            tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
-            tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(
-                com.eried.eucplanet.util.Units.effectiveTempUnit(settings)
-            ),
-            distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
-            pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
-        )
+        val value = formatCatalogValue(key, raw, settings, vctx)
         return vctx.getString(R.string.voice_stat_answer, word, name, value)
     }
 
@@ -804,6 +822,11 @@ class VoiceService @Inject constructor(
             }
             if (pill.stat != VoicePill.Stat.NOW) {
                 statSentence(pill, settings, vctx, preview)?.let { parts.add(it) }
+                continue
+            }
+            if (pill.item.startsWith(VoiceReportPlan.CATALOG_PREFIX)) {
+                catalogSentence(pill.item.removePrefix(VoiceReportPlan.CATALOG_PREFIX), data, settings, vctx)
+                    ?.let { parts.add(it) }
                 continue
             }
             val item = pill.item

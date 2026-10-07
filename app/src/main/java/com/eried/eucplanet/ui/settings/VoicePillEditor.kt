@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -90,31 +94,10 @@ internal fun VoicePillList(
             Spacer(Modifier.width(4.dp))
             PlayButton(onClick = onPlay, enabled = items.isNotEmpty())
             Spacer(Modifier.weight(1f))
-            Box {
-                TextButton(onClick = { addOpen = true }) {
-                    Icon(Icons.Default.Add, contentDescription = null, tint = MaterialTheme.appColors.primary)
-                    Spacer(Modifier.width(4.dp))
-                    Text(stringResource(R.string.voice_pill_add), color = MaterialTheme.appColors.primary)
-                }
-                DropdownMenu(
-                    expanded = addOpen,
-                    onDismissRequest = { addOpen = false },
-                    containerColor = MaterialTheme.appColors.menuBackground,
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.voice_pill_message)) },
-                        onClick = { addOpen = false; editing = -1 },
-                    )
-                    VoiceReportPlan.KNOWN.forEach { item ->
-                        DropdownMenuItem(
-                            text = { Text(voiceReportLabel(item)) },
-                            onClick = {
-                                addOpen = false
-                                commit(items + Keyed(nextId++, VoicePill(item)))
-                            },
-                        )
-                    }
-                }
+            TextButton(onClick = { addOpen = true }) {
+                Icon(Icons.Default.Add, contentDescription = null, tint = MaterialTheme.appColors.primary)
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.voice_pill_add), color = MaterialTheme.appColors.primary)
             }
         }
 
@@ -150,6 +133,17 @@ internal fun VoicePillList(
         }
     }
 
+    if (addOpen) {
+        PillPickerDialog(
+            onDismiss = { addOpen = false },
+            onPick = { item ->
+                addOpen = false
+                if (item == VoicePill.MESSAGE) editing = -1
+                else commit(items + Keyed(nextId++, VoicePill(item)))
+            },
+        )
+    }
+
     editing?.let { index ->
         MessageDialog(
             initial = if (index >= 0) items.getOrNull(index)?.pill?.text.orEmpty() else "",
@@ -164,6 +158,67 @@ internal fun VoicePillList(
             },
         )
     }
+}
+
+/**
+ * What to add, as a searchable list: the reports plus every catalog metric a
+ * pill can say is too many for a dropdown. Same shape as the country picker.
+ */
+@Composable
+private fun PillPickerDialog(onDismiss: () -> Unit, onPick: (String) -> Unit) {
+    var query by remember { mutableStateOf("") }
+    // Searched by the tile name and the spoken one, so "amps" finds Phase A.
+    val labelled = (VoiceReportPlan.KNOWN + VoiceReportPlan.CATALOG.map { VoiceReportPlan.CATALOG_PREFIX + it })
+        .map { Triple(it, voiceReportLabel(it), spokenName(it)) }
+        .sortedBy { it.second.lowercase() }
+    val messageLabel = stringResource(R.string.voice_pill_message)
+    val all = listOf(Triple(VoicePill.MESSAGE, messageLabel, messageLabel)) + labelled
+    val q = query.trim()
+    val shown = all.filter {
+        q.isEmpty() || it.second.contains(q, ignoreCase = true) || it.third.contains(q, ignoreCase = true)
+    }.map { it.first to it.second }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(12.dp),
+        text = {
+            Column(Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    singleLine = true,
+                    placeholder = { Text(stringResource(R.string.voice_pill_search)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = themedFieldColors(),
+                )
+                Spacer(Modifier.height(8.dp))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = com.eried.eucplanet.ui.common.dialogContentMaxHeight(340))
+                ) {
+                    items(shown, key = { it.first }) { (item, label) ->
+                        Text(
+                            if (item == VoicePill.MESSAGE) "“$label”" else label,
+                            color = MaterialTheme.appColors.textPrimary,
+                            fontStyle = if (item == VoicePill.MESSAGE) FontStyle.Italic else FontStyle.Normal,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onPick(item) }
+                                .padding(horizontal = 4.dp, vertical = 12.dp),
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel), color = MaterialTheme.appColors.primary)
+            }
+        },
+        containerColor = MaterialTheme.appColors.dialog,
+    )
 }
 
 @Composable
@@ -295,9 +350,23 @@ private fun statLabel(stat: VoicePill.Stat): String = stringResource(
     }
 )
 
+/** What a catalog metric is called aloud, for search; the label for anything else. */
+@Composable
+private fun spokenName(item: String): String {
+    if (!item.startsWith(VoiceReportPlan.CATALOG_PREFIX)) return voiceReportLabel(item)
+    val key = item.removePrefix(VoiceReportPlan.CATALOG_PREFIX)
+    val metric = com.eried.eucplanet.data.model.MetricCatalog.all.first { it.key == key }
+    return stringResource(metric.spokenLabelRes ?: metric.labelRes)
+}
+
 /** The name a report goes by in the editor, the same the old switch rows used. */
 @Composable
 internal fun voiceReportLabel(item: String): String {
+    if (item.startsWith(VoiceReportPlan.CATALOG_PREFIX)) {
+        val key = item.removePrefix(VoiceReportPlan.CATALOG_PREFIX)
+        val metric = com.eried.eucplanet.data.model.MetricCatalog.all.first { it.key == key }
+        return stringResource(metric.labelRes)
+    }
     VoiceReportPlan.extra(item)?.let { spec ->
         val metric = com.eried.eucplanet.data.model.MetricCatalog.all.first { it.key == spec.metricKey }
         return stringResource(metric.labelRes)

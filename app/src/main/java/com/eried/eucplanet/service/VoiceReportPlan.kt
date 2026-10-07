@@ -158,6 +158,35 @@ object VoiceReportPlan {
     fun items(s: AppSettings, periodic: Boolean): List<String> =
         order(s.voiceReportOrder).filter { isEnabled(it, s, periodic) }
 
+    /** A pill item that is a catalog metric rather than one of [KNOWN]: `#PHASE_CURRENT`. */
+    const val CATALOG_PREFIX = "#"
+
+    /** Catalog metrics one of [KNOWN] already says, so they are not offered twice. */
+    internal val COVERED_BY_REPORT = setOf(
+        "SPEED", "BATTERY", "PHONE_BATTERY", "TEMPERATURE", "LOAD", "CURRENT",
+        "POWER", "BATTERY_POWER", "TRIP", "BATTERY_ENVELOPE", "RANGE_ESTIMATE",
+        "VOLTAGE", "ODOMETER", "WH_PER_KM",
+    )
+
+    /** Readable, but a number no rider wants read aloud mid-ride. */
+    internal val NOT_SPOKEN = setOf("BT_RSSI", "GPS_HEADING", "GPS_ACCURACY", "LAT_LONG", "LIGHT_ON")
+
+    /**
+     * Every other catalog metric a pill can say: the ones a spoken question can
+     * already read off the wheel. Built from the catalog, so a metric that
+     * becomes readable tomorrow is offered without a line here.
+     */
+    val CATALOG: List<String> by lazy {
+        com.eried.eucplanet.data.model.MetricCatalog.all.map { it.key }.filter {
+            it !in COVERED_BY_REPORT && it !in NOT_SPOKEN &&
+                (it in com.eried.eucplanet.voice.EXTRACTORS || it == "MOTOR_POWER")
+        }
+    }
+
+    /** Whether [item] is something a pill can carry: a report, or a catalog metric. */
+    fun isPillItem(item: String): Boolean =
+        item in KNOWN || (item.startsWith(CATALOG_PREFIX) && item.removePrefix(CATALOG_PREFIX) in CATALOG)
+
     /**
      * The metric-catalog key whose history a statistic reads, or null for a
      * report that has no history to take a max of (time, recording, trip,
@@ -172,7 +201,11 @@ object VoiceReportPlan {
         "Current" -> "CURRENT"
         "Power" -> "BATTERY_POWER"
         "Odometer" -> null
-        else -> extra(item)?.metricKey
+        else -> if (item.startsWith(CATALOG_PREFIX)) {
+            item.removePrefix(CATALOG_PREFIX).takeIf { key ->
+                com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.supportsStats == true
+            }
+        } else extra(item)?.metricKey
     }
 
     /**

@@ -2758,4 +2758,5 @@
     <string name="crews_tryagain">Попробовать снова</string>
     <string name="crews_done">Готово</string>
     <string name="crews_expired">Этот код протух. Возьми свежий в браузере.</string>
+    <string name="voice_pill_search">Поиск</string>
 </resources>

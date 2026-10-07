@@ -2758,4 +2758,5 @@
     <string name="crews_tryagain">Försök igen</string>
     <string name="crews_done">Klar</string>
     <string name="crews_expired">Den koden har blivit gammal. Hämta en ny i webbläsaren.</string>
+    <string name="voice_pill_search">Sök</string>
 </resources>

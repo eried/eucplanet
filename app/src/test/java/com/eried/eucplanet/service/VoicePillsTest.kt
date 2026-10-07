@@ -89,6 +89,43 @@ class VoicePillsTest {
         }
     }
 
+    @Test fun `catalog metrics are offered, phase amps among them`() {
+        assertTrue("PHASE_CURRENT" in VoiceReportPlan.CATALOG)
+        assertTrue("MOTOR_TEMP" in VoiceReportPlan.CATALOG)
+        assertTrue("MOTOR_POWER" in VoiceReportPlan.CATALOG)
+        // Never twice: speed already has its own report.
+        assertTrue("SPEED" !in VoiceReportPlan.CATALOG)
+        assertTrue("LAT_LONG" !in VoiceReportPlan.CATALOG)
+    }
+
+    @Test fun `every catalog metric is offered or left out on purpose`() {
+        val all = com.eried.eucplanet.data.model.MetricCatalog.all.map { it.key }.toSet()
+        val leftOut = all - VoiceReportPlan.CATALOG.toSet() -
+            VoiceReportPlan.COVERED_BY_REPORT - VoiceReportPlan.NOT_SPOKEN
+        // Nothing in the app reads these yet (the dashboard shows "--"), and a
+        // word-valued mode is not a number to format. When one gains a source
+        // it is offered by itself and this list must shrink.
+        assertEquals(
+            setOf(
+                "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "HEADROOM", "SLOPE",
+                "ASCENT", "DESCENT", "MOTOR_RPM", "PC_MODE",
+            ),
+            leftOut,
+        )
+    }
+
+    @Test fun `catalog pills round-trip and take statistics only with history`() {
+        val pills = listOf(
+            VoicePill("#PHASE_CURRENT", VoicePill.Stat.MAX),
+            VoicePill("#TRIP_METER"),
+        )
+        assertEquals(pills, VoicePills.decode(VoicePills.encode(pills)))
+        assertEquals("PHASE_CURRENT", VoiceReportPlan.statKey("#PHASE_CURRENT"))
+        assertEquals(null, VoiceReportPlan.statKey("#TRIP_METER"))
+        assertEquals(listOf(VoicePill("#TRIP_METER")), VoicePills.decode("#TRIP_METER:MAX"))
+        assertTrue(VoicePills.decode("#NOT_A_METRIC:NOW").isEmpty())
+    }
+
     @Test fun `every report with history maps to a catalog key that keeps stats`() {
         val catalog = com.eried.eucplanet.data.model.MetricCatalog.all.associateBy { it.key }
         VoiceReportPlan.KNOWN.mapNotNull { VoiceReportPlan.statKey(it) }.forEach { key ->
