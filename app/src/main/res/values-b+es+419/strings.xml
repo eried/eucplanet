@@ -2747,4 +2747,5 @@
     <string name="voice_stat_min">Mín</string>
     <string name="voice_stat_avg">Prom</string>
     <string name="voice_stat_peak">Pico</string>
+    <string name="voice_pill_search">Buscar</string>
 </resources>

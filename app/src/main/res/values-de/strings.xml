@@ -2749,4 +2749,5 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Schnitt</string>
     <string name="voice_stat_peak">Spitze</string>
+    <string name="voice_pill_search">Suchen</string>
 </resources>

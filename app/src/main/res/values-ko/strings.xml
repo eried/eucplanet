@@ -2728,4 +2728,5 @@
     <string name="voice_stat_min">최소</string>
     <string name="voice_stat_avg">평균</string>
     <string name="voice_stat_peak">피크</string>
+    <string name="voice_pill_search">검색</string>
 </resources>

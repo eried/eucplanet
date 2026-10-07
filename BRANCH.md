@@ -18,6 +18,7 @@ only when you can cut the ride short.
 - Long-press the Speed splits tile to open its settings.
 - Headset voice button is one choice: Listen, Announce (speaks the voice report) or Off.
 - Customize voice report is two pill lists, Periodic and Trigger. A pill can say Now, Max, Min, Avg or Peak, and Message pills speak your own words.
+- Add offers every metric the dashboard can show (Phase amps, motor temperature, torque...), in a searchable list.
 
 ## Please test
 

@@ -2726,4 +2726,5 @@
     <string name="voice_stat_min">Мін</string>
     <string name="voice_stat_avg">Сер</string>
     <string name="voice_stat_peak">Пік</string>
+    <string name="voice_pill_search">Пошук</string>
 </resources>

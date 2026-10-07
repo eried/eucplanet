@@ -2596,4 +2596,5 @@
     <string name="voice_stat_min">最小</string>
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">峰值</string>
+    <string name="voice_pill_search">搜索</string>
 </resources>

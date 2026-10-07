@@ -2744,4 +2744,5 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Gns</string>
     <string name="voice_stat_peak">Top</string>
+    <string name="voice_pill_search">Søg</string>
 </resources>

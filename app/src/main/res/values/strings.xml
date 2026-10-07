@@ -2754,4 +2754,5 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Avg</string>
     <string name="voice_stat_peak">Peak</string>
+    <string name="voice_pill_search">Search</string>
 </resources>

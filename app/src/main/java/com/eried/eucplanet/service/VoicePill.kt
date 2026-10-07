@@ -56,7 +56,7 @@ object VoicePills {
                     ?.take(VoicePill.MESSAGE_MAX)
                     ?.takeIf { it.isNotBlank() }
                     ?.let { VoicePill(VoicePill.MESSAGE, text = it) }
-                item !in VoiceReportPlan.KNOWN -> null
+                !VoiceReportPlan.isPillItem(item) -> null
                 else -> {
                     val stat = VoicePill.Stat.entries.firstOrNull { it.name == rest } ?: VoicePill.Stat.NOW
                     VoicePill(item, if (VoiceReportPlan.statKey(item) != null) stat else VoicePill.Stat.NOW)

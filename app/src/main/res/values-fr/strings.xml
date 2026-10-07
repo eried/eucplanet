@@ -2733,4 +2733,5 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Moy</string>
     <string name="voice_stat_peak">Pic</string>
+    <string name="voice_pill_search">Rechercher</string>
 </resources>

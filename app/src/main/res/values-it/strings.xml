@@ -2634,4 +2634,5 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Media</string>
     <string name="voice_stat_peak">Picco</string>
+    <string name="voice_pill_search">Cerca</string>
 </resources>

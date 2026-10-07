@@ -2731,4 +2731,5 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Gem</string>
     <string name="voice_stat_peak">Piek</string>
+    <string name="voice_pill_search">Zoeken</string>
 </resources>

@@ -2729,4 +2729,5 @@
     <string name="voice_stat_min">Min</string>
     <string name="voice_stat_avg">Śr</string>
     <string name="voice_stat_peak">Szczyt</string>
+    <string name="voice_pill_search">Szukaj</string>
 </resources>
