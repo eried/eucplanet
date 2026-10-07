@@ -2758,8 +2758,6 @@
     <!-- Crews pairing. Kept here rather than in the Kotlin so the 21 locales pick them
          up with everything else; hardcoded strings are strings that never get translated. -->
     <string name="crews_title">Crews</string>
-    <string name="crews_settings_title">Crews</string>
-    <string name="crews_settings_desc">Crews run on the eucstats website. Scan the code it shows you and this app vouches that the account is yours.</string>
     <string name="crews_pass_action">Crew pass</string>
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
     <string name="crews_scan_invalid">That\'s not a crew pass code.</string>
@@ -2775,8 +2773,8 @@
     <string name="crews_dev_title">Developer mode</string>
     <string name="crews_dev_body">Talking to %1$s instead of the usual server.</string>
     <string name="crews_grant">Let that browser fly your colours.\n\nIt can start a crew, join one, walk out of one, and deal with members. It can\'t send up rides, rename you, or delete anything, that all stays on this phone.</string>
-    <string name="crews_noprofile_title">You\'re not on eucstats yet</string>
-    <string name="crews_noprofile_body">Crews hang off your eucstats profile and this phone hasn\'t set one up. Set one up under %1$s, then scan again.</string>
+    <string name="crews_noprofile_title">Join the leaderboard first</string>
+    <string name="crews_noprofile_body">Crews hang off your leaderboard profile, and this phone hasn\'t set one up. Join under %1$s, then scan again.</string>
     <string name="crews_issue">Issue the pass</string>
     <string name="crews_notme">Not me</string>
     <string name="crews_ratelimited">Too many attempts. Wait a minute and try again.</string>

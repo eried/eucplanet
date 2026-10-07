@@ -2727,8 +2727,6 @@
     <string name="voice_stat_avg">Ort</string>
     <string name="voice_stat_peak">Tepe</string>
     <string name="crews_title">Ekipler</string>
-    <string name="crews_settings_title">Ekipler</string>
-    <string name="crews_settings_desc">Ekipler eucstats sitesinde çalışır. Sana gösterdiği kodu okut, bu uygulama da hesabın senin olduğunu doğrular.</string>
     <string name="crews_pass_action">Ekip geçişi</string>
     <string name="crews_scan_hint">eucstats\'i tarayıcıda aç, Crews\'a bas ve bunu çıkan koda tut.</string>
     <string name="crews_scan_invalid">Bu bir ekip pası kodu değil.</string>
@@ -2744,8 +2742,8 @@
     <string name="crews_dev_title">Geliştirici modu</string>
     <string name="crews_dev_body">Her zamanki sunucu yerine %1$s ile konuşuyor.</string>
     <string name="crews_grant">Bırak o tarayıcı senin renklerinle sürsün.\n\nEkip kurabilir, bir ekibe katılabilir, bir ekipten çıkabilir ve üyelerle ilgilenebilir. Tur gönderemez, adını değiştiremez, hiçbir şeyi silemez, onlar telefonda kalır.</string>
-    <string name="crews_noprofile_title">Henüz eucstats\'te değilsin</string>
-    <string name="crews_noprofile_body">Ekipler eucstats profiline bağlı, bu telefon de bir tane açmamış. %1$s bölümünden açıp tekrar tara.</string>
+    <string name="crews_noprofile_title">Önce lider tablosuna katıl</string>
+    <string name="crews_noprofile_body">Ekipler lider tablosu profiline bağlı, bu telefon de bir tane açmamış. %1$s bölümünden katılıp tekrar tara.</string>
     <string name="crews_issue">Pası ver</string>
     <string name="crews_notme">Ben değilim</string>
     <string name="crews_ratelimited">Çok fazla deneme. Bir dakika bekle ve tekrar dene.</string>

@@ -2730,8 +2730,6 @@
     <string name="voice_stat_avg">Сред</string>
     <string name="voice_stat_peak">Пик</string>
     <string name="crews_title">Кланы</string>
-    <string name="crews_settings_title">Кланы</string>
-    <string name="crews_settings_desc">Кланы живут на сайте eucstats. Отсканируй код, который он покажет, и это приложение подтвердит, что аккаунт твой.</string>
     <string name="crews_pass_action">Пропуск клана</string>
     <string name="crews_scan_hint">Открой eucstats в браузере, нажми Crews и наведи это на код, который появится.</string>
     <string name="crews_scan_invalid">Это не код клановского пропуска.</string>
@@ -2747,8 +2745,8 @@
     <string name="crews_dev_title">Режим разработчика</string>
     <string name="crews_dev_body">Говорит с %1$s вместо обычного сервера.</string>
     <string name="crews_grant">Пусть этот браузер ездит в твоих цветах.\n\nОн может создать клан, вступить в клан, выйти из него и разбираться с участниками. Он не может отправлять поездки, переименовывать тебя и ничего удалять, это всё остаётся на телефоне.</string>
-    <string name="crews_noprofile_title">Тебя ещё нет на eucstats</string>
-    <string name="crews_noprofile_body">Кланы висят на твоём профиле eucstats, а этот телефон его не завёл. Заведи в разделе %1$s и просканируй снова.</string>
+    <string name="crews_noprofile_title">Сначала вступи в таблицу лидеров</string>
+    <string name="crews_noprofile_body">Кланы висят на твоём профиле в таблице лидеров, а этот телефон его не завёл. Вступи в разделе %1$s и просканируй снова.</string>
     <string name="crews_issue">Выдать пропуск</string>
     <string name="crews_notme">Это не я</string>
     <string name="crews_ratelimited">Слишком много попыток. Подожди минуту и попробуй снова.</string>

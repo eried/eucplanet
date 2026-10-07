@@ -2618,8 +2618,6 @@
     <string name="voice_stat_avg">Snitt</string>
     <string name="voice_stat_peak">Topp</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_settings_title">Crews</string>
-    <string name="crews_settings_desc">Crews kjører på eucstats-nettstedet. Skann koden det viser deg, så bekrefter denne appen at kontoen er din.</string>
     <string name="crews_pass_action">Crew-nøkkel</string>
     <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk Crews, og hold denne mot koden som dukker opp.</string>
     <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>
@@ -2635,8 +2633,8 @@
     <string name="crews_dev_title">Utviklermodus</string>
     <string name="crews_dev_body">Snakker med %1$s i stedet for den vanlige serveren.</string>
     <string name="crews_grant">La den nettleseren kjøre i fargene dine.\n\nDen kan starte et crew, bli med i et, gå ut av et, og styre medlemmer. Den kan ikke sende opp turer, gi deg nytt navn eller slette noe, det blir på telefonen.</string>
-    <string name="crews_noprofile_title">Du er ikke på eucstats ennå</string>
-    <string name="crews_noprofile_body">Crews henger på eucstats-profilen din, og den har ikke telefonen satt opp. Sett den opp under %1$s, og skann på nytt.</string>
+    <string name="crews_noprofile_title">Bli med på ranglisten først</string>
+    <string name="crews_noprofile_body">Crews henger på ranglisteprofilen din, og den har ikke telefonen satt opp. Bli med under %1$s, og skann på nytt.</string>
     <string name="crews_issue">Gi ut passet</string>
     <string name="crews_notme">Ikke meg</string>
     <string name="crews_ratelimited">For mange forsøk. Vent et minutt og prøv igjen.</string>

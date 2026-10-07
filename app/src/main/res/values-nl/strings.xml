@@ -2732,8 +2732,6 @@
     <string name="voice_stat_avg">Gem</string>
     <string name="voice_stat_peak">Piek</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_settings_title">Crews</string>
-    <string name="crews_settings_desc">Crews draaien op de eucstats-site. Scan de code die hij laat zien, dan bevestigt deze app dat het account van jou is.</string>
     <string name="crews_pass_action">Crewpas</string>
     <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
     <string name="crews_scan_invalid">Dat is geen crew pass-code.</string>
@@ -2749,8 +2747,8 @@
     <string name="crews_dev_title">Ontwikkelaarsmodus</string>
     <string name="crews_dev_body">Praat met %1$s in plaats van de gewone server.</string>
     <string name="crews_grant">Laat die browser in jouw kleuren rijden.\n\nHij kan een crew starten, bij een crew gaan, eruit stappen, en leden regelen. Hij kan geen ritten versturen, je geen andere naam geven en niets verwijderen, dat blijft allemaal op deze telefoon.</string>
-    <string name="crews_noprofile_title">Je staat nog niet op eucstats</string>
-    <string name="crews_noprofile_body">Crews hangen aan je eucstats-profiel en die heeft deze telefoon niet aangemaakt. Maak er een aan bij %1$s, en scan opnieuw.</string>
+    <string name="crews_noprofile_title">Doe eerst mee aan het klassement</string>
+    <string name="crews_noprofile_body">Crews hangen aan je klassementsprofiel en die heeft deze telefoon niet aangemaakt. Doe mee bij %1$s, en scan opnieuw.</string>
     <string name="crews_issue">Pas uitgeven</string>
     <string name="crews_notme">Ik niet</string>
     <string name="crews_ratelimited">Te veel pogingen. Wacht een minuut en probeer opnieuw.</string>

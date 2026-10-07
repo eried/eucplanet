@@ -2729,8 +2729,6 @@
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">峰值</string>
     <string name="crews_title">戰隊</string>
-    <string name="crews_settings_title">戰隊</string>
-    <string name="crews_settings_desc">戰隊在 eucstats 網站上運作。掃一下網站給你的碼，這個 App 就能證明帳號是你的。</string>
     <string name="crews_pass_action">戰隊通行證</string>
     <string name="crews_scan_hint">在瀏覽器裡打開 eucstats，點 Crews，然後把這個對準出現的碼。</string>
     <string name="crews_scan_invalid">這不是戰隊通行碼。</string>
@@ -2746,8 +2744,8 @@
     <string name="crews_dev_title">開發者模式</string>
     <string name="crews_dev_body">正在跟 %1$s 通訊，不是平常那台伺服器。</string>
     <string name="crews_grant">讓那個瀏覽器打你的旗號。\n\n它能開戰隊、加入戰隊、退出戰隊、管成員。它不能上傳騎行、改你的名字、刪任何東西，那些都留在這台手機上。</string>
-    <string name="crews_noprofile_title">你還不在 eucstats 上</string>
-    <string name="crews_noprofile_body">戰隊掛在你的 eucstats 資料上，而這台手機還沒建。去%1$s裡弄好，然後重新掃。</string>
+    <string name="crews_noprofile_title">先加入排行榜</string>
+    <string name="crews_noprofile_body">戰隊掛在你的排行榜資料上，而這台手機還沒建。去%1$s裡加入，然後重新掃。</string>
     <string name="crews_issue">發通行證</string>
     <string name="crews_notme">不是我</string>
     <string name="crews_ratelimited">試太多次了。等一分鐘再來。</string>

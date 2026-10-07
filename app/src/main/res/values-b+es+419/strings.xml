@@ -2748,8 +2748,6 @@
     <string name="voice_stat_avg">Prom</string>
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_title">Bandas</string>
-    <string name="crews_settings_title">Bandas</string>
-    <string name="crews_settings_desc">Las bandas funcionan en la web de eucstats. Escaneá el código que te muestra y esta app confirma que la cuenta es tuya.</string>
     <string name="crews_pass_action">Pase de banda</string>
     <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Crews y apunta esto al código que salga.</string>
     <string name="crews_scan_invalid">Ese no es un código de pase de banda.</string>
@@ -2765,8 +2763,8 @@
     <string name="crews_dev_title">Modo desarrollador</string>
     <string name="crews_dev_body">Hablando con %1$s en vez del servidor de siempre.</string>
     <string name="crews_grant">Deja que ese navegador lleve tus colores.\n\nPuede armar una banda, entrar a una, salirse, y manejar a la gente. No puede subir salidas, cambiarte el nombre ni borrar nada, eso se queda en el celular.</string>
-    <string name="crews_noprofile_title">Todavía no estás en eucstats</string>
-    <string name="crews_noprofile_body">Las bandas cuelgan de tu perfil de eucstats, y este celular no creó uno. Créalo en %1$s, y escanea de nuevo.</string>
+    <string name="crews_noprofile_title">Únete primero al marcador</string>
+    <string name="crews_noprofile_body">Las bandas cuelgan de tu perfil del marcador, y este celular no creó uno. Únete en %1$s, y escanea de nuevo.</string>
     <string name="crews_issue">Dar el pase</string>
     <string name="crews_notme">No soy yo</string>
     <string name="crews_ratelimited">Demasiados intentos. Espera un minuto y probá de nuevo.</string>

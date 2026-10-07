@@ -2734,8 +2734,6 @@
     <string name="voice_stat_avg">Moy</string>
     <string name="voice_stat_peak">Pic</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_settings_title">Crews</string>
-    <string name="crews_settings_desc">Les crews tournent sur le site eucstats. Scanne le code qu\'il t\'affiche et cette appli confirme que le compte est le tien.</string>
     <string name="crews_pass_action">Pass crew</string>
     <string name="crews_scan_hint">Ouvre eucstats dans un navigateur, appuie sur Crews, et vise le code qui s\'affiche.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de crew pass.</string>
@@ -2751,8 +2749,8 @@
     <string name="crews_dev_title">Mode développeur</string>
     <string name="crews_dev_body">Parle à %1$s au lieu du serveur habituel.</string>
     <string name="crews_grant">Laisse ce navigateur rouler à tes couleurs.\n\nIl peut lancer un crew, en rejoindre un, en sortir, et gérer les membres. Il ne peut pas envoyer de sorties, te renommer ni rien supprimer, tout ça reste sur ce téléphone.</string>
-    <string name="crews_noprofile_title">Tu n\'es pas encore sur eucstats</string>
-    <string name="crews_noprofile_body">Les crews tiennent à ton profil eucstats, et ce téléphone n\'en a pas créé. Crée-en un dans %1$s, et rescanne.</string>
+    <string name="crews_noprofile_title">Rejoins d\'abord le classement</string>
+    <string name="crews_noprofile_body">Les crews tiennent à ton profil de classement, et ce téléphone n\'en a pas créé. Rejoins-le dans %1$s, et rescanne.</string>
     <string name="crews_issue">Délivrer le pass</string>
     <string name="crews_notme">Pas moi</string>
     <string name="crews_ratelimited">Trop d\'essais. Attends une minute et réessaie.</string>

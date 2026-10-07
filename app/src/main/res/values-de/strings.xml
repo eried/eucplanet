@@ -2750,8 +2750,6 @@
     <string name="voice_stat_avg">Schnitt</string>
     <string name="voice_stat_peak">Spitze</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_settings_title">Crews</string>
-    <string name="crews_settings_desc">Crews laufen auf der eucstats-Website. Scann den Code, den sie dir zeigt, und diese App bestätigt, dass das Konto deins ist.</string>
     <string name="crews_pass_action">Crew-Pass</string>
     <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und halte das hier auf den Code.</string>
     <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>
@@ -2767,8 +2765,8 @@
     <string name="crews_dev_title">Entwicklermodus</string>
     <string name="crews_dev_body">Spricht mit %1$s statt mit dem üblichen Server.</string>
     <string name="crews_grant">Lass den Browser in deinen Farben fahren.\n\nEr kann eine Crew gründen, einer beitreten, aus einer rausgehen und Mitglieder verwalten. Er kann keine Fahrten hochladen, dich nicht umbenennen und nichts löschen, das bleibt alles auf dem Handy.</string>
-    <string name="crews_noprofile_title">Du bist noch nicht auf eucstats</string>
-    <string name="crews_noprofile_body">Crews hängen an deinem eucstats-Profil, und das hat dieses Handy noch nicht angelegt. Leg eins unter %1$s an, und scanne noch mal.</string>
+    <string name="crews_noprofile_title">Tritt erst der Bestenliste bei</string>
+    <string name="crews_noprofile_body">Crews hängen an deinem Bestenlisten-Profil, und das hat dieses Handy noch nicht angelegt. Tritt unter %1$s bei, und scanne noch mal.</string>
     <string name="crews_issue">Pass ausstellen</string>
     <string name="crews_notme">Nicht ich</string>
     <string name="crews_ratelimited">Zu viele Versuche. Warte eine Minute und probiere es noch mal.</string>

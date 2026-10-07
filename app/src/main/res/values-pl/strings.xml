@@ -2730,8 +2730,6 @@
     <string name="voice_stat_avg">Śr</string>
     <string name="voice_stat_peak">Szczyt</string>
     <string name="crews_title">Ekipy</string>
-    <string name="crews_settings_title">Ekipy</string>
-    <string name="crews_settings_desc">Ekipy działają na stronie eucstats. Zeskanuj kod, który ci pokaże, a ta aplikacja potwierdzi, że konto jest twoje.</string>
     <string name="crews_pass_action">Przepustka ekipy</string>
     <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, kliknij Crews i wyceluj tym w kod, który się pojawi.</string>
     <string name="crews_scan_invalid">To nie jest kod przepustki ekipy.</string>
@@ -2747,8 +2745,8 @@
     <string name="crews_dev_title">Tryb dewelopera</string>
     <string name="crews_dev_body">Gada z %1$s zamiast ze zwykłym serwerem.</string>
     <string name="crews_grant">Niech ta przeglądarka jeździ w twoich barwach.\n\nMoże założyć ekipę, dołączyć do jednej, wyjść z jednej i ogarniać członków. Nie wyśle przejazdów, nie zmieni ci nazwy i niczego nie skasuje, to zostaje w telefonie.</string>
-    <string name="crews_noprofile_title">Nie ma cię jeszcze na eucstats</string>
-    <string name="crews_noprofile_body">Ekipy wiszą na twoim profilu eucstats, a ten telefon go nie założył. Załóż go w %1$s, i zeskanuj jeszcze raz.</string>
+    <string name="crews_noprofile_title">Najpierw dołącz do rankingu</string>
+    <string name="crews_noprofile_body">Ekipy wiszą na twoim profilu w rankingu, a ten telefon go nie założył. Dołącz w %1$s, i zeskanuj jeszcze raz.</string>
     <string name="crews_issue">Wydaj przepustkę</string>
     <string name="crews_notme">To nie ja</string>
     <string name="crews_ratelimited">Za dużo prób. Odczekaj minutę i spróbuj jeszcze raz.</string>

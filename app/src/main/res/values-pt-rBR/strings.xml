@@ -2732,8 +2732,6 @@
     <string name="voice_stat_avg">Méd</string>
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_title">Turmas</string>
-    <string name="crews_settings_title">Turmas</string>
-    <string name="crews_settings_desc">As turmas rodam no site do eucstats. Escaneia o código que ele mostra e este app confirma que a conta é sua.</string>
     <string name="crews_pass_action">Passe da turma</string>
     <string name="crews_scan_hint">Abre o eucstats no navegador, toca em Crews e aponta isto pro código que aparecer.</string>
     <string name="crews_scan_invalid">Isso não é um código de passe de turma.</string>
@@ -2749,8 +2747,8 @@
     <string name="crews_dev_title">Modo desenvolvedor</string>
     <string name="crews_dev_body">Falando com %1$s em vez do servidor de sempre.</string>
     <string name="crews_grant">Deixa esse navegador usar as tuas cores.\n\nEle pode montar uma turma, entrar numa, sair de uma, e cuidar dos membros. Não pode mandar rolês, te renomear nem apagar nada, isso fica tudo no celular.</string>
-    <string name="crews_noprofile_title">Você ainda não está no eucstats</string>
-    <string name="crews_noprofile_body">As turmas ficam penduradas no teu perfil do eucstats, e esse celular não criou um. Cria um em %1$s, e escaneia de novo.</string>
+    <string name="crews_noprofile_title">Entra no ranking primeiro</string>
+    <string name="crews_noprofile_body">As turmas ficam penduradas no teu perfil do ranking, e esse celular não criou um. Entra em %1$s, e escaneia de novo.</string>
     <string name="crews_issue">Emitir o passe</string>
     <string name="crews_notme">Não sou eu</string>
     <string name="crews_ratelimited">Tentativas demais. Espera um minuto e tenta de novo.</string>

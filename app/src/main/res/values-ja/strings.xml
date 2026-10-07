@@ -2731,8 +2731,6 @@
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">ピーク</string>
     <string name="crews_title">クラン</string>
-    <string name="crews_settings_title">クラン</string>
-    <string name="crews_settings_desc">クランは eucstats のサイトで動いている。そこに出るコードを読み取れば、このアプリがアカウントは自分のものだと証明する。</string>
     <string name="crews_pass_action">クランパス</string>
     <string name="crews_scan_hint">ブラウザで eucstats を開いて Crews を押し、出てきたコードにこれを向けるだけ。</string>
     <string name="crews_scan_invalid">これはクランパスのコードじゃない。</string>
@@ -2748,8 +2746,8 @@
     <string name="crews_dev_title">開発者モード</string>
     <string name="crews_dev_body">いつものサーバーではなく %1$s と通信中。</string>
     <string name="crews_grant">そのブラウザにあなたの色を預ける。\n\nクランを作る、入る、抜ける、メンバーを扱う、ここまではできる。走行データの送信、名前の変更、削除はできない。それはこの端末に残る。</string>
-    <string name="crews_noprofile_title">まだ eucstats にいない</string>
-    <string name="crews_noprofile_body">クランは eucstats のプロフィールにぶら下がるが、この端末はまだ作っていない。%1$s で用意してから、もう一度読み取ってほしい。</string>
+    <string name="crews_noprofile_title">まずリーダーボードに参加</string>
+    <string name="crews_noprofile_body">クランはリーダーボードのプロフィールにぶら下がるが、この端末はまだ作っていない。%1$s で参加してから、もう一度読み取ってほしい。</string>
     <string name="crews_issue">パスを出す</string>
     <string name="crews_notme">自分じゃない</string>
     <string name="crews_ratelimited">試しすぎ。1分待ってもう一度。</string>

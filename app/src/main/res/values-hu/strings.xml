@@ -2533,8 +2533,6 @@
     <string name="voice_stat_avg">Átl</string>
     <string name="voice_stat_peak">Csúcs</string>
     <string name="crews_title">Crewk</string>
-    <string name="crews_settings_title">Crewk</string>
-    <string name="crews_settings_desc">A crewk az eucstats oldalon futnak. Olvasd be a kódot, amit mutat, és ez az alkalmazás igazolja, hogy a fiók a tiéd.</string>
     <string name="crews_pass_action">Crew-belépő</string>
     <string name="crews_scan_hint">Nyisd meg az eucstatsot böngészőben, nyomd meg a Crews gombot, és irányítsd ezt a megjelenő kódra.</string>
     <string name="crews_scan_invalid">Ez nem crew pass kód.</string>
@@ -2550,8 +2548,8 @@
     <string name="crews_dev_title">Fejlesztői mód</string>
     <string name="crews_dev_body">A %1$s címmel beszél a szokásos szerver helyett.</string>
     <string name="crews_grant">Hadd vigye az a böngésző a színeidet.\n\nIndíthat crewt, beléphet egybe, kiléphet egyből, és intézheti a tagokat. Túrát nem tud feltölteni, át nem nevezhet, és nem törölhet semmit, az mind a telefonon marad.</string>
-    <string name="crews_noprofile_title">Még nem vagy fent az eucstatson</string>
-    <string name="crews_noprofile_body">A crewk az eucstats profilodon lógnak, és ez a telefon nem csinált egyet sem. Hozd létre a %1$s alatt, és olvasd be újra.</string>
+    <string name="crews_noprofile_title">Előbb csatlakozz a ranglistához</string>
+    <string name="crews_noprofile_body">A crewk a ranglista-profilodon lógnak, és ez a telefon nem csinált egyet sem. Csatlakozz a %1$s alatt, és olvasd be újra.</string>
     <string name="crews_issue">Pass kiadása</string>
     <string name="crews_notme">Nem én vagyok</string>
     <string name="crews_ratelimited">Túl sok próbálkozás. Várj egy percet, és próbáld újra.</string>

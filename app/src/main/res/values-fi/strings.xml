@@ -2533,8 +2533,6 @@
     <string name="voice_stat_avg">Ka</string>
     <string name="voice_stat_peak">Huippu</string>
     <string name="crews_title">Crewit</string>
-    <string name="crews_settings_title">Crewit</string>
-    <string name="crews_settings_desc">Crewit pyörivät eucstats-sivustolla. Skannaa koodi, jonka se näyttää, niin tämä sovellus vahvistaa tilin olevan sinun.</string>
     <string name="crews_pass_action">Crew-passi</string>
     <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja suuntaa tämä koodiin.</string>
     <string name="crews_scan_invalid">Tuo ei ole crew pass -koodi.</string>
@@ -2550,8 +2548,8 @@
     <string name="crews_dev_title">Kehittäjätila</string>
     <string name="crews_dev_body">Puhuu osoitteeseen %1$s tavallisen palvelimen sijaan.</string>
     <string name="crews_grant">Anna selaimen ajaa sinun väreissäsi.\n\nSe voi perustaa crewin, liittyä yhteen, lähteä yhdestä ja hoitaa jäseniä. Se ei voi lähettää ajoja, vaihtaa nimeäsi tai poistaa mitään, ne pysyvät puhelimessa.</string>
-    <string name="crews_noprofile_title">Et ole vielä eucstatsissa</string>
-    <string name="crews_noprofile_body">Crewit roikkuvat eucstats-profiilissasi, eikä puhelin ole tehnyt sellaista. Tee se kohdassa %1$s ja skannaa uudestaan.</string>
+    <string name="crews_noprofile_title">Liity ensin tulostauluun</string>
+    <string name="crews_noprofile_body">Crewit roikkuvat tulostauluprofiilissasi, eikä puhelin ole tehnyt sellaista. Liity kohdassa %1$s ja skannaa uudestaan.</string>
     <string name="crews_issue">Myönnä passi</string>
     <string name="crews_notme">En minä</string>
     <string name="crews_ratelimited">Liikaa yrityksiä. Odota minuutti ja yritä uudestaan.</string>

@@ -9417,24 +9417,9 @@ private fun CloudTab(
 
             // Buttons live OUTSIDE the stats card, at the section margin.
             val crewsCtx = LocalContext.current
-            // What a crew pass is, in the shape every other subsection in this block uses: a
-            // title and one line. Without it the button beside "Manage profile" is a word and
-            // a camera icon, and a rider who has not been to the site has no way to guess.
-            Text(
-                stringResource(R.string.crews_settings_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.appColors.textPrimary,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                stringResource(R.string.crews_settings_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             ) {
                 Button(
                     onClick = { showOnlineProfile = true },

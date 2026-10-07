@@ -2597,8 +2597,6 @@
     <string name="voice_stat_avg">平均</string>
     <string name="voice_stat_peak">峰值</string>
     <string name="crews_title">战队</string>
-    <string name="crews_settings_title">战队</string>
-    <string name="crews_settings_desc">战队在 eucstats 网站上运行。扫一下网站给你的码，这个 App 就能证明账号是你的。</string>
     <string name="crews_pass_action">战队通行证</string>
     <string name="crews_scan_hint">在浏览器里打开 eucstats，点 Crews，然后把这个对准出现的码。</string>
     <string name="crews_scan_invalid">这不是战队通行码。</string>
@@ -2614,8 +2612,8 @@
     <string name="crews_dev_title">开发者模式</string>
     <string name="crews_dev_body">正在跟 %1$s 通信，不是平时那台服务器。</string>
     <string name="crews_grant">让那个浏览器打你的旗号。\n\n它能开战队、加入战队、退出战队、管成员。它不能上传骑行、改你的名字、删任何东西，那些都留在这台手机上。</string>
-    <string name="crews_noprofile_title">你还不在 eucstats 上</string>
-    <string name="crews_noprofile_body">战队挂在你的 eucstats 资料上，而这台手机还没建。去%1$s里弄好，然后重新扫。</string>
+    <string name="crews_noprofile_title">先加入排行榜</string>
+    <string name="crews_noprofile_body">战队挂在你的排行榜资料上，而这台手机还没建。去%1$s里加入，然后重新扫。</string>
     <string name="crews_issue">发通行证</string>
     <string name="crews_notme">不是我</string>
     <string name="crews_ratelimited">试太多次了。等一分钟再来。</string>

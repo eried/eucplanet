@@ -2745,8 +2745,6 @@
     <string name="voice_stat_avg">Gns</string>
     <string name="voice_stat_peak">Top</string>
     <string name="crews_title">Crews</string>
-    <string name="crews_settings_title">Crews</string>
-    <string name="crews_settings_desc">Crews kører på eucstats-sitet. Scan koden, det viser dig, så bekræfter appen her, at kontoen er din.</string>
     <string name="crews_pass_action">Crew-nøgle</string>
     <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og hold den her op mod koden.</string>
     <string name="crews_scan_invalid">Det er ikke en crew pass-kode.</string>
@@ -2762,8 +2760,8 @@
     <string name="crews_dev_title">Udviklertilstand</string>
     <string name="crews_dev_body">Snakker med %1$s i stedet for den sædvanlige server.</string>
     <string name="crews_grant">Lad den browser køre i dine farver.\n\nDen kan starte et crew, gå med i et, gå ud af et, og styre medlemmer. Den kan ikke sende ture op, omdøbe dig eller slette noget, det bliver på telefonen.</string>
-    <string name="crews_noprofile_title">Du er ikke på eucstats endnu</string>
-    <string name="crews_noprofile_body">Crews hænger på din eucstats-profil, og den har telefonen ikke sat op. Sæt den op under %1$s, og scan igen.</string>
+    <string name="crews_noprofile_title">Join ranglisten først</string>
+    <string name="crews_noprofile_body">Crews hænger på din ranglisteprofil, og den har telefonen ikke sat op. Join under %1$s, og scan igen.</string>
     <string name="crews_issue">Udsted passet</string>
     <string name="crews_notme">Ikke mig</string>
     <string name="crews_ratelimited">For mange forsøg. Vent et minut og prøv igen.</string>
