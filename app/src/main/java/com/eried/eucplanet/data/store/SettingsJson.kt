@@ -931,7 +931,13 @@ object SettingsJson {
      * or sync folder. Pure; SyncManager does the IO.
      */
     fun applyPortable(json: JSONObject, current: AppSettings): AppSettings =
-        fromJson(json, current).copy(
+        fromJson(json, current).let { parsed ->
+          parsed.copy(
+            share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
+            tpms = parsed.tpms.copy(
+                pairedAddress = current.tpms.pairedAddress,
+                pairedAddresses = current.tpms.pairedAddresses,
+            ),
             lastDeviceAddress = current.lastDeviceAddress,
             lastDeviceName = current.lastDeviceName,
             flic1Address = current.flic1Address,
@@ -953,7 +959,8 @@ object SettingsJson {
             dropboxAccountLabel = current.dropboxAccountLabel,
             dropboxLastSyncAt = current.dropboxLastSyncAt,
             dropboxSettingsBaseHash = current.dropboxSettingsBaseHash,
-        )
+          )
+        }
 
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps

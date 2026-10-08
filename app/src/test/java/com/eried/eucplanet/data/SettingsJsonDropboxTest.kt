@@ -5,6 +5,8 @@ import com.eried.eucplanet.data.store.SettingsJson
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
 /**
  * Regression guard for the Dropbox-link load bug: the token persisted by
@@ -101,5 +103,47 @@ class SettingsJsonDropboxTest {
         assertEquals("GG:HH", merged.externalGpsAddress)
         assertEquals("tok", merged.dropboxAccessToken)
         assertEquals("base", merged.dropboxSettingsBaseHash)
+    }
+
+    /** Drift guard: every field [SettingsJson.stripDeviceBindings] blanks is this
+     *  phone's own, so [SettingsJson.applyPortable] must keep it. A field added
+     *  to the strip list and forgotten here would be wiped by every Dropbox pull. */
+    @Test
+    fun applyPortable_keepsEveryFieldTheStripBlanks() {
+        val current = AppSettings().let { d ->
+            d.copy(
+                share = d.share.copy(deviceSecret = "secret"),
+                tpms = d.tpms.copy(pairedAddress = "T1", pairedAddresses = listOf("T1", "T2")),
+                lastDeviceAddress = "A", lastDeviceName = "B",
+                flic1Address = "F1", flic2Address = "F2", flic3Address = "F3", flic4Address = "F4",
+                externalGpsAddress = "G", externalGpsName = "GN", externalGpsSource = "GS",
+                radarAddress = "R", radarName = "RN", radarVendor = "RV",
+                syncFolderUri = "content://mine", lastSettingsBackupAt = 1L, lastSettingsBackupName = "n",
+                dropboxAccessToken = "tok", dropboxRefreshToken = "ref", dropboxAccessTokenExpiresAt = 2L,
+                dropboxAccountLabel = "me", dropboxLastSyncAt = 3L, dropboxSettingsBaseHash = "base",
+            )
+        }
+        val stripped = SettingsJson.stripDeviceBindings(current)
+        val merged = SettingsJson.applyPortable(
+            JSONObject(SettingsJson.toJson(stripped).toString()), current)
+
+        val blanked = mutableListOf<String>()
+        for (p in AppSettings::class.memberProperties) {
+            val mine = p.get(current); val gone = p.get(stripped)
+            if (mine == gone) continue
+            if (mine != null && mine::class.isData) {
+                @Suppress("UNCHECKED_CAST")
+                for (q in mine::class.memberProperties as Collection<KProperty1<Any, *>>) {
+                    if (q.get(mine) == q.get(gone!!)) continue
+                    blanked += "${p.name}.${q.name}"
+                    assertEquals("${p.name}.${q.name}", q.get(mine), q.get(p.get(merged)!!))
+                }
+            } else {
+                blanked += p.name
+                assertEquals(p.name, mine, p.get(merged))
+            }
+        }
+        assertEquals("the fixture must set every field the strip blanks",
+            24, blanked.size)
     }
 }

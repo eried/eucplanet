@@ -1241,6 +1241,38 @@ class SyncManager @Inject constructor(
         sha256Hex(SettingsJson.toJson(SettingsJson.stripDeviceBindings(s)).toString()
             .toByteArray(Charsets.UTF_8))
 
+    /**
+     * The background half of the settings sync: push this phone's settings only
+     * when Dropbox's copy has not moved since the last sync, so another phone's
+     * edit is never overwritten without the prompt. A Dropbox-side change is left
+     * for the foreground sync, which can ask the rider. Returns false only when
+     * an upload was due and failed.
+     */
+    suspend fun pushDropboxSettingsIfOnlyPhoneChanged(): Boolean {
+        val settings = settingsRepository.get()
+        val remoteBytes = dropboxRepository.downloadFile("/settings.json")
+        // Null is a missing file or a network blip; with a baseline we have
+        // uploaded before, so assume a blip rather than upload over a real copy.
+        if (remoteBytes == null && settings.dropboxSettingsBaseHash.isNotEmpty()) return true
+        val phoneHash = settingsHash(settings)
+        return when (SettingsSyncPolicy.decide(
+            phoneHash, remoteBytes?.let { sha256Hex(it) }, settings.dropboxSettingsBaseHash
+        )) {
+            SettingsSyncAction.UPLOAD -> {
+                val stripped = SettingsJson.toJson(SettingsJson.stripDeviceBindings(settings))
+                    .toString().toByteArray(Charsets.UTF_8)
+                dropboxRepository.uploadFile("/settings.json", stripped).also { ok ->
+                    if (ok) settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneHash) }
+                }
+            }
+            SettingsSyncAction.NONE -> {
+                settingsRepository.update { it.copy(dropboxSettingsBaseHash = phoneHash) }
+                true
+            }
+            SettingsSyncAction.APPLY, SettingsSyncAction.CONFLICT -> true
+        }
+    }
+
     private suspend fun runDropboxSync() {
         val settings = settingsRepository.get()
         if (settings.dropboxAccessToken.isBlank()) {
