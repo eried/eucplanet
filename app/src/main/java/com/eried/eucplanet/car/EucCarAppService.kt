@@ -8,6 +8,7 @@ import androidx.car.app.CarAppService
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.Session
+import android.util.Log
 import androidx.car.app.AppManager
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
@@ -28,6 +29,7 @@ import androidx.car.app.validation.HostValidator
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.sample
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.util.Units
 import com.eried.eucplanet.widget.WidgetMetricFormat
@@ -72,6 +74,11 @@ class EucCarAppService : CarAppService() {
     @Inject lateinit var navigationEngine: NavigationEngine
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var routingService: RoutingService
+
+    private companion object {
+        const val TAG = "EucCarAppService"
+        const val DEBUG_API_LEVEL_PROP = "debug.eucplanet.car.apilevel"
+    }
 
     override fun createHostValidator(): HostValidator =
         // Debug and branch builds talk to any host so the desktop head unit
@@ -188,13 +195,40 @@ class EucCarAppService : CarAppService() {
                     Row.Builder().setTitle(carContext.getString(R.string.car_waiting_wheel)).build()
                 )
             }
-            return MapWithContentTemplate.Builder()
-                .setContentTemplate(PaneTemplate.Builder(pane.build()).setTitle(getString(R.string.app_name)).build())
-                .setActionStrip(actionStrip(false))
-                .setMapController(
-                    MapController.Builder().setMapActionStrip(mapActionStrip()).build()
-                )
-                .build()
+            val built = pane.build()
+            val title = getString(R.string.app_name)
+
+            // MapWithContentTemplate is RequiresCarApi(7) and still marked
+            // experimental; MapController is RequiresCarApi(5). We advertise
+            // minCarApiLevel 1, so on an older head unit building either one
+            // throws and Android Auto shows "EUC Planet has encountered an
+            // unexpected error" with nothing else to go on. A tester hit exactly
+            // that on a MotoEye: the car emulator negotiates api 7 and hid it.
+            //
+            // Below 7 we fall back to the pane on its own. No map and no map
+            // toggle, but the rider's numbers are the point of this screen and
+            // the host still draws them large.
+            // `setprop debug.eucplanet.car.apilevel 4` forces the older-host
+            // path on a machine whose host reports 7, so the fallback can be
+            // seen rather than assumed. Shipping an unseen branch is what put
+            // "unexpected error" on a tester's screen in the first place.
+            val apiLevel = HudDebug.read(DEBUG_API_LEVEL_PROP)?.toIntOrNull()
+                ?: carContext.carAppApiLevel
+            Log.i(TAG, "car host api level $apiLevel")
+            return if (apiLevel >= 7) {
+                MapWithContentTemplate.Builder()
+                    .setContentTemplate(PaneTemplate.Builder(built).setTitle(title).build())
+                    .setActionStrip(actionStrip(false))
+                    .setMapController(
+                        MapController.Builder().setMapActionStrip(mapActionStrip()).build()
+                    )
+                    .build()
+            } else {
+                PaneTemplate.Builder(built)
+                    .setTitle(title)
+                    .setActionStrip(actionStrip(false, iconOnly = true, max = 2))
+                    .build()
+            }
         }
 
         /** One metric, formatted exactly as the surface and the widget do. */
@@ -236,19 +270,35 @@ class EucCarAppService : CarAppService() {
             )
             .build()
 
-        private fun actionStrip(navigating: Boolean): ActionStrip {
+        /**
+         * [iconOnly] drops the labels. PaneTemplate allows exactly one titled
+         * action, so the three the rider configured crash it ("Action list
+         * exceeded max number of 1 actions with custom titles"). Each limit is
+         * per template and none of them are the same: the map strip allows
+         * none, a pane allows one, navigation allowed four.
+         *
+         * Every action in the widget registry carries an icon, so dropping the
+         * labels costs recognisability, not function. An action without an icon
+         * is left out rather than risking the limit.
+         *
+         * [max] caps the total, which is a SEPARATE limit from the titled one
+         * and has its own message ("Action list exceeded max number of 2
+         * actions"). Each template sets its own and none of them agree: the map
+         * strip takes no titled action at all, a pane takes two actions of
+         * which one may be titled, navigation took four. They throw rather than
+         * degrade, so every one of them has to be found by running the path.
+         */
+        private fun actionStrip(
+            navigating: Boolean,
+            iconOnly: Boolean = false,
+            max: Int = Int.MAX_VALUE,
+        ): ActionStrip {
             val strip = ActionStrip.Builder()
-            // Navigate always leads: a navigation app without it makes no
-            // sense. While guiding, the same slot ends the route.
-            strip.addAction(
-                if (navigating) {
-                    Action.Builder().setTitle(carContext.getString(R.string.nav_stop_short))
-                        .setOnClickListener { navigationEngine.stop() }.build()
-                } else {
-                    Action.Builder().setTitle(carContext.getString(R.string.car_navigate))
-                        .setOnClickListener { screenManager.push(PlacesScreen(carContext)) }.build()
-                }
-            )
+            // No Navigate. This stopped being a navigation app, and the action
+            // was still leading the strip: on a pane, which allows one titled
+            // action, it took the only slot and left the rider one button of
+            // the three they chose. The three are now all theirs.
+            var added = 0
             val s = settingsState.value
             val lightOn = wheelRepository.wheelData.value.lightOn
             val recording = tripRepository.recording.value
@@ -258,11 +308,16 @@ class EucCarAppService : CarAppService() {
                     carContext, key, lightOn = lightOn, locked = wheelRepository.locked.value,
                     recording = recording, voiceOn = s.voiceEnabled,
                 )
-                val b = Action.Builder().setTitle(label).setOnClickListener { pi.send() }
-                EucWidget.iconFor(key).takeIf { it != 0 }?.let {
+                if (added >= max) return@forEachIndexed
+                val icon = EucWidget.iconFor(key).takeIf { it != 0 }
+                if (iconOnly && icon == null) return@forEachIndexed
+                val b = Action.Builder().setOnClickListener { pi.send() }
+                if (!iconOnly) b.setTitle(label)
+                icon?.let {
                     b.setIcon(CarIcon.Builder(IconCompat.createWithResource(carContext, it)).build())
                 }
                 strip.addAction(b.build())
+                added++
             }
             return strip.build()
         }

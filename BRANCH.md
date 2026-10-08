@@ -23,6 +23,11 @@ short.
 - Light or lock from the notification, a widget, the car screen or Flic pauses
   that automation too.
 
+- Fixed: the car screen would not open at all on some head units ("EUC Planet
+  has encountered an unexpected error"). The new layout used a template that
+  needs a newer Android Auto than the MotoEye has. Older head units now get the
+  stats panel and two of your buttons, without the map.
+
 ## Please test
 
 **Android Auto**
