@@ -77,7 +77,7 @@ interface TripDao {
     suspend fun markPendingFolderUpload(id: Long)
 
     /** Dropbox state by file name: the sync works in files, not row ids. */
-    @Query("UPDATE trips SET dropboxStatus = :status, dropboxUploadedAt = :at WHERE fileName = :fileName")
+    @Query("UPDATE trips SET dropboxStatus = :status, dropboxUploadedAt = :at WHERE fileName = :fileName COLLATE NOCASE")
     suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?)
 
     @Query("UPDATE trips SET dropboxStatus = :status WHERE id = :id")

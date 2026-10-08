@@ -109,8 +109,11 @@ class DropboxSyncWorker @AssistedInject constructor(
         // made every trip look "newer" and re-upload forever, so the sync never
         // converged and the indicator never cleared. failedTrips tracks how many
         // of the needed uploads never made it this pass.
+        // Dropbox ignores case like the phone does; a name the two spell
+        // differently is still the same trip, not one to upload again.
+        val remoteByLower = remoteTrips.mapKeys { it.key.lowercase() }
         fun needsUpload(f: File): Boolean {
-            val remote = remoteTrips[f.name]
+            val remote = remoteByLower[f.name.lowercase()]
             val up = UploadPolicy.needsUpload(
                 remoteSize = remote?.size,
                 remoteModifiedSec = remote?.serverModifiedSec ?: 0L,
@@ -145,7 +148,7 @@ class DropboxSyncWorker @AssistedInject constructor(
                 // backed up yet" although the check right here had proved
                 // otherwise on every pass, and the answer was thrown away.
                 val known = knownStatus[name.lowercase()]
-                val remote = remoteTrips[name]
+                val remote = remoteByLower[name.lowercase()]
                 if (remote != null && known != null && known != 2) {
                     tripRepository.setDropboxStatusByName(
                         name, 2, remote.serverModifiedSec * 1000L)
