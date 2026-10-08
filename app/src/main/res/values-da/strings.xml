@@ -610,11 +610,11 @@
     <string name="sync_rate_limited">Dropbox begrænser denne konto. %1$d af %2$d ture synkroniseret, resten prøves igen.</string>
     <string name="sync_finished">%1$d ture synkroniseret</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
-    <string name="sync_conflict_body">%1$d ture findes på begge sider.</string>
+    <string name="sync_conflict_body">Ændret på begge sider: %1$d</string>
     <string name="sync_conflict_app">Kopiér app til backup</string>
     <string name="sync_conflict_folder">Kopiér backup til app</string>
     <string name="sync_conflict_ignore">Spring alle konflikter over</string>
-    <string name="sync_conflict_body_dropbox">%1$d ture findes både i Dropbox og på denne telefon.</string>
+    <string name="sync_conflict_body_dropbox">Ændret både i Dropbox og på denne telefon: %1$d</string>
     <string name="sync_conflict_app_dropbox">Kopiér app til Dropbox</string>
     <string name="sync_conflict_dropbox">Kopiér Dropbox til app</string>
     <string name="cloud_uploaded_on">Sikkerhedskopieret %1$s</string>

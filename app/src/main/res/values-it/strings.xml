@@ -211,11 +211,11 @@
     <string name="sync_rate_limited">Dropbox sta limitando questo account. Sincronizzati %1$d viaggi su %2$d, il resto verrà riprovato.</string>
     <string name="sync_finished">Sincronizzati %1$d viaggi</string>
     <string name="sync_conflict_title">Conflitto di sincronizzazione</string>
-    <string name="sync_conflict_body">%1$d viaggi sono presenti su entrambi i lati.</string>
+    <string name="sync_conflict_body">Modificato su entrambi i lati: %1$d</string>
     <string name="sync_conflict_app">Copia da app a backup</string>
     <string name="sync_conflict_folder">Copia da backup ad app</string>
     <string name="sync_conflict_ignore">Ignora tutti i conflitti</string>
-    <string name="sync_conflict_body_dropbox">%1$d viaggi sono presenti sia su Dropbox sia su questo telefono.</string>
+    <string name="sync_conflict_body_dropbox">Modificato sia su Dropbox sia su questo telefono: %1$d</string>
     <string name="sync_conflict_app_dropbox">Copia app su Dropbox</string>
     <string name="sync_conflict_dropbox">Copia Dropbox su app</string>
     <string name="cloud_uploaded_on">Salvato il %1$s</string>

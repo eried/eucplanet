@@ -8,7 +8,6 @@ import androidx.work.WorkerParameters
 import com.eried.eucplanet.data.repository.DropboxRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
-import com.eried.eucplanet.data.store.SettingsJson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.json.JSONObject
@@ -176,20 +175,10 @@ class DropboxSyncWorker @AssistedInject constructor(
             }
         }
 
-        // --- Settings.json: hash-compare so we don't burn requests on
-        //     identical content. Dropbox API doesn't return our content
-        //     hash without an extra GET so just compare the bytes that
-        //     would be uploaded against a remote_modified gate using the
-        //     last successful sync timestamp persisted in AppSettings.
-        val settingsJson = SettingsJson.toJson(settings).toString().toByteArray(Charsets.UTF_8)
+        // --- Settings.json: the same 3-way rule as the foreground sync, so a
+        //     background pass never overwrites another phone's edit.
         val now = System.currentTimeMillis()
-        val rootList = dropboxRepository.listFolder("")
-        val remoteSettingsMod = rootList?.get("settings.json")?.serverModifiedSec
-        val lastSync = settings.dropboxLastSyncAt / 1000L
-        if (remoteSettingsMod == null || remoteSettingsMod < lastSync) {
-            val ok = dropboxRepository.uploadFile("/settings.json", settingsJson)
-            if (!ok) anyFailed = true
-        }
+        if (!syncManager.pushDropboxSettingsIfOnlyPhoneChanged()) anyFailed = true
 
         // --- Themes + overlays: mirror the rest of the backup folder so the
         //     cloud copy is the WHOLE folder, not just trips + settings. These

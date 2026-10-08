@@ -2,8 +2,11 @@ package com.eried.eucplanet.data
 
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.store.SettingsJson
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
 
 /**
  * Regression guard for the Dropbox-link load bug: the token persisted by
@@ -42,5 +45,105 @@ class SettingsJsonDropboxTest {
         val loaded = SettingsJson.fromJson(backup, AppSettings())
         assertEquals("", loaded.dropboxAccessToken)
         assertEquals("", loaded.dropboxAccountLabel)
+    }
+
+    @Test
+    fun dropboxSettingsBaseHash_roundTrips_and_is_stripped() {
+        val s = AppSettings().copy(dropboxSettingsBaseHash = "abc123")
+        // round-trips through JSON
+        val back = SettingsJson.fromJson(JSONObject(SettingsJson.toJson(s).toString()))
+        assertEquals("abc123", back.dropboxSettingsBaseHash)
+        // stripped for the portable/upload copy
+        assertEquals("", SettingsJson.stripDeviceBindings(s).dropboxSettingsBaseHash)
+    }
+
+    @Test
+    fun applyPortable_keepsThisPhonesDeviceFields_takesPreferences() {
+        val current = AppSettings().copy(
+            lastDeviceAddress = "AA:BB", dropboxAccessToken = "tok",
+            syncFolderUri = "content://x", dropboxSettingsBaseHash = "base",
+            alarmSpeedKmh = 40f,
+        )
+        // A portable payload from another phone: device fields stripped, a different preference.
+        val portable = SettingsJson.stripDeviceBindings(current.copy(alarmSpeedKmh = 55f))
+        val json = JSONObject(SettingsJson.toJson(portable).toString())
+        val merged = SettingsJson.applyPortable(json, current)
+        assertEquals(55f, merged.alarmSpeedKmh)               // preference taken from payload
+        assertEquals("AA:BB", merged.lastDeviceAddress)       // device field kept (fromJson base fallback)
+        assertEquals("tok", merged.dropboxAccessToken)        // Dropbox token kept
+        assertEquals("content://x", merged.syncFolderUri)     // backup folder kept
+        assertEquals("base", merged.dropboxSettingsBaseHash)  // sync baseline kept
+    }
+
+    /** Legacy Dropbox users' first post-upgrade download is a RAW settings.json
+     *  (pre-two-way-sync code uploaded unstripped), so it can carry another
+     *  phone's device bindings with real, populated values -- not absent keys.
+     *  applyPortable must force THIS phone's own bindings regardless, not
+     *  merely rely on fromJson's base-fallback for absent keys. */
+    @Test
+    fun applyPortable_keepsDeviceFields_evenFromARawUnstrippedPayload() {
+        val current = AppSettings().copy(
+            lastDeviceAddress = "AA:BB", radarAddress = "CC:DD", syncFolderUri = "content://mine",
+            flic1Address = "EE:FF", externalGpsAddress = "GG:HH", dropboxAccessToken = "tok",
+            dropboxSettingsBaseHash = "base", alarmSpeedKmh = 40f,
+        )
+        // A legacy RAW remote: device fields POPULATED with another phone's values, plus a changed preference.
+        val raw = current.copy(
+            lastDeviceAddress = "OTHER-1", radarAddress = "OTHER-2", syncFolderUri = "content://theirs",
+            flic1Address = "OTHER-3", externalGpsAddress = "OTHER-4", dropboxAccessToken = "OTHER-TOK",
+            alarmSpeedKmh = 55f,
+        )
+        val json = JSONObject(SettingsJson.toJson(raw).toString()) // NOT stripped
+        val merged = SettingsJson.applyPortable(json, current)
+        assertEquals(55f, merged.alarmSpeedKmh)                 // preference taken
+        assertEquals("AA:BB", merged.lastDeviceAddress)         // device fields kept from current, not the raw file
+        assertEquals("CC:DD", merged.radarAddress)
+        assertEquals("content://mine", merged.syncFolderUri)
+        assertEquals("EE:FF", merged.flic1Address)
+        assertEquals("GG:HH", merged.externalGpsAddress)
+        assertEquals("tok", merged.dropboxAccessToken)
+        assertEquals("base", merged.dropboxSettingsBaseHash)
+    }
+
+    /** Drift guard: every field [SettingsJson.stripDeviceBindings] blanks is this
+     *  phone's own, so [SettingsJson.applyPortable] must keep it. A field added
+     *  to the strip list and forgotten here would be wiped by every Dropbox pull. */
+    @Test
+    fun applyPortable_keepsEveryFieldTheStripBlanks() {
+        val current = AppSettings().let { d ->
+            d.copy(
+                share = d.share.copy(deviceSecret = "secret"),
+                tpms = d.tpms.copy(pairedAddress = "T1", pairedAddresses = listOf("T1", "T2")),
+                lastDeviceAddress = "A", lastDeviceName = "B",
+                flic1Address = "F1", flic2Address = "F2", flic3Address = "F3", flic4Address = "F4",
+                externalGpsAddress = "G", externalGpsName = "GN", externalGpsSource = "GS",
+                radarAddress = "R", radarName = "RN", radarVendor = "RV",
+                syncFolderUri = "content://mine", lastSettingsBackupAt = 1L, lastSettingsBackupName = "n",
+                dropboxAccessToken = "tok", dropboxRefreshToken = "ref", dropboxAccessTokenExpiresAt = 2L,
+                dropboxAccountLabel = "me", dropboxLastSyncAt = 3L, dropboxSettingsBaseHash = "base",
+            )
+        }
+        val stripped = SettingsJson.stripDeviceBindings(current)
+        val merged = SettingsJson.applyPortable(
+            JSONObject(SettingsJson.toJson(stripped).toString()), current)
+
+        val blanked = mutableListOf<String>()
+        for (p in AppSettings::class.memberProperties) {
+            val mine = p.get(current); val gone = p.get(stripped)
+            if (mine == gone) continue
+            if (mine != null && mine::class.isData) {
+                @Suppress("UNCHECKED_CAST")
+                for (q in mine::class.memberProperties as Collection<KProperty1<Any, *>>) {
+                    if (q.get(mine) == q.get(gone!!)) continue
+                    blanked += "${p.name}.${q.name}"
+                    assertEquals("${p.name}.${q.name}", q.get(mine), q.get(p.get(merged)!!))
+                }
+            } else {
+                blanked += p.name
+                assertEquals(p.name, mine, p.get(merged))
+            }
+        }
+        assertEquals("the fixture must set every field the strip blanks",
+            24, blanked.size)
     }
 }

@@ -25,6 +25,8 @@ only when you can cut the ride short.
 - Add offers every metric the dashboard can show (Phase amps, motor temperature, torque...), in a searchable list.
 - Voice volume, in Voice, Speech, Advanced: only the voice gets quieter, music and alarms keep their level.
 - Begode beep volume by speed, under Horn: quiet when stopped, loud while riding.
+- Dropbox syncs both ways: settings, themes and overlays now come down too, not only trips.
+- Changed on both phones since the last sync? One prompt asks which side to keep.
 
 ## Please test
 
@@ -45,6 +47,11 @@ only when you can cut the ride short.
 
 **KingSong**
 - Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
+
+**Dropbox, two phones on one account**
+- Change a setting and save a theme on one, Sync all on the other: do both arrive?
+- Change something different on each, then sync: exactly one prompt, and your choice sticks?
+- After a pull: still paired to your wheel, Dropbox still linked?
 
 **Any wheel**
 - Stats length 30 sec or 1 min: tile stats and the detail screen cover only that much?

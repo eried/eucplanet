@@ -737,8 +737,8 @@
     <string name="sync_finished">Synkronoitu %1$d matkaa</string>
     <string name="sync_up_to_date">Jo ajan tasalla</string>
     <string name="sync_conflict_title">Synkronointiristiriita</string>
-    <string name="sync_conflict_body">%1$d matkaa on molemmilla puolilla.</string>
-    <string name="sync_conflict_body_dropbox">%1$d matkaa on sekä Dropboxissa että tässä puhelimessa.</string>
+    <string name="sync_conflict_body">Muutettu molemmilla puolilla: %1$d</string>
+    <string name="sync_conflict_body_dropbox">Muutettu sekä Dropboxissa että tässä puhelimessa: %1$d</string>
     <string name="sync_conflict_app">Kopioi sovellus varmuuskopioon</string>
     <string name="sync_conflict_app_dropbox">Kopioi sovellus Dropboxiin</string>
     <string name="sync_conflict_folder">Kopioi varmuuskopio sovellukseen</string>

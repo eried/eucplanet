@@ -610,11 +610,11 @@
     <string name="sync_rate_limited">Dropbox beperkt dit account. %1$d van %2$d ritten gesynchroniseerd, de rest wordt opnieuw geprobeerd.</string>
     <string name="sync_finished">%1$d ritten gesynchroniseerd</string>
     <string name="sync_conflict_title">Synchronisatieconflict</string>
-    <string name="sync_conflict_body">%1$d ritten staan aan beide kanten.</string>
+    <string name="sync_conflict_body">Aan beide kanten gewijzigd: %1$d</string>
     <string name="sync_conflict_app">App naar back-up kopiëren</string>
     <string name="sync_conflict_folder">Back-up naar app kopiëren</string>
     <string name="sync_conflict_ignore">Alle conflicten overslaan</string>
-    <string name="sync_conflict_body_dropbox">%1$d ritten staan zowel op Dropbox als op deze telefoon.</string>
+    <string name="sync_conflict_body_dropbox">Gewijzigd in Dropbox en op deze telefoon: %1$d</string>
     <string name="sync_conflict_app_dropbox">App naar Dropbox kopiëren</string>
     <string name="sync_conflict_dropbox">Dropbox naar app kopiëren</string>
     <string name="cloud_uploaded_on">Geback-upt op %1$s</string>

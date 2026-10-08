@@ -906,6 +906,11 @@ data class AppSettings(
      *  Sync all UI to label "Last synced 5 min ago" and by the worker to
      *  decide whether the settings.json on Dropbox is current. */
     val dropboxLastSyncAt: Long = 0L,
+    // Hash of the device-stripped settings as of the last successful Dropbox
+    // settings sync. Lets a two-way sync tell "this phone changed settings"
+    // (upload) from "the other device changed them" (apply), so only a genuine
+    // both-changed case prompts. Device-local: stripped, never uploaded.
+    val dropboxSettingsBaseHash: String = "",
     /** True while trips still need uploading to Dropbox; the worker keeps
      *  retrying until it clears. Drives the persistent "Syncing trips…"
      *  indicator so failed / pending uploads are surfaced without an error toast. */

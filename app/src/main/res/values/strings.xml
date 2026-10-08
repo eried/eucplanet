@@ -816,8 +816,8 @@
     <string name="sync_finished">Synchronized %1$d trips</string>
     <string name="sync_up_to_date">Already up to date</string>
     <string name="sync_conflict_title">Synchronization conflict</string>
-    <string name="sync_conflict_body">%1$d trips are on both sides.</string>
-    <string name="sync_conflict_body_dropbox">%1$d trips exist on both Dropbox and this phone.</string>
+    <string name="sync_conflict_body">Changed on both sides: %1$d</string>
+    <string name="sync_conflict_body_dropbox">Changed on both Dropbox and this phone: %1$d</string>
     <string name="sync_conflict_app">Copy App to Backup</string>
     <string name="sync_conflict_app_dropbox">Copy App to Dropbox</string>
     <string name="sync_conflict_folder">Copy Backup to App</string>
