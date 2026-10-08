@@ -2718,7 +2718,6 @@
     <string name="horn_sound_unreadable">Не вдалося відтворити файл</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Карта, показники та кнопки колеса на екрані Android Auto. Підключається само, без налаштування Wi-Fi.</string>
-    <string name="android_auto_navigate_fixed">Навігація завжди перша кнопка.</string>
     <string name="car_waiting">Очікування колеса</string>
     <string name="car_last_battery">Останній заряд %1$d%%</string>
     <string name="car_navigate">Навігація</string>

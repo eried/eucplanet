@@ -2626,7 +2626,6 @@
     <string name="horn_sound_unreadable">Impossibile riprodurre il file</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Mappa, statistiche e pulsanti della ruota su uno schermo Android Auto. Si collega da solo, senza configurare il Wi-Fi.</string>
-    <string name="android_auto_navigate_fixed">Naviga è sempre il primo pulsante.</string>
     <string name="car_waiting">In attesa della ruota</string>
     <string name="car_last_battery">Ultima batteria %1$d%%</string>
     <string name="car_navigate">Naviga</string>

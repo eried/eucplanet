@@ -2736,7 +2736,6 @@
     <string name="horn_sound_unreadable">Den fil kunne ikke afspilles</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Dit kort, statistik og hjulets knapper på en Android Auto-skærm. Forbinder selv, ingen wifi-opsætning.</string>
-    <string name="android_auto_navigate_fixed">Naviger er altid første knap.</string>
     <string name="car_waiting">Venter på hjulet</string>
     <string name="car_last_battery">Seneste batteri %1$d%%</string>
     <string name="car_navigate">Naviger</string>

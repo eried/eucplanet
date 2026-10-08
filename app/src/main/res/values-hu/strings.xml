@@ -2524,7 +2524,6 @@
     <string name="horn_sound_unreadable">A fájl nem játszható le</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Térkép, adatok és a kerék gombjai egy Android Auto képernyőn. Magától csatlakozik, Wi-Fi beállítás nélkül.</string>
-    <string name="android_auto_navigate_fixed">A Navigáció mindig az első gomb.</string>
     <string name="car_waiting">Várakozás a kerékre</string>
     <string name="car_last_battery">Utolsó akku %1$d%%</string>
     <string name="car_navigate">Navigáció</string>

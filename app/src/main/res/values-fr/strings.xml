@@ -2725,7 +2725,6 @@
     <string name="horn_sound_unreadable">Impossible de lire ce fichier</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Votre carte, vos stats et les boutons de la roue sur un écran Android Auto. Connexion automatique, sans réglage Wi-Fi.</string>
-    <string name="android_auto_navigate_fixed">Naviguer est toujours le premier bouton.</string>
     <string name="car_waiting">En attente de la roue</string>
     <string name="car_last_battery">Dernière batterie %1$d%%</string>
     <string name="car_navigate">Naviguer</string>

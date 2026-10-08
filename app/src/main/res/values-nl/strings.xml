@@ -2723,7 +2723,6 @@
     <string name="horn_sound_unreadable">Dat bestand kan niet worden afgespeeld</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Je kaart, statistieken en wielknoppen op een Android Auto-scherm. Verbindt vanzelf, zonder wifi-instelling.</string>
-    <string name="android_auto_navigate_fixed">Navigeren is altijd de eerste knop.</string>
     <string name="car_waiting">Wachten op het wiel</string>
     <string name="car_last_battery">Laatste accu %1$d%%</string>
     <string name="car_navigate">Navigeren</string>

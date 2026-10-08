@@ -2746,7 +2746,6 @@
     <string name="horn_sound_unreadable">That file could not be played</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Your map, stats and wheel buttons on an Android Auto screen. It connects by itself, no Wi-Fi setup.</string>
-    <string name="android_auto_navigate_fixed">Navigate is always the first button.</string>
     <string name="car_waiting">Waiting for the wheel</string>
     <string name="car_last_battery">Last battery %1$d%%</string>
     <string name="car_map_hide">Hide map</string>

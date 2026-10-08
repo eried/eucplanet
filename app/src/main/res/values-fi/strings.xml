@@ -2524,7 +2524,6 @@
     <string name="horn_sound_unreadable">Tiedostoa ei voitu toistaa</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Kartta, tiedot ja pyörän painikkeet Android Auto -näytöllä. Yhdistää itse, ei Wi-Fi-asetuksia.</string>
-    <string name="android_auto_navigate_fixed">Navigoi on aina ensimmäinen painike.</string>
     <string name="car_waiting">Odotetaan pyörää</string>
     <string name="car_last_battery">Viimeisin akku %1$d%%</string>
     <string name="car_navigate">Navigoi</string>

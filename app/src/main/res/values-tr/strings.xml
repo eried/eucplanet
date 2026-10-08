@@ -2718,7 +2718,6 @@
     <string name="horn_sound_unreadable">Bu dosya çalınamadı</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Haritan, verilerin ve tekerin düğmeleri Android Auto ekranında. Kendiliğinden bağlanır, Wi-Fi ayarı gerekmez.</string>
-    <string name="android_auto_navigate_fixed">Navigasyon her zaman ilk düğmedir.</string>
     <string name="car_waiting">Teker bekleniyor</string>
     <string name="car_last_battery">Son pil %%%1$d</string>
     <string name="car_navigate">Navigasyon</string>

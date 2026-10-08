@@ -20,6 +20,8 @@ short.
   12sp labels and 20sp values.
 - Settings > Integration > Android Auto still picks the four stats and the
   three buttons. Navigate is no longer one of them, so all three are yours.
+  That screen was still printing "Navigate is always the first button", which
+  stopped being true when Navigate went. Line removed.
 - Light or lock from the notification, a widget, the car screen or Flic pauses
   that automation too.
 
@@ -39,11 +41,23 @@ short.
   Play Store, Settings, tap the Play Store version seven times and turn on
   Internal app sharing, then open the link. Uninstall any sideloaded copy first if
   the install refuses.
-- Does EUC Planet appear on your Android Auto screen and connect by itself?
+- Does the car screen open at all now? The last build failed to open on some
+  head units. If it still fails, Share crash log on the About screen.
 - Stats update while riding? Speed, battery and the rest read the same as the phone?
 - Horn, Light and Record work from the car screen?
-- Navigate to Home or Work draws the route and shows the next turn?
+- Can you split with Google Maps or Organic Maps now? This is the question the
+  whole POI change exists to answer and no emulator can tell us.
 - Night: the panel switches to dark colors with the screen?
+
+**MotoEye owners, three questions about the camera**
+- With Android Auto running, can you still see the EUC Planet HUD app at all,
+  or does Android Auto take the whole screen?
+- With Android Auto running, does the MotoEye rear camera shortcut still work?
+- Is your Android Auto wired or wireless?
+
+The rear camera can never be drawn by the Android Auto screen: that code runs on
+the phone and the camera is on the HUD, so nothing we ship can reach it. Your
+answers decide whether our HUD app can put it on top instead.
 
 ## Reporting back
 

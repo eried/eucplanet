@@ -2741,7 +2741,6 @@
     <string name="horn_sound_unreadable">Die Datei lässt sich nicht abspielen</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Karte, Werte und Rad-Tasten auf einem Android-Auto-Bildschirm. Verbindet sich selbst, ohne WLAN-Einrichtung.</string>
-    <string name="android_auto_navigate_fixed">Navigieren ist immer die erste Taste.</string>
     <string name="car_waiting">Warte auf das Rad</string>
     <string name="car_last_battery">Letzter Akku %1$d%%</string>
     <string name="car_navigate">Navigieren</string>

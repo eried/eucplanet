@@ -2524,7 +2524,6 @@
     <string name="horn_sound_unreadable">Ten soubor nelze přehrát</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">Mapa, statistiky a tlačítka kola na obrazovce Android Auto. Připojí se samo, bez nastavení Wi-Fi.</string>
-    <string name="android_auto_navigate_fixed">Navigovat je vždy první tlačítko.</string>
     <string name="car_waiting">Čekám na kolo</string>
     <string name="car_last_battery">Poslední baterie %1$d%%</string>
     <string name="car_navigate">Navigovat</string>

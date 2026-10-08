@@ -2588,7 +2588,6 @@
     <string name="horn_sound_unreadable">无法播放这个文件</string>
     <string name="section_android_auto">Android Auto</string>
     <string name="android_auto_hint">在 Android Auto 屏幕上显示地图、数据和独轮车按钮。自动连接，无需设置 Wi-Fi。</string>
-    <string name="android_auto_navigate_fixed">“导航”始终是第一个按钮。</string>
     <string name="car_waiting">正在等待独轮车</string>
     <string name="car_last_battery">上次电量 %1$d%%</string>
     <string name="car_navigate">导航</string>

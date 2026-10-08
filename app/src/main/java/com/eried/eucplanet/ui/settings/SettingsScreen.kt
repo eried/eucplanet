@@ -11933,8 +11933,8 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
 /**
  * Android Auto's stat boxes and buttons, picked like the home screen widget's
  * slots but saved apart: the car and the home screen are different jobs.
- * Navigate is fixed first in the car's button strip, so only three buttons
- * are offered here.
+ * Three buttons, and all three are the rider's. Navigate used to lead the
+ * strip and took a slot; it went when this stopped being a navigation app.
  */
 @Composable
 private fun AndroidAutoSection(
@@ -11966,7 +11966,6 @@ private fun AndroidAutoSection(
                 }
             }
         }
-        HintText(stringResource(R.string.android_auto_navigate_fixed), small = true)
         actionSlots.indices.chunked(2).forEach { pair ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 pair.forEach { i ->
