@@ -279,7 +279,6 @@ class SyncManager @Inject constructor(
         val dbTrips = tripDao.observeAll().first()
         val folderByLower = folderNames.associateBy { it.lowercase() }
         // Handed to uploadCsv so it does not re-list the folder per trip.
-        val folderNameSet = folderNames.toSet()
         val dbByLower = dbTrips.associateBy { it.fileName.lowercase() }
 
         val conflictKeys = folderByLower.keys intersect dbByLower.keys
@@ -324,7 +323,7 @@ class SyncManager @Inject constructor(
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             val file = File(getTripsDir(), trip.fileName)
             if (file.exists()) {
-                val ok = uploadCsv(settings, file, knownNames = folderNameSet)
+                val ok = uploadCsv(settings, file, knownNames = folderByLower)
                 if (ok) {
                     tripDao.update(trip.copy(
                         uploadStatus = 2,
@@ -1934,22 +1933,31 @@ class SyncManager @Inject constructor(
          * trips backed up it slowed to eight files a minute and got slower as
          * the folder filled. A caller that already enumerated the folder can
          * hand the names over, and the common case - a name the folder does
-         * not have - then costs nothing.
+         * not have - then costs nothing. Keyed by the lowercased name, valued
+         * by the folder's own spelling: shared storage ignores case, so a trip
+         * the app spells "inmotion_v14" IS the folder's "Inmotion_V14", and
+         * treating it as missing made the provider add "(1)", "(2)"... on
+         * every pass until it refused at 32.
          */
-        knownNames: Set<String>? = null,
+        knownNames: Map<String, String>? = null,
     ): Boolean {
         val root = getSyncFolder(settings) ?: return false
         val tripsFolder = root.findFile(TRIPS_SUBFOLDER)
             ?: root.createDirectory(TRIPS_SUBFOLDER)
             ?: return false
         return try {
-            val knownHas = knownNames?.contains(localFile.name)
+            val folderSpelling = knownNames?.get(localFile.name.lowercase())
+            val knownHas = knownNames?.let { folderSpelling != null }
             // Nothing to do, and the caller's listing already proves it. Going
             // to the folder to confirm costs a full directory listing, which is
             // the whole reason mirroring a restored library crawled: most of
             // those trips are already backed up.
             if (knownHas == true && skipIfPresent) return true
-            val existing = if (knownHas == false) null else tripsFolder.findFile(localFile.name)
+            val existing = when {
+                knownHas == false -> null
+                folderSpelling != null -> tripsFolder.findFile(folderSpelling)
+                else -> tripsFolder.listFiles().firstOrNull { it.name.equals(localFile.name, ignoreCase = true) }
+            }
             if (existing != null && skipIfPresent) return true
             existing?.delete()
             val dest = tripsFolder.createFile("text/csv", localFile.name) ?: return false
