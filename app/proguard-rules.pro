@@ -43,3 +43,17 @@
     public static int d(...);
     public static int v(...);
 }
+
+# Android Auto. Every template crosses to the host through the Car App
+# Library's own Bundler, which rebuilds each model by reflection and needs a
+# no-arg constructor to do it. The library keeps those itself only for classes
+# it annotated @KeepFields, and MapWithContentTemplate (car-app 1.4.0) carries
+# only @RequiresCarApi, so R8 drops its constructor and the car screen dies at
+# serialization with "Class to deserialize is missing a no args constructor".
+# Release-only: debug builds never run R8, which is why the emulator always
+# passed while every tester saw "EUC Planet has encountered an unexpected
+# error". Keep the constructor on every car-app model, not just the one that
+# bit us, so a library upgrade cannot reintroduce this.
+-keepclassmembers class androidx.car.app.** {
+    <init>();
+}
