@@ -119,7 +119,6 @@ class MetricRegistryTest {
         "PHASE_CURRENT" -> w.phaseCurrent
         "DYN_SPEED_LIMIT" -> w.dynamicSpeedLimit
         "DYN_CURRENT_LIMIT" -> w.dynamicCurrentLimit
-        "AUTO_OFF" -> w.autoOffSeconds.toFloat()
         "MOTOR_TEMP" -> w.temperatures.getOrNull(0) ?: 0f
         "CONTROLLER_TEMP" -> w.temperatures.getOrNull(1) ?: 0f
         "BATTERY_TEMP" -> w.temperatures.getOrNull(2) ?: 0f
@@ -209,7 +208,6 @@ class MetricRegistryTest {
         "PHASE_CURRENT" to { it.phaseCurrent },
         "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
         "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
-        "AUTO_OFF" to { it.autoOffSeconds.toFloat().takeIf { v -> v >= 0f } },
         "MOTOR_TEMP" to { it.temperatures.getOrNull(0)?.takeIf { t -> MetricSanity.isPlausibleTempC(t) } },
         "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1)?.takeIf { t -> MetricSanity.isPlausibleTempC(t) } },
         "BATTERY_TEMP" to { it.temperatures.getOrNull(2)?.takeIf { t -> MetricSanity.isPlausibleTempC(t) } },
