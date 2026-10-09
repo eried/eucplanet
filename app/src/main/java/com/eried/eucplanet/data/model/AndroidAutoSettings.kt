@@ -17,6 +17,15 @@ data class AndroidAutoSettings(
      * makes no sense, and Android Auto allows four buttons in all.
      */
     val actions: String = DEFAULT_ACTIONS,
+    /**
+     * Show a firing alarm on the car screen as a notification.
+     *
+     * The car screen itself is only visible when the rider has it in front of
+     * them, and while navigating they do not. A notification is the one thing
+     * the host will draw over Maps, which makes it the only way a PWM or
+     * battery warning reaches a rider mid-route.
+     */
+    val alarmNotifications: Boolean = true,
 ) {
     companion object {
         const val METRIC_SLOTS = 4

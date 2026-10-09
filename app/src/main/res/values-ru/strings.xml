@@ -2728,4 +2728,10 @@
     <string name="car_place_home">Дом</string>
     <string name="car_place_work">Работа</string>
     <string name="car_no_places">Сначала сохраните Дом или Работу в планировщике маршрутов.</string>
+    <string name="car_waiting_wheel">Ожидание колеса</string>
+    <string name="car_weather">Погода</string>
+    <string name="car_alarm_channel_name">Оповещения на экране авто</string>
+    <string name="car_alarm_channel_description">Показывает сработавшее оповещение на экране Android Auto, поверх карты.</string>
+    <string name="car_alarm_notifications">Оповещения на экране авто</string>
+    <string name="car_alarm_notifications_hint">Сработавшее оповещение появляется поверх карты, поэтому дойдёт до вас во время навигации. Звук и вибрация без изменений.</string>
 </resources>

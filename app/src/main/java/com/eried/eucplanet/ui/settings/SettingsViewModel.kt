@@ -1046,6 +1046,10 @@ class SettingsViewModel @Inject constructor(
         copy(androidAuto = androidAuto.copy(actions = slots.joinToString(",")))
     }
 
+    fun updateAndroidAutoAlarmNotifications(v: Boolean) = update {
+        copy(androidAuto = androidAuto.copy(alarmNotifications = v))
+    }
+
     fun updateHudServerPort(v: Int) = update {
         // Match the dial port range. Below 1024 the HUD's listening socket
         // couldn't bind without root; above 65535 isn't a port.

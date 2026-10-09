@@ -2730,4 +2730,10 @@
     <string name="car_place_home">Casa</string>
     <string name="car_place_work">Trabalho</string>
     <string name="car_no_places">Salve Casa ou Trabalho no planejador de rotas primeiro.</string>
+    <string name="car_waiting_wheel">Aguardando a roda</string>
+    <string name="car_weather">Clima</string>
+    <string name="car_alarm_channel_name">Alarmes na tela do carro</string>
+    <string name="car_alarm_channel_description">Mostra um alarme disparado na tela do Android Auto, sobre o mapa.</string>
+    <string name="car_alarm_notifications">Alarmes na tela do carro</string>
+    <string name="car_alarm_notifications_hint">Um alarme disparado aparece sobre o mapa, então chega até você durante a navegação. Bipe e vibração continuam iguais.</string>
 </resources>

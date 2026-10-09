@@ -2728,4 +2728,10 @@
     <string name="car_place_home">Dom</string>
     <string name="car_place_work">Praca</string>
     <string name="car_no_places">Najpierw zapisz Dom lub Pracę w planerze tras.</string>
+    <string name="car_waiting_wheel">Czekam na koło</string>
+    <string name="car_weather">Pogoda</string>
+    <string name="car_alarm_channel_name">Alarmy na ekranie samochodu</string>
+    <string name="car_alarm_channel_description">Pokazuje uruchomiony alarm na ekranie Android Auto, na mapie.</string>
+    <string name="car_alarm_notifications">Alarmy na ekranie samochodu</string>
+    <string name="car_alarm_notifications_hint">Uruchomiony alarm pojawia się na mapie, więc dotrze do ciebie podczas nawigacji. Sygnał i wibracja bez zmian.</string>
 </resources>

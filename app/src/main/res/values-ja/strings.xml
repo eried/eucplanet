@@ -2729,4 +2729,10 @@
     <string name="car_place_home">自宅</string>
     <string name="car_place_work">職場</string>
     <string name="car_no_places">先にルートビルダーで自宅か職場を保存してください。</string>
+    <string name="car_waiting_wheel">ホイールを待っています</string>
+    <string name="car_weather">天気</string>
+    <string name="car_alarm_channel_name">車載画面のアラーム</string>
+    <string name="car_alarm_channel_description">作動中のアラームを Android Auto の画面に、地図の上に表示します。</string>
+    <string name="car_alarm_notifications">車載画面のアラーム</string>
+    <string name="car_alarm_notifications_hint">作動したアラームが地図の上に表示され、ナビ中でも気づけます。ビープと振動はこれまでどおりです。</string>
 </resources>

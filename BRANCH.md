@@ -15,6 +15,11 @@ short.
   at Maps, so a second, worse map in our card was noise. The space goes to the
   numbers instead.
 - Still no Navigate button and no turn card, same as before.
+- New: a firing alarm now shows on the car screen, over the map. That is the
+  only way a PWM or battery warning reaches you while you are navigating,
+  since the car screen itself is not in front of you then. Turn it off in
+  Settings, Integration, Android Auto. Your beep and vibration are unchanged,
+  and the card does not buzz a second time.
 - Fixed: the app closed when you started a route with EUC Planet's own
   navigation. The car screen was still telling Android Auto "navigation has
   started", which only a navigation app may do, and we stopped being one. The
@@ -67,6 +72,10 @@ short.
   question this build exists to answer. No emulator can tell us: Android Auto's
   split does not exist on any emulator, so you are the only way to find out.
 - Does the weather line in the card show your local temperature and wind?
+- Start a route with EUC Planet's own navigation. The app used to close; it
+  should not now.
+- Trigger an alarm while Maps is navigating. Does the card appear over the map?
+  If you never see one, check EUC Planet is allowed to post notifications.
 - Night: the panel switches to dark colors with the screen?
 
 **MotoEye owners, three questions about the camera**

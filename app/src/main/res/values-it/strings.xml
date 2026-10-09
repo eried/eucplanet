@@ -2633,4 +2633,10 @@
     <string name="car_place_home">Casa</string>
     <string name="car_place_work">Lavoro</string>
     <string name="car_no_places">Salva prima Casa o Lavoro nel pianificatore di percorsi.</string>
+    <string name="car_waiting_wheel">In attesa della ruota</string>
+    <string name="car_weather">Meteo</string>
+    <string name="car_alarm_channel_name">Allarmi sullo schermo dell\'auto</string>
+    <string name="car_alarm_channel_description">Mostra un allarme attivo sullo schermo Android Auto, sopra la mappa.</string>
+    <string name="car_alarm_notifications">Allarmi sullo schermo dell\'auto</string>
+    <string name="car_alarm_notifications_hint">Un allarme attivo compare sopra la mappa, così ti raggiunge durante la navigazione. Bip e vibrazione non cambiano.</string>
 </resources>

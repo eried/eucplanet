@@ -2595,4 +2595,10 @@
     <string name="car_place_home">家</string>
     <string name="car_place_work">公司</string>
     <string name="car_no_places">请先在路线规划中保存家或公司。</string>
+    <string name="car_waiting_wheel">正在等待独轮车</string>
+    <string name="car_weather">天气</string>
+    <string name="car_alarm_channel_name">车机屏幕警报</string>
+    <string name="car_alarm_channel_description">在 Android Auto 屏幕上、地图之上显示触发的警报。</string>
+    <string name="car_alarm_notifications">车机屏幕警报</string>
+    <string name="car_alarm_notifications_hint">触发的警报会显示在地图之上，导航时也能看到。提示音和振动保持不变。</string>
 </resources>

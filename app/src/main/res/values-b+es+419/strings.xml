@@ -2746,4 +2746,10 @@
     <string name="car_place_home">Casa</string>
     <string name="car_place_work">Trabajo</string>
     <string name="car_no_places">Guarda Casa o Trabajo en el planificador de rutas primero.</string>
+    <string name="car_waiting_wheel">Esperando la rueda</string>
+    <string name="car_weather">Clima</string>
+    <string name="car_alarm_channel_name">Alarmas en la pantalla del auto</string>
+    <string name="car_alarm_channel_description">Muestra una alarma activa en la pantalla de Android Auto, sobre el mapa.</string>
+    <string name="car_alarm_notifications">Alarmas en la pantalla del auto</string>
+    <string name="car_alarm_notifications_hint">Una alarma activa aparece sobre el mapa, así te llega mientras navegas. El pitido y la vibración no cambian.</string>
 </resources>

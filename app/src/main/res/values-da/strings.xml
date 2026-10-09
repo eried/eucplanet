@@ -2743,4 +2743,10 @@
     <string name="car_place_home">Hjem</string>
     <string name="car_place_work">Arbejde</string>
     <string name="car_no_places">Gem Hjem eller Arbejde i ruteplanlæggeren først.</string>
+    <string name="car_waiting_wheel">Venter på hjulet</string>
+    <string name="car_weather">Vejr</string>
+    <string name="car_alarm_channel_name">Alarmer på bilskærmen</string>
+    <string name="car_alarm_channel_description">Viser en udløst alarm på Android Auto-skærmen, oven på kortet.</string>
+    <string name="car_alarm_notifications">Alarmer på bilskærmen</string>
+    <string name="car_alarm_notifications_hint">En udløst alarm vises oven på kortet, så den når dig under navigation. Bip og vibration er uændret.</string>
 </resources>

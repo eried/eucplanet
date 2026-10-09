@@ -2732,4 +2732,10 @@
     <string name="car_place_home">Domicile</string>
     <string name="car_place_work">Travail</string>
     <string name="car_no_places">Enregistrez d\'abord Domicile ou Travail dans le planificateur d\'itinéraire.</string>
+    <string name="car_waiting_wheel">En attente de la roue</string>
+    <string name="car_weather">Météo</string>
+    <string name="car_alarm_channel_name">Alertes sur l\'écran de la voiture</string>
+    <string name="car_alarm_channel_description">Affiche une alerte déclenchée sur l\'écran Android Auto, par-dessus la carte.</string>
+    <string name="car_alarm_notifications">Alertes sur l\'écran de la voiture</string>
+    <string name="car_alarm_notifications_hint">Une alerte déclenchée s\'affiche par-dessus la carte et vous atteint pendant la navigation. Le bip et la vibration ne changent pas.</string>
 </resources>

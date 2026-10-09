@@ -2725,4 +2725,10 @@
     <string name="car_place_home">Ev</string>
     <string name="car_place_work">İş</string>
     <string name="car_no_places">Önce rota planlayıcıda Ev veya İş kaydet.</string>
+    <string name="car_waiting_wheel">Teker bekleniyor</string>
+    <string name="car_weather">Hava durumu</string>
+    <string name="car_alarm_channel_name">Araç ekranındaki alarmlar</string>
+    <string name="car_alarm_channel_description">Tetiklenen alarmı Android Auto ekranında, haritanın üstünde gösterir.</string>
+    <string name="car_alarm_notifications">Araç ekranındaki alarmlar</string>
+    <string name="car_alarm_notifications_hint">Tetiklenen alarm haritanın üstünde görünür, böylece yol tarifi sırasında da sana ulaşır. Bip ve titreşim değişmez.</string>
 </resources>

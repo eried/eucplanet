@@ -2748,4 +2748,10 @@
     <string name="car_place_home">Zuhause</string>
     <string name="car_place_work">Arbeit</string>
     <string name="car_no_places">Speichere zuerst Zuhause oder Arbeit im Routenplaner.</string>
+    <string name="car_waiting_wheel">Warte auf das Wheel</string>
+    <string name="car_weather">Wetter</string>
+    <string name="car_alarm_channel_name">Alarme auf dem Autobildschirm</string>
+    <string name="car_alarm_channel_description">Zeigt einen ausgelösten Alarm auf dem Android-Auto-Bildschirm über der Karte.</string>
+    <string name="car_alarm_notifications">Alarme auf dem Autobildschirm</string>
+    <string name="car_alarm_notifications_hint">Ein ausgelöster Alarm erscheint über der Karte und erreicht dich so während der Navigation. Ton und Vibration bleiben gleich.</string>
 </resources>

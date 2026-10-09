@@ -2725,4 +2725,10 @@
     <string name="car_place_home">Дім</string>
     <string name="car_place_work">Робота</string>
     <string name="car_no_places">Спершу збережіть Дім або Роботу в планувальнику маршрутів.</string>
+    <string name="car_waiting_wheel">Очікування колеса</string>
+    <string name="car_weather">Погода</string>
+    <string name="car_alarm_channel_name">Сповіщення на екрані авто</string>
+    <string name="car_alarm_channel_description">Показує спрацьоване сповіщення на екрані Android Auto, поверх карти.</string>
+    <string name="car_alarm_notifications">Сповіщення на екрані авто</string>
+    <string name="car_alarm_notifications_hint">Спрацьоване сповіщення з’являється поверх карти, тож дійде до вас під час навігації. Звук і вібрація без змін.</string>
 </resources>

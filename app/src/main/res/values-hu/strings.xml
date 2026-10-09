@@ -2531,4 +2531,10 @@
     <string name="car_place_home">Otthon</string>
     <string name="car_place_work">Munka</string>
     <string name="car_no_places">Előbb mentsd el az Otthon vagy Munka helyet az útvonaltervezőben.</string>
+    <string name="car_waiting_wheel">Várakozás a kerékre</string>
+    <string name="car_weather">Időjárás</string>
+    <string name="car_alarm_channel_name">Riasztások az autó kijelzőjén</string>
+    <string name="car_alarm_channel_description">Megjeleníti az aktív riasztást az Android Auto kijelzőjén, a térkép felett.</string>
+    <string name="car_alarm_notifications">Riasztások az autó kijelzőjén</string>
+    <string name="car_alarm_notifications_hint">Az aktív riasztás a térkép felett jelenik meg, így navigálás közben is elér. A hangjelzés és a rezgés változatlan.</string>
 </resources>

@@ -2730,4 +2730,10 @@
     <string name="car_place_home">Thuis</string>
     <string name="car_place_work">Werk</string>
     <string name="car_no_places">Sla eerst Thuis of Werk op in de routeplanner.</string>
+    <string name="car_waiting_wheel">Wachten op het wiel</string>
+    <string name="car_weather">Weer</string>
+    <string name="car_alarm_channel_name">Alarmen op het autoscherm</string>
+    <string name="car_alarm_channel_description">Toont een afgegaan alarm op het Android Auto-scherm, over de kaart heen.</string>
+    <string name="car_alarm_notifications">Alarmen op het autoscherm</string>
+    <string name="car_alarm_notifications_hint">Een afgegaan alarm verschijnt over de kaart, zodat het je tijdens het navigeren bereikt. Piep en trilling blijven gelijk.</string>
 </resources>

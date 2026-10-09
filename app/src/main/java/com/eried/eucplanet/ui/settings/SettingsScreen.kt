@@ -11981,6 +11981,11 @@ private fun AndroidAutoSection(
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
+        SwitchSetting(
+            stringResource(R.string.car_alarm_notifications),
+            settings.androidAuto.alarmNotifications,
+        ) { viewModel.updateAndroidAutoAlarmNotifications(it) }
+        HintText(stringResource(R.string.car_alarm_notifications_hint), small = true)
     }
 }
 

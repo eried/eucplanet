@@ -2727,4 +2727,10 @@
     <string name="car_place_home">家</string>
     <string name="car_place_work">公司</string>
     <string name="car_no_places">請先在路線規劃中儲存家或公司。</string>
+    <string name="car_waiting_wheel">正在等待電動獨輪車</string>
+    <string name="car_weather">天氣</string>
+    <string name="car_alarm_channel_name">車機畫面警示</string>
+    <string name="car_alarm_channel_description">在 Android Auto 畫面上、地圖之上顯示觸發的警示。</string>
+    <string name="car_alarm_notifications">車機畫面警示</string>
+    <string name="car_alarm_notifications_hint">觸發的警示會顯示在地圖之上，導航時也能看到。嗶聲與震動維持不變。</string>
 </resources>

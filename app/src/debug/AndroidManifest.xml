@@ -18,6 +18,8 @@
             <intent-filter>
                 <action android:name="com.eried.eucplanet.SURVEY_APPLY" />
                 <action android:name="com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL" />
+                <action android:name="com.eried.eucplanet.SURVEY_START_NAV" />
+                <action android:name="com.eried.eucplanet.SURVEY_CAR_ALARM" />
             </intent-filter>
         </receiver>
 
