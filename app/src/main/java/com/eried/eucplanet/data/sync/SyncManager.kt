@@ -1871,6 +1871,55 @@ class SyncManager @Inject constructor(
      *  Sizes are what tell an already-backed-up trip from a conflict: same
      *  name, different bytes means the two sides disagree and neither may be
      *  overwritten without the rider choosing. */
+    /**
+     * Delete the renamed duplicates a case mismatch used to leave in the
+     * backup folder's trips, see [RenamedCopyCleanup]. Names and sizes come
+     * from one provider query, and files are only read when a "(N)" copy has a
+     * same-sized candidate, so a clean folder costs one listing. Returns how
+     * many copies went.
+     */
+    fun removeRenamedTripCopies(settings: AppSettings): Int {
+        val root = getSyncFolder(settings) ?: return 0
+        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return 0
+        val resolver = context.contentResolver
+        val children = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(
+            trips.uri, android.provider.DocumentsContract.getDocumentId(trips.uri))
+        val ids = HashMap<String, String>()
+        val entries = mutableListOf<RenamedCopyCleanup.Entry>()
+        try {
+            resolver.query(children, arrayOf(
+                android.provider.DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                android.provider.DocumentsContract.Document.COLUMN_SIZE,
+            ), null, null, null)?.use { c ->
+                while (c.moveToNext()) {
+                    val name = c.getString(1) ?: continue
+                    if (!name.endsWith(".csv", ignoreCase = true)) continue
+                    ids[name] = c.getString(0)
+                    entries += RenamedCopyCleanup.Entry(name, c.getLong(2))
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not list the trips folder for duplicates", e)
+            return 0
+        }
+        fun uriOf(name: String) =
+            android.provider.DocumentsContract.buildDocumentUriUsingTree(trips.uri, ids.getValue(name))
+        fun bytes(name: String) = resolver.openInputStream(uriOf(name))?.use { it.readBytes() }
+        val doomed = RenamedCopyCleanup.plan(entries) { a, b ->
+            val x = bytes(a.name); x != null && x.contentEquals(bytes(b.name))
+        }
+        var removed = 0
+        for (name in doomed) {
+            val ok = try {
+                android.provider.DocumentsContract.deleteDocument(resolver, uriOf(name))
+            } catch (e: Exception) { false }
+            if (ok) removed++
+        }
+        if (removed > 0) Log.i(TAG, "Removed $removed duplicate trip copies from the backup folder")
+        return removed
+    }
+
     fun listFolderTripSizes(settings: AppSettings): Map<String, Long>? {
         val root = getSyncFolder(settings) ?: return null
         val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyMap()
