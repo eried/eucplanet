@@ -12,6 +12,7 @@ import android.util.Log
 import androidx.car.app.AppManager
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
+import androidx.car.app.constraints.ConstraintManager
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.ListTemplate
@@ -19,9 +20,7 @@ import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
-import androidx.car.app.navigation.NavigationManager
 import androidx.car.app.navigation.model.MapController
-import androidx.car.app.navigation.NavigationManagerCallback
 import androidx.car.app.navigation.model.MapWithContentTemplate
 import androidx.car.app.validation.HostValidator
 import kotlinx.coroutines.flow.merge
@@ -77,6 +76,9 @@ class EucCarAppService : CarAppService() {
     private companion object {
         const val TAG = "EucCarAppService"
         const val DEBUG_API_LEVEL_PROP = "debug.eucplanet.car.apilevel"
+        /** Used only if the host refuses to say. The Car App Library's own
+         *  fallback for a pane is 4 rows. */
+        const val DEFAULT_PANE_ROWS = 4
     }
 
     override fun createHostValidator(): HostValidator =
@@ -133,14 +135,20 @@ class EucCarAppService : CarAppService() {
         }
     }
 
-    /** The map screen: Android Auto's frame around our drawing. */
+    /** The car screen: Android Auto's frame around our numbers. */
     private inner class RideScreen(carContext: CarContext) : Screen(carContext) {
-        private val navManager = carContext.getCarService(NavigationManager::class.java)
 
         init {
-            navManager.setNavigationManagerCallback(object : NavigationManagerCallback {
-                override fun onStopNavigation() = navigationEngine.stop()
-            })
+            // No NavigationManager. It is a navigation-app API and this app is
+            // not one any more: the manifest carries MAP_TEMPLATES, not
+            // NAVIGATION_TEMPLATES, so every navigationStarted() call went to
+            // the host without the permission that authorises it. The call
+            // only fired once the rider actually started a route, which is
+            // exactly when a tester reported "app closes when navigating using
+            // the built in EUC Planet navigation feature". Stopping navigation
+            // from the car screen goes with it; the rider stops it on the
+            // phone, where they started it.
+            //
             // Redraw the frame when something it shows changes: button labels
             // (light, recording) and, now that the rider's numbers live in the
             // content pane rather than on the surface, the numbers themselves.
@@ -159,11 +167,8 @@ class EucCarAppService : CarAppService() {
                         wheelRepository.connectionState,
                         wheelRepository.wheelData.sample(1_000L),
                     ),
-                ) { _, _, nav, _, _ -> nav.active }
-                    .collect { active ->
-                        if (active) navManager.navigationStarted() else navManager.navigationEnded()
-                        invalidate()
-                    }
+                ) { _, _, _, _, _ -> Unit }
+                    .collect { invalidate() }
             }
         }
 
@@ -182,27 +187,35 @@ class EucCarAppService : CarAppService() {
             val wheel = wheelRepository.wheelData.value
             val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
             val pane = Pane.Builder()
-            // Weather leads the pane. This is a weather-category app, which is
-            // the only kind the host will put in a card beside Maps, and WE-1
-            // asks for weather relevant to where the rider is. It earns its
-            // line anyway: temperature and wind are what decide whether the
-            // ride is pleasant.
-            weatherRow()?.let { pane.addRow(it) }
+            // A pane does not scroll while driving, and the host caps how many
+            // rows it will draw. We used to add four metrics and hope; a tester
+            // on a MotoEye reported "cannot scroll below the 3rd metric",
+            // which is this cap silently eating the rest. Ask the host what it
+            // will take and never build more than that.
+            val limit = runCatching {
+                carContext.getCarService(ConstraintManager::class.java)
+                    .getContentLimit(ConstraintManager.CONTENT_LIMIT_TYPE_PANE)
+            }.getOrDefault(DEFAULT_PANE_ROWS).coerceAtLeast(1)
+
+            val rows = mutableListOf<Row>()
             if (connected) {
                 AndroidAutoSettings.metricSlots(s.androidAuto.metrics).forEach { key ->
                     val type = WidgetMetricType.byKey(key) ?: return@forEach
-                    pane.addRow(
-                        Row.Builder()
-                            .setTitle(carContext.getString(type.pickerLabel))
-                            .addText(carMetricText(type, wheel, s))
-                            .build()
-                    )
+                    rows += Row.Builder()
+                        .setTitle(carContext.getString(type.pickerLabel))
+                        .addText(carMetricText(type, wheel, s))
+                        .build()
                 }
             } else {
-                pane.addRow(
-                    Row.Builder().setTitle(carContext.getString(R.string.car_waiting_wheel)).build()
-                )
+                rows += Row.Builder()
+                    .setTitle(carContext.getString(R.string.car_waiting_wheel)).build()
             }
+            // Weather goes last and only if there is room left. It is what the
+            // category asks for, but the rider chose those metrics and a line
+            // about the sky must not push one of them off the screen.
+            if (rows.size < limit) weatherRow()?.let { rows += it }
+            rows.take(limit).forEach { pane.addRow(it) }
+            Log.i(TAG, "pane rows ${rows.size.coerceAtMost(limit)} of limit $limit")
             val built = pane.build()
             val title = getString(R.string.app_name)
 

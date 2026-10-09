@@ -15,6 +15,15 @@ short.
   at Maps, so a second, worse map in our card was noise. The space goes to the
   numbers instead.
 - Still no Navigate button and no turn card, same as before.
+- Fixed: the app closed when you started a route with EUC Planet's own
+  navigation. The car screen was still telling Android Auto "navigation has
+  started", which only a navigation app may do, and we stopped being one. The
+  call is gone. Stop a route from the phone, where you started it.
+- Fixed: the car panel no longer builds more rows than your head unit will
+  draw. It asks the head unit how many it takes. The weather line goes last
+  and only when there is room, so it never pushes out a metric you chose.
+  If your panel is short, set the metric slots you do not need to None in
+  Settings, Integration, Android Auto.
 - The rider's four metrics moved off our map and into the car's own content
   pane, which the head unit draws large. The map keeps speed alone, at 72sp.
 - The map-off view now survives a split. Josh reported that splitting "just
