@@ -20,11 +20,9 @@ import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.NavigationManager
-import androidx.car.app.navigation.NavigationManagerCallback
 import androidx.car.app.navigation.model.MapController
+import androidx.car.app.navigation.NavigationManagerCallback
 import androidx.car.app.navigation.model.MapWithContentTemplate
-import androidx.car.app.navigation.model.MessageInfo
-import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.validation.HostValidator
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.sample
@@ -74,6 +72,7 @@ class EucCarAppService : CarAppService() {
     @Inject lateinit var navigationEngine: NavigationEngine
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var routingService: RoutingService
+    @Inject lateinit var weatherRepository: com.eried.eucplanet.weather.WeatherRepository
 
     private companion object {
         const val TAG = "EucCarAppService"
@@ -89,9 +88,12 @@ class EucCarAppService : CarAppService() {
             HostValidator.Builder(this).addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample).build()
         }
 
-    /** Map on or off on the car surface. A rider who wants numbers should not
-     *  have to read them off a corner of a map; see the Map action. */
-    private val mapVisible = mutableStateOf(true)
+    /** The car surface no longer draws the map. On a head unit the rider
+     *  already has Maps beside us, so a second, worse map in our card is noise,
+     *  and the point of the card is numbers readable at a glance. Kept as a
+     *  value rather than deleted so CarRideContent keeps one call shape and the
+     *  map path stays available to the phone overlay. */
+    private val mapVisible = mutableStateOf(false)
 
     /** Sanitized settings for the templates, which cannot suspend. */
     private lateinit var settingsState: kotlinx.coroutines.flow.StateFlow<com.eried.eucplanet.data.model.AppSettings>
@@ -180,6 +182,12 @@ class EucCarAppService : CarAppService() {
             val wheel = wheelRepository.wheelData.value
             val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
             val pane = Pane.Builder()
+            // Weather leads the pane. This is a weather-category app, which is
+            // the only kind the host will put in a card beside Maps, and WE-1
+            // asks for weather relevant to where the rider is. It earns its
+            // line anyway: temperature and wind are what decide whether the
+            // ride is pleasant.
+            weatherRow()?.let { pane.addRow(it) }
             if (connected) {
                 AndroidAutoSettings.metricSlots(s.androidAuto.metrics).forEach { key ->
                     val type = WidgetMetricType.byKey(key) ?: return@forEach
@@ -216,12 +224,18 @@ class EucCarAppService : CarAppService() {
                 ?: carContext.carAppApiLevel
             Log.i(TAG, "car host api level $apiLevel")
             return if (apiLevel >= 7) {
+                // The map is gone from the car screen: on a head unit the rider
+                // is already looking at Maps, and a second, worse map in our
+                // card is noise. The surface carries the big numbers instead.
+                //
+                // The MapController stays even with no map and no map actions.
+                // Without one the host keeps the surface to itself and never
+                // calls our SurfaceCallback, which leaves the whole area blank
+                // white. Seen on the car emulator, not guessed.
                 MapWithContentTemplate.Builder()
                     .setContentTemplate(PaneTemplate.Builder(built).setTitle(title).build())
                     .setActionStrip(actionStrip(false))
-                    .setMapController(
-                        MapController.Builder().setMapActionStrip(mapActionStrip()).build()
-                    )
+                    .setMapController(MapController.Builder().build())
                     .build()
             } else {
                 PaneTemplate.Builder(built)
@@ -229,6 +243,34 @@ class EucCarAppService : CarAppService() {
                     .setActionStrip(actionStrip(false, iconOnly = true, max = 2))
                     .build()
             }
+        }
+
+        /**
+         * The rider's local weather, or null before the first forecast lands.
+         *
+         * Reads the cache the dashboard already fills, so the car screen never
+         * fetches on its own: a head unit that has only just connected simply
+         * shows no weather line until the phone has one, which is better than
+         * a row that says nothing.
+         */
+        private fun weatherRow(): Row? {
+            val now = weatherRepository.forecast.value?.hours?.firstOrNull() ?: return null
+            val s = settingsState.value
+            val tempUnit = Units.effectiveTempUnit(s)
+            val speedUnit = Units.effectiveSpeedUnit(s)
+            val temp = Units.temperature(now.tempC, tempUnit)
+            // Wind arrives in m/s; the rider's speed unit is what they read all
+            // day, so convert through km/h rather than inventing a third unit.
+            val wind = Units.speed(now.windMs * 3.6f, speedUnit)
+            return Row.Builder()
+                .setTitle(carContext.getString(R.string.car_weather))
+                .addText(
+                    "%.0f %s  %.0f %s".format(
+                        temp, Units.tempUnit(tempUnit),
+                        wind, Units.speedUnit(carContext, speedUnit),
+                    )
+                )
+                .build()
         }
 
         /** One metric, formatted exactly as the surface and the widget do. */
@@ -245,30 +287,6 @@ class EucCarAppService : CarAppService() {
             return WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) +
                 " " + WidgetMetricFormat.unit(carContext, type, speedUnit, distUnit, tempUnit)
         }
-
-        /**
-         * Map controls get their own strip, so toggling the map never costs the
-         * rider one of their three buttons.
-         *
-         * Icon only, no title. The map strip allows zero titled actions, and a
-         * title here is not a style mistake but a crash: "Action list exceeded
-         * max number of 0 actions with custom titles".
-         */
-        private fun mapActionStrip(): ActionStrip = ActionStrip.Builder()
-            .addAction(
-                Action.Builder()
-                    .setIcon(
-                        CarIcon.Builder(
-                            IconCompat.createWithResource(carContext, R.drawable.ic_car_map)
-                        ).build()
-                    )
-                    .setOnClickListener {
-                        mapVisible.value = !mapVisible.value
-                        invalidate()
-                    }
-                    .build()
-            )
-            .build()
 
         /**
          * [iconOnly] drops the labels. PaneTemplate allows exactly one titled

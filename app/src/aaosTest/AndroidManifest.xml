@@ -12,8 +12,22 @@
 
     See docs/android-auto-testing.md.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application>
+        <!-- Connects a virtual wheel so the car screen can be seen with live
+             numbers: adb shell am broadcast -a
+             com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL -p com.eried.eucplanet -->
+        <receiver
+            android:name="com.eried.eucplanet.survey.SurveyControlReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.eried.eucplanet.SURVEY_APPLY" />
+                <action android:name="com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name="androidx.car.app.activity.CarAppActivity"
             android:exported="true"

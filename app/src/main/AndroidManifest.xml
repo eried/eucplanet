@@ -347,7 +347,13 @@
             android:foregroundServiceType="location">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
-                <category android:name="androidx.car.app.category.POI" />
+                <!-- WEATHER, not POI. Only a weather app can take a dashboard
+                     card beside Google Maps; POI renders full screen and never
+                     shares, which is why testers kept reporting no split. The
+                     category is honest: the pane carries the rider's local
+                     forecast, which is WE-1. Do NOT add NAVIGATION_TEMPLATES
+                     alongside MAP_TEMPLATES, the docs reject apps with both. -->
+                <category android:name="androidx.car.app.category.WEATHER" />
             </intent-filter>
         </service>
         <meta-data

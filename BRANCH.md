@@ -6,9 +6,15 @@ short.
 
 ## Worked on
 
-- Android Auto is no longer a navigation app. It is a POI app, so it no longer
-  fights Google Maps for the one navigation slot. The cost is real: no Navigate
-  button and no turn card on the car screen.
+- Android Auto is now a weather app, not a navigation or POI app. This is the
+  split-screen fix. Android Auto only ever puts two things side by side, a
+  navigation app and one card beside it, and a POI app can never be that card.
+  A weather app can. The category is honest, the card carries your local
+  temperature and wind on its top line.
+- The map is gone from the car screen. On a head unit you are already looking
+  at Maps, so a second, worse map in our card was noise. The space goes to the
+  numbers instead.
+- Still no Navigate button and no turn card, same as before.
 - The rider's four metrics moved off our map and into the car's own content
   pane, which the head unit draws large. The map keeps speed alone, at 72sp.
 - The map-off view now survives a split. Josh reported that splitting "just
@@ -48,8 +54,10 @@ short.
   head units. If it still fails, Share crash log on the About screen.
 - Stats update while riding? Speed, battery and the rest read the same as the phone?
 - Horn, Light and Record work from the car screen?
-- Can you split with Google Maps or Organic Maps now? This is the question the
-  whole POI change exists to answer and no emulator can tell us.
+- **Can you split with Google Maps or Organic Maps now?** This is the one
+  question this build exists to answer. No emulator can tell us: Android Auto's
+  split does not exist on any emulator, so you are the only way to find out.
+- Does the weather line in the card show your local temperature and wind?
 - Night: the panel switches to dark colors with the screen?
 
 **MotoEye owners, three questions about the camera**

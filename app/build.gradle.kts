@@ -254,9 +254,12 @@ android {
             kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
         }
         // -PaaosTest only: hands the release variant the CarAppActivity the AAOS
-        // emulator launches. Never merged into a build that ships.
+        // emulator launches, plus the survey receiver so a virtual wheel can be
+        // connected and the car screen checked with real numbers rather than an
+        // empty "waiting for the wheel". Never merged into a build that ships.
         if (project.hasProperty("aaosTest")) {
             getByName("release").manifest.srcFile("src/aaosTest/AndroidManifest.xml")
+            getByName("release").kotlin.srcDir("src/debug/java")
         }
     }
 }
