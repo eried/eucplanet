@@ -316,7 +316,16 @@ fun CrewsPairScreen(
                 )
                 Spacer(Modifier.height(12.dp))
                 if (s.offer == null) {
-                    CircularProgressIndicator(Modifier.height(26.dp))
+                    // Centred for the same reason the code above it is: the card's body is a
+                    // Column that aligns its children to the start. `Step.Sending` below was
+                    // given this and this one was not, so the spinner the rider actually waits
+                    // on -- the one between scanning the code and being asked to grant it --
+                    // sat against the left edge under a centred six-character code.
+                    CircularProgressIndicator(
+                        Modifier
+                            .height(26.dp)
+                            .align(Alignment.CenterHorizontally),
+                    )
                 } else {
                     Hint(stringResource(R.string.crews_grant))
                     Spacer(Modifier.height(18.dp))
