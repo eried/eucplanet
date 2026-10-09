@@ -37,6 +37,8 @@ class TripUploadWorker @AssistedInject constructor(
 
         val pending = tripDao.getPendingUploads()
 
+        syncManager.removeRenamedTripCopies(settings)
+
         // One listing for the whole pass. Asking the folder about each trip in
         // turn is what made mirroring a restored library crawl.
         val folderSizes = syncManager.listFolderTripSizes(settings)
