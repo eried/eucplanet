@@ -43,6 +43,8 @@ class BegodeParser {
     @Volatile private var lastTripKm: Float = 0f
     @Volatile private var lastPwmPct: Float = 0f
     @Volatile private var lastLightOn: Boolean = false
+    /** Auto power-off countdown from Live B, in seconds; -1 until one arrives. */
+    @Volatile private var lastAutoOffSeconds: Int = -1
     /** Begode firmware has no discrete park/drive state, so we derive it from
      *  speed in parseLiveA and surface it as pcMode so the dashboard's P/D
      *  cluster lights up while moving. 3 = idle (stopped), 1 = drive. */
@@ -89,6 +91,7 @@ class BegodeParser {
         lastTripKm = 0f
         lastPwmPct = 0f
         lastLightOn = false
+        lastAutoOffSeconds = -1
         lastPcMode = 3
         hasExtras = false
         hasExtrasCurrent = false
@@ -277,6 +280,7 @@ class BegodeParser {
             batteryPower = powerW,
             motorPower = powerW,
             lightOn = lastLightOn,
+            autoOffSeconds = lastAutoOffSeconds,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )
@@ -306,6 +310,12 @@ class BegodeParser {
         val settings = ByteUtils.getUint16BE(frame, 6)
         wheelInMiles = (settings and 0x0001) != 0
         val maxSpeed = if (wheelInMiles) maxSpeedRaw * MILES_TO_KM else maxSpeedRaw
+
+        // Auto power-off countdown at offset 8..9, u16 BE in SECONDS (the
+        // spec table said minutes). It counts down while the wheel stands
+        // still and restarts when it moves. EUC Dash (MIT) reads the same
+        // bytes the same way, taken as reference only.
+        lastAutoOffSeconds = ByteUtils.getUint16BE(frame, 8)
 
         // Light mode at offset 15. Low 2 bits: 0=off, 1=on, 2=strobe.
         val lightBits = frame[15].toInt() and 0x03
@@ -401,6 +411,7 @@ class BegodeParser {
             batteryPower = powerW,
             motorPower = powerW,
             lightOn = lastLightOn,
+            autoOffSeconds = lastAutoOffSeconds,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )

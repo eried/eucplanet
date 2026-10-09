@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Konum</string>
     <string name="metric_chip_dyn_speed_limit">Dinamik hız sınırı</string>
     <string name="metric_chip_dyn_current_limit">Dinamik akım sınırı</string>
+    <string name="metric_chip_auto_off">Otomatik kapanma</string>
     <string name="metric_chip_motor_temp">Motor sıcaklığı</string>
     <string name="metric_chip_controller_temp">Kontrolör sıcaklığı</string>
     <string name="metric_chip_battery_temp">Akü sıcaklığı</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ktrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Hız sınır</string>
     <string name="metric_chip_dyn_current_limit_tile">A sınır</string>
+    <string name="metric_chip_auto_off_tile">Oto kapanma</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS akü</string>

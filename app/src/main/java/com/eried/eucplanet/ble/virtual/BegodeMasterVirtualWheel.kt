@@ -72,6 +72,9 @@ class BegodeMasterVirtualWheel : VirtualWheel {
         if (elapsedMs - lastExtrasTickMs >= 1_000L) {
             lastExtrasTickMs = elapsedMs
             out += begodeExtrasFrame(motorTempC = 38)
+            // Live B once a second too, so the auto power-off tile counts down
+            // the way a parked wheel's does (92:40 from the EUC Dash shot).
+            out += begodeLiveBFrame(autoOffSeconds = (5560 - (elapsedMs / 1000L).toInt()).coerceAtLeast(0), tiltbackKmh = 70)
         }
         return out
     }
@@ -114,6 +117,26 @@ internal fun begodeExtrasFrame(motorTempC: Int): ByteArray {
     frame[1] = 0xAA.toByte()
     putInt16BE(frame, 6, motorTempC)
     frame[18] = 0x07
+    frame[20] = 0x5A
+    frame[21] = 0x5A
+    frame[22] = 0x5A
+    frame[23] = 0x5A
+    return frame
+}
+
+/**
+ * One Begode "live B" (tag 0x04) frame: settings, tiltback and the auto
+ * power-off countdown in seconds at bytes 8..9. Everything else stays 0
+ * (km units, lights off, no alerts).
+ */
+internal fun begodeLiveBFrame(autoOffSeconds: Int, tiltbackKmh: Int): ByteArray {
+    val frame = ByteArray(24)
+    frame[0] = 0x55
+    frame[1] = 0xAA.toByte()
+    putUint16BE(frame, 8, autoOffSeconds)
+    putUint16BE(frame, 10, tiltbackKmh)
+    frame[18] = 0x04
+    frame[19] = 0x18
     frame[20] = 0x5A
     frame[21] = 0x5A
     frame[22] = 0x5A

@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Положення</string>
     <string name="metric_chip_dyn_speed_limit">Динамічний ліміт швидкості</string>
     <string name="metric_chip_dyn_current_limit">Динамічний ліміт струму</string>
+    <string name="metric_chip_auto_off">Автовимкнення</string>
     <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_controller_temp">Температура контролера</string>
     <string name="metric_chip_battery_temp">Температура батареї</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Автовимк.</string>
     <string name="metric_chip_phone_battery_tile">Тел</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS бат</string>

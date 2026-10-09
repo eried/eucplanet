@@ -1567,6 +1567,7 @@
     <string name="metric_chip_current">Strøm</string>
     <string name="metric_chip_descent">Fall</string>
     <string name="metric_chip_dyn_current_limit">Dynamisk strømgrense</string>
+    <string name="metric_chip_auto_off">Automatisk avslåing</string>
     <string name="metric_chip_dyn_speed_limit">Dynamisk fartgrense</string>
     <string name="metric_chip_forward_g">Frem-g</string>
     <string name="metric_chip_g_force">G-kraft</string>
@@ -1688,6 +1689,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Auto av</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS-bat</string>

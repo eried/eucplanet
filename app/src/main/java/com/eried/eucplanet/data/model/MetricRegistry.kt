@@ -199,6 +199,9 @@ object MetricRegistry {
             raw = { it.dynamicSpeedLimit }),
         MetricDef("DYN_CURRENT_LIMIT", unit = MetricUnitKind.CURRENT, source = MetricSource.WHEEL,
             raw = { it.dynamicCurrentLimit }),
+        // Seconds to the wheel's auto power-off; -1 on wheels that do not send it.
+        MetricDef("AUTO_OFF", unit = MetricUnitKind.TIME, source = MetricSource.WHEEL,
+            absence = MetricAbsence.NEGATIVE, raw = { it.autoOffSeconds.toFloat() }),
         // Per-sensor temperatures. Null when the wheel sends fewer slots. The
         // tile, history buffer and alarm also drop implausible readings
         // (read); voice, the detail screen and the service overlay take the

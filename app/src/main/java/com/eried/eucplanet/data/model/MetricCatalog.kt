@@ -276,6 +276,12 @@ object MetricCatalog {
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
         ),
+        MetricSpec(
+            key = "AUTO_OFF",
+            labelRes = R.string.metric_chip_auto_off,
+            accent = AccentBlue,
+            sparkline = SparklineStyle.LINE
+        ),
 
         // ---- Individual temperature sensors ----
         MetricSpec(

@@ -1305,6 +1305,8 @@ private val VOICE_READS: List<Pair<String, Boolean>> = listOf(
     "GPS_SPEED" to true,
     "DYN_SPEED_LIMIT" to false,
     "DYN_CURRENT_LIMIT" to false,
+    // -1 means the wheel does not send it (every family but Begode).
+    "AUTO_OFF" to true,
     "WHEEL_MAX_SPEED" to true,
     "WHEEL_ALARM_SPEED" to true,
     // 0 dBm is "not read yet".

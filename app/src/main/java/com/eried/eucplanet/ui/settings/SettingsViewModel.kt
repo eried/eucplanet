@@ -72,6 +72,8 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
     "PITCH", "ROLL",
     "G_FORCE", "LATERAL_G", "FORWARD_G",
     "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+    // Begode's auto power-off countdown.
+    "AUTO_OFF",
     // Individual temperature sensors (WheelData.temperatures by index).
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
     // Derived trip metrics (computed from speed/voltage/current histories

@@ -164,6 +164,8 @@ internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.
         "PHASE_CURRENT",
         "DYN_SPEED_LIMIT",
         "DYN_CURRENT_LIMIT",
+        // null (skip) on wheels that do not send it, via the registry's -1 sentinel.
+        "AUTO_OFF",
         // Only record PLAUSIBLE temps (and skip absent sensors) so the stats match
         // the tile, which hides implausible / missing readings. null -> skip sample.
         "MOTOR_TEMP",

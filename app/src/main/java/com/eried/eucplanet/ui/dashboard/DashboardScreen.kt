@@ -1719,6 +1719,9 @@ fun DashboardScreen(
                         ) else placeholder
                     "DYN_CURRENT_LIMIT" -> if (wheelData.dynamicCurrentLimit > 0f)
                         "%.1fA".format(wheelData.dynamicCurrentLimit) else placeholder
+                    "AUTO_OFF" -> if (wheelData.autoOffSeconds >= 0)
+                        com.eried.eucplanet.data.model.MetricValueFormat.autoOffClock(wheelData.autoOffSeconds)
+                        else placeholder
                     "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)
                         ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
                         ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
