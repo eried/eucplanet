@@ -59,6 +59,21 @@ class DropboxSyncWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
+        // One Dropbox pass at a time. The periodic job, the one-off job and a
+        // rider's Sync all are separate entries to WorkManager and the app, and
+        // two of them walking the same list uploaded every trip twice.
+        if (syncManager.syncRunning.value) {
+            Log.i(TAG, "Sync all is running; trying again later")
+            return Result.retry()
+        }
+        if (!syncManager.dropboxPassLock.tryLock()) {
+            Log.i(TAG, "Another Dropbox pass is running; skipping")
+            return Result.success()
+        }
+        return try { pass() } finally { syncManager.dropboxPassLock.unlock() }
+    }
+
+    private suspend fun pass(): Result {
         val settings = settingsRepository.get()
         if (settings.dropboxAccessToken.isBlank()) {
             Log.i(TAG, "Not linked, skipping")
@@ -137,6 +152,8 @@ class DropboxSyncWorker @AssistedInject constructor(
             // Rider tapped Cancel (cancelUniqueWork flips isStopped): stop promptly
             // and leave the flag/count alone - stopDropboxSync already cleared them.
             if (isStopped) return Result.success()
+            // Sync all started: it waits on this pass, so hand over now.
+            if (syncManager.syncRunning.value) return Result.success()
             val name = file.name
             if (!needsUpload(file)) {
                 // Not uploading because Dropbox already holds this trip - an
@@ -186,19 +203,22 @@ class DropboxSyncWorker @AssistedInject constructor(
         // --- Themes + overlays: mirror the rest of the backup folder so the
         //     cloud copy is the WHOLE folder, not just trips + settings. These
         //     live as files in the SAF backup folder (ThemeStore /
-        //     OverlayPresetStore); upload anything missing or newer remotely,
-        //     same file-by-file conflict rule as trips.
+        //     OverlayPresetStore). The background only adds what Dropbox lacks:
+        //     overwriting by modified time silently replaced another phone's
+        //     edit, so a file both sides hold is left to Sync all and its prompt.
         val folder = syncManager.getSyncFolder(settings)
         if (folder != null) {
             for (sub in listOf("themes", "overlays")) {
                 try {
                     val subDir = folder.findFile(sub)?.takeIf { it.isDirectory } ?: continue
-                    val remoteSub = dropboxRepository.listFolder("/$sub") ?: emptyMap()
+                    // A failed listing is not an empty folder: skip, do not upload everything.
+                    val remoteSub = dropboxRepository.listFolder("/$sub") ?: continue
+                    val remoteLower = remoteSub.keys.mapTo(HashSet()) { it.lowercase() }
                     for (doc in subDir.listFiles()) {
                         if (!doc.isFile) continue
                         val name = doc.name ?: continue
-                        val localMod = doc.lastModified() / 1000L
-                        if (remoteSub[name]?.let { it.serverModifiedSec >= localMod } == true) continue
+                        if (!name.endsWith(".json", ignoreCase = true)) continue
+                        if (name.lowercase() in remoteLower) continue
                         val bytes = try {
                             applicationContext.contentResolver
                                 .openInputStream(doc.uri)?.use { it.readBytes() }
@@ -238,7 +258,7 @@ class DropboxSyncWorker @AssistedInject constructor(
             0
         } else syncManager.downloadMissingTrips(
             budgetMs = DOWNLOAD_BUDGET_MS,
-            isStopped = { isStopped },
+            isStopped = { isStopped || syncManager.syncRunning.value },
         )
         if (stillMissing > 0) Log.i(TAG, "$stillMissing trips still to come down")
 

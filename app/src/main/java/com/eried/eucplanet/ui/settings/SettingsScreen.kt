@@ -8703,6 +8703,7 @@ private fun CloudTab(
         val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
         AlertDialog(
             onDismissRequest = { viewModel.cancelSyncConflict() },
+            properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.sync_conflict_title)) },
             text = { Text(stringResource(bodyRes, syncConflict!!)) },

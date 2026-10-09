@@ -58,6 +58,15 @@ object SettingsJson {
         dropboxAccountLabel = "",
         dropboxLastSyncAt = 0L,
         dropboxSettingsBaseHash = "",
+        // Sync bookkeeping: this phone's progress, not a preference. Carried
+        // across it would show another phone's warning or start a download
+        // nobody asked for, and since it changes on every pass it made the
+        // settings look edited when nobody touched them.
+        dropboxSyncPending = false,
+        dropboxPullRequested = false,
+        dropboxPendingCount = 0,
+        dropboxSyncTotal = 0,
+        folderConflictCount = 0,
     )
 
     fun toJson(s: AppSettings): JSONObject = JSONObject().apply {
@@ -959,6 +968,11 @@ object SettingsJson {
             dropboxAccountLabel = current.dropboxAccountLabel,
             dropboxLastSyncAt = current.dropboxLastSyncAt,
             dropboxSettingsBaseHash = current.dropboxSettingsBaseHash,
+            dropboxSyncPending = current.dropboxSyncPending,
+            dropboxPullRequested = current.dropboxPullRequested,
+            dropboxPendingCount = current.dropboxPendingCount,
+            dropboxSyncTotal = current.dropboxSyncTotal,
+            folderConflictCount = current.folderConflictCount,
           )
         }
 

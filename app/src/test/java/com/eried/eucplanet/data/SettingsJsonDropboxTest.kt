@@ -121,6 +121,8 @@ class SettingsJsonDropboxTest {
                 syncFolderUri = "content://mine", lastSettingsBackupAt = 1L, lastSettingsBackupName = "n",
                 dropboxAccessToken = "tok", dropboxRefreshToken = "ref", dropboxAccessTokenExpiresAt = 2L,
                 dropboxAccountLabel = "me", dropboxLastSyncAt = 3L, dropboxSettingsBaseHash = "base",
+                dropboxSyncPending = true, dropboxPullRequested = true, dropboxPendingCount = 4,
+                dropboxSyncTotal = 5, folderConflictCount = 6,
             )
         }
         val stripped = SettingsJson.stripDeviceBindings(current)
@@ -144,6 +146,6 @@ class SettingsJsonDropboxTest {
             }
         }
         assertEquals("the fixture must set every field the strip blanks",
-            24, blanked.size)
+            29, blanked.size)
     }
 }

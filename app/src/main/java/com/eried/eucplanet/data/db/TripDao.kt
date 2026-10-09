@@ -101,7 +101,7 @@ interface TripDao {
     @Query("SELECT * FROM trips WHERE endTime IS NULL")
     suspend fun getUnfinished(): List<TripRecord>
 
-    @Query("SELECT * FROM trips WHERE fileName = :name LIMIT 1")
+    @Query("SELECT * FROM trips WHERE fileName = :name COLLATE NOCASE LIMIT 1")
     suspend fun findByFileName(name: String): TripRecord?
 
     /** All trip CSV file names on record. Used to find orphan CSVs in the trips
