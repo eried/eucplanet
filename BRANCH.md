@@ -47,6 +47,13 @@ none cached ("Checking the weather" first), and answers with the score,
 temperature, wind and humidity; each of those can be asked alone. "What can
 I say" lists Wheel, Actions and Around you as three groups.
 
+**Backup folder.** If "Checking backup folder" never finished, or your
+backup folder filled with "trip (1).csv", "trip (2).csv" copies, that was a
+trip whose name differed only in upper/lower case from the folder's copy. The
+app now treats them as the same trip, and the next backup removes copies that
+are identical to the original (a copy that differs is kept). Check after a
+ride: the folder holds each trip once and the check finishes.
+
 **Smaller things.** A `geo:` link or a Maps share into a closed app opens the
 route instead of crashing. After a wheel disconnects the notification reads
 Disconnected instead of the last speed. Settings backup keeps every alarm's
