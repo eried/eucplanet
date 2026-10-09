@@ -338,12 +338,9 @@ class SyncManager @Inject constructor(
             if (file.exists()) {
                 val ok = uploadCsv(settings, file, knownNames = folderByLower)
                 if (ok) {
-                    tripDao.update(trip.copy(
-                        uploadStatus = 2,
-                        uploadedAt = System.currentTimeMillis()
-                    ))
+                    tripDao.markUploaded(trip.id, System.currentTimeMillis())
                 } else {
-                    tripDao.update(trip.copy(uploadStatus = 3))
+                    tripDao.setUploadStatus(trip.id, 3)
                     failed++
                 }
             }

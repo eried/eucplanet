@@ -992,10 +992,10 @@ class TripRepository @Inject constructor(
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null
         val willEucstats = appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null
-        // Single update so the folder-sync and eucstats statuses can't clobber
-        // each other (both branch from the same `trip` snapshot).
+        // One targeted update: the row read before the grace window is stale by
+        // now (a Dropbox pass may have marked it), so only the two statuses go.
         if (willSync || willEucstats) {
-            tripDao.update(mergeFinalizeStatuses(trip, willSync, willEucstats))
+            tripDao.markFinalized(trip.id, willSync, willEucstats)
         }
         pendingTrip = null
         _pendingTripId.value = null
@@ -1555,18 +1555,6 @@ fun buildWheelMetaJson(
     if (!firmware.isNullOrBlank()) obj.put("firmware", firmware)
     return if (obj.length() == 0) null else obj.toString()
 }
-
-/**
- * Apply the finalize-time upload statuses in a SINGLE copy so the folder-sync
- * status ([TripRecord.uploadStatus]) and the eucstats status
- * ([TripRecord.eucstatsStatus]) never clobber each other. Each is set to 1
- * ("pending") only when its destination is enabled; otherwise it is left as-is.
- */
-fun mergeFinalizeStatuses(trip: TripRecord, willSync: Boolean, willEucstats: Boolean): TripRecord =
-    trip.copy(
-        uploadStatus = if (willSync) 1 else trip.uploadStatus,
-        eucstatsStatus = if (willEucstats) 1 else trip.eucstatsStatus,
-    )
 
 /**
  * Header-driven extraction of (date, lat, lon, mileage) rows from a trip CSV.

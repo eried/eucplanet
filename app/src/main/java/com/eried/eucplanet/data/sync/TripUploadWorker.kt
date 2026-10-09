@@ -87,7 +87,7 @@ class TripUploadWorker @AssistedInject constructor(
             val file = tripRepository.getTripFile(trip)
             if (!file.exists()) {
                 // Mark as uploaded anyway so it stops retrying forever
-                tripDao.update(trip.copy(uploadStatus = 2, uploadedAt = System.currentTimeMillis()))
+                tripDao.markUploaded(trip.id, System.currentTimeMillis())
                 continue
             }
 
@@ -99,13 +99,10 @@ class TripUploadWorker @AssistedInject constructor(
                 knownNames = knownNames,
             )
             if (ok) {
-                tripDao.update(trip.copy(
-                    uploadStatus = 2,
-                    uploadedAt = System.currentTimeMillis()
-                ))
+                tripDao.markUploaded(trip.id, System.currentTimeMillis())
                 Log.i(TAG, "Uploaded ${trip.fileName}")
             } else {
-                tripDao.update(trip.copy(uploadStatus = 3))
+                tripDao.setUploadStatus(trip.id, 3)
                 anyFailed = true
                 Log.w(TAG, "Upload failed for ${trip.fileName}")
             }

@@ -50,6 +50,20 @@ interface TripDao {
     @Query("UPDATE trips SET uploadStatus = 4 WHERE id = :id")
     suspend fun markMirrorIfAbsent(id: Long)
 
+    /** Backup-folder state alone. Writing a whole row read before the copy
+     *  erased what the Dropbox pass had recorded on it in the meantime, and
+     *  a ride that was on Dropbox showed as not backed up. */
+    @Query("UPDATE trips SET uploadStatus = :status WHERE id = :id")
+    suspend fun setUploadStatus(id: Long, status: Int)
+
+    @Query("UPDATE trips SET uploadStatus = 2, uploadedAt = :at WHERE id = :id")
+    suspend fun markUploaded(id: Long, at: Long)
+
+    /** Queue a finished ride for the folder and/or eucstats, touching nothing else on the row. */
+    @Query("UPDATE trips SET uploadStatus = CASE WHEN :folder THEN 1 ELSE uploadStatus END, " +
+        "eucstatsStatus = CASE WHEN :eucstats THEN 1 ELSE eucstatsStatus END WHERE id = :id")
+    suspend fun markFinalized(id: Long, folder: Boolean, eucstats: Boolean)
+
     @Query("SELECT * FROM trips WHERE id = :id")
     suspend fun getById(id: Long): TripRecord?
 

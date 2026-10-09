@@ -168,6 +168,21 @@ class FakeTripDao : TripDao {
         val idx = trips.indexOfFirst { it.id == id }
         if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 4)
     }
+    override suspend fun setUploadStatus(id: Long, status: Int) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = status)
+    }
+    override suspend fun markFinalized(id: Long, folder: Boolean, eucstats: Boolean) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].let {
+            it.copy(uploadStatus = if (folder) 1 else it.uploadStatus,
+                eucstatsStatus = if (eucstats) 1 else it.eucstatsStatus)
+        }
+    }
+    override suspend fun markUploaded(id: Long, at: Long) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 2, uploadedAt = at)
+    }
 
     override suspend fun allWheelMeta(): List<String> = trips.mapNotNull { it.wheelMetaJson }
     override suspend fun getUnfinished(): List<TripRecord> = trips.filter { it.endTime == null }
