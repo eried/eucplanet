@@ -608,7 +608,7 @@
     <string name="sync_progress">正在同步第 %1$d / %2$d 筆</string>
     <string name="sync_no_folder">請先選擇備份資料夾</string>
     <string name="sync_rate_limited">Dropbox 正在限制這個帳戶。已同步 %2$d 次行程中的 %1$d 次，其餘將重試。</string>
-    <string name="sync_finished">已同步 %1$d 次行程</string>
+    <string name="sync_finished">已同步的騎乘: %1$d</string>
     <string name="sync_conflict_title">同步衝突</string>
     <string name="sync_conflict_body">兩邊都有變更: %1$d 個項目</string>
     <string name="sync_conflict_app">以應用程式覆寫備份</string>
@@ -2762,4 +2762,7 @@
     <string name="beep_volume_by_speed">依速度調整嗶聲音量</string>
     <string name="beep_volume_stopped">停止</string>
     <string name="beep_volume_riding">行駛</string>
+    <string name="dropbox_checking">正在檢查 Dropbox…</string>
+    <string name="sync_first_settings">Dropbox 已有另一支手機的設定。要使用那些設定,還是保留這支手機的設定?</string>
+    <string name="recording_delete_trip_body_keeps_backup">要從這支手機刪除這趟騎乘嗎?備份會保留一份副本,所以全部同步會把它帶回來。</string>
 </resources>

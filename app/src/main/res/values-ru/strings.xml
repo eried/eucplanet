@@ -2763,4 +2763,7 @@
     <string name="beep_volume_by_speed">Громкость сигнала по скорости</string>
     <string name="beep_volume_stopped">Стоя</string>
     <string name="beep_volume_riding">В движении</string>
+    <string name="dropbox_checking">Проверка Dropbox…</string>
+    <string name="sync_first_settings">В Dropbox уже есть настройки с другого телефона. Использовать их или оставить настройки этого телефона?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Удалить эту поездку с этого телефона? В резервной копии останется копия, и «Синхр. всё» вернёт её.</string>
 </resources>

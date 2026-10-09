@@ -608,7 +608,7 @@
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
     <string name="sync_no_folder">Primero elige una carpeta de respaldo</string>
     <string name="sync_rate_limited">Dropbox está limitando esta cuenta. %1$d de %2$d viajes sincronizados, el resto se reintentará.</string>
-    <string name="sync_finished">%1$d viajes sincronizados</string>
+    <string name="sync_finished">Viajes sincronizados: %1$d</string>
     <string name="sync_conflict_title">Conflicto de sincronización</string>
     <string name="sync_conflict_body">Cambiado en ambos lados: %1$d</string>
     <string name="sync_conflict_app">Copiar app al respaldo</string>
@@ -2781,4 +2781,7 @@
     <string name="beep_volume_by_speed">Volumen del pitido según velocidad</string>
     <string name="beep_volume_stopped">Detenido</string>
     <string name="beep_volume_riding">Rodando</string>
+    <string name="dropbox_checking">Revisando Dropbox…</string>
+    <string name="sync_first_settings">Dropbox ya tiene ajustes de otro teléfono. ¿Usarlos o mantener los de este teléfono?</string>
+    <string name="recording_delete_trip_body_keeps_backup">¿Borrar este viaje de este teléfono? El respaldo guarda una copia, así que Sincr. todo lo trae de vuelta.</string>
 </resources>

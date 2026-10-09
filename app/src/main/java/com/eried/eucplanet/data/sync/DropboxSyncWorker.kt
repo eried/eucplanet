@@ -130,8 +130,20 @@ class DropboxSyncWorker @AssistedInject constructor(
         // Dropbox ignores case like the phone does; a name the two spell
         // differently is still the same trip, not one to upload again.
         val remoteByLower = remoteTrips.mapKeys { it.key.lowercase() }
+        val syncedHash = tripRepository.allTrips.first()
+            .associate { it.fileName.lowercase() to it.dropboxSyncedHash }
         fun needsUpload(f: File): Boolean {
             val remote = remoteByLower[f.name.lowercase()]
+            // The copies differ and this phone knows the version last synced: only
+            // an untouched Dropbox copy may be replaced. If Dropbox moved on, it is
+            // another phone's edit, alone or alongside one made here, and the
+            // background has no business choosing; Sync all brings it down or asks.
+            val base = syncedHash[f.name.lowercase()]
+            if (remote != null && base != null && remote.size != f.length()) {
+                if (remote.contentHash == base) return true
+                Log.i(TAG, "${f.name} changed on Dropbox since this phone synced it; not overwriting")
+                return false
+            }
             val up = UploadPolicy.needsUpload(
                 remoteSize = remote?.size,
                 remoteModifiedSec = remote?.serverModifiedSec ?: 0L,
@@ -176,8 +188,10 @@ class DropboxSyncWorker @AssistedInject constructor(
                 continue
             }
             tripRepository.setDropboxStatusByName(name, 1, null)
-            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/$name", file.readBytes())
+            val uploadBytes = file.readBytes()
+            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/$name", uploadBytes)
             if (storedAtSec != null) {
+                syncManager.markDropboxSynced(name, uploadBytes)
                 tripRepository.setDropboxStatusByName(name, 2, System.currentTimeMillis())
                 // Wear Dropbox's timestamp, so an untouched file matches the
                 // copy it was sent as. Anything that rewrites the file after

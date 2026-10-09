@@ -1523,6 +1523,7 @@ class SettingsViewModel @Inject constructor(
     val syncConflictPrompt: StateFlow<Int?> = syncManager.syncConflictPrompt
     val syncConflictKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind> =
         syncManager.syncConflictKind
+    val syncConflictFirstSettings: StateFlow<Boolean> = syncManager.syncConflictFirstSettings
     val activeSyncKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind?> =
         syncManager.activeSyncKind
     val syncCancelling: StateFlow<Boolean> = syncManager.syncCancelling

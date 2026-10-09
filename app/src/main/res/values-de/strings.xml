@@ -608,7 +608,7 @@
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
     <string name="sync_no_folder">Zuerst einen Backup-Ordner wählen</string>
     <string name="sync_rate_limited">Dropbox drosselt dieses Konto. %1$d von %2$d Fahrten synchronisiert, der Rest wird erneut versucht.</string>
-    <string name="sync_finished">%1$d Fahrten synchronisiert</string>
+    <string name="sync_finished">Synchronisierte Fahrten: %1$d</string>
     <string name="sync_conflict_title">Synchronisierungskonflikt</string>
     <string name="sync_conflict_body">Auf beiden Seiten geändert: %1$d</string>
     <string name="sync_conflict_app">App ins Backup kopieren</string>
@@ -2783,4 +2783,7 @@
     <string name="beep_volume_by_speed">Piepton-Lautstärke nach Tempo</string>
     <string name="beep_volume_stopped">Im Stand</string>
     <string name="beep_volume_riding">Beim Fahren</string>
+    <string name="dropbox_checking">Dropbox wird geprüft…</string>
+    <string name="sync_first_settings">Dropbox hat bereits Einstellungen von einem anderen Telefon. Diese verwenden oder die dieses Telefons behalten?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Diese Fahrt von diesem Telefon löschen? Die Sicherung behält eine Kopie, Alle sync. holt sie zurück.</string>
 </resources>

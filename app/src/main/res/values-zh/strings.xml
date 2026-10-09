@@ -144,7 +144,7 @@
     <string name="sync_progress">同步中 %1$d / %2$d</string>
     <string name="sync_no_folder">请先选择备份文件夹</string>
     <string name="sync_rate_limited">Dropbox 正在限制此账户。已同步 %2$d 条行程中的 %1$d 条，其余将重试。</string>
-    <string name="sync_finished">已同步 %1$d 条行程</string>
+    <string name="sync_finished">已同步的骑行: %1$d</string>
     <string name="sync_conflict_title">同步冲突</string>
     <string name="sync_conflict_body">两边都有更改: %1$d 个项目</string>
     <string name="sync_conflict_app">从应用复制到备份</string>
@@ -2630,4 +2630,7 @@
     <string name="beep_volume_by_speed">按速度调整蜂鸣音量</string>
     <string name="beep_volume_stopped">停止</string>
     <string name="beep_volume_riding">行驶</string>
+    <string name="dropbox_checking">正在检查 Dropbox…</string>
+    <string name="sync_first_settings">Dropbox 中已有另一部手机的设置。要使用那些设置,还是保留这部手机的设置?</string>
+    <string name="recording_delete_trip_body_keeps_backup">要从这部手机删除这次骑行吗?备份会保留一份副本,所以全部同步会把它带回来。</string>
 </resources>

@@ -201,6 +201,12 @@ class SyncManager @Inject constructor(
     private val _syncConflictKind = MutableStateFlow(SyncConflictKind.FOLDER)
     val syncConflictKind: StateFlow<SyncConflictKind> = _syncConflictKind.asStateFlow()
 
+    /** The Dropbox prompt includes settings this phone has never synced: the
+     *  rider changed nothing, so the dialog asks which settings to use instead
+     *  of saying they changed on both sides. */
+    private val _syncConflictFirstSettings = MutableStateFlow(false)
+    val syncConflictFirstSettings: StateFlow<Boolean> = _syncConflictFirstSettings.asStateFlow()
+
     /** Which sync is currently running, or null if idle. Lets the UI show
      *  the progress bar under the SAF section vs the Dropbox section
      *  depending on which Sync all button the rider tapped. */
@@ -301,6 +307,7 @@ class SyncManager @Inject constructor(
             val deferred = CompletableDeferred<SyncChoice>()
             conflictChoice = deferred
             _syncConflictKind.value = SyncConflictKind.FOLDER
+            _syncConflictFirstSettings.value = false
             _syncConflictPrompt.value = conflictKeys.size
             choice = deferred.await()
             _syncConflictPrompt.value = null
@@ -495,8 +502,12 @@ class SyncManager @Inject constructor(
                     // Pending when a backup folder exists, so the folder worker
                     // mirrors it: same rule as the foreground pass.
                     uploadStatus = if (settings.syncFolderUri != null) 4 else 0,
+                    // It came from Dropbox, so that is where it already is.
+                    dropboxStatus = 2,
+                    dropboxUploadedAt = System.currentTimeMillis(),
                 ))
             }
+            markDropboxSynced(name, bytes)
             left--
             settingsRepository.update { it.copy(dropboxPendingCount = left) }
         }
@@ -1122,9 +1133,10 @@ class SyncManager @Inject constructor(
             }
             if (settings.dropboxAccessToken.isNotBlank()) {
                 tripDao.setDropboxStatusByName(trip.fileName, 1, null)
-                val sec = dropboxRepository.uploadFileStamped(
-                    "/trips/${trip.fileName}", file.readBytes())
+                val editedBytes = file.readBytes()
+                val sec = dropboxRepository.uploadFileStamped("/trips/${trip.fileName}", editedBytes)
                 if (sec != null) {
+                    markDropboxSynced(trip.fileName, editedBytes)
                     if (sec > 0L) file.setLastModified(sec * 1000L)
                     tripDao.setDropboxStatusByName(trip.fileName, 2, System.currentTimeMillis())
                 } else {
@@ -1300,6 +1312,11 @@ class SyncManager @Inject constructor(
         return handled
     }
 
+    /** Remember [bytes] as the version of [fileName] both sides now hold. */
+    suspend fun markDropboxSynced(fileName: String, bytes: ByteArray) {
+        tripDao.setDropboxSyncedHash(fileName, DropboxContentHash.of(bytes))
+    }
+
     /** Held by every Dropbox pass, foreground or background, so two never move the same files. */
     val dropboxPassLock = kotlinx.coroutines.sync.Mutex()
 
@@ -1359,8 +1376,32 @@ class SyncManager @Inject constructor(
         // still left genuinely new/changed trips to upload - hence "0 trips" yet
         // one still synced. This now matches the background worker's size check.
         val bothNames = remoteByLower.keys intersect localByLower.keys
-        val conflictKeys = bothNames.filterTo(HashSet()) { key ->
-            (localByLower[key]?.length() ?: -1L) != (remoteMetaByLower[key]?.size ?: -2L)
+        // Same name, different size: the copies differ. The fingerprint of the
+        // version last synced tells which side moved on, so an edit made on one
+        // phone (a rename, a wheel change) transfers without asking the other.
+        val syncedHash = tripDao.observeAll().first()
+            .associate { it.fileName.lowercase() to it.dropboxSyncedHash }
+        val phoneMovedOn = HashSet<String>()
+        val dropboxMovedOn = HashSet<String>()
+        val conflictKeys = HashSet<String>()
+        for (key in bothNames) {
+            val local = localByLower.getValue(key)
+            val remoteMeta = remoteMetaByLower[key]
+            if (local.length() == (remoteMeta?.size ?: -2L)) {
+                // Already matching. Remember it, so a later edit on one side is
+                // recognised as one-sided instead of asked about.
+                if (syncedHash[key] == null && remoteMeta?.contentHash != null &&
+                    syncedHash.containsKey(key)) tripDao.setDropboxSyncedHash(local.name, remoteMeta.contentHash)
+                continue
+            }
+            val base = syncedHash[key]
+            val remoteHash = remoteMeta?.contentHash
+            val localHash = if (base != null) DropboxContentHash.of(local.readBytes()) else null
+            when {
+                base != null && remoteHash == base && localHash != base -> phoneMovedOn += key
+                base != null && localHash == base && remoteHash != base -> dropboxMovedOn += key
+                else -> conflictKeys += key
+            }
         }
         val remoteOnly = remoteByLower.keys - localByLower.keys
         val archivedElsewhere = followDropboxArchive(
@@ -1390,6 +1431,8 @@ class SyncManager @Inject constructor(
             val deferred = CompletableDeferred<SyncChoice>()
             conflictChoice = deferred
             _syncConflictKind.value = SyncConflictKind.DROPBOX
+            _syncConflictFirstSettings.value =
+                settingsConflict && settings.dropboxSettingsBaseHash.isEmpty()
             _syncConflictPrompt.value = totalConflicts
             choice = deferred.await()
             _syncConflictPrompt.value = null
@@ -1412,6 +1455,8 @@ class SyncManager @Inject constructor(
         val toDownload = mutableListOf<String>()
         localOnly.forEach { key -> localByLower[key]?.let { toUpload += it } }
         remoteOnly.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
+        phoneMovedOn.forEach { key -> localByLower[key]?.let { toUpload += it } }
+        dropboxMovedOn.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
         when (choice) {
             SyncChoice.APP -> conflictKeys.forEach { key -> localByLower[key]?.let { toUpload += it } }
             SyncChoice.FOLDER -> conflictKeys.forEach { key -> remoteByLower[key]?.let { toDownload += it } }
@@ -1484,8 +1529,10 @@ class SyncManager @Inject constructor(
         for (file in toUpload) {
             currentCoroutineContext().ensureActive() // stop cleanly if cancelled
             tripDao.setDropboxStatusByName(file.name, 1, null)
-            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/${file.name}", file.readBytes())
+            val uploadBytes = file.readBytes()
+            val storedAtSec = dropboxRepository.uploadFileStamped("/trips/${file.name}", uploadBytes)
             if (storedAtSec != null) {
+                markDropboxSynced(file.name, uploadBytes)
                 if (storedAtSec > 0L) file.setLastModified(storedAtSec * 1000L)
                 tripDao.setDropboxStatusByName(file.name, 2, System.currentTimeMillis())
                 settingsRepository.update {
@@ -1554,6 +1601,7 @@ class SyncManager @Inject constructor(
                         uploadStatus = if (settings.syncFolderUri != null) 1 else existing.uploadStatus,
                     ))
                 }
+                markDropboxSynced(name, bytes)
             }
             done++
             _syncProgress.value = done to total

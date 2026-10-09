@@ -31,4 +31,8 @@ data class TripRecord(
     // nothing whatsoever. 0=n/a 1=pending 2=uploaded 3=failed
     val dropboxStatus: Int = 0,
     val dropboxUploadedAt: Long? = null,
+    // Dropbox content_hash of the version last synced both ways. When the two
+    // copies differ, it tells which side moved on: one side only transfers
+    // without asking, both sides is a real conflict.
+    val dropboxSyncedHash: String? = null,
 )

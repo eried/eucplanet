@@ -608,7 +608,7 @@
     <string name="sync_progress">Synkroniserar %1$d av %2$d</string>
     <string name="sync_no_folder">Välj en backupmapp först</string>
     <string name="sync_rate_limited">Dropbox begränsar det här kontot. %1$d av %2$d turer synkroniserade, resten försöker igen.</string>
-    <string name="sync_finished">Synkroniserade %1$d turer</string>
+    <string name="sync_finished">Synkroniserade turer: %1$d</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
     <string name="sync_conflict_body">Ändrat på båda sidor: %1$d</string>
     <string name="sync_conflict_app">Kopiera app till backup</string>
@@ -2763,4 +2763,7 @@
     <string name="beep_volume_by_speed">Pipvolym efter fart</string>
     <string name="beep_volume_stopped">Stillastående</string>
     <string name="beep_volume_riding">Under färd</string>
+    <string name="dropbox_checking">Kontrollerar Dropbox…</string>
+    <string name="sync_first_settings">Dropbox har redan inställningar från en annan telefon. Använda dem, eller behålla den här telefonens?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Ta bort turen från den här telefonen? Säkerhetskopian behåller en kopia, så Synka allt hämtar tillbaka den.</string>
 </resources>

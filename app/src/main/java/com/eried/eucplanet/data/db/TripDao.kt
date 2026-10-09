@@ -94,6 +94,9 @@ interface TripDao {
     @Query("UPDATE trips SET dropboxStatus = :status, dropboxUploadedAt = :at WHERE fileName = :fileName COLLATE NOCASE")
     suspend fun setDropboxStatusByName(fileName: String, status: Int, at: Long?)
 
+    @Query("UPDATE trips SET dropboxSyncedHash = :hash WHERE fileName = :fileName COLLATE NOCASE")
+    suspend fun setDropboxSyncedHash(fileName: String, hash: String?)
+
     @Query("UPDATE trips SET dropboxStatus = :status WHERE id = :id")
     suspend fun setDropboxStatus(id: Long, status: Int)
 

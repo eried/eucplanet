@@ -734,7 +734,7 @@
     <string name="sync_progress">Synchronizuji %1$d z %2$d</string>
     <string name="sync_no_folder">Nejprve vyberte složku záloh</string>
     <string name="sync_rate_limited">Dropbox omezuje tento účet. Synchronizováno %1$d z %2$d jízd, zbytek se zkusí znovu.</string>
-    <string name="sync_finished">Synchronizováno %1$d jízd</string>
+    <string name="sync_finished">Synchronizované jízdy: %1$d</string>
     <string name="sync_up_to_date">Vše je aktuální</string>
     <string name="sync_conflict_title">Konflikt synchronizace</string>
     <string name="sync_conflict_body">Změněno na obou stranách: %1$d</string>
@@ -2566,4 +2566,7 @@
     <string name="beep_volume_by_speed">Hlasitost pípání podle rychlosti</string>
     <string name="beep_volume_stopped">Stání</string>
     <string name="beep_volume_riding">Jízda</string>
+    <string name="dropbox_checking">Kontroluji Dropbox…</string>
+    <string name="sync_first_settings">Dropbox už má nastavení z jiného telefonu. Použít je, nebo ponechat nastavení tohoto telefonu?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Smazat tuto jízdu z tohoto telefonu? Záloha si ponechá kopii, takže Synchronizovat vše ji vrátí.</string>
 </resources>

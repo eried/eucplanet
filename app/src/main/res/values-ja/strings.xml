@@ -608,7 +608,7 @@
     <string name="sync_progress">%1$d / %2$d を同期中</string>
     <string name="sync_no_folder">先にバックアップフォルダーを選択してください</string>
     <string name="sync_rate_limited">Dropbox がこのアカウントを制限しています。%2$d 件中 %1$d 件のトリップを同期しました。残りは再試行します。</string>
-    <string name="sync_finished">%1$d 件のトリップを同期しました</string>
+    <string name="sync_finished">同期したトリップ: %1$d</string>
     <string name="sync_conflict_title">同期の競合</string>
     <string name="sync_conflict_body">両方で変更されています: %1$d 件</string>
     <string name="sync_conflict_app">アプリ → バックアップにコピー</string>
@@ -2764,4 +2764,7 @@
     <string name="beep_volume_by_speed">速度でビープ音量を変える</string>
     <string name="beep_volume_stopped">停止中</string>
     <string name="beep_volume_riding">走行中</string>
+    <string name="dropbox_checking">Dropbox を確認中…</string>
+    <string name="sync_first_settings">Dropbox には別の端末の設定がすでにあります。それを使いますか、この端末の設定を残しますか?</string>
+    <string name="recording_delete_trip_body_keeps_backup">この端末からこのトリップを削除しますか? バックアップにコピーが残るため、すべて同期で元に戻ります。</string>
 </resources>

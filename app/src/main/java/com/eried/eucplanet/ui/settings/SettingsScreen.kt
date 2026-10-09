@@ -8706,7 +8706,18 @@ private fun CloudTab(
             properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.sync_conflict_title)) },
-            text = { Text(stringResource(bodyRes, syncConflict!!)) },
+            text = {
+                val firstSettings by viewModel.syncConflictFirstSettings.collectAsState()
+                val count = stringResource(bodyRes, syncConflict!!)
+                Text(
+                    if (isDropbox && firstSettings) {
+                        val ask = stringResource(R.string.sync_first_settings)
+                        // Settings alone: the question says it all. With trips or
+                        // themes in the prompt too, the count still follows.
+                        if (syncConflict == 1) ask else "$ask\n\n$count"
+                    } else count
+                )
+            },
             confirmButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
@@ -8945,6 +8956,8 @@ private fun CloudTab(
                         // left the flag set, so the pending indicator popped up and
                         // it looked like the sync just carried on after Cancel.
                         onCancel = { viewModel.stopDropboxSync() },
+                        label = if (dbxProgress == null && !dbxCancelling)
+                            stringResource(R.string.dropbox_checking) else null,
                     )
                 }
                 // Quiet persistent "still syncing" row: trips are pending and the

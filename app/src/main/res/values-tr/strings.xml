@@ -608,7 +608,7 @@
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
     <string name="sync_no_folder">Önce bir yedek klasörü seçin</string>
     <string name="sync_rate_limited">Dropbox bu hesabı sınırlıyor. %2$d seferden %1$d tanesi eşitlendi, kalanlar yeniden denenecek.</string>
-    <string name="sync_finished">%1$d sefer eşitlendi</string>
+    <string name="sync_finished">Eşitlenen sürüşler: %1$d</string>
     <string name="sync_conflict_title">Eşitleme çakışması</string>
     <string name="sync_conflict_body">Her iki tarafta değişti: %1$d</string>
     <string name="sync_conflict_app">Uygulamayı Yedeğe Kopyala</string>
@@ -2760,4 +2760,7 @@
     <string name="beep_volume_by_speed">Hıza göre bip sesi</string>
     <string name="beep_volume_stopped">Dururken</string>
     <string name="beep_volume_riding">Sürüşte</string>
+    <string name="dropbox_checking">Dropbox kontrol ediliyor…</string>
+    <string name="sync_first_settings">Dropbox\'ta başka bir telefondan ayarlar zaten var. Onları mı kullanalım, bu telefonun ayarlarını mı tutalım?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Bu sürüş bu telefondan silinsin mi? Yedek bir kopya tutar, bu yüzden Tümünü eşitle onu geri getirir.</string>
 </resources>

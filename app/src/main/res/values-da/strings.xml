@@ -608,7 +608,7 @@
     <string name="sync_progress">Synkroniserer %1$d af %2$d</string>
     <string name="sync_no_folder">Vælg en backup-mappe først</string>
     <string name="sync_rate_limited">Dropbox begrænser denne konto. %1$d af %2$d ture synkroniseret, resten prøves igen.</string>
-    <string name="sync_finished">%1$d ture synkroniseret</string>
+    <string name="sync_finished">Synkroniserede ture: %1$d</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
     <string name="sync_conflict_body">Ændret på begge sider: %1$d</string>
     <string name="sync_conflict_app">Kopiér app til backup</string>
@@ -2778,4 +2778,7 @@
     <string name="beep_volume_by_speed">Bip-lydstyrke efter fart</string>
     <string name="beep_volume_stopped">Stillestående</string>
     <string name="beep_volume_riding">Under kørsel</string>
+    <string name="dropbox_checking">Tjekker Dropbox…</string>
+    <string name="sync_first_settings">Dropbox har allerede indstillinger fra en anden telefon. Brug dem, eller behold denne telefons?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Slet denne tur fra telefonen? Backuppen beholder en kopi, så Synk alle henter den tilbage.</string>
 </resources>

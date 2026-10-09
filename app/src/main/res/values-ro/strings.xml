@@ -734,7 +734,7 @@
     <string name="sync_progress">Se sincronizează %1$d din %2$d</string>
     <string name="sync_no_folder">Alege mai întâi un dosar de rezervă</string>
     <string name="sync_rate_limited">Dropbox limitează acest cont. %1$d din %2$d curse sincronizate, restul se va reîncerca.</string>
-    <string name="sync_finished">%1$d curse sincronizate</string>
+    <string name="sync_finished">Curse sincronizate: %1$d</string>
     <string name="sync_up_to_date">Deja la zi</string>
     <string name="sync_conflict_title">Conflict de sincronizare</string>
     <string name="sync_conflict_body">Modificat de ambele părți: %1$d</string>
@@ -2566,4 +2566,7 @@
     <string name="beep_volume_by_speed">Volumul bipului după viteză</string>
     <string name="beep_volume_stopped">Oprit</string>
     <string name="beep_volume_riding">În mers</string>
+    <string name="dropbox_checking">Se verifică Dropbox…</string>
+    <string name="sync_first_settings">Dropbox are deja setări de pe alt telefon. Le folosiți sau păstrați setările acestui telefon?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Ștergeți această cursă de pe acest telefon? Copia de rezervă păstrează o copie, deci Sincronizează tot o aduce înapoi.</string>
 </resources>

@@ -608,7 +608,7 @@
     <string name="sync_progress">%1$d / %2$d 동기화 중</string>
     <string name="sync_no_folder">먼저 백업 폴더를 선택하세요</string>
     <string name="sync_rate_limited">Dropbox가 이 계정을 제한하고 있습니다. 트립 %2$d개 중 %1$d개 동기화, 나머지는 다시 시도합니다.</string>
-    <string name="sync_finished">트립 %1$d개 동기화 완료</string>
+    <string name="sync_finished">동기화된 주행: %1$d</string>
     <string name="sync_conflict_title">동기화 충돌</string>
     <string name="sync_conflict_body">양쪽에서 변경됨: %1$d개</string>
     <string name="sync_conflict_app">앱 → 백업으로 복사</string>
@@ -2762,4 +2762,7 @@
     <string name="beep_volume_by_speed">속도별 비프 음량</string>
     <string name="beep_volume_stopped">정지</string>
     <string name="beep_volume_riding">주행</string>
+    <string name="dropbox_checking">Dropbox 확인 중…</string>
+    <string name="sync_first_settings">Dropbox에 다른 휴대폰의 설정이 이미 있습니다. 그 설정을 사용할까요, 이 휴대폰의 설정을 유지할까요?</string>
+    <string name="recording_delete_trip_body_keeps_backup">이 휴대폰에서 이 주행을 삭제할까요? 백업에 사본이 남아 있어 전체 동기화를 누르면 다시 돌아옵니다.</string>
 </resources>

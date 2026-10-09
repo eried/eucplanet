@@ -179,6 +179,10 @@ class FakeTripDao : TripDao {
                 eucstatsStatus = if (eucstats) 1 else it.eucstatsStatus)
         }
     }
+    override suspend fun setDropboxSyncedHash(fileName: String, hash: String?) {
+        val idx = trips.indexOfFirst { it.fileName.equals(fileName, ignoreCase = true) }
+        if (idx >= 0) trips[idx] = trips[idx].copy(dropboxSyncedHash = hash)
+    }
     override suspend fun markUploaded(id: Long, at: Long) {
         val idx = trips.indexOfFirst { it.id == id }
         if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 2, uploadedAt = at)

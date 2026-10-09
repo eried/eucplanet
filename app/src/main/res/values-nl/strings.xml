@@ -608,7 +608,7 @@
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
     <string name="sync_no_folder">Kies eerst een back-upmap</string>
     <string name="sync_rate_limited">Dropbox beperkt dit account. %1$d van %2$d ritten gesynchroniseerd, de rest wordt opnieuw geprobeerd.</string>
-    <string name="sync_finished">%1$d ritten gesynchroniseerd</string>
+    <string name="sync_finished">Gesynchroniseerde ritten: %1$d</string>
     <string name="sync_conflict_title">Synchronisatieconflict</string>
     <string name="sync_conflict_body">Aan beide kanten gewijzigd: %1$d</string>
     <string name="sync_conflict_app">App naar back-up kopiëren</string>
@@ -2765,4 +2765,7 @@
     <string name="beep_volume_by_speed">Pieptoonvolume per snelheid</string>
     <string name="beep_volume_stopped">Stilstaand</string>
     <string name="beep_volume_riding">Rijdend</string>
+    <string name="dropbox_checking">Dropbox controleren…</string>
+    <string name="sync_first_settings">Dropbox heeft al instellingen van een andere telefoon. Die gebruiken, of die van deze telefoon houden?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Deze rit van deze telefoon verwijderen? De back-up houdt een kopie, dus Alles synchr. haalt hem terug.</string>
 </resources>
