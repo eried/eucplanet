@@ -247,13 +247,13 @@ class EucCarAppService : CarAppService() {
                 // white. Seen on the car emulator, not guessed.
                 MapWithContentTemplate.Builder()
                     .setContentTemplate(PaneTemplate.Builder(built).setTitle(title).build())
-                    .setActionStrip(actionStrip(false))
+                    .apply { actionStrip(false)?.let { setActionStrip(it) } }
                     .setMapController(MapController.Builder().build())
                     .build()
             } else {
                 PaneTemplate.Builder(built)
                     .setTitle(title)
-                    .setActionStrip(actionStrip(false, iconOnly = true, max = 2))
+                    .apply { actionStrip(false, iconOnly = true, max = 2)?.let { setActionStrip(it) } }
                     .build()
             }
         }
@@ -323,7 +323,7 @@ class EucCarAppService : CarAppService() {
             navigating: Boolean,
             iconOnly: Boolean = false,
             max: Int = Int.MAX_VALUE,
-        ): ActionStrip {
+        ): ActionStrip? {
             val strip = ActionStrip.Builder()
             // No Navigate. This stopped being a navigation app, and the action
             // was still leading the strip: on a pane, which allows one titled
@@ -350,7 +350,12 @@ class EucCarAppService : CarAppService() {
                 strip.addAction(b.build())
                 added++
             }
-            return strip.build()
+            // Null, not an empty strip. A rider who sets all three buttons to
+            // None gets no strip at all; building an empty one throws
+            // "Action strip must contain at least one action" and takes the
+            // whole car screen with it. A tester hit exactly that: no buttons,
+            // a black screen, and a crash whenever anything forced a redraw.
+            return if (added == 0) null else strip.build()
         }
     }
 

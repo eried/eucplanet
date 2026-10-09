@@ -15,6 +15,11 @@ short.
   at Maps, so a second, worse map in our card was noise. The space goes to the
   numbers instead.
 - Still no Navigate button and no turn card, same as before.
+- Fixed: setting all three car buttons to None killed the car screen. It built
+  an empty button strip, which Android Auto refuses, so the screen went black,
+  no buttons responded, and anything that forced a redraw crashed the app. If
+  you want no buttons you now simply get none. This one predates the weather
+  change, it just needed all three set to None to show itself.
 - New: a firing alarm now shows on the car screen, over the map. That is the
   only way a PWM or battery warning reaches you while you are navigating,
   since the car screen itself is not in front of you then. Turn it off in
@@ -74,6 +79,8 @@ short.
 - Does the weather line in the card show your local temperature and wind?
 - Start a route with EUC Planet's own navigation. The app used to close; it
   should not now.
+- If your buttons were set to None, set Horn back in Settings, Integration,
+  Android Auto. That was what made the screen black and the horn unusable.
 - Trigger an alarm while Maps is navigating. Does the card appear over the map?
   If you never see one, check EUC Planet is allowed to post notifications.
 - Night: the panel switches to dark colors with the screen?
