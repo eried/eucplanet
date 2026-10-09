@@ -27,7 +27,10 @@ only when you can cut the ride short.
 - Voice volume, in Voice, Speech, Advanced: only the voice gets quieter, music and alarms keep their level.
 - Begode beep volume by speed, under Horn: quiet when stopped, loud while riding.
 - Dropbox syncs both ways: settings, themes and overlays now come down too, not only trips.
-- Changed on both phones since the last sync? One prompt asks which side to keep.
+- A trip renamed or split on one phone arrives on the other with no prompt. Only a trip changed on both asks.
+- Archived (or split) on one phone, a trip stays archived on the others instead of coming back.
+- Backup folder: no more endless "Checking backup folder", and the "trip (1).csv" copies it left are cleaned up.
+- Fresh rides no longer show "not backed up to Dropbox" when they are.
 
 ## Please test
 
@@ -50,9 +53,14 @@ only when you can cut the ride short.
 - Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
 
 **Dropbox, two phones on one account**
+- Link a second phone: trips come down by themselves, Sync all asks once which settings to use?
 - Change a setting and save a theme on one, Sync all on the other: do both arrive?
-- Change something different on each, then sync: exactly one prompt, and your choice sticks?
+- Rename a trip on one phone, Sync all on the other: new name, no prompt?
+- Split a trip on one phone: the other ends with the pieces, not the original as well?
 - After a pull: still paired to your wheel, Dropbox still linked?
+
+**Backup folder**
+- Had "trip (1).csv" files or a backup check that never ended? Both should be gone after a ride.
 
 **Any wheel**
 - With a backup folder set, the app opens and stays open on every launch.
