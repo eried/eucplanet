@@ -17,7 +17,6 @@ import javax.inject.Inject
 class EucPlanetApp : Application(), Configuration.Provider {
 
     @Inject lateinit var flicManager: FlicManager
-    @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var wearBridge: WearBridge
     @Inject lateinit var garminBridge: GarminBridge
@@ -45,9 +44,25 @@ class EucPlanetApp : Application(), Configuration.Provider {
      */
     @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
+    /** How WorkManager reaches the Hilt worker factory without a field. */
+    @dagger.hilt.EntryPoint
+    @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+    interface WorkerFactoryEntryPoint {
+        fun workerFactory(): HiltWorkerFactory
+    }
+
+    // Read from the component, not an @Inject field. Field injection builds
+    // TripRepository, whose start-up sweep can call WorkManager on another
+    // thread before the field is set: "lateinit property workerFactory has
+    // not been initialized", a crash on every launch with a backup folder.
+    // The component exists before any of that runs, so this cannot race.
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
+            .setWorkerFactory(
+                dagger.hilt.android.EntryPointAccessors
+                    .fromApplication(this, WorkerFactoryEntryPoint::class.java)
+                    .workerFactory()
+            )
             .build()
 
     override fun onCreate() {

@@ -6,6 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- Fixed a crash on every launch for riders with a backup folder set (a start-up race).
 - Crews pairing: scan or type a code from eucstats and the browser flies your colours.
 - It lives in Settings then EUC Stats then Crews, and on the `eucplanet://pair` link.
 - A code from anywhere but eucstats is refused unless you turned developer mode on yourself.
@@ -47,6 +48,7 @@ only when you can cut the ride short.
 - Lock, turn the wheel off, reconnect later: the tile says Locked, one tap unlocks?
 
 **Any wheel**
+- With a backup folder set, the app opens and stays open on every launch.
 - Stats length 30 sec or 1 min: tile stats and the detail screen cover only that much?
 - Headset button set to Announce: one press reads the voice report?
 - Voice report: the lists match what you heard before? A Max pill and a Message are spoken where you put them?
