@@ -1270,6 +1270,36 @@ class SyncManager @Inject constructor(
         return RemoteSettings(known = !present, bytes = null)
     }
 
+    /**
+     * Follow archives made on another phone. A split, an extend or a delete
+     * with "archive" moves the trip on Dropbox into /trips/archive. A phone
+     * that still had it then saw a trip Dropbox lacked and uploaded it again,
+     * and the ride came back everywhere beside the pieces that replaced it.
+     *
+     * Of [localOnly] (trip files this phone has and Dropbox's /trips does not),
+     * those whose identical copy is in Dropbox's archive are archived here
+     * too: the backup-folder copy moves to its archive, then the phone's row
+     * and file go. A copy that differs is left alone, so nothing that exists
+     * once is dropped. Returns the lowercased names handled.
+     */
+    suspend fun followDropboxArchive(settings: AppSettings, localOnly: Collection<File>): Set<String> {
+        if (localOnly.isEmpty()) return emptySet()
+        val archive = dropboxRepository.listFolder("/trips/archive") ?: return emptySet()
+        val archivedHash = archive.entries.associate { it.key.lowercase() to it.value.contentHash }
+        val handled = HashSet<String>()
+        for (file in localOnly) {
+            val key = file.name.lowercase()
+            val remoteHash = archivedHash[key] ?: continue
+            if (remoteHash != DropboxContentHash.of(file.readBytes())) continue
+            if (settings.syncFolderUri != null && !archiveInBackupFolder(settings, file.name)) continue
+            tripDao.findByFileName(file.name)?.let { tripDao.delete(it) }
+            file.delete()
+            handled += key
+            Log.i(TAG, "${file.name} was archived on another phone; archived here too")
+        }
+        return handled
+    }
+
     /** Held by every Dropbox pass, foreground or background, so two never move the same files. */
     val dropboxPassLock = kotlinx.coroutines.sync.Mutex()
 
@@ -1333,7 +1363,9 @@ class SyncManager @Inject constructor(
             (localByLower[key]?.length() ?: -1L) != (remoteMetaByLower[key]?.size ?: -2L)
         }
         val remoteOnly = remoteByLower.keys - localByLower.keys
-        val localOnly = localByLower.keys - remoteByLower.keys
+        val archivedElsewhere = followDropboxArchive(
+            settings, (localByLower.keys - remoteByLower.keys).mapNotNull { localByLower[it] })
+        val localOnly = localByLower.keys - remoteByLower.keys - archivedElsewhere
 
         // --- Settings (whole-blob, 3-way vs the stored baseline) ---
         val phoneSettingsBytes = portableSettingsBytes(settings)

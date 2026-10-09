@@ -107,9 +107,13 @@ class DropboxSyncWorker @AssistedInject constructor(
         // share file); without this filter the sync uploaded those too, so a
         // "trips_export.zip/.dbb" leaked into the rider's Dropbox alongside the
         // real trips.
-        val localFiles = tripRepository.getTripsDir()
+        val remoteLower = remoteTrips.keys.mapTo(HashSet()) { it.lowercase() }
+        val allLocal = tripRepository.getTripsDir()
             .listFiles { f -> f.isFile && f.name.endsWith(".csv", ignoreCase = true) }
             ?.toList().orEmpty()
+        val archivedElsewhere = syncManager.followDropboxArchive(
+            settings, allLocal.filter { it.name.lowercase() !in remoteLower })
+        val localFiles = allLocal.filter { it.name.lowercase() !in archivedElsewhere }
         // Current per-trip Dropbox state, to mark verified backups without
         // rewriting rows that already say so on every pass.
         val knownStatus = tripRepository.allTrips.first()
