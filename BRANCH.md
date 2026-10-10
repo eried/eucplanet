@@ -6,11 +6,16 @@ short.
 
 ## Worked on
 
-- Android Auto is now a weather app, not a navigation or POI app. This is the
-  split-screen fix. Android Auto only ever puts two things side by side, a
-  navigation app and one card beside it, and a POI app can never be that card.
-  A weather app can. The category is honest, the card carries your local
-  temperature and wind on its top line.
+- Android Auto is a navigation app again. Josh had EUC Planet split with
+  Pandora on the very first build, which was this category, and neither POI nor
+  weather ever showed up in a split however well they ran. The reason is simple
+  once you see it: the big half of a split IS the navigation half, so only a
+  navigation app can be there.
+  **The price is the old one.** Android Auto runs one navigation app at a time,
+  so opening Google Maps closes EUC Planet. EUC Planet beside Maps cannot be
+  built by anyone, in any category, because both need the same half. EUC Planet
+  beside Spotify or Pandora can, and that is what this build is for.
+  The local temperature and wind line stays on the panel, it earned its place.
 - The map is gone from the car screen. On a head unit you are already looking
   at Maps, so a second, worse map in our card was noise. The space goes to the
   numbers instead.
@@ -73,9 +78,12 @@ short.
   head units. If it still fails, Share crash log on the About screen.
 - Stats update while riding? Speed, battery and the rest read the same as the phone?
 - Horn, Light and Record work from the car screen?
-- **Can you split with Google Maps or Organic Maps now?** This is the one
-  question this build exists to answer. No emulator can tell us: Android Auto's
-  split does not exist on any emulator, so you are the only way to find out.
+- **Start a music app, then EUC Planet, then press the layout button at the
+  bottom right of the car screen.** Do you get EUC Planet beside the music, the
+  way Josh had it with Pandora? That is the one question this build exists to
+  answer, and no emulator can answer it.
+- Josh: is the telemetry readable this time? That was your only complaint about
+  the first version and the whole layout was rebuilt for it.
 - Does the weather line in the card show your local temperature and wind?
 - Start a route with EUC Planet's own navigation. The app used to close; it
   should not now.
