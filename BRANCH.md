@@ -6,6 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- Begode Master is rider-tested: no more preliminary banner (the Master Pro keeps it).
 - Begode: an Auto off tile counts down to the wheel's auto power-off (m:ss).
 - Fixed a crash on every launch for riders with a backup folder set (a start-up race).
 - Crews pairing: scan or type a code from eucstats and the browser flies your colours.

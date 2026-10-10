@@ -196,7 +196,18 @@ private val VERIFIED_WHEEL_TOKENS = listOf(
  * trips the banner so the user knows to file a wheel report if values look off.
  * Disconnected (null name) → hidden too.
  */
-private fun isPreliminaryWheel(name: String?): Boolean {
+internal fun isPreliminaryWheel(name: String?): Boolean {
     if (name.isNullOrBlank()) return false
+    if (isRiderTestedBegodeMaster(name)) return false
     return VERIFIED_WHEEL_TOKENS.none { name.contains(it, ignoreCase = true) }
+}
+
+/**
+ * The Begode Master (rider-tested on a Master v3, issue #26). Not a token in
+ * the list above because "Master" alone would also exempt the Master Pro,
+ * which nobody has tested yet.
+ */
+private fun isRiderTestedBegodeMaster(name: String): Boolean {
+    val n = name.lowercase()
+    return "master" in n && "pro" !in n
 }
