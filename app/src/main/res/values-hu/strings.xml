@@ -2537,4 +2537,5 @@
     <string name="car_alarm_channel_description">Megjeleníti az aktív riasztást az Android Auto kijelzőjén, a térkép felett.</string>
     <string name="car_alarm_notifications">Riasztások az autó kijelzőjén</string>
     <string name="car_alarm_notifications_hint">Az aktív riasztás a térkép felett jelenik meg, így navigálás közben is elér. A hangjelzés és a rezgés változatlan.</string>
+    <string name="car_no_metrics">Nincs kiválasztott érték</string>
 </resources>

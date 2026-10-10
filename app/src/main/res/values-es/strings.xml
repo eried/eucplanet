@@ -2731,4 +2731,5 @@
     <string name="car_alarm_channel_description">Muestra una alarma activa en la pantalla de Android Auto, sobre el mapa.</string>
     <string name="car_alarm_notifications">Alarmas en la pantalla del coche</string>
     <string name="car_alarm_notifications_hint">Una alarma activa aparece sobre el mapa, así te llega mientras navegas. El pitido y la vibración no cambian.</string>
+    <string name="car_no_metrics">Sin métricas seleccionadas</string>
 </resources>

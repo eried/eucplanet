@@ -2736,4 +2736,5 @@
     <string name="car_alarm_channel_description">Toont een afgegaan alarm op het Android Auto-scherm, over de kaart heen.</string>
     <string name="car_alarm_notifications">Alarmen op het autoscherm</string>
     <string name="car_alarm_notifications_hint">Een afgegaan alarm verschijnt over de kaart, zodat het je tijdens het navigeren bereikt. Piep en trilling blijven gelijk.</string>
+    <string name="car_no_metrics">Geen waarden geselecteerd</string>
 </resources>

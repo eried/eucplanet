@@ -2733,4 +2733,5 @@
     <string name="car_alarm_channel_description">작동 중인 알람을 지도 위 Android Auto 화면에 표시합니다.</string>
     <string name="car_alarm_notifications">차량 화면 알람</string>
     <string name="car_alarm_notifications_hint">작동한 알람이 지도 위에 표시되어 내비게이션 중에도 확인할 수 있습니다. 경고음과 진동은 그대로입니다.</string>
+    <string name="car_no_metrics">선택된 항목 없음</string>
 </resources>

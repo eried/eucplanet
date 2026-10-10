@@ -2736,4 +2736,5 @@
     <string name="car_alarm_channel_description">Mostra um alarme disparado na tela do Android Auto, sobre o mapa.</string>
     <string name="car_alarm_notifications">Alarmes na tela do carro</string>
     <string name="car_alarm_notifications_hint">Um alarme disparado aparece sobre o mapa, então chega até você durante a navegação. Bipe e vibração continuam iguais.</string>
+    <string name="car_no_metrics">Nenhuma métrica selecionada</string>
 </resources>

@@ -2738,4 +2738,5 @@
     <string name="car_alarm_channel_description">Affiche une alerte déclenchée sur l\'écran Android Auto, par-dessus la carte.</string>
     <string name="car_alarm_notifications">Alertes sur l\'écran de la voiture</string>
     <string name="car_alarm_notifications_hint">Une alerte déclenchée s\'affiche par-dessus la carte et vous atteint pendant la navigation. Le bip et la vibration ne changent pas.</string>
+    <string name="car_no_metrics">Aucune mesure sélectionnée</string>
 </resources>

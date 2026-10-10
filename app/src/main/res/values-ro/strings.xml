@@ -2537,4 +2537,5 @@
     <string name="car_alarm_channel_description">Afișează o alarmă declanșată pe ecranul Android Auto, peste hartă.</string>
     <string name="car_alarm_notifications">Alarme pe ecranul mașinii</string>
     <string name="car_alarm_notifications_hint">O alarmă declanșată apare peste hartă, așa că te găsește în timpul navigării. Bipul și vibrația rămân la fel.</string>
+    <string name="car_no_metrics">Nicio valoare selectată</string>
 </resources>

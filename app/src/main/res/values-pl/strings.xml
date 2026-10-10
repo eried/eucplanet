@@ -2734,4 +2734,5 @@
     <string name="car_alarm_channel_description">Pokazuje uruchomiony alarm na ekranie Android Auto, na mapie.</string>
     <string name="car_alarm_notifications">Alarmy na ekranie samochodu</string>
     <string name="car_alarm_notifications_hint">Uruchomiony alarm pojawia się na mapie, więc dotrze do ciebie podczas nawigacji. Sygnał i wibracja bez zmian.</string>
+    <string name="car_no_metrics">Nie wybrano wskaźników</string>
 </resources>

@@ -2750,6 +2750,7 @@
     <string name="car_last_battery">Last battery %1$d%%</string>
     <string name="car_waiting_wheel">Waiting for the wheel</string>
     <string name="car_weather">Weather</string>
+    <string name="car_no_metrics">No metrics selected</string>
     <string name="car_alarm_channel_name">Car screen alarms</string>
     <string name="car_alarm_channel_description">Shows a firing alarm on the Android Auto screen, over the map.</string>
     <string name="car_alarm_notifications">Alarms on the car screen</string>

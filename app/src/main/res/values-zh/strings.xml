@@ -2601,4 +2601,5 @@
     <string name="car_alarm_channel_description">在 Android Auto 屏幕上、地图之上显示触发的警报。</string>
     <string name="car_alarm_notifications">车机屏幕警报</string>
     <string name="car_alarm_notifications_hint">触发的警报会显示在地图之上，导航时也能看到。提示音和振动保持不变。</string>
+    <string name="car_no_metrics">未选择任何数据</string>
 </resources>

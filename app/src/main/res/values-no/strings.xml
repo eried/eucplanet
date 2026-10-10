@@ -2622,4 +2622,5 @@
     <string name="car_alarm_channel_description">Viser en utløst alarm på Android Auto-skjermen, oppå kartet.</string>
     <string name="car_alarm_notifications">Alarmer på bilskjermen</string>
     <string name="car_alarm_notifications_hint">En utløst alarm vises oppå kartet, så den når deg mens du navigerer. Pip og vibrasjon er uendret.</string>
+    <string name="car_no_metrics">Ingen målinger valgt</string>
 </resources>

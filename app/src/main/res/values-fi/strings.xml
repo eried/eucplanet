@@ -2537,4 +2537,5 @@
     <string name="car_alarm_channel_description">Näyttää lauenneen hälytyksen Android Auto -näytöllä kartan päällä.</string>
     <string name="car_alarm_notifications">Hälytykset auton näytöllä</string>
     <string name="car_alarm_notifications_hint">Lauennut hälytys näkyy kartan päällä, joten se tavoittaa sinut navigoidessa. Piippaus ja värinä eivät muutu.</string>
+    <string name="car_no_metrics">Ei valittuja mittareita</string>
 </resources>

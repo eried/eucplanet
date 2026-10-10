@@ -214,6 +214,17 @@ class EucCarAppService : CarAppService() {
             // category asks for, but the rider chose those metrics and a line
             // about the sky must not push one of them off the screen.
             if (rows.size < limit) weatherRow()?.let { rows += it }
+            // A pane may never be empty. The host refuses one ("The pane is set
+            // to loading but is not empty, or vice versa") and the throw lands
+            // in onGetTemplate, which kills the car screen exactly the way an
+            // empty action strip did. A rider who sets all four metrics to None
+            // while the wheel is connected gets here with nothing, so give them
+            // a line that says so rather than a black screen. Seen on the car
+            // emulator, not reasoned about.
+            if (rows.isEmpty()) {
+                rows += Row.Builder()
+                    .setTitle(carContext.getString(R.string.car_no_metrics)).build()
+            }
             rows.take(limit).forEach { pane.addRow(it) }
             Log.i(TAG, "pane rows ${rows.size.coerceAtMost(limit)} of limit $limit")
             val built = pane.build()

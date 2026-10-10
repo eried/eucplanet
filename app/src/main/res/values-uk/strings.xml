@@ -2731,4 +2731,5 @@
     <string name="car_alarm_channel_description">Показує спрацьоване сповіщення на екрані Android Auto, поверх карти.</string>
     <string name="car_alarm_notifications">Сповіщення на екрані авто</string>
     <string name="car_alarm_notifications_hint">Спрацьоване сповіщення з’являється поверх карти, тож дійде до вас під час навігації. Звук і вібрація без змін.</string>
+    <string name="car_no_metrics">Показники не вибрано</string>
 </resources>

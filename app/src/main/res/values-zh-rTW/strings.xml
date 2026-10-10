@@ -2733,4 +2733,5 @@
     <string name="car_alarm_channel_description">在 Android Auto 畫面上、地圖之上顯示觸發的警示。</string>
     <string name="car_alarm_notifications">車機畫面警示</string>
     <string name="car_alarm_notifications_hint">觸發的警示會顯示在地圖之上，導航時也能看到。嗶聲與震動維持不變。</string>
+    <string name="car_no_metrics">未選擇任何數據</string>
 </resources>
