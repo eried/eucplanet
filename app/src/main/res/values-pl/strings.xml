@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Pozycja</string>
     <string name="metric_chip_dyn_speed_limit">Dynamiczny limit prędkości</string>
     <string name="metric_chip_dyn_current_limit">Dynamiczny limit prądu</string>
+    <string name="metric_chip_auto_off">Automatyczne wyłączanie</string>
     <string name="metric_chip_motor_temp">Temperatura silnika</string>
     <string name="metric_chip_controller_temp">Temperatura sterownika</string>
     <string name="metric_chip_battery_temp">Temperatura baterii</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Wyłącz.</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS bat</string>

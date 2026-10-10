@@ -1550,6 +1550,7 @@
     <string name="metric_chip_current">电流</string>
     <string name="metric_chip_descent">下降</string>
     <string name="metric_chip_dyn_current_limit">动态电流限制</string>
+    <string name="metric_chip_auto_off">自动关机</string>
     <string name="metric_chip_dyn_speed_limit">动态速度限制</string>
     <string name="metric_chip_forward_g">前向 g</string>
     <string name="metric_chip_g_force">G 力</string>
@@ -1671,6 +1672,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">自动关机</string>
     <string name="metric_chip_phone_battery_tile">手机</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS电量</string>

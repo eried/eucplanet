@@ -224,6 +224,7 @@
     <string name="metric_spoken_lat_long">Poloha</string>
     <string name="metric_chip_dyn_speed_limit">Dynamický limit rychlosti</string>
     <string name="metric_chip_dyn_current_limit">Dynamický limit proudu</string>
+    <string name="metric_chip_auto_off">Automatické vypnutí</string>
     <string name="metric_chip_motor_temp">Teplota motoru</string>
     <string name="metric_chip_controller_temp">Teplota řídicí jednotky</string>
     <string name="metric_chip_battery_temp">Teplota baterie</string>
@@ -263,6 +264,7 @@
     <string name="metric_chip_controller_temp_tile">Řídic T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Lim rych</string>
     <string name="metric_chip_dyn_current_limit_tile">Lim A</string>
+    <string name="metric_chip_auto_off_tile">Vypnutí</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">Bat GPS</string>

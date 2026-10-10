@@ -224,6 +224,7 @@
     <string name="metric_spoken_lat_long">Sijainti</string>
     <string name="metric_chip_dyn_speed_limit">Dynaaminen nopeusrajoitus</string>
     <string name="metric_chip_dyn_current_limit">Dynaaminen virtaraja</string>
+    <string name="metric_chip_auto_off">Automaattinen sammutus</string>
     <string name="metric_chip_motor_temp">Moottorin lämpötila</string>
     <string name="metric_chip_controller_temp">Ohjaimen lämpötila</string>
     <string name="metric_chip_battery_temp">Akun lämpötila</string>
@@ -263,6 +264,7 @@
     <string name="metric_chip_controller_temp_tile">Ohjain T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Nop raja</string>
     <string name="metric_chip_dyn_current_limit_tile">A raja</string>
+    <string name="metric_chip_auto_off_tile">Sammutus</string>
     <string name="metric_chip_phone_battery_tile">Puhelin</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS akku</string>

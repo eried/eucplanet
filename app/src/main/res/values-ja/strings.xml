@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">位置</string>
     <string name="metric_chip_dyn_speed_limit">動的速度制限</string>
     <string name="metric_chip_dyn_current_limit">動的電流制限</string>
+    <string name="metric_chip_auto_off">自動電源オフ</string>
     <string name="metric_chip_motor_temp">モーター温度</string>
     <string name="metric_chip_controller_temp">コントローラー温度</string>
     <string name="metric_chip_battery_temp">バッテリー温度</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">速度制限</string>
     <string name="metric_chip_dyn_current_limit_tile">電流制限</string>
+    <string name="metric_chip_auto_off_tile">自動オフ</string>
     <string name="metric_chip_phone_battery_tile">スマホ</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS電池</string>

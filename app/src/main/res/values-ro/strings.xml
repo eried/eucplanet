@@ -224,6 +224,7 @@
     <string name="metric_spoken_lat_long">Poziție</string>
     <string name="metric_chip_dyn_speed_limit">Limită dinamică de viteză</string>
     <string name="metric_chip_dyn_current_limit">Limită dinamică de curent</string>
+    <string name="metric_chip_auto_off">Oprire automată</string>
     <string name="metric_chip_motor_temp">Temperatura motorului</string>
     <string name="metric_chip_controller_temp">Temperatura controlerului</string>
     <string name="metric_chip_battery_temp">Temperatura bateriei</string>
@@ -263,6 +264,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Lim vit</string>
     <string name="metric_chip_dyn_current_limit_tile">Lim A</string>
+    <string name="metric_chip_auto_off_tile">Oprire</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">Bat GPS</string>

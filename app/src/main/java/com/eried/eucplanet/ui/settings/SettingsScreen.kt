@@ -6576,7 +6576,7 @@ private fun metricPlaceholderValue(
         "kn" -> "0 kn"
         else -> "0 km/h"
     }
-    "TRIP_TIME" -> "0:00"
+    "TRIP_TIME", "AUTO_OFF" -> "0:00"
     "WH_CONSUMED" -> "0 Wh"
     "RANGE_ESTIMATE" -> when (s.unitDistance) {
         "mi" -> "0 mi"

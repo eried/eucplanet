@@ -6,6 +6,7 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- Begode: an Auto off tile counts down to the wheel's auto power-off (m:ss).
 - Fixed a crash on every launch for riders with a backup folder set (a start-up race).
 - Crews pairing: scan or type a code from eucstats and the browser flies your colours.
 - It lives in Settings then EUC Stats then Crews, and on the `eucplanet://pair` link.
@@ -46,6 +47,7 @@ only when you can cut the ride short.
 - Stays connected all ride? Lights and horn work?
 
 **Begode**
+- Auto off tile (Settings, Dashboard layout): matches the wheel, and jumps back up when the wheel moves?
 - Current (A) stays live all ride instead of dropping to 0 A? Master v3 especially.
 - Beep volume by speed on: quiet beeps when stopped, loud once riding?
 

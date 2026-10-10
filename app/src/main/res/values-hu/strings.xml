@@ -224,6 +224,7 @@
     <string name="metric_spoken_lat_long">Pozíció</string>
     <string name="metric_chip_dyn_speed_limit">Dinamikus sebességkorlát</string>
     <string name="metric_chip_dyn_current_limit">Dinamikus áramkorlát</string>
+    <string name="metric_chip_auto_off">Automatikus kikapcsolás</string>
     <string name="metric_chip_motor_temp">Motor hőmérséklete</string>
     <string name="metric_chip_controller_temp">Vezérlő hőmérséklete</string>
     <string name="metric_chip_battery_temp">Akkumulátor hőmérséklete</string>
@@ -263,6 +264,7 @@
     <string name="metric_chip_controller_temp_tile">Vez T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Seb korl</string>
     <string name="metric_chip_dyn_current_limit_tile">A korl</string>
+    <string name="metric_chip_auto_off_tile">Kikapcs.</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS akku</string>

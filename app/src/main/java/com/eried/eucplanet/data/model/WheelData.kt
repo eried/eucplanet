@@ -91,6 +91,9 @@ data class WheelData(
     val rangeKmEstimate: Float = Float.NaN,
     val dynamicSpeedLimit: Float = 0f,
     val dynamicCurrentLimit: Float = 0f,
+    /** Seconds until the wheel powers itself off while standing still; it
+     *  restarts when the wheel moves. Begode reports it, -1 everywhere else. */
+    val autoOffSeconds: Int = -1,
     val lightOn: Boolean = false,
     val headlightReadback: HeadlightReadback? = null,
     /** True when the wheel reports it is charging via an explicit firmware flag
