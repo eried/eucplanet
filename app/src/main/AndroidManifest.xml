@@ -47,6 +47,12 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Android Auto: a navigation app that draws its own map and stats. -->
+    <!-- NAVIGATION_TEMPLATES, not MAP_TEMPLATES. Android Auto's split gives its
+         large pane to the NAVIGATION app, so that category is the only way onto
+         a split screen at all. Never declare both, the docs reject that. -->
+    <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES" />
+    <uses-permission android:name="androidx.car.app.ACCESS_SURFACE" />
 
     <!-- BLE feature requirement -->
     <uses-feature
@@ -90,6 +96,20 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="https" />
+        </intent>
+        <!-- Start music finds the phone's music app and its media button
+             receiver (FlicManager.startMusic, sendMediaKeyTo); both lookups
+             are blind on API 30+ without these. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.APP_MUSIC" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MEDIA_BUTTON" />
+        </intent>
+        <!-- Start music wakes a closed player through its media browser. -->
+        <intent>
+            <action android:name="android.media.browse.MediaBrowserService" />
         </intent>
     </queries>
 
@@ -198,6 +218,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="eucplanet.ried.no" android:pathPrefix="/share" />
+                <!-- A shared route: the whole route rides in the link (see RouteLinks). -->
+                <data android:pathPrefix="/route" />
             </intent-filter>
             <!-- Dropbox OAuth (PKCE) redirect. App-key-prefixed scheme is
                  the Dropbox-recommended way to bounce the consent page back
@@ -354,6 +376,31 @@
                 tools:node="remove" />
         </provider>
 
+        <!-- Android Auto. The car screen shows the map, the rider's stats and
+             the wheel's buttons; see car/EucCarAppService. -->
+        <service
+            android:name=".car.EucCarAppService"
+            android:exported="true"
+            android:foregroundServiceType="location">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <!-- NAVIGATION. Not a guess this time: Josh had EUC Planet split
+                     with Pandora on the first build, which was this category, and
+                     neither POI nor WEATHER ever appeared in a split however well
+                     they ran. The reason is structural - the split's large pane is
+                     the navigation pane, so only a navigation app is eligible.
+                     The price is the old one: Android Auto runs one navigation app
+                     at a time, so opening Google Maps closes this. EUC Planet
+                     beside Maps is not reachable by any category. -->
+                <category android:name="androidx.car.app.category.NAVIGATION" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="1" />
     </application>
 
 </manifest>

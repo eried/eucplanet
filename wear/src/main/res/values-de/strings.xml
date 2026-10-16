@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">Play / Pause</string>
     <string name="watch_action_media_next">Nächster Titel</string>
     <string name="watch_action_media_prev">Vorheriger Titel</string>
+    <string name="watch_action_music_start">Musik starten</string>
+    <string name="watch_action_media_pause">Musik pausieren</string>
     <string name="watch_action_long_press_hint">Lang drücken für %1$s</string>
     <string name="watch_map_phone_disconnected">Kein Handy</string>
     <string name="watch_map_gps_permission">GPS erlauben</string>

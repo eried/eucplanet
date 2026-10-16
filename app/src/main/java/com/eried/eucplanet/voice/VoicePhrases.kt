@@ -31,6 +31,12 @@ object VoicePhrases {
         "RECORD_START" to R.string.voice_act_record_start_terms,
         "RECORD_STOP" to R.string.voice_act_record_stop_terms,
         "RESET_TRIP" to R.string.voice_act_reset_trip_terms,
+        // The rider's music. Catalog keys, so voice, Flic and the HUD all
+        // press the same media key.
+        "MUSIC_START" to R.string.voice_act_music_start_terms,
+        "MEDIA_PAUSE" to R.string.voice_act_media_pause_terms,
+        "MEDIA_NEXT" to R.string.voice_act_media_next_terms,
+        "MEDIA_PREVIOUS" to R.string.voice_act_media_prev_terms,
     )
 
     /** The things the app knows that are not wheel readings. */

@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -367,6 +368,10 @@ class WheelRepository @Inject constructor(
 
     private val _wheelHasLock = MutableStateFlow(false)
     val wheelHasLock: StateFlow<Boolean> = _wheelHasLock.asStateFlow()
+
+    /** The connected wheel's beeper volume can be set. False while disconnected. */
+    private val _wheelHasBeeperVolume = MutableStateFlow(false)
+    val wheelHasBeeperVolume: StateFlow<Boolean> = _wheelHasBeeperVolume.asStateFlow()
 
     /** The connected wheel takes speed limits from the app (tiltback, alarm,
      *  and so Legal Mode). False while disconnected. */
@@ -838,6 +843,15 @@ class WheelRepository @Inject constructor(
             val buf = ArrayDeque<MetricSample>()
             val windowMs = 600L
             while (true) {
+                // Only a connected wheel has a speed to differentiate; without
+                // one this woke the phone ten times a second for nothing.
+                if (connectionState.value != ConnectionState.CONNECTED) {
+                    buf.clear()
+                    if (_wheelData.value.forwardGFromSpeed != 0f) {
+                        _wheelData.value = _wheelData.value.copy(forwardGFromSpeed = 0f)
+                    }
+                    connectionState.first { it == ConnectionState.CONNECTED }
+                }
                 kotlinx.coroutines.delay(100L)
                 val now = System.currentTimeMillis()
                 buf.addLast(MetricSample(now, _wheelData.value.speed / 3.6f)) // km/h -> m/s
@@ -993,6 +1007,7 @@ class WheelRepository @Inject constructor(
                         // `hasMaxSpeed` the speed-limit rows and Legal Mode.
                         _wheelHasLock.value = wheelAdapter.capabilities.hasLock
                         _wheelHasSpeedLimit.value = wheelAdapter.capabilities.hasMaxSpeed
+                        _wheelHasBeeperVolume.value = wheelAdapter.capabilities.hasBeeperVolume
                         lockKnownFallbackJob?.cancel()
                         if (wheelAdapter.capabilities.lockStateOnRequestOnly) {
                             _lockKnown.value = false
@@ -1033,6 +1048,7 @@ class WheelRepository @Inject constructor(
                         lastAnnouncedLocked = null
                         _wheelHasLock.value = false
                         _wheelHasSpeedLimit.value = false
+                        _wheelHasBeeperVolume.value = false
                         _wheelSeriesCells.value = null
                         _chargeStatus.value = ChargeStatus.Disconnected
                         chargeInferred = false
@@ -1625,6 +1641,22 @@ class WheelRepository @Inject constructor(
         get() = if (bleManager.connectionState.value == ConnectionState.CONNECTED) {
             wheelAdapter.familyId
         } else null
+
+    /**
+     * Set the wheel's beeper volume, 1..9. The writes go one at a time with
+     * the gaps Begode's sub-menu needs (spec 6.2: about 100 ms after `W`, 200
+     * after the selector), or the wheel reads them as separate commands.
+     */
+    fun setBeeperVolume(level: Int) {
+        if (!wheelConnected()) return
+        val frames = wheelAdapter.setBeeperVolume(level) ?: return
+        scope.launch {
+            frames.forEachIndexed { i, f ->
+                if (i > 0) delay(if (i == 1) 100L else 200L)
+                bleManager.writeCommand(f)
+            }
+        }
+    }
 
     /** Write a custom BLE command's frames verbatim, one BLE write each, in order. */
     fun sendCustomBle(frames: List<ByteArray>) {

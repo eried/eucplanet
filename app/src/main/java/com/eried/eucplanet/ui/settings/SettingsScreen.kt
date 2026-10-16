@@ -267,6 +267,7 @@ import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.LocalSettingsSearchQuery
+import com.eried.eucplanet.ui.common.settingsSearchLabel
 import com.eried.eucplanet.ui.common.highlightMatches
 import com.eried.eucplanet.ui.common.settingsSearchAnchor
 import com.eried.eucplanet.ui.theme.AccentBlue
@@ -297,8 +298,8 @@ import sh.calvin.reorderable.ReorderableColumn
  *
  * Short enough that the list keeps up with a pause, long enough that a typed
  * word costs one pass instead of one per letter. Every keystroke rebuilds
- * every section's search corpus from hundreds of string lookups, so this is
- * the difference between typing that flows and typing that wades.
+ * every open section with the matches highlighted, so this is the
+ * difference between typing that flows and typing that wades.
  */
 private const val SEARCH_SETTLE_MS = 180L
 
@@ -495,6 +496,7 @@ fun SettingsScreen(
     // returning lands on the same place rather than the bottom.
     val imeVisible = WindowInsets.ime
         .getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
+    val searchLandingGapPx = with(androidx.compose.ui.platform.LocalDensity.current) { 24.dp.roundToPx() }
     LaunchedEffect(searchScrollTrigger, imeVisible) {
         searchScroller.query = searchScrollTrigger
         if (searchScrollTrigger.isEmpty()) return@LaunchedEffect
@@ -512,8 +514,10 @@ fun SettingsScreen(
         }
         val best = searchScroller.best() ?: return@LaunchedEffect
         val delta = (best.windowY - container).toInt()
-        // Scroll in either direction so the match sits at the top (small breathing gap).
-        val target = (scrollState.value + delta - 8).coerceIn(0, scrollState.maxValue)
+        // Scroll in either direction so the match sits at the top, with room
+        // above it: a button's label sits inside the button, and landing on the
+        // label alone cut the button's top edge off.
+        val target = (scrollState.value + delta - searchLandingGapPx).coerceIn(0, scrollState.maxValue)
         if (kotlin.math.abs(target - scrollState.value) > 8) scrollState.animateScrollTo(target)
     }
 
@@ -569,34 +573,54 @@ fun SettingsScreen(
         val title: String,
         val icon: ImageVector,
         /**
-         * Every label inside the section, one per entry.
+         * Every text inside the section, one per entry, read from the code by
+         * the generated SettingsSearchIndex rather than listed by hand.
          *
-         * A list rather than one joined string, because the count is now part
-         * of the answer: a collapsed section says how many of its labels the
-         * query hit, which is what lets the rest of the page stay where it is
+         * A list rather than one joined string, because the count is part of
+         * the answer: a collapsed section says how many of its texts the query
+         * hit, which is what lets the rest of the page stay where it is
          * instead of being filtered away.
          */
-        val searchCorpus: List<String>,
+        val searchCorpus: List<SearchEntry>,
         val content: @Composable () -> Unit
     ) {
-        fun matchCount(query: String): Int =
-            if (query.isEmpty()) 0
-            else searchCorpus.count { it.contains(query, ignoreCase = true) }
+        private fun hits(query: String): List<SearchEntry> =
+            if (query.isEmpty()) emptyList()
+            else searchCorpus.filter { it.text.contains(query, ignoreCase = true) }
+
+        fun matchCount(query: String): Int = hits(query).size
 
         fun matches(query: String): Boolean = matchCount(query) > 0
 
         /**
          * How well this section answers [query], for picking which one opens.
          *
-         * A title hit outranks any number of label hits: a rider typing
+         * A title hit outranks any number of other hits: a rider typing
          * "voice" means the Voice section, even if some other section happens
-         * to mention voice four times. Below that, more mentions wins.
+         * to mention voice four times. Below that, a row or a button counts
+         * more than a description that mentions the word in passing.
          */
         fun searchScore(query: String): Int {
             if (query.isEmpty()) return 0
             val titleHit = if (title.contains(query, ignoreCase = true)) TITLE_WEIGHT else 0
-            return titleHit + matchCount(query)
+            return titleHit + hits(query).sumOf { it.kind.weight }
         }
+
+        /**
+         * Where the search lands when the text it found is not on screen, a
+         * button that only shows in some states for one: the sub-heading it
+         * sits under, best hit first, then the section itself.
+         */
+        fun landing(query: String): List<String> =
+            hits(query).sortedByDescending { it.kind.weight }.mapNotNull { it.under }.distinct() + title
+
+        /** How many hits each card inside this section folds away, by card title. */
+        fun foldCounts(query: String): Map<String, Int> =
+            hits(query).flatMap { it.folds }.groupingBy { it }.eachCount()
+
+        /** The cards holding the best hit, outermost first: what the search opens. */
+        fun bestFolds(query: String): List<String> =
+            hits(query).maxByOrNull { it.kind.weight }?.folds.orEmpty()
     }
 
     val titleGeneral = stringResource(R.string.tab_general)
@@ -614,214 +638,7 @@ fun SettingsScreen(
     val titleGpsSensors = stringResource(R.string.section_external_gps)
     val titleDashboard = stringResource(R.string.tab_dashboard)
 
-    val corpusGeneral = listOf(
-        titleGeneral,
-        stringResource(R.string.section_recording),
-        stringResource(R.string.auto_record_on_start),
-        stringResource(R.string.auto_record_start_in_motion),
-        stringResource(R.string.auto_record_stop_idle_seconds),
-        stringResource(R.string.section_connection),
-        stringResource(R.string.auto_connect_on_start),
-        stringResource(R.string.section_application),
-        stringResource(R.string.back_button_action),
-        stringResource(R.string.section_surfaces),
-        stringResource(R.string.pip_section),
-        stringResource(R.string.surface_notification),
-        stringResource(R.string.phone_hud_section),
-        stringResource(R.string.phone_hud_enable),
-        stringResource(R.string.widget_section),
-        stringResource(R.string.widget_customize),
-        stringResource(R.string.widget_metric_slot, 1),
-        stringResource(R.string.widget_action_slot, 1),
-        stringResource(R.string.widget_standalone_slot, 1),
-        stringResource(R.string.charging_monitor)
-    )
-
-    val corpusDashboard = listOf(
-        titleDashboard,
-        stringResource(R.string.dashboard_section_metrics),
-        stringResource(R.string.dashboard_section_actions),
-        stringResource(R.string.dashboard_columns),
-        stringResource(R.string.dashboard_rolling_window),
-        stringResource(R.string.metric_chip_battery),
-        stringResource(R.string.metric_chip_temperature),
-        stringResource(R.string.metric_chip_voltage),
-        stringResource(R.string.metric_chip_current),
-        stringResource(R.string.metric_chip_load),
-        stringResource(R.string.metric_chip_trip),
-        stringResource(R.string.action_chip_horn),
-        stringResource(R.string.action_chip_light),
-        stringResource(R.string.action_chip_voice),
-        stringResource(R.string.action_chip_safety),
-        stringResource(R.string.action_chip_lock),
-        stringResource(R.string.action_chip_record)
-    )
-
-    val corpusDisplay = listOf(
-        titleDisplay,
-        stringResource(R.string.section_display),
-        stringResource(R.string.units_label),
-        stringResource(R.string.theme),
-        stringResource(R.string.show_gauge_color_band),
-        stringResource(R.string.language)
-    )
-
-    val corpusSpeed = listOf(
-        titleSpeed,
-        stringResource(R.string.section_speed_limits),
-        stringResource(R.string.speed_tiltback),
-        stringResource(R.string.speed_alarm),
-        stringResource(R.string.section_legal_mode_speed),
-        stringResource(R.string.lockdown_title),
-        stringResource(R.string.lockdown_setting_label),
-        stringResource(R.string.lockdown_setting_desc),
-        stringResource(R.string.speed_legal_tiltback),
-        stringResource(R.string.speed_legal_alarm),
-        stringResource(R.string.section_speed_calibration),
-        stringResource(R.string.horn_section),
-        stringResource(R.string.horn_mode_label),
-        stringResource(R.string.horn_headphones_only),
-        stringResource(R.string.section_battery_percent),
-        stringResource(R.string.battery_override_label),
-        stringResource(R.string.battery_percent_min_cell),
-        stringResource(R.string.battery_percent_max_cell),
-        stringResource(R.string.battery_capacity_label),
-        stringResource(R.string.battery_percent_series_cells)
-    )
-
-    val corpusVoice = listOf(
-        titleVoice,
-        stringResource(R.string.section_speech),
-        stringResource(R.string.voice_speech_speed),
-        stringResource(R.string.voice_volume),
-        stringResource(R.string.voice_audio_focus_label),
-        stringResource(R.string.voice_output_channel_label),
-        stringResource(R.string.section_announcements),
-        stringResource(R.string.voice_enabled),
-        stringResource(R.string.voice_interval),
-        stringResource(R.string.announce_wheel_lock),
-        stringResource(R.string.announce_lights),
-        stringResource(R.string.announce_recording),
-        stringResource(R.string.announce_connection),
-        stringResource(R.string.announce_gps),
-        stringResource(R.string.announce_legal_mode),
-        stringResource(R.string.announce_welcome),
-        stringResource(R.string.voice_commands_title),
-        stringResource(R.string.voice_command_vocabulary),
-        stringResource(R.string.voice_prompt_cue),
-        stringResource(R.string.voice_prompt_cue_desc),
-        stringResource(R.string.voice_unknown_cue),
-        stringResource(R.string.voice_recognition_language),
-        stringResource(R.string.voice_recognition_desc),
-        stringResource(R.string.voice_headset_button),
-        stringResource(R.string.voice_headset_chooser_hint),
-        stringResource(R.string.section_report_status),
-        stringResource(R.string.report_speed),
-        stringResource(R.string.report_battery),
-        stringResource(R.string.report_temp),
-        stringResource(R.string.report_pwm),
-        stringResource(R.string.report_distance),
-        stringResource(R.string.report_recording),
-        stringResource(R.string.report_time),
-        stringResource(R.string.section_accel_splits)
-    )
-
-    val corpusMotor = listOf(
-        titleMotor,
-        stringResource(R.string.engine_sound_enabled),
-        stringResource(R.string.engine_type_label),
-        stringResource(R.string.engine_volume),
-        stringResource(R.string.engine_muffler_label),
-        stringResource(R.string.engine_gearbox_label),
-        stringResource(R.string.engine_idle_label),
-        stringResource(R.string.engine_decel_label),
-        stringResource(R.string.engine_brake_label),
-        stringResource(R.string.engine_duck_label),
-        stringResource(R.string.engine_headphones_only)
-    )
-
-    val corpusCloud = listOf(
-        titleCloud,
-        stringResource(R.string.section_cloud_folder),
-        stringResource(R.string.section_cloud_settings),
-        stringResource(R.string.section_cloud_trips),
-        stringResource(R.string.section_online_stats)
-    )
-
-    val corpusAlarms = listOf(titleAlarms, stringResource(R.string.alarm_help))
-
-    val corpusAuto = listOf(
-        titleAuto,
-        stringResource(R.string.auto_lights_title),
-        stringResource(R.string.auto_volume_title),
-        stringResource(R.string.auto_volume_desc),
-        stringResource(R.string.media_control_title),
-        stringResource(R.string.media_control_desc),
-        stringResource(R.string.proximity_lock_title),
-        stringResource(R.string.proximity_lock_desc)
-    )
-
-    val corpusIntegration = listOf(
-        titleIntegration,
-        stringResource(R.string.section_flic_buttons),
-        stringResource(R.string.section_volume_keys),
-        stringResource(R.string.volume_keys_enable),
-        stringResource(R.string.section_radar),
-        stringResource(R.string.radar_caption),
-        stringResource(R.string.section_hud_companion),
-        stringResource(R.string.hud_server_enabled),
-        stringResource(R.string.hud_search_corpus),
-        stringResource(R.string.section_tpms),
-        stringResource(R.string.tpms_wheel_sensor)
-    )
-
-    val corpusNavigator = listOf(
-        titleNavigator,
-        stringResource(R.string.nav_setting_voice),
-        stringResource(R.string.nav_setting_default_mode),
-        stringResource(R.string.nav_setting_arrival_radius),
-        stringResource(R.string.nav_setting_offroute),
-        stringResource(R.string.nav_setting_endpoints)
-    )
-
-    val corpusGpsSensors = listOf(
-        titleGpsSensors,
-        stringResource(R.string.gps_show_on_dashboard),
-        stringResource(R.string.gps_prioritize_external),
-        stringResource(R.string.external_gps_caption)
-    )
-
-    val corpusWatch = listOf(
-        titleWatch,
-        stringResource(R.string.section_watch_general),
-        stringResource(R.string.section_watch_display),
-        stringResource(R.string.watch_keep_on),
-        stringResource(R.string.watch_keep_on_navigation),
-        stringResource(R.string.watch_keep_on_navigation_desc),
-        stringResource(R.string.watch_auto_start),
-        stringResource(R.string.watch_close_on_exit),
-        stringResource(R.string.watch_show_wheel_battery),
-        stringResource(R.string.watch_show_phone_battery),
-        stringResource(R.string.watch_show_watch_battery),
-        stringResource(R.string.watch_pwm_display),
-        stringResource(R.string.watch_show_speed_unit),
-        stringResource(R.string.section_watch_device),
-        stringResource(R.string.section_watch_buttons),
-        stringResource(R.string.watch_map_enabled),
-        stringResource(R.string.watch_map_enabled_desc),
-        stringResource(R.string.watch_map_orientation),
-        stringResource(R.string.watch_map_north_up),
-        stringResource(R.string.watch_map_heading_up),
-        stringResource(R.string.watch_map_telemetry),
-        stringResource(R.string.watch_map_telemetry_desc),
-    )
-
-    // Every group and every spec label, from the registry, so a new Advanced
-    // row is searchable the day it is added instead of when someone remembers
-    // this list. A hand-picked list here once covered four rows of sixty.
-    val corpusAdvanced = listOf(titleAdvanced) +
-        AdvGroup.entries.map { stringResource(it.titleRes) } +
-        ADVANCED_SPECS.map { stringResource(it.label) }
+    val corpora = rememberSearchCorpora()
 
     // Section handles for the reorganize editor (key, title, icon). Every section
     // is reorderable and hideable now, including Advanced (which defaults to last).
@@ -844,55 +661,55 @@ fun SettingsScreen(
     )
 
     val sections: List<SectionDef> = listOf(
-        SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
+        SectionDef("general", titleGeneral, Icons.Default.Tune, corpora.getValue("general")) {
             GeneralTab(settings, viewModel, scrollToBattery) { y ->
                 targetSectionTop = y
             }
         },
-        SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
+        SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpora.getValue("dashboard")) {
             DashboardLayoutTab(settings, viewModel)
         },
-        SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpusDisplay) {
+        SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpora.getValue("display")) {
             DisplayTab(settings, viewModel)
         },
-        SectionDef("speed", titleSpeed, Icons.Default.Speed, corpusSpeed) {
+        SectionDef("speed", titleSpeed, Icons.Default.Speed, corpora.getValue("speed")) {
             SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
         },
-        SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
+        SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpora.getValue("voice")) {
             VoiceTab(
                 settings, viewModel,
                 scrollToSplits = scrollToSplits,
                 onSplitsTop = { y -> targetSectionTop = y },
             )
         },
-        SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpusMotor) {
+        SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpora.getValue("motor")) {
             EngineSoundSection(settings, viewModel, engineParked)
         },
-        SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
+        SectionDef("cloud", titleCloud, Icons.Default.Archive, corpora.getValue("cloud")) {
             CloudTab(settings, viewModel, snackbar, snackbarScope)
         },
-        SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpusAlarms) {
+        SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpora.getValue("alarms")) {
             AlarmSettingsContent()
         },
-        SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpusAuto) {
+        SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpora.getValue("auto")) {
             AutomationsContent()
         },
-        SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpusNavigator) {
+        SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpora.getValue("navigator")) {
             NavigatorSettingsContent(
                 scrollToWeather = scrollToWeather,
                 onWeatherTop = { y -> targetSectionTop = y },
             )
         },
-        SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
+        SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpora.getValue("location")) {
             ExternalGpsSection()
         },
-        SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
+        SectionDef("integration", titleIntegration, Icons.Default.Extension, corpora.getValue("integration")) {
             FlicTab()
         },
-        SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
+        SectionDef("watch", titleWatch, Icons.Default.Watch, corpora.getValue("watch")) {
             WatchTab(settings, viewModel)
         },
-        SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpusAdvanced) {
+        SectionDef("advanced", titleAdvanced, Icons.Default.Build, corpora.getValue("advanced")) {
             AdvancedTab(settings, viewModel, movableHandles)
         }
     )
@@ -1038,6 +855,15 @@ fun SettingsScreen(
                     .maxByOrNull { it.second }
                     ?.first?.key
             } else null
+            searchScroller.landing = sections.firstOrNull { it.key == searchScrollKey }?.landing(query).orEmpty()
+            // The same answer one level down, for the cards inside a section:
+            // each shut card counts what it hides, and the card holding the
+            // best hit of the section that opened opens too.
+            val searchFolds = if (searching) SearchFolds(
+                counts = sections.map { it.foldCounts(query) }
+                    .fold(emptyMap()) { acc, m -> acc + m.mapValues { (k, v) -> v + (acc[k] ?: 0) } },
+                open = sections.firstOrNull { it.key == searchScrollKey }?.bestFolds(query).orEmpty().toSet(),
+            ) else SearchFolds.None
 
             // Scrolling belongs to the anchor scroller, which keeps every
             // anchor's CURRENT position in a map and picks the best by rank.
@@ -1047,6 +873,7 @@ fun SettingsScreen(
             androidx.compose.runtime.CompositionLocalProvider(
                 LocalSettingsSearchQuery provides query,
                 com.eried.eucplanet.ui.common.LocalSettingsSearchScroller provides searchScroller,
+                LocalSearchFolds provides searchFolds,
             ) {
                 @Composable
                 fun SectionCard(sec: SectionDef, indent: Boolean = false) {
@@ -1147,6 +974,42 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     else -> null
 }
 
+/**
+ * How many search hits a shut section or card hides, before its chevron.
+ * Nothing at all for 0.
+ */
+@Composable
+private fun SearchCountPill(count: Int) {
+    if (count <= 0) return
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        // The accent fill with the theme's on-accent ink. The highlight's 55
+        // percent version works behind a word in a sentence; behind a badge it
+        // would leave the count sitting on whatever the card happens to be.
+        color = MaterialTheme.appColors.selection,
+        contentColor = MaterialTheme.appColors.onPrimary,
+    ) {
+        Text(
+            count.toString(),
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+        )
+    }
+    Spacer(Modifier.width(10.dp))
+}
+
+/**
+ * A card's share of the search: whether the query opens it, and how many hits
+ * it hides while it stays shut. Read from [LocalSearchFolds] by the card's own
+ * title, so a card needs nothing passed in to take part.
+ */
+@Composable
+private fun cardSearch(title: String, expanded: Boolean): Pair<Boolean, Int> {
+    val folds = LocalSearchFolds.current
+    val open = expanded || title in folds.open
+    return open to if (open) 0 else folds.counts[title] ?: 0
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CollapsibleSection(
@@ -1215,24 +1078,7 @@ private fun CollapsibleSection(
                     color = MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
-                if (matchCount > 0) {
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        // The accent fill with the theme's on-accent ink. The
-                        // highlight's 55 percent version works behind a word
-                        // in a sentence; behind a badge it would leave the
-                        // count sitting on whatever the card happens to be.
-                        color = MaterialTheme.appColors.selection,
-                        contentColor = MaterialTheme.appColors.onPrimary,
-                    ) {
-                        Text(
-                            matchCount.toString(),
-                            style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        )
-                    }
-                    Spacer(Modifier.width(10.dp))
-                }
+                SearchCountPill(matchCount)
                 val chevron by animateFloatAsState(
                     targetValue = if (expanded) 180f else 0f,
                     animationSpec = tween(180),
@@ -1569,13 +1415,13 @@ private fun GeneralTab(
                             onClick = { presetSheetOpen = true },
                             colors = themedTonalButtonColors(),
                             shape = RoundedCornerShape(12.dp),
-                        ) { Text(stringResource(R.string.hud_overlay_select_preset)) }
+                        ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_overlay_select_preset)) }
                         if (settings.phoneHudOverlayName.isNotBlank()) {
                             TextButton(
                                 onClick = { viewModel.pickPhoneHudOverlay("") },
                                 colors = themedTextButtonColors(),
                                 shape = RoundedCornerShape(12.dp),
-                            ) { Text(stringResource(R.string.hud_custom_overlay_none)) }
+                            ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_custom_overlay_none)) }
                         }
                     }
 
@@ -2347,7 +2193,7 @@ private fun AdvancedTab(
             TextButton(onClick = { showResetConfirm = true }, enabled = changed.isNotEmpty(), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.adv_reset_all))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all))
             }
         }
         // One collapsible card per group, fully driven by the AdvancedSpec registry.
@@ -2393,7 +2239,7 @@ private fun AdvancedTab(
                 TextButton(onClick = {
                     viewModel.resetAdvancedDefaults()
                     showResetConfirm = false
-                }, shape = RoundedCornerShape(12.dp)) { Text(stringResource(R.string.adv_reset_all)) }
+                }, shape = RoundedCornerShape(12.dp)) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.adv_reset_all)) }
             },
             dismissButton = {
                 TextButton(onClick = { showResetConfirm = false }, shape = RoundedCornerShape(12.dp)) {
@@ -6575,7 +6421,7 @@ private fun metricPlaceholderValue(
         "kn" -> "0 kn"
         else -> "0 km/h"
     }
-    "TRIP_TIME" -> "0:00"
+    "TRIP_TIME", "AUTO_OFF" -> "0:00"
     "WH_CONSUMED" -> "0 Wh"
     "RANGE_ESTIMATE" -> when (s.unitDistance) {
         "mi" -> "0 mi"
@@ -7205,6 +7051,40 @@ private fun HornSection(
             checked = horn.headphonesOnly
         ) { viewModel.updateHornHeadphonesOnly(it) }
     }
+    // The wheel's own beeper volume, only for a wheel that takes one (Begode).
+    // Quiet while stopped so power-on and power-off beeps are soft; loud while
+    // riding so the warnings are heard.
+    val hasBeeperVolume by viewModel.wheelHasBeeperVolume.collectAsState()
+    if (hasBeeperVolume) {
+        SwitchSetting(
+            label = stringResource(R.string.beep_volume_by_speed),
+            checked = horn.beepVolumeBySpeed
+        ) { viewModel.updateBeepVolumeBySpeed(it) }
+        if (horn.beepVolumeBySpeed) {
+            val defaults = com.eried.eucplanet.data.model.HornSettings()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NumberFieldWithDefault(
+                    value = horn.beepVolumeStopped,
+                    default = defaults.beepVolumeStopped,
+                    onValueChange = { viewModel.updateBeepVolumeStopped(it) },
+                    range = 1..9,
+                    label = stringResource(R.string.beep_volume_stopped),
+                    modifier = Modifier.weight(1f),
+                )
+                NumberFieldWithDefault(
+                    value = horn.beepVolumeRiding,
+                    default = defaults.beepVolumeRiding,
+                    onValueChange = { viewModel.updateBeepVolumeRiding(it) },
+                    range = 1..9,
+                    label = stringResource(R.string.beep_volume_riding),
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
 }
 
 // --- Voice Tab ---
@@ -7465,7 +7345,20 @@ private fun VoiceTab(
             // Tapping the one already selected plays it again.
             onChange = { viewModel.updateVoicePromptCue(it, listeningWord) },
         )
-        HintText(stringResource(R.string.voice_prompt_cue_desc))
+
+        // Assistants and cars take the music down while they listen; through
+        // the phone speaker the microphone otherwise hears the song.
+        SegmentedChoice(
+            label = stringResource(R.string.voice_music_listening),
+            options = listOf(
+                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_PAUSE to stringResource(R.string.voice_music_pause),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_DUCK to stringResource(R.string.voice_music_duck),
+                com.eried.eucplanet.data.model.VoiceCommandSettings.MUSIC_KEEP to stringResource(R.string.voice_music_keep),
+            ),
+            current = settings.voiceCommands.musicWhileListening,
+            onChange = { viewModel.updateVoiceMusicWhileListening(it) },
+        )
+        HintText(stringResource(R.string.voice_music_listening_desc))
 
         SegmentedChoice(
             label = stringResource(R.string.voice_unknown_cue),
@@ -7590,6 +7483,12 @@ private fun VoiceTab(
             onPlay = { viewModel.previewVoiceReport(periodic = false) },
         )
         }   // end Customize AdvancedCollapsable
+        // Outside the collapsible so a rider finds it without opening the
+        // lists. Play above never resets: a preview is not a press.
+        SwitchSetting(
+            stringResource(R.string.voice_trigger_reset_after),
+            settings.voiceReports.triggerResetAfter,
+        ) { viewModel.updateTriggerResetAfter(it) }
 
         // --- Acceleration splits (RaceBox-style) ---
         Box(
@@ -7949,6 +7848,7 @@ private fun FlicTab(
 
         settingsViewModel.settings.collectAsState().value?.let { s ->
             HudIntegrationSection(settings = s, viewModel = settingsViewModel)
+            AndroidAutoSection(settings = s, viewModel = settingsViewModel)
         }
 
         SectionHeader(stringResource(R.string.section_tpms))
@@ -8668,9 +8568,21 @@ private fun CloudTab(
         val pushRes = if (isDropbox) R.string.sync_conflict_app_dropbox else R.string.sync_conflict_app
         AlertDialog(
             onDismissRequest = { viewModel.cancelSyncConflict() },
+            properties = androidx.compose.ui.window.DialogProperties(dismissOnClickOutside = false),
             shape = RoundedCornerShape(12.dp),
             title = { Text(stringResource(R.string.sync_conflict_title)) },
-            text = { Text(stringResource(bodyRes, syncConflict!!)) },
+            text = {
+                val firstSettings by viewModel.syncConflictFirstSettings.collectAsState()
+                val count = stringResource(bodyRes, syncConflict!!)
+                Text(
+                    if (isDropbox && firstSettings) {
+                        val ask = stringResource(R.string.sync_first_settings)
+                        // Settings alone: the question says it all. With trips or
+                        // themes in the prompt too, the count still follows.
+                        if (syncConflict == 1) ask else "$ask\n\n$count"
+                    } else count
+                )
+            },
             confirmButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
@@ -8788,14 +8700,14 @@ private fun CloudTab(
                     enabled = !syncRunning,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text(stringResource(R.string.cloud_change_folder)) }
+                ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
                     enabled = !syncRunning,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text(stringResource(R.string.cloud_remove_folder)) }
+                ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
             LeftAlignedScanButton(
@@ -8883,7 +8795,7 @@ private fun CloudTab(
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.cloud_retry_now)) }
+                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_retry_now)) }
                     Button(
                         onClick = { viewModel.unlinkDropbox() },
                         enabled = !syncRunning,
@@ -8893,7 +8805,7 @@ private fun CloudTab(
                         ),
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.dropbox_unlink)) }
+                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.dropbox_unlink)) }
                 }
                 val activeDbxKind by viewModel.activeSyncKind.collectAsState()
                 val showDbxProgress = syncRunning &&
@@ -8909,6 +8821,8 @@ private fun CloudTab(
                         // left the flag set, so the pending indicator popped up and
                         // it looked like the sync just carried on after Cancel.
                         onCancel = { viewModel.stopDropboxSync() },
+                        label = if (dbxProgress == null && !dbxCancelling)
+                            stringResource(R.string.dropbox_checking) else null,
                     )
                 }
                 // Quiet persistent "still syncing" row: trips are pending and the
@@ -8944,7 +8858,7 @@ private fun CloudTab(
                         enabled = !syncRunning,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                    ) { Text(stringResource(R.string.dropbox_link)) }
+                    ) { com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.dropbox_link)) }
                     Spacer(Modifier.weight(1f))
                 }
             }
@@ -9078,7 +8992,7 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.cloud_retry_now))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_retry_now))
                 }
                 // Wipes only the phone's local trips (files + DB), never the
                 // backup folder, so it sits beside Sync all as its counterpart.
@@ -9092,7 +9006,7 @@ private fun CloudTab(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.cloud_reset_local))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_reset_local))
                 }
             }
             if (showResetLocalDialog) {
@@ -9147,6 +9061,18 @@ private fun CloudTab(
         val startOnboarding by viewModel.startOnboarding.collectAsStateWithLifecycle()
         val rejoinConfirm by viewModel.rejoinConfirm.collectAsStateWithLifecycle()
         val riderStoreId by viewModel.riderStoreId.collectAsStateWithLifecycle()
+        // Crew pass only shows for a rider on the leaderboard. Searching for it
+        // without one lands on the leaderboard heading; this says why the
+        // button is not there and what brings it.
+        val crewPassShown = settings.syncFolderUri != null && settings.onlineUploadEnabled && riderStoreId != null
+        val searchQuery = LocalSettingsSearchQuery.current.trim()
+        val crewPassLabel = stringResource(R.string.crews_pass_action)
+        val crewPassHint = stringResource(R.string.crews_pass_search_hint)
+        LaunchedEffect(searchQuery, crewPassShown) {
+            if (!crewPassShown && searchQuery.isNotEmpty() && crewPassLabel.contains(searchQuery, ignoreCase = true)) {
+                snackbar.showSnackbar(crewPassHint)
+            }
+        }
         LaunchedEffect(startOnboarding) {
             if (startOnboarding) {
                 showOnboarding = true
@@ -9438,7 +9364,7 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.online_profile_manage))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.online_profile_manage))
                 }
                 // Crews pairing had no way in from inside the app at all -- the activity was
                 // reachable only by the `eucplanet://pair` deep link, while eucstats told
@@ -9469,7 +9395,7 @@ private fun CloudTab(
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.crews_pass_action))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.crews_pass_action))
                 }
             }
 
@@ -9498,7 +9424,7 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.cloud_retry_now))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.cloud_retry_now))
                 }
                 Button(
                     onClick = { showUnlinkConfirm = true },
@@ -9510,7 +9436,7 @@ private fun CloudTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.online_upload_unlink))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.online_upload_unlink))
                 }
             }
             // Determinate progress while syncing, mirrors the trips-backup
@@ -9581,7 +9507,7 @@ private fun AnnounceSwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.width(4.dp))
             PlayButton(onClick = onTest)
         }
@@ -9733,7 +9659,7 @@ private fun SliderSetting(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+                    Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
                     Text(
                         valueText ?: "${format.format(value)} $unit",
                         style = MaterialTheme.typography.bodyLarge,
@@ -9817,7 +9743,7 @@ private fun SwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label), style = MaterialTheme.typography.bodyLarge)
             if (badge != null) {
                 Spacer(Modifier.width(6.dp))
                 badge()
@@ -9944,7 +9870,7 @@ private fun ThemeDropdown(
             value = displayName(current),
             onValueChange = {},
             readOnly = true,
-            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -10000,7 +9926,7 @@ private fun SimpleDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
-            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -10762,7 +10688,7 @@ private fun ActionDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
-            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current), modifier = Modifier.settingsSearchLabel(label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -11269,6 +11195,7 @@ private fun AdvancedCollapsable(
     content: @Composable () -> Unit
 ) {
     var expanded by rememberSaveable(stateKey) { mutableStateOf(false) }
+    val (shown, hidden) = cardSearch(title, expanded)
     val requester = remember { BringIntoViewRequester() }
     LaunchedEffect(expanded) {
         if (expanded) {
@@ -11298,13 +11225,14 @@ private fun AdvancedCollapsable(
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f)
                 )
+                SearchCountPill(hidden)
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null
                 )
             }
             AnimatedVisibility(
-                visible = expanded,
+                visible = shown,
                 enter = expandVertically(
                     animationSpec = tween(180),
                     expandFrom = Alignment.Top,
@@ -11335,6 +11263,7 @@ private fun WatchButtonsCollapsable(
     content: @Composable () -> Unit
 ) {
     var expanded by rememberSaveable(title) { mutableStateOf(false) }
+    val (shown, hidden) = cardSearch(title, expanded)
     // Same smart-scroll behaviour as BringIntoViewSection / the top-level
     // CollapsibleSection: when the rider opens the card, after a short
     // settle delay scroll the card into view so the freshly-revealed
@@ -11364,17 +11293,18 @@ private fun WatchButtonsCollapsable(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    title,
+                    highlightMatches(title, LocalSettingsSearchQuery.current),
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f)
                 )
+                SearchCountPill(hidden)
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null
                 )
             }
             AnimatedVisibility(
-                visible = expanded,
+                visible = shown,
                 enter = expandVertically(
                     animationSpec = tween(180),
                     expandFrom = Alignment.Top,
@@ -11728,6 +11658,65 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
  * and on the [com.eried.eucplanet.service.WheelService] being alive; it
  * binds a listening socket only while the rider has the app actively open.
  */
+/**
+ * Android Auto's stat boxes and buttons, picked like the home screen widget's
+ * slots but saved apart: the car and the home screen are different jobs.
+ * Three buttons, and all three are the rider's. Navigate used to lead the
+ * strip and took a slot; it went when this stopped being a navigation app.
+ */
+@Composable
+private fun AndroidAutoSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+) {
+    val aa = com.eried.eucplanet.data.model.AndroidAutoSettings
+    val metricSlots = aa.metricSlots(settings.androidAuto.metrics)
+    val actionSlots = aa.actionSlots(settings.androidAuto.actions)
+    val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
+    val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_android_auto))
+        HintText(stringResource(R.string.android_auto_hint), small = true)
+        metricSlots.indices.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_metric_slot, i + 1),
+                        currentLabel = WidgetMetricType.byKey(metricSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = metricOptions,
+                        onSelect = { viewModel.updateAndroidAutoMetricSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+        actionSlots.indices.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                pair.forEach { i ->
+                    WidgetSlotDropdown(
+                        label = stringResource(R.string.widget_action_slot, i + 1),
+                        currentLabel = WidgetActionType.byKey(actionSlots[i])
+                            ?.let { stringResource(it.pickerLabel) } ?: "",
+                        options = actionOptions,
+                        onSelect = { viewModel.updateAndroidAutoActionSlot(i, it) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+        SwitchSetting(
+            stringResource(R.string.car_alarm_notifications),
+            settings.androidAuto.alarmNotifications,
+        ) { viewModel.updateAndroidAutoAlarmNotifications(it) }
+        HintText(stringResource(R.string.car_alarm_notifications_hint), small = true)
+    }
+}
+
 @Composable
 private fun HudIntegrationSection(
     settings: com.eried.eucplanet.data.model.AppSettings,
@@ -12281,7 +12270,7 @@ private fun HudOverlayPicker(
                 colors = themedTonalButtonColors(),
                 shape = RoundedCornerShape(12.dp),
             ) {
-                Text(stringResource(R.string.hud_overlay_select_preset))
+                com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_overlay_select_preset))
             }
             if (settings.hudCustomOverlayName.isNotBlank()) {
                 androidx.compose.material3.TextButton(
@@ -12289,7 +12278,7 @@ private fun HudOverlayPicker(
                     colors = themedTextButtonColors(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.hud_custom_overlay_none))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.hud_custom_overlay_none))
                 }
             }
         }

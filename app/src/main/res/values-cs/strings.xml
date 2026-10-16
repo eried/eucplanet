@@ -224,6 +224,7 @@
     <string name="metric_spoken_lat_long">Poloha</string>
     <string name="metric_chip_dyn_speed_limit">Dynamický limit rychlosti</string>
     <string name="metric_chip_dyn_current_limit">Dynamický limit proudu</string>
+    <string name="metric_chip_auto_off">Automatické vypnutí</string>
     <string name="metric_chip_motor_temp">Teplota motoru</string>
     <string name="metric_chip_controller_temp">Teplota řídicí jednotky</string>
     <string name="metric_chip_battery_temp">Teplota baterie</string>
@@ -263,6 +264,7 @@
     <string name="metric_chip_controller_temp_tile">Řídic T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Lim rych</string>
     <string name="metric_chip_dyn_current_limit_tile">Lim A</string>
+    <string name="metric_chip_auto_off_tile">Vypnutí</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">Bat GPS</string>
@@ -296,16 +298,20 @@
     <string name="action_chip_light">Světlo</string>
     <string name="action_chip_voice">Hlas</string>
     <string name="action_chip_voice_listen">Poslouchat</string>
-    <string name="menu_voice_ask">Poslouchat hlasový příkaz</string>
+    <string name="menu_voice_ask">Poslouchat hlasový povel</string>
     <string name="menu_voice_speak_report">Přehrát hlasové hlášení</string>
     <string name="voice_split_term">Poslední split</string>
     <string name="menu_switch_to_voice_command">Přepnout na hlasový příkaz</string>
     <string name="menu_switch_to_voice_report">Přepnout na hlasové hlášení</string>
     <string name="voice_commands_title">Hlasové příkazy</string>
-    <string name="voice_commands_enable_desc">Ovládej aplikaci hlasem. Podrž tlačítko Hlas na palubní desce a vyber Poslouchat hlasový příkaz.</string>
+    <string name="voice_commands_enable_desc">Ovládej aplikaci hlasem. Podrž tlačítko Hlas na palubní desce a vyber Poslouchat hlasový povel.</string>
     <string name="voice_commands_bind_desc">Přiřaď poslech k Flicu, tlačítkům hlasitosti, hodinkám nebo HUD.</string>
     <string name="voice_prompt_cue">Signál při poslechu</string>
-    <string name="voice_prompt_cue_desc">Vypni to, pokud má sluchátko vlastní tón.</string>
+    <string name="voice_music_listening">Hudba při poslechu</string>
+    <string name="voice_music_pause">Pozastavit</string>
+    <string name="voice_music_duck">Ztišit</string>
+    <string name="voice_music_keep">Hrát dál</string>
+    <string name="voice_music_listening_desc">Rozpoznávání běží v telefonu, kdykoli to jde, bez účtu. Slova se porovnají s povely aplikace.</string>
     <string name="voice_cue_beep">Pípnutí</string>
     <string name="voice_cue_spoken">Hlas</string>
     <string name="voice_cue_off">Ne</string>
@@ -400,6 +406,10 @@
     <string name="voice_act_record_start_terms">spusť nahrávání,nahrávej</string>
     <string name="voice_act_record_stop_terms">zastav nahrávání</string>
     <string name="voice_act_reset_trip_terms">resetuj jízdu</string>
+    <string name="voice_act_music_start_terms">pusť hudbu,spusť hudbu,hudba</string>
+    <string name="voice_act_media_pause_terms">pozastav hudbu,zastav hudbu</string>
+    <string name="voice_act_media_next_terms">další písnička,další skladba</string>
+    <string name="voice_act_media_prev_terms">předchozí písnička,předchozí skladba</string>
     <string name="voice_answer_mic_busy">Mikrofon právě používá něco jiného.</string>
     <string name="voice_answer_which">Myslel jsi %1$s nebo %2$s?</string>
     <string name="action_chip_safety">Legální režim</string>
@@ -412,6 +422,8 @@
     <string name="action_chip_media_play">Přehrát / pauza</string>
     <string name="action_chip_media_next">Další skladba</string>
     <string name="action_chip_media_prev">Předchozí skladba</string>
+    <string name="action_chip_music_start">Spustit hudbu</string>
+    <string name="action_chip_media_pause">Pozastavit hudbu</string>
     <string name="action_chip_open_navigation">Zobrazit mapu</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">O aplikaci</string>
@@ -734,11 +746,11 @@
     <string name="sync_progress">Synchronizuji %1$d z %2$d</string>
     <string name="sync_no_folder">Nejprve vyberte složku záloh</string>
     <string name="sync_rate_limited">Dropbox omezuje tento účet. Synchronizováno %1$d z %2$d jízd, zbytek se zkusí znovu.</string>
-    <string name="sync_finished">Synchronizováno %1$d jízd</string>
+    <string name="sync_finished">Synchronizované jízdy: %1$d</string>
     <string name="sync_up_to_date">Vše je aktuální</string>
     <string name="sync_conflict_title">Konflikt synchronizace</string>
-    <string name="sync_conflict_body">%1$d jízd je na obou stranách.</string>
-    <string name="sync_conflict_body_dropbox">%1$d jízd existuje na Dropboxu i v tomto telefonu.</string>
+    <string name="sync_conflict_body">Změněno na obou stranách: %1$d</string>
+    <string name="sync_conflict_body_dropbox">Změněno v Dropboxu i v tomto telefonu: %1$d</string>
     <string name="sync_conflict_app">Kopírovat aplikaci do zálohy</string>
     <string name="sync_conflict_app_dropbox">Kopírovat aplikaci na Dropbox</string>
     <string name="sync_conflict_folder">Kopírovat zálohu do aplikace</string>
@@ -1064,6 +1076,7 @@
     <string name="engine_preset_sampled_quad_atv">Čtyřkolka ATV</string>
     <string name="col_periodic">Pravidelně</string>
     <string name="col_trigger">Spouštěč</string>
+    <string name="voice_trigger_reset_after">Po vyvolaném hlášení vynulovat metriky</string>
     <string name="report_speed">Rychlost</string>
     <string name="report_battery">Baterie</string>
     <string name="report_temp">Teplota</string>
@@ -1939,6 +1952,8 @@
     <string name="nav_menu_save">Uložit trasu (GPX)</string>
     <string name="nav_menu_load">Načíst trasu (GPX)</string>
     <string name="nav_menu_clear">Nová trasa</string>
+    <string name="nav_finished_title">Trasa dokončena</string>
+    <string name="nav_finished_body">Začít novou trasu? Dosažené zastávky se smažou. Chcete-li si tuto trasu ponechat, nejdřív ji uložte z nabídky.</string>
     <string name="nav_clear_home">Zapomenout domov</string>
     <string name="nav_clear_work">Zapomenout práci</string>
     <string name="nav_menu_exit">Zpět na palubní desku</string>
@@ -1994,6 +2009,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelitní</string>
+    <string name="nav_layer_satellite_labels">Satelitní hybridní</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -2321,6 +2337,7 @@
     <string name="warnings_perm_location_title">Poloha je vypnutá</string>
     <string name="warnings_perm_location_body">Jízdy nezaznamenají trasu a rychlost ani kalibrace podle GPS nefungují. Klepnutím povolte.</string>
     <string name="weather_error_no_location">Bez polohy nelze předpovídat</string>
+    <string name="weather_waiting_location">Čekám na polohu…</string>
     <string name="warnings_location_services_body">EUC Planet má povolení, ale telefon má polohu vypnutou pro všechno. Klepnutím ji zapněte.</string>
     <string name="warnings_location_services_title">Poloha je v systému vypnutá</string>
     <string name="warnings_battery_opt_title">Optimalizace baterie je zapnutá</string>
@@ -2472,12 +2489,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Upozornit na 80 %</string>
     <string name="charging_notify_full" formatted="false">Upozornit na 100 %</string>
+    <string name="charging_notify_at">Upozornit na</string>
+    <string name="charging_notify_custom">Upozornit na %1$d %%</string>
+    <string name="charging_notify_at_ask">Upozornit na…</string>
+    <string name="charging_notify_custom_range" formatted="false">Musí být 5 až 95 %, ne 80 %</string>
     <string name="charge_alert_channel_name">Upozornění na nabíjení</string>
-    <string name="charge_alert_channel_description" formatted="false">Když baterie překročí 80 % nebo dokončí nabíjení.</string>
+    <string name="charge_alert_channel_description" formatted="false">Když baterie dosáhne zvolené úrovně nebo dokončí nabíjení.</string>
     <string name="charge_alert_80_title" formatted="false">Baterie na 80 %</string>
     <string name="charge_alert_80_text">Na většinu jízd to stačí a baterii to obvykle prospěje.</string>
     <string name="charge_alert_full_title">Nabíjení dokončeno</string>
     <string name="charge_alert_full_text">Nabito, odpoj, až budete moci. Některá kola teď vyrovnávají články.</string>
+    <string name="charge_alert_custom_title">Baterie na %1$d %%</string>
+    <string name="charge_alert_custom_text">Dosažena úroveň, kterou jste nastavili. Odpojte, až budete moct.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Přístrojovka kola</string>
     <string name="widget_act_1_label">Tlačítko kola 1</string>
@@ -2534,6 +2557,7 @@
     <string name="voice_stat_peak">Špička</string>
     <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Průkaz crew</string>
+    <string name="crews_pass_search_hint">Průkaz crew se zobrazí, až se připojíte k online žebříčkům.</string>
     <string name="crews_scan_hint">Otevři eucstats v prohlížeči, klepni na Crews a namiř tohle na kód, co se objeví.</string>
     <string name="crews_scan_invalid">To není kód crew passu.</string>
     <string name="crews_scan_is_share">To je kód sdílení polohy. Načti ho ze Sdílet na mapě.</string>
@@ -2564,4 +2588,46 @@
     <string name="voice_pill_search">Hledat</string>
     <string name="voice_volume">Hlasitost</string>
     <string name="engo_hud_enabled">HUD brýlí ENGO</string>
+    <string name="beep_volume_by_speed">Hlasitost pípání podle rychlosti</string>
+    <string name="beep_volume_stopped">Stání</string>
+    <string name="beep_volume_riding">Jízda</string>
+    <string name="dropbox_checking">Kontroluji Dropbox…</string>
+    <string name="sync_first_settings">Dropbox už má nastavení z jiného telefonu. Použít je, nebo ponechat nastavení tohoto telefonu?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Smazat tuto jízdu z tohoto telefonu? Záloha si ponechá kopii, takže Synchronizovat vše ji vrátí.</string>
+    <string name="share_menu_scan">Skenovat QR</string>
+    <string name="share_menu_scan_desc">Připojit se ke skupinové jízdě nebo otevřít trasu.</string>
+    <string name="share_menu_route">Sdílet trasu</string>
+    <string name="share_menu_route_desc">Jako QR kód nebo odkaz. Bez účtu.</string>
+    <string name="share_menu_route_none">Nejprve přidejte zastávku.</string>
+    <string name="scan_code_unknown">Není to kód skupinové jízdy ani trasy.</string>
+    <string name="route_qr_hint">Naskenujte v EUC Planet nebo fotoaparátem telefonu.</string>
+    <string name="route_qr_too_long">Trasa je na QR kód příliš dlouhá. Uložte ji jako GPX.</string>
+    <string name="route_open_title">Otevřít sdílenou trasu</string>
+    <string name="route_open_confirm">Nahradit aktuální trasu sdílenou trasou?</string>
+    <string name="route_opened">Trasa otevřena</string>
+    <string name="route_qr_share_image">Sdílet QR</string>
+    <string name="route_share_text">Projeď tuto trasu s EUC Planet: %1$s</string>
+    <string name="route_share_subject">Trasa k projetí</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d zastávka</item>
+        <item quantity="few">%d zastávky</item>
+        <item quantity="many">%d zastávky</item>
+        <item quantity="other">%d zastávek</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Statistiky a tlačítka kola na obrazovce Android Auto. Připojí se samo, bez nastavení Wi-Fi.</string>
+    <string name="car_waiting">Čekám na kolo</string>
+    <string name="car_last_battery">Poslední baterie %1$d%%</string>
+    <string name="car_navigate">Navigovat</string>
+    <string name="car_places_title">Navigovat do</string>
+    <string name="car_place_home">Domov</string>
+    <string name="car_place_work">Práce</string>
+    <string name="car_no_places">Nejdřív ulož Domov nebo Práci v plánovači tras.</string>
+    <string name="car_waiting_wheel">Čekání na kolo</string>
+    <string name="car_weather">Počasí</string>
+    <string name="car_alarm_channel_name">Alarmy na displeji auta</string>
+    <string name="car_alarm_channel_description">Zobrazí spuštěný alarm na displeji Android Auto, přes mapu.</string>
+    <string name="car_alarm_notifications">Alarmy na displeji auta</string>
+    <string name="car_alarm_notifications_hint">Spuštěný alarm se zobrazí přes mapu, takže se k tobě dostane i při navigaci. Pípnutí a vibrace zůstávají.</string>
+    <string name="car_no_metrics">Nevybrány žádné metriky</string>
 </resources>

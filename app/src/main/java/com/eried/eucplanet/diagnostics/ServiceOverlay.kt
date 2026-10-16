@@ -449,7 +449,7 @@ private val serviceMetricKeys: List<String> = listOf(
     "BATTERY_1", "BATTERY_2",
     "PITCH", "ROLL",
     "G_FORCE", "LATERAL_G", "FORWARD_G",
-    "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+    "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT", "AUTO_OFF",
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
     "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
     "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
@@ -491,6 +491,7 @@ internal fun rawMetricValue(key: String, wheel: WheelData): String {
         "PHASE_CURRENT" -> fmt("%.2f")
         "DYN_SPEED_LIMIT" -> fmt("%.2f")
         "DYN_CURRENT_LIMIT" -> fmt("%.2f")
+        "AUTO_OFF" -> "${wheel.autoOffSeconds}"
         "MOTOR_TEMP" -> fmt("%.1f")
         "CONTROLLER_TEMP" -> fmt("%.1f")
         "BATTERY_TEMP" -> fmt("%.1f")

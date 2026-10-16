@@ -39,7 +39,7 @@ class MetricRegistryTest {
             gForce = 1.12f, accelX = 0.21f, accelY = 0.1f, forwardGFromSpeed = 0.08f,
             batteryPower = 1800, motorPower = 1650, whConsumed = 245.6f, whRegen = 12.3f,
             whPerKmRecent = 19.8f, rangeKmEstimate = 41.7f, dynamicSpeedLimit = 55f,
-            dynamicCurrentLimit = 80f, lightOn = true, tirePressureKpa = 241f, hasTirePressure = true,
+            dynamicCurrentLimit = 80f, autoOffSeconds = 5560, lightOn = true, tirePressureKpa = 241f, hasTirePressure = true,
             pcMode = 1, wheelMaxSpeedKmh = 60f, wheelAlarmSpeedKmh = 50f, rssiDbm = -67,
             batteryEnvelope = 70.4f, timestamp = 1L,
         ),
@@ -150,6 +150,7 @@ class MetricRegistryTest {
         "PHASE_CURRENT" -> "%.2f".format(wheel.phaseCurrent)
         "DYN_SPEED_LIMIT" -> "%.2f".format(wheel.dynamicSpeedLimit)
         "DYN_CURRENT_LIMIT" -> "%.2f".format(wheel.dynamicCurrentLimit)
+        "AUTO_OFF" -> "${wheel.autoOffSeconds}"
         "MOTOR_TEMP" -> wheel.temperatures.getOrNull(0)?.let { "%.1f".format(it) } ?: "-"
         "CONTROLLER_TEMP" -> wheel.temperatures.getOrNull(1)?.let { "%.1f".format(it) } ?: "-"
         "BATTERY_TEMP" -> wheel.temperatures.getOrNull(2)?.let { "%.1f".format(it) } ?: "-"
@@ -183,6 +184,7 @@ class MetricRegistryTest {
         "GPS_SPEED" to { it.gpsSpeedKmh.takeIf { v -> v >= 0f } },
         "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
         "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
+        "AUTO_OFF" to { it.autoOffSeconds.toFloat().takeIf { v -> v >= 0f } },
         "WHEEL_MAX_SPEED" to { it.wheelMaxSpeedKmh.takeIf { v -> v >= 0f } },
         "WHEEL_ALARM_SPEED" to { it.wheelAlarmSpeedKmh.takeIf { v -> v >= 0f } },
         "BT_RSSI" to { it.rssiDbm.toFloat().takeIf { v -> v != 0f } },

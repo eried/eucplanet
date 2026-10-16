@@ -120,7 +120,7 @@ fun FlicScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.flic_stop_scan))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.flic_stop_scan))
                     }
                     Spacer(Modifier.width(12.dp))
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
@@ -130,7 +130,7 @@ fun FlicScreen(
                     onClick = { startScan { viewModel.startScan() } },
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(stringResource(R.string.flic_start_scan))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.flic_start_scan))
                 }
             }
 

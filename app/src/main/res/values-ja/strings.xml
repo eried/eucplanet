@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">位置</string>
     <string name="metric_chip_dyn_speed_limit">動的速度制限</string>
     <string name="metric_chip_dyn_current_limit">動的電流制限</string>
+    <string name="metric_chip_auto_off">自動電源オフ</string>
     <string name="metric_chip_motor_temp">モーター温度</string>
     <string name="metric_chip_controller_temp">コントローラー温度</string>
     <string name="metric_chip_battery_temp">バッテリー温度</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">速度制限</string>
     <string name="metric_chip_dyn_current_limit_tile">電流制限</string>
+    <string name="metric_chip_auto_off_tile">自動オフ</string>
     <string name="metric_chip_phone_battery_tile">スマホ</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS電池</string>
@@ -333,16 +335,20 @@
     <string name="action_chip_light">ライト</string>
     <string name="action_chip_voice">音声</string>
     <string name="action_chip_voice_listen">聞く</string>
-    <string name="menu_voice_ask">音声コマンドを聞く</string>
+    <string name="menu_voice_ask">音声コマンドを聞き取る</string>
     <string name="menu_voice_speak_report">音声アナウンスを再生</string>
     <string name="voice_split_term">最後の加速測定</string>
     <string name="menu_switch_to_voice_command">音声コマンドに切り替え</string>
     <string name="menu_switch_to_voice_report">音声アナウンスに切り替え</string>
     <string name="voice_commands_title">音声コマンド</string>
-    <string name="voice_commands_enable_desc">音声でアプリを使えます。ダッシュボードの音声ボタンを長押しして、音声コマンドを聞くを選びます。</string>
+    <string name="voice_commands_enable_desc">音声でアプリを使えます。ダッシュボードの音声ボタンを長押しして、「音声コマンドを聞き取る」を選びます。</string>
     <string name="voice_commands_bind_desc">待ち受けは Flic、音量キー、時計、HUD に割り当てられます。</string>
     <string name="voice_prompt_cue">聴取時の合図</string>
-    <string name="voice_prompt_cue_desc">ヘッドセットに独自の音がある場合はオフにします。</string>
+    <string name="voice_music_listening">聞き取り中の音楽</string>
+    <string name="voice_music_pause">一時停止</string>
+    <string name="voice_music_duck">小さく</string>
+    <string name="voice_music_keep">そのまま</string>
+    <string name="voice_music_listening_desc">音声認識はできる限り端末上で行われ、アカウントは不要です。言葉はアプリのコマンドと照合されます。</string>
     <string name="voice_cue_beep">ビープ</string>
     <string name="voice_cue_spoken">音声</string>
     <string name="voice_cue_off">なし</string>
@@ -437,6 +443,10 @@
     <string name="voice_act_record_start_terms">録画開始,記録開始</string>
     <string name="voice_act_record_stop_terms">録画停止</string>
     <string name="voice_act_reset_trip_terms">トリップをリセット</string>
+    <string name="voice_act_music_start_terms">音楽を再生,音楽をかけて,音楽</string>
+    <string name="voice_act_media_pause_terms">音楽を一時停止,音楽を止めて</string>
+    <string name="voice_act_media_next_terms">次の曲</string>
+    <string name="voice_act_media_prev_terms">前の曲</string>
     <string name="voice_answer_mic_busy">ほかのアプリがマイクを使用しています。</string>
     <string name="voice_answer_which">%1$sですか、%2$sですか？</string>
     <string name="action_chip_safety">リーガルモード</string>
@@ -449,6 +459,8 @@
     <string name="action_chip_media_play">再生 / 一時停止</string>
     <string name="action_chip_media_next">次のトラック</string>
     <string name="action_chip_media_prev">前のトラック</string>
+    <string name="action_chip_music_start">音楽を再生</string>
+    <string name="action_chip_media_pause">音楽を一時停止</string>
     <string name="action_chip_open_navigation">マップを表示</string>
     <string name="action_chip_open_studio">オーバーレイスタジオ</string>
     <string name="action_chip_open_about">アプリについて</string>
@@ -608,13 +620,13 @@
     <string name="sync_progress">%1$d / %2$d を同期中</string>
     <string name="sync_no_folder">先にバックアップフォルダーを選択してください</string>
     <string name="sync_rate_limited">Dropbox がこのアカウントを制限しています。%2$d 件中 %1$d 件のトリップを同期しました。残りは再試行します。</string>
-    <string name="sync_finished">%1$d 件のトリップを同期しました</string>
+    <string name="sync_finished">同期したトリップ: %1$d</string>
     <string name="sync_conflict_title">同期の競合</string>
-    <string name="sync_conflict_body">%1$d 件のトリップが両方に存在します。</string>
+    <string name="sync_conflict_body">両方で変更されています: %1$d 件</string>
     <string name="sync_conflict_app">アプリ → バックアップにコピー</string>
     <string name="sync_conflict_folder">バックアップ → アプリにコピー</string>
     <string name="sync_conflict_ignore">すべての競合をスキップ</string>
-    <string name="sync_conflict_body_dropbox">%1$d 件の走行が Dropbox と本機の両方にあります。</string>
+    <string name="sync_conflict_body_dropbox">Dropbox とこの端末の両方で変更されています: %1$d 件</string>
     <string name="sync_conflict_app_dropbox">アプリを Dropbox にコピー</string>
     <string name="sync_conflict_dropbox">Dropbox をアプリにコピー</string>
     <string name="cloud_uploaded_on">%1$s にバックアップ済み</string>
@@ -864,6 +876,7 @@
 
     <string name="col_periodic">定期</string>
     <string name="col_trigger">トリガー</string>
+    <string name="voice_trigger_reset_after">手動の読み上げ後に計測をリセット</string>
     <string name="report_speed">速度</string>
     <string name="report_battery">バッテリー</string>
     <string name="report_temp">温度</string>
@@ -1670,6 +1683,8 @@
     <string name="nav_menu_save">ルートを保存（GPX）</string>
     <string name="nav_menu_load">ルートを読み込む（GPX）</string>
     <string name="nav_menu_clear">新しいルート</string>
+    <string name="nav_finished_title">ルート完了</string>
+    <string name="nav_finished_body">新しいルートを始めますか？到着済みの地点は消去されます。このルートを残すには、先にメニューから保存してください。</string>
     <string name="nav_clear_home">ホームを削除</string>
     <string name="nav_clear_work">職場を削除</string>
     <string name="nav_menu_exit">ダッシュボードに戻る</string>
@@ -1700,6 +1715,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">衛星写真</string>
+    <string name="nav_layer_satellite_labels">衛星写真（ハイブリッド）</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -1987,6 +2003,7 @@
     <string name="warnings_perm_location_title">位置情報がオフです</string>
     <string name="warnings_perm_location_body">トリップにルートが記録されず、GPS 速度とキャリブレーションも使えません。タップして許可してください。</string>
     <string name="weather_error_no_location">予報する場所がありません</string>
+    <string name="weather_waiting_location">位置情報を待っています…</string>
     <string name="warnings_location_services_body">EUC Planet には許可がありますが、端末側で位置情報がすべてオフになっています。タップしてオンにしてください。</string>
     <string name="warnings_location_services_title">端末の位置情報がオフです</string>
     <string name="warnings_battery_opt_title">電池の最適化が有効です</string>
@@ -2670,12 +2687,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">80 % で通知</string>
     <string name="charging_notify_full" formatted="false">100 % で通知</string>
+    <string name="charging_notify_at">通知する残量</string>
+    <string name="charging_notify_custom">%1$d %% で通知</string>
+    <string name="charging_notify_at_ask">通知する残量…</string>
+    <string name="charging_notify_custom_range" formatted="false">5〜95 % で指定 (80 % 以外)</string>
     <string name="charge_alert_channel_name">充電の通知</string>
-    <string name="charge_alert_channel_description" formatted="false">バッテリーが 80 % を超えたとき、または充電が終わったとき。</string>
+    <string name="charge_alert_channel_description" formatted="false">バッテリーが選んだレベルに達したとき、または充電が終わったとき。</string>
     <string name="charge_alert_80_title" formatted="false">バッテリー 80 %</string>
     <string name="charge_alert_80_text">ほとんどのトリップに十分で、バッテリーにもやさしいです。</string>
     <string name="charge_alert_full_title">充電完了</string>
     <string name="charge_alert_full_text">満充電です。できるときに抜いてください。一部のホイールは今セルをバランスしています。</string>
+    <string name="charge_alert_custom_title">バッテリー %1$d %%</string>
+    <string name="charge_alert_custom_text">設定した残量に達しました。都合のよいときに充電器を外してください。</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">ホイールダッシュボード</string>
     <string name="widget_act_1_label">ホイールボタン 1</string>
@@ -2732,6 +2755,7 @@
     <string name="voice_stat_peak">ピーク</string>
     <string name="crews_title">クラン</string>
     <string name="crews_pass_action">クランパス</string>
+    <string name="crews_pass_search_hint">クランパスはオンラインリーダーボードに参加すると表示されます。</string>
     <string name="crews_scan_hint">ブラウザで eucstats を開いて Crews を押し、出てきたコードにこれを向けるだけ。</string>
     <string name="crews_scan_invalid">これはクランパスのコードじゃない。</string>
     <string name="crews_scan_is_share">それは現在地共有のコード。地図の「共有」から読み取って。</string>
@@ -2762,4 +2786,43 @@
     <string name="voice_pill_search">検索</string>
     <string name="voice_volume">音量</string>
     <string name="engo_hud_enabled">ENGO グラス HUD</string>
+    <string name="beep_volume_by_speed">速度でビープ音量を変える</string>
+    <string name="beep_volume_stopped">停止中</string>
+    <string name="beep_volume_riding">走行中</string>
+    <string name="dropbox_checking">Dropbox を確認中…</string>
+    <string name="sync_first_settings">Dropbox には別の端末の設定がすでにあります。それを使いますか、この端末の設定を残しますか?</string>
+    <string name="recording_delete_trip_body_keeps_backup">この端末からこのトリップを削除しますか? バックアップにコピーが残るため、すべて同期で元に戻ります。</string>
+    <string name="share_menu_scan">QR をスキャン</string>
+    <string name="share_menu_scan_desc">グループライドに参加、またはルートを開きます。</string>
+    <string name="share_menu_route">ルートを共有</string>
+    <string name="share_menu_route_desc">QR コードまたはリンクで。アカウント不要。</string>
+    <string name="share_menu_route_none">先に経由地を追加してください。</string>
+    <string name="scan_code_unknown">グループライドやルートのコードではありません。</string>
+    <string name="route_qr_hint">EUC Planet またはカメラでスキャン。</string>
+    <string name="route_qr_too_long">このルートは QR コードには長すぎます。GPX として保存してください。</string>
+    <string name="route_open_title">共有ルートを開く</string>
+    <string name="route_open_confirm">現在のルートを共有ルートに置き換えますか?</string>
+    <string name="route_opened">ルートを開きました</string>
+    <string name="route_qr_share_image">QR を共有</string>
+    <string name="route_share_text">EUC Planet でこのルートを走ろう: %1$s</string>
+    <string name="route_share_subject">走るルート</string>
+    <plurals name="route_stop_count">
+        <item quantity="other">経由地 %d 件</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">データとホイールのボタンを Android Auto 画面に表示。自動で接続し、Wi-Fi 設定は不要です。</string>
+    <string name="car_waiting">ホイールを待っています</string>
+    <string name="car_last_battery">前回のバッテリー %1$d%%</string>
+    <string name="car_navigate">ナビ</string>
+    <string name="car_places_title">目的地</string>
+    <string name="car_place_home">自宅</string>
+    <string name="car_place_work">職場</string>
+    <string name="car_no_places">先にルートビルダーで自宅か職場を保存してください。</string>
+    <string name="car_waiting_wheel">ホイールを待っています</string>
+    <string name="car_weather">天気</string>
+    <string name="car_alarm_channel_name">車載画面のアラーム</string>
+    <string name="car_alarm_channel_description">作動中のアラームを Android Auto の画面に、地図の上に表示します。</string>
+    <string name="car_alarm_notifications">車載画面のアラーム</string>
+    <string name="car_alarm_notifications_hint">作動したアラームが地図の上に表示され、ナビ中でも気づけます。ビープと振動はこれまでどおりです。</string>
+    <string name="car_no_metrics">表示する項目がありません</string>
 </resources>

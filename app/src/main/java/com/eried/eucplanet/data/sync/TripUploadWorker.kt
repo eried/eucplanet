@@ -37,10 +37,14 @@ class TripUploadWorker @AssistedInject constructor(
 
         val pending = tripDao.getPendingUploads()
 
+        syncManager.removeRenamedTripCopies(settings)
+
         // One listing for the whole pass. Asking the folder about each trip in
         // turn is what made mirroring a restored library crawl.
         val folderSizes = syncManager.listFolderTripSizes(settings)
-        val knownNames = folderSizes?.keys
+        // Shared storage ignores case, so every lookup here does too.
+        val knownNames = folderSizes?.keys?.associateBy { it.lowercase() }
+        val sizeByLower = folderSizes?.mapKeys { it.key.lowercase() }
 
         // The queue, plus everything the folder is missing. This worker used
         // to walk only its queue while the Dropbox worker compares every
@@ -54,7 +58,7 @@ class TripUploadWorker @AssistedInject constructor(
             val queued = pending.map { it.fileName.lowercase() }.toHashSet()
             tripRepository.allTrips.first().filter { t ->
                 t.endTime != null && t.fileName.lowercase() !in queued &&
-                    t.fileName !in knownNames
+                    t.fileName.lowercase() !in knownNames
             }
         }
         // Conflicts: both sides have the file, with different bytes. The
@@ -63,10 +67,10 @@ class TripUploadWorker @AssistedInject constructor(
         // whose warning sends the rider to the sync conflict dialog. Counted
         // on every pass, so fixing them (or deleting a side) clears the
         // warning without anyone tapping anything.
-        if (folderSizes != null) {
+        if (sizeByLower != null) {
             val conflicts = tripRepository.allTrips.first().count { t ->
                 if (t.endTime == null) return@count false
-                val folderLen = folderSizes[t.fileName] ?: return@count false
+                val folderLen = sizeByLower[t.fileName.lowercase()] ?: return@count false
                 val local = tripRepository.getTripFile(t)
                 local.exists() && local.length() != folderLen
             }
@@ -83,7 +87,7 @@ class TripUploadWorker @AssistedInject constructor(
             val file = tripRepository.getTripFile(trip)
             if (!file.exists()) {
                 // Mark as uploaded anyway so it stops retrying forever
-                tripDao.update(trip.copy(uploadStatus = 2, uploadedAt = System.currentTimeMillis()))
+                tripDao.markUploaded(trip.id, System.currentTimeMillis())
                 continue
             }
 
@@ -95,13 +99,10 @@ class TripUploadWorker @AssistedInject constructor(
                 knownNames = knownNames,
             )
             if (ok) {
-                tripDao.update(trip.copy(
-                    uploadStatus = 2,
-                    uploadedAt = System.currentTimeMillis()
-                ))
+                tripDao.markUploaded(trip.id, System.currentTimeMillis())
                 Log.i(TAG, "Uploaded ${trip.fileName}")
             } else {
-                tripDao.update(trip.copy(uploadStatus = 3))
+                tripDao.setUploadStatus(trip.id, 3)
                 anyFailed = true
                 Log.w(TAG, "Upload failed for ${trip.fileName}")
             }

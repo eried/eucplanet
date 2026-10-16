@@ -44,6 +44,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -78,6 +79,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
     @Inject lateinit var appNotifier: com.eried.eucplanet.util.AppNotifier
+    @Inject lateinit var voiceCommands: com.eried.eucplanet.voice.VoiceCommandController
     @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -925,6 +927,20 @@ class MainActivity : AppCompatActivity() {
                         androidx.compose.runtime.LaunchedEffect(Unit) {
                             appNotifier.messages.collect { msg ->
                                 rootSnackbar.showSnackbar(msg)
+                            }
+                        }
+                        // A voice session's one line. Each new line replaces
+                        // the last (collectLatest cancels the showing one,
+                        // which dismisses it), and it stays up exactly as
+                        // long as the session is in that state.
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            voiceCommands.toast.collectLatest { line ->
+                                if (line.isEmpty()) return@collectLatest
+                                rootSnackbar.currentSnackbarData?.dismiss()
+                                rootSnackbar.showSnackbar(
+                                    line,
+                                    duration = androidx.compose.material3.SnackbarDuration.Indefinite,
+                                )
                             }
                         }
                         androidx.compose.material3.SnackbarHost(

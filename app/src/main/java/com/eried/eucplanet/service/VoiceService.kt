@@ -56,6 +56,8 @@ class VoiceService @Inject constructor(
     // Lazy: WheelRepository speaks through this service, so a direct
     // dependency back would be a cycle. Only the stat pills read it.
     private val wheelRepositoryLazy: dagger.Lazy<com.eried.eucplanet.data.repository.WheelRepository>,
+    // Lazy for the same reason: it reaches WheelRepository.
+    private val metricsResetLazy: dagger.Lazy<com.eried.eucplanet.data.repository.MetricsReset>,
 ) {
     companion object {
         private const val TAG = "VoiceService"
@@ -552,6 +554,12 @@ class VoiceService @Inject constructor(
         announced(parts, periodic = false)
         speakInternal(parts.joinToString(", "), isTrigger = true,
             rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
+        // The sentence already holds the numbers, so clearing now loses
+        // nothing the rider is about to hear. Here rather than in each caller
+        // so the tile, a Flic, a headset and the volume keys all agree.
+        if (settings.voiceReports.triggerResetAfter) {
+            scope.launch { metricsResetLazy.get().resetAll() }
+        }
     }
 
     /**

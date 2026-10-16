@@ -63,6 +63,28 @@ class LocaleCoverageTest {
         assertEquals("languages missing a string-array", emptyList<String>(), gaps)
     }
 
+    /** Names declared by `<plurals name="...">` in one strings file. */
+    private fun pluralsNames(file: File): Set<String> =
+        Regex("""<plurals\s+name="([^"]+)"""")
+            .findAll(file.readText())
+            .map { it.groupValues[1] }
+            .toSet()
+
+    @Test
+    fun `every language translates every plurals`() {
+        // Same gap as the string-arrays: nothing else counts them.
+        val expected = pluralsNames(res("values/strings.xml"))
+        val gaps = LocaleHelper.SUPPORTED
+            .filter { it.tag != "en" }
+            .mapNotNull { lang ->
+                val file = res("${resFolder(lang.tag)}/strings.xml")
+                if (!file.exists()) return@mapNotNull null
+                val missing = expected - pluralsNames(file)
+                if (missing.isEmpty()) null else "${lang.tag}: $missing"
+            }
+        assertEquals("languages missing a plurals", emptyList<String>(), gaps)
+    }
+
     /**
      * Names declared by `<string name="...">`, skipping the ones marked
      * `translatable="false"` (paths, placeholders, glyphs) that no language

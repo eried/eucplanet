@@ -4,6 +4,7 @@ import android.util.Log
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
+import com.eried.eucplanet.util.MetricSanity
 
 /**
  * Frame reassembler + parser for Begode/Gotway wheels.
@@ -40,9 +41,15 @@ class BegodeParser {
     @Volatile private var lastSpeedKmh: Float = 0f
     @Volatile private var lastPhaseCurrent: Float = 0f
     @Volatile private var lastTempC: Float = 0f
+    /** Motor NTC reading from 0x07, kept so the 10 Hz Live A frames carry it
+     *  too. NaN until a wheel with the sensor has sent a real one. */
+    @Volatile private var lastMotorTempC: Float = Float.NaN
+    @Volatile private var hasMotorTemp: Boolean = false
     @Volatile private var lastTripKm: Float = 0f
     @Volatile private var lastPwmPct: Float = 0f
     @Volatile private var lastLightOn: Boolean = false
+    /** Auto power-off countdown from Live B, in seconds; -1 until one arrives. */
+    @Volatile private var lastAutoOffSeconds: Int = -1
     /** Begode firmware has no discrete park/drive state, so we derive it from
      *  speed in parseLiveA and surface it as pcMode so the dashboard's P/D
      *  cluster lights up while moving. 3 = idle (stopped), 1 = drive. */
@@ -86,9 +93,12 @@ class BegodeParser {
         lastSpeedKmh = 0f
         lastPhaseCurrent = 0f
         lastTempC = 0f
+        lastMotorTempC = Float.NaN
+        hasMotorTemp = false
         lastTripKm = 0f
         lastPwmPct = 0f
         lastLightOn = false
+        lastAutoOffSeconds = -1
         lastPcMode = 3
         hasExtras = false
         hasExtrasCurrent = false
@@ -271,12 +281,13 @@ class BegodeParser {
             phaseCurrent = phaseCurrent,
             batteryPercent = battPct,
             pwm = lastPwmPct,
-            temperatures = listOf(tempC),
-            maxTemperature = tempC,
+            temperatures = temperatureSlots(boardTempC = tempC),
+            maxTemperature = hottest(tempC),
             tripDistance = tripKm,
             batteryPower = powerW,
             motorPower = powerW,
             lightOn = lastLightOn,
+            autoOffSeconds = lastAutoOffSeconds,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )
@@ -307,6 +318,12 @@ class BegodeParser {
         wheelInMiles = (settings and 0x0001) != 0
         val maxSpeed = if (wheelInMiles) maxSpeedRaw * MILES_TO_KM else maxSpeedRaw
 
+        // Auto power-off countdown at offset 8..9, u16 BE in SECONDS (the
+        // spec table said minutes). It counts down while the wheel stands
+        // still and restarts when it moves. EUC Dash (MIT) reads the same
+        // bytes the same way, taken as reference only.
+        lastAutoOffSeconds = ByteUtils.getUint16BE(frame, 8)
+
         // Light mode at offset 15. Low 2 bits: 0=off, 1=on, 2=strobe.
         val lightBits = frame[15].toInt() and 0x03
         lastLightOn = lightBits != 0
@@ -336,6 +353,20 @@ class BegodeParser {
         }
         return null
     }
+
+    /**
+     * Temperatures in the app's slot order: [0] motor, [1] controller.
+     * Begode's board temperature is the IMU die on the main board, which is
+     * the controller slot. The motor slot is NaN ("no reading", shown as --)
+     * on a wheel with no motor sensor. Before, the board reading sat in slot
+     * 0, so the Motor temp tile showed the board temperature.
+     */
+    private fun temperatureSlots(boardTempC: Float): List<Float> =
+        listOf(if (hasMotorTemp) lastMotorTempC else Float.NaN, boardTempC)
+
+    /** The hottest real reading, for the overall Temp tile and its alarms. */
+    private fun hottest(boardTempC: Float): Float =
+        if (hasMotorTemp) maxOf(lastMotorTempC, boardTempC) else boardTempC
 
     /**
      * Extras frame (spec 4.6 tag 0x07). Carries true battery current,
@@ -383,9 +414,16 @@ class BegodeParser {
         if (hasExtrasCurrent) lastPhaseCurrent = battCurrentRaw
         val battCurrent = lastPhaseCurrent
 
-        // Pick the hottest of (motor, IMU) so the dashboard's max-temp ring
-        // shows whichever is more concerning at this moment.
-        val temps = listOf(lastTempC, motorTempC)
+        // Motor temperature, whole degrees C, from the motor NTC. Only the
+        // newer wheels have one (Xmax, Falcon Pro / +); the rest send 0
+        // here, so it counts as wired only once it has read non-zero, the
+        // same arming the PWM field above uses. A reading outside the
+        // plausible window (e.g. 32767) is a bad read: it neither arms nor
+        // replaces the last one, so it cannot set off the temperature alarm.
+        if (motorTempC != 0f && MetricSanity.isPlausibleTempC(motorTempC)) {
+            hasMotorTemp = true
+            lastMotorTempC = motorTempC
+        }
 
         val powerW = (lastVoltage * battCurrent).toInt()
         return WheelData(
@@ -395,12 +433,13 @@ class BegodeParser {
             phaseCurrent = battCurrent,
             batteryPercent = lastBatteryPct,
             pwm = lastPwmPct,
-            temperatures = temps,
-            maxTemperature = temps.max(),
+            temperatures = temperatureSlots(boardTempC = lastTempC),
+            maxTemperature = hottest(lastTempC),
             tripDistance = lastTripKm,
             batteryPower = powerW,
             motorPower = powerW,
             lightOn = lastLightOn,
+            autoOffSeconds = lastAutoOffSeconds,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )

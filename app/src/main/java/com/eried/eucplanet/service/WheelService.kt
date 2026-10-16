@@ -76,6 +76,8 @@ class WheelService : LifecycleService() {
         const val EXTRA_OPEN_CHARGING = "open_charging"
         private const val CHANNEL_ID_LEGACY = "wheel_connection"
         const val NOTIFICATION_ID = 1
+        /** Longest an unchanged ongoing notification goes without a re-post. */
+        private const val NOTIFICATION_REFRESH_MS = 30_000L
         const val ACTION_CONNECT = "com.eried.eucplanet.CONNECT"
         const val ACTION_DISCONNECT = "com.eried.eucplanet.DISCONNECT"
         const val ACTION_START_RECORDING = "com.eried.eucplanet.START_RECORDING"
@@ -271,6 +273,7 @@ class WheelService : LifecycleService() {
         }
         return try {
             startForeground(NOTIFICATION_ID, buildNotification(null), foregroundTypes)
+            lastNotificationShown = ""
             locationForegroundReady =
                 canUseLocation &&
                     (foregroundTypes and ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION) != 0
@@ -498,8 +501,7 @@ class WheelService : LifecycleService() {
                             // "1.4 mph | 84%" line up for hours. Post the state
                             // once, unthrottled, so it reads "Disconnected".
                             if (!shuttingDown) {
-                                getSystemService(NotificationManager::class.java)
-                                    .notify(NOTIFICATION_ID, buildNotification(null))
+                                postNotificationIfChanged(buildNotification(null))
                             }
                             // Only announce if we were actually connected (not just reconnect cycling)
                             if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
@@ -563,10 +565,7 @@ class WheelService : LifecycleService() {
                     (nav.active != lastNavActive || now - lastNavNotifyMs >= 1000L)) {
                     lastNavActive = nav.active
                     lastNavNotifyMs = now
-                    val manager = getSystemService(NotificationManager::class.java)
-                    manager.notify(
-                        NOTIFICATION_ID, buildNotification(wheelRepository.wheelData.value)
-                    )
+                    postNotificationIfChanged(buildNotification(wheelRepository.wheelData.value), now)
                 }
             }
         }
@@ -639,8 +638,17 @@ class WheelService : LifecycleService() {
             ACTION_DISCONNECT -> {
                 wheelRepository.disconnect()
             }
-            ACTION_TOGGLE_LIGHT -> wheelRepository.toggleLight()
-            ACTION_TOGGLE_LOCK -> wheelRepository.toggleLock()
+            // A tap from the notification, a widget or the car screen is a hand
+            // on the light or lock like the dashboard's, so the automation steps
+            // aside for the session instead of undoing it on its next tick.
+            ACTION_TOGGLE_LIGHT -> {
+                automationManager.notifyManualLightChange()
+                wheelRepository.toggleLight()
+            }
+            ACTION_TOGGLE_LOCK -> {
+                automationManager.notifyManualLockChange()
+                wheelRepository.toggleLock()
+            }
             ACTION_HORN -> wheelRepository.sendHorn()
             // voiceEnabled, NOT voicePeriodicEnabled. The periodic-report loop
             // gates on voiceEnabled (see the comment there); voicePeriodicEnabled
@@ -994,7 +1002,8 @@ class WheelService : LifecycleService() {
     private var chargeAlertState = ChargeAlertPolicy.State()
 
     /**
-     * Tell the rider when the pack passes 80% or finishes, if they asked.
+     * Tell the rider when the pack passes 80%, their own level, or
+     * finishes, if they asked.
      *
      * Runs on every telemetry frame, which is why the deciding is in
      * [ChargeAlertPolicy] and only the posting is here.
@@ -1006,6 +1015,7 @@ class WheelService : LifecycleService() {
             data.batteryPercent,
             want80 = settings.chargingNotify80,
             wantFull = settings.chargingNotifyFull,
+            customMark = if (settings.chargingNotifyCustom) settings.chargingNotifyCustomPct else 0,
         )
         chargeAlertState = step.state
         when (step.alert) {
@@ -1015,11 +1025,18 @@ class WheelService : LifecycleService() {
             ChargeAlertPolicy.Alert.FULL -> postChargeAlert(
                 R.string.charge_alert_full_title, R.string.charge_alert_full_text,
             )
+            ChargeAlertPolicy.Alert.CUSTOM -> postChargeAlert(
+                getString(R.string.charge_alert_custom_title, settings.chargingNotifyCustomPct),
+                getString(R.string.charge_alert_custom_text),
+            )
             ChargeAlertPolicy.Alert.NONE -> Unit
         }
     }
 
-    private fun postChargeAlert(titleRes: Int, textRes: Int) {
+    private fun postChargeAlert(titleRes: Int, textRes: Int) =
+        postChargeAlert(getString(titleRes), getString(textRes))
+
+    private fun postChargeAlert(title: String, text: String) {
         if (shuttingDown) return
         if (!hasPermission(Manifest.permission.POST_NOTIFICATIONS)) return
         val open = PendingIntent.getActivity(
@@ -1029,7 +1046,7 @@ class WheelService : LifecycleService() {
                 .putExtra(EXTRA_OPEN_CHARGING, true),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val n = ChargeAlertNotification.build(this, titleRes, textRes, open)
+        val n = ChargeAlertNotification.build(this, title, text, open)
         runCatching {
             getSystemService(NotificationManager::class.java)
                 .notify(ChargeAlertNotification.NOTIFICATION_ID, n)
@@ -1368,30 +1385,8 @@ class WheelService : LifecycleService() {
         val metricKeys = com.eried.eucplanet.data.model.WidgetMetricType.slots(widgetMetricsCached)
         val values = ArrayList<String>(metricKeys.size)
         val captions = ArrayList<String>(metricKeys.size)
-        // A slot's unit depends on what it shows and the rider's preferences,
-        // never on whether a packet just arrived. Deriving it from `data` made
-        // every caption drop its unit the moment telemetry went missing, and a
-        // settings change repaints before the next frame, so tapping a widget
-        // button made "Speed (mph)" flash to "Speed" and back.
-        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String = when (type) {
-            com.eried.eucplanet.data.model.WidgetMetricType.SPEED -> u.speedUnit(this, speedUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.TRIP,
-            com.eried.eucplanet.data.model.WidgetMetricType.ODO -> u.distanceUnit(distUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.BATTERY,
-            com.eried.eucplanet.data.model.WidgetMetricType.PWM,
-            com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY -> "%"
-            com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE -> "V"
-            com.eried.eucplanet.data.model.WidgetMetricType.TEMP -> u.tempUnit(tempUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.CURRENT,
-            com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT -> "A"
-            com.eried.eucplanet.data.model.WidgetMetricType.TORQUE -> "Nm"
-            com.eried.eucplanet.data.model.WidgetMetricType.POWER -> "W"
-            com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED -> "Wh"
-            com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
-                "Wh/" + u.distanceUnit(distUnit)
-            com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
-                u.distanceUnit(distUnit)
-        }
+        fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String =
+            com.eried.eucplanet.widget.WidgetMetricFormat.unit(this, type, speedUnit, distUnit, tempUnit)
 
         metricKeys.forEach { key ->
             val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
@@ -1407,42 +1402,9 @@ class WheelService : LifecycleService() {
                 captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
                 return@forEach
             }
-            val v = when (type) {
-                com.eried.eucplanet.data.model.WidgetMetricType.SPEED ->
-                    "%.0f".format(u.speed(data.speed, speedUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.TRIP ->
-                    "%.1f".format(u.distance(data.tripDistance, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.ODO ->
-                    "%.0f".format(u.distance(data.totalDistance, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.BATTERY ->
-                    "${data.batteryPercent}"
-                com.eried.eucplanet.data.model.WidgetMetricType.VOLTAGE ->
-                    "%.0f".format(data.voltage)
-                com.eried.eucplanet.data.model.WidgetMetricType.TEMP ->
-                    "%.0f".format(u.temperature(data.maxTemperature, tempUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.PWM ->
-                    if (data.pwm.isNaN()) "--" else "%.0f".format(data.pwm)
-                com.eried.eucplanet.data.model.WidgetMetricType.CURRENT ->
-                    "%.0f".format(kotlin.math.abs(data.current))
-                com.eried.eucplanet.data.model.WidgetMetricType.TORQUE ->
-                    "%.1f".format(kotlin.math.abs(data.torque))
-                com.eried.eucplanet.data.model.WidgetMetricType.PHASE_CURRENT ->
-                    "%.0f".format(kotlin.math.abs(data.phaseCurrent))
-                com.eried.eucplanet.data.model.WidgetMetricType.POWER ->
-                    "%.0f".format(kotlin.math.abs(data.voltage * data.current))
-                com.eried.eucplanet.data.model.WidgetMetricType.WH_CONSUMED ->
-                    "%.0f".format(data.whConsumed)
-                // Both are NaN until the rolling window has enough distance;
-                // the widget says nothing rather than showing a made-up zero.
-                com.eried.eucplanet.data.model.WidgetMetricType.WH_PER_KM ->
-                    if (data.whPerKmRecent.isNaN()) "--"
-                    else "%.0f".format(data.whPerKmRecent / u.distance(1f, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.RANGE_ESTIMATE ->
-                    if (data.rangeKmEstimate.isNaN()) "--"
-                    else "%.0f".format(u.distance(data.rangeKmEstimate, distUnit))
-                com.eried.eucplanet.data.model.WidgetMetricType.PHONE_BATTERY ->
-                    "$phoneBatteryCached"
-            }
+            val v = com.eried.eucplanet.widget.WidgetMetricFormat.value(
+                type, data, speedUnit, distUnit, tempUnit, phoneBatteryCached
+            )
             values.add(v)
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")
         }
@@ -1493,8 +1455,29 @@ class WheelService : LifecycleService() {
         val now = System.currentTimeMillis()
         if (now - lastNotificationUpdate < 1000) return
         lastNotificationUpdate = now
+        postNotificationIfChanged(buildNotification(data), now)
+    }
 
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.notify(NOTIFICATION_ID, buildNotification(data))
+    // What the ongoing notification last showed, and when it was last posted.
+    private var lastNotificationShown = ""
+    private var lastNotificationPostMs = 0L
+
+    /**
+     * Posts [n] only when it reads differently from the last one, or when the
+     * last post is [NOTIFICATION_REFRESH_MS] old. Re-posting an identical
+     * notification every second made the system UI redraw it all ride long,
+     * mostly for a wheel standing still; the refresh is the safety net that
+     * keeps a notification the system lost or garbled from staying that way.
+     */
+    private fun postNotificationIfChanged(n: Notification, now: Long = System.currentTimeMillis()) {
+        val shown = buildString {
+            append(n.extras.getCharSequence(Notification.EXTRA_TITLE)).append('|')
+            append(n.extras.getCharSequence(Notification.EXTRA_TEXT))
+            n.actions?.forEach { append('|').append(it.title) }
+        }
+        if (shown == lastNotificationShown && now - lastNotificationPostMs < NOTIFICATION_REFRESH_MS) return
+        lastNotificationShown = shown
+        lastNotificationPostMs = now
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, n)
     }
 }

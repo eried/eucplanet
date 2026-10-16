@@ -35,6 +35,8 @@
     <string name="watch_action_media_play">Přehrát / pauza</string>
     <string name="watch_action_media_next">Další skladba</string>
     <string name="watch_action_media_prev">Předchozí skladba</string>
+    <string name="watch_action_music_start">Spustit hudbu</string>
+    <string name="watch_action_media_pause">Pozastavit hudbu</string>
     <string name="watch_action_long_press_hint">Podržte pro: %1$s</string>
     <string name="watch_map_phone_disconnected">Bez telefonu</string>
     <string name="watch_map_gps_permission">Povolit GPS</string>

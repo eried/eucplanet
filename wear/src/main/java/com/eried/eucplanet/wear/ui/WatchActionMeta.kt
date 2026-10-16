@@ -6,7 +6,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Shield
@@ -44,7 +46,9 @@ private val WATCH_ACTION_TABLE: Map<String, WatchActionEntry> = mapOf(
     "RECORD_TOGGLE" to WatchActionEntry(Icons.Filled.FiberManualRecord, R.string.watch_action_record),
     "RECORD_START" to WatchActionEntry(Icons.Filled.FiberManualRecord, R.string.watch_action_record_start),
     "RECORD_STOP" to WatchActionEntry(Icons.Filled.FiberManualRecord, R.string.watch_action_record_stop),
+    "MUSIC_START" to WatchActionEntry(Icons.Filled.LibraryMusic, R.string.watch_action_music_start),
     "MEDIA_PLAY_PAUSE" to WatchActionEntry(Icons.Filled.PlayArrow, R.string.watch_action_media_play),
+    "MEDIA_PAUSE" to WatchActionEntry(Icons.Filled.Pause, R.string.watch_action_media_pause),
     "MEDIA_NEXT" to WatchActionEntry(Icons.Filled.SkipNext, R.string.watch_action_media_next),
     "MEDIA_PREVIOUS" to WatchActionEntry(Icons.Filled.SkipPrevious, R.string.watch_action_media_prev)
 )

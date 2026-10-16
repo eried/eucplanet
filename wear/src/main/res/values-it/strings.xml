@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">Play / pausa</string>
     <string name="watch_action_media_next">Brano successivo</string>
     <string name="watch_action_media_prev">Brano precedente</string>
+    <string name="watch_action_music_start">Avvia musica</string>
+    <string name="watch_action_media_pause">Pausa musica</string>
     <string name="watch_action_long_press_hint">Tieni premuto per %1$s</string>
     <string name="watch_map_phone_disconnected">Niente telefono</string>
     <string name="watch_map_gps_permission">Consenti GPS</string>

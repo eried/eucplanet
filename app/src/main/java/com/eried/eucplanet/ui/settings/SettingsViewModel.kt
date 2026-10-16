@@ -72,6 +72,8 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
     "PITCH", "ROLL",
     "G_FORCE", "LATERAL_G", "FORWARD_G",
     "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+    // Begode's auto power-off countdown.
+    "AUTO_OFF",
     // Individual temperature sensors (WheelData.temperatures by index).
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
     // Derived trip metrics (computed from speed/voltage/current histories
@@ -249,6 +251,7 @@ class SettingsViewModel @Inject constructor(
         .map { it.rssiDbm }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val wheelHasBeeperVolume: StateFlow<Boolean> = wheelRepository.wheelHasBeeperVolume
     val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /**
@@ -613,6 +616,9 @@ class SettingsViewModel @Inject constructor(
 
     fun updateHornMode(v: String) = update { copy(horn = horn.copy(mode = v)) }
     fun updateHornHeadphonesOnly(v: Boolean) = update { copy(horn = horn.copy(headphonesOnly = v)) }
+    fun updateBeepVolumeBySpeed(v: Boolean) = update { copy(horn = horn.copy(beepVolumeBySpeed = v)) }
+    fun updateBeepVolumeStopped(v: Int) = update { copy(horn = horn.copy(beepVolumeStopped = v.coerceIn(1, 9))) }
+    fun updateBeepVolumeRiding(v: Int) = update { copy(horn = horn.copy(beepVolumeRiding = v.coerceIn(1, 9))) }
     val hornSoundReady: Boolean get() = hornPlayer.isReady
 
     /** Copy the picked clip in; the name is kept for the settings row. */
@@ -817,6 +823,7 @@ class SettingsViewModel @Inject constructor(
     // Voice report: recording
     fun updateVoiceReportRecording(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicRecording = v)) }
     fun updateTriggerReportRecording(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerRecording = v)) }
+    fun updateTriggerResetAfter(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerResetAfter = v)) }
 
     fun testSpeak(text: String) {
         viewModelScope.launch {
@@ -865,6 +872,10 @@ class SettingsViewModel @Inject constructor(
     }
 
     /** The same, for what a rider hears when nothing matched. */
+    fun updateVoiceMusicWhileListening(v: String) {
+        update { copy(voiceCommands = voiceCommands.copy(musicWhileListening = v)) }
+    }
+
     fun updateVoiceUnknownCue(v: String, sentence: String) {
         update { copy(voiceCommands = voiceCommands.copy(unknownCue = v)) }
         viewModelScope.launch {
@@ -1038,6 +1049,25 @@ class SettingsViewModel @Inject constructor(
             .slots(widget.standaloneActions).toMutableList()
         if (index in slots.indices) slots[index] = key
         copy(widget = widget.copy(standaloneActions = slots.joinToString(",")))
+    }
+
+    /** Android Auto slots, the same registries as the widget, saved apart. */
+    fun updateAndroidAutoMetricSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
+            .metricSlots(androidAuto.metrics).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(androidAuto = androidAuto.copy(metrics = slots.joinToString(",")))
+    }
+
+    fun updateAndroidAutoActionSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
+            .actionSlots(androidAuto.actions).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(androidAuto = androidAuto.copy(actions = slots.joinToString(",")))
+    }
+
+    fun updateAndroidAutoAlarmNotifications(v: Boolean) = update {
+        copy(androidAuto = androidAuto.copy(alarmNotifications = v))
     }
 
     fun updateHudServerPort(v: Int) = update {
@@ -1520,6 +1550,7 @@ class SettingsViewModel @Inject constructor(
     val syncConflictPrompt: StateFlow<Int?> = syncManager.syncConflictPrompt
     val syncConflictKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind> =
         syncManager.syncConflictKind
+    val syncConflictFirstSettings: StateFlow<Boolean> = syncManager.syncConflictFirstSettings
     val activeSyncKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind?> =
         syncManager.activeSyncKind
     val syncCancelling: StateFlow<Boolean> = syncManager.syncCancelling

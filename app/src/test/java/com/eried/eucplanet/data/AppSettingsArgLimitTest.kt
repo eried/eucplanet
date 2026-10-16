@@ -58,9 +58,12 @@ class AppSettingsArgLimitTest {
         // one slot. 243 was the twelve motor sound fields moved out into
         // EngineSoundSettings, freeing eleven; 244 is the horn group; 245 is
         // crewsDevServerEnabled and 246 voiceVolumePercent, single flags that
-        // sit beside their neighbours; 247 the ENGO glasses HUD group. Keep nesting: the next group goes in
-        // one slot, not one per field.
-        val expectedSlots = 247
+        // sit beside their neighbours; 247 dropboxSettingsBaseHash, the two-way
+        // sync baseline; 249 chargingNotifyCustom and its level, beside the
+        // other two charge alerts; 250 the Android Auto slots, nested as
+        // AndroidAutoSettings; 251 the ENGO glasses HUD group. Keep nesting:
+        // the next group goes in one slot, not one per field.
+        val expectedSlots = 251
         assertEquals(
             "AppSettings slot usage changed. Prefer nesting a group of fields over " +
                 "spending headroom, and update this number deliberately.",

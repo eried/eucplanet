@@ -28,7 +28,9 @@ class IncomingShareRepository @Inject constructor() {
         val lat: Double? = null,
         val lng: Double? = null,
         val query: String? = null,
-        val label: String? = null
+        val label: String? = null,
+        /** A whole route (a route link from a QR code or a message), opened like a loaded GPX. */
+        val route: com.eried.eucplanet.nav.SharedRoute? = null,
     )
 
     private val _pending = MutableStateFlow<Pending?>(null)
@@ -59,6 +61,11 @@ class IncomingShareRepository @Inject constructor() {
         fun parse(raw: String): Pending? {
             val text = raw.trim()
             if (text.isEmpty()) return null
+
+            // 0. A route link, alone or inside a message's text.
+            Regex("""https://eucplanet\.ried\.no/route[#/]\S+""").find(text)?.let { m ->
+                com.eried.eucplanet.nav.RouteLinks.parse(m.value)?.let { return Pending(route = it) }
+            }
 
             // 1. Standard Android geo: URI -- geo:LAT,LNG or geo:0,0?q=LAT,LNG
             //    (or ?q=NAME if the source has no coords).

@@ -35,6 +35,8 @@
     <string name="watch_action_media_play">Lejátszás / szünet</string>
     <string name="watch_action_media_next">Következő szám</string>
     <string name="watch_action_media_prev">Előző szám</string>
+    <string name="watch_action_music_start">Zene indítása</string>
+    <string name="watch_action_media_pause">Zene szüneteltetése</string>
     <string name="watch_action_long_press_hint">Hosszan nyomva: %1$s</string>
     <string name="watch_map_phone_disconnected">Nincs telefon</string>
     <string name="watch_map_gps_permission">GPS engedélyezése</string>

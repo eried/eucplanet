@@ -42,13 +42,21 @@ object ChargeAlertNotification {
         titleRes: Int,
         textRes: Int,
         contentIntent: PendingIntent?,
+    ) = build(context, context.getString(titleRes), context.getString(textRes), contentIntent)
+
+    /** For a title that carries a number, like the storage level. */
+    fun build(
+        context: Context,
+        title: String,
+        text: String,
+        contentIntent: PendingIntent?,
     ) = NotificationCompat.Builder(context, CHANNEL_ID)
         // A battery, not the ongoing notification's Bluetooth glyph: the
         // status bar should say what happened, and what happened is about the
         // pack, not the link to it.
         .setSmallIcon(R.drawable.ic_notification_charge)
-        .setContentTitle(context.getString(titleRes))
-        .setContentText(context.getString(textRes))
+        .setContentTitle(title)
+        .setContentText(text)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setCategory(NotificationCompat.CATEGORY_STATUS)
         .setDefaults(NotificationCompat.DEFAULT_ALL)

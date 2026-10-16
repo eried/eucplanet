@@ -96,6 +96,12 @@ class BleConnectionManager @Inject constructor(
          *  that is genuinely gone (powered off, left at home) costs little
          *  battery, while one that comes back mid-ride is still caught. */
         private val RECONNECT_SCAN_PAUSES_MS = longArrayOf(5_000L, 15_000L, 30_000L, 60_000L)
+        /** How long a reconnect hunt scans at full speed. After that the wheel
+         *  is most likely off or left behind, and a LOW_LATENCY scan half the
+         *  time all night kept the phone warm, so it drops to LOW_POWER: a
+         *  wheel coming back is still found, a few seconds later. Opening the
+         *  app restarts the full-speed hunt. */
+        private const val RECONNECT_LOW_POWER_AFTER_MS = 10 * 60_000L
 
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -230,6 +236,10 @@ class BleConnectionManager @Inject constructor(
     // Completed reconnect-scan windows since the link was last up. Indexes into
     // RECONNECT_SCAN_PAUSES_MS; reset when the wheel is seen or connects.
     @Volatile private var reconnectScanCycle = 0
+    // When the current reconnect hunt began (elapsedRealtime), 0 when none is
+    // running, and whether it has dropped to the low-power scan.
+    @Volatile private var reconnectHuntStartMs = 0L
+    @Volatile private var reconnectLowPower = false
 
     // Write serialization - only one BLE write at a time.
     //
@@ -380,14 +390,25 @@ class BleConnectionManager @Inject constructor(
         }
         stopReconnectScan()
         _connectionState.value = ConnectionState.SCANNING
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (reconnectScanCycle == 0 || reconnectHuntStartMs == 0L) reconnectHuntStartMs = now
+        val lowPower = now - reconnectHuntStartMs >= RECONNECT_LOW_POWER_AFTER_MS
+        if (lowPower && !reconnectLowPower) {
+            Log.i(TAG, "Reconnect scan for $address: no wheel for 10 min, low-power scan from now")
+        }
+        reconnectLowPower = lowPower
         val filter = ScanFilter.Builder().setDeviceAddress(address).build()
         val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setScanMode(
+                if (lowPower) ScanSettings.SCAN_MODE_LOW_POWER
+                else ScanSettings.SCAN_MODE_LOW_LATENCY
+            )
             .build()
         val cb = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
                 Log.i(TAG, "Reconnect scan found $address; connecting")
                 reconnectScanCycle = 0
+                reconnectHuntStartMs = 0L
                 stopReconnectScan()
                 connect(address, name, isAuto = true)
             }
@@ -441,8 +462,33 @@ class BleConnectionManager @Inject constructor(
         try { bluetoothManager.adapter?.bluetoothLeScanner?.stopScan(cb) } catch (_: Exception) {}
     }
 
+    /**
+     * The rider opened the app while a reconnect hunt is idling between scans
+     * or has dropped to the low-power scan: scan at full speed again, so the
+     * wheel they are probably about to ride is found at once. The hunt starts
+     * over, so it drops back to low power after the same 10 minutes.
+     */
+    private fun onAppForeground() {
+        if (!shouldReconnect || autoConnectSuppressed || reconnectHuntStartMs == 0L) return
+        val address = currentAddress ?: return
+        if (bluetoothManager.adapter?.isEnabled != true) return
+        val state = _connectionState.value
+        if (state == ConnectionState.DISCONNECTED ||
+            (state == ConnectionState.SCANNING && reconnectLowPower)
+        ) {
+            Log.i(TAG, "App opened; full-speed reconnect scan for $address")
+            reconnectScanCycle = 0
+            reconnectViaScan(address, currentName)
+        }
+    }
+
     init {
         scope.launch { processWriteQueue() }
+        scope.launch {
+            com.eried.eucplanet.util.AppForeground.isForeground.collect { fg ->
+                if (fg) onAppForeground()
+            }
+        }
         ContextCompat.registerReceiver(
             context,
             bluetoothStateReceiver,
@@ -468,6 +514,7 @@ class BleConnectionManager @Inject constructor(
         if (!isAuto) {
             manualRetryCount = 0
             reconnectScanCycle = 0
+            reconnectHuntStartMs = 0L
         }
         // Demo / simulator mode: VIRTUAL:<id> bypasses GATT and connects to a fake wheel.
         val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
@@ -933,6 +980,7 @@ class BleConnectionManager @Inject constructor(
                 BluetoothProfile.STATE_CONNECTED -> {
                     Log.i(TAG, "Connected to GATT server")
                     reconnectScanCycle = 0
+                    reconnectHuntStartMs = 0L
                     _connectionState.value = ConnectionState.INITIALIZING
                     // (Removed the InMotion V1 requestConnectionPriority(HIGH)
                     // experiment: the tester's failure logs show a RX-perfect /

@@ -10,9 +10,11 @@ import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RecordVoiceOver
@@ -242,10 +244,29 @@ object ActionCatalog {
             isEyesFreeSafe = true,
             statusReader = { !it.tripRecording }
         ),
+        // An explicit play, not the toggle below: pressed with nothing
+        // playing it wakes the last music app, even one that was closed.
+        ActionSpec(
+            key = "MUSIC_START",
+            labelRes = R.string.action_chip_music_start,
+            icon = Icons.Filled.LibraryMusic,
+            isEyesFreeSafe = true
+        ),
+        // Smart toggle (FlicManager): pauses what plays, and when nothing
+        // plays starts music like MUSIC_START, opening the player if needed.
         ActionSpec(
             key = "MEDIA_PLAY_PAUSE",
             labelRes = R.string.action_chip_media_play,
             icon = Icons.Filled.PlayArrow,
+            isEyesFreeSafe = true
+        ),
+        // Pause whatever state the player is in. A toggle cannot be trusted
+        // by voice, where the app's own audio focus has the player paused
+        // or ducked at the very moment the rider asks.
+        ActionSpec(
+            key = "MEDIA_PAUSE",
+            labelRes = R.string.action_chip_media_pause,
+            icon = Icons.Filled.Pause,
             isEyesFreeSafe = true
         ),
         ActionSpec(

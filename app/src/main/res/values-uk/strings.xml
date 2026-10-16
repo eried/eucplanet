@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Положення</string>
     <string name="metric_chip_dyn_speed_limit">Динамічний ліміт швидкості</string>
     <string name="metric_chip_dyn_current_limit">Динамічний ліміт струму</string>
+    <string name="metric_chip_auto_off">Автовимкнення</string>
     <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_controller_temp">Температура контролера</string>
     <string name="metric_chip_battery_temp">Температура батареї</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Автовимк.</string>
     <string name="metric_chip_phone_battery_tile">Тел</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS бат</string>
@@ -342,7 +344,11 @@
     <string name="voice_commands_enable_desc">Керуйте застосунком голосом. Утримуйте кнопку Голос на панелі та виберіть Слухати голосову команду.</string>
     <string name="voice_commands_bind_desc">Призначте прослуховування на Flic, клавіші гучності, годинник або HUD.</string>
     <string name="voice_prompt_cue">Сигнал під час слухання</string>
-    <string name="voice_prompt_cue_desc">Вимкніть, якщо у гарнітури є власний сигнал.</string>
+    <string name="voice_music_listening">Музика під час слухання</string>
+    <string name="voice_music_pause">Пауза</string>
+    <string name="voice_music_duck">Тихіше</string>
+    <string name="voice_music_keep">Грати</string>
+    <string name="voice_music_listening_desc">Розпізнавання працює на телефоні, коли можливо, без облікового запису. Слова звіряються з командами застосунку.</string>
     <string name="voice_cue_beep">Гудок</string>
     <string name="voice_cue_spoken">Голос</string>
     <string name="voice_cue_off">Ні</string>
@@ -437,6 +443,10 @@
     <string name="voice_act_record_start_terms">почати запис,записуй</string>
     <string name="voice_act_record_stop_terms">зупинити запис</string>
     <string name="voice_act_reset_trip_terms">скинути поїздку</string>
+    <string name="voice_act_music_start_terms">увімкни музику,грай музику,музика</string>
+    <string name="voice_act_media_pause_terms">пауза музики,зупини музику,вимкни музику</string>
+    <string name="voice_act_media_next_terms">наступна пісня,наступний трек</string>
+    <string name="voice_act_media_prev_terms">попередня пісня,попередній трек</string>
     <string name="voice_answer_mic_busy">Мікрофон зайнятий іншим застосунком.</string>
     <string name="voice_answer_which">Ви мали на увазі %1$s чи %2$s?</string>
     <string name="action_chip_safety">Легал-режим</string>
@@ -449,6 +459,8 @@
     <string name="action_chip_media_play">Відтворити / пауза</string>
     <string name="action_chip_media_next">Наступний трек</string>
     <string name="action_chip_media_prev">Попередній трек</string>
+    <string name="action_chip_music_start">Увімкнути музику</string>
+    <string name="action_chip_media_pause">Пауза музики</string>
     <string name="action_chip_open_navigation">Показати мапу</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Про застосунок</string>
@@ -610,11 +622,11 @@
     <string name="sync_rate_limited">Dropbox обмежує цей обліковий запис. Синхронізовано %1$d з %2$d поїздок, решта повториться.</string>
     <string name="sync_finished">Синхронізовано поїздок: %1$d</string>
     <string name="sync_conflict_title">Конфлікт синхронізації</string>
-    <string name="sync_conflict_body">%1$d поїздок є з обох сторін.</string>
+    <string name="sync_conflict_body">Змінено з обох боків: %1$d</string>
     <string name="sync_conflict_app">Скопіювати з додатка в копію</string>
     <string name="sync_conflict_folder">Скопіювати з копії в додаток</string>
     <string name="sync_conflict_ignore">Пропустити всі конфлікти</string>
-    <string name="sync_conflict_body_dropbox">%1$d поїздок є і в Dropbox, і на цьому телефоні.</string>
+    <string name="sync_conflict_body_dropbox">Змінено і в Dropbox, і на цьому телефоні: %1$d</string>
     <string name="sync_conflict_app_dropbox">Скопіювати застосунок у Dropbox</string>
     <string name="sync_conflict_dropbox">Скопіювати Dropbox у застосунок</string>
     <string name="cloud_uploaded_on">Збережено %1$s</string>
@@ -868,6 +880,7 @@
 
     <string name="col_periodic">Періодично</string>
     <string name="col_trigger">За тригером</string>
+    <string name="voice_trigger_reset_after">Скидати показники після звіту на запит</string>
     <string name="report_speed">Швидкість</string>
     <string name="report_battery">Заряд</string>
     <string name="report_temp">Темп</string>
@@ -1705,6 +1718,8 @@
     <string name="nav_menu_save">Зберегти маршрут (GPX)</string>
     <string name="nav_menu_load">Завантажити маршрут (GPX)</string>
     <string name="nav_menu_clear">Новий маршрут</string>
+    <string name="nav_finished_title">Маршрут завершено</string>
+    <string name="nav_finished_body">Почати новий маршрут? Пройдені точки буде видалено. Щоб зберегти цей маршрут, спершу збережіть його через меню.</string>
     <string name="nav_clear_home">Забути дім</string>
     <string name="nav_clear_work">Забути роботу</string>
     <string name="nav_menu_exit">Назад на панель</string>
@@ -1735,6 +1750,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Супутник</string>
+    <string name="nav_layer_satellite_labels">Супутник гібрид</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -2022,6 +2038,7 @@
     <string name="warnings_perm_location_title">Геолокацію вимкнено</string>
     <string name="warnings_perm_location_body">Поїздки не записують маршрут, а швидкість і калібрування за GPS не працюють. Торкніться, щоб дозволити.</string>
     <string name="weather_error_no_location">Немає місця для прогнозу</string>
+    <string name="weather_waiting_location">Очікування місцезнаходження…</string>
     <string name="warnings_location_services_body">EUC Planet має дозвіл, але на телефоні геолокацію вимкнено для всього. Торкніться, щоб увімкнути.</string>
     <string name="warnings_location_services_title">Геолокацію вимкнено в системі</string>
     <string name="hud_joystick_title">Дії кнопок</string>
@@ -2666,12 +2683,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Повідомити на 80 %</string>
     <string name="charging_notify_full" formatted="false">Повідомити на 100 %</string>
+    <string name="charging_notify_at">Повідомити на</string>
+    <string name="charging_notify_custom">Повідомити на %1$d %%</string>
+    <string name="charging_notify_at_ask">Повідомити на…</string>
+    <string name="charging_notify_custom_range" formatted="false">Має бути від 5 до 95 %, не 80 %</string>
     <string name="charge_alert_channel_name">Сповіщення про заряджання</string>
-    <string name="charge_alert_channel_description" formatted="false">Коли батарея проходить 80 % або заряд завершено.</string>
+    <string name="charge_alert_channel_description" formatted="false">Коли батарея досягає вибраного рівня або заряд завершено.</string>
     <string name="charge_alert_80_title" formatted="false">Батарея на 80 %</string>
     <string name="charge_alert_80_text">Вистачить на більшість поїздок, і зазвичай це бережніше для батареї.</string>
     <string name="charge_alert_full_title">Заряджання завершено</string>
     <string name="charge_alert_full_text">Заряд повний, відключіть, коли зможете. Деякі колеса зараз балансують банки.</string>
+    <string name="charge_alert_custom_title">Батарея на %1$d %%</string>
+    <string name="charge_alert_custom_text">Досягнуто вибраного рівня. Відключіть зарядку, коли зможете.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Панель колеса</string>
     <string name="widget_act_1_label">Кнопка колеса 1</string>
@@ -2728,6 +2751,7 @@
     <string name="voice_stat_peak">Пік</string>
     <string name="crews_title">Клани</string>
     <string name="crews_pass_action">Пропуск клану</string>
+    <string name="crews_pass_search_hint">Пропуск клану з\'явиться, коли ви приєднаєтеся до онлайн-таблиць лідерів.</string>
     <string name="crews_scan_hint">Відкрий eucstats у браузері, натисни Crews і наведи це на код, що з\'явиться.</string>
     <string name="crews_scan_invalid">Це не код кланового пропуску.</string>
     <string name="crews_scan_is_share">Це код трансляції місця. Скануй його з «Поділитися» на карті.</string>
@@ -2758,4 +2782,46 @@
     <string name="voice_pill_search">Пошук</string>
     <string name="voice_volume">Гучність</string>
     <string name="engo_hud_enabled">HUD окулярів ENGO</string>
+    <string name="beep_volume_by_speed">Гучність сигналу за швидкістю</string>
+    <string name="beep_volume_stopped">Стоячи</string>
+    <string name="beep_volume_riding">У русі</string>
+    <string name="dropbox_checking">Перевірка Dropbox…</string>
+    <string name="sync_first_settings">У Dropbox уже є налаштування з іншого телефона. Використати їх чи залишити налаштування цього телефона?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Видалити цю поїздку з цього телефона? У резервній копії залишиться копія, і «Синхр. усе» поверне її.</string>
+    <string name="share_menu_scan">Сканувати QR</string>
+    <string name="share_menu_scan_desc">Приєднатися до групової поїздки або відкрити маршрут.</string>
+    <string name="share_menu_route">Поділитися маршрутом</string>
+    <string name="share_menu_route_desc">QR-кодом або посиланням. Без облікового запису.</string>
+    <string name="share_menu_route_none">Спершу додайте точку.</string>
+    <string name="scan_code_unknown">Це не код групової поїздки чи маршруту.</string>
+    <string name="route_qr_hint">Скануйте в EUC Planet або камерою телефона.</string>
+    <string name="route_qr_too_long">Маршрут задовгий для QR-коду. Збережіть його як GPX.</string>
+    <string name="route_open_title">Відкрити спільний маршрут</string>
+    <string name="route_open_confirm">Замінити поточний маршрут спільним?</string>
+    <string name="route_opened">Маршрут відкрито</string>
+    <string name="route_qr_share_image">Поділитися QR</string>
+    <string name="route_share_text">Проїдь цей маршрут з EUC Planet: %1$s</string>
+    <string name="route_share_subject">Маршрут для поїздки</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d точка</item>
+        <item quantity="few">%d точки</item>
+        <item quantity="many">%d точок</item>
+        <item quantity="other">%d точки</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Показники та кнопки колеса на екрані Android Auto. Підключається само, без налаштування Wi-Fi.</string>
+    <string name="car_waiting">Очікування колеса</string>
+    <string name="car_last_battery">Останній заряд %1$d%%</string>
+    <string name="car_navigate">Навігація</string>
+    <string name="car_places_title">Маршрут до</string>
+    <string name="car_place_home">Дім</string>
+    <string name="car_place_work">Робота</string>
+    <string name="car_no_places">Спершу збережіть Дім або Роботу в планувальнику маршрутів.</string>
+    <string name="car_waiting_wheel">Очікування колеса</string>
+    <string name="car_weather">Погода</string>
+    <string name="car_alarm_channel_name">Сповіщення на екрані авто</string>
+    <string name="car_alarm_channel_description">Показує спрацьоване сповіщення на екрані Android Auto, поверх карти.</string>
+    <string name="car_alarm_notifications">Сповіщення на екрані авто</string>
+    <string name="car_alarm_notifications_hint">Спрацьоване сповіщення з’являється поверх карти, тож дійде до вас під час навігації. Звук і вібрація без змін.</string>
+    <string name="car_no_metrics">Показники не вибрано</string>
 </resources>

@@ -56,7 +56,17 @@ object SettingsJson {
         dropboxRefreshToken = "",
         dropboxAccessTokenExpiresAt = 0L,
         dropboxAccountLabel = "",
-        dropboxLastSyncAt = 0L
+        dropboxLastSyncAt = 0L,
+        dropboxSettingsBaseHash = "",
+        // Sync bookkeeping: this phone's progress, not a preference. Carried
+        // across it would show another phone's warning or start a download
+        // nobody asked for, and since it changes on every pass it made the
+        // settings look edited when nobody touched them.
+        dropboxSyncPending = false,
+        dropboxPullRequested = false,
+        dropboxPendingCount = 0,
+        dropboxSyncTotal = 0,
+        folderConflictCount = 0,
     )
 
     fun toJson(s: AppSettings): JSONObject = JSONObject().apply {
@@ -168,6 +178,9 @@ object SettingsJson {
             put("mode", s.horn.mode)
             put("soundName", s.horn.soundName)
             put("headphonesOnly", s.horn.headphonesOnly)
+            put("beepVolumeBySpeed", s.horn.beepVolumeBySpeed)
+            put("beepVolumeStopped", s.horn.beepVolumeStopped)
+            put("beepVolumeRiding", s.horn.beepVolumeRiding)
         })
         put("proximityLock", JSONObject().apply {
             put("lockEnabled", s.proximityLock.lockEnabled)
@@ -237,6 +250,9 @@ object SettingsJson {
         put("widgetMetrics", s.widget.metrics)
         put("widgetActions", s.widget.actions)
         put("widgetStandaloneActions", s.widget.standaloneActions)
+        put("androidAutoMetrics", s.androidAuto.metrics)
+        put("androidAutoActions", s.androidAuto.actions)
+        put("androidAutoAlarmNotifications", s.androidAuto.alarmNotifications)
         // Nested voice extras, written as flat keys so the file stays readable
         // and a future move back to top level would not break existing saves.
         put("weatherEnabled", s.weather.enabled)
@@ -259,6 +275,7 @@ object SettingsJson {
         put("voiceHeadsetButton", s.voiceCommands.headsetButton)
         put("voiceHeadsetAction", s.voiceCommands.headsetAction)
         put("voiceRecognitionLocale", s.voiceCommands.recognitionLocale)
+        put("voiceMusicWhileListening", s.voiceCommands.musicWhileListening)
         put("voiceReportBatteryEst", s.voiceReports.periodicBatteryEst)
         put("triggerReportBatteryEst", s.voiceReports.triggerBatteryEst)
         put("voiceReportRange", s.voiceReports.periodicRange)
@@ -271,6 +288,7 @@ object SettingsJson {
         put("triggerReportConsumption", s.voiceReports.triggerConsumption)
         put("periodicReportPills", s.voiceReports.periodicPills)
         put("triggerReportPills", s.voiceReports.triggerPills)
+        put("triggerReportResetAfter", s.voiceReports.triggerResetAfter)
         put("voiceReportCurrent", s.voiceReports.periodicCurrent)
         put("voiceReportPower", s.voiceReports.periodicPower)
         put("triggerReportCurrent", s.voiceReports.triggerCurrent)
@@ -416,6 +434,8 @@ object SettingsJson {
         put("chargingEstimateToFull", s.chargingEstimateToFull)
         put("chargingNotify80", s.chargingNotify80)
         put("chargingNotifyFull", s.chargingNotifyFull)
+        put("chargingNotifyCustom", s.chargingNotifyCustom)
+        put("chargingNotifyCustomPct", s.chargingNotifyCustomPct)
         put("chargingAutoOpen", s.chargingAutoOpen)
         put("chargingDashboardIcon", s.chargingDashboardIcon)
         put("dropboxAccessToken", s.dropboxAccessToken)
@@ -423,6 +443,7 @@ object SettingsJson {
         put("dropboxAccessTokenExpiresAt", s.dropboxAccessTokenExpiresAt)
         put("dropboxAccountLabel", s.dropboxAccountLabel)
         put("dropboxLastSyncAt", s.dropboxLastSyncAt)
+        put("dropboxSettingsBaseHash", s.dropboxSettingsBaseHash)
         put("dropboxSyncPending", s.dropboxSyncPending)
         put("dropboxPullRequested", s.dropboxPullRequested)
         put("dropboxPendingCount", s.dropboxPendingCount)
@@ -500,6 +521,7 @@ object SettingsJson {
             headsetButton = j.optBoolean("voiceHeadsetButton", base.voiceCommands.headsetButton),
             headsetAction = j.optString("voiceHeadsetAction", base.voiceCommands.headsetAction),
             recognitionLocale = j.optString("voiceRecognitionLocale", base.voiceCommands.recognitionLocale),
+            musicWhileListening = j.optString("voiceMusicWhileListening", base.voiceCommands.musicWhileListening),
         ),
         voiceReports = com.eried.eucplanet.data.model.VoiceReportSettings(
             periodicSpeed = j.optBoolean("voiceReportSpeed", base.voiceReports.periodicSpeed),
@@ -515,6 +537,7 @@ object SettingsJson {
             triggerConsumption = j.optBoolean("triggerReportConsumption", base.voiceReports.triggerConsumption),
             periodicPills = j.optString("periodicReportPills", base.voiceReports.periodicPills),
             triggerPills = j.optString("triggerReportPills", base.voiceReports.triggerPills),
+            triggerResetAfter = j.optBoolean("triggerReportResetAfter", base.voiceReports.triggerResetAfter),
             periodicBattery = j.optBoolean("voiceReportBattery", base.voiceReports.periodicBattery),
             periodicTemp = j.optBoolean("voiceReportTemp", base.voiceReports.periodicTemp),
             periodicPwm = j.optBoolean("voiceReportPwm", base.voiceReports.periodicPwm),
@@ -611,6 +634,9 @@ object SettingsJson {
                 mode = h.optString("mode", base.horn.mode),
                 soundName = h.optString("soundName", base.horn.soundName),
                 headphonesOnly = h.optBoolean("headphonesOnly", base.horn.headphonesOnly),
+                beepVolumeBySpeed = h.optBoolean("beepVolumeBySpeed", base.horn.beepVolumeBySpeed),
+                beepVolumeStopped = h.optInt("beepVolumeStopped", base.horn.beepVolumeStopped),
+                beepVolumeRiding = h.optInt("beepVolumeRiding", base.horn.beepVolumeRiding),
             )
         } ?: base.horn,
         proximityLock = j.optJSONObject("proximityLock")?.let { p ->
@@ -722,6 +748,11 @@ object SettingsJson {
             metrics = j.optString("widgetMetrics", base.widget.metrics),
             actions = j.optString("widgetActions", base.widget.actions),
             standaloneActions = j.optString("widgetStandaloneActions", base.widget.standaloneActions),
+        ),
+        androidAuto = com.eried.eucplanet.data.model.AndroidAutoSettings(
+            metrics = j.optString("androidAutoMetrics", base.androidAuto.metrics),
+            actions = j.optString("androidAutoActions", base.androidAuto.actions),
+            alarmNotifications = j.optBoolean("androidAutoAlarmNotifications", base.androidAuto.alarmNotifications),
         ),
         compactModeWhen = j.optString("compactModeWhen", base.compactModeWhen),
         coverCameraCutout = j.optString("coverCameraCutout", base.coverCameraCutout),
@@ -898,6 +929,8 @@ object SettingsJson {
         chargingEstimateToFull = j.optBoolean("chargingEstimateToFull", base.chargingEstimateToFull),
         chargingNotify80 = j.optBoolean("chargingNotify80", base.chargingNotify80),
         chargingNotifyFull = j.optBoolean("chargingNotifyFull", base.chargingNotifyFull),
+        chargingNotifyCustom = j.optBoolean("chargingNotifyCustom", base.chargingNotifyCustom),
+        chargingNotifyCustomPct = j.optInt("chargingNotifyCustomPct", base.chargingNotifyCustomPct),
         chargingAutoOpen = j.optBoolean("chargingAutoOpen", base.chargingAutoOpen),
         chargingDashboardIcon = j.optBoolean("chargingDashboardIcon", base.chargingDashboardIcon),
         // Dropbox link + sync state is device-bound, but it still has to round-
@@ -914,12 +947,60 @@ object SettingsJson {
         dropboxAccessTokenExpiresAt = j.optLong("dropboxAccessTokenExpiresAt", base.dropboxAccessTokenExpiresAt),
         dropboxAccountLabel = j.optString("dropboxAccountLabel", base.dropboxAccountLabel),
         dropboxLastSyncAt = j.optLong("dropboxLastSyncAt", base.dropboxLastSyncAt),
+        dropboxSettingsBaseHash = j.optString("dropboxSettingsBaseHash", base.dropboxSettingsBaseHash),
         dropboxSyncPending = j.optBoolean("dropboxSyncPending", base.dropboxSyncPending),
         dropboxPullRequested = j.optBoolean("dropboxPullRequested", base.dropboxPullRequested),
         dropboxPendingCount = j.optInt("dropboxPendingCount", base.dropboxPendingCount),
         folderConflictCount = j.optInt("folderConflictCount", base.folderConflictCount),
         dropboxSyncTotal = j.optInt("dropboxSyncTotal", base.dropboxSyncTotal)
     )
+
+    /**
+     * Merge a portable settings JSON onto [current], keeping THIS device's own
+     * bindings. Does not rely on the payload being stripped: every field
+     * [stripDeviceBindings] nulls (BLE/Flic/GPS/radar addresses, the sync
+     * folder URI, last-backup bookkeeping) and the Dropbox link + sync
+     * baseline are force-copied from [current] here, so even a legacy RAW
+     * settings.json (uploaded by pre-two-way-sync code, still carrying
+     * another phone's device bindings) cannot repoint this phone's pairings
+     * or sync folder. Pure; SyncManager does the IO.
+     */
+    fun applyPortable(json: JSONObject, current: AppSettings): AppSettings =
+        fromJson(json, current).let { parsed ->
+          parsed.copy(
+            share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
+            tpms = parsed.tpms.copy(
+                pairedAddress = current.tpms.pairedAddress,
+                pairedAddresses = current.tpms.pairedAddresses,
+            ),
+            lastDeviceAddress = current.lastDeviceAddress,
+            lastDeviceName = current.lastDeviceName,
+            flic1Address = current.flic1Address,
+            flic2Address = current.flic2Address,
+            flic3Address = current.flic3Address,
+            flic4Address = current.flic4Address,
+            externalGpsAddress = current.externalGpsAddress,
+            externalGpsName = current.externalGpsName,
+            externalGpsSource = current.externalGpsSource,
+            radarAddress = current.radarAddress,
+            radarName = current.radarName,
+            radarVendor = current.radarVendor,
+            syncFolderUri = current.syncFolderUri,
+            lastSettingsBackupAt = current.lastSettingsBackupAt,
+            lastSettingsBackupName = current.lastSettingsBackupName,
+            dropboxAccessToken = current.dropboxAccessToken,
+            dropboxRefreshToken = current.dropboxRefreshToken,
+            dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+            dropboxAccountLabel = current.dropboxAccountLabel,
+            dropboxLastSyncAt = current.dropboxLastSyncAt,
+            dropboxSettingsBaseHash = current.dropboxSettingsBaseHash,
+            dropboxSyncPending = current.dropboxSyncPending,
+            dropboxPullRequested = current.dropboxPullRequested,
+            dropboxPendingCount = current.dropboxPendingCount,
+            dropboxSyncTotal = current.dropboxSyncTotal,
+            folderConflictCount = current.folderConflictCount,
+          )
+        }
 
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps

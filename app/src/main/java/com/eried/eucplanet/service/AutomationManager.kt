@@ -33,6 +33,8 @@ class AutomationManager @Inject constructor(
     private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 ) {
     companion object {
+        /** Walking pace, the headlight's own default for the same idea. */
+        const val BEEP_STOPPED_BELOW_KMH = 5f
         private const val TAG = "AutomationManager"
         // Below this multiplier we treat manual volume changes as direct baseline edits
         // (avoids divide-by-near-zero amplification when standing still).
@@ -159,6 +161,37 @@ class AutomationManager @Inject constructor(
         proximityLock.reset()
     }
 
+    // Beeper volume by speed: the headlight's walking-pace gate, with no hold,
+    // so the wheel is already quiet as it rolls to a stop and the power-off
+    // beep that follows is soft. Sent only when the level changes.
+    private var beepSlowState = HeadlightSlowPolicy.State()
+    private var beepSentLevel: Int? = null
+
+    private fun evaluateBeepVolume(settings: AppSettings) {
+        val h = settings.horn
+        if (!h.beepVolumeBySpeed || !wheelRepository.wheelHasBeeperVolume.value) {
+            // Disconnected or switched off: forget what was sent, so the next
+            // connect or switch-on sends the right level again.
+            beepSlowState = HeadlightSlowPolicy.State()
+            beepSentLevel = null
+            return
+        }
+        beepSlowState = HeadlightSlowPolicy.step(
+            beepSlowState,
+            speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
+            thresholdKmh = BEEP_STOPPED_BELOW_KMH,
+            nowMs = System.currentTimeMillis(),
+            enabled = true,
+            holdMs = 0L,
+        )
+        val level = if (beepSlowState.forcedOff) h.beepVolumeStopped else h.beepVolumeRiding
+        if (level != beepSentLevel) {
+            Log.i(TAG, "Beeper volume -> $level (${if (beepSlowState.forcedOff) "stopped" else "riding"})")
+            wheelRepository.setBeeperVolume(level)
+            beepSentLevel = level
+        }
+    }
+
     /** Reset the throttle so the next tick re-evaluates immediately. */
     @Synchronized
     fun triggerImmediateLightEvaluation() {
@@ -182,6 +215,7 @@ class AutomationManager @Inject constructor(
         detectManualLightChange(settings)
         if (!_autoLightsSuspended.value) evaluateLights(settings)
         evaluateVolume(settings)
+        evaluateBeepVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
         // Media speed control is parked: it needs notification access the app

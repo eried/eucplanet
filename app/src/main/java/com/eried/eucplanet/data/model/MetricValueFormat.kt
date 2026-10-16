@@ -13,6 +13,12 @@ package com.eried.eucplanet.data.model
  */
 object MetricValueFormat {
 
+    /** Auto power-off countdown as m:ss (5560 s reads 92:40). */
+    fun autoOffClock(seconds: Int): String {
+        val s = seconds.coerceAtLeast(0)
+        return "%d:%02d".format(s / 60, s % 60)
+    }
+
     /**
      * @param key   catalog metric key
      * @param raw   the value in its stored unit (km/h, degrees C, kPa, metres)
@@ -38,6 +44,7 @@ object MetricValueFormat {
         "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(raw, tempUnit), tempUnitLabel)
     "VOLTAGE" -> "%.1fV".format(raw)
     "CURRENT", "DYN_CURRENT_LIMIT" -> "%.1fA".format(raw)
+    "AUTO_OFF" -> autoOffClock(raw.toInt())
     // Speed buffers store raw km/h; convert to the rider's speed unit.
     "SPEED", "DYN_SPEED_LIMIT" ->
         "%.0f %s".format(com.eried.eucplanet.util.Units.speed(raw, speedUnit), speedUnitLabel)

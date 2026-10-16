@@ -105,6 +105,11 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
 
     override fun setVolume(percent: Int): ByteArray? = null
 
+    // W, B, digit (spec 6.2). The spec's trailing `b` confirm is left off on
+    // purpose: it is a beep, and a volume that follows the rider's speed would
+    // then beep at every switch, which is the noise this exists to remove.
+    override fun setBeeperVolume(level: Int): List<ByteArray>? = BegodeCommands.setBeeperVolume(level)
+
     // Begode has no software lock and no native DRL control. Spec 6.0 / 8.0.
     override fun setDRL(on: Boolean): ByteArray? = null
     override fun setLock(locked: Boolean): ByteArray? = null

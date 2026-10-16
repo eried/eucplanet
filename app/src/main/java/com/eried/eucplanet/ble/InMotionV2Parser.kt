@@ -537,13 +537,13 @@ object InMotionV2Parser {
      * Android app against a V14 Adventure; matches the per-cell view in the
      * manufacturer app cell-for-cell.
      */
-    fun parseV14PackCells(data: ByteArray): List<Float>? {
-        if (data.size < 2 + 64) return null
+    fun parseV14PackCells(data: ByteArray, cellsPerPack: Int = 32): List<Float>? {
+        if (data.size < 2 + cellsPerPack * 2) return null
         if (data[0] != 0x02.toByte()) return null
         if ((data[1].toInt() and 0xFF) != 0x82) return null
         val cells = mutableListOf<Float>()
         var off = 2
-        repeat(32) {
+        repeat(cellsPerPack) {
             val mv = (data[off].toInt() and 0xFF) or
                 ((data[off + 1].toInt() and 0xFF) shl 8)
             cells.add(mv / 1000f)

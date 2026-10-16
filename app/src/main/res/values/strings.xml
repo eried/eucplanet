@@ -254,6 +254,7 @@
     <string name="metric_spoken_lat_long">Position</string>
     <string name="metric_chip_dyn_speed_limit">Dynamic speed limit</string>
     <string name="metric_chip_dyn_current_limit">Dynamic current limit</string>
+    <string name="metric_chip_auto_off">Auto power-off</string>
     <string name="metric_chip_motor_temp">Motor temperature</string>
     <string name="metric_chip_controller_temp">Controller temperature</string>
     <string name="metric_chip_battery_temp">Battery temperature</string>
@@ -299,6 +300,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Auto off</string>
     <string name="metric_chip_phone_battery_tile">Phone</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS bat</string>
@@ -338,16 +340,20 @@
     <string name="action_chip_light">Light</string>
     <string name="action_chip_voice">Voice</string>
     <string name="action_chip_voice_listen">Listen</string>
-    <string name="menu_voice_ask">Listen for voice command</string>
+    <string name="menu_voice_ask">Listen for a voice command</string>
     <string name="menu_voice_speak_report">Play voice announcement</string>
     <string name="voice_split_term">Last split</string>
     <string name="menu_switch_to_voice_command">Switch to voice command</string>
     <string name="menu_switch_to_voice_report">Switch to voice announcement</string>
     <string name="voice_commands_title">Voice commands</string>
-    <string name="voice_commands_enable_desc">Use your voice with the app. Hold the Voice button on the dashboard and pick Listen for voice command.</string>
+    <string name="voice_commands_enable_desc">Use your voice with the app. Hold the Voice button on the dashboard and pick Listen for a voice command.</string>
     <string name="voice_commands_bind_desc">Bind listening to a Flic, the volume keys, your watch or the HUD.</string>
     <string name="voice_prompt_cue">Cue when listening</string>
-    <string name="voice_prompt_cue_desc">Turn it off if your headset has its own tone.</string>
+    <string name="voice_music_listening">Music while listening</string>
+    <string name="voice_music_pause">Pause</string>
+    <string name="voice_music_duck">Lower</string>
+    <string name="voice_music_keep">Keep playing</string>
+    <string name="voice_music_listening_desc">Recognition runs on the phone when it can, no account needed. The words are matched to the app\'s commands.</string>
     <string name="voice_cue_beep">Beep</string>
     <string name="voice_cue_spoken">Voice</string>
     <string name="voice_cue_off">Off</string>
@@ -442,6 +448,10 @@
     <string name="voice_act_record_start_terms">start recording,record</string>
     <string name="voice_act_record_stop_terms">stop recording</string>
     <string name="voice_act_reset_trip_terms">reset trip,reset the trip</string>
+    <string name="voice_act_music_start_terms">play music,start music,resume music,music</string>
+    <string name="voice_act_media_pause_terms">pause music,stop music</string>
+    <string name="voice_act_media_next_terms">next song,next track,skip song</string>
+    <string name="voice_act_media_prev_terms">previous song,previous track,last song</string>
     <string name="voice_answer_mic_busy">Something else is using the microphone.</string>
     <string name="voice_answer_which">Did you mean %1$s or %2$s?</string>
     <string name="action_chip_safety">Legal mode</string>
@@ -454,6 +464,8 @@
     <string name="action_chip_media_play">Play / pause</string>
     <string name="action_chip_media_next">Next track</string>
     <string name="action_chip_media_prev">Prev track</string>
+    <string name="action_chip_music_start">Start music</string>
+    <string name="action_chip_media_pause">Pause music</string>
     <string name="action_chip_open_navigation">Show map</string>
     <string name="action_chip_open_studio">Overlay studio</string>
     <string name="action_chip_open_about">About</string>
@@ -814,11 +826,11 @@
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
     <string name="sync_no_folder">Pick a backup folder first</string>
     <string name="sync_rate_limited">Dropbox is limiting this account. %1$d of %2$d trips synced, the rest will retry.</string>
-    <string name="sync_finished">Synchronized %1$d trips</string>
+    <string name="sync_finished">Trips synchronized: %1$d</string>
     <string name="sync_up_to_date">Already up to date</string>
     <string name="sync_conflict_title">Synchronization conflict</string>
-    <string name="sync_conflict_body">%1$d trips are on both sides.</string>
-    <string name="sync_conflict_body_dropbox">%1$d trips exist on both Dropbox and this phone.</string>
+    <string name="sync_conflict_body">Changed on both sides: %1$d</string>
+    <string name="sync_conflict_body_dropbox">Changed on both Dropbox and this phone: %1$d</string>
     <string name="sync_conflict_app">Copy App to Backup</string>
     <string name="sync_conflict_app_dropbox">Copy App to Dropbox</string>
     <string name="sync_conflict_folder">Copy Backup to App</string>
@@ -1161,6 +1173,7 @@
 
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>
+    <string name="voice_trigger_reset_after">Reset metrics after triggered report</string>
     <string name="report_speed">Speed</string>
     <string name="report_battery">Battery</string>
     <string name="report_temp">Temp</string>
@@ -2188,6 +2201,8 @@
     <string name="nav_menu_save">Save route (GPX)</string>
     <string name="nav_menu_load">Load route (GPX)</string>
     <string name="nav_menu_clear">New route</string>
+    <string name="nav_finished_title">Route finished</string>
+    <string name="nav_finished_body">Start a new route? The reached stops are cleared. To keep this route, save it from the menu first.</string>
     <string name="nav_clear_home">Forget Home</string>
     <string name="nav_clear_work">Forget Work</string>
     <string name="nav_menu_exit">Back to dashboard</string>
@@ -2244,6 +2259,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellite</string>
+    <string name="nav_layer_satellite_labels">Satellite hybrid</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -2582,6 +2598,7 @@
     <string name="warnings_perm_location_title">Location is off</string>
     <string name="warnings_perm_location_body">Trips record no route, and GPS speed and calibration will not work. Tap to allow.</string>
     <string name="weather_error_no_location">No location to forecast</string>
+    <string name="weather_waiting_location">Waiting for location…</string>
     <string name="warnings_location_services_body">EUC Planet is allowed to use it, but the phone has location turned off for everything. Tap to switch it on.</string>
     <string name="warnings_location_services_title">Location is switched off</string>
     <string name="warnings_battery_opt_title">Battery optimisation is on</string>
@@ -2609,12 +2626,18 @@
     <string name="charging_estimate_to_full" formatted="false">Always estimate to 100%</string>
     <string name="charging_notify_80" formatted="false">Notify me at 80%</string>
     <string name="charging_notify_full" formatted="false">Notify me at 100%</string>
+    <string name="charging_notify_at">Notify me at</string>
+    <string name="charging_notify_custom">Notify me at %1$d%%</string>
+    <string name="charging_notify_at_ask">Notify me at…</string>
+    <string name="charging_notify_custom_range" formatted="false">Must be 5 to 95%, not 80%</string>
     <string name="charge_alert_channel_name">Charge alerts</string>
-    <string name="charge_alert_channel_description" formatted="false">When the battery passes 80% or finishes charging.</string>
+    <string name="charge_alert_channel_description" formatted="false">When the battery reaches a level you picked, or finishes charging.</string>
     <string name="charge_alert_80_title" formatted="false">Battery at 80%</string>
     <string name="charge_alert_80_text">Charged enough for most rides, and usually kinder to the battery.</string>
     <string name="charge_alert_full_title">Charge complete</string>
     <string name="charge_alert_full_text">Fully charged, unplug when you can. Some wheels balance the cells now.</string>
+    <string name="charge_alert_custom_title">Battery at %1$d%%</string>
+    <string name="charge_alert_custom_text">Reached the level you set. Unplug when you can.</string>
     <string name="charging_options">Options</string>
     <string name="charging_tab_power">Power</string>
     <string name="charging_tab_cells">Cells</string>
@@ -2760,6 +2783,7 @@
          up with everything else; hardcoded strings are strings that never get translated. -->
     <string name="crews_title">Crews</string>
     <string name="crews_pass_action">Crew pass</string>
+    <string name="crews_pass_search_hint">Crew pass shows once you join the online leaderboards.</string>
     <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
     <string name="crews_scan_invalid">That\'s not a crew pass code.</string>
     <string name="crews_scan_is_share">That is a live-location code. Scan it from Share on the map.</string>
@@ -2789,4 +2813,44 @@
     <string name="crews_expired">That code\'s gone stale. Grab a fresh one from the browser.</string>
     <string name="voice_pill_search">Search</string>
     <string name="voice_volume">Volume</string>
+    <string name="beep_volume_by_speed">Beep volume by speed</string>
+    <string name="beep_volume_stopped">Stopped</string>
+    <string name="beep_volume_riding">Riding</string>
+    <string name="dropbox_checking">Checking Dropbox…</string>
+    <string name="sync_first_settings">Dropbox already has settings from another phone. Use those, or keep this phone\'s?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Delete this trip from this phone? The backup keeps a copy, so Sync all brings it back.</string>
+    <string name="share_menu_scan">Scan QR</string>
+    <string name="share_menu_scan_desc">Join a group ride or open a route.</string>
+    <string name="share_menu_route">Share route</string>
+    <string name="share_menu_route_desc">As a QR code or a link. No account needed.</string>
+    <string name="share_menu_route_none">Add a stop first.</string>
+    <string name="scan_code_unknown">Not a group ride or route code.</string>
+    <string name="route_qr_hint">Scan with EUC Planet or the phone camera.</string>
+    <string name="route_qr_too_long">This route is too long for a QR code. Save it as GPX instead.</string>
+    <string name="route_open_title">Open shared route</string>
+    <string name="route_open_confirm">Replace the current route with the shared route?</string>
+    <string name="route_opened">Route opened</string>
+    <string name="route_qr_share_image">Share QR</string>
+    <string name="route_share_text">Ride this route with EUC Planet: %1$s</string>
+    <string name="route_share_subject">A route to ride</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d stop</item>
+        <item quantity="other">%d stops</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Your stats and wheel buttons on an Android Auto screen. It connects by itself, no Wi-Fi setup.</string>
+    <string name="car_waiting">Waiting for the wheel</string>
+    <string name="car_last_battery">Last battery %1$d%%</string>
+    <string name="car_waiting_wheel">Waiting for the wheel</string>
+    <string name="car_weather">Weather</string>
+    <string name="car_no_metrics">No metrics selected</string>
+    <string name="car_alarm_channel_name">Car screen alarms</string>
+    <string name="car_alarm_channel_description">Shows a firing alarm on the Android Auto screen, over the map.</string>
+    <string name="car_alarm_notifications">Alarms on the car screen</string>
+    <string name="car_alarm_notifications_hint">A firing alarm shows over the map, so it reaches you while navigating. Beep and vibration are unchanged.</string>
+    <string name="car_navigate">Navigate</string>
+    <string name="car_places_title">Navigate to</string>
+    <string name="car_place_home">Home</string>
+    <string name="car_place_work">Work</string>
+    <string name="car_no_places">Save Home or Work in the route builder first.</string>
 </resources>

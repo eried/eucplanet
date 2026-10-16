@@ -341,9 +341,13 @@ fun RecordingScreen(
                     // box under it, or it reads as if the backup goes too.
                     Text(
                         stringResource(
-                            if (offerArchive && archiveBackups)
-                                R.string.recording_delete_trip_body_archive
-                            else R.string.recording_delete_trip_body
+                            when {
+                                offerArchive && archiveBackups -> R.string.recording_delete_trip_body_archive
+                                // Unarchived, the backup copy stays and the next
+                                // Sync all brings the trip back: say so.
+                                offerArchive -> R.string.recording_delete_trip_body_keeps_backup
+                                else -> R.string.recording_delete_trip_body
+                            }
                         )
                     )
                     if (offerArchive) {

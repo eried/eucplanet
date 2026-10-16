@@ -174,6 +174,14 @@ fun ChargingMonitorScreen(
                 },
                 actions = {
                     var menuOpen by remember { mutableStateOf(false) }
+                    var levelDialog by remember { mutableStateOf(false) }
+                    if (levelDialog) {
+                        ChargeLevelDialog(
+                            initial = state.notifyCustomPct,
+                            onSave = { viewModel.setNotifyCustomPct(it); levelDialog = false },
+                            onDismiss = { levelDialog = false },
+                        )
+                    }
                     IconButton(onClick = { menuOpen = true }) {
                         Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.charging_options))
                     }
@@ -209,6 +217,27 @@ fun ChargingMonitorScreen(
                             },
                             trailingIcon = {
                                 if (state.notifyFull) Icon(Icons.Filled.Check, contentDescription = null)
+                            },
+                        )
+                        // The rider's own level, 60 for a wheel that will sit a
+                        // while. Off it reads "Notify me at..." and the tap asks
+                        // for the number; on it reads like the two above, with
+                        // the level and a tick, and a tap turns it off.
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (state.notifyCustom)
+                                        stringResource(R.string.charging_notify_custom, state.notifyCustomPct)
+                                    else stringResource(R.string.charging_notify_at_ask)
+                                )
+                            },
+                            onClick = {
+                                menuOpen = false
+                                if (state.notifyCustom) viewModel.setNotifyCustom(false)
+                                else levelDialog = true
+                            },
+                            trailingIcon = {
+                                if (state.notifyCustom) Icon(Icons.Filled.Check, contentDescription = null)
                             },
                         )
                         HorizontalDivider()

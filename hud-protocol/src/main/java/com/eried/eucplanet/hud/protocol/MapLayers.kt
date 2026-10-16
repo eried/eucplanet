@@ -31,6 +31,12 @@ object MapLayers {
          *  on top of the base; the canvas renderers (Studio, HUD cache) keep
          *  base-only, which just means fewer place labels there. */
         val refUrlTemplate: String = "",
+        /** A second labels layer over [refUrlTemplate], drawn only by the
+         *  Leaflet maps (navigator, trip details). Esri's hybrid needs two:
+         *  roads with their names, then place names and boundaries. The
+         *  canvas renderers draw [refUrlTemplate] alone, so they keep the
+         *  road names. */
+        val extraRefUrlTemplate: String = "",
         val attribution: String,
         /** Same credit for a small canvas. A Studio map element can be a
          *  thumbnail on a phone screen, where the full string would be clipped
@@ -54,6 +60,7 @@ object MapLayers {
     const val LIGHT = "LIGHT"
     const val DARK = "DARK"
     const val SATELLITE = "SATELLITE"
+    const val SATELLITE_LABELS = "SATELLITE_LABELS"
 
     private const val ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/"
 
@@ -122,6 +129,18 @@ object MapLayers {
             urlTemplate = ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}",
             attribution = "Esri · Maxar · Earthstar Geographics",
             attributionShort = "© Esri",
+            maxNativeZoom = 19,
+        ),
+        // Satellite with road and place names on top: Esri's own "Imagery
+        // Hybrid" recipe, the same keyless host. Riders asked for road names
+        // over the imagery.
+        Layer(
+            id = SATELLITE_LABELS,
+            urlTemplate = ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            refUrlTemplate = ESRI + "Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+            extraRefUrlTemplate = ESRI + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+            attribution = "Esri · Maxar · Earthstar Geographics · HERE · Garmin · © OpenStreetMap contributors",
+            attributionShort = "© Esri, OSM",
             maxNativeZoom = 19,
         ),
     )

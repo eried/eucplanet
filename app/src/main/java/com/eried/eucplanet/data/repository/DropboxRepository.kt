@@ -497,7 +497,12 @@ class DropboxRepository @Inject constructor(
      * and read as working in every test that checked the code rather than ran
      * it.
      */
-    data class RemoteFile(val serverModifiedSec: Long, val size: Long)
+    data class RemoteFile(
+        val serverModifiedSec: Long,
+        val size: Long,
+        /** Dropbox's content_hash, see DropboxContentHash; null if the listing left it out. */
+        val contentHash: String? = null,
+    )
 
     /** Map of file-name → [RemoteFile] for the given Dropbox folder (App-Folder
      *  relative). Empty map on "not_found" (folder doesn't exist yet, normal on
@@ -729,6 +734,11 @@ class DropboxRepository @Inject constructor(
                 dropboxSyncPending = false,
                 dropboxPendingCount = 0,
                 dropboxSyncTotal = 0,
+                // The baseline belongs to that link. Kept, a relink to another
+                // account would read its settings as "changed only on Dropbox"
+                // and apply them unasked.
+                dropboxSettingsBaseHash = "",
+                dropboxPullRequested = false,
             )
         }
     }
@@ -829,7 +839,10 @@ class DropboxRepository @Inject constructor(
                 val epoch = try {
                     java.time.OffsetDateTime.parse(e.optString("server_modified")).toEpochSecond()
                 } catch (_: Exception) { 0L }
-                files[name] = RemoteFile(epoch, e.optLong("size", -1L))
+                files[name] = RemoteFile(
+                    epoch, e.optLong("size", -1L),
+                    e.optString("content_hash").ifBlank { null },
+                )
             }
             return ListPage(
                 files = files,

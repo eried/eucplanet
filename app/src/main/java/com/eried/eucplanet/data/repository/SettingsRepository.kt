@@ -93,6 +93,9 @@ class SettingsRepository @Inject constructor(
 internal fun AppSettings.sanitized(): AppSettings = copy(
     voiceVolumePercent = voiceVolumePercent.coerceIn(10, 100),
     autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
+    // What the dialog lets a rider save: a synced file cannot ask for 300%, or 80.
+    chargingNotifyCustomPct = com.eried.eucplanet.service.ChargeAlertPolicy
+        .sanitizeCustom(chargingNotifyCustomPct),
     // Weather comfort thresholds from a synced or hand-edited file: keep
     // the window one of the offered four, the bands ordered and sane.
     weather = weather.copy(
@@ -142,14 +145,22 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
             ?: VoiceCommandSettings.UNKNOWN_MESSAGE,
         headsetAction = voiceCommands.headsetAction.takeIf { it in VoiceCommandSettings.HEADSET_ACTIONS }
             ?: VoiceCommandSettings.HEADSET_LISTEN,
+        musicWhileListening = voiceCommands.musicWhileListening.takeIf { it in VoiceCommandSettings.MUSIC_MODES }
+            ?: VoiceCommandSettings.MUSIC_PAUSE,
     ),
     // An imported or Dropbox-synced file can carry an unlockWhen this build
     // does not know. Fall back to never rather than letting an unrecognised
     // value decide when a wheel unlocks itself.
     // A horn mode this build does not know (a newer backup) falls back to the
     // wheel's own horn, which every build understands.
-    horn = if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
-        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL),
+    horn = (if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
+        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL)).let {
+        // The wheel only knows 1..9; anything else would be refused or worse.
+        it.copy(
+            beepVolumeStopped = it.beepVolumeStopped.coerceIn(1, 9),
+            beepVolumeRiding = it.beepVolumeRiding.coerceIn(1, 9),
+        )
+    },
     proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
         proximityLock
     } else {

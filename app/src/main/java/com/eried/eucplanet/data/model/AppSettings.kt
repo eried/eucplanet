@@ -121,6 +121,8 @@ data class AppSettings(
     val voiceReports: VoiceReportSettings = VoiceReportSettings(),
     // Home screen widget layout. Nested for the same reason, see WidgetSettings.
     val widget: WidgetSettings = WidgetSettings(),
+    // Android Auto screen: its own stat and button slots. Nested, see AndroidAutoSettings.
+    val androidAuto: AndroidAutoSettings = AndroidAutoSettings(),
 
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
@@ -891,6 +893,10 @@ data class AppSettings(
      *  Advanced settings, like [chargingEstimateToFull] beside them. */
     val chargingNotify80: Boolean = false,
     val chargingNotifyFull: Boolean = false,
+    /** A third alert at a level the rider types in, 60 for a wheel that
+     *  will sit for a while. The level is kept while the alert is off. */
+    val chargingNotifyCustom: Boolean = false,
+    val chargingNotifyCustomPct: Int = 60,
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
@@ -910,6 +916,11 @@ data class AppSettings(
      *  Sync all UI to label "Last synced 5 min ago" and by the worker to
      *  decide whether the settings.json on Dropbox is current. */
     val dropboxLastSyncAt: Long = 0L,
+    // Hash of the device-stripped settings as of the last successful Dropbox
+    // settings sync. Lets a two-way sync tell "this phone changed settings"
+    // (upload) from "the other device changed them" (apply), so only a genuine
+    // both-changed case prompts. Device-local: stripped, never uploaded.
+    val dropboxSettingsBaseHash: String = "",
     /** True while trips still need uploading to Dropbox; the worker keeps
      *  retrying until it clears. Drives the persistent "Syncing trips…"
      *  indicator so failed / pending uploads are surfaced without an error toast. */
@@ -1460,6 +1471,9 @@ data class VoiceReportSettings(
      */
     val periodicPills: String = "",
     val triggerPills: String = "",
+    /** Reset metrics once the trigger report has been read out, for a rider
+     *  who checks a stretch with one press and starts the next from zero. */
+    val triggerResetAfter: Boolean = false,
 )
 
 /**
@@ -1524,8 +1538,21 @@ data class VoiceCommandSettings(
      * command words came from whatever the interface happened to be set to.
      */
     val recognitionLocale: String = "",
+    /**
+     * What the rider's music does while the microphone is open and the answer
+     * is said: paused ([MUSIC_PAUSE]), turned down ([MUSIC_DUCK]) or left
+     * alone ([MUSIC_KEEP]). Pause by default, like assistants and cars do:
+     * through the phone speaker the microphone hears the song, and the song
+     * is what gets recognised.
+     */
+    val musicWhileListening: String = MUSIC_PAUSE,
 ) {
     companion object {
+        const val MUSIC_PAUSE = "PAUSE"
+        const val MUSIC_DUCK = "DUCK"
+        const val MUSIC_KEEP = "KEEP"
+        val MUSIC_MODES = setOf(MUSIC_PAUSE, MUSIC_DUCK, MUSIC_KEEP)
+
         const val CUE_BEEP = "BEEP"
         const val CUE_VOICE = "VOICE"
         const val CUE_NONE = "NONE"
@@ -1751,6 +1778,16 @@ data class HornSettings(
     val soundName: String = "",
     /** Play the phone sound only through headphones or a Bluetooth speaker. */
     val headphonesOnly: Boolean = false,
+    /**
+     * The wheel's beeper volume follows speed (Begode): quiet while stopped,
+     * so the power-on and power-off beeps are soft, loud while riding, so the
+     * warnings are heard. Off leaves the wheel's volume alone.
+     */
+    val beepVolumeBySpeed: Boolean = false,
+    /** 1..9, below walking pace. */
+    val beepVolumeStopped: Int = 1,
+    /** 1..9, riding. */
+    val beepVolumeRiding: Int = 9,
 ) {
     companion object {
         const val MODE_WHEEL = "WHEEL"

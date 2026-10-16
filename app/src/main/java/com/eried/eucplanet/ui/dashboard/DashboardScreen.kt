@@ -445,19 +445,9 @@ fun DashboardScreen(
     // dashboard styles match Overlay Studio / Navigator / Settings (no system
     // icon, swipe-to-dismiss).
     val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
-    // The live transcript, then the answer. A snackbar rather than a dialog:
-    // fired from a Flic at speed the rider cannot look at the screen anyway,
-    // and a modal is something they could be left holding. Rule 3 makes this
-    // the transient surface.
-    LaunchedEffect(voiceCommandState) {
-        when (val v = voiceCommandState) {
-            is com.eried.eucplanet.voice.VoiceCommandController.UiState.Heard ->
-                snackbar.showSnackbar(v.text)
-            is com.eried.eucplanet.voice.VoiceCommandController.UiState.Spoke ->
-                snackbar.showSnackbar(v.text)
-            else -> {}
-        }
-    }
+    // The live transcript and the answer are not shown here: the root host in
+    // MainActivity shows a voice session as one line that replaces itself
+    // (VoiceCommandController.toast), on every screen.
     val snackbarScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         viewModel.cloudToasts.collect { resId ->
@@ -1719,6 +1709,9 @@ fun DashboardScreen(
                         ) else placeholder
                     "DYN_CURRENT_LIMIT" -> if (wheelData.dynamicCurrentLimit > 0f)
                         "%.1fA".format(wheelData.dynamicCurrentLimit) else placeholder
+                    "AUTO_OFF" -> if (wheelData.autoOffSeconds >= 0)
+                        com.eried.eucplanet.data.model.MetricValueFormat.autoOffClock(wheelData.autoOffSeconds)
+                        else placeholder
                     "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)
                         ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
                         ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
@@ -2427,7 +2420,15 @@ fun DashboardScreen(
                             // and one icon. Whichever owns the slot, both are
                             // one hold away, so the switch only decides what a
                             // tap does and what the eyes-free surfaces bind.
-                            "VOICE_LISTEN" -> ActionTile(
+                            "VOICE_LISTEN" -> {
+                                // While this tile is in front of the rider it
+                                // lights up when listening, from any button,
+                                // so the "Listening" snackbar stays out.
+                                androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+                                    val done = viewModel.showingListeningCue()
+                                    onPauseOrDispose { done() }
+                                }
+                                ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.Mic,
                                 label = stringResource(R.string.action_chip_voice_listen),
@@ -2444,9 +2445,12 @@ fun DashboardScreen(
                                     // offers. No icons: nothing else in these
                                     // menus has them, and two glyphs in a list
                                     // of plain rows reads as decoration.
+                                    // One row that always opens a fresh window,
+                                    // whatever voice is doing. Stopping is a
+                                    // tap on the tile, which toggles.
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_ask)) },
-                                        onClick = { dismiss(); viewModel.onVoiceListen() }
+                                        onClick = { dismiss(); viewModel.onVoiceAsk() }
                                     )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_speak_report)) },
@@ -2487,6 +2491,7 @@ fun DashboardScreen(
                                     )
                                 }
                             )
+                            }
                             "VOICE_ANNOUNCE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.RecordVoiceOver,
@@ -2502,9 +2507,12 @@ fun DashboardScreen(
                                     // offers. No icons: nothing else in these
                                     // menus has them, and two glyphs in a list
                                     // of plain rows reads as decoration.
+                                    // One row that always opens a fresh window,
+                                    // whatever voice is doing. Stopping is a
+                                    // tap on the tile, which toggles.
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_ask)) },
-                                        onClick = { dismiss(); viewModel.onVoiceListen() }
+                                        onClick = { dismiss(); viewModel.onVoiceAsk() }
                                     )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_speak_report)) },
@@ -2855,7 +2863,7 @@ fun DashboardScreen(
                                             key == "RESET_TRIP" ||
                                             // A settings write; arm it in the hall.
                                             isSplits ||
-                                            key.startsWith("MEDIA_")
+                                            key.startsWith("MEDIA_") || key == "MUSIC_START"
                                     if (isSplits) {
                                         // Long-press opens its settings, which sit
                                         // far down the Voice tab, like the lock and

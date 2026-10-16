@@ -2437,6 +2437,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   map.attributionControl.setPosition('bottomleft');
   var baseLayer=null;
   var refLayer=null;
+  var refLayer2=null;
   // {r} asks the provider for its @2x tile on a high-density screen. Without it
   // a phone upscales a 256 px tile threefold or more, which is most of why the
   // map read as soft and short on detail. Esri's tiles carry no {r}, so it
@@ -2450,6 +2451,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
   window.setMapType=function(t){
     if(baseLayer) map.removeLayer(baseLayer);
     if(refLayer){ map.removeLayer(refLayer); refLayer=null; }
+    if(refLayer2){ map.removeLayer(refLayer2); refLayer2=null; }
     // One table for every map in the app, credits included: see MapLayers.
     var layer = MAP_LAYERS[t] || MAP_LAYERS['OSM'];
     var opts = {maxZoom:21, maxNativeZoom:layer.maxNative, attribution:layer.attr};
@@ -2458,6 +2460,7 @@ private fun buildMapHtml(coordsJson: String, fadedCoordsJson: String, switchesJs
     baseLayer=L.tileLayer(layer.url, opts).addTo(map);
     // Esri Canvas labels ride on a separate reference layer; keep it under
     // the route but over the base. Leaflet collapses the duplicate credit.
+    if (layer.ref2){ refLayer2=L.tileLayer(layer.ref2, opts).addTo(map); refLayer2.bringToBack(); }
     if (layer.ref){ refLayer=L.tileLayer(layer.ref, opts).addTo(map); refLayer.bringToBack(); }
     baseLayer.bringToBack();
   };

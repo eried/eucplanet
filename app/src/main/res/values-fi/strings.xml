@@ -224,6 +224,7 @@
     <string name="metric_spoken_lat_long">Sijainti</string>
     <string name="metric_chip_dyn_speed_limit">Dynaaminen nopeusrajoitus</string>
     <string name="metric_chip_dyn_current_limit">Dynaaminen virtaraja</string>
+    <string name="metric_chip_auto_off">Automaattinen sammutus</string>
     <string name="metric_chip_motor_temp">Moottorin lämpötila</string>
     <string name="metric_chip_controller_temp">Ohjaimen lämpötila</string>
     <string name="metric_chip_battery_temp">Akun lämpötila</string>
@@ -263,6 +264,7 @@
     <string name="metric_chip_controller_temp_tile">Ohjain T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Nop raja</string>
     <string name="metric_chip_dyn_current_limit_tile">A raja</string>
+    <string name="metric_chip_auto_off_tile">Sammutus</string>
     <string name="metric_chip_phone_battery_tile">Puhelin</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS akku</string>
@@ -305,7 +307,11 @@
     <string name="voice_commands_enable_desc">Käytä ääntäsi sovelluksessa. Pidä kojelaudan äänipainiketta painettuna ja valitse Kuuntele äänikomentoa.</string>
     <string name="voice_commands_bind_desc">Sido kuuntelu Flic-painikkeeseen, äänenvoimakkuusnäppäimiin, kelloosi tai HUD-näyttöön.</string>
     <string name="voice_prompt_cue">Merkkiääni kuunnellessa</string>
-    <string name="voice_prompt_cue_desc">Poista käytöstä, jos kuulokkeissasi on oma äänimerkki.</string>
+    <string name="voice_music_listening">Musiikki kuunneltaessa</string>
+    <string name="voice_music_pause">Tauko</string>
+    <string name="voice_music_duck">Hiljennä</string>
+    <string name="voice_music_keep">Jatka</string>
+    <string name="voice_music_listening_desc">Tunnistus toimii puhelimessa aina kun voi, ilman tiliä. Sanoja verrataan sovelluksen komentoihin.</string>
     <string name="voice_cue_beep">Piippaus</string>
     <string name="voice_cue_spoken">Ääni</string>
     <string name="voice_cue_off">Ei</string>
@@ -400,6 +406,10 @@
     <string name="voice_act_record_start_terms">aloita tallennus,tallenna</string>
     <string name="voice_act_record_stop_terms">lopeta tallennus</string>
     <string name="voice_act_reset_trip_terms">nollaa matka</string>
+    <string name="voice_act_music_start_terms">soita musiikkia,aloita musiikki,musiikki</string>
+    <string name="voice_act_media_pause_terms">keskeytä musiikki,pysäytä musiikki</string>
+    <string name="voice_act_media_next_terms">seuraava kappale,seuraava biisi</string>
+    <string name="voice_act_media_prev_terms">edellinen kappale,edellinen biisi</string>
     <string name="voice_answer_mic_busy">Jokin muu käyttää mikrofonia.</string>
     <string name="voice_answer_which">Tarkoititko %1$s vai %2$s?</string>
     <string name="action_chip_safety">Laillinen tila</string>
@@ -412,6 +422,8 @@
     <string name="action_chip_media_play">Toista / tauko</string>
     <string name="action_chip_media_next">Seuraava kappale</string>
     <string name="action_chip_media_prev">Edellinen kappale</string>
+    <string name="action_chip_music_start">Aloita musiikki</string>
+    <string name="action_chip_media_pause">Keskeytä musiikki</string>
     <string name="action_chip_open_navigation">Näytä kartta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Tietoja</string>
@@ -734,11 +746,11 @@
     <string name="sync_progress">Synkronoidaan %1$d / %2$d</string>
     <string name="sync_no_folder">Valitse ensin varmuuskopiokansio</string>
     <string name="sync_rate_limited">Dropbox rajoittaa tätä tiliä. Synkronoitu %1$d/%2$d matkaa, loput yritetään uudelleen.</string>
-    <string name="sync_finished">Synkronoitu %1$d matkaa</string>
+    <string name="sync_finished">Synkronoidut ajot: %1$d</string>
     <string name="sync_up_to_date">Jo ajan tasalla</string>
     <string name="sync_conflict_title">Synkronointiristiriita</string>
-    <string name="sync_conflict_body">%1$d matkaa on molemmilla puolilla.</string>
-    <string name="sync_conflict_body_dropbox">%1$d matkaa on sekä Dropboxissa että tässä puhelimessa.</string>
+    <string name="sync_conflict_body">Muutettu molemmilla puolilla: %1$d</string>
+    <string name="sync_conflict_body_dropbox">Muutettu sekä Dropboxissa että tässä puhelimessa: %1$d</string>
     <string name="sync_conflict_app">Kopioi sovellus varmuuskopioon</string>
     <string name="sync_conflict_app_dropbox">Kopioi sovellus Dropboxiin</string>
     <string name="sync_conflict_folder">Kopioi varmuuskopio sovellukseen</string>
@@ -1064,6 +1076,7 @@
     <string name="engine_preset_sampled_quad_atv">Mönkijä ATV</string>
     <string name="col_periodic">Säännöllinen</string>
     <string name="col_trigger">Laukaisin</string>
+    <string name="voice_trigger_reset_after">Nollaa mittarit käynnistetyn raportin jälkeen</string>
     <string name="report_speed">Nopeus</string>
     <string name="report_battery">Akku</string>
     <string name="report_temp">Lämpö</string>
@@ -1939,6 +1952,8 @@
     <string name="nav_menu_save">Tallenna reitti (GPX)</string>
     <string name="nav_menu_load">Lataa reitti (GPX)</string>
     <string name="nav_menu_clear">Uusi reitti</string>
+    <string name="nav_finished_title">Reitti valmis</string>
+    <string name="nav_finished_body">Aloitetaanko uusi reitti? Saavutetut pysähdykset poistetaan. Jos haluat säilyttää reitin, tallenna se ensin valikosta.</string>
     <string name="nav_clear_home">Unohda koti</string>
     <string name="nav_clear_work">Unohda työ</string>
     <string name="nav_menu_exit">Takaisin mittaristoon</string>
@@ -1994,6 +2009,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelliitti</string>
+    <string name="nav_layer_satellite_labels">Satelliitti hybridi</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -2321,6 +2337,7 @@
     <string name="warnings_perm_location_title">Sijainti on pois päältä</string>
     <string name="warnings_perm_location_body">Matkat eivät tallenna reittiä, eivätkä GPS-nopeus ja kalibrointi toimi. Salli napauttamalla.</string>
     <string name="weather_error_no_location">Ei sijaintia ennusteelle</string>
+    <string name="weather_waiting_location">Odotetaan sijaintia…</string>
     <string name="warnings_location_services_body">EUC Planetilla on lupa, mutta puhelimen sijainti on pois päältä kaikelta. Kytke se päälle napauttamalla.</string>
     <string name="warnings_location_services_title">Sijainti on kytketty pois</string>
     <string name="warnings_battery_opt_title">Akun optimointi on päällä</string>
@@ -2472,12 +2489,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Ilmoita 80 %:ssa</string>
     <string name="charging_notify_full" formatted="false">Ilmoita 100 %:ssa</string>
+    <string name="charging_notify_at">Ilmoitusraja</string>
+    <string name="charging_notify_custom">Ilmoita %1$d %%:ssa</string>
+    <string name="charging_notify_at_ask">Ilmoita tasolla…</string>
+    <string name="charging_notify_custom_range" formatted="false">Oltava 5–95 %, ei 80 %</string>
     <string name="charge_alert_channel_name">Latausilmoitukset</string>
-    <string name="charge_alert_channel_description" formatted="false">Kun akku ohittaa 80 % tai lataus valmistuu.</string>
+    <string name="charge_alert_channel_description" formatted="false">Kun akku saavuttaa valitsemasi tason tai lataus valmistuu.</string>
     <string name="charge_alert_80_title" formatted="false">Akku 80 %:ssa</string>
     <string name="charge_alert_80_text">Riittää useimpiin matkoihin, ja on yleensä akulle parempi.</string>
     <string name="charge_alert_full_title">Lataus valmis</string>
     <string name="charge_alert_full_text">Täyteen ladattu, irrota kun voit. Osa pyöristä tasaa kennoja juuri nyt.</string>
+    <string name="charge_alert_custom_title">Akku %1$d %%:ssa</string>
+    <string name="charge_alert_custom_text">Asettamasi taso saavutettu. Irrota laturi, kun ehdit.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Pyörän kojelauta</string>
     <string name="widget_act_1_label">Pyörän painike 1</string>
@@ -2534,6 +2557,7 @@
     <string name="voice_stat_peak">Huippu</string>
     <string name="crews_title">Crewit</string>
     <string name="crews_pass_action">Crew-passi</string>
+    <string name="crews_pass_search_hint">Crew-passi näkyy, kun liityt verkkotulostauluihin.</string>
     <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja suuntaa tämä koodiin.</string>
     <string name="crews_scan_invalid">Tuo ei ole crew pass -koodi.</string>
     <string name="crews_scan_is_share">Tämä on live-sijainnin koodi. Skannaa se kartan Jaa-kohdasta.</string>
@@ -2564,4 +2588,44 @@
     <string name="voice_pill_search">Hae</string>
     <string name="voice_volume">Äänenvoimakkuus</string>
     <string name="engo_hud_enabled">ENGO-lasien HUD</string>
+    <string name="beep_volume_by_speed">Piippauksen voimakkuus nopeuden mukaan</string>
+    <string name="beep_volume_stopped">Paikallaan</string>
+    <string name="beep_volume_riding">Ajossa</string>
+    <string name="dropbox_checking">Tarkistetaan Dropboxia…</string>
+    <string name="sync_first_settings">Dropboxissa on jo asetukset toisesta puhelimesta. Käytetäänkö niitä vai pidetäänkö tämän puhelimen asetukset?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Poistetaanko ajo tästä puhelimesta? Varmuuskopioon jää kopio, joten Synkronoi kaikki palauttaa sen.</string>
+    <string name="share_menu_scan">Skannaa QR</string>
+    <string name="share_menu_scan_desc">Liity ryhmäajoon tai avaa reitti.</string>
+    <string name="share_menu_route">Jaa reitti</string>
+    <string name="share_menu_route_desc">QR-koodina tai linkkinä. Tiliä ei tarvita.</string>
+    <string name="share_menu_route_none">Lisää ensin pysähdys.</string>
+    <string name="scan_code_unknown">Ei ryhmäajon tai reitin koodi.</string>
+    <string name="route_qr_hint">Skannaa EUC Planetilla tai puhelimen kameralla.</string>
+    <string name="route_qr_too_long">Reitti on liian pitkä QR-koodiksi. Tallenna se GPX:nä.</string>
+    <string name="route_open_title">Avaa jaettu reitti</string>
+    <string name="route_open_confirm">Korvataanko nykyinen reitti jaetulla reitillä?</string>
+    <string name="route_opened">Reitti avattu</string>
+    <string name="route_qr_share_image">Jaa QR</string>
+    <string name="route_share_text">Aja tämä reitti EUC Planetilla: %1$s</string>
+    <string name="route_share_subject">Reitti ajettavaksi</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d pysähdys</item>
+        <item quantity="other">%d pysähdystä</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Tiedot ja pyörän painikkeet Android Auto -näytöllä. Yhdistää itse, ei Wi-Fi-asetuksia.</string>
+    <string name="car_waiting">Odotetaan pyörää</string>
+    <string name="car_last_battery">Viimeisin akku %1$d%%</string>
+    <string name="car_navigate">Navigoi</string>
+    <string name="car_places_title">Navigoi kohteeseen</string>
+    <string name="car_place_home">Koti</string>
+    <string name="car_place_work">Työ</string>
+    <string name="car_no_places">Tallenna ensin Koti tai Työ reittisuunnittelijassa.</string>
+    <string name="car_waiting_wheel">Odotetaan pyörää</string>
+    <string name="car_weather">Sää</string>
+    <string name="car_alarm_channel_name">Hälytykset auton näytöllä</string>
+    <string name="car_alarm_channel_description">Näyttää lauenneen hälytyksen Android Auto -näytöllä kartan päällä.</string>
+    <string name="car_alarm_notifications">Hälytykset auton näytöllä</string>
+    <string name="car_alarm_notifications_hint">Lauennut hälytys näkyy kartan päällä, joten se tavoittaa sinut navigoidessa. Piippaus ja värinä eivät muutu.</string>
+    <string name="car_no_metrics">Ei valittuja mittareita</string>
 </resources>

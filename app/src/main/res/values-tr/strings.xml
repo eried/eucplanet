@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Konum</string>
     <string name="metric_chip_dyn_speed_limit">Dinamik hız sınırı</string>
     <string name="metric_chip_dyn_current_limit">Dinamik akım sınırı</string>
+    <string name="metric_chip_auto_off">Otomatik kapanma</string>
     <string name="metric_chip_motor_temp">Motor sıcaklığı</string>
     <string name="metric_chip_controller_temp">Kontrolör sıcaklığı</string>
     <string name="metric_chip_battery_temp">Akü sıcaklığı</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ktrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Hız sınır</string>
     <string name="metric_chip_dyn_current_limit_tile">A sınır</string>
+    <string name="metric_chip_auto_off_tile">Oto kapanma</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS akü</string>
@@ -342,7 +344,11 @@
     <string name="voice_commands_enable_desc">Uygulamayı sesinizle kullanın. Panodaki Ses düğmesini basılı tutun ve Sesli komut dinle seçeneğini seçin.</string>
     <string name="voice_commands_bind_desc">Dinlemeyi bir Flic\'e, ses tuşlarına, saatinize veya HUD\'a atayın.</string>
     <string name="voice_prompt_cue">Dinlerken uyarı</string>
-    <string name="voice_prompt_cue_desc">Kulaklığınızın kendi tonu varsa kapatın.</string>
+    <string name="voice_music_listening">Dinlerken müzik</string>
+    <string name="voice_music_pause">Duraklat</string>
+    <string name="voice_music_duck">Kıs</string>
+    <string name="voice_music_keep">Çalmaya devam</string>
+    <string name="voice_music_listening_desc">Tanıma mümkün olduğunda telefonda çalışır, hesap gerekmez. Sözcükler uygulamanın komutlarıyla eşleştirilir.</string>
     <string name="voice_cue_beep">Bip</string>
     <string name="voice_cue_spoken">Ses</string>
     <string name="voice_cue_off">Yok</string>
@@ -437,6 +443,10 @@
     <string name="voice_act_record_start_terms">kaydı başlat,kaydet</string>
     <string name="voice_act_record_stop_terms">kaydı durdur</string>
     <string name="voice_act_reset_trip_terms">sürüşü sıfırla</string>
+    <string name="voice_act_music_start_terms">müzik çal,müziği başlat,müzik</string>
+    <string name="voice_act_media_pause_terms">müziği duraklat,müziği durdur</string>
+    <string name="voice_act_media_next_terms">sonraki şarkı,sonraki parça</string>
+    <string name="voice_act_media_prev_terms">önceki şarkı,önceki parça</string>
     <string name="voice_answer_mic_busy">Mikrofonu başka bir şey kullanıyor.</string>
     <string name="voice_answer_which">%1$s mi yoksa %2$s mi?</string>
     <string name="action_chip_safety">Yasal mod</string>
@@ -449,6 +459,8 @@
     <string name="action_chip_media_play">Oynat / duraklat</string>
     <string name="action_chip_media_next">Sonraki parça</string>
     <string name="action_chip_media_prev">Önceki parça</string>
+    <string name="action_chip_music_start">Müziği başlat</string>
+    <string name="action_chip_media_pause">Müziği duraklat</string>
     <string name="action_chip_open_navigation">Haritayı göster</string>
     <string name="action_chip_open_studio">Kaplama stüdyosu</string>
     <string name="action_chip_open_about">Hakkında</string>
@@ -608,13 +620,13 @@
     <string name="sync_progress">%2$d içinden %1$d eşitleniyor</string>
     <string name="sync_no_folder">Önce bir yedek klasörü seçin</string>
     <string name="sync_rate_limited">Dropbox bu hesabı sınırlıyor. %2$d seferden %1$d tanesi eşitlendi, kalanlar yeniden denenecek.</string>
-    <string name="sync_finished">%1$d sefer eşitlendi</string>
+    <string name="sync_finished">Eşitlenen sürüşler: %1$d</string>
     <string name="sync_conflict_title">Eşitleme çakışması</string>
-    <string name="sync_conflict_body">%1$d sefer her iki tarafta da mevcut.</string>
+    <string name="sync_conflict_body">Her iki tarafta değişti: %1$d</string>
     <string name="sync_conflict_app">Uygulamayı Yedeğe Kopyala</string>
     <string name="sync_conflict_folder">Yedeği Uygulamaya Kopyala</string>
     <string name="sync_conflict_ignore">Tüm çakışmaları atla</string>
-    <string name="sync_conflict_body_dropbox">%1$d yolculuk hem Dropbox\'ta hem de bu telefonda mevcut.</string>
+    <string name="sync_conflict_body_dropbox">Hem Dropbox\'ta hem bu telefonda değişti: %1$d</string>
     <string name="sync_conflict_app_dropbox">Uygulamayı Dropbox\'a kopyala</string>
     <string name="sync_conflict_dropbox">Dropbox\'ı uygulamaya kopyala</string>
     <string name="cloud_uploaded_on">%1$s tarihinde yedeklendi</string>
@@ -864,6 +876,7 @@
 
     <string name="col_periodic">Periyodik</string>
     <string name="col_trigger">Tetikleyici</string>
+    <string name="voice_trigger_reset_after">Tetiklenen rapordan sonra ölçümleri sıfırla</string>
     <string name="report_speed">Hız</string>
     <string name="report_battery">Akü</string>
     <string name="report_temp">Sıcaklık</string>
@@ -1670,6 +1683,8 @@
     <string name="nav_menu_save">Rotayı kaydet (GPX)</string>
     <string name="nav_menu_load">Rota yükle (GPX)</string>
     <string name="nav_menu_clear">Yeni rota</string>
+    <string name="nav_finished_title">Rota tamamlandı</string>
+    <string name="nav_finished_body">Yeni bir rota başlatılsın mı? Ulaşılan duraklar silinir. Bu rotayı saklamak için önce menüden kaydedin.</string>
     <string name="nav_clear_home">Evi unut</string>
     <string name="nav_clear_work">İşyerini unut</string>
     <string name="nav_menu_exit">Gösterge paneline dön</string>
@@ -1700,6 +1715,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Uydu</string>
+    <string name="nav_layer_satellite_labels">Uydu hibrit</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -1987,6 +2003,7 @@
     <string name="warnings_perm_location_title">Konum kapalı</string>
     <string name="warnings_perm_location_body">Sürüşler rota kaydetmez, GPS hızı ve kalibrasyon çalışmaz. İzin vermek için dokun.</string>
     <string name="weather_error_no_location">Tahmin için konum yok</string>
+    <string name="weather_waiting_location">Konum bekleniyor…</string>
     <string name="warnings_location_services_body">EUC Planet uygulamasının izni var ama telefonda konum her şey için kapalı. Açmak için dokun.</string>
     <string name="warnings_location_services_title">Konum sistemde kapalı</string>
     <string name="warnings_battery_opt_title">Pil optimizasyonu açık</string>
@@ -2666,12 +2683,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">%80’de bildir</string>
     <string name="charging_notify_full" formatted="false">%100’de bildir</string>
+    <string name="charging_notify_at">Bildirim seviyesi</string>
+    <string name="charging_notify_custom">Bildir: %%%1$d</string>
+    <string name="charging_notify_at_ask">Bildirim seviyesi…</string>
+    <string name="charging_notify_custom_range" formatted="false">%5 ile %95 arası olmalı, %80 olmaz</string>
     <string name="charge_alert_channel_name">Şarj uyarıları</string>
-    <string name="charge_alert_channel_description" formatted="false">Batarya %80’i geçtiğinde veya şarj bittiğinde.</string>
+    <string name="charge_alert_channel_description" formatted="false">Batarya seçtiğin seviyeye ulaştığında veya şarj bittiğinde.</string>
     <string name="charge_alert_80_title" formatted="false">Batarya %80</string>
     <string name="charge_alert_80_text">Çoğu sürüş için yeterli ve genelde bataryaya daha iyi gelir.</string>
     <string name="charge_alert_full_title">Şarj tamamlandı</string>
     <string name="charge_alert_full_text">Tam dolu, müsait olduğunda çıkar. Bazı tekerlekler şimdi hücreleri dengeliyor.</string>
+    <string name="charge_alert_custom_title">Batarya %%%1$d</string>
+    <string name="charge_alert_custom_text">Seçtiğin seviyeye ulaşıldı. Fırsat bulunca şarjdan çıkar.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Teker paneli</string>
     <string name="widget_act_1_label">Teker düğmesi 1</string>
@@ -2728,6 +2751,7 @@
     <string name="voice_stat_peak">Tepe</string>
     <string name="crews_title">Ekipler</string>
     <string name="crews_pass_action">Ekip geçişi</string>
+    <string name="crews_pass_search_hint">Ekip geçişi, çevrimiçi lider tablolarına katıldığında görünür.</string>
     <string name="crews_scan_hint">eucstats\'i tarayıcıda aç, Crews\'a bas ve bunu çıkan koda tut.</string>
     <string name="crews_scan_invalid">Bu bir ekip pası kodu değil.</string>
     <string name="crews_scan_is_share">O, canlı konum kodu. Haritadaki Paylaş’tan okut.</string>
@@ -2758,4 +2782,44 @@
     <string name="voice_pill_search">Ara</string>
     <string name="voice_volume">Ses düzeyi</string>
     <string name="engo_hud_enabled">ENGO gözlük HUD</string>
+    <string name="beep_volume_by_speed">Hıza göre bip sesi</string>
+    <string name="beep_volume_stopped">Dururken</string>
+    <string name="beep_volume_riding">Sürüşte</string>
+    <string name="dropbox_checking">Dropbox kontrol ediliyor…</string>
+    <string name="sync_first_settings">Dropbox\'ta başka bir telefondan ayarlar zaten var. Onları mı kullanalım, bu telefonun ayarlarını mı tutalım?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Bu sürüş bu telefondan silinsin mi? Yedek bir kopya tutar, bu yüzden Tümünü eşitle onu geri getirir.</string>
+    <string name="share_menu_scan">QR tara</string>
+    <string name="share_menu_scan_desc">Grup sürüşüne katıl veya bir rota aç.</string>
+    <string name="share_menu_route">Rotayı paylaş</string>
+    <string name="share_menu_route_desc">QR kod veya bağlantı olarak. Hesap gerekmez.</string>
+    <string name="share_menu_route_none">Önce bir durak ekle.</string>
+    <string name="scan_code_unknown">Grup sürüşü veya rota kodu değil.</string>
+    <string name="route_qr_hint">EUC Planet veya telefon kamerasıyla tara.</string>
+    <string name="route_qr_too_long">Bu rota QR kod için çok uzun. GPX olarak kaydet.</string>
+    <string name="route_open_title">Paylaşılan rotayı aç</string>
+    <string name="route_open_confirm">Mevcut rota paylaşılan rotayla değiştirilsin mi?</string>
+    <string name="route_opened">Rota açıldı</string>
+    <string name="route_qr_share_image">QR paylaş</string>
+    <string name="route_share_text">Bu rotayı EUC Planet ile sür: %1$s</string>
+    <string name="route_share_subject">Sürülecek bir rota</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d durak</item>
+        <item quantity="other">%d durak</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Verilerin ve tekerin düğmeleri Android Auto ekranında. Kendiliğinden bağlanır, Wi-Fi ayarı gerekmez.</string>
+    <string name="car_waiting">Teker bekleniyor</string>
+    <string name="car_last_battery">Son pil %%%1$d</string>
+    <string name="car_navigate">Navigasyon</string>
+    <string name="car_places_title">Şuraya git</string>
+    <string name="car_place_home">Ev</string>
+    <string name="car_place_work">İş</string>
+    <string name="car_no_places">Önce rota planlayıcıda Ev veya İş kaydet.</string>
+    <string name="car_waiting_wheel">Teker bekleniyor</string>
+    <string name="car_weather">Hava durumu</string>
+    <string name="car_alarm_channel_name">Araç ekranındaki alarmlar</string>
+    <string name="car_alarm_channel_description">Tetiklenen alarmı Android Auto ekranında, haritanın üstünde gösterir.</string>
+    <string name="car_alarm_notifications">Araç ekranındaki alarmlar</string>
+    <string name="car_alarm_notifications_hint">Tetiklenen alarm haritanın üstünde görünür, böylece yol tarifi sırasında da sana ulaşır. Bip ve titreşim değişmez.</string>
+    <string name="car_no_metrics">Seçili veri yok</string>
 </resources>

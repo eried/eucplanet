@@ -22,6 +22,8 @@ import androidx.compose.ui.layout.positionInWindow
 object SearchAnchorRank {
     const val SECTION = 100
     const val SUBBLOCK = 50
+    /** A row or button label: below its sub-block, so a broader match lands higher up. */
+    const val LABEL = 25
 }
 
 /**
@@ -48,13 +50,25 @@ class SettingsSearchScroller {
         anchors.remove(key)
     }
 
+    /**
+     * Where to land, in order, when no anchor on screen holds the query: the
+     * sub-headings of what the open section matched, then its title. A button
+     * that only shows in some states is still found that way, at the heading
+     * it lives under. Set by the screen each time the query changes.
+     */
+    var landing: List<String> = emptyList()
+
     /** Best match for the current query: highest rank first, then topmost. */
     fun best(): Anchor? {
         val q = query.trim()
         if (q.isEmpty()) return null
-        return anchors.values
+        anchors.values
             .filter { it.text.contains(q, ignoreCase = true) }
             .minWithOrNull(compareByDescending<Anchor> { it.rank }.thenBy { it.windowY })
+            ?.let { return it }
+        return landing.firstNotNullOfOrNull { text ->
+            anchors.values.filter { it.text == text }.minByOrNull { it.windowY }
+        }
     }
 
     /** The set of reported window-Ys, used to detect when layout has settled. */
@@ -76,4 +90,29 @@ fun Modifier.settingsSearchAnchor(key: String, rank: Int, text: String): Modifie
     }
     if (scroller == null) Modifier
     else Modifier.onGloballyPositioned { scroller.report(key, rank, text, it.positionInWindow().y) }
+}
+
+/**
+ * Marks a row or button label as a place the search can land, while the query
+ * is in it. Labels that do not match never report, so a long open section
+ * costs nothing while the rider types.
+ */
+fun Modifier.settingsSearchLabel(text: String): Modifier = composed {
+    val q = LocalSettingsSearchQuery.current.trim()
+    if (q.isEmpty() || !text.contains(q, ignoreCase = true)) Modifier
+    else Modifier.settingsSearchAnchor("label:$text", SearchAnchorRank.LABEL, text)
+}
+
+/** A button label that the search marks and can scroll to. */
+@Composable
+fun SearchableText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: androidx.compose.ui.text.TextStyle = androidx.compose.material3.LocalTextStyle.current,
+) {
+    androidx.compose.material3.Text(
+        highlightMatches(text, LocalSettingsSearchQuery.current, onFill = true),
+        modifier = modifier.settingsSearchLabel(text),
+        style = style,
+    )
 }

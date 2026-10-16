@@ -118,6 +118,16 @@ android {
             }
         }
         release {
+            // -PaaosTest builds a release APK the AAOS emulator can host, so the
+            // car screen can be checked with R8 on. This matters: R8 is the only
+            // difference between the build that works in the emulator and the one
+            // testers install, and it has already shipped one unopenable car
+            // screen (see the Car App Library keep rule in proguard-rules.pro).
+            // Adds the x86_64 ffmpeg libs, the automotive host and its
+            // CarAppActivity. See docs/android-auto-testing.md.
+            if (project.hasProperty("aaosTest")) {
+                ndk { abiFilters += "x86_64" }
+            }
             // A release build is NEVER a dev build, whatever branch it was cut
             // from. The defaultConfig heuristic (branch != main) is only meant
             // for debug/branch tester APKs; a release AAB submitted to Play from
@@ -243,7 +253,25 @@ android {
         getByName("main") {
             kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
         }
+        // The exported Room schemas, so MigrationTestHelper can read them on device.
+        getByName("androidTest") {
+            assets.srcDir("$projectDir/schemas")
+        }
+        // -PaaosTest only: hands the release variant the CarAppActivity the AAOS
+        // emulator launches, plus the survey receiver so a virtual wheel can be
+        // connected and the car screen checked with real numbers rather than an
+        // empty "waiting for the wheel". Never merged into a build that ships.
+        if (project.hasProperty("aaosTest")) {
+            getByName("release").manifest.srcFile("src/aaosTest/AndroidManifest.xml")
+            getByName("release").kotlin.srcDir("src/debug/java")
+        }
     }
+}
+
+// Room writes the schema of every @Database version here. The files are
+// committed: MigrationAllTest validates each migration against the current one.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -338,6 +366,16 @@ dependencies {
     // MapLibre - TODO: re-enable when map preview is implemented
     // Disabled for now to avoid 16KB page size compatibility warning on Android 15+
     // implementation(libs.maplibre)
+    // Android Auto: the car screen draws our map and stats (feature/android-auto).
+    implementation(libs.androidx.car.app)
+    // Debug only: lets the x86 Android Automotive emulator host the car
+    // screens, since Android Auto itself does not install on x86 emulators.
+    debugImplementation(libs.androidx.car.app.automotive)
+    // -PaaosTest: the same host in a release build, so the car screen can be
+    // checked with R8 on before it reaches testers.
+    if (project.hasProperty("aaosTest")) {
+        "releaseImplementation"(libs.androidx.car.app.automotive)
+    }
 
     // Flic 2 button SDK
     implementation(libs.flic2)
@@ -394,23 +432,39 @@ dependencies {
     // cannot be driven from adb, so those rules are pinned on-device.
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.compose.ui.test.junit4)
+    // MigrationTestHelper for MigrationAllTest, same version as room-runtime.
+    androidTestImplementation(libs.room.testing)
     debugImplementation(libs.compose.ui.test.manifest)
 }
 
-// Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
+// Gradle Play Publisher. Runs locally and from CI (.github/workflows/play-publish.yml):
 //   ./gradlew :app:publishReleaseBundle                     -> Open testing (beta)
 //   ./gradlew :app:publishReleaseBundle --track production  -> Production
+//   ./gradlew :app:uploadDebugPrivateApk                    -> Internal app sharing
 // Default track is beta; --track overrides per run (also --release-status draft
 // or --user-fraction 0.1 for a held / staged push). releaseStatus = COMPLETED
 // means the upload is sent for review and auto-publishes on approval.
-// Credentials: play-service-account.json at the repo root (gitignored).
-// Release notes come from src/main/play/release-notes/en-US/default.txt, which
-// is rewritten from reviewed text at release time (drafted + approved, never
-// auto-generated from commit messages).
+//
+// Credentials, in order of preference:
+//   1. play-service-account.json at the repo root (gitignored), for local runs.
+//   2. Application Default Credentials. CI has no key to hand it a file: the org
+//      enforces iam.disableServiceAccountKeyCreation, so no service account key
+//      exists to leak. google-github-actions/auth federates the GitHub OIDC token
+//      and writes ADC for play-publisher@euc-planet.iam.gserviceaccount.com, and
+//      this picks it up with nothing stored in GitHub secrets.
+//
+// Release notes come from src/main/play/release-notes/<locale>/<track>.txt, with
+// default.txt covering any track that has no file of its own. They are rewritten
+// from reviewed text at release time (drafted + approved, never auto-generated
+// from commit messages). There is deliberately no listings/ directory: without
+// one the store listing stays whatever Play Console says, so a publish can never
+// overwrite the copy or the screenshots by accident.
 play {
     val playCreds = rootProject.file("play-service-account.json")
     if (playCreds.exists()) {
         serviceAccountCredentials.set(playCreds)
+    } else {
+        useApplicationDefaultCredentials.set(true)
     }
     track.set("beta") // default; override per run with --track production
     defaultToAppBundles.set(true)
@@ -431,3 +485,8 @@ tasks.withType<Test>().configureEach {
         }
     ).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("translationFiles")
 }
+
+// The settings search reads its words from the settings code, not a hand list.
+apply(from = "settings-search-index.gradle.kts")
+android.sourceSets.getByName("main").java.srcDir(layout.buildDirectory.dir("generated/settingsSearch"))
+tasks.named("preBuild") { dependsOn("generateSettingsSearchIndex") }
