@@ -9,14 +9,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,8 +33,8 @@ import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.nav.RouteSolver
 import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel.SolveEffort
 import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel.SolveState
+import com.eried.eucplanet.ui.settings.SegmentedChoice
 import com.eried.eucplanet.ui.theme.appColors
-import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import kotlin.math.roundToInt
 
@@ -189,35 +183,15 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
 /** Shorter by at least 1%; anything less is not worth reshuffling the list for. */
 private fun improves(s: SolveState.Done): Boolean = s.beforeM > 0 && s.afterM < s.beforeM * 0.99
 
-/** A read-only dropdown with its label inside the box, like the selectors in Settings. */
-@OptIn(ExperimentalMaterial3Api::class)
+/** The settings segmented row with its label notched into the border, keyed by enum. */
 @Composable
-private fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
-            value = options.first { it.first == selected }.second,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(label) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            colors = themedFieldColors(),
-            shape = RoundedCornerShape(12.dp),
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            containerColor = MaterialTheme.appColors.menuBackground,
-        ) {
-            options.forEach { (value, text) ->
-                DropdownMenuItem(
-                    text = { Text(text) },
-                    onClick = { onSelect(value); expanded = false },
-                )
-            }
-        }
-    }
+private fun <T : Enum<T>> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
+    SegmentedChoice(
+        label = label,
+        options = options.map { (value, text) -> value.name to text },
+        current = selected.name,
+        onChange = { key -> options.firstOrNull { it.first.name == key }?.let { onSelect(it.first) } },
+        // The row is on the dialog's own fill, so the notch takes that colour.
+        notchFill = MaterialTheme.appColors.dialog,
+    )
 }
