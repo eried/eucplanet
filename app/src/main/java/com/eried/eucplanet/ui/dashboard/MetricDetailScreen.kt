@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -159,8 +160,8 @@ fun MetricDetailScreen(
     val safeIdx = selectedIdx.coerceIn(0, keys.lastIndex)
     val activeKey = keys[safeIdx]
 
-    val fullHistory by viewModel.fullHistory.collectAsState()
-    val wheelData by viewModel.wheelData.collectAsState()
+    val fullHistory by viewModel.fullHistory.collectAsStateWithLifecycle()
+    val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()

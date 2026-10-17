@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.studio
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -170,14 +171,14 @@ fun OverlayStudioScreen(
 
     val preset by viewModel.preset.collectAsState()
     val selectedId by viewModel.selectedElementId.collectAsState()
-    val liveWheelData by viewModel.wheelData.collectAsState()
+    val liveWheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val liveGForceTrail by viewModel.liveGForceTrail.collectAsState()
     val riderMarkerPhoto by viewModel.riderMarkerPhotoDataUrl.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val wheelName by viewModel.wheelName.collectAsState()
     val connected by viewModel.connected.collectAsState()
     val radar by viewModel.radar.collectAsState()
-    val history by viewModel.history.collectAsState()
+    val history by viewModel.history.collectAsStateWithLifecycle()
     val folderAvailable by viewModel.folderAvailable.collectAsState()
     val savedPresets by viewModel.savedPresets.collectAsState()
     val bundledPresets by viewModel.bundledPresets.collectAsState()

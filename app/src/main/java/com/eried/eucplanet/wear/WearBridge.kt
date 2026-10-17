@@ -72,6 +72,8 @@ class WearBridge @Inject constructor(
         private const val IDLE_PUBLISH_INTERVAL_MS = 2_000L
         /** With no watch connected nothing is sent; the node poll finds one. */
         private const val NO_WATCH_INTERVAL_MS = 5_000L
+        /** How often a backgrounded phone with no watch asks for one. */
+        private const val NO_WATCH_POLL_MS = 15_000L
 
         private const val PATH_STATE = "/euc/state"
         private const val K_CONNECTED = "c"
@@ -277,7 +279,12 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     if (_pairedNodes.value.isNotEmpty()) _pairedNodes.value = emptyList()
                 }
-                delay(5_000L)
+                // Opening the app (Settings shows the list) or a connected
+                // watch keeps the 5 s pace; an idle phone with no watch looks
+                // less often.
+                val looking = _pairedNodes.value.isNotEmpty() ||
+                    com.eried.eucplanet.util.AppForeground.isForeground.value
+                delay(if (looking) 5_000L else NO_WATCH_POLL_MS)
             }
         }
 

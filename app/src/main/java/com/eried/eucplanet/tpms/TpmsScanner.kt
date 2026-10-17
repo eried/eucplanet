@@ -3,6 +3,7 @@ package com.eried.eucplanet.tpms
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
@@ -270,7 +271,13 @@ class TpmsScanner @Inject constructor(
                 else ScanSettings.SCAN_MODE_LOW_LATENCY
             )
             .build()
-        runCatching { scanner.startScan(null, settings, cb) }
+        // Hunting has no filter: the sensor is unknown, which is the point.
+        // Watching a paired sensor asks the radio for that address alone, so
+        // the phone is not woken for every advert around it all day.
+        val filters = tpms.pairedAddress.value?.takeIf { asMonitor }?.let {
+            listOf(ScanFilter.Builder().setDeviceAddress(it).build())
+        }
+        runCatching { scanner.startScan(filters, settings, cb) }
             .onSuccess {
                 // Only a search shows as "scanning" and only a search gives
                 // up; a monitor is invisible and runs on.

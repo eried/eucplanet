@@ -110,6 +110,8 @@ class HudServer @Inject constructor(
         // background reconnect survive long enough to pair.
         private const val PING_FOREGROUND_MS = 5_000L
         private const val PING_BACKGROUND_MS = 15_000L
+        /** Snapshot pace while no HUD is connected: nothing reads it then. */
+        private const val IDLE_SNAPSHOT_MS = 1_000L
         // mDNS resolve timeout. Generous so a flaky multicast path on the
         // hotspot gets a fair chance, but bounded so the rider sees the
         // "no IP / not autodetected" state within a reasonable wait.
@@ -347,8 +349,12 @@ class HudServer @Inject constructor(
                     Log.w(TAG, "snapshot failed", t)
                 }
                 // Rider-configured HUD report interval; sanitized() guarantees a
-                // safe floor so this delay can never spin at 0.
-                delay(settingsRepository.currentOrLoad().hudReportIntervalMs.toLong())
+                // safe floor so this delay can never spin at 0. With no HUD
+                // connected nothing reads the snapshot, so it only stays warm.
+                delay(
+                    if (ws == null) IDLE_SNAPSHOT_MS
+                    else settingsRepository.currentOrLoad().hudReportIntervalMs.toLong()
+                )
             }
         }
 
@@ -381,7 +387,6 @@ class HudServer @Inject constructor(
             val target = if (ip.isBlank()) "(no IP set)" else "$ip:$port"
             log("Fixed mode, manual only -> $target")
         }
-        acquireWifiPerfLock()
         registerNetworkCallback()
         loopJob = scope.launch { dialLoop() }
     }
@@ -400,8 +405,7 @@ class HudServer @Inject constructor(
         _connectionSource.value = ConnectionSource.NONE
         try { multicastLock?.release() } catch (_: Throwable) {}
         multicastLock = null
-        try { wifiLock?.release() } catch (_: Throwable) {}
-        wifiLock = null
+        releaseWifiPerfLock()
         unregisterNetworkCallback()
     }
 
@@ -617,6 +621,11 @@ class HudServer @Inject constructor(
         }
     }
 
+    private fun releaseWifiPerfLock() {
+        try { wifiLock?.release() } catch (_: Throwable) {}
+        wifiLock = null
+    }
+
     /**
      * Outer loop: discover-or-read the HUD address, open a WebSocket, pump
      * state until it dies, back off, retry.
@@ -646,12 +655,7 @@ class HudServer @Inject constructor(
         var attempt = 0
         val sprintStartedAtMs = System.currentTimeMillis()
         while (true) {
-            // Re-assert the WiFi lock every tick: it's only acquired once at
-            // enable, but the OS can reclaim it (or it can lapse on a network
-            // hop). Idempotent -- keeps the radio out of power-save for the
-            // whole session, not just the instant the link came up.
-            acquireWifiPerfLock()
-            val s = runCatching { settingsRepository.get() }.getOrNull()
+            val s = runCatching { settingsRepository.currentOrLoad() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
             val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
             val manualIp = s?.hudIp?.trim().orEmpty()
@@ -670,6 +674,9 @@ class HudServer @Inject constructor(
 
             if (peer == null) {
                 _connectionSource.value = ConnectionSource.NONE
+                // No HUD on this network: let the Wi-Fi radio power-save. It
+                // used to be held awake all day whenever the HUD was enabled.
+                releaseWifiPerfLock()
                 // Sprint mode: aggressively retry every 2 s for the first
                 // 30 s after the dial loop kicks off so the rider gets a
                 // fast connection on a healthy network. After the sprint
@@ -683,6 +690,10 @@ class HudServer @Inject constructor(
                 continue
             }
             _connectionSource.value = source
+            // Keep the radio out of power-save while a HUD is dialled and
+            // streamed. Re-asserted on every dial: the OS can reclaim it, or it
+            // can lapse on a network hop. Idempotent.
+            acquireWifiPerfLock()
             val ok = streamUntilClosed(peer)
             if (!ok) {
                 delayOrKick(backoff(attempt++))

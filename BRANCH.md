@@ -21,4 +21,5 @@ you can cut the ride short.
 - Does the route total after Apply match the "to" number in the dialog?
 - Try Loop and Fixed end: does the route come back to the start, or keep its last stop?
 - Turn off mobile data and solve on Best: does it say it used straight lines?
+- Distance unit set to miles: does the before and after read in mi?
 - A route with 30 to 50 stops: does the stop list, the map and navigation behave normally?

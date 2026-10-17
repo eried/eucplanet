@@ -34,9 +34,11 @@ class BegodeMasterSaggingVirtualWheel : VirtualWheel {
     override val bleName = "Master_VIRTUAL"
 
     private var random = Random(SEED)
+    private val trip = SimTripMeter()
 
     override fun reset() {
         random = Random(SEED)
+        trip.reset()
     }
 
     override fun onWrite(data: ByteArray): List<ByteArray> {
@@ -75,10 +77,12 @@ class BegodeMasterSaggingVirtualWheel : VirtualWheel {
 
         return listOf(
             begodeLiveFrame(
-                elapsedMs = elapsedMs,
+                tripMeters = trip.advance(elapsedMs, kmh),
                 rawCv = rawCv,
                 rawSpeed = rawSpeed,
-                rawCurrent = (amps * 100f).toInt(),
+                // Negative is drawing from the pack on a Begode, as on the
+                // real wheel; positive would read as a charge and count no Wh.
+                rawCurrent = -(amps * 100f).toInt(),
                 rawTempReg = 0x0EFF,
             )
         )

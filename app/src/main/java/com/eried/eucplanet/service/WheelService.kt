@@ -33,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -854,8 +855,12 @@ class WheelService : LifecycleService() {
     private fun startAutoRecordIdleLoop() {
         lifecycleScope.launch {
             while (true) {
+                // Only a recording can be auto-stopped. Waiting here instead of
+                // checking once a second keeps an idle phone asleep; it used to
+                // parse every setting on the main thread each second, all night.
+                if (!tripRepository.recording.value) tripRepository.recording.first { it }
                 delay(1000L)
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 if (!settings.autoRecord || !settings.autoRecordStartInMotion) continue
                 if (!tripRepository.recording.value) continue
 
@@ -900,13 +905,13 @@ class WheelService : LifecycleService() {
         voiceJob?.cancel()
         voiceJob = lifecycleScope.launch {
             while (true) {
-                delay(settingsRepository.get().voiceIntervalSeconds * 1000L)
+                delay(settingsRepository.currentOrLoad().voiceIntervalSeconds * 1000L)
                 // Re-read settings *after* the wait, not before it. If the rider
                 // turns "Report status periodically" off during the countdown, the
                 // pending report is dropped instead of one last one slipping through.
                 // Only this periodic report is gated here, alarm/trigger/nav voice
                 // lives on separate paths and is unaffected.
-                val settings = settingsRepository.get()
+                val settings = settingsRepository.currentOrLoad()
                 // Gate on the single visible "Enable periodic reports" toggle
                 // (voiceEnabled). The old `&& voicePeriodicEnabled` required a
                 // second flag that no Settings control ever set - it defaulted
@@ -1180,10 +1185,12 @@ class WheelService : LifecycleService() {
      */
     private fun pushWidget(data: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
-        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
+        // Throttle first: isPlaced() asks the system once per widget kind, and
+        // asked on every frame it was the service's biggest cost while riding.
         val now = System.currentTimeMillis()
         if (now - lastWidgetUpdate < 1_000L) return
         lastWidgetUpdate = now
+        if (!com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
         renderWidget(data)
     }
 

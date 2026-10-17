@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -244,7 +245,9 @@ fun DashboardScreen(
         Log.i("EucDash", "DashboardScreen ENTER")
         onDispose { Log.i("EucDash", "DashboardScreen DISPOSE") }
     }
-    val wheelData by viewModel.wheelData.collectAsState()
+    // The wheel-rate flows stop while the app is in the background: collected
+    // plainly, every frame recomposed a dashboard nobody could see.
+    val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val connectionState by viewModel.connectionState.collectAsState()
     // Quake-style console cheat (set via Settings search-bar). Multiplies ONLY the
     // displayed speed on the gauge, the underlying wheelData.speed stays accurate
@@ -256,7 +259,7 @@ fun DashboardScreen(
     val autoLockEnabled by viewModel.autoLockEnabled.collectAsState()
     val lightBusy by viewModel.lightBusy.collectAsState()
     val recording by viewModel.recording.collectAsState()
-    val gpsExtra by viewModel.gpsExtraSpeed.collectAsState()
+    val gpsExtra by viewModel.gpsExtraSpeed.collectAsStateWithLifecycle()
     val externalGpsSpeed = gpsExtra?.first
     val externalGpsBattery by viewModel.externalGpsBatteryPercent.collectAsState()
     val externalGpsAccent = when (gpsExtra?.second) {
@@ -268,7 +271,7 @@ fun DashboardScreen(
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
-    val realHistory by viewModel.history.collectAsState()
+    val realHistory by viewModel.history.collectAsStateWithLifecycle()
     // No fake disconnected demo. The dashboard shows real samples only, // sparklines remain empty until the wheel sends at least 2 frames,
     // matching the per-catalog metric behavior we adopted in Phase 2.
     val history = realHistory
@@ -276,7 +279,7 @@ fun DashboardScreen(
     // tile's Min/Max/Avg matches the metric-detail screen. `history` above is
     // capped to SPARKLINE_SIZE (5 min) for drawing the wave; using it for stats
     // made the tile disagree with the detail when Stats length was > 5 min.
-    val statHistory by viewModel.fullHistory.collectAsState()
+    val statHistory by viewModel.fullHistory.collectAsStateWithLifecycle()
     val modelName by viewModel.modelName.collectAsState()
     val connectedDeviceName by viewModel.connectedDeviceName.collectAsState()
     val connectedBrand by viewModel.connectedBrand.collectAsState()

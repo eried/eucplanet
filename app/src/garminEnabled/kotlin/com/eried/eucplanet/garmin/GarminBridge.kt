@@ -66,6 +66,8 @@ class GarminBridge @Inject constructor(
         // AND apply per-device backpressure in sendToAll, so we never outrun the
         // channel. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
         private const val PUBLISH_INTERVAL_MS = 1000L
+        /** Loop pace while no Garmin is registered. */
+        private const val NO_DEVICE_TICK_MS = 5_000L
         // A device is "busy" from a sendMessage until its callback lands; if that
         // callback is lost we free it after this timeout so a device never stalls.
         private const val SEND_TIMEOUT_MS = 4000L
@@ -230,6 +232,12 @@ class GarminBridge @Inject constructor(
             val alpha = 0.25
             while (true) {
                 delay(1_000L)
+                if (registeredDevices.isEmpty()) {
+                    deliveredCount.set(0)
+                    _deliveryRateHz.value = 0.0
+                    delay(NO_DEVICE_TICK_MS - 1_000L)
+                    continue
+                }
                 val count = deliveredCount.getAndSet(0)
                 val devices = registeredDevices.size.coerceAtLeast(1)
                 val instant = count.toDouble() / devices
@@ -242,6 +250,11 @@ class GarminBridge @Inject constructor(
         // connects it gets fresh state (sendStateToAll is a no-op until then).
         scope.launch {
             while (true) {
+                // Nothing to send to; publish() would return at once anyway.
+                if (registeredDevices.isEmpty()) {
+                    delay(NO_DEVICE_TICK_MS)
+                    continue
+                }
                 try {
                     val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)

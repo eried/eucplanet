@@ -60,6 +60,8 @@ class AmazfitBridge @Inject constructor(
          *  long enough to ride out the Zepp app being backgrounded for a bit,
          *  short enough that a closed watch app drops off the Settings card. */
         private const val PRESENCE_WINDOW_MS = 15_000L
+        /** Bookkeeping pace while no watch polls. */
+        private const val NO_WATCH_TICK_MS = 5_000L
         /** How long the QUIT path waits for the watch to fetch the event before
          *  giving up; the process is usually about to die right after. */
         private const val QUIT_WAIT_MS = 1_500L
@@ -126,6 +128,11 @@ class AmazfitBridge @Inject constructor(
                 if (names != _pairedDevices.value) _pairedDevices.value = names
                 if (farewell && wheelRepository.connectionState.value == ConnectionState.CONNECTED) {
                     farewell = false
+                }
+                // No watch polling: nothing to count, look again later.
+                if (names.isEmpty() && instant == 0.0) {
+                    _deliveryRateHz.value = 0.0
+                    delay(NO_WATCH_TICK_MS - 1_000L)
                 }
             }
         }

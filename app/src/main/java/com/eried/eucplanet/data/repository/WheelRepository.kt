@@ -26,7 +26,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -268,6 +267,7 @@ class WheelRepository @Inject constructor(
         /** Efficiency / range tick. 1 Hz matches the telemetry rate; the window
          *  is minutes long, so a faster tick would only add samples to subtract. */
         private const val ENERGY_TICK_MS = 1000L
+        private const val IMU_FRAME_MS = 120L
         // Append one PredictionSample to the charge-session log every 30 s
         // while charging. Spans a 4 h session in ~480 entries (cheap), with
         // enough resolution to see the prediction stabilise over the first
@@ -806,15 +806,17 @@ class WheelRepository @Inject constructor(
         }
 
         // Merge accelerometer (g-force) into the telemetry stream so it shows
-        // live and is recorded into the trip CSV. Sampled to ~8 Hz so it
-        // doesn't flood downstream collectors. A paired external box (RaceBox)
+        // live and is recorded into the trip CSV. Paced to ~8 Hz so it
+        // doesn't flood downstream collectors: a StateFlow keeps only the latest
+        // reading and the pause after each frame sets the rate. (sample() ran
+        // its own ticker 8 times a second for good, sensor or not.) A paired external box (RaceBox)
         // is mounted on the wheel, so when the rider has one and "prioritize
         // external" is on, its accelerometer wins over the phone's IMU.
         // The sensor itself is only held while a wheel is connected or a trip
         // is recording (see the gate below); with it stopped the IMU flow goes
         // quiet and this merge stops re-emitting frames for nobody.
         scope.launch {
-            phoneSensorRepository.imu.sample(120L).collect { s ->
+            phoneSensorRepository.imu.collect { s ->
                 val ext = externalGpsRepository.currentSample.value
                 val useExt = prioritizeExternalGps &&
                     externalGpsRepository.connectionState.value == ConnectionState.CONNECTED &&
@@ -832,6 +834,7 @@ class WheelRepository @Inject constructor(
                     accelX = s?.xG ?: 0f,
                     accelY = s?.zG ?: 0f
                 )
+                kotlinx.coroutines.delay(IMU_FRAME_MS)
             }
         }
 
@@ -875,6 +878,10 @@ class WheelRepository @Inject constructor(
         // windows and read far too low for anyone who rode before connecting.
         scope.launch {
             while (true) {
+                // The readings only move while a wheel is connected.
+                if (connectionState.value != ConnectionState.CONNECTED) {
+                    connectionState.first { it == ConnectionState.CONNECTED }
+                }
                 kotlinx.coroutines.delay(ENERGY_TICK_MS)
                 val wd = _wheelData.value
                 // Odometer first: it is monotonic, where a trip meter resets on

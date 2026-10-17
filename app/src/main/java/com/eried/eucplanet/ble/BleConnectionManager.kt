@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.eried.eucplanet.ble.virtual.VirtualWheel
 import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
@@ -181,11 +182,13 @@ class BleConnectionManager @Inject constructor(
     // the proximity-lock feature stay snappy. A no-op on virtual connections.
     private val rssiJob = scope.launch {
         while (true) {
+            if (_connectionState.value != ConnectionState.CONNECTED) {
+                _rssiDbm.value = null
+                _connectionState.first { it == ConnectionState.CONNECTED }
+            }
             delay(1_000)
             if (_connectionState.value == ConnectionState.CONNECTED) {
                 runCatching { gatt?.readRemoteRssi() }
-            } else {
-                _rssiDbm.value = null
             }
         }
     }

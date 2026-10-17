@@ -1951,12 +1951,8 @@ fun RouteBuilderScreen(
                             ?: stringResource(R.string.share_menu_route)
                         else -> names.joinToString(" → ")
                     }
-                    // Each leg along the drawn path when it runs through every stop
-                    // (it may start at the rider, which is not a leg).
-                    val legsM = if (trackOnly) emptyList() else com.eried.eucplanet.nav.RouteLegs.metres(
-                        waypoints.map { it.point() },
-                        r?.takeIf { it.waypoints.size >= waypoints.size }?.geometry.orEmpty(),
-                    )
+                    // Each leg, as the builder's list measures it.
+                    val legsM = if (trackOnly) emptyList() else viewModel.shareLegsM()
                     // The friend's route is the stops: the ride to the first one is not part of it.
                     val meters = if (legsM.isNotEmpty()) legsM.sum() else r?.totalDistanceM?.takeIf { it > 0 }
                         ?: com.eried.eucplanet.nav.GeoMath.polylineLengthM(waypoints.map { it.point() })
