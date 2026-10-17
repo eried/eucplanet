@@ -55,6 +55,9 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
     val state by viewModel.solve.collectAsState()
     val travelMode by viewModel.travelMode.collectAsState()
     val originBlock = remember { viewModel.solveOriginBlock() }
+    // Two stops only have an order to pick from the rider's position, so
+    // the link stays on for them.
+    val originRequired = remember { viewModel.solvableStops() == 2 }
     var effort by rememberSaveable { mutableStateOf(SolveEffort.BEST) }
     var end by rememberSaveable { mutableStateOf(RouteSolver.End.ANYWHERE) }
     var linkOrigin by rememberSaveable { mutableStateOf(originBlock == null) }
@@ -119,9 +122,9 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
                         }
                         Spacer(Modifier.width(12.dp))
                         Switch(
-                            checked = linkOrigin && originBlock == null,
+                            checked = (linkOrigin || originRequired) && originBlock == null,
                             onCheckedChange = { linkOrigin = it },
-                            enabled = originBlock == null,
+                            enabled = originBlock == null && !originRequired,
                             colors = themedSwitchColors(),
                         )
                     }
@@ -162,7 +165,7 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
         confirmButton = {
             when (val s = state) {
                 SolveState.Idle -> TextButton(
-                    onClick = { viewModel.solveRoute(effort, end, linkOrigin && originBlock == null) },
+                    onClick = { viewModel.solveRoute(effort, end, (linkOrigin || originRequired) && originBlock == null) },
                     shape = RoundedCornerShape(12.dp),
                     colors = buttonColors,
                 ) { Text(stringResource(R.string.nav_solve_run)) }

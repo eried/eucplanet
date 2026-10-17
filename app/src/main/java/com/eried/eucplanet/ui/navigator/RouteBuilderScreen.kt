@@ -928,8 +928,7 @@ fun RouteBuilderScreen(
                             onResetMarker = { viewModel.setUserMarkerPhoto(null) },
                             hasCustomMarker = markerPhoto != null,
                             navRunning = navRunning,
-                            canSolve = waypoints.size - passedPrefix(waypoints) >= 3 &&
-                                !route.isFixedTrack(waypoints),
+                            canSolve = viewModel.canSolve() && !route.isFixedTrack(waypoints),
                             onSolve = { solveDialogOpen = true }
                         )
                     }

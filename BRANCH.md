@@ -11,6 +11,7 @@ you can cut the ride short.
 - Ends: Anywhere, Loop (back to the start) or Fixed end (the last stop stays last).
 - Start from my position: off by itself with no GPS fix or when every stop is past Max start distance.
 - Reached stops stay first and are never moved.
+- Two stops: offered when you are within Max start distance, to pick which one to ride to first.
 - A route now holds 50 stops instead of 25. Stops after the eighth read "Stop 9", not "Destination".
 
 ## Please test

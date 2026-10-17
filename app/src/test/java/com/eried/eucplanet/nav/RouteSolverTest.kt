@@ -73,6 +73,16 @@ class RouteSolverTest {
         assertArrayEquals(intArrayOf(4, 3, 2, 1, 0), order)
     }
 
+    @Test fun `two stops and my position, the nearer one comes first`() {
+        val far = GeoPoint(60.0, 10.10)
+        val near = GeoPoint(60.0, 10.01)
+        val me = GeoPoint(60.0, 10.0)
+        val table = RoutingService.straightTable(listOf(far, near, me))
+        assertArrayEquals(intArrayOf(1, 0), RouteSolver.solve(table, hasOrigin = true, end = End.ANYWHERE))
+        // Fixed end keeps the given last stop last, whatever it costs.
+        assertArrayEquals(intArrayOf(0, 1), RouteSolver.solve(table, hasOrigin = true, end = End.KEEP_LAST))
+    }
+
     @Test fun `keep last stop leaves the last stop last`() {
         for (n in listOf(6, 20, 50)) {
             val table = RoutingService.straightTable(points(n, n))

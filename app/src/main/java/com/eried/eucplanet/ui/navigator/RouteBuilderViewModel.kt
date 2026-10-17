@@ -1094,6 +1094,15 @@ class RouteBuilderViewModel @Inject constructor(
     fun solvableStops(): Int = _waypoints.value.size - passedPrefix(_waypoints.value)
 
     /**
+     * Whether there is an order to choose: three stops, or two when the
+     * rider is close enough to link (then the question is which one first).
+     */
+    fun canSolve(): Boolean {
+        val n = solvableStops()
+        return n >= 3 || (n == 2 && solveOriginBlock() == null)
+    }
+
+    /**
      * Why "Link to my position" cannot be on, or null when it can: no GPS
      * fix, or every stop is past Max start distance (the same rule that
      * draws no line from the rider and blocks Start).
@@ -1112,9 +1121,9 @@ class RouteBuilderViewModel @Inject constructor(
         val all = _waypoints.value
         val reached = passedPrefix(all)
         val stops = all.drop(reached)
-        if (stops.size < 3) return
         val loc = currentLocation.value
         val origin = if (linkOrigin && loc != null) GeoPoint(loc.latitude, loc.longitude) else null
+        if (stops.size < 2 || (stops.size == 2 && origin == null)) return
         val mode = _travelMode.value
         solveJob?.cancel()
         _solve.value = SolveState.Working
