@@ -2823,7 +2823,7 @@
     <string name="car_alarm_notifications">Сповіщення на екрані авто</string>
     <string name="car_alarm_notifications_hint">Спрацьоване сповіщення з’являється поверх карти, тож дійде до вас під час навігації. Звук і вібрація без змін.</string>
     <string name="car_no_metrics">Показники не вибрано</string>
-    <string name="nav_solve_menu">Знайти найкоротший маршрут</string>
+    <string name="nav_solve_menu">Оптимізувати порядок точок</string>
     <string name="nav_solve_effort">Точність</string>
     <string name="nav_solve_quick">Швидко</string>
     <string name="nav_solve_best">Найкраще</string>
@@ -2835,7 +2835,7 @@
     <string name="nav_solve_end_keep_last">Незмінний</string>
     <string name="nav_solve_link_origin">Почати з мого місця</string>
     <string name="nav_solve_origin_no_fix">Поки немає сигналу GPS.</string>
-    <string name="nav_solve_origin_too_far">Усі точки далі ніж %1$s.</string>
+    <string name="nav_solve_origin_too_far">Ви надто далеко від точок, щоб почати звідси.</string>
     <string name="nav_solve_run">Знайти</string>
     <string name="nav_solve_working">Шукаю найкоротший порядок…</string>
     <string name="nav_solve_result">З %1$s до %2$s, на %3$d%% коротше.</string>

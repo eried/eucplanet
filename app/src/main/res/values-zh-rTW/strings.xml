@@ -2822,7 +2822,7 @@
     <string name="car_alarm_notifications">車機畫面警示</string>
     <string name="car_alarm_notifications_hint">觸發的警示會顯示在地圖之上，導航時也能看到。嗶聲與震動維持不變。</string>
     <string name="car_no_metrics">未選擇任何數據</string>
-    <string name="nav_solve_menu">計算最短路線</string>
+    <string name="nav_solve_menu">最佳化站點順序</string>
     <string name="nav_solve_effort">精確度</string>
     <string name="nav_solve_quick">快速</string>
     <string name="nav_solve_best">最佳</string>
@@ -2834,7 +2834,7 @@
     <string name="nav_solve_end_keep_last">終點固定</string>
     <string name="nav_solve_link_origin">從我的位置出發</string>
     <string name="nav_solve_origin_no_fix">尚未取得 GPS 定位。</string>
-    <string name="nav_solve_origin_too_far">所有站點都超過 %1$s。</string>
+    <string name="nav_solve_origin_too_far">你離站點太遠，無法從這裡出發。</string>
     <string name="nav_solve_run">計算</string>
     <string name="nav_solve_working">正在尋找最短順序…</string>
     <string name="nav_solve_result">從 %1$s 到 %2$s，縮短 %3$d%%。</string>

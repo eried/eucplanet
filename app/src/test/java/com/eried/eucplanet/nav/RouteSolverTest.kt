@@ -11,7 +11,7 @@ import org.junit.Test
 import kotlin.random.Random
 
 /**
- * Solve shortest route: a GPX in whatever order its author saved it comes
+ * Optimize stop order: a GPX in whatever order its author saved it comes
  * back in the shortest riding order, under the rider's rules for where it
  * starts and ends.
  */

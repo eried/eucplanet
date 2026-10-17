@@ -2827,7 +2827,7 @@
     <string name="car_alarm_notifications">Alarmes na tela do carro</string>
     <string name="car_alarm_notifications_hint">Um alarme disparado aparece sobre o mapa, então chega até você durante a navegação. Bipe e vibração continuam iguais.</string>
     <string name="car_no_metrics">Nenhuma métrica selecionada</string>
-    <string name="nav_solve_menu">Calcular rota mais curta</string>
+    <string name="nav_solve_menu">Otimizar ordem das paradas</string>
     <string name="nav_solve_effort">Esforço</string>
     <string name="nav_solve_quick">Rápido</string>
     <string name="nav_solve_best">Melhor</string>
@@ -2839,7 +2839,7 @@
     <string name="nav_solve_end_keep_last">Fim fixo</string>
     <string name="nav_solve_link_origin">Sair da minha posição</string>
     <string name="nav_solve_origin_no_fix">Ainda sem sinal de GPS.</string>
-    <string name="nav_solve_origin_too_far">Todas as paradas estão a mais de %1$s.</string>
+    <string name="nav_solve_origin_too_far">Você está longe demais das paradas para começar daqui.</string>
     <string name="nav_solve_run">Calcular</string>
     <string name="nav_solve_working">Procurando a ordem mais curta…</string>
     <string name="nav_solve_result">De %1$s para %2$s, %3$d%% mais curta.</string>

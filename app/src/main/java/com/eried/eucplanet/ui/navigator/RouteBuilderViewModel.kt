@@ -1074,7 +1074,7 @@ class RouteBuilderViewModel @Inject constructor(
         scheduleRecompute(fit = false)
     }
 
-    // --- Solve shortest route ---------------------------------------------------
+    // --- Optimize stop order ---------------------------------------------------
 
     enum class SolveEffort { QUICK, BEST }
 
@@ -1113,8 +1113,7 @@ class RouteBuilderViewModel @Inject constructor(
         val maxKm = advanced.value.navMaxStartDistanceKm
         val stops = _waypoints.value.drop(passedPrefix(_waypoints.value))
         if (stops.any { NavStartGuard.originWithinStart(me, it.point(), maxKm) }) return null
-        return context.getString(R.string.nav_solve_origin_too_far,
-            com.eried.eucplanet.nav.NavFormat.distance(context, maxKm * 1000.0, imperialUnits.value))
+        return context.getString(R.string.nav_solve_origin_too_far)
     }
 
     fun solveRoute(effort: SolveEffort, end: RouteSolver.End, linkOrigin: Boolean) {

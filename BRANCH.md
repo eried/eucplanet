@@ -6,18 +6,18 @@ you can cut the ride short.
 
 ## Worked on
 
-- Map menu: Solve shortest route reorders the stops, shows before and after (e.g. 254 km to 63 km), and changes nothing until Apply.
+- Map menu: Optimize stop order reorders the stops, shows before and after (e.g. 254 km to 63 km), and changes nothing until Apply.
 - Effort: Quick uses straight lines (instant, offline); Best uses road distances for your travel mode.
 - Ends: Anywhere, Loop (back to the start) or Fixed end (the last stop stays last).
-- Start from my position: off by itself with no GPS fix or when every stop is past Max start distance.
+- Start from my position: off by itself with no GPS fix or when you are too far from the stops.
 - Reached stops stay first and are never moved.
 - Two stops: offered when you are within Max start distance, to pick which one to ride to first.
 - A route now holds 50 stops instead of 25. Stops after the eighth read "Stop 9", not "Destination".
 
 ## Please test
 
-**Solve shortest route**
-- Load a GPX with stops out of order, then Menu, Solve shortest route, Best: is the new order sensible on the map?
+**Optimize stop order**
+- Load a GPX with stops out of order, then Menu, Optimize stop order, Best: is the new order sensible on the map?
 - Does the route total after Apply match the "to" number in the dialog?
 - Try Loop and Fixed end: does the route come back to the start, or keep its last stop?
 - Turn off mobile data and solve on Best: does it say it used straight lines?

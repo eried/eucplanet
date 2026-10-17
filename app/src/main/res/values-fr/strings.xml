@@ -2829,7 +2829,7 @@
     <string name="car_alarm_notifications">Alertes sur l\'écran de la voiture</string>
     <string name="car_alarm_notifications_hint">Une alerte déclenchée s\'affiche par-dessus la carte et vous atteint pendant la navigation. Le bip et la vibration ne changent pas.</string>
     <string name="car_no_metrics">Aucune mesure sélectionnée</string>
-    <string name="nav_solve_menu">Trouver l\'itinéraire le plus court</string>
+    <string name="nav_solve_menu">Optimiser l\'ordre des arrêts</string>
     <string name="nav_solve_effort">Effort</string>
     <string name="nav_solve_quick">Rapide</string>
     <string name="nav_solve_best">Meilleur</string>
@@ -2841,7 +2841,7 @@
     <string name="nav_solve_end_keep_last">Fin fixe</string>
     <string name="nav_solve_link_origin">Partir de ma position</string>
     <string name="nav_solve_origin_no_fix">Pas encore de signal GPS.</string>
-    <string name="nav_solve_origin_too_far">Tous les arrêts sont à plus de %1$s.</string>
+    <string name="nav_solve_origin_too_far">Vous êtes trop loin des arrêts pour partir d\'ici.</string>
     <string name="nav_solve_run">Trouver</string>
     <string name="nav_solve_working">Recherche de l\'ordre le plus court…</string>
     <string name="nav_solve_result">De %1$s à %2$s, %3$d %% plus court.</string>

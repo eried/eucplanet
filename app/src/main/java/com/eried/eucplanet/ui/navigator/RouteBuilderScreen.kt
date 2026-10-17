@@ -2150,8 +2150,10 @@ private fun BuilderMenu(
             )
         }
         // Reordering a running route would pull the next stop out from
-        // under the rider, so it is a planning action only.
+        // under the rider, so it is a planning action only. Its own group:
+        // it works on the stops, not on the route file like the items above.
         if (canSolve && !navRunning) {
+            HorizontalDivider(color = MaterialTheme.appColors.divider)
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_solve_menu)) },
                 onClick = { onDismiss(); onSolve() }

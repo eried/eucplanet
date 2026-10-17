@@ -5,16 +5,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
@@ -39,12 +40,12 @@ import com.eried.eucplanet.nav.RouteSolver
 import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel.SolveEffort
 import com.eried.eucplanet.ui.navigator.RouteBuilderViewModel.SolveState
 import com.eried.eucplanet.ui.theme.appColors
-import com.eried.eucplanet.ui.theme.themedSegmentedColors
+import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
 import kotlin.math.roundToInt
 
 /**
- * Solve shortest route: puts the stops in the shortest riding order. The
+ * Optimize stop order: puts the stops in the shortest riding order. The
  * rider picks how (Quick straight lines or Best road distances), how the
  * route ends, and whether it starts from them; the result shows before and
  * after, and nothing changes until Apply.
@@ -188,20 +189,34 @@ fun SolveRouteDialog(viewModel: RouteBuilderViewModel, imperial: Boolean, onClos
 /** Shorter by at least 1%; anything less is not worth reshuffling the list for. */
 private fun improves(s: SolveState.Done): Boolean = s.beforeM > 0 && s.afterM < s.beforeM * 0.99
 
+/** A read-only dropdown with its label inside the box, like the selectors in Settings. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun <T> ChoiceRow(label: String, options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
-    Column {
-        Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.appColors.textSecondary)
-        Spacer(Modifier.height(6.dp))
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            options.forEachIndexed { i, (value, text) ->
-                SegmentedButton(
-                    selected = value == selected,
-                    onClick = { onSelect(value) },
-                    shape = SegmentedButtonDefaults.itemShape(i, options.size, baseShape = RoundedCornerShape(12.dp)),
-                    icon = {},
-                    colors = themedSegmentedColors(),
-                ) { Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = options.first { it.first == selected }.second,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
+            shape = RoundedCornerShape(12.dp),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground,
+        ) {
+            options.forEach { (value, text) ->
+                DropdownMenuItem(
+                    text = { Text(text) },
+                    onClick = { onSelect(value); expanded = false },
+                )
             }
         }
     }

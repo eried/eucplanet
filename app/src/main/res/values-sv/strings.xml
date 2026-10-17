@@ -2824,7 +2824,7 @@
     <string name="car_alarm_notifications">Larm på bilskärmen</string>
     <string name="car_alarm_notifications_hint">Ett utlöst larm visas ovanpå kartan, så det når dig medan du navigerar. Pip och vibration är oförändrade.</string>
     <string name="car_no_metrics">Inga mätvärden valda</string>
-    <string name="nav_solve_menu">Hitta kortaste rutten</string>
+    <string name="nav_solve_menu">Optimera ordningen på stopp</string>
     <string name="nav_solve_effort">Insats</string>
     <string name="nav_solve_quick">Snabb</string>
     <string name="nav_solve_best">Bäst</string>
@@ -2836,7 +2836,7 @@
     <string name="nav_solve_end_keep_last">Fast slut</string>
     <string name="nav_solve_link_origin">Starta från min position</string>
     <string name="nav_solve_origin_no_fix">Ingen GPS-position än.</string>
-    <string name="nav_solve_origin_too_far">Alla stopp är över %1$s bort.</string>
+    <string name="nav_solve_origin_too_far">Du är för långt från stoppen för att starta härifrån.</string>
     <string name="nav_solve_run">Hitta</string>
     <string name="nav_solve_working">Letar efter kortaste ordningen…</string>
     <string name="nav_solve_result">%1$s till %2$s, %3$d %% kortare.</string>

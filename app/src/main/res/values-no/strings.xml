@@ -2712,7 +2712,7 @@
     <string name="car_alarm_notifications">Alarmer på bilskjermen</string>
     <string name="car_alarm_notifications_hint">En utløst alarm vises oppå kartet, så den når deg mens du navigerer. Pip og vibrasjon er uendret.</string>
     <string name="car_no_metrics">Ingen målinger valgt</string>
-    <string name="nav_solve_menu">Finn korteste rute</string>
+    <string name="nav_solve_menu">Optimaliser rekkefølgen på stopp</string>
     <string name="nav_solve_effort">Innsats</string>
     <string name="nav_solve_quick">Rask</string>
     <string name="nav_solve_best">Best</string>
@@ -2724,7 +2724,7 @@
     <string name="nav_solve_end_keep_last">Fast slutt</string>
     <string name="nav_solve_link_origin">Start fra min posisjon</string>
     <string name="nav_solve_origin_no_fix">Ingen GPS-posisjon ennå.</string>
-    <string name="nav_solve_origin_too_far">Alle stoppene er over %1$s unna.</string>
+    <string name="nav_solve_origin_too_far">Du er for langt fra stoppene til å starte herfra.</string>
     <string name="nav_solve_run">Finn</string>
     <string name="nav_solve_working">Finner korteste rekkefølge…</string>
     <string name="nav_solve_result">%1$s til %2$s, %3$d %% kortere.</string>

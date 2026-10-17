@@ -2852,7 +2852,7 @@
     <string name="car_place_home">Home</string>
     <string name="car_place_work">Work</string>
     <string name="car_no_places">Save Home or Work in the route builder first.</string>
-    <string name="nav_solve_menu">Solve shortest route</string>
+    <string name="nav_solve_menu">Optimize stop order</string>
     <string name="nav_solve_effort">Effort</string>
     <string name="nav_solve_quick">Quick</string>
     <string name="nav_solve_best">Best</string>
@@ -2864,7 +2864,7 @@
     <string name="nav_solve_end_keep_last">Fixed end</string>
     <string name="nav_solve_link_origin">Start from my position</string>
     <string name="nav_solve_origin_no_fix">No GPS fix yet.</string>
-    <string name="nav_solve_origin_too_far">Every stop is over %1$s away.</string>
+    <string name="nav_solve_origin_too_far">You are too far from the stops to start from here.</string>
     <string name="nav_solve_run">Solve</string>
     <string name="nav_solve_working">Finding the shortest order…</string>
     <string name="nav_solve_result">%1$s to %2$s, %3$d%% shorter.</string>

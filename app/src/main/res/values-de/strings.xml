@@ -2844,7 +2844,7 @@
     <string name="car_alarm_notifications">Alarme auf dem Autobildschirm</string>
     <string name="car_alarm_notifications_hint">Ein ausgelöster Alarm erscheint über der Karte und erreicht dich so während der Navigation. Ton und Vibration bleiben gleich.</string>
     <string name="car_no_metrics">Keine Werte ausgewählt</string>
-    <string name="nav_solve_menu">Kürzeste Route finden</string>
+    <string name="nav_solve_menu">Stopp-Reihenfolge optimieren</string>
     <string name="nav_solve_effort">Aufwand</string>
     <string name="nav_solve_quick">Schnell</string>
     <string name="nav_solve_best">Beste</string>
@@ -2856,7 +2856,7 @@
     <string name="nav_solve_end_keep_last">Festes Ende</string>
     <string name="nav_solve_link_origin">Von meiner Position starten</string>
     <string name="nav_solve_origin_no_fix">Noch kein GPS-Signal.</string>
-    <string name="nav_solve_origin_too_far">Alle Stopps sind über %1$s entfernt.</string>
+    <string name="nav_solve_origin_too_far">Du bist zu weit von den Stopps entfernt, um hier zu starten.</string>
     <string name="nav_solve_run">Finden</string>
     <string name="nav_solve_working">Suche die kürzeste Reihenfolge…</string>
     <string name="nav_solve_result">%1$s auf %2$s, %3$d%% kürzer.</string>

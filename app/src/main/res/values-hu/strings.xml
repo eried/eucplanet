@@ -2627,7 +2627,7 @@
     <string name="car_alarm_notifications">Riasztások az autó kijelzőjén</string>
     <string name="car_alarm_notifications_hint">Az aktív riasztás a térkép felett jelenik meg, így navigálás közben is elér. A hangjelzés és a rezgés változatlan.</string>
     <string name="car_no_metrics">Nincs kiválasztott érték</string>
-    <string name="nav_solve_menu">Legrövidebb útvonal</string>
+    <string name="nav_solve_menu">Megállók sorrendjének optimalizálása</string>
     <string name="nav_solve_effort">Ráfordítás</string>
     <string name="nav_solve_quick">Gyors</string>
     <string name="nav_solve_best">Legjobb</string>
@@ -2639,7 +2639,7 @@
     <string name="nav_solve_end_keep_last">Fix vég</string>
     <string name="nav_solve_link_origin">Indulás a helyzetemből</string>
     <string name="nav_solve_origin_no_fix">Még nincs GPS-jel.</string>
-    <string name="nav_solve_origin_too_far">Minden megálló messzebb van, mint %1$s.</string>
+    <string name="nav_solve_origin_too_far">Túl messze vagy a megállóktól ahhoz, hogy innen indulj.</string>
     <string name="nav_solve_run">Számítás</string>
     <string name="nav_solve_working">A legrövidebb sorrend keresése…</string>
     <string name="nav_solve_result">%1$s helyett %2$s, %3$d%%-kal rövidebb.</string>

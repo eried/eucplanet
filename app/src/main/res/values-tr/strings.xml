@@ -2821,7 +2821,7 @@
     <string name="car_alarm_notifications">Araç ekranındaki alarmlar</string>
     <string name="car_alarm_notifications_hint">Tetiklenen alarm haritanın üstünde görünür, böylece yol tarifi sırasında da sana ulaşır. Bip ve titreşim değişmez.</string>
     <string name="car_no_metrics">Seçili veri yok</string>
-    <string name="nav_solve_menu">En kısa rotayı bul</string>
+    <string name="nav_solve_menu">Durak sırasını optimize et</string>
     <string name="nav_solve_effort">Çaba</string>
     <string name="nav_solve_quick">Hızlı</string>
     <string name="nav_solve_best">En iyi</string>
@@ -2833,7 +2833,7 @@
     <string name="nav_solve_end_keep_last">Sabit son</string>
     <string name="nav_solve_link_origin">Konumumdan başla</string>
     <string name="nav_solve_origin_no_fix">Henüz GPS sinyali yok.</string>
-    <string name="nav_solve_origin_too_far">Tüm duraklar %1$s uzaklığın ötesinde.</string>
+    <string name="nav_solve_origin_too_far">Buradan başlamak için duraklara çok uzaksınız.</string>
     <string name="nav_solve_run">Bul</string>
     <string name="nav_solve_working">En kısa sıra aranıyor…</string>
     <string name="nav_solve_result">%1$s yerine %2$s, %%%3$d daha kısa.</string>

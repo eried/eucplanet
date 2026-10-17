@@ -2826,7 +2826,7 @@
     <string name="car_alarm_notifications">Alarmen op het autoscherm</string>
     <string name="car_alarm_notifications_hint">Een afgegaan alarm verschijnt over de kaart, zodat het je tijdens het navigeren bereikt. Piep en trilling blijven gelijk.</string>
     <string name="car_no_metrics">Geen waarden geselecteerd</string>
-    <string name="nav_solve_menu">Kortste route zoeken</string>
+    <string name="nav_solve_menu">Volgorde van stops optimaliseren</string>
     <string name="nav_solve_effort">Moeite</string>
     <string name="nav_solve_quick">Snel</string>
     <string name="nav_solve_best">Beste</string>
@@ -2838,7 +2838,7 @@
     <string name="nav_solve_end_keep_last">Vast einde</string>
     <string name="nav_solve_link_origin">Start vanaf mijn positie</string>
     <string name="nav_solve_origin_no_fix">Nog geen GPS-signaal.</string>
-    <string name="nav_solve_origin_too_far">Alle stops zijn verder dan %1$s weg.</string>
+    <string name="nav_solve_origin_too_far">Je bent te ver van de stops om hier te starten.</string>
     <string name="nav_solve_run">Zoeken</string>
     <string name="nav_solve_working">Kortste volgorde zoeken…</string>
     <string name="nav_solve_result">%1$s naar %2$s, %3$d%% korter.</string>

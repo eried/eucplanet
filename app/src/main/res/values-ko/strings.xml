@@ -2822,7 +2822,7 @@
     <string name="car_alarm_notifications">차량 화면 알람</string>
     <string name="car_alarm_notifications_hint">작동한 알람이 지도 위에 표시되어 내비게이션 중에도 확인할 수 있습니다. 경고음과 진동은 그대로입니다.</string>
     <string name="car_no_metrics">선택된 항목 없음</string>
-    <string name="nav_solve_menu">최단 경로 계산</string>
+    <string name="nav_solve_menu">지점 순서 최적화</string>
     <string name="nav_solve_effort">정확도</string>
     <string name="nav_solve_quick">빠름</string>
     <string name="nav_solve_best">최적</string>
@@ -2834,7 +2834,7 @@
     <string name="nav_solve_end_keep_last">끝 고정</string>
     <string name="nav_solve_link_origin">내 위치에서 출발</string>
     <string name="nav_solve_origin_no_fix">아직 GPS 신호가 없습니다.</string>
-    <string name="nav_solve_origin_too_far">모든 지점이 %1$s 이상 떨어져 있습니다.</string>
+    <string name="nav_solve_origin_too_far">지점에서 너무 멀어 여기서 출발할 수 없습니다.</string>
     <string name="nav_solve_run">계산</string>
     <string name="nav_solve_working">가장 짧은 순서를 찾는 중…</string>
     <string name="nav_solve_result">%1$s → %2$s, %3$d%% 단축.</string>

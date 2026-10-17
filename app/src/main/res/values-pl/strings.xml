@@ -2826,7 +2826,7 @@
     <string name="car_alarm_notifications">Alarmy na ekranie samochodu</string>
     <string name="car_alarm_notifications_hint">Uruchomiony alarm pojawia się na mapie, więc dotrze do ciebie podczas nawigacji. Sygnał i wibracja bez zmian.</string>
     <string name="car_no_metrics">Nie wybrano wskaźników</string>
-    <string name="nav_solve_menu">Znajdź najkrótszą trasę</string>
+    <string name="nav_solve_menu">Optymalizuj kolejność przystanków</string>
     <string name="nav_solve_effort">Wysiłek</string>
     <string name="nav_solve_quick">Szybko</string>
     <string name="nav_solve_best">Najlepiej</string>
@@ -2838,7 +2838,7 @@
     <string name="nav_solve_end_keep_last">Stały koniec</string>
     <string name="nav_solve_link_origin">Start z mojej pozycji</string>
     <string name="nav_solve_origin_no_fix">Jeszcze brak sygnału GPS.</string>
-    <string name="nav_solve_origin_too_far">Wszystkie przystanki są dalej niż %1$s.</string>
+    <string name="nav_solve_origin_too_far">Jesteś za daleko od przystanków, by zacząć stąd.</string>
     <string name="nav_solve_run">Znajdź</string>
     <string name="nav_solve_working">Szukam najkrótszej kolejności…</string>
     <string name="nav_solve_result">Z %1$s na %2$s, o %3$d%% krócej.</string>

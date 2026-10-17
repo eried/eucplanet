@@ -2826,7 +2826,7 @@
     <string name="car_alarm_notifications">Оповещения на экране авто</string>
     <string name="car_alarm_notifications_hint">Сработавшее оповещение появляется поверх карты, поэтому дойдёт до вас во время навигации. Звук и вибрация без изменений.</string>
     <string name="car_no_metrics">Показатели не выбраны</string>
-    <string name="nav_solve_menu">Найти кратчайший маршрут</string>
+    <string name="nav_solve_menu">Оптимизировать порядок точек</string>
     <string name="nav_solve_effort">Точность</string>
     <string name="nav_solve_quick">Быстро</string>
     <string name="nav_solve_best">Лучше</string>
@@ -2838,7 +2838,7 @@
     <string name="nav_solve_end_keep_last">Прежний</string>
     <string name="nav_solve_link_origin">Начать с моего места</string>
     <string name="nav_solve_origin_no_fix">Пока нет сигнала GPS.</string>
-    <string name="nav_solve_origin_too_far">Все точки дальше %1$s.</string>
+    <string name="nav_solve_origin_too_far">Вы слишком далеко от точек, чтобы начать отсюда.</string>
     <string name="nav_solve_run">Найти</string>
     <string name="nav_solve_working">Ищу кратчайший порядок…</string>
     <string name="nav_solve_result">С %1$s до %2$s, на %3$d%% короче.</string>

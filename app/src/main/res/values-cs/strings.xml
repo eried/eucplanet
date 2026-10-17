@@ -2629,7 +2629,7 @@
     <string name="car_alarm_notifications">Alarmy na displeji auta</string>
     <string name="car_alarm_notifications_hint">Spuštěný alarm se zobrazí přes mapu, takže se k tobě dostane i při navigaci. Pípnutí a vibrace zůstávají.</string>
     <string name="car_no_metrics">Nevybrány žádné metriky</string>
-    <string name="nav_solve_menu">Najít nejkratší trasu</string>
+    <string name="nav_solve_menu">Optimalizovat pořadí zastávek</string>
     <string name="nav_solve_effort">Úsilí</string>
     <string name="nav_solve_quick">Rychle</string>
     <string name="nav_solve_best">Nejlépe</string>
@@ -2641,7 +2641,7 @@
     <string name="nav_solve_end_keep_last">Pevný cíl</string>
     <string name="nav_solve_link_origin">Začít z mé polohy</string>
     <string name="nav_solve_origin_no_fix">Zatím bez signálu GPS.</string>
-    <string name="nav_solve_origin_too_far">Všechny zastávky jsou dál než %1$s.</string>
+    <string name="nav_solve_origin_too_far">Jste od zastávek příliš daleko, abyste začali odsud.</string>
     <string name="nav_solve_run">Najít</string>
     <string name="nav_solve_working">Hledám nejkratší pořadí…</string>
     <string name="nav_solve_result">Z %1$s na %2$s, o %3$d%% kratší.</string>
