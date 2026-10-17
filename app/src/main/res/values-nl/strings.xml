@@ -2826,4 +2826,26 @@
     <string name="car_alarm_notifications">Alarmen op het autoscherm</string>
     <string name="car_alarm_notifications_hint">Een afgegaan alarm verschijnt over de kaart, zodat het je tijdens het navigeren bereikt. Piep en trilling blijven gelijk.</string>
     <string name="car_no_metrics">Geen waarden geselecteerd</string>
+    <string name="nav_solve_menu">Kortste route zoeken</string>
+    <string name="nav_solve_effort">Moeite</string>
+    <string name="nav_solve_quick">Snel</string>
+    <string name="nav_solve_best">Beste</string>
+    <string name="nav_solve_quick_desc">Rechte lijnen. Direct, werkt offline.</string>
+    <string name="nav_solve_best_desc">Over de wegen voor je reiswijze. Heeft internet nodig.</string>
+    <string name="nav_solve_ends">Eindigt</string>
+    <string name="nav_solve_end_anywhere">Overal</string>
+    <string name="nav_solve_end_loop">Rondje</string>
+    <string name="nav_solve_end_keep_last">Vast einde</string>
+    <string name="nav_solve_link_origin">Start vanaf mijn positie</string>
+    <string name="nav_solve_origin_no_fix">Nog geen GPS-signaal.</string>
+    <string name="nav_solve_origin_too_far">Alle stops zijn verder dan %1$s weg.</string>
+    <string name="nav_solve_run">Zoeken</string>
+    <string name="nav_solve_working">Kortste volgorde zoeken…</string>
+    <string name="nav_solve_result">%1$s naar %2$s, %3$d%% korter.</string>
+    <string name="nav_solve_no_better">Dit is al de kortste volgorde.</string>
+    <string name="nav_solve_straight_fallback">Geen wegafstanden beschikbaar, dus rechte lijnen gebruikt.</string>
+    <string name="nav_stop_number">Stop %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Eindigt bij de stop die hem het kortst maakt.</string>
+    <string name="nav_solve_end_loop_desc">Komt terug waar hij begint.</string>
+    <string name="nav_solve_end_keep_last_desc">De huidige laatste stop blijft de laatste.</string>
 </resources>

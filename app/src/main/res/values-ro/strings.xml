@@ -2628,4 +2628,26 @@
     <string name="car_alarm_notifications">Alarme pe ecranul mașinii</string>
     <string name="car_alarm_notifications_hint">O alarmă declanșată apare peste hartă, așa că te găsește în timpul navigării. Bipul și vibrația rămân la fel.</string>
     <string name="car_no_metrics">Nicio valoare selectată</string>
+    <string name="nav_solve_menu">Găsește cel mai scurt traseu</string>
+    <string name="nav_solve_effort">Efort</string>
+    <string name="nav_solve_quick">Rapid</string>
+    <string name="nav_solve_best">Cel mai bun</string>
+    <string name="nav_solve_quick_desc">Linii drepte. Instant, merge offline.</string>
+    <string name="nav_solve_best_desc">Pe drumuri, după modul tău de deplasare. Necesită internet.</string>
+    <string name="nav_solve_ends">Se termină</string>
+    <string name="nav_solve_end_anywhere">Oriunde</string>
+    <string name="nav_solve_end_loop">Buclă</string>
+    <string name="nav_solve_end_keep_last">Final fix</string>
+    <string name="nav_solve_link_origin">Pornește din poziția mea</string>
+    <string name="nav_solve_origin_no_fix">Încă nu există semnal GPS.</string>
+    <string name="nav_solve_origin_too_far">Toate opririle sunt la peste %1$s.</string>
+    <string name="nav_solve_run">Găsește</string>
+    <string name="nav_solve_working">Caut cea mai scurtă ordine…</string>
+    <string name="nav_solve_result">De la %1$s la %2$s, cu %3$d%% mai scurt.</string>
+    <string name="nav_solve_no_better">Aceasta este deja cea mai scurtă ordine.</string>
+    <string name="nav_solve_straight_fallback">Distanțele rutiere nu au fost disponibile, s-au folosit linii drepte.</string>
+    <string name="nav_stop_number">Oprirea %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Se termină la oprirea care îl face cel mai scurt.</string>
+    <string name="nav_solve_end_loop_desc">Revine de unde pornește.</string>
+    <string name="nav_solve_end_keep_last_desc">Ultima oprire actuală rămâne ultima.</string>
 </resources>

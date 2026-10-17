@@ -240,6 +240,7 @@ fun RouteBuilderScreen(
     // *at* the marker instead of at the centre of the map.
     var selfMenuOffset by remember { mutableStateOf(DpOffset.Zero) }
     var clearConfirmOpen by remember { mutableStateOf(false) }
+    var solveDialogOpen by remember { mutableStateOf(false) }
     // The picked GPX waiting on a "replace the current route?" confirmation.
     // Held only after the rider has actually chosen a file (asking BEFORE
     // the picker would be confusing, they may cancel out, and the prompt
@@ -926,7 +927,10 @@ fun RouteBuilderScreen(
                             },
                             onResetMarker = { viewModel.setUserMarkerPhoto(null) },
                             hasCustomMarker = markerPhoto != null,
-                            navRunning = navRunning
+                            navRunning = navRunning,
+                            canSolve = waypoints.size - passedPrefix(waypoints) >= 3 &&
+                                !route.isFixedTrack(waypoints),
+                            onSolve = { solveDialogOpen = true }
                         )
                     }
                 }
@@ -1762,6 +1766,10 @@ fun RouteBuilderScreen(
                 )
             }
 
+            if (solveDialogOpen) {
+                SolveRouteDialog(viewModel = viewModel, imperial = imperial, onClose = { solveDialogOpen = false })
+            }
+
             // A stop added to a finished route (every stop reached): New
             // route clears the reached stops and adds it; Cancel (or back)
             // adds nothing. A finished route is not continued.
@@ -2113,7 +2121,9 @@ private fun BuilderMenu(
     onCustomizeMarker: () -> Unit,
     onResetMarker: () -> Unit,
     hasCustomMarker: Boolean,
-    navRunning: Boolean
+    navRunning: Boolean,
+    canSolve: Boolean,
+    onSolve: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
         // "Start navigation" is omitted here, it is already a primary button.
@@ -2138,6 +2148,14 @@ private fun BuilderMenu(
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_clear)) },
                 onClick = { onDismiss(); onClear() }
+            )
+        }
+        // Reordering a running route would pull the next stop out from
+        // under the rider, so it is a planning action only.
+        if (canSolve && !navRunning) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_solve_menu)) },
+                onClick = { onDismiss(); onSolve() }
             )
         }
         // Marker-customization group, bounded by separators above and below
@@ -2192,7 +2210,7 @@ private fun waypointLabel(
     val role = if (index == total - 1)
         stringResource(R.string.nav_role_destination)
     else stringArrayResource(R.array.nav_stop_ordinals)
-        .getOrElse(index) { stringResource(R.string.nav_role_destination) }
+        .getOrElse(index) { stringResource(R.string.nav_stop_number, index + 1) }
     return if (name.isBlank()) role else "$role ($name)"
 }
 

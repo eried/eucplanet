@@ -2823,4 +2823,26 @@
     <string name="car_alarm_notifications">Сповіщення на екрані авто</string>
     <string name="car_alarm_notifications_hint">Спрацьоване сповіщення з’являється поверх карти, тож дійде до вас під час навігації. Звук і вібрація без змін.</string>
     <string name="car_no_metrics">Показники не вибрано</string>
+    <string name="nav_solve_menu">Знайти найкоротший маршрут</string>
+    <string name="nav_solve_effort">Точність</string>
+    <string name="nav_solve_quick">Швидко</string>
+    <string name="nav_solve_best">Найкраще</string>
+    <string name="nav_solve_quick_desc">Прямі лінії. Одразу, працює офлайн.</string>
+    <string name="nav_solve_best_desc">Дорогами для вашого способу пересування. Потрібен інтернет.</string>
+    <string name="nav_solve_ends">Кінець</string>
+    <string name="nav_solve_end_anywhere">Будь-де</string>
+    <string name="nav_solve_end_loop">Петля</string>
+    <string name="nav_solve_end_keep_last">Незмінний</string>
+    <string name="nav_solve_link_origin">Почати з мого місця</string>
+    <string name="nav_solve_origin_no_fix">Поки немає сигналу GPS.</string>
+    <string name="nav_solve_origin_too_far">Усі точки далі ніж %1$s.</string>
+    <string name="nav_solve_run">Знайти</string>
+    <string name="nav_solve_working">Шукаю найкоротший порядок…</string>
+    <string name="nav_solve_result">З %1$s до %2$s, на %3$d%% коротше.</string>
+    <string name="nav_solve_no_better">Це вже найкоротший порядок.</string>
+    <string name="nav_solve_straight_fallback">Відстані дорогами недоступні, використано прямі лінії.</string>
+    <string name="nav_stop_number">Точка %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Закінчується в точці, з якою він найкоротший.</string>
+    <string name="nav_solve_end_loop_desc">Повертається туди, звідки починається.</string>
+    <string name="nav_solve_end_keep_last_desc">Поточна остання точка лишається останньою.</string>
 </resources>
