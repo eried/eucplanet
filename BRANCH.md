@@ -61,6 +61,7 @@ only when you can cut the ride short.
 - Battery: riding with the app in the background, the hidden dashboard stops redrawing and the widget is checked once a second, not every frame.
 - Navigation: route avoidances (tolls, ferries...) now hold on routes with 10 or more stops; before, they were silently dropped.
 - Share route: the card's stop distances and total match the stop list. In Next segment it could show about 0 m.
+- Map and navigation follow Distance unit (Settings, Units). With miles picked there, the map used to stay in km.
 
 ## Please test
 
@@ -83,6 +84,7 @@ only when you can cut the ride short.
 - Send the link to someone without the app: does the page show the route and download a GPX?
 - Stop list: the last running total matches the total at the top? Numbers hide while you drag a stop?
 - An avoidance on (Navigation & weather) and 10+ stops: does the route still avoid it?
+- Distance unit set to miles: the stop list, voice and Navigation & weather tolerances use mi and ft?
 
 **InMotion X1**
 - Tiltback and alarm speeds match the InMotion app?

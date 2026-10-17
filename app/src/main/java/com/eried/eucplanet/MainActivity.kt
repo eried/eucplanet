@@ -1032,7 +1032,7 @@ class MainActivity : AppCompatActivity() {
             wheel = wheelRepository.wheelData.value,
             history = wheelRepository.fullHistory.value,
             tripRecording = tripRepository.recording.value,
-            imperialUnits = s?.imperialUnits ?: false,
+            imperialUnits = s?.let { com.eried.eucplanet.util.Units.unitSystemOf(it) == com.eried.eucplanet.util.Units.UnitSystem.IMPERIAL } ?: false,
             safetyActive = wheelRepository.safetySpeedActive.value,
             alarmsMuted = s?.alarmsMuted ?: false,
             speedSplitsOn = s?.accelSplit?.enabled ?: false,

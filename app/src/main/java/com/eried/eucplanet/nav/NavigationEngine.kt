@@ -151,7 +151,7 @@ class NavigationEngine @Inject constructor(
         // every fix, so updates take effect on the next GPS update.
         scope.launch {
             settingsRepository.settings.collect { s ->
-                imperial = s.imperialUnits
+                imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
                 voiceEnabled = s.navVoiceEnabled
                 arrivalRadiusM = s.navArrivalRadiusM.toDouble()
                 offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
@@ -293,7 +293,7 @@ class NavigationEngine @Inject constructor(
         tripRepository.setNavigating(true)
         initJob = scope.launch {
             val s = settingsRepository.get()
-            imperial = s.imperialUnits
+            imperial = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s) == "mi"
             voiceEnabled = s.navVoiceEnabled
             arrivalRadiusM = s.navArrivalRadiusM.toDouble()
             offRouteToleranceM = s.navOffRouteToleranceM.toDouble()

@@ -329,7 +329,7 @@ class RouteBuilderViewModel @Inject constructor(
     val lastKnownLocation: StateFlow<Location?> = tripRepository.lastKnownLocation
 
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.imperialUnits }
+        .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) == "mi" }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /** Display units for the friend-stats line in the share group view. */
