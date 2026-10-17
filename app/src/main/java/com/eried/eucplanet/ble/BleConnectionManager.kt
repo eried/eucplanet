@@ -1081,7 +1081,11 @@ class BleConnectionManager @Inject constructor(
         }
 
         override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
-            if (status == BluetoothGatt.GATT_SUCCESS) _rssiDbm.value = rssi
+            // A read that lands after the link dropped would leave a stale
+            // value up until the next connection.
+            if (status == BluetoothGatt.GATT_SUCCESS &&
+                _connectionState.value == ConnectionState.CONNECTED
+            ) _rssiDbm.value = rssi
         }
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {

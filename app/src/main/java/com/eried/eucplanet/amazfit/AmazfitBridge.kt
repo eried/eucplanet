@@ -115,10 +115,14 @@ class AmazfitBridge @Inject constructor(
         // Presence + rate bookkeeping, once a second.
         scope.launch {
             val alpha = 0.25
+            var lastTickMs = System.currentTimeMillis()
             while (true) {
                 delay(1_000L)
                 val now = System.currentTimeMillis()
-                val instant = inbox.takePollCount().toDouble()
+                // Polls per second over however long this tick really was: the
+                // idle wait below makes some ticks five seconds long.
+                val instant = inbox.takePollCount() * 1000.0 / (now - lastTickMs).coerceAtLeast(1L)
+                lastTickMs = now
                 _deliveryRateHz.value = alpha * instant + (1 - alpha) * _deliveryRateHz.value
                 val names = if (inbox.hasPolledWithin(PRESENCE_WINDOW_MS, now)) {
                     listOf(inbox.watchName.ifBlank { DEFAULT_NAME })

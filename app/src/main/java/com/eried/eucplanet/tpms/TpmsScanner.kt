@@ -273,10 +273,13 @@ class TpmsScanner @Inject constructor(
             .build()
         // Hunting has no filter: the sensor is unknown, which is the point.
         // Watching a paired sensor asks the radio for that address alone, so
-        // the phone is not woken for every advert around it all day.
-        val filters = tpms.pairedAddress.value?.takeIf { asMonitor }?.let {
-            listOf(ScanFilter.Builder().setDeviceAddress(it).build())
-        }
+        // the phone is not woken for every advert around it all day. Every
+        // paired cap, one per wheel, not just the first. An address the
+        // builder refuses drops the filter, so the scan hears everything
+        // rather than nothing.
+        val filters = if (!asMonitor) null else runCatching {
+            tpms.sensors.value.map { ScanFilter.Builder().setDeviceAddress(it.address).build() }
+        }.getOrNull()?.takeIf { it.isNotEmpty() }
         runCatching { scanner.startScan(filters, settings, cb) }
             .onSuccess {
                 // Only a search shows as "scanning" and only a search gives

@@ -655,6 +655,12 @@ class HudServer @Inject constructor(
         var attempt = 0
         val sprintStartedAtMs = System.currentTimeMillis()
         while (true) {
+            // Riding, the radio stays out of power-save the whole time, as it
+            // always did: a HUD lost mid-ride has to be found again by
+            // broadcast and multicast, which a dozing radio drops. Only a phone
+            // with no wheel lets it doze while no HUD answers.
+            val riding = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+            if (riding) acquireWifiPerfLock()
             val s = runCatching { settingsRepository.currentOrLoad() }.getOrNull()
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
             val mode = s?.hudDiscoveryMode ?: HudDiscoveryMode.AUTO
@@ -674,9 +680,10 @@ class HudServer @Inject constructor(
 
             if (peer == null) {
                 _connectionSource.value = ConnectionSource.NONE
-                // No HUD on this network: let the Wi-Fi radio power-save. It
-                // used to be held awake all day whenever the HUD was enabled.
-                releaseWifiPerfLock()
+                // No HUD on this network and no ride: let the Wi-Fi radio
+                // power-save. It used to be held awake all day whenever the
+                // HUD was enabled.
+                if (!riding) releaseWifiPerfLock()
                 // Sprint mode: aggressively retry every 2 s for the first
                 // 30 s after the dial loop kicks off so the rider gets a
                 // fast connection on a healthy network. After the sprint
@@ -696,6 +703,9 @@ class HudServer @Inject constructor(
             acquireWifiPerfLock()
             val ok = streamUntilClosed(peer)
             if (!ok) {
+                // Nothing answered at that address (a fixed IP with the HUD
+                // off): same rule as finding no HUD at all.
+                if (!riding) releaseWifiPerfLock()
                 delayOrKick(backoff(attempt++))
             } else {
                 attempt = 0
@@ -1053,8 +1063,12 @@ class HudServer @Inject constructor(
                 // timestamp bump in [snapshot] keeps the HUD's last-frame
                 // freshness signal live.
                 sendJob = scope.launch {
+                    // The buffer only refreshes once a second while no HUD is
+                    // linked, so the first frame is taken fresh.
+                    var first = true
                     while (true) {
-                        val frame = latest
+                        val frame = if (first) runCatching { snapshot() }.getOrDefault(latest) else latest
+                        first = false
                         try {
                             if (!webSocket.send(json.encodeToString(frame))) {
                                 // OkHttp returns false when the outbound

@@ -125,6 +125,8 @@ class GarminBridge @Inject constructor(
      *  registration when a status callback re-fires for a device we already
      *  saw. Cleared when [stop] is called. */
     private val registeredDevices = ConcurrentHashMap<Long, IQDevice>()
+    /** Rung when a device registers, so an idle publish loop sends at once. */
+    private val deviceAdded = kotlinx.coroutines.channels.Channel<Unit>(kotlinx.coroutines.channels.Channel.CONFLATED)
 
     /** Per-device send backpressure: a device stays "busy until" this ms
      *  timestamp while a sendMessage is in flight. While busy we SKIP it and let
@@ -252,7 +254,7 @@ class GarminBridge @Inject constructor(
             while (true) {
                 // Nothing to send to; publish() would return at once anyway.
                 if (registeredDevices.isEmpty()) {
-                    delay(NO_DEVICE_TICK_MS)
+                    kotlinx.coroutines.withTimeoutOrNull(NO_DEVICE_TICK_MS) { deviceAdded.receive() }
                     continue
                 }
                 try {
@@ -419,6 +421,7 @@ class GarminBridge @Inject constructor(
 
     private fun bindDevice(device: IQDevice) {
         if (registeredDevices.putIfAbsent(device.deviceIdentifier, device) != null) return
+        deviceAdded.trySend(Unit)
         try {
             connectIQ.registerForDeviceEvents(device) { _, status ->
                 Log.d(TAG, "device ${device.friendlyName} status=$status")

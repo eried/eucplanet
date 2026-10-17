@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
+import kotlinx.coroutines.flow.first
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -279,12 +280,14 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     if (_pairedNodes.value.isNotEmpty()) _pairedNodes.value = emptyList()
                 }
-                // Opening the app (Settings shows the list) or a connected
-                // watch keeps the 5 s pace; an idle phone with no watch looks
-                // less often.
-                val looking = _pairedNodes.value.isNotEmpty() ||
-                    com.eried.eucplanet.util.AppForeground.isForeground.value
-                delay(if (looking) 5_000L else NO_WATCH_POLL_MS)
+                // A connected watch, a ride or the app open (Settings shows
+                // the list) keeps the 5 s pace. An idle phone with no watch
+                // looks less often, and opening the app cuts that wait short.
+                val foreground = com.eried.eucplanet.util.AppForeground.isForeground
+                val looking = _pairedNodes.value.isNotEmpty() || foreground.value ||
+                    wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                if (looking) delay(5_000L)
+                else kotlinx.coroutines.withTimeoutOrNull(NO_WATCH_POLL_MS) { foreground.first { it } }
             }
         }
 
