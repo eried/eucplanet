@@ -33,6 +33,11 @@ between the rider and the next stop, not the rider.
 | Fields | The dashboard's full metric list; 4 slots; long-press a tile to change |
 | ETA speed | Advanced setting, default 25 km/h, blended with the trip's moving average, capped at 80% of tiltback |
 | Layout | Turn card top-left with ETA and distance under it, tiles at the bottom above a slim stops bar |
+| Speed | Big speed bubble bottom-left, like Google Maps; wheel speed, GPS speed with no wheel |
+| Tiles | Always 4 |
+| Screen | Kept on only while navigating with the map in front, and only when the dashboard keep-on setting is off |
+| Hunt / Homing | Same view; card shows direction and straight-line distance; ETA from closing speed |
+| Arrival | Arrival banner, then the normal map with the route still there |
 
 ## Layout
 
@@ -58,12 +63,16 @@ Portrait:
 - Under it: arrival clock time (device 12/24 h format) and distance left in
   the user's distance unit.
 - Compass stays top-right.
+- Speed bubble: a large round speed readout bottom-left, above the tiles,
+  in the user's speed unit. Wheel speed while a wheel is connected, GPS
+  speed otherwise. Always shown in navigator view.
 - 4 tiles in a row above the stops bar; each shows value and short label.
 - Stops bar: next stop name, stops left, an expand chevron. Expanded, it is
   today's stops panel, which carries End navigation (with its confirm).
 - Search is already hidden while guidance runs; nothing changes there.
 - The Layers and My-location buttons stay, stacked above the tiles.
 
+Landscape: the speed bubble stays bottom-left on the map.
 Landscape (sidebar shown, width at least `navSidebarMinScreenDp`): the turn
 card stays top-left over the map; the tiles and the stops bar move into the
 existing sidebar, tiles at its top.
@@ -128,6 +137,26 @@ an arrival you will not make.
   slot. Settings > Navigator lists the same 4 slots with a reset to default.
 - An unknown or removed key falls back to that slot's default.
 
+## Treasure hunt and Homing
+
+No road route, only a goal. Same navigator view; the card shows the
+direction arrow and the straight-line distance, labelled as straight line.
+ETA uses closing speed: how fast the straight-line distance shrank over the
+last 2 minutes. The ETA is hidden until that is positive and above 5 km/h,
+and hidden while the rider moves away. Unit-tested like `etaSpeedKmh`.
+
+## Screen
+
+While guidance runs and the navigator map is in front, the screen stays on,
+only when the dashboard's keep-screen-on setting is off (when it is on, that
+setting already decides). It is released when guidance ends or the map
+leaves the front.
+
+## Arrival
+
+At the last stop: the arrival banner as today, then the overlay goes away
+and the map is the normal planning map, the route still drawn.
+
 ## Start lands on the map
 
 `startNavigation(mode) { onExit() }` no longer pops to the dashboard; the map
@@ -146,6 +175,7 @@ the map (it now has its own card); arrival banners still show.
 
 ## Testing
 
+- Unit: closing-speed ETA (shrinking, steady, moving away, too slow).
 - Unit: `etaSpeedKmh` (no ride yet, blend at 0, 5 and 10 min, tiltback cap,
   floor, unknown tiltback), ETA formatting.
 - Unit: shared metric formatter matches the dashboard for every known key;
@@ -154,7 +184,8 @@ the map (it now has its own card); arrival banners still show.
 - Emulator (private port), virtual wheel plus a simulated route: card,
   arrival time counting down, tiles live, long-press picker, compass
   toggle, manual pan then return, End navigation, landscape sidebar, the
-  dashboard turn card still working.
+  dashboard turn card still working, speed bubble, screen kept on only
+  while navigating, homing card, arrival back to the normal map.
 - BRANCH.md: Worked on and Please test lines.
 
 ## Out of scope
