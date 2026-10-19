@@ -47,7 +47,10 @@ internal fun mapLayersJson(): String =
  *  - native → JS: `nativeRender(waypointsJson, geometryJson, fit)`,
  *    `nativeSetUser(lat,lng)`, `nativeRecenter(lat,lng,zoom)`,
  *    `nativeCenterOn(lat,lng)`, `nativeSetAccent(hex)`,
- *    `nativeSetMapType(type)`.
+ *    `nativeSetMapType(type)`, `nativeSetNavigatorView(on)` (follow the rider,
+ *    not the midpoint to the next stop), `nativeSetNavLookAhead(px)` (rider
+ *    sits this many CSS px below the visible centre), `nativeSetNorthUp(on)`
+ *    (auto-follow keeps bearing 0).
  *  - JS → native: `AndroidNav.onMapClick(lat,lng)`,
  *    `AndroidNav.onMarkerDragged(index,lat,lng)`, `AndroidNav.onSelfTap()`.
  *
@@ -450,6 +453,14 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   window.nativeSetRecenterOffset = function(px){
     navRecenterOffsetPx = px || 0;
   };
+  // Navigator view: follow the rider (not the midpoint to the next stop),
+  // low on screen so more road ahead shows, heading-up or north-up.
+  var navigatorView = false;
+  var navLookAheadPx = 0;
+  var navNorthUp = false;
+  window.nativeSetNavigatorView = function(on){ navigatorView = !!on; };
+  window.nativeSetNavLookAhead = function(px){ navLookAheadPx = px || 0; };
+  window.nativeSetNorthUp = function(on){ navNorthUp = !!on; bearingEase = null; };
   var movingSinceMs = 0;
   // The smoothed heading the auto-follow tween chases. NaN means "no
   // value yet"; will be set the first time userMoving flips to true.
@@ -522,13 +533,16 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       // in the unoccluded zone (between top bar and stops flyout).
       var centerLat = riderLL.lat;
       var centerLng = riderLL.lng;
-      if (nextActiveMarkerIdx >= 0 && nextActiveMarkerIdx < markers.length) {
+      if (!navigatorView && nextActiveMarkerIdx >= 0 && nextActiveMarkerIdx < markers.length) {
         var nextLL2 = markers[nextActiveMarkerIdx].getLatLng();
         centerLat = (riderLL.lat + nextLL2.lat) / 2;
         centerLng = (riderLL.lng + nextLL2.lng) / 2;
       }
+      // centerLatLngFor puts the point ABOVE centre for a positive offset,
+      // so the look-ahead is subtracted to put the rider below it.
+      var followOffsetPx = navRecenterOffsetPx - (navigatorView ? navLookAheadPx : 0);
       var targetCenter = centerLatLngFor(
-        centerLat, centerLng, newZoom, navRecenterOffsetPx
+        centerLat, centerLng, newZoom, followOffsetPx
       );
       var c = map.getCenter();
       var dLat = targetCenter.lat - c.lat;
@@ -577,7 +591,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     // at start, slow at end); riders wanted both halves of the curve
     // so a course correction starts gently before accelerating into
     // the rotation.
-    var target = -smoothedHeading;
+    var target = navNorthUp ? 0 : -smoothedHeading;
     var current = map.getBearing();
     var delta = ((target - current + 540) % 360) - 180;
     if (Math.abs(delta) > 0.5) {
