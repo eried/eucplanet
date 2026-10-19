@@ -12,6 +12,11 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavRoute
+import com.eried.eucplanet.data.model.NavState
+import com.eried.eucplanet.data.model.NavigatorViewSettings
+import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.ui.settings.KNOWN_DASHBOARD_METRICS
 import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
@@ -85,6 +90,8 @@ class RouteBuilderViewModel @Inject constructor(
     private val navMarkerStore: com.eried.eucplanet.data.store.NavMarkerStore,
     private val shareSession: ShareSession,
     private val pendingShareJoin: PendingShareJoin,
+    private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
+    private val tripMeterRepository: com.eried.eucplanet.data.repository.TripMeterRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -1698,6 +1705,61 @@ class RouteBuilderViewModel @Inject constructor(
     /** Ends the running guidance session (the on-map "Stop navigation" action). */
     fun stopNavigation() = navigationEngine.stop()
 
+    // --- Navigator view (the overlay shown on the map while guidance runs) ---
+
+    /** The engine's live guidance state: turn, distances, arrival time. */
+    val navState: StateFlow<NavState> = navigationEngine.navState
+
+    val wheelData: StateFlow<WheelData> = wheelRepository.wheelData
+
+    /** True while a wheel is connected; tiles show a placeholder otherwise. */
+    val wheelLive: StateFlow<Boolean> = wheelRepository.connectionState
+        .map { it == ConnectionState.CONNECTED }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** Trip meter distance for the TRIP_METER tile, km. */
+    val tripMeterKm: StateFlow<Float> = tripMeterRepository.state
+        .map { it.distanceKm }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0f)
+
+    val navigatorView: StateFlow<NavigatorViewSettings> = settingsRepository.settings
+        .map { it.navigatorView }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, NavigatorViewSettings())
+
+    val unitsForMetrics: StateFlow<MetricUnits> = settingsRepository.settings
+        .map {
+            MetricUnits(
+                speed = Units.effectiveSpeedUnit(it),
+                distance = Units.effectiveDistanceUnit(it),
+                temp = Units.effectiveTempUnit(it),
+                pressure = Units.effectivePressureUnit(it),
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, MetricUnits("kmh", "km", "C", "bar"))
+
+    /** Puts [key] in navigator tile [index] (0 until [NavigatorViewSettings.SLOTS]). */
+    fun setNavigatorTile(index: Int, key: String) {
+        if (index !in 0 until NavigatorViewSettings.SLOTS) return
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                val known = KNOWN_DASHBOARD_METRICS.toSet()
+                val slots = NavigatorViewSettings.metricSlots(s.navigatorView.metrics, known)
+                    .toMutableList()
+                if (key in known) slots[index] = key
+                s.copy(navigatorView = s.navigatorView.copy(metrics = slots.joinToString(",")))
+            }
+        }
+    }
+
+    /** Flips the navigator camera between heading-up and north-up. */
+    fun toggleNavNorthUp() {
+        viewModelScope.launch {
+            settingsRepository.update { s ->
+                s.copy(navigatorView = s.navigatorView.copy(northUp = !s.navigatorView.northUp))
+            }
+        }
+    }
+
     fun geometryJson(): String {
         val arr = JSONArray()
         _route.value?.geometry?.forEach { p ->
@@ -2009,7 +2071,7 @@ class RouteBuilderViewModel @Inject constructor(
 
     /**
      * Hands a route to the [NavigationEngine] and runs [onStarted] so the
-     * screen can close the builder. Position 0 is always the rider: when the
+     * screen can fold its stops panel into the navigator view. Position 0 is always the rider: when the
      * start pin isn't already the live location, the rider's current position
      * is prepended as the origin, so navigating to a single dropped pin works.
      */
@@ -2035,8 +2097,8 @@ class RouteBuilderViewModel @Inject constructor(
                 return
             }
         }
-        // Close the builder immediately, before guidance flips on, so the
-        // rider never sees the button flash to "Stop navigation".
+        // Tell the screen at once, before guidance flips on, so the panel
+        // folds as Start is tapped.
         onStarted()
         viewModelScope.launch {
             val tMode = _travelMode.value
