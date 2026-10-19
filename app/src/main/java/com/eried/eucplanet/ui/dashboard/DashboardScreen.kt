@@ -1358,6 +1358,16 @@ fun DashboardScreen(
                                     navOverlayVm.endNavigation()
                                 }
                             )
+                            // Tap shows the cue popup while navigating, so the
+                            // map is one entry away here.
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.nav_open)) },
+                                onClick = {
+                                    showMapMenu = false
+                                    onNavigateToNavigator()
+                                }
+                            )
+                            androidx.compose.material3.HorizontalDivider()
                         } else if (currentRoute != null) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.nav_start_short)) },
@@ -1366,6 +1376,7 @@ fun DashboardScreen(
                                     navOverlayVm.startCurrentRoute()
                                 }
                             )
+                            androidx.compose.material3.HorizontalDivider()
                         }
                         // b) Quick jump to the navigation settings.
                         DropdownMenuItem(

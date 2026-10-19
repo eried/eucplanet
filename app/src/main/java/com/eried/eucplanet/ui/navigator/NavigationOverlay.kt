@@ -205,15 +205,16 @@ private fun CenterPopup(
         modifier = Modifier
             .width(340.dp)
             .padding(8.dp)
-            // Absorb taps so they don't fall through to the app underneath. A
-            // no-op clickable does this cleanly, the perpetual event-consume
-            // loop used before was cancelling the popup's own button taps.
+            // Absorbs taps so they don't fall through to the app underneath,
+            // and a tap anywhere on the card opens the map navigator: the map
+            // icon alone was a small target. On the map itself it stays a
+            // no-op. The header buttons take their own taps first.
             .clickable(
                 interactionSource = remember {
                     androidx.compose.foundation.interaction.MutableInteractionSource()
                 },
                 indication = null
-            ) {},
+            ) { if (!onMapScreen) { onMinimize(); onOpenMap() } },
         shape = RoundedCornerShape(12.dp),
         color = panel,
         contentColor = ink,
