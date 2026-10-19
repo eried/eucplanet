@@ -528,8 +528,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       // Target centre: the midpoint between the rider and the next
       // stop, so BOTH points stay symmetrically inside the visible
       // (unoccluded) area at the current zoom. When there is no next
-      // stop, fall back to the rider's own position. The
-      // panel-offset shift still applies so the visible centre lands
+      // stop, fall back to the rider's own position. In navigator view
+      // the target is the rider alone, placed low by the look-ahead.
+      // The panel-offset shift still applies so the visible centre lands
       // in the unoccluded zone (between top bar and stops flyout).
       var centerLat = riderLL.lat;
       var centerLng = riderLL.lng;

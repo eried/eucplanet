@@ -1,7 +1,9 @@
 package com.eried.eucplanet.ui.metrics
 
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.ui.settings.KNOWN_DASHBOARD_METRICS
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
 import java.util.Locale
@@ -57,4 +59,35 @@ class MetricTextTest {
 
     @Test fun zeroVoltageIsPlaceholder() =
         assertEquals("--", MetricText.of("VOLTAGE", inputs().copy(wheel = WheelData())))
+
+    /**
+     * Drift guard: a key added to the catalog without a formatter branch shows
+     * a dash on the dashboard and the navigator tiles. Every key formats with
+     * a fully live wheel; only the keys listed here are dashes today.
+     */
+    @Test fun everyKnownKeyFormatsWithALiveWheel() {
+        val placeholderToday = setOf(
+            "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
+            "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM",
+        )
+        val full = wheel.copy(
+            battery1Percent = 66f, battery2Percent = 70f,
+            temperatures = listOf(45f, 40f, 30f), maxTemperature = 45f,
+            latitude = 59.91, longitude = 10.75,
+            forwardGFromSpeed = 0.1f, motorPower = 850,
+            whConsumed = 120f, whRegen = 8f, whPerKmRecent = 18f, rangeKmEstimate = 42f,
+            dynamicSpeedLimit = 50f, dynamicCurrentLimit = 80f, autoOffSeconds = 300,
+            batteryEnvelope = 67f, tirePressureKpa = 250f, hasTirePressure = true,
+            pcMode = 1, wheelMaxSpeedKmh = 60f, wheelAlarmSpeedKmh = 50f, rssiDbm = -60,
+        )
+        val i = inputs().copy(wheel = full, externalGpsBatteryPct = 88)
+        KNOWN_DASHBOARD_METRICS.forEach { key ->
+            val text = MetricText.of(key, i)
+            if (key in placeholderToday) {
+                assertEquals("$key is a dash today", MetricText.PLACEHOLDER, text)
+            } else {
+                assertNotEquals("$key has no formatter branch", MetricText.PLACEHOLDER, text)
+            }
+        }
+    }
 }

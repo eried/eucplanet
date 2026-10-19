@@ -12,6 +12,7 @@ import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -129,6 +130,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -738,22 +740,15 @@ fun RouteBuilderScreen(
 
     // Starting navigation, Direct mode has no street-by-street routing, so it
     // launches Treasure Hunt; the routed modes launch turn-by-turn guidance.
-    // Shared by the menu item and the bottom button.
-    // Set the moment Start is tapped so the button never flips to "Stop
-    // navigation" while the builder is still animating away.
-    var navStarting by remember { mutableStateOf(false) }
-    // Start now stays on the map, so the guard ends once guidance is running
-    // and the panel shows "Stop navigation" as usual.
-    LaunchedEffect(navRunning) { if (navRunning) navStarting = false }
+    // Shared by the menu item and the bottom button. A second tap while the
+    // route is still being solved is ignored in the ViewModel.
     val startNav: () -> Unit = {
-        navStarting = true
         val mode = if (travelMode == TravelMode.STRAIGHT)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
         viewModel.startNavigation(mode) { panelExpanded = false }
     }
     // Hold-to-override: skip the too-far guard and start anyway.
     val startNavForce: () -> Unit = {
-        navStarting = true
         val mode = if (travelMode == TravelMode.STRAIGHT)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
         viewModel.startNavigation(mode, force = true) { panelExpanded = false }
@@ -1227,54 +1222,20 @@ fun RouteBuilderScreen(
             // flicker, and a button that comes and goes is one the rider has
             // to hunt for. Dimmed it reads as "nothing to reset" while still
             // showing which way the map is turned.
-            val mapBearing by viewModel.mapBearing.collectAsState()
-            val pointingNorth = mapBearing <= 2f || mapBearing >= 358f
-            val compassAlpha by animateFloatAsState(
-                targetValue = if (pointingNorth) 0.35f else 1f,
-                animationSpec = tween(durationMillis = 450),
-                label = "compassAlpha",
+            // Its own composable: the map reports every 1.5 degrees of turn
+            // during heading-up, and collecting that here recomposed the whole
+            // map screen for the whole ride.
+            // In landscape it clears the right-hand stops sidebar, so the tile
+            // column under it stays on the map too.
+            NavCompassButton(
+                viewModel = viewModel,
+                navRunning = navRunning,
+                northUp = navigatorView.northUp,
+                webView = webView,
+                topPad = padding.calculateTopPadding(),
+                endInset = if (landscape && stopsSide != "LEFT")
+                    advancedVars.navSidebarWidthDp.dp else 0.dp,
             )
-            run {
-                // While navigating the compass toggles heading-up / north-up
-                // (remembered) and stays at full strength; outside guidance it
-                // resets the map to north as before.
-                // North-up during guidance lights the button in the accent
-                // color, so the mode reads at a glance.
-                OverlayFab(
-                    active = navRunning && navigatorView.northUp,
-                    loading = false,
-                    icon = Icons.Default.Explore,
-                    contentDescription = stringResource(
-                        when {
-                            !navRunning -> R.string.nav_reset_north
-                            navigatorView.northUp -> R.string.nav_view_north_up
-                            else -> R.string.nav_view_heading_up
-                        }
-                    ),
-                    onClick = {
-                        if (navRunning) {
-                            // The follow only turns the map while the rider
-                            // moves, so switching TO north-up squares it now.
-                            val toNorthUp = !navigatorView.northUp
-                            viewModel.toggleNavNorthUp()
-                            if (toNorthUp) webView?.evaluateJavascript(
-                                "nativeSetNorthUp(true);nativeResetNorth();", null
-                            )
-                        } else {
-                            webView?.evaluateJavascript("nativeResetNorth();", null)
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = padding.calculateTopPadding())
-                        .padding(end = 16.dp, top = 12.dp)
-                        .alpha(if (navRunning) 1f else compassAlpha),
-                    // Needle points where the map is turned, so it reads as a
-                    // compass. On the modifier this span the whole button and
-                    // tilted its housing with it.
-                    iconRotation = -mapBearing
-                )
-            }
 
             // --- Navigator view ----------------------------------------------
             // While guidance runs the map carries what a rider needs: the turn
@@ -1600,7 +1561,13 @@ fun RouteBuilderScreen(
                     routeDistanceM = tourDistanceM,
                     stopLegs = stopLegs,
                     nextStopRemainingM = {
-                        if (navRunning) navStateHolder.value.nextStopRemainingM else Double.NaN
+                        // Live only while riding: the arrived frame still holds
+                        // the stop just reached, and before a heading exists
+                        // the value is a straight line, so the planned leg
+                        // shows instead.
+                        val s = navStateHolder.value
+                        if (navRunning && !s.arrived && !s.waiting) s.nextStopRemainingM
+                        else Double.NaN
                     },
                     routing = routing,
                     imperial = imperial,
@@ -1622,7 +1589,7 @@ fun RouteBuilderScreen(
                     onStopNavigation = viewModel::stopNavigation,
                     onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
-                    navRunning = navRunning && !navStarting,
+                    navRunning = navRunning,
                     modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
                 )
             }
@@ -3281,6 +3248,69 @@ private fun OcmCommunityCard(ocm: OcmCharger, onOpenUrl: (String) -> Unit) {
  * it, so the button is always tappable) and that supports an optional
  * long-press. Used for the charger / places overlay toggles.
  */
+/**
+ * The compass, top right. Outside guidance it resets the map to north; while
+ * navigating it toggles heading-up and north-up. It collects the map bearing
+ * itself so a turn recomposes only this button. [endInset] keeps it clear of
+ * the landscape stops sidebar.
+ */
+@Composable
+private fun BoxScope.NavCompassButton(
+    viewModel: RouteBuilderViewModel,
+    navRunning: Boolean,
+    northUp: Boolean,
+    webView: WebView?,
+    topPad: Dp,
+    endInset: Dp,
+) {
+    val mapBearing by viewModel.mapBearing.collectAsState()
+    val pointingNorth = mapBearing <= 2f || mapBearing >= 358f
+    val compassAlpha by animateFloatAsState(
+        targetValue = if (pointingNorth) 0.35f else 1f,
+        animationSpec = tween(durationMillis = 450),
+        label = "compassAlpha",
+    )
+    // While navigating the compass toggles heading-up / north-up
+    // (remembered) and stays at full strength; outside guidance it
+    // resets the map to north as before.
+    // North-up during guidance lights the button in the accent
+    // color, so the mode reads at a glance.
+    OverlayFab(
+        active = navRunning && northUp,
+        loading = false,
+        icon = Icons.Default.Explore,
+        contentDescription = stringResource(
+            when {
+                !navRunning -> R.string.nav_reset_north
+                northUp -> R.string.nav_view_north_up
+                else -> R.string.nav_view_heading_up
+            }
+        ),
+        onClick = {
+            if (navRunning) {
+                // The follow only turns the map while the rider
+                // moves, so switching TO north-up squares it now.
+                val toNorthUp = !northUp
+                viewModel.toggleNavNorthUp()
+                if (toNorthUp) webView?.evaluateJavascript(
+                    "nativeSetNorthUp(true);nativeResetNorth();", null
+                )
+            } else {
+                webView?.evaluateJavascript("nativeResetNorth();", null)
+            }
+        },
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = topPad)
+            .padding(end = 16.dp + endInset, top = 12.dp)
+            .alpha(if (navRunning) 1f else compassAlpha),
+        // Needle points where the map is turned, so it reads as a
+        // compass. On the modifier this span the whole button and
+        // tilted its housing with it.
+        iconRotation = -mapBearing
+    )
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun OverlayFab(

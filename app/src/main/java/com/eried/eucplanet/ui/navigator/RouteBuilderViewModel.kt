@@ -556,15 +556,15 @@ class RouteBuilderViewModel @Inject constructor(
             // independent of whether anything was actually restored.
             restoreReady.complete(Unit)
         }
-        // While navigation is running, drop already-reached stops from the
-        // builder's visible waypoint list so the map matches reality. The
-        // engine's navState carries the index of the *next* unvisited goal;
-        // each time that advances, we trim the corresponding stops from the
-        // head of [_waypoints]. The map redraws automatically from the
-        // bumpRender() call inside the trim. When nav stops, the in-memory
-        // CurrentRouteStore holds whatever is left, so the next time the
-        // builder is opened it reflects the trimmed route too.
-        // While navigation is running, each leg is a single-destination
+        // While navigation is running, reached stops stay in the builder's
+        // list, marked passed, so the map and the stops panel match reality.
+        // The engine's navState names the stop being ridden to (nextStop);
+        // every stop before it is marked passed, matched by position so a
+        // re-route keeps working. This covers Full path and Treasure hunt,
+        // which move past a stop without raising arrived. The engine trims
+        // the in-memory CurrentRouteStore itself, so re-opening the builder
+        // after the ride shows only what is left.
+        // In Next segment each leg is a single-destination
         // route (origin -> next non-passed stop). On arrival, mark the
         // first non-passed stop as passed (don't remove -- the rider
         // still wants to see it in the list, struck-through). If any
@@ -596,6 +596,18 @@ class RouteBuilderViewModel @Inject constructor(
                     "NAV-STATE active=${nav.active} arrived=${nav.arrived} " +
                         "arrivalProcessed=$arrivalProcessed wpCount=${_waypoints.value.size}"
                 )
+                // Full path and Treasure hunt move on past a stop without an
+                // arrival: tick off every stop before the one being ridden to.
+                // Matched by position, so a re-route keeps working. In Next
+                // segment the stop being ridden to is already the first one
+                // not reached, so this changes nothing there.
+                if (nav.active && !nav.arrived && !nav.waiting) {
+                    markPassedUpTo(_waypoints.value, nav.nextStop)?.let { updated ->
+                        _waypoints.value = updated
+                        _route.value = _route.value?.copy(waypoints = updated)
+                        bumpRender(fit = false)
+                    }
+                }
                 if (!nav.active || !nav.arrived) {
                     arrivalProcessed = false
                     return@collect
@@ -628,8 +640,17 @@ class RouteBuilderViewModel @Inject constructor(
                         "passedFlags=${current.map { it.passed }}"
                 )
                 if (nextIdx < 0) return@collect
-                val updated = current.toMutableList().apply {
-                    this[nextIdx] = this[nextIdx].copy(passed = true)
+                // The arrived frame names the stop just reached: tick it off
+                // and any before it (a Full path that homed past them). When
+                // it is already ticked off (a VM rebuilt from the engine's
+                // own mark), leave the list alone. Without a named stop, fall
+                // back to the first stop not reached yet.
+                val updated = if (nav.nextStop != null) {
+                    markPassedUpTo(current, nav.nextStop, inclusive = true) ?: return@collect
+                } else {
+                    current.toMutableList().apply {
+                        this[nextIdx] = this[nextIdx].copy(passed = true)
+                    }
                 }
                 _waypoints.value = updated
                 bumpRender(fit = false)
@@ -2079,6 +2100,9 @@ class RouteBuilderViewModel @Inject constructor(
 
     // --- Starting navigation -----------------------------------------------------
 
+    /** The Start in flight: solving the route, then handing it to the engine. */
+    private var startJob: Job? = null
+
     /**
      * Hands a route to the [NavigationEngine] and runs [onStarted] so the
      * screen can fold its stops panel into the navigator view. Position 0 is always the rider: when the
@@ -2086,6 +2110,9 @@ class RouteBuilderViewModel @Inject constructor(
      * is prepended as the origin, so navigating to a single dropped pin works.
      */
     fun startNavigation(mode: NavMode, force: Boolean = false, onStarted: () -> Unit) {
+        // Start stays on the map, so a second tap can land while the route is
+        // still being solved; it must not start a second session.
+        if (startJob?.isActive == true) return
         val dests = _waypoints.value
         if (dests.isEmpty()) {
             _messages.tryEmit(R.string.nav_need_destination)
@@ -2110,7 +2137,7 @@ class RouteBuilderViewModel @Inject constructor(
         // Tell the screen at once, before guidance flips on, so the panel
         // folds as Start is tapped.
         onStarted()
-        viewModelScope.launch {
+        startJob = viewModelScope.launch {
             val tMode = _travelMode.value
             // Full path hands the engine the WHOLE remaining tour (origin ->
             // every non-passed stop) so it follows one solved polyline with
@@ -2283,4 +2310,28 @@ internal fun reorderKeepingPassed(list: List<Waypoint>, from: Int, to: Int): Lis
     val locked = passedPrefix(list)
     if (from < locked) return null
     return list.toMutableList().apply { add(to.coerceAtLeast(locked), removeAt(from)) }
+}
+
+/**
+ * [list] with every stop not reached yet that comes before [nextStop] marked
+ * reached, or null when nothing changes. [nextStop] matches the first stop not
+ * reached yet at that position (within 1e-6 degrees), so it survives a
+ * re-route and a loop whose last stop sits on its first. [inclusive] marks the
+ * matched stop too (the rider arrived at it). No match changes nothing.
+ */
+internal fun markPassedUpTo(
+    list: List<Waypoint>,
+    nextStop: GeoPoint?,
+    inclusive: Boolean = false
+): List<Waypoint>? {
+    if (nextStop == null) return null
+    val k = list.indexOfFirst {
+        !it.passed &&
+            kotlin.math.abs(it.lat - nextStop.lat) < 1e-6 &&
+            kotlin.math.abs(it.lng - nextStop.lng) < 1e-6
+    }
+    if (k < 0) return null
+    val end = if (inclusive) k + 1 else k
+    if ((0 until end).none { !list[it].passed }) return null
+    return list.mapIndexed { i, w -> if (i < end && !w.passed) w.copy(passed = true) else w }
 }

@@ -334,7 +334,8 @@ class NavigationEngine @Inject constructor(
                 waiting = true,
                 primaryText = context.getString(R.string.nav_start_riding),
                 goalIndex = 1,
-                goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
+                goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
+                nextStop = route.waypoints.getOrNull(1)?.point()
             )
 
             if (voiceEnabled) {
@@ -403,6 +404,7 @@ class NavigationEngine @Inject constructor(
                 proximity = null,
                 goalIndex = 1,
                 goalCount = (newRoute.waypoints.size - 1).coerceAtLeast(1),
+                nextStop = goal,
                 popupTick = _navState.value.popupTick + 1
             )
         }
@@ -578,7 +580,8 @@ class NavigationEngine @Inject constructor(
                 straightLine = navMode == NavMode.TREASURE_HUNT,
                 etaEpochMs = 0L,
                 goalIndex = currentGoal.coerceIn(1, goalCount),
-                goalCount = goalCount
+                goalCount = goalCount,
+                nextStop = goal?.point()
             )
             syncBuilderRoute((currentGoal - 1).coerceAtLeast(0))
             if (voiceEnabled && !preMoveCueSpoken && !distToGoal.isNaN()) {
@@ -706,7 +709,10 @@ class NavigationEngine @Inject constructor(
             nextStreet = next?.streetName ?: "",
             offRoute = _navState.value.offRoute,
             goalIndex = (reached + 1).coerceIn(1, (route.waypoints.size - 1).coerceAtLeast(1)),
-            goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
+            goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
+            // The stop the countdown runs to; the builder ticks off the ones
+            // before it, since Full path raises no arrival for them.
+            nextStop = route.waypoints.getOrNull(reached + 1)?.point()
         )
     }
 
@@ -856,7 +862,11 @@ class NavigationEngine @Inject constructor(
             etaEpochMs = straightEta(now, dist),
             nextStreet = "",
             goalIndex = (route.waypoints.size - 1).coerceAtLeast(1),
-            goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
+            goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
+            // Homing aims at the last stop and skips any in between, so only a
+            // single leg names its stop; a multi-stop fallback ticks them all
+            // off at arrival instead.
+            nextStop = if (route.waypoints.size == 2) target else null
         )
     }
 
@@ -928,7 +938,8 @@ class NavigationEngine @Inject constructor(
             nextStreet = "",
             proximity = proximity,
             goalIndex = currentGoal,
-            goalCount = (goals.size - 1).coerceAtLeast(1)
+            goalCount = (goals.size - 1).coerceAtLeast(1),
+            nextStop = target.point()
         )
 
         // Voice cadence: speak on a fresh goal or every HUNT_VOICE_INTERVAL
@@ -1077,6 +1088,7 @@ class NavigationEngine @Inject constructor(
                     proximity = null,
                     goalIndex = info.justArrivedIndex,
                     goalCount = info.totalGoals,
+                    nextStop = justArrivedGoal,
                     popupTick = _navState.value.popupTick + 1
                 )
                 if (voiceEnabled) {
@@ -1108,6 +1120,7 @@ class NavigationEngine @Inject constructor(
                 distanceText = "",
                 nextStreet = "",
                 proximity = null,
+                nextStop = justArrivedGoal,
                 popupTick = _navState.value.popupTick + 1
             )
             if (voiceEnabled) {

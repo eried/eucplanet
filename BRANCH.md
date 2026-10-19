@@ -65,6 +65,7 @@ only when you can cut the ride short.
 - Navigation: route avoidances (tolls, ferries...) now hold on routes with 10 or more stops; before, they were silently dropped.
 - Share route: the card's stop distances and total match the stop list. In Next segment it could show about 0 m.
 - Map and navigation follow Distance unit (Settings, Units). With miles picked there, the map used to stay in km.
+- Navigation: a navigator view on the map while you ride: next turn, arrival time, distance left, speed and 4 numbers you pick (long-press to change). Start now stays on the map.
 
 ## Please test
 
@@ -92,6 +93,8 @@ only when you can cut the ride short.
 - Stop list: the last running total matches the total at the top? Numbers hide while you drag a stop?
 - An avoidance on (Navigation & weather) and 10+ stops: does the route still avoid it?
 - Distance unit set to miles: the stop list, voice and Navigation & weather tolerances use mi and ft?
+- Navigate a 2-stop route from the map, in Full path and Next segment: turn card, arrival time, the next stop counting down and ticked off when passed, End navigation.
+- Landscape and north-up (tap the compass while navigating): everything readable and reachable?
 
 **InMotion X1**
 - Tiltback and alarm speeds match the InMotion app?

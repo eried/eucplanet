@@ -231,6 +231,12 @@ data class NavState(
     val remainingM: Double = Double.NaN,
     /** Distance left to the next stop along the route, metres; NaN when unknown. */
     val nextStopRemainingM: Double = Double.NaN,
+    /**
+     * Where the stop being ridden to sits; on the arrived frame, the stop just
+     * reached. The builder ticks off the stops before it, which Full path never
+     * raises an arrival for. Null when unknown.
+     */
+    val nextStop: GeoPoint? = null,
     /** True when distances are straight lines to a goal (Treasure hunt, Homing). */
     val straightLine: Boolean = false,
     /** Estimated arrival, epoch ms; 0 when there is no estimate to show. */
