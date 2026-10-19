@@ -23,5 +23,12 @@ data class NavigatorViewSettings(
                 parts.getOrNull(i)?.takeIf { it in known } ?: DEFAULT_KEYS[i]
             }
         }
+
+        /** [csv] with tile [index] set to [key]; an out-of-range index changes nothing. */
+        fun withSlot(csv: String, index: Int, key: String, known: Set<String>): String {
+            val slots = metricSlots(csv, known).toMutableList()
+            if (index in slots.indices) slots[index] = key
+            return slots.joinToString(",")
+        }
     }
 }

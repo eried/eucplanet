@@ -270,6 +270,63 @@ fun NavigatorSettingsContent(
             )
         }
 
+        // --- Navigator tiles: the 4 numbers beside the map while navigating ---
+        SectionHeader(stringResource(R.string.nav_view_tiles))
+        HintText(stringResource(R.string.nav_view_tiles_desc), small = true)
+        val tileKeys = com.eried.eucplanet.data.model.NavigatorViewSettings.metricSlots(
+            settings.navigatorView.metrics, KNOWN_DASHBOARD_METRICS.toSet())
+        var pickingTile by remember { mutableStateOf<Int?>(null) }
+        tileKeys.forEachIndexed { i, key ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { pickingTile = i }
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.nav_view_tile_n, i + 1),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+                Text(
+                    metricChipLabel(key),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.appColors.primary,
+                )
+            }
+        }
+        pickingTile?.let { idx ->
+            com.eried.eucplanet.ui.navigator.NavMetricPicker(
+                current = tileKeys[idx],
+                onPick = { viewModel.updateNavigatorTile(idx, it); pickingTile = null },
+                onDismiss = { pickingTile = null },
+            )
+        }
+        val tilesAreDefault = tileKeys == com.eried.eucplanet.data.model.NavigatorViewSettings.DEFAULT_KEYS
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            androidx.compose.material3.TextButton(
+                onClick = { viewModel.resetNavigatorTiles() },
+                enabled = !tilesAreDefault,
+                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.appColors.primary,
+                    disabledContentColor = MaterialTheme.appColors.textSecondary,
+                ),
+            ) { Text(stringResource(R.string.nav_view_reset_tiles)) }
+            Text(
+                com.eried.eucplanet.data.model.NavigatorViewSettings.DEFAULT_KEYS
+                    .map { metricChipLabel(it, short = true) }.joinToString(" / "),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier.weight(1f),
+            )
+        }
+
         // --- Weather / ridability ---------------------------------------
         // The dashboard weather icon and its forecast flyout. Ships off;
         // enabling adds the icon above the map button.

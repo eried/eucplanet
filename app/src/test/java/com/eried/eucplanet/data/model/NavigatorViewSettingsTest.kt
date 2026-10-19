@@ -26,6 +26,18 @@ class NavigatorViewSettingsTest {
         assertEquals(4, NavigatorViewSettings.metricSlots("", known).size)
     }
 
+    @Test fun withSlotReplacesOnlyThatTile() {
+        assertEquals("VOLTAGE,BATTERY,SPEED,LOAD",
+            NavigatorViewSettings.withSlot(NavigatorViewSettings.DEFAULT_METRICS, 2, "SPEED", known))
+    }
+
+    @Test fun withSlotIgnoresOutOfRangeIndex() {
+        assertEquals(NavigatorViewSettings.DEFAULT_METRICS,
+            NavigatorViewSettings.withSlot(NavigatorViewSettings.DEFAULT_METRICS, 4, "SPEED", known))
+        assertEquals(NavigatorViewSettings.DEFAULT_METRICS,
+            NavigatorViewSettings.withSlot(NavigatorViewSettings.DEFAULT_METRICS, -1, "SPEED", known))
+    }
+
     @Test fun cruiseSpecIsRegisteredWithDefault25() {
         val spec = ADVANCED_SPECS.single { it.id == "navCruiseKmh" }
         assertEquals(25, spec.get(AdvancedSettings()))

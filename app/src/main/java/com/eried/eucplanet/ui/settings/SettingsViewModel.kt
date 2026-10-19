@@ -1058,6 +1058,17 @@ class SettingsViewModel @Inject constructor(
         copy(androidAuto = androidAuto.copy(metrics = slots.joinToString(",")))
     }
 
+    fun updateNavigatorTile(index: Int, key: String) = update {
+        copy(navigatorView = navigatorView.copy(
+            metrics = com.eried.eucplanet.data.model.NavigatorViewSettings.withSlot(
+                navigatorView.metrics, index, key, KNOWN_DASHBOARD_METRICS.toSet())))
+    }
+
+    fun resetNavigatorTiles() = update {
+        copy(navigatorView = navigatorView.copy(
+            metrics = com.eried.eucplanet.data.model.NavigatorViewSettings.DEFAULT_METRICS))
+    }
+
     fun updateAndroidAutoActionSlot(index: Int, key: String) = update {
         val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
             .actionSlots(androidAuto.actions).toMutableList()
