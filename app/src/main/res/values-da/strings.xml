@@ -1724,6 +1724,15 @@
     <string name="nav_map_style">Kortstil</string>
     <string name="nav_overlays">Lag ovenpå</string>
     <string name="nav_reset_north">Vend mod nord</string>
+    <string name="nav_view_straight_line">luftlinje</string>
+    <string name="nav_view_heading_up">Kørselsretning op, tryk for nord op</string>
+    <string name="nav_view_north_up">Nord op, tryk for kørselsretning op</string>
+    <string name="nav_view_tiles">Navigationsfliser</string>
+    <string name="nav_view_tiles_desc">De 4 tal ved siden af kortet under navigation. Tryk længe på en flise på kortet for at ændre den.</string>
+    <string name="nav_view_tile_n">Flise %1$d</string>
+    <string name="nav_view_pick_metric">Vælg et tal</string>
+    <string name="nav_view_reset_tiles">Nulstil fliser</string>
+    <string name="nav_view_speed">Fart</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellit</string>

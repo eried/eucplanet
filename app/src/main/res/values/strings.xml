@@ -2263,6 +2263,15 @@
     <string name="nav_map_style">Map style</string>
     <string name="nav_overlays">Overlays</string>
     <string name="nav_reset_north">Point north</string>
+    <string name="nav_view_straight_line">straight line</string>
+    <string name="nav_view_heading_up">Heading up, tap for north up</string>
+    <string name="nav_view_north_up">North up, tap for heading up</string>
+    <string name="nav_view_tiles">Navigator tiles</string>
+    <string name="nav_view_tiles_desc">The 4 numbers beside the map while navigating. Long-press a tile on the map to change it.</string>
+    <string name="nav_view_tile_n">Tile %1$d</string>
+    <string name="nav_view_pick_metric">Pick a number</string>
+    <string name="nav_view_reset_tiles">Reset tiles</string>
+    <string name="nav_view_speed">Speed</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellite</string>

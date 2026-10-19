@@ -1728,6 +1728,15 @@
     <string name="nav_map_style">Styl mapy</string>
     <string name="nav_overlays">Warstwy</string>
     <string name="nav_reset_north">Ustaw na północ</string>
+    <string name="nav_view_straight_line">w linii prostej</string>
+    <string name="nav_view_heading_up">Kierunek jazdy u góry, dotknij, by północ była u góry</string>
+    <string name="nav_view_north_up">Północ u góry, dotknij, by kierunek jazdy był u góry</string>
+    <string name="nav_view_tiles">Kafelki nawigacji</string>
+    <string name="nav_view_tiles_desc">4 liczby obok mapy podczas nawigacji. Przytrzymaj kafelek na mapie, aby go zmienić.</string>
+    <string name="nav_view_tile_n">Kafelek %1$d</string>
+    <string name="nav_view_pick_metric">Wybierz liczbę</string>
+    <string name="nav_view_reset_tiles">Resetuj kafelki</string>
+    <string name="nav_view_speed">Prędkość</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelita</string>
@@ -2263,7 +2272,7 @@
     <string name="adv_nav_moving">Prędkość ruchu</string>
     <string name="adv_nav_moving_desc">Wpływa na prędkość, powyżej której uznaje się Cię za poruszającego się, na potrzeby kursu i nawigacji. Uwaga: zbyt wysoka wartość ignoruje wolną jazdę.</string>
     <string name="adv_nav_cruise">Prędkość przelotowa nawigacji</string>
-    <string name="adv_nav_cruise_desc">Wpływa na czas przyjazdu podczas nawigacji, dopóki nie przejmie go twoja własna jazda. Niebezpieczeństwo: zbyt wysoka pokazuje przyjazd, którego nie zdążysz osiągnąć.</string>
+    <string name="adv_nav_cruise_desc">Wpływa na czas przyjazdu podczas nawigacji, dopóki nie przejmie go twoja własna jazda. Uwaga: zbyt wysoka wartość pokaże przyjazd, na który nie zdążysz.</string>
     <string name="adv_nav_offroute_grace">Tolerancja zejścia z trasy</string>
     <string name="adv_nav_offroute_grace_desc">Wpływa na to, jak długo musisz być poza trasą, zanim zostanie to uznane za zejście z trasy. Niższa reaguje szybciej. Uwaga: zbyt mała wartość daje fałszywe alerty zejścia z trasy z powodu szumu GPS.</string>
     <string name="adv_nav_offroute_voice_after">Głos o zejściu po</string>

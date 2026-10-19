@@ -1715,6 +1715,15 @@
     <string name="nav_map_style">Стиль карты</string>
     <string name="nav_overlays">Слои поверх</string>
     <string name="nav_reset_north">На север</string>
+    <string name="nav_view_straight_line">по прямой</string>
+    <string name="nav_view_heading_up">Курс вверху, нажмите для севера вверху</string>
+    <string name="nav_view_north_up">Север вверху, нажмите для курса вверху</string>
+    <string name="nav_view_tiles">Плитки навигации</string>
+    <string name="nav_view_tiles_desc">4 числа рядом с картой во время навигации. Удерживайте плитку на карте, чтобы изменить её.</string>
+    <string name="nav_view_tile_n">Плитка %1$d</string>
+    <string name="nav_view_pick_metric">Выберите число</string>
+    <string name="nav_view_reset_tiles">Сбросить плитки</string>
+    <string name="nav_view_speed">Скорость</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Спутник</string>
@@ -2265,7 +2274,7 @@
     <string name="adv_nav_moving">Скорость движения</string>
     <string name="adv_nav_moving_desc">Влияет на скорость, выше которой вы считаетесь движущимся для курса и подсказок. Опасно: слишком высокое игнорирует медленную езду.</string>
     <string name="adv_nav_cruise">Крейсерская скорость навигации</string>
-    <string name="adv_nav_cruise_desc">Влияет на время прибытия при навигации, пока не вступит в силу ваша собственная езда. Опасность: слишком высокое значение покажет прибытие, к которому вы не успеете.</string>
+    <string name="adv_nav_cruise_desc">Влияет на время прибытия при навигации, пока не вступит в силу ваша собственная езда. Опасно: слишком высокое значение покажет прибытие, к которому вы не успеете.</string>
     <string name="adv_nav_offroute_grace">Льгота схода с маршрута</string>
     <string name="adv_nav_offroute_grace_desc">Влияет на то, как долго вы должны быть вне маршрута, прежде чем это засчитается как сход. Меньше реагирует быстрее. Опасно: слишком малое даёт ложные оповещения о сходе из-за шума GPS.</string>
     <string name="adv_nav_offroute_voice_after">Голос о сходе через</string>

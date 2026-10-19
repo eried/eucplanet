@@ -2014,6 +2014,15 @@
     <string name="nav_map_style">Kartan tyyli</string>
     <string name="nav_overlays">Päällystasot</string>
     <string name="nav_reset_north">Suuntaa pohjoiseen</string>
+    <string name="nav_view_straight_line">linnuntietä</string>
+    <string name="nav_view_heading_up">Kulkusuunta ylös, napauta pohjoinen ylös</string>
+    <string name="nav_view_north_up">Pohjoinen ylös, napauta kulkusuunta ylös</string>
+    <string name="nav_view_tiles">Navigoinnin ruudut</string>
+    <string name="nav_view_tiles_desc">Neljä lukua kartan vieressä navigoinnin aikana. Vaihda ruutu painamalla sitä pitkään kartalla.</string>
+    <string name="nav_view_tile_n">Ruutu %1$d</string>
+    <string name="nav_view_pick_metric">Valitse luku</string>
+    <string name="nav_view_reset_tiles">Nollaa ruudut</string>
+    <string name="nav_view_speed">Nopeus</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelliitti</string>

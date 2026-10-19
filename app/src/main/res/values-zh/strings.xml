@@ -865,6 +865,15 @@
     <string name="nav_map_style">地图样式</string>
     <string name="nav_overlays">叠加图层</string>
     <string name="nav_reset_north">正北朝上</string>
+    <string name="nav_view_straight_line">直线</string>
+    <string name="nav_view_heading_up">朝向向上,点按切换为正北朝上</string>
+    <string name="nav_view_north_up">正北朝上,点按切换为朝向向上</string>
+    <string name="nav_view_tiles">导航数据块</string>
+    <string name="nav_view_tiles_desc">导航时地图旁显示的 4 个数值。长按地图上的数据块即可更改。</string>
+    <string name="nav_view_tile_n">数据块 %1$d</string>
+    <string name="nav_view_pick_metric">选择数值</string>
+    <string name="nav_view_reset_tiles">重置数据块</string>
+    <string name="nav_view_speed">速度</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">卫星</string>

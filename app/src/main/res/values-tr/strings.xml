@@ -1712,6 +1712,15 @@
     <string name="nav_map_style">Harita stili</string>
     <string name="nav_overlays">Katmanlar</string>
     <string name="nav_reset_north">Kuzeye çevir</string>
+    <string name="nav_view_straight_line">düz çizgi</string>
+    <string name="nav_view_heading_up">Yön yukarıda, kuzey yukarı için dokun</string>
+    <string name="nav_view_north_up">Kuzey yukarıda, yön yukarı için dokun</string>
+    <string name="nav_view_tiles">Navigasyon kutuları</string>
+    <string name="nav_view_tiles_desc">Navigasyon sırasında haritanın yanındaki 4 sayı. Değiştirmek için haritadaki bir kutuya uzun bas.</string>
+    <string name="nav_view_tile_n">Kutu %1$d</string>
+    <string name="nav_view_pick_metric">Bir sayı seç</string>
+    <string name="nav_view_reset_tiles">Kutuları sıfırla</string>
+    <string name="nav_view_speed">Hız</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Uydu</string>
@@ -2262,7 +2271,7 @@
     <string name="adv_nav_moving">Hareket hızı</string>
     <string name="adv_nav_moving_desc">Yön ve yönlendirme için hangi hızın üzerinde hareket halinde sayıldığınızı etkiler. Dikkat: çok yüksek olursa yavaş sürüşü yok sayar.</string>
     <string name="adv_nav_cruise">Navigasyon seyir hızı</string>
-    <string name="adv_nav_cruise_desc">Navigasyon sırasında varış saatini etkiler, kendi sürüşün devralana kadar. Tehlike: çok yüksek olması yetişemeyeceğin bir varış gösterir.</string>
+    <string name="adv_nav_cruise_desc">Navigasyon sırasında varış saatini etkiler. Kendi sürüşün devreye girene kadar bu hız kullanılır. Tehlike: çok yüksek olması yetişemeyeceğin bir varış gösterir.</string>
     <string name="adv_nav_offroute_grace">Rota dışı toleransı</string>
     <string name="adv_nav_offroute_grace_desc">Rota dışı sayılmadan önce ne kadar süre rota dışında kalmanız gerektiğini etkiler. Düşük değer daha erken tepki verir. Dikkat: çok düşük olursa GPS gürültüsünden yanlış rota dışı uyarıları verir.</string>
     <string name="adv_nav_offroute_voice_after">Rota dışı sesi süresi</string>

@@ -1774,6 +1774,15 @@
     <string name="nav_map_style">Style de carte</string>
     <string name="nav_overlays">Calques</string>
     <string name="nav_reset_north">Orienter au nord</string>
+    <string name="nav_view_straight_line">à vol d\'oiseau</string>
+    <string name="nav_view_heading_up">Cap en haut, touche pour nord en haut</string>
+    <string name="nav_view_north_up">Nord en haut, touche pour cap en haut</string>
+    <string name="nav_view_tiles">Tuiles du navigateur</string>
+    <string name="nav_view_tiles_desc">Les 4 nombres à côté de la carte pendant la navigation. Appuie longuement sur une tuile de la carte pour la changer.</string>
+    <string name="nav_view_tile_n">Tuile %1$d</string>
+    <string name="nav_view_pick_metric">Choisis un nombre</string>
+    <string name="nav_view_reset_tiles">Réinitialiser les tuiles</string>
+    <string name="nav_view_speed">Vitesse</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellite</string>
@@ -2269,7 +2278,7 @@
     <string name="adv_nav_moving">Vitesse de mouvement</string>
     <string name="adv_nav_moving_desc">Détermine la vitesse au-dessus de laquelle tu es considéré en mouvement pour le cap et le guidage. Danger : trop élevé ignore la conduite lente.</string>
     <string name="adv_nav_cruise">Vitesse de croisière de navigation</string>
-    <string name="adv_nav_cruise_desc">Affecte l\'heure d\'arrivée pendant la navigation, jusqu\'à ce que votre propre conduite prenne le relais. Danger : trop élevée affiche une arrivée que vous ne tiendrez pas.</string>
+    <string name="adv_nav_cruise_desc">Détermine l\'heure d\'arrivée pendant la navigation, jusqu\'à ce que ta propre conduite prenne le relais. Danger : trop élevée affiche une arrivée que tu ne tiendras pas.</string>
     <string name="adv_nav_offroute_grace">Délai hors itinéraire</string>
     <string name="adv_nav_offroute_grace_desc">Détermine combien de temps tu dois être hors de l\'itinéraire avant que ce soit compté comme hors itinéraire. Plus bas réagit plus tôt. Danger : trop bas donne de fausses alertes hors itinéraire dues au bruit GPS.</string>
     <string name="adv_nav_offroute_voice_after">Voix hors itinéraire après</string>

@@ -1712,6 +1712,15 @@
     <string name="nav_map_style">地圖樣式</string>
     <string name="nav_overlays">疊加圖層</string>
     <string name="nav_reset_north">正北朝上</string>
+    <string name="nav_view_straight_line">直線</string>
+    <string name="nav_view_heading_up">朝向向上，點一下切換為正北朝上</string>
+    <string name="nav_view_north_up">正北朝上，點一下切換為朝向向上</string>
+    <string name="nav_view_tiles">導航資料區塊</string>
+    <string name="nav_view_tiles_desc">導航時地圖旁顯示的 4 個數值。長按地圖上的區塊即可變更。</string>
+    <string name="nav_view_tile_n">區塊 %1$d</string>
+    <string name="nav_view_pick_metric">選擇數值</string>
+    <string name="nav_view_reset_tiles">重設區塊</string>
+    <string name="nav_view_speed">速度</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">衛星</string>
@@ -2264,7 +2273,7 @@
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">影響判定為移動（用於方位與導引）的速度門檻。危險：太高會忽略慢速騎乘。</string>
     <string name="adv_nav_cruise">導航巡航速度</string>
-    <string name="adv_nav_cruise_desc">影響導航時的抵達時間,直到採用你自己的騎乘數據。危險:過高會顯示你無法準時抵達的時間。</string>
+    <string name="adv_nav_cruise_desc">影響導航時的抵達時間，直到採用你自己的騎乘數據。危險：過高會顯示你無法準時抵達的時間。</string>
     <string name="adv_nav_offroute_grace">偏離路線寬限</string>
     <string name="adv_nav_offroute_grace_desc">影響你必須偏離路線多久才算偏離。越低反應越快。危險：太低會因 GPS 雜訊產生誤報偏離警示。</string>
     <string name="adv_nav_offroute_voice_after">偏離語音延遲</string>

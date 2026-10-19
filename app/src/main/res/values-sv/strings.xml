@@ -1711,6 +1711,15 @@
     <string name="nav_map_style">Kartstil</string>
     <string name="nav_overlays">Lager ovanpå</string>
     <string name="nav_reset_north">Rikta mot norr</string>
+    <string name="nav_view_straight_line">fågelvägen</string>
+    <string name="nav_view_heading_up">Färdriktning upp, tryck för norr upp</string>
+    <string name="nav_view_north_up">Norr upp, tryck för färdriktning upp</string>
+    <string name="nav_view_tiles">Navigeringsrutor</string>
+    <string name="nav_view_tiles_desc">De 4 siffrorna bredvid kartan under navigering. Tryck länge på en ruta på kartan för att ändra den.</string>
+    <string name="nav_view_tile_n">Ruta %1$d</string>
+    <string name="nav_view_pick_metric">Välj en siffra</string>
+    <string name="nav_view_reset_tiles">Återställ rutor</string>
+    <string name="nav_view_speed">Hastighet</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellit</string>
