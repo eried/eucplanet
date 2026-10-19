@@ -226,7 +226,15 @@ data class NavState(
     val popupTick: Int = 0,
     /** True while the phone's centred nav popup is on screen; the watch mirror
      *  follows this so it stays transient like the phone popup. */
-    val cueVisible: Boolean = false
+    val cueVisible: Boolean = false,
+    /** Distance left to the end of what is being navigated, metres; NaN when unknown. */
+    val remainingM: Double = Double.NaN,
+    /** Distance left to the next stop along the route, metres; NaN when unknown. */
+    val nextStopRemainingM: Double = Double.NaN,
+    /** True when distances are straight lines to a goal (Treasure hunt, Homing). */
+    val straightLine: Boolean = false,
+    /** Estimated arrival, epoch ms; 0 when there is no estimate to show. */
+    val etaEpochMs: Long = 0L
 )
 
 /**
