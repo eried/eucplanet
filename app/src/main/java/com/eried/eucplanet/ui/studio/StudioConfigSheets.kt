@@ -2282,7 +2282,16 @@ fun ElementConfigSheet(
             }
 
             Spacer(Modifier.height(10.dp))
-            OutlinedButton(onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) }, shape = RoundedCornerShape(12.dp)) {
+            // Greyed once the element already sits at the reset spot.
+            OutlinedButton(
+                onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) },
+                enabled = element.x != 0.12f || element.y != 0.14f,
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.appColors.primary,
+                    disabledContentColor = MaterialTheme.appColors.textDisabled,
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
                 Text(stringResource(R.string.studio_cfg_reset_position))
             }
 
