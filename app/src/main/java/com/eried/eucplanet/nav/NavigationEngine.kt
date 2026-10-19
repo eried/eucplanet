@@ -5,6 +5,7 @@ import android.content.Intent
 import android.location.Location
 import android.util.Log
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ArrowDir
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.Maneuver
@@ -71,7 +72,8 @@ class NavigationEngine @Inject constructor(
         private const val FIX_BUFFER_MS = 14_000L
         private const val MIN_HEADING_DISP_M = 8.0
 
-        // "Moving" thresholds, either GPS speed (m/s) or wheel speed (km/h).
+        // "Moving" thresholds: wheel speed (km/h) with a wheel connected,
+        // GPS speed (m/s) without one.
         private const val MOVING_MS = 1.2
         private const val MOVING_KMH = 4.0
 
@@ -213,7 +215,8 @@ class NavigationEngine @Inject constructor(
     private var avoidances = RouteAvoidances.NONE
 
     // --- trace / heading state ---
-    private data class Fix(val point: GeoPoint, val timeMs: Long, val moving: Boolean)
+    /** [accuracyM] is NaN when the fix has none. */
+    private data class Fix(val point: GeoPoint, val timeMs: Long, val moving: Boolean, val accuracyM: Float)
     private val recentFixes = ArrayDeque<Fix>()
     private var heading: Double? = null
 
@@ -492,12 +495,16 @@ class NavigationEngine @Inject constructor(
 
         val gpsSpeed = if (loc.hasSpeed()) loc.speed.toDouble() else 0.0
         val wheelKmh = abs(wheelRepository.wheelData.value.speed).toDouble()
-        val moving = gpsSpeed > MOVING_MS || wheelKmh > movingKmh
+        val wheelConnected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+        val accuracy = if (loc.hasAccuracy()) loc.accuracy else Float.NaN
+        val moving = NavMotion.isMoving(
+            wheelConnected, wheelKmh, movingKmh, gpsSpeed, MOVING_MS,
+            accuracy.takeUnless { it.isNaN() })
         // Wheel speed when a wheel reports one, GPS otherwise.
         val rideKmh = if (wheelKmh > 0.0) wheelKmh else gpsSpeed * 3.6
         movingAverage.add(now, rideKmh, movingKmh)
 
-        recentFixes.addLast(Fix(point, now, moving))
+        recentFixes.addLast(Fix(point, now, moving, accuracy))
         while (recentFixes.isNotEmpty() && now - recentFixes.first().timeMs > fixBufferMs) {
             recentFixes.removeFirst()
         }
@@ -609,7 +616,9 @@ class NavigationEngine @Inject constructor(
         if (window.size >= 2) {
             val first = window.first().point
             val last = window.last().point
-            if (GeoMath.distanceM(first, last) >= MIN_HEADING_DISP_M) {
+            val disp = GeoMath.distanceM(first, last)
+            if (NavMotion.headingDispOk(disp, MIN_HEADING_DISP_M,
+                    window.first().accuracyM, window.last().accuracyM)) {
                 heading = GeoMath.bearingDeg(first, last)
             }
         }
