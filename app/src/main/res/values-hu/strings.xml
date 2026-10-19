@@ -607,6 +607,8 @@
     <string name="adv_group_nav_behaviour">Navigáció viselkedése</string>
     <string name="adv_nav_moving">Mozgási sebesség</string>
     <string name="adv_nav_moving_desc">Befolyásolja azt a sebességet, amely felett mozgónak számítasz az irány és az útmutatás szempontjából. Veszély: a túl magas érték figyelmen kívül hagyja a lassú haladást.</string>
+    <string name="adv_nav_cruise">Navigáció utazósebessége</string>
+    <string name="adv_nav_cruise_desc">Befolyásolja az érkezési időt navigáció közben, amíg a saját haladásod át nem veszi a szerepet. Veszély: a túl magas érték olyan érkezést mutat, amit nem érsz el.</string>
     <string name="adv_nav_prepare_dist">Kanyar előkészítési távolsága</string>
     <string name="adv_nav_prepare_dist_desc">Befolyásolja, milyen messze a kanyar előtt hangzik el az előkészítő utasítás.</string>
     <string name="adv_nav_execute_dist">Kanyar végrehajtási távolsága</string>

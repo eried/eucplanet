@@ -2169,6 +2169,8 @@
     <string name="adv_nav_max_start_desc">Quanto può essere lontana la prima fermata per avviare la navigazione. Oltre questo limite, la linea dalla tua posizione viene nascosta e l\'avvio è bloccato. La pianificazione continua a funzionare.</string>
     <string name="adv_nav_moving">Velocità di movimento</string>
     <string name="adv_nav_moving_desc">Influisce sulla velocità oltre la quale conti come in movimento per direzione e guida. Pericolo: troppo alta ignora la marcia lenta.</string>
+    <string name="adv_nav_cruise">Velocità di crociera della navigazione</string>
+    <string name="adv_nav_cruise_desc">Influisce sull\'ora di arrivo durante la navigazione, finché non subentra la tua guida. Pericolo: troppo alta mostra un arrivo che non rispetterai.</string>
     <string name="adv_nav_offroute_grace">Tolleranza fuori percorso</string>
     <string name="adv_nav_offroute_grace_desc">Influisce su quanto a lungo devi essere fuori percorso prima che conti come fuori percorso. Più basso reagisce prima. Pericolo: troppo basso dà falsi avvisi fuori percorso dal rumore GPS.</string>
     <string name="adv_nav_offroute_voice_after">Voce fuori percorso dopo</string>

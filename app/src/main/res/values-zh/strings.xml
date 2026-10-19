@@ -2131,6 +2131,8 @@
     <string name="adv_nav_max_start_desc">第一站最远可以相距多远才能开始导航。超过此距离后,你当前位置到第一站的连线会被隐藏,且无法开始导航。路线规划仍可照常使用。</string>
     <string name="adv_nav_moving">移动速度</string>
     <string name="adv_nav_moving_desc">影响超过多少速度才算作移动以用于航向和引导。危险:过高会忽略慢速骑行。</string>
+    <string name="adv_nav_cruise">导航巡航速度</string>
+    <string name="adv_nav_cruise_desc">影响导航时的到达时间,直到采用你自己的骑行数据。危险:过高会显示你无法按时到达的时间。</string>
     <string name="adv_nav_offroute_grace">偏航宽限</string>
     <string name="adv_nav_offroute_grace_desc">影响你偏离路线多久才算作偏航。越低反应越快。危险:过低会因 GPS 噪声产生误报偏航。</string>
     <string name="adv_nav_offroute_voice_after">偏航语音延迟</string>

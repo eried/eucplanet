@@ -2264,6 +2264,8 @@
     <string name="adv_nav_max_start_desc">Hur långt bort det första stoppet får vara för att starta navigeringen. Bortom detta döljs linjen från din plats och start blockeras. Planering fungerar fortfarande.</string>
     <string name="adv_nav_moving">Rörelsehastighet</string>
     <string name="adv_nav_moving_desc">Påverkar hastigheten över vilken du räknas som i rörelse för kurs och vägledning. Fara: för högt ignorerar långsam körning.</string>
+    <string name="adv_nav_cruise">Marschfart för navigering</string>
+    <string name="adv_nav_cruise_desc">Påverkar ankomsttiden under navigering, tills din egen körning tar över. Fara: för hög visar en ankomst du inte hinner med.</string>
     <string name="adv_nav_offroute_grace">Tidsmarginal utanför rutt</string>
     <string name="adv_nav_offroute_grace_desc">Påverkar hur länge du måste vara utanför rutten innan det räknas som utanför rutt. Lägre reagerar snabbare. Fara: för lågt ger falska larm om utanför rutt från GPS-brus.</string>
     <string name="adv_nav_offroute_voice_after">Röst utanför rutt efter</string>

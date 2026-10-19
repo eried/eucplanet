@@ -2284,6 +2284,8 @@
     <string name="adv_nav_max_start_desc">Wie weit der erste Halt höchstens entfernt sein darf, um die Navigation zu starten. Darüber hinaus wird die Linie von deiner Position ausgeblendet und der Start blockiert. Die Planung funktioniert weiterhin.</string>
     <string name="adv_nav_moving">Bewegungsgeschwindigkeit</string>
     <string name="adv_nav_moving_desc">Beeinflusst die Geschwindigkeit, ab der du für Kurs und Führung als in Bewegung giltst. Achtung: zu hoch ignoriert langsames Fahren.</string>
+    <string name="adv_nav_cruise">Reisegeschwindigkeit der Navigation</string>
+    <string name="adv_nav_cruise_desc">Beeinflusst die Ankunftszeit bei der Navigation, bis deine eigene Fahrt übernimmt. Achtung: zu hoch zeigt eine Ankunft, die du nicht schaffst.</string>
     <string name="adv_nav_offroute_grace">Abseits-Toleranz</string>
     <string name="adv_nav_offroute_grace_desc">Beeinflusst, wie lange du abseits der Route sein musst, bevor es als abseits zählt. Niedriger reagiert früher. Achtung: zu niedrig gibt falsche Abseits-Warnungen durch GPS-Rauschen.</string>
     <string name="adv_nav_offroute_voice_after">Abseits-Ansage nach</string>

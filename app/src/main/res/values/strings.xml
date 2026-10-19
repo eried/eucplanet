@@ -678,6 +678,8 @@
     <string name="adv_group_nav_behaviour">Navigation behaviour</string>
     <string name="adv_nav_moving">Moving speed</string>
     <string name="adv_nav_moving_desc">Affects the speed above which you count as moving for heading and guidance. Danger: too high ignores slow riding.</string>
+    <string name="adv_nav_cruise">Navigation cruising speed</string>
+    <string name="adv_nav_cruise_desc">Affects the arrival time while navigating, until your own riding takes over. Danger: too high shows an arrival you will not make.</string>
     <string name="adv_nav_prepare_dist">Turn prepare distance</string>
     <string name="adv_nav_prepare_dist_desc">Affects how far before a turn the prepare cue is announced.</string>
     <string name="adv_nav_execute_dist">Turn execute distance</string>

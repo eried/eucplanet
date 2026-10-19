@@ -607,6 +607,8 @@
     <string name="adv_group_nav_behaviour">Chování navigace</string>
     <string name="adv_nav_moving">Rychlost pohybu</string>
     <string name="adv_nav_moving_desc">Ovlivňuje rychlost, nad kterou se počítáte za pohybující se, pro určení směru a navádění. Nebezpečí: příliš vysoká hodnota ignoruje pomalou jízdu.</string>
+    <string name="adv_nav_cruise">Cestovní rychlost navigace</string>
+    <string name="adv_nav_cruise_desc">Ovlivňuje čas příjezdu při navigaci, dokud nepřevezme vaše vlastní jízda. Nebezpečí: příliš vysoká ukáže příjezd, který nestihnete.</string>
     <string name="adv_nav_prepare_dist">Vzdálenost přípravy na odbočení</string>
     <string name="adv_nav_prepare_dist_desc">Ovlivňuje, jak daleko před odbočením zazní přípravný pokyn.</string>
     <string name="adv_nav_execute_dist">Vzdálenost provedení odbočení</string>

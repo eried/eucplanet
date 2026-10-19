@@ -607,6 +607,8 @@
     <string name="adv_group_nav_behaviour">Comportamentul navigării</string>
     <string name="adv_nav_moving">Viteza de deplasare</string>
     <string name="adv_nav_moving_desc">Influențează viteza peste care ești considerat în mișcare pentru direcție și ghidare. Pericol: o valoare prea mare ignoră mersul lent.</string>
+    <string name="adv_nav_cruise">Viteza de croazieră a navigației</string>
+    <string name="adv_nav_cruise_desc">Afectează ora sosirii în timpul navigației, până când preia conducerea propria ta rulare. Pericol: prea mare arată o sosire pe care nu o vei respecta.</string>
     <string name="adv_nav_prepare_dist">Distanța de pregătire a virajului</string>
     <string name="adv_nav_prepare_dist_desc">Influențează cu cât înainte de viraj se anunță indicația de pregătire.</string>
     <string name="adv_nav_execute_dist">Distanța de executare a virajului</string>

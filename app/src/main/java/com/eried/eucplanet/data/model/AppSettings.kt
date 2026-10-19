@@ -123,6 +123,7 @@ data class AppSettings(
     val widget: WidgetSettings = WidgetSettings(),
     // Android Auto screen: its own stat and button slots. Nested, see AndroidAutoSettings.
     val androidAuto: AndroidAutoSettings = AndroidAutoSettings(),
+    val navigatorView: NavigatorViewSettings = NavigatorViewSettings(),
 
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
@@ -1019,6 +1020,7 @@ data class AppSettings(
     val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
     val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
     val navMovingKmh: Int get() = advanced.navMovingKmh
+    val navCruiseKmh: Int get() = advanced.navCruiseKmh
     val navPrepareDistM: Int get() = advanced.navPrepareDistM
     val navExecuteDistM: Int get() = advanced.navExecuteDistM
     val navProxBandM: Int get() = advanced.navProxBandM
@@ -1640,6 +1642,7 @@ data class AdvancedSettings(
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,
+    val navCruiseKmh: Int = 25,
     val navPrepareDistM: Int = 200,
     val navExecuteDistM: Int = 30,
     val navProxBandM: Int = 4,

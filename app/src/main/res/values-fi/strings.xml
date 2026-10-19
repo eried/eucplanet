@@ -607,6 +607,8 @@
     <string name="adv_group_nav_behaviour">Navigoinnin toiminta</string>
     <string name="adv_nav_moving">Liikkumisnopeus</string>
     <string name="adv_nav_moving_desc">Vaikuttaa nopeuteen, jonka yli sinut lasketaan liikkuvaksi suuntaa ja opastusta varten. Vaara: liian suuri sivuuttaa hitaan ajon.</string>
+    <string name="adv_nav_cruise">Navigoinnin matkanopeus</string>
+    <string name="adv_nav_cruise_desc">Vaikuttaa saapumisaikaan navigoinnin aikana, kunnes oma ajosi ottaa vallan. Vaara: liian suuri näyttää saapumisen, jota et ehdi.</string>
     <string name="adv_nav_prepare_dist">Käännöksen valmisteluetäisyys</string>
     <string name="adv_nav_prepare_dist_desc">Vaikuttaa siihen, kuinka kaukana ennen käännöstä valmisteluohje kuulutetaan.</string>
     <string name="adv_nav_execute_dist">Käännöksen suoritusetäisyys</string>

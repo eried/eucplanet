@@ -2263,6 +2263,8 @@
     <string name="adv_nav_max_start_desc">第一站最遠可以有多遠才能開始導航。超過此距離，從你目前位置延伸的線會被隱藏，且無法開始導航。規劃路線仍可正常使用。</string>
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">影響判定為移動（用於方位與導引）的速度門檻。危險：太高會忽略慢速騎乘。</string>
+    <string name="adv_nav_cruise">導航巡航速度</string>
+    <string name="adv_nav_cruise_desc">影響導航時的抵達時間,直到採用你自己的騎乘數據。危險:過高會顯示你無法準時抵達的時間。</string>
     <string name="adv_nav_offroute_grace">偏離路線寬限</string>
     <string name="adv_nav_offroute_grace_desc">影響你必須偏離路線多久才算偏離。越低反應越快。危險：太低會因 GPS 雜訊產生誤報偏離警示。</string>
     <string name="adv_nav_offroute_voice_after">偏離語音延遲</string>

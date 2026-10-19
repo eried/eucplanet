@@ -2150,6 +2150,8 @@
     <string name="adv_nav_max_start_desc">Hvor langt unna det første stoppet kan være for å starte navigasjonen. Utover dette skjules linjen fra posisjonen din, og start blokkeres. Planlegging fungerer fortsatt.</string>
     <string name="adv_nav_moving">Bevegelsesfart</string>
     <string name="adv_nav_moving_desc">Påvirker farten du regnes som i bevegelse over, for retning og veiledning. Fare: for høyt ignorerer langsom kjøring.</string>
+    <string name="adv_nav_cruise">Marsjfart for navigasjon</string>
+    <string name="adv_nav_cruise_desc">Påvirker ankomsttiden under navigasjon, til din egen kjøring tar over. Fare: for høy viser en ankomst du ikke rekker.</string>
     <string name="adv_nav_offroute_grace">Frist for avvik fra ruten</string>
     <string name="adv_nav_offroute_grace_desc">Påvirker hvor lenge du må være utenfor ruten før det teller som avvik. Lavere reagerer raskere. Fare: for lavt gir falske avviksvarsler fra GPS-støy.</string>
     <string name="adv_nav_offroute_voice_after">Stemmevarsel ved avvik etter</string>

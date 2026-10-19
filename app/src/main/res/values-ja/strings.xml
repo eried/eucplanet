@@ -2263,6 +2263,8 @@
     <string name="adv_nav_max_start_desc">ナビを開始できる最初の経由地までの最大距離です。これを超えると、現在地からの線が非表示になり、開始がブロックされます。ルート作成はそのまま行えます。</string>
     <string name="adv_nav_moving">移動速度</string>
     <string name="adv_nav_moving_desc">方位とガイダンスで移動中とみなす速度のしきい値に影響します。危険: 高すぎると低速走行を無視します。</string>
+    <string name="adv_nav_cruise">ナビの巡航速度</string>
+    <string name="adv_nav_cruise_desc">ナビ中の到着時刻に影響します。実際の走行が反映されるまで使われます。危険: 高すぎると間に合わない到着時刻が表示されます。</string>
     <string name="adv_nav_offroute_grace">ルート外れ猶予</string>
     <string name="adv_nav_offroute_grace_desc">ルート外と判定されるまでにルートから外れている必要がある時間に影響します。低いほど早く反応します。危険: 低すぎると GPS ノイズで誤ったルート外警告が出ます。</string>
     <string name="adv_nav_offroute_voice_after">ルート外音声の遅延</string>

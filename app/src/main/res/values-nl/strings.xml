@@ -2264,6 +2264,8 @@
     <string name="adv_nav_max_start_desc">Hoe ver de eerste stop maximaal mag zijn om te kunnen starten met navigeren. Voorbij deze afstand wordt de lijn vanaf je locatie verborgen en is starten geblokkeerd. Plannen blijft mogelijk.</string>
     <string name="adv_nav_moving">Bewegingssnelheid</string>
     <string name="adv_nav_moving_desc">Bepaalt de snelheid waarboven je als bewegend telt voor koers en begeleiding. Let op: te hoog negeert langzaam rijden.</string>
+    <string name="adv_nav_cruise">Kruissnelheid navigatie</string>
+    <string name="adv_nav_cruise_desc">Beïnvloedt de aankomsttijd tijdens het navigeren, totdat je eigen rijden het overneemt. Gevaar: te hoog toont een aankomst die je niet haalt.</string>
     <string name="adv_nav_offroute_grace">Marge buiten route</string>
     <string name="adv_nav_offroute_grace_desc">Bepaalt hoe lang je buiten de route moet zijn voordat het als buiten route geldt. Lager reageert sneller. Let op: te laag geeft valse buiten-route-meldingen door GPS-ruis.</string>
     <string name="adv_nav_offroute_voice_after">Stem buiten route na</string>

@@ -2282,6 +2282,8 @@
     <string name="adv_nav_max_start_desc">Qué tan lejos puede estar la primera parada para poder iniciar la navegación. Más allá de esto, la línea desde tu posición se oculta y no se puede iniciar. La planificación sigue funcionando.</string>
     <string name="adv_nav_moving">Velocidad de movimiento</string>
     <string name="adv_nav_moving_desc">Afecta la velocidad por encima de la cual cuentas como en movimiento para el rumbo y la guía. Peligro: muy alta ignora la marcha lenta.</string>
+    <string name="adv_nav_cruise">Velocidad de crucero de navegación</string>
+    <string name="adv_nav_cruise_desc">Afecta la hora de llegada al navegar, hasta que tu propia marcha tome el control. Peligro: demasiado alta muestra una llegada que no cumplirás.</string>
     <string name="adv_nav_offroute_grace">Margen fuera de ruta</string>
     <string name="adv_nav_offroute_grace_desc">Afecta cuánto tiempo debes estar fuera de la ruta antes de que cuente como fuera de ruta. Más bajo reacciona antes. Peligro: muy bajo da falsas alertas de fuera de ruta por ruido del GPS.</string>
     <string name="adv_nav_offroute_voice_after">Voz fuera de ruta tras</string>

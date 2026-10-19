@@ -2261,6 +2261,8 @@
     <string name="adv_nav_max_start_desc">Navigasyonu başlatmak için ilk durağın en fazla ne kadar uzakta olabileceği. Bu mesafenin ötesinde, konumundan çizilen çizgi gizlenir ve başlatma engellenir. Rota planlama yine de çalışır.</string>
     <string name="adv_nav_moving">Hareket hızı</string>
     <string name="adv_nav_moving_desc">Yön ve yönlendirme için hangi hızın üzerinde hareket halinde sayıldığınızı etkiler. Dikkat: çok yüksek olursa yavaş sürüşü yok sayar.</string>
+    <string name="adv_nav_cruise">Navigasyon seyir hızı</string>
+    <string name="adv_nav_cruise_desc">Navigasyon sırasında varış saatini etkiler, kendi sürüşün devralana kadar. Tehlike: çok yüksek olması yetişemeyeceğin bir varış gösterir.</string>
     <string name="adv_nav_offroute_grace">Rota dışı toleransı</string>
     <string name="adv_nav_offroute_grace_desc">Rota dışı sayılmadan önce ne kadar süre rota dışında kalmanız gerektiğini etkiler. Düşük değer daha erken tepki verir. Dikkat: çok düşük olursa GPS gürültüsünden yanlış rota dışı uyarıları verir.</string>
     <string name="adv_nav_offroute_voice_after">Rota dışı sesi süresi</string>
