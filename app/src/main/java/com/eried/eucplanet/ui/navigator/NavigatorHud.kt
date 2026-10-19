@@ -24,8 +24,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Flag
@@ -392,45 +392,58 @@ fun NavMetricPill(
     }
 }
 
+/** Pill value size, and the one step down a long value takes ("1234.5 km"). */
+private val PILL_VALUE_SP = 18.sp
+private val PILL_VALUE_SMALL_SP = 14.sp
+private val PILL_LABEL_SP = 10.sp
+
 /**
- * One pill segment: the value in bold over its short label. The value steps
- * its font down to fit (a long "1234.5 km" in a narrow segment) and only
- * ellipsizes past the smallest size.
+ * One pill segment: the value large and bold over its small muted label. A
+ * value too wide for the segment drops once to the smaller size, and only
+ * ellipsizes if even that does not fit.
  */
 @Composable
 private fun NavPillSegment(value: String, label: String, modifier: Modifier) {
     val colors = MaterialTheme.appColors
-    val valueStyle = MaterialTheme.typography.titleSmall
-    Column(
+    val valueStyle = MaterialTheme.typography.titleMedium.copy(
+        color = colors.textPrimary,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        fontSize = PILL_VALUE_SP,
+        lineHeight = 22.sp,
+    )
+    val measurer = rememberTextMeasurer()
+    BoxWithConstraints(
         modifier = modifier
             .padding(horizontal = 2.dp)
             .semantics(mergeDescendants = true) {},
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        contentAlignment = Alignment.Center,
     ) {
-        BasicText(
-            value,
-            style = valueStyle.copy(
-                color = colors.textPrimary,
-                fontWeight = FontWeight.Bold,
+        val maxW = constraints.maxWidth
+        val fits = remember(value, maxW, valueStyle) {
+            measurer.measure(value, valueStyle, maxLines = 1, softWrap = false).size.width <= maxW
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                value,
+                style = if (fits) valueStyle
+                else valueStyle.copy(fontSize = PILL_VALUE_SMALL_SP, lineHeight = 22.sp),
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = PILL_LABEL_SP,
+                    lineHeight = 12.sp,
+                ),
+                color = colors.textSecondary,
                 textAlign = TextAlign.Center,
-            ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            autoSize = TextAutoSize.StepBased(
-                minFontSize = 8.sp,
-                maxFontSize = valueStyle.fontSize,
-                stepSize = 0.5.sp,
-            ),
-        )
-        Text(
-            label,
-            style = MaterialTheme.typography.labelSmall,
-            color = colors.textSecondary,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
