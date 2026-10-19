@@ -151,7 +151,6 @@ import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.nav.OcmCharger
 import com.eried.eucplanet.nav.PoiKind
 import com.eried.eucplanet.nav.PointOfInterest
-import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -220,15 +219,13 @@ fun RouteBuilderScreen(
     val workPlace by viewModel.work.collectAsState()
     // While guidance runs the map is read-only: no search, no stop editing.
     val navRunning by viewModel.navRunning.collectAsState()
-    // Navigator view: the overlay drawn over the map while guidance runs.
-    val navState by viewModel.navState.collectAsState()
+    // Navigator view settings (tiles, north-up). The per-frame values (wheel
+    // data, guidance state) are collected inside NavigatorOverlay so a BLE
+    // frame recomposes the overlay only, not the whole map scaffold.
     val navigatorView by viewModel.navigatorView.collectAsState()
-    val navWheelData by viewModel.wheelData.collectAsState()
-    val navWheelLive by viewModel.wheelLive.collectAsState()
-    val navUnits by viewModel.unitsForMetrics.collectAsState()
-    val navTripMeterKm by viewModel.tripMeterKm.collectAsState()
-    // The tile slot whose metric picker is open, or -1.
-    var navPickerSlot by remember { mutableStateOf(-1) }
+    // Held as State and read only inside the stops panel's countdown lambda,
+    // never here, so a new fix does not invalidate this screen.
+    val navStateHolder = viewModel.navState.collectAsState()
     // Keep the screen on while navigating with the map in front. This only
     // sets the view flag, which the window's own keep-on flag (the
     // dashboard setting) is OR-ed with, so that setting still wins.
@@ -746,9 +743,8 @@ fun RouteBuilderScreen(
     // navigation" while the builder is still animating away.
     var navStarting by remember { mutableStateOf(false) }
     // Start now stays on the map, so the guard ends once guidance is running
-    // and the panel shows "Stop navigation" as usual. A tile picker left open
-    // closes when guidance ends, as the tiles do.
-    LaunchedEffect(navRunning) { if (navRunning) navStarting = false else navPickerSlot = -1 }
+    // and the panel shows "Stop navigation" as usual.
+    LaunchedEffect(navRunning) { if (navRunning) navStarting = false }
     val startNav: () -> Unit = {
         navStarting = true
         val mode = if (travelMode == TravelMode.STRAIGHT)
@@ -1033,11 +1029,21 @@ fun RouteBuilderScreen(
         val visibleMapHeightPx = (mapBoxHeightPx - effectiveTopBarPx -
             (if (landscape) 0 else effectivePanelPx)).coerceAtLeast(0)
         val lookAheadPx = (visibleMapHeightPx / 6f) / density.density
-        LaunchedEffect(pageReady, navRunning, navigatorView.northUp, lookAheadPx) {
+        // Separate effects: nativeSetNorthUp clears the heading ease, so a
+        // panel resize (new look-ahead) must not re-send it.
+        LaunchedEffect(pageReady, navRunning) {
             val wv = webView ?: return@LaunchedEffect
             if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetNavigatorView(${navRunning});", null)
+        }
+        LaunchedEffect(pageReady, lookAheadPx) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetNavLookAhead($lookAheadPx);", null)
+        }
+        LaunchedEffect(pageReady, navigatorView.northUp) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetNorthUp(${navigatorView.northUp});", null)
         }
         // The map fills the WHOLE screen, including the strip behind the
@@ -1232,8 +1238,10 @@ fun RouteBuilderScreen(
                 // While navigating the compass toggles heading-up / north-up
                 // (remembered) and stays at full strength; outside guidance it
                 // resets the map to north as before.
+                // North-up during guidance lights the button in the accent
+                // color, so the mode reads at a glance.
                 OverlayFab(
-                    active = false,
+                    active = navRunning && navigatorView.northUp,
                     loading = false,
                     icon = Icons.Default.Explore,
                     contentDescription = stringResource(
@@ -1273,103 +1281,16 @@ fun RouteBuilderScreen(
             // card top-left, 4 chosen tiles under the compass, and the speed
             // bubble bottom-left. Everything sits on the map, clear of the
             // landscape sidebar and of the Layers / My-location buttons.
-            if (navRunning && navState.active) {
-                val topPad = padding.calculateTopPadding()
-                val sidebarW = advancedVars.navSidebarWidthDp.dp
-                val sidebarRight = stopsSide != "LEFT"
-                val mapStartInset = if (landscape && !sidebarRight) sidebarW else 0.dp
-                val mapEndInset = if (landscape && sidebarRight) sidebarW else 0.dp
-                // Layers + My-location: two 56 dp buttons, 12 dp under each,
-                // with 16 dp on both sides of the column.
-                val fabStackH = (56.dp + 12.dp) * 2
-                val fabColumnW = 16.dp + 56.dp + 16.dp
-                val panelDp = with(density) { effectivePanelPx.toDp() }
-
-                NavTurnCard(
-                    state = navState,
-                    imperial = imperial,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(top = topPad + 12.dp, start = mapStartInset + 12.dp)
-                )
-
-                // Under the compass. The cap keeps the column off the FAB
-                // stack (and the panel) on short screens; it scrolls then.
-                val tilesTop = topPad + 12.dp + 56.dp + 8.dp
-                val tilesBottomReserve = when {
-                    !landscape -> panelDp + fabStackH + 8.dp
-                    sidebarRight -> 12.dp
-                    else -> fabStackH + 8.dp
-                }
-                val tilesMax = with(density) { mapBoxHeightPx.toDp() } - tilesTop - tilesBottomReserve
-                val navTileKeys = remember(navigatorView.metrics) {
-                    com.eried.eucplanet.data.model.NavigatorViewSettings.metricSlots(
-                        navigatorView.metrics,
-                        com.eried.eucplanet.ui.settings.KNOWN_DASHBOARD_METRICS.toSet()
-                    )
-                }
-                val metricInputs = com.eried.eucplanet.ui.metrics.MetricTextInputs(
-                    live = navWheelLive,
-                    wheel = navWheelData,
-                    speedUnit = navUnits.speed,
-                    distanceUnit = navUnits.distance,
-                    tempUnit = navUnits.temp,
-                    pressureUnit = navUnits.pressure,
-                    currentAsWatts = false,
-                    tripMeterKm = navTripMeterKm,
-                    phoneBatteryPct = -1,
-                    externalGpsBatteryPct = null,
-                    gpsAltitudeM = userLocation?.takeIf { it.hasAltitude() }?.altitude,
-                    gpsSpeedKmh = userLocation?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f },
-                    gpsBearingDeg = userLocation?.takeIf { it.hasBearing() }?.bearing,
-                    gpsAccuracyM = userLocation?.takeIf { it.hasAccuracy() }?.accuracy,
-                )
-                NavTileColumn(
-                    keys = navTileKeys,
-                    valueOf = { key -> com.eried.eucplanet.ui.metrics.MetricText.of(key, metricInputs) },
-                    onLongPress = { slot -> navPickerSlot = slot },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = tilesTop, end = mapEndInset + 16.dp)
-                        .then(
-                            if (mapBoxHeightPx > 0) Modifier.heightIn(max = tilesMax.coerceAtLeast(56.dp))
-                            else Modifier
-                        )
-                )
-
-                // Wheel speed with a wheel connected, GPS speed without one.
-                val bubbleKmh = if (navWheelLive) navWheelData.speed.absoluteValue
-                else userLocation?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f } ?: 0f
-                val bubbleStart = when {
-                    !landscape -> 12.dp
-                    // The FABs share the bottom-left corner: sit beside them.
-                    sidebarRight -> fabColumnW
-                    else -> mapStartInset + 12.dp
-                }
-                NavSpeedBubble(
-                    kmh = bubbleKmh,
-                    speedUnit = navUnits.speed,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(
-                            start = bubbleStart,
-                            bottom = if (landscape) 12.dp else panelDp + 12.dp
-                        )
-                )
-            }
-            if (navPickerSlot >= 0) {
-                val slot = navPickerSlot
-                val keys = com.eried.eucplanet.data.model.NavigatorViewSettings.metricSlots(
-                    navigatorView.metrics,
-                    com.eried.eucplanet.ui.settings.KNOWN_DASHBOARD_METRICS.toSet()
-                )
-                NavMetricPicker(
-                    current = keys.getOrElse(slot) { "" },
-                    onPick = { key ->
-                        viewModel.setNavigatorTile(slot, key)
-                        navPickerSlot = -1
-                    },
-                    onDismiss = { navPickerSlot = -1 }
+            if (navRunning) {
+                NavigatorOverlay(
+                    viewModel = viewModel,
+                    topPad = padding.calculateTopPadding(),
+                    landscape = landscape,
+                    sidebarRight = stopsSide != "LEFT",
+                    sidebarWidth = advancedVars.navSidebarWidthDp.dp,
+                    panelHeightPx = effectivePanelPx,
+                    mapBoxHeightPx = mapBoxHeightPx,
+                    tileKeysCsv = navigatorView.metrics,
                 )
             }
 
@@ -1678,7 +1599,9 @@ fun RouteBuilderScreen(
                     work = workPlace,
                     routeDistanceM = tourDistanceM,
                     stopLegs = stopLegs,
-                    nextStopRemainingM = if (navRunning) navState.nextStopRemainingM else Double.NaN,
+                    nextStopRemainingM = {
+                        if (navRunning) navStateHolder.value.nextStopRemainingM else Double.NaN
+                    },
                     routing = routing,
                     imperial = imperial,
                     onRemove = viewModel::removeWaypoint,
@@ -2432,8 +2355,9 @@ private fun BottomPanel(
     /** Each stop's distance by list index; empty while dragging or for one stop. */
     stopLegs: Map<Int, RouteBuilderViewModel.StopLeg>,
     /** Live distance left to the next stop while navigating, metres; NaN shows
-     *  the planned leg instead. */
-    nextStopRemainingM: Double,
+     *  the planned leg instead. A lambda, read only in that stop's row, so a
+     *  new fix recomposes the row and not the panel. */
+    nextStopRemainingM: () -> Double,
     routing: Boolean,
     imperial: Boolean,
     onRemove: (Int) -> Unit,
@@ -2913,9 +2837,9 @@ private fun BottomPanel(
                                             // While navigating, the next stop counts
                                             // down live instead of its planned leg.
                                             val leg = stopLegs[index]
-                                            val liveM = nextStopRemainingM.takeIf {
-                                                !it.isNaN() && index == nextStopIndex
-                                            }
+                                            val liveM = if (index == nextStopIndex)
+                                                nextStopRemainingM().takeIf { !it.isNaN() }
+                                            else null
                                             val legM = liveM ?: leg?.legM
                                             if (legM != null) {
                                                 Spacer(Modifier.width(8.dp))

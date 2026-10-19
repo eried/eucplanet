@@ -874,6 +874,7 @@
     <string name="nav_view_pick_metric">选择数值</string>
     <string name="nav_view_reset_tiles">重置数据块</string>
     <string name="nav_view_speed">速度</string>
+    <string name="nav_view_change_tile">更改数值</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">卫星</string>

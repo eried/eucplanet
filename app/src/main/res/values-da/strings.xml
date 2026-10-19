@@ -1733,6 +1733,7 @@
     <string name="nav_view_pick_metric">Vælg et tal</string>
     <string name="nav_view_reset_tiles">Nulstil fliser</string>
     <string name="nav_view_speed">Fart</string>
+    <string name="nav_view_change_tile">Skift tal</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellit</string>

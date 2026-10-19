@@ -1754,6 +1754,7 @@
     <string name="nav_view_pick_metric">Zahl wählen</string>
     <string name="nav_view_reset_tiles">Kacheln zurücksetzen</string>
     <string name="nav_view_speed">Geschwindigkeit</string>
+    <string name="nav_view_change_tile">Zahl ändern</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellit</string>

@@ -2272,6 +2272,7 @@
     <string name="nav_view_pick_metric">Pick a number</string>
     <string name="nav_view_reset_tiles">Reset tiles</string>
     <string name="nav_view_speed">Speed</string>
+    <string name="nav_view_change_tile">Change number</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellite</string>

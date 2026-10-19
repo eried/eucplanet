@@ -1737,6 +1737,7 @@
     <string name="nav_view_pick_metric">Wybierz liczbę</string>
     <string name="nav_view_reset_tiles">Resetuj kafelki</string>
     <string name="nav_view_speed">Prędkość</string>
+    <string name="nav_view_change_tile">Zmień liczbę</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelita</string>

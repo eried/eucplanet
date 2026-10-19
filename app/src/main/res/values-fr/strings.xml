@@ -1783,6 +1783,7 @@
     <string name="nav_view_pick_metric">Choisis un nombre</string>
     <string name="nav_view_reset_tiles">Réinitialiser les tuiles</string>
     <string name="nav_view_speed">Vitesse</string>
+    <string name="nav_view_change_tile">Changer le nombre</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellite</string>

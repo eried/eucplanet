@@ -1724,6 +1724,7 @@
     <string name="nav_view_pick_metric">Выберите число</string>
     <string name="nav_view_reset_tiles">Сбросить плитки</string>
     <string name="nav_view_speed">Скорость</string>
+    <string name="nav_view_change_tile">Сменить число</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Спутник</string>

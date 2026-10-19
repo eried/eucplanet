@@ -891,6 +891,7 @@
     <string name="nav_view_pick_metric">Velg et tall</string>
     <string name="nav_view_reset_tiles">Nullstill fliser</string>
     <string name="nav_view_speed">Fart</string>
+    <string name="nav_view_change_tile">Bytt tall</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellitt</string>

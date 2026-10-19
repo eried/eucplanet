@@ -1721,6 +1721,7 @@
     <string name="nav_view_pick_metric">Bir sayı seç</string>
     <string name="nav_view_reset_tiles">Kutuları sıfırla</string>
     <string name="nav_view_speed">Hız</string>
+    <string name="nav_view_change_tile">Sayıyı değiştir</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Uydu</string>

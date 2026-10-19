@@ -1722,6 +1722,16 @@ class RouteBuilderViewModel @Inject constructor(
         .map { it.distanceKm }
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0f)
 
+    /** Phone battery percent for the PHONE_BATTERY tile, polled every 30 s
+     *  like the dashboard's; -1 when unavailable. Runs only while collected. */
+    val phoneBatteryPercent: StateFlow<Int> = kotlinx.coroutines.flow.flow {
+        while (true) {
+            val bm = context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager
+            emit(bm?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1)
+            delay(30_000L)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), -1)
+
     val navigatorView: StateFlow<NavigatorViewSettings> = settingsRepository.settings
         .map { it.navigatorView }
         .stateIn(viewModelScope, SharingStarted.Eagerly, NavigatorViewSettings())

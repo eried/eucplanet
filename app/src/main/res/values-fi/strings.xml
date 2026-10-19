@@ -2023,6 +2023,7 @@
     <string name="nav_view_pick_metric">Valitse luku</string>
     <string name="nav_view_reset_tiles">Nollaa ruudut</string>
     <string name="nav_view_speed">Nopeus</string>
+    <string name="nav_view_change_tile">Vaihda luku</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelliitti</string>

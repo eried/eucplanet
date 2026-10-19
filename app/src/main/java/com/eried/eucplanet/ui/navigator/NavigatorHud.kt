@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,7 +37,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -49,6 +57,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavState
+import com.eried.eucplanet.data.model.NavigatorViewSettings
+import com.eried.eucplanet.ui.metrics.MetricTextInputs
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.ui.metrics.MetricText
@@ -57,6 +67,7 @@ import com.eried.eucplanet.ui.settings.metricChipLabel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
 import java.util.Date
+import kotlin.math.absoluteValue
 
 /** The rider's display units for the navigator tiles, from the Units effective* helpers. */
 data class MetricUnits(
@@ -68,6 +79,127 @@ data class MetricUnits(
 
 /** Translucency of the navigator cards over the map, matching the map's other overlays. */
 private const val HUD_ALPHA = 0.90f
+
+/**
+ * Everything the map draws while guidance runs: turn card, tiles and speed
+ * bubble, plus the tile picker. It collects the per-frame flows (wheel data,
+ * guidance state, location) itself, so a BLE frame recomposes only this and
+ * not the map screen around it.
+ *
+ * [panelHeightPx] and [mapBoxHeightPx] are device pixels; in landscape the
+ * stops sidebar is [sidebarWidth] wide on the right when [sidebarRight].
+ */
+@Composable
+fun BoxScope.NavigatorOverlay(
+    viewModel: RouteBuilderViewModel,
+    topPad: Dp,
+    landscape: Boolean,
+    sidebarRight: Boolean,
+    sidebarWidth: Dp,
+    panelHeightPx: Int,
+    mapBoxHeightPx: Int,
+    tileKeysCsv: String,
+) {
+    val navState by viewModel.navState.collectAsState()
+    if (!navState.active) return
+    val wheelData by viewModel.wheelData.collectAsState()
+    val wheelLive by viewModel.wheelLive.collectAsState()
+    val units by viewModel.unitsForMetrics.collectAsState()
+    val tripMeterKm by viewModel.tripMeterKm.collectAsState()
+    val phoneBattery by viewModel.phoneBatteryPercent.collectAsState()
+    val imperial by viewModel.imperialUnits.collectAsState()
+    val location by viewModel.currentLocation.collectAsState()
+    val density = LocalDensity.current
+    // The tile slot whose metric picker is open, or -1. Lives here, so it
+    // closes with the overlay when guidance ends.
+    var pickerSlot by remember { mutableStateOf(-1) }
+
+    val mapStartInset = if (landscape && !sidebarRight) sidebarWidth else 0.dp
+    val mapEndInset = if (landscape && sidebarRight) sidebarWidth else 0.dp
+    // Layers + My-location: two 56 dp buttons, 12 dp under each, with 16 dp
+    // on both sides of the column.
+    val fabStackH = (56.dp + 12.dp) * 2
+    val fabColumnW = 16.dp + 56.dp + 16.dp
+    val panelDp = with(density) { panelHeightPx.toDp() }
+
+    NavTurnCard(
+        state = navState,
+        imperial = imperial,
+        modifier = Modifier
+            .align(Alignment.TopStart)
+            .padding(top = topPad + 12.dp, start = mapStartInset + 12.dp)
+    )
+
+    // Under the compass. The cap keeps the column off the FAB stack (and the
+    // panel) on short screens; it scrolls then.
+    val tilesTop = topPad + 12.dp + 56.dp + 8.dp
+    val tilesBottomReserve = when {
+        !landscape -> panelDp + fabStackH + 8.dp
+        sidebarRight -> 12.dp
+        else -> fabStackH + 8.dp
+    }
+    val tilesMax = with(density) { mapBoxHeightPx.toDp() } - tilesTop - tilesBottomReserve
+    val tileKeys = remember(tileKeysCsv) {
+        NavigatorViewSettings.metricSlots(tileKeysCsv, KNOWN_DASHBOARD_METRICS.toSet())
+    }
+    val inputs = MetricTextInputs(
+        live = wheelLive,
+        wheel = wheelData,
+        speedUnit = units.speed,
+        distanceUnit = units.distance,
+        tempUnit = units.temp,
+        pressureUnit = units.pressure,
+        currentAsWatts = false,
+        tripMeterKm = tripMeterKm,
+        phoneBatteryPct = phoneBattery,
+        externalGpsBatteryPct = null,
+        gpsAltitudeM = location?.takeIf { it.hasAltitude() }?.altitude,
+        gpsSpeedKmh = location?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f },
+        gpsBearingDeg = location?.takeIf { it.hasBearing() }?.bearing,
+        gpsAccuracyM = location?.takeIf { it.hasAccuracy() }?.accuracy,
+    )
+    NavTileColumn(
+        keys = tileKeys,
+        valueOf = { key -> MetricText.of(key, inputs) },
+        onLongPress = { slot -> pickerSlot = slot },
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .padding(top = tilesTop, end = mapEndInset + 16.dp)
+            .then(
+                if (mapBoxHeightPx > 0) Modifier.heightIn(max = tilesMax.coerceAtLeast(56.dp))
+                else Modifier
+            )
+    )
+
+    // Wheel speed with a wheel connected, GPS speed without one.
+    val bubbleKmh = if (wheelLive) wheelData.speed.absoluteValue
+    else location?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f } ?: 0f
+    val bubbleStart = when {
+        !landscape -> 12.dp
+        // The FABs share the bottom-left corner: sit beside them.
+        sidebarRight -> fabColumnW
+        else -> mapStartInset + 12.dp
+    }
+    NavSpeedBubble(
+        kmh = bubbleKmh,
+        speedUnit = units.speed,
+        modifier = Modifier
+            .align(Alignment.BottomStart)
+            .padding(start = bubbleStart, bottom = if (landscape) 12.dp else panelDp + 12.dp)
+    )
+
+    if (pickerSlot >= 0) {
+        val slot = pickerSlot
+        NavMetricPicker(
+            current = tileKeys.getOrElse(slot) { "" },
+            onPick = { key ->
+                viewModel.setNavigatorTile(slot, key)
+                pickerSlot = -1
+            },
+            onDismiss = { pickerSlot = -1 }
+        )
+    }
+}
 
 /**
  * Top-left card while navigating on the map: the turn arrow, distance to the
@@ -208,6 +340,7 @@ fun NavTileColumn(
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.appColors
+    val changeLabel = stringResource(R.string.nav_view_change_tile)
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -216,7 +349,11 @@ fun NavTileColumn(
             Surface(
                 modifier = Modifier
                     .width(76.dp)
-                    .combinedClickable(onClick = {}, onLongClick = { onLongPress(i) }),
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClickLabel = changeLabel,
+                        onLongClick = { onLongPress(i) },
+                    ),
                 shape = RoundedCornerShape(10.dp),
                 color = colors.surface.copy(alpha = HUD_ALPHA),
                 contentColor = colors.textPrimary,

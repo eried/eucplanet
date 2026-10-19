@@ -1779,6 +1779,7 @@
     <string name="nav_view_pick_metric">Kies een getal</string>
     <string name="nav_view_reset_tiles">Tegels resetten</string>
     <string name="nav_view_speed">Snelheid</string>
+    <string name="nav_view_change_tile">Getal wijzigen</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelliet</string>

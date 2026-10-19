@@ -1724,6 +1724,7 @@
     <string name="nav_view_pick_metric">Escolha um número</string>
     <string name="nav_view_reset_tiles">Redefinir blocos</string>
     <string name="nav_view_speed">Velocidade</string>
+    <string name="nav_view_change_tile">Trocar número</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satélite</string>

@@ -2023,6 +2023,7 @@
     <string name="nav_view_pick_metric">Válassz számot</string>
     <string name="nav_view_reset_tiles">Csempék visszaállítása</string>
     <string name="nav_view_speed">Sebesség</string>
+    <string name="nav_view_change_tile">Szám cseréje</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Műhold</string>
