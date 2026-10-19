@@ -38,6 +38,22 @@ class NavigatorViewSettingsTest {
             NavigatorViewSettings.withSlot(NavigatorViewSettings.DEFAULT_METRICS, -1, "SPEED", known))
     }
 
+    @Test fun noneIsKept() {
+        assertEquals(listOf("NONE", "BATTERY", "NONE", "LOAD"),
+            NavigatorViewSettings.metricSlots("NONE,BATTERY,NONE,LOAD", known))
+    }
+
+    @Test fun blankStillDefaultsBesideNone() {
+        assertEquals(listOf("NONE", "BATTERY", "TRIP", "LOAD"),
+            NavigatorViewSettings.metricSlots("NONE,,,", known))
+    }
+
+    @Test fun withSlotAcceptsNone() {
+        val csv = NavigatorViewSettings.withSlot(NavigatorViewSettings.DEFAULT_METRICS, 1, "NONE", known)
+        assertEquals("VOLTAGE,NONE,TRIP,LOAD", csv)
+        assertEquals(listOf("VOLTAGE", "NONE", "TRIP", "LOAD"), NavigatorViewSettings.metricSlots(csv, known))
+    }
+
     @Test fun cruiseSpecIsRegisteredWithDefault25() {
         val spec = ADVANCED_SPECS.single { it.id == "navCruiseKmh" }
         assertEquals(25, spec.get(AdvancedSettings()))

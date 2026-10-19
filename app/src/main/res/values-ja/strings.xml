@@ -1717,9 +1717,6 @@
     <string name="nav_view_north_up">北を上、タップで進行方向を上</string>
     <string name="nav_view_tiles">ナビタイル</string>
     <string name="nav_view_tiles_desc">ナビ中に速度の横に表示される4つの数値です。</string>
-    <string name="nav_view_tile_n">タイル %1$d</string>
-    <string name="nav_view_pick_metric">数値を選択</string>
-    <string name="nav_view_reset_tiles">タイルをリセット</string>
     <string name="nav_view_speed">速度</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

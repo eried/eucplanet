@@ -1720,9 +1720,6 @@
     <string name="nav_view_north_up">Norte arriba, toca para rumbo arriba</string>
     <string name="nav_view_tiles">Mosaicos del navegador</string>
     <string name="nav_view_tiles_desc">Los 4 números junto a la velocidad al navegar.</string>
-    <string name="nav_view_tile_n">Mosaico %1$d</string>
-    <string name="nav_view_pick_metric">Elige un número</string>
-    <string name="nav_view_reset_tiles">Restablecer mosaicos</string>
     <string name="nav_view_speed">Velocidad</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

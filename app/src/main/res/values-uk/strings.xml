@@ -1752,9 +1752,6 @@
     <string name="nav_view_north_up">Північ угорі, торкнись для курсу угорі</string>
     <string name="nav_view_tiles">Плитки навігації</string>
     <string name="nav_view_tiles_desc">4 числа поруч зі швидкістю під час навігації.</string>
-    <string name="nav_view_tile_n">Плитка %1$d</string>
-    <string name="nav_view_pick_metric">Обери число</string>
-    <string name="nav_view_reset_tiles">Скинути плитки</string>
     <string name="nav_view_speed">Швидкість</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

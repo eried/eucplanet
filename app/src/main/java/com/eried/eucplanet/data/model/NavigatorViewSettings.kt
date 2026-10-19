@@ -15,16 +15,21 @@ data class NavigatorViewSettings(
         /** LOAD is the catalog's PWM. */
         const val DEFAULT_METRICS = "VOLTAGE,BATTERY,TRIP,LOAD"
         val DEFAULT_KEYS: List<String> = DEFAULT_METRICS.split(',')
+        /** A tile the rider emptied with the slot picker's None item. */
+        const val NONE = "NONE"
 
-        /** Always [SLOTS] keys; a blank or unknown slot takes that slot's default. */
+        /**
+         * Always [SLOTS] keys; [NONE] stays [NONE], a blank or unknown slot
+         * takes that slot's default.
+         */
         fun metricSlots(csv: String, known: Set<String>): List<String> {
             val parts = csv.split(',').map { it.trim() }
             return List(SLOTS) { i ->
-                parts.getOrNull(i)?.takeIf { it in known } ?: DEFAULT_KEYS[i]
+                parts.getOrNull(i)?.takeIf { it == NONE || it in known } ?: DEFAULT_KEYS[i]
             }
         }
 
-        /** [csv] with tile [index] set to [key]; an out-of-range index changes nothing. */
+        /** [csv] with tile [index] set to [key] (or [NONE]); an out-of-range index changes nothing. */
         fun withSlot(csv: String, index: Int, key: String, known: Set<String>): String {
             val slots = metricSlots(csv, known).toMutableList()
             if (index in slots.indices) slots[index] = key

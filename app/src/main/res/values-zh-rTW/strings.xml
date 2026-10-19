@@ -1717,9 +1717,6 @@
     <string name="nav_view_north_up">正北朝上，點一下切換為朝向向上</string>
     <string name="nav_view_tiles">導航資料區塊</string>
     <string name="nav_view_tiles_desc">導航時速度旁顯示的 4 個數值。</string>
-    <string name="nav_view_tile_n">區塊 %1$d</string>
-    <string name="nav_view_pick_metric">選擇數值</string>
-    <string name="nav_view_reset_tiles">重設區塊</string>
     <string name="nav_view_speed">速度</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

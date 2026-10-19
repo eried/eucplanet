@@ -1720,9 +1720,6 @@
     <string name="nav_view_north_up">Norte para cima, toque para rumo para cima</string>
     <string name="nav_view_tiles">Blocos do navegador</string>
     <string name="nav_view_tiles_desc">Os 4 números ao lado da velocidade durante a navegação.</string>
-    <string name="nav_view_tile_n">Bloco %1$d</string>
-    <string name="nav_view_pick_metric">Escolha um número</string>
-    <string name="nav_view_reset_tiles">Redefinir blocos</string>
     <string name="nav_view_speed">Velocidade</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

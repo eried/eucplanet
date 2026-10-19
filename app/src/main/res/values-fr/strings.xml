@@ -1779,9 +1779,6 @@
     <string name="nav_view_north_up">Nord en haut, touche pour cap en haut</string>
     <string name="nav_view_tiles">Tuiles du navigateur</string>
     <string name="nav_view_tiles_desc">Les 4 nombres à côté de la vitesse pendant la navigation.</string>
-    <string name="nav_view_tile_n">Tuile %1$d</string>
-    <string name="nav_view_pick_metric">Choisis un nombre</string>
-    <string name="nav_view_reset_tiles">Réinitialiser les tuiles</string>
     <string name="nav_view_speed">Vitesse</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

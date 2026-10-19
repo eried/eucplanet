@@ -2019,9 +2019,6 @@
     <string name="nav_view_north_up">Nord în sus, atinge pentru direcția în sus</string>
     <string name="nav_view_tiles">Casete de navigație</string>
     <string name="nav_view_tiles_desc">Cele 4 numere de lângă viteză în timpul navigației.</string>
-    <string name="nav_view_tile_n">Caseta %1$d</string>
-    <string name="nav_view_pick_metric">Alege un număr</string>
-    <string name="nav_view_reset_tiles">Resetează casetele</string>
     <string name="nav_view_speed">Viteză</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

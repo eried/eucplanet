@@ -906,9 +906,6 @@
     <string name="nav_view_north_up">Nord in alto, tocca per direzione in alto</string>
     <string name="nav_view_tiles">Riquadri del navigatore</string>
     <string name="nav_view_tiles_desc">I 4 numeri accanto alla velocità durante la navigazione.</string>
-    <string name="nav_view_tile_n">Riquadro %1$d</string>
-    <string name="nav_view_pick_metric">Scegli un numero</string>
-    <string name="nav_view_reset_tiles">Ripristina riquadri</string>
     <string name="nav_view_speed">Velocità</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>

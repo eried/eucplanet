@@ -271,60 +271,31 @@ fun NavigatorSettingsContent(
         }
 
         // --- Navigator tiles: the 4 numbers beside the map while navigating ---
-        SectionHeader(stringResource(R.string.nav_view_tiles))
-        HintText(stringResource(R.string.nav_view_tiles_desc), small = true)
+        // Same slot pickers as the widget and Android Auto, 2 per row.
         val tileKeys = com.eried.eucplanet.data.model.NavigatorViewSettings.metricSlots(
             settings.navigatorView.metrics, KNOWN_DASHBOARD_METRICS.toSet())
-        var pickingTile by remember { mutableStateOf<Int?>(null) }
-        tileKeys.forEachIndexed { i, key ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { pickingTile = i }
-                    .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(R.string.nav_view_tile_n, i + 1),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.appColors.textPrimary,
-                )
-                Text(
-                    metricChipLabel(key),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.appColors.primary,
-                )
-            }
-        }
-        pickingTile?.let { idx ->
-            com.eried.eucplanet.ui.navigator.NavMetricPicker(
-                current = tileKeys[idx],
-                onPick = { viewModel.updateNavigatorTile(idx, it); pickingTile = null },
-                onDismiss = { pickingTile = null },
-            )
-        }
-        val tilesAreDefault = tileKeys == com.eried.eucplanet.data.model.NavigatorViewSettings.DEFAULT_KEYS
-        Row(
+        val tileOptions = KNOWN_DASHBOARD_METRICS.map { it to metricChipLabel(it) }
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            androidx.compose.material3.TextButton(
-                onClick = { viewModel.resetNavigatorTiles() },
-                enabled = !tilesAreDefault,
-                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.appColors.primary,
-                    disabledContentColor = MaterialTheme.appColors.textSecondary,
-                ),
-            ) { Text(stringResource(R.string.nav_view_reset_tiles)) }
-            Text(
-                com.eried.eucplanet.data.model.NavigatorViewSettings.DEFAULT_KEYS
-                    .map { metricChipLabel(it, short = true) }.joinToString(" / "),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.appColors.textSecondary,
-                modifier = Modifier.weight(1f),
-            )
+            SectionHeader(stringResource(R.string.nav_view_tiles))
+            HintText(stringResource(R.string.nav_view_tiles_desc), small = true)
+            tileKeys.indices.chunked(2).forEach { pair ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    pair.forEach { i ->
+                        val key = tileKeys[i]
+                        WidgetSlotDropdown(
+                            label = stringResource(R.string.widget_metric_slot, i + 1),
+                            currentLabel = if (key == com.eried.eucplanet.data.model.NavigatorViewSettings.NONE) ""
+                                else metricChipLabel(key),
+                            options = tileOptions,
+                            onSelect = { viewModel.updateNavigatorTile(i, it) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
         }
 
         // --- Weather / ridability ---------------------------------------
