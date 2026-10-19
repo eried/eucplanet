@@ -32,12 +32,15 @@ between the rider and the next stop, not the rider.
 | Camera | Follow the rider, heading-up, rider in the lower third; compass toggles north-up |
 | Fields | The dashboard's full metric list; 4 slots; long-press a tile to change |
 | ETA speed | Advanced setting, default 25 km/h, blended with the trip's moving average, capped at 80% of tiltback |
-| Layout | Turn card top-left with ETA and distance under it, tiles at the bottom above a slim stops bar |
+| Layout | Turn card top-left with ETA and distance under it; 4 tiles in one column on the right under the compass; today's stops panel, folded at Start |
 | Speed | Big speed bubble bottom-left, like Google Maps; wheel speed, GPS speed with no wheel |
 | Tiles | Always 4 |
 | Screen | Kept on only while navigating with the map in front, and only when the dashboard keep-on setting is off |
 | Hunt / Homing | Same view; card shows direction and straight-line distance; ETA from closing speed |
 | Arrival | Arrival banner, then the normal map with the route still there |
+| Stops panel | Exactly today's panel (no drag while navigating, End navigation inside); folds when Start is pressed |
+| Stop tap | As today: pans to the stop, following and rotation return after 6 s |
+| Stop distances | The next stop counts down live; later stops keep planned legs; reached stops keep today's passed mark |
 
 ## Layout
 
@@ -46,14 +49,14 @@ Portrait:
 ```
 +-----------------------------+
 | [<- 300 m ]          (N)    |   turn card, compass
-| [ Storgata]                 |
-| 14:32 . 8.4 km              |   arrival clock time . distance left
-|                             |
-|          map                |
+| [ Storgata]        [72.4V]  |
+| 14:32 . 8.4 km     [  68%]  |   4 tiles, one column, right
+|                    [12.3km] |
+|          map       [  41%]  |
 |            ^ rider          |   lower third
-|                             |
-| [72.4V][ 68%][12.3km][ 41%] |   4 tiles
-| Next: Cafe . 2 left   [ ^ ] |   slim stops bar, tap to expand
+| (32)                        |   speed bubble
+| km/h                        |
+|=== today's stops panel =====|   folded at Start, tap to open
 +-----------------------------+
 ```
 
@@ -66,16 +69,25 @@ Portrait:
 - Speed bubble: a large round speed readout bottom-left, above the tiles,
   in the user's speed unit. Wheel speed while a wheel is connected, GPS
   speed otherwise. Always shown in navigator view.
-- 4 tiles in a row above the stops bar; each shows value and short label.
-- Stops bar: next stop name, stops left, an expand chevron. Expanded, it is
-  today's stops panel, which carries End navigation (with its confirm).
+- 4 tiles in one column on the right edge, under the compass, outside the
+  stops panel; each shows value and short label.
+- Stops panel: today's panel, unchanged in look and behaviour (stops cannot
+  be dragged while navigating, End navigation with its confirm). It folds to
+  its header row when Start is pressed; the rider can open it as today.
+- Inside it, the next stop's distance counts down live (distance left to
+  that stop along the route); later stops keep their planned leg distance.
+  Reached stops keep today's passed mark. When guidance ends the countdown
+  returns to the planned leg distance.
+- Tapping a stop (list or pin) behaves as today: the map pans to it, and
+  following plus heading-up rotation come back after 6 s.
 - Search is already hidden while guidance runs; nothing changes there.
-- The Layers and My-location buttons stay, stacked above the tiles.
+- The Layers and My-location buttons stay where they are today; the tile
+  column sits above them.
 
 Landscape: the speed bubble stays bottom-left on the map.
 Landscape (sidebar shown, width at least `navSidebarMinScreenDp`): the turn
-card stays top-left over the map; the tiles and the stops bar move into the
-existing sidebar, tiles at its top.
+card stays top-left over the map and the tile column stays on the map, on
+the side away from the sidebar. The sidebar itself is unchanged.
 
 Outside guidance, the map is exactly as today.
 
@@ -108,9 +120,11 @@ etaSpeedKmh(settingKmh, movingAvgKmh, movingSeconds, tiltbackKmh)
 - Floor: never below 5 km/h, so a crawl does not show an arrival in days.
 - ETA = now + distance left / speed. Distance left comes from the engine.
 
-Engine change: `NavState` gains `remainingM: Double` (the `distToEnd` the
-engine already computes, per leg in Next segment mode, whole tour in Full
-path mode). The watch mirror ignores the new field.
+Engine change: `NavState` gains `remainingM: Double` and
+`nextStopRemainingM: Double` (distance left to the next stop, for the panel
+countdown). `remainingM` is the `distToEnd` the engine already computes:
+per leg in Next segment mode, whole tour in Full path mode. The watch mirror
+ignores the new fields.
 
 The moving average and moving time come from the same source as the
 `AVG_TRIP_SPEED` metric, so the map and the dashboard agree.
