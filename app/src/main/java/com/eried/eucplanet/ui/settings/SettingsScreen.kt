@@ -2439,41 +2439,56 @@ private fun DashboardLayoutTab(
             }
             editing = null
         }
+        // Restore is live only when it would change something: the same
+        // default the reset path writes, so a slot already at its shipped
+        // occupant (and stats) greys the button out. A custom BLE command is
+        // never a shipped occupant, so its Restore (delete) stays live.
+        val canReset = when (target) {
+            is DashboardEditTarget.CustomBle -> true
+            is DashboardEditTarget.Action, is DashboardEditTarget.Group ->
+                !viewModel.isDashboardActionSlotDefault(settings, target.slotIndex)
+            else -> !viewModel.isDashboardMetricSlotDefault(settings, target.slotIndex)
+        }
         when (target) {
             is DashboardEditTarget.Composite -> CompositeMetricSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             is DashboardEditTarget.Group -> ActionGroupSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             is DashboardEditTarget.CustomBle -> CustomBleSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             is DashboardEditTarget.CustomTile -> CustomTileSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             else -> DashboardSlotSheet(
                 target = target,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
         }
     }
@@ -4289,7 +4304,8 @@ private fun DashboardSlotSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
@@ -4346,7 +4362,7 @@ private fun DashboardSlotSheet(
                 is DashboardEditTarget.CustomTile,
                 is DashboardEditTarget.CustomBle -> Unit
             }
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -4365,7 +4381,8 @@ private fun CompositeMetricSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val composite = viewModel.getCompositeMetric(settings, id) ?: MetricComposite()
     // Composite sheets now carry two dropdown rows per cell (metric +
@@ -4503,7 +4520,7 @@ private fun CompositeMetricSheet(
                 }
             }
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -4511,19 +4528,26 @@ private fun CompositeMetricSheet(
 
 /**
  * Shared footer for every per-slot bottom sheet: Restore on the left,
- * Close on the right. The "Restore slot" label is uniform across metric
+ * Close on the right. Restore greys out when [canReset] is false, the
+ * slot already holds what it ships with. The "Restore slot" label is uniform across metric
  * and action sheets so it translates as a single string.
  */
 @Composable
 private fun SlotSheetFooter(
     onReset: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    canReset: Boolean
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onReset, colors = themedTextButtonColors(), shape = RoundedCornerShape(12.dp)) {
+        TextButton(
+            onClick = onReset,
+            enabled = canReset,
+            colors = themedTextButtonColors(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
             Icon(
                 Icons.Filled.Restore,
                 contentDescription = null,
@@ -4831,7 +4855,8 @@ private fun ActionGroupSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val group = viewModel.getActionGroup(settings, id) ?: ActionGroup()
     val sheetState = rememberModalBottomSheetState()
@@ -4941,7 +4966,7 @@ private fun ActionGroupSheet(
                 }
             }
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -4960,7 +4985,8 @@ private fun CustomBleSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val cmd = viewModel.getCustomBle(settings, id)
         ?: com.eried.eucplanet.data.model.CustomBleCommand(
@@ -5068,7 +5094,7 @@ private fun CustomBleSheet(
                 shape = RoundedCornerShape(12.dp),
             )
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -5222,7 +5248,8 @@ private fun CustomTileSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val tile = viewModel.getCustomTile(settings, id) ?: CustomTile()
     val sheetState = rememberModalBottomSheetState()
@@ -5355,7 +5382,7 @@ private fun CustomTileSheet(
                 )
             }
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
