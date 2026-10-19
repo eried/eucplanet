@@ -49,7 +49,8 @@ internal fun mapLayersJson(): String =
  *    `nativeCenterOn(lat,lng)`, `nativeSetAccent(hex)`,
  *    `nativeSetMapType(type)`, `nativeSetNavigatorView(on)` (follow the rider,
  *    not the midpoint to the next stop), `nativeSetNavLookAhead(px)` (rider
- *    sits this many CSS px below the visible centre), `nativeSetNorthUp(on)`
+ *    sits this many CSS px below the visible centre), `nativeSetNorthUp(on)`, `nativeSetNavSideOffset(px)` (landscape sidebar: rider
+ *    sits this many CSS px toward screen left of the full-width centre)
  *    (auto-follow keeps bearing 0).
  *  - JS → native: `AndroidNav.onMapClick(lat,lng)`,
  *    `AndroidNav.onMarkerDragged(index,lat,lng)`, `AndroidNav.onSelfTap()`.
@@ -453,6 +454,13 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   window.nativeSetRecenterOffset = function(px){
     navRecenterOffsetPx = px || 0;
   };
+  // CSS-pixel horizontal offset for the landscape sidebar: the map spans the
+  // full width and the sidebar covers part of it, so the rider is centred in
+  // the visible part instead. Positive moves the rider toward screen left.
+  var navSideOffsetPx = 0;
+  window.nativeSetNavSideOffset = function(px){
+    navSideOffsetPx = px || 0;
+  };
   // Navigator view: follow the rider (not the midpoint to the next stop),
   // low on screen so more road ahead shows, heading-up or north-up.
   var navigatorView = false;
@@ -543,7 +551,8 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       // so the look-ahead is subtracted to put the rider below it.
       var followOffsetPx = navRecenterOffsetPx - (navigatorView ? navLookAheadPx : 0);
       var targetCenter = centerLatLngFor(
-        centerLat, centerLng, newZoom, followOffsetPx
+        centerLat, centerLng, newZoom, followOffsetPx,
+        navigatorView ? navSideOffsetPx : 0
       );
       var c = map.getCenter();
       var dLat = targetCenter.lat - c.lat;
@@ -2046,13 +2055,19 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   // was landing top-right while riding east). The world-shift we need
   // for a screen-down shift of (0, offset) is (sin(B), cos(B)) * offset
   // in projection pixels, where B is the bearing in radians.
-  function centerLatLngFor(lat, lng, zoom, screenOffsetPx){
-    if (!screenOffsetPx) return [lat, lng];
+  // The optional screenOffsetXPx shifts the same way sideways: positive puts
+  // the point LEFT of centre, matching the vertical
+  // sign (positive = point above centre). Screen right (1,0) maps to
+  // (cos B, -sin B) in projection pixels.
+  function centerLatLngFor(lat, lng, zoom, screenOffsetPx, screenOffsetXPx){
+    if (!screenOffsetPx && !screenOffsetXPx) return [lat, lng];
     var pt = map.project([lat, lng], zoom);
     var bearingDeg = (map.getBearing) ? map.getBearing() : 0;
     var rad = bearingDeg * Math.PI / 180;
-    pt.x += screenOffsetPx * Math.sin(rad);
-    pt.y += screenOffsetPx * Math.cos(rad);
+    var oy = screenOffsetPx || 0;
+    var ox = screenOffsetXPx || 0;
+    pt.x += oy * Math.sin(rad) + ox * Math.cos(rad);
+    pt.y += oy * Math.cos(rad) - ox * Math.sin(rad);
     return map.unproject(pt, zoom);
   }
 
@@ -2075,7 +2090,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       ' lng=' + lng.toFixed(5) + ' zoom=' + zoom +
       ' bottomOff=' + (bottomOffsetPx || 0) +
       ' navLocked=' + navLocked);
-    map.setView(centerLatLngFor(lat, lng, zoom, bottomOffsetPx), zoom);
+    map.setView(centerLatLngFor(lat, lng, zoom, bottomOffsetPx, navSideOffsetPx), zoom);
     // Count programmatic recenters as a "manual interaction" so the
     // auto-follow tween doesn't immediately yank the map back. The rider
     // tapped recenter because they want to SEE this view; auto-follow

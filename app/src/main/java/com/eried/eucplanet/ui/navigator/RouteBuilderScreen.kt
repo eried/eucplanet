@@ -1017,6 +1017,18 @@ fun RouteBuilderScreen(
             if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetRecenterOffset($recenterOffsetPx);", null)
         }
+        // Landscape: the map spans the full width and the stops sidebar covers
+        // part of it, so centre the rider in the visible part. Half the sidebar
+        // width, in dp (= CSS px, like the vertical offset above), moving the
+        // rider away from the sidebar: sidebar right => toward screen left (+).
+        val sideOffsetPx =
+            if (!landscape) 0f
+            else (advancedVars.navSidebarWidthDp / 2f) * (if (stopsSide != "LEFT") 1f else -1f)
+        LaunchedEffect(pageReady, landscape, stopsSide, advancedVars.navSidebarWidthDp) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetNavSideOffset($sideOffsetPx);", null)
+        }
         // Navigator view: while guidance runs the camera follows the rider
         // placed low on the visible map (a sixth of its height below centre),
         // heading-up unless the rider chose north-up. The visible map is the
