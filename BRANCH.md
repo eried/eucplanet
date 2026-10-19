@@ -65,7 +65,7 @@ only when you can cut the ride short.
 - Navigation: route avoidances (tolls, ferries...) now hold on routes with 10 or more stops; before, they were silently dropped.
 - Share route: the card's stop distances and total match the stop list. In Next segment it could show about 0 m.
 - Map and navigation follow Distance unit (Settings, Units). With miles picked there, the map used to stay in km.
-- Navigation: a navigator view on the map while you ride: next turn, arrival time, distance left, speed and 4 numbers you pick (long-press to change). Start now stays on the map.
+- Navigation: a navigator view on the map while you ride: next turn, arrival time, distance left, speed and 4 numbers you pick in Settings, Navigation. Start now stays on the map.
 
 ## Please test
 
