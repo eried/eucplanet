@@ -66,6 +66,7 @@ only when you can cut the ride short.
 - Share route: the card's stop distances and total match the stop list. In Next segment it could show about 0 m.
 - Map and navigation follow Distance unit (Settings, Units). With miles picked there, the map used to stay in km.
 - Navigation: a navigator view on the map while you ride: next turn, arrival time, distance left, speed and 4 numbers you pick in Settings, Navigation. Start now stays on the map.
+- Navigation: tap the cue popup or long-press the map button, Open navigator, to jump to the map. A connected wheel decides when you start riding, so GPS drift no longer does.
 
 ## Please test
 
@@ -95,6 +96,7 @@ only when you can cut the ride short.
 - Distance unit set to miles: the stop list, voice and Navigation & weather tolerances use mi and ft?
 - Navigate a 2-stop route from the map, in Full path and Next segment: turn card, arrival time, the next stop counting down and ticked off when passed, End navigation.
 - Landscape and north-up (tap the compass while navigating): everything readable and reachable?
+- Stand still after Start with a wheel connected: Start riding stays until you ride? Tap the cue popup: does it open the map?
 
 **InMotion X1**
 - Tiltback and alarm speeds match the InMotion app?
