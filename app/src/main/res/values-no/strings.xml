@@ -886,12 +886,11 @@
     <string name="nav_view_heading_up">Kjøreretning opp, trykk for nord opp</string>
     <string name="nav_view_north_up">Nord opp, trykk for kjøreretning opp</string>
     <string name="nav_view_tiles">Navigasjonsfliser</string>
-    <string name="nav_view_tiles_desc">De 4 tallene ved siden av kartet under navigasjon. Trykk lenge på en flis på kartet for å endre den.</string>
+    <string name="nav_view_tiles_desc">De 4 tallene ved siden av farten under navigasjon.</string>
     <string name="nav_view_tile_n">Flis %1$d</string>
     <string name="nav_view_pick_metric">Velg et tall</string>
     <string name="nav_view_reset_tiles">Nullstill fliser</string>
     <string name="nav_view_speed">Fart</string>
-    <string name="nav_view_change_tile">Bytt tall</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellitt</string>

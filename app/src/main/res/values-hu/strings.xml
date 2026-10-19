@@ -2018,12 +2018,11 @@
     <string name="nav_view_heading_up">Haladási irány felül, koppints az északhoz</string>
     <string name="nav_view_north_up">Észak felül, koppints a haladási irányhoz</string>
     <string name="nav_view_tiles">Navigációs csempék</string>
-    <string name="nav_view_tiles_desc">A 4 szám a térkép mellett navigáció közben. Hosszan nyomd meg a csempét a térképen a módosításhoz.</string>
+    <string name="nav_view_tiles_desc">A 4 szám a sebesség mellett navigáció közben.</string>
     <string name="nav_view_tile_n">%1$d. csempe</string>
     <string name="nav_view_pick_metric">Válassz számot</string>
     <string name="nav_view_reset_tiles">Csempék visszaállítása</string>
     <string name="nav_view_speed">Sebesség</string>
-    <string name="nav_view_change_tile">Szám cseréje</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Műhold</string>

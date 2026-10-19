@@ -1719,12 +1719,11 @@
     <string name="nav_view_heading_up">Курс вверху, нажмите для севера вверху</string>
     <string name="nav_view_north_up">Север вверху, нажмите для курса вверху</string>
     <string name="nav_view_tiles">Плитки навигации</string>
-    <string name="nav_view_tiles_desc">4 числа рядом с картой во время навигации. Удерживайте плитку на карте, чтобы изменить её.</string>
+    <string name="nav_view_tiles_desc">4 числа рядом со скоростью во время навигации.</string>
     <string name="nav_view_tile_n">Плитка %1$d</string>
     <string name="nav_view_pick_metric">Выберите число</string>
     <string name="nav_view_reset_tiles">Сбросить плитки</string>
     <string name="nav_view_speed">Скорость</string>
-    <string name="nav_view_change_tile">Сменить число</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Спутник</string>

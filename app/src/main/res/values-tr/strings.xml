@@ -1716,12 +1716,11 @@
     <string name="nav_view_heading_up">Yön yukarıda, kuzey yukarı için dokun</string>
     <string name="nav_view_north_up">Kuzey yukarıda, yön yukarı için dokun</string>
     <string name="nav_view_tiles">Navigasyon kutuları</string>
-    <string name="nav_view_tiles_desc">Navigasyon sırasında haritanın yanındaki 4 sayı. Değiştirmek için haritadaki bir kutuya uzun bas.</string>
+    <string name="nav_view_tiles_desc">Navigasyon sırasında hızın yanındaki 4 sayı.</string>
     <string name="nav_view_tile_n">Kutu %1$d</string>
     <string name="nav_view_pick_metric">Bir sayı seç</string>
     <string name="nav_view_reset_tiles">Kutuları sıfırla</string>
     <string name="nav_view_speed">Hız</string>
-    <string name="nav_view_change_tile">Sayıyı değiştir</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Uydu</string>

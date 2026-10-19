@@ -2018,12 +2018,11 @@
     <string name="nav_view_heading_up">Podle směru, klepnutím sever nahoře</string>
     <string name="nav_view_north_up">Sever nahoře, klepnutím podle směru</string>
     <string name="nav_view_tiles">Dlaždice navigace</string>
-    <string name="nav_view_tiles_desc">4 čísla vedle mapy při navigaci. Dlouhým stiskem dlaždice na mapě ji změníte.</string>
+    <string name="nav_view_tiles_desc">4 čísla vedle rychlosti při navigaci.</string>
     <string name="nav_view_tile_n">Dlaždice %1$d</string>
     <string name="nav_view_pick_metric">Vyberte číslo</string>
     <string name="nav_view_reset_tiles">Obnovit dlaždice</string>
     <string name="nav_view_speed">Rychlost</string>
-    <string name="nav_view_change_tile">Změnit číslo</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelitní</string>

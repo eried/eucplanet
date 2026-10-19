@@ -1237,8 +1237,8 @@ fun RouteBuilderScreen(
             // Its own composable: the map reports every 1.5 degrees of turn
             // during heading-up, and collecting that here recomposed the whole
             // map screen for the whole ride.
-            // In landscape it clears the right-hand stops sidebar, so the tile
-            // column under it stays on the map too.
+            // In landscape it clears the right-hand stops sidebar, so the
+            // navigator's metric pill under it stays on the map too.
             NavCompassButton(
                 viewModel = viewModel,
                 navRunning = navRunning,
@@ -1251,9 +1251,11 @@ fun RouteBuilderScreen(
 
             // --- Navigator view ----------------------------------------------
             // While guidance runs the map carries what a rider needs: the turn
-            // card top-left, 4 chosen tiles under the compass, and the speed
-            // bubble bottom-left. Everything sits on the map, clear of the
-            // landscape sidebar and of the Layers / My-location buttons.
+            // card top-left, and the speed bubble with the 4-number pill.
+            // Portrait puts both on one row beside My location, just above
+            // the stops panel; landscape stands the pill under the compass.
+            // Everything sits on the map, clear of the landscape sidebar and
+            // of the Layers / My-location buttons.
             if (navRunning) {
                 NavigatorOverlay(
                     viewModel = viewModel,

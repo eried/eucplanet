@@ -1749,12 +1749,11 @@
     <string name="nav_view_heading_up">Fahrtrichtung oben, tippe für Norden oben</string>
     <string name="nav_view_north_up">Norden oben, tippe für Fahrtrichtung oben</string>
     <string name="nav_view_tiles">Navigationskacheln</string>
-    <string name="nav_view_tiles_desc">Die 4 Zahlen neben der Karte während der Navigation. Halte eine Kachel auf der Karte gedrückt, um sie zu ändern.</string>
+    <string name="nav_view_tiles_desc">Die 4 Zahlen neben der Geschwindigkeit während der Navigation.</string>
     <string name="nav_view_tile_n">Kachel %1$d</string>
     <string name="nav_view_pick_metric">Zahl wählen</string>
     <string name="nav_view_reset_tiles">Kacheln zurücksetzen</string>
     <string name="nav_view_speed">Geschwindigkeit</string>
-    <string name="nav_view_change_tile">Zahl ändern</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellit</string>

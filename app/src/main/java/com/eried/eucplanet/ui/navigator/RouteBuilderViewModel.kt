@@ -16,7 +16,6 @@ import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.data.model.NavigatorViewSettings
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.ui.settings.KNOWN_DASHBOARD_METRICS
 import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.Waypoint
@@ -1767,20 +1766,6 @@ class RouteBuilderViewModel @Inject constructor(
             )
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, MetricUnits("kmh", "km", "C", "bar"))
-
-    /** Puts [key] in navigator tile [index] (0 until [NavigatorViewSettings.SLOTS]). */
-    fun setNavigatorTile(index: Int, key: String) {
-        if (index !in 0 until NavigatorViewSettings.SLOTS) return
-        viewModelScope.launch {
-            settingsRepository.update { s ->
-                val known = KNOWN_DASHBOARD_METRICS.toSet()
-                val slots = NavigatorViewSettings.metricSlots(s.navigatorView.metrics, known)
-                    .toMutableList()
-                if (key in known) slots[index] = key
-                s.copy(navigatorView = s.navigatorView.copy(metrics = slots.joinToString(",")))
-            }
-        }
-    }
 
     /** Flips the navigator camera between heading-up and north-up. */
     fun toggleNavNorthUp() {

@@ -905,12 +905,11 @@
     <string name="nav_view_heading_up">Direzione in alto, tocca per nord in alto</string>
     <string name="nav_view_north_up">Nord in alto, tocca per direzione in alto</string>
     <string name="nav_view_tiles">Riquadri del navigatore</string>
-    <string name="nav_view_tiles_desc">I 4 numeri accanto alla mappa durante la navigazione. Tieni premuto un riquadro sulla mappa per cambiarlo.</string>
+    <string name="nav_view_tiles_desc">I 4 numeri accanto alla velocità durante la navigazione.</string>
     <string name="nav_view_tile_n">Riquadro %1$d</string>
     <string name="nav_view_pick_metric">Scegli un numero</string>
     <string name="nav_view_reset_tiles">Ripristina riquadri</string>
     <string name="nav_view_speed">Velocità</string>
-    <string name="nav_view_change_tile">Cambia numero</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellite</string>

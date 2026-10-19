@@ -1774,12 +1774,11 @@
     <string name="nav_view_heading_up">Rijrichting boven, tik voor noord boven</string>
     <string name="nav_view_north_up">Noord boven, tik voor rijrichting boven</string>
     <string name="nav_view_tiles">Navigatietegels</string>
-    <string name="nav_view_tiles_desc">De 4 getallen naast de kaart tijdens het navigeren. Houd een tegel op de kaart ingedrukt om hem te wijzigen.</string>
+    <string name="nav_view_tiles_desc">De 4 getallen naast de snelheid tijdens het navigeren.</string>
     <string name="nav_view_tile_n">Tegel %1$d</string>
     <string name="nav_view_pick_metric">Kies een getal</string>
     <string name="nav_view_reset_tiles">Tegels resetten</string>
     <string name="nav_view_speed">Snelheid</string>
-    <string name="nav_view_change_tile">Getal wijzigen</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelliet</string>

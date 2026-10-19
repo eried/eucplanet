@@ -3,17 +3,18 @@ package com.eried.eucplanet.ui.navigator
 import android.text.format.DateFormat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,27 +22,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.Alignment
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.data.model.NavigatorViewSettings
@@ -80,11 +82,17 @@ data class MetricUnits(
 /** Translucency of the navigator cards over the map, matching the map's other overlays. */
 private const val HUD_ALPHA = 0.90f
 
+/** The metric pill lets more of the map through than the cards do. */
+private const val PILL_ALPHA = 0.70f
+
+/** The map's button size: the FABs, the compass, the speed bubble and the pill's thickness. */
+private val NAV_FAB_SIZE = 56.dp
+
 /**
- * Everything the map draws while guidance runs: turn card, tiles and speed
- * bubble, plus the tile picker. It collects the per-frame flows (wheel data,
- * guidance state, location) itself, so a BLE frame recomposes only this and
- * not the map screen around it.
+ * Everything the map draws while guidance runs: turn card, metric pill and
+ * speed bubble. It collects the per-frame flows (wheel data, guidance state,
+ * location) itself, so a BLE frame recomposes only this and not the map
+ * screen around it.
  *
  * [panelHeightPx] and [mapBoxHeightPx] are device pixels; in landscape the
  * stops sidebar is [sidebarWidth] wide on the right when [sidebarRight].
@@ -110,16 +118,13 @@ fun BoxScope.NavigatorOverlay(
     val imperial by viewModel.imperialUnits.collectAsState()
     val location by viewModel.currentLocation.collectAsState()
     val density = LocalDensity.current
-    // The tile slot whose metric picker is open, or -1. Lives here, so it
-    // closes with the overlay when guidance ends.
-    var pickerSlot by remember { mutableStateOf(-1) }
 
     val mapStartInset = if (landscape && !sidebarRight) sidebarWidth else 0.dp
     val mapEndInset = if (landscape && sidebarRight) sidebarWidth else 0.dp
     // Layers + My-location: two 56 dp buttons, 12 dp under each, with 16 dp
     // on both sides of the column.
-    val fabStackH = (56.dp + 12.dp) * 2
-    val fabColumnW = 16.dp + 56.dp + 16.dp
+    val fabStackH = (NAV_FAB_SIZE + 12.dp) * 2
+    val fabColumnW = 16.dp + NAV_FAB_SIZE + 16.dp
     val panelDp = with(density) { panelHeightPx.toDp() }
 
     NavTurnCard(
@@ -130,15 +135,6 @@ fun BoxScope.NavigatorOverlay(
             .padding(top = topPad + 12.dp, start = mapStartInset + 12.dp)
     )
 
-    // Under the compass. The cap keeps the column off the FAB stack (and the
-    // panel) on short screens; it scrolls then.
-    val tilesTop = topPad + 12.dp + 56.dp + 8.dp
-    val tilesBottomReserve = when {
-        !landscape -> panelDp + fabStackH + 8.dp
-        sidebarRight -> 12.dp
-        else -> fabStackH + 8.dp
-    }
-    val tilesMax = with(density) { mapBoxHeightPx.toDp() } - tilesTop - tilesBottomReserve
     val tileKeys = remember(tileKeysCsv) {
         NavigatorViewSettings.metricSlots(tileKeysCsv, KNOWN_DASHBOARD_METRICS.toSet())
     }
@@ -158,24 +154,54 @@ fun BoxScope.NavigatorOverlay(
         gpsBearingDeg = location?.takeIf { it.hasBearing() }?.bearing,
         gpsAccuracyM = location?.takeIf { it.hasAccuracy() }?.accuracy,
     )
-    NavTileColumn(
-        keys = tileKeys,
-        valueOf = { key -> MetricText.of(key, inputs) },
-        onLongPress = { slot -> pickerSlot = slot },
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = tilesTop, end = mapEndInset + 16.dp)
-            .then(
-                if (mapBoxHeightPx > 0) Modifier.heightIn(max = tilesMax.coerceAtLeast(56.dp))
-                else Modifier
-            )
-    )
+    val valueOf: (String) -> String = { key -> MetricText.of(key, inputs) }
+    // Portrait: one row just above the stops panel, the bubble at the left,
+    // the pill in between, and My location at the right (it lives in the
+    // screen's FAB column, 16 dp in and 12 dp above the panel).
+    val portraitStart = 16.dp
+    val rowBottom = panelDp + 12.dp
+    if (landscape) {
+        // Standing up under the compass, as wide as it. The cap keeps it off
+        // the FAB stack when the FABs share that edge, and the segments
+        // shrink on short screens.
+        val pillTop = topPad + 12.dp + NAV_FAB_SIZE + 8.dp
+        val pillBottomReserve = if (sidebarRight) 12.dp else fabStackH + 8.dp
+        val pillMax = if (mapBoxHeightPx > 0)
+            with(density) { mapBoxHeightPx.toDp() } - pillTop - pillBottomReserve
+        else NAV_FAB_SIZE * NavigatorViewSettings.SLOTS
+        NavMetricPill(
+            keys = tileKeys,
+            valueOf = valueOf,
+            vertical = true,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = pillTop, end = mapEndInset + 16.dp)
+                .width(NAV_FAB_SIZE)
+                .height(
+                    (NAV_FAB_SIZE * NavigatorViewSettings.SLOTS)
+                        .coerceAtMost(pillMax)
+                        .coerceAtLeast(NAV_FAB_SIZE * 2)
+                )
+        )
+    } else {
+        val pillInset = portraitStart + NAV_FAB_SIZE + 8.dp
+        NavMetricPill(
+            keys = tileKeys,
+            valueOf = valueOf,
+            vertical = false,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = pillInset, end = pillInset, bottom = rowBottom)
+                .fillMaxWidth()
+                .height(NAV_FAB_SIZE)
+        )
+    }
 
     // Wheel speed with a wheel connected, GPS speed without one.
     val bubbleKmh = if (wheelLive) wheelData.speed.absoluteValue
     else location?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f } ?: 0f
     val bubbleStart = when {
-        !landscape -> 12.dp
+        !landscape -> portraitStart
         // The FABs share the bottom-left corner: sit beside them.
         sidebarRight -> fabColumnW
         else -> mapStartInset + 12.dp
@@ -185,20 +211,8 @@ fun BoxScope.NavigatorOverlay(
         speedUnit = units.speed,
         modifier = Modifier
             .align(Alignment.BottomStart)
-            .padding(start = bubbleStart, bottom = if (landscape) 12.dp else panelDp + 12.dp)
+            .padding(start = bubbleStart, bottom = if (landscape) 12.dp else rowBottom)
     )
-
-    if (pickerSlot >= 0) {
-        val slot = pickerSlot
-        NavMetricPicker(
-            current = tileKeys.getOrElse(slot) { "" },
-            onPick = { key ->
-                viewModel.setNavigatorTile(slot, key)
-                pickerSlot = -1
-            },
-            onDismiss = { pickerSlot = -1 }
-        )
-    }
 }
 
 /**
@@ -298,7 +312,7 @@ fun NavSpeedBubble(kmh: Float, speedUnit: String, modifier: Modifier = Modifier)
     val description = stringResource(R.string.nav_view_speed)
     Surface(
         modifier = modifier
-            .size(64.dp)
+            .size(NAV_FAB_SIZE)
             .semantics { contentDescription = description },
         shape = CircleShape,
         color = colors.surface.copy(alpha = HUD_ALPHA),
@@ -327,68 +341,102 @@ fun NavSpeedBubble(kmh: Float, speedUnit: String, modifier: Modifier = Modifier)
 }
 
 /**
- * The rider's 4 telemetry tiles, one column on the right of the map. A long
- * press on a tile asks to change that slot. Scrolls if a short screen caps
- * its height, so no tile is ever lost.
+ * The rider's 4 telemetry numbers as one see-through pill split in equal
+ * segments: a row in portrait, a stack when [vertical]. Display only; the
+ * numbers are picked in Settings > Navigation. The caller sizes it: the
+ * thickness matches the map's buttons.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NavTileColumn(
+fun NavMetricPill(
     keys: List<String>,
     valueOf: (String) -> String,
-    onLongPress: (Int) -> Unit,
+    vertical: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.appColors
-    val changeLabel = stringResource(R.string.nav_view_change_tile)
-    Column(
-        modifier = modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(percent = 50),
+        color = colors.surface.copy(alpha = PILL_ALPHA),
+        contentColor = colors.textPrimary,
+        border = BorderStroke(Dp.Hairline, colors.outline),
+        shadowElevation = 6.dp,
     ) {
-        keys.forEachIndexed { i, key ->
-            Surface(
-                modifier = Modifier
-                    .width(76.dp)
-                    .combinedClickable(
-                        onClick = {},
-                        onLongClickLabel = changeLabel,
-                        onLongClick = { onLongPress(i) },
-                    ),
-                shape = RoundedCornerShape(10.dp),
-                color = colors.surface.copy(alpha = HUD_ALPHA),
-                contentColor = colors.textPrimary,
-                shadowElevation = 4.dp,
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        valueOf(key),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = colors.textPrimary,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        metricChipLabel(key, short = true),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = colors.textSecondary,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+        val segments: @Composable (Modifier) -> Unit = { segMod ->
+            keys.forEachIndexed { i, key ->
+                if (i > 0) {
+                    if (vertical) HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        thickness = 1.dp,
+                        color = colors.divider,
+                    ) else VerticalDivider(
+                        modifier = Modifier.padding(vertical = 10.dp),
+                        thickness = 1.dp,
+                        color = colors.divider,
                     )
                 }
+                NavPillSegment(value = valueOf(key), label = metricChipLabel(key, short = true), modifier = segMod)
+            }
+        }
+        if (vertical) {
+            // The rounded ends eat into the first and last segment, so the
+            // stack keeps clear of them.
+            Column(Modifier.fillMaxSize().padding(vertical = 6.dp)) {
+                segments(Modifier.weight(1f).fillMaxWidth())
+            }
+        } else {
+            Row(Modifier.fillMaxSize().padding(horizontal = 6.dp)) {
+                segments(Modifier.weight(1f).fillMaxHeight())
             }
         }
     }
 }
 
 /**
+ * One pill segment: the value in bold over its short label. The value steps
+ * its font down to fit (a long "1234.5 km" in a narrow segment) and only
+ * ellipsizes past the smallest size.
+ */
+@Composable
+private fun NavPillSegment(value: String, label: String, modifier: Modifier) {
+    val colors = MaterialTheme.appColors
+    val valueStyle = MaterialTheme.typography.titleSmall
+    Column(
+        modifier = modifier
+            .padding(horizontal = 2.dp)
+            .semantics(mergeDescendants = true) {},
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        BasicText(
+            value,
+            style = valueStyle.copy(
+                color = colors.textPrimary,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = 8.sp,
+                maxFontSize = valueStyle.fontSize,
+                stepSize = 0.5.sp,
+            ),
+        )
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.textSecondary,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/**
  * Bottom sheet listing every dashboard metric, the [current] one checked.
- * Shared by the map's tile long-press and the Settings navigator tiles.
+ * Used by the Settings navigator tiles.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

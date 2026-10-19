@@ -1716,12 +1716,11 @@
     <string name="nav_view_heading_up">진행 방향 위, 탭하면 북쪽 위</string>
     <string name="nav_view_north_up">북쪽 위, 탭하면 진행 방향 위</string>
     <string name="nav_view_tiles">내비게이션 타일</string>
-    <string name="nav_view_tiles_desc">내비게이션 중 지도 옆에 표시되는 숫자 4개입니다. 지도의 타일을 길게 눌러 변경하세요.</string>
+    <string name="nav_view_tiles_desc">내비게이션 중 속도 옆에 표시되는 숫자 4개입니다.</string>
     <string name="nav_view_tile_n">타일 %1$d</string>
     <string name="nav_view_pick_metric">숫자 선택</string>
     <string name="nav_view_reset_tiles">타일 초기화</string>
     <string name="nav_view_speed">속도</string>
-    <string name="nav_view_change_tile">숫자 변경</string>
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">위성</string>
