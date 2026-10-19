@@ -5126,10 +5126,13 @@ private fun GroupIconButton(
             ) {
                 GROUP_ICON_CHOICES.forEach { key ->
                     val selected = key == currentKey
-                    val tint = if (selected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant
-                    val bg = if (selected) MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surfaceVariant
+                    // Selected is a filled accent cell with the on-accent
+                    // ink: primaryContainer is the same color as primary, so
+                    // a primary icon on it disappeared.
+                    val tint = if (selected) MaterialTheme.appColors.onPrimary
+                        else MaterialTheme.appColors.textSecondary
+                    val bg = if (selected) MaterialTheme.appColors.primary
+                        else MaterialTheme.appColors.surfaceVariant
                     Box(
                         modifier = Modifier
                             .size(40.dp)
