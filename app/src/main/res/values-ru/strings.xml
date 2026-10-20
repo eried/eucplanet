@@ -2832,7 +2832,8 @@
     <string name="car_places_title">Маршрут до</string>
     <string name="car_place_home">Дом</string>
     <string name="car_place_work">Работа</string>
-    <string name="car_no_places">Сначала сохраните Дом или Работу в планировщике маршрутов.</string>
+    <string name="car_planned_route">Маршрут (%1$d)</string>
+    <string name="car_no_places">Сначала сохраните Дом или Работу или спланируйте маршрут на телефоне.</string>
     <string name="car_waiting_wheel">Ожидание колеса</string>
     <string name="car_weather">Погода</string>
     <string name="car_alarm_channel_name">Оповещения на экране авто</string>

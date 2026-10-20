@@ -2830,7 +2830,8 @@
     <string name="car_places_title">Navigera till</string>
     <string name="car_place_home">Hem</string>
     <string name="car_place_work">Jobb</string>
-    <string name="car_no_places">Spara Hem eller Jobb i ruttplaneraren först.</string>
+    <string name="car_planned_route">Planerad rutt (%1$d)</string>
+    <string name="car_no_places">Spara Hem eller Jobb, eller planera en rutt i telefonen först.</string>
     <string name="car_waiting_wheel">Väntar på hjulet</string>
     <string name="car_weather">Väder</string>
     <string name="car_alarm_channel_name">Larm på bilskärmen</string>

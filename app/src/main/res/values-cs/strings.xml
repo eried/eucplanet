@@ -2635,7 +2635,8 @@
     <string name="car_places_title">Navigovat do</string>
     <string name="car_place_home">Domov</string>
     <string name="car_place_work">Práce</string>
-    <string name="car_no_places">Nejdřív ulož Domov nebo Práci v plánovači tras.</string>
+    <string name="car_planned_route">Plánovaná trasa (%1$d)</string>
+    <string name="car_no_places">Nejdřív ulož Domov nebo Práci, nebo naplánuj trasu v telefonu.</string>
     <string name="car_waiting_wheel">Čekání na kolo</string>
     <string name="car_weather">Počasí</string>
     <string name="car_alarm_channel_name">Alarmy na displeji auta</string>

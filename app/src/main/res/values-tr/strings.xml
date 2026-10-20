@@ -2827,7 +2827,8 @@
     <string name="car_places_title">Şuraya git</string>
     <string name="car_place_home">Ev</string>
     <string name="car_place_work">İş</string>
-    <string name="car_no_places">Önce rota planlayıcıda Ev veya İş kaydet.</string>
+    <string name="car_planned_route">Planlanan rota (%1$d)</string>
+    <string name="car_no_places">Önce Ev veya İş kaydedin ya da telefonda bir rota planlayın.</string>
     <string name="car_waiting_wheel">Teker bekleniyor</string>
     <string name="car_weather">Hava durumu</string>
     <string name="car_alarm_channel_name">Araç ekranındaki alarmlar</string>

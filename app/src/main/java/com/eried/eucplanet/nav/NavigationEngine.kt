@@ -582,6 +582,7 @@ class NavigationEngine @Inject constructor(
                 arrow = ArrowDir.STRAIGHT,
                 primaryText = context.getString(R.string.nav_start_riding),
                 distanceText = distanceText,
+                cueDistanceM = distToGoal,
                 remainingM = distToGoal,
                 nextStopRemainingM = distToGoal,
                 straightLine = navMode == NavMode.TREASURE_HUNT,
@@ -710,6 +711,7 @@ class NavigationEngine @Inject constructor(
             primaryText = next?.let { turnText(it.type) }
                 ?: context.getString(R.string.nav_continue),
             distanceText = NavFormat.distance(context, distToTurn, imperial),
+            cueDistanceM = distToTurn,
             remainingM = distToEnd,
             nextStopRemainingM = waypointAlongM.getOrNull(reached + 1)
                 ?.let { (it - hit.alongM).coerceAtLeast(0.0) } ?: distToEnd,
@@ -865,6 +867,7 @@ class NavigationEngine @Inject constructor(
             relativeBearingDeg = rel.toFloat(),
             primaryText = context.getString(R.string.nav_continue),
             distanceText = NavFormat.distance(context, dist, imperial),
+            cueDistanceM = dist,
             remainingM = dist,
             nextStopRemainingM = dist,
             straightLine = true,
@@ -940,6 +943,7 @@ class NavigationEngine @Inject constructor(
             // double it up and force a 2-line wrap.
             primaryText = directionText(rel),
             distanceText = NavFormat.distance(context, dist, imperial),
+            cueDistanceM = dist,
             remainingM = dist,
             nextStopRemainingM = dist,
             straightLine = true,

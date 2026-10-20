@@ -2832,7 +2832,8 @@
     <string name="car_places_title">Navigeren naar</string>
     <string name="car_place_home">Thuis</string>
     <string name="car_place_work">Werk</string>
-    <string name="car_no_places">Sla eerst Thuis of Werk op in de routeplanner.</string>
+    <string name="car_planned_route">Geplande route (%1$d)</string>
+    <string name="car_no_places">Sla eerst Thuis of Werk op, of plan een route op de telefoon.</string>
     <string name="car_waiting_wheel">Wachten op het wiel</string>
     <string name="car_weather">Weer</string>
     <string name="car_alarm_channel_name">Alarmen op het autoscherm</string>

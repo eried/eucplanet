@@ -2828,7 +2828,8 @@
     <string name="car_places_title">목적지</string>
     <string name="car_place_home">집</string>
     <string name="car_place_work">직장</string>
-    <string name="car_no_places">먼저 경로 빌더에서 집 또는 직장을 저장하세요.</string>
+    <string name="car_planned_route">계획한 경로 (%1$d)</string>
+    <string name="car_no_places">먼저 집이나 직장을 저장하거나 휴대폰에서 경로를 계획하세요.</string>
     <string name="car_waiting_wheel">휠 연결 대기 중</string>
     <string name="car_weather">날씨</string>
     <string name="car_alarm_channel_name">차량 화면 알람</string>

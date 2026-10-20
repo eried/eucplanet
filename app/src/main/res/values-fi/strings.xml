@@ -2633,7 +2633,8 @@
     <string name="car_places_title">Navigoi kohteeseen</string>
     <string name="car_place_home">Koti</string>
     <string name="car_place_work">Työ</string>
-    <string name="car_no_places">Tallenna ensin Koti tai Työ reittisuunnittelijassa.</string>
+    <string name="car_planned_route">Suunniteltu reitti (%1$d)</string>
+    <string name="car_no_places">Tallenna ensin Koti tai Työ tai suunnittele reitti puhelimessa.</string>
     <string name="car_waiting_wheel">Odotetaan pyörää</string>
     <string name="car_weather">Sää</string>
     <string name="car_alarm_channel_name">Hälytykset auton näytöllä</string>

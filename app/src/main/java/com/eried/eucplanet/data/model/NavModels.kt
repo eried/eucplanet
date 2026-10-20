@@ -213,6 +213,9 @@ data class NavState(
     val primaryText: String = "",
     /** Distance line shown at the bottom, e.g. "200 m". */
     val distanceText: String = "",
+    /** [distanceText] as metres, for hosts that format it themselves (the
+     *  Android Auto turn card); NaN when unknown. */
+    val cueDistanceM: Double = Double.NaN,
     /** Street name of the next maneuver, when known. */
     val nextStreet: String = "",
     val proximity: Proximity? = null,

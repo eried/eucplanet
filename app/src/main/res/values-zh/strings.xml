@@ -2696,7 +2696,8 @@
     <string name="car_places_title">导航至</string>
     <string name="car_place_home">家</string>
     <string name="car_place_work">公司</string>
-    <string name="car_no_places">请先在路线规划中保存家或公司。</string>
+    <string name="car_planned_route">计划路线 (%1$d)</string>
+    <string name="car_no_places">请先保存家或公司，或在手机上规划路线。</string>
     <string name="car_waiting_wheel">正在等待独轮车</string>
     <string name="car_weather">天气</string>
     <string name="car_alarm_channel_name">车机屏幕警报</string>

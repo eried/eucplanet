@@ -2828,7 +2828,8 @@
     <string name="car_places_title">Navegar a</string>
     <string name="car_place_home">Casa</string>
     <string name="car_place_work">Trabajo</string>
-    <string name="car_no_places">Guarda Casa o Trabajo en el planificador de rutas primero.</string>
+    <string name="car_planned_route">Ruta planificada (%1$d)</string>
+    <string name="car_no_places">Guarda Casa o Trabajo, o planifica una ruta en el móvil primero.</string>
     <string name="car_waiting_wheel">Esperando la rueda</string>
     <string name="car_weather">Tiempo</string>
     <string name="car_alarm_channel_name">Alarmas en la pantalla del coche</string>

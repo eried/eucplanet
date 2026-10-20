@@ -2830,7 +2830,8 @@
     <string name="car_places_title">目的地</string>
     <string name="car_place_home">自宅</string>
     <string name="car_place_work">職場</string>
-    <string name="car_no_places">先にルートビルダーで自宅か職場を保存してください。</string>
+    <string name="car_planned_route">計画したルート (%1$d)</string>
+    <string name="car_no_places">先に自宅か職場を保存するか、スマホでルートを計画してください。</string>
     <string name="car_waiting_wheel">ホイールを待っています</string>
     <string name="car_weather">天気</string>
     <string name="car_alarm_channel_name">車載画面のアラーム</string>

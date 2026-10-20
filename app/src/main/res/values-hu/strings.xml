@@ -2633,7 +2633,8 @@
     <string name="car_places_title">Navigáció ide</string>
     <string name="car_place_home">Otthon</string>
     <string name="car_place_work">Munka</string>
-    <string name="car_no_places">Előbb mentsd el az Otthon vagy Munka helyet az útvonaltervezőben.</string>
+    <string name="car_planned_route">Tervezett útvonal (%1$d)</string>
+    <string name="car_no_places">Előbb mentsd az Otthont vagy a Munkahelyet, vagy tervezz útvonalat a telefonon.</string>
     <string name="car_waiting_wheel">Várakozás a kerékre</string>
     <string name="car_weather">Időjárás</string>
     <string name="car_alarm_channel_name">Riasztások az autó kijelzőjén</string>

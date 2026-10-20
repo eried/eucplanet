@@ -2845,7 +2845,8 @@
     <string name="car_places_title">Naviger til</string>
     <string name="car_place_home">Hjem</string>
     <string name="car_place_work">Arbejde</string>
-    <string name="car_no_places">Gem Hjem eller Arbejde i ruteplanlæggeren først.</string>
+    <string name="car_planned_route">Planlagt rute (%1$d)</string>
+    <string name="car_no_places">Gem Hjem eller Arbejde, eller planlæg en rute på telefonen først.</string>
     <string name="car_waiting_wheel">Venter på hjulet</string>
     <string name="car_weather">Vejr</string>
     <string name="car_alarm_channel_name">Alarmer på bilskærmen</string>

@@ -2833,7 +2833,8 @@
     <string name="car_places_title">Navegar até</string>
     <string name="car_place_home">Casa</string>
     <string name="car_place_work">Trabalho</string>
-    <string name="car_no_places">Salve Casa ou Trabalho no planejador de rotas primeiro.</string>
+    <string name="car_planned_route">Rota planejada (%1$d)</string>
+    <string name="car_no_places">Salve Casa ou Trabalho, ou planeje uma rota no celular primeiro.</string>
     <string name="car_waiting_wheel">Aguardando a roda</string>
     <string name="car_weather">Clima</string>
     <string name="car_alarm_channel_name">Alarmes na tela do carro</string>

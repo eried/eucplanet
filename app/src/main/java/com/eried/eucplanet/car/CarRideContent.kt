@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -123,7 +124,7 @@ fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVi
                 // Map on: the surface carries the map and the one number worth
                 // glancing at. The rest live in the car's own content pane,
                 // which the host draws large and legible for us.
-                connected -> SpeedOnly(panel, wheel, settings)
+                connected -> SpeedOnly(panel, wheel, settings, battery = true)
                 else -> WaitingCard(panel, lastBattery)
             }
         }
@@ -135,8 +136,11 @@ fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVi
  * A WebView loads its tiles on the car's virtual display but never paints
  * them there, so the car screen does not use one.
  *
- * North up, the rider centred, their heading as an arrow, the route on top,
- * and the layer's credit in the corner: the tile licences require it.
+ * Heading up, the way the phone's navigator follows: the rider low in the
+ * part of the screen the car leaves free, the map turning under them, the
+ * route on top, and the layer's credit in the corner: the tile licences
+ * require it. The heading is the course between fixes, which every provider
+ * gives, with the fix's own bearing until the rider has moved.
  */
 @Composable
 private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Color, credit: Color, free: PaddingValues) {
@@ -147,6 +151,22 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
     val zoom = CAR_ZOOM.coerceAtMost(layer.maxNativeZoom)
     val tilePx = with(LocalDensity.current) { (TILE_DP.dp.toPx()).toInt() } shl (CAR_ZOOM - zoom)
     val l = location
+    val density = LocalDensity.current
+    val freeLeft = with(density) { free.calculateLeftPadding(LayoutDirection.Ltr).toPx() }
+    val freeRight = with(density) { free.calculateRightPadding(LayoutDirection.Ltr).toPx() }
+    val freeTop = with(density) { free.calculateTopPadding().toPx() }
+    val freeBottom = with(density) { free.calculateBottomPadding().toPx() }
+    var anchor by remember { mutableStateOf<Location?>(null) }
+    var heading by remember { mutableStateOf<Float?>(null) }
+    LaunchedEffect(l) {
+        val now = l ?: return@LaunchedEffect
+        val a = anchor
+        if (a == null || now.time - a.time > COURSE_MAX_AGE_MS) anchor = now
+        else if (a.distanceTo(now) >= COURSE_MIN_M) {
+            heading = (a.bearingTo(now) + 360f) % 360f
+            anchor = now
+        }
+    }
     Box(Modifier.fillMaxSize().background(Color(android.graphics.Color.parseColor(mapTypeInitialBg(mapType))))) {
         if (l != null) {
             val centerTx = WebMercator.tileX(l.longitude, zoom)
@@ -179,12 +199,16 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
             }
             Canvas(Modifier.fillMaxSize()) {
                 tilesReady
-                val cx = size.width / 2f
-                val cy = size.height / 2f
+                // The rider: centred across the free area, two thirds down it,
+                // so more of the road ahead shows.
+                val cx = freeLeft + (size.width - freeLeft - freeRight) / 2f
+                val cy = freeTop + (size.height - freeTop - freeBottom) * 2f / 3f
+                val up = heading ?: l.takeIf { it.hasBearing() }?.bearing ?: 0f
                 fun project(lat: Double, lng: Double) = Offset(
                     cx + ((WebMercator.tileX(lng, zoom) - centerTx) * tilePx).toFloat(),
                     cy + ((WebMercator.tileY(lat, zoom) - centerTy) * tilePx).toFloat(),
                 )
+                rotate(-up, pivot = Offset(cx, cy)) {
                 tiles.forEach { (tx, ty, url) ->
                     val bmp = MapTileCache.get(url) ?: return@forEach
                     drawImage(
@@ -204,8 +228,10 @@ private fun CarMap(state: CarRideState, mapType: String, accent: Color, ring: Co
                     }
                     drawPath(path, accent.copy(alpha = 0.85f), style = Stroke(width = 7.dp.toPx(), cap = StrokeCap.Round))
                 }
+                }
                 drawCircle(ring, radius = 14.dp.toPx(), center = Offset(cx, cy))
-                rotate(l.bearing, pivot = Offset(cx, cy)) {
+                // The map turned so the heading is up: the arrow points up.
+                run {
                     val r = 10.dp.toPx()
                     val arrow = Path().apply {
                         moveTo(cx, cy - r)
@@ -270,7 +296,7 @@ private fun StatsPanel(modifier: Modifier, wheel: WheelData, s: AppSettings, pho
 
 /** Speed alone, big, over the map. Everything else is in the content pane. */
 @Composable
-private fun SpeedOnly(modifier: Modifier, wheel: WheelData, s: AppSettings) {
+private fun SpeedOnly(modifier: Modifier, wheel: WheelData, s: AppSettings, battery: Boolean = false) {
     val c = MaterialTheme.appColors
     val context = LocalContext.current
     val unit = Units.effectiveSpeedUnit(s)
@@ -284,6 +310,15 @@ private fun SpeedOnly(modifier: Modifier, wheel: WheelData, s: AppSettings) {
             color = c.textSecondary, fontSize = 22.sp,
             modifier = Modifier.padding(start = 8.dp, bottom = 14.dp),
         )
+        // Navigating, the content pane gives way to the turn card, so the
+        // one other number a rider needs rides beside the speed.
+        if (battery) {
+            Text(
+                "${wheel.batteryPercent}%",
+                color = c.textPrimary, fontSize = 40.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 20.dp, bottom = 6.dp),
+            )
+        }
     }
 }
 
@@ -386,6 +421,11 @@ private fun WaitingCard(modifier: Modifier, lastBattery: Int?) {
         }
     }
 }
+
+/** Course between fixes: metres before it updates, and how old the anchor
+ *  fix may get before it is dropped (a stop, a GPS gap). */
+private const val COURSE_MIN_M = 8f
+private const val COURSE_MAX_AGE_MS = 15_000L
 
 /** Close enough to read street names on a car screen at a glance. */
 private const val CAR_ZOOM = 17
