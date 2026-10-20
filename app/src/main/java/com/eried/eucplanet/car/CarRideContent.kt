@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -121,10 +124,13 @@ fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVi
                 // "I can barely read it standing still".
                 !mapVisible && connected ->
                     BigStats(Modifier.padding(free).fillMaxSize().padding(20.dp), wheel, settings, state.phoneBattery())
-                // Map on: the surface carries the map and the one number worth
-                // glancing at. The rest live in the car's own content pane,
-                // which the host draws large and legible for us.
-                connected -> SpeedOnly(panel, wheel, settings, battery = true)
+                // Navigating: the map keeps the free area to itself, and the
+                // rider's four numbers fill the card column between the car's
+                // turn card and its arrival card, where the host draws nothing.
+                // A tester asked for exactly that: "Blue square for map
+                // navigation only. Large 4 telemetry values", and no waiting
+                // card in the way.
+                mapVisible -> NavStats(free, wheel, settings, connected, state.phoneBattery())
                 else -> WaitingCard(panel, lastBattery)
             }
         }
@@ -294,30 +300,86 @@ private fun StatsPanel(modifier: Modifier, wheel: WheelData, s: AppSettings, pho
     }
 }
 
-/** Speed alone, big, over the map. Everything else is in the content pane. */
+/**
+ * The rider's four car metrics while a route runs, as large tiles in the
+ * column Android Auto keeps for its turn card (top) and arrival card (bottom).
+ * The host reports that column as covered, so [free]'s start is its width;
+ * the cards' heights it does not report, so the tiles take the stretch between
+ * them as measured on a real head unit. A screen too narrow for the column
+ * gets the tiles in the free area's corner instead.
+ */
 @Composable
-private fun SpeedOnly(modifier: Modifier, wheel: WheelData, s: AppSettings, battery: Boolean = false) {
+private fun NavStats(free: PaddingValues, wheel: WheelData, s: AppSettings, connected: Boolean, phoneBattery: Int) {
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val column = free.calculateLeftPadding(LayoutDirection.Ltr)
+        val box = if (column >= NAV_COLUMN_MIN_DP.dp) {
+            Modifier
+                .width(column)
+                .fillMaxHeight()
+                .padding(
+                    start = NAV_COLUMN_MARGIN_DP.dp, end = NAV_COLUMN_MARGIN_DP.dp,
+                    top = maxHeight * NAV_TOP_CARD_FRACTION, bottom = maxHeight * NAV_BOTTOM_CARD_FRACTION,
+                )
+        } else {
+            Modifier.padding(free).padding(12.dp).width(260.dp).height(150.dp)
+        }
+        NavMetricGrid(box, wheel, s, connected, phoneBattery)
+    }
+}
+
+@Composable
+private fun NavMetricGrid(modifier: Modifier, wheel: WheelData, s: AppSettings, connected: Boolean, phoneBattery: Int) {
+    val types = AndroidAutoSettings.metricSlots(s.androidAuto.metrics)
+        .mapNotNull { WidgetMetricType.byKey(it) }
+    if (types.isEmpty()) return
     val c = MaterialTheme.appColors
     val context = LocalContext.current
-    val unit = Units.effectiveSpeedUnit(s)
-    Row(modifier, verticalAlignment = Alignment.Bottom) {
-        Text(
-            "%.0f".format(Units.speed(wheel.speed, unit)),
-            color = c.textPrimary, fontSize = 72.sp, fontWeight = FontWeight.Bold,
-        )
-        Text(
-            Units.speedUnit(context, unit),
-            color = c.textSecondary, fontSize = 22.sp,
-            modifier = Modifier.padding(start = 8.dp, bottom = 14.dp),
-        )
-        // Navigating, the content pane gives way to the turn card, so the
-        // one other number a rider needs rides beside the speed.
-        if (battery) {
-            Text(
-                "${wheel.batteryPercent}%",
-                color = c.textPrimary, fontSize = 40.sp, fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 20.dp, bottom = 6.dp),
-            )
+    val density = LocalDensity.current
+    val speedUnit = Units.effectiveSpeedUnit(s)
+    val distUnit = Units.effectiveDistanceUnit(s)
+    val tempUnit = Units.effectiveTempUnit(s)
+    BoxWithConstraints(modifier) {
+        val cols = if (types.size == 1) 1 else 2
+        val rows = (types.size + cols - 1) / cols
+        val gap = 8.dp
+        val tileH = (maxHeight - gap * (rows - 1)) / rows
+        val tileW = (maxWidth - gap * (cols - 1)) / cols
+        // Off the tile we are given, the way BigStats sizes: a ratio cannot
+        // clip at the edge the way fixed sizes did on smaller head units.
+        val valueSize = with(density) { minOf(tileH * 0.46f, tileW / 3f).toSp() }
+        val labelSize = valueSize * 0.3f
+        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(gap)) {
+            types.chunked(cols).forEach { row ->
+                Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(gap)) {
+                    row.forEach { type ->
+                        Column(
+                            Modifier.weight(1f).fillMaxHeight()
+                                .background(c.surface.copy(alpha = 0.92f), RoundedCornerShape(16.dp))
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                stringResource(type.pickerLabel), color = c.textSecondary,
+                                fontSize = labelSize, maxLines = 1, softWrap = false,
+                            )
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    if (connected) WidgetMetricFormat.value(type, wheel, speedUnit, distUnit, tempUnit, phoneBattery) else "--",
+                                    color = c.textPrimary, fontSize = valueSize,
+                                    fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false,
+                                )
+                                Text(
+                                    WidgetMetricFormat.unit(context, type, speedUnit, distUnit, tempUnit),
+                                    color = c.textSecondary, fontSize = labelSize * 1.2f,
+                                    maxLines = 1, softWrap = false,
+                                    modifier = Modifier.padding(start = 4.dp),
+                                )
+                            }
+                        }
+                    }
+                    if (row.size < cols) Spacer(Modifier.weight(1f))
+                }
+            }
         }
     }
 }
@@ -426,6 +488,15 @@ private fun WaitingCard(modifier: Modifier, lastBattery: Int?) {
  *  fix may get before it is dropped (a stop, a GPS gap). */
 private const val COURSE_MIN_M = 8f
 private const val COURSE_MAX_AGE_MS = 15_000L
+
+/** The card column while navigating: narrower than this and the host has not
+ *  kept one, so the tiles go in the free area instead. */
+private const val NAV_COLUMN_MIN_DP = 140
+private const val NAV_COLUMN_MARGIN_DP = 10
+/** Share of the surface's height the turn card (top) and arrival card
+ *  (bottom) take, measured on a tester's head unit. */
+private const val NAV_TOP_CARD_FRACTION = 0.31f
+private const val NAV_BOTTOM_CARD_FRACTION = 0.27f
 
 /** Close enough to read street names on a car screen at a glance. */
 private const val CAR_ZOOM = 17
