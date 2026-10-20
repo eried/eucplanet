@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.data.model.NavigatorViewSettings
+import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.ui.metrics.MetricTextInputs
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.nav.NavFormat
@@ -109,7 +110,6 @@ fun BoxScope.NavigatorOverlay(
     val units by viewModel.unitsForMetrics.collectAsState()
     val tripMeterKm by viewModel.tripMeterKm.collectAsState()
     val phoneBattery by viewModel.phoneBatteryPercent.collectAsState()
-    val imperial by viewModel.imperialUnits.collectAsState()
     val location by viewModel.currentLocation.collectAsState()
     val density = LocalDensity.current
 
@@ -124,7 +124,6 @@ fun BoxScope.NavigatorOverlay(
 
     NavTurnCard(
         state = navState,
-        imperial = imperial,
         modifier = Modifier
             .align(Alignment.TopStart)
             .padding(top = topPad + 12.dp, start = mapStartInset + 12.dp)
@@ -215,14 +214,12 @@ fun BoxScope.NavigatorOverlay(
 }
 
 /**
- * Top-left card while navigating on the map: the turn arrow, distance to the
- * turn, the instruction and street, and a line with the arrival time and the
- * distance left. Off route and arrival use the engine's own text in the same
- * card, so the map never needs the dashboard's pop-up.
+ * Top-left card while navigating on the map: the turn arrow and the distance
+ * to the turn, nothing else, so it covers little map. The words (instruction,
+ * street, next stop, arrival) ride in the top bar, see [NavTopStrip].
  */
 @Composable
-fun NavTurnCard(state: NavState, imperial: Boolean, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
+fun NavTurnCard(state: NavState, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.appColors
     val arrowTint = when {
         state.offRoute -> colors.statusDanger
@@ -230,76 +227,98 @@ fun NavTurnCard(state: NavState, imperial: Boolean, modifier: Modifier = Modifie
         else -> colors.primary
     }
     val angle by animateFloatAsState(state.arrowAngleDeg(), tween(350), label = "navArrow")
-    // The engine keeps the last distance left and arrival on "arrived" and
-    // "waiting" frames, so those frames show only the engine's own lines.
-    val showProgress = !state.arrived && !state.waiting
-    val clock = if (showProgress && state.etaEpochMs > 0L)
-        DateFormat.getTimeFormat(context).format(Date(state.etaEpochMs)) else null
-    val left = if (showProgress && !state.remainingM.isNaN())
-        NavFormat.distance(context, state.remainingM, imperial) else null
-    val street = when {
-        state.offRoute || state.arrived -> ""
-        state.straightLine -> stringResource(R.string.nav_view_straight_line)
-        else -> state.nextStreet
-    }
     Surface(
-        modifier = modifier.widthIn(max = 220.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         color = colors.surface.copy(alpha = HUD_ALPHA),
         contentColor = colors.textPrimary,
         shadowElevation = 6.dp,
     ) {
-        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = if (state.arrived) Icons.Default.Flag else Icons.Default.Navigation,
-                    contentDescription = null,
-                    tint = arrowTint,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .rotate(if (state.arrived) 0f else angle)
-                )
-                if (state.distanceText.isNotBlank()) {
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        state.distanceText,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = colors.textPrimary,
-                        maxLines = 1,
-                    )
-                }
-            }
-            if (state.primaryText.isNotBlank()) {
+        Row(
+            Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = if (state.arrived) Icons.Default.Flag else Icons.Default.Navigation,
+                contentDescription = null,
+                tint = arrowTint,
+                modifier = Modifier
+                    .size(40.dp)
+                    .rotate(if (state.arrived) 0f else angle)
+            )
+            if (state.distanceText.isNotBlank()) {
+                Spacer(Modifier.width(8.dp))
                 Text(
-                    state.primaryText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (state.offRoute) colors.statusDanger else colors.textPrimary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            if (street.isNotBlank()) {
-                Text(
-                    street,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.textSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            val info = listOfNotNull(clock, left).joinToString(" · ")
-            if (info.isNotEmpty()) {
-                Spacer(Modifier.size(4.dp))
-                Text(
-                    info,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    state.distanceText,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
                     color = colors.textPrimary,
                     maxLines = 1,
                 )
             }
+        }
+    }
+}
+
+/**
+ * The top bar's search slot while navigating, where search is not used: the
+ * instruction and street on the first line, then the stop being ridden to
+ * (its number when there are several, its name, the distance to it) and the
+ * arrival time with the distance left. Off route and arrival show the
+ * engine's own line. Collects the guidance flow itself, so a cue frame
+ * recomposes only this and not the bar around it.
+ */
+@Composable
+fun NavTopStrip(
+    viewModel: RouteBuilderViewModel,
+    waypoints: List<Waypoint>,
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.navState.collectAsState()
+    val imperial by viewModel.imperialUnits.collectAsState()
+    val context = LocalContext.current
+    val colors = MaterialTheme.appColors
+    // The engine keeps the last distance left and arrival on "arrived" and
+    // "waiting" frames, so those frames show only the engine's own lines.
+    val showProgress = state.active && !state.arrived && !state.waiting
+    val street = when {
+        state.offRoute || state.arrived || state.waiting -> ""
+        state.straightLine -> stringResource(R.string.nav_view_straight_line)
+        else -> state.nextStreet
+    }
+    val first = listOf(state.primaryText, street).filter { it.isNotBlank() }.joinToString(" · ")
+    val stop = state.nextStop?.let { p -> waypoints.firstOrNull { it.lat == p.lat && it.lng == p.lng } }
+        ?: waypoints.getOrNull(state.goalIndex - 1)
+    val stopName = stop?.name.orEmpty().let { name ->
+        if (state.goalCount > 1 && state.goalIndex > 0) "${state.goalIndex}/${state.goalCount} $name".trim()
+        else name
+    }
+    val toStop = if (showProgress && state.goalCount > 1 && !state.nextStopRemainingM.isNaN())
+        NavFormat.distance(context, state.nextStopRemainingM, imperial) else null
+    val clock = if (showProgress && state.etaEpochMs > 0L)
+        DateFormat.getTimeFormat(context).format(Date(state.etaEpochMs)) else null
+    val left = if (showProgress && !state.remainingM.isNaN())
+        NavFormat.distance(context, state.remainingM, imperial) else null
+    val second = listOfNotNull(stopName.ifBlank { null }, toStop, clock, left).joinToString(" · ")
+    Column(modifier, verticalArrangement = Arrangement.Center) {
+        if (first.isNotEmpty()) {
+            Text(
+                first,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = if (state.offRoute) colors.statusDanger else colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        if (second.isNotEmpty()) {
+            Text(
+                second,
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.textSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

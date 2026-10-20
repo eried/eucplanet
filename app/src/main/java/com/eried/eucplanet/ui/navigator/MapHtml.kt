@@ -424,6 +424,18 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   //   stoplight from triggering a full half-rotation the rider would
   //   have to wait to unwind.
   var ROTATE_TWEEN_RATE = 0.015;
+  // The rate above was tuned at 60 fps. The tween scales it by the real
+  // frame time, so a WebView drawing at 10 fps (a busy phone, the screen
+  // dimmed) follows as fast as one at 60 fps instead of six times slower.
+  var TWEEN_FRAME_MS = 1000 / 60;
+  var lastFollowTickMs = 0;
+  function tweenRate(dtMs){
+    return 1 - Math.pow(1 - ROTATE_TWEEN_RATE, Math.min(dtMs, 500) / TWEEN_FRAME_MS);
+  }
+  // A running rotation ease is only replaced when the heading has moved
+  // this far from its target. Retargeting on every small change restarted
+  // the ease each frame on a curve, so the map never turned at all.
+  var ROTATE_RETARGET_DEG = 20;
   var ROTATE_START_DELAY_MS = 3000;
   // Duration of the cosine-ease rotation when a new target heading
   // settles in. The tween still re-targets continuously (smoothedHeading
@@ -479,6 +491,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   var bearingEase = null;
   function tickAutoFollow(){
     var now = Date.now();
+    var dtMs = lastFollowTickMs ? now - lastFollowTickMs : TWEEN_FRAME_MS;
+    lastFollowTickMs = now;
+    var rate = tweenRate(dtMs);
     var canFollow = autoFollowHeading && navLocked && !twoFingerActive &&
         now - lastManualRotateMs > MANUAL_ROTATE_HOLD_MS;
     if (!canFollow) {
@@ -558,8 +573,8 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       var dLat = targetCenter.lat - c.lat;
       var dLng = targetCenter.lng - c.lng;
       var lerpedCenter = [
-        c.lat + dLat * ROTATE_TWEEN_RATE,
-        c.lng + dLng * ROTATE_TWEEN_RATE
+        c.lat + dLat * rate,
+        c.lng + dLng * rate
       ];
       var moved = Math.abs(dLat) > 1e-7 || Math.abs(dLng) > 1e-7;
       var zoomed = Math.abs(newZoom - currentZoom) > 1e-4;
@@ -586,7 +601,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (movingSinceMs === 0) movingSinceMs = now;
     if (isNaN(smoothedHeading)) smoothedHeading = userHeading;
     var hDelta = ((userHeading - smoothedHeading + 540) % 360) - 180;
-    smoothedHeading = (smoothedHeading + hDelta * ROTATE_TWEEN_RATE + 360) % 360;
+    smoothedHeading = (smoothedHeading + hDelta * rate + 360) % 360;
     if (now - movingSinceMs < ROTATE_START_DELAY_MS) {
       requestAnimationFrame(tickAutoFollow);
       return;
@@ -605,12 +620,14 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     var current = map.getBearing();
     var delta = ((target - current + 540) % 360) - 180;
     if (Math.abs(delta) > 0.5) {
-      // Retarget the ease whenever the desired bearing has shifted
-      // notably from where we were heading. The from-value is what we
-      // BLEND from -- the current map bearing, so the curve picks up
-      // from wherever the previous tween left off without a jolt.
+      // Start an ease when none runs, and replace a running one only when
+      // the desired bearing has left its target by ROTATE_RETARGET_DEG; a
+      // smaller drift waits for the ease to land and the next one picks it
+      // up. The from-value is what we BLEND from -- the current map
+      // bearing, so the curve picks up from wherever the previous tween
+      // left off without a jolt.
       if (!bearingEase ||
-          Math.abs(((bearingEase.to - target + 540) % 360) - 180) > 0.5) {
+          Math.abs(((bearingEase.to - target + 540) % 360) - 180) > ROTATE_RETARGET_DEG) {
         bearingEase = {
           from: current,
           delta: delta,

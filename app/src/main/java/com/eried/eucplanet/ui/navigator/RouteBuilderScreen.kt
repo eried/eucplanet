@@ -184,6 +184,11 @@ import com.eried.eucplanet.ui.theme.appColors
 // split-screen half or a sub-~330dp screen -- falls back to the short "Start".
 private val START_NAV_MIN_WIDTH = 260.dp
 
+/** Heading-up course: metres between fixes before the course updates, and
+ *  how old the anchor fix may get before it is dropped (a stop, a GPS gap). */
+private const val COURSE_MIN_M = 8f
+private const val COURSE_MAX_AGE_MS = 15_000L
+
 // How long the "Locating" cover waits for a first fix once the map itself is
 // ready to show. Long enough that a fix a moment away still lands behind the
 // cover (no jarring recentre), short enough that a rider with location off is
@@ -527,15 +532,29 @@ fun RouteBuilderScreen(
     val movingOnMps = 2.5f
     val movingOffMps = 1.0f
     var lastSentMoving by remember { mutableStateOf(false) }
+    // Course over ground from the fixes themselves: some providers send no
+    // bearing, or a stuck one, and then heading-up never turned the map. The
+    // anchor moves on once the rider is COURSE_MIN_M away from it.
+    val courseAnchor = remember { arrayOfNulls<android.location.Location>(1) }
+    var trackCourse by remember { mutableStateOf<Float?>(null) }
     LaunchedEffect(pageReady, userLocation) {
         val wv = webView ?: return@LaunchedEffect
         val loc = userLocation ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
         wv.evaluateJavascript("nativeSetUser(${loc.latitude},${loc.longitude});", null)
+        val anchor = courseAnchor[0]
+        if (anchor == null || loc.time - anchor.time > COURSE_MAX_AGE_MS) {
+            courseAnchor[0] = loc
+            trackCourse = null
+        } else if (anchor.distanceTo(loc) >= COURSE_MIN_M) {
+            trackCourse = (anchor.bearingTo(loc) + 360f) % 360f
+            courseAnchor[0] = loc
+        }
         val sp = if (loc.hasSpeed()) loc.speed else 0f
         val newMoving = if (lastSentMoving) sp >= movingOffMps else sp >= movingOnMps
-        if (newMoving && loc.hasBearing()) {
-            wv.evaluateJavascript("nativeSetUserHeading(${loc.bearing});", null)
+        val heading = trackCourse ?: loc.takeIf { it.hasBearing() }?.bearing
+        if (newMoving && heading != null) {
+            wv.evaluateJavascript("nativeSetUserHeading($heading);", null)
         } else if (!newMoving && lastSentMoving) {
             wv.evaluateJavascript("nativeSetUserStill();", null)
         }
@@ -802,9 +821,14 @@ fun RouteBuilderScreen(
                   // Landscape: the stops header sits on the right of the bar,
                   // as wide as the sidebar under it, so folding the list away
                   // leaves nothing on the map. While navigating, search is not
-                  // used, so the header has the bar to itself.
+                  // used, so its slot carries the instruction and next stop
+                  // in both orientations.
                   Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (landscape && navRunning) Spacer(Modifier.weight(1f))
+                    if (navRunning) NavTopStrip(
+                        viewModel = viewModel,
+                        waypoints = waypoints,
+                        modifier = Modifier.weight(1f).padding(end = 8.dp),
+                    )
                     else OutlinedTextField(
                         value = searchText,
                         onValueChange = {
