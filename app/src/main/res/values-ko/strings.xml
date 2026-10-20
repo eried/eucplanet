@@ -2860,4 +2860,14 @@
     <string name="nav_solve_end_anywhere_desc">가장 짧아지는 지점에서 끝납니다.</string>
     <string name="nav_solve_end_loop_desc">출발한 곳으로 돌아옵니다.</string>
     <string name="nav_solve_end_keep_last_desc">현재 마지막 지점이 마지막으로 유지됩니다.</string>
+    <string name="nav_track_locked">이 트랙은 잠겨 있습니다. 편집하려면 메뉴에서 트랙 잠금 해제를 사용하세요.</string>
+    <string name="nav_track_unlocked">트랙 잠금이 해제되었습니다. 이제 경유지를 편집할 수 있습니다.</string>
+    <string name="nav_menu_unlock_track">트랙 잠금 해제</string>
+    <string name="nav_unlock_title">트랙 잠금 해제</string>
+    <string name="nav_unlock_warning">정확한 트랙이 직선으로 이은 경유지로 바뀝니다. 유지하려면 먼저 GPX를 저장하세요.</string>
+    <string name="nav_unlock_stops">경유지</string>
+    <string name="nav_unlock_off">트랙에서 최대 %1$s 벗어남</string>
+    <string name="nav_unlock_confirm">잠금 해제</string>
+    <string name="nav_track_badge">잠긴 트랙</string>
+    <string name="voice_nav_place_reached">%1$s 도착</string>
 </resources>

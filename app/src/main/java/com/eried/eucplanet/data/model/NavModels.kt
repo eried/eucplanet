@@ -98,8 +98,16 @@ data class NavRoute(
     val travelMode: TravelMode,
     val geometry: List<GeoPoint>,
     val maneuvers: List<Maneuver>,
-    val totalDistanceM: Double
+    val totalDistanceM: Double,
+    /** The locked track from a GPX file, whole, when this route rides one.
+     *  Empty for a route of stops. It outlives [geometry], which is trimmed
+     *  to what is left as the rider goes and cleared in the stored route, so
+     *  the builder and the next leg can always find the line again. */
+    val track: List<GeoPoint> = emptyList()
 ) {
+    /** A locked track: stops and line fixed by the file. */
+    val isLockedTrack: Boolean get() = track.size >= 2
+
     val isEmpty: Boolean get() = waypoints.isEmpty()
 
     fun toJson(): JSONObject = JSONObject().apply {

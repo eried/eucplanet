@@ -43,6 +43,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.DirectionsWalk
@@ -60,6 +61,9 @@ import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -210,6 +214,8 @@ fun RouteBuilderScreen(
     val waypoints by viewModel.waypoints.collectAsState()
     val route by viewModel.route.collectAsState()
     val travelMode by viewModel.travelMode.collectAsState()
+    val trackLocked by viewModel.trackLocked.collectAsState()
+    val unlockState by viewModel.unlock.collectAsState()
     val solveFullPath by viewModel.solveFullPath.collectAsState()
     val tourDistanceM by viewModel.tourDistanceM.collectAsState()
     val stopLegs by viewModel.stopLegs.collectAsState()
@@ -712,10 +718,17 @@ fun RouteBuilderScreen(
     // Push the current travel mode (DRIVING / CYCLING / WALKING / STRAIGHT)
     // into the map so the route line uses the matching colour, and STRAIGHT
     // mode gets the chevron arrows along its (otherwise featureless) line.
-    LaunchedEffect(pageReady, travelMode) {
+    LaunchedEffect(pageReady, travelMode, trackLocked) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
-        wv.evaluateJavascript("nativeSetTravelMode('${travelMode.name}');", null)
+        val jsMode = if (trackLocked) "TRACK" else travelMode.name
+        wv.evaluateJavascript("nativeSetTravelMode('$jsMode');", null)
+        wv.evaluateJavascript(
+            "nativeRender(${jsString(viewModel.waypointsJson())}," +
+                "${jsString(viewModel.geometryJson())},false," +
+                "${jsString(viewModel.pendingPreviewJson())});",
+            null
+        )
     }
 
     // Push the Full path / Next segment choice so the map suppresses the dashed
@@ -777,13 +790,13 @@ fun RouteBuilderScreen(
     // Shared by the menu item and the bottom button. A second tap while the
     // route is still being solved is ignored in the ViewModel.
     val startNav: () -> Unit = {
-        val mode = if (travelMode == TravelMode.STRAIGHT)
+        val mode = if (travelMode == TravelMode.STRAIGHT && !trackLocked)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
         viewModel.startNavigation(mode) { panelExpanded = false }
     }
     // Hold-to-override: skip the too-far guard and start anyway.
     val startNavForce: () -> Unit = {
-        val mode = if (travelMode == TravelMode.STRAIGHT)
+        val mode = if (travelMode == TravelMode.STRAIGHT && !trackLocked)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
         viewModel.startNavigation(mode, force = true) { panelExpanded = false }
     }
@@ -1023,7 +1036,10 @@ fun RouteBuilderScreen(
                             hasCustomMarker = markerPhoto != null,
                             navRunning = navRunning,
                             canSolve = viewModel.canSolve() && !route.isFixedTrack(waypoints),
-                            onSolve = { solveDialogOpen = true }
+                            onSolve = { solveDialogOpen = true },
+                            trackLocked = trackLocked,
+                            onUnlockTrack = viewModel::openUnlock,
+                            onLockedTap = viewModel::explainTrackLock
                         )
                     }
                 }
@@ -1632,7 +1648,15 @@ fun RouteBuilderScreen(
             // Landscape: only the list, in a sidebar the top bar's chevron shows
             // or hides, since the header lives in the top bar there.
             val bottomPanelContent: @Composable (Modifier) -> Unit = { panelMod ->
-                BottomPanel(
+                val unlockNow = unlockState
+                if (unlockNow != null) UnlockTrackPanel(
+                    state = unlockNow,
+                    imperial = imperial,
+                    onCount = viewModel::setUnlockCount,
+                    onCancel = viewModel::cancelUnlock,
+                    onUnlock = viewModel::confirmUnlock,
+                    modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
+                ) else BottomPanel(
                     expanded = landscape || panelExpanded,
                     onToggle = { panelExpanded = !panelExpanded },
                     // Landscape: sidebar Column paints the translucent tone, so
@@ -1677,6 +1701,8 @@ fun RouteBuilderScreen(
                     onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
                     navRunning = navRunning,
+                    trackLocked = trackLocked,
+                    onLockedTap = viewModel::explainTrackLock,
                     modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
                 )
             }
@@ -2268,7 +2294,10 @@ private fun BuilderMenu(
     hasCustomMarker: Boolean,
     navRunning: Boolean,
     canSolve: Boolean,
-    onSolve: () -> Unit
+    onSolve: () -> Unit,
+    trackLocked: Boolean,
+    onUnlockTrack: () -> Unit,
+    onLockedTap: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
         // "Start navigation" is omitted here, it is already a primary button.
@@ -2281,6 +2310,14 @@ private fun BuilderMenu(
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_save)) },
                 onClick = { onDismiss(); onSave() }
+            )
+        }
+        // Right under Save, so a rider can keep the track as a file before
+        // trading it for editable stops.
+        if (trackLocked && !navRunning) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_unlock_track)) },
+                onClick = { onDismiss(); onUnlockTrack() }
             )
         }
         if (!navRunning) {
@@ -2303,6 +2340,13 @@ private fun BuilderMenu(
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_solve_menu)) },
                 onClick = { onDismiss(); onSolve() }
+            )
+        } else if (trackLocked && !navRunning) {
+            // Greyed on a locked track; a tap says why.
+            HorizontalDivider(color = MaterialTheme.appColors.divider)
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_solve_menu), color = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f)) },
+                onClick = { onDismiss(); onLockedTap() }
             )
         }
         // Marker-customization group, bounded by separators above and below
@@ -2642,6 +2686,10 @@ private fun BottomPanel(
     onClearRoute: () -> Unit,
     canStartNavigation: Boolean,
     navRunning: Boolean,
+    /** A locked GPX track: stops, order and mode are read-only, and the
+     *  greyed controls say so when tapped. */
+    trackLocked: Boolean = false,
+    onLockedTap: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // When every stop is passed, the rider's journey is complete -- the
@@ -2730,7 +2778,7 @@ private fun BottomPanel(
                 // when the trip is over (allPassed) so the "selected mode
                 // pill" doesn't read as enabled. Functional disable is
                 // also on each SegmentedButton.
-                val modesLocked = navRunning || allPassed
+                val modesLocked = navRunning || allPassed || trackLocked
                 // Mode icons + the Start button share ONE row. Prefer the full
                 // "Start navigation" label; only fall back to the short "Start" when
                 // the row is genuinely cramped (small phone / split-screen), measured
@@ -2746,6 +2794,18 @@ private fun BottomPanel(
                         .weight(1f)
                         .height(40.dp)
                         .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
+                        // Disabled chips still swallow a tap, so on a locked
+                        // track it is caught before they see it, and explained.
+                        .then(
+                            if (trackLocked && !navRunning) Modifier.pointerInput(Unit) {
+                                awaitEachGesture {
+                                    val pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial
+                                    awaitFirstDown(pass = pass).consume()
+                                    val up = waitForUpOrCancellation(pass = pass)
+                                    if (up != null) { up.consume(); onLockedTap() }
+                                }
+                            } else Modifier
+                        )
                 ) {
                     modes.forEachIndexed { index, (mode, icon, labelRes) ->
                         // Icon tint matches the route line colour for that
@@ -2936,16 +2996,19 @@ private fun BottomPanel(
                                         //     nothing may be ordered around it (it can still be
                                         //     removed from its row menu / bin)
                                         val canReorder = draggable
-                                        Icon(
-                                            Icons.Default.DragHandle,
-                                            contentDescription = stringResource(R.string.nav_drag_stop),
-                                            modifier = Modifier
-                                                .then(handleModifier)
-                                                .size(22.dp),
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                                .copy(alpha = if (canReorder) 1f else 0.3f)
-                                        )
-                                        Spacer(Modifier.width(10.dp))
+                                        // A locked track's order is the line's: no handle at all.
+                                        if (!trackLocked) {
+                                            Icon(
+                                                Icons.Default.DragHandle,
+                                                contentDescription = stringResource(R.string.nav_drag_stop),
+                                                modifier = Modifier
+                                                    .then(handleModifier)
+                                                    .size(22.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    .copy(alpha = if (canReorder) 1f else 0.3f)
+                                            )
+                                            Spacer(Modifier.width(10.dp))
+                                        }
                                         // Tap the row to recentre the map on this stop (works
                                         // whether navigation is running or not). Long-press still
                                         // opens the options menu.
@@ -3042,8 +3105,19 @@ private fun BottomPanel(
                                         // should hit 'New route'). A single passed stop
                                         // alongside pending ones IS removable -- treat it
                                         // like any other entry once nav is stopped.
-                                        val canDelete = !navRunning && !allPassed
-                                        IconButton(
+                                        val canDelete = !navRunning && !allPassed && !trackLocked
+                                        if (trackLocked && !navRunning) {
+                                            // Read-only stop: a lock where the
+                                            // bin was, which says why when tapped.
+                                            IconButton(onClick = onLockedTap) {
+                                                Icon(
+                                                    Icons.Default.Lock,
+                                                    contentDescription = stringResource(R.string.nav_track_badge),
+                                                    tint = MaterialTheme.appColors.textSecondary,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
+                                        } else IconButton(
                                             onClick = { onRemove(index) },
                                             enabled = canDelete
                                         ) {
@@ -3088,7 +3162,7 @@ private fun BottomPanel(
                                                 onClick = { rowMenu = false; onSaveWork(index) }
                                             )
                                         }
-                                        if (!navRunning && !allPassed) {
+                                        if (!navRunning && !allPassed && !trackLocked) {
                                             HorizontalDivider(color = MaterialTheme.appColors.divider)
                                             DropdownMenuItem(
                                                 leadingIcon = {
@@ -3115,7 +3189,7 @@ private fun BottomPanel(
                                 stopRow(index, waypoint, false, Modifier)
                             }
                         }
-                        val canReorderAny = waypoints.size > 1 && !navRunning && !allPassed
+                        val canReorderAny = waypoints.size > 1 && !navRunning && !allPassed && !trackLocked
                         ReorderableColumn(
                             list = waypoints.drop(reachedCount),
                             onSettle = if (navRunning) { _, _ -> } else { from, to ->

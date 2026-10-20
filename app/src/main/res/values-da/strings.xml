@@ -2877,4 +2877,14 @@
     <string name="nav_solve_end_anywhere_desc">Slutter ved det stop, der gør den kortest.</string>
     <string name="nav_solve_end_loop_desc">Kommer tilbage til, hvor den starter.</string>
     <string name="nav_solve_end_keep_last_desc">Det nuværende sidste stop forbliver sidst.</string>
+    <string name="nav_track_locked">Dette spor er låst. Brug Lås spor op i menuen for at redigere det.</string>
+    <string name="nav_track_unlocked">Spor låst op. Stoppestederne kan nu redigeres.</string>
+    <string name="nav_menu_unlock_track">Lås spor op</string>
+    <string name="nav_unlock_title">Lås spor op</string>
+    <string name="nav_unlock_warning">Det nøjagtige spor erstattes af stop forbundet med lige linjer. Gem GPX-filen først for at beholde det.</string>
+    <string name="nav_unlock_stops">Stop</string>
+    <string name="nav_unlock_off">Afviger op til %1$s fra sporet</string>
+    <string name="nav_unlock_confirm">Lås op</string>
+    <string name="nav_track_badge">Låst spor</string>
+    <string name="voice_nav_place_reached">%1$s nået</string>
 </resources>

@@ -9,6 +9,10 @@ only when you can cut the ride short.
 - Map: arriving at the last stop shows one X that ends navigation, instead of minimize next to a dead red X.
 - Map: adding a stop after the route is finished asks to start a New route (or Cancel). Reached stops can no longer be reordered around.
 - Map: new style Satellite hybrid (road and place names over the imagery), also in trip details.
+- Map: a GPX track (Organic Maps, BRouter...) opens locked: ridden exactly as drawn, with turn cues from its bends. Stops, order and mode are read-only.
+- Map: only the file's places that lie on the track become stops, by name, spoken as you pass. Bookmarks elsewhere are ignored.
+- Map: Unlock track (menu) turns the track into editable stops along it; pick how many and see the line before you commit.
+- Map: Start far from a track rides you to its start first, then follows the track.
 - Map: Share route sends your stops as a QR code, a link or a QR picture. Nothing is uploaded, the route is inside the code.
 - Map: Scan QR (in Share) opens a route or joins a group ride. A route asks before replacing yours.
 - Map: friends without the app open the link in a browser: the stops, the distances, Download GPX.
@@ -105,6 +109,10 @@ only when you can cut the ride short.
 - An alarm while Maps navigates: does the card show over the map?
 
 **Map / navigation**
+- Load a GPX track from Organic Maps or BRouter: the line matches the app it came from, and tapping a mode or a stop's lock explains why it is locked?
+- Ride a locked track: are the turn cues at real turns? Do named places on the track get announced?
+- Unlock track with few and many stops: does the preview match what you get after Unlock?
+- Start a track from a few km away: does it take you to the start, then follow the track?
 - Ride to the last stop: one X closes the arrival banner and ends navigation?
 - After arriving, add a stop: New route clears the old stops, Cancel adds nothing?
 - Satellite hybrid: road names readable over the imagery?

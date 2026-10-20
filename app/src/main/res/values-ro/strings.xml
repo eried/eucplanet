@@ -2666,4 +2666,14 @@
     <string name="nav_solve_end_anywhere_desc">Se termină la oprirea care îl face cel mai scurt.</string>
     <string name="nav_solve_end_loop_desc">Revine de unde pornește.</string>
     <string name="nav_solve_end_keep_last_desc">Ultima oprire actuală rămâne ultima.</string>
+    <string name="nav_track_locked">Acest traseu este blocat. Pentru a-l edita, folosește Deblochează traseul din meniu.</string>
+    <string name="nav_track_unlocked">Traseu deblocat. Opririle pot fi editate acum.</string>
+    <string name="nav_menu_unlock_track">Deblochează traseul</string>
+    <string name="nav_unlock_title">Deblochează traseul</string>
+    <string name="nav_unlock_warning">Traseul exact este înlocuit de opriri unite prin linii drepte. Salvează mai întâi GPX-ul ca să-l păstrezi.</string>
+    <string name="nav_unlock_stops">Opriri</string>
+    <string name="nav_unlock_off">Se abate până la %1$s de la traseu</string>
+    <string name="nav_unlock_confirm">Deblochează</string>
+    <string name="nav_track_badge">Traseu blocat</string>
+    <string name="voice_nav_place_reached">%1$s atins</string>
 </resources>

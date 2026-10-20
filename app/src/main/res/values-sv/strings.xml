@@ -2862,4 +2862,14 @@
     <string name="nav_solve_end_anywhere_desc">Slutar vid det stopp som gör den kortast.</string>
     <string name="nav_solve_end_loop_desc">Kommer tillbaka dit den börjar.</string>
     <string name="nav_solve_end_keep_last_desc">Det nuvarande sista stoppet förblir sist.</string>
+    <string name="nav_track_locked">Det här spåret är låst. Använd Lås upp spår i menyn för att redigera det.</string>
+    <string name="nav_track_unlocked">Spåret är upplåst. Stoppen kan redigeras nu.</string>
+    <string name="nav_menu_unlock_track">Lås upp spår</string>
+    <string name="nav_unlock_title">Lås upp spår</string>
+    <string name="nav_unlock_warning">Det exakta spåret ersätts av stopp förbundna med raka linjer. Spara GPX-filen först för att behålla det.</string>
+    <string name="nav_unlock_stops">Stopp</string>
+    <string name="nav_unlock_off">Avviker upp till %1$s från spåret</string>
+    <string name="nav_unlock_confirm">Lås upp</string>
+    <string name="nav_track_badge">Låst spår</string>
+    <string name="voice_nav_place_reached">%1$s nått</string>
 </resources>

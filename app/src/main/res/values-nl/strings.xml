@@ -2864,4 +2864,14 @@
     <string name="nav_solve_end_anywhere_desc">Eindigt bij de stop die hem het kortst maakt.</string>
     <string name="nav_solve_end_loop_desc">Komt terug waar hij begint.</string>
     <string name="nav_solve_end_keep_last_desc">De huidige laatste stop blijft de laatste.</string>
+    <string name="nav_track_locked">Deze track is vergrendeld. Gebruik Track ontgrendelen in het menu om hem te bewerken.</string>
+    <string name="nav_track_unlocked">Track ontgrendeld. De stops zijn nu te bewerken.</string>
+    <string name="nav_menu_unlock_track">Track ontgrendelen</string>
+    <string name="nav_unlock_title">Track ontgrendelen</string>
+    <string name="nav_unlock_warning">De exacte track wordt vervangen door stops met rechte lijnen ertussen. Sla eerst de GPX op om hem te bewaren.</string>
+    <string name="nav_unlock_stops">Stops</string>
+    <string name="nav_unlock_off">Wijkt tot %1$s af van de track</string>
+    <string name="nav_unlock_confirm">Ontgrendelen</string>
+    <string name="nav_track_badge">Vergrendelde track</string>
+    <string name="voice_nav_place_reached">%1$s bereikt</string>
 </resources>

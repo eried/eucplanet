@@ -2865,4 +2865,14 @@
     <string name="nav_solve_end_anywhere_desc">Termina na parada que a deixa mais curta.</string>
     <string name="nav_solve_end_loop_desc">Volta para onde começa.</string>
     <string name="nav_solve_end_keep_last_desc">A última parada atual continua sendo a última.</string>
+    <string name="nav_track_locked">Esta trilha está bloqueada. Para editá-la, use Desbloquear trilha no menu.</string>
+    <string name="nav_track_unlocked">Trilha desbloqueada. As paradas podem ser editadas agora.</string>
+    <string name="nav_menu_unlock_track">Desbloquear trilha</string>
+    <string name="nav_unlock_title">Desbloquear trilha</string>
+    <string name="nav_unlock_warning">A trilha exata é substituída por paradas ligadas por linhas retas. Salve o GPX antes para mantê-la.</string>
+    <string name="nav_unlock_stops">Paradas</string>
+    <string name="nav_unlock_off">Desvia até %1$s da trilha</string>
+    <string name="nav_unlock_confirm">Desbloquear</string>
+    <string name="nav_track_badge">Trilha bloqueada</string>
+    <string name="voice_nav_place_reached">%1$s alcançado</string>
 </resources>

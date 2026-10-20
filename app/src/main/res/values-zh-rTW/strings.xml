@@ -2860,4 +2860,14 @@
     <string name="nav_solve_end_anywhere_desc">在讓路線最短的站點結束。</string>
     <string name="nav_solve_end_loop_desc">回到出發的地方。</string>
     <string name="nav_solve_end_keep_last_desc">目前的最後一站保持最後。</string>
+    <string name="nav_track_locked">此軌跡已鎖定。若要編輯，請在選單中使用「解鎖軌跡」。</string>
+    <string name="nav_track_unlocked">軌跡已解鎖，現在可以編輯站點。</string>
+    <string name="nav_menu_unlock_track">解鎖軌跡</string>
+    <string name="nav_unlock_title">解鎖軌跡</string>
+    <string name="nav_unlock_warning">精確軌跡將被以直線相連的站點取代。若要保留，請先儲存 GPX。</string>
+    <string name="nav_unlock_stops">站點</string>
+    <string name="nav_unlock_off">最多偏離軌跡 %1$s</string>
+    <string name="nav_unlock_confirm">解鎖</string>
+    <string name="nav_track_badge">已鎖定的軌跡</string>
+    <string name="voice_nav_place_reached">已抵達 %1$s</string>
 </resources>

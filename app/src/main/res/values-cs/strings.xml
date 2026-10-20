@@ -2667,4 +2667,14 @@
     <string name="nav_solve_end_anywhere_desc">Skončí na zastávce, se kterou je nejkratší.</string>
     <string name="nav_solve_end_loop_desc">Vrátí se tam, kde začíná.</string>
     <string name="nav_solve_end_keep_last_desc">Současná poslední zastávka zůstane poslední.</string>
+    <string name="nav_track_locked">Tato trasa je zamčená. Upravíš ji přes Odemknout trasu v nabídce.</string>
+    <string name="nav_track_unlocked">Trasa odemčena. Zastávky teď můžeš upravovat.</string>
+    <string name="nav_menu_unlock_track">Odemknout trasu</string>
+    <string name="nav_unlock_title">Odemknout trasu</string>
+    <string name="nav_unlock_warning">Přesná trasa se nahradí zastávkami spojenými rovnými čarami. Chceš-li ji zachovat, nejdřív ulož GPX.</string>
+    <string name="nav_unlock_stops">Zastávky</string>
+    <string name="nav_unlock_off">Odchyluje se až o %1$s od trasy</string>
+    <string name="nav_unlock_confirm">Odemknout</string>
+    <string name="nav_track_badge">Zamčená trasa</string>
+    <string name="voice_nav_place_reached">%1$s dosaženo</string>
 </resources>

@@ -1464,7 +1464,8 @@ private const val ROUTE_BUILDER_HTML_2: String = """
         rings.push(null);  // keep index alignment with markers[]
       }
       var m = L.marker([w.lat, w.lng], {
-        draggable: !navLocked && !isPassed,
+        // A locked track (travel mode TRACK) keeps its stops where the file put them.
+        draggable: !navLocked && !isPassed && travelMode !== 'TRACK',
         icon: isPassed
           ? iconForPassed()
           : (navLocked ? iconForLocked(stopColor) : iconFor(i + 1, stopColor))
@@ -1560,7 +1561,8 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       //     straight-line fallback before routing returns, or after
       //     routing failed). The chevrons vanish on the next render
       //     once the real routed polyline arrives.
-      if (travelMode === 'STRAIGHT' || geom.length === 2) {
+      // A locked track gets them too: which way it runs is the file's.
+      if (travelMode === 'STRAIGHT' || travelMode === 'TRACK' || geom.length === 2) {
         drawArrows(geom, routeColor);
       }
       if (pending.length >= 2){
@@ -1576,7 +1578,8 @@ private const val ROUTE_BUILDER_HTML_2: String = """
         // continue the visual line through the remaining stops with a dashed
         // straight-line preview. In Full path the solid geometry already
         // covers every stop, so no preview is drawn (one solid line).
-        if (!solveFullPath) drawPreview(wps);
+        // A locked track's line already runs through every stop.
+        if (!solveFullPath && travelMode !== 'TRACK') drawPreview(wps); else clearPreview();
       }
     } else if (markers.length >= 1){
       // No solid route yet (e.g. the very first stop just dropped). If an edit
@@ -2268,7 +2271,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     var c = routeColorFor(mode);
     if (routeLine) routeLine.setStyle({color: c});
     if (connector) connector.setStyle({color: c});
-    if (mode === 'STRAIGHT' && routeLine){
+    if ((mode === 'STRAIGHT' || mode === 'TRACK') && routeLine){
       var geom = routeLine.getLatLngs().map(function(ll){ return [ll.lat, ll.lng]; });
       drawArrows(geom, c);
     } else {

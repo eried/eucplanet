@@ -2728,4 +2728,14 @@
     <string name="nav_solve_end_anywhere_desc">在让路线最短的站点结束。</string>
     <string name="nav_solve_end_loop_desc">回到出发的地方。</string>
     <string name="nav_solve_end_keep_last_desc">当前的最后一站保持最后。</string>
+    <string name="nav_track_locked">此轨迹已锁定。要编辑，请在菜单中使用“解锁轨迹”。</string>
+    <string name="nav_track_unlocked">轨迹已解锁，现在可以编辑站点。</string>
+    <string name="nav_menu_unlock_track">解锁轨迹</string>
+    <string name="nav_unlock_title">解锁轨迹</string>
+    <string name="nav_unlock_warning">精确轨迹将被以直线相连的站点取代。如需保留，请先保存 GPX。</string>
+    <string name="nav_unlock_stops">站点</string>
+    <string name="nav_unlock_off">最多偏离轨迹 %1$s</string>
+    <string name="nav_unlock_confirm">解锁</string>
+    <string name="nav_track_badge">已锁定的轨迹</string>
+    <string name="voice_nav_place_reached">已到达 %1$s</string>
 </resources>

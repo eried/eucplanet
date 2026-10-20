@@ -2881,4 +2881,14 @@
     <string name="nav_solve_end_anywhere_desc">Termina en la parada que la haga más corta.</string>
     <string name="nav_solve_end_loop_desc">Vuelve a donde empieza.</string>
     <string name="nav_solve_end_keep_last_desc">La última parada actual sigue siendo la última.</string>
+    <string name="nav_track_locked">Esta ruta está bloqueada. Para editarla, usa Desbloquear ruta en el menú.</string>
+    <string name="nav_track_unlocked">Ruta desbloqueada. Ya puedes editar las paradas.</string>
+    <string name="nav_menu_unlock_track">Desbloquear ruta</string>
+    <string name="nav_unlock_title">Desbloquear ruta</string>
+    <string name="nav_unlock_warning">La ruta exacta se reemplaza por paradas unidas con líneas rectas. Guarda el GPX antes para conservarla.</string>
+    <string name="nav_unlock_stops">Paradas</string>
+    <string name="nav_unlock_off">Se aleja hasta %1$s de la ruta</string>
+    <string name="nav_unlock_confirm">Desbloquear</string>
+    <string name="nav_track_badge">Ruta bloqueada</string>
+    <string name="voice_nav_place_reached">%1$s alcanzado</string>
 </resources>

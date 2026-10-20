@@ -2864,4 +2864,14 @@
     <string name="nav_solve_end_anywhere_desc">Заканчивается в точке, с которой он короче всего.</string>
     <string name="nav_solve_end_loop_desc">Возвращается туда, откуда начинается.</string>
     <string name="nav_solve_end_keep_last_desc">Текущая последняя точка остаётся последней.</string>
+    <string name="nav_track_locked">Этот трек заблокирован. Чтобы изменить его, выберите в меню Разблокировать трек.</string>
+    <string name="nav_track_unlocked">Трек разблокирован. Теперь точки можно менять.</string>
+    <string name="nav_menu_unlock_track">Разблокировать трек</string>
+    <string name="nav_unlock_title">Разблокировать трек</string>
+    <string name="nav_unlock_warning">Точный трек заменится точками, соединёнными прямыми линиями. Чтобы сохранить его, сначала сохраните GPX.</string>
+    <string name="nav_unlock_stops">Точки</string>
+    <string name="nav_unlock_off">Отклоняется от трека до %1$s</string>
+    <string name="nav_unlock_confirm">Разблокировать</string>
+    <string name="nav_track_badge">Заблокированный трек</string>
+    <string name="voice_nav_place_reached">%1$s: на месте</string>
 </resources>

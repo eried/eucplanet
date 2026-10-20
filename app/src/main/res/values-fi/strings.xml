@@ -2665,4 +2665,14 @@
     <string name="nav_solve_end_anywhere_desc">Päättyy pysähdykseen, jolla se on lyhin.</string>
     <string name="nav_solve_end_loop_desc">Palaa sinne, mistä se alkaa.</string>
     <string name="nav_solve_end_keep_last_desc">Nykyinen viimeinen pysähdys pysyy viimeisenä.</string>
+    <string name="nav_track_locked">Tämä jälki on lukittu. Muokkaa sitä valikon kohdasta Avaa jäljen lukitus.</string>
+    <string name="nav_track_unlocked">Jäljen lukitus avattu. Pysähdyksiä voi nyt muokata.</string>
+    <string name="nav_menu_unlock_track">Avaa jäljen lukitus</string>
+    <string name="nav_unlock_title">Avaa jäljen lukitus</string>
+    <string name="nav_unlock_warning">Tarkka jälki korvataan suorilla viivoilla yhdistetyillä pysähdyksillä. Tallenna GPX ensin säilyttääksesi sen.</string>
+    <string name="nav_unlock_stops">Pysähdykset</string>
+    <string name="nav_unlock_off">Poikkeaa jäljestä enintään %1$s</string>
+    <string name="nav_unlock_confirm">Avaa lukitus</string>
+    <string name="nav_track_badge">Lukittu jälki</string>
+    <string name="voice_nav_place_reached">%1$s saavutettu</string>
 </resources>

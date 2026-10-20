@@ -2859,4 +2859,14 @@
     <string name="nav_solve_end_anywhere_desc">En kısa olduğu durakta biter.</string>
     <string name="nav_solve_end_loop_desc">Başladığı yere döner.</string>
     <string name="nav_solve_end_keep_last_desc">Şu anki son durak son kalır.</string>
+    <string name="nav_track_locked">Bu iz kilitli. Düzenlemek için menüde İzin kilidini aç\'ı kullanın.</string>
+    <string name="nav_track_unlocked">İzin kilidi açıldı. Duraklar artık düzenlenebilir.</string>
+    <string name="nav_menu_unlock_track">İzin kilidini aç</string>
+    <string name="nav_unlock_title">İzin kilidini aç</string>
+    <string name="nav_unlock_warning">Tam iz, düz çizgilerle bağlanan duraklarla değiştirilir. Korumak için önce GPX\'i kaydedin.</string>
+    <string name="nav_unlock_stops">Duraklar</string>
+    <string name="nav_unlock_off">İzden en fazla %1$s sapar</string>
+    <string name="nav_unlock_confirm">Kilidi aç</string>
+    <string name="nav_track_badge">Kilitli iz</string>
+    <string name="voice_nav_place_reached">%1$s ulaşıldı</string>
 </resources>

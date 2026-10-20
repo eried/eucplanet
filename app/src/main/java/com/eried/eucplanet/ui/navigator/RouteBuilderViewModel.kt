@@ -36,6 +36,7 @@ import com.eried.eucplanet.nav.RouteFileName
 import com.eried.eucplanet.nav.RouteLegs
 import com.eried.eucplanet.nav.RouteSolver
 import com.eried.eucplanet.nav.isFixedTrack
+import com.eried.eucplanet.nav.TrackRoute
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.IdentityMode
@@ -133,6 +134,13 @@ class RouteBuilderViewModel @Inject constructor(
          * OSRM solves the whole chain in one /route request, so this cap is a
          * usability limit (a manageable list), not a router limit.
          */
+        /** Unlock track opens with the fewest stops that keep this close. */
+        const val UNLOCK_TARGET_OFF_M = 50.0
+
+        /** Within this of a locked track's start, guidance follows the line at
+         *  once; further, it takes the rider there first. */
+        const val TRACK_JOIN_M = 100.0
+
         const val MAX_WAYPOINTS = 50
 
         /** How far the rider moves before the route preview is recomputed. */
@@ -155,6 +163,16 @@ class RouteBuilderViewModel @Inject constructor(
 
     private val _route = MutableStateFlow<NavRoute?>(null)
     val route: StateFlow<NavRoute?> = _route.asStateFlow()
+
+    /**
+     * The locked track, when a GPX track was loaded: the file's line, ridden
+     * as drawn. While it is set the stops are read-only, the travel mode and
+     * Optimize stop order are off, and Start follows the line. Unlock track
+     * turns it into ordinary stops.
+     */
+    private val _track = MutableStateFlow<List<GeoPoint>>(emptyList())
+    val trackLocked: StateFlow<Boolean> = _track.map { it.size >= 2 }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /**
      * A short gold dashed preview of just the edge an edit is about to change
@@ -428,7 +446,12 @@ class RouteBuilderViewModel @Inject constructor(
             if (busy || wps.size < 2) return@combine emptyMap()
             val ahead = wps.withIndex().filter { !it.value.passed }
             if (ahead.isEmpty()) return@combine emptyMap()
-            val path = if (full && route != null && !route.isFixedTrack(wps)) route.geometry else emptyList()
+            val path = when {
+                // A locked track is the path, whatever Full path says.
+                route != null && route.isLockedTrack -> route.track
+                full && route != null && !route.isFixedTrack(wps) -> route.geometry
+                else -> emptyList()
+            }
             // The router's own distance runs a little longer than the drawn
             // line measures, so the legs are scaled to add up to the header.
             val drawn = GeoMath.polylineLengthM(path)
@@ -456,8 +479,11 @@ class RouteBuilderViewModel @Inject constructor(
         val wps = _waypoints.value
         if (wps.size < 2) return emptyList()
         val route = _route.value
-        val path = if (_solveFullPath.value && route != null && !route.isFixedTrack(wps) && wps.none { it.passed })
-            route.geometry else emptyList()
+        val path = when {
+            route != null && route.isLockedTrack -> route.track
+            _solveFullPath.value && route != null && !route.isFixedTrack(wps) && wps.none { it.passed } -> route.geometry
+            else -> emptyList()
+        }
         val drawn = GeoMath.polylineLengthM(path)
         val scale = if (path.size >= 2 && drawn > 0 && route != null && route.totalDistanceM > 0)
             route.totalDistanceM / drawn else 1.0
@@ -521,7 +547,10 @@ class RouteBuilderViewModel @Inject constructor(
                 currentRouteStore.get()?.let { existing ->
                     if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {
                         routeName = existing.name
-                        _travelMode.value = existing.travelMode
+                        _track.value = existing.track
+                        // A locked track's own mode is STRAIGHT; the rider's
+                        // mode stays theirs for the ride to its start.
+                        if (!existing.isLockedTrack) _travelMode.value = existing.travelMode
                         _waypoints.value = existing.waypoints
                         // Only adopt the current (in-memory) route as _route
                         // when it actually carries geometry. With the new
@@ -691,7 +720,13 @@ class RouteBuilderViewModel @Inject constructor(
                 // navigation is running, and gating on a separate flag risks
                 // racing the StateFlow update order (activeLeg arriving
                 // before navState.active flips true on start()).
-                val merged = leg.copy(waypoints = _waypoints.value.ifEmpty { leg.waypoints })
+                val merged = leg.copy(
+                    waypoints = _waypoints.value.ifEmpty { leg.waypoints },
+                    // Riding to a locked track's start: the routed line, then
+                    // the track itself, so the rider sees where it goes.
+                    geometry = if (leg.isLockedTrack && leg.travelMode != TravelMode.STRAIGHT)
+                        leg.geometry + leg.track else leg.geometry
+                )
                 android.util.Log.i(
                     "RouteBuilderVM",
                     "ACTIVE-LEG-OBS legGeomPts=${leg.geometry.size} " +
@@ -1002,12 +1037,28 @@ class RouteBuilderViewModel @Inject constructor(
 
     fun finishedCancel() { _finishedAdd.value = null }
 
+    /**
+     * True, with a note to the rider, when a locked track refuses an edit.
+     * Redraws so a pin dragged on the map snaps back to the line.
+     */
+    private fun lockedRefuses(): Boolean {
+        if (_track.value.size < 2) return false
+        _messages.tryEmit(R.string.nav_track_locked)
+        bumpRender(fit = false)
+        return true
+    }
+
+    /** A greyed control on a locked track was tapped: say why and where to unlock. */
+    fun explainTrackLock() { lockedRefuses() }
+
     fun addWaypoint(lat: Double, lng: Double, name: String = "", fit: Boolean = false) {
+        if (lockedRefuses()) return
         if (holdIfFinished { addWaypointNow(lat, lng, name, fit) }) return
         addWaypointNow(lat, lng, name, fit)
     }
 
     private fun addWaypointNow(lat: Double, lng: Double, name: String, fit: Boolean) {
+        if (lockedRefuses()) return
         if (_waypoints.value.size >= MAX_WAYPOINTS) {
             _messages.tryEmit(R.string.nav_max_stops)
             return
@@ -1040,6 +1091,7 @@ class RouteBuilderViewModel @Inject constructor(
      */
     fun insertWaypointOnRoute(lat: Double, lng: Double, name: String = "") {
         if (navigationEngine.isActive) return
+        if (lockedRefuses()) return
         if (holdIfFinished { insertWaypointOnRoute(lat, lng, name) }) return
         val dests = _waypoints.value
         if (dests.size >= MAX_WAYPOINTS) {
@@ -1085,6 +1137,7 @@ class RouteBuilderViewModel @Inject constructor(
 
     /** Called when the user drags a pin on the map. */
     fun moveWaypoint(index: Int, lat: Double, lng: Double) {
+        if (lockedRefuses()) return
         val list = _waypoints.value.toMutableList()
         if (index !in list.indices) return
         // A reached stop is history; dragging it would re-route around a
@@ -1105,6 +1158,7 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     fun removeWaypoint(index: Int) {
+        if (lockedRefuses()) return
         val list = _waypoints.value.toMutableList()
         if (index !in list.indices) return
         list.removeAt(index)
@@ -1114,6 +1168,7 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     fun reorderWaypoints(from: Int, to: Int) {
+        if (lockedRefuses()) return
         val list = reorderKeepingPassed(_waypoints.value, from, to) ?: return
         _waypoints.value = list
         cacheDraft()
@@ -1144,6 +1199,7 @@ class RouteBuilderViewModel @Inject constructor(
      * rider is close enough to link (then the question is which one first).
      */
     fun canSolve(): Boolean {
+        if (_track.value.size >= 2) return false
         val n = solvableStops()
         return n >= 3 || (n == 2 && solveOriginBlock() == null)
     }
@@ -1210,6 +1266,7 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     fun setTravelMode(mode: TravelMode) {
+        if (lockedRefuses()) return
         if (_travelMode.value == mode) return
         _travelMode.value = mode
         viewModelScope.launch {
@@ -1247,7 +1304,8 @@ class RouteBuilderViewModel @Inject constructor(
                 travelMode = _travelMode.value,
                 geometry = emptyList(),
                 maneuvers = emptyList(),
-                totalDistanceM = 0.0
+                totalDistanceM = 0.0,
+                track = _track.value
             )
         )
     }
@@ -1255,6 +1313,8 @@ class RouteBuilderViewModel @Inject constructor(
     fun clear() {
         routeJob?.cancel()
         enrichJob?.cancel()
+        _track.value = emptyList()
+        _unlock.value = null
         _waypoints.value = emptyList()
         _route.value = null
         _routing.value = false
@@ -1414,6 +1474,18 @@ class RouteBuilderViewModel @Inject constructor(
             // engine's correct rider->next-goal leg. So: bail.
             return
         }
+        val track = _track.value
+        if (track.size >= 2) {
+            // A locked track is its own route: nothing to solve, nothing to
+            // wait for, and the rider's position does not change it.
+            routeJob?.cancel()
+            _route.value = TrackRoute.route(routeName, track, _waypoints.value)
+            _routing.value = false
+            _pendingPreview.value = _unlock.value?.line ?: emptyList()
+            bumpRender(fit)
+            enrichWaypointNames()
+            return
+        }
         _routeClean.value = false
         routeJob?.cancel()
         enrichJob?.cancel()
@@ -1565,27 +1637,18 @@ class RouteBuilderViewModel @Inject constructor(
                     _messages.tryEmit(R.string.nav_load_failed)
                     return@launch
                 }
-                routeName = gpx.name
-                when {
-                    gpx.waypoints.size >= 1 -> {
-                        _waypoints.value = gpx.waypoints.take(MAX_WAYPOINTS)
+                when (val c = gpx.contents()) {
+                    is com.eried.eucplanet.util.GpxData.Contents.Stops -> {
+                        routeName = gpx.name
+                        _track.value = emptyList()
+                        _unlock.value = null
+                        _waypoints.value = c.stops.take(MAX_WAYPOINTS)
+                        cacheDraft()
                         scheduleRecompute(fit = true)
                     }
-                    gpx.track.size >= 2 -> {
-                        // A track-only GPX: navigate the fixed line as-is.
-                        _waypoints.value = listOf(gpx.track.first(), gpx.track.last())
-                            .map { Waypoint(it.lat, it.lng) }
-                        _route.value = NavRoute(
-                            name = gpx.name,
-                            waypoints = _waypoints.value,
-                            travelMode = TravelMode.STRAIGHT,
-                            geometry = gpx.track,
-                            maneuvers = emptyList(),
-                            totalDistanceM = GeoMath.polylineLengthM(gpx.track)
-                        )
-                        bumpRender(fit = true)
-                    }
-                    else -> {
+                    is com.eried.eucplanet.util.GpxData.Contents.Track ->
+                        applyTrack(gpx.name, c.track, c.places)
+                    com.eried.eucplanet.util.GpxData.Contents.Nothing -> {
                         _messages.tryEmit(R.string.nav_load_failed)
                         return@launch
                     }
@@ -1596,6 +1659,110 @@ class RouteBuilderViewModel @Inject constructor(
                 _messages.tryEmit(R.string.nav_load_failed)
             }
         }
+    }
+
+    /**
+     * Opens [track] locked: its start, the [places] that lie on it, its end,
+     * and the line between them exactly as the file drew it.
+     */
+    private fun applyTrack(name: String, track: List<GeoPoint>, places: List<Waypoint>) {
+        routeJob?.cancel()
+        enrichJob?.cancel()
+        routeName = name
+        _unlock.value = null
+        _track.value = track
+        val stops = TrackRoute.stops(track, places)
+        // The stop limit keeps the ends and the first places along the line.
+        _waypoints.value = if (stops.size <= MAX_WAYPOINTS) stops
+            else stops.take(MAX_WAYPOINTS - 1) + stops.last()
+        _route.value = TrackRoute.route(routeName, track, _waypoints.value)
+        _pendingPreview.value = emptyList()
+        _routing.value = false
+        cacheDraft()
+        bumpRender(fit = true)
+        enrichWaypointNames()
+    }
+
+    // --- Unlock track ------------------------------------------------------------
+
+    /** The Unlock track dialog's state: how many points along the line become
+     *  stops, the straight line through them, and how far it strays. */
+    data class UnlockState(val added: Int, val maxAdded: Int, val line: List<GeoPoint>, val maxOffM: Double)
+
+    private val _unlock = MutableStateFlow<UnlockState?>(null)
+    val unlock: StateFlow<UnlockState?> = _unlock.asStateFlow()
+    private var simplifier: TrackRoute.Simplifier? = null
+    private var unlockKeep: List<Int> = emptyList()
+
+    /** Opens Unlock track with the fewest stops that keep within
+     *  [UNLOCK_TARGET_OFF_M] of the line, previewed on the map. */
+    fun openUnlock() {
+        val track = _track.value
+        if (track.size < 2 || navigationEngine.isActive) return
+        // The places on the line stay stops, by name, at their own spot.
+        val places = _waypoints.value.drop(1).dropLast(1)
+        unlockKeep = places.mapNotNull { w ->
+            GeoMath.nearestOnPolyline(w.point(), track)?.let { hit ->
+                (hit.segmentIndex..(hit.segmentIndex + 1).coerceAtMost(track.lastIndex))
+                    .minByOrNull { GeoMath.distanceM(track[it], w.point()) }
+            }
+        }
+        val simp = TrackRoute.Simplifier(track, unlockKeep)
+        simplifier = simp
+        val cap = unlockCap(simp)
+        setUnlockCount(simp.fewestWithin(UNLOCK_TARGET_OFF_M, cap))
+    }
+
+    private fun unlockCap(simp: TrackRoute.Simplifier): Int =
+        (MAX_WAYPOINTS - simp.fixedCount).coerceAtLeast(0).coerceAtMost(simp.maxAdded)
+
+    /** The rider changed how many points become stops: redraw the preview. */
+    fun setUnlockCount(added: Int) {
+        val simp = simplifier ?: return
+        val track = _track.value
+        val n = added.coerceIn(0, unlockCap(simp))
+        val line = simp.pick(n).map { track[it] }
+        _unlock.value = UnlockState(n, unlockCap(simp), line, simp.maxOffM(n))
+        _pendingPreview.value = line
+        bumpRender(fit = false)
+    }
+
+    fun cancelUnlock() {
+        _unlock.value = null
+        simplifier = null
+        _pendingPreview.value = emptyList()
+        bumpRender(fit = false)
+    }
+
+    /**
+     * Unlock track: the line is replaced by stops on it, joined by straight
+     * lines, and everything is editable again. The places keep their names.
+     */
+    fun confirmUnlock() {
+        val state = _unlock.value ?: return
+        val simp = simplifier ?: return
+        val track = _track.value
+        if (track.size < 2) return
+        val named = _waypoints.value.drop(1).dropLast(1)
+        val byIndex = unlockKeep.zip(named).toMap()
+        val stops = simp.pick(state.added).map { i ->
+            byIndex[i] ?: Waypoint(track[i].lat, track[i].lng)
+        }
+        _unlock.value = null
+        simplifier = null
+        _track.value = emptyList()
+        _pendingPreview.value = emptyList()
+        _waypoints.value = stops
+        // Straight lines between the stops follow the old line best; the
+        // rider can pick a routed mode now that the modes are back.
+        _travelMode.value = TravelMode.STRAIGHT
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            settingsRepository.update(s.copy(navDefaultTravelMode = TravelMode.STRAIGHT.name))
+        }
+        cacheDraft()
+        scheduleRecompute(fit = false)
+        _messages.tryEmit(R.string.nav_track_unlocked)
     }
 
     /**
@@ -1625,22 +1792,17 @@ class RouteBuilderViewModel @Inject constructor(
     fun dismissPendingRoute() { _pendingRoute.value = null }
 
     private fun applySharedRoute(route: com.eried.eucplanet.nav.SharedRoute) {
-        routeName = route.name ?: context.getString(R.string.nav_default_route_name)
+        val name = route.name ?: context.getString(R.string.nav_default_route_name)
         if (route.stops.isNotEmpty()) {
+            routeName = name
+            _track.value = emptyList()
+            _unlock.value = null
             _waypoints.value = route.stops.take(MAX_WAYPOINTS)
+            cacheDraft()
             scheduleRecompute(fit = true)
         } else {
-            // A track with no stops: navigate the line as it is, as a track-only GPX does.
-            _waypoints.value = listOf(route.track.first(), route.track.last()).map { Waypoint(it.lat, it.lng) }
-            _route.value = NavRoute(
-                name = routeName,
-                waypoints = _waypoints.value,
-                travelMode = TravelMode.STRAIGHT,
-                geometry = route.track,
-                maneuvers = emptyList(),
-                totalDistanceM = GeoMath.polylineLengthM(route.track)
-            )
-            bumpRender(fit = true)
+            // A track with no stops: locked, ridden as drawn, as a GPX track is.
+            applyTrack(name, route.track, emptyList())
         }
         _routeClean.value = true
         _messages.tryEmit(R.string.route_opened)
@@ -1655,12 +1817,12 @@ class RouteBuilderViewModel @Inject constructor(
     fun shareRouteLink(): String? {
         val stops = _waypoints.value
         val route = _route.value
-        val trackOnly = route.isFixedTrack(stops)
+        val trackOnly = route.isFixedTrack(stops) || _track.value.size >= 2
         val shared = com.eried.eucplanet.nav.SharedRoute(
             name = routeName,
             mode = _travelMode.value,
             stops = if (trackOnly) emptyList() else stops.map { it.copy(passed = false) },
-            track = if (trackOnly) route!!.geometry else emptyList(),
+            track = if (trackOnly) _track.value.takeIf { it.size >= 2 } ?: route!!.geometry else emptyList(),
         )
         return com.eried.eucplanet.nav.RouteLinks.format(shared)
     }
@@ -1793,6 +1955,7 @@ class RouteBuilderViewModel @Inject constructor(
 
     /** Drops a saved Home / Work preset onto the map as the next waypoint. */
     fun addPreset(w: Waypoint, kind: String) {
+        if (lockedRefuses()) return
         if (holdIfFinished { addPreset(w, kind) }) return
         addWaypoint(w.lat, w.lng, w.name, fit = true)
         _lastAddedPresetKind.value = kind
@@ -2105,6 +2268,7 @@ class RouteBuilderViewModel @Inject constructor(
     fun addPoiAsStop(poi: PointOfInterest) {
         _selectedPoi.value = null
         if (navigationEngine.isActive) return
+        if (lockedRefuses()) return
         if (holdIfFinished { addPoiAsStop(poi) }) return
         val dests = _waypoints.value
         if (dests.size >= MAX_WAYPOINTS) {
@@ -2212,6 +2376,11 @@ class RouteBuilderViewModel @Inject constructor(
         // Tell the screen at once, before guidance flips on, so the panel
         // folds as Start is tapped.
         onStarted()
+        val track = _track.value
+        if (track.size >= 2) {
+            startJob = viewModelScope.launch { startTrack(track, dests, GeoPoint(loc.latitude, loc.longitude)) }
+            return
+        }
         startJob = viewModelScope.launch {
             val tMode = _travelMode.value
             // Full path hands the engine the WHOLE remaining tour (origin ->
@@ -2258,6 +2427,56 @@ class RouteBuilderViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    /**
+     * Starts a locked track. Already at the point it resumes from (its start,
+     * or the last stop reached), guidance follows the line from there, with
+     * turn cues from its bends. Further away, it first takes the rider to
+     * that point in their own travel mode, then follows the line.
+     */
+    private suspend fun startTrack(track: List<GeoPoint>, dests: List<Waypoint>, me: GeoPoint) {
+        val ahead = dests.filter { !it.passed }
+        if (ahead.isEmpty()) return
+        val anchorIdx = dests.indexOfLast { it.passed }.takeIf { it >= 0 } ?: 0
+        val anchor = dests[anchorIdx]
+        val nearM = maxOf(defaultRadiusM.toDouble(), TRACK_JOIN_M)
+        val atAnchor = GeoMath.distanceM(me, anchor.point()) <= nearM
+        val stops: List<Waypoint>
+        val navRoute: NavRoute
+        if (atAnchor) {
+            // The start counts as reached the moment the rider is on it.
+            stops = dests.mapIndexed { i, w -> if (i <= anchorIdx) w.copy(passed = true) else w }
+            navRoute = TrackRoute.leg(routeName, track, listOf(anchor.copy(passed = false)) + stops.drop(anchorIdx + 1))
+        } else {
+            stops = dests
+            val legWps = listOf(Waypoint(me.lat, me.lng), anchor.copy(passed = false))
+            val mode = _travelMode.value
+            val leadIn = if (mode == TravelMode.STRAIGHT) {
+                RoutingService.straightLineRoute(routeName, legWps)
+            } else {
+                routingService.route(routeName, legWps, mode, routerUrl, avoidances)
+                    ?: RoutingService.straightLineRoute(routeName, legWps)
+            }
+            navRoute = leadIn.copy(track = track)
+        }
+        _waypoints.value = stops
+        _route.value = navRoute.copy(
+            waypoints = stops,
+            geometry = if (atAnchor) navRoute.geometry else navRoute.geometry + track
+        )
+        _routing.value = false
+        bumpRender(fit = false)
+        navigationEngine.start(navRoute, NavMode.TURN_BY_TURN)
+        currentRouteStore.set(
+            navRoute.copy(
+                waypoints = stops,
+                geometry = emptyList(),
+                maneuvers = emptyList(),
+                totalDistanceM = 0.0,
+                track = track
+            )
+        )
     }
 
     // --- Live location share ------------------------------------------------

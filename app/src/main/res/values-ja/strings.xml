@@ -2862,4 +2862,14 @@
     <string name="nav_solve_end_anywhere_desc">最短になる地点で終わります。</string>
     <string name="nav_solve_end_loop_desc">出発地点に戻ります。</string>
     <string name="nav_solve_end_keep_last_desc">今の最後の地点を最後に保ちます。</string>
+    <string name="nav_track_locked">このトラックはロックされています。編集するにはメニューの「トラックのロック解除」を使ってください。</string>
+    <string name="nav_track_unlocked">トラックのロックを解除しました。経由地を編集できます。</string>
+    <string name="nav_menu_unlock_track">トラックのロック解除</string>
+    <string name="nav_unlock_title">トラックのロック解除</string>
+    <string name="nav_unlock_warning">正確なトラックは、直線で結んだ経由地に置き換わります。残すには先にGPXを保存してください。</string>
+    <string name="nav_unlock_stops">経由地</string>
+    <string name="nav_unlock_off">トラックから最大 %1$s ずれます</string>
+    <string name="nav_unlock_confirm">解除</string>
+    <string name="nav_track_badge">ロック中のトラック</string>
+    <string name="voice_nav_place_reached">%1$s に到着</string>
 </resources>

@@ -2864,4 +2864,14 @@
     <string name="nav_solve_end_anywhere_desc">Kończy się na przystanku, który daje najkrótszą trasę.</string>
     <string name="nav_solve_end_loop_desc">Wraca tam, gdzie się zaczyna.</string>
     <string name="nav_solve_end_keep_last_desc">Obecny ostatni przystanek zostaje ostatni.</string>
+    <string name="nav_track_locked">Ta trasa jest zablokowana. Aby ją edytować, użyj Odblokuj trasę w menu.</string>
+    <string name="nav_track_unlocked">Trasa odblokowana. Przystanki można teraz edytować.</string>
+    <string name="nav_menu_unlock_track">Odblokuj trasę</string>
+    <string name="nav_unlock_title">Odblokuj trasę</string>
+    <string name="nav_unlock_warning">Dokładna trasa zostanie zastąpiona przystankami połączonymi prostymi liniami. Aby ją zachować, najpierw zapisz GPX.</string>
+    <string name="nav_unlock_stops">Przystanki</string>
+    <string name="nav_unlock_off">Odchyla się do %1$s od trasy</string>
+    <string name="nav_unlock_confirm">Odblokuj</string>
+    <string name="nav_track_badge">Zablokowana trasa</string>
+    <string name="voice_nav_place_reached">%1$s osiągnięto</string>
 </resources>

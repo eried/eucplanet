@@ -2890,4 +2890,14 @@
     <string name="nav_solve_end_anywhere_desc">Ends at whichever stop makes it shortest.</string>
     <string name="nav_solve_end_loop_desc">Comes back to where it starts.</string>
     <string name="nav_solve_end_keep_last_desc">The current last stop stays last.</string>
+    <string name="nav_track_locked">This track is locked. To edit it, use Unlock track in the menu.</string>
+    <string name="nav_track_unlocked">Track unlocked. The stops can be edited now.</string>
+    <string name="nav_menu_unlock_track">Unlock track</string>
+    <string name="nav_unlock_title">Unlock track</string>
+    <string name="nav_unlock_warning">The exact track is replaced by stops joined by straight lines. Save the GPX first to keep it.</string>
+    <string name="nav_unlock_stops">Stops</string>
+    <string name="nav_unlock_off">Strays up to %1$s from the track</string>
+    <string name="nav_unlock_confirm">Unlock</string>
+    <string name="nav_track_badge">Locked track</string>
+    <string name="voice_nav_place_reached">%1$s reached</string>
 </resources>

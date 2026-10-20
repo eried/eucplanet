@@ -324,11 +324,8 @@ class NavigationEngine @Inject constructor(
             lastArrivalPoint = null
             movingAverage.reset()
             closingSpeed.reset()
-            waypointAlongM = if (route.geometry.size >= 2) {
-                route.waypoints.mapNotNull {
-                    GeoMath.nearestOnPolyline(it.point(), route.geometry)?.alongM
-                }
-            } else emptyList()
+            waypointAlongM = alongOf(route)
+            trackProgress = progressFor(route)
 
             _navState.value = NavState(
                 active = true,
@@ -372,11 +369,8 @@ class NavigationEngine @Inject constructor(
             activeRoute = newRoute
             _activeLeg.value = newRoute
             resetRuntimeState()
-            waypointAlongM = if (newRoute.geometry.size >= 2) {
-                newRoute.waypoints.mapNotNull {
-                    GeoMath.nearestOnPolyline(it.point(), newRoute.geometry)?.alongM
-                }
-            } else emptyList()
+            waypointAlongM = alongOf(newRoute)
+            trackProgress = progressFor(newRoute)
             // Compute the initial distance to the new goal from the rider's
             // current position so the popup pops with the real distance
             // already filled in, not an empty placeholder that updates one
@@ -454,6 +448,22 @@ class NavigationEngine @Inject constructor(
             minimized = false,
             popupTick = _navState.value.popupTick + 1
         )
+    }
+
+    /** Where the rider is along a locked track's line, so a loop or a
+     *  crossing does not jump them to the other pass. Null for other legs. */
+    private var trackProgress: TrackRoute.Progress? = null
+
+    private fun isTrackLeg(route: NavRoute) = route.isLockedTrack && route.travelMode == TravelMode.STRAIGHT
+
+    private fun progressFor(route: NavRoute): TrackRoute.Progress? =
+        if (isTrackLeg(route)) TrackRoute.Progress(route.geometry) else null
+
+    /** How far along the leg's line each of its stops is. */
+    private fun alongOf(route: NavRoute): List<Double> = when {
+        route.geometry.size < 2 -> emptyList()
+        isTrackLeg(route) -> TrackRoute.alongM(route.waypoints.map { it.point() }, route.geometry)
+        else -> route.waypoints.mapNotNull { GeoMath.nearestOnPolyline(it.point(), route.geometry)?.alongM }
     }
 
     private fun resetRuntimeState() {
@@ -635,7 +645,8 @@ class NavigationEngine @Inject constructor(
             return
         }
 
-        val hit = GeoMath.nearestOnPolyline(point, route.geometry) ?: return
+        val hit = trackProgress?.locate(point)
+            ?: GeoMath.nearestOnPolyline(point, route.geometry) ?: return
         val distToEnd = (route.totalDistanceM - hit.alongM).coerceAtLeast(0.0)
         val finalRadiusFromWp = route.waypoints.lastOrNull()?.radiusM
         val finalRadius = finalRadiusFromWp ?: arrivalRadiusM
@@ -667,7 +678,10 @@ class NavigationEngine @Inject constructor(
         // on the route polyline can still be far from the end, so distToEnd
         // alone misses arrivals the rider can physically see they made.
         val lastWp = route.waypoints.lastOrNull()
-        val directDistToEnd = lastWp?.let { GeoMath.distanceM(point, it.point()) }
+        // A loop ends where it starts: on a locked track the straight-line
+        // check waits for the second half, or the start would be the end.
+        val directDistToEnd = lastWp?.takeIf { !isTrackLeg(route) || hit.alongM > route.totalDistanceM / 2 }
+            ?.let { GeoMath.distanceM(point, it.point()) }
             ?: Double.MAX_VALUE
         if (!arrivalHandled && (distToEnd <= finalRadius || directDistToEnd <= finalRadius)) {
             handleArrival()
@@ -699,7 +713,12 @@ class NavigationEngine @Inject constructor(
             lastIntermediateAnnounced = reached
             Log.i(TAG, "INTERMEDIATE-STOP reached=$reached of ${route.waypoints.size - 1}")
             if (voiceEnabled) {
-                voiceService.announceEvent(context.getString(R.string.voice_nav_goal_reached))
+                // A track's places are named stops: say which one.
+                val name = route.waypoints.getOrNull(reached)?.name?.takeIf { route.isLockedTrack && it.isNotBlank() }
+                voiceService.announceEvent(
+                    if (name != null) context.getString(R.string.voice_nav_place_reached, name)
+                    else context.getString(R.string.voice_nav_goal_reached)
+                )
             }
         }
 
@@ -807,6 +826,7 @@ class NavigationEngine @Inject constructor(
                 val stops = listOf(Waypoint(from.lat, from.lng)) + remaining
                 if (stops.size >= 2) {
                     val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl, avoidances)
+                        ?.let { if (route.isLockedTrack) it.copy(track = route.track) else it }
                     // The session may have been stopped or restarted while the
                     // network request was in flight, only adopt the result if
                     // we are still navigating the very same route.
@@ -1208,6 +1228,14 @@ class NavigationEngine @Inject constructor(
      *  out of the multi-stop flow instead of advancing to a placeholder
      *  leg the rider can't possibly follow. */
     private suspend fun buildNextLeg(nextStop: Waypoint, route: NavRoute): NavRoute? {
+        if (route.isLockedTrack) {
+            // Past the ride to the start (or a stop): the rest of the line,
+            // from the stop just reached through every stop still ahead.
+            val idx = route.waypoints.indexOf(nextStop)
+            val from = route.waypoints.getOrNull(idx - 1) ?: route.waypoints.first()
+            val ahead = route.waypoints.drop(idx.coerceAtLeast(0)).filter { !it.passed }
+            return TrackRoute.leg(route.name, route.track, listOf(from.copy(passed = false)) + ahead)
+        }
         val loc = tripRepository.currentLocation.value ?: return null
         val mode = route.travelMode
         val legWps = listOf(Waypoint(loc.latitude, loc.longitude), nextStop)
