@@ -14,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -128,6 +129,9 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.Dp
@@ -1021,10 +1025,12 @@ fun RouteBuilderScreen(
         // part of it, so centre the rider in the visible part. Half the sidebar
         // width, in dp (= CSS px, like the vertical offset above), moving the
         // rider away from the sidebar: sidebar right => toward screen left (+).
+        // A collapsed sidebar is only its header row, so the rider centres on
+        // the full width.
         val sideOffsetPx =
-            if (!landscape) 0f
+            if (!landscape || !panelExpanded) 0f
             else (advancedVars.navSidebarWidthDp / 2f) * (if (stopsSide != "LEFT") 1f else -1f)
-        LaunchedEffect(pageReady, landscape, stopsSide, advancedVars.navSidebarWidthDp) {
+        LaunchedEffect(pageReady, landscape, panelExpanded, stopsSide, advancedVars.navSidebarWidthDp) {
             val wv = webView ?: return@LaunchedEffect
             if (!pageReady) return@LaunchedEffect
             wv.evaluateJavascript("nativeSetNavSideOffset($sideOffsetPx);", null)
@@ -1238,14 +1244,21 @@ fun RouteBuilderScreen(
             // during heading-up, and collecting that here recomposed the whole
             // map screen for the whole ride.
             // In landscape it clears the right-hand stops sidebar, so the
-            // navigator's metric pill under it stays on the map too.
+            // navigator's metric pill under it stays on the map too. A
+            // collapsed sidebar is only its header row, so the compass moves
+            // to the screen edge, just under that row.
+            val sidebarRight = stopsSide != "LEFT"
+            val collapsedHeaderDp =
+                if (landscape && !panelExpanded) with(density) { effectivePanelPx.toDp() }
+                else 0.dp
             NavCompassButton(
                 viewModel = viewModel,
                 navRunning = navRunning,
                 northUp = navigatorView.northUp,
                 webView = webView,
-                topPad = padding.calculateTopPadding(),
-                endInset = if (landscape && stopsSide != "LEFT")
+                topPad = padding.calculateTopPadding() +
+                    (if (sidebarRight) collapsedHeaderDp else 0.dp),
+                endInset = if (landscape && panelExpanded && sidebarRight)
                     advancedVars.navSidebarWidthDp.dp else 0.dp,
             )
 
@@ -1261,7 +1274,8 @@ fun RouteBuilderScreen(
                     viewModel = viewModel,
                     topPad = padding.calculateTopPadding(),
                     landscape = landscape,
-                    sidebarRight = stopsSide != "LEFT",
+                    sidebarRight = sidebarRight,
+                    sidebarOpen = panelExpanded,
                     sidebarWidth = advancedVars.navSidebarWidthDp.dp,
                     panelHeightPx = effectivePanelPx,
                     mapBoxHeightPx = mapBoxHeightPx,
@@ -1554,15 +1568,13 @@ fun RouteBuilderScreen(
                     }
                 }
             }
-            // The route/stops panel. Always expanded in landscape (the sidebar
-            // has room for the full stops list), collapsible in portrait.
+            // The route/stops panel. Collapsible in both orientations: the
+            // landscape sidebar folds to its header row the same way the
+            // portrait dock does, so a rider can hand the map the full width.
             val bottomPanelContent: @Composable (Modifier) -> Unit = { panelMod ->
                 BottomPanel(
-                    expanded = landscape || panelExpanded,
-                    onToggle = { if (!landscape) panelExpanded = !panelExpanded },
-                    // Landscape sidebar is always open, so there's nothing to
-                    // collapse -- hide the chevron there.
-                    collapsible = !landscape,
+                    expanded = panelExpanded,
+                    onToggle = { panelExpanded = !panelExpanded },
                     // Landscape: sidebar Column paints the translucent tone, so
                     // the panel draws transparent to avoid a near-opaque double.
                     dockTransparent = landscape,
@@ -1609,10 +1621,10 @@ fun RouteBuilderScreen(
             }
 
             // Portrait: FABs stacked above a full-width bottom dock. Landscape:
-            // the panel is an always-expanded sidebar on the rider's chosen
-            // side (Screen geometry setting, default right) so the stops list
-            // is always visible; the FABs float on the opposite bottom corner
-            // of the map.
+            // the panel is a sidebar on the rider's chosen side (Screen
+            // geometry setting, default right); the FABs float on the opposite
+            // bottom corner of the map. Collapsed, the sidebar shrinks to its
+            // header row at the top, so the map shows below it.
             if (landscape) {
                 val sidebarRight = stopsSide != "LEFT"
                 Column(
@@ -1627,8 +1639,11 @@ fun RouteBuilderScreen(
                 ) { overlayFabs() }
                 Column(
                     modifier = Modifier
-                        .align(if (sidebarRight) Alignment.CenterEnd else Alignment.CenterStart)
-                        .fillMaxHeight()
+                        .align(if (sidebarRight) Alignment.TopEnd else Alignment.TopStart)
+                        // Full height only while open; collapsed, the tone covers
+                        // just the header row and the map shows below it.
+                        .then(if (panelExpanded) Modifier.fillMaxHeight() else Modifier)
+                        .animateContentSize()
                         .width(advancedVars.navSidebarWidthDp.dp)
                         // Inset below the translucent top bar FIRST so the panel's
                         // background starts under the search header, instead of
@@ -2324,7 +2339,6 @@ private fun HoldableButton(
 private fun BottomPanel(
     expanded: Boolean,
     onToggle: () -> Unit,
-    collapsible: Boolean = true,
     dockTransparent: Boolean = false,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
@@ -2383,22 +2397,62 @@ private fun BottomPanel(
             // collapsed (i.e. the big Start button is hidden) can still kick
             // off / cancel navigation without expanding -- the action they
             // actually need most often is right there.
+            // A narrow header (a slim landscape sidebar, a small phone, a long
+            // language) drops the distance and uses the short Start / Stop
+            // label, so the button and the chevron always fit. Measured, not a
+            // fixed width: "Остановить навигацию" needs far more room than
+            // "Stop navigation", so the row checks whether the title, count,
+            // distance, full button label and chevron really fit side by side.
+            BoxWithConstraints {
+            val textMeasurer = rememberTextMeasurer()
+            val density = LocalDensity.current
+            fun widthOf(text: String, style: TextStyle) =
+                with(density) { textMeasurer.measure(text, style, maxLines = 1).size.width.toDp() }
+            val fullLabel = stringResource(
+                when {
+                    allPassed -> R.string.nav_menu_clear
+                    navRunning -> R.string.nav_stop_short
+                    else -> R.string.nav_start_short
+                }
+            )
+            val distanceShown = !routing && !allPassed && routeDistanceM != null && routeDistanceM > 0
+            val fullWidth = widthOf(
+                stringResource(R.string.nav_waypoints),
+                MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            ) + 8.dp + widthOf("(${waypoints.size})", MaterialTheme.typography.bodyMedium) +
+                (if (distanceShown) 12.dp + widthOf(
+                    NavFormat.distance(context, routeDistanceM!!, imperial),
+                    MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                ) else 0.dp) +
+                maxOf(150.dp, widthOf(fullLabel, MaterialTheme.typography.labelLarge) + 24.dp) +
+                48.dp
+            // Expanded, the header has no button, so the distance always fits.
+            val roomyHeader = expanded || fullWidth <= maxWidth
             Row(verticalAlignment = Alignment.CenterVertically) {
+                // Title, count and distance share what the button and chevron
+                // leave: Row measures those unweighted children first, so they
+                // are never pushed off the edge.
+                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(R.string.nav_waypoints),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     "(${waypoints.size})",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
-                Spacer(Modifier.width(12.dp))
                 if (routing) {
+                    Spacer(Modifier.width(12.dp))
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                } else if (!allPassed && routeDistanceM != null && routeDistanceM > 0) {
+                } else if (roomyHeader && !allPassed && routeDistanceM != null && routeDistanceM > 0) {
+                    Spacer(Modifier.width(12.dp))
                     // Hidden when the trip is over (allPassed). This is the
                     // whole-tour distance (every remaining stop summed), not
                     // just the next leg, so it's shown as a plain total.
@@ -2407,10 +2461,11 @@ private fun BottomPanel(
                         distText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
                     )
                 }
-                Spacer(Modifier.weight(1f))
+                }
                 // Compact start / stop. Hidden when expanded (the big button
                 // at the bottom of the expanded panel does the same job) and
                 // when there is nothing to start (no waypoints, no fix yet).
@@ -2453,8 +2508,8 @@ private fun BottomPanel(
                     val label = stringResource(
                         when {
                             allPassed -> R.string.nav_menu_clear
-                            navRunning -> R.string.nav_stop_short
-                            else -> R.string.nav_start_short
+                            navRunning -> if (roomyHeader) R.string.nav_stop_short else R.string.action_stop
+                            else -> if (roomyHeader) R.string.nav_start_short else R.string.nav_start_btn
                         }
                     )
                     HoldableButton(
@@ -2476,21 +2531,23 @@ private fun BottomPanel(
                         // Fixed width holds the longest label ('Stop navigation')
                         // so the row doesn't reflow when the state flips between
                         // Start / Stop / New route.
-                        modifier = Modifier.widthIn(min = 150.dp),
+                        modifier = Modifier.widthIn(min = if (roomyHeader) 150.dp else 64.dp),
                         shape = RoundedCornerShape(12.dp)
-                    ) { Text(label) }
+                    ) { Text(label, maxLines = 1) }
                 }
-                if (collapsible) {
-                    IconButton(onClick = onToggle) {
-                        Icon(
-                            if (expanded) Icons.Default.KeyboardArrowDown
-                            else Icons.Default.KeyboardArrowUp,
-                            contentDescription = stringResource(
-                                if (expanded) R.string.nav_minimize else R.string.nav_expand
-                            )
+                // The arrow points the way the panel will move: the portrait
+                // dock folds down, the landscape sidebar folds up to its header.
+                val foldsUp = dockTransparent
+                IconButton(onClick = onToggle) {
+                    Icon(
+                        if (expanded == foldsUp) Icons.Default.KeyboardArrowUp
+                        else Icons.Default.KeyboardArrowDown,
+                        contentDescription = stringResource(
+                            if (expanded) R.string.nav_minimize else R.string.nav_expand
                         )
-                    }
+                    )
                 }
+            }
             }
 
             // Expand / collapse is animated -- a hard show/hide on the
