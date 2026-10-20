@@ -551,6 +551,7 @@ fun RouteBuilderScreen(
             courseAnchor[0] = loc
         }
         val sp = if (loc.hasSpeed()) loc.speed else 0f
+        wv.evaluateJavascript("nativeSetUserSpeed($sp);", null)
         val newMoving = if (lastSentMoving) sp >= movingOffMps else sp >= movingOnMps
         val heading = trackCourse ?: loc.takeIf { it.hasBearing() }?.bearing
         if (newMoving && heading != null) {
@@ -559,6 +560,16 @@ fun RouteBuilderScreen(
             wv.evaluateJavascript("nativeSetUserStill();", null)
         }
         lastSentMoving = newMoving
+    }
+
+    // How far the next cue (turn or stop) is, for the navigator's auto-zoom:
+    // it closes in as the cue nears so the turn and the destination are
+    // readable when they matter. -1 while no route runs.
+    val cueM = navStateHolder.value.let { if (it.active) it.cueDistanceM else Double.NaN }
+    LaunchedEffect(pageReady, cueM) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript("nativeSetCueDistance(${if (cueM.isNaN()) -1.0 else cueM});", null)
     }
 
     // The map's "lost" badge is the one piece of peer chrome drawn by the
@@ -1055,12 +1066,13 @@ fun RouteBuilderScreen(
         // otherwise the rider ends up DPR-x shifted (typical phones have
         // DPR=2.6..3.5, hence the "rider parks against the top bar"
         // symptom: a 66 dp shift becomes 198 device-px on screen).
-        // In landscape the stops panel sits in a left sidebar, so nothing
-        // occludes the map vertically. The Y offset formula would misread the
-        // sidebar's content height as a bottom occlusion and shift the rider
-        // toward the sidebar edge, so it is zeroed instead.
+        // In landscape the stops panel sits in a sidebar, so only the top
+        // bar occludes the map vertically. The portrait formula would misread
+        // the sidebar's content height as a bottom occlusion, so landscape
+        // counts the top bar alone; without it the rider sat mid-map, half a
+        // bar too high in the part the rider can see.
         val recenterOffsetPx =
-            if (landscape) 0f
+            if (landscape) -effectiveTopBarPx / 2f / density.density
             else (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
         // Push the recenter offset to JS whenever it changes -- the
         // auto-follow pan tween (only active during navigation) uses it

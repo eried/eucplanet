@@ -478,7 +478,66 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   var navigatorView = false;
   var navLookAheadPx = 0;
   var navNorthUp = false;
-  window.nativeSetNavigatorView = function(on){ navigatorView = !!on; };
+  window.nativeSetNavigatorView = function(on){
+    navigatorView = !!on; navZoom = NaN;
+    // Opening the navigator goes to the rider at once. The screen's own first
+    // recenter counts as a manual move and held the camera on the old view
+    // (the world, on a fresh start) for MANUAL_ROTATE_HOLD_MS.
+    if (navigatorView) lastManualRotateMs = 0;
+  };
+  // Navigator auto-zoom. The zoom used to stay wherever navigation started,
+  // often the whole route, so 200 m from the destination it was still a dot.
+  // Now it follows speed (closer when slow, wider when fast) and closes in on
+  // the next cue as it nears. It eases there over a few seconds, and only
+  // moves for a real change, so the tiles are not reloading all the time. A
+  // pinch pauses it with the rest of the follow camera (MANUAL_ROTATE_HOLD_MS)
+  // and it eases back afterwards.
+  var userSpeedMps = 0;
+  var cueDistanceM = -1;
+  var navZoom = NaN;
+  window.nativeSetUserSpeed = function(mps){ userSpeedMps = mps > 0 ? mps : 0; };
+  window.nativeSetCueDistance = function(m){ cueDistanceM = m; };
+  var NAV_ZOOM_SLOW = 17.6;     // walking pace and stopped
+  var NAV_ZOOM_FAST = 16.2;     // 40 km/h and up
+  var NAV_ZOOM_MAX = 18.5;      // closest a cue pulls it
+  var NAV_ZOOM_CUE_M = 600;     // a cue this near starts pulling the zoom in
+  var NAV_ZOOM_DEADBAND = 0.25; // smaller changes wait, the tiles stay put
+  var NAV_ZOOM_RATE = 0.012;    // per 60 fps frame: about 3 s to settle
+  var NAV_ZOOM_JUMP = 2.5;     // further off than this, no easing
+  // After a jump across many zooms the new level was anchored to the old
+  // view's pixel origin, so its tiles loaded hundreds of thousands of pixels
+  // off screen and the map stayed black. Dropping the levels and resetting
+  // lets them anchor to where the map is now.
+  function rebuildTileLevels(){
+    [tileLayer, refLayer, refLayer2].forEach(function(layer){
+      if (!layer || !layer._map || !layer._levels) return;
+      layer._removeAllTiles();
+      for (var z in layer._levels) {
+        L.DomUtil.remove(layer._levels[z].el);
+        delete layer._levels[z];
+      }
+      layer._tileZoom = undefined;
+      layer._resetView();
+    });
+  }
+  var NAV_PAN_RATE = 0.04;     // per 60 fps frame: about 0.4 s behind the rider
+  function navPanRate(dtMs){
+    return 1 - Math.pow(1 - NAV_PAN_RATE, Math.min(dtMs, 500) / TWEEN_FRAME_MS);
+  }
+  function navTargetZoom(riderLL){
+    var kmh = userSpeedMps * 3.6;
+    var t = Math.max(0, Math.min(1, (kmh - 8) / 32));
+    var z = NAV_ZOOM_SLOW + (NAV_ZOOM_FAST - NAV_ZOOM_SLOW) * t;
+    if (cueDistanceM >= 0 && cueDistanceM < NAV_ZOOM_CUE_M) {
+      // Fit the cue into the road ahead of the rider, who sits low on
+      // screen: the space above them, less a margin, holds the distance.
+      var ahead = Math.max(120, map.getSize().y / 2 + navLookAheadPx - navRecenterOffsetPx - 60);
+      var mPerPxZ0 = 156543.03392 * Math.cos(riderLL.lat * Math.PI / 180);
+      var fit = Math.log2(ahead * mPerPxZ0 / Math.max(cueDistanceM, 15));
+      z = Math.max(z, Math.min(NAV_ZOOM_MAX, fit));
+    }
+    return z;
+  }
   window.nativeSetNavLookAhead = function(px){ navLookAheadPx = px || 0; };
   window.nativeSetNorthUp = function(on){ navNorthUp = !!on; bearingEase = null; };
   var movingSinceMs = 0;
@@ -518,7 +577,18 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       // for Z. Subtract 1 so the rider has a bit of breathing room
       // around both points instead of fitting them edge-to-edge.
       var newZoom = currentZoom;
-      if (nextActiveMarkerIdx >= 0 && nextActiveMarkerIdx < markers.length) {
+      var navJump = false;
+      if (navigatorView) {
+        var want = navTargetZoom(riderLL);
+        if (isNaN(navZoom) || Math.abs(want - navZoom) > NAV_ZOOM_DEADBAND) navZoom = want;
+        var zr = 1 - Math.pow(1 - NAV_ZOOM_RATE, Math.min(dtMs, 500) / TWEEN_FRAME_MS);
+        if (Math.abs(navZoom - currentZoom) > 0.01) newZoom = currentZoom + (navZoom - currentZoom) * zr;
+        // Far off (the navigator opened on the whole route or the world): go
+        // there at once. Easing across many levels shows a black map while
+        // every level in between is fetched and thrown away.
+        navJump = Math.abs(navZoom - currentZoom) > NAV_ZOOM_JUMP;
+        if (navJump) newZoom = navZoom;
+      } else if (nextActiveMarkerIdx >= 0 && nextActiveMarkerIdx < markers.length) {
         var nextLL = markers[nextActiveMarkerIdx].getLatLng();
         var distM = riderLL.distanceTo(nextLL);
         if (distM < 1) distM = 1;
@@ -565,16 +635,37 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       // centerLatLngFor puts the point ABOVE centre for a positive offset,
       // so the look-ahead is subtracted to put the rider below it.
       var followOffsetPx = navRecenterOffsetPx - (navigatorView ? navLookAheadPx : 0);
-      var targetCenter = centerLatLngFor(
-        centerLat, centerLng, newZoom, followOffsetPx,
-        navigatorView ? navSideOffsetPx : 0
-      );
+      var targetCenter;
+      if (navigatorView) {
+        // Where the rider should sit on screen, and the centre that puts
+        // them there, worked out in screen points through the map's own
+        // conversion. centerLatLngFor rotates the offset by hand, and on a
+        // heading-up map the rider landed mid-screen instead of low, so the
+        // road ahead (and the destination) showed late.
+        var sz = map.getSize();
+        var rp = map.latLngToContainerPoint(riderLL);
+        var wantX = sz.x / 2 - navSideOffsetPx;
+        var wantY = sz.y / 2 - followOffsetPx;
+        targetCenter = map.containerPointToLatLng(
+          L.point(sz.x / 2 + rp.x - wantX, sz.y / 2 + rp.y - wantY));
+      } else {
+        targetCenter = centerLatLngFor(
+          centerLat, centerLng, newZoom, followOffsetPx, 0
+        );
+      }
       var c = map.getCenter();
       var dLat = targetCenter.lat - c.lat;
       var dLng = targetCenter.lng - c.lng;
-      var lerpedCenter = [
-        c.lat + dLat * rate,
-        c.lng + dLng * rate
+      // The navigator chases faster: at the shared rate a moving rider
+      // trailed their spot by about 50 px and sat mid-map again.
+      var panRate = navigatorView ? navPanRate(dtMs) : rate;
+      // A jump lands on the rider: the screen-point target above is worked
+      // out at the old zoom, where a pixel can be 40 km, and chasing that
+      // error at the new zoom dragged the tiles millions of pixels away.
+      // The rider's spot low on screen is reached in the next frames.
+      var lerpedCenter = navJump ? [riderLL.lat, riderLL.lng] : [
+        c.lat + dLat * panRate,
+        c.lng + dLng * panRate
       ];
       var moved = Math.abs(dLat) > 1e-7 || Math.abs(dLng) > 1e-7;
       var zoomed = Math.abs(newZoom - currentZoom) > 1e-4;
@@ -588,6 +679,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
         // the tween stops calling setView for >300 ms.
         window.tileFreezeTillMs = Date.now() + 300;
         map.setView(lerpedCenter, newZoom, { animate: false });
+        // After the map settles: in the jump's own frame the origin is not
+        // final yet and the rebuilt level anchored to the old one again.
+        if (navJump) { setTimeout(rebuildTileLevels, 250); setTimeout(rebuildTileLevels, 1200); }
       }
     }
     // Auto-rotate: only while actually moving (so a stopped rider isn't
@@ -822,9 +916,20 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       var zoom = this._tileZoom;
       var maxZoom = this.options.maxZoom;
       if (zoom === undefined) return undefined;
-      // Just re-stack z-indices; don't remove any level container.
+      // Re-stack z-indices and keep the near levels as the fallback. A level
+      // more than two zooms away is dropped: it is no use behind the new one,
+      // and after a jump across many zooms (the navigator leaving the world
+      // view) its tiles were scaled tens of thousands of times, which blanked
+      // the whole tile pane until the app was reopened.
       for (var z in this._levels) {
         var zn = Number(z);
+        if (Math.abs(zoom - zn) > 2) {
+          this._removeTilesAtZoom(zn);
+          L.DomUtil.remove(this._levels[z].el);
+          if (this._onRemoveLevel) this._onRemoveLevel(zn);
+          delete this._levels[z];
+          continue;
+        }
         this._levels[z].el.style.zIndex = maxZoom - Math.abs(zoom - zn);
         if (this._onUpdateLevel) this._onUpdateLevel(zn);
       }
@@ -2095,7 +2200,8 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     if (!pts || !pts.length) return;
     if (pts.length === 1) { map.setView(pts[0], Math.max(map.getZoom(), 15)); return; }
     map.fitBounds(L.latLngBounds(pts).pad(0.15), {
-      paddingTopLeft: [24, 24], paddingBottomRight: [24, 24 + (bottomOffsetPx || 0)], maxZoom: 17
+      paddingTopLeft: [24, 24 + Math.max(0, -(bottomOffsetPx || 0))],
+      paddingBottomRight: [24, 24 + Math.max(0, bottomOffsetPx || 0)], maxZoom: 17
     });
   };
 

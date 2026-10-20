@@ -82,7 +82,10 @@ class CarRideState(
  * and light built-in themes, so the panel reads like the phone app does.
  */
 @Composable
-fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVisible: Boolean = true) {
+fun CarRideContent(
+    state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVisible: Boolean = true,
+    cards: CarHostCards = CarHostCards.AUTOMOTIVE,
+) {
     EucPlanetTheme(colors = if (dark) BuiltInThemes.dark.colors else BuiltInThemes.light.colors) {
         val c = MaterialTheme.appColors
         val settings by state.settings.collectAsState()
@@ -130,7 +133,7 @@ fun CarRideContent(state: CarRideState, dark: Boolean, visibleArea: Rect?, mapVi
                 // A tester asked for exactly that: "Blue square for map
                 // navigation only. Large 4 telemetry values", and no waiting
                 // card in the way.
-                mapVisible -> NavStats(free, wheel, settings, connected, state.phoneBattery())
+                mapVisible -> NavStats(free, cards, wheel, settings, connected, state.phoneBattery())
                 else -> WaitingCard(panel, lastBattery)
             }
         }
@@ -301,34 +304,69 @@ private fun StatsPanel(modifier: Modifier, wheel: WheelData, s: AppSettings, pho
 }
 
 /**
+ * Where the host draws its navigation cards, as shares of the height above
+ * the car's bottom bar: the inset from the screen's edge, the bottom of the turn card and
+ * the top of the arrival card. The host reports the card column as covered
+ * (so [PaddingValues] start is its right edge) but not the cards' heights,
+ * so these are measured: Android Auto from a tester's head unit, Automotive
+ * from the emulator. The tiles copy the cards' corners and colour too, so the
+ * column reads as one stack.
+ */
+enum class CarHostCards(
+    val inset: Float, val turnBottom: Float, val arrivalTop: Float,
+    val cornerDp: Int, val pureBlack: Boolean,
+) {
+    ANDROID_AUTO(inset = 0.028f, turnBottom = 0.302f, arrivalTop = 0.758f, cornerDp = 12, pureBlack = false),
+    AUTOMOTIVE(inset = 0.027f, turnBottom = 0.345f, arrivalTop = 0.856f, cornerDp = 4, pureBlack = true);
+
+    companion object {
+        fun of(hostPackage: String?): CarHostCards =
+            if (hostPackage == "com.google.android.projection.gearhead") ANDROID_AUTO else AUTOMOTIVE
+    }
+}
+
+/**
  * The rider's four car metrics while a route runs, as large tiles in the
- * column Android Auto keeps for its turn card (top) and arrival card (bottom).
- * The host reports that column as covered, so [free]'s start is its width;
- * the cards' heights it does not report, so the tiles take the stretch between
- * them as measured on a real head unit. A screen too narrow for the column
- * gets the tiles in the free area's corner instead.
+ * column the host keeps for its turn card (top) and arrival card (bottom),
+ * edge to edge with them. A screen too narrow for the column gets the tiles
+ * in the free area's corner instead.
  */
 @Composable
-private fun NavStats(free: PaddingValues, wheel: WheelData, s: AppSettings, connected: Boolean, phoneBattery: Int) {
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-        val column = free.calculateLeftPadding(LayoutDirection.Ltr)
-        val box = if (column >= NAV_COLUMN_MIN_DP.dp) {
-            Modifier
-                .width(column)
-                .fillMaxHeight()
-                .padding(
-                    start = NAV_COLUMN_MARGIN_DP.dp, end = NAV_COLUMN_MARGIN_DP.dp,
-                    top = maxHeight * NAV_TOP_CARD_FRACTION, bottom = maxHeight * NAV_BOTTOM_CARD_FRACTION,
-                )
-        } else {
-            Modifier.padding(free).padding(12.dp).width(260.dp).height(150.dp)
+private fun NavStats(
+    free: PaddingValues, cards: CarHostCards, wheel: WheelData, s: AppSettings,
+    connected: Boolean, phoneBattery: Int,
+) {
+    // The host's cards stay dark in day mode too, so the tiles take the dark
+    // built-in theme rather than the car's day/night one.
+    val cardTheme = if (cards.pureBlack) BuiltInThemes.pureBlack else BuiltInThemes.dark
+    EucPlanetTheme(colors = cardTheme.colors) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val column = free.calculateLeftPadding(LayoutDirection.Ltr)
+            // Shares of the height above the car's bottom bar, which the
+            // surface may or may not include depending on the host.
+            val h = maxHeight - free.calculateBottomPadding()
+            val box = if (column >= NAV_COLUMN_MIN_DP.dp) {
+                Modifier
+                    .width(column)
+                    .fillMaxHeight()
+                    .padding(
+                        start = h * cards.inset,
+                        top = h * cards.turnBottom + NAV_CARD_GAP_DP.dp,
+                        bottom = maxHeight - h * cards.arrivalTop + NAV_CARD_GAP_DP.dp,
+                    )
+            } else {
+                Modifier.padding(free).padding(12.dp).width(260.dp).height(150.dp)
+            }
+            NavMetricGrid(box, cards.cornerDp.dp, wheel, s, connected, phoneBattery)
         }
-        NavMetricGrid(box, wheel, s, connected, phoneBattery)
     }
 }
 
 @Composable
-private fun NavMetricGrid(modifier: Modifier, wheel: WheelData, s: AppSettings, connected: Boolean, phoneBattery: Int) {
+private fun NavMetricGrid(
+    modifier: Modifier, corner: androidx.compose.ui.unit.Dp, wheel: WheelData, s: AppSettings,
+    connected: Boolean, phoneBattery: Int,
+) {
     val types = AndroidAutoSettings.metricSlots(s.androidAuto.metrics)
         .mapNotNull { WidgetMetricType.byKey(it) }
     if (types.isEmpty()) return
@@ -341,7 +379,7 @@ private fun NavMetricGrid(modifier: Modifier, wheel: WheelData, s: AppSettings, 
     BoxWithConstraints(modifier) {
         val cols = if (types.size == 1) 1 else 2
         val rows = (types.size + cols - 1) / cols
-        val gap = 8.dp
+        val gap = NAV_CARD_GAP_DP.dp
         val tileH = (maxHeight - gap * (rows - 1)) / rows
         val tileW = (maxWidth - gap * (cols - 1)) / cols
         // Off the tile we are given, the way BigStats sizes: a ratio cannot
@@ -354,7 +392,7 @@ private fun NavMetricGrid(modifier: Modifier, wheel: WheelData, s: AppSettings, 
                     row.forEach { type ->
                         Column(
                             Modifier.weight(1f).fillMaxHeight()
-                                .background(c.surface.copy(alpha = 0.92f), RoundedCornerShape(16.dp))
+                                .background(c.surface, RoundedCornerShape(corner))
                                 .padding(horizontal = 10.dp, vertical = 4.dp),
                             verticalArrangement = Arrangement.Center,
                         ) {
@@ -492,11 +530,8 @@ private const val COURSE_MAX_AGE_MS = 15_000L
 /** The card column while navigating: narrower than this and the host has not
  *  kept one, so the tiles go in the free area instead. */
 private const val NAV_COLUMN_MIN_DP = 140
-private const val NAV_COLUMN_MARGIN_DP = 10
-/** Share of the surface's height the turn card (top) and arrival card
- *  (bottom) take, measured on a tester's head unit. */
-private const val NAV_TOP_CARD_FRACTION = 0.31f
-private const val NAV_BOTTOM_CARD_FRACTION = 0.27f
+/** Between the tiles, and between the tiles and the host's cards. */
+private const val NAV_CARD_GAP_DP = 8
 
 /** Close enough to read street names on a car screen at a glance. */
 private const val CAR_ZOOM = 17

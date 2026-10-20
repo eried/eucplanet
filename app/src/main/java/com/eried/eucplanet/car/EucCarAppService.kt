@@ -125,8 +125,9 @@ class EucCarAppService : CarAppService() {
                         ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0
                 },
             )
+            val cards = CarHostCards.of(carContext.hostInfo?.packageName)
             val renderer = CarSurfaceRenderer(carContext) { area ->
-                CarRideContent(state, dark.value, area, mapVisible.value)
+                CarRideContent(state, dark.value, area, mapVisible.value, cards)
             }
             carContext.getCarService(AppManager::class.java).setSurfaceCallback(renderer)
             return RideScreen(carContext)
