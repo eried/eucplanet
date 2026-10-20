@@ -2840,4 +2840,26 @@
     <string name="car_alarm_notifications">車載画面のアラーム</string>
     <string name="car_alarm_notifications_hint">作動したアラームが地図の上に表示され、ナビ中でも気づけます。ビープと振動はこれまでどおりです。</string>
     <string name="car_no_metrics">表示する項目がありません</string>
+    <string name="nav_solve_menu">地点の順番を最適化</string>
+    <string name="nav_solve_effort">精度</string>
+    <string name="nav_solve_quick">速い</string>
+    <string name="nav_solve_best">最適</string>
+    <string name="nav_solve_quick_desc">直線距離。すぐに完了、オフラインで動作。</string>
+    <string name="nav_solve_best_desc">移動手段に合わせた道路距離。インターネットが必要。</string>
+    <string name="nav_solve_ends">終点</string>
+    <string name="nav_solve_end_anywhere">自由</string>
+    <string name="nav_solve_end_loop">周回</string>
+    <string name="nav_solve_end_keep_last">終点固定</string>
+    <string name="nav_solve_link_origin">現在地から出発</string>
+    <string name="nav_solve_origin_no_fix">GPSの測位待ちです。</string>
+    <string name="nav_solve_origin_too_far">地点から遠すぎるため、ここから出発できません。</string>
+    <string name="nav_solve_run">計算</string>
+    <string name="nav_solve_working">最短の順番を探しています…</string>
+    <string name="nav_solve_result">%1$s → %2$s、%3$d%%短縮。</string>
+    <string name="nav_solve_no_better">すでに最短の順番です。</string>
+    <string name="nav_solve_straight_fallback">道路距離を取得できなかったため、直線距離を使いました。</string>
+    <string name="nav_stop_number">地点 %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">最短になる地点で終わります。</string>
+    <string name="nav_solve_end_loop_desc">出発地点に戻ります。</string>
+    <string name="nav_solve_end_keep_last_desc">今の最後の地点を最後に保ちます。</string>
 </resources>

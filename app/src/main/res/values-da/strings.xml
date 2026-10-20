@@ -2855,4 +2855,26 @@
     <string name="car_alarm_notifications">Alarmer på bilskærmen</string>
     <string name="car_alarm_notifications_hint">En udløst alarm vises oven på kortet, så den når dig under navigation. Bip og vibration er uændret.</string>
     <string name="car_no_metrics">Ingen målinger valgt</string>
+    <string name="nav_solve_menu">Optimer rækkefølge af stop</string>
+    <string name="nav_solve_effort">Indsats</string>
+    <string name="nav_solve_quick">Hurtig</string>
+    <string name="nav_solve_best">Bedst</string>
+    <string name="nav_solve_quick_desc">Lige linjer. Med det samme, virker offline.</string>
+    <string name="nav_solve_best_desc">Ad vejene for din rejsemåde. Kræver internet.</string>
+    <string name="nav_solve_ends">Slutter</string>
+    <string name="nav_solve_end_anywhere">Frit</string>
+    <string name="nav_solve_end_loop">Rundtur</string>
+    <string name="nav_solve_end_keep_last">Fast slut</string>
+    <string name="nav_solve_link_origin">Start fra min position</string>
+    <string name="nav_solve_origin_no_fix">Intet GPS-signal endnu.</string>
+    <string name="nav_solve_origin_too_far">Du er for langt fra stoppene til at starte herfra.</string>
+    <string name="nav_solve_run">Find</string>
+    <string name="nav_solve_working">Finder den korteste rækkefølge…</string>
+    <string name="nav_solve_result">%1$s til %2$s, %3$d%% kortere.</string>
+    <string name="nav_solve_no_better">Dette er allerede den korteste rækkefølge.</string>
+    <string name="nav_solve_straight_fallback">Vejafstande var ikke tilgængelige, så der blev brugt lige linjer.</string>
+    <string name="nav_stop_number">Stop %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Slutter ved det stop, der gør den kortest.</string>
+    <string name="nav_solve_end_loop_desc">Kommer tilbage til, hvor den starter.</string>
+    <string name="nav_solve_end_keep_last_desc">Det nuværende sidste stop forbliver sidst.</string>
 </resources>

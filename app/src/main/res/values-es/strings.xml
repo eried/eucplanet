@@ -2838,4 +2838,26 @@
     <string name="car_alarm_notifications">Alarmas en la pantalla del coche</string>
     <string name="car_alarm_notifications_hint">Una alarma activa aparece sobre el mapa, así te llega mientras navegas. El pitido y la vibración no cambian.</string>
     <string name="car_no_metrics">Sin métricas seleccionadas</string>
+    <string name="nav_solve_menu">Optimizar orden de paradas</string>
+    <string name="nav_solve_effort">Esfuerzo</string>
+    <string name="nav_solve_quick">Rápido</string>
+    <string name="nav_solve_best">Mejor</string>
+    <string name="nav_solve_quick_desc">Líneas rectas. Instantáneo, funciona sin conexión.</string>
+    <string name="nav_solve_best_desc">Por las carreteras según tu modo de viaje. Necesita internet.</string>
+    <string name="nav_solve_ends">Termina</string>
+    <string name="nav_solve_end_anywhere">Libre</string>
+    <string name="nav_solve_end_loop">Circuito</string>
+    <string name="nav_solve_end_keep_last">Fin fijo</string>
+    <string name="nav_solve_link_origin">Salir desde mi posición</string>
+    <string name="nav_solve_origin_no_fix">Aún no hay señal GPS.</string>
+    <string name="nav_solve_origin_too_far">Estás demasiado lejos de las paradas para empezar desde aquí.</string>
+    <string name="nav_solve_run">Calcular</string>
+    <string name="nav_solve_working">Buscando el orden más corto…</string>
+    <string name="nav_solve_result">De %1$s a %2$s, %3$d%% más corta.</string>
+    <string name="nav_solve_no_better">Este ya es el orden más corto.</string>
+    <string name="nav_solve_straight_fallback">No había distancias por carretera, así que se usaron líneas rectas.</string>
+    <string name="nav_stop_number">Parada %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Termina en la parada que la haga más corta.</string>
+    <string name="nav_solve_end_loop_desc">Vuelve a donde empieza.</string>
+    <string name="nav_solve_end_keep_last_desc">La última parada actual sigue siendo la última.</string>
 </resources>

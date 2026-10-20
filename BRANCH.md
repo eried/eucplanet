@@ -75,6 +75,14 @@ only when you can cut the ride short.
 - Voice: Finnish "viime matka" and Norwegian "siste tur" (last trip) are understood.
 - Settings search: "units" and "distance" open the right section; Voice and Watch Advanced cards no longer share counts.
 
+- Map menu: Optimize stop order reorders the stops, shows before and after (e.g. 254 km to 63 km), and changes nothing until Apply.
+- Effort: Quick uses straight lines (instant, offline); Best uses road distances for your travel mode.
+- Ends: Anywhere, Loop (back to the start) or Fixed end (the last stop stays last).
+- Start from my position: off by itself with no GPS fix or when you are too far from the stops.
+- Reached stops stay first and are never moved.
+- Two stops: offered when you are within Max start distance, to pick which one to ride to first.
+- A route now holds 50 stops instead of 25. Stops after the eighth read "Stop 9", not "Destination".
+
 ## Please test
 
 **Battery**
@@ -164,6 +172,14 @@ only when you can cut the ride short.
 - Voice report: the lists match what you heard before? A Max pill and a Message are spoken where you put them?
 - Connects and responds like before: lights, horn, lock, alarms.
 - Light or lock by hand: the automation stays out until you tap Fix?
+
+**Optimize stop order**
+- Load a GPX with stops out of order, then Menu, Optimize stop order, Best: is the new order sensible on the map?
+- Does the route total after Apply match the "to" number in the dialog?
+- Try Loop and Fixed end: does the route come back to the start, or keep its last stop?
+- Turn off mobile data and solve on Best: does it say it used straight lines?
+- Distance unit set to miles: does the before and after read in mi?
+- A route with 30 to 50 stops: does the stop list, the map and navigation behave normally?
 
 ## Reporting back
 

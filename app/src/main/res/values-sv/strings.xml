@@ -2840,4 +2840,26 @@
     <string name="car_alarm_notifications">Larm på bilskärmen</string>
     <string name="car_alarm_notifications_hint">Ett utlöst larm visas ovanpå kartan, så det når dig medan du navigerar. Pip och vibration är oförändrade.</string>
     <string name="car_no_metrics">Inga mätvärden valda</string>
+    <string name="nav_solve_menu">Optimera ordningen på stopp</string>
+    <string name="nav_solve_effort">Insats</string>
+    <string name="nav_solve_quick">Snabb</string>
+    <string name="nav_solve_best">Bäst</string>
+    <string name="nav_solve_quick_desc">Raka linjer. Direkt, fungerar offline.</string>
+    <string name="nav_solve_best_desc">Längs vägarna för ditt färdsätt. Kräver internet.</string>
+    <string name="nav_solve_ends">Slutar</string>
+    <string name="nav_solve_end_anywhere">Fritt</string>
+    <string name="nav_solve_end_loop">Slinga</string>
+    <string name="nav_solve_end_keep_last">Fast slut</string>
+    <string name="nav_solve_link_origin">Starta från min position</string>
+    <string name="nav_solve_origin_no_fix">Ingen GPS-position än.</string>
+    <string name="nav_solve_origin_too_far">Du är för långt från stoppen för att starta härifrån.</string>
+    <string name="nav_solve_run">Hitta</string>
+    <string name="nav_solve_working">Letar efter kortaste ordningen…</string>
+    <string name="nav_solve_result">%1$s till %2$s, %3$d %% kortare.</string>
+    <string name="nav_solve_no_better">Det här är redan den kortaste ordningen.</string>
+    <string name="nav_solve_straight_fallback">Vägavstånd fanns inte, så raka linjer användes.</string>
+    <string name="nav_stop_number">Stopp %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Slutar vid det stopp som gör den kortast.</string>
+    <string name="nav_solve_end_loop_desc">Kommer tillbaka dit den börjar.</string>
+    <string name="nav_solve_end_keep_last_desc">Det nuvarande sista stoppet förblir sist.</string>
 </resources>

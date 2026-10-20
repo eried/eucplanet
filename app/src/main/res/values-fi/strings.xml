@@ -2643,4 +2643,26 @@
     <string name="car_alarm_notifications">Hälytykset auton näytöllä</string>
     <string name="car_alarm_notifications_hint">Lauennut hälytys näkyy kartan päällä, joten se tavoittaa sinut navigoidessa. Piippaus ja värinä eivät muutu.</string>
     <string name="car_no_metrics">Ei valittuja mittareita</string>
+    <string name="nav_solve_menu">Optimoi pysähdysten järjestys</string>
+    <string name="nav_solve_effort">Vaiva</string>
+    <string name="nav_solve_quick">Nopea</string>
+    <string name="nav_solve_best">Paras</string>
+    <string name="nav_solve_quick_desc">Suorat viivat. Heti, toimii ilman verkkoa.</string>
+    <string name="nav_solve_best_desc">Teitä pitkin kulkutavallesi. Tarvitsee internetin.</string>
+    <string name="nav_solve_ends">Päättyy</string>
+    <string name="nav_solve_end_anywhere">Missä vain</string>
+    <string name="nav_solve_end_loop">Lenkki</string>
+    <string name="nav_solve_end_keep_last">Kiinteä loppu</string>
+    <string name="nav_solve_link_origin">Aloita sijainnistani</string>
+    <string name="nav_solve_origin_no_fix">Ei vielä GPS-signaalia.</string>
+    <string name="nav_solve_origin_too_far">Olet liian kaukana pysähdyksistä aloittaaksesi tästä.</string>
+    <string name="nav_solve_run">Etsi</string>
+    <string name="nav_solve_working">Etsitään lyhintä järjestystä…</string>
+    <string name="nav_solve_result">%1$s → %2$s, %3$d %% lyhyempi.</string>
+    <string name="nav_solve_no_better">Tämä on jo lyhin järjestys.</string>
+    <string name="nav_solve_straight_fallback">Tieetäisyyksiä ei saatu, joten käytettiin suoria viivoja.</string>
+    <string name="nav_stop_number">Pysähdys %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Päättyy pysähdykseen, jolla se on lyhin.</string>
+    <string name="nav_solve_end_loop_desc">Palaa sinne, mistä se alkaa.</string>
+    <string name="nav_solve_end_keep_last_desc">Nykyinen viimeinen pysähdys pysyy viimeisenä.</string>
 </resources>

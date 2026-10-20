@@ -2746,4 +2746,26 @@
     <string name="car_alarm_notifications">Allarmi sullo schermo dell\'auto</string>
     <string name="car_alarm_notifications_hint">Un allarme attivo compare sopra la mappa, così ti raggiunge durante la navigazione. Bip e vibrazione non cambiano.</string>
     <string name="car_no_metrics">Nessuna metrica selezionata</string>
+    <string name="nav_solve_menu">Ottimizza ordine delle tappe</string>
+    <string name="nav_solve_effort">Impegno</string>
+    <string name="nav_solve_quick">Veloce</string>
+    <string name="nav_solve_best">Migliore</string>
+    <string name="nav_solve_quick_desc">Linee rette. Immediato, funziona offline.</string>
+    <string name="nav_solve_best_desc">Lungo le strade per il tuo modo di viaggio. Serve internet.</string>
+    <string name="nav_solve_ends">Fine</string>
+    <string name="nav_solve_end_anywhere">Ovunque</string>
+    <string name="nav_solve_end_loop">Anello</string>
+    <string name="nav_solve_end_keep_last">Fine fissa</string>
+    <string name="nav_solve_link_origin">Parti dalla mia posizione</string>
+    <string name="nav_solve_origin_no_fix">Ancora nessun segnale GPS.</string>
+    <string name="nav_solve_origin_too_far">Sei troppo lontano dalle tappe per partire da qui.</string>
+    <string name="nav_solve_run">Trova</string>
+    <string name="nav_solve_working">Cerco l\'ordine più breve…</string>
+    <string name="nav_solve_result">Da %1$s a %2$s, %3$d%% più breve.</string>
+    <string name="nav_solve_no_better">Questo è già l\'ordine più breve.</string>
+    <string name="nav_solve_straight_fallback">Distanze stradali non disponibili, usate linee rette.</string>
+    <string name="nav_stop_number">Tappa %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Finisce alla tappa che lo rende più breve.</string>
+    <string name="nav_solve_end_loop_desc">Torna dove parte.</string>
+    <string name="nav_solve_end_keep_last_desc">L\'ultima tappa attuale resta l\'ultima.</string>
 </resources>

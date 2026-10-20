@@ -2838,4 +2838,26 @@
     <string name="car_alarm_notifications">車機畫面警示</string>
     <string name="car_alarm_notifications_hint">觸發的警示會顯示在地圖之上，導航時也能看到。嗶聲與震動維持不變。</string>
     <string name="car_no_metrics">未選擇任何數據</string>
+    <string name="nav_solve_menu">最佳化站點順序</string>
+    <string name="nav_solve_effort">精確度</string>
+    <string name="nav_solve_quick">快速</string>
+    <string name="nav_solve_best">最佳</string>
+    <string name="nav_solve_quick_desc">直線距離。立即完成，離線可用。</string>
+    <string name="nav_solve_best_desc">依你的交通方式沿道路計算。需要網路。</string>
+    <string name="nav_solve_ends">終點</string>
+    <string name="nav_solve_end_anywhere">自由</string>
+    <string name="nav_solve_end_loop">環線</string>
+    <string name="nav_solve_end_keep_last">終點固定</string>
+    <string name="nav_solve_link_origin">從我的位置出發</string>
+    <string name="nav_solve_origin_no_fix">尚未取得 GPS 定位。</string>
+    <string name="nav_solve_origin_too_far">你離站點太遠，無法從這裡出發。</string>
+    <string name="nav_solve_run">計算</string>
+    <string name="nav_solve_working">正在尋找最短順序…</string>
+    <string name="nav_solve_result">從 %1$s 到 %2$s，縮短 %3$d%%。</string>
+    <string name="nav_solve_no_better">這已經是最短順序。</string>
+    <string name="nav_solve_straight_fallback">無法取得道路距離，因此改用直線距離。</string>
+    <string name="nav_stop_number">第 %1$d 站</string>
+    <string name="nav_solve_end_anywhere_desc">在讓路線最短的站點結束。</string>
+    <string name="nav_solve_end_loop_desc">回到出發的地方。</string>
+    <string name="nav_solve_end_keep_last_desc">目前的最後一站保持最後。</string>
 </resources>

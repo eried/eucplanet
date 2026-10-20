@@ -154,6 +154,35 @@ class RoutingService @Inject constructor(
             )
         }
 
+        /**
+         * Straight-line distances between every pair of [points], in metres.
+         * The table the route solver uses on Quick, and offline.
+         */
+        fun straightTable(points: List<GeoPoint>): Array<DoubleArray> =
+            Array(points.size) { i -> DoubleArray(points.size) { j -> GeoMath.distanceM(points[i], points[j]) } }
+
+        /**
+         * Reads an OSRM /table reply into a distance table. A pair the router
+         * cannot join comes back null; it gets the straight line, padded so the
+         * solver prefers a pair it can ride. Null when the reply is unusable.
+         */
+        fun parseOsrmTable(body: String, points: List<GeoPoint>): Array<DoubleArray>? = try {
+            val json = JSONObject(body)
+            val rows = json.optJSONArray("distances")
+            if (json.optString("code") != "Ok" || rows == null || rows.length() != points.size) null
+            else Array(points.size) { i ->
+                val row = rows.getJSONArray(i)
+                DoubleArray(points.size) { j ->
+                    if (row.isNull(j)) GeoMath.distanceM(points[i], points[j]) * UNROUTABLE_PAD
+                    else row.getDouble(j)
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
+
+        private const val UNROUTABLE_PAD = 3.0
+
         /** The most locations the FOSSGIS Valhalla server takes in one request. */
         const val VALHALLA_MAX_LOCATIONS = 10
 
@@ -346,6 +375,27 @@ class RoutingService @Inject constructor(
             parseOsrm(JSONObject(body), name, waypoints, mode)
         } catch (e: Exception) {
             Log.w(TAG, "route failed: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Road distances between every pair of [points] for [mode], one OSRM
+     * /table request. Null on any failure; the caller falls back to
+     * [straightTable].
+     */
+    suspend fun distanceTable(
+        points: List<GeoPoint>,
+        mode: TravelMode,
+        endpoint: String = DEFAULT_ROUTER,
+    ): Array<DoubleArray>? = withContext(Dispatchers.IO) {
+        if (points.size < 2 || mode == TravelMode.STRAIGHT) return@withContext null
+        try {
+            val coords = points.joinToString(";") { "${it.lng},${it.lat}" }
+            val url = "${endpoint.trimEnd('/')}/${engineFor(mode)}/table/v1/driving/$coords?annotations=distance"
+            httpGet(url)?.let { parseOsrmTable(it, points) }
+        } catch (e: Exception) {
+            Log.w(TAG, "distance table failed: ${e.message}")
             null
         }
     }

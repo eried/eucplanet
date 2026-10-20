@@ -2860,4 +2860,26 @@
     <string name="car_alarm_notifications">Alarme auf dem Autobildschirm</string>
     <string name="car_alarm_notifications_hint">Ein ausgelöster Alarm erscheint über der Karte und erreicht dich so während der Navigation. Ton und Vibration bleiben gleich.</string>
     <string name="car_no_metrics">Keine Werte ausgewählt</string>
+    <string name="nav_solve_menu">Stopp-Reihenfolge optimieren</string>
+    <string name="nav_solve_effort">Aufwand</string>
+    <string name="nav_solve_quick">Schnell</string>
+    <string name="nav_solve_best">Beste</string>
+    <string name="nav_solve_quick_desc">Luftlinie. Sofort, funktioniert offline.</string>
+    <string name="nav_solve_best_desc">Entlang der Straßen für deine Fortbewegungsart. Braucht Internet.</string>
+    <string name="nav_solve_ends">Endet</string>
+    <string name="nav_solve_end_anywhere">Irgendwo</string>
+    <string name="nav_solve_end_loop">Rundkurs</string>
+    <string name="nav_solve_end_keep_last">Festes Ende</string>
+    <string name="nav_solve_link_origin">Von meiner Position starten</string>
+    <string name="nav_solve_origin_no_fix">Noch kein GPS-Signal.</string>
+    <string name="nav_solve_origin_too_far">Du bist zu weit von den Stopps entfernt, um hier zu starten.</string>
+    <string name="nav_solve_run">Finden</string>
+    <string name="nav_solve_working">Suche die kürzeste Reihenfolge…</string>
+    <string name="nav_solve_result">%1$s auf %2$s, %3$d%% kürzer.</string>
+    <string name="nav_solve_no_better">Das ist schon die kürzeste Reihenfolge.</string>
+    <string name="nav_solve_straight_fallback">Keine Straßendistanzen verfügbar, daher wurde Luftlinie verwendet.</string>
+    <string name="nav_stop_number">Stopp %1$d</string>
+    <string name="nav_solve_end_anywhere_desc">Endet am Stopp, mit dem sie am kürzesten ist.</string>
+    <string name="nav_solve_end_loop_desc">Kommt dorthin zurück, wo sie beginnt.</string>
+    <string name="nav_solve_end_keep_last_desc">Der jetzige letzte Stopp bleibt der letzte.</string>
 </resources>

@@ -34,6 +34,7 @@ import com.eried.eucplanet.nav.PointOfInterest
 import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RouteFileName
 import com.eried.eucplanet.nav.RouteLegs
+import com.eried.eucplanet.nav.RouteSolver
 import com.eried.eucplanet.nav.isFixedTrack
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.share.Identity
@@ -132,7 +133,7 @@ class RouteBuilderViewModel @Inject constructor(
          * OSRM solves the whole chain in one /route request, so this cap is a
          * usability limit (a manageable list), not a router limit.
          */
-        const val MAX_WAYPOINTS = 25
+        const val MAX_WAYPOINTS = 50
 
         /** How far the rider moves before the route preview is recomputed. */
         private const val ORIGIN_REROUTE_M = 25.0
@@ -1117,6 +1118,95 @@ class RouteBuilderViewModel @Inject constructor(
         _waypoints.value = list
         cacheDraft()
         scheduleRecompute(fit = false)
+    }
+
+    // --- Optimize stop order ---------------------------------------------------
+
+    enum class SolveEffort { QUICK, BEST }
+
+    sealed interface SolveState {
+        data object Idle : SolveState
+        data object Working : SolveState
+        /** [stops] is the whole new list, reached stops first. [straight] is
+         *  true when Best could not get road distances and used straight lines. */
+        data class Done(val beforeM: Double, val afterM: Double, val stops: List<Waypoint>, val straight: Boolean) : SolveState
+    }
+
+    private val _solve = MutableStateFlow<SolveState>(SolveState.Idle)
+    val solve: StateFlow<SolveState> = _solve.asStateFlow()
+    private var solveJob: Job? = null
+
+    /** Stops the solver may reorder: the ones not reached yet. */
+    fun solvableStops(): Int = _waypoints.value.size - passedPrefix(_waypoints.value)
+
+    /**
+     * Whether there is an order to choose: three stops, or two when the
+     * rider is close enough to link (then the question is which one first).
+     */
+    fun canSolve(): Boolean {
+        val n = solvableStops()
+        return n >= 3 || (n == 2 && solveOriginBlock() == null)
+    }
+
+    /**
+     * Why "Link to my position" cannot be on, or null when it can: no GPS
+     * fix, or every stop is past Max start distance (the same rule that
+     * draws no line from the rider and blocks Start).
+     */
+    fun solveOriginBlock(): String? {
+        val loc = currentLocation.value ?: return context.getString(R.string.nav_solve_origin_no_fix)
+        val me = GeoPoint(loc.latitude, loc.longitude)
+        val maxKm = advanced.value.navMaxStartDistanceKm
+        val stops = _waypoints.value.drop(passedPrefix(_waypoints.value))
+        if (stops.any { NavStartGuard.originWithinStart(me, it.point(), maxKm) }) return null
+        return context.getString(R.string.nav_solve_origin_too_far)
+    }
+
+    fun solveRoute(effort: SolveEffort, end: RouteSolver.End, linkOrigin: Boolean) {
+        val all = _waypoints.value
+        val reached = passedPrefix(all)
+        val stops = all.drop(reached)
+        val loc = currentLocation.value
+        val origin = if (linkOrigin && loc != null) GeoPoint(loc.latitude, loc.longitude) else null
+        if (stops.size < 2 || (stops.size == 2 && origin == null)) return
+        val mode = _travelMode.value
+        solveJob?.cancel()
+        _solve.value = SolveState.Working
+        solveJob = viewModelScope.launch {
+            // The rider is the table's last row, as RouteSolver expects.
+            val points = stops.map { it.point() } + listOfNotNull(origin)
+            val road = if (effort == SolveEffort.BEST && mode != TravelMode.STRAIGHT)
+                routingService.distanceTable(points, mode, routerUrl) else null
+            val table = road ?: RoutingService.straightTable(points)
+            val hasOrigin = origin != null
+            val (order, before, after) = withContext(Dispatchers.Default) {
+                val o = RouteSolver.solve(table, hasOrigin, end)
+                Triple(o,
+                    RouteSolver.cost(table, hasOrigin, end, IntArray(stops.size) { it }),
+                    RouteSolver.cost(table, hasOrigin, end, o))
+            }
+            _solve.value = SolveState.Done(
+                beforeM = before,
+                afterM = after,
+                stops = all.take(reached) + order.map { stops[it] },
+                straight = effort == SolveEffort.BEST && mode != TravelMode.STRAIGHT && road == null,
+            )
+        }
+    }
+
+    fun applySolved() {
+        val done = _solve.value as? SolveState.Done ?: return
+        _solve.value = SolveState.Idle
+        // The list may have changed under the dialog; only apply to the same stops.
+        if (done.stops.size != _waypoints.value.size || done.stops.toSet() != _waypoints.value.toSet()) return
+        _waypoints.value = done.stops
+        cacheDraft()
+        scheduleRecompute(fit = false)
+    }
+
+    fun cancelSolve() {
+        solveJob?.cancel()
+        _solve.value = SolveState.Idle
     }
 
     fun setTravelMode(mode: TravelMode) {
