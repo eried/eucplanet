@@ -287,6 +287,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [jforssblad](https://github.com/jforssblad) | NOSFET Aeon cell-voltage testing |
 | [Dubardo](https://github.com/Dubardo) | Odometer-in-trip bug report |
 | [Amoenus](https://github.com/Amoenus) | NOSFET compatibility |
+| [Reimus](https://github.com/Reimus) | Sherman Max compatibility |
 | [ZiraiMode](https://github.com/ZiraiMode) | The Wear OS map: tile streaming from the phone and the watch-side drawing, tested on a Galaxy Watch 5 Pro with a Lynx S |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
