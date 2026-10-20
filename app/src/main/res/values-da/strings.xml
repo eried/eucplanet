@@ -2167,6 +2167,7 @@
     <string name="nav_setting_avoid_hint">Undgåelser bruger en anden rutetjeneste og gælder, hvor rejsemåden understøtter dem.</string>
     <string name="nav_setting_avoid_tolls">Undgå betalingsveje</string>
     <string name="nav_setting_avoid_unpaved">Undgå grusveje</string>
+    <string name="nav_avoid_router_failed">Ruten ignorerer det, du undgår: rutetjenesten svarede ikke.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-nøgle</string>
     <string name="nav_setting_ocm_key_hint">Tilføjer anmeldelser, billeder og stikdetaljer til ladestationens infoboks. Opret en gratis nøgle på</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

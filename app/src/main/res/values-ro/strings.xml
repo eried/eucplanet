@@ -2256,6 +2256,7 @@
     <string name="nav_setting_avoid_tolls">Evită drumurile cu taxă</string>
     <string name="nav_setting_avoid_ferries">Evită feriboturile</string>
     <string name="nav_setting_avoid_unpaved">Evită drumurile nepavate</string>
+    <string name="nav_avoid_router_failed">Traseul ignoră evitările: serviciul lor de rutare nu a răspuns.</string>
     <string name="nav_show_chargers">Arată stațiile de încărcare</string>
     <string name="nav_show_places">Arată locuri (magazine, mâncare, obiective)</string>
     <string name="nav_pois_failed">Locurile nu au putut fi încărcate. Verifică-ți conexiunea</string>

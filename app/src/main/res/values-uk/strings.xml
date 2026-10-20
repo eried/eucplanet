@@ -2149,6 +2149,7 @@
     <string name="nav_setting_avoid_hint">Уникання використовують інший сервіс маршрутизації та діють там, де режим пересування їх підтримує.</string>
     <string name="nav_setting_avoid_tolls">Уникати платних доріг</string>
     <string name="nav_setting_avoid_unpaved">Уникати ґрунтових доріг</string>
+    <string name="nav_avoid_router_failed">Маршрут без урахування винятків: сервіс маршрутів для них не відповів.</string>
     <string name="nav_setting_ocm_key">Ключ API Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Додає відгуки, фото та деталі конекторів у картку зарядки. Зареєструй безкоштовний ключ на</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

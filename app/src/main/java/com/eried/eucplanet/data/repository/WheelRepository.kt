@@ -1518,6 +1518,11 @@ class WheelRepository @Inject constructor(
             // And for the speed splits: another wheel is another motor, so its
             // times are not this one's to beat.
             accelSplitRepository.reset()
+            // And the live frame itself. A field a frame leaves out keeps the
+            // last value (the odometer most of all), so a wheel that sends its
+            // odometer late, or never, showed the previous wheel's, and
+            // consumption and range stayed blank on its frozen distance.
+            _wheelData.value = WheelData()
         }
         lastConnectedAddress = address
         bleManager.connect(address, name, isAuto)

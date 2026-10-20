@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -107,6 +108,19 @@ class VoiceService @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
+    // The engine's voices and languages, read once when it is ready. Asking
+    // the engine means the whole list over binder, which every spoken line
+    // with a picked voice used to do just to find that one voice.
+    @Volatile private var voicesByName: Map<String, Voice> = emptyMap()
+    @Volatile private var languages: List<Locale> = emptyList()
+
+    /** The voice called [name], from the list read at start; the engine only before that list is in. */
+    private fun voiceNamed(name: String): Voice? {
+        val known = voicesByName
+        if (known.isNotEmpty()) return known[name]
+        return try { tts?.voices?.firstOrNull { it.name == name } } catch (_: Exception) { null }
+    }
+
     private val _availableVoices = MutableStateFlow<List<VoiceOption>>(emptyList())
     val availableVoices: StateFlow<List<VoiceOption>> = _availableVoices.asStateFlow()
 
@@ -138,15 +152,26 @@ class VoiceService @Inject constructor(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
                 }
-                isReady = true
                 Log.i(TAG, "TTS initialized")
-                loadAvailableVoices()
-                autoSyncVoiceToLanguageIfNeeded()
-                observeSettings()
-                flushPendingBeforeReady()
-                if (welcomePending) {
-                    welcomePending = false
-                    speakWelcomeIfEnabled()
+                // onInit runs on the main thread, and the voice lists are a few
+                // hundred voices over binder (Google TTS has 442), so they load
+                // off it. Lines asked for meanwhile wait in pendingBeforeReady
+                // and go out in order once the lists are in.
+                val engine = tts ?: return@TextToSpeech
+                scope.launch {
+                    val loaded = withContext(Dispatchers.Default) { loadAvailableVoices(engine) }
+                    // Shut down (or replaced) while loading: this engine's lists
+                    // must not land on the next one.
+                    if (tts !== engine) return@launch
+                    loaded.publish()
+                    isReady = true
+                    autoSyncVoiceToLanguageIfNeeded()
+                    observeSettings()
+                    flushPendingBeforeReady()
+                    if (welcomePending) {
+                        welcomePending = false
+                        speakWelcomeIfEnabled()
+                    }
                 }
             } else {
                 Log.e(TAG, "TTS initialization failed: $status")
@@ -295,10 +320,27 @@ class VoiceService @Inject constructor(
         abandonAudioFocus()
     }
 
-    private fun loadAvailableVoices() {
-        val engine = tts ?: return
+    /** What [loadAvailableVoices] read from one engine, published on the main thread. */
+    private inner class LoadedVoices(
+        val languages: List<Locale>,
+        val voices: List<VoiceOption>,
+        val byName: Map<String, Voice>,
+        val choices: List<VoiceChoice>,
+    ) {
+        fun publish() {
+            this@VoiceService.languages = languages
+            voicesByName = byName
+            _availableVoices.value = voices
+            _availableVoiceChoices.value = choices
+            Log.i(TAG, "Available TTS languages: ${voices.size}, voice choices: ${choices.size}")
+        }
+    }
+
+    private fun loadAvailableVoices(engine: TextToSpeech): LoadedVoices {
+        var langs: List<Locale> = emptyList()
+        var byName: Map<String, Voice> = emptyMap()
         val voices = try {
-            engine.availableLanguages?.map { locale ->
+            engine.availableLanguages?.also { langs = it.toList() }?.map { locale ->
                 // Render each voice in its own language (e.g. "Español
                 // (España)") rather than translating into the current UI
                 // locale. Stable across app-language changes and matches
@@ -315,14 +357,14 @@ class VoiceService @Inject constructor(
             Log.w(TAG, "Failed to load voices", e)
             emptyList()
         }
-        _availableVoices.value = voices
-        Log.i(TAG, "Available TTS languages: ${voices.size}")
 
         // Voice-level list: the individual voices behind each language. Grouped
         // by locale and numbered so the UI can offer "Voice 1 / Voice 2 / ..."
         // for languages that expose more than one.
         val choices = try {
-            val usable = engine.voices?.filter { v ->
+            val all = engine.voices
+            byName = all?.associateBy { it.name } ?: emptyMap()
+            val usable = all?.filter { v ->
                 // Skip voices whose data is not on the device (can't be used
                 // without a download) and any the engine marks unsupported.
                 val notInstalled = v.features?.contains(
@@ -352,8 +394,7 @@ class VoiceService @Inject constructor(
             Log.w(TAG, "Failed to load voice choices", e)
             emptyList()
         }
-        _availableVoiceChoices.value = choices
-        Log.i(TAG, "Available TTS voice choices: ${choices.size}")
+        return LoadedVoices(langs, voices, byName, choices)
     }
 
     fun setVoiceLocale(localeTag: String) {
@@ -371,7 +412,7 @@ class VoiceService @Inject constructor(
     fun setVoiceName(name: String) {
         currentVoiceName = name
         if (name.isBlank()) return
-        val v = try { tts?.voices?.firstOrNull { it.name == name } } catch (_: Exception) { null }
+        val v = voiceNamed(name)
         if (v != null) try { tts?.voice = v } catch (_: Exception) {}
     }
 
@@ -421,7 +462,7 @@ class VoiceService @Inject constructor(
             else -> setOf(primary)
         }
         return try {
-            val locales = engine.availableLanguages ?: return null
+            val locales = languages.ifEmpty { engine.availableLanguages?.toList() } ?: return null
             val match = locales.firstOrNull { it.language.lowercase() in acceptable }
             // Return Locale.toString() form ("nb_NO") not toLanguageTag()
             // ("nb-NO") so the saved voiceLocale matches what the voice
@@ -461,6 +502,8 @@ class VoiceService @Inject constructor(
         tts?.shutdown()
         tts = null
         isReady = false
+        voicesByName = emptyMap()
+        languages = emptyList()
         abandonAudioFocus()
         pendingUtterances = 0
         triggerInFlight = false
@@ -993,7 +1036,7 @@ class VoiceService @Inject constructor(
         val locale = Locale.forLanguageTag(localeTag.replace("_", "-"))
         tts?.language = locale
         if (voiceName.isNotBlank()) {
-            val v = try { tts?.voices?.firstOrNull { it.name == voiceName } } catch (_: Exception) { null }
+            val v = voiceNamed(voiceName)
             // Only apply when it matches the target language, so a stale name from
             // a previous language does not override the freshly set locale.
             if (v != null && v.locale.language == locale.language) {

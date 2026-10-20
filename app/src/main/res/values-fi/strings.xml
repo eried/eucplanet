@@ -2256,6 +2256,7 @@
     <string name="nav_setting_avoid_tolls">Vältä maksullisia teitä</string>
     <string name="nav_setting_avoid_ferries">Vältä lauttoja</string>
     <string name="nav_setting_avoid_unpaved">Vältä päällystämättömiä teitä</string>
+    <string name="nav_avoid_router_failed">Reitti ei huomioi välttämisiä: niiden reitityspalvelu ei vastannut.</string>
     <string name="nav_show_chargers">Näytä laturit</string>
     <string name="nav_show_places">Näytä paikat (kaupat, ruoka, nähtävyydet)</string>
     <string name="nav_pois_failed">Paikkoja ei voitu ladata. Tarkista yhteytesi</string>

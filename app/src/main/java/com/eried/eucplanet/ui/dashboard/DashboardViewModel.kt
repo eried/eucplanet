@@ -227,17 +227,17 @@ class DashboardViewModel @Inject constructor(
                 // With the permission and the location switch on, a fix is
                 // only a matter of time: say so, and fetch the moment one
                 // lands rather than leaving the panel to be reopened.
-                val canLocate = ContextCompat.checkSelfPermission(
-                    context, Manifest.permission.ACCESS_FINE_LOCATION,
-                ) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                val canLocate = WeatherNoFix.canLocate(
+                    ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION,
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED,
+                ) {
                     (context.getSystemService(android.content.Context.LOCATION_SERVICE)
                         as? android.location.LocationManager)
                         ?.let { androidx.core.location.LocationManagerCompat.isLocationEnabled(it) } == true
+                }
                 weatherRepository.reportNoLocation(
-                    context.getString(
-                        if (canLocate) R.string.weather_waiting_location
-                        else R.string.weather_error_no_location
-                    )
+                    context.getString(WeatherNoFix.messageRes(canLocate))
                 )
                 if (canLocate && locationWait?.isActive != true) {
                     locationWait = viewModelScope.launch {
@@ -1244,4 +1244,15 @@ class DashboardViewModel @Inject constructor(
         voiceService.shutdown()
         super.onCleared()
     }
+}
+
+/** What the weather panel says with no location fix. Pure so it can be tested. */
+internal object WeatherNoFix {
+    /** A fix is only a matter of time. [locationOn] is asked only with the permission. */
+    inline fun canLocate(hasPermission: Boolean, locationOn: () -> Boolean): Boolean =
+        hasPermission && locationOn()
+
+    fun messageRes(canLocate: Boolean): Int =
+        if (canLocate) R.string.weather_waiting_location
+        else R.string.weather_error_no_location
 }

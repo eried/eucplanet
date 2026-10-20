@@ -2149,6 +2149,7 @@
     <string name="nav_setting_avoid_hint">회피 옵션은 다른 경로 탐색 서비스를 사용하며, 이동 수단이 지원하는 경우에만 적용됩니다.</string>
     <string name="nav_setting_avoid_tolls">유료 도로 회피</string>
     <string name="nav_setting_avoid_unpaved">비포장 도로 회피</string>
+    <string name="nav_avoid_router_failed">회피 설정 없이 경로를 만들었습니다: 회피용 경로 서비스가 응답하지 않았습니다.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API 키</string>
     <string name="nav_setting_ocm_key_hint">충전소 플라이아웃에 리뷰, 사진, 커넥터 정보를 추가합니다. 무료 키는 다음에서 발급받으세요:</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

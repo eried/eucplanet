@@ -2106,6 +2106,7 @@
     <string name="nav_setting_avoid_hint">As exclusões usam um serviço de roteamento diferente e se aplicam onde o modo de viagem as suporta.</string>
     <string name="nav_setting_avoid_tolls">Evitar pedágios</string>
     <string name="nav_setting_avoid_unpaved">Evitar estradas sem pavimento</string>
+    <string name="nav_avoid_router_failed">A rota ignora o que você evita: o serviço de rotas não respondeu.</string>
     <string name="nav_setting_ocm_key">Chave de API do Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Adiciona avaliações, fotos e detalhes de conectores ao card do carregador. Cadastre-se para uma chave gratuita em</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

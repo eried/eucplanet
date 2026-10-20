@@ -2256,6 +2256,7 @@
     <string name="nav_setting_avoid_tolls">Vyhnout se placeným úsekům</string>
     <string name="nav_setting_avoid_ferries">Vyhnout se trajektům</string>
     <string name="nav_setting_avoid_unpaved">Vyhnout se nezpevněným cestám</string>
+    <string name="nav_avoid_router_failed">Trasa ignoruje vaše vyhýbání: jeho služba tras neodpověděla.</string>
     <string name="nav_show_chargers">Zobrazit nabíječky</string>
     <string name="nav_show_places">Zobrazit místa (obchody, jídlo, památky)</string>
     <string name="nav_pois_failed">Místa se nepodařilo načíst. Zkontrolujte připojení</string>

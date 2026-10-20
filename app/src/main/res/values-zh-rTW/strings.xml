@@ -2149,6 +2149,7 @@
     <string name="nav_setting_avoid_hint">避開項目使用不同的路線服務，並在行進模式支援時套用。</string>
     <string name="nav_setting_avoid_tolls">避開收費道路</string>
     <string name="nav_setting_avoid_unpaved">避開未鋪設道路</string>
+    <string name="nav_avoid_router_failed">路線未套用避開設定：避開用的路線服務沒有回應。</string>
     <string name="nav_setting_ocm_key">Open Charge Map API 金鑰</string>
     <string name="nav_setting_ocm_key_hint">為充電站彈出視窗加入評論、照片及連接頭詳情。可至此處免費註冊金鑰：</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

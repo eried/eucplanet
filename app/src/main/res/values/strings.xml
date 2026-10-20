@@ -2465,6 +2465,7 @@
     <string name="nav_setting_avoid_tolls">Avoid toll roads</string>
     <string name="nav_setting_avoid_ferries">Avoid ferries</string>
     <string name="nav_setting_avoid_unpaved">Avoid unpaved roads</string>
+    <string name="nav_avoid_router_failed">Route ignores your avoidances: their routing service did not answer.</string>
     <string name="nav_show_chargers">Show chargers</string>
     <string name="nav_show_places">Show places (stores, food, sights)</string>
     <string name="nav_pois_failed">Couldn\'t load places. Check your connection</string>

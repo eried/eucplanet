@@ -1013,7 +1013,33 @@ class SyncManager @Inject constructor(
      * or nothing pending, so this is cheap to fire every launch and is what
      * catches an upload the rider "closed too early" -- next open, it lands.
      */
-    fun reconcilePendingTripUploads() = scheduleTripUploadAttempt(attempt = 0)
+    fun reconcilePendingTripUploads() {
+        // Not attempt 0: a job due at once started while the main thread was
+        // still busy with start-up, and its onStartJob timed out (an ANR on a
+        // slow phone). KEEP leaves a retry chain that is already queued alone.
+        val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
+            .setInputData(workDataOf(KEY_ATTEMPT to 0))
+            .setInitialDelay(10, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            UPLOAD_WORK_NAME,
+            ExistingWorkPolicy.KEEP,
+            request
+        )
+    }
+
+    /**
+     * The cold-start WorkManager calls, off the main thread: the first
+     * WorkManager.getInstance builds its database and schedulers.
+     */
+    fun reconcileOnStart() {
+        scope.launch {
+            reconcilePendingTripUploads()
+            reconcilePendingEucStatsUploads()
+            reconcilePendingDropboxSync()
+            startPendingUploadWatcher()
+        }
+    }
 
     /**
      * Background safety-net: a periodic worker that retries pending trip uploads

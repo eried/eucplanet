@@ -67,7 +67,13 @@ data class RouteAvoidances(
  * no telemetry is sent. Endpoints are caller-supplied so they stay configurable.
  */
 @Singleton
-class RoutingService @Inject constructor() {
+class RoutingService @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+) {
+
+    /** When the rider was last told their avoidances were dropped; reroutes repeat, the notice should not. */
+    @Volatile private var avoidDroppedToldMs = 0L
 
     companion object {
         private const val TAG = "RoutingService"
@@ -150,6 +156,9 @@ class RoutingService @Inject constructor() {
 
         /** The most locations the FOSSGIS Valhalla server takes in one request. */
         const val VALHALLA_MAX_LOCATIONS = 10
+
+        /** At most one "avoidances dropped" notice in this long, so reroutes do not repeat it. */
+        private const val AVOID_DROPPED_NOTICE_MS = 10 * 60_000L
 
         /** Stretches of at most [VALHALLA_MAX_LOCATIONS], each starting where the last one ended. */
         fun <T> chunkForValhalla(points: List<T>): List<List<T>> {
@@ -319,6 +328,13 @@ class RoutingService @Inject constructor() {
         if (avoid.any) {
             routeViaValhalla(name, waypoints, mode, avoid)?.let { return@withContext it }
             Log.w(TAG, "Valhalla route failed; falling back to OSRM without avoidance")
+            // The route below ignores the avoidances; say so rather than let a
+            // rider meet the toll road they asked to skip.
+            val now = System.currentTimeMillis()
+            if (now - avoidDroppedToldMs >= AVOID_DROPPED_NOTICE_MS) {
+                avoidDroppedToldMs = now
+                appNotifier.post(context.getString(com.eried.eucplanet.R.string.nav_avoid_router_failed))
+            }
         }
         try {
             val base = endpoint.trimEnd('/')

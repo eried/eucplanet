@@ -277,9 +277,9 @@ class TpmsScanner @Inject constructor(
         // paired cap, one per wheel, not just the first. An address the
         // builder refuses drops the filter, so the scan hears everything
         // rather than nothing.
-        val filters = if (!asMonitor) null else runCatching {
-            tpms.sensors.value.map { ScanFilter.Builder().setDeviceAddress(it.address).build() }
-        }.getOrNull()?.takeIf { it.isNotEmpty() }
+        val filters = monitorFilterAddresses(asMonitor, tpms.sensors.value)?.let { addresses ->
+            runCatching { addresses.map { ScanFilter.Builder().setDeviceAddress(it).build() } }.getOrNull()
+        }
         runCatching { scanner.startScan(filters, settings, cb) }
             .onSuccess {
                 // Only a search shows as "scanning" and only a search gives
@@ -488,5 +488,11 @@ class TpmsScanner @Inject constructor(
 
         /** How often readings are re-aged. Cheap, and staleness is in minutes. */
         private const val STALENESS_TICK_MS = 15_000L
+
+        /** Addresses a monitor filters on, one per paired cap; null for a search or nothing paired. */
+        internal fun monitorFilterAddresses(
+            asMonitor: Boolean, sensors: List<TpmsRepository.SensorState>,
+        ): List<String>? =
+            if (!asMonitor) null else sensors.map { it.address }.takeIf { it.isNotEmpty() }
     }
 }

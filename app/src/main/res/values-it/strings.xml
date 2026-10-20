@@ -2057,6 +2057,7 @@
     <string name="nav_setting_avoid_hint">Le esclusioni usano un servizio di routing diverso e si applicano dove la modalità di viaggio le supporta.</string>
     <string name="nav_setting_avoid_tolls">Evita strade a pedaggio</string>
     <string name="nav_setting_avoid_unpaved">Evita strade non asfaltate</string>
+    <string name="nav_avoid_router_failed">Il percorso ignora le esclusioni: il loro servizio di calcolo non ha risposto.</string>
     <string name="nav_setting_ocm_key">Chiave API di Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Aggiunge recensioni, foto e dettagli sui connettori al riquadro della stazione di ricarica. Registrati per una chiave gratuita su</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

@@ -3319,7 +3319,8 @@ fun DashboardScreen(
                                                     "jeronimo701" to "KingSong S22 report and patch that led to battery percent from voltage.",
                                                     "jforssblad" to "NOSFET Aeon cell-voltage testing.",
                                                     "Dubardo" to "Odometer-in-trip bug report.",
-                                                    "Amoenus" to "Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures. The first code contributed from outside.",
+                                                    "Amoenus" to "NOSFET compatibility.",
+                                                    "Reimus" to "Sherman Max compatibility.",
                                                     "ZiraiMode" to "The Wear OS map: tile streaming from the phone and the watch-side drawing.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."

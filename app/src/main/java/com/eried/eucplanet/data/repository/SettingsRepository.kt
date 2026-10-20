@@ -9,19 +9,50 @@ import com.eried.eucplanet.data.model.VoiceCommandSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.store.SettingsStore
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/**
+ * Collects [source] once on [scope] and hands the latest value to every
+ * collector of the result.
+ *
+ * Each watcher of the store's flow used to parse the whole settings JSON
+ * itself, on its own thread: about 65 parses on the main thread per cold
+ * start, and one per watcher (77) for a single toggle. Now the blob is parsed
+ * once per change, off the main thread. A write that leaves the settings
+ * equal no longer reaches the watchers. Nothing is emitted before the first
+ * real load, as before.
+ */
+internal fun shareSettings(
+    source: Flow<AppSettings>,
+    scope: CoroutineScope,
+    retryDelayMs: Long = 2_000,
+): Flow<AppSettings> =
+    source
+        // One shared collector means one read error would stop every watcher
+        // at once, silently. Keep the last good settings and read again.
+        .retryWhen { cause, attempt ->
+            if (cause is CancellationException) return@retryWhen false
+            android.util.Log.w("SettingsRepository", "Settings read failed (attempt ${attempt + 1}), retrying", cause)
+            delay(retryDelayMs)
+            true
+        }
+        .stateIn<AppSettings?>(scope, SharingStarted.Eagerly, null).filterNotNull()
 
 @Singleton
 class SettingsRepository @Inject constructor(
@@ -31,7 +62,8 @@ class SettingsRepository @Inject constructor(
     // the scan sheet being dismissed the instant the rider picks a wheel).
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    val settings: Flow<AppSettings> = store.settings.map { it.sanitized() }
+    /** One parse per change, shared by every watcher. See [shareSettings]. */
+    val settings: Flow<AppSettings> = shareSettings(store.settings.map { it.sanitized() }, scope)
 
     // Completed by the store's first emission. DataStore has no synchronous
     // read, so until then [current] can only hold the defaults.

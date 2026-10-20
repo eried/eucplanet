@@ -2019,6 +2019,7 @@
     <string name="nav_setting_avoid_hint">避开选项使用另一种路线规划服务,并在出行方式支持时生效。</string>
     <string name="nav_setting_avoid_tolls">避开收费公路</string>
     <string name="nav_setting_avoid_unpaved">避开非铺装路面</string>
+    <string name="nav_avoid_router_failed">路线未应用避开设置：避开用的路线服务没有响应。</string>
     <string name="nav_setting_ocm_key">Open Charge Map API 密钥</string>
     <string name="nav_setting_ocm_key_hint">为充电桩弹窗添加评价、照片和接口详情。在以下网址免费注册密钥</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

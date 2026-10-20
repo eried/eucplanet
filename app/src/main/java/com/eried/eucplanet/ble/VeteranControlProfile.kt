@@ -7,7 +7,9 @@ internal interface VeteranControlProfile {
 
     companion object {
         fun forModel(model: VeteranModel?): VeteranControlProfile =
-            if (model?.brandOverride == "NOSFET") NosfetControlProfile else DefaultVeteranControlProfile
+            if (model == VeteranModel.SHERMAN || model == VeteranModel.SHERMAN_MAX ||
+                model?.brandOverride == "NOSFET"
+            ) NosfetControlProfile else DefaultVeteranControlProfile
     }
 }
 
@@ -17,8 +19,7 @@ internal object DefaultVeteranControlProfile : VeteranControlProfile {
 }
 
 internal object NosfetControlProfile : VeteranControlProfile {
-    // NOSFET capture: ASCII toggles OFF/LOW without the binary acknowledgement.
-    // This is not a high-beam selector and is independent of panel key-tone volume.
+    // NOSFET and legacy Sherman use one ASCII light write, no companion.
     override fun setLight(on: Boolean): ByteArray = VeteranCommands.setLight(on)
     override fun setLightFollowup(on: Boolean): ByteArray? = null
 }

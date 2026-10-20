@@ -79,6 +79,20 @@ class WheelService : LifecycleService() {
         const val NOTIFICATION_ID = 1
         /** Longest an unchanged ongoing notification goes without a re-post. */
         private const val NOTIFICATION_REFRESH_MS = 30_000L
+
+        /** What a notification reads as: title, text and button labels. */
+        internal fun notificationKey(
+            title: CharSequence?, text: CharSequence?, actionTitles: List<CharSequence?>?,
+        ): String = buildString {
+            append(title).append('|')
+            append(text)
+            actionTitles?.forEach { append('|').append(it) }
+        }
+
+        /** Post when it reads differently, or when the last post is [NOTIFICATION_REFRESH_MS] old. */
+        internal fun shouldPostNotification(
+            key: String, lastKey: String, nowMs: Long, lastPostMs: Long,
+        ): Boolean = !(key == lastKey && nowMs - lastPostMs < NOTIFICATION_REFRESH_MS)
         private const val WIDGET_PLACED_RECHECK_MS = 30_000L
         private const val NOTIFICATION_SCREEN_OFF_MS = 10_000L
         const val ACTION_CONNECT = "com.eried.eucplanet.CONNECT"
@@ -1504,12 +1518,12 @@ class WheelService : LifecycleService() {
      * keeps a notification the system lost or garbled from staying that way.
      */
     private fun postNotificationIfChanged(n: Notification, now: Long = System.currentTimeMillis()) {
-        val shown = buildString {
-            append(n.extras.getCharSequence(Notification.EXTRA_TITLE)).append('|')
-            append(n.extras.getCharSequence(Notification.EXTRA_TEXT))
-            n.actions?.forEach { append('|').append(it.title) }
-        }
-        if (shown == lastNotificationShown && now - lastNotificationPostMs < NOTIFICATION_REFRESH_MS) return
+        val shown = notificationKey(
+            n.extras.getCharSequence(Notification.EXTRA_TITLE),
+            n.extras.getCharSequence(Notification.EXTRA_TEXT),
+            n.actions?.map { it.title },
+        )
+        if (!shouldPostNotification(shown, lastNotificationShown, now, lastNotificationPostMs)) return
         lastNotificationShown = shown
         lastNotificationPostMs = now
         getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, n)

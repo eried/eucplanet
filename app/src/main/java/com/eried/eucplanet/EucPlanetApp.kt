@@ -99,14 +99,11 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // periodic upload safety-net. Both touch WorkManager, so they run here
         // (after Hilt has injected workerFactory) rather than in SyncManager's
         // init{}, which runs mid-injection and raced the lateinit.
-        syncManager.reconcilePendingTripUploads()
         // Same for the online (eucstats) uploads and the Dropbox mirror: a trip
         // strands if its retry chain ever ended, and nothing else restarts it.
-        // Both run a few seconds in so the rider id / link token have loaded, and
-        // both no-op when their destination is not configured.
-        syncManager.reconcilePendingEucStatsUploads()
-        syncManager.reconcilePendingDropboxSync()
-        syncManager.startPendingUploadWatcher()
+        // All run a few seconds in so the rider id / link token have loaded, and
+        // no-op when their destination is not configured.
+        syncManager.reconcileOnStart()
         // Legal Mode Lockdown stops service mode too. DiagnosticsLogger is an
         // object with no injection, so the armed state is mirrored onto it here,
         // the one place that already lives for the whole process.

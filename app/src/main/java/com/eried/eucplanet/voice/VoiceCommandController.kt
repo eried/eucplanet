@@ -1270,7 +1270,7 @@ private val CONFIRMED_ACTIONS = setOf("RECORD_STOP", "RESET_TRIP")
  * rider, so handing the focus back does not start it again. Sent after, the
  * song would resume for a moment and then stop.
  */
-private val MEDIA_AFTER_SPEECH = setOf("MUSIC_START", "MEDIA_PLAY_PAUSE", "MEDIA_NEXT", "MEDIA_PREVIOUS")
+internal val MEDIA_AFTER_SPEECH = setOf("MUSIC_START", "MEDIA_PLAY_PAUSE", "MEDIA_NEXT", "MEDIA_PREVIOUS")
 
 /** The specials that need a forecast before they can answer. */
 private val WEATHER_KEYS = setOf(

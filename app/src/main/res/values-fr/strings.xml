@@ -2156,6 +2156,7 @@
     <string name="nav_setting_avoid_hint">Les évitements utilisent un autre service de calcul d\'itinéraire et s\'appliquent lorsque le mode de déplacement les prend en charge.</string>
     <string name="nav_setting_avoid_tolls">Éviter les routes à péage</string>
     <string name="nav_setting_avoid_unpaved">Éviter les routes non revêtues</string>
+    <string name="nav_avoid_router_failed">L\'itinéraire ignore vos évitements : leur service de calcul n\'a pas répondu.</string>
     <string name="nav_setting_ocm_key">Clé API Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Ajoute les avis, les photos et les détails des connecteurs à la fiche de la borne. Inscris-toi pour une clé gratuite sur</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

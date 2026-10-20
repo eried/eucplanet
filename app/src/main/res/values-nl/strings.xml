@@ -2150,6 +2150,7 @@
     <string name="nav_setting_avoid_hint">Vermijdingen gebruiken een andere routeringsservice en gelden waar de reismodus ze ondersteunt.</string>
     <string name="nav_setting_avoid_tolls">Tolwegen vermijden</string>
     <string name="nav_setting_avoid_unpaved">Onverharde wegen vermijden</string>
+    <string name="nav_avoid_router_failed">Route negeert je vermijdingen: de routedienst daarvoor antwoordde niet.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-sleutel</string>
     <string name="nav_setting_ocm_key_hint">Voegt beoordelingen, foto\'s en connectordetails toe aan de laadpunt-flyout. Vraag een gratis sleutel aan op</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

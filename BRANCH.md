@@ -67,6 +67,13 @@ only when you can cut the ride short.
 - Map and navigation follow Distance unit (Settings, Units). With miles picked there, the map used to stay in km.
 - Navigation: a navigator view on the map while you ride: next turn, arrival time, distance left, speed and 4 numbers you pick in Settings, Navigation. Start now stays on the map.
 - Navigation: tap the cue popup or long-press the map button, Open navigator, to jump to the map. A connected wheel decides when you start riding, so GPS drift no longer does.
+- Sherman Max: legacy frames supply live speed and distance; dashboard Light and Horn work on LK13709.
+- Start-up: the app no longer freezes ("not responding") a few seconds after launch on slower phones.
+- Start-up: smoother first seconds, settings and voice set-up no longer hold up the screen.
+- Switching to another wheel no longer shows the last wheel's odometer; its consumption and range fill in.
+- Navigation: a route that had to skip your avoidances (tolls, ferries...) now says so.
+- Voice: Finnish "viime matka" and Norwegian "siste tur" (last trip) are understood.
+- Settings search: "units" and "distance" open the right section; Voice and Watch Advanced cards no longer share counts.
 
 ## Please test
 
@@ -78,6 +85,10 @@ only when you can cut the ride short.
 - HUD link on, HUD off, app closed for an hour: cool phone? Then turn the HUD on: found within seconds, or as soon as you open the app?
 - A long quiet stretch, then an alarm or voice line: does the first beep pop or lose its start? With Bluetooth headphones too?
 - Screen off mid-ride, then on: the notification shows current numbers right away?
+- Slower phone: open the app cold a few times. Any "not responding" right after launch? Trips still upload?
+- Voice with a picked voice (Voice settings): still speaks in that voice, also right after opening the app?
+- Two wheels: connect one, then the other without disconnecting. Odometer, consumption and range are the new wheel's?
+- Avoidances on and no internet when the route is made: one short notice that avoidances were skipped?
 
 **Android Auto** (install from the Play internal sharing link, a sideloaded APK never shows in the car)
 - The car screen opens, and speed and battery match the phone?

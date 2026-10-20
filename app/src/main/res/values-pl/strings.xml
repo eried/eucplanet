@@ -2148,6 +2148,7 @@
     <string name="nav_setting_avoid_hint">Unikanie korzysta z innej usługi wyznaczania trasy i działa tam, gdzie wspiera je tryb podróży.</string>
     <string name="nav_setting_avoid_tolls">Unikaj dróg płatnych</string>
     <string name="nav_setting_avoid_unpaved">Unikaj dróg nieutwardzonych</string>
+    <string name="nav_avoid_router_failed">Trasa pomija unikanie: usługa wyznaczania tras nie odpowiedziała.</string>
     <string name="nav_setting_ocm_key">Klucz API Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Dodaje opinie, zdjęcia i szczegóły złączy do okienka stacji ładowania. Załóż darmowy klucz na</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

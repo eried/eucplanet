@@ -2256,6 +2256,7 @@
     <string name="nav_setting_avoid_tolls">Fizetős utak elkerülése</string>
     <string name="nav_setting_avoid_ferries">Kompok elkerülése</string>
     <string name="nav_setting_avoid_unpaved">Burkolatlan utak elkerülése</string>
+    <string name="nav_avoid_router_failed">Az útvonal figyelmen kívül hagyja az elkerüléseket: a tervezőszolgáltatás nem válaszolt.</string>
     <string name="nav_show_chargers">Töltők mutatása</string>
     <string name="nav_show_places">Helyek mutatása (boltok, étel, látnivalók)</string>
     <string name="nav_pois_failed">A helyeket nem sikerült betölteni. Ellenőrizd a kapcsolatot</string>

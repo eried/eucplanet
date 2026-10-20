@@ -2152,6 +2152,7 @@
     <string name="nav_setting_avoid_hint">Undvikanden använder en annan ruttjänst och gäller där färdsättet stöder dem.</string>
     <string name="nav_setting_avoid_tolls">Undvik tullvägar</string>
     <string name="nav_setting_avoid_unpaved">Undvik grusvägar</string>
+    <string name="nav_avoid_router_failed">Rutten struntar i det du undviker: ruttjänsten för det svarade inte.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-nyckel</string>
     <string name="nav_setting_ocm_key_hint">Lägger till omdömen, foton och kontaktinfo i laddstationens flyout. Skaffa en gratis nyckel på</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

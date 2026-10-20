@@ -2152,6 +2152,7 @@
     <string name="nav_setting_avoid_hint">Исключения используют другой сервис маршрутизации и применяются там, где их поддерживает режим передвижения.</string>
     <string name="nav_setting_avoid_tolls">Избегать платных дорог</string>
     <string name="nav_setting_avoid_unpaved">Избегать грунтовых дорог</string>
+    <string name="nav_avoid_router_failed">Маршрут без учёта исключений: сервис маршрутов для них не ответил.</string>
     <string name="nav_setting_ocm_key">API-ключ Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Добавляет отзывы, фото и сведения о коннекторах во всплывающую карточку зарядки. Зарегистрируйтесь для бесплатного ключа на</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

@@ -2149,6 +2149,7 @@
     <string name="nav_setting_avoid_hint">回避設定は別のルーティングサービスを使用し、移動手段が対応している場合に適用されます。</string>
     <string name="nav_setting_avoid_tolls">有料道路を回避</string>
     <string name="nav_setting_avoid_unpaved">未舗装路を回避</string>
+    <string name="nav_avoid_router_failed">回避設定なしのルートです：回避用のルート検索サービスが応答しませんでした。</string>
     <string name="nav_setting_ocm_key">Open Charge Map API キー</string>
     <string name="nav_setting_ocm_key_hint">充電器のフライアウトにレビュー、写真、コネクター詳細を追加します。無料キーの登録はこちら</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

@@ -104,6 +104,10 @@ class BleConnectionManager @Inject constructor(
          *  app restarts the full-speed hunt. */
         private const val RECONNECT_LOW_POWER_AFTER_MS = 10 * 60_000L
 
+        /** True once a reconnect hunt that began at [huntStartMs] has run its full-speed stretch. */
+        internal fun reconnectLowPowerDue(nowMs: Long, huntStartMs: Long): Boolean =
+            nowMs - huntStartMs >= RECONNECT_LOW_POWER_AFTER_MS
+
         // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
@@ -395,7 +399,7 @@ class BleConnectionManager @Inject constructor(
         _connectionState.value = ConnectionState.SCANNING
         val now = android.os.SystemClock.elapsedRealtime()
         if (reconnectScanCycle == 0 || reconnectHuntStartMs == 0L) reconnectHuntStartMs = now
-        val lowPower = now - reconnectHuntStartMs >= RECONNECT_LOW_POWER_AFTER_MS
+        val lowPower = reconnectLowPowerDue(now, reconnectHuntStartMs)
         if (lowPower && !reconnectLowPower) {
             Log.i(TAG, "Reconnect scan for $address: no wheel for 10 min, low-power scan from now")
         }

@@ -2149,6 +2149,7 @@
     <string name="nav_setting_avoid_hint">Kaçınmalar farklı bir rotalama servisi kullanır ve yalnızca seyahat modunun desteklediği yerlerde geçerlidir.</string>
     <string name="nav_setting_avoid_tolls">Paralı yollardan kaçın</string>
     <string name="nav_setting_avoid_unpaved">Asfaltsız yollardan kaçın</string>
+    <string name="nav_avoid_router_failed">Rota kaçınmalarınızı yok sayıyor: bunların rota hizmeti yanıt vermedi.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API anahtarı</string>
     <string name="nav_setting_ocm_key_hint">Şarj istasyonu kartına yorumlar, fotoğraflar ve konnektör ayrıntıları ekler. Ücretsiz bir anahtar için şuraya kaydolun:</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>

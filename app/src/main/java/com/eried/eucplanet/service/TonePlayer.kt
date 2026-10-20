@@ -92,8 +92,9 @@ class TonePlayer @Inject constructor() {
     @Volatile private var rideQuietMs = 120_000L
     @Volatile private var lastSoundMs = 0L
     private var keepAliveThread: Thread? = null
-    private val keepAliveWanted get() = keepAlivePreview ||
-        (keepAliveRide && System.currentTimeMillis() - lastSoundMs < rideQuietMs)
+    private val keepAliveWanted get() = routeKeepAliveWanted(
+        keepAlivePreview, keepAliveRide, System.currentTimeMillis(), lastSoundMs, rideQuietMs
+    )
 
     /** A beep, stream or voice line is starting: the route is wanted again. */
     @Synchronized
@@ -588,3 +589,8 @@ class TonePlayer @Inject constructor() {
         }
     }
 }
+
+/** A preview always holds the route; a ride holds it until [quietMs] pass with no sound. */
+internal fun routeKeepAliveWanted(
+    preview: Boolean, ride: Boolean, nowMs: Long, lastSoundMs: Long, quietMs: Long,
+): Boolean = preview || (ride && nowMs - lastSoundMs < quietMs)
