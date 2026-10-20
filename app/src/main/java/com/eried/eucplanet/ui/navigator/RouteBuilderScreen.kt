@@ -14,7 +14,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -758,6 +757,19 @@ fun RouteBuilderScreen(
         viewModel.startNavigation(mode, force = true) { panelExpanded = false }
     }
 
+    // Landscape: the stops panel docks as a sidebar on the rider's chosen
+    // side (Screen geometry setting) and its header moves into the top bar.
+    // DEFAULT keeps the bottom panel exactly like portrait. The sidebar also
+    // needs real width: on tiny flip-cover screens (~374 dp wide) the 340 dp
+    // sidebar would swallow the map, so those keep the bottom-panel layout
+    // even when rotated.
+    val stopsSide by viewModel.navStopsSide.collectAsState()
+    val advancedVars by viewModel.advanced.collectAsState()
+    val landscape = LocalConfiguration.current.orientation ==
+        android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
+        LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
+        stopsSide != "DEFAULT"
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(snackbarHost) {
@@ -787,7 +799,13 @@ fun RouteBuilderScreen(
                     }
                 },
                 title = {
-                    OutlinedTextField(
+                  // Landscape: the stops header sits on the right of the bar,
+                  // as wide as the sidebar under it, so folding the list away
+                  // leaves nothing on the map. While navigating, search is not
+                  // used, so the header has the bar to itself.
+                  Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (landscape && navRunning) Spacer(Modifier.weight(1f))
+                    else OutlinedTextField(
                         value = searchText,
                         onValueChange = {
                             searchText = it
@@ -814,12 +832,32 @@ fun RouteBuilderScreen(
                         },
                         singleLine = true,
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .weight(1f)
                             .padding(end = 8.dp)
                             .onFocusChanged { searchFocused = it.isFocused },
                         colors = themedFieldColors(),
                         shape = RoundedCornerShape(12.dp),
                     )
+                    if (landscape) {
+                        StopsHeader(
+                            waypoints = waypoints,
+                            routing = routing,
+                            routeDistanceM = tourDistanceM,
+                            imperial = imperial,
+                            navRunning = navRunning,
+                            canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
+                            listShown = panelExpanded,
+                            buttonAlways = true,
+                            foldsUp = true,
+                            onToggle = { panelExpanded = !panelExpanded },
+                            onStartNavigation = startNav,
+                            onForceStartNavigation = startNavForce,
+                            onStopNavigation = viewModel::stopNavigation,
+                            onClearRoute = viewModel::clear,
+                            modifier = Modifier.width(advancedVars.navSidebarWidthDp.dp),
+                        )
+                    }
+                  }
                 },
                 actions = {
                     // Live location share. Green while a group is running,
@@ -970,14 +1008,6 @@ fun RouteBuilderScreen(
         // by the real measurements automatically. Recomputed on every
         // recomposition because both sources are State, so the click handler
         // always reads the latest value.
-        // Landscape: the stops panel docks as a fixed-width, always-open
-        // sidebar on the rider's chosen side (Screen geometry setting).
-        // DEFAULT keeps the bottom panel exactly like portrait. The sidebar
-        // also needs real width: on tiny flip-cover screens (~374 dp wide)
-        // the 340 dp sidebar would swallow the map, so those keep the
-        // bottom-panel layout even when rotated.
-        val stopsSide by viewModel.navStopsSide.collectAsState()
-        val advancedVars by viewModel.advanced.collectAsState()
         // Keep the map's far-stop gate in sync so the live drag connector never
         // draws a line from the rider to a first stop beyond the max start
         // distance (mirrors the Kotlin-side gate for the solved and preview lines).
@@ -988,10 +1018,6 @@ fun RouteBuilderScreen(
                 "nativeSetMaxStartDistance(${advancedVars.navMaxStartDistanceKm});", null
             )
         }
-        val landscape = LocalConfiguration.current.orientation ==
-            android.content.res.Configuration.ORIENTATION_LANDSCAPE &&
-            LocalConfiguration.current.screenWidthDp >= advancedVars.navSidebarMinScreenDp &&
-            stopsSide != "DEFAULT"
         val effectivePanelPx =
             if (panelHeightPx > 0) panelHeightPx
             else with(density) { 300.dp.toPx().toInt() }
@@ -1244,20 +1270,15 @@ fun RouteBuilderScreen(
             // during heading-up, and collecting that here recomposed the whole
             // map screen for the whole ride.
             // In landscape it clears the right-hand stops sidebar, so the
-            // navigator's metric pill under it stays on the map too. A
-            // collapsed sidebar is only its header row, so the compass moves
-            // to the screen edge, just under that row.
+            // navigator's metric pill under it stays on the map too. With the
+            // list folded away it moves to the screen edge.
             val sidebarRight = stopsSide != "LEFT"
-            val collapsedHeaderDp =
-                if (landscape && !panelExpanded) with(density) { effectivePanelPx.toDp() }
-                else 0.dp
             NavCompassButton(
                 viewModel = viewModel,
                 navRunning = navRunning,
                 northUp = navigatorView.northUp,
                 webView = webView,
-                topPad = padding.calculateTopPadding() +
-                    (if (sidebarRight) collapsedHeaderDp else 0.dp),
+                topPad = padding.calculateTopPadding(),
                 endInset = if (landscape && panelExpanded && sidebarRight)
                     advancedVars.navSidebarWidthDp.dp else 0.dp,
             )
@@ -1568,16 +1589,17 @@ fun RouteBuilderScreen(
                     }
                 }
             }
-            // The route/stops panel. Collapsible in both orientations: the
-            // landscape sidebar folds to its header row the same way the
-            // portrait dock does, so a rider can hand the map the full width.
+            // The route/stops panel. Portrait: a dock that folds to its header.
+            // Landscape: only the list, in a sidebar the top bar's chevron shows
+            // or hides, since the header lives in the top bar there.
             val bottomPanelContent: @Composable (Modifier) -> Unit = { panelMod ->
                 BottomPanel(
-                    expanded = panelExpanded,
+                    expanded = landscape || panelExpanded,
                     onToggle = { panelExpanded = !panelExpanded },
                     // Landscape: sidebar Column paints the translucent tone, so
                     // the panel draws transparent to avoid a near-opaque double.
                     dockTransparent = landscape,
+                    showHeader = !landscape,
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
                     solveFullPath = solveFullPath,
@@ -1623,8 +1645,7 @@ fun RouteBuilderScreen(
             // Portrait: FABs stacked above a full-width bottom dock. Landscape:
             // the panel is a sidebar on the rider's chosen side (Screen
             // geometry setting, default right); the FABs float on the opposite
-            // bottom corner of the map. Collapsed, the sidebar shrinks to its
-            // header row at the top, so the map shows below it.
+            // bottom corner of the map. Folded away, the map has the full width.
             if (landscape) {
                 val sidebarRight = stopsSide != "LEFT"
                 Column(
@@ -1637,13 +1658,18 @@ fun RouteBuilderScreen(
                         // them too far up.
                         .padding(start = if (sidebarRight) 16.dp else 0.dp)
                 ) { overlayFabs() }
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = panelExpanded,
+                    modifier = Modifier
+                        .align(if (sidebarRight) Alignment.TopEnd else Alignment.TopStart),
+                    enter = androidx.compose.animation.expandVertically(expandFrom = Alignment.Top) +
+                        androidx.compose.animation.fadeIn(),
+                    exit = androidx.compose.animation.shrinkVertically(shrinkTowards = Alignment.Top) +
+                        androidx.compose.animation.fadeOut(),
+                ) {
                 Column(
                     modifier = Modifier
-                        .align(if (sidebarRight) Alignment.TopEnd else Alignment.TopStart)
-                        // Full height only while open; collapsed, the tone covers
-                        // just the header row and the map shows below it.
-                        .then(if (panelExpanded) Modifier.fillMaxHeight() else Modifier)
-                        .animateContentSize()
+                        .fillMaxHeight()
                         .width(advancedVars.navSidebarWidthDp.dp)
                         // Inset below the translucent top bar FIRST so the panel's
                         // background starts under the search header, instead of
@@ -1657,6 +1683,7 @@ fun RouteBuilderScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     bottomPanelContent(Modifier.fillMaxWidth())
+                }
                 }
             } else {
                 Column(
@@ -2334,12 +2361,204 @@ private fun HoldableButton(
     )
 }
 
+/**
+ * The stops header: title, count and route distance, the Start / Stop / New
+ * route button and the chevron that shows or hides the stops list. Portrait
+ * puts it on top of the bottom dock; the landscape sidebar layout puts it in
+ * the top bar, beside the search, so the list below can fold away entirely.
+ *
+ * [buttonAlways] keeps the button on screen (the top bar); otherwise it shows
+ * only while the list is hidden, as the dock's big Start does the job when open.
+ */
+@Composable
+private fun StopsHeader(
+    waypoints: List<com.eried.eucplanet.data.model.Waypoint>,
+    routing: Boolean,
+    routeDistanceM: Double?,
+    imperial: Boolean,
+    navRunning: Boolean,
+    canStartNavigation: Boolean,
+    listShown: Boolean,
+    buttonAlways: Boolean,
+    foldsUp: Boolean,
+    onToggle: () -> Unit,
+    onStartNavigation: () -> Unit,
+    onForceStartNavigation: () -> Unit,
+    onStopNavigation: () -> Unit,
+    onClearRoute: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val allPassed = waypoints.isNotEmpty() && waypoints.all { it.passed }
+    val context = LocalContext.current
+    val buttonVisible = buttonAlways || !listShown
+    Box(modifier) {
+        // Header: title + count/distance + COMPACT start/stop + collapse chevron.
+        // The compact start/stop sits inline so a rider with the panel
+        // collapsed (i.e. the big Start button is hidden) can still kick
+        // off / cancel navigation without expanding -- the action they
+        // actually need most often is right there.
+        // A narrow header (a slim landscape sidebar, a small phone, a long
+        // language) drops the distance and uses the short Start / Stop
+        // label, so the button and the chevron always fit. Measured, not a
+        // fixed width: "Остановить навигацию" needs far more room than
+        // "Stop navigation", so the row checks whether the title, count,
+        // distance, full button label and chevron really fit side by side.
+        BoxWithConstraints {
+        val textMeasurer = rememberTextMeasurer()
+        val density = LocalDensity.current
+        fun widthOf(text: String, style: TextStyle) =
+            with(density) { textMeasurer.measure(text, style, maxLines = 1).size.width.toDp() }
+        val fullLabel = stringResource(
+            when {
+                allPassed -> R.string.nav_menu_clear
+                navRunning -> R.string.nav_stop_short
+                else -> R.string.nav_start_short
+            }
+        )
+        val distanceShown = !routing && !allPassed && routeDistanceM != null && routeDistanceM > 0
+        val fullWidth = widthOf(
+            stringResource(R.string.nav_waypoints),
+            MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+        ) + 8.dp + widthOf("(${waypoints.size})", MaterialTheme.typography.bodyMedium) +
+            (if (distanceShown) 12.dp + widthOf(
+                NavFormat.distance(context, routeDistanceM!!, imperial),
+                MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            ) else 0.dp) +
+            maxOf(150.dp, widthOf(fullLabel, MaterialTheme.typography.labelLarge) + 24.dp) +
+            48.dp
+        // Without the button (the portrait list open) the distance always fits.
+        val roomyHeader = !buttonVisible || fullWidth <= maxWidth
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Title, count and distance share what the button and chevron
+            // leave: Row measures those unweighted children first, so they
+            // are never pushed off the edge.
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.nav_waypoints),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                "(${waypoints.size})",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+            if (routing) {
+                Spacer(Modifier.width(12.dp))
+                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+            } else if (roomyHeader && !allPassed && routeDistanceM != null && routeDistanceM > 0) {
+                Spacer(Modifier.width(12.dp))
+                // Hidden when the trip is over (allPassed). This is the
+                // whole-tour distance (every remaining stop summed), not
+                // just the next leg, so it's shown as a plain total.
+                val distText = NavFormat.distance(context, routeDistanceM, imperial)
+                Text(
+                    distText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                )
+            }
+            }
+            // Compact start / stop. Hidden while the dock's list is open (its
+            // big button does the same job) and
+            // when there is nothing to start (no waypoints, no fix yet).
+            //
+            // Animation rule:
+            //   * Expanding -- the compact button vanishes INSTANTLY
+            //     (zero-duration exit), so the panel grows into the
+            //     space cleanly without the button overlapping the
+            //     animation.
+            //   * Collapsing -- we wait the full AnimatedVisibility
+            //     duration of the panel before fading the button IN,
+            //     so it doesn't appear mid-animation while the panel
+            //     body is still shrinking past it.
+            // Compact button is ALWAYS visible when the panel is
+            // collapsed (it's the only way to start nav from the
+            // collapsed state), even when no stops are placed yet --
+            // it just sits there disabled so the rider knows where
+            // to look.
+            var compactArmed by remember { mutableStateOf(!listShown) }
+            LaunchedEffect(listShown) {
+                if (listShown) {
+                    compactArmed = false
+                } else {
+                    // Match the panel collapse animation (~300 ms
+                    // default for shrinkVertically + fadeOut) with a
+                    // tiny buffer so the button starts fading in
+                    // right as the panel settles.
+                    kotlinx.coroutines.delay(320)
+                    compactArmed = true
+                }
+            }
+            androidx.compose.animation.AnimatedVisibility(
+                visible = buttonAlways || compactArmed,
+                enter = androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(0)
+                )
+            ) {
+                val label = stringResource(
+                    when {
+                        allPassed -> R.string.nav_menu_clear
+                        navRunning -> if (roomyHeader) R.string.nav_stop_short else R.string.action_stop
+                        else -> if (roomyHeader) R.string.nav_start_short else R.string.nav_start_btn
+                    }
+                )
+                HoldableButton(
+                    onClick = {
+                        when {
+                            allPassed -> onClearRoute()
+                            navRunning -> onStopNavigation()
+                            else -> onStartNavigation()
+                        }
+                    },
+                    // Hold Start to override the too-far guard and go anyway.
+                    onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
+                    // Disabled when there's no work to do (no stops +
+                    // no live nav). New route + Stop nav are always
+                    // actionable when they apply.
+                    enabled = allPassed || navRunning || canStartNavigation,
+                    contentPadding = androidx.compose.foundation.layout
+                        .PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    // Fixed width holds the longest label ('Stop navigation')
+                    // so the row doesn't reflow when the state flips between
+                    // Start / Stop / New route.
+                    modifier = Modifier.widthIn(min = if (roomyHeader) 150.dp else 64.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text(label, maxLines = 1) }
+            }
+            // The arrow points the way the list will move: the portrait dock
+            // folds down, the landscape list folds up into the top bar.
+            IconButton(onClick = onToggle) {
+                Icon(
+                    if (listShown == foldsUp) Icons.Default.KeyboardArrowUp
+                    else Icons.Default.KeyboardArrowDown,
+                    contentDescription = stringResource(
+                        if (listShown) R.string.nav_minimize else R.string.nav_expand
+                    )
+                )
+            }
+        }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun BottomPanel(
     expanded: Boolean,
     onToggle: () -> Unit,
     dockTransparent: Boolean = false,
+    /** False in the landscape sidebar layout: the header, Start / Stop
+     *  included, lives in the top bar there, and this is only the list. */
+    showHeader: Boolean = true,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
     solveFullPath: Boolean,
@@ -2392,162 +2611,23 @@ private fun BottomPanel(
         tonalElevation = if (dockTransparent) 0.dp else 6.dp
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-            // Header: title + count/distance + COMPACT start/stop + collapse chevron.
-            // The compact start/stop sits inline so a rider with the panel
-            // collapsed (i.e. the big Start button is hidden) can still kick
-            // off / cancel navigation without expanding -- the action they
-            // actually need most often is right there.
-            // A narrow header (a slim landscape sidebar, a small phone, a long
-            // language) drops the distance and uses the short Start / Stop
-            // label, so the button and the chevron always fit. Measured, not a
-            // fixed width: "Остановить навигацию" needs far more room than
-            // "Stop navigation", so the row checks whether the title, count,
-            // distance, full button label and chevron really fit side by side.
-            BoxWithConstraints {
-            val textMeasurer = rememberTextMeasurer()
-            val density = LocalDensity.current
-            fun widthOf(text: String, style: TextStyle) =
-                with(density) { textMeasurer.measure(text, style, maxLines = 1).size.width.toDp() }
-            val fullLabel = stringResource(
-                when {
-                    allPassed -> R.string.nav_menu_clear
-                    navRunning -> R.string.nav_stop_short
-                    else -> R.string.nav_start_short
-                }
-            )
-            val distanceShown = !routing && !allPassed && routeDistanceM != null && routeDistanceM > 0
-            val fullWidth = widthOf(
-                stringResource(R.string.nav_waypoints),
-                MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            ) + 8.dp + widthOf("(${waypoints.size})", MaterialTheme.typography.bodyMedium) +
-                (if (distanceShown) 12.dp + widthOf(
-                    NavFormat.distance(context, routeDistanceM!!, imperial),
-                    MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                ) else 0.dp) +
-                maxOf(150.dp, widthOf(fullLabel, MaterialTheme.typography.labelLarge) + 24.dp) +
-                48.dp
-            // Expanded, the header has no button, so the distance always fits.
-            val roomyHeader = expanded || fullWidth <= maxWidth
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Title, count and distance share what the button and chevron
-                // leave: Row measures those unweighted children first, so they
-                // are never pushed off the edge.
-                Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.nav_waypoints),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false),
+            if (showHeader) {
+                StopsHeader(
+                    waypoints = waypoints,
+                    routing = routing,
+                    routeDistanceM = routeDistanceM,
+                    imperial = imperial,
+                    navRunning = navRunning,
+                    canStartNavigation = canStartNavigation,
+                    listShown = expanded,
+                    buttonAlways = false,
+                    foldsUp = false,
+                    onToggle = onToggle,
+                    onStartNavigation = onStartNavigation,
+                    onForceStartNavigation = onForceStartNavigation,
+                    onStopNavigation = onStopNavigation,
+                    onClearRoute = onClearRoute,
                 )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "(${waypoints.size})",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                )
-                if (routing) {
-                    Spacer(Modifier.width(12.dp))
-                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                } else if (roomyHeader && !allPassed && routeDistanceM != null && routeDistanceM > 0) {
-                    Spacer(Modifier.width(12.dp))
-                    // Hidden when the trip is over (allPassed). This is the
-                    // whole-tour distance (every remaining stop summed), not
-                    // just the next leg, so it's shown as a plain total.
-                    val distText = NavFormat.distance(context, routeDistanceM, imperial)
-                    Text(
-                        distText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                    )
-                }
-                }
-                // Compact start / stop. Hidden when expanded (the big button
-                // at the bottom of the expanded panel does the same job) and
-                // when there is nothing to start (no waypoints, no fix yet).
-                //
-                // Animation rule:
-                //   * Expanding -- the compact button vanishes INSTANTLY
-                //     (zero-duration exit), so the panel grows into the
-                //     space cleanly without the button overlapping the
-                //     animation.
-                //   * Collapsing -- we wait the full AnimatedVisibility
-                //     duration of the panel before fading the button IN,
-                //     so it doesn't appear mid-animation while the panel
-                //     body is still shrinking past it.
-                // Compact button is ALWAYS visible when the panel is
-                // collapsed (it's the only way to start nav from the
-                // collapsed state), even when no stops are placed yet --
-                // it just sits there disabled so the rider knows where
-                // to look.
-                val canShowCompact = true
-                var compactArmed by remember { mutableStateOf(!expanded) }
-                LaunchedEffect(expanded) {
-                    if (expanded) {
-                        compactArmed = false
-                    } else {
-                        // Match the panel collapse animation (~300 ms
-                        // default for shrinkVertically + fadeOut) with a
-                        // tiny buffer so the button starts fading in
-                        // right as the panel settles.
-                        kotlinx.coroutines.delay(320)
-                        compactArmed = true
-                    }
-                }
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = canShowCompact && compactArmed,
-                    enter = androidx.compose.animation.fadeIn(),
-                    exit = androidx.compose.animation.fadeOut(
-                        animationSpec = androidx.compose.animation.core.tween(0)
-                    )
-                ) {
-                    val label = stringResource(
-                        when {
-                            allPassed -> R.string.nav_menu_clear
-                            navRunning -> if (roomyHeader) R.string.nav_stop_short else R.string.action_stop
-                            else -> if (roomyHeader) R.string.nav_start_short else R.string.nav_start_btn
-                        }
-                    )
-                    HoldableButton(
-                        onClick = {
-                            when {
-                                allPassed -> onClearRoute()
-                                navRunning -> onStopNavigation()
-                                else -> onStartNavigation()
-                            }
-                        },
-                        // Hold Start to override the too-far guard and go anyway.
-                        onHold = if (!allPassed && !navRunning) onForceStartNavigation else null,
-                        // Disabled when there's no work to do (no stops +
-                        // no live nav). New route + Stop nav are always
-                        // actionable when they apply.
-                        enabled = allPassed || navRunning || canStartNavigation,
-                        contentPadding = androidx.compose.foundation.layout
-                            .PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                        // Fixed width holds the longest label ('Stop navigation')
-                        // so the row doesn't reflow when the state flips between
-                        // Start / Stop / New route.
-                        modifier = Modifier.widthIn(min = if (roomyHeader) 150.dp else 64.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(label, maxLines = 1) }
-                }
-                // The arrow points the way the panel will move: the portrait
-                // dock folds down, the landscape sidebar folds up to its header.
-                val foldsUp = dockTransparent
-                IconButton(onClick = onToggle) {
-                    Icon(
-                        if (expanded == foldsUp) Icons.Default.KeyboardArrowUp
-                        else Icons.Default.KeyboardArrowDown,
-                        contentDescription = stringResource(
-                            if (expanded) R.string.nav_minimize else R.string.nav_expand
-                        )
-                    )
-                }
-            }
             }
 
             // Expand / collapse is animated -- a hard show/hide on the
@@ -2698,9 +2778,11 @@ private fun BottomPanel(
                         }
                     }
                 }
-                Spacer(Modifier.width(8.dp))
                 // Start button beside the mode icons. Small min width so at rest
-                // ("Start") it stays compact and the icons keep their size.
+                // ("Start") it stays compact and the icons keep their size. Not
+                // when the header sits in the top bar: its button is right there.
+                if (showHeader) {
+                Spacer(Modifier.width(8.dp))
                 HoldableButton(
                     onClick = when {
                         allPassed -> onClearRoute
@@ -2725,6 +2807,7 @@ private fun BottomPanel(
                             }
                         )
                     )
+                }
                 }
                 }
                 }

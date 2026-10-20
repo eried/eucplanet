@@ -87,9 +87,8 @@ private val NAV_FAB_SIZE = 56.dp
  *
  * [panelHeightPx] and [mapBoxHeightPx] are device pixels; in landscape the
  * stops sidebar is [sidebarWidth] wide on the right when [sidebarRight].
- * Collapsed ([sidebarOpen] false) it is only its header row, [panelHeightPx]
- * tall at the top of its side, so that side's items sit at the screen edge
- * under the row instead of beside a sidebar that is not there.
+ * Folded away ([sidebarOpen] false), that side's items sit at the screen edge
+ * instead of beside a sidebar that is not there.
  */
 @Composable
 fun BoxScope.NavigatorOverlay(
@@ -122,17 +121,13 @@ fun BoxScope.NavigatorOverlay(
     val fabStackH = (NAV_FAB_SIZE + 12.dp) * 2
     val fabColumnW = 16.dp + NAV_FAB_SIZE + 16.dp
     val panelDp = with(density) { panelHeightPx.toDp() }
-    // The collapsed sidebar's header row, on its own side only.
-    val headerDp = if (landscape && !sidebarOpen) panelDp else 0.dp
-    val startTop = if (!sidebarRight) headerDp else 0.dp
-    val endTop = if (sidebarRight) headerDp else 0.dp
 
     NavTurnCard(
         state = navState,
         imperial = imperial,
         modifier = Modifier
             .align(Alignment.TopStart)
-            .padding(top = topPad + startTop + 12.dp, start = mapStartInset + 12.dp)
+            .padding(top = topPad + 12.dp, start = mapStartInset + 12.dp)
     )
 
     // Tiles set to None drop out and the rest share the pill; all None, no pill.
@@ -168,7 +163,7 @@ fun BoxScope.NavigatorOverlay(
         // Standing up under the compass, as wide as it. The cap keeps it off
         // the FAB stack when the FABs share that edge, and the segments
         // shrink on short screens.
-        val pillTop = topPad + endTop + 12.dp + NAV_FAB_SIZE + 8.dp
+        val pillTop = topPad + 12.dp + NAV_FAB_SIZE + 8.dp
         val pillBottomReserve = if (sidebarRight) 12.dp else fabStackH + 8.dp
         val pillMax = if (mapBoxHeightPx > 0)
             with(density) { mapBoxHeightPx.toDp() } - pillTop - pillBottomReserve
@@ -360,7 +355,9 @@ fun NavMetricPill(
     val colors = MaterialTheme.appColors
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(percent = 50),
+        // The map buttons' corner, not a capsule: only the speed bubble is
+        // round, so the pill reads as one of the map's buttons.
+        shape = RoundedCornerShape(12.dp),
         color = colors.surface.copy(alpha = PILL_ALPHA),
         contentColor = colors.textPrimary,
         border = BorderStroke(Dp.Hairline, colors.outline),
