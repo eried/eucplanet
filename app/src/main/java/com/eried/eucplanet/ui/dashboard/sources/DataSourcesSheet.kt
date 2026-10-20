@@ -814,6 +814,8 @@ private fun CompareTab(
             applyActionEnabled = wheelInComparison && wheelConnected && proposedCalPct != null,
             onApplyAction = { showApplyDialog = true },
             resetActionLabel = stringResource(com.eried.eucplanet.R.string.sources_reset_avg),
+            // Greyed out until either shown source has recorded a speed.
+            resetActionEnabled = rawSpeedSeriesA.hasNonZeroPoint || rawSpeedSeriesB.hasNonZeroPoint,
             onResetAction = { viewModel.resetRollingAverages() }
         )
         if (showApplyDialog && proposedCalPct != null) {
@@ -958,6 +960,7 @@ private fun ComparisonChart(
     applyActionEnabled: Boolean = false,
     onApplyAction: (() -> Unit)? = null,
     resetActionLabel: String? = null,
+    resetActionEnabled: Boolean = true,
     onResetAction: (() -> Unit)? = null
 ) {
     Row(
@@ -992,6 +995,8 @@ private fun ComparisonChart(
                 Spacer(Modifier.width(4.dp))
                 androidx.compose.material3.TextButton(
                     onClick = onResetAction,
+                    enabled = resetActionEnabled,
+                    colors = com.eried.eucplanet.ui.theme.themedTextButtonColors(),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(
                         horizontal = 8.dp,
                         vertical = 0.dp

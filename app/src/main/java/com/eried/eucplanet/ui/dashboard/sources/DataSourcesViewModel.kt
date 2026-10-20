@@ -99,7 +99,10 @@ class DataSourcesViewModel(
      * so Compose subscribers only recompose when the specific series they're
      * watching changes.
      */
-    data class TimedSeries(val points: List<Pair<Long, Float>> = emptyList())
+    data class TimedSeries(val points: List<Pair<Long, Float>> = emptyList()) {
+        /** False when empty or all zero, so Reset average has nothing to clear. */
+        val hasNonZeroPoint: Boolean get() = points.any { it.second != 0f && !it.second.isNaN() }
+    }
 
     private val _speedSeries = DataSource.values().associateWith {
         MutableStateFlow(TimedSeries())
