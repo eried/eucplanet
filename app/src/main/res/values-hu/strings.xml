@@ -2667,6 +2667,8 @@
     <string name="nav_solve_end_keep_last_desc">A mostani utolsó megálló marad az utolsó.</string>
     <string name="nav_track_locked">Ezt a nyomvonalat pontosan a rajz szerint járod be. Módosításhoz használd a menü Átalakítás megállókká pontját.</string>
     <string name="nav_track_loaded_locked">Ez a nyomvonal rögzítve van a fájlban, és a rajz szerint járod be. Szerkesztéshez: Átalakítás megállókká.</string>
+    <string name="nav_menu_reverse">Útvonal megfordítása</string>
+    <string name="nav_route_reversed">Útvonal megfordítva, kész a visszaútra.</string>
     <string name="nav_track_unlocked">Megállókká alakítva. Most már szerkeszthetők.</string>
     <string name="nav_menu_unlock_track">Átalakítás megállókká</string>
     <string name="nav_unlock_title">Átalakítás megállókká</string>

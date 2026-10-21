@@ -1258,6 +1258,26 @@ class RouteBuilderViewModel @Inject constructor(
         scheduleRecompute(fit = false)
     }
 
+    /**
+     * The way back: the stops in reverse, none reached, so a finished route
+     * becomes the ride home. A locked track turns round and stays locked,
+     * its named places kept; a routed one is fetched again, since one-way
+     * streets can make the way back differ.
+     */
+    fun reverseRoute() {
+        val stops = _waypoints.value
+        if (stops.size < 2) return
+        val track = _track.value
+        if (track.size >= 2) {
+            applyTrack(routeName, track.reversed(), stops.drop(1).dropLast(1).reversed())
+        } else {
+            _waypoints.value = stops.reversed().map { it.copy(passed = false) }
+            cacheDraft()
+            scheduleRecompute(fit = true)
+        }
+        _messages.tryEmit(R.string.nav_route_reversed)
+    }
+
     fun cancelSolve() {
         solveJob?.cancel()
         _solve.value = SolveState.Idle

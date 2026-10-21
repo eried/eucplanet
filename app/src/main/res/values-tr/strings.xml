@@ -2861,6 +2861,8 @@
     <string name="nav_solve_end_keep_last_desc">Şu anki son durak son kalır.</string>
     <string name="nav_track_locked">Bu iz tam çizildiği gibi sürülür. Değiştirmek için menüden Duraklara dönüştür seçeneğini kullan.</string>
     <string name="nav_track_loaded_locked">Bu iz dosyaya sabitlenmiştir ve çizildiği gibi sürülür. Düzenlemek için Duraklara dönüştür seçeneğini kullan.</string>
+    <string name="nav_menu_reverse">Rotayı ters çevir</string>
+    <string name="nav_route_reversed">Rota ters çevrildi, dönüş yoluna hazır.</string>
     <string name="nav_track_unlocked">Duraklara dönüştürüldü. Artık düzenlenebilir.</string>
     <string name="nav_menu_unlock_track">Duraklara dönüştür</string>
     <string name="nav_unlock_title">Duraklara dönüştür</string>

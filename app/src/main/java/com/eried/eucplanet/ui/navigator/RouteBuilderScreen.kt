@@ -1058,7 +1058,9 @@ fun RouteBuilderScreen(
                             onSolve = { solveDialogOpen = true },
                             trackLocked = trackLocked,
                             onUnlockTrack = viewModel::openUnlock,
-                            onLockedTap = viewModel::explainTrackLock
+                            onLockedTap = viewModel::explainTrackLock,
+                            canReverse = waypoints.size >= 2,
+                            onReverse = viewModel::reverseRoute
                         )
                     }
                 }
@@ -2316,7 +2318,9 @@ private fun BuilderMenu(
     onSolve: () -> Unit,
     trackLocked: Boolean,
     onUnlockTrack: () -> Unit,
-    onLockedTap: () -> Unit
+    onLockedTap: () -> Unit,
+    canReverse: Boolean,
+    onReverse: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
         // First, set apart: the one way to edit a locked track. Its dialog
@@ -2365,18 +2369,27 @@ private fun BuilderMenu(
         // Reordering a running route would pull the next stop out from
         // under the rider, so it is a planning action only. Its own group:
         // it works on the stops, not on the route file like the items above.
-        if (canSolve && !navRunning) {
+        // Reverse sits with it: the way back, also once the route is finished.
+        // A locked track reverses too, it stays the same line.
+        if (!navRunning && (canSolve || trackLocked || canReverse)) {
             HorizontalDivider(color = MaterialTheme.appColors.divider)
+        }
+        if (canSolve && !navRunning) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_solve_menu)) },
                 onClick = { onDismiss(); onSolve() }
             )
         } else if (trackLocked && !navRunning) {
             // Greyed on a locked track; a tap says why.
-            HorizontalDivider(color = MaterialTheme.appColors.divider)
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_solve_menu), color = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f)) },
                 onClick = { onDismiss(); onLockedTap() }
+            )
+        }
+        if (canReverse && !navRunning) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_reverse)) },
+                onClick = { onDismiss(); onReverse() }
             )
         }
         // Marker-customization group, bounded by separators above and below

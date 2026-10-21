@@ -2770,6 +2770,8 @@
     <string name="nav_solve_end_keep_last_desc">L\'ultima tappa attuale resta l\'ultima.</string>
     <string name="nav_track_locked">Questa traccia si percorre esattamente come disegnata. Per cambiarla, usa Converti in tappe nel menu.</string>
     <string name="nav_track_loaded_locked">Questa traccia è fissata nel file e si percorre come disegnata. Usa Converti in tappe per modificarla.</string>
+    <string name="nav_menu_reverse">Inverti percorso</string>
+    <string name="nav_route_reversed">Percorso invertito, pronto per il ritorno.</string>
     <string name="nav_track_unlocked">Convertita in tappe. Ora puoi modificarle.</string>
     <string name="nav_menu_unlock_track">Converti in tappe</string>
     <string name="nav_unlock_title">Converti in tappe</string>

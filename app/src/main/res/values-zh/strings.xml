@@ -2730,6 +2730,8 @@
     <string name="nav_solve_end_keep_last_desc">当前的最后一站保持最后。</string>
     <string name="nav_track_locked">此轨迹按绘制的路线骑行。要更改，请使用菜单中的“转换为站点”。</string>
     <string name="nav_track_loaded_locked">此轨迹固定在文件中，按绘制的路线骑行。要编辑，请使用“转换为站点”。</string>
+    <string name="nav_menu_reverse">反转路线</string>
+    <string name="nav_route_reversed">路线已反转，可以返程了。</string>
     <string name="nav_track_unlocked">已转换为站点，现在可以编辑。</string>
     <string name="nav_menu_unlock_track">转换为站点</string>
     <string name="nav_unlock_title">转换为站点</string>

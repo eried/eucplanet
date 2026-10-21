@@ -2752,6 +2752,8 @@
     <string name="nav_solve_end_keep_last_desc">Det nåværende siste stoppet forblir sist.</string>
     <string name="nav_track_locked">Dette sporet kjøres nøyaktig som tegnet. Bruk Konverter til stopp i menyen for å endre det.</string>
     <string name="nav_track_loaded_locked">Dette sporet ligger fast i filen og kjøres som tegnet. Bruk Konverter til stopp for å redigere det.</string>
+    <string name="nav_menu_reverse">Snu ruten</string>
+    <string name="nav_route_reversed">Ruten er snudd, klar for turen hjem.</string>
     <string name="nav_track_unlocked">Konvertert til stopp. De kan redigeres nå.</string>
     <string name="nav_menu_unlock_track">Konverter til stopp</string>
     <string name="nav_unlock_title">Konverter til stopp</string>

@@ -2866,6 +2866,8 @@
     <string name="nav_solve_end_keep_last_desc">Obecny ostatni przystanek zostaje ostatni.</string>
     <string name="nav_track_locked">Ta trasa jest przejeżdżana dokładnie tak, jak narysowana. Aby ją zmienić, użyj Zamień na przystanki w menu.</string>
     <string name="nav_track_loaded_locked">Ta trasa jest zapisana na stałe w pliku i przejeżdżana tak, jak narysowana. Aby ją edytować, użyj Zamień na przystanki.</string>
+    <string name="nav_menu_reverse">Odwróć trasę</string>
+    <string name="nav_route_reversed">Trasa odwrócona, gotowa na powrót.</string>
     <string name="nav_track_unlocked">Zamieniono na przystanki. Można je teraz edytować.</string>
     <string name="nav_menu_unlock_track">Zamień na przystanki</string>
     <string name="nav_unlock_title">Zamień na przystanki</string>

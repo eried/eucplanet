@@ -2862,6 +2862,8 @@
     <string name="nav_solve_end_keep_last_desc">현재 마지막 지점이 마지막으로 유지됩니다.</string>
     <string name="nav_track_locked">이 트랙은 그려진 그대로 주행합니다. 변경하려면 메뉴에서 경유지로 변환을 사용하세요.</string>
     <string name="nav_track_loaded_locked">이 트랙은 파일에 고정되어 그려진 그대로 주행합니다. 편집하려면 경유지로 변환을 사용하세요.</string>
+    <string name="nav_menu_reverse">경로 뒤집기</string>
+    <string name="nav_route_reversed">경로를 뒤집었습니다. 돌아가는 길 준비 완료.</string>
     <string name="nav_track_unlocked">경유지로 변환했습니다. 이제 편집할 수 있습니다.</string>
     <string name="nav_menu_unlock_track">경유지로 변환</string>
     <string name="nav_unlock_title">경유지로 변환</string>

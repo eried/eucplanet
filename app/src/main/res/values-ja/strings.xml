@@ -2864,6 +2864,8 @@
     <string name="nav_solve_end_keep_last_desc">今の最後の地点を最後に保ちます。</string>
     <string name="nav_track_locked">このトラックは描かれた通りに走行します。変更するにはメニューの「経由地に変換」を使ってください。</string>
     <string name="nav_track_loaded_locked">このトラックはファイルに固定され、描かれた通りに走行します。編集するには「経由地に変換」を使ってください。</string>
+    <string name="nav_menu_reverse">ルートを反転</string>
+    <string name="nav_route_reversed">ルートを反転しました。帰り道の準備ができました。</string>
     <string name="nav_track_unlocked">経由地に変換しました。編集できます。</string>
     <string name="nav_menu_unlock_track">経由地に変換</string>
     <string name="nav_unlock_title">経由地に変換</string>

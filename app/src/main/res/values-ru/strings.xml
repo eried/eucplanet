@@ -2866,6 +2866,8 @@
     <string name="nav_solve_end_keep_last_desc">Текущая последняя точка остаётся последней.</string>
     <string name="nav_track_locked">Этот трек проезжается точно как нарисован. Чтобы изменить его, выберите в меню Преобразовать в точки.</string>
     <string name="nav_track_loaded_locked">Этот трек зашит в файл и проезжается как нарисован. Чтобы изменить, выберите Преобразовать в точки.</string>
+    <string name="nav_menu_reverse">Развернуть маршрут</string>
+    <string name="nav_route_reversed">Маршрут развёрнут, можно ехать обратно.</string>
     <string name="nav_track_unlocked">Преобразовано в точки. Теперь их можно редактировать.</string>
     <string name="nav_menu_unlock_track">Преобразовать в точки</string>
     <string name="nav_unlock_title">Преобразовать в точки</string>

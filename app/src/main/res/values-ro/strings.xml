@@ -2668,6 +2668,8 @@
     <string name="nav_solve_end_keep_last_desc">Ultima oprire actuală rămâne ultima.</string>
     <string name="nav_track_locked">Acest traseu se parcurge exact cum e desenat. Ca să-l schimbi, folosește Transformă în opriri din meniu.</string>
     <string name="nav_track_loaded_locked">Acest traseu este fixat în fișier și se parcurge cum e desenat. Folosește Transformă în opriri ca să-l editezi.</string>
+    <string name="nav_menu_reverse">Inversează traseul</string>
+    <string name="nav_route_reversed">Traseu inversat, gata pentru întoarcere.</string>
     <string name="nav_track_unlocked">Transformat în opriri. Acum pot fi editate.</string>
     <string name="nav_menu_unlock_track">Transformă în opriri</string>
     <string name="nav_unlock_title">Transformă în opriri</string>
