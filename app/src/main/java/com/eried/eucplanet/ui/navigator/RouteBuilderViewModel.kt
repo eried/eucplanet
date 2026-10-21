@@ -1046,9 +1046,6 @@ class RouteBuilderViewModel @Inject constructor(
         return true
     }
 
-    /** A greyed control on a locked track was tapped: say why and where to unlock. */
-    fun explainTrackLock() { lockedRefuses() }
-
     fun addWaypoint(lat: Double, lng: Double, name: String = "", fit: Boolean = false) {
         if (lockedRefuses()) return
         if (holdIfFinished { addWaypointNow(lat, lng, name, fit) }) return

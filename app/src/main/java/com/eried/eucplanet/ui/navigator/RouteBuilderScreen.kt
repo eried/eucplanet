@@ -1059,7 +1059,6 @@ fun RouteBuilderScreen(
                             onSolve = { solveDialogOpen = true },
                             trackLocked = trackLocked,
                             onUnlockTrack = viewModel::openUnlock,
-                            onLockedTap = viewModel::explainTrackLock,
                             canReverse = waypoints.size >= 2,
                             onReverse = viewModel::reverseRoute
                         )
@@ -1716,7 +1715,6 @@ fun RouteBuilderScreen(
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
                     navRunning = navRunning,
                     trackLocked = trackLocked,
-                    onLockedTap = viewModel::explainTrackLock,
                     modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
                 )
             }
@@ -1780,7 +1778,7 @@ fun RouteBuilderScreen(
                 PoiDetailsSheet(
                     poi = poi,
                     imperial = imperial,
-                    canAdd = !navRunning,
+                    canAdd = !navRunning && !trackLocked,
                     ocm = selectedPoiOcm,
                     ocmLoading = ocmLoading,
                     onAddStop = { viewModel.addPoiAsStop(poi) },
@@ -1905,34 +1903,26 @@ fun RouteBuilderScreen(
                             }
                         )
                     }
-                    // Remove this stop. Hidden while navigation is running or once
-                    // the whole route is passed (matches the list-row menu).
-                    val canRemoveMarker = !navRunning &&
+                    // Remove this stop. Greyed while navigation is running, once
+                    // the whole route is passed, or on a locked track (matches
+                    // the list-row menu).
+                    val canRemoveMarker = !navRunning && !trackLocked &&
                         !(waypoints.isNotEmpty() && waypoints.all { it.passed })
-                    if (canRemoveMarker) {
-                        if (homePlace == null || workPlace == null) {
-                            HorizontalDivider(color = MaterialTheme.appColors.divider)
-                        }
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            },
-                            text = {
-                                Text(
-                                    stringResource(R.string.nav_remove_stop),
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            },
-                            onClick = {
-                                val i = markerMenuIndex; markerMenuIndex = -1
-                                if (i >= 0) viewModel.removeWaypoint(i)
-                            }
-                        )
+                    if (homePlace == null || workPlace == null) {
+                        HorizontalDivider(color = MaterialTheme.appColors.divider)
                     }
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(Icons.Default.Delete, contentDescription = null)
+                        },
+                        text = { Text(stringResource(R.string.nav_remove_stop)) },
+                        enabled = canRemoveMarker,
+                        colors = removeColors(),
+                        onClick = {
+                            val i = markerMenuIndex; markerMenuIndex = -1
+                            if (i >= 0) viewModel.removeWaypoint(i)
+                        }
+                    )
                 }
             }
 
@@ -2298,6 +2288,15 @@ fun RouteBuilderScreen(
     }
 }
 
+/** Remove stop in red, greyed like the other menu items when it cannot run. */
+@Composable
+private fun removeColors() = MenuDefaults.itemColors(
+    textColor = MaterialTheme.colorScheme.error,
+    leadingIconColor = MaterialTheme.colorScheme.error,
+    disabledTextColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
+    disabledLeadingIconColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
+)
+
 @Composable
 private fun BuilderMenu(
     expanded: Boolean,
@@ -2321,7 +2320,6 @@ private fun BuilderMenu(
     onSolve: () -> Unit,
     trackLocked: Boolean,
     onUnlockTrack: () -> Unit,
-    onLockedTap: () -> Unit,
     canReverse: Boolean,
     onReverse: () -> Unit
 ) {
@@ -2385,20 +2383,12 @@ private fun BuilderMenu(
         // Reverse sits with it: the way back, also once the route is finished.
         // A locked track reverses too, it stays the same line.
         HorizontalDivider(color = MaterialTheme.appColors.divider)
-        if (trackLocked && !navRunning) {
-            // Greyed on a locked track, but a tap says why.
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_solve_menu), color = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f)) },
-                onClick = { onDismiss(); onLockedTap() }
-            )
-        } else {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_solve_menu)) },
-                enabled = canSolve && !navRunning,
-                colors = greyed,
-                onClick = { onDismiss(); onSolve() }
-            )
-        }
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_solve_menu)) },
+            enabled = canSolve && !navRunning && !trackLocked,
+            colors = greyed,
+            onClick = { onDismiss(); onSolve() }
+        )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.nav_menu_reverse)) },
             enabled = canReverse && !navRunning,
@@ -2745,7 +2735,6 @@ private fun BottomPanel(
     /** A locked GPX track: stops, order and mode are read-only, and the
      *  greyed controls say so when tapped. */
     trackLocked: Boolean = false,
-    onLockedTap: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // When every stop is passed, the rider's journey is complete -- the
@@ -2850,18 +2839,6 @@ private fun BottomPanel(
                         .weight(1f)
                         .height(40.dp)
                         .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
-                        // Disabled chips still swallow a tap, so on a locked
-                        // track it is caught before they see it, and explained.
-                        .then(
-                            if (trackLocked && !navRunning) Modifier.pointerInput(Unit) {
-                                awaitEachGesture {
-                                    val pass = androidx.compose.ui.input.pointer.PointerEventPass.Initial
-                                    awaitFirstDown(pass = pass).consume()
-                                    val up = waitForUpOrCancellation(pass = pass)
-                                    if (up != null) { up.consume(); onLockedTap() }
-                                }
-                            } else Modifier
-                        )
                 ) {
                     modes.forEachIndexed { index, (mode, icon, labelRes) ->
                         // Icon tint matches the route line colour for that
@@ -3162,18 +3139,7 @@ private fun BottomPanel(
                                         // alongside pending ones IS removable -- treat it
                                         // like any other entry once nav is stopped.
                                         val canDelete = !navRunning && !allPassed && !trackLocked
-                                        if (trackLocked && !navRunning) {
-                                            // Read-only stop: a lock where the
-                                            // bin was, which says why when tapped.
-                                            IconButton(onClick = onLockedTap) {
-                                                Icon(
-                                                    Icons.Default.Lock,
-                                                    contentDescription = stringResource(R.string.nav_track_badge),
-                                                    tint = MaterialTheme.appColors.textSecondary,
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                            }
-                                        } else IconButton(
+                                        IconButton(
                                             onClick = { onRemove(index) },
                                             enabled = canDelete
                                         ) {
@@ -3218,25 +3184,16 @@ private fun BottomPanel(
                                                 onClick = { rowMenu = false; onSaveWork(index) }
                                             )
                                         }
-                                        if (!navRunning && !allPassed && !trackLocked) {
-                                            HorizontalDivider(color = MaterialTheme.appColors.divider)
-                                            DropdownMenuItem(
-                                                leadingIcon = {
-                                                    Icon(
-                                                        Icons.Default.Delete,
-                                                        contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.error
-                                                    )
-                                                },
-                                                text = {
-                                                    Text(
-                                                        stringResource(R.string.nav_remove_stop),
-                                                        color = MaterialTheme.colorScheme.error
-                                                    )
-                                                },
-                                                onClick = { rowMenu = false; onRemove(index) }
-                                            )
-                                        }
+                                        HorizontalDivider(color = MaterialTheme.appColors.divider)
+                                        DropdownMenuItem(
+                                            leadingIcon = {
+                                                Icon(Icons.Default.Delete, contentDescription = null)
+                                            },
+                                            text = { Text(stringResource(R.string.nav_remove_stop)) },
+                                            enabled = !navRunning && !allPassed && !trackLocked,
+                                            colors = removeColors(),
+                                            onClick = { rowMenu = false; onRemove(index) }
+                                        )
                                     }
                                 }
                             }
