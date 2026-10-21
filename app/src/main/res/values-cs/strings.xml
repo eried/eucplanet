@@ -2668,6 +2668,7 @@
     <string name="nav_solve_end_loop_desc">Vrátí se tam, kde začíná.</string>
     <string name="nav_solve_end_keep_last_desc">Současná poslední zastávka zůstane poslední.</string>
     <string name="nav_track_locked">Tato trasa se jede přesně podle nákresu. Změníš ji přes Převést na zastávky v nabídce.</string>
+    <string name="nav_track_loaded_locked">Tato trasa je pevně daná souborem a jede se podle nákresu. Upravíš ji přes Převést na zastávky.</string>
     <string name="nav_track_unlocked">Převedeno na zastávky. Teď je můžeš upravovat.</string>
     <string name="nav_menu_unlock_track">Převést na zastávky</string>
     <string name="nav_unlock_title">Převést na zastávky</string>

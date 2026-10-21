@@ -2878,6 +2878,7 @@
     <string name="nav_solve_end_loop_desc">Kommer tilbage til, hvor den starter.</string>
     <string name="nav_solve_end_keep_last_desc">Det nuværende sidste stop forbliver sidst.</string>
     <string name="nav_track_locked">Dette spor køres præcis som tegnet. Brug Konvertér til stop i menuen for at ændre det.</string>
+    <string name="nav_track_loaded_locked">Dette spor ligger fast i filen og køres som tegnet. Brug Konvertér til stop for at redigere det.</string>
     <string name="nav_track_unlocked">Konverteret til stop. De kan nu redigeres.</string>
     <string name="nav_menu_unlock_track">Konvertér til stop</string>
     <string name="nav_unlock_title">Konvertér til stop</string>

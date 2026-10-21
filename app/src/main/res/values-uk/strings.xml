@@ -2862,6 +2862,7 @@
     <string name="nav_solve_end_loop_desc">Повертається туди, звідки починається.</string>
     <string name="nav_solve_end_keep_last_desc">Поточна остання точка лишається останньою.</string>
     <string name="nav_track_locked">Цей трек проїжджається точно як намальований. Щоб змінити його, виберіть у меню Перетворити на точки.</string>
+    <string name="nav_track_loaded_locked">Цей трек зашитий у файл і проїжджається як намальований. Щоб змінити, виберіть Перетворити на точки.</string>
     <string name="nav_track_unlocked">Перетворено на точки. Тепер їх можна редагувати.</string>
     <string name="nav_menu_unlock_track">Перетворити на точки</string>
     <string name="nav_unlock_title">Перетворити на точки</string>

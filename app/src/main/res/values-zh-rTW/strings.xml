@@ -2861,6 +2861,7 @@
     <string name="nav_solve_end_loop_desc">回到出發的地方。</string>
     <string name="nav_solve_end_keep_last_desc">目前的最後一站保持最後。</string>
     <string name="nav_track_locked">此軌跡依繪製的路線騎乘。要變更，請使用選單中的「轉換為站點」。</string>
+    <string name="nav_track_loaded_locked">此軌跡固定在檔案中，依繪製的路線騎乘。要編輯，請使用「轉換為站點」。</string>
     <string name="nav_track_unlocked">已轉換為站點，現在可以編輯。</string>
     <string name="nav_menu_unlock_track">轉換為站點</string>
     <string name="nav_unlock_title">轉換為站點</string>

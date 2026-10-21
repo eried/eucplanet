@@ -2863,6 +2863,7 @@
     <string name="nav_solve_end_loop_desc">Kommer tillbaka dit den börjar.</string>
     <string name="nav_solve_end_keep_last_desc">Det nuvarande sista stoppet förblir sist.</string>
     <string name="nav_track_locked">Det här spåret körs exakt som det är ritat. Använd Konvertera till stopp i menyn för att ändra det.</string>
+    <string name="nav_track_loaded_locked">Det här spåret ligger fast i filen och körs som det är ritat. Använd Konvertera till stopp för att redigera det.</string>
     <string name="nav_track_unlocked">Konverterat till stopp. De kan redigeras nu.</string>
     <string name="nav_menu_unlock_track">Konvertera till stopp</string>
     <string name="nav_unlock_title">Konvertera till stopp</string>

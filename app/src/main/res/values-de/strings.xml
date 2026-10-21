@@ -2883,6 +2883,7 @@
     <string name="nav_solve_end_loop_desc">Kommt dorthin zurück, wo sie beginnt.</string>
     <string name="nav_solve_end_keep_last_desc">Der jetzige letzte Stopp bleibt der letzte.</string>
     <string name="nav_track_locked">Dieser Track wird genau wie gezeichnet gefahren. Zum Ändern im Menü In Stopps umwandeln wählen.</string>
+    <string name="nav_track_loaded_locked">Dieser Track ist fest in der Datei und wird wie gezeichnet gefahren. Zum Bearbeiten In Stopps umwandeln.</string>
     <string name="nav_track_unlocked">In Stopps umgewandelt. Sie sind jetzt bearbeitbar.</string>
     <string name="nav_menu_unlock_track">In Stopps umwandeln</string>
     <string name="nav_unlock_title">In Stopps umwandeln</string>

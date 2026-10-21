@@ -11,7 +11,10 @@ only when you can cut the ride short.
 - Map: new style Satellite hybrid (road and place names over the imagery), also in trip details.
 - Map: a GPX track (Organic Maps, BRouter...) opens locked: ridden exactly as drawn, with turn cues from its bends. Stops, order and mode are read-only.
 - Map: only the file's places that lie on the track become stops, by name, spoken as you pass. Bookmarks elsewhere are ignored.
-- Map: Unlock track (menu) turns the track into editable stops along it; pick how many and see the line before you commit.
+- Map: Convert to stops (top of the menu, open padlock) turns the track into editable stops along it; pick how many (the reset is the recommended count) and see the line first.
+- Map: loading a track says it is baked into the file and ridden as drawn. Load route and Save route drop "(GPX)".
+- Map: a shared track that opens the app no longer crashes it.
+- Map: heading-up turns the map with you on curves, from the wheel's speed when connected, even if the phone's GPS gives no speed.
 - Map: Start far from a track rides you to its start first, then follows the track.
 - Map: Save route keeps a locked track locked, and Android Auto's Planned route rides it as drawn.
 - Map: loading a GPX or a shared route zooms to it, even after you moved the map.
@@ -113,7 +116,8 @@ only when you can cut the ride short.
 **Map / navigation**
 - Load a GPX track from Organic Maps or BRouter: the line matches the app it came from, and tapping a mode or a stop's lock explains why it is locked?
 - Ride a locked track: are the turn cues at real turns? Do named places on the track get announced?
-- Unlock track with few and many stops: does the preview match what you get after Unlock?
+- Convert to stops with few and many stops: does the preview match what you get after Convert?
+- Ride with the navigator in heading-up: does the map turn with you on curves and at slow speed? Is the zoom right near turns?
 - Start a track from a few km away: does it take you to the start, then follow the track?
 - Android Auto: load a GPX track on the phone, then Places > Planned route in the car. Does it follow the track?
 - Ride to the last stop: one X closes the arrival banner and ends navigation?

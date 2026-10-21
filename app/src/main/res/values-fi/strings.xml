@@ -2666,6 +2666,7 @@
     <string name="nav_solve_end_loop_desc">Palaa sinne, mistä se alkaa.</string>
     <string name="nav_solve_end_keep_last_desc">Nykyinen viimeinen pysähdys pysyy viimeisenä.</string>
     <string name="nav_track_locked">Tämä jälki ajetaan juuri piirretyn mukaan. Muuta sitä valikon kohdasta Muunna pysähdyksiksi.</string>
+    <string name="nav_track_loaded_locked">Tämä jälki on kiinteästi tiedostossa ja ajetaan piirretyn mukaan. Muokkaa sitä kohdasta Muunna pysähdyksiksi.</string>
     <string name="nav_track_unlocked">Muunnettu pysähdyksiksi. Niitä voi nyt muokata.</string>
     <string name="nav_menu_unlock_track">Muunna pysähdyksiksi</string>
     <string name="nav_unlock_title">Muunna pysähdyksiksi</string>

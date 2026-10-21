@@ -161,6 +161,7 @@ import com.eried.eucplanet.nav.NavFormat
 import com.eried.eucplanet.nav.OcmCharger
 import com.eried.eucplanet.nav.PoiKind
 import com.eried.eucplanet.nav.PointOfInterest
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -550,6 +551,8 @@ fun RouteBuilderScreen(
     // anchor moves on once the rider is COURSE_MIN_M away from it.
     val courseAnchor = remember { arrayOfNulls<android.location.Location>(1) }
     var trackCourse by remember { mutableStateOf<Float?>(null) }
+    // Speed over that same step, for a provider that sends no speed.
+    val courseSpeedMs = remember { floatArrayOf(0f) }
     LaunchedEffect(pageReady, userLocation) {
         val wv = webView ?: return@LaunchedEffect
         val loc = userLocation ?: return@LaunchedEffect
@@ -559,11 +562,21 @@ fun RouteBuilderScreen(
         if (anchor == null || loc.time - anchor.time > COURSE_MAX_AGE_MS) {
             courseAnchor[0] = loc
             trackCourse = null
+            courseSpeedMs[0] = 0f
         } else if (anchor.distanceTo(loc) >= COURSE_MIN_M) {
             trackCourse = (anchor.bearingTo(loc) + 360f) % 360f
+            val dtS = (loc.time - anchor.time) / 1000f
+            courseSpeedMs[0] = if (dtS > 0f) anchor.distanceTo(loc) / dtS else 0f
             courseAnchor[0] = loc
         }
-        val sp = if (loc.hasSpeed()) loc.speed else 0f
+        // A connected wheel decides moving, as the navigation engine does:
+        // GPS speed lags, and some providers send none, which kept the map
+        // from turning at riding speed.
+        val sp = when {
+            viewModel.wheelLive.value -> viewModel.wheelData.value.speed.absoluteValue / 3.6f
+            loc.hasSpeed() -> loc.speed
+            else -> courseSpeedMs[0]
+        }
         wv.evaluateJavascript("nativeSetUserSpeed($sp);", null)
         val newMoving = if (lastSentMoving) sp >= movingOffMps else sp >= movingOnMps
         val heading = trackCourse ?: loc.takeIf { it.hasBearing() }?.bearing

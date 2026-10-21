@@ -2891,6 +2891,7 @@
     <string name="nav_solve_end_loop_desc">Comes back to where it starts.</string>
     <string name="nav_solve_end_keep_last_desc">The current last stop stays last.</string>
     <string name="nav_track_locked">This track is ridden as drawn. To change it, use Convert to stops in the menu.</string>
+    <string name="nav_track_loaded_locked">This track is baked into the file and ridden as drawn. Convert to stops to edit it.</string>
     <string name="nav_track_unlocked">Converted to stops. They can be edited now.</string>
     <string name="nav_menu_unlock_track">Convert to stops</string>
     <string name="nav_unlock_title">Convert to stops</string>

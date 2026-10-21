@@ -2865,6 +2865,7 @@
     <string name="nav_solve_end_loop_desc">Komt terug waar hij begint.</string>
     <string name="nav_solve_end_keep_last_desc">De huidige laatste stop blijft de laatste.</string>
     <string name="nav_track_locked">Deze track wordt precies zo gereden als getekend. Gebruik Omzetten naar stops in het menu om hem te wijzigen.</string>
+    <string name="nav_track_loaded_locked">Deze track zit vast in het bestand en wordt gereden zoals getekend. Omzetten naar stops om te bewerken.</string>
     <string name="nav_track_unlocked">Omgezet naar stops. Ze zijn nu te bewerken.</string>
     <string name="nav_menu_unlock_track">Omzetten naar stops</string>
     <string name="nav_unlock_title">Omzetten naar stops</string>

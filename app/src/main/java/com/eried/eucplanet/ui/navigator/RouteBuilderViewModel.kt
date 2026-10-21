@@ -1644,8 +1644,10 @@ class RouteBuilderViewModel @Inject constructor(
                         cacheDraft()
                         scheduleRecompute(fit = true)
                     }
-                    is com.eried.eucplanet.util.GpxData.Contents.Track ->
+                    is com.eried.eucplanet.util.GpxData.Contents.Track -> {
                         applyTrack(gpx.name, c.track, c.places)
+                        _messages.tryEmit(R.string.nav_track_loaded_locked)
+                    }
                     com.eried.eucplanet.util.GpxData.Contents.Nothing -> {
                         _messages.tryEmit(R.string.nav_load_failed)
                         return@launch
@@ -1811,7 +1813,9 @@ class RouteBuilderViewModel @Inject constructor(
             applyTrack(name, route.track, emptyList())
         }
         _routeClean.value = true
-        _messages.tryEmit(R.string.route_opened)
+        _messages.tryEmit(
+            if (route.stops.isEmpty()) R.string.nav_track_loaded_locked else R.string.route_opened
+        )
     }
 
     /**

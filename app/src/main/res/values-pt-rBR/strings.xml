@@ -2866,6 +2866,7 @@
     <string name="nav_solve_end_loop_desc">Volta para onde começa.</string>
     <string name="nav_solve_end_keep_last_desc">A última parada atual continua sendo a última.</string>
     <string name="nav_track_locked">Esta trilha é percorrida exatamente como desenhada. Para mudá-la, use Converter em paradas no menu.</string>
+    <string name="nav_track_loaded_locked">Esta trilha vem fixa no arquivo e é percorrida como desenhada. Use Converter em paradas para editá-la.</string>
     <string name="nav_track_unlocked">Convertida em paradas. Agora você pode editá-las.</string>
     <string name="nav_menu_unlock_track">Converter em paradas</string>
     <string name="nav_unlock_title">Converter em paradas</string>
