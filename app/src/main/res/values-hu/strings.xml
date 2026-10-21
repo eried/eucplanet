@@ -1957,8 +1957,8 @@
     <string name="nav_mode_walking">Gyalog</string>
     <string name="nav_mode_straight">Egyenes</string>
     <string name="nav_menu">Menü</string>
-    <string name="nav_menu_save">Útvonal mentése (GPX)</string>
-    <string name="nav_menu_load">Útvonal betöltése (GPX)</string>
+    <string name="nav_menu_save">Útvonal mentése</string>
+    <string name="nav_menu_load">Útvonal betöltése</string>
     <string name="nav_menu_clear">Új útvonal</string>
     <string name="nav_finished_title">Útvonal befejezve</string>
     <string name="nav_finished_body">Új útvonalat kezdesz? Az elért megállók törlődnek. Ha meg akarod tartani, előbb mentsd el a menüből.</string>
@@ -2665,14 +2665,14 @@
     <string name="nav_solve_end_anywhere_desc">Annál a megállónál ér véget, amellyel a legrövidebb.</string>
     <string name="nav_solve_end_loop_desc">Visszatér oda, ahonnan indul.</string>
     <string name="nav_solve_end_keep_last_desc">A mostani utolsó megálló marad az utolsó.</string>
-    <string name="nav_track_locked">Ez a nyomvonal zárolva van. A szerkesztéshez válaszd a menüben a Nyomvonal feloldása pontot.</string>
-    <string name="nav_track_unlocked">Nyomvonal feloldva. A megállók most szerkeszthetők.</string>
-    <string name="nav_menu_unlock_track">Nyomvonal feloldása</string>
-    <string name="nav_unlock_title">Nyomvonal feloldása</string>
+    <string name="nav_track_locked">Ezt a nyomvonalat pontosan a rajz szerint járod be. Módosításhoz használd a menü Átalakítás megállókká pontját.</string>
+    <string name="nav_track_unlocked">Megállókká alakítva. Most már szerkeszthetők.</string>
+    <string name="nav_menu_unlock_track">Átalakítás megállókká</string>
+    <string name="nav_unlock_title">Átalakítás megállókká</string>
     <string name="nav_unlock_warning">A pontos nyomvonal helyére egyenes vonalakkal összekötött megállók kerülnek. Megtartásához előbb mentsd a GPX-et.</string>
     <string name="nav_unlock_stops">Megállók</string>
     <string name="nav_unlock_off">Legfeljebb %1$s eltérés a nyomvonaltól</string>
-    <string name="nav_unlock_confirm">Feloldás</string>
+    <string name="nav_unlock_confirm">Átalakítás</string>
     <string name="nav_track_badge">Zárolt nyomvonal</string>
     <string name="voice_nav_place_reached">%1$s elérve</string>
 </resources>

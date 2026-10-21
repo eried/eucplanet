@@ -1742,8 +1742,8 @@
     <string name="nav_mode_walking">À pied</string>
     <string name="nav_mode_straight">Direct</string>
     <string name="nav_menu">Menu</string>
-    <string name="nav_menu_save">Enregistrer l\'itinéraire (GPX)</string>
-    <string name="nav_menu_load">Charger un itinéraire (GPX)</string>
+    <string name="nav_menu_save">Enregistrer l\'itinéraire</string>
+    <string name="nav_menu_load">Charger un itinéraire</string>
     <string name="nav_menu_clear">Nouvel itinéraire</string>
     <string name="nav_finished_title">Itinéraire terminé</string>
     <string name="nav_finished_body">Commencer un nouvel itinéraire ? Les arrêts atteints sont effacés. Pour garder cet itinéraire, enregistre-le d\'abord depuis le menu.</string>
@@ -2867,14 +2867,14 @@
     <string name="nav_solve_end_anywhere_desc">Se termine à l\'arrêt qui le rend le plus court.</string>
     <string name="nav_solve_end_loop_desc">Revient à son point de départ.</string>
     <string name="nav_solve_end_keep_last_desc">Le dernier arrêt actuel reste le dernier.</string>
-    <string name="nav_track_locked">Cette trace est verrouillée. Pour la modifier, utilisez Déverrouiller la trace dans le menu.</string>
-    <string name="nav_track_unlocked">Trace déverrouillée. Les arrêts sont maintenant modifiables.</string>
-    <string name="nav_menu_unlock_track">Déverrouiller la trace</string>
-    <string name="nav_unlock_title">Déverrouiller la trace</string>
+    <string name="nav_track_locked">Cette trace se suit exactement comme dessinée. Pour la modifier, utilise Convertir en arrêts dans le menu.</string>
+    <string name="nav_track_unlocked">Convertie en arrêts. Ils sont modifiables maintenant.</string>
+    <string name="nav_menu_unlock_track">Convertir en arrêts</string>
+    <string name="nav_unlock_title">Convertir en arrêts</string>
     <string name="nav_unlock_warning">La trace exacte est remplacée par des arrêts reliés en ligne droite. Enregistrez d\'abord le GPX pour la garder.</string>
     <string name="nav_unlock_stops">Arrêts</string>
     <string name="nav_unlock_off">S\'écarte jusqu\'à %1$s de la trace</string>
-    <string name="nav_unlock_confirm">Déverrouiller</string>
+    <string name="nav_unlock_confirm">Convertir</string>
     <string name="nav_track_badge">Trace verrouillée</string>
     <string name="voice_nav_place_reached">%1$s atteint</string>
 </resources>

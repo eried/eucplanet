@@ -1683,8 +1683,8 @@
     <string name="nav_mode_walking">A pie</string>
     <string name="nav_mode_straight">Directo</string>
     <string name="nav_menu">Menú</string>
-    <string name="nav_menu_save">Guardar ruta (GPX)</string>
-    <string name="nav_menu_load">Cargar ruta (GPX)</string>
+    <string name="nav_menu_save">Guardar ruta</string>
+    <string name="nav_menu_load">Cargar ruta</string>
     <string name="nav_menu_clear">Nueva ruta</string>
     <string name="nav_finished_title">Ruta terminada</string>
     <string name="nav_finished_body">¿Empezar una ruta nueva? Se borran las paradas alcanzadas. Para conservar esta ruta, guárdala antes desde el menú.</string>
@@ -2860,14 +2860,14 @@
     <string name="nav_solve_end_anywhere_desc">Termina en la parada que la haga más corta.</string>
     <string name="nav_solve_end_loop_desc">Vuelve a donde empieza.</string>
     <string name="nav_solve_end_keep_last_desc">La última parada actual sigue siendo la última.</string>
-    <string name="nav_track_locked">Esta ruta está bloqueada. Para editarla, usa Desbloquear ruta en el menú.</string>
-    <string name="nav_track_unlocked">Ruta desbloqueada. Ya puedes editar las paradas.</string>
-    <string name="nav_menu_unlock_track">Desbloquear ruta</string>
-    <string name="nav_unlock_title">Desbloquear ruta</string>
+    <string name="nav_track_locked">Esta ruta se recorre tal como está dibujada. Para cambiarla, usa Convertir en paradas en el menú.</string>
+    <string name="nav_track_unlocked">Convertida en paradas. Ya puedes editarlas.</string>
+    <string name="nav_menu_unlock_track">Convertir en paradas</string>
+    <string name="nav_unlock_title">Convertir en paradas</string>
     <string name="nav_unlock_warning">La ruta exacta se sustituye por paradas unidas con líneas rectas. Guarda el GPX antes para conservarla.</string>
     <string name="nav_unlock_stops">Paradas</string>
     <string name="nav_unlock_off">Se aleja hasta %1$s de la ruta</string>
-    <string name="nav_unlock_confirm">Desbloquear</string>
+    <string name="nav_unlock_confirm">Convertir</string>
     <string name="nav_track_badge">Ruta bloqueada</string>
     <string name="voice_nav_place_reached">%1$s alcanzado</string>
 </resources>

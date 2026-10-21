@@ -921,8 +921,8 @@
     <string name="nav_finished_title">Percorso completato</string>
     <string name="nav_finished_body">Iniziare un nuovo percorso? Le tappe raggiunte vengono cancellate. Per tenere questo percorso, salvalo prima dal menu.</string>
     <string name="nav_menu_exit">Torna alla dashboard</string>
-    <string name="nav_menu_load">Carica percorso (GPX)</string>
-    <string name="nav_menu_save">Salva percorso (GPX)</string>
+    <string name="nav_menu_load">Carica percorso</string>
+    <string name="nav_menu_save">Salva percorso</string>
     <string name="nav_minimize">Riduci</string>
     <string name="nav_mode_cycling">Bici</string>
     <string name="nav_mode_driving">Auto</string>
@@ -2768,14 +2768,14 @@
     <string name="nav_solve_end_anywhere_desc">Finisce alla tappa che lo rende più breve.</string>
     <string name="nav_solve_end_loop_desc">Torna dove parte.</string>
     <string name="nav_solve_end_keep_last_desc">L\'ultima tappa attuale resta l\'ultima.</string>
-    <string name="nav_track_locked">Questa traccia è bloccata. Per modificarla, usa Sblocca traccia nel menu.</string>
-    <string name="nav_track_unlocked">Traccia sbloccata. Ora puoi modificare le tappe.</string>
-    <string name="nav_menu_unlock_track">Sblocca traccia</string>
-    <string name="nav_unlock_title">Sblocca traccia</string>
+    <string name="nav_track_locked">Questa traccia si percorre esattamente come disegnata. Per cambiarla, usa Converti in tappe nel menu.</string>
+    <string name="nav_track_unlocked">Convertita in tappe. Ora puoi modificarle.</string>
+    <string name="nav_menu_unlock_track">Converti in tappe</string>
+    <string name="nav_unlock_title">Converti in tappe</string>
     <string name="nav_unlock_warning">La traccia esatta viene sostituita da tappe unite da linee rette. Salva prima il GPX per conservarla.</string>
     <string name="nav_unlock_stops">Tappe</string>
     <string name="nav_unlock_off">Si discosta fino a %1$s dalla traccia</string>
-    <string name="nav_unlock_confirm">Sblocca</string>
+    <string name="nav_unlock_confirm">Converti</string>
     <string name="nav_track_badge">Traccia bloccata</string>
     <string name="voice_nav_place_reached">%1$s raggiunto</string>
 </resources>

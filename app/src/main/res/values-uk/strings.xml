@@ -1715,8 +1715,8 @@
     <string name="nav_mode_walking">Пішки</string>
     <string name="nav_mode_straight">Напряму</string>
     <string name="nav_menu">Меню</string>
-    <string name="nav_menu_save">Зберегти маршрут (GPX)</string>
-    <string name="nav_menu_load">Завантажити маршрут (GPX)</string>
+    <string name="nav_menu_save">Зберегти маршрут</string>
+    <string name="nav_menu_load">Завантажити маршрут</string>
     <string name="nav_menu_clear">Новий маршрут</string>
     <string name="nav_finished_title">Маршрут завершено</string>
     <string name="nav_finished_body">Почати новий маршрут? Пройдені точки буде видалено. Щоб зберегти цей маршрут, спершу збережіть його через меню.</string>
@@ -2861,14 +2861,14 @@
     <string name="nav_solve_end_anywhere_desc">Закінчується в точці, з якою він найкоротший.</string>
     <string name="nav_solve_end_loop_desc">Повертається туди, звідки починається.</string>
     <string name="nav_solve_end_keep_last_desc">Поточна остання точка лишається останньою.</string>
-    <string name="nav_track_locked">Цей трек заблоковано. Щоб змінити його, виберіть у меню Розблокувати трек.</string>
-    <string name="nav_track_unlocked">Трек розблоковано. Тепер точки можна змінювати.</string>
-    <string name="nav_menu_unlock_track">Розблокувати трек</string>
-    <string name="nav_unlock_title">Розблокувати трек</string>
+    <string name="nav_track_locked">Цей трек проїжджається точно як намальований. Щоб змінити його, виберіть у меню Перетворити на точки.</string>
+    <string name="nav_track_unlocked">Перетворено на точки. Тепер їх можна редагувати.</string>
+    <string name="nav_menu_unlock_track">Перетворити на точки</string>
+    <string name="nav_unlock_title">Перетворити на точки</string>
     <string name="nav_unlock_warning">Точний трек заміниться точками, з\'єднаними прямими лініями. Щоб зберегти його, спершу збережіть GPX.</string>
     <string name="nav_unlock_stops">Точки</string>
     <string name="nav_unlock_off">Відхиляється від треку до %1$s</string>
-    <string name="nav_unlock_confirm">Розблокувати</string>
+    <string name="nav_unlock_confirm">Перетворити</string>
     <string name="nav_track_badge">Заблокований трек</string>
     <string name="voice_nav_place_reached">%1$s: на місці</string>
 </resources>

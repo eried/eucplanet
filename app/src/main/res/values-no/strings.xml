@@ -902,8 +902,8 @@
     <string name="nav_finished_title">Ruten er fullført</string>
     <string name="nav_finished_body">Starte en ny rute? De nådde stoppene slettes. Lagre ruten fra menyen først hvis du vil beholde den.</string>
     <string name="nav_menu_exit">Tilbake til dashbordet</string>
-    <string name="nav_menu_load">Last inn rute (GPX)</string>
-    <string name="nav_menu_save">Lagre rute (GPX)</string>
+    <string name="nav_menu_load">Last inn rute</string>
+    <string name="nav_menu_save">Lagre rute</string>
     <string name="nav_minimize">Minimer</string>
     <string name="nav_mode_cycling">Sykkel</string>
     <string name="nav_mode_driving">Bil</string>
@@ -2750,14 +2750,14 @@
     <string name="nav_solve_end_anywhere_desc">Slutter ved stoppet som gjør den kortest.</string>
     <string name="nav_solve_end_loop_desc">Kommer tilbake dit den starter.</string>
     <string name="nav_solve_end_keep_last_desc">Det nåværende siste stoppet forblir sist.</string>
-    <string name="nav_track_locked">Dette sporet er låst. Bruk Lås opp spor i menyen for å redigere det.</string>
-    <string name="nav_track_unlocked">Sporet er låst opp. Stoppene kan nå redigeres.</string>
-    <string name="nav_menu_unlock_track">Lås opp spor</string>
-    <string name="nav_unlock_title">Lås opp spor</string>
+    <string name="nav_track_locked">Dette sporet kjøres nøyaktig som tegnet. Bruk Konverter til stopp i menyen for å endre det.</string>
+    <string name="nav_track_unlocked">Konvertert til stopp. De kan redigeres nå.</string>
+    <string name="nav_menu_unlock_track">Konverter til stopp</string>
+    <string name="nav_unlock_title">Konverter til stopp</string>
     <string name="nav_unlock_warning">Det nøyaktige sporet erstattes av stopp forbundet med rette linjer. Lagre GPX-filen først for å beholde det.</string>
     <string name="nav_unlock_stops">Stopp</string>
     <string name="nav_unlock_off">Avviker opptil %1$s fra sporet</string>
-    <string name="nav_unlock_confirm">Lås opp</string>
+    <string name="nav_unlock_confirm">Konverter</string>
     <string name="nav_track_badge">Låst spor</string>
     <string name="voice_nav_place_reached">%1$s nådd</string>
 </resources>

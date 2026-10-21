@@ -1957,8 +1957,8 @@
     <string name="nav_mode_walking">Pe jos</string>
     <string name="nav_mode_straight">Direct</string>
     <string name="nav_menu">Meniu</string>
-    <string name="nav_menu_save">Salvează traseul (GPX)</string>
-    <string name="nav_menu_load">Încarcă traseul (GPX)</string>
+    <string name="nav_menu_save">Salvează traseul</string>
+    <string name="nav_menu_load">Încarcă traseul</string>
     <string name="nav_menu_clear">Traseu nou</string>
     <string name="nav_finished_title">Traseu încheiat</string>
     <string name="nav_finished_body">Începi un traseu nou? Opririle atinse se șterg. Ca să păstrezi acest traseu, salvează-l mai întâi din meniu.</string>
@@ -2666,14 +2666,14 @@
     <string name="nav_solve_end_anywhere_desc">Se termină la oprirea care îl face cel mai scurt.</string>
     <string name="nav_solve_end_loop_desc">Revine de unde pornește.</string>
     <string name="nav_solve_end_keep_last_desc">Ultima oprire actuală rămâne ultima.</string>
-    <string name="nav_track_locked">Acest traseu este blocat. Pentru a-l edita, folosește Deblochează traseul din meniu.</string>
-    <string name="nav_track_unlocked">Traseu deblocat. Opririle pot fi editate acum.</string>
-    <string name="nav_menu_unlock_track">Deblochează traseul</string>
-    <string name="nav_unlock_title">Deblochează traseul</string>
+    <string name="nav_track_locked">Acest traseu se parcurge exact cum e desenat. Ca să-l schimbi, folosește Transformă în opriri din meniu.</string>
+    <string name="nav_track_unlocked">Transformat în opriri. Acum pot fi editate.</string>
+    <string name="nav_menu_unlock_track">Transformă în opriri</string>
+    <string name="nav_unlock_title">Transformă în opriri</string>
     <string name="nav_unlock_warning">Traseul exact este înlocuit de opriri unite prin linii drepte. Salvează mai întâi GPX-ul ca să-l păstrezi.</string>
     <string name="nav_unlock_stops">Opriri</string>
     <string name="nav_unlock_off">Se abate până la %1$s de la traseu</string>
-    <string name="nav_unlock_confirm">Deblochează</string>
+    <string name="nav_unlock_confirm">Transformă</string>
     <string name="nav_track_badge">Traseu blocat</string>
     <string name="voice_nav_place_reached">%1$s atins</string>
 </resources>

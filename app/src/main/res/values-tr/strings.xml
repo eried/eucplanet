@@ -1680,8 +1680,8 @@
     <string name="nav_mode_walking">Yürüyüş</string>
     <string name="nav_mode_straight">Direkt</string>
     <string name="nav_menu">Menü</string>
-    <string name="nav_menu_save">Rotayı kaydet (GPX)</string>
-    <string name="nav_menu_load">Rota yükle (GPX)</string>
+    <string name="nav_menu_save">Rotayı kaydet</string>
+    <string name="nav_menu_load">Rota yükle</string>
     <string name="nav_menu_clear">Yeni rota</string>
     <string name="nav_finished_title">Rota tamamlandı</string>
     <string name="nav_finished_body">Yeni bir rota başlatılsın mı? Ulaşılan duraklar silinir. Bu rotayı saklamak için önce menüden kaydedin.</string>
@@ -2859,14 +2859,14 @@
     <string name="nav_solve_end_anywhere_desc">En kısa olduğu durakta biter.</string>
     <string name="nav_solve_end_loop_desc">Başladığı yere döner.</string>
     <string name="nav_solve_end_keep_last_desc">Şu anki son durak son kalır.</string>
-    <string name="nav_track_locked">Bu iz kilitli. Düzenlemek için menüde İzin kilidini aç\'ı kullanın.</string>
-    <string name="nav_track_unlocked">İzin kilidi açıldı. Duraklar artık düzenlenebilir.</string>
-    <string name="nav_menu_unlock_track">İzin kilidini aç</string>
-    <string name="nav_unlock_title">İzin kilidini aç</string>
+    <string name="nav_track_locked">Bu iz tam çizildiği gibi sürülür. Değiştirmek için menüden Duraklara dönüştür seçeneğini kullan.</string>
+    <string name="nav_track_unlocked">Duraklara dönüştürüldü. Artık düzenlenebilir.</string>
+    <string name="nav_menu_unlock_track">Duraklara dönüştür</string>
+    <string name="nav_unlock_title">Duraklara dönüştür</string>
     <string name="nav_unlock_warning">Tam iz, düz çizgilerle bağlanan duraklarla değiştirilir. Korumak için önce GPX\'i kaydedin.</string>
     <string name="nav_unlock_stops">Duraklar</string>
     <string name="nav_unlock_off">İzden en fazla %1$s sapar</string>
-    <string name="nav_unlock_confirm">Kilidi aç</string>
+    <string name="nav_unlock_confirm">Dönüştür</string>
     <string name="nav_track_badge">Kilitli iz</string>
     <string name="voice_nav_place_reached">%1$s ulaşıldı</string>
 </resources>

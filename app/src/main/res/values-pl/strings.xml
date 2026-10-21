@@ -1696,8 +1696,8 @@
     <string name="nav_mode_walking">Pieszo</string>
     <string name="nav_mode_straight">Bezpośrednio</string>
     <string name="nav_menu">Menu</string>
-    <string name="nav_menu_save">Zapisz trasę (GPX)</string>
-    <string name="nav_menu_load">Wczytaj trasę (GPX)</string>
+    <string name="nav_menu_save">Zapisz trasę</string>
+    <string name="nav_menu_load">Wczytaj trasę</string>
     <string name="nav_menu_clear">Nowa trasa</string>
     <string name="nav_finished_title">Trasa zakończona</string>
     <string name="nav_finished_body">Zacząć nową trasę? Osiągnięte przystanki zostaną usunięte. Aby zachować tę trasę, najpierw zapisz ją z menu.</string>
@@ -2864,14 +2864,14 @@
     <string name="nav_solve_end_anywhere_desc">Kończy się na przystanku, który daje najkrótszą trasę.</string>
     <string name="nav_solve_end_loop_desc">Wraca tam, gdzie się zaczyna.</string>
     <string name="nav_solve_end_keep_last_desc">Obecny ostatni przystanek zostaje ostatni.</string>
-    <string name="nav_track_locked">Ta trasa jest zablokowana. Aby ją edytować, użyj Odblokuj trasę w menu.</string>
-    <string name="nav_track_unlocked">Trasa odblokowana. Przystanki można teraz edytować.</string>
-    <string name="nav_menu_unlock_track">Odblokuj trasę</string>
-    <string name="nav_unlock_title">Odblokuj trasę</string>
+    <string name="nav_track_locked">Ta trasa jest przejeżdżana dokładnie tak, jak narysowana. Aby ją zmienić, użyj Zamień na przystanki w menu.</string>
+    <string name="nav_track_unlocked">Zamieniono na przystanki. Można je teraz edytować.</string>
+    <string name="nav_menu_unlock_track">Zamień na przystanki</string>
+    <string name="nav_unlock_title">Zamień na przystanki</string>
     <string name="nav_unlock_warning">Dokładna trasa zostanie zastąpiona przystankami połączonymi prostymi liniami. Aby ją zachować, najpierw zapisz GPX.</string>
     <string name="nav_unlock_stops">Przystanki</string>
     <string name="nav_unlock_off">Odchyla się do %1$s od trasy</string>
-    <string name="nav_unlock_confirm">Odblokuj</string>
+    <string name="nav_unlock_confirm">Zamień</string>
     <string name="nav_track_badge">Zablokowana trasa</string>
     <string name="voice_nav_place_reached">%1$s osiągnięto</string>
 </resources>

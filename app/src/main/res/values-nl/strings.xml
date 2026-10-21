@@ -1738,8 +1738,8 @@
     <string name="nav_mode_walking">Lopen</string>
     <string name="nav_mode_straight">Direct</string>
     <string name="nav_menu">Menu</string>
-    <string name="nav_menu_save">Route opslaan (GPX)</string>
-    <string name="nav_menu_load">Route laden (GPX)</string>
+    <string name="nav_menu_save">Route opslaan</string>
+    <string name="nav_menu_load">Route laden</string>
     <string name="nav_menu_clear">Nieuwe route</string>
     <string name="nav_finished_title">Route voltooid</string>
     <string name="nav_finished_body">Een nieuwe route beginnen? De bereikte stops worden gewist. Wil je deze route bewaren, sla hem dan eerst op via het menu.</string>
@@ -2864,14 +2864,14 @@
     <string name="nav_solve_end_anywhere_desc">Eindigt bij de stop die hem het kortst maakt.</string>
     <string name="nav_solve_end_loop_desc">Komt terug waar hij begint.</string>
     <string name="nav_solve_end_keep_last_desc">De huidige laatste stop blijft de laatste.</string>
-    <string name="nav_track_locked">Deze track is vergrendeld. Gebruik Track ontgrendelen in het menu om hem te bewerken.</string>
-    <string name="nav_track_unlocked">Track ontgrendeld. De stops zijn nu te bewerken.</string>
-    <string name="nav_menu_unlock_track">Track ontgrendelen</string>
-    <string name="nav_unlock_title">Track ontgrendelen</string>
+    <string name="nav_track_locked">Deze track wordt precies zo gereden als getekend. Gebruik Omzetten naar stops in het menu om hem te wijzigen.</string>
+    <string name="nav_track_unlocked">Omgezet naar stops. Ze zijn nu te bewerken.</string>
+    <string name="nav_menu_unlock_track">Omzetten naar stops</string>
+    <string name="nav_unlock_title">Omzetten naar stops</string>
     <string name="nav_unlock_warning">De exacte track wordt vervangen door stops met rechte lijnen ertussen. Sla eerst de GPX op om hem te bewaren.</string>
     <string name="nav_unlock_stops">Stops</string>
     <string name="nav_unlock_off">Wijkt tot %1$s af van de track</string>
-    <string name="nav_unlock_confirm">Ontgrendelen</string>
+    <string name="nav_unlock_confirm">Omzetten</string>
     <string name="nav_track_badge">Vergrendelde track</string>
     <string name="voice_nav_place_reached">%1$s bereikt</string>
 </resources>

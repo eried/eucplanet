@@ -44,6 +44,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.DirectionsWalk
@@ -2305,6 +2306,24 @@ private fun BuilderMenu(
     onLockedTap: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
+        // First, set apart: the one way to edit a locked track. Its dialog
+        // says to save the GPX first to keep the exact line. The open padlock
+        // answers the closed ones on the stops, the only icon in this menu.
+        if (trackLocked && !navRunning) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_unlock_track)) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.LockOpen,
+                        contentDescription = null,
+                        tint = MaterialTheme.appColors.textSecondary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                onClick = { onDismiss(); onUnlockTrack() }
+            )
+            HorizontalDivider(color = MaterialTheme.appColors.divider)
+        }
         // "Start navigation" is omitted here, it is already a primary button.
         // Save is allowed even while nav is running so the rider can capture
         // the remaining stops as a GPX checkpoint (the trim from
@@ -2315,14 +2334,6 @@ private fun BuilderMenu(
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_save)) },
                 onClick = { onDismiss(); onSave() }
-            )
-        }
-        // Right under Save, so a rider can keep the track as a file before
-        // trading it for editable stops.
-        if (trackLocked && !navRunning) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_unlock_track)) },
-                onClick = { onDismiss(); onUnlockTrack() }
             )
         }
         if (!navRunning) {

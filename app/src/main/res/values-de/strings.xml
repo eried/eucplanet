@@ -1713,8 +1713,8 @@
     <string name="nav_mode_walking">Zu Fuß</string>
     <string name="nav_mode_straight">Direkt</string>
     <string name="nav_menu">Menü</string>
-    <string name="nav_menu_save">Route speichern (GPX)</string>
-    <string name="nav_menu_load">Route laden (GPX)</string>
+    <string name="nav_menu_save">Route speichern</string>
+    <string name="nav_menu_load">Route laden</string>
     <string name="nav_menu_clear">Neue Route</string>
     <string name="nav_finished_title">Route beendet</string>
     <string name="nav_finished_body">Neue Route starten? Die erreichten Stopps werden gelöscht. Um diese Route zu behalten, speichere sie zuerst über das Menü.</string>
@@ -2882,14 +2882,14 @@
     <string name="nav_solve_end_anywhere_desc">Endet am Stopp, mit dem sie am kürzesten ist.</string>
     <string name="nav_solve_end_loop_desc">Kommt dorthin zurück, wo sie beginnt.</string>
     <string name="nav_solve_end_keep_last_desc">Der jetzige letzte Stopp bleibt der letzte.</string>
-    <string name="nav_track_locked">Dieser Track ist gesperrt. Zum Bearbeiten im Menü Track entsperren wählen.</string>
-    <string name="nav_track_unlocked">Track entsperrt. Die Stopps sind jetzt bearbeitbar.</string>
-    <string name="nav_menu_unlock_track">Track entsperren</string>
-    <string name="nav_unlock_title">Track entsperren</string>
+    <string name="nav_track_locked">Dieser Track wird genau wie gezeichnet gefahren. Zum Ändern im Menü In Stopps umwandeln wählen.</string>
+    <string name="nav_track_unlocked">In Stopps umgewandelt. Sie sind jetzt bearbeitbar.</string>
+    <string name="nav_menu_unlock_track">In Stopps umwandeln</string>
+    <string name="nav_unlock_title">In Stopps umwandeln</string>
     <string name="nav_unlock_warning">Der genaue Track wird durch Stopps mit geraden Linien ersetzt. Speichere zuerst die GPX, um ihn zu behalten.</string>
     <string name="nav_unlock_stops">Stopps</string>
     <string name="nav_unlock_off">Weicht bis zu %1$s vom Track ab</string>
-    <string name="nav_unlock_confirm">Entsperren</string>
+    <string name="nav_unlock_confirm">Umwandeln</string>
     <string name="nav_track_badge">Gesperrter Track</string>
     <string name="voice_nav_place_reached">%1$s erreicht</string>
 </resources>
