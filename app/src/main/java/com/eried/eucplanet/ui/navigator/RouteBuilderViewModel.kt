@@ -497,8 +497,10 @@ class RouteBuilderViewModel @Inject constructor(
         // Consume any "Share to EUC Planet" hand-off pending from MainActivity.
         // Runs on every Pending update so multiple shares in a session are all
         // honoured. take() clears the slot atomically so we never process the
-        // same payload twice.
-        viewModelScope.launch {
+        // same payload twice. Dispatched, not immediate: a link that opened
+        // the app is already pending here, and handling it inside the
+        // constructor would reach state declared further down, still null.
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.Main) {
             incomingShareRepository.pending.collect { p ->
                 if (p == null) return@collect
                 val req = incomingShareRepository.take() ?: return@collect
