@@ -125,6 +125,32 @@ class TrackRouteTest {
         assertEquals(1600.0, prog.locate(p(1.0, 0.0))!!.alongM, 5.0)
     }
 
+    /** 300 m north, 100 m east, 150 m south, then 300 m west: the last
+     *  stretch crosses the first one 150 m from the start. */
+    private val crossing: List<GeoPoint> = run {
+        val a = listOf(p(0.0, 0.0)) + north(p(0.0, 0.0), 300)
+        val b = a + east(a.last(), 100)
+        val c = b + south(b.last(), 150)
+        c + west(c.last(), 300)
+    }
+
+    @Test
+    fun `progress through a crossing stays on the pass being ridden`() {
+        val prog = TrackRoute.Progress(crossing)
+        for (n in 0..140 step 10) prog.locate(p(n.toDouble(), 0.0))
+        // At the crossing, a hair nearer the later pass: still the first one.
+        assertEquals(150.5, prog.locate(p(150.5, -0.8))!!.alongM, 2.0)
+        // Ride on round: on the way back the crossing is the later pass.
+        for (i in 16..64) prog.locate(crossing[i]) // to 630 m along
+        assertEquals(650.0, prog.locate(p(150.0, 0.0))!!.alongM, 2.0)
+    }
+
+    @Test
+    fun `progress picks up a rider who joins far along the line`() {
+        val prog = TrackRoute.Progress(ell)
+        assertEquals(800.0, prog.locate(p(500.0, 300.0))!!.alongM, 2.0)
+    }
+
     @Test
     fun `unlocking keeps the corner first, and more stops stray less`() {
         val simp = TrackRoute.Simplifier(ell)

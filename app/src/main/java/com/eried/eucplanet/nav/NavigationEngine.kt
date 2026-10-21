@@ -75,6 +75,8 @@ class NavigationEngine @Inject constructor(
         // "Moving" thresholds: wheel speed (km/h) with a wheel connected,
         // GPS speed (m/s) without one.
         private const val MOVING_MS = 1.2
+        /** How far back the fix is that gives speed when the provider sends none. */
+        private const val NO_SPEED_SPAN_MS = 4_000L
         private const val MOVING_KMH = 4.0
 
         // Turn-by-turn announce distances.
@@ -503,10 +505,15 @@ class NavigationEngine @Inject constructor(
         val now = System.currentTimeMillis()
         val point = GeoPoint(loc.latitude, loc.longitude)
 
-        val gpsSpeed = if (loc.hasSpeed()) loc.speed.toDouble() else 0.0
+        val accuracy = if (loc.hasAccuracy()) loc.accuracy else Float.NaN
+        // Some providers send no speed; then the fixes a few seconds apart
+        // give it, or "Start riding" never ended without a wheel.
+        val gpsSpeed = if (loc.hasSpeed()) loc.speed.toDouble() else
+            recentFixes.lastOrNull { now - it.timeMs >= NO_SPEED_SPAN_MS }?.let {
+                NavMotion.speedFromFixes(GeoMath.distanceM(it.point, point), now - it.timeMs, it.accuracyM, accuracy)
+            } ?: 0.0
         val wheelKmh = abs(wheelRepository.wheelData.value.speed).toDouble()
         val wheelConnected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
-        val accuracy = if (loc.hasAccuracy()) loc.accuracy else Float.NaN
         val moving = NavMotion.isMoving(
             wheelConnected, wheelKmh, movingKmh, gpsSpeed, MOVING_MS,
             accuracy.takeUnless { it.isNaN() })

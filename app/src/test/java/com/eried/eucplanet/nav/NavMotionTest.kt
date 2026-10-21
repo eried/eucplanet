@@ -1,5 +1,6 @@
 package com.eried.eucplanet.nav
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -42,5 +43,14 @@ class NavMotionTest {
     @Test fun `unknown accuracy falls back to the minimum displacement`() {
         assertTrue(NavMotion.headingDispOk(8.0, minDisp, Float.NaN, 0f))
         assertFalse(NavMotion.headingDispOk(7.9, minDisp, Float.NaN, Float.NaN))
+    }
+
+    @Test
+    fun `speed from fixes counts riding, not drift`() {
+        // 20 m in 4 s with 5 m fixes: 5 m/s.
+        assertEquals(5.0, NavMotion.speedFromFixes(20.0, 4_000L, 5f, 5f), 1e-9)
+        // 8 m of drift in 4 s with 15 m fixes: standing.
+        assertEquals(0.0, NavMotion.speedFromFixes(8.0, 4_000L, 15f, 15f), 1e-9)
+        assertEquals(0.0, NavMotion.speedFromFixes(20.0, 0L, 5f, 5f), 1e-9)
     }
 }

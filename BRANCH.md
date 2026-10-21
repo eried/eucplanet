@@ -15,6 +15,8 @@ only when you can cut the ride short.
 - Map: loading a track says it is baked into the file and ridden as drawn. Load route and Save route drop "(GPX)".
 - Map: a shared track that opens the app no longer crashes it.
 - Map: heading-up turns the map with you on curves, from the wheel's speed when connected, even if the phone's GPS gives no speed.
+- Map: a locked track that crosses itself, loops or doubles back keeps its cues in order; it no longer jumps ahead to "You have arrived" at a crossing.
+- Map: without a wheel, a phone whose GPS sends no speed still starts riding.
 - Map: Reverse route (menu) turns the stops round for the way back, also after you arrived. A locked track reverses its line.
 - Map: the navigator zooms closer under 10 km/h, and near a turn it keeps 15 s of road ahead in view, so it zooms in less when you are fast.
 - Map: Start far from a track rides you to its start first, then follows the track.

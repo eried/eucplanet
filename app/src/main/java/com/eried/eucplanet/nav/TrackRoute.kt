@@ -199,6 +199,12 @@ object TrackRoute {
 
         fun locate(p: GeoPoint): GeoMath.PolylineHit? {
             if (line.size < 2) return null
+            // The stretch being ridden wins while the rider is on it: where a
+            // track crosses or doubles back on itself, a later pass can be a
+            // hair nearer, and jumping to it skips cues and says "arrived".
+            nearest(p, atM - STAY_BACK_M, atM + STAY_AHEAD_M)
+                ?.takeIf { it.distanceM <= STAY_M }
+                ?.let { atM = it.alongM; return it }
             val lo = indexAt(atM - BACK_M)
             val hi = maxOf(indexAt(atM + AHEAD_M) + 1, lo + 1).coerceAtMost(line.lastIndex)
             val near = GeoMath.nearestOnPolyline(p, line.subList(lo, hi + 1))
@@ -210,6 +216,13 @@ object TrackRoute {
             return hit
         }
 
+        private fun nearest(p: GeoPoint, fromM: Double, toM: Double): GeoMath.PolylineHit? {
+            val lo = indexAt(fromM)
+            val hi = maxOf(indexAt(toM) + 1, lo + 1).coerceAtMost(line.lastIndex)
+            return GeoMath.nearestOnPolyline(p, line.subList(lo, hi + 1))
+                ?.let { GeoMath.PolylineHit(it.segmentIndex + lo, it.distanceM, it.alongM + cum[lo]) }
+        }
+
         private fun indexAt(m: Double): Int {
             if (m <= 0.0) return 0
             val i = java.util.Arrays.binarySearch(cum, m)
@@ -217,6 +230,10 @@ object TrackRoute {
         }
 
         private companion object {
+            /** The stretch kept while the rider is within [STAY_M] of it. */
+            const val STAY_BACK_M = 20.0
+            const val STAY_AHEAD_M = 60.0
+            const val STAY_M = 25.0
             const val BACK_M = 100.0
             const val AHEAD_M = 1500.0
             const val LOST_M = 300.0

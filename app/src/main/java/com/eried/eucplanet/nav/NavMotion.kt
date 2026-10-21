@@ -25,6 +25,17 @@ object NavMotion {
     }
 
     /**
+     * Speed for a provider that sends none: the net displacement over
+     * [dtMs] (meant to be a few seconds), counted only once it clears both
+     * fixes' accuracy and [minDispM], so standing with drifting GPS stays 0.
+     */
+    fun speedFromFixes(dispM: Double, dtMs: Long, firstAccM: Float, lastAccM: Float, minDispM: Double = 10.0): Double {
+        if (dtMs <= 0L) return 0.0
+        if (!headingDispOk(dispM, minDispM, firstAccM, lastAccM)) return 0.0
+        return dispM / (dtMs / 1000.0)
+    }
+
+    /**
      * The net displacement must clear [minDispM] and the larger known accuracy
      * of the first and last fix. NaN or 0 means unknown.
      */
