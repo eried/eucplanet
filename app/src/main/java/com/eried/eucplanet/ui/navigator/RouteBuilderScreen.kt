@@ -1669,15 +1669,7 @@ fun RouteBuilderScreen(
             // Landscape: only the list, in a sidebar the top bar's chevron shows
             // or hides, since the header lives in the top bar there.
             val bottomPanelContent: @Composable (Modifier) -> Unit = { panelMod ->
-                val unlockNow = unlockState
-                if (unlockNow != null) UnlockTrackPanel(
-                    state = unlockNow,
-                    imperial = imperial,
-                    onCount = viewModel::setUnlockCount,
-                    onCancel = viewModel::cancelUnlock,
-                    onUnlock = viewModel::confirmUnlock,
-                    modifier = panelMod.onSizeChanged { sz -> panelHeightPx = sz.height }
-                ) else BottomPanel(
+                BottomPanel(
                     expanded = landscape || panelExpanded,
                     onToggle = { panelExpanded = !panelExpanded },
                     // Landscape: sidebar Column paints the translucent tone, so
@@ -1964,6 +1956,16 @@ fun RouteBuilderScreen(
 
             if (solveDialogOpen) {
                 SolveRouteDialog(viewModel = viewModel, imperial = imperial, onClose = { solveDialogOpen = false })
+            }
+
+            unlockState?.let { unlockNow ->
+                UnlockTrackDialog(
+                    state = unlockNow,
+                    imperial = imperial,
+                    onCount = viewModel::setUnlockCount,
+                    onCancel = viewModel::cancelUnlock,
+                    onUnlock = viewModel::confirmUnlock,
+                )
             }
 
             // A stop added to a finished route (every stop reached): New

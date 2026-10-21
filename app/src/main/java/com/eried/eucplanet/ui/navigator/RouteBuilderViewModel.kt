@@ -1499,7 +1499,7 @@ class RouteBuilderViewModel @Inject constructor(
             routeJob?.cancel()
             _route.value = TrackRoute.route(routeName, track, _waypoints.value)
             _routing.value = false
-            _pendingPreview.value = _unlock.value?.line ?: emptyList()
+            _pendingPreview.value = emptyList()
             bumpRender(fit)
             enrichWaypointNames()
             return
@@ -1722,8 +1722,8 @@ class RouteBuilderViewModel @Inject constructor(
     private var unlockKeep: List<Int> = emptyList()
     private var unlockRecommended = 0
 
-    /** Opens Unlock track with the fewest stops that keep within
-     *  [UNLOCK_TARGET_OFF_M] of the line, previewed on the map. */
+    /** Opens Convert to stops with the fewest stops that keep within
+     *  [UNLOCK_TARGET_OFF_M] of the line. */
     fun openUnlock() {
         val track = _track.value
         if (track.size < 2 || navigationEngine.isActive) return
@@ -1744,22 +1744,18 @@ class RouteBuilderViewModel @Inject constructor(
     private fun unlockCap(simp: TrackRoute.Simplifier): Int =
         (MAX_WAYPOINTS - simp.fixedCount).coerceAtLeast(0).coerceAtMost(simp.maxAdded)
 
-    /** The rider changed how many points become stops: redraw the preview. */
+    /** The rider changed how many points become stops. */
     fun setUnlockCount(added: Int) {
         val simp = simplifier ?: return
         val track = _track.value
         val n = added.coerceIn(0, unlockCap(simp))
         val line = simp.pick(n).map { track[it] }
         _unlock.value = UnlockState(n, unlockCap(simp), line, simp.maxOffM(n), unlockRecommended)
-        _pendingPreview.value = line
-        bumpRender(fit = false)
     }
 
     fun cancelUnlock() {
         _unlock.value = null
         simplifier = null
-        _pendingPreview.value = emptyList()
-        bumpRender(fit = false)
     }
 
     /**
