@@ -158,6 +158,36 @@ class TrackRouteTest {
     }
 
     @Test
+    fun `starting on the track follows it at once and counts the start as reached`() {
+        val stops = TrackRoute.stops(ell, emptyList())
+        val plan = TrackRoute.start("Ride", ell, stops, p(20.0, 0.0), TrackRoute.JOIN_M)!!
+        assertEquals(null, plan.leadInTo)
+        assertEquals(listOf(true, false), plan.stops.map { it.passed })
+        assertEquals(1000.0, plan.leg!!.totalDistanceM, 5.0)
+        assertEquals(ell, plan.leg!!.track)
+    }
+
+    @Test
+    fun `starting away from the track rides to its start first`() {
+        val stops = TrackRoute.stops(ell, emptyList())
+        val plan = TrackRoute.start("Ride", ell, stops, p(-300.0, 0.0), TrackRoute.JOIN_M)!!
+        assertEquals(null, plan.leg)
+        assertEquals(stops.first().point(), plan.leadInTo!!.point())
+        assertEquals(stops, plan.stops)
+    }
+
+    @Test
+    fun `resuming starts from the last stop reached, and a finished track does not start`() {
+        val cafe = Waypoint(p(500.0, 0.0).lat, p(500.0, 0.0).lng, "Corner")
+        val stops = TrackRoute.stops(ell, listOf(cafe)).mapIndexed { i, w -> w.copy(passed = i <= 1) }
+        val plan = TrackRoute.start("Ride", ell, stops, p(510.0, 0.0), TrackRoute.JOIN_M)!!
+        assertEquals(500.0, plan.leg!!.totalDistanceM, 5.0)
+        val away = TrackRoute.start("Ride", ell, stops, p(0.0, 0.0), TrackRoute.JOIN_M)!!
+        assertEquals("Corner", away.leadInTo!!.name)
+        assertEquals(null, TrackRoute.start("Ride", ell, stops.map { it.copy(passed = true) }, p(0.0, 0.0), 100.0))
+    }
+
+    @Test
     fun `a locked track counts as a fixed line`() {
         val r = TrackRoute.route("Ride", ell, TrackRoute.stops(ell, emptyList()))
         assertTrue(r.isFixedTrack(r.waypoints))

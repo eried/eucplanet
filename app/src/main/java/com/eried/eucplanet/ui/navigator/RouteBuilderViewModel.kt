@@ -137,10 +137,6 @@ class RouteBuilderViewModel @Inject constructor(
         /** Unlock track opens with the fewest stops that keep this close. */
         const val UNLOCK_TARGET_OFF_M = 50.0
 
-        /** Within this of a locked track's start, guidance follows the line at
-         *  once; further, it takes the rider there first. */
-        const val TRACK_JOIN_M = 100.0
-
         const val MAX_WAYPOINTS = 50
 
         /** How far the rider moves before the route preview is recomputed. */
@@ -1843,7 +1839,10 @@ class RouteBuilderViewModel @Inject constructor(
                 // stops alone; straight-line if the router is unavailable.
                 val stops = _waypoints.value
                 val saveMode = _travelMode.value
+                val track = _track.value
                 val route = when {
+                    // A locked track saves its own line, so it reopens locked.
+                    track.size >= 2 -> TrackRoute.route(routeName, track, stops)
                     stops.size < 2 || saveMode == TravelMode.STRAIGHT ->
                         RoutingService.straightLineRoute(routeName, stops)
                     else ->
@@ -2436,21 +2435,13 @@ class RouteBuilderViewModel @Inject constructor(
      * that point in their own travel mode, then follows the line.
      */
     private suspend fun startTrack(track: List<GeoPoint>, dests: List<Waypoint>, me: GeoPoint) {
-        val ahead = dests.filter { !it.passed }
-        if (ahead.isEmpty()) return
-        val anchorIdx = dests.indexOfLast { it.passed }.takeIf { it >= 0 } ?: 0
-        val anchor = dests[anchorIdx]
-        val nearM = maxOf(defaultRadiusM.toDouble(), TRACK_JOIN_M)
-        val atAnchor = GeoMath.distanceM(me, anchor.point()) <= nearM
-        val stops: List<Waypoint>
-        val navRoute: NavRoute
-        if (atAnchor) {
-            // The start counts as reached the moment the rider is on it.
-            stops = dests.mapIndexed { i, w -> if (i <= anchorIdx) w.copy(passed = true) else w }
-            navRoute = TrackRoute.leg(routeName, track, listOf(anchor.copy(passed = false)) + stops.drop(anchorIdx + 1))
-        } else {
-            stops = dests
-            val legWps = listOf(Waypoint(me.lat, me.lng), anchor.copy(passed = false))
+        val plan = TrackRoute.start(
+            routeName, track, dests, me, maxOf(defaultRadiusM.toDouble(), TrackRoute.JOIN_M)
+        ) ?: return
+        val stops = plan.stops
+        val atAnchor = plan.leg != null
+        val navRoute: NavRoute = plan.leg ?: run {
+            val legWps = listOf(Waypoint(me.lat, me.lng), plan.leadInTo!!)
             val mode = _travelMode.value
             val leadIn = if (mode == TravelMode.STRAIGHT) {
                 RoutingService.straightLineRoute(routeName, legWps)
@@ -2458,7 +2449,7 @@ class RouteBuilderViewModel @Inject constructor(
                 routingService.route(routeName, legWps, mode, routerUrl, avoidances)
                     ?: RoutingService.straightLineRoute(routeName, legWps)
             }
-            navRoute = leadIn.copy(track = track)
+            leadIn.copy(track = track)
         }
         _waypoints.value = stops
         _route.value = navRoute.copy(

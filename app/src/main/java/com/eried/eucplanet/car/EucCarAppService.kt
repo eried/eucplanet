@@ -448,7 +448,8 @@ class EucCarAppService : CarAppService() {
                         .setTitle(carContext.getString(R.string.car_planned_route, planned.size))
                         .addText(planned.last().name.ifBlank { " " })
                         .setOnClickListener {
-                            navigateTo(planned)
+                            val stored = currentRouteStore.get()
+                            if (stored != null && stored.isLockedTrack) rideTrack(stored) else navigateTo(planned)
                             screenManager.pop()
                         }.build()
                 )
@@ -484,6 +485,42 @@ class EucCarAppService : CarAppService() {
      * Straight lines aim at one goal at a time, so a straight planned route
      * starts with its first stop.
      */
+    /**
+     * Rides a planned locked track as drawn, as the navigator's Start does:
+     * from its start or the last stop reached, or to that point first in the
+     * travel mode last picked when the rider is further away.
+     */
+    private fun rideTrack(stored: com.eried.eucplanet.data.model.NavRoute) {
+        val loc = tripRepository.currentLocation.value ?: return
+        kotlinx.coroutines.MainScope().launch {
+            val s = settingsRepository.get()
+            val name = stored.name
+            val track = stored.track
+            val me = com.eried.eucplanet.data.model.GeoPoint(loc.latitude, loc.longitude)
+            val plan = com.eried.eucplanet.nav.TrackRoute.start(
+                name, track, stored.waypoints, me,
+                maxOf(s.navArrivalRadiusM.toDouble(), com.eried.eucplanet.nav.TrackRoute.JOIN_M)
+            ) ?: return@launch
+            val route = plan.leg ?: run {
+                val wps = listOf(Waypoint(loc.latitude, loc.longitude), plan.leadInTo!!)
+                val mode = TravelMode.fromName(s.navDefaultTravelMode)
+                val leadIn = if (mode == TravelMode.STRAIGHT) null
+                else routingService.route(name, wps, mode, RoutingService.effectiveRouterUrl(s.navRouterUrl))
+                (leadIn ?: RoutingService.straightLineRoute(name, wps)).copy(track = track)
+            }
+            navigationEngine.start(route, NavMode.TURN_BY_TURN)
+            currentRouteStore.set(
+                route.copy(
+                    waypoints = plan.stops,
+                    geometry = emptyList(),
+                    maneuvers = emptyList(),
+                    totalDistanceM = 0.0,
+                    track = track
+                )
+            )
+        }
+    }
+
     private fun navigateTo(stops: List<Waypoint>) {
         val loc = tripRepository.currentLocation.value ?: return
         if (stops.isEmpty()) return

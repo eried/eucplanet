@@ -711,10 +711,10 @@ class NavigationEngine @Inject constructor(
         // and this stays silent -- the leg-by-leg arrival flow is untouched.
         if (reached > lastIntermediateAnnounced && reached < route.waypoints.size - 1) {
             lastIntermediateAnnounced = reached
-            Log.i(TAG, "INTERMEDIATE-STOP reached=$reached of ${route.waypoints.size - 1}")
+            // A track's places are named stops: say which one.
+            val name = route.waypoints.getOrNull(reached)?.name?.takeIf { route.isLockedTrack && it.isNotBlank() }
+            Log.i(TAG, "INTERMEDIATE-STOP reached=$reached of ${route.waypoints.size - 1} place=$name")
             if (voiceEnabled) {
-                // A track's places are named stops: say which one.
-                val name = route.waypoints.getOrNull(reached)?.name?.takeIf { route.isLockedTrack && it.isNotBlank() }
                 voiceService.announceEvent(
                     if (name != null) context.getString(R.string.voice_nav_place_reached, name)
                     else context.getString(R.string.voice_nav_goal_reached)

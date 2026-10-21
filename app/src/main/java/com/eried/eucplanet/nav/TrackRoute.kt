@@ -290,4 +290,25 @@ object TrackRoute {
             const val MAX_ADDED = 200
         }
     }
+
+    /** Within this of the point a locked track resumes from, guidance follows
+     *  the line at once; further, it takes the rider there first. */
+    const val JOIN_M = 100.0
+
+    /**
+     * How a locked track starts from [me]. It resumes from the last stop
+     * reached, or its start. Already there ([leg] set), the rider follows the
+     * line from it and it counts as reached. Further away, [leadInTo] is the
+     * point to ride to first.
+     */
+    data class Start(val stops: List<Waypoint>, val leg: NavRoute?, val leadInTo: Waypoint?)
+
+    fun start(name: String, track: List<GeoPoint>, dests: List<Waypoint>, me: GeoPoint, nearM: Double): Start? {
+        if (dests.none { !it.passed }) return null
+        val anchorIdx = dests.indexOfLast { it.passed }.takeIf { it >= 0 } ?: 0
+        val anchor = dests[anchorIdx].copy(passed = false)
+        if (GeoMath.distanceM(me, anchor.point()) > nearM) return Start(dests, null, anchor)
+        val stops = dests.mapIndexed { i, w -> if (i <= anchorIdx) w.copy(passed = true) else w }
+        return Start(stops, leg(name, track, listOf(anchor) + stops.drop(anchorIdx + 1)), null)
+    }
 }

@@ -13,6 +13,8 @@ only when you can cut the ride short.
 - Map: only the file's places that lie on the track become stops, by name, spoken as you pass. Bookmarks elsewhere are ignored.
 - Map: Unlock track (menu) turns the track into editable stops along it; pick how many and see the line before you commit.
 - Map: Start far from a track rides you to its start first, then follows the track.
+- Map: Save route keeps a locked track locked, and Android Auto's Planned route rides it as drawn.
+- Map: loading a GPX or a shared route zooms to it, even after you moved the map.
 - Map: Share route sends your stops as a QR code, a link or a QR picture. Nothing is uploaded, the route is inside the code.
 - Map: Scan QR (in Share) opens a route or joins a group ride. A route asks before replacing yours.
 - Map: friends without the app open the link in a browser: the stops, the distances, Download GPX.
@@ -113,6 +115,7 @@ only when you can cut the ride short.
 - Ride a locked track: are the turn cues at real turns? Do named places on the track get announced?
 - Unlock track with few and many stops: does the preview match what you get after Unlock?
 - Start a track from a few km away: does it take you to the start, then follow the track?
+- Android Auto: load a GPX track on the phone, then Places > Planned route in the car. Does it follow the track?
 - Ride to the last stop: one X closes the arrival banner and ends navigation?
 - After arriving, add a stop: New route clears the old stops, Cancel adds nothing?
 - Satellite hybrid: road names readable over the imagery?

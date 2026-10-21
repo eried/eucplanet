@@ -447,8 +447,13 @@ fun RouteBuilderScreen(
     LaunchedEffect(pageReady) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
+        // The first render replays the last one, so coming back from Settings
+        // keeps the view the rider left. Every later render is something they
+        // just did (a GPX loaded, a place picked) and fits as asked.
+        var replayed = false
         viewModel.mapRender.collect { mr ->
-            val fit = mr.fit && viewModel.savedView.value == null
+            val fit = mr.fit && (replayed || viewModel.savedView.value == null)
+            replayed = true
             // While a route is still solving, this render is transient (one pin,
             // no geometry yet). Tell the map so it defers the fit to the settled
             // render, avoiding the first-stop "zoom in to the pin, then out to
