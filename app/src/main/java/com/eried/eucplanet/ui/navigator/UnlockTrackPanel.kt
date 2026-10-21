@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.nav.NavFormat
-import com.eried.eucplanet.ui.settings.NumberUpDown
+import com.eried.eucplanet.ui.settings.NumberFieldWithDefault
 import com.eried.eucplanet.ui.theme.appColors
 
 /**
@@ -54,21 +54,23 @@ fun UnlockTrackPanel(
                 style = MaterialTheme.typography.bodySmall,
                 color = c.textSecondary,
             )
+            // The settings shape: label inside the field, the recommended count
+            // under it as the reset, the description on the right.
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.nav_unlock_stops), style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        stringResource(R.string.nav_unlock_off, NavFormat.distance(context, state.maxOffM, imperial)),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = c.textSecondary,
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                NumberUpDown(
+                NumberFieldWithDefault(
                     value = state.line.size,
                     onValueChange = { onCount(it - fixed) },
                     range = fixed..(fixed + state.maxAdded),
+                    default = fixed + state.recommendedAdded,
+                    label = stringResource(R.string.nav_unlock_stops),
                     modifier = Modifier.weight(1.4f),
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    stringResource(R.string.nav_unlock_off, NavFormat.distance(context, state.maxOffM, imperial)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = c.textSecondary,
+                    modifier = Modifier.weight(1f),
                 )
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {

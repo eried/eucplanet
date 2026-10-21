@@ -1682,13 +1682,21 @@ class RouteBuilderViewModel @Inject constructor(
     // --- Unlock track ------------------------------------------------------------
 
     /** The Unlock track dialog's state: how many points along the line become
-     *  stops, the straight line through them, and how far it strays. */
-    data class UnlockState(val added: Int, val maxAdded: Int, val line: List<GeoPoint>, val maxOffM: Double)
+     *  stops, the straight line through them, how far it strays, and the
+     *  count it opened with (the fewest that stay close), offered as the reset. */
+    data class UnlockState(
+        val added: Int,
+        val maxAdded: Int,
+        val line: List<GeoPoint>,
+        val maxOffM: Double,
+        val recommendedAdded: Int = added,
+    )
 
     private val _unlock = MutableStateFlow<UnlockState?>(null)
     val unlock: StateFlow<UnlockState?> = _unlock.asStateFlow()
     private var simplifier: TrackRoute.Simplifier? = null
     private var unlockKeep: List<Int> = emptyList()
+    private var unlockRecommended = 0
 
     /** Opens Unlock track with the fewest stops that keep within
      *  [UNLOCK_TARGET_OFF_M] of the line, previewed on the map. */
@@ -1705,8 +1713,8 @@ class RouteBuilderViewModel @Inject constructor(
         }
         val simp = TrackRoute.Simplifier(track, unlockKeep)
         simplifier = simp
-        val cap = unlockCap(simp)
-        setUnlockCount(simp.fewestWithin(UNLOCK_TARGET_OFF_M, cap))
+        unlockRecommended = simp.fewestWithin(UNLOCK_TARGET_OFF_M, unlockCap(simp))
+        setUnlockCount(unlockRecommended)
     }
 
     private fun unlockCap(simp: TrackRoute.Simplifier): Int =
@@ -1718,7 +1726,7 @@ class RouteBuilderViewModel @Inject constructor(
         val track = _track.value
         val n = added.coerceIn(0, unlockCap(simp))
         val line = simp.pick(n).map { track[it] }
-        _unlock.value = UnlockState(n, unlockCap(simp), line, simp.maxOffM(n))
+        _unlock.value = UnlockState(n, unlockCap(simp), line, simp.maxOffM(n), unlockRecommended)
         _pendingPreview.value = line
         bumpRender(fit = false)
     }
