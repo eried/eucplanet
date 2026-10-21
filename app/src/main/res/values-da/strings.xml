@@ -1751,7 +1751,7 @@
     <string name="nav_my_location">Min position</string>
     <string name="nav_fit_all">Vis alle</string>
     <string name="nav_no_location">Venter på GPS-fix…</string>
-    <string name="nav_too_far_to_start">Første stop er for langt væk. Hold Start nede for at navigere alligevel.</string>
+    <string name="nav_too_far_to_start">For langt fra første stop. Tryk og hold Start for at starte alligevel.</string>
     <string name="nav_empty_hint">Tryk på kortet, søg, eller indlæs en GPX-fil.</string>
     <string name="nav_route_failed">Rutetjeneste utilgængelig, bruger lige linjer</string>
     <string name="nav_cant_add_while_running">Kan ikke tilføje et stop, mens navigation kører</string>
@@ -2878,7 +2878,7 @@
     <string name="nav_solve_end_loop_desc">Kommer tilbage til, hvor den starter.</string>
     <string name="nav_solve_end_keep_last_desc">Det nuværende sidste stop forbliver sidst.</string>
     <string name="nav_track_locked">Dette spor køres præcis som tegnet. Brug Konvertér til stop i menuen for at ændre det.</string>
-    <string name="nav_track_loaded_locked">Dette spor ligger fast i filen og køres som tegnet. Brug Konvertér til stop for at redigere det.</string>
+    <string name="nav_track_loaded_locked">Følger det optagede spor. Brug Konvertér til stop for at redigere det.</string>
     <string name="nav_menu_reverse">Vend ruten</string>
     <string name="nav_route_reversed">Ruten er vendt, klar til turen hjem.</string>
     <string name="nav_track_unlocked">Konverteret til stop. De kan nu redigeres.</string>

@@ -1774,7 +1774,7 @@
     <string name="nav_my_location">Моє місцеперебування</string>
     <string name="nav_fit_all">Показати всіх</string>
     <string name="nav_no_location">Очікуємо на сигнал GPS…</string>
-    <string name="nav_too_far_to_start">Перша зупинка задалеко. Утримуй «Пуск», щоб все одно почати навігацію.</string>
+    <string name="nav_too_far_to_start">Задалеко від першої зупинки. Утримуй «Пуск», щоб почати все одно.</string>
     <string name="nav_empty_hint">Торкнись карти, скористайся пошуком або завантаж файл GPX.</string>
     <string name="nav_route_failed">Сервіс маршрутів недоступний, використовуються прямі лінії</string>
     <string name="nav_cant_add_while_running">Не можна додати зупинку під час навігації</string>
@@ -2862,7 +2862,7 @@
     <string name="nav_solve_end_loop_desc">Повертається туди, звідки починається.</string>
     <string name="nav_solve_end_keep_last_desc">Поточна остання точка лишається останньою.</string>
     <string name="nav_track_locked">Цей трек проїжджається точно як намальований. Щоб змінити його, виберіть у меню Перетворити на точки.</string>
-    <string name="nav_track_loaded_locked">Цей трек зашитий у файл і проїжджається як намальований. Щоб змінити, виберіть Перетворити на точки.</string>
+    <string name="nav_track_loaded_locked">Ведемо за записаним треком. Щоб змінити, виберіть Перетворити на точки.</string>
     <string name="nav_menu_reverse">Розвернути маршрут</string>
     <string name="nav_route_reversed">Маршрут розвернуто, можна їхати назад.</string>
     <string name="nav_track_unlocked">Перетворено на точки. Тепер їх можна редагувати.</string>

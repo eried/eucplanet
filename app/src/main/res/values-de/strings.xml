@@ -1772,7 +1772,7 @@
     <string name="nav_my_location">Mein Standort</string>
     <string name="nav_fit_all">Alle einrahmen</string>
     <string name="nav_no_location">Warte auf GPS-Signal…</string>
-    <string name="nav_too_far_to_start">Der erste Halt ist zu weit entfernt. Start halten, um trotzdem zu navigieren.</string>
+    <string name="nav_too_far_to_start">Zu weit vom ersten Halt entfernt. Start gedrückt halten, um trotzdem zu starten.</string>
     <string name="nav_empty_hint">Karte antippen, suchen oder GPX-Datei laden.</string>
     <string name="nav_route_failed">Routing-Dienst nicht erreichbar, gerade Linien werden verwendet</string>
     <string name="nav_cant_add_while_running">Während der Navigation kann kein Halt hinzugefügt werden</string>
@@ -2883,7 +2883,7 @@
     <string name="nav_solve_end_loop_desc">Kommt dorthin zurück, wo sie beginnt.</string>
     <string name="nav_solve_end_keep_last_desc">Der jetzige letzte Stopp bleibt der letzte.</string>
     <string name="nav_track_locked">Dieser Track wird genau wie gezeichnet gefahren. Zum Ändern im Menü In Stopps umwandeln wählen.</string>
-    <string name="nav_track_loaded_locked">Dieser Track ist fest in der Datei und wird wie gezeichnet gefahren. Zum Bearbeiten In Stopps umwandeln.</string>
+    <string name="nav_track_loaded_locked">Folgt dem aufgezeichneten Track. Zum Bearbeiten In Stopps umwandeln.</string>
     <string name="nav_menu_reverse">Route umkehren</string>
     <string name="nav_route_reversed">Route umgekehrt, bereit für den Rückweg.</string>
     <string name="nav_track_unlocked">In Stopps umgewandelt. Sie sind jetzt bearbeitbar.</string>

@@ -1031,7 +1031,7 @@
     <string name="nav_stops_left">%1$d stopp igjen</string>
     <string name="nav_tap_on_self">Hold inne et stopp i Stopp-listen for å sette det til posisjonen din</string>
     <string name="nav_title">Rutebygger</string>
-    <string name="nav_too_far_to_start">Første stopp er for langt unna. Hold inne Start for å navigere likevel.</string>
+    <string name="nav_too_far_to_start">For langt fra første stopp. Trykk og hold Start for å starte likevel.</string>
     <string name="nav_turn_left">Sving til venstre</string>
     <string name="nav_turn_right">Sving til høyre</string>
     <string name="nav_turn_sharp_left">Skarp venstre</string>
@@ -2751,7 +2751,7 @@
     <string name="nav_solve_end_loop_desc">Kommer tilbake dit den starter.</string>
     <string name="nav_solve_end_keep_last_desc">Det nåværende siste stoppet forblir sist.</string>
     <string name="nav_track_locked">Dette sporet kjøres nøyaktig som tegnet. Bruk Konverter til stopp i menyen for å endre det.</string>
-    <string name="nav_track_loaded_locked">Dette sporet ligger fast i filen og kjøres som tegnet. Bruk Konverter til stopp for å redigere det.</string>
+    <string name="nav_track_loaded_locked">Følger det innspilte sporet. Bruk Konverter til stopp for å redigere det.</string>
     <string name="nav_menu_reverse">Snu ruten</string>
     <string name="nav_route_reversed">Ruten er snudd, klar for turen hjem.</string>
     <string name="nav_track_unlocked">Konvertert til stopp. De kan redigeres nå.</string>

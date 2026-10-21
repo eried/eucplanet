@@ -1742,7 +1742,7 @@
     <string name="nav_my_location">Моё местоположение</string>
     <string name="nav_fit_all">Показать всех</string>
     <string name="nav_no_location">Ожидание сигнала GPS…</string>
-    <string name="nav_too_far_to_start">Первая остановка слишком далеко. Удерживайте «Пуск», чтобы всё равно начать навигацию.</string>
+    <string name="nav_too_far_to_start">Слишком далеко от первой остановки. Удерживайте «Пуск», чтобы начать всё равно.</string>
     <string name="nav_empty_hint">Коснитесь карты, выполните поиск или загрузите файл GPX.</string>
     <string name="nav_route_failed">Сервис маршрутов недоступен, используются прямые линии</string>
     <string name="nav_cant_add_while_running">Нельзя добавить остановку во время навигации</string>
@@ -2865,7 +2865,7 @@
     <string name="nav_solve_end_loop_desc">Возвращается туда, откуда начинается.</string>
     <string name="nav_solve_end_keep_last_desc">Текущая последняя точка остаётся последней.</string>
     <string name="nav_track_locked">Этот трек проезжается точно как нарисован. Чтобы изменить его, выберите в меню Преобразовать в точки.</string>
-    <string name="nav_track_loaded_locked">Этот трек зашит в файл и проезжается как нарисован. Чтобы изменить, выберите Преобразовать в точки.</string>
+    <string name="nav_track_loaded_locked">Ведём по записанному треку. Чтобы изменить, выберите Преобразовать в точки.</string>
     <string name="nav_menu_reverse">Развернуть маршрут</string>
     <string name="nav_route_reversed">Маршрут развёрнут, можно ехать обратно.</string>
     <string name="nav_track_unlocked">Преобразовано в точки. Теперь их можно редактировать.</string>

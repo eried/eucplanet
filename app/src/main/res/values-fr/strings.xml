@@ -1801,7 +1801,7 @@
     <string name="nav_my_location">Ma position</string>
     <string name="nav_fit_all">Tout cadrer</string>
     <string name="nav_no_location">En attente d\'un signal GPS…</string>
-    <string name="nav_too_far_to_start">Le premier arrêt est trop loin. Maintiens Démarrer pour lancer la navigation quand même.</string>
+    <string name="nav_too_far_to_start">Trop loin du premier arrêt. Maintiens Démarrer pour forcer le départ.</string>
     <string name="nav_empty_hint">Touche la carte, fais une recherche ou charge un fichier GPX.</string>
     <string name="nav_route_failed">Service de routage indisponible, lignes droites utilisées</string>
     <string name="nav_cant_add_while_running">Impossible d\'ajouter un arrêt pendant la navigation</string>
@@ -2868,7 +2868,7 @@
     <string name="nav_solve_end_loop_desc">Revient à son point de départ.</string>
     <string name="nav_solve_end_keep_last_desc">Le dernier arrêt actuel reste le dernier.</string>
     <string name="nav_track_locked">Cette trace se suit exactement comme dessinée. Pour la modifier, utilise Convertir en arrêts dans le menu.</string>
-    <string name="nav_track_loaded_locked">Cette trace est figée dans le fichier et se suit comme dessinée. Convertir en arrêts pour la modifier.</string>
+    <string name="nav_track_loaded_locked">Suivi de la trace enregistrée. Convertir en arrêts pour la modifier.</string>
     <string name="nav_menu_reverse">Inverser l’itinéraire</string>
     <string name="nav_route_reversed">Itinéraire inversé, prêt pour le retour.</string>
     <string name="nav_track_unlocked">Convertie en arrêts. Ils sont modifiables maintenant.</string>

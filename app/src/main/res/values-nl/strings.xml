@@ -1797,7 +1797,7 @@
     <string name="nav_my_location">Mijn locatie</string>
     <string name="nav_fit_all">Iedereen in beeld</string>
     <string name="nav_no_location">Wachten op een GPS-fix…</string>
-    <string name="nav_too_far_to_start">De eerste stop is te ver weg. Houd Start ingedrukt om toch te navigeren.</string>
+    <string name="nav_too_far_to_start">Te ver van de eerste stop. Houd Start ingedrukt om toch te beginnen.</string>
     <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand.</string>
     <string name="nav_route_failed">Routeringsservice niet beschikbaar, rechte lijnen gebruikt</string>
     <string name="nav_cant_add_while_running">Kan geen stop toevoegen terwijl navigatie loopt</string>
@@ -2865,7 +2865,7 @@
     <string name="nav_solve_end_loop_desc">Komt terug waar hij begint.</string>
     <string name="nav_solve_end_keep_last_desc">De huidige laatste stop blijft de laatste.</string>
     <string name="nav_track_locked">Deze track wordt precies zo gereden als getekend. Gebruik Omzetten naar stops in het menu om hem te wijzigen.</string>
-    <string name="nav_track_loaded_locked">Deze track zit vast in het bestand en wordt gereden zoals getekend. Omzetten naar stops om te bewerken.</string>
+    <string name="nav_track_loaded_locked">Volgt de opgenomen track. Omzetten naar stops om te bewerken.</string>
     <string name="nav_menu_reverse">Route omkeren</string>
     <string name="nav_route_reversed">Route omgekeerd, klaar voor de terugweg.</string>
     <string name="nav_track_unlocked">Omgezet naar stops. Ze zijn nu te bewerken.</string>

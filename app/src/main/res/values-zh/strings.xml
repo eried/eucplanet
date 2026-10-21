@@ -1014,7 +1014,7 @@
     <string name="nav_stops_left">还剩 %1$d 个途经点</string>
     <string name="nav_tap_on_self">在途经点列表中,长按某个途经点即可将其设为你的位置</string>
     <string name="nav_title">路线编辑器</string>
-    <string name="nav_too_far_to_start">第一站太远。长按「开始」仍可开始导航。</string>
+    <string name="nav_too_far_to_start">离第一站太远。长按「开始」可强制开始。</string>
     <string name="nav_turn_left">左转</string>
     <string name="nav_turn_right">右转</string>
     <string name="nav_turn_sharp_left">向左急转</string>
@@ -2729,7 +2729,7 @@
     <string name="nav_solve_end_loop_desc">回到出发的地方。</string>
     <string name="nav_solve_end_keep_last_desc">当前的最后一站保持最后。</string>
     <string name="nav_track_locked">此轨迹按绘制的路线骑行。要更改，请使用菜单中的“转换为站点”。</string>
-    <string name="nav_track_loaded_locked">此轨迹固定在文件中，按绘制的路线骑行。要编辑，请使用“转换为站点”。</string>
+    <string name="nav_track_loaded_locked">正在按记录的轨迹导航。要编辑，请使用“转换为站点”。</string>
     <string name="nav_menu_reverse">反转路线</string>
     <string name="nav_route_reversed">路线已反转，可以返程了。</string>
     <string name="nav_track_unlocked">已转换为站点，现在可以编辑。</string>

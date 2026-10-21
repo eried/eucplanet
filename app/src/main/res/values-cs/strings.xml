@@ -2041,7 +2041,7 @@
     <string name="nav_my_location">Moje poloha</string>
     <string name="nav_fit_all">Zobrazit všechny</string>
     <string name="nav_no_location">Čekám na polohu GPS…</string>
-    <string name="nav_too_far_to_start">První zastávka je příliš daleko. Podržením Start budete navigovat i tak.</string>
+    <string name="nav_too_far_to_start">Jsi příliš daleko od první zastávky. Podrž Start pro spuštění i tak.</string>
     <string name="nav_empty_hint">Klepněte na mapu, vyhledejte nebo načtěte soubor GPX.</string>
     <string name="nav_route_failed">Služba plánování tras není dostupná, používám přímé čáry</string>
     <string name="nav_cant_add_while_running">Během navigace nelze přidat zastávku</string>
@@ -2668,7 +2668,7 @@
     <string name="nav_solve_end_loop_desc">Vrátí se tam, kde začíná.</string>
     <string name="nav_solve_end_keep_last_desc">Současná poslední zastávka zůstane poslední.</string>
     <string name="nav_track_locked">Tato trasa se jede přesně podle nákresu. Změníš ji přes Převést na zastávky v nabídce.</string>
-    <string name="nav_track_loaded_locked">Tato trasa je pevně daná souborem a jede se podle nákresu. Upravíš ji přes Převést na zastávky.</string>
+    <string name="nav_track_loaded_locked">Jedeš podle nahrané trasy. Upravíš ji přes Převést na zastávky.</string>
     <string name="nav_menu_reverse">Obrátit trasu</string>
     <string name="nav_route_reversed">Trasa obrácena, připravena na cestu zpět.</string>
     <string name="nav_track_unlocked">Převedeno na zastávky. Teď je můžeš upravovat.</string>

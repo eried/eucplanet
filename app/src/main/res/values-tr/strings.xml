@@ -1739,7 +1739,7 @@
     <string name="nav_my_location">Konumum</string>
     <string name="nav_fit_all">Herkesi göster</string>
     <string name="nav_no_location">GPS düzeltmesi bekleniyor…</string>
-    <string name="nav_too_far_to_start">İlk durak çok uzak. Navigasyonu yine de başlatmak için Başlat düğmesini basılı tutun.</string>
+    <string name="nav_too_far_to_start">İlk durağa çok uzaksın. Yine de başlatmak için Başlat düğmesini basılı tut.</string>
     <string name="nav_empty_hint">Haritaya dokunun, arama yapın veya GPX dosyası yükleyin.</string>
     <string name="nav_route_failed">Yönlendirme servisi kullanılamıyor, düz çizgiler kullanılıyor</string>
     <string name="nav_cant_add_while_running">Navigasyon çalışırken durak eklenemez</string>
@@ -2860,7 +2860,7 @@
     <string name="nav_solve_end_loop_desc">Başladığı yere döner.</string>
     <string name="nav_solve_end_keep_last_desc">Şu anki son durak son kalır.</string>
     <string name="nav_track_locked">Bu iz tam çizildiği gibi sürülür. Değiştirmek için menüden Duraklara dönüştür seçeneğini kullan.</string>
-    <string name="nav_track_loaded_locked">Bu iz dosyaya sabitlenmiştir ve çizildiği gibi sürülür. Düzenlemek için Duraklara dönüştür seçeneğini kullan.</string>
+    <string name="nav_track_loaded_locked">Kaydedilmiş iz takip ediliyor. Düzenlemek için Duraklara dönüştür seçeneğini kullan.</string>
     <string name="nav_menu_reverse">Rotayı ters çevir</string>
     <string name="nav_route_reversed">Rota ters çevrildi, dönüş yoluna hazır.</string>
     <string name="nav_track_unlocked">Duraklara dönüştürüldü. Artık düzenlenebilir.</string>

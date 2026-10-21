@@ -2290,7 +2290,7 @@
     <string name="nav_my_location">My location</string>
     <string name="nav_fit_all">Frame everyone</string>
     <string name="nav_no_location">Waiting for a GPS fix…</string>
-    <string name="nav_too_far_to_start">First stop is too far away. Hold Start to navigate anyway.</string>
+    <string name="nav_too_far_to_start">Too far from the first stop. Press and hold Start to override.</string>
     <string name="nav_empty_hint">Tap the map, search, or load a GPX file.</string>
     <string name="nav_route_failed">Routing service unavailable, using straight lines</string>
     <string name="nav_cant_add_while_running">Can\'t add a stop while navigation is running</string>
@@ -2891,7 +2891,7 @@
     <string name="nav_solve_end_loop_desc">Comes back to where it starts.</string>
     <string name="nav_solve_end_keep_last_desc">The current last stop stays last.</string>
     <string name="nav_track_locked">This track is ridden as drawn. To change it, use Convert to stops in the menu.</string>
-    <string name="nav_track_loaded_locked">This track is baked into the file and ridden as drawn. Convert to stops to edit it.</string>
+    <string name="nav_track_loaded_locked">Following the recorded track. Convert to stops to edit it.</string>
     <string name="nav_menu_reverse">Reverse route</string>
     <string name="nav_route_reversed">Route reversed, ready for the way back.</string>
     <string name="nav_track_unlocked">Converted to stops. They can be edited now.</string>

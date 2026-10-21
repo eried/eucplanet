@@ -88,6 +88,7 @@ import coil.compose.AsyncImage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -2325,21 +2326,30 @@ private fun BuilderMenu(
     onReverse: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
+        // Route actions stay in place and grey out when they cannot run, so
+        // the menu keeps its shape and the rider sees what exists.
+        val greyed = MenuDefaults.itemColors(
+            textColor = MaterialTheme.appColors.textPrimary,
+            disabledTextColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
+            trailingIconColor = MaterialTheme.appColors.textSecondary,
+            disabledTrailingIconColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
+        )
         // First, set apart: the one way to edit a locked track. Its dialog
         // says to save the GPX first to keep the exact line. The open padlock sits
         // at the end so the text stays in line with the rest, answering the
-        // closed ones on the stops.
-        if (trackLocked && !navRunning) {
+        // closed ones on the stops. Only a locked track has it at all.
+        if (trackLocked) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_unlock_track)) },
                 trailingIcon = {
                     Icon(
                         Icons.Default.LockOpen,
                         contentDescription = null,
-                        tint = MaterialTheme.appColors.textSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                 },
+                enabled = !navRunning,
+                colors = greyed,
                 onClick = { onDismiss(); onUnlockTrack() }
             )
             HorizontalDivider(color = MaterialTheme.appColors.divider)
@@ -2348,53 +2358,53 @@ private fun BuilderMenu(
         // Save is allowed even while nav is running so the rider can capture
         // the remaining stops as a GPX checkpoint (the trim from
         // syncBuilderRoute means the saved file only contains stops still
-        // ahead). Load / Clear stay hidden during nav, both would replace
+        // ahead). Load / Clear grey out during nav, both would replace
         // the running route, which is destructive. Load leads: opening a
         // route is the more common start than saving one.
-        if (!navRunning) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_load)) },
-                onClick = { onDismiss(); onLoad() }
-            )
-        }
-        if (hasStops) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_save)) },
-                onClick = { onDismiss(); onSave() }
-            )
-        }
-        if (hasStops && !navRunning) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_clear)) },
-                onClick = { onDismiss(); onClear() }
-            )
-        }
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_load)) },
+            enabled = !navRunning,
+            colors = greyed,
+            onClick = { onDismiss(); onLoad() }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_save)) },
+            enabled = hasStops,
+            colors = greyed,
+            onClick = { onDismiss(); onSave() }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_clear)) },
+            enabled = hasStops && !navRunning,
+            colors = greyed,
+            onClick = { onDismiss(); onClear() }
+        )
         // Reordering a running route would pull the next stop out from
         // under the rider, so it is a planning action only. Its own group:
         // it works on the stops, not on the route file like the items above.
         // Reverse sits with it: the way back, also once the route is finished.
         // A locked track reverses too, it stays the same line.
-        if (!navRunning && (canSolve || trackLocked || canReverse)) {
-            HorizontalDivider(color = MaterialTheme.appColors.divider)
-        }
-        if (canSolve && !navRunning) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_solve_menu)) },
-                onClick = { onDismiss(); onSolve() }
-            )
-        } else if (trackLocked && !navRunning) {
-            // Greyed on a locked track; a tap says why.
+        HorizontalDivider(color = MaterialTheme.appColors.divider)
+        if (trackLocked && !navRunning) {
+            // Greyed on a locked track, but a tap says why.
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_solve_menu), color = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f)) },
                 onClick = { onDismiss(); onLockedTap() }
             )
-        }
-        if (canReverse && !navRunning) {
+        } else {
             DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_reverse)) },
-                onClick = { onDismiss(); onReverse() }
+                text = { Text(stringResource(R.string.nav_solve_menu)) },
+                enabled = canSolve && !navRunning,
+                colors = greyed,
+                onClick = { onDismiss(); onSolve() }
             )
         }
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_menu_reverse)) },
+            enabled = canReverse && !navRunning,
+            colors = greyed,
+            onClick = { onDismiss(); onReverse() }
+        )
         // Marker-customization group, bounded by separators above and below
         // so the rider's-avatar actions read as a distinct cluster from the
         // route / settings items.

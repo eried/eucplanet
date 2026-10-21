@@ -2041,7 +2041,7 @@
     <string name="nav_my_location">Sijaintini</string>
     <string name="nav_fit_all">Näytä kaikki</string>
     <string name="nav_no_location">Odotetaan GPS-paikannusta…</string>
-    <string name="nav_too_far_to_start">Ensimmäinen pysähdys on liian kaukana. Pidä Aloita pohjassa navigoidaksesi silti.</string>
+    <string name="nav_too_far_to_start">Liian kaukana ensimmäisestä pysähdyksestä. Pidä Aloita pohjassa ohittaaksesi.</string>
     <string name="nav_empty_hint">Napauta karttaa, hae tai lataa GPX-tiedosto.</string>
     <string name="nav_route_failed">Reititinpalvelu ei ole käytettävissä, käytetään suoria viivoja</string>
     <string name="nav_cant_add_while_running">Pysähdystä ei voi lisätä navigoinnin ollessa käynnissä</string>
@@ -2666,7 +2666,7 @@
     <string name="nav_solve_end_loop_desc">Palaa sinne, mistä se alkaa.</string>
     <string name="nav_solve_end_keep_last_desc">Nykyinen viimeinen pysähdys pysyy viimeisenä.</string>
     <string name="nav_track_locked">Tämä jälki ajetaan juuri piirretyn mukaan. Muuta sitä valikon kohdasta Muunna pysähdyksiksi.</string>
-    <string name="nav_track_loaded_locked">Tämä jälki on kiinteästi tiedostossa ja ajetaan piirretyn mukaan. Muokkaa sitä kohdasta Muunna pysähdyksiksi.</string>
+    <string name="nav_track_loaded_locked">Seurataan tallennettua jälkeä. Muokkaa sitä kohdasta Muunna pysähdyksiksi.</string>
     <string name="nav_menu_reverse">Käännä reitti</string>
     <string name="nav_route_reversed">Reitti käännetty, valmis paluumatkalle.</string>
     <string name="nav_track_unlocked">Muunnettu pysähdyksiksi. Niitä voi nyt muokata.</string>

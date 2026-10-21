@@ -2041,7 +2041,7 @@
     <string name="nav_my_location">Locația mea</string>
     <string name="nav_fit_all">Încadrează pe toți</string>
     <string name="nav_no_location">Se așteaptă poziția GPS…</string>
-    <string name="nav_too_far_to_start">Prima oprire este prea departe. Ține apăsat Start ca să navighezi oricum.</string>
+    <string name="nav_too_far_to_start">Prea departe de prima oprire. Ține apăsat Start ca să pornești oricum.</string>
     <string name="nav_empty_hint">Atinge harta, caută sau încarcă un fișier GPX.</string>
     <string name="nav_route_failed">Serviciul de trasee este indisponibil, se folosesc linii drepte</string>
     <string name="nav_cant_add_while_running">Nu poți adăuga o oprire în timp ce navigarea rulează</string>
@@ -2667,7 +2667,7 @@
     <string name="nav_solve_end_loop_desc">Revine de unde pornește.</string>
     <string name="nav_solve_end_keep_last_desc">Ultima oprire actuală rămâne ultima.</string>
     <string name="nav_track_locked">Acest traseu se parcurge exact cum e desenat. Ca să-l schimbi, folosește Transformă în opriri din meniu.</string>
-    <string name="nav_track_loaded_locked">Acest traseu este fixat în fișier și se parcurge cum e desenat. Folosește Transformă în opriri ca să-l editezi.</string>
+    <string name="nav_track_loaded_locked">Urmezi traseul înregistrat. Folosește Transformă în opriri ca să-l editezi.</string>
     <string name="nav_menu_reverse">Inversează traseul</string>
     <string name="nav_route_reversed">Traseu inversat, gata pentru întoarcere.</string>
     <string name="nav_track_unlocked">Transformat în opriri. Acum pot fi editate.</string>

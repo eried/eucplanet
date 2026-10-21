@@ -1742,7 +1742,7 @@
     <string name="nav_my_location">Minha localização</string>
     <string name="nav_fit_all">Enquadrar todos</string>
     <string name="nav_no_location">Aguardando sinal de GPS…</string>
-    <string name="nav_too_far_to_start">A primeira parada está longe demais. Mantenha Iniciar pressionado para navegar mesmo assim.</string>
+    <string name="nav_too_far_to_start">Longe demais da primeira parada. Mantenha Iniciar pressionado para forçar o início.</string>
     <string name="nav_empty_hint">Toque no mapa, pesquise ou carregue um arquivo GPX.</string>
     <string name="nav_route_failed">Serviço de roteamento indisponível; usando linhas retas</string>
     <string name="nav_cant_add_while_running">Não é possível adicionar parada com a navegação ativa</string>
@@ -2866,7 +2866,7 @@
     <string name="nav_solve_end_loop_desc">Volta para onde começa.</string>
     <string name="nav_solve_end_keep_last_desc">A última parada atual continua sendo a última.</string>
     <string name="nav_track_locked">Esta trilha é percorrida exatamente como desenhada. Para mudá-la, use Converter em paradas no menu.</string>
-    <string name="nav_track_loaded_locked">Esta trilha vem fixa no arquivo e é percorrida como desenhada. Use Converter em paradas para editá-la.</string>
+    <string name="nav_track_loaded_locked">Seguindo a trilha gravada. Use Converter em paradas para editá-la.</string>
     <string name="nav_menu_reverse">Inverter rota</string>
     <string name="nav_route_reversed">Rota invertida, pronta para a volta.</string>
     <string name="nav_track_unlocked">Convertida em paradas. Agora você pode editá-las.</string>

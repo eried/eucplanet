@@ -1738,7 +1738,7 @@
     <string name="nav_my_location">Min plats</string>
     <string name="nav_fit_all">Visa alla</string>
     <string name="nav_no_location">Väntar på GPS-fix…</string>
-    <string name="nav_too_far_to_start">Första stoppet är för långt bort. Håll inne Starta för att navigera ändå.</string>
+    <string name="nav_too_far_to_start">För långt från första stoppet. Håll inne Starta för att starta ändå.</string>
     <string name="nav_empty_hint">Tryck på kartan, sök, eller läs in en GPX-fil.</string>
     <string name="nav_route_failed">Ruttjänst otillgänglig, använder raka linjer</string>
     <string name="nav_cant_add_while_running">Kan inte lägga till stopp medan navigation körs</string>
@@ -2863,7 +2863,7 @@
     <string name="nav_solve_end_loop_desc">Kommer tillbaka dit den börjar.</string>
     <string name="nav_solve_end_keep_last_desc">Det nuvarande sista stoppet förblir sist.</string>
     <string name="nav_track_locked">Det här spåret körs exakt som det är ritat. Använd Konvertera till stopp i menyn för att ändra det.</string>
-    <string name="nav_track_loaded_locked">Det här spåret ligger fast i filen och körs som det är ritat. Använd Konvertera till stopp för att redigera det.</string>
+    <string name="nav_track_loaded_locked">Följer det inspelade spåret. Använd Konvertera till stopp för att redigera det.</string>
     <string name="nav_menu_reverse">Vänd rutten</string>
     <string name="nav_route_reversed">Rutten är vänd, redo för vägen hem.</string>
     <string name="nav_track_unlocked">Konverterat till stopp. De kan redigeras nu.</string>
