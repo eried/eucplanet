@@ -15,6 +15,8 @@ only when you can cut the ride short.
 - Map: loading a track says it is baked into the file and ridden as drawn. Load route and Save route drop "(GPX)".
 - Map: a shared track that opens the app no longer crashes it.
 - Map: heading-up turns the map with you on curves, from the wheel's speed when connected, even if the phone's GPS gives no speed.
+- Map: Reverse route (menu) turns the stops round for the way back, also after you arrived. A locked track reverses its line.
+- Map: the navigator zooms closer under 10 km/h, and near a turn it keeps 15 s of road ahead in view, so it zooms in less when you are fast.
 - Map: Start far from a track rides you to its start first, then follows the track.
 - Map: Save route keeps a locked track locked, and Android Auto's Planned route rides it as drawn.
 - Map: loading a GPX or a shared route zooms to it, even after you moved the map.
@@ -118,6 +120,7 @@ only when you can cut the ride short.
 - Ride a locked track: are the turn cues at real turns? Do named places on the track get announced?
 - Convert to stops with few and many stops: does the preview match what you get after Convert?
 - Ride with the navigator in heading-up: does the map turn with you on curves and at slow speed? Is the zoom right near turns?
+- After arriving, Reverse route in the menu: does it take you back the same way, or a sensible one?
 - Start a track from a few km away: does it take you to the start, then follow the track?
 - Android Auto: load a GPX track on the phone, then Places > Planned route in the car. Does it follow the track?
 - Ride to the last stop: one X closes the arrival banner and ends navigation?

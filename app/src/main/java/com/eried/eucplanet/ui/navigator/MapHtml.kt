@@ -497,10 +497,11 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   var navZoom = NaN;
   window.nativeSetUserSpeed = function(mps){ userSpeedMps = mps > 0 ? mps : 0; };
   window.nativeSetCueDistance = function(m){ cueDistanceM = m; };
-  var NAV_ZOOM_SLOW = 17.6;     // walking pace and stopped
+  var NAV_ZOOM_SLOW = 18.0;     // under 10 km/h, stopped included
   var NAV_ZOOM_FAST = 16.2;     // 40 km/h and up
   var NAV_ZOOM_MAX = 18.5;      // closest a cue pulls it
   var NAV_ZOOM_CUE_M = 600;     // a cue this near starts pulling the zoom in
+  var NAV_AHEAD_S = 15;         // a cue never zooms closer than this much riding ahead
   var NAV_ZOOM_DEADBAND = 0.25; // smaller changes wait, the tiles stay put
   var NAV_ZOOM_RATE = 0.012;    // per 60 fps frame: about 3 s to settle
   var NAV_ZOOM_JUMP = 2.5;     // further off than this, no easing
@@ -526,14 +527,17 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   }
   function navTargetZoom(riderLL){
     var kmh = userSpeedMps * 3.6;
-    var t = Math.max(0, Math.min(1, (kmh - 8) / 32));
+    var t = Math.max(0, Math.min(1, (kmh - 10) / 30));
     var z = NAV_ZOOM_SLOW + (NAV_ZOOM_FAST - NAV_ZOOM_SLOW) * t;
     if (cueDistanceM >= 0 && cueDistanceM < NAV_ZOOM_CUE_M) {
       // Fit the cue into the road ahead of the rider, who sits low on
       // screen: the space above them, less a margin, holds the distance.
       var ahead = Math.max(120, map.getSize().y / 2 + navLookAheadPx - navRecenterOffsetPx - 60);
       var mPerPxZ0 = 156543.03392 * Math.cos(riderLL.lat * Math.PI / 180);
-      var fit = Math.log2(ahead * mPerPxZ0 / Math.max(cueDistanceM, 15));
+      // Fast riders keep NAV_AHEAD_S of road in view, so a near turn at
+      // speed pulls in less and the pull grows as they slow for it.
+      var fitM = Math.max(cueDistanceM, userSpeedMps * NAV_AHEAD_S, 15);
+      var fit = Math.log2(ahead * mPerPxZ0 / fitM);
       z = Math.max(z, Math.min(NAV_ZOOM_MAX, fit));
     }
     return z;
