@@ -2307,12 +2307,13 @@ private fun BuilderMenu(
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
         // First, set apart: the one way to edit a locked track. Its dialog
-        // says to save the GPX first to keep the exact line. The open padlock
-        // answers the closed ones on the stops, the only icon in this menu.
+        // says to save the GPX first to keep the exact line. The open padlock sits
+        // at the end so the text stays in line with the rest, answering the
+        // closed ones on the stops.
         if (trackLocked && !navRunning) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_unlock_track)) },
-                leadingIcon = {
+                trailingIcon = {
                     Icon(
                         Icons.Default.LockOpen,
                         contentDescription = null,
