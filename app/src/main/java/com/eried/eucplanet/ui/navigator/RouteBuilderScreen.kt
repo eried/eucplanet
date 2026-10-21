@@ -2349,17 +2349,18 @@ private fun BuilderMenu(
         // the remaining stops as a GPX checkpoint (the trim from
         // syncBuilderRoute means the saved file only contains stops still
         // ahead). Load / Clear stay hidden during nav, both would replace
-        // the running route, which is destructive.
-        if (hasStops) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_menu_save)) },
-                onClick = { onDismiss(); onSave() }
-            )
-        }
+        // the running route, which is destructive. Load leads: opening a
+        // route is the more common start than saving one.
         if (!navRunning) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_load)) },
                 onClick = { onDismiss(); onLoad() }
+            )
+        }
+        if (hasStops) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_save)) },
+                onClick = { onDismiss(); onSave() }
             )
         }
         if (hasStops && !navRunning) {
