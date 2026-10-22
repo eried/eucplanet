@@ -86,6 +86,7 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.common.DestructiveMenuItem
+import com.eried.eucplanet.ui.common.appMenuItemColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -432,22 +433,24 @@ fun RecordingScreen(
                                 ))
                             }
                         )
-                        if (trips.isNotEmpty()) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.action_export_all)) },
-                                onClick = {
-                                    showManageMenu = false
-                                    viewModel.exportAllAsZip()
-                                }
-                            )
-                            DestructiveMenuItem(
-                                text = stringResource(R.string.recording_clear_all_menu),
-                                onClick = {
-                                    showManageMenu = false
-                                    showClearDialog = true
-                                }
-                            )
-                        }
+                        // Greyed, not hidden, with no trips: the menu keeps its shape.
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.action_export_all)) },
+                            enabled = trips.isNotEmpty(),
+                            colors = appMenuItemColors(),
+                            onClick = {
+                                showManageMenu = false
+                                viewModel.exportAllAsZip()
+                            }
+                        )
+                        DestructiveMenuItem(
+                            text = stringResource(R.string.recording_clear_all_menu),
+                            enabled = trips.isNotEmpty(),
+                            onClick = {
+                                showManageMenu = false
+                                showClearDialog = true
+                            }
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
