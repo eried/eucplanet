@@ -11,8 +11,11 @@ only when you can cut the ride short.
 - Map: new style Satellite hybrid (road and place names over the imagery), also in trip details.
 - Map: a GPX track (Organic Maps, BRouter...) opens locked: ridden exactly as drawn, with turn cues from its bends. Stops, order and mode are read-only.
 - Map: only the file's places that lie on the track become stops, by name, spoken as you pass. Bookmarks elsewhere are ignored.
-- Map: Convert to stops (top of the menu, open padlock) turns the track into editable stops along it; pick how many (the reset is the recommended count) and see the line first.
-- Map: loading a track says it is baked into the file and ridden as drawn. Load route and Save route drop "(GPX)".
+- Map: Convert to stops (top of the menu, open padlock) turns the track into editable stops along it, in a dialog like Optimize that stays above the keyboard; pick how many (the reset is the recommended count).
+- Map: loading a track says it follows the recorded track. Load route and Save route drop "(GPX)".
+- Map menu: Load route sits above Save route. Options that cannot run now grey out instead of disappearing, and a greyed option does nothing when tapped.
+- Map: too far from the first stop says to press and hold Start to override.
+- Menus: options that delete something (Remove stop, Clear all trips, Reset charging data, Forget Home/Work) are red with a bin on the right. Greyed items look the same everywhere.
 - Map: a shared track that opens the app no longer crashes it.
 - Map: heading-up turns the map with you on curves, from the wheel's speed when connected, even if the phone's GPS gives no speed.
 - Map: a locked track that crosses itself, loops or doubles back keeps its cues in order; it no longer jumps ahead to "You have arrived" at a crossing.
@@ -118,9 +121,9 @@ only when you can cut the ride short.
 - An alarm while Maps navigates: does the card show over the map?
 
 **Map / navigation**
-- Load a GPX track from Organic Maps or BRouter: the line matches the app it came from, and tapping a mode or a stop's lock explains why it is locked?
+- Load a GPX track from Organic Maps or BRouter: the line matches the app it came from, and the modes, Optimize and the stop bins are greyed?
 - Ride a locked track: are the turn cues at real turns? Do named places on the track get announced?
-- Convert to stops with few and many stops: does the preview match what you get after Convert?
+- Convert to stops: the dialog stays above the keyboard, and the arrows change the stop count?
 - Ride with the navigator in heading-up: does the map turn with you on curves and at slow speed? Is the zoom right near turns?
 - After arriving, Reverse route in the menu: does it take you back the same way, or a sensible one?
 - Start a track from a few km away: does it take you to the start, then follow the track?
