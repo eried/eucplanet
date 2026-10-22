@@ -176,6 +176,7 @@ import com.eried.eucplanet.ui.settings.eucstats.flagEmoji
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import com.eried.eucplanet.ui.theme.themedSegmentedColors
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.common.DestructiveMenuItem
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -1862,8 +1863,8 @@ fun RouteBuilderScreen(
                         }
                     )
                     if (markerPhoto != null) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.nav_remove_marker_photo_short)) },
+                        DestructiveMenuItem(
+                            text = stringResource(R.string.nav_remove_marker_photo_short),
                             onClick = {
                                 selfMenuOpen = false
                                 viewModel.setUserMarkerPhoto(null)
@@ -1911,13 +1912,9 @@ fun RouteBuilderScreen(
                     if (homePlace == null || workPlace == null) {
                         HorizontalDivider(color = MaterialTheme.appColors.divider)
                     }
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.Delete, contentDescription = null)
-                        },
-                        text = { Text(stringResource(R.string.nav_remove_stop)) },
+                    DestructiveMenuItem(
+                        text = stringResource(R.string.nav_remove_stop),
                         enabled = canRemoveMarker,
-                        colors = removeColors(),
                         onClick = {
                             val i = markerMenuIndex; markerMenuIndex = -1
                             if (i >= 0) viewModel.removeWaypoint(i)
@@ -2288,15 +2285,6 @@ fun RouteBuilderScreen(
     }
 }
 
-/** Remove stop in red, greyed like the other menu items when it cannot run. */
-@Composable
-private fun removeColors() = MenuDefaults.itemColors(
-    textColor = MaterialTheme.colorScheme.error,
-    leadingIconColor = MaterialTheme.colorScheme.error,
-    disabledTextColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
-    disabledLeadingIconColor = MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
-)
-
 @Composable
 private fun BuilderMenu(
     expanded: Boolean,
@@ -2371,10 +2359,9 @@ private fun BuilderMenu(
             colors = greyed,
             onClick = { onDismiss(); onSave() }
         )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_clear)) },
+        DestructiveMenuItem(
+            text = stringResource(R.string.nav_menu_clear),
             enabled = hasStops && !navRunning,
-            colors = greyed,
             onClick = { onDismiss(); onClear() }
         )
         // Reordering a running route would pull the next stop out from
@@ -2404,8 +2391,8 @@ private fun BuilderMenu(
             onClick = { onDismiss(); onCustomizeMarker() }
         )
         if (hasCustomMarker) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_remove_marker_photo)) },
+            DestructiveMenuItem(
+                text = stringResource(R.string.nav_remove_marker_photo),
                 onClick = { onDismiss(); onResetMarker() }
             )
         }
@@ -2419,14 +2406,14 @@ private fun BuilderMenu(
             HorizontalDivider(color = MaterialTheme.appColors.divider)
         }
         if (hasHome) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_clear_home)) },
+            DestructiveMenuItem(
+                text = stringResource(R.string.nav_clear_home),
                 onClick = { onDismiss(); onClearHome() }
             )
         }
         if (hasWork) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.nav_clear_work)) },
+            DestructiveMenuItem(
+                text = stringResource(R.string.nav_clear_work),
                 onClick = { onDismiss(); onClearWork() }
             )
         }
@@ -3185,13 +3172,9 @@ private fun BottomPanel(
                                             )
                                         }
                                         HorizontalDivider(color = MaterialTheme.appColors.divider)
-                                        DropdownMenuItem(
-                                            leadingIcon = {
-                                                Icon(Icons.Default.Delete, contentDescription = null)
-                                            },
-                                            text = { Text(stringResource(R.string.nav_remove_stop)) },
+                                        DestructiveMenuItem(
+                                            text = stringResource(R.string.nav_remove_stop),
                                             enabled = !navRunning && !allPassed && !trackLocked,
-                                            colors = removeColors(),
                                             onClick = { rowMenu = false; onRemove(index) }
                                         )
                                     }

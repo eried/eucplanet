@@ -85,6 +85,7 @@ import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -439,8 +440,8 @@ fun RecordingScreen(
                                     viewModel.exportAllAsZip()
                                 }
                             )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.recording_clear_all_menu), color = MaterialTheme.appColors.statusDanger) },
+                            DestructiveMenuItem(
+                                text = stringResource(R.string.recording_clear_all_menu),
                                 onClick = {
                                     showManageMenu = false
                                     showClearDialog = true

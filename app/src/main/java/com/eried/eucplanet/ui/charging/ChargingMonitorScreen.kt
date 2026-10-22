@@ -109,6 +109,7 @@ import com.eried.eucplanet.ui.dashboard.MetricGraph
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
+import com.eried.eucplanet.ui.common.DestructiveMenuItem
 import java.util.Date
 import kotlin.math.abs
 import kotlin.math.exp
@@ -266,8 +267,8 @@ fun ChargingMonitorScreen(
                             },
                         )
                         HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.charging_reset_data)) },
+                        DestructiveMenuItem(
+                            text = stringResource(R.string.charging_reset_data),
                             onClick = {
                                 menuOpen = false
                                 viewModel.resetData()
