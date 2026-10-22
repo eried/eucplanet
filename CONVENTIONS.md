@@ -72,6 +72,13 @@ repositories, intent handlers) call `AppNotifier.post(...)`; a single root host 
 - Paired or mutually exclusive choices use half/half segmented rows, not full
   width buttons stacked.
 - Always set explicit on-colors (label, icon, content) that contrast the fill.
+- Menus: plain rows carry no icon. An icon only appears when it means
+  something (a check for on, a padlock, a bin) and it sits on the right, so
+  the text stays aligned. Radio buttons and checkboxes stay on the left, they
+  are the control. Rows that delete or forget something use
+  `DestructiveMenuItem` (red text, bin on the right).
+- An option that cannot run right now is greyed (`enabled = false`), not
+  hidden, and a tap on it does nothing; no toast explains it.
 
 ## 5. Drag-to-reorder uses the standard pattern
 
