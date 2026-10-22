@@ -26,7 +26,6 @@ import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
 import com.eried.eucplanet.service.AutomationManager
-import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.service.VoiceChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
@@ -73,6 +72,8 @@ internal val KNOWN_DASHBOARD_METRICS = listOf(
     "PITCH", "ROLL",
     "G_FORCE", "LATERAL_G", "FORWARD_G",
     "TORQUE", "PHASE_CURRENT", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+    // Begode's auto power-off countdown.
+    "AUTO_OFF",
     // Individual temperature sensors (WheelData.temperatures by index).
     "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
     // Derived trip metrics (computed from speed/voltage/current histories
@@ -233,6 +234,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
+    val autoLockSuspended: StateFlow<Boolean> = automationManager.autoLockSuspended
 
     val settings: StateFlow<AppSettings?> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -249,6 +251,7 @@ class SettingsViewModel @Inject constructor(
         .map { it.rssiDbm }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val wheelHasBeeperVolume: StateFlow<Boolean> = wheelRepository.wheelHasBeeperVolume
     val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /**
@@ -515,6 +518,10 @@ class SettingsViewModel @Inject constructor(
         update { copy(voiceSpeechRate = v) }
         previewText?.let { previewVoiceChange(it) }
     }
+    fun updateVoiceVolume(v: Int, previewText: String? = null) {
+        update { copy(voiceVolumePercent = v.coerceIn(10, 100)) }
+        previewText?.let { previewVoiceChange(it) }
+    }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicSpeed = v)) }
     fun updateVoiceReportBattery(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicBattery = v)) }
     fun updateVoiceReportTemp(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicTemp = v)) }
@@ -609,6 +616,9 @@ class SettingsViewModel @Inject constructor(
 
     fun updateHornMode(v: String) = update { copy(horn = horn.copy(mode = v)) }
     fun updateHornHeadphonesOnly(v: Boolean) = update { copy(horn = horn.copy(headphonesOnly = v)) }
+    fun updateBeepVolumeBySpeed(v: Boolean) = update { copy(horn = horn.copy(beepVolumeBySpeed = v)) }
+    fun updateBeepVolumeStopped(v: Int) = update { copy(horn = horn.copy(beepVolumeStopped = v.coerceIn(1, 9))) }
+    fun updateBeepVolumeRiding(v: Int) = update { copy(horn = horn.copy(beepVolumeRiding = v.coerceIn(1, 9))) }
     val hornSoundReady: Boolean get() = hornPlayer.isReady
 
     /** Copy the picked clip in; the name is kept for the settings row. */
@@ -794,7 +804,10 @@ class SettingsViewModel @Inject constructor(
 
     // Proximity lock (Bluetooth-signal auto lock / unlock)
     fun updateProxLockEnabled(v: Boolean) = update { copy(proximityLock = proximityLock.copy(lockEnabled = v)) }
-        .also { if (!v) automationManager.resetProximityLock() else AutoLockNotice.rearm() }
+        // Toggling the feature is a fresh decision, so a manual suspension
+        // from earlier in the session is spent; the clear also resets the
+        // evaluator, covering the old disable-path reset.
+        .also { automationManager.clearLockSuspension() }
     fun updateProxLockBelow(v: Int) =
         update { copy(proximityLock = proximityLock.copy(lockBelowDbm = v.coerceIn(-110, -30))) }
     fun updateProxUnlockWhen(v: String) =
@@ -803,7 +816,6 @@ class SettingsViewModel @Inject constructor(
                 // Changing what an unlock means invalidates any hold or arming
                 // built up under the previous answer.
                 automationManager.resetProximityLock()
-                if (v != ProximityLockSettings.UNLOCK_WHEN_NEVER) AutoLockNotice.rearm()
             }
     fun updateProxUnlockAbove(v: Int) =
         update { copy(proximityLock = proximityLock.copy(unlockAboveDbm = v.coerceIn(-100, -15))) }
@@ -811,6 +823,7 @@ class SettingsViewModel @Inject constructor(
     // Voice report: recording
     fun updateVoiceReportRecording(v: Boolean) = update { copy(voiceReports = voiceReports.copy(periodicRecording = v)) }
     fun updateTriggerReportRecording(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerRecording = v)) }
+    fun updateTriggerResetAfter(v: Boolean) = update { copy(voiceReports = voiceReports.copy(triggerResetAfter = v)) }
 
     fun testSpeak(text: String) {
         viewModelScope.launch {
@@ -859,6 +872,10 @@ class SettingsViewModel @Inject constructor(
     }
 
     /** The same, for what a rider hears when nothing matched. */
+    fun updateVoiceMusicWhileListening(v: String) {
+        update { copy(voiceCommands = voiceCommands.copy(musicWhileListening = v)) }
+    }
+
     fun updateVoiceUnknownCue(v: String, sentence: String) {
         update { copy(voiceCommands = voiceCommands.copy(unknownCue = v)) }
         viewModelScope.launch {
@@ -878,6 +895,10 @@ class SettingsViewModel @Inject constructor(
 
     fun updateVoiceHeadsetButton(v: Boolean) =
         update { copy(voiceCommands = voiceCommands.copy(headsetButton = v)) }
+
+    /** Listen or Announce: the headset button on, doing that. */
+    fun updateVoiceHeadsetMode(v: String) =
+        update { copy(voiceCommands = voiceCommands.copy(headsetButton = true, headsetAction = v)) }
 
     /**
      * Switch one catalog-backed report on or off.
@@ -1027,6 +1048,25 @@ class SettingsViewModel @Inject constructor(
             .slots(widget.standaloneActions).toMutableList()
         if (index in slots.indices) slots[index] = key
         copy(widget = widget.copy(standaloneActions = slots.joinToString(",")))
+    }
+
+    /** Android Auto slots, the same registries as the widget, saved apart. */
+    fun updateAndroidAutoMetricSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
+            .metricSlots(androidAuto.metrics).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(androidAuto = androidAuto.copy(metrics = slots.joinToString(",")))
+    }
+
+    fun updateAndroidAutoActionSlot(index: Int, key: String) = update {
+        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
+            .actionSlots(androidAuto.actions).toMutableList()
+        if (index in slots.indices) slots[index] = key
+        copy(androidAuto = androidAuto.copy(actions = slots.joinToString(",")))
+    }
+
+    fun updateAndroidAutoAlarmNotifications(v: Boolean) = update {
+        copy(androidAuto = androidAuto.copy(alarmNotifications = v))
     }
 
     fun updateHudServerPort(v: Int) = update {
@@ -1509,6 +1549,7 @@ class SettingsViewModel @Inject constructor(
     val syncConflictPrompt: StateFlow<Int?> = syncManager.syncConflictPrompt
     val syncConflictKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind> =
         syncManager.syncConflictKind
+    val syncConflictFirstSettings: StateFlow<Boolean> = syncManager.syncConflictFirstSettings
     val activeSyncKind: StateFlow<com.eried.eucplanet.data.sync.SyncConflictKind?> =
         syncManager.activeSyncKind
     val syncCancelling: StateFlow<Boolean> = syncManager.syncCancelling
@@ -1581,6 +1622,22 @@ class SettingsViewModel @Inject constructor(
     fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
     fun cancelSyncConflict() = syncManager.cancelSyncConflict()
     fun cancelActiveSync() = syncManager.cancelActiveSync()
+
+    /** Save one announcement's pills. The first save ends the carry-over from the switches. */
+    fun setVoicePills(periodic: Boolean, pills: List<com.eried.eucplanet.service.VoicePill>) = update {
+        val enc = com.eried.eucplanet.service.VoicePills.encode(pills)
+        copy(voiceReports = if (periodic) voiceReports.copy(periodicPills = enc)
+            else voiceReports.copy(triggerPills = enc))
+    }
+
+    /** Play: the configured announcement over the live values. */
+    fun previewVoiceReport(periodic: Boolean) {
+        viewModelScope.launch {
+            voiceService.previewReport(
+                wheelData.value, settingsRepository.get(), tripRepository.recording.value, periodic,
+            )
+        }
+    }
 
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {

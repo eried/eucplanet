@@ -14,6 +14,11 @@ import org.junit.Test
  * The rule: a zero in an extras field that has never been populated is "not
  * wired", and the frame reports the value the wheel gave us elsewhere. Once
  * the field has been non-zero, a zero is a real zero (the wheel stands).
+ *
+ * For battery current the proof is a streak of real readings, not a single
+ * non-zero: the field is in centi-amps, so one count of noise would arm the
+ * latch and bring the 1 Hz zero-flash right back, on the amps tile only
+ * (the follow-up report on issue #26).
  */
 class BegodeExtrasFrameTest {
 
@@ -64,11 +69,37 @@ class BegodeExtrasFrameTest {
     @Test fun `once 0x07 PWM has been seen, a zero there is the wheel standing still`() {
         val p = BegodeParser()
         p.feed(liveA(), BegodeModel.MASTER)
+        // PWM arms on the first real reading; current needs the streak.
         assertEquals(55f, last(p.feed(extras(truePwmPct = 55, battCurrentCa = -800), BegodeModel.MASTER)).pwm, 0.001f)
+        p.feed(extras(truePwmPct = 55, battCurrentCa = -790), BegodeModel.MASTER)
+        assertEquals(8f, last(p.feed(extras(truePwmPct = 55, battCurrentCa = -800), BegodeModel.MASTER)).current, 0.001f)
         val stopped = last(p.feed(extras(truePwmPct = 0, battCurrentCa = 0), BegodeModel.MASTER))
         assertEquals(0f, stopped.pwm, 0.001f)
         assertEquals(0f, stopped.current, 0.001f)
         // And Live A frames carry that zero, not a stale 55.
         assertEquals(0f, last(p.feed(liveA(), BegodeModel.MASTER)).pwm, 0.001f)
+    }
+
+    @Test fun `a lone noise count in 0x07 current does not arm the channel`() {
+        val p = BegodeParser()
+        p.feed(liveA(), BegodeModel.MASTER)
+        // One centi-amp of noise on an otherwise unwired field: the amps
+        // flicker that outlived the PWM fix on the Master v3.
+        p.feed(extras(battCurrentCa = -1), BegodeModel.MASTER)
+        val after = last(p.feed(extras(), BegodeModel.MASTER))
+        assertEquals("a stray count must not open the zero floodgate", 12f, after.current, 0.001f)
+        assertEquals(12f, last(p.feed(liveA(), BegodeModel.MASTER)).current, 0.001f)
+    }
+
+    @Test fun `interrupted streaks never arm the current channel`() {
+        val p = BegodeParser()
+        p.feed(liveA(), BegodeModel.MASTER)
+        // Two real readings, a zero, two more: no three in a row, no trust.
+        p.feed(extras(battCurrentCa = -800), BegodeModel.MASTER)
+        p.feed(extras(battCurrentCa = -800), BegodeModel.MASTER)
+        p.feed(extras(), BegodeModel.MASTER)
+        p.feed(extras(battCurrentCa = -800), BegodeModel.MASTER)
+        p.feed(extras(battCurrentCa = -800), BegodeModel.MASTER)
+        assertEquals(12f, last(p.feed(extras(), BegodeModel.MASTER)).current, 0.001f)
     }
 }

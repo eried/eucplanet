@@ -19,7 +19,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -49,7 +52,6 @@ class VoiceCommandController @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val voiceService: VoiceService,
     private val tonePlayer: TonePlayer,
-    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
     private val appHealth: com.eried.eucplanet.data.repository.AppHealthRepository,
     private val weatherRepository: com.eried.eucplanet.weather.WeatherRepository,
     private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
@@ -100,6 +102,14 @@ class VoiceCommandController @Inject constructor(
          */
         const val ANSWER_LINGER_MS = 600L
 
+        /**
+         * After the reply is said and the app has let go of the audio, how
+         * long a player gets to take it back before a media key reaches it.
+         * A player resumes on regaining focus, and a key that arrives during
+         * that hand-back can be swallowed by it.
+         */
+        const val MEDIA_SETTLE_MS = 600L
+
         /** How long to wait for the speech to begin before giving up on it. */
         const val SPEECH_START_WAIT_MS = 1500L
 
@@ -133,8 +143,30 @@ class VoiceCommandController @Inject constructor(
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    private val listeningFocus by lazy {
+        ListeningFocus(context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager)
+    }
     private val _state = MutableStateFlow<UiState>(UiState.Idle)
     val state: StateFlow<UiState> = _state.asStateFlow()
+
+    /** Whether this session's Listening state says so on screen; see [listen]. */
+    @Volatile private var announceListening = false
+
+    /**
+     * The one line a session shows: "Listening", then what was heard, then
+     * the answer, each replacing the last. Empty means show nothing. These
+     * used to go to two different snackbar hosts, so the transcript appeared
+     * behind a "Listening" that was still up.
+     */
+    val toast: Flow<String> = _state.map {
+        when (it) {
+            UiState.Idle -> ""
+            UiState.Listening -> if (announceListening) context.getString(R.string.voice_listening) else ""
+            is UiState.Heard -> it.text
+            is UiState.Spoke -> it.text
+        }
+    }.distinctUntilChanged()
 
     private val _showVocabulary = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
@@ -161,8 +193,27 @@ class VoiceCommandController @Inject constructor(
      */
     private var activeMic: VoiceListener? = null
 
+    /**
+     * A media key held back until the session is done talking. See
+     * [MEDIA_AFTER_SPEECH] for which ones and why.
+     */
+    @Volatile private var deferredMedia: String? = null
+
     /** The last finished ride, read before a match so `read` need not suspend. */
     private var lastTripSnapshot: com.eried.eucplanet.data.model.TripRecord? = null
+
+    /**
+     * How many screens are showing a listening cue of their own (the lit
+     * voice command tile). While any is, the snackbar would be a second cue
+     * for the same thing, so it is left out whatever started the listening.
+     */
+    private val ownCues = java.util.concurrent.atomic.AtomicInteger(0)
+
+    /** A screen showing its own listening cue calls this; call the result when it goes. */
+    fun showingListeningCue(): () -> Unit {
+        ownCues.incrementAndGet()
+        return { ownCues.decrementAndGet() }
+    }
 
     /** True when the rider has granted the microphone. */
     fun hasMicPermission(): Boolean =
@@ -178,34 +229,58 @@ class VoiceCommandController @Inject constructor(
      *   because most surfaces that start this - a Flic, a volume key, the
      *   watch, the HUD - show the rider nothing at all, and a microphone that
      *   opened silently is indistinguishable from a button that did nothing.
-     *   The dashboard tile passes false: it lights up, and two cues for one
-     *   press is noise.
+     *   Left out anyway while a screen shows its own cue (see
+     *   [showingListeningCue]): two cues for one press is noise.
      */
     fun listen(listener: VoiceListener? = null, notify: Boolean = true) {
-        // Pressing again means "forget that, listen to this". It used to mean
-        // nothing at all: the second press was swallowed while the first
-        // session ran out its window, so a rider who fumbled the first
-        // question had to wait for the app to finish not understanding it.
         // A press while it is listening means stop. It used to mean start
         // again, which looked the same from the outside for the first moment
         // and then was not: the rider got a fresh window they had not asked
-        // for, and the only way out was to wait it out.
+        // for, and the only way out was to wait it out. A single button (the
+        // tile, a Flic, a headset) has no other way to say stop.
         if (session?.isActive == true) {
-            session?.cancel()
-            activeMic?.stop()
-            activeMic = null
-            _state.value = UiState.Idle
-            scope.launch { closingCue(settingsRepository.get()) }
-            Log.i(TAG, "stopped by a second press")
-            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("Voice: stopped by a second press")
+            stop()
             return
         }
-        // Nothing should be holding the microphone here, but a session that
-        // ended badly can leave one behind, and the recogniser does not hand
-        // it back the instant stop() returns.
+        open(listener, notify)
+    }
+
+    /**
+     * Listen now, whatever is happening. For a control that only ever means
+     * "ask", like the menu entry: pressing it while a session runs drops that
+     * session and opens a fresh window instead of closing the microphone,
+     * because stopping has its own entry next to it.
+     */
+    fun ask() {
+        if (session?.isActive == true) {
+            session?.cancel()
+            Log.i(TAG, "restarted by ask")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("Voice: restarted by ask")
+        }
+        open(null, notify = true)
+    }
+
+    /** Close the microphone and end the session, with the closing cue. */
+    fun stop() {
+        if (session?.isActive != true) return
+        session?.cancel()
+        activeMic?.stop()
+        activeMic = null
+        listeningFocus.releaseAll()
+        _state.value = UiState.Idle
+        scope.launch { closingCue(settingsRepository.get()) }
+        Log.i(TAG, "stopped by the rider")
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("Voice: stopped by the rider")
+    }
+
+    private fun open(listener: VoiceListener?, notify: Boolean) {
+        // A session that ended badly, or one [ask] just dropped, can leave a
+        // microphone behind, and the recogniser does not hand it back the
+        // instant stop() returns.
         val handingOver = activeMic != null
         activeMic?.stop()
         activeMic = null
+        deferredMedia = null
         _state.value = UiState.Idle
         session = scope.launch {
             val settings = settingsRepository.get()
@@ -231,15 +306,22 @@ class VoiceCommandController @Inject constructor(
                 _state.value = UiState.Idle
                 return@launch
             }
+            // The rider's music goes down now and stays down through the
+            // answer; see ListeningFocus. Released before any held media key
+            // is sent, and whenever the session ends, however it ends.
+            val focusSession = listeningFocus.hold(settings.voiceCommands.musicWhileListening)
+            coroutineContext[kotlinx.coroutines.Job]?.invokeOnCompletion {
+                listeningFocus.release(focusSession)
+            }
             val mic = listener ?: AndroidVoiceListener(
                 context = context,
                 languageTag = VoiceLocaleTag.tag(recognitionTag(settings)),
             )
+            announceListening = notify && ownCues.get() == 0
             _state.value = UiState.Listening
             // Whatever the app was saying, it stops now. Otherwise the
             // recogniser spends the window listening to our own voice.
             voiceService.stopSpeaking()
-            if (notify) appNotifier.post(context.getString(R.string.voice_listening))
 
             // Open the microphone before cueing the rider. The cue used to
             // come first, so a rider who answered it promptly spoke into a
@@ -330,6 +412,15 @@ class VoiceCommandController @Inject constructor(
                 withTimeoutOrNull(SPEECH_START_WAIT_MS) { voiceService.isSpeaking.first { it } }
                 withTimeoutOrNull(SPEECH_END_WAIT_MS) { voiceService.isSpeaking.first { !it } }
                 closingCue(settings)
+            }
+
+            // The reply has been said and its audio focus handed back, so a
+            // held media key can reach the player now. See MEDIA_AFTER_SPEECH.
+            listeningFocus.release(focusSession)
+            deferredMedia?.let { key ->
+                deferredMedia = null
+                delay(MEDIA_SETTLE_MS)
+                runAction(key)
             }
 
             // A short tail, not four seconds. That number was chosen when the
@@ -991,7 +1082,8 @@ class VoiceCommandController @Inject constructor(
         // sentence is chosen so the rider hears the acknowledgement and the
         // wheel acts at the same moment, rather than acting into silence.
         if (answer is Answer.Act && !answer.confirm) {
-            scope.launch { runAction(answer.key) }
+            if (answer.key in MEDIA_AFTER_SPEECH) deferredMedia = answer.key
+            else scope.launch { runAction(answer.key) }
         }
 
         // One sentence, one way out. The report route used to live here and
@@ -1165,6 +1257,21 @@ private object VoiceAction {
 
 private val CONFIRMED_ACTIONS = setOf("RECORD_STOP", "RESET_TRIP")
 
+/**
+ * Media keys that wait for the session to finish speaking.
+ *
+ * While the app listens and answers it holds audio focus, so the rider's
+ * player is paused or ducked. A play, next or previous sent then would land
+ * under our own voice, or be swallowed while the player is waiting to get
+ * the audio back. So these go once the reply is over and focus is returned.
+ *
+ * Pause is the exception and goes at once, with the acknowledgement. Sent
+ * while the player is held paused, it marks the music as stopped by the
+ * rider, so handing the focus back does not start it again. Sent after, the
+ * song would resume for a moment and then stop.
+ */
+internal val MEDIA_AFTER_SPEECH = setOf("MUSIC_START", "MEDIA_PLAY_PAUSE", "MEDIA_NEXT", "MEDIA_PREVIOUS")
+
 /** The specials that need a forecast before they can answer. */
 private val WEATHER_KEYS = setOf(
     VoiceVocabulary.Special.WEATHER,
@@ -1305,6 +1412,8 @@ private val VOICE_READS: List<Pair<String, Boolean>> = listOf(
     "GPS_SPEED" to true,
     "DYN_SPEED_LIMIT" to false,
     "DYN_CURRENT_LIMIT" to false,
+    // -1 means the wheel does not send it (every family but Begode).
+    "AUTO_OFF" to true,
     "WHEEL_MAX_SPEED" to true,
     "WHEEL_ALARM_SPEED" to true,
     // 0 dBm is "not read yet".

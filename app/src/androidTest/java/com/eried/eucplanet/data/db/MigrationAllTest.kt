@@ -30,7 +30,7 @@ import java.io.File
  *
  * Schemas before v61 were never exported, so v44 is built by hand from raw
  * SQL. The DDL is derived, not remembered: it is the current exported schema
- * (`schemas/.../61.json`) with every column that a migration adds taken back
+ * (`schemas/.../<LATEST>.json`) with every column that a migration adds taken back
  * out, plus the `app_settings` table that v44->45 drops. [STEPS] is that list
  * of migrations, and [v44SchemaIsTheCurrentSchemaMinusEveryMigration] checks
  * the hand-written DDL against the derivation so neither can drift alone.
@@ -94,6 +94,7 @@ class MigrationAllTest {
         Step(59, adds = mapOf("wheel_profile" to listOf("batteryCapacityWh"))),
         Step(60, adds = mapOf("trips" to listOf("dropboxStatus", "dropboxUploadedAt"))),
         Step(61, adds = mapOf("alarm_rules" to listOf("wheelAddress", "wheelName"))),
+        Step(62, adds = mapOf("trips" to listOf("dropboxSyncedHash"))),
     )
 
     // ---- v44 by hand ---------------------------------------------------------
@@ -207,7 +208,7 @@ class MigrationAllTest {
     }
 
     @Test
-    fun migratesFrom44To61InOneGo() {
+    fun migratesFrom44ToLatestInOneGo() {
         createV44()
         val db = helper.runMigrationsAndValidate(TEST_DB, LATEST, true, *AppModule.ALL_MIGRATIONS)
         assertSeededRowsSurvived(db)
@@ -236,7 +237,7 @@ class MigrationAllTest {
             }
             assertEquals(LATEST - 1, from)
         }
-        // The last step goes through Room's own validator against 61.json.
+        // The last step goes through Room's own validator against the latest schema.
         val last = STEPS.last()
         val db = helper.runMigrationsAndValidate(
             TEST_DB, LATEST, true,
@@ -255,7 +256,7 @@ class MigrationAllTest {
      * exported from these entities; this compares the actual SQL shape.
      */
     @Test
-    fun freshV61FromSchemaFileMatchesTheEntities() {
+    fun freshLatestFromSchemaFileMatchesTheEntities() {
         helper.createDatabase(TEST_DB, LATEST).close()
         val fromSchema = openRaw(LATEST).use { db -> db.tables().associateWith { db.columns(it) } }
 
@@ -414,7 +415,7 @@ class MigrationAllTest {
                 "tripUuid" to null, "eucstatsStatus" to 0L, "eucstatsUploadedAt" to null,
                 "eucstatsValidation" to null, "isMockLocation" to 0L, "sampleCount" to 0L,
                 "wheelMetaJson" to null, "customName" to null, "dropboxStatus" to 0L,
-                "dropboxUploadedAt" to null,
+                "dropboxUploadedAt" to null, "dropboxSyncedHash" to null,
             ),
             db.row("SELECT * FROM trips"),
         )
@@ -471,6 +472,6 @@ class MigrationAllTest {
         /** Oldest version a migration path starts from. */
         const val FIRST = 44
         /** Must match the @Database version; the exported schema of this version is what every check reads. */
-        const val LATEST = 61
+        const val LATEST = 62
     }
 }

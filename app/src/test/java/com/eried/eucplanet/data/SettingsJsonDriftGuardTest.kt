@@ -20,8 +20,10 @@ import kotlin.reflect.full.primaryConstructor
  */
 class SettingsJsonDriftGuardTest {
 
-    // Legacy Room row id, intentionally not serialized.
-    private val exempt = setOf("id")
+    // Legacy Room row id, intentionally not serialized. crewsDevServerEnabled
+    // trusts a pairing server other than eucstats, so no settings file, backup
+    // or restore may ever carry it.
+    private val exempt = setOf("id", "crewsDevServerEnabled")
 
     /**
      * Nested groups whose contents hold lists or spec-driven maps this guard

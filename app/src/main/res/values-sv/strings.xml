@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Position</string>
     <string name="metric_chip_dyn_speed_limit">Dynamisk fartgräns</string>
     <string name="metric_chip_dyn_current_limit">Dynamisk strömgräns</string>
+    <string name="metric_chip_auto_off">Automatisk avstängning</string>
     <string name="metric_chip_motor_temp">Motortemperatur</string>
     <string name="metric_chip_controller_temp">Styrenhetstemperatur</string>
     <string name="metric_chip_battery_temp">Batteritemperatur</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Auto av</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS-bat</string>
@@ -333,16 +335,20 @@
     <string name="action_chip_light">Ljus</string>
     <string name="action_chip_voice">Röst</string>
     <string name="action_chip_voice_listen">Lyssna</string>
-    <string name="menu_voice_ask">Lyssna efter röstkommando</string>
+    <string name="menu_voice_ask">Lyssna efter ett röstkommando</string>
     <string name="menu_voice_speak_report">Spela upp röstmeddelande</string>
     <string name="voice_split_term">Senaste split</string>
     <string name="menu_switch_to_voice_command">Byt till röstkommando</string>
     <string name="menu_switch_to_voice_report">Byt till röstmeddelande</string>
     <string name="voice_commands_title">Röstkommandon</string>
-    <string name="voice_commands_enable_desc">Använd rösten i appen. Håll in röstknappen på instrumentpanelen och välj Lyssna efter röstkommando.</string>
+    <string name="voice_commands_enable_desc">Använd rösten i appen. Håll in röstknappen på instrumentpanelen och välj Lyssna efter ett röstkommando.</string>
     <string name="voice_commands_bind_desc">Koppla lyssning till en Flic, volymknapparna, din klocka eller HUD.</string>
     <string name="voice_prompt_cue">Signal vid lyssning</string>
-    <string name="voice_prompt_cue_desc">Stäng av det om ditt headset har en egen ton.</string>
+    <string name="voice_music_listening">Musik under lyssning</string>
+    <string name="voice_music_pause">Pausa</string>
+    <string name="voice_music_duck">Sänk</string>
+    <string name="voice_music_keep">Spela vidare</string>
+    <string name="voice_music_listening_desc">Igenkänningen körs på telefonen när det går, utan konto. Orden matchas mot appens kommandon.</string>
     <string name="voice_cue_beep">Pip</string>
     <string name="voice_cue_spoken">Röst</string>
     <string name="voice_cue_off">Av</string>
@@ -353,7 +359,8 @@
     <string name="voice_recognition_desc">Språket du talar. Följer rösten om du inte väljer ett.</string>
     <string name="voice_recognition_follow">Samma som rösten</string>
     <string name="voice_headset_button">Headsetets röstknapp</string>
-    <string name="voice_headset_button_desc">Låt röstknappen på ett Bluetooth-headset starta lyssningen. Android frågar vilken app som ska svara.</string>
+    <string name="voice_headset_chooser_hint">Android frågar vilken app som ska svara.</string>
+    <string name="voice_headset_announce">Läs upp</string>
     <string name="voice_act_announce_on_terms">röst på,meddelanden på,tal på</string>
     <string name="voice_act_announce_off_terms">röst av,meddelanden av,tal av</string>
     <string name="voice_command_vocabulary">Vad kan jag säga</string>
@@ -436,6 +443,10 @@
     <string name="voice_act_record_start_terms">starta inspelning,spela in</string>
     <string name="voice_act_record_stop_terms">stoppa inspelning</string>
     <string name="voice_act_reset_trip_terms">nollställ turen</string>
+    <string name="voice_act_music_start_terms">spela musik,starta musik,musik</string>
+    <string name="voice_act_media_pause_terms">pausa musik,stoppa musik</string>
+    <string name="voice_act_media_next_terms">nästa låt,nästa spår</string>
+    <string name="voice_act_media_prev_terms">föregående låt,förra låten</string>
     <string name="voice_answer_mic_busy">Något annat använder mikrofonen.</string>
     <string name="voice_answer_which">Menade du %1$s eller %2$s?</string>
     <string name="action_chip_safety">Legal-läge</string>
@@ -448,6 +459,8 @@
     <string name="action_chip_media_play">Spela / pausa</string>
     <string name="action_chip_media_next">Nästa spår</string>
     <string name="action_chip_media_prev">Föreg. spår</string>
+    <string name="action_chip_music_start">Starta musik</string>
+    <string name="action_chip_media_pause">Pausa musik</string>
     <string name="action_chip_open_navigation">Visa karta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Om</string>
@@ -607,13 +620,13 @@
     <string name="sync_progress">Synkroniserar %1$d av %2$d</string>
     <string name="sync_no_folder">Välj en backupmapp först</string>
     <string name="sync_rate_limited">Dropbox begränsar det här kontot. %1$d av %2$d turer synkroniserade, resten försöker igen.</string>
-    <string name="sync_finished">Synkroniserade %1$d turer</string>
+    <string name="sync_finished">Synkroniserade turer: %1$d</string>
     <string name="sync_conflict_title">Synkroniseringskonflikt</string>
-    <string name="sync_conflict_body">%1$d turer finns på båda sidor.</string>
+    <string name="sync_conflict_body">Ändrat på båda sidor: %1$d</string>
     <string name="sync_conflict_app">Kopiera app till backup</string>
     <string name="sync_conflict_folder">Kopiera backup till app</string>
     <string name="sync_conflict_ignore">Hoppa över alla konflikter</string>
-    <string name="sync_conflict_body_dropbox">%1$d turer finns både i Dropbox och på denna telefon.</string>
+    <string name="sync_conflict_body_dropbox">Ändrat både i Dropbox och på den här telefonen: %1$d</string>
     <string name="sync_conflict_app_dropbox">Kopiera appen till Dropbox</string>
     <string name="sync_conflict_dropbox">Kopiera Dropbox till appen</string>
     <string name="cloud_uploaded_on">Säkerhetskopierad %1$s</string>
@@ -863,6 +876,7 @@
 
     <string name="col_periodic">Löpande</string>
     <string name="col_trigger">Utlöst</string>
+    <string name="voice_trigger_reset_after">Nollställ mätvärden efter utlöst rapport</string>
     <string name="report_speed">Hastighet</string>
     <string name="report_battery">Batteri</string>
     <string name="report_temp">Temp</string>
@@ -1159,8 +1173,6 @@
     <string name="proximity_unlock_above">Signal över</string>
     <string name="proximity_lock_signal_live">Aktuell signal: %1$s</string>
     <string name="proximity_lock_hint">Låsning kräver en aktiv anslutning, så den sker medan signalen försvagas, inte först när du är utom räckhåll.</string>
-    <string name="auto_lock_override_toast">Autolås är på och kan åsidosätta detta.</string>
-    <string name="auto_lock_override_action">Konfigurera</string>
     <string name="menu_auto_lock_settings">Inställningar för hjullås</string>
     <string name="menu_auto_lock_on">Slå på autolås</string>
     <string name="menu_auto_lock_off">Stäng av autolås</string>
@@ -1170,7 +1182,8 @@
     <string name="auto_midnight_sun_body">Solen går inte ned här i dag, ljuset hålls släckt.</string>
     <string name="auto_polar_night_title">Polarnatt</string>
     <string name="auto_polar_night_body">Solen går inte upp här i dag, ljuset hålls tänt.</string>
-    <string name="auto_lights_suspended">Pausad: du växlade ljuset manuellt den här sessionen. Anslut hjulet igen eller starta om appen för att återuppta</string>
+    <string name="auto_lights_suspended">Pausad för den här sessionen, du ställde ljuset för hand. Åtgärda det från Kräver uppmärksamhet, eller anslut hjulet igen.</string>
+    <string name="auto_lock_suspended">Pausad för den här sessionen, du låste eller låste upp för hand. Åtgärda det från Kräver uppmärksamhet, eller anslut hjulet igen.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">För varje mätvärde utlöses det mest relevanta larmet automatiskt. Ordningen i listan ändrar inte vilket; sorteringen håller bara ordning.</string>
@@ -1669,6 +1682,8 @@
     <string name="nav_menu_save">Spara rutt (GPX)</string>
     <string name="nav_menu_load">Läs in rutt (GPX)</string>
     <string name="nav_menu_clear">Ny rutt</string>
+    <string name="nav_finished_title">Rutten är klar</string>
+    <string name="nav_finished_body">Starta en ny rutt? De nådda stoppen raderas. Spara rutten från menyn först om du vill behålla den.</string>
     <string name="nav_clear_home">Glöm Hem</string>
     <string name="nav_clear_work">Glöm Jobb</string>
     <string name="nav_menu_exit">Tillbaka till instrumentpanelen</string>
@@ -1699,6 +1714,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellit</string>
+    <string name="nav_layer_satellite_labels">Satellit hybrid</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -1977,11 +1993,16 @@
     <string name="warnings_indicator_desc">App-varningar</string>
     <string name="warnings_dialog_title">Kräver uppmärksamhet</string>
     <string name="warnings_fix_button">Åtgärda</string>
+    <string name="warnings_autolights_title">Autoljus pausat</string>
+    <string name="warnings_autolights_body">Du ställde ljuset för hand, så schemat håller sig undan den här sessionen. Åtgärda ger det kontrollen igen.</string>
+    <string name="warnings_autolock_title">Autolås pausat</string>
+    <string name="warnings_autolock_body">Du låste eller låste upp för hand, så närhetslåset håller sig undan den här sessionen. Åtgärda ger det kontrollen igen.</string>
     <string name="warnings_perm_notifications_title">Aviseringar av</string>
     <string name="warnings_perm_notifications_body">Du ser inte åkstatus i statusfältet och får inga talvarningar i aviseringspanelen.</string>
     <string name="warnings_perm_location_title">Platsåtkomst är av</string>
     <string name="warnings_perm_location_body">Turer spelar inte in någon rutt, och GPS-fart och kalibrering fungerar inte. Tryck för att tillåta.</string>
     <string name="weather_error_no_location">Ingen plats att prognosera för</string>
+    <string name="weather_waiting_location">Väntar på plats…</string>
     <string name="warnings_location_services_body">EUC Planet får använda den, men telefonen har plats avstängt för allt. Tryck för att slå på.</string>
     <string name="warnings_location_services_title">Plats är avstängt</string>
     <string name="warnings_battery_opt_title">Batterioptimering är på</string>
@@ -2125,6 +2146,7 @@
     <string name="nav_setting_avoid_hint">Undvikanden använder en annan ruttjänst och gäller där färdsättet stöder dem.</string>
     <string name="nav_setting_avoid_tolls">Undvik tullvägar</string>
     <string name="nav_setting_avoid_unpaved">Undvik grusvägar</string>
+    <string name="nav_avoid_router_failed">Rutten struntar i det du undviker: ruttjänsten för det svarade inte.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-nyckel</string>
     <string name="nav_setting_ocm_key_hint">Lägger till omdömen, foton och kontaktinfo i laddstationens flyout. Skaffa en gratis nyckel på</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2140,6 +2162,8 @@
     <string name="adv_alarm_min_samples_desc">Påverkar hur många avläsningar som krävs innan en trend litas på. Fara: för få förutsäger på brus.</string>
     <string name="adv_alarm_min_span">Minsta tidsspann</string>
     <string name="adv_alarm_min_span_desc">Påverkar minsta tid som mätvärdena måste täcka innan en trend används.</string>
+    <string name="adv_alarm_warm_route">Högtalarens redo-tid</string>
+    <string name="adv_alarm_warm_route_desc">Påverkar hur länge högtalaren förblir redo efter ett pip eller ett röstmeddelande. Fara: för kort, och det första pipet efter en tyst stund kan smälla eller klippas; för lång håller ljudet vaket och drar batteri.</string>
     <string name="adv_alarm_slope_window">Trendfönster</string>
     <string name="adv_alarm_slope_window_desc">Påverkar hur många senaste mätvärden som sätter den förutsagda trenden. Fara: för kort reagerar på brus, för långt reagerar långsamt.</string>
     <string name="adv_alarm_warning">Dessa ändrar hur fart- och effektlarm förutsäger en tröskel innan du når den. Fel värden kan göra att larm löser ut sent eller inte alls. Ändra med försiktighet.</string>
@@ -2215,6 +2239,10 @@
     <string name="adv_hud_manual_grace_desc">Påverkar hur lång tid automatisk upptäckt får innan den manuella IP:n används. Fara: för lågt använder den manuella IP:n innan upptäckten hinner vinna.</string>
     <string name="adv_hud_mdns_resolve">mDNS-uppslagstid</string>
     <string name="adv_hud_mdns_resolve_desc">Påverkar hur länge adressuppgifterna för ett hittat HUD slås upp. Fara: för lågt släpper ett HUD som är långsamt att slå upp.</string>
+    <string name="adv_hud_idle_search">Sökning i vila</string>
+    <string name="adv_hud_idle_search_desc">Påverkar hur ofta HUD:en söks utan anslutet hjul och med appen stängd. Fara: för lågt tömmer batteriet.</string>
+    <string name="adv_hud_sweep_interval">Nätverkssökning</string>
+    <string name="adv_hud_sweep_interval_desc">Påverkar hur ofta varje adress i nätverket prövas för att hitta HUD:en. Fara: för lågt håller telefonen upptagen och tömmer batteriet.</string>
     <string name="adv_hud_mdns_timeout">Tidsgräns för upptäckt</string>
     <string name="adv_hud_mdns_timeout_desc">Påverkar hur länge appen väntar på att HUD:en ska svara på automatisk upptäckt. Fara: för lågt ger upp innan den svarar.</string>
     <string name="adv_hud_report_interval">HUD-rapportfrekvens</string>
@@ -2324,7 +2352,7 @@
     <string name="tab_more">Mer</string>
     <string name="welcome_tut_dev_join">Gå med i topplistor</string>
     <string name="welcome_tut_dev_joined">Med i topplistor</string>
-    <string name="welcome_tut_dev_joined_norider">Onlineuppladdning på. Ingen åkare hittades i mappen.</string>
+    <string name="welcome_tut_dev_joined_norider">Ingen åkare i mappen än. Tryck på %1$s i %2$s för att skapa en.</string>
     <string name="welcome_tut_dev_restore">Återställ inställningar</string>
     <string name="welcome_tut_dev_set_folder">Ange backupmapp</string>
     <string name="welcome_tut_dev_sync_trips">Synka turer</string>
@@ -2665,12 +2693,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Meddela vid 80 %</string>
     <string name="charging_notify_full" formatted="false">Meddela vid 100 %</string>
+    <string name="charging_notify_at">Meddela vid</string>
+    <string name="charging_notify_custom">Meddela vid %1$d %%</string>
+    <string name="charging_notify_at_ask">Meddela vid…</string>
+    <string name="charging_notify_custom_range" formatted="false">Måste vara 5 till 95 %, inte 80 %</string>
     <string name="charge_alert_channel_name">Laddningsaviseringar</string>
-    <string name="charge_alert_channel_description" formatted="false">När batteriet passerar 80 % eller är färdigladdat.</string>
+    <string name="charge_alert_channel_description" formatted="false">När batteriet når en nivå du valt eller är färdigladdat.</string>
     <string name="charge_alert_80_title" formatted="false">Batteri på 80 %</string>
     <string name="charge_alert_80_text">Räcker till de flesta turer, och är oftast skönsammare mot batteriet.</string>
     <string name="charge_alert_full_title">Laddningen klar</string>
     <string name="charge_alert_full_text">Fulladdat, koppla ur när du kan. Vissa hjul balanserar cellerna nu.</string>
+    <string name="charge_alert_custom_title">Batteri på %1$d %%</string>
+    <string name="charge_alert_custom_text">Nivån du valde är nådd. Koppla ur när du kan.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Hjulöversikt</string>
     <string name="widget_act_1_label">Hjulknapp 1</string>
@@ -2716,4 +2750,85 @@
     <string name="horn_sound_too_long">Ljudet är längre än 5 sekunder</string>
     <string name="horn_sound_too_big">Filen är större än 2 MB</string>
     <string name="horn_sound_unreadable">Filen kunde inte spelas upp</string>
+    <string name="voice_pill_add">Lägg till</string>
+    <string name="voice_pill_message">Meddelande</string>
+    <string name="voice_pill_message_hint">Läses upp som du skriver det.</string>
+    <string name="voice_pills_empty">Inget sägs. Tryck på Lägg till.</string>
+    <string name="voice_stat_now">Nu</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Snitt</string>
+    <string name="voice_stat_peak">Topp</string>
+    <string name="crews_title">Crews</string>
+    <string name="crews_pass_action">Crew-nyckel</string>
+    <string name="crews_pass_search_hint">Crew-nyckel visas när du går med i online-topplistorna.</string>
+    <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews, och rikta den här mot koden som visas.</string>
+    <string name="crews_scan_invalid">Det är ingen crew pass-kod.</string>
+    <string name="crews_scan_is_share">Det där är en live-position-kod. Skanna den från Dela på kartan.</string>
+    <string name="share_scan_is_crewpass">Det där är ett crew-pass. Skanna det från Inställningar, under Crews.</string>
+    <string name="crews_type_instead">Ange manuellt</string>
+    <string name="crews_code_label">Nyckelkod</string>
+    <string name="crews_foreign_title">Den koden är inte från eucstats</string>
+    <string name="crews_foreign_body">Den pekar på %1$s, och dit går inte dina turer. Säger du ja lämnar du över kontot till den som driver det.\n\nKör du en egen server? Slå på utvecklarläge i Inställningar först.</string>
+    <string name="crews_scan_switch">Skanna i stället</string>
+    <string name="crews_close">Stäng</string>
+    <string name="crews_opensettings">Öppna inställningar</string>
+    <string name="crews_dev_title">Utvecklarläge</string>
+    <string name="crews_dev_body">Pratar med %1$s i stället för den vanliga servern.</string>
+    <string name="crews_grant">Låt den webbläsaren köra i dina färger.\n\nDen kan starta ett crew, gå med i ett, kliva ur ett, och sköta medlemmar. Den kan inte skicka upp turer, byta namn på dig eller radera något, det stannar i telefonen.</string>
+    <string name="crews_noprofile_title">Gå med i topplistan först</string>
+    <string name="crews_noprofile_body">Crews hänger på din topplisteprofil, och den har telefonen inte satt upp. Gå med under %1$s, och skanna igen.</string>
+    <string name="crews_issue">Utfärda passet</string>
+    <string name="crews_notme">Inte jag</string>
+    <string name="crews_ratelimited">För många försök. Vänta en minut och försök igen.</string>
+    <string name="crews_unreachable">Nådde inte %1$s.</string>
+    <string name="crews_refused">Servern nekade det (%1$d).</string>
+    <string name="crews_done_title">Pass utfärdat</string>
+    <string name="crews_done_body">Den webbläsaren kör i dina färger. Lägg ifrån dig telefonen.</string>
+    <string name="crews_failed_title">Det gick inte</string>
+    <string name="crews_tryagain">Försök igen</string>
+    <string name="crews_done">Klar</string>
+    <string name="crews_expired">Den koden har blivit gammal. Hämta en ny i webbläsaren.</string>
+    <string name="voice_pill_search">Sök</string>
+    <string name="voice_volume">Volym</string>
+    <string name="beep_volume_by_speed">Pipvolym efter fart</string>
+    <string name="beep_volume_stopped">Stillastående</string>
+    <string name="beep_volume_riding">Under färd</string>
+    <string name="dropbox_checking">Kontrollerar Dropbox…</string>
+    <string name="sync_first_settings">Dropbox har redan inställningar från en annan telefon. Använda dem, eller behålla den här telefonens?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Ta bort turen från den här telefonen? Säkerhetskopian behåller en kopia, så Synka allt hämtar tillbaka den.</string>
+    <string name="share_menu_scan">Skanna QR</string>
+    <string name="share_menu_scan_desc">Gå med i en grupptur eller öppna en rutt.</string>
+    <string name="share_menu_route">Dela rutt</string>
+    <string name="share_menu_route_desc">Som QR-kod eller länk. Inget konto.</string>
+    <string name="share_menu_route_none">Lägg först till ett stopp.</string>
+    <string name="scan_code_unknown">Inte en grupptur- eller ruttkod.</string>
+    <string name="route_qr_hint">Skanna med EUC Planet eller telefonens kamera.</string>
+    <string name="route_qr_too_long">Rutten är för lång för en QR-kod. Spara den som GPX i stället.</string>
+    <string name="route_open_title">Öppna delad rutt</string>
+    <string name="route_open_confirm">Ersätta den aktuella rutten med den delade?</string>
+    <string name="route_opened">Rutt öppnad</string>
+    <string name="route_qr_share_image">Dela QR</string>
+    <string name="route_share_text">Kör den här rutten med EUC Planet: %1$s</string>
+    <string name="route_share_subject">En rutt att köra</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d stopp</item>
+        <item quantity="other">%d stopp</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Din statistik och hjulets knappar på en Android Auto-skärm. Ansluter själv, ingen wifi-inställning.</string>
+    <string name="car_waiting">Väntar på hjulet</string>
+    <string name="car_last_battery">Senaste batteri %1$d%%</string>
+    <string name="car_navigate">Navigera</string>
+    <string name="car_places_title">Navigera till</string>
+    <string name="car_place_home">Hem</string>
+    <string name="car_place_work">Jobb</string>
+    <string name="car_no_places">Spara Hem eller Jobb i ruttplaneraren först.</string>
+    <string name="car_waiting_wheel">Väntar på hjulet</string>
+    <string name="car_weather">Väder</string>
+    <string name="car_alarm_channel_name">Larm på bilskärmen</string>
+    <string name="car_alarm_channel_description">Visar ett utlöst larm på Android Auto-skärmen, ovanpå kartan.</string>
+    <string name="car_alarm_notifications">Larm på bilskärmen</string>
+    <string name="car_alarm_notifications_hint">Ett utlöst larm visas ovanpå kartan, så det når dig medan du navigerar. Pip och vibration är oförändrade.</string>
+    <string name="car_no_metrics">Inga mätvärden valda</string>
 </resources>

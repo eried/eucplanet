@@ -34,6 +34,26 @@ class VeteranHornTest {
     }
 
     @Test
+    fun `LK13709 telemetry selects working legacy horn without companion`() {
+        val adapter = VeteranAdapter()
+        adapter.notifyConnectingTo("LK13709")
+        val frame = ("dc5a5c20256000009175001391750013fffd0cfb" +
+            "0dee000001f8024604520002ffe20010")
+            .chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        frame.toList().chunked(20).forEach { adapter.onRawNotification(it.toByteArray()) }
+        assertEquals("62", adapter.horn().hex())
+        assertEquals(null, adapter.hornFollowup())
+    }
+
+    @Test
+    fun `named Sherman Max uses legacy horn before first frame`() {
+        val adapter = VeteranAdapter()
+        adapter.notifyConnectingTo("Sherman-Max")
+        assertEquals("62", adapter.horn().hex())
+        assertEquals(null, adapter.hornFollowup())
+    }
+
+    @Test
     fun `both horn frames carry a valid big-endian CRC32 trailer`() {
         for (frame in listOf(VeteranCommands.horn(), VeteranCommands.hornCompanion())) {
             val body = frame.copyOfRange(0, frame.size - 4)

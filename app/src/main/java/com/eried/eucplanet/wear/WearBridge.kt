@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
+import kotlinx.coroutines.flow.first
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -66,6 +67,14 @@ class WearBridge @Inject constructor(
             "NORMAL" -> 250L
             else -> DEFAULT_PUBLISH_INTERVAL_MS
         }
+
+        /** With no wheel and no route the state barely changes, so the watch
+         *  gets it this often: inside its 3 s "phone still here" window. */
+        private const val IDLE_PUBLISH_INTERVAL_MS = 2_000L
+        /** With no watch connected nothing is sent; the node poll finds one. */
+        private const val NO_WATCH_INTERVAL_MS = 5_000L
+        /** How often a backgrounded phone with no watch asks for one. */
+        private const val NO_WATCH_POLL_MS = 15_000L
 
         private const val PATH_STATE = "/euc/state"
         private const val K_CONNECTED = "c"
@@ -271,7 +280,14 @@ class WearBridge @Inject constructor(
                 } catch (e: Exception) {
                     if (_pairedNodes.value.isNotEmpty()) _pairedNodes.value = emptyList()
                 }
-                delay(5_000L)
+                // A connected watch, a ride or the app open (Settings shows
+                // the list) keeps the 5 s pace. An idle phone with no watch
+                // looks less often, and opening the app cuts that wait short.
+                val foreground = com.eried.eucplanet.util.AppForeground.isForeground
+                val looking = _pairedNodes.value.isNotEmpty() || foreground.value ||
+                    wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                if (looking) delay(5_000L)
+                else kotlinx.coroutines.withTimeoutOrNull(NO_WATCH_POLL_MS) { foreground.first { it } }
             }
         }
 
@@ -281,9 +297,33 @@ class WearBridge @Inject constructor(
         // in the "phone not here" placeholder even though the phone app is
         // running and paired. Re-publishing on the watchUpdateRate cadence keeps
         // the watch's freshness signal alive without per-emission complexity.
+        //
+        // It used to send an urgent DataItem four times a second around the
+        // clock, with no watch and no wheel, which kept the phone warm
+        // overnight. Now it sends nothing without a watch, and only every
+        // [IDLE_PUBLISH_INTERVAL_MS] while there is no wheel and no route,
+        // except at once when the connection changes. The tick itself keeps
+        // its pace for the watch map.
         scope.launch {
+            var lastPublishMs = 0L
+            var lastState: ConnectionState? = null
             while (true) {
+                if (_pairedNodes.value.isEmpty()) {
+                    lastState = null
+                    delay(NO_WATCH_INTERVAL_MS)
+                    continue
+                }
                 wearMapBridge.onPublisherTick()
+                val state = wheelRepository.connectionState.value
+                val nowMs = android.os.SystemClock.elapsedRealtime()
+                val idle = state != ConnectionState.CONNECTED &&
+                    !navigationEngine.navState.value.active
+                if (idle && state == lastState && nowMs - lastPublishMs < IDLE_PUBLISH_INTERVAL_MS) {
+                    delay(publishIntervalMsFor(settingsRepository.currentOrLoad().watchUpdateRate))
+                    continue
+                }
+                lastPublishMs = nowMs
+                lastState = state
                 try {
                     // Watch gauge max must match the phone dashboard gauge max so the
                     // two dials show the same range. Dashboard computes:
@@ -298,7 +338,7 @@ class WearBridge @Inject constructor(
                     val gaugeMax = (((effTilt / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)
                     publish(
                         data = wheelRepository.wheelData.value,
-                        state = wheelRepository.connectionState.value,
+                        state = state,
                         name = wheelRepository.modelName.value,
                         maxSpeed = gaugeMax,
                         settings = s

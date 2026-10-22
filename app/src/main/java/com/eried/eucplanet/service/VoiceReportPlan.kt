@@ -154,7 +154,68 @@ object VoiceReportPlan {
         }
     }
 
-    /** The reports to speak, in order. */
+    /** The reports to speak, in order, from the per-report switches. */
     fun items(s: AppSettings, periodic: Boolean): List<String> =
         order(s.voiceReportOrder).filter { isEnabled(it, s, periodic) }
+
+    /** A pill item that is a catalog metric rather than one of [KNOWN]: `#PHASE_CURRENT`. */
+    const val CATALOG_PREFIX = "#"
+
+    /** Catalog metrics one of [KNOWN] already says, so they are not offered twice. */
+    internal val COVERED_BY_REPORT = setOf(
+        "SPEED", "BATTERY", "PHONE_BATTERY", "TEMPERATURE", "LOAD", "CURRENT",
+        "POWER", "BATTERY_POWER", "TRIP", "BATTERY_ENVELOPE", "RANGE_ESTIMATE",
+        "VOLTAGE", "ODOMETER", "WH_PER_KM",
+    )
+
+    /** Readable, but a number no rider wants read aloud mid-ride. */
+    internal val NOT_SPOKEN = setOf("BT_RSSI", "GPS_HEADING", "GPS_ACCURACY", "LAT_LONG", "LIGHT_ON")
+
+    /**
+     * Every other catalog metric a pill can say: the ones a spoken question can
+     * already read off the wheel. Built from the catalog, so a metric that
+     * becomes readable tomorrow is offered without a line here.
+     */
+    val CATALOG: List<String> by lazy {
+        com.eried.eucplanet.data.model.MetricCatalog.all.map { it.key }.filter {
+            it !in COVERED_BY_REPORT && it !in NOT_SPOKEN &&
+                (it in com.eried.eucplanet.voice.EXTRACTORS || it == "MOTOR_POWER")
+        }
+    }
+
+    /** Whether [item] is something a pill can carry: a report, or a catalog metric. */
+    fun isPillItem(item: String): Boolean =
+        item in KNOWN || (item.startsWith(CATALOG_PREFIX) && item.removePrefix(CATALOG_PREFIX) in CATALOG)
+
+    /**
+     * The metric-catalog key whose history a statistic reads, or null for a
+     * report that has no history to take a max of (time, recording, trip,
+     * navigation, odometer).
+     */
+    fun statKey(item: String): String? = when (item) {
+        "Speed" -> "SPEED"
+        "Battery" -> "BATTERY"
+        "PhoneBattery" -> "PHONE_BATTERY"
+        "Temp" -> "TEMPERATURE"
+        "PWM" -> "LOAD"
+        "Current" -> "CURRENT"
+        "Power" -> "BATTERY_POWER"
+        "Odometer" -> null
+        else -> if (item.startsWith(CATALOG_PREFIX)) {
+            item.removePrefix(CATALOG_PREFIX).takeIf { key ->
+                com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.supportsStats == true
+            }
+        } else extra(item)?.metricKey
+    }
+
+    /**
+     * What an announcement says, as pills. A rider who has never opened the
+     * pill editor hears exactly what the switches gave them before: the list
+     * is built from those until the first edit saves one of its own.
+     */
+    fun pills(s: AppSettings, periodic: Boolean): List<VoicePill> {
+        val saved = if (periodic) s.voiceReports.periodicPills else s.voiceReports.triggerPills
+        return if (saved.isBlank()) items(s, periodic).map { VoicePill(it) }
+        else VoicePills.decode(saved)
+    }
 }

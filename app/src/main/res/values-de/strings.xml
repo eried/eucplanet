@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Position</string>
     <string name="metric_chip_dyn_speed_limit">Dyn. Speedlimit</string>
     <string name="metric_chip_dyn_current_limit">Dyn. Stromlimit</string>
+    <string name="metric_chip_auto_off">Auto-Abschaltung</string>
     <string name="metric_chip_motor_temp">Motortemperatur</string>
     <string name="metric_chip_controller_temp">Reglertemperatur</string>
     <string name="metric_chip_battery_temp">Akkutemperatur</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Abschalt.</string>
     <string name="metric_chip_phone_battery_tile">Tel</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS-Akku</string>
@@ -333,16 +335,20 @@
     <string name="action_chip_light">Licht</string>
     <string name="action_chip_voice">Stimme</string>
     <string name="action_chip_voice_listen">Zuhören</string>
-    <string name="menu_voice_ask">Auf Sprachbefehl hören</string>
+    <string name="menu_voice_ask">Auf einen Sprachbefehl hören</string>
     <string name="menu_voice_speak_report">Sprachansage abspielen</string>
     <string name="voice_split_term">Letzter Split</string>
     <string name="menu_switch_to_voice_command">Auf Sprachbefehl umschalten</string>
     <string name="menu_switch_to_voice_report">Zu Sprachansage wechseln</string>
     <string name="voice_commands_title">Sprachbefehle</string>
-    <string name="voice_commands_enable_desc">Nutze deine Stimme in der App. Halte die Sprachtaste im Dashboard gedrückt und wähle Auf Sprachbefehl hören.</string>
+    <string name="voice_commands_enable_desc">Nutze deine Stimme in der App. Halte die Sprachtaste im Dashboard gedrückt und wähle Auf einen Sprachbefehl hören.</string>
     <string name="voice_commands_bind_desc">Lege Zuhören auf einen Flic, die Lautstärketasten, deine Uhr oder das HUD.</string>
     <string name="voice_prompt_cue">Signal beim Zuhören</string>
-    <string name="voice_prompt_cue_desc">Schalte es aus, wenn dein Headset einen eigenen Ton hat.</string>
+    <string name="voice_music_listening">Musik beim Zuhören</string>
+    <string name="voice_music_pause">Pausieren</string>
+    <string name="voice_music_duck">Leiser</string>
+    <string name="voice_music_keep">Weiter</string>
+    <string name="voice_music_listening_desc">Die Erkennung läuft wenn möglich auf dem Handy, ohne Konto. Die Wörter werden mit den Befehlen der App abgeglichen.</string>
     <string name="voice_cue_beep">Ton</string>
     <string name="voice_cue_spoken">Stimme</string>
     <string name="voice_cue_off">Aus</string>
@@ -353,7 +359,8 @@
     <string name="voice_recognition_desc">Die Sprache, in der du sprichst. Folgt der Stimme, wenn du keine wählst.</string>
     <string name="voice_recognition_follow">Wie die Stimme</string>
     <string name="voice_headset_button">Sprachtaste am Headset</string>
-    <string name="voice_headset_button_desc">Die Sprachtaste eines Bluetooth-Headsets startet das Zuhören. Android fragt, welche App antworten soll.</string>
+    <string name="voice_headset_chooser_hint">Android fragt, welche App antworten soll.</string>
+    <string name="voice_headset_announce">Ansagen</string>
     <string name="voice_act_announce_on_terms">stimme an,ansagen an,sprachausgabe an</string>
     <string name="voice_act_announce_off_terms">stimme aus,ansagen aus,sprachausgabe aus</string>
     <string name="voice_command_vocabulary">Was kann ich sagen</string>
@@ -436,6 +443,10 @@
     <string name="voice_act_record_start_terms">aufnahme starten,aufnehmen</string>
     <string name="voice_act_record_stop_terms">aufnahme stoppen</string>
     <string name="voice_act_reset_trip_terms">fahrt zurücksetzen</string>
+    <string name="voice_act_music_start_terms">musik abspielen,musik starten,musik an,musik</string>
+    <string name="voice_act_media_pause_terms">musik pausieren,musik stoppen,musik aus</string>
+    <string name="voice_act_media_next_terms">nächster titel,nächstes lied</string>
+    <string name="voice_act_media_prev_terms">vorheriger titel,voriges lied,letztes lied</string>
     <string name="voice_answer_mic_busy">Etwas anderes benutzt gerade das Mikrofon.</string>
     <string name="voice_answer_which">Meintest du %1$s oder %2$s?</string>
     <string name="action_chip_safety">Legal-Modus</string>
@@ -448,6 +459,8 @@
     <string name="action_chip_media_play">Wiedergabe / Pause</string>
     <string name="action_chip_media_next">Nächster Titel</string>
     <string name="action_chip_media_prev">Vorheriger Titel</string>
+    <string name="action_chip_music_start">Musik starten</string>
+    <string name="action_chip_media_pause">Musik pausieren</string>
     <string name="action_chip_open_navigation">Karte zeigen</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Über</string>
@@ -607,13 +620,13 @@
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
     <string name="sync_no_folder">Zuerst einen Backup-Ordner wählen</string>
     <string name="sync_rate_limited">Dropbox drosselt dieses Konto. %1$d von %2$d Fahrten synchronisiert, der Rest wird erneut versucht.</string>
-    <string name="sync_finished">%1$d Fahrten synchronisiert</string>
+    <string name="sync_finished">Synchronisierte Fahrten: %1$d</string>
     <string name="sync_conflict_title">Synchronisierungskonflikt</string>
-    <string name="sync_conflict_body">%1$d Fahrten sind auf beiden Seiten vorhanden.</string>
+    <string name="sync_conflict_body">Auf beiden Seiten geändert: %1$d</string>
     <string name="sync_conflict_app">App ins Backup kopieren</string>
     <string name="sync_conflict_folder">Backup in App kopieren</string>
     <string name="sync_conflict_ignore">Alle Konflikte überspringen</string>
-    <string name="sync_conflict_body_dropbox">%1$d Touren liegen sowohl in Dropbox als auch auf diesem Telefon.</string>
+    <string name="sync_conflict_body_dropbox">In Dropbox und auf diesem Telefon geändert: %1$d</string>
     <string name="sync_conflict_app_dropbox">App nach Dropbox kopieren</string>
     <string name="sync_conflict_dropbox">Dropbox in App kopieren</string>
     <string name="cloud_uploaded_on">Gesichert am %1$s</string>
@@ -863,6 +876,7 @@
 
     <string name="col_periodic">Regelmäßig</string>
     <string name="col_trigger">Ereignis</string>
+    <string name="voice_trigger_reset_after">Messwerte nach ausgelöster Ansage zurücksetzen</string>
     <string name="report_speed">Geschwindigkeit</string>
     <string name="report_battery">Akku</string>
     <string name="report_temp">Temp</string>
@@ -1159,8 +1173,6 @@
     <string name="proximity_unlock_above">Signal über</string>
     <string name="proximity_lock_signal_live">Aktuelles Signal: %1$s</string>
     <string name="proximity_lock_hint">Sperren braucht eine aktive Verbindung. Es passiert, während das Signal schwächer wird, nicht erst außer Reichweite.</string>
-    <string name="auto_lock_override_toast">Auto-Sperre ist aktiv und kann dies überschreiben.</string>
-    <string name="auto_lock_override_action">Konfigurieren</string>
     <string name="menu_auto_lock_settings">Wheel-Sperre-Einstellungen</string>
     <string name="menu_auto_lock_on">Auto-Sperre aktivieren</string>
     <string name="menu_auto_lock_off">Auto-Sperre deaktivieren</string>
@@ -1170,7 +1182,8 @@
     <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter, das Licht bleibt AUS.</string>
     <string name="auto_polar_night_title">Polarnacht</string>
     <string name="auto_polar_night_body">Die Sonne geht heute an diesem Breitengrad nicht auf, das Licht bleibt AN.</string>
-    <string name="auto_lights_suspended">Pausiert: Du hast das Licht in dieser Sitzung manuell geschaltet. Wheel neu verbinden oder App neu starten, um fortzusetzen</string>
+    <string name="auto_lights_suspended">Für diese Sitzung pausiert, du hast das Licht von Hand gesetzt. Behebe es über Aktion erforderlich oder verbinde das Rad neu.</string>
+    <string name="auto_lock_suspended">Für diese Sitzung pausiert, du hast von Hand gesperrt oder entsperrt. Behebe es über Aktion erforderlich oder verbinde das Rad neu.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Pro Messgröße wird automatisch der passendste Alarm ausgelöst. Die Reihenfolge in der Liste ändert das nicht; das Sortieren sorgt nur für Übersicht.</string>
@@ -1703,6 +1716,8 @@
     <string name="nav_menu_save">Route speichern (GPX)</string>
     <string name="nav_menu_load">Route laden (GPX)</string>
     <string name="nav_menu_clear">Neue Route</string>
+    <string name="nav_finished_title">Route beendet</string>
+    <string name="nav_finished_body">Neue Route starten? Die erreichten Stopps werden gelöscht. Um diese Route zu behalten, speichere sie zuerst über das Menü.</string>
     <string name="nav_clear_home">Zuhause vergessen</string>
     <string name="nav_clear_work">Arbeit vergessen</string>
     <string name="nav_menu_exit">Zurück zum Dashboard</string>
@@ -1733,6 +1748,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satellit</string>
+    <string name="nav_layer_satellite_labels">Satellit hybrid</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -1991,11 +2007,16 @@
     <string name="warnings_indicator_desc">App-Warnungen</string>
     <string name="warnings_dialog_title">Aktion erforderlich</string>
     <string name="warnings_fix_button">Beheben</string>
+    <string name="warnings_autolights_title">Autolicht pausiert</string>
+    <string name="warnings_autolights_body">Du hast das Licht von Hand gesetzt, der Zeitplan hält sich diese Sitzung zurück. Beheben gibt ihm die Kontrolle zurück.</string>
+    <string name="warnings_autolock_title">Autosperre pausiert</string>
+    <string name="warnings_autolock_body">Du hast von Hand gesperrt oder entsperrt, die Näherungssperre hält sich diese Sitzung zurück. Beheben gibt ihr die Kontrolle zurück.</string>
     <string name="warnings_perm_notifications_title">Benachrichtigungen aus</string>
     <string name="warnings_perm_notifications_body">Der Fahrstatus erscheint nicht in der Statusleiste und Sprachhinweise tauchen nicht in der Benachrichtigungsleiste auf.</string>
     <string name="warnings_perm_location_title">Standort ist aus</string>
     <string name="warnings_perm_location_body">Fahrten zeichnen keine Route auf, GPS-Tempo und Kalibrierung funktionieren nicht. Zum Erlauben tippen.</string>
     <string name="weather_error_no_location">Kein Standort für die Vorhersage</string>
+    <string name="weather_waiting_location">Warte auf Standort…</string>
     <string name="warnings_location_services_body">EUC Planet darf ihn nutzen, aber das Telefon hat den Standort für alles deaktiviert. Zum Einschalten tippen.</string>
     <string name="warnings_location_services_title">Standort ist systemweit aus</string>
 
@@ -2145,6 +2166,7 @@
     <string name="nav_setting_avoid_hint">Vermeidungen nutzen einen anderen Routing-Dienst und gelten dort, wo die Fortbewegungsart sie unterstützt.</string>
     <string name="nav_setting_avoid_tolls">Mautstraßen vermeiden</string>
     <string name="nav_setting_avoid_unpaved">Unbefestigte Straßen vermeiden</string>
+    <string name="nav_avoid_router_failed">Route ohne deine Vermeidungen: der Routingdienst dafür antwortete nicht.</string>
     <string name="nav_setting_ocm_key">Open Charge Map API-Schlüssel</string>
     <string name="nav_setting_ocm_key_hint">Fügt dem Ladestations-Flyout Bewertungen, Fotos und Anschlussdetails hinzu. Hol dir einen kostenlosen Schlüssel unter</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2160,6 +2182,8 @@
     <string name="adv_alarm_min_samples_desc">Beeinflusst, wie viele Messungen nötig sind, bevor einem Trend vertraut wird. Achtung: zu wenige sagen aus Rauschen vorher.</string>
     <string name="adv_alarm_min_span">Mindestzeitraum</string>
     <string name="adv_alarm_min_span_desc">Beeinflusst, welchen Mindestzeitraum die Messwerte abdecken müssen, bevor ein Trend genutzt wird.</string>
+    <string name="adv_alarm_warm_route">Lautsprecher-Bereitschaft</string>
+    <string name="adv_alarm_warm_route_desc">Beeinflusst, wie lange der Lautsprecher nach einem Piepton oder einer Ansage bereit bleibt. Gefahr: zu kurz, und der erste Piepton nach einer stillen Phase kann knacken oder abgeschnitten werden; zu lang hält das Audio wach und leert den Akku.</string>
     <string name="adv_alarm_slope_window">Trendfenster</string>
     <string name="adv_alarm_slope_window_desc">Beeinflusst, wie viele aktuelle Messwerte den vorhergesagten Trend bestimmen. Achtung: zu kurz reagiert auf Rauschen, zu lang reagiert langsam.</string>
     <string name="adv_alarm_warning">Diese ändern, wie Geschwindigkeits- und Leistungsalarme einen Schwellwert vorhersagen, bevor du ihn erreichst. Falsche Werte können Alarme zu spät oder gar nicht auslösen. Mit Vorsicht ändern.</string>
@@ -2235,6 +2259,10 @@
     <string name="adv_hud_manual_grace_desc">Beeinflusst, wie lange die automatische Suche Zeit hat, bevor die manuelle IP verwendet wird. Achtung: zu niedrig nutzt die manuelle IP, bevor die Suche gewinnen kann.</string>
     <string name="adv_hud_mdns_resolve">mDNS-Auflösungszeit</string>
     <string name="adv_hud_mdns_resolve_desc">Beeinflusst, wie lange die Adressdetails eines gefundenen HUD aufgelöst werden. Achtung: zu niedrig verwirft ein HUD, das langsam auflöst.</string>
+    <string name="adv_hud_idle_search">Suche im Ruhezustand</string>
+    <string name="adv_hud_idle_search_desc">Beeinflusst, wie oft ohne verbundenes Rad und bei geschlossener App nach dem HUD gesucht wird. Gefahr: zu niedrig leert den Akku.</string>
+    <string name="adv_hud_sweep_interval">Netzwerk-Durchsuchung</string>
+    <string name="adv_hud_sweep_interval_desc">Beeinflusst, wie oft jede Adresse im Netzwerk nach dem HUD abgefragt wird. Gefahr: zu niedrig belastet das Telefon und leert den Akku.</string>
     <string name="adv_hud_mdns_timeout">Suche-Zeitlimit</string>
     <string name="adv_hud_mdns_timeout_desc">Beeinflusst, wie lange auf die Antwort des HUD bei der automatischen Suche gewartet wird. Achtung: zu niedrig gibt auf, bevor es antwortet.</string>
     <string name="adv_hud_report_interval">HUD-Melderate</string>
@@ -2344,7 +2372,7 @@
     <string name="tab_more">Mehr</string>
     <string name="welcome_tut_dev_join">Bestenlisten beitreten</string>
     <string name="welcome_tut_dev_joined">Bestenlisten beigetreten</string>
-    <string name="welcome_tut_dev_joined_norider">Online-Upload an. Kein Rider im Ordner gefunden.</string>
+    <string name="welcome_tut_dev_joined_norider">Noch kein Rider in diesem Ordner. Tippe in %2$s auf %1$s, um einen anzulegen.</string>
     <string name="welcome_tut_dev_restore">Einstellungen wiederherstellen</string>
     <string name="welcome_tut_dev_set_folder">Backup-Ordner festlegen</string>
     <string name="welcome_tut_dev_sync_trips">Fahrten synchronisieren</string>
@@ -2685,12 +2713,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Bei 80 % benachrichtigen</string>
     <string name="charging_notify_full" formatted="false">Bei 100 % benachrichtigen</string>
+    <string name="charging_notify_at">Benachrichtigen bei</string>
+    <string name="charging_notify_custom">Bei %1$d %% benachrichtigen</string>
+    <string name="charging_notify_at_ask">Benachrichtigen bei…</string>
+    <string name="charging_notify_custom_range" formatted="false">Muss 5 bis 95 % sein, nicht 80 %</string>
     <string name="charge_alert_channel_name">Ladehinweise</string>
-    <string name="charge_alert_channel_description" formatted="false">Wenn der Akku 80 % überschreitet oder fertig geladen ist.</string>
+    <string name="charge_alert_channel_description" formatted="false">Wenn der Akku eine gewählte Stufe erreicht oder fertig geladen ist.</string>
     <string name="charge_alert_80_title" formatted="false">Akku bei 80 %</string>
     <string name="charge_alert_80_text">Genug für die meisten Fahrten, und meist schonender für den Akku.</string>
     <string name="charge_alert_full_title">Ladung abgeschlossen</string>
     <string name="charge_alert_full_text">Voll geladen, zieh ihn ab, wenn es passt. Manche Wheels balancieren jetzt die Zellen.</string>
+    <string name="charge_alert_custom_title">Akku bei %1$d %%</string>
+    <string name="charge_alert_custom_text">Die gewählte Stufe ist erreicht. Abstecken, wenn es passt.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Wheel-Dashboard</string>
     <string name="widget_act_1_label">Wheel-Taste 1</string>
@@ -2736,4 +2770,85 @@
     <string name="horn_sound_too_long">Der Klang ist länger als 5 Sekunden</string>
     <string name="horn_sound_too_big">Die Datei ist größer als 2 MB</string>
     <string name="horn_sound_unreadable">Die Datei lässt sich nicht abspielen</string>
+    <string name="voice_pill_add">Hinzufügen</string>
+    <string name="voice_pill_message">Nachricht</string>
+    <string name="voice_pill_message_hint">Wird gesprochen, wie du es schreibst.</string>
+    <string name="voice_pills_empty">Es wird nichts gesagt. Tippe auf Hinzufügen.</string>
+    <string name="voice_stat_now">Jetzt</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Schnitt</string>
+    <string name="voice_stat_peak">Spitze</string>
+    <string name="crews_title">Crews</string>
+    <string name="crews_pass_action">Crew-Pass</string>
+    <string name="crews_pass_search_hint">Der Crew-Pass erscheint, sobald du den Online-Bestenlisten beitrittst.</string>
+    <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und halte das hier auf den Code.</string>
+    <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>
+    <string name="crews_scan_is_share">Das ist ein Live-Standort-Code. Scann ihn über Teilen auf der Karte.</string>
+    <string name="share_scan_is_crewpass">Das ist ein Crew-Pass. Scann ihn in den Einstellungen unter Crews.</string>
+    <string name="crews_type_instead">Manuell eingeben</string>
+    <string name="crews_code_label">Pass-Code</string>
+    <string name="crews_foreign_title">Dieser Code kommt nicht von eucstats</string>
+    <string name="crews_foreign_body">Er zeigt auf %1$s, und dorthin gehen deine Fahrten nicht. Ja zu sagen gibt dein Konto dem, der das betreibt.\n\nEigener Server? Schalte erst den Entwicklermodus in den Einstellungen ein.</string>
+    <string name="crews_scan_switch">Lieber scannen</string>
+    <string name="crews_close">Schließen</string>
+    <string name="crews_opensettings">Einstellungen öffnen</string>
+    <string name="crews_dev_title">Entwicklermodus</string>
+    <string name="crews_dev_body">Spricht mit %1$s statt mit dem üblichen Server.</string>
+    <string name="crews_grant">Lass den Browser in deinen Farben fahren.\n\nEr kann eine Crew gründen, einer beitreten, aus einer rausgehen und Mitglieder verwalten. Er kann keine Fahrten hochladen, dich nicht umbenennen und nichts löschen, das bleibt alles auf dem Handy.</string>
+    <string name="crews_noprofile_title">Tritt erst der Bestenliste bei</string>
+    <string name="crews_noprofile_body">Crews hängen an deinem Bestenlisten-Profil, und das hat dieses Handy noch nicht angelegt. Tritt unter %1$s bei, und scanne noch mal.</string>
+    <string name="crews_issue">Pass ausstellen</string>
+    <string name="crews_notme">Nicht ich</string>
+    <string name="crews_ratelimited">Zu viele Versuche. Warte eine Minute und probiere es noch mal.</string>
+    <string name="crews_unreachable">%1$s war nicht erreichbar.</string>
+    <string name="crews_refused">Der Server hat das abgelehnt (%1$d).</string>
+    <string name="crews_done_title">Pass ausgestellt</string>
+    <string name="crews_done_body">Der Browser fährt in deinen Farben. Leg das Handy weg.</string>
+    <string name="crews_failed_title">Das hat nicht geklappt</string>
+    <string name="crews_tryagain">Noch mal</string>
+    <string name="crews_done">Fertig</string>
+    <string name="crews_expired">Der Code ist abgelaufen. Hol dir im Browser einen frischen.</string>
+    <string name="voice_pill_search">Suchen</string>
+    <string name="voice_volume">Lautstärke</string>
+    <string name="beep_volume_by_speed">Piepton-Lautstärke nach Tempo</string>
+    <string name="beep_volume_stopped">Im Stand</string>
+    <string name="beep_volume_riding">Beim Fahren</string>
+    <string name="dropbox_checking">Dropbox wird geprüft…</string>
+    <string name="sync_first_settings">Dropbox hat bereits Einstellungen von einem anderen Telefon. Diese verwenden oder die dieses Telefons behalten?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Diese Fahrt von diesem Telefon löschen? Die Sicherung behält eine Kopie, Alle sync. holt sie zurück.</string>
+    <string name="share_menu_scan">QR scannen</string>
+    <string name="share_menu_scan_desc">Einer Gruppenfahrt beitreten oder eine Route öffnen.</string>
+    <string name="share_menu_route">Route teilen</string>
+    <string name="share_menu_route_desc">Als QR-Code oder Link. Kein Konto nötig.</string>
+    <string name="share_menu_route_none">Zuerst einen Stopp hinzufügen.</string>
+    <string name="scan_code_unknown">Kein Gruppenfahrt- oder Routencode.</string>
+    <string name="route_qr_hint">Mit EUC Planet oder der Handykamera scannen.</string>
+    <string name="route_qr_too_long">Die Route ist zu lang für einen QR-Code. Speichere sie stattdessen als GPX.</string>
+    <string name="route_open_title">Geteilte Route öffnen</string>
+    <string name="route_open_confirm">Aktuelle Route durch die geteilte Route ersetzen?</string>
+    <string name="route_opened">Route geöffnet</string>
+    <string name="route_qr_share_image">QR teilen</string>
+    <string name="route_share_text">Fahr diese Route mit EUC Planet: %1$s</string>
+    <string name="route_share_subject">Eine Route zum Fahren</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d Stopp</item>
+        <item quantity="other">%d Stopps</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Werte und Rad-Tasten auf einem Android-Auto-Bildschirm. Verbindet sich selbst, ohne WLAN-Einrichtung.</string>
+    <string name="car_waiting">Warte auf das Rad</string>
+    <string name="car_last_battery">Letzter Akku %1$d%%</string>
+    <string name="car_navigate">Navigieren</string>
+    <string name="car_places_title">Navigieren zu</string>
+    <string name="car_place_home">Zuhause</string>
+    <string name="car_place_work">Arbeit</string>
+    <string name="car_no_places">Speichere zuerst Zuhause oder Arbeit im Routenplaner.</string>
+    <string name="car_waiting_wheel">Warte auf das Wheel</string>
+    <string name="car_weather">Wetter</string>
+    <string name="car_alarm_channel_name">Alarme auf dem Autobildschirm</string>
+    <string name="car_alarm_channel_description">Zeigt einen ausgelösten Alarm auf dem Android-Auto-Bildschirm über der Karte.</string>
+    <string name="car_alarm_notifications">Alarme auf dem Autobildschirm</string>
+    <string name="car_alarm_notifications_hint">Ein ausgelöster Alarm erscheint über der Karte und erreicht dich so während der Navigation. Ton und Vibration bleiben gleich.</string>
+    <string name="car_no_metrics">Keine Werte ausgewählt</string>
 </resources>

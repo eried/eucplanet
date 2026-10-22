@@ -46,6 +46,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
@@ -85,6 +86,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -399,6 +401,10 @@ internal fun parseShareText(raw: String): ShareLink? {
 @Composable
 internal fun ShareDialogCard(
     title: String,
+    /** The header glyph. Defaults to what every share-side caller wants; the crews pairing
+     *  card passes the scanner, because a card about pointing a camera at a code should not
+     *  be headed by the share arrows. */
+    icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Share,
     /** Lets the body scroll under a pinned header. The group view needs it: its
      *  QR is as wide as the dialog, so a long enough rider list would otherwise
      *  push Close and Leave off the bottom of the screen. */
@@ -452,7 +458,7 @@ internal fun ShareDialogCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        Icons.Default.Share,
+                        icon,
                         contentDescription = null,
                         tint = MaterialTheme.appColors.primary,
                         modifier = Modifier.size(18.dp),
@@ -518,8 +524,12 @@ fun ShareMenuDialog(
      *  is then a leave away, so those two rows say so instead of acting. */
     inGroup: Boolean = false,
     onDismiss: () -> Unit,
-    /** Open the camera: the rider is joining a friend's ride. */
+    /** Open the camera: a friend's ride to join, or a route to open. */
     onScan: () -> Unit,
+    /** The planned route can be shared (it has at least two stops, or a track). */
+    canShareRoute: Boolean = false,
+    /** Show the planned route as a QR code. */
+    onShareRoute: () -> Unit = {},
     /** Open the identity form: the rider is starting one. */
     onStartGroup: () -> Unit,
     onNotify: (String) -> Unit,
@@ -536,12 +546,20 @@ fun ShareMenuDialog(
         shape = RoundedCornerShape(12.dp),
         text = {
             Column {
+                // One camera for every code: a group ride to join, or a route
+                // to open. Open even in a group: a route is still welcome, and
+                // a group code says "leave first" once it is scanned.
                 ToolRow(
                     Icons.Default.QrCodeScanner,
-                    stringResource(R.string.share_menu_join),
-                    if (inGroup) leaveFirst else stringResource(R.string.share_menu_join_desc),
-                    enabled = !inGroup,
+                    stringResource(R.string.share_menu_scan),
+                    stringResource(R.string.share_menu_scan_desc),
                 ) { onDismiss(); onScan() }
+                ToolRow(
+                    Icons.Default.QrCode,
+                    stringResource(R.string.share_menu_route),
+                    stringResource(if (canShareRoute) R.string.share_menu_route_desc else R.string.share_menu_route_none),
+                    enabled = canShareRoute,
+                ) { onDismiss(); onShareRoute() }
                 ToolRow(
                     Icons.Default.Share,
                     stringResource(R.string.share_menu_live),
@@ -597,9 +615,20 @@ fun ShareMenuDialog(
  * friend's screen and nothing else, so it is the whole window: a live square
  * and one way out.
  */
+/** What the one scanner can find. */
+sealed class ScannedCode {
+    data class Join(val link: ShareLink) : ScannedCode()
+    data class Route(val route: com.eried.eucplanet.nav.SharedRoute) : ScannedCode()
+}
+
+internal fun parseScannedCode(raw: String): ScannedCode? =
+    com.eried.eucplanet.nav.RouteLinks.parse(raw.trim())?.let { ScannedCode.Route(it) }
+        ?: parseShareText(raw)?.let { ScannedCode.Join(it) }
+
 @Composable
 fun ShareScannerDialog(
     onLink: (ShareLink) -> Unit,
+    onRoute: (com.eried.eucplanet.nav.SharedRoute) -> Unit,
     onDismiss: () -> Unit,
 ) {
     Dialog(
@@ -610,12 +639,24 @@ fun ShareScannerDialog(
         )
     ) {
         ShareDialogCard(
-            title = stringResource(R.string.share_menu_join),
+            title = stringResource(R.string.share_menu_scan),
             // The camera square is as tall as the dialog is wide, so in
             // landscape the body has to be able to scroll to reach Cancel.
             scrollable = true,
         ) {
-            ShareQrScannerArea(onLink = onLink, modifier = Modifier.fillMaxWidth())
+            val crewPass = stringResource(R.string.share_scan_is_crewpass)
+            QrScannerArea(
+                parse = { parseScannedCode(it) },
+                onFound = { code ->
+                    when (code) {
+                        is ScannedCode.Join -> onLink(code.link)
+                        is ScannedCode.Route -> onRoute(code.route)
+                    }
+                },
+                invalidText = stringResource(R.string.scan_code_unknown),
+                modifier = Modifier.fillMaxWidth(),
+                misfit = { if (com.eried.eucplanet.crews.PairLink.parse(it) != null) crewPass else null },
+            )
             Spacer(Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -630,6 +671,73 @@ fun ShareScannerDialog(
                     )
                 ) { Text(stringResource(R.string.action_cancel)) }
             }
+        }
+    }
+}
+
+/**
+ * The planned route as a QR code, for a friend to scan, or as a link to send.
+ * The whole route is inside the code, so nothing is uploaded anywhere.
+ * The layout is in RouteQrContent.kt; this wires what each action does.
+ */
+@Composable
+fun RouteQrDialog(
+    link: String,
+    /** Each stop's name in order (or its coordinates when it has none); empty for a track. */
+    stopNames: List<String>,
+    /** Each leg's length, one per stop after the first, in the rider's units. */
+    legs: List<String>,
+    /** One line for the shared picture: "Start → Telegrafbukta → Back home", or the route's name. */
+    cardTitle: String,
+    /** The route's length in the rider's units. */
+    distance: String,
+    onNotify: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val copiedMsg = stringResource(R.string.share_copied)
+    val subject = stringResource(R.string.route_share_subject)
+    val cardFooter = stringResource(R.string.route_qr_hint)
+    val appColors = MaterialTheme.appColors
+    val tabColors = remember(appColors) {
+        BrowserTabColors(
+            toolbar = appColors.surfaceVariant.toArgb(),
+            navigationBar = appColors.dialog.toArgb(),
+        )
+    }
+    val ui = RouteQrUi(
+        link = link,
+        stopNames = stopNames,
+        legs = legs,
+        distance = distance,
+        onShare = {
+            val send = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, context.getString(R.string.route_share_text, link))
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+            }
+            runCatching { context.startActivity(Intent.createChooser(send, subject)) }
+        },
+        // The code as a picture, for a chat where it is scanned off a screen,
+        // or for paper. It carries the route's description, so it still says
+        // which route it is away from the app.
+        onShareImage = {
+            runCatching {
+                RouteQrCard.share(context, link, context.getString(R.string.route_share_text, link),
+                    cardTitle, distance, cardFooter, subject)
+            }
+        },
+        onCopy = { copyToClipboard(context, link, copiedMsg, onNotify) },
+        // The route page in the phone's browser, as a friend without the app sees it.
+        onOpen = { openShareLink(context, link, tabColors) },
+        onDismiss = onDismiss,
+    )
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        ShareDialogCard(title = stringResource(R.string.share_menu_route), scrollable = true) {
+            RouteQrContent(ui)
         }
     }
 }

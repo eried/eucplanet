@@ -7,6 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -17,10 +18,38 @@ import org.junit.Test
  */
 class KingsongVirtualWheelTest {
 
+    @Before fun freshWheel() = KingsongVirtualWheel.factoryReset()
+
     private fun lockedReported(frames: List<ByteArray>, adapter: KingsongAdapter): Boolean? =
         frames.flatMap { adapter.onRawNotification(it) }
             .filterIsInstance<DecodeResult.Telemetry>()
             .lastOrNull()?.data?.lockedReported
+
+    @Test fun `a lock survives a reconnect, and the connect sequence reads it back`() {
+        val first = KingsongVirtualWheel()
+        val a = KingsongAdapter()
+        a.provideLockPassword(first.password)
+        a.notifyConnectingTo(first.bleName)
+        first.onWrite(KingsongCommands.password(first.password)!!)
+        first.onWrite(KingsongCommands.lock())
+        assertTrue(first.locked)
+
+        // Phil's report: lock, power off, come back later and reconnect.
+        a.onDisconnect()
+        val again = KingsongVirtualWheel()
+        assertTrue("the wheel keeps its lock through power-off", again.locked)
+        a.notifyConnectingTo(again.bleName)
+        val replies = a.initSequence().flatMap { again.onWrite(it) }
+        assertEquals("connecting alone must learn the wheel is locked",
+            true, lockedReported(replies, a))
+    }
+
+    @Test fun `an acknowledged settings push gets no reply, a bare query does`() {
+        val w = KingsongVirtualWheel()
+        assertEquals(1, w.onWrite(KingsongCommands.queryLimits()).size)
+        val ack = KingsongCommands.queryLimits().copyOf().also { it[2] = 0x01; it[4] = 0x0f }
+        assertTrue(w.onWrite(ack).isEmpty())
+    }
 
     @Test fun `it is registered and names itself as a KingSong`() {
         val w = VirtualWheelRegistry.create("KS18XL")

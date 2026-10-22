@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EUC Planet route</title>
+<meta name="description" content="A route shared from EUC Planet. Open it in the app, or download it as GPX.">
+<meta name="theme-color" content="#070a16">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- Same pinned MapLibre build and integrity hashes as share.html. -->
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"
+      integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V"
+      crossorigin="anonymous">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Design language shared with share.html: dark glass, one blue accent. */
+  :root {
+    --ink: #eef1fb; --mut: #9aa6c8; --acc: #2ea8ff; --line: #33457a; --bg: #070a16; --bad: #ff5b6e;
+    --glass: rgba(13, 17, 32, .86);
+    --shadow: 0 12px 34px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(130, 170, 255, .14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; height: 100dvh; }
+  body {
+    font: 14px/1.45 "Chakra Petch", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; overflow: hidden;
+  }
+  #map { position: fixed; inset: 0; }
+  .maplibregl-ctrl-attrib { background: none !important; box-shadow: none !important; font-size: 9.5px; opacity: .6; }
+  .maplibregl-ctrl-attrib a { color: #7a86ad; }
+  #card {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: min(440px, calc(100% - 32px)); max-height: 46vh; overflow: auto;
+    background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 14px 16px;
+  }
+  h1 { font-size: 17px; font-weight: 700; }
+  .sub { color: var(--mut); font-size: 12.5px; margin-top: 2px; }
+  .sum { font-size: 15px; font-weight: 600; margin-top: 2px; }
+  /* The stops as a line, as the app's route window draws them: filled dots at
+     the ends, hollow between, each with the leg that reaches it. */
+  #stops { list-style: none; margin: 10px 0 2px; font-size: 13.5px; }
+  #stops li { position: relative; display: flex; gap: 8px; padding: 0 0 7px 26px; }
+  #stops li::before {
+    content: ""; position: absolute; left: 4px; top: 4px; width: 12px; height: 12px;
+    border-radius: 50%; border: 2px solid var(--acc); background: var(--glass); box-sizing: border-box;
+  }
+  #stops li:first-child::before, #stops li:last-child::before { background: var(--acc); }
+  #stops li::after {
+    content: ""; position: absolute; left: 9px; top: 16px; bottom: -4px; width: 2px;
+    background: var(--acc); opacity: .5;
+  }
+  #stops li:last-child::after { display: none; }
+  #stops .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #stops .leg { color: var(--mut); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn {
+    flex: 1 1 auto; text-align: center; text-decoration: none; cursor: pointer;
+    font: 600 14px "Chakra Petch", sans-serif; padding: 10px 14px; border-radius: 10px;
+    border: 1px solid var(--acc); color: var(--acc); background: transparent;
+  }
+  .btn.primary { background: var(--acc); color: #04101d; }
+  .hide { display: none !important; }
+  .err { color: var(--bad); }
+  .pin {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--acc); color: #04101d;
+    font: 700 12px "Chakra Petch", sans-serif; display: flex; align-items: center; justify-content: center;
+    border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="card">
+  <h1 id="title">EUC Planet route</h1>
+  <div class="sum hide" id="sum"></div>
+  <ul id="stops"></ul>
+  <div class="sub" id="sub">Reading the route...</div>
+  <div class="row">
+    <a id="openApp" class="btn primary hide" rel="noopener">Open in EUC Planet</a>
+    <a id="getApp" class="btn hide" rel="noopener" href="https://play.google.com/store/apps/details?id=com.eried.eucplanet">Get EUC Planet</a>
+    <button id="gpx" class="btn hide" type="button">Download GPX</button>
+  </div>
+</div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"
+        integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj"
+        crossorigin="anonymous"></script>
+<script>
+"use strict";
+// The route travels in the fragment (#1.<data>), so it never reaches a server.
+// Format, mirrored from the app's RouteLinks: compact JSON, raw-deflated and
+// base64url'd. Stops ("p") and an optional track ("t") are Google polylines at
+// 1e-5 degrees; "s" holds each stop's [name, radius].
+function b64u(s) {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  var bin = atob(s), out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+async function inflate(bytes) {
+  var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return await new Response(stream).text();
+}
+function polyline(s) {
+  var out = [], i = 0, lat = 0, lng = 0;
+  function next() {
+    var result = 0, shift = 0, b;
+    do { b = s.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    return (result & 1) ? ~(result >> 1) : (result >> 1);
+  }
+  while (i < s.length) { lat += next(); lng += next(); out.push([lat / 1e5, lng / 1e5]); }
+  return out;
+}
+async function parseRoute(hash) {
+  var payload = hash.replace(/^#/, "");
+  if (payload.slice(0, 2) !== "1.") return null;
+  var json = JSON.parse(await inflate(b64u(payload.slice(2))));
+  var pts = polyline(json.p || ""), extras = json.s || [];
+  var stops = pts.map(function (p, i) {
+    var e = extras[i] || [];
+    return { lat: p[0], lng: p[1], name: e[0] || "", radius: e.length > 1 ? e[1] : null };
+  });
+  var track = json.t ? polyline(json.t) : [];
+  if (!stops.length && track.length < 2) return null;
+  return { name: json.n || "", mode: json.m || "c", stops: stops, track: track };
+}
+function haversine(a, b) {
+  var R = 6371000, toRad = Math.PI / 180;
+  var dLat = (b[0] - a[0]) * toRad, dLng = (b[1] - a[1]) * toRad;
+  var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(a[0] * toRad) * Math.cos(b[0] * toRad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function gpx(route) {
+  var x = '<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="EUC Planet" xmlns="http://www.topografix.com/GPX/1/1">\n';
+  x += "<metadata><name>" + esc(route.name || "EUC Planet route") + "</name></metadata>\n";
+  if (route.stops.length) {
+    x += "<rte><name>" + esc(route.name || "EUC Planet route") + "</name>\n";
+    route.stops.forEach(function (s) {
+      x += '<rtept lat="' + s.lat.toFixed(5) + '" lon="' + s.lng.toFixed(5) + '">' +
+        (s.name ? "<name>" + esc(s.name) + "</name>" : "") + "</rtept>\n";
+    });
+    x += "</rte>\n";
+  }
+  if (route.track.length) {
+    x += "<trk><trkseg>\n";
+    route.track.forEach(function (p) { x += '<trkpt lat="' + p[0].toFixed(5) + '" lon="' + p[1].toFixed(5) + '"></trkpt>\n'; });
+    x += "</trkseg></trk>\n";
+  }
+  return x + "</gpx>\n";
+}
+function fileName(route) {
+  var base = (route.name || "route").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  return (base || "route") + ".gpx";
+}
+// The same key-less router the app uses by default, with the engine for the
+// route's mode, so the legs match what the rider saw. A straight-line route,
+// or no answer, keeps the straight lines.
+async function roads(route) {
+  var engine = { c: "routed-bike", w: "routed-foot", d: "routed-car" }[route.mode];
+  if (!engine || route.stops.length > 100) return null;
+  var coords = route.stops.map(function (s) { return s.lng.toFixed(5) + "," + s.lat.toFixed(5); }).join(";");
+  try {
+    var ctl = new AbortController();
+    setTimeout(function () { ctl.abort(); }, 15000);
+    var res = await fetch("https://routing.openstreetmap.de/" + engine + "/route/v1/driving/" + coords +
+      "?overview=full&geometries=geojson", { signal: ctl.signal });
+    var j = await res.json();
+    var r = j.routes && j.routes[0];
+    if (j.code !== "Ok" || !r || r.legs.length !== route.stops.length - 1) return null;
+    return { legs: r.legs.map(function (l) { return l.distance; }), coords: r.geometry.coordinates };
+  } catch (e) { return null; }
+}
+function show(route) {
+  var stops = route.stops;
+  document.getElementById("title").textContent = route.name || "EUC Planet route";
+  var straight = stops.map(function (s) { return [s.lat, s.lng]; });
+  // No rider setting here: miles where the browser says US or UK, else km.
+  var miles = /^en-(US|GB)$/i.test(navigator.language || "");
+  function dist(m) { return miles ? (m / 1609.344).toFixed(1) + " mi" : (m / 1000).toFixed(1) + " km"; }
+  function length(line) {
+    var m = 0;
+    for (var i = 1; i < line.length; i++) m += haversine(line[i - 1], line[i]);
+    return m;
+  }
+  // The card: how many stops and how far, then each stop with its leg.
+  function fill(legs, roads) {
+    var total = legs.reduce(function (a, b) { return a + b; }, 0);
+    var sum = document.getElementById("sum");
+    sum.textContent = stops.length === 1 ? "1 stop" : stops.length + " stops · " + dist(total);
+    sum.classList.remove("hide");
+    var ul = document.getElementById("stops");
+    ul.textContent = "";
+    stops.forEach(function (s, i) {
+      var li = document.createElement("li");
+      var n = document.createElement("span");
+      n.className = "name";
+      n.textContent = s.name || (s.lat.toFixed(5) + ", " + s.lng.toFixed(5));
+      li.appendChild(n);
+      if (i > 0) {
+        var l = document.createElement("span");
+        l.className = "leg"; l.textContent = dist(legs[i - 1]);
+        li.appendChild(l);
+      }
+      ul.appendChild(li);
+    });
+    document.getElementById("sub").textContent = stops.length === 1
+      ? "A place to ride to. EUC Planet guides you there from where you are."
+      : roads
+      ? "Measured along the roads. EUC Planet guides you turn by turn."
+      : "Measured in a straight line. EUC Planet finds the roads between them.";
+  }
+  if (stops.length) {
+    fill(straight.slice(1).map(function (p, i) { return haversine(straight[i], p); }), false);
+  } else {
+    document.getElementById("sub").textContent = "A " + dist(length(route.track)) + " track. Open it in EUC Planet to follow it.";
+  }
+
+  var android = /Android/i.test(navigator.userAgent);
+  if (android) {
+    // Chrome resolves intent: URLs on the device: the route goes to the app
+    // in the intent path, and without the app it falls back to the Play page.
+    var a = document.getElementById("openApp");
+    a.href = "intent://eucplanet.ried.no/route/" + location.hash.replace(/^#/, "") +
+      "#Intent;scheme=https;package=com.eried.eucplanet;S.browser_fallback_url=" +
+      encodeURIComponent("https://play.google.com/store/apps/details?id=com.eried.eucplanet") + ";end";
+    a.classList.remove("hide");
+  } else {
+    document.getElementById("getApp").classList.remove("hide");
+  }
+  var g = document.getElementById("gpx");
+  g.classList.remove("hide");
+  g.addEventListener("click", function () {
+    var blob = new Blob([gpx(route)], { type: "application/gpx+xml" });
+    var link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName(route);
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(function () { URL.revokeObjectURL(link.href); }, 2000);
+  });
+
+  var map = new maplibregl.Map({
+    container: "map",
+    style: { version: 8,
+      sources: { base: { type: "raster", tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256,
+        attribution: "&copy; OpenStreetMap contributors", maxzoom: 19 } },
+      layers: [{ id: "base", type: "raster", source: "base" }] },
+    center: [stops.length ? stops[0].lng : route.track[0][1], stops.length ? stops[0].lat : route.track[0][0]],
+    zoom: 12
+  });
+  var line = route.track.length >= 2 ? route.track : straight;
+  map.on("load", function () {
+    // A track is drawn solid. Stops start joined straight and dashed, then
+    // follow the roads once the router answers.
+    map.addSource("route", { type: "geojson", data: { type: "Feature",
+      geometry: { type: "LineString", coordinates: line.map(function (p) { return [p[1], p[0]]; }) } } });
+    map.addLayer({ id: "route", type: "line", source: "route",
+      paint: { "line-color": "#2ea8ff", "line-width": 4, "line-opacity": .9,
+        "line-dasharray": route.track.length >= 2 ? [1, 0] : [2, 1.5] } });
+    if (route.track.length < 2 && stops.length >= 2) roads(route).then(function (r) {
+      if (!r) return;
+      fill(r.legs, true);
+      map.getSource("route").setData({ type: "Feature",
+        geometry: { type: "LineString", coordinates: r.coords } });
+      map.setPaintProperty("route", "line-dasharray", [1, 0]);
+    });
+    stops.forEach(function (s, i) {
+      var el = document.createElement("div");
+      el.className = "pin"; el.textContent = String(i + 1); el.title = s.name || "";
+      new maplibregl.Marker({ element: el }).setLngLat([s.lng, s.lat]).addTo(map);
+    });
+    var b = new maplibregl.LngLatBounds();
+    line.forEach(function (p) { b.extend([p[1], p[0]]); });
+    var cardH = document.getElementById("card").offsetHeight;
+    var pad = { top: 40, left: 40, right: 40, bottom: cardH + 40 };
+    // A lone stop has no extent to fit: show its streets.
+    if (line.length < 2) map.jumpTo({ center: [line[0][1], line[0][0]], zoom: 15, padding: pad });
+    else map.fitBounds(b, { padding: pad, maxZoom: 16, duration: 0 });
+  });
+}
+(async function () {
+  var route = null;
+  try { route = await parseRoute(location.hash || ""); } catch (e) { route = null; }
+  if (!route) {
+    document.getElementById("title").textContent = "No route here";
+    var sub = document.getElementById("sub");
+    sub.textContent = "This route link is incomplete. The route lives in the part after the #, so a link loses it when it is retyped or trimmed.";
+    sub.classList.add("err");
+    document.getElementById("getApp").classList.remove("hide");
+    return;
+  }
+  show(route);
+})();
+</script>
+</body>
+</html>

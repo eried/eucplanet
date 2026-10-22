@@ -17,7 +17,6 @@ import com.eried.eucplanet.data.model.withUnitsToggled
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
-import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -213,6 +213,9 @@ class DashboardViewModel @Inject constructor(
      *  where the providers publish them. */
     private fun fineDetail(windowHours: Int): Boolean = windowHours <= 12
 
+    /** The forecast waiting for a first location fix; see [refreshWeather]. */
+    private var locationWait: kotlinx.coroutines.Job? = null
+
     fun refreshWeather(force: Boolean = false) {
         // No location, nothing to ask about. Returning quietly left the panel
         // reading "Fetching..." forever with nothing in flight, which is the
@@ -221,9 +224,30 @@ class DashboardViewModel @Inject constructor(
         val loc = tripRepository.currentLocation.value
             ?: tripRepository.lastKnownLocation.value
             ?: run {
+                // With the permission and the location switch on, a fix is
+                // only a matter of time: say so, and fetch the moment one
+                // lands rather than leaving the panel to be reopened.
+                val canLocate = WeatherNoFix.canLocate(
+                    ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION,
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED,
+                ) {
+                    (context.getSystemService(android.content.Context.LOCATION_SERVICE)
+                        as? android.location.LocationManager)
+                        ?.let { androidx.core.location.LocationManagerCompat.isLocationEnabled(it) } == true
+                }
                 weatherRepository.reportNoLocation(
-                    context.getString(R.string.weather_error_no_location)
+                    context.getString(WeatherNoFix.messageRes(canLocate))
                 )
+                if (canLocate && locationWait?.isActive != true) {
+                    locationWait = viewModelScope.launch {
+                        kotlinx.coroutines.flow.merge(
+                            tripRepository.currentLocation,
+                            tripRepository.lastKnownLocation,
+                        ).first { it != null }
+                        refreshWeather()
+                    }
+                }
                 return
             }
         val w = weatherSettings.value
@@ -356,16 +380,71 @@ class DashboardViewModel @Inject constructor(
                     }
                 }
         }
+        // The two session suspensions are fixable problems, so they live in
+        // Needs attention like every other one: the triangle, the count and
+        // the Fix button all come from the same place. Shown only while the
+        // automation is actually on, a suspension under a disabled feature
+        // means nothing.
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                settingsRepository.settings,
+                automationManager.autoLightsSuspended,
+            ) { s, suspended ->
+                suspended && s.lights.applyWhen != com.eried.eucplanet.data.model.ApplyWhenIds.NEVER
+            }.distinctUntilChanged().collect { show ->
+                if (show) {
+                    appHealthRepository.upsert(
+                        com.eried.eucplanet.data.repository.AppWarning(
+                            id = "autolights_paused",
+                            titleRes = com.eried.eucplanet.R.string.warnings_autolights_title,
+                            bodyRes = com.eried.eucplanet.R.string.warnings_autolights_body,
+                            fix = {
+                                automationManager.clearLightsSuspension()
+                                automationManager.triggerImmediateLightEvaluation()
+                            },
+                        )
+                    )
+                } else {
+                    appHealthRepository.dismiss("autolights_paused")
+                }
+            }
+        }
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(
+                settingsRepository.settings,
+                automationManager.autoLockSuspended,
+            ) { s, suspended -> suspended && s.proximityLock.lockEnabled }
+                .distinctUntilChanged().collect { show ->
+                    if (show) {
+                        appHealthRepository.upsert(
+                            com.eried.eucplanet.data.repository.AppWarning(
+                                id = "autolock_paused",
+                                titleRes = com.eried.eucplanet.R.string.warnings_autolock_title,
+                                bodyRes = com.eried.eucplanet.R.string.warnings_autolock_body,
+                                fix = { automationManager.clearLockSuspension() },
+                            )
+                        )
+                    } else {
+                        appHealthRepository.dismiss("autolock_paused")
+                    }
+                }
+        }
     }
 
     val autoLockEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.proximityLock.lockEnabled }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.proximityLock.lockEnabled)
+    /** The Advanced "Lock max speed", the same bound the repository enforces,
+     *  so the tile's "slow down" hint and the actual refusal never disagree. */
+    val lockMaxSpeedKmh: StateFlow<Int> = settingsRepository.settings
+        .map { it.lockMaxSpeedKmh }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialSettings.lockMaxSpeedKmh)
     /** True when the connected wheel's adapter implements a BLE lock command.
      *  Drives the dashboard lock button to fall back to a "not supported" hint
      *  on wheels (Veteran / LeaperKim, Begode, etc.) whose firmware doesn't
      *  expose lock over BLE today. */
     val wheelHasLock: StateFlow<Boolean> = wheelRepository.wheelHasLock
+    val lockKnown: StateFlow<Boolean> = wheelRepository.lockKnown
     val wheelHasSpeedLimit: StateFlow<Boolean> = wheelRepository.wheelHasSpeedLimit
 
     /** Charging state for the dashboard spark icon (hint + tap-to-open). */
@@ -624,9 +703,10 @@ class DashboardViewModel @Inject constructor(
             settingsRepository.update(current.copy(
                 proximityLock = current.proximityLock.copy(lockEnabled = enabling)
             ))
-            // Switching it on is exactly when the override warning is worth
-            // hearing again; switching it off has nothing left to warn about.
-            if (enabling) AutoLockNotice.rearm() else automationManager.resetProximityLock()
+            // Toggling the automation is a fresh decision, so a manual
+            // suspension from earlier in the session is spent, and the
+            // evaluator starts clean either way.
+            automationManager.clearLockSuspension()
         }
     }
 
@@ -904,8 +984,12 @@ class DashboardViewModel @Inject constructor(
     /** Whether the rider has already joined leaderboards (online upload enabled).
      *  Gates the dev wizard's Join button so it greys out and stays greyed once
      *  joined, the same disabled-after-action treatment Sync trips gets. */
-    val leaderboardsJoined: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.onlineUploadEnabled }
+    // Joined means uploads on AND a rider to upload as. Uploads on with no
+    // rider (issue #31, left by earlier builds) is not joined: the tour keeps
+    // offering the button and Settings shows Join again.
+    val leaderboardsJoined: StateFlow<Boolean> = kotlinx.coroutines.flow.combine(
+        settingsRepository.settings, syncManager.riderStoreId
+    ) { s, rider -> s.onlineUploadEnabled && rider != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /** Fire-and-forget dev "sync trips": the same folder sync the Cloud screen runs.
@@ -924,19 +1008,26 @@ class DashboardViewModel @Inject constructor(
     fun linkDropbox(activityContext: android.content.Context) =
         dropboxRepository.startLinkFlow(activityContext)
 
-    /** Fire-and-forget dev "join leaderboards": recover the rider from the linked
-     *  backup folder if one is there, then enable online upload. The full
-     *  onboarding for a brand-new rider stays in Cloud settings; this is the quick
-     *  path for a dev whose folder already holds their rider. */
+    /** Fire-and-forget dev "join leaderboards": the quick path for a dev whose
+     *  folder already holds their rider. Recovers that rider and turns uploads
+     *  on. A brand-new rider needs consent and a profile, which only the Join
+     *  flow in Settings runs, so with no rider here uploads stay off and the
+     *  message says where to go (issue #31: turning them on anyway uploaded as
+     *  nobody and hid the Settings Join button). */
     fun joinLeaderboards() {
         viewModelScope.launch {
             val hasRider = syncManager.riderStoreId.value != null ||
                 syncManager.findRestorableRider()?.also { syncManager.writeRiderId(it.storeId) } != null
-            settingsRepository.update(settingsRepository.get().copy(onlineUploadEnabled = true))
-            appNotifier.post(context.getString(
-                if (hasRider) R.string.welcome_tut_dev_joined
-                else R.string.welcome_tut_dev_joined_norider
-            ))
+            if (hasRider) {
+                settingsRepository.update { it.copy(onlineUploadEnabled = true) }
+                appNotifier.post(context.getString(R.string.welcome_tut_dev_joined))
+            } else {
+                appNotifier.post(context.getString(
+                    R.string.welcome_tut_dev_joined_norider,
+                    context.getString(R.string.online_upload_join),
+                    context.getString(R.string.settings),
+                ))
+            }
         }
     }
 
@@ -1064,6 +1155,10 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun onLockToggle() {
+        // A hand on the lock wins for the rest of the session: the proximity
+        // automation steps aside instead of fighting the rider's choice, and
+        // Needs attention offers the Fix that resumes it.
+        automationManager.notifyManualLockChange()
         wheelRepository.toggleLock()
     }
 
@@ -1079,10 +1174,19 @@ class DashboardViewModel @Inject constructor(
     /** Asking out loud what can be said puts the list on screen. */
     val showVocabulary = voiceCommands.showVocabulary
 
+    /**
+     * The snackbar saying it is listening shows unless the voice command
+     * tile is on screen, lit (see [showingListeningCue]).
+     */
     fun onVoiceListen() {
-        // The tile lights up, so it does not also need a snackbar saying so.
-        voiceCommands.listen(notify = false)
+        voiceCommands.listen()
     }
+
+    /** The menu's Listen for a voice command: a fresh window even while a session runs. */
+    fun onVoiceAsk() = voiceCommands.ask()
+
+    /** The voice command tile is on screen and lights up while listening. */
+    fun showingListeningCue(): () -> Unit = voiceCommands.showingListeningCue()
 
     /**
      * Swap which of the two voice tiles owns this dashboard slot.
@@ -1140,4 +1244,15 @@ class DashboardViewModel @Inject constructor(
         voiceService.shutdown()
         super.onCleared()
     }
+}
+
+/** What the weather panel says with no location fix. Pure so it can be tested. */
+internal object WeatherNoFix {
+    /** A fix is only a matter of time. [locationOn] is asked only with the permission. */
+    inline fun canLocate(hasPermission: Boolean, locationOn: () -> Boolean): Boolean =
+        hasPermission && locationOn()
+
+    fun messageRes(canLocate: Boolean): Int =
+        if (canLocate) R.string.weather_waiting_location
+        else R.string.weather_error_no_location
 }

@@ -454,12 +454,6 @@ internal fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(12.dp),
-        title = {
-            Text(
-                stringResource(R.string.online_upload_profile_country_label),
-                color = MaterialTheme.appColors.textPrimary,
-            )
-        },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(

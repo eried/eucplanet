@@ -9,19 +9,50 @@ import com.eried.eucplanet.data.model.VoiceCommandSettings
 import com.eried.eucplanet.data.model.HudDiscoveryMode
 import com.eried.eucplanet.data.model.ShareSettings
 import com.eried.eucplanet.data.store.SettingsStore
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/**
+ * Collects [source] once on [scope] and hands the latest value to every
+ * collector of the result.
+ *
+ * Each watcher of the store's flow used to parse the whole settings JSON
+ * itself, on its own thread: about 65 parses on the main thread per cold
+ * start, and one per watcher (77) for a single toggle. Now the blob is parsed
+ * once per change, off the main thread. A write that leaves the settings
+ * equal no longer reaches the watchers. Nothing is emitted before the first
+ * real load, as before.
+ */
+internal fun shareSettings(
+    source: Flow<AppSettings>,
+    scope: CoroutineScope,
+    retryDelayMs: Long = 2_000,
+): Flow<AppSettings> =
+    source
+        // One shared collector means one read error would stop every watcher
+        // at once, silently. Keep the last good settings and read again.
+        .retryWhen { cause, attempt ->
+            if (cause is CancellationException) return@retryWhen false
+            android.util.Log.w("SettingsRepository", "Settings read failed (attempt ${attempt + 1}), retrying", cause)
+            delay(retryDelayMs)
+            true
+        }
+        .stateIn<AppSettings?>(scope, SharingStarted.Eagerly, null).filterNotNull()
 
 @Singleton
 class SettingsRepository @Inject constructor(
@@ -31,7 +62,8 @@ class SettingsRepository @Inject constructor(
     // the scan sheet being dismissed the instant the rider picks a wheel).
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    val settings: Flow<AppSettings> = store.settings.map { it.sanitized() }
+    /** One parse per change, shared by every watcher. See [shareSettings]. */
+    val settings: Flow<AppSettings> = shareSettings(store.settings.map { it.sanitized() }, scope)
 
     // Completed by the store's first emission. DataStore has no synchronous
     // read, so until then [current] can only hold the defaults.
@@ -91,7 +123,11 @@ class SettingsRepository @Inject constructor(
  * AdvancedSettingsSpecGuardTest can run it without a store.
  */
 internal fun AppSettings.sanitized(): AppSettings = copy(
+    voiceVolumePercent = voiceVolumePercent.coerceIn(10, 100),
     autoRecordStopIdleSeconds = autoRecordStopIdleSeconds.coerceAtLeast(30),
+    // What the dialog lets a rider save: a synced file cannot ask for 300%, or 80.
+    chargingNotifyCustomPct = com.eried.eucplanet.service.ChargeAlertPolicy
+        .sanitizeCustom(chargingNotifyCustomPct),
     // Weather comfort thresholds from a synced or hand-edited file: keep
     // the window one of the offered four, the bands ordered and sane.
     weather = weather.copy(
@@ -139,14 +175,24 @@ internal fun AppSettings.sanitized(): AppSettings = copy(
             ?: VoiceCommandSettings.CUE_BEEP,
         unknownCue = voiceCommands.unknownCue.takeIf { it in VoiceCommandSettings.UNKNOWNS }
             ?: VoiceCommandSettings.UNKNOWN_MESSAGE,
+        headsetAction = voiceCommands.headsetAction.takeIf { it in VoiceCommandSettings.HEADSET_ACTIONS }
+            ?: VoiceCommandSettings.HEADSET_LISTEN,
+        musicWhileListening = voiceCommands.musicWhileListening.takeIf { it in VoiceCommandSettings.MUSIC_MODES }
+            ?: VoiceCommandSettings.MUSIC_PAUSE,
     ),
     // An imported or Dropbox-synced file can carry an unlockWhen this build
     // does not know. Fall back to never rather than letting an unrecognised
     // value decide when a wheel unlocks itself.
     // A horn mode this build does not know (a newer backup) falls back to the
     // wheel's own horn, which every build understands.
-    horn = if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
-        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL),
+    horn = (if (horn.mode in com.eried.eucplanet.data.model.HornSettings.MODES) horn
+        else horn.copy(mode = com.eried.eucplanet.data.model.HornSettings.MODE_WHEEL)).let {
+        // The wheel only knows 1..9; anything else would be refused or worse.
+        it.copy(
+            beepVolumeStopped = it.beepVolumeStopped.coerceIn(1, 9),
+            beepVolumeRiding = it.beepVolumeRiding.coerceIn(1, 9),
+        )
+    },
     proximityLock = if (proximityLock.unlockWhen in ProximityLockSettings.UNLOCK_WHEN_VALUES) {
         proximityLock
     } else {

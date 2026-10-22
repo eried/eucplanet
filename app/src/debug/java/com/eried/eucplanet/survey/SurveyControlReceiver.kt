@@ -4,7 +4,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.eried.eucplanet.data.model.GeoPoint
+import com.eried.eucplanet.data.model.NavMode
+import com.eried.eucplanet.data.model.NavRoute
+import com.eried.eucplanet.data.model.TravelMode
+import com.eried.eucplanet.data.model.Waypoint
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +27,15 @@ import javax.inject.Inject
  *     so the next screenshot shows a freshly randomised configuration.
  *   - SURVEY_CONNECT_VIRTUAL: start WheelService with VIRTUAL:<id> so there
  *     is live telemetry on the dashboard when the screenshots are captured.
+ *   - SURVEY_SOUND: play one beep (kind=beep) or speak one line (kind=voice),
+ *     so the warm-route timing can be checked on a machine with no alarm firing.
+ *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
+ *     battery checks need to change without walking the settings screens.
+ *   - SURVEY_START_NAV: put NavigationEngine into an active route without a
+ *     geocoder, a network round trip or a single tap. It exists because the
+ *     car screen used to die the moment a route went active, and proving that
+ *     needs navState.active true on a machine with no GPS and no destination
+ *     to search for.
  *
  * Only present in debug builds, never merged into the release manifest, * so the production app surface stays unchanged. See the matching debug
  * AndroidManifest at app/src/debug/AndroidManifest.xml.
@@ -29,6 +44,9 @@ import javax.inject.Inject
 class SurveyControlReceiver : BroadcastReceiver() {
 
     @Inject lateinit var settingsRepository: SettingsRepository
+    @Inject lateinit var navigationEngine: NavigationEngine
+    @Inject lateinit var tonePlayer: com.eried.eucplanet.service.TonePlayer
+    @Inject lateinit var voiceService: com.eried.eucplanet.service.VoiceService
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -36,6 +54,33 @@ class SurveyControlReceiver : BroadcastReceiver() {
         when (intent.action) {
             ACTION_SURVEY_APPLY -> applyConfig(intent)
             ACTION_SURVEY_CONNECT_VIRTUAL -> connectVirtual(context, intent)
+            ACTION_SURVEY_START_NAV -> startNav()
+            ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
+            ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
+            ACTION_SURVEY_SET -> set(intent)
+        }
+    }
+
+    private fun sound(kind: String) {
+        Log.i(TAG, "SURVEY_SOUND $kind")
+        scope.launch {
+            if (kind == "voice") voiceService.speak("Test")
+            else tonePlayer.playBeep(1000, 200, 1, 0, 80, -1, 0, 0)
+            Log.i(TAG, "SURVEY_SOUND $kind done")
+        }
+    }
+
+    private fun set(intent: Intent) {
+        val actions = intent.getStringExtra(EXTRA_NOTIF_ACTIONS)
+        val warm = intent.getIntExtra(EXTRA_WARM_ROUTE_MS, -1)
+        Log.i(TAG, "SURVEY_SET notifActions=$actions warmRouteMs=$warm")
+        scope.launch {
+            settingsRepository.update { s ->
+                var n = s
+                if (actions != null) n = n.copy(notificationActions = actions)
+                if (warm > 0) n = n.copy(advanced = n.advanced.copy(alarmWarmRouteMs = warm))
+                n
+            }
         }
     }
 
@@ -74,6 +119,31 @@ class SurveyControlReceiver : BroadcastReceiver() {
         }
     }
 
+    /** Fires one car-screen alarm card, so the thing can be looked at. */
+    private fun carAlarm(context: Context) {
+        Log.i(TAG, "SURVEY_CAR_ALARM")
+        com.eried.eucplanet.car.CarAlarmNotification.post(context, "PWM", "92 %")
+    }
+
+    /** A two-point straight line through Oslo, enough for navState.active. */
+    private fun startNav() {
+        val a = GeoPoint(59.9139, 10.7522)
+        val b = GeoPoint(59.9239, 10.7622)
+        val route = NavRoute(
+            name = "Survey route",
+            waypoints = listOf(
+                Waypoint(a.lat, a.lng, "Start"),
+                Waypoint(b.lat, b.lng, "End"),
+            ),
+            travelMode = TravelMode.entries.first(),
+            geometry = listOf(a, b),
+            maneuvers = emptyList(),
+            totalDistanceM = 1400.0,
+        )
+        Log.i(TAG, "SURVEY_START_NAV")
+        navigationEngine.start(route, NavMode.TURN_BY_TURN)
+    }
+
     private fun connectVirtual(context: Context, intent: Intent) {
         val wheelId = intent.getStringExtra(EXTRA_WHEEL_ID) ?: "V14"
         val pseudoAddress = "VIRTUAL:$wheelId"
@@ -91,6 +161,13 @@ class SurveyControlReceiver : BroadcastReceiver() {
 
         const val ACTION_SURVEY_APPLY = "com.eried.eucplanet.SURVEY_APPLY"
         const val ACTION_SURVEY_CONNECT_VIRTUAL = "com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL"
+        const val ACTION_SURVEY_START_NAV = "com.eried.eucplanet.SURVEY_START_NAV"
+        const val ACTION_SURVEY_CAR_ALARM = "com.eried.eucplanet.SURVEY_CAR_ALARM"
+        const val ACTION_SURVEY_SOUND = "com.eried.eucplanet.SURVEY_SOUND"
+        const val ACTION_SURVEY_SET = "com.eried.eucplanet.SURVEY_SET"
+        const val EXTRA_KIND = "kind"
+        const val EXTRA_NOTIF_ACTIONS = "notif_actions"
+        const val EXTRA_WARM_ROUTE_MS = "warm_route_ms"
 
         const val EXTRA_METRIC_ORDER = "metric_order"
         const val EXTRA_METRIC_STATS = "metric_stats"

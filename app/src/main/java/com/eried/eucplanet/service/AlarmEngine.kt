@@ -27,6 +27,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.Locale
+import com.eried.eucplanet.R
+import com.eried.eucplanet.car.CarAlarmNotification
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.absoluteValue
@@ -385,6 +387,7 @@ class AlarmEngine @Inject constructor(
             if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
         }
         scope.launch {
+            notifyCar(rule, triggerValue)
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
@@ -458,6 +461,24 @@ class AlarmEngine @Inject constructor(
             .replace("{distance}", "${closest?.distanceM ?: 0}")
             .replace("{approachSpeed}", "$approach")
             .replace("{threatCount}", "${frame.threats.size}")
+    }
+
+    /**
+     * Puts a firing rule on the Android Auto screen.
+     *
+     * The car screen is only in front of the rider while they are looking at
+     * it, and while navigating they are looking at Maps. A notification is the
+     * one thing the host draws over navigation, so this is the only way an
+     * alarm reaches a rider mid-route. Costs nothing when no car is attached:
+     * the host never shows it and the channel is silent, because the rule's
+     * own beep and vibration have already fired.
+     */
+    private suspend fun notifyCar(rule: AlarmRule, triggerValue: Float) {
+        if (!settingsRepository.currentOrLoad().androidAuto.alarmNotifications) return
+        val title = rule.name.ifBlank { context.getString(R.string.app_name) }
+        runCatching {
+            CarAlarmNotification.post(context, title, "%.0f".format(triggerValue))
+        }.onFailure { Log.w(TAG, "car alarm notification failed", it) }
     }
 
     private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, speedUnit: String, distanceUnit: String, tempUnit: String) {

@@ -83,10 +83,22 @@ class TonePlayer @Inject constructor() {
     // It runs while EITHER wants it, so neither owner pulls the route out from under
     // the other. Separate booleans, not a counter, so lifecycle events that don't pair
     // up perfectly can't leak the track on forever.
+    //
+    // The ride's hold rests after [rideQuietMs] with no sound: a silent track held all
+    // ride long kept the audio path (and a Bluetooth headset link) awake for nothing.
+    // The next sound plays into a cold route and warms it again for the next one.
     @Volatile private var keepAliveRide = false
     @Volatile private var keepAlivePreview = false
+    @Volatile private var rideQuietMs = 120_000L
+    @Volatile private var lastSoundMs = 0L
     private var keepAliveThread: Thread? = null
-    private val keepAliveWanted get() = keepAliveRide || keepAlivePreview
+    private val keepAliveWanted get() = routeKeepAliveWanted(
+        keepAlivePreview, keepAliveRide, System.currentTimeMillis(), lastSoundMs, rideQuietMs
+    )
+
+    /** A beep, stream or voice line is starting: the route is wanted again. */
+    @Synchronized
+    fun noteSound() { lastSoundMs = System.currentTimeMillis(); ensureKeepAlive() }
 
     /**
      * Play [count] beeps of [durationMs] at [frequencyHz], separated by [gapMs]
@@ -127,6 +139,7 @@ class TonePlayer @Inject constructor() {
      * then is the alarms.
      */
     private fun playSamples(samples: ShortArray, totalN: Int, what: String) {
+        noteSound()
         val minBuf = AudioTrack.getMinBufferSize(
             sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
         )
@@ -381,7 +394,10 @@ class TonePlayer @Inject constructor() {
      * studio stream, so a failure here never silences an actual alarm.
      */
     @Synchronized
-    fun startRouteKeepAlive() { keepAliveRide = true; ensureKeepAlive() }
+    fun startRouteKeepAlive(quietMs: Long = rideQuietMs) {
+        keepAliveRide = true; rideQuietMs = quietMs; lastSoundMs = System.currentTimeMillis()
+        ensureKeepAlive()
+    }
 
     /** Release the ride's hold. The route stays warm if a preview still wants it. */
     @Synchronized
@@ -428,6 +444,7 @@ class TonePlayer @Inject constructor() {
         val silence = ShortArray(chunk)   // zeros: inaudible, just holds the route open
         try {
             track.play()
+            Log.i(TAG, "route warm")
             while (keepAliveWanted) {
                 track.write(silence, 0, silence.size)   // blocks, pacing the loop
             }
@@ -435,6 +452,7 @@ class TonePlayer @Inject constructor() {
         } finally {
             runCatching { track.stop() }
             runCatching { track.release() }
+            Log.i(TAG, "route rests")
             synchronized(this) {
                 keepAliveThread = null
                 ensureKeepAlive()   // a request that arrived during teardown respawns us
@@ -463,6 +481,7 @@ class TonePlayer @Inject constructor() {
     fun startStream(frequencyHz: Int, durationMs: Int, gapMs: Int, volumePct: Int, transitionMs: Int = -1, waveform: Int = 0, effect: Int = 0) {
         updateStream(frequencyHz, durationMs, gapMs, volumePct, transitionMs, waveform, effect)
         if (streamOn) return
+        noteSound()
         streamOn = true
         streamThread = thread(name = "ToneStream", isDaemon = true) { streamLoop() }
     }
@@ -483,6 +502,7 @@ class TonePlayer @Inject constructor() {
         streamOn = false
         streamThread?.join(500)
         streamThread = null
+        noteSound()  // the quiet window starts when a long alarm tone ends
     }
 
     private fun streamLoop() {
@@ -569,3 +589,8 @@ class TonePlayer @Inject constructor() {
         }
     }
 }
+
+/** A preview always holds the route; a ride holds it until [quietMs] pass with no sound. */
+internal fun routeKeepAliveWanted(
+    preview: Boolean, ride: Boolean, nowMs: Long, lastSoundMs: Long, quietMs: Long,
+): Boolean = preview || (ride && nowMs - lastSoundMs < quietMs)

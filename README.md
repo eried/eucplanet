@@ -25,8 +25,8 @@ riders who have the wheel.
 | Status | Wheels |
 |---|---|
 | **Verified** | InMotion V14 (50GB / 50S), P6 |
-| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20 · KingSong KS-16X, KS-18XL |
-| **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
+| **Rider-tested** | InMotion V8S · LeaperKim Lynx S, Oryx · NOSFET Aeon · Begode/Gotway Mten3, EX30, E20, Master · KingSong KS-16X, KS-18XL |
+| **In test** | InMotion V6, X1 · Begode/Gotway Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 · LeaperKim Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams · NOSFET Apex, Aero, Xeno · KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
 | **Waiting to be tested** | InMotion V12 HS / HT / Pro, and the rest of the V1 family: V5, V8, V8F, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 · Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
 | **Experimental** | InMotion V9, V11, V13 |
 
@@ -78,8 +78,11 @@ proximity mode for unmarked spots. Charging stations (connectors, power, cost,
 ratings and photos) and other points of interest along the way (food, shops,
 rest stops) sit right on the map and refresh as you pan and zoom. Full Path
 mode lets you tap any point along the route to add a detour (skip sand, gravel,
-the wrong side of a one-way). The next-turn arrow can mirror to your watch,
-HUD, or Garmin Edge.
+the wrong side of a one-way). Each stop shows its leg and the running total.
+Share a route as a QR code or a link, nothing uploaded: a friend scans it into
+their app, or opens it in a browser to see the stops and download a GPX. Map
+styles include Satellite hybrid, with road and place names over the imagery.
+The next-turn arrow can mirror to your watch, HUD, or Garmin Edge.
 
 **Overlay Studio.** Record video and stills with a customisable telemetry overlay:
 dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
@@ -149,9 +152,10 @@ GPS, and it can cut the beam when you slow to walking pace so it is not in the f
 of whoever is waiting at the crossing with you, coming back when you ride on.
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Volume
 control scales phone volume with speed. Wheel lock locks the wheel when you walk
-away and unlocks it when you come back. Each one runs never, whenever the wheel is
+away and unlocks it when you come back. Switch the light or lock by hand and that
+automation steps aside until you hand it back. Each one runs never, whenever the wheel is
 connected, or only while you are actually riding. Charging can tell you when the
-pack passes 80% and when it is full.
+pack passes 80%, when it is full, and at a level you pick for storage.
 
 **Helmet HUD.** Sideload the small HUD companion on a MotoEye E6 or any
 Android-based head-up display and the dashboard mirrors live to your visor
@@ -283,6 +287,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [jforssblad](https://github.com/jforssblad) | NOSFET Aeon cell-voltage testing |
 | [Dubardo](https://github.com/Dubardo) | Odometer-in-trip bug report |
 | [Amoenus](https://github.com/Amoenus) | NOSFET Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures and contributed with tests and protocol notes. The first code contributed from outside. |
+| [Reimus](https://github.com/Reimus) | Sherman Max compatibility |
 | [ZiraiMode](https://github.com/ZiraiMode) | The Wear OS map: tile streaming from the phone and the watch-side drawing, tested on a Galaxy Watch 5 Pro with a Lynx S |
 | Ilya Shkolnik | Advice and help. Maintains DarknessBot. |
 | InMotion | For making a great V14 |
@@ -291,8 +296,7 @@ Thanks to the people and projects that helped, kept in sync with the app (tap ve
 | [CyclOSM](https://www.cyclosm.org/) | Cycle and trail style, tiles served by OpenStreetMap France |
 | [OpenTopoMap](https://opentopomap.org/) | Topographic style with contours (CC-BY-SA) |
 | [Humanitarian OSM Team](https://www.hotosm.org/) | HOT style, tiles served by OpenStreetMap France |
-| [CARTO](https://carto.com/attributions) | Voyager and Dark basemaps |
-| [Esri](https://www.esri.com/) | World Imagery satellite tiles (Esri, Maxar, Earthstar Geographics) |
+| [Esri](https://www.esri.com/) | World Imagery satellite tiles (Esri, Maxar, Earthstar Geographics), the Light and Dark gray basemaps, and the road and place labels of Satellite hybrid |
 | [Leaflet](https://leafletjs.com/) | The map component every in-app map is drawn with (BSD-2) |
 
 ## License

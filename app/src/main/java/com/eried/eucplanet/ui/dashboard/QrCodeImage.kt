@@ -47,9 +47,15 @@ const val QR_MAX_PX = 1024
  * surrounding theme (dark / black mode).
  */
 @Composable
-fun QrCodeImage(content: String, sizePx: Int, modifier: Modifier = Modifier) {
+fun QrCodeImage(
+    content: String,
+    sizePx: Int,
+    modifier: Modifier = Modifier,
+    /** Q suits short links; a long payload (a whole route) needs M to fit at all. */
+    ecc: ErrorCorrectionLevel = ErrorCorrectionLevel.Q,
+) {
     val encodePx = sizePx.coerceIn(64, QR_MAX_PX)
-    val bitmap = remember(content, encodePx) { encodeQr(content, encodePx) }
+    val bitmap = remember(content, encodePx, ecc) { encodeQr(content, encodePx, ecc) }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
@@ -76,12 +82,16 @@ fun QrCodeImage(content: String, sizeDp: Int) {
     QrCodeImage(content = content, sizePx = sizePx, modifier = Modifier.size(sizeDp.dp))
 }
 
-private fun encodeQr(content: String, size: Int): Bitmap {
+/** The bare code as a bitmap, for drawing into something else (a shared image). */
+fun qrBitmap(content: String, size: Int, ecc: ErrorCorrectionLevel = ErrorCorrectionLevel.Q): Bitmap =
+    encodeQr(content, size, ecc)
+
+private fun encodeQr(content: String, size: Int, ecc: ErrorCorrectionLevel): Bitmap {
     val side = size.coerceAtLeast(64)
     // Q-level (~25% recoverable) is a good balance for short URLs scanned
     // at arm's length on a phone screen.
     val hints = mapOf<EncodeHintType, Any>(
-        EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.Q,
+        EncodeHintType.ERROR_CORRECTION to ecc,
         EncodeHintType.MARGIN to 0
     )
     val matrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, side, side, hints)

@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">Afspil / pause</string>
     <string name="watch_action_media_next">Næste nummer</string>
     <string name="watch_action_media_prev">Forrige nummer</string>
+    <string name="watch_action_music_start">Start musik</string>
+    <string name="watch_action_media_pause">Sæt musik på pause</string>
     <string name="watch_action_long_press_hint">Hold inde for %1$s</string>
     <string name="watch_map_phone_disconnected">Ingen telefon</string>
     <string name="watch_map_gps_permission">Tillad GPS</string>

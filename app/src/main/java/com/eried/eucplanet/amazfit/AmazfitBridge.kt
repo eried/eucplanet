@@ -60,6 +60,8 @@ class AmazfitBridge @Inject constructor(
          *  long enough to ride out the Zepp app being backgrounded for a bit,
          *  short enough that a closed watch app drops off the Settings card. */
         private const val PRESENCE_WINDOW_MS = 15_000L
+        /** Bookkeeping pace while no watch polls. */
+        private const val NO_WATCH_TICK_MS = 5_000L
         /** How long the QUIT path waits for the watch to fetch the event before
          *  giving up; the process is usually about to die right after. */
         private const val QUIT_WAIT_MS = 1_500L
@@ -113,10 +115,14 @@ class AmazfitBridge @Inject constructor(
         // Presence + rate bookkeeping, once a second.
         scope.launch {
             val alpha = 0.25
+            var lastTickMs = System.currentTimeMillis()
             while (true) {
                 delay(1_000L)
                 val now = System.currentTimeMillis()
-                val instant = inbox.takePollCount().toDouble()
+                // Polls per second over however long this tick really was: the
+                // idle wait below makes some ticks five seconds long.
+                val instant = inbox.takePollCount() * 1000.0 / (now - lastTickMs).coerceAtLeast(1L)
+                lastTickMs = now
                 _deliveryRateHz.value = alpha * instant + (1 - alpha) * _deliveryRateHz.value
                 val names = if (inbox.hasPolledWithin(PRESENCE_WINDOW_MS, now)) {
                     listOf(inbox.watchName.ifBlank { DEFAULT_NAME })
@@ -126,6 +132,11 @@ class AmazfitBridge @Inject constructor(
                 if (names != _pairedDevices.value) _pairedDevices.value = names
                 if (farewell && wheelRepository.connectionState.value == ConnectionState.CONNECTED) {
                     farewell = false
+                }
+                // No watch polling: nothing to count, look again later.
+                if (names.isEmpty() && instant == 0.0) {
+                    _deliveryRateHz.value = 0.0
+                    delay(NO_WATCH_TICK_MS - 1_000L)
                 }
             }
         }

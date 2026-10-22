@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">Lecture / pause</string>
     <string name="watch_action_media_next">Morceau suivant</string>
     <string name="watch_action_media_prev">Morceau précédent</string>
+    <string name="watch_action_music_start">Lancer la musique</string>
+    <string name="watch_action_media_pause">Pause musique</string>
     <string name="watch_action_long_press_hint">Appui long pour %1$s</string>
     <string name="watch_map_phone_disconnected">Pas de téléphone</string>
     <string name="watch_map_gps_permission">Autoriser GPS</string>

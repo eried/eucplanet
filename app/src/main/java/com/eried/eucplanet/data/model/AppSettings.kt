@@ -86,6 +86,9 @@ data class AppSettings(
     val voiceAnnounceRequireExternal: Boolean = true,
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
+    /** Speech loudness, 10..100 % of the output channel's volume. Only the
+     *  voice: music, alarms and the auto-volume curve are not touched. */
+    val voiceVolumePercent: Int = 100,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
     // Specific TTS Voice.name within the locale (a language can expose several
     // voices). Empty = let the engine use its default voice for the locale.
@@ -118,6 +121,8 @@ data class AppSettings(
     val voiceReports: VoiceReportSettings = VoiceReportSettings(),
     // Home screen widget layout. Nested for the same reason, see WidgetSettings.
     val widget: WidgetSettings = WidgetSettings(),
+    // Android Auto screen: its own stat and button slots. Nested, see AndroidAutoSettings.
+    val androidAuto: AndroidAutoSettings = AndroidAutoSettings(),
 
     // Voice report item order (comma-separated: Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording)
     val voiceReportOrder: String = "Speed,Battery,PhoneBattery,Time,Temp,PWM,Distance,Recording",
@@ -615,6 +620,16 @@ data class AppSettings(
      * "should the radio be running?". The two should be independent.
      */
     val hudServerEnabled: Boolean = false,
+    /**
+     * Allow crews pairing with a server other than the one this build talks to.
+     *
+     * Off, and the rider has to find it. A pairing QR is a thing anybody can print and tape
+     * to a wall, and approving one sends this rider's store_id to whatever server the code
+     * names — so a code pointing anywhere unexpected is refused outright unless the rider has
+     * deliberately turned this on. It costs nothing in the normal case, because the normal
+     * case is a code from the usual server, which never consults this.
+     */
+    val crewsDevServerEnabled: Boolean = false,
     /** Keep the foreground service (ongoing notification) alive even with no wheel
      *  connected, so background trip sync and voice keep running. Default on. */
     val keepAppAlive: Boolean = true,
@@ -874,6 +889,10 @@ data class AppSettings(
      *  Advanced settings, like [chargingEstimateToFull] beside them. */
     val chargingNotify80: Boolean = false,
     val chargingNotifyFull: Boolean = false,
+    /** A third alert at a level the rider types in, 60 for a wheel that
+     *  will sit for a while. The level is kept while the alert is off. */
+    val chargingNotifyCustom: Boolean = false,
+    val chargingNotifyCustomPct: Int = 60,
     /** Auto-open the Battery monitor when the wheel starts charging. */
     val chargingAutoOpen: Boolean = true,
     /** Show the Battery monitor access icon (spark) in the dashboard top bar. */
@@ -893,6 +912,11 @@ data class AppSettings(
      *  Sync all UI to label "Last synced 5 min ago" and by the worker to
      *  decide whether the settings.json on Dropbox is current. */
     val dropboxLastSyncAt: Long = 0L,
+    // Hash of the device-stripped settings as of the last successful Dropbox
+    // settings sync. Lets a two-way sync tell "this phone changed settings"
+    // (upload) from "the other device changed them" (apply), so only a genuine
+    // both-changed case prompts. Device-local: stripped, never uploaded.
+    val dropboxSettingsBaseHash: String = "",
     /** True while trips still need uploading to Dropbox; the worker keeps
      *  retrying until it clears. Drives the persistent "Syncing trips…"
      *  indicator so failed / pending uploads are surfaced without an error toast. */
@@ -977,6 +1001,7 @@ data class AppSettings(
     val alarmBufferMaxMs: Int get() = advanced.alarmBufferMaxMs
     val alarmSlopeMinSamples: Int get() = advanced.alarmSlopeMinSamples
     val alarmSlopeMinSpanMs: Int get() = advanced.alarmSlopeMinSpanMs
+    val alarmWarmRouteMs: Int get() = advanced.alarmWarmRouteMs
     val radarClearDecayMs: Int get() = advanced.radarClearDecayMs
     val automationLightCheckIntervalMs: Int get() = advanced.automationLightCheckIntervalMs
     val hudBackoffMinMs: Int get() = advanced.hudBackoffMinMs
@@ -989,6 +1014,8 @@ data class AppSettings(
     val hudManualHintDelayMs: Int get() = advanced.hudManualHintDelayMs
     val hudDiscoveryTotalTimeoutMs: Int get() = advanced.hudDiscoveryTotalTimeoutMs
     val hudMdnsServiceInfoTimeoutMs: Int get() = advanced.hudMdnsServiceInfoTimeoutMs
+    val hudIdleSearchMs: Int get() = advanced.hudIdleSearchMs
+    val hudSweepIntervalMs: Int get() = advanced.hudSweepIntervalMs
     val autoLightNoGpsRetryMs: Int get() = advanced.autoLightNoGpsRetryMs
     val autoToggleGraceMs: Int get() = advanced.autoToggleGraceMs
     val navMovingKmh: Int get() = advanced.navMovingKmh
@@ -1427,6 +1454,15 @@ data class VoiceReportSettings(
     val triggerOdometer: Boolean = false,
     val periodicConsumption: Boolean = false,
     val triggerConsumption: Boolean = false,
+    /**
+     * The pill lists, saved by VoicePills. Blank until the rider first edits
+     * one, and until then the switches above decide what is said.
+     */
+    val periodicPills: String = "",
+    val triggerPills: String = "",
+    /** Reset metrics once the trigger report has been read out, for a rider
+     *  who checks a stretch with one press and starts the next from zero. */
+    val triggerResetAfter: Boolean = false,
 )
 
 /**
@@ -1474,6 +1510,14 @@ data class VoiceCommandSettings(
      */
     val headsetButton: Boolean = false,
     /**
+     * What that headset button does once it reaches the app: open the
+     * microphone ([HEADSET_LISTEN]) or speak the voice announcement at once
+     * ([HEADSET_ANNOUNCE]), the same report the Voice tile and a Flic bound
+     * to it give. A rider who only ever asks "how am I doing" gets the answer
+     * in one press instead of a press and a sentence.
+     */
+    val headsetAction: String = HEADSET_LISTEN,
+    /**
      * The language the rider speaks commands in, blank to follow the voice.
      *
      * Separate from both the interface language and the speaking voice,
@@ -1483,8 +1527,21 @@ data class VoiceCommandSettings(
      * command words came from whatever the interface happened to be set to.
      */
     val recognitionLocale: String = "",
+    /**
+     * What the rider's music does while the microphone is open and the answer
+     * is said: paused ([MUSIC_PAUSE]), turned down ([MUSIC_DUCK]) or left
+     * alone ([MUSIC_KEEP]). Pause by default, like assistants and cars do:
+     * through the phone speaker the microphone hears the song, and the song
+     * is what gets recognised.
+     */
+    val musicWhileListening: String = MUSIC_PAUSE,
 ) {
     companion object {
+        const val MUSIC_PAUSE = "PAUSE"
+        const val MUSIC_DUCK = "DUCK"
+        const val MUSIC_KEEP = "KEEP"
+        val MUSIC_MODES = setOf(MUSIC_PAUSE, MUSIC_DUCK, MUSIC_KEEP)
+
         const val CUE_BEEP = "BEEP"
         const val CUE_VOICE = "VOICE"
         const val CUE_NONE = "NONE"
@@ -1494,6 +1551,10 @@ data class VoiceCommandSettings(
         const val UNKNOWN_BEEP = "BEEP"
         const val UNKNOWN_NONE = "NONE"
         val UNKNOWNS = setOf(UNKNOWN_MESSAGE, UNKNOWN_BEEP, UNKNOWN_NONE)
+
+        const val HEADSET_LISTEN = "LISTEN"
+        const val HEADSET_ANNOUNCE = "ANNOUNCE"
+        val HEADSET_ACTIONS = setOf(HEADSET_LISTEN, HEADSET_ANNOUNCE)
     }
 }
 
@@ -1561,6 +1622,7 @@ data class AdvancedSettings(
     val alarmBufferMaxMs: Int = 2500,
     val alarmSlopeMinSamples: Int = 3,
     val alarmSlopeMinSpanMs: Int = 300,
+    val alarmWarmRouteMs: Int = 120000,
     val radarClearDecayMs: Int = 3000,
     val automationLightCheckIntervalMs: Int = 60000,
     val hudBackoffMinMs: Int = 1000,
@@ -1573,6 +1635,8 @@ data class AdvancedSettings(
     val hudManualHintDelayMs: Int = 1500,
     val hudDiscoveryTotalTimeoutMs: Int = 15000,
     val hudMdnsServiceInfoTimeoutMs: Int = 1000,
+    val hudIdleSearchMs: Int = 120000,
+    val hudSweepIntervalMs: Int = 60000,
     val autoLightNoGpsRetryMs: Int = 2000,
     val autoToggleGraceMs: Int = 4000,
     val navMovingKmh: Int = 4,
@@ -1706,6 +1770,16 @@ data class HornSettings(
     val soundName: String = "",
     /** Play the phone sound only through headphones or a Bluetooth speaker. */
     val headphonesOnly: Boolean = false,
+    /**
+     * The wheel's beeper volume follows speed (Begode): quiet while stopped,
+     * so the power-on and power-off beeps are soft, loud while riding, so the
+     * warnings are heard. Off leaves the wheel's volume alone.
+     */
+    val beepVolumeBySpeed: Boolean = false,
+    /** 1..9, below walking pace. */
+    val beepVolumeStopped: Int = 1,
+    /** 1..9, riding. */
+    val beepVolumeRiding: Int = 9,
 ) {
     companion object {
         const val MODE_WHEEL = "WHEEL"

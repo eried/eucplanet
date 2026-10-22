@@ -8,7 +8,7 @@ package com.eried.eucplanet.ui.navigator
  */
 internal fun mapTypeInitialBg(mapType: String): String = when (mapType) {
     "LIGHT" -> "#dedede"      // CARTO Positron's pre-tile gray
-    "SATELLITE" -> "#1a1a1a"  // dominant near-black of Esri World Imagery oceans
+    "SATELLITE", "SATELLITE_LABELS" -> "#1a1a1a"  // dominant near-black of Esri World Imagery oceans
     else -> "#0b0f19"          // CARTO Dark Matter / fallback
 }
 
@@ -31,7 +31,7 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
 internal fun mapLayersJson(): String =
     com.eried.eucplanet.hud.protocol.MapLayers.ALL.joinToString(",", "{", "}") { l ->
         val esc = l.attribution.replace("\\", "\\\\").replace("'", "\'")
-        "'${l.id}':{url:'${l.urlTemplate}',ref:'${l.refUrlTemplate}',attr:'$esc'," +
+        "'${l.id}':{url:'${l.urlTemplate}',ref:'${l.refUrlTemplate}',ref2:'${l.extraRefUrlTemplate}',attr:'$esc'," +
             "maxNative:${l.maxNativeZoom},subs:'${l.subdomains}',retina:${l.detectRetina}}"
     }
 
@@ -308,6 +308,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   });
   var MAP_LAYERS = __LAYERS_JSON__;
   var refLayer = null;
+  var refLayer2 = null;
   // "Leaflet" is an advert; the provider credit beside it is a licence term.
   map.attributionControl.setPrefix('');
   var tileLayer = null;
@@ -723,10 +724,12 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     if (layer.retina) opts.detectRetina = true;
     if (tileLayer){ map.removeLayer(tileLayer); }
     if (refLayer){ map.removeLayer(refLayer); refLayer = null; }
+    if (refLayer2){ map.removeLayer(refLayer2); refLayer2 = null; }
     tileLayer = L.tileLayer(url, opts).addTo(map);
     // Esri Canvas labels ride on a separate reference layer. Same options,
     // and Leaflet collapses the duplicate attribution string.
     if (layer.ref){ refLayer = L.tileLayer(layer.ref, opts).addTo(map); }
+    if (layer.ref2){ refLayer2 = L.tileLayer(layer.ref2, opts).addTo(map); }
     // Tell the screen as soon as the first ring of tiles has actually
     // rendered, so the locating cover can fade out only once the map
     // looks like a map. We pass through to the native bridge only on

@@ -89,11 +89,16 @@ class KingsongLockTest {
         }
 
         val a = KingsongAdapter()
-        assertNull("no password, no prelude, the init sequence stays as it was", a.lockPrelude())
-        assertEquals(2, a.initSequence().size)
+        assertNull("no password, no prelude", a.lockPrelude())
+        assertEquals(3, a.initSequence().size)
+        assertArrayEquals("the lock state is asked for on connect (issue #19 follow-up)",
+            KingsongCommands.queryLock(), a.initSequence().last())
         a.provideLockPassword("9111")
         assertArrayEquals(KingsongCommands.password("9111"), a.lockPrelude())
-        assertArrayEquals("sent on connect too", KingsongCommands.password("9111"), a.initSequence().last())
+        val init = a.initSequence()
+        assertArrayEquals("sent on connect too, before the lock question it unlocks",
+            KingsongCommands.password("9111"), init[init.size - 2])
+        assertArrayEquals(KingsongCommands.queryLock(), init.last())
     }
 
     @Test fun `the 0x5F frame reports the lock state and later frames keep it`() {

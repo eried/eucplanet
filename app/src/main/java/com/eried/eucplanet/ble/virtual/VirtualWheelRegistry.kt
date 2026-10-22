@@ -12,6 +12,8 @@ object VirtualWheelRegistry {
     private val factories: Map<String, () -> VirtualWheel> = mapOf(
         "V14" to ::V14VirtualWheel,
         "P6" to ::P6VirtualWheel,
+        // Replays the real V6 dialect bytes end to end, see V6VirtualWheel.
+        "V6" to ::V6VirtualWheel,
         "V8S" to { InMotionV1VirtualWheel() },
         "MASTER" to ::BegodeMasterVirtualWheel,
         // The same Master on a pack that sags under load, discharges at a

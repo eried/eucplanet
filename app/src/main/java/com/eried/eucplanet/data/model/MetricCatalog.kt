@@ -276,6 +276,15 @@ object MetricCatalog {
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
         ),
+        MetricSpec(
+            key = "AUTO_OFF",
+            labelRes = R.string.metric_chip_auto_off,
+            accent = AccentBlue,
+            // A countdown that resets when the wheel moves: a trend line and
+            // min / avg stats say nothing about it. Same treatment as TRIP_TIME.
+            sparkline = SparklineStyle.NONE,
+            supportsStats = false
+        ),
 
         // ---- Individual temperature sensors ----
         MetricSpec(

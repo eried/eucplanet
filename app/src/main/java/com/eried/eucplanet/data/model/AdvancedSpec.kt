@@ -135,6 +135,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         2..20, 1, unit = "", get = { it.alarmSlopeMinSamples }, set = { s, v -> s.copy(alarmSlopeMinSamples = v) }),
     AdvancedSpec("alarmSlopeMinSpanMs", AdvGroup.ALARM, R.string.adv_alarm_min_span, R.string.adv_alarm_min_span_desc,
         50..5000, 50, get = { it.alarmSlopeMinSpanMs }, set = { s, v -> s.copy(alarmSlopeMinSpanMs = v) }),
+    AdvancedSpec("alarmWarmRouteMs", AdvGroup.ALARM, R.string.adv_alarm_warm_route, R.string.adv_alarm_warm_route_desc,
+        10000..3600000, 10000, get = { it.alarmWarmRouteMs }, set = { s, v -> s.copy(alarmWarmRouteMs = v) }),
 
     // --- Radar and automation ---
     AdvancedSpec("radarClearDecayMs", AdvGroup.RADAR_AUTO, R.string.adv_radar_clear_decay, R.string.adv_radar_clear_decay_desc,
@@ -163,6 +165,10 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         0..5000, 100, get = { it.hudManualHintDelayMs }, set = { s, v -> s.copy(hudManualHintDelayMs = v) }),
     AdvancedSpec("hudMdnsServiceInfoTimeoutMs", AdvGroup.HUD, R.string.adv_hud_mdns_resolve, R.string.adv_hud_mdns_resolve_desc,
         200..5000, 100, get = { it.hudMdnsServiceInfoTimeoutMs }, set = { s, v -> s.copy(hudMdnsServiceInfoTimeoutMs = v) }),
+    AdvancedSpec("hudIdleSearchMs", AdvGroup.HUD, R.string.adv_hud_idle_search, R.string.adv_hud_idle_search_desc,
+        10000..1800000, 10000, get = { it.hudIdleSearchMs }, set = { s, v -> s.copy(hudIdleSearchMs = v) }),
+    AdvancedSpec("hudSweepIntervalMs", AdvGroup.HUD, R.string.adv_hud_sweep_interval, R.string.adv_hud_sweep_interval_desc,
+        5000..600000, 5000, get = { it.hudSweepIntervalMs }, set = { s, v -> s.copy(hudSweepIntervalMs = v) }),
 
     // --- Auto-lights ---
     AdvancedSpec("autoLightNoGpsRetryMs", AdvGroup.AUTOLIGHTS, R.string.adv_autolight_no_gps_retry, R.string.adv_autolight_no_gps_retry_desc,

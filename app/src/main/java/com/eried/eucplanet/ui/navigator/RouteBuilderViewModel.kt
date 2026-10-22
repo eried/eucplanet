@@ -29,6 +29,8 @@ import com.eried.eucplanet.nav.PoiService
 import com.eried.eucplanet.nav.PointOfInterest
 import com.eried.eucplanet.nav.RouteAvoidances
 import com.eried.eucplanet.nav.RouteFileName
+import com.eried.eucplanet.nav.RouteLegs
+import com.eried.eucplanet.nav.isFixedTrack
 import com.eried.eucplanet.nav.RoutingService
 import com.eried.eucplanet.share.Identity
 import com.eried.eucplanet.share.IdentityMode
@@ -94,6 +96,9 @@ class RouteBuilderViewModel @Inject constructor(
 
 
     companion object {
+        /** How close the solved line must end to the last stop to count as the whole tour. */
+        private const val SPANS_TOUR_M = 60.0
+
         /**
          * Base layers the rider can pick between, in cycle order.
          *
@@ -116,6 +121,7 @@ class RouteBuilderViewModel @Inject constructor(
             MapLayer("LIGHT", com.eried.eucplanet.R.string.nav_layer_light),
             MapLayer("DARK", com.eried.eucplanet.R.string.nav_layer_dark),
             MapLayer("SATELLITE", com.eried.eucplanet.R.string.nav_layer_satellite),
+            MapLayer("SATELLITE_LABELS", com.eried.eucplanet.R.string.nav_layer_satellite_labels),
         )
 
         /**
@@ -237,11 +243,22 @@ class RouteBuilderViewModel @Inject constructor(
      * the solved route is only the first leg, so we add the straight-line
      * length through the remaining non-passed stops. Null when nothing to show.
      */
+    /**
+     * True when the solved line runs to the last stop still ahead. During
+     * navigation it only reaches the next stop even in Full path, and the
+     * stops past it measured along it all came out as 0 m.
+     */
+    private fun spansTour(route: NavRoute, wps: List<Waypoint>): Boolean {
+        val last = wps.lastOrNull { !it.passed } ?: return true
+        val end = route.geometry.lastOrNull() ?: return true
+        return GeoMath.distanceM(end, last.point()) <= SPANS_TOUR_M
+    }
+
     val tourDistanceM: StateFlow<Double?> =
         combine(_route, _waypoints, _solveFullPath) { route, wps, full ->
             val routed = route?.totalDistanceM ?: 0.0
             if (route == null || routed <= 0.0) return@combine null
-            if (full) return@combine routed
+            if (full && (route.isFixedTrack(wps) || spansTour(route, wps))) return@combine routed
             val nonPassed = wps.filter { !it.passed }
             if (nonPassed.size <= 1) return@combine routed
             routed + GeoMath.polylineLengthM(nonPassed.map { it.point() })
@@ -326,7 +343,7 @@ class RouteBuilderViewModel @Inject constructor(
     val lastKnownLocation: StateFlow<Location?> = tripRepository.lastKnownLocation
 
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.imperialUnits }
+        .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) == "mi" }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /** Display units for the friend-stats line in the share group view. */
@@ -395,6 +412,66 @@ class RouteBuilderViewModel @Inject constructor(
      *  out from under the rider's finger and feel like the app is
      *  fighting them. A trailing recompute fires once the drag ends. */
     private val _userDragging = MutableStateFlow(false)
+
+    /**
+     * One stop's distance in the builder list: from the stop before (or, on
+     * the first stop, from the rider), and how far into the tour, which the
+     * first stop shown leaves out.
+     */
+    data class StopLeg(val legM: Double, val soFarM: Double?)
+
+    /** Hides the distances while the list is being dragged or the route redrawn. */
+    private val legsBusy = combine(_userDragging, _routing) { dragging, routing -> dragging || routing }
+
+    /**
+     * Each stop's distance, by its index in the list, whenever there are at
+     * least two stops. Passed stops have none. Measured along the drawn path
+     * in Full path, in straight lines otherwise (the solved path then covers
+     * only the first leg). The tour may start at the rider: that stretch is
+     * the first stop's distance, so the last running total is the header's.
+     */
+    val stopLegs: StateFlow<Map<Int, StopLeg>> =
+        combine(_route, _waypoints, _solveFullPath, tourDistanceM, legsBusy) { route, wps, full, tour, busy ->
+            if (busy || wps.size < 2) return@combine emptyMap()
+            val ahead = wps.withIndex().filter { !it.value.passed }
+            if (ahead.isEmpty()) return@combine emptyMap()
+            val path = if (full && route != null && !route.isFixedTrack(wps) && spansTour(route, wps))
+                route.geometry else emptyList()
+            // The router's own distance runs a little longer than the drawn
+            // line measures, so the legs are scaled to add up to the header.
+            val drawn = GeoMath.polylineLengthM(path)
+            val scale = if (path.size >= 2 && drawn > 0 && route != null && route.totalDistanceM > 0)
+                route.totalDistanceM / drawn else 1.0
+            val legs = RouteLegs.metres(ahead.map { it.value.point() }, path).map { it * scale }
+            val approach = ((tour ?: 0.0) - legs.sum()).takeIf { it >= 1.0 }
+            val out = LinkedHashMap<Int, StopLeg>()
+            var soFar = approach ?: 0.0
+            approach?.let { out[ahead[0].index] = StopLeg(it, null) }
+            legs.forEachIndexed { i, m ->
+                soFar += m
+                out[ahead[i + 1].index] = StopLeg(m, if (out.isEmpty()) null else soFar)
+            }
+            out
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+    /**
+     * The legs between every listed stop, for Share route. Along the drawn
+     * path only when it runs through all of them (Full path, nothing reached
+     * yet), scaled like [stopLegs] so the card agrees with the header;
+     * straight lines otherwise. In Next segment the path ends at the first
+     * stop, and measuring the rest along it put them all at its end: 0 m.
+     */
+    fun shareLegsM(): List<Double> {
+        val wps = _waypoints.value
+        if (wps.size < 2) return emptyList()
+        val route = _route.value
+        val path = if (_solveFullPath.value && route != null && !route.isFixedTrack(wps) && wps.none { it.passed } &&
+            spansTour(route, wps)) route.geometry else emptyList()
+        val drawn = GeoMath.polylineLengthM(path)
+        val scale = if (path.size >= 2 && drawn > 0 && route != null && route.totalDistanceM > 0)
+            route.totalDistanceM / drawn else 1.0
+        return RouteLegs.metres(wps.map { it.point() }, path).map { it * scale }
+    }
+
     private var recomputeQueuedDuringDrag = false
 
     init {
@@ -406,8 +483,13 @@ class RouteBuilderViewModel @Inject constructor(
         // Consume any "Share to EUC Planet" hand-off pending from MainActivity.
         // Runs on every Pending update so multiple shares in a session are all
         // honoured. take() clears the slot atomically so we never process the
-        // same payload twice.
+        // same payload twice. It waits for the restore below: a share that
+        // reached a fresh view model before the planned stops were read back
+        // saw no stops, skipped the "Add shared destination?" question and
+        // replaced the route.
+        val restoreReady = kotlinx.coroutines.CompletableDeferred<Unit>()
         viewModelScope.launch {
+            restoreReady.await()
             incomingShareRepository.pending.collect { p ->
                 if (p == null) return@collect
                 val req = incomingShareRepository.take() ?: return@collect
@@ -421,7 +503,6 @@ class RouteBuilderViewModel @Inject constructor(
         // came back during the arrival dismiss window) can't see
         // arrived=true with a still-empty _waypoints and skip the
         // passed-mark for the stop the rider just reached.
-        val restoreReady = kotlinx.coroutines.CompletableDeferred<Unit>()
         viewModelScope.launch {
             val s = settingsRepository.get()
             geocoderUrl = s.navGeocoderUrl.ifBlank { RoutingService.DEFAULT_GEOCODER }
@@ -721,6 +802,7 @@ class RouteBuilderViewModel @Inject constructor(
             _messages.tryEmit(R.string.nav_cant_add_while_running)
             return
         }
+        req.route?.let { openSharedRoute(it); return }
         if (_waypoints.value.isEmpty()) {
             // Empty route: act immediately. Coordinates drop a pin; address
             // strings fill the search field so the rider sees what was sent
@@ -874,7 +956,49 @@ class RouteBuilderViewModel @Inject constructor(
             NavStartGuard.originWithinStart(it, firstStopPt, advanced.value.navMaxStartDistanceKm)
         }
 
+    /**
+     * Reached stops form a leading block: arrival marks the first non-passed
+     * stop each time. Nothing new may land among them, or a fresh stop ends up
+     * ordered around a stop the rider has already been to.
+     */
+    private fun passedCount(list: List<Waypoint> = _waypoints.value): Int = passedPrefix(list)
+
+    /** Every stop reached: the route is finished. */
+    private fun routeFinished(): Boolean =
+        _waypoints.value.let { it.isNotEmpty() && it.all { w -> w.passed } }
+
+    /** A stop add held while the rider answers "Route finished: new or continue?". */
+    private val _finishedAdd = MutableStateFlow<(() -> Unit)?>(null)
+    val finishedRoutePrompt: StateFlow<Boolean> = _finishedAdd
+        .map { it != null }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /**
+     * Adding to a finished route asks first: New route clears the reached
+     * stops and adds the stop, Cancel adds nothing. A finished route is not
+     * continued. True when [action] was held for that answer.
+     */
+    private fun holdIfFinished(action: () -> Unit): Boolean {
+        if (!routeFinished()) return false
+        _finishedAdd.value = action
+        return true
+    }
+
+    fun finishedStartNewRoute() {
+        val action = _finishedAdd.value ?: return
+        _finishedAdd.value = null
+        clear()
+        action()
+    }
+
+    fun finishedCancel() { _finishedAdd.value = null }
+
     fun addWaypoint(lat: Double, lng: Double, name: String = "", fit: Boolean = false) {
+        if (holdIfFinished { addWaypointNow(lat, lng, name, fit) }) return
+        addWaypointNow(lat, lng, name, fit)
+    }
+
+    private fun addWaypointNow(lat: Double, lng: Double, name: String, fit: Boolean) {
         if (_waypoints.value.size >= MAX_WAYPOINTS) {
             _messages.tryEmit(R.string.nav_max_stops)
             return
@@ -907,6 +1031,7 @@ class RouteBuilderViewModel @Inject constructor(
      */
     fun insertWaypointOnRoute(lat: Double, lng: Double, name: String = "") {
         if (navigationEngine.isActive) return
+        if (holdIfFinished { insertWaypointOnRoute(lat, lng, name) }) return
         val dests = _waypoints.value
         if (dests.size >= MAX_WAYPOINTS) {
             _messages.tryEmit(R.string.nav_max_stops)
@@ -935,7 +1060,7 @@ class RouteBuilderViewModel @Inject constructor(
         // Segment bestSeg connects chain[bestSeg] and chain[bestSeg+1]; the new
         // stop sits just before chain[bestSeg+1]. Drop the origin offset to get
         // the destination-list index.
-        val insertIndex = (bestSeg + 1 - originOffset).coerceIn(0, dests.size)
+        val insertIndex = (bestSeg + 1 - originOffset).coerceIn(passedCount(dests), dests.size)
         // The two edges the detour introduces: left-neighbour -> new -> right-
         // neighbour. Preview just those in gold while the route re-solves.
         val left = if (insertIndex == 0) originIfNear(origin, GeoPoint(lat, lng)) else dests[insertIndex - 1].point()
@@ -953,6 +1078,9 @@ class RouteBuilderViewModel @Inject constructor(
     fun moveWaypoint(index: Int, lat: Double, lng: Double) {
         val list = _waypoints.value.toMutableList()
         if (index !in list.indices) return
+        // A reached stop is history; dragging it would re-route around a
+        // place the rider has already been.
+        if (list[index].passed) return
         // The moved pin's two edges (to its previous and next neighbours, or
         // the rider for index 0) are what change -- preview just those in gold.
         val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
@@ -977,9 +1105,7 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     fun reorderWaypoints(from: Int, to: Int) {
-        val list = _waypoints.value.toMutableList()
-        if (from !in list.indices || to !in list.indices) return
-        list.add(to, list.removeAt(from))
+        val list = reorderKeepingPassed(_waypoints.value, from, to) ?: return
         _waypoints.value = list
         cacheDraft()
         scheduleRecompute(fit = false)
@@ -1374,6 +1500,73 @@ class RouteBuilderViewModel @Inject constructor(
         }
     }
 
+    /**
+     * A route from a QR code or a link. Opened like a loaded GPX: straight in
+     * when there is nothing to lose, otherwise after "replace the current
+     * route?". It keeps the rider's own travel mode, as a GPX does.
+     */
+    fun openSharedRoute(route: com.eried.eucplanet.nav.SharedRoute) {
+        if (navigationEngine.isActive) {
+            _messages.tryEmit(R.string.nav_cant_add_while_running)
+            return
+        }
+        if (_waypoints.value.isNotEmpty() && !_routeClean.value) _pendingRoute.value = route
+        else applySharedRoute(route)
+    }
+
+    private val _pendingRoute = MutableStateFlow<com.eried.eucplanet.nav.SharedRoute?>(null)
+    /** A shared route waiting on "replace the current route?". */
+    val pendingRoute: StateFlow<com.eried.eucplanet.nav.SharedRoute?> = _pendingRoute.asStateFlow()
+
+    fun confirmPendingRoute() {
+        val route = _pendingRoute.value ?: return
+        _pendingRoute.value = null
+        applySharedRoute(route)
+    }
+
+    fun dismissPendingRoute() { _pendingRoute.value = null }
+
+    private fun applySharedRoute(route: com.eried.eucplanet.nav.SharedRoute) {
+        routeName = route.name ?: context.getString(R.string.nav_default_route_name)
+        if (route.stops.isNotEmpty()) {
+            _waypoints.value = route.stops.take(MAX_WAYPOINTS)
+            scheduleRecompute(fit = true)
+        } else {
+            // A track with no stops: navigate the line as it is, as a track-only GPX does.
+            _waypoints.value = listOf(route.track.first(), route.track.last()).map { Waypoint(it.lat, it.lng) }
+            _route.value = NavRoute(
+                name = routeName,
+                waypoints = _waypoints.value,
+                travelMode = TravelMode.STRAIGHT,
+                geometry = route.track,
+                maneuvers = emptyList(),
+                totalDistanceM = GeoMath.polylineLengthM(route.track)
+            )
+            bumpRender(fit = true)
+        }
+        _routeClean.value = true
+        _messages.tryEmit(R.string.route_opened)
+    }
+
+    /**
+     * The current route as a link, for a QR code or a message. A routed path
+     * is left out: the receiver's router redraws it from the stops. A fixed
+     * line (a track loaded from GPX) travels as the line itself, simplified to
+     * fit. Null when there is no route, or it cannot be made to fit.
+     */
+    fun shareRouteLink(): String? {
+        val stops = _waypoints.value
+        val route = _route.value
+        val trackOnly = route.isFixedTrack(stops)
+        val shared = com.eried.eucplanet.nav.SharedRoute(
+            name = routeName,
+            mode = _travelMode.value,
+            stops = if (trackOnly) emptyList() else stops.map { it.copy(passed = false) },
+            track = if (trackOnly) route!!.geometry else emptyList(),
+        )
+        return com.eried.eucplanet.nav.RouteLinks.format(shared)
+    }
+
     /** Suggested save filename from the stop names, lowercased with "_" for
      *  spaces and "-" between the first and last stop, e.g.
      *  "storgata-tromsdalen_center-route.gpx". "route.gpx" when unnamed. */
@@ -1502,6 +1695,7 @@ class RouteBuilderViewModel @Inject constructor(
 
     /** Drops a saved Home / Work preset onto the map as the next waypoint. */
     fun addPreset(w: Waypoint, kind: String) {
+        if (holdIfFinished { addPreset(w, kind) }) return
         addWaypoint(w.lat, w.lng, w.name, fit = true)
         _lastAddedPresetKind.value = kind
     }
@@ -1762,6 +1956,7 @@ class RouteBuilderViewModel @Inject constructor(
     fun addPoiAsStop(poi: PointOfInterest) {
         _selectedPoi.value = null
         if (navigationEngine.isActive) return
+        if (holdIfFinished { addPoiAsStop(poi) }) return
         val dests = _waypoints.value
         if (dests.size >= MAX_WAYPOINTS) {
             _messages.tryEmit(R.string.nav_max_stops)
@@ -1773,7 +1968,7 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         val point = GeoPoint(poi.lat, poi.lng)
-        val insertIndex = cheapestInsertIndex(point)
+        val insertIndex = cheapestInsertIndex(point).coerceAtLeast(passedCount(dests))
         val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
         val left = if (insertIndex == 0) originIfNear(origin, point) else dests[insertIndex - 1].point()
         val right = dests.getOrNull(insertIndex)?.point()
@@ -2020,4 +2215,19 @@ class RouteBuilderViewModel @Inject constructor(
         searchJob?.cancel()
         enrichJob?.cancel()
     }
+}
+
+/** How many stops at the head of [list] the rider has already reached. */
+internal fun passedPrefix(list: List<Waypoint>): Int =
+    list.indexOfFirst { !it.passed }.let { if (it < 0) list.size else it }
+
+/**
+ * [list] with the stop at [from] moved to [to], or null when the move is not
+ * allowed. Reached stops stay where they are, and nothing moves in among them.
+ */
+internal fun reorderKeepingPassed(list: List<Waypoint>, from: Int, to: Int): List<Waypoint>? {
+    if (from !in list.indices || to !in list.indices) return null
+    val locked = passedPrefix(list)
+    if (from < locked) return null
+    return list.toMutableList().apply { add(to.coerceAtLeast(locked), removeAt(from)) }
 }

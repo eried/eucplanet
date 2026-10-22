@@ -96,6 +96,31 @@ object InMotionV2Commands {
     fun getP6Stats(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf())
 
+    // --- InMotion V6 (P6-style extended routing, own realtime layout) ---
+    //
+    // Captured from the official app against a real V6 (V6-700326F3): info
+    // queries go out as `13 04 02 00 02 [sub]` (the wheel never answers the
+    // DEFAULT 0x14 wrapper), realtime is polled with the extended `02 21 04`
+    // and answered as `02 84 [66-byte body]`, lifetime stats with `02 21 11`
+    // answered as `02 91 [24-byte body]`.
+
+    /** V6 info query: sub 0x01 carType, 0x02 serial, 0x06 versions. */
+    fun getV6Info(sub: Byte): ByteArray =
+        InMotionV2Protocol.buildPacket(
+            InMotionV2Protocol.Flags.QUERY13,
+            InMotionV2Protocol.Command.MAIN_INFO,
+            byteArrayOf(0x00, 0x02, sub)
+        )
+
+    /** V6 realtime poll; the same wire bytes as [getP6Stats], named for the
+     *  V6 call sites so the two dialects stay readable side by side. */
+    fun getV6RealTimeData(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf())
+
+    /** V6 lifetime stats (total odometer) query. */
+    fun getV6TotalStats(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x11, byteArrayOf())
+
     /**
      * Set the P6 tiltback / max speed.
      *

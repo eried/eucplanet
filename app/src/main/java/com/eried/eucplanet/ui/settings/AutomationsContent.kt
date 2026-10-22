@@ -83,6 +83,7 @@ fun AutomationsContent(
     val settingsState by viewModel.settings.collectAsState()
     val location by viewModel.currentLocation.collectAsState()
     val autoLightsSuspended by viewModel.autoLightsSuspended.collectAsState()
+    val autoLockSuspended by viewModel.autoLockSuspended.collectAsState()
     val settings = settingsState ?: return
 
     Column(
@@ -460,6 +461,26 @@ fun AutomationsContent(
                 colors = themedSwitchColors(),)
         }
         if (settings.proximityLock.lockEnabled) {
+            if (autoLockSuspended) {
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.appColors.statusWarn.copy(alpha = 0.15f))) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ErrorOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.appColors.statusWarn
+                        )
+                        Text(
+                            stringResource(R.string.auto_lock_suspended),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.statusWarn
+                        )
+                    }
+                }
+            }
             // Live signal readout - stand where you park, then where you return
             // to, and read the two thresholds off it. Sits with the numbers it
             // is read against rather than above the switch, where it was the

@@ -8,6 +8,9 @@ import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.data.model.TurnType
 import com.eried.eucplanet.data.model.Waypoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -64,7 +67,13 @@ data class RouteAvoidances(
  * no telemetry is sent. Endpoints are caller-supplied so they stay configurable.
  */
 @Singleton
-class RoutingService @Inject constructor() {
+class RoutingService @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
+) {
+
+    /** When the rider was last told their avoidances were dropped; reroutes repeat, the notice should not. */
+    @Volatile private var avoidDroppedToldMs = 0L
 
     companion object {
         private const val TAG = "RoutingService"
@@ -143,6 +152,46 @@ class RoutingService @Inject constructor() {
                 maneuvers = emptyList(),
                 totalDistanceM = GeoMath.polylineLengthM(geometry)
             )
+        }
+
+        /** The most locations the FOSSGIS Valhalla server takes in one request. */
+        const val VALHALLA_MAX_LOCATIONS = 10
+
+        /** At most one "avoidances dropped" notice in this long, so reroutes do not repeat it. */
+        private const val AVOID_DROPPED_NOTICE_MS = 10 * 60_000L
+
+        /** Stretches of at most [VALHALLA_MAX_LOCATIONS], each starting where the last one ended. */
+        fun <T> chunkForValhalla(points: List<T>): List<List<T>> {
+            if (points.size <= VALHALLA_MAX_LOCATIONS) return listOf(points)
+            val out = ArrayList<List<T>>()
+            var start = 0
+            while (start < points.size - 1) {
+                val end = minOf(start + VALHALLA_MAX_LOCATIONS, points.size)
+                out += points.subList(start, end)
+                start = end - 1
+            }
+            return out
+        }
+
+        /**
+         * One route from stretches routed separately: the shared end point
+         * is drawn once, only the first stretch departs and only the last
+         * arrives, and each turn's distance counts from the real start.
+         */
+        fun joinRoutes(name: String, waypoints: List<Waypoint>, mode: TravelMode, parts: List<NavRoute>): NavRoute {
+            val geometry = ArrayList<GeoPoint>()
+            val maneuvers = ArrayList<Maneuver>()
+            var offset = 0.0
+            parts.forEachIndexed { i, part ->
+                geometry.addAll(if (geometry.isEmpty()) part.geometry else part.geometry.drop(1))
+                for (m in part.maneuvers) {
+                    if (m.type == TurnType.DEPART && i > 0) continue
+                    if (m.type == TurnType.ARRIVE && i < parts.size - 1) continue
+                    maneuvers += m.copy(distanceFromStartM = m.distanceFromStartM + offset)
+                }
+                offset += part.totalDistanceM
+            }
+            return NavRoute(name, waypoints, mode, geometry, maneuvers, offset)
         }
 
         /** Valhalla costing string for a travel mode (STRAIGHT never routes). */
@@ -279,6 +328,13 @@ class RoutingService @Inject constructor() {
         if (avoid.any) {
             routeViaValhalla(name, waypoints, mode, avoid)?.let { return@withContext it }
             Log.w(TAG, "Valhalla route failed; falling back to OSRM without avoidance")
+            // The route below ignores the avoidances; say so rather than let a
+            // rider meet the toll road they asked to skip.
+            val now = System.currentTimeMillis()
+            if (now - avoidDroppedToldMs >= AVOID_DROPPED_NOTICE_MS) {
+                avoidDroppedToldMs = now
+                appNotifier.post(context.getString(com.eried.eucplanet.R.string.nav_avoid_router_failed))
+            }
         }
         try {
             val base = endpoint.trimEnd('/')
@@ -301,9 +357,28 @@ class RoutingService @Inject constructor() {
      * [avoid] preferences applied as costing options. Returns the same
      * [NavRoute] shape as the OSRM path, or null on any failure (caller then
      * falls back to OSRM). Uses a GET with the request as a url-encoded `json`
-     * param so it reuses [httpGet] -- the payload is tiny for <=25 stops.
+     * param so it reuses [httpGet] -- the payload is tiny for the 10 locations it takes.
      */
-    private fun routeViaValhalla(
+    private suspend fun routeViaValhalla(
+        name: String,
+        waypoints: List<Waypoint>,
+        mode: TravelMode,
+        avoid: RouteAvoidances,
+    ): NavRoute? {
+        if (waypoints.size <= VALHALLA_MAX_LOCATIONS) return routeViaValhallaOnce(name, waypoints, mode, avoid)
+        // The FOSSGIS server refuses more than 10 locations, so a longer
+        // route lost its avoidances to the OSRM fallback. Route it in
+        // stretches that share their end points and join them. The
+        // stretches go out together, so a reroute mid-ride waits for the
+        // slowest one, not for all of them in a row.
+        val parts = coroutineScope {
+            chunkForValhalla(waypoints).map { async { routeViaValhallaOnce(name, it, mode, avoid) } }.awaitAll()
+        }
+        if (parts.any { it == null }) return null
+        return joinRoutes(name, waypoints, mode, parts.filterNotNull())
+    }
+
+    private fun routeViaValhallaOnce(
         name: String,
         waypoints: List<Waypoint>,
         mode: TravelMode,

@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">Afspelen / pauze</string>
     <string name="watch_action_media_next">Volgend nummer</string>
     <string name="watch_action_media_prev">Vorig nummer</string>
+    <string name="watch_action_music_start">Muziek starten</string>
+    <string name="watch_action_media_pause">Muziek pauzeren</string>
     <string name="watch_action_long_press_hint">Lang indrukken voor %1$s</string>
     <string name="watch_map_phone_disconnected">Geen telefoon</string>
     <string name="watch_map_gps_permission">GPS toestaan</string>

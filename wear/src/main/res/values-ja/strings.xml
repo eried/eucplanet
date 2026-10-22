@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">再生 / 一時停止</string>
     <string name="watch_action_media_next">次のトラック</string>
     <string name="watch_action_media_prev">前のトラック</string>
+    <string name="watch_action_music_start">音楽を再生</string>
+    <string name="watch_action_media_pause">音楽を一時停止</string>
     <string name="watch_action_long_press_hint">長押しで %1$s</string>
     <string name="watch_map_phone_disconnected">スマホなし</string>
     <string name="watch_map_gps_permission">GPSを許可</string>

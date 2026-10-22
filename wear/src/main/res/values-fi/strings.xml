@@ -35,6 +35,8 @@
     <string name="watch_action_media_play">Toista / tauko</string>
     <string name="watch_action_media_next">Seuraava kappale</string>
     <string name="watch_action_media_prev">Edellinen kappale</string>
+    <string name="watch_action_music_start">Aloita musiikki</string>
+    <string name="watch_action_media_pause">Keskeytä musiikki</string>
     <string name="watch_action_long_press_hint">Pitkä painallus: %1$s</string>
     <string name="watch_map_phone_disconnected">Ei puhelinta</string>
     <string name="watch_map_gps_permission">Salli GPS</string>

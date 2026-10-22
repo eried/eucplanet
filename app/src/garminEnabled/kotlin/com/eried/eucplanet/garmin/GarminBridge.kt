@@ -66,6 +66,8 @@ class GarminBridge @Inject constructor(
         // AND apply per-device backpressure in sendToAll, so we never outrun the
         // channel. (Wear OS keeps 5 Hz; its Data Layer isn't rate-capped.)
         private const val PUBLISH_INTERVAL_MS = 1000L
+        /** Loop pace while no Garmin is registered. */
+        private const val NO_DEVICE_TICK_MS = 5_000L
         // A device is "busy" from a sendMessage until its callback lands; if that
         // callback is lost we free it after this timeout so a device never stalls.
         private const val SEND_TIMEOUT_MS = 4000L
@@ -123,6 +125,8 @@ class GarminBridge @Inject constructor(
      *  registration when a status callback re-fires for a device we already
      *  saw. Cleared when [stop] is called. */
     private val registeredDevices = ConcurrentHashMap<Long, IQDevice>()
+    /** Rung when a device registers, so an idle publish loop sends at once. */
+    private val deviceAdded = kotlinx.coroutines.channels.Channel<Unit>(kotlinx.coroutines.channels.Channel.CONFLATED)
 
     /** Per-device send backpressure: a device stays "busy until" this ms
      *  timestamp while a sendMessage is in flight. While busy we SKIP it and let
@@ -230,6 +234,12 @@ class GarminBridge @Inject constructor(
             val alpha = 0.25
             while (true) {
                 delay(1_000L)
+                if (registeredDevices.isEmpty()) {
+                    deliveredCount.set(0)
+                    _deliveryRateHz.value = 0.0
+                    delay(NO_DEVICE_TICK_MS - 1_000L)
+                    continue
+                }
                 val count = deliveredCount.getAndSet(0)
                 val devices = registeredDevices.size.coerceAtLeast(1)
                 val instant = count.toDouble() / devices
@@ -242,6 +252,11 @@ class GarminBridge @Inject constructor(
         // connects it gets fresh state (sendStateToAll is a no-op until then).
         scope.launch {
             while (true) {
+                // Nothing to send to; publish() would return at once anyway.
+                if (registeredDevices.isEmpty()) {
+                    kotlinx.coroutines.withTimeoutOrNull(NO_DEVICE_TICK_MS) { deviceAdded.receive() }
+                    continue
+                }
                 try {
                     val s = settingsRepository.currentOrLoad()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
@@ -406,6 +421,7 @@ class GarminBridge @Inject constructor(
 
     private fun bindDevice(device: IQDevice) {
         if (registeredDevices.putIfAbsent(device.deviceIdentifier, device) != null) return
+        deviceAdded.trySend(Unit)
         try {
             connectIQ.registerForDeviceEvents(device) { _, status ->
                 Log.d(TAG, "device ${device.friendlyName} status=$status")

@@ -81,12 +81,13 @@ fun NavigatorSettingsContent(
     val settings = settingsState ?: return
 
     // Tolerances are stored in metres; show them in the rider's chosen unit.
+    val feet = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings) == "mi"
     fun distLabel(meters: Int): String =
-        if (settings.imperialUnits) "${(meters * 3.28084).roundToInt()} ft"
+        if (feet) "${(meters * 3.28084).roundToInt()} ft"
         else "$meters m"
     // Typed text back to stored metres (ft -> m for imperial), snapped to 5 m.
     fun distParse(s: String): Int? = s.toIntOrNull()?.let { typed ->
-        val meters = if (settings.imperialUnits) typed / 3.28084 else typed.toDouble()
+        val meters = if (feet) typed / 3.28084 else typed.toDouble()
         (meters / 5.0).roundToInt() * 5
     }
 

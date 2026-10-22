@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,11 +53,21 @@ class VoiceService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val appNotifier: com.eried.eucplanet.util.AppNotifier,
-    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
+    private val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController,
+    // Lazy: WheelRepository speaks through this service, so a direct
+    // dependency back would be a cycle. Only the stat pills read it.
+    private val wheelRepositoryLazy: dagger.Lazy<com.eried.eucplanet.data.repository.WheelRepository>,
+    // Lazy for the same reason: it reaches WheelRepository.
+    private val metricsResetLazy: dagger.Lazy<com.eried.eucplanet.data.repository.MetricsReset>,
+    private val tonePlayer: TonePlayer,
 ) {
     companion object {
         private const val TAG = "VoiceService"
     }
+
+    /** The rider's voice volume, scaling the speech alone (KEY_PARAM_VOLUME is
+     *  per utterance and relative to the stream, so nothing else moves). */
+    @Volatile private var currentVolume = 1f
 
     private var tts: TextToSpeech? = null
     @Volatile private var isReady = false
@@ -97,6 +108,19 @@ class VoiceService @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
+    // The engine's voices and languages, read once when it is ready. Asking
+    // the engine means the whole list over binder, which every spoken line
+    // with a picked voice used to do just to find that one voice.
+    @Volatile private var voicesByName: Map<String, Voice> = emptyMap()
+    @Volatile private var languages: List<Locale> = emptyList()
+
+    /** The voice called [name], from the list read at start; the engine only before that list is in. */
+    private fun voiceNamed(name: String): Voice? {
+        val known = voicesByName
+        if (known.isNotEmpty()) return known[name]
+        return try { tts?.voices?.firstOrNull { it.name == name } } catch (_: Exception) { null }
+    }
+
     private val _availableVoices = MutableStateFlow<List<VoiceOption>>(emptyList())
     val availableVoices: StateFlow<List<VoiceOption>> = _availableVoices.asStateFlow()
 
@@ -128,15 +152,26 @@ class VoiceService @Inject constructor(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
                 }
-                isReady = true
                 Log.i(TAG, "TTS initialized")
-                loadAvailableVoices()
-                autoSyncVoiceToLanguageIfNeeded()
-                observeSettings()
-                flushPendingBeforeReady()
-                if (welcomePending) {
-                    welcomePending = false
-                    speakWelcomeIfEnabled()
+                // onInit runs on the main thread, and the voice lists are a few
+                // hundred voices over binder (Google TTS has 442), so they load
+                // off it. Lines asked for meanwhile wait in pendingBeforeReady
+                // and go out in order once the lists are in.
+                val engine = tts ?: return@TextToSpeech
+                scope.launch {
+                    val loaded = withContext(Dispatchers.Default) { loadAvailableVoices(engine) }
+                    // Shut down (or replaced) while loading: this engine's lists
+                    // must not land on the next one.
+                    if (tts !== engine) return@launch
+                    loaded.publish()
+                    isReady = true
+                    autoSyncVoiceToLanguageIfNeeded()
+                    observeSettings()
+                    flushPendingBeforeReady()
+                    if (welcomePending) {
+                        welcomePending = false
+                        speakWelcomeIfEnabled()
+                    }
                 }
             } else {
                 Log.e(TAG, "TTS initialization failed: $status")
@@ -246,6 +281,7 @@ class VoiceService @Inject constructor(
             // Settings observer may not have emitted yet when welcome fires right after init.
             // Seed the current values so the locale and rate are applied on this first speak.
             currentRate = s.voiceSpeechRate
+            currentVolume = s.voiceVolumePercent / 100f
             currentLocaleTag = s.voiceLocale
             currentVoiceName = s.voiceName
             currentAudioFocus = s.voiceAudioFocus
@@ -263,6 +299,7 @@ class VoiceService @Inject constructor(
         scope.launch {
             settingsRepository.settings.collect { s ->
                 currentRate = s.voiceSpeechRate
+                currentVolume = s.voiceVolumePercent / 100f
                 currentLocaleTag = s.voiceLocale
                 currentVoiceName = s.voiceName
                 currentAudioFocus = s.voiceAudioFocus
@@ -283,10 +320,27 @@ class VoiceService @Inject constructor(
         abandonAudioFocus()
     }
 
-    private fun loadAvailableVoices() {
-        val engine = tts ?: return
+    /** What [loadAvailableVoices] read from one engine, published on the main thread. */
+    private inner class LoadedVoices(
+        val languages: List<Locale>,
+        val voices: List<VoiceOption>,
+        val byName: Map<String, Voice>,
+        val choices: List<VoiceChoice>,
+    ) {
+        fun publish() {
+            this@VoiceService.languages = languages
+            voicesByName = byName
+            _availableVoices.value = voices
+            _availableVoiceChoices.value = choices
+            Log.i(TAG, "Available TTS languages: ${voices.size}, voice choices: ${choices.size}")
+        }
+    }
+
+    private fun loadAvailableVoices(engine: TextToSpeech): LoadedVoices {
+        var langs: List<Locale> = emptyList()
+        var byName: Map<String, Voice> = emptyMap()
         val voices = try {
-            engine.availableLanguages?.map { locale ->
+            engine.availableLanguages?.also { langs = it.toList() }?.map { locale ->
                 // Render each voice in its own language (e.g. "Español
                 // (España)") rather than translating into the current UI
                 // locale. Stable across app-language changes and matches
@@ -303,14 +357,14 @@ class VoiceService @Inject constructor(
             Log.w(TAG, "Failed to load voices", e)
             emptyList()
         }
-        _availableVoices.value = voices
-        Log.i(TAG, "Available TTS languages: ${voices.size}")
 
         // Voice-level list: the individual voices behind each language. Grouped
         // by locale and numbered so the UI can offer "Voice 1 / Voice 2 / ..."
         // for languages that expose more than one.
         val choices = try {
-            val usable = engine.voices?.filter { v ->
+            val all = engine.voices
+            byName = all?.associateBy { it.name } ?: emptyMap()
+            val usable = all?.filter { v ->
                 // Skip voices whose data is not on the device (can't be used
                 // without a download) and any the engine marks unsupported.
                 val notInstalled = v.features?.contains(
@@ -340,8 +394,7 @@ class VoiceService @Inject constructor(
             Log.w(TAG, "Failed to load voice choices", e)
             emptyList()
         }
-        _availableVoiceChoices.value = choices
-        Log.i(TAG, "Available TTS voice choices: ${choices.size}")
+        return LoadedVoices(langs, voices, byName, choices)
     }
 
     fun setVoiceLocale(localeTag: String) {
@@ -359,7 +412,7 @@ class VoiceService @Inject constructor(
     fun setVoiceName(name: String) {
         currentVoiceName = name
         if (name.isBlank()) return
-        val v = try { tts?.voices?.firstOrNull { it.name == name } } catch (_: Exception) { null }
+        val v = voiceNamed(name)
         if (v != null) try { tts?.voice = v } catch (_: Exception) {}
     }
 
@@ -409,7 +462,7 @@ class VoiceService @Inject constructor(
             else -> setOf(primary)
         }
         return try {
-            val locales = engine.availableLanguages ?: return null
+            val locales = languages.ifEmpty { engine.availableLanguages?.toList() } ?: return null
             val match = locales.firstOrNull { it.language.lowercase() in acceptable }
             // Return Locale.toString() form ("nb_NO") not toLanguageTag()
             // ("nb-NO") so the saved voiceLocale matches what the voice
@@ -449,6 +502,8 @@ class VoiceService @Inject constructor(
         tts?.shutdown()
         tts = null
         isReady = false
+        voicesByName = emptyMap()
+        languages = emptyList()
         abandonAudioFocus()
         pendingUtterances = 0
         triggerInFlight = false
@@ -543,6 +598,12 @@ class VoiceService @Inject constructor(
         announced(parts, periodic = false)
         speakInternal(parts.joinToString(", "), isTrigger = true,
             rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
+        // The sentence already holds the numbers, so clearing now loses
+        // nothing the rider is about to hear. Here rather than in each caller
+        // so the tile, a Flic, a headset and the volume keys all agree.
+        if (settings.voiceReports.triggerResetAfter) {
+            scope.launch { metricsResetLazy.get().resetAll() }
+        }
     }
 
     /**
@@ -587,6 +648,20 @@ class VoiceService @Inject constructor(
             }
         } catch (_: Exception) {
         }
+    }
+
+    /**
+     * The announcement as the rider configured it, spoken now, for the
+     * settings Play button. Rule 10: the real pills over the real values.
+     * Where a statistic has no history yet it says so instead of going
+     * silent, which a real announcement would do.
+     */
+    fun previewReport(data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean) {
+        val parts = buildReportParts(data, settings, isRecording, periodic = periodic, preview = true)
+        if (parts.isEmpty()) return
+        Log.i(TAG, "preview (${if (periodic) "periodic" else "trigger"}): \"${parts.joinToString(", ")}\"")
+        speakInternal(parts.joinToString(", "), isTrigger = true,
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale, voiceName = settings.voiceName)
     }
 
     /**
@@ -662,6 +737,78 @@ class VoiceService @Inject constructor(
     }
 
     /**
+     * "Phase amps, 42 A" for a catalog metric with no report of its own: the
+     * value a spoken question reads, in the tile's units. Null, and so left
+     * out, when the wheel has sent nothing for it (a wheel with no tyre
+     * sensor, a temperature slot it does not fill).
+     */
+    private fun catalogSentence(key: String, data: WheelData, settings: AppSettings, vctx: Context): String? {
+        val read = com.eried.eucplanet.voice.EXTRACTORS[key]
+            ?: { w: WheelData -> com.eried.eucplanet.data.model.MetricRegistry.read(key, w) }
+        val raw = read(data)?.takeIf { !it.isNaN() } ?: return null
+        val spec = com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key } ?: return null
+        val name = vctx.getString(spec.spokenLabelRes ?: spec.labelRes)
+        return "$name, ${formatCatalogValue(key, raw, settings, vctx)}"
+    }
+
+    private fun formatCatalogValue(key: String, raw: Float, settings: AppSettings, vctx: Context): String =
+        com.eried.eucplanet.data.model.MetricValueFormat.format(
+            key = key,
+            raw = raw,
+            speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings),
+            speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
+                vctx, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+            ),
+            tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings),
+            tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(
+                com.eried.eucplanet.util.Units.effectiveTempUnit(settings)
+            ),
+            distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
+            pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+        )
+
+    /**
+     * "Max speed, 42 km/h": a statistic over the stats window, from the same
+     * history and the same arithmetic as the dashboard tiles and a spoken
+     * question, in the phrasing a spoken question already uses.
+     */
+    private fun statSentence(pill: VoicePill, settings: AppSettings, vctx: Context, preview: Boolean): String? {
+        val key = VoiceReportPlan.statKey(pill.item) ?: return null
+        val spec = com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key } ?: return null
+        val name = vctx.getString(spec.spokenLabelRes ?: spec.labelRes)
+        val word = vctx.getString(
+            when (pill.stat) {
+                VoicePill.Stat.MAX -> R.string.voice_stat_max_terms
+                VoicePill.Stat.MIN -> R.string.voice_stat_min_terms
+                VoicePill.Stat.AVG -> R.string.voice_stat_avg_terms
+                else -> R.string.voice_stat_peak_terms
+            }
+        ).split(",").first().trim()
+        val h = wheelRepositoryLazy.get().fullHistory.value
+        val samples = when (key) {
+            "BATTERY" -> h.battery
+            "TEMPERATURE" -> h.temperature
+            "VOLTAGE" -> h.voltage
+            "CURRENT" -> h.current
+            "LOAD" -> h.load
+            "SPEED" -> h.speed
+            else -> h.extras[key].orEmpty()
+        }
+        val dashStat = when (pill.stat) {
+            VoicePill.Stat.MAX -> com.eried.eucplanet.ui.settings.DashboardStat.MAX
+            VoicePill.Stat.MIN -> com.eried.eucplanet.ui.settings.DashboardStat.MIN
+            VoicePill.Stat.AVG -> com.eried.eucplanet.ui.settings.DashboardStat.AVG
+            else -> com.eried.eucplanet.ui.settings.DashboardStat.SUSTAINED_PEAK
+        }
+        val raw = samples.takeIf { it.isNotEmpty() }?.let {
+            com.eried.eucplanet.ui.settings.computeDashboardStatValue(dashStat, it, Float.NaN)
+        }?.takeIf { !it.isNaN() }
+            ?: return if (preview) vctx.getString(R.string.voice_answer_nodata, "$word $name") else null
+        val value = formatCatalogValue(key, raw, settings, vctx)
+        return vctx.getString(R.string.voice_stat_answer, word, name, value)
+    }
+
+    /**
      * "Estimated battery, 43%" for a report the metric catalog already knows.
      *
      * Name, value and units all come from the catalog, so the sentence needs
@@ -707,6 +854,8 @@ class VoiceService @Inject constructor(
         data: WheelData, settings: AppSettings, isRecording: Boolean, periodic: Boolean,
         /** One report only, for a spoken question. Null keeps the planned set. */
         only: String? = null,
+        /** Settings preview: a statistic with no history says so. */
+        preview: Boolean = false,
     ): List<String> {
         // Which reports, in what order: VoiceReportPlan, so the choice can be
         // tested without a TTS engine. Everything below is formatting.
@@ -723,8 +872,22 @@ class VoiceService @Inject constructor(
         val vctx = spokenContext(settings)
         // A direct question names its own report and bypasses the plan, which
         // is about what an unprompted announcement contains.
-        val planned = if (only != null) listOf(only) else VoiceReportPlan.items(settings, periodic)
-        for (item in planned) {
+        val planned = if (only != null) listOf(VoicePill(only)) else VoiceReportPlan.pills(settings, periodic)
+        for (pill in planned) {
+            if (pill.item == VoicePill.MESSAGE) {
+                if (pill.text.isNotBlank()) parts.add(pill.text)
+                continue
+            }
+            if (pill.stat != VoicePill.Stat.NOW) {
+                statSentence(pill, settings, vctx, preview)?.let { parts.add(it) }
+                continue
+            }
+            if (pill.item.startsWith(VoiceReportPlan.CATALOG_PREFIX)) {
+                catalogSentence(pill.item.removePrefix(VoiceReportPlan.CATALOG_PREFIX), data, settings, vctx)
+                    ?.let { parts.add(it) }
+                continue
+            }
+            val item = pill.item
             run {
 
                 // Convert each value to the user's display unit before
@@ -848,9 +1011,10 @@ class VoiceService @Inject constructor(
         val prefix = if (isTrigger) "trig_" else "alert_"
         val utteranceId = "$prefix${System.currentTimeMillis()}"
         synchronized(this) { pendingUtterances++ }
+        tonePlayer.noteSound()  // speech wants the warm route as much as a beep
         requestAudioFocus()
         val params = android.os.Bundle().apply {
-            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, currentVolume)
         }
         // Previews flush (stop whatever is speaking and play this one now);
         // live announcements queue so they never talk over each other.
@@ -872,7 +1036,7 @@ class VoiceService @Inject constructor(
         val locale = Locale.forLanguageTag(localeTag.replace("_", "-"))
         tts?.language = locale
         if (voiceName.isNotBlank()) {
-            val v = try { tts?.voices?.firstOrNull { it.name == voiceName } } catch (_: Exception) { null }
+            val v = voiceNamed(voiceName)
             // Only apply when it matches the target language, so a stale name from
             // a previous language does not override the freshly set locale.
             if (v != null && v.locale.language == locale.language) {

@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -147,7 +148,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
-import com.eried.eucplanet.util.AutoLockNotice
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.data.model.SparklineStyle
@@ -245,7 +245,9 @@ fun DashboardScreen(
         Log.i("EucDash", "DashboardScreen ENTER")
         onDispose { Log.i("EucDash", "DashboardScreen DISPOSE") }
     }
-    val wheelData by viewModel.wheelData.collectAsState()
+    // The wheel-rate flows stop while the app is in the background: collected
+    // plainly, every frame recomposed a dashboard nobody could see.
+    val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
     val connectionState by viewModel.connectionState.collectAsState()
     // Quake-style console cheat (set via Settings search-bar). Multiplies ONLY the
     // displayed speed on the gauge, the underlying wheelData.speed stays accurate
@@ -257,7 +259,7 @@ fun DashboardScreen(
     val autoLockEnabled by viewModel.autoLockEnabled.collectAsState()
     val lightBusy by viewModel.lightBusy.collectAsState()
     val recording by viewModel.recording.collectAsState()
-    val gpsExtra by viewModel.gpsExtraSpeed.collectAsState()
+    val gpsExtra by viewModel.gpsExtraSpeed.collectAsStateWithLifecycle()
     val externalGpsSpeed = gpsExtra?.first
     val externalGpsBattery by viewModel.externalGpsBatteryPercent.collectAsState()
     val externalGpsAccent = when (gpsExtra?.second) {
@@ -269,7 +271,7 @@ fun DashboardScreen(
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
-    val realHistory by viewModel.history.collectAsState()
+    val realHistory by viewModel.history.collectAsStateWithLifecycle()
     // No fake disconnected demo. The dashboard shows real samples only, // sparklines remain empty until the wheel sends at least 2 frames,
     // matching the per-catalog metric behavior we adopted in Phase 2.
     val history = realHistory
@@ -277,7 +279,7 @@ fun DashboardScreen(
     // tile's Min/Max/Avg matches the metric-detail screen. `history` above is
     // capped to SPARKLINE_SIZE (5 min) for drawing the wave; using it for stats
     // made the tile disagree with the detail when Stats length was > 5 min.
-    val statHistory by viewModel.fullHistory.collectAsState()
+    val statHistory by viewModel.fullHistory.collectAsStateWithLifecycle()
     val modelName by viewModel.modelName.collectAsState()
     val connectedDeviceName by viewModel.connectedDeviceName.collectAsState()
     val connectedBrand by viewModel.connectedBrand.collectAsState()
@@ -446,19 +448,9 @@ fun DashboardScreen(
     // dashboard styles match Overlay Studio / Navigator / Settings (no system
     // icon, swipe-to-dismiss).
     val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
-    // The live transcript, then the answer. A snackbar rather than a dialog:
-    // fired from a Flic at speed the rider cannot look at the screen anyway,
-    // and a modal is something they could be left holding. Rule 3 makes this
-    // the transient surface.
-    LaunchedEffect(voiceCommandState) {
-        when (val v = voiceCommandState) {
-            is com.eried.eucplanet.voice.VoiceCommandController.UiState.Heard ->
-                snackbar.showSnackbar(v.text)
-            is com.eried.eucplanet.voice.VoiceCommandController.UiState.Spoke ->
-                snackbar.showSnackbar(v.text)
-            else -> {}
-        }
-    }
+    // The live transcript and the answer are not shown here: the root host in
+    // MainActivity shows a voice session as one line that replaces itself
+    // (VoiceCommandController.toast), on every screen.
     val snackbarScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         viewModel.cloudToasts.collect { resId ->
@@ -1720,6 +1712,9 @@ fun DashboardScreen(
                         ) else placeholder
                     "DYN_CURRENT_LIMIT" -> if (wheelData.dynamicCurrentLimit > 0f)
                         "%.1fA".format(wheelData.dynamicCurrentLimit) else placeholder
+                    "AUTO_OFF" -> if (wheelData.autoOffSeconds >= 0)
+                        com.eried.eucplanet.data.model.MetricValueFormat.autoOffClock(wheelData.autoOffSeconds)
+                        else placeholder
                     "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)
                         ?.takeIf { com.eried.eucplanet.util.MetricSanity.isPlausibleTempC(it) }
                         ?.let { "%.0f%s".format(com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel) }
@@ -2363,8 +2358,10 @@ fun DashboardScreen(
                 )
             }
             val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
-            val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
+            val lockMaxSpeedKmh by viewModel.lockMaxSpeedKmh.collectAsState()
+            val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= lockMaxSpeedKmh && !lockAtAnySpeed
             val wheelHasLock by viewModel.wheelHasLock.collectAsState()
+            val lockKnown by viewModel.lockKnown.collectAsState()
             val wheelHasSpeedLimit by viewModel.wheelHasSpeedLimit.collectAsState()
 
             // Portrait: two rows of 3 (today's layout). Landscape: a single row
@@ -2426,7 +2423,15 @@ fun DashboardScreen(
                             // and one icon. Whichever owns the slot, both are
                             // one hold away, so the switch only decides what a
                             // tap does and what the eyes-free surfaces bind.
-                            "VOICE_LISTEN" -> ActionTile(
+                            "VOICE_LISTEN" -> {
+                                // While this tile is in front of the rider it
+                                // lights up when listening, from any button,
+                                // so the "Listening" snackbar stays out.
+                                androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+                                    val done = viewModel.showingListeningCue()
+                                    onPauseOrDispose { done() }
+                                }
+                                ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.Mic,
                                 label = stringResource(R.string.action_chip_voice_listen),
@@ -2443,9 +2448,12 @@ fun DashboardScreen(
                                     // offers. No icons: nothing else in these
                                     // menus has them, and two glyphs in a list
                                     // of plain rows reads as decoration.
+                                    // One row that always opens a fresh window,
+                                    // whatever voice is doing. Stopping is a
+                                    // tap on the tile, which toggles.
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_ask)) },
-                                        onClick = { dismiss(); viewModel.onVoiceListen() }
+                                        onClick = { dismiss(); viewModel.onVoiceAsk() }
                                     )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_speak_report)) },
@@ -2486,6 +2494,7 @@ fun DashboardScreen(
                                     )
                                 }
                             )
+                            }
                             "VOICE_ANNOUNCE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.RecordVoiceOver,
@@ -2501,9 +2510,12 @@ fun DashboardScreen(
                                     // offers. No icons: nothing else in these
                                     // menus has them, and two glyphs in a list
                                     // of plain rows reads as decoration.
+                                    // One row that always opens a fresh window,
+                                    // whatever voice is doing. Stopping is a
+                                    // tap on the tile, which toggles.
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_ask)) },
-                                        onClick = { dismiss(); viewModel.onVoiceListen() }
+                                        onClick = { dismiss(); viewModel.onVoiceAsk() }
                                     )
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.menu_voice_speak_report)) },
@@ -2568,28 +2580,17 @@ fun DashboardScreen(
                                     else stringResource(R.string.action_lock_wheel),
                                 active = locked,
                                 activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
-                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock,
+                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && wheelHasLock && lockKnown,
                                 onClick = {
                                     if (lockBlockedBySpeed) {
                                         val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
                                         snackbarScope.launch { snackbar.showSnackbar(msg) }
                                     } else {
+                                        // No warning snackbar here: the rider's
+                                        // choice stands, the automation suspends
+                                        // itself for the session (onLockToggle),
+                                        // and Needs attention carries the Fix.
                                         viewModel.onLockToggle()
-                                        // Auto-lock automation on? Warn that it may override this
-                                        // manual change, with a shortcut to configure it. Once per
-                                        // session, and again whenever the automation is switched
-                                        // back on; on every tap it was just noise.
-                                        if (autoLockEnabled && AutoLockNotice.consume()) {
-                                            val msg = toastContext.getString(R.string.auto_lock_override_toast)
-                                            val action = toastContext.getString(R.string.auto_lock_override_action)
-                                            snackbarScope.launch {
-                                                val res = snackbar.showSnackbar(
-                                                    msg, actionLabel = action,
-                                                    duration = SnackbarDuration.Short
-                                                )
-                                                if (res == SnackbarResult.ActionPerformed) onNavigateToSettings(6)
-                                            }
-                                        }
                                     }
                                 },
                                 aspectRatio = actionAspect, heightDp = actionHeight,
@@ -2865,16 +2866,35 @@ fun DashboardScreen(
                                             key == "RESET_TRIP" ||
                                             // A settings write; arm it in the hall.
                                             isSplits ||
-                                            key.startsWith("MEDIA_")
-                                    ActionButton(
-                                        icon = actionSpec?.icon ?: Icons.Default.Campaign,
-                                        label = labelText,
-                                        active = isSplits && splitMode != com.eried.eucplanet.data.model.AccelSplitMode.OFF,
-                                        enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
-                                        onClick = tap,
-                                        modifier = Modifier.weight(1f),
-                                        aspectRatio = actionAspect, heightDp = actionHeight
-                                    )
+                                            key.startsWith("MEDIA_") || key == "MUSIC_START"
+                                    if (isSplits) {
+                                        // Long-press opens its settings, which sit
+                                        // far down the Voice tab, like the lock and
+                                        // Legal tiles open theirs.
+                                        ActionTile(
+                                            modifier = Modifier.weight(1f),
+                                            icon = actionSpec?.icon ?: Icons.Default.Campaign,
+                                            label = labelText,
+                                            active = splitMode != com.eried.eucplanet.data.model.AccelSplitMode.OFF,
+                                            onClick = tap,
+                                            aspectRatio = actionAspect, heightDp = actionHeight,
+                                            menu = { dismiss ->
+                                                DropdownMenuItem(
+                                                    text = { Text(stringResource(R.string.section_accel_splits)) },
+                                                    onClick = { dismiss(); onNavigateToSettings(12) }
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        ActionButton(
+                                            icon = actionSpec?.icon ?: Icons.Default.Campaign,
+                                            label = labelText,
+                                            enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
+                                            onClick = tap,
+                                            modifier = Modifier.weight(1f),
+                                            aspectRatio = actionAspect, heightDp = actionHeight
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -3433,7 +3453,8 @@ fun DashboardScreen(
                                                     "jeronimo701" to "KingSong S22 report and patch that led to battery percent from voltage.",
                                                     "jforssblad" to "NOSFET Aeon cell-voltage testing.",
                                                     "Dubardo" to "Odometer-in-trip bug report.",
-                                                    "Amoenus" to "Aeon alarm-speed mapping and headlight level readback, decoded from his own BLE captures. The first code contributed from outside.",
+                                                    "Amoenus" to "NOSFET compatibility.",
+                                                    "Reimus" to "Sherman Max compatibility.",
                                                     "ZiraiMode" to "The Wear OS map: tile streaming from the phone and the watch-side drawing.",
                                                     "Ilya Shkolnik" to "Advice and help, and maintains DarknessBot.",
                                                     "InMotion" to "For making my awesome V14."

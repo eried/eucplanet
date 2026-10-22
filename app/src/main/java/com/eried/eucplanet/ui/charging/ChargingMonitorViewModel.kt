@@ -67,9 +67,11 @@ data class ChargingUiState(
     val targetEtaMs: Long? = null,
     val fullEtaMs: Long? = null,
     val estimateToFull: Boolean = false,
-    /** The two charge alerts, both off by default. */
+    /** The charge alerts, all off by default, and the rider's own level. */
     val notify80: Boolean = false,
     val notifyFull: Boolean = false,
+    val notifyCustom: Boolean = false,
+    val notifyCustomPct: Int = 60,
     val targetPercent: Float = 80f,
     val chargeHistory: List<MetricSample> = emptyList(),
     val voltageHistory: List<MetricSample> = emptyList(),
@@ -123,7 +125,7 @@ class ChargingMonitorViewModel @Inject constructor(
         wheelRepository.bmsState,
     ) { quad, settings, bms ->
         buildState(quad.data, quad.status, quad.name, quad.snap, settings.chargingEstimateToFull,
-            settings.chargingNotify80, settings.chargingNotifyFull, bms,
+            settings.chargingNotify80, settings.chargingNotifyFull, settings.chargingNotifyCustom, settings.chargingNotifyCustomPct, bms,
             settings.advanced.cellLowWarnMv, settings.advanced.cellLowDangerMv,
             settings.advanced.cellHighMv, settings.advanced.packBalanceTolerancePct)
     }.stateIn(
@@ -158,6 +160,21 @@ class ChargingMonitorViewModel @Inject constructor(
     fun setNotifyFull(value: Boolean) {
         viewModelScope.launch {
             settingsRepository.update(settingsRepository.get().copy(chargingNotifyFull = value))
+        }
+    }
+
+    fun setNotifyCustom(value: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.update(settingsRepository.get().copy(chargingNotifyCustom = value))
+        }
+    }
+
+    /** Changing the level turns the alert on: nobody sets a number to be ignored. */
+    fun setNotifyCustomPct(value: Int) {
+        viewModelScope.launch {
+            settingsRepository.update(
+                settingsRepository.get().copy(chargingNotifyCustomPct = value, chargingNotifyCustom = true)
+            )
         }
     }
 
@@ -252,6 +269,8 @@ class ChargingMonitorViewModel @Inject constructor(
         estimateToFull: Boolean,
         notify80: Boolean = false,
         notifyFull: Boolean = false,
+        notifyCustom: Boolean = false,
+        notifyCustomPct: Int = 60,
         bms: com.eried.eucplanet.data.model.BmsState = com.eried.eucplanet.data.model.BmsState(),
         cellLowWarnMv: Int = 30,
         cellLowDangerMv: Int = 80,
@@ -320,6 +339,8 @@ class ChargingMonitorViewModel @Inject constructor(
             estimateToFull = estimateToFull,
             notify80 = notify80,
             notifyFull = notifyFull,
+            notifyCustom = notifyCustom,
+            notifyCustomPct = notifyCustomPct,
             chargeHistory = snap.chargeHistory,
             voltageHistory = snap.voltageHistory,
             tempHistory = snap.tempHistory,

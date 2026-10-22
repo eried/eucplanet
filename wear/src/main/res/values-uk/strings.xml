@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">Відтворення / пауза</string>
     <string name="watch_action_media_next">Наступний трек</string>
     <string name="watch_action_media_prev">Попередній трек</string>
+    <string name="watch_action_music_start">Увімкнути музику</string>
+    <string name="watch_action_media_pause">Пауза музики</string>
     <string name="watch_action_long_press_hint">Утримуй для %1$s</string>
     <string name="watch_map_phone_disconnected">Немає телефону</string>
     <string name="watch_map_gps_permission">Дозволити GPS</string>

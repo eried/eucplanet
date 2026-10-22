@@ -35,6 +35,8 @@
     <string name="watch_action_media_play">Redare / pauză</string>
     <string name="watch_action_media_next">Piesa următoare</string>
     <string name="watch_action_media_prev">Piesa anterioară</string>
+    <string name="watch_action_music_start">Pornește muzica</string>
+    <string name="watch_action_media_pause">Pauză muzică</string>
     <string name="watch_action_long_press_hint">Apasă lung pentru %1$s</string>
     <string name="watch_map_phone_disconnected">Fără telefon</string>
     <string name="watch_map_gps_permission">Permite GPS</string>

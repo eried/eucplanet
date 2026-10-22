@@ -224,6 +224,7 @@
     <string name="metric_spoken_lat_long">Poziție</string>
     <string name="metric_chip_dyn_speed_limit">Limită dinamică de viteză</string>
     <string name="metric_chip_dyn_current_limit">Limită dinamică de curent</string>
+    <string name="metric_chip_auto_off">Oprire automată</string>
     <string name="metric_chip_motor_temp">Temperatura motorului</string>
     <string name="metric_chip_controller_temp">Temperatura controlerului</string>
     <string name="metric_chip_battery_temp">Temperatura bateriei</string>
@@ -263,6 +264,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Lim vit</string>
     <string name="metric_chip_dyn_current_limit_tile">Lim A</string>
+    <string name="metric_chip_auto_off_tile">Oprire</string>
     <string name="metric_chip_phone_battery_tile">Telefon</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">Bat GPS</string>
@@ -305,7 +307,11 @@
     <string name="voice_commands_enable_desc">Folosește-ți vocea în aplicație. Ține apăsat butonul Voce de pe panou și alege Ascultă o comandă vocală.</string>
     <string name="voice_commands_bind_desc">Atribuie ascultarea unui Flic, tastelor de volum, ceasului tău sau HUD-ului.</string>
     <string name="voice_prompt_cue">Semnal la ascultare</string>
-    <string name="voice_prompt_cue_desc">Dezactivează dacă ai căști cu ton propriu.</string>
+    <string name="voice_music_listening">Muzică în timpul ascultării</string>
+    <string name="voice_music_pause">Pauză</string>
+    <string name="voice_music_duck">Mai încet</string>
+    <string name="voice_music_keep">Continuă</string>
+    <string name="voice_music_listening_desc">Recunoașterea rulează pe telefon când se poate, fără cont. Cuvintele sunt potrivite cu comenzile aplicației.</string>
     <string name="voice_cue_beep">Bip</string>
     <string name="voice_cue_spoken">Voce</string>
     <string name="voice_cue_off">Nu</string>
@@ -316,7 +322,8 @@
     <string name="voice_recognition_desc">Limba în care vorbești. Urmează vocea dacă nu alegi una.</string>
     <string name="voice_recognition_follow">La fel ca vocea</string>
     <string name="voice_headset_button">Butonul vocal al căștilor</string>
-    <string name="voice_headset_button_desc">Lasă butonul vocal al unor căști Bluetooth să pornească ascultarea. Android întreabă ce aplicație răspunde.</string>
+    <string name="voice_headset_chooser_hint">Android întreabă ce aplicație răspunde.</string>
+    <string name="voice_headset_announce">Anunță</string>
     <string name="voice_act_announce_on_terms">voce pornită,anunțuri pornite,pornește vocea</string>
     <string name="voice_act_announce_off_terms">voce oprită,anunțuri oprite,oprește vocea</string>
     <string name="voice_command_vocabulary">Ce pot să spun</string>
@@ -399,6 +406,10 @@
     <string name="voice_act_record_start_terms">începe înregistrarea,înregistrează</string>
     <string name="voice_act_record_stop_terms">oprește înregistrarea</string>
     <string name="voice_act_reset_trip_terms">resetează cursa</string>
+    <string name="voice_act_music_start_terms">pornește muzica,pune muzică,muzică</string>
+    <string name="voice_act_media_pause_terms">pune muzica pe pauză,oprește muzica</string>
+    <string name="voice_act_media_next_terms">melodia următoare,piesa următoare</string>
+    <string name="voice_act_media_prev_terms">melodia anterioară,piesa anterioară</string>
     <string name="voice_answer_mic_busy">Altceva folosește microfonul.</string>
     <string name="voice_answer_which">Ai vrut să spui %1$s sau %2$s?</string>
     <string name="action_chip_safety">Mod legal</string>
@@ -411,6 +422,8 @@
     <string name="action_chip_media_play">Redare / pauză</string>
     <string name="action_chip_media_next">Piesa următoare</string>
     <string name="action_chip_media_prev">Piesa anterioară</string>
+    <string name="action_chip_music_start">Pornește muzica</string>
+    <string name="action_chip_media_pause">Pauză muzică</string>
     <string name="action_chip_open_navigation">Arată harta</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">Despre</string>
@@ -554,6 +567,8 @@
     <string name="adv_alarm_min_samples_desc">Influențează câte citiri sunt necesare până când tendința devine de încredere. Pericol: prea puține prezic din zgomot.</string>
     <string name="adv_alarm_min_span">Interval minim</string>
     <string name="adv_alarm_min_span_desc">Influențează timpul minim pe care trebuie să îl acopere eșantioanele înainte de folosirea tendinței.</string>
+    <string name="adv_alarm_warm_route">Timp difuzor pregătit</string>
+    <string name="adv_alarm_warm_route_desc">Determină cât timp rămâne difuzorul pregătit după un bip sau un mesaj vocal. Pericol: prea scurt și primul bip după o pauză liniștită poate pocni sau fi tăiat; prea lung ține sunetul activ și consumă bateria.</string>
     <string name="adv_group_radar_auto">Radar și automatizare</string>
     <string name="adv_radar_clear_decay">Estomparea benzii radar</string>
     <string name="adv_radar_clear_decay_desc">Influențează cât timp rămâne bara benzii după ce drumul se eliberează. Pericol: o valoare prea mică o face să clipească pe măsură ce mașinile vin și pleacă.</string>
@@ -580,6 +595,10 @@
     <string name="adv_hud_manual_grace_desc">Influențează cât timp primește descoperirea automată înainte de folosirea IP-ului manual. Pericol: o valoare prea mică folosește IP-ul manual înainte ca descoperirea să poată reuși.</string>
     <string name="adv_hud_mdns_resolve">Durata rezolvării mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Influențează cât timp se rezolvă detaliile de adresă ale unui HUD descoperit. Pericol: o valoare prea mică pierde un HUD care se rezolvă lent.</string>
+    <string name="adv_hud_idle_search">Căutare în repaus</string>
+    <string name="adv_hud_idle_search_desc">Afectează cât de des este căutat HUD-ul fără roată conectată și cu aplicația închisă. Pericol: prea mic descarcă bateria.</string>
+    <string name="adv_hud_sweep_interval">Scanare rețea</string>
+    <string name="adv_hud_sweep_interval_desc">Afectează cât de des este încercată fiecare adresă din rețea pentru a găsi HUD-ul. Pericol: prea mic încarcă telefonul și descarcă bateria.</string>
     <string name="adv_group_autolights">Lumini automate</string>
     <string name="adv_autolight_no_gps_retry">Reîncercare fără GPS</string>
     <string name="adv_autolight_no_gps_retry_desc">Influențează cât de des reîncearcă luminile automate cât timp așteaptă o poziție GPS.</string>
@@ -733,11 +752,11 @@
     <string name="sync_progress">Se sincronizează %1$d din %2$d</string>
     <string name="sync_no_folder">Alege mai întâi un dosar de rezervă</string>
     <string name="sync_rate_limited">Dropbox limitează acest cont. %1$d din %2$d curse sincronizate, restul se va reîncerca.</string>
-    <string name="sync_finished">%1$d curse sincronizate</string>
+    <string name="sync_finished">Curse sincronizate: %1$d</string>
     <string name="sync_up_to_date">Deja la zi</string>
     <string name="sync_conflict_title">Conflict de sincronizare</string>
-    <string name="sync_conflict_body">%1$d curse există de ambele părți.</string>
-    <string name="sync_conflict_body_dropbox">%1$d curse există și pe Dropbox, și pe acest telefon.</string>
+    <string name="sync_conflict_body">Modificat de ambele părți: %1$d</string>
+    <string name="sync_conflict_body_dropbox">Modificat atât în Dropbox, cât și pe acest telefon: %1$d</string>
     <string name="sync_conflict_app">Copiază aplicația în copia de rezervă</string>
     <string name="sync_conflict_app_dropbox">Copiază aplicația pe Dropbox</string>
     <string name="sync_conflict_folder">Copiază copia de rezervă în aplicație</string>
@@ -960,7 +979,7 @@
     <string name="welcome_tut_dev_sync_trips">Sincronizează cursele</string>
     <string name="welcome_tut_dev_syncing">Se sincronizează cursele</string>
     <string name="welcome_tut_dev_joined">Te-ai alăturat clasamentelor</string>
-    <string name="welcome_tut_dev_joined_norider">Încărcarea online este pornită. Nu s-a găsit niciun conducător în dosar.</string>
+    <string name="welcome_tut_dev_joined_norider">Încă nu există un rider în acest dosar. Atinge %1$s în %2$s pentru a crea unul.</string>
     <string name="welcome_tut_bt">De aici conectezi și deconectezi monociclul</string>
     <string name="welcome_tut_version">Multe monocicluri au nevoie doar de testeri pentru a fi complet acceptate, de obicei e o reparație ușoară. Atinge versiunea pentru a deschide Despre și a da o mână de ajutor</string>
     <string name="welcome_tut_outro_title">Cam asta e turul!</string>
@@ -1063,6 +1082,7 @@
     <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Declanșator</string>
+    <string name="voice_trigger_reset_after">Resetează valorile după raportul declanșat</string>
     <string name="report_speed">Viteză</string>
     <string name="report_battery">Baterie</string>
     <string name="report_temp">Temp</string>
@@ -1444,8 +1464,6 @@
     <string name="proximity_unlock_above">Semnal peste</string>
     <string name="proximity_lock_signal_live">Semnal curent: %1$s</string>
     <string name="proximity_lock_hint">Blocarea are nevoie de o conexiune activă, deci se întâmplă pe măsură ce semnalul slăbește, nu după ce ai ieșit din rază.</string>
-    <string name="auto_lock_override_toast">Blocarea automată este pornită și poate suprascrie asta.</string>
-    <string name="auto_lock_override_action">Configurează</string>
     <string name="menu_auto_lock_settings">Setări de blocare a monociclului</string>
     <string name="menu_auto_lock_on">Activează blocarea automată</string>
     <string name="menu_auto_lock_off">Dezactivează blocarea automată</string>
@@ -1454,7 +1472,8 @@
     <string name="auto_midnight_sun_body">Soarele nu apune azi la această latitudine, luminile vor rămâne OPRITE.</string>
     <string name="auto_polar_night_title">Noapte polară</string>
     <string name="auto_polar_night_body">Soarele nu răsare azi la această latitudine, luminile vor rămâne PORNITE.</string>
-    <string name="auto_lights_suspended">Suspendat din cauza schimbării manuale a luminilor pentru această sesiune. Reconectează monociclul sau repornește aplicația pentru a relua</string>
+    <string name="auto_lights_suspended">În pauză pentru această sesiune, ai setat lumina manual. Repară din Necesită atenție sau reconectează roata.</string>
+    <string name="auto_lock_suspended">În pauză pentru această sesiune, ai blocat sau deblocat manual. Repară din Necesită atenție sau reconectează roata.</string>
     <string name="alarm_help">Prioritatea de declanșare se bazează pe ordinea grupurilor de indicatori de mai jos.</string>
     <string name="alarm_empty">Încă nu există reguli de alarmă</string>
     <string name="alarm_add">Alarmă nouă</string>
@@ -1939,6 +1958,8 @@
     <string name="nav_menu_save">Salvează traseul (GPX)</string>
     <string name="nav_menu_load">Încarcă traseul (GPX)</string>
     <string name="nav_menu_clear">Traseu nou</string>
+    <string name="nav_finished_title">Traseu încheiat</string>
+    <string name="nav_finished_body">Începi un traseu nou? Opririle atinse se șterg. Ca să păstrezi acest traseu, salvează-l mai întâi din meniu.</string>
     <string name="nav_clear_home">Uită Acasă</string>
     <string name="nav_clear_work">Uită Serviciu</string>
     <string name="nav_menu_exit">Înapoi la tabloul de bord</string>
@@ -1994,6 +2015,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Satelit</string>
+    <string name="nav_layer_satellite_labels">Satelit hibrid</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -2226,6 +2248,7 @@
     <string name="nav_setting_avoid_tolls">Evită drumurile cu taxă</string>
     <string name="nav_setting_avoid_ferries">Evită feriboturile</string>
     <string name="nav_setting_avoid_unpaved">Evită drumurile nepavate</string>
+    <string name="nav_avoid_router_failed">Traseul ignoră evitările: serviciul lor de rutare nu a răspuns.</string>
     <string name="nav_show_chargers">Arată stațiile de încărcare</string>
     <string name="nav_show_places">Arată locuri (magazine, mâncare, obiective)</string>
     <string name="nav_pois_failed">Locurile nu au putut fi încărcate. Verifică-ți conexiunea</string>
@@ -2312,11 +2335,16 @@
     <string name="warnings_indicator_desc">Avertismentele aplicației</string>
     <string name="warnings_dialog_title">Necesită atenție</string>
     <string name="warnings_fix_button">Repară</string>
+    <string name="warnings_autolights_title">Lumini automate în pauză</string>
+    <string name="warnings_autolights_body">Ai setat lumina manual, așa că programul stă deoparte în această sesiune. Repară îi redă controlul.</string>
+    <string name="warnings_autolock_title">Blocare automată în pauză</string>
+    <string name="warnings_autolock_body">Ai blocat sau deblocat manual, așa că blocarea prin proximitate stă deoparte în această sesiune. Repară îi redă controlul.</string>
     <string name="warnings_perm_notifications_title">Notificările sunt oprite</string>
     <string name="warnings_perm_notifications_body">Nu vei vedea starea cursei în bara de stare și nu vei primi alerte vocale în zona de notificări.</string>
     <string name="warnings_perm_location_title">Locația este dezactivată</string>
     <string name="warnings_perm_location_body">Cursele nu înregistrează traseul, iar viteza și calibrarea GPS nu funcționează. Atinge pentru a permite.</string>
     <string name="weather_error_no_location">Nicio locație pentru prognoză</string>
+    <string name="weather_waiting_location">Se așteaptă locația…</string>
     <string name="warnings_location_services_body">EUC Planet are permisiune, dar telefonul are locația oprită pentru tot. Atinge pentru a o porni.</string>
     <string name="warnings_location_services_title">Locația este oprită</string>
     <string name="warnings_battery_opt_title">Optimizarea bateriei este activată</string>
@@ -2468,12 +2496,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Anunță-mă la 80 %</string>
     <string name="charging_notify_full" formatted="false">Anunță-mă la 100 %</string>
+    <string name="charging_notify_at">Anunță-mă la</string>
+    <string name="charging_notify_custom">Anunță-mă la %1$d %%</string>
+    <string name="charging_notify_at_ask">Anunță-mă la…</string>
+    <string name="charging_notify_custom_range" formatted="false">Trebuie să fie între 5 și 95 %, nu 80 %</string>
     <string name="charge_alert_channel_name">Alerte de încărcare</string>
-    <string name="charge_alert_channel_description" formatted="false">Când bateria trece de 80 % sau termină de încărcat.</string>
+    <string name="charge_alert_channel_description" formatted="false">Când bateria atinge un nivel ales sau termină de încărcat.</string>
     <string name="charge_alert_80_title" formatted="false">Baterie la 80 %</string>
     <string name="charge_alert_80_text">Ajunge pentru majoritatea curselor și de obicei menajează bateria.</string>
     <string name="charge_alert_full_title">Încărcare completă</string>
     <string name="charge_alert_full_text">Încărcat complet, scoate din priză când poți. Unele roți echilibrează celulele acum.</string>
+    <string name="charge_alert_custom_title">Baterie la %1$d %%</string>
+    <string name="charge_alert_custom_text">Nivelul ales a fost atins. Scoate încărcătorul când poți.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Bord monociclu</string>
     <string name="widget_act_1_label">Buton monociclu 1</string>
@@ -2519,4 +2553,86 @@
     <string name="horn_sound_too_long">Sunetul durează mai mult de 5 secunde</string>
     <string name="horn_sound_too_big">Fișierul are peste 2 MB</string>
     <string name="horn_sound_unreadable">Fișierul nu poate fi redat</string>
+    <string name="voice_pill_add">Adaugă</string>
+    <string name="voice_pill_message">Mesaj</string>
+    <string name="voice_pill_message_hint">Rostit așa cum îl scrii.</string>
+    <string name="voice_pills_empty">Nu se spune nimic. Atinge Adaugă.</string>
+    <string name="voice_stat_now">Acum</string>
+    <string name="voice_stat_max">Max</string>
+    <string name="voice_stat_min">Min</string>
+    <string name="voice_stat_avg">Med</string>
+    <string name="voice_stat_peak">Vârf</string>
+    <string name="crews_title">Crews</string>
+    <string name="crews_pass_action">Acces crew</string>
+    <string name="crews_pass_search_hint">Acces crew apare după ce te alături clasamentelor online.</string>
+    <string name="crews_scan_hint">Deschide eucstats în browser, apasă pe Crews și îndreaptă asta spre codul care apare.</string>
+    <string name="crews_scan_invalid">Ăsta nu e un cod de crew pass.</string>
+    <string name="crews_scan_is_share">Ăsta e un cod de locație live. Scanează-l din Partajare pe hartă.</string>
+    <string name="share_scan_is_crewpass">Ăsta e un permis de crew. Scanează-l din Setări, la Crews.</string>
+    <string name="crews_type_instead">Introdu manual</string>
+    <string name="crews_code_label">Cod de acces</string>
+    <string name="crews_foreign_title">Codul ăsta nu e de la eucstats</string>
+    <string name="crews_foreign_body">Arată spre %1$s, și turele tale nu ajung acolo. Dacă spui da, îți dai contul celui care îl ține.\n\nAi server propriu? Pornește întâi modul dezvoltator din Setări.</string>
+    <string name="crews_scan_switch">Mai bine scanează</string>
+    <string name="crews_close">Închide</string>
+    <string name="crews_opensettings">Deschide setările</string>
+    <string name="crews_dev_title">Mod dezvoltator</string>
+    <string name="crews_dev_body">Vorbește cu %1$s în loc de serverul obișnuit.</string>
+    <string name="crews_grant">Lasă browserul ăla să poarte culorile tale.\n\nPoate porni un crew, să intre în unul, să iasă dintr-unul, și să se ocupe de membri. Nu poate trimite ture, nu te poate redenumi și nu poate șterge nimic, alea rămân pe telefon.</string>
+    <string name="crews_noprofile_title">Intră întâi în clasament</string>
+    <string name="crews_noprofile_body">Crews-urile atârnă de profilul tău din clasament, iar telefonul ăsta nu și-a făcut unul. Intră din %1$s, și scanează din nou.</string>
+    <string name="crews_issue">Eliberează pasul</string>
+    <string name="crews_notme">Nu sunt eu</string>
+    <string name="crews_ratelimited">Prea multe încercări. Așteaptă un minut și încearcă din nou.</string>
+    <string name="crews_unreachable">Nu s-a putut ajunge la %1$s.</string>
+    <string name="crews_refused">Serverul a refuzat (%1$d).</string>
+    <string name="crews_done_title">Pas eliberat</string>
+    <string name="crews_done_body">Browserul ăla poartă culorile tale. Lasă telefonul jos.</string>
+    <string name="crews_failed_title">Nu a mers</string>
+    <string name="crews_tryagain">Încearcă din nou</string>
+    <string name="crews_done">Gata</string>
+    <string name="crews_expired">Codul ăla s-a învechit. Ia unul proaspăt din browser.</string>
+    <string name="voice_pill_search">Caută</string>
+    <string name="voice_volume">Volum</string>
+    <string name="beep_volume_by_speed">Volumul bipului după viteză</string>
+    <string name="beep_volume_stopped">Oprit</string>
+    <string name="beep_volume_riding">În mers</string>
+    <string name="dropbox_checking">Se verifică Dropbox…</string>
+    <string name="sync_first_settings">Dropbox are deja setări de pe alt telefon. Le folosiți sau păstrați setările acestui telefon?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Ștergeți această cursă de pe acest telefon? Copia de rezervă păstrează o copie, deci Sincronizează tot o aduce înapoi.</string>
+    <string name="share_menu_scan">Scanează QR</string>
+    <string name="share_menu_scan_desc">Alătură-te unei ture în grup sau deschide un traseu.</string>
+    <string name="share_menu_route">Partajează traseul</string>
+    <string name="share_menu_route_desc">Ca cod QR sau link. Fără cont.</string>
+    <string name="share_menu_route_none">Adaugă mai întâi o oprire.</string>
+    <string name="scan_code_unknown">Nu este un cod de tură în grup sau de traseu.</string>
+    <string name="route_qr_hint">Scanează cu EUC Planet sau cu camera telefonului.</string>
+    <string name="route_qr_too_long">Traseul e prea lung pentru un cod QR. Salvează-l ca GPX.</string>
+    <string name="route_open_title">Deschide traseul partajat</string>
+    <string name="route_open_confirm">Înlocuiești traseul curent cu traseul partajat?</string>
+    <string name="route_opened">Traseu deschis</string>
+    <string name="route_qr_share_image">Partajează QR</string>
+    <string name="route_share_text">Parcurge acest traseu cu EUC Planet: %1$s</string>
+    <string name="route_share_subject">Un traseu de parcurs</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d oprire</item>
+        <item quantity="few">%d opriri</item>
+        <item quantity="other">%d de opriri</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Statisticile și butoanele roții pe un ecran Android Auto. Se conectează singur, fără setare Wi-Fi.</string>
+    <string name="car_waiting">Se așteaptă roata</string>
+    <string name="car_last_battery">Ultima baterie %1$d%%</string>
+    <string name="car_navigate">Navighează</string>
+    <string name="car_places_title">Navighează spre</string>
+    <string name="car_place_home">Acasă</string>
+    <string name="car_place_work">Serviciu</string>
+    <string name="car_no_places">Salvează mai întâi Acasă sau Serviciu în planificatorul de rute.</string>
+    <string name="car_waiting_wheel">Se așteaptă roata</string>
+    <string name="car_weather">Vreme</string>
+    <string name="car_alarm_channel_name">Alarme pe ecranul mașinii</string>
+    <string name="car_alarm_channel_description">Afișează o alarmă declanșată pe ecranul Android Auto, peste hartă.</string>
+    <string name="car_alarm_notifications">Alarme pe ecranul mașinii</string>
+    <string name="car_alarm_notifications_hint">O alarmă declanșată apare peste hartă, așa că te găsește în timpul navigării. Bipul și vibrația rămân la fel.</string>
+    <string name="car_no_metrics">Nicio valoare selectată</string>
 </resources>

@@ -26,12 +26,22 @@ class AppStartupTest {
             "garminBridge.start()",
             "amazfitBridge.start()",
             "hudServer.hashCode()",
-            "syncManager.reconcilePendingTripUploads()",
-            "syncManager.reconcilePendingEucStatsUploads()",
-            "syncManager.reconcilePendingDropboxSync()",
-            "syncManager.startPendingUploadWatcher()",
+            "syncManager.reconcileOnStart()",
         )) {
             assertTrue("$call is no longer called from EucPlanetApp.onCreate", onCreate.contains(call))
+        }
+    }
+
+    @Test fun `the start-up sync reconcile still runs all four`() {
+        val src = stripComments(File("src/main/java/com/eried/eucplanet/data/sync/SyncManager.kt").readText())
+        val body = src.substringAfter("fun reconcileOnStart()").substringBefore("\n    fun ")
+        for (call in listOf(
+            "reconcilePendingTripUploads()",
+            "reconcilePendingEucStatsUploads()",
+            "reconcilePendingDropboxSync()",
+            "startPendingUploadWatcher()",
+        )) {
+            assertTrue("$call is no longer called from SyncManager.reconcileOnStart", body.contains(call))
         }
     }
 }

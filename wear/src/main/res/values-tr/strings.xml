@@ -38,6 +38,8 @@
     <string name="watch_action_media_play">Oynat / duraklat</string>
     <string name="watch_action_media_next">Sonraki parça</string>
     <string name="watch_action_media_prev">Önceki parça</string>
+    <string name="watch_action_music_start">Müziği başlat</string>
+    <string name="watch_action_media_pause">Müziği duraklat</string>
     <string name="watch_action_long_press_hint">%1$s için uzun bas</string>
     <string name="watch_map_phone_disconnected">Telefon yok</string>
     <string name="watch_map_gps_permission">GPS\'e izin ver</string>

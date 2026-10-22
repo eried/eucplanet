@@ -44,6 +44,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -78,6 +79,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var appHealthRepository:
         com.eried.eucplanet.data.repository.AppHealthRepository
     @Inject lateinit var appNotifier: com.eried.eucplanet.util.AppNotifier
+    @Inject lateinit var voiceCommands: com.eried.eucplanet.voice.VoiceCommandController
     @Inject lateinit var legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController
 
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -412,6 +414,21 @@ class MainActivity : AppCompatActivity() {
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
+        consumeLeaderboardIntent(intent)
+    }
+
+    /** The crew pass dialog found no leaderboard profile: take the rider to where one is made. */
+    private fun consumeLeaderboardIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(
+                com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.EXTRA_OPEN_LEADERBOARD,
+                false,
+            ) == true
+        ) {
+            com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.request()
+            intent.removeExtra(
+                com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.EXTRA_OPEN_LEADERBOARD
+            )
+        }
     }
 
     /** A charge alert was tapped: go where the number came from. */
@@ -444,6 +461,7 @@ class MainActivity : AppCompatActivity() {
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
+        consumeLeaderboardIntent(intent)
         // requestMissingPermissions() is intentionally NOT called here.
         // On a clean install, asking before setContent runs means the runtime
         // permission dialogs come up over a black activity, the rider thinks
@@ -641,6 +659,22 @@ class MainActivity : AppCompatActivity() {
                             runCatching {
                                 navController.navigate(
                                     com.eried.eucplanet.ui.navigation.Screen.ChargingMonitor.createRoute()
+                                ) { launchSingleTop = true }
+                            }
+                        }
+                    }
+                    // Same road, for a rider sent here by the crew pass dialog with no
+                    // leaderboard profile: open Settings already on the section that makes one.
+                    val pendingLeaderboard by com.eried.eucplanet.ui.settings
+                        .LeaderboardSetupLaunch.pending.collectAsState()
+                    androidx.compose.runtime.LaunchedEffect(pendingLeaderboard) {
+                        if (com.eried.eucplanet.ui.settings.LeaderboardSetupLaunch.consume()) {
+                            runCatching {
+                                navController.navigate(
+                                    com.eried.eucplanet.ui.navigation.Screen.Settings.createRoute(
+                                        com.eried.eucplanet.ui.settings
+                                            .LeaderboardSetupLaunch.SETTINGS_TAB_CLOUD
+                                    )
                                 ) { launchSingleTop = true }
                             }
                         }
@@ -895,6 +929,20 @@ class MainActivity : AppCompatActivity() {
                                 rootSnackbar.showSnackbar(msg)
                             }
                         }
+                        // A voice session's one line. Each new line replaces
+                        // the last (collectLatest cancels the showing one,
+                        // which dismisses it), and it stays up exactly as
+                        // long as the session is in that state.
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            voiceCommands.toast.collectLatest { line ->
+                                if (line.isEmpty()) return@collectLatest
+                                rootSnackbar.currentSnackbarData?.dismiss()
+                                rootSnackbar.showSnackbar(
+                                    line,
+                                    duration = androidx.compose.material3.SnackbarDuration.Indefinite,
+                                )
+                            }
+                        }
                         androidx.compose.material3.SnackbarHost(
                             hostState = rootSnackbar,
                             modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter)
@@ -984,7 +1032,7 @@ class MainActivity : AppCompatActivity() {
             wheel = wheelRepository.wheelData.value,
             history = wheelRepository.fullHistory.value,
             tripRecording = tripRepository.recording.value,
-            imperialUnits = s?.imperialUnits ?: false,
+            imperialUnits = s?.let { com.eried.eucplanet.util.Units.unitSystemOf(it) == com.eried.eucplanet.util.Units.UnitSystem.IMPERIAL } ?: false,
             safetyActive = wheelRepository.safetySpeedActive.value,
             alarmsMuted = s?.alarmsMuted ?: false,
             speedSplitsOn = s?.accelSplit?.enabled ?: false,

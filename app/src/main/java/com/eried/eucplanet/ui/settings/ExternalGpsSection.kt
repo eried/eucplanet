@@ -119,7 +119,7 @@ fun ExternalGpsSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.external_gps_disconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_disconnect))
                     }
                 } else {
                     Button(
@@ -127,7 +127,7 @@ fun ExternalGpsSection(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.external_gps_reconnect))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_reconnect))
                     }
                 }
                 Button(
@@ -136,7 +136,7 @@ fun ExternalGpsSection(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.external_gps_unpair))
+                    com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_unpair))
                 }
             }
 
@@ -432,7 +432,7 @@ private fun UnpairedExternalGpsCard(
                         )
                     }
                     Button(onClick = { onPick(result) }, shape = RoundedCornerShape(12.dp)) {
-                        Text(stringResource(R.string.external_gps_pair_action))
+                        com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.external_gps_pair_action))
                     }
                 }
             }
@@ -539,7 +539,7 @@ fun LeftAlignedScanButton(
                 )
                 Spacer(Modifier.width(6.dp))
             }
-            Text(text = label)
+            com.eried.eucplanet.ui.common.SearchableText(label)
         }
         Spacer(modifier = Modifier.weight(1f))
     }

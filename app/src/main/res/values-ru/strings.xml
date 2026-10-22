@@ -248,6 +248,7 @@
     <string name="metric_spoken_lat_long">Положение</string>
     <string name="metric_chip_dyn_speed_limit">Динамический лимит скорости</string>
     <string name="metric_chip_dyn_current_limit">Динамический лимит тока</string>
+    <string name="metric_chip_auto_off">Автовыключение</string>
     <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_controller_temp">Температура контроллера</string>
     <string name="metric_chip_battery_temp">Температура батареи</string>
@@ -294,6 +295,7 @@
     <string name="metric_chip_controller_temp_tile">Ctrl T</string>
     <string name="metric_chip_dyn_speed_limit_tile">Sp limit</string>
     <string name="metric_chip_dyn_current_limit_tile">A limit</string>
+    <string name="metric_chip_auto_off_tile">Автовыкл.</string>
     <string name="metric_chip_phone_battery_tile">Тел</string>
     <string name="metric_chip_gps_accuracy_tile">GPS ±</string>
     <string name="metric_chip_external_gps_battery_tile">GPS бат</string>
@@ -342,7 +344,11 @@
     <string name="voice_commands_enable_desc">Управляйте приложением голосом. Удерживайте кнопку Голос на панели и выберите Слушать голосовую команду.</string>
     <string name="voice_commands_bind_desc">Назначьте прослушивание на Flic, клавиши громкости, часы или HUD.</string>
     <string name="voice_prompt_cue">Сигнал при прослушивании</string>
-    <string name="voice_prompt_cue_desc">Отключите, если у гарнитуры есть свой сигнал.</string>
+    <string name="voice_music_listening">Музыка при прослушивании</string>
+    <string name="voice_music_pause">Пауза</string>
+    <string name="voice_music_duck">Тише</string>
+    <string name="voice_music_keep">Играть</string>
+    <string name="voice_music_listening_desc">Распознавание идёт на телефоне, когда возможно, без аккаунта. Слова сверяются с командами приложения.</string>
     <string name="voice_cue_beep">Гудок</string>
     <string name="voice_cue_spoken">Голос</string>
     <string name="voice_cue_off">Нет</string>
@@ -353,7 +359,8 @@
     <string name="voice_recognition_desc">Язык, на котором вы говорите. Следует за голосом, если не выбран.</string>
     <string name="voice_recognition_follow">Как у голоса</string>
     <string name="voice_headset_button">Голосовая кнопка гарнитуры</string>
-    <string name="voice_headset_button_desc">Пусть голосовая кнопка Bluetooth-гарнитуры начинает прослушивание. Android спросит, какое приложение отвечает.</string>
+    <string name="voice_headset_chooser_hint">Android спросит, какое приложение отвечает.</string>
+    <string name="voice_headset_announce">Озвучить</string>
     <string name="voice_act_announce_on_terms">голос включить,объявления включить,включи голос</string>
     <string name="voice_act_announce_off_terms">голос выключить,объявления выключить,выключи голос</string>
     <string name="voice_command_vocabulary">Что можно сказать</string>
@@ -436,6 +443,10 @@
     <string name="voice_act_record_start_terms">начать запись,записывай</string>
     <string name="voice_act_record_stop_terms">остановить запись</string>
     <string name="voice_act_reset_trip_terms">сбросить поездку</string>
+    <string name="voice_act_music_start_terms">включи музыку,играть музыку,музыка</string>
+    <string name="voice_act_media_pause_terms">пауза музыки,поставь музыку на паузу,выключи музыку,останови музыку</string>
+    <string name="voice_act_media_next_terms">следующая песня,следующий трек</string>
+    <string name="voice_act_media_prev_terms">предыдущая песня,предыдущий трек</string>
     <string name="voice_answer_mic_busy">Микрофон занят другим приложением.</string>
     <string name="voice_answer_which">Вы имели в виду %1$s или %2$s?</string>
     <string name="action_chip_safety">Легал-режим</string>
@@ -448,6 +459,8 @@
     <string name="action_chip_media_play">Играть / пауза</string>
     <string name="action_chip_media_next">Следующая</string>
     <string name="action_chip_media_prev">Предыдущая</string>
+    <string name="action_chip_music_start">Включить музыку</string>
+    <string name="action_chip_media_pause">Пауза музыки</string>
     <string name="action_chip_open_navigation">Показать карту</string>
     <string name="action_chip_open_studio">Overlay Studio</string>
     <string name="action_chip_open_about">О приложении</string>
@@ -609,11 +622,11 @@
     <string name="sync_rate_limited">Dropbox ограничивает этот аккаунт. Синхронизировано %1$d из %2$d поездок, остальные повторятся.</string>
     <string name="sync_finished">Синхронизировано поездок: %1$d</string>
     <string name="sync_conflict_title">Конфликт синхронизации</string>
-    <string name="sync_conflict_body">%1$d поездок есть с обеих сторон.</string>
+    <string name="sync_conflict_body">Изменено с обеих сторон: %1$d</string>
     <string name="sync_conflict_app">Из приложения в копию</string>
     <string name="sync_conflict_folder">Из копии в приложение</string>
     <string name="sync_conflict_ignore">Пропустить все конфликты</string>
-    <string name="sync_conflict_body_dropbox">%1$d поездок есть и в Dropbox, и на этом телефоне.</string>
+    <string name="sync_conflict_body_dropbox">Изменено и в Dropbox, и на этом телефоне: %1$d</string>
     <string name="sync_conflict_app_dropbox">Скопировать приложение в Dropbox</string>
     <string name="sync_conflict_dropbox">Скопировать Dropbox в приложение</string>
     <string name="cloud_uploaded_on">Сохранено %1$s</string>
@@ -867,6 +880,7 @@
 
     <string name="col_periodic">Регулярно</string>
     <string name="col_trigger">По кнопке</string>
+    <string name="voice_trigger_reset_after">Сбрасывать показатели после отчёта по запросу</string>
     <string name="report_speed">Скорость</string>
     <string name="report_battery">Заряд</string>
     <string name="report_temp">Темп</string>
@@ -1163,8 +1177,6 @@
     <string name="proximity_unlock_above">Сигнал выше</string>
     <string name="proximity_lock_signal_live">Текущий сигнал: %1$s</string>
     <string name="proximity_lock_hint">Блокировка требует активного подключения, поэтому срабатывает при ослаблении сигнала, а не при выходе из зоны действия.</string>
-    <string name="auto_lock_override_toast">Автоблокировка включена и может это переопределить.</string>
-    <string name="auto_lock_override_action">Настроить</string>
     <string name="menu_auto_lock_settings">Настройки блокировки колеса</string>
     <string name="menu_auto_lock_on">Включить автоблокировку</string>
     <string name="menu_auto_lock_off">Выключить автоблокировку</string>
@@ -1174,7 +1186,8 @@
     <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится, фары останутся выключенными.</string>
     <string name="auto_polar_night_title">Полярная ночь</string>
     <string name="auto_polar_night_body">Сегодня на этой широте солнце не восходит, фары останутся включёнными.</string>
-    <string name="auto_lights_suspended">Приостановлено: вы вручную переключили свет в этой сессии. Переподключите колесо или перезапустите приложение, чтобы возобновить</string>
+    <string name="auto_lights_suspended">Приостановлено на эту сессию, вы переключили свет вручную. Исправьте в разделе Требует внимания или переподключите колесо.</string>
+    <string name="auto_lock_suspended">Приостановлено на эту сессию, вы заблокировали или разблокировали вручную. Исправьте в разделе Требует внимания или переподключите колесо.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Для каждой метрики автоматически срабатывает наиболее подходящий сигнал. Порядок в списке не влияет на выбор; сортировка нужна лишь для удобства.</string>
@@ -1673,6 +1686,8 @@
     <string name="nav_menu_save">Сохранить маршрут (GPX)</string>
     <string name="nav_menu_load">Загрузить маршрут (GPX)</string>
     <string name="nav_menu_clear">Новый маршрут</string>
+    <string name="nav_finished_title">Маршрут завершён</string>
+    <string name="nav_finished_body">Начать новый маршрут? Пройденные точки будут удалены. Чтобы сохранить этот маршрут, сначала сохраните его через меню.</string>
     <string name="nav_clear_home">Забыть дом</string>
     <string name="nav_clear_work">Забыть работу</string>
     <string name="nav_menu_exit">Назад к панели</string>
@@ -1703,6 +1718,7 @@
     <string name="nav_layer_dark">Esri Dark</string>
     <string name="nav_layer_light">Esri Light</string>
     <string name="nav_layer_satellite">Спутник</string>
+    <string name="nav_layer_satellite_labels">Спутник гибрид</string>
     <string name="nav_layer_osm">Standard (OSM)</string>
     <string name="nav_layer_cyclosm">CyclOSM</string>
     <string name="nav_layer_topo">OpenTopoMap</string>
@@ -1981,11 +1997,16 @@
     <string name="warnings_indicator_desc">Предупреждения приложения</string>
     <string name="warnings_dialog_title">Требует внимания</string>
     <string name="warnings_fix_button">Исправить</string>
+    <string name="warnings_autolights_title">Автосвет приостановлен</string>
+    <string name="warnings_autolights_body">Вы переключили свет вручную, поэтому расписание не вмешивается в этой сессии. Исправить вернёт ему управление.</string>
+    <string name="warnings_autolock_title">Автоблокировка приостановлена</string>
+    <string name="warnings_autolock_body">Вы заблокировали или разблокировали вручную, поэтому блокировка по близости не вмешивается в этой сессии. Исправить вернёт ей управление.</string>
     <string name="warnings_perm_notifications_title">Уведомления выключены</string>
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке.</string>
     <string name="warnings_perm_location_title">Геолокация выключена</string>
     <string name="warnings_perm_location_body">Поездки не записывают маршрут, скорость и калибровка по GPS не работают. Нажмите, чтобы разрешить.</string>
     <string name="weather_error_no_location">Нет места для прогноза</string>
+    <string name="weather_waiting_location">Ожидание местоположения…</string>
     <string name="warnings_location_services_body">У EUC Planet есть разрешение, но на телефоне геолокация выключена для всего. Нажмите, чтобы включить.</string>
     <string name="warnings_location_services_title">Геолокация отключена в системе</string>
     <string name="warnings_battery_opt_title">Оптимизация батареи включена</string>
@@ -2125,6 +2146,7 @@
     <string name="nav_setting_avoid_hint">Исключения используют другой сервис маршрутизации и применяются там, где их поддерживает режим передвижения.</string>
     <string name="nav_setting_avoid_tolls">Избегать платных дорог</string>
     <string name="nav_setting_avoid_unpaved">Избегать грунтовых дорог</string>
+    <string name="nav_avoid_router_failed">Маршрут без учёта исключений: сервис маршрутов для них не ответил.</string>
     <string name="nav_setting_ocm_key">API-ключ Open Charge Map</string>
     <string name="nav_setting_ocm_key_hint">Добавляет отзывы, фото и сведения о коннекторах во всплывающую карточку зарядки. Зарегистрируйтесь для бесплатного ключа на</string>
     <string name="nav_setting_ocm_key_link">openchargemap.org</string>
@@ -2140,6 +2162,8 @@
     <string name="adv_alarm_min_samples_desc">Влияет на то, сколько показаний нужно, прежде чем тренду можно доверять. Опасно: слишком мало предсказывают по шуму.</string>
     <string name="adv_alarm_min_span">Минимальный интервал</string>
     <string name="adv_alarm_min_span_desc">Влияет на минимальное время, которое должны охватывать выборки, прежде чем тренд будет использован.</string>
+    <string name="adv_alarm_warm_route">Время готовности динамика</string>
+    <string name="adv_alarm_warm_route_desc">Определяет, как долго динамик остаётся готовым после сигнала или голосового сообщения. Опасно: слишком мало, и первый сигнал после тишины может щёлкнуть или обрезаться; слишком много держит звук активным и разряжает батарею.</string>
     <string name="adv_alarm_slope_window">Окно тренда</string>
     <string name="adv_alarm_slope_window_desc">Влияет на то, сколько последних выборок задают прогнозируемый тренд. Опасно: слишком короткое реагирует на шум, слишком длинное реагирует медленно.</string>
     <string name="adv_alarm_warning">Эти параметры меняют то, как сигналы скорости и мощности прогнозируют порог до его достижения. Неверные значения могут заставить сигналы срабатывать поздно или вовсе не срабатывать. Меняйте с осторожностью.</string>
@@ -2215,6 +2239,10 @@
     <string name="adv_hud_manual_grace_desc">Влияет на то, сколько времени есть у автообнаружения до использования ручного IP. Опасно: слишком малое использует ручной IP до того, как обнаружение успеет сработать.</string>
     <string name="adv_hud_mdns_resolve">Время разрешения mDNS</string>
     <string name="adv_hud_mdns_resolve_desc">Влияет на то, как долго разрешаются данные адреса найденного HUD. Опасно: слишком малое отбрасывает HUD, который медленно разрешается.</string>
+    <string name="adv_hud_idle_search">Поиск в покое</string>
+    <string name="adv_hud_idle_search_desc">Как часто искать HUD, когда колесо не подключено и приложение закрыто. Опасно: слишком малое значение разряжает батарею.</string>
+    <string name="adv_hud_sweep_interval">Обход сети</string>
+    <string name="adv_hud_sweep_interval_desc">Как часто перебирать все адреса в сети в поисках HUD. Опасно: слишком малое значение нагружает телефон и разряжает батарею.</string>
     <string name="adv_hud_mdns_timeout">Таймаут обнаружения</string>
     <string name="adv_hud_mdns_timeout_desc">Влияет на то, как долго ждать ответа HUD на автообнаружение. Опасно: слишком малое сдаётся до ответа.</string>
     <string name="adv_hud_report_interval">Частота отчётов HUD</string>
@@ -2324,7 +2352,7 @@
     <string name="tab_more">Ещё</string>
     <string name="welcome_tut_dev_join">Войти в таблицы лидеров</string>
     <string name="welcome_tut_dev_joined">В таблицах лидеров</string>
-    <string name="welcome_tut_dev_joined_norider">Онлайн-загрузка включена. Райдер в папке не найден.</string>
+    <string name="welcome_tut_dev_joined_norider">В папке пока нет райдера. Нажмите %1$s в разделе %2$s, чтобы создать его.</string>
     <string name="welcome_tut_dev_restore">Восстановить настройки</string>
     <string name="welcome_tut_dev_set_folder">Задать папку копий</string>
     <string name="welcome_tut_dev_sync_trips">Синхр. поездки</string>
@@ -2665,12 +2693,18 @@
     <!-- Charge alerts -->
     <string name="charging_notify_80" formatted="false">Сообщить на 80 %</string>
     <string name="charging_notify_full" formatted="false">Сообщить на 100 %</string>
+    <string name="charging_notify_at">Сообщить на</string>
+    <string name="charging_notify_custom">Сообщить на %1$d %%</string>
+    <string name="charging_notify_at_ask">Сообщить на…</string>
+    <string name="charging_notify_custom_range" formatted="false">Должно быть от 5 до 95 %, не 80 %</string>
     <string name="charge_alert_channel_name">Оповещения о зарядке</string>
-    <string name="charge_alert_channel_description" formatted="false">Когда батарея проходит 80 % или заряд завершён.</string>
+    <string name="charge_alert_channel_description" formatted="false">Когда батарея достигает выбранного уровня или заряд завершён.</string>
     <string name="charge_alert_80_title" formatted="false">Батарея на 80 %</string>
     <string name="charge_alert_80_text">Хватит на большинство поездок, и обычно это бережнее для батареи.</string>
     <string name="charge_alert_full_title">Зарядка завершена</string>
     <string name="charge_alert_full_text">Заряд полный, отключите, когда сможете. Некоторые колёса сейчас балансируют ячейки.</string>
+    <string name="charge_alert_custom_title">Батарея на %1$d %%</string>
+    <string name="charge_alert_custom_text">Достигнут выбранный уровень. Отключите зарядку, когда сможете.</string>
     <!-- Widget names for the picker -->
     <string name="widget_euc_label">Панель колеса</string>
     <string name="widget_act_1_label">Кнопка колеса 1</string>
@@ -2716,4 +2750,87 @@
     <string name="horn_sound_too_long">Звук длиннее 5 секунд</string>
     <string name="horn_sound_too_big">Файл больше 2 МБ</string>
     <string name="horn_sound_unreadable">Не удалось проиграть файл</string>
+    <string name="voice_pill_add">Добавить</string>
+    <string name="voice_pill_message">Сообщение</string>
+    <string name="voice_pill_message_hint">Произносится как написано.</string>
+    <string name="voice_pills_empty">Ничего не произносится. Нажмите Добавить.</string>
+    <string name="voice_stat_now">Сейчас</string>
+    <string name="voice_stat_max">Макс</string>
+    <string name="voice_stat_min">Мин</string>
+    <string name="voice_stat_avg">Сред</string>
+    <string name="voice_stat_peak">Пик</string>
+    <string name="crews_title">Кланы</string>
+    <string name="crews_pass_action">Пропуск клана</string>
+    <string name="crews_pass_search_hint">Пропуск клана появится, когда вы присоединитесь к онлайн-таблицам лидеров.</string>
+    <string name="crews_scan_hint">Открой eucstats в браузере, нажми Crews и наведи это на код, который появится.</string>
+    <string name="crews_scan_invalid">Это не код клановского пропуска.</string>
+    <string name="crews_scan_is_share">Это код трансляции местоположения. Сканируй его из «Поделиться» на карте.</string>
+    <string name="share_scan_is_crewpass">Это пропуск клана. Сканируй его в Настройках, в разделе «Кланы».</string>
+    <string name="crews_type_instead">Ввести вручную</string>
+    <string name="crews_code_label">Код пропуска</string>
+    <string name="crews_foreign_title">Этот код не от eucstats</string>
+    <string name="crews_foreign_body">Он ведёт на %1$s, а туда твои поездки не уходят. Сказать да значит отдать аккаунт тому, кто это держит.\n\nСвой сервер? Сначала включи режим разработчика в Настройках.</string>
+    <string name="crews_scan_switch">Лучше сканировать</string>
+    <string name="crews_close">Закрыть</string>
+    <string name="crews_opensettings">Открыть настройки</string>
+    <string name="crews_dev_title">Режим разработчика</string>
+    <string name="crews_dev_body">Говорит с %1$s вместо обычного сервера.</string>
+    <string name="crews_grant">Пусть этот браузер ездит в твоих цветах.\n\nОн может создать клан, вступить в клан, выйти из него и разбираться с участниками. Он не может отправлять поездки, переименовывать тебя и ничего удалять, это всё остаётся на телефоне.</string>
+    <string name="crews_noprofile_title">Сначала вступи в таблицу лидеров</string>
+    <string name="crews_noprofile_body">Кланы висят на твоём профиле в таблице лидеров, а этот телефон его не завёл. Вступи в разделе %1$s и просканируй снова.</string>
+    <string name="crews_issue">Выдать пропуск</string>
+    <string name="crews_notme">Это не я</string>
+    <string name="crews_ratelimited">Слишком много попыток. Подожди минуту и попробуй снова.</string>
+    <string name="crews_unreachable">Не дозвонились до %1$s.</string>
+    <string name="crews_refused">Сервер это отклонил (%1$d).</string>
+    <string name="crews_done_title">Пропуск выдан</string>
+    <string name="crews_done_body">Этот браузер ездит в твоих цветах. Положи телефон.</string>
+    <string name="crews_failed_title">Не получилось</string>
+    <string name="crews_tryagain">Попробовать снова</string>
+    <string name="crews_done">Готово</string>
+    <string name="crews_expired">Этот код протух. Возьми свежий в браузере.</string>
+    <string name="voice_pill_search">Поиск</string>
+    <string name="voice_volume">Громкость</string>
+    <string name="beep_volume_by_speed">Громкость сигнала по скорости</string>
+    <string name="beep_volume_stopped">Стоя</string>
+    <string name="beep_volume_riding">В движении</string>
+    <string name="dropbox_checking">Проверка Dropbox…</string>
+    <string name="sync_first_settings">В Dropbox уже есть настройки с другого телефона. Использовать их или оставить настройки этого телефона?</string>
+    <string name="recording_delete_trip_body_keeps_backup">Удалить эту поездку с этого телефона? В резервной копии останется копия, и «Синхр. всё» вернёт её.</string>
+    <string name="share_menu_scan">Сканировать QR</string>
+    <string name="share_menu_scan_desc">Присоединиться к групповой поездке или открыть маршрут.</string>
+    <string name="share_menu_route">Поделиться маршрутом</string>
+    <string name="share_menu_route_desc">QR-кодом или ссылкой. Без аккаунта.</string>
+    <string name="share_menu_route_none">Сначала добавьте точку.</string>
+    <string name="scan_code_unknown">Это не код групповой поездки и не маршрут.</string>
+    <string name="route_qr_hint">Сканируйте в EUC Planet или камерой телефона.</string>
+    <string name="route_qr_too_long">Маршрут слишком длинный для QR-кода. Сохраните его как GPX.</string>
+    <string name="route_open_title">Открыть общий маршрут</string>
+    <string name="route_open_confirm">Заменить текущий маршрут общим?</string>
+    <string name="route_opened">Маршрут открыт</string>
+    <string name="route_qr_share_image">Поделиться QR</string>
+    <string name="route_share_text">Проедь этот маршрут с EUC Planet: %1$s</string>
+    <string name="route_share_subject">Маршрут для поездки</string>
+    <plurals name="route_stop_count">
+        <item quantity="one">%d точка</item>
+        <item quantity="few">%d точки</item>
+        <item quantity="many">%d точек</item>
+        <item quantity="other">%d точки</item>
+    </plurals>
+    <string name="section_android_auto">Android Auto</string>
+    <string name="android_auto_hint">Показатели и кнопки колеса на экране Android Auto. Подключается само, без настройки Wi-Fi.</string>
+    <string name="car_waiting">Ожидание колеса</string>
+    <string name="car_last_battery">Последний заряд %1$d%%</string>
+    <string name="car_navigate">Навигация</string>
+    <string name="car_places_title">Маршрут до</string>
+    <string name="car_place_home">Дом</string>
+    <string name="car_place_work">Работа</string>
+    <string name="car_no_places">Сначала сохраните Дом или Работу в планировщике маршрутов.</string>
+    <string name="car_waiting_wheel">Ожидание колеса</string>
+    <string name="car_weather">Погода</string>
+    <string name="car_alarm_channel_name">Оповещения на экране авто</string>
+    <string name="car_alarm_channel_description">Показывает сработавшее оповещение на экране Android Auto, поверх карты.</string>
+    <string name="car_alarm_notifications">Оповещения на экране авто</string>
+    <string name="car_alarm_notifications_hint">Сработавшее оповещение появляется поверх карты, поэтому дойдёт до вас во время навигации. Звук и вибрация без изменений.</string>
+    <string name="car_no_metrics">Показатели не выбраны</string>
 </resources>
