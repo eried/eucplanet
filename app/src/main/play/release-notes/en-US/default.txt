@@ -1,9 +1,10 @@
 Route sharing, Android Auto, two-way Dropbox and better battery life.
 
-- Map: share a route by link or QR, Satellite hybrid, distance per stop.
+- Map: share a route by link or QR, Satellite hybrid.
 - Android Auto: your stats and wheel buttons on the car screen.
 - Wear OS watch map. Thanks to ZiraiMode.
-- Dropbox syncs settings, themes and trips both ways.
+- Dropbox syncs settings and trips both ways.
 - Much less battery drain with no wheel or the screen off.
-- Voice: music commands, your own voice report, voice volume.
+- Voice: music commands, your own voice report.
+- Crews: fly your crew colours on eucstats.
 - InMotion X1 and V6, KingSong lock and horn, Begode fixes.
